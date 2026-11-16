@@ -293,8 +293,12 @@ public final class OriginalGuiDesign {
         }
         if (!source.isJsonObject()) return source.deepCopy();
         var object = source.getAsJsonObject();
-        if (object.has("nbt") && object.has("storage") && object.get("storage").getAsString().equals("swrg:lang"))
-            return resolveStorageComponent(object.get("nbt").getAsString(), values);
+        if (object.has("nbt") && object.has("storage") && object.get("storage").getAsString().equals("swrg:lang")) {
+            // The binding owns suffixes too: case coin cards append their amount
+            // here. Replacing only the storage reference silently erased x20 etc.
+            String path=object.get("nbt").getAsString();
+            return cosmeticText(applyWrapperStyle(resolveStorageComponent(path, values),object,path,values),values);
+        }
         var result = new JsonObject();
         for (var entry : object.entrySet()) result.add(entry.getKey(), cosmeticText(entry.getValue(), values));
         return resolveDynamic(result, values, "cosmetic source component");

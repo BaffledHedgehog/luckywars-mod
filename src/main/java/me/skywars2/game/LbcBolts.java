@@ -313,7 +313,6 @@ public final class LbcBolts {
         }
         if(!donor && mode==3 && !ready()) return false;
         int cost=mana.score(ScoreHolder.forNameOnly(donor?"lightning_bolt_wand_mana_use":"boltbolt_wand_mana_use"),"lbc.math").get();
-        if(donor && mode==2) cost=0;
         if(!mana.trySpendWand(owner,cost,cost)) return false;
         if(donor) donor(owner,hand,stack,mode,upgraded);
         else boltbolt(owner,hand,stack,mode);

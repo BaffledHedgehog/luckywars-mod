@@ -76,7 +76,7 @@ public final class LbcChaosRewardItems {
             if(spell==242)flying(g,p,hand);else if(spell!=128)LbcLibrarySpells.cast(g,p,hand,spell);
             award(g,p,"lbc:true_advancements/staffs/unstable_book");
         }else if(roll==55)flying(g,p,hand);
-        LbcOverload.sound(p,p.position(),"minecraft:item.book.page_turn",10,1,0);
+        LbcOverload.selfSound(p,"minecraft:item.book.page_turn",10,1);
     }
     private static void flying(GameController g,ServerPlayer p,InteractionHand hand){
         int kind=p.getRandom().nextInt(9);g.items().sauvojen().cast(p,hand,ItemStack.EMPTY,kind);

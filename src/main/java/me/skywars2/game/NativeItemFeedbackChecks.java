@@ -30,6 +30,7 @@ public final class NativeItemFeedbackChecks {
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var p=f.owner;
             aimbobBoots(game,p);
+            refreshedPoolProfiles(game,p);
             for(var id:List.of("blazefire_sword","triple_golden_sword","devil_sword")){
                 var loot=game.lbc().rollTable(f.level,p.position(),p,"lbc:ported/"+id);
                 require(!loot.isEmpty(),"real source sword "+id);var sword=loot.getFirst();
@@ -57,6 +58,28 @@ public final class NativeItemFeedbackChecks {
                     &&saved.getFloatOr("Health",0)==31&&saved.get("attributes").equals(entityTag.get("attributes"))&&saved.get("equipment").equals(entityTag.get("equipment")),"full egg NBT enters real spawner data");
         }catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new IllegalStateException(e);}
         SkyWars2.LOGGER.info("[check] PASS native-item-feedback (source swords mine cobweb, transformable drops resist damage, immediate helmet immunity and complete survival spawner egg NBT)");
+    }
+
+    private static void refreshedPoolProfiles(GameController game,net.minecraft.server.level.ServerPlayer player){
+        var service=game.items().allItemPools();service.initialize();
+        var slots=service.slots(LbcAllItemPools.Domain.CUSTOM);
+        var profiles=java.util.Map.of("custom/afd15db2d050c882092f","ak47_finite",
+                "custom/47f7921c9431e7c7491e","multiply_2","custom/6607f6753c440d7e24c3","multiply_3",
+                "custom/0ee5fd94eb9a49a87960","multiply_4","custom/5de63e8f5c18bd176621","multiply_5");
+        var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(player.level())
+                .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,player.position())
+                .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,player)
+                .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.COMMAND);
+        for(var profile:profiles.entrySet()){
+            int index=slots.indexOf(profile.getKey());require(index>=0,"stable catalog slot "+profile.getValue());
+            var actual=new java.util.ArrayList<ItemStack>();
+            var context=new net.minecraft.world.level.storage.loot.LootContext.Builder(params)
+                    .withOptionalRandomSource(net.minecraft.util.RandomSource.create(52)).create(java.util.Optional.empty());
+            service.drawSlot(LbcAllItemPools.Domain.CUSTOM,index,context,actual::add);
+            var canonical=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/"+profile.getValue());
+            require(actual.size()==1&&canonical.size()==1&&ItemStack.matches(actual.getFirst(),canonical.getFirst()),
+                    "catalog draw has the complete current source components, including corrected lore: "+profile.getValue());
+        }
     }
 
     private static void aimbobBoots(GameController game,net.minecraft.server.level.ServerPlayer player){

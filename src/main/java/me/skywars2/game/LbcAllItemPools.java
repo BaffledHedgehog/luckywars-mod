@@ -85,9 +85,13 @@ public final class LbcAllItemPools {
         var admitted=new ArrayList<Prepared>();
         for(var profile:slot.profiles){var prepared=profile.prepare(context);if(prepared!=null)admitted.add(prepared);}
         if(admitted.isEmpty())return false;
-        admitted.get(context.getRandom().nextInt(admitted.size())).emit(output,context);return true;
+        admitted.get(context.getRandom().nextInt(admitted.size())).emit(output,context);
+        for(var companion:slot.companions){var prepared=companion.prepare(context);if(prepared!=null)prepared.emit(output,context);}
+        return true;
     }
-    private record Slot(String id,List<Node> profiles,Item nativeItem,boolean tmt){}
+    private record Slot(String id,List<Node> profiles,Item nativeItem,boolean tmt,List<Node> companions){
+        Slot(String id,List<Node> profiles,Item nativeItem,boolean tmt){this(id,profiles,nativeItem,tmt,List.of());}
+    }
     private static Set<String> nativeTypes(Item item){
         var result=new HashSet<String>();var holder=item.builtInRegistryHolder();
         if(holder.is(net.minecraft.tags.ItemTags.SWORDS))result.add("sword");
@@ -198,7 +202,12 @@ public final class LbcAllItemPools {
                 for(var member:row.getAsJsonObject("members").entrySet()){
                     var base=byId.get(member.getKey());if(base==null)throw new IllegalStateException("Typed view refers to missing logical slot "+member.getKey());
                     var profiles=new ArrayList<Node>();for(var profile:member.getValue().getAsJsonArray())profiles.add(binding.node(profile.getAsString()));
-                    members.add(new Slot(base.id,List.copyOf(profiles),profiles.isEmpty()?base.nativeItem:null,base.tmt));
+                    var companions=new ArrayList<Node>();
+                    if(row.has("companions")){
+                        var attached=row.getAsJsonObject("companions").getAsJsonArray(base.id);
+                        if(attached!=null)for(var entry:attached)companions.add(binding.node(entry.getAsString()));
+                    }
+                    members.add(new Slot(base.id,List.copyOf(profiles),profiles.isEmpty()?base.nativeItem:null,base.tmt,List.copyOf(companions)));
                 }
                 // Native semantic tags/classes augment only broader views. They
                 // never reinterpret a carrot/stick transport as a custom sword.
@@ -237,7 +246,12 @@ public final class LbcAllItemPools {
             if(key.types.isEmpty())return slots(key.domain);
             var source=switch(key.domain){case CUSTOM->typedCustom;case VANILLA->typedVanilla;case UNION->typedUnion;};var merged=new TreeMap<String,Slot>();
             for(var type:key.types){var members=source.get(type);if(members==null)throw new IllegalArgumentException("Unknown uniform item type "+type);
-                for(var slot:members)merged.merge(slot.id,slot,(first,second)->{if(first.nativeItem!=null||second.nativeItem!=null||first.tmt)return first;var profiles=new LinkedHashSet<Node>(first.profiles);profiles.addAll(second.profiles);return new Slot(first.id,List.copyOf(profiles),null,false);});
+                for(var slot:members)merged.merge(slot.id,slot,(first,second)->{
+                    if(first.nativeItem!=null||second.nativeItem!=null||first.tmt)return first;
+                    var profiles=new LinkedHashSet<Node>(first.profiles);profiles.addAll(second.profiles);
+                    var companions=new LinkedHashSet<Node>(first.companions);companions.addAll(second.companions);
+                    return new Slot(first.id,List.copyOf(profiles),null,false,List.copyOf(companions));
+                });
             }
             return List.copyOf(merged.values());
         });}

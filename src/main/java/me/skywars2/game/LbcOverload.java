@@ -236,6 +236,12 @@ public final class LbcOverload {
         var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id)));
         player.connection.send(new ClientboundSoundPacket(sound,category,player.getX(),player.getY(),player.getZ(),volume,pitch,player.getRandom().nextLong()));
     }
+    /** Preserve a source playsound @s selector independently of the sound's audible range. */
+    static void selfSound(ServerPlayer player,String id,float volume,float pitch) {
+        player.connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id))),
+                SoundSource.MASTER,player.getX(),player.getY(),player.getZ(),volume,pitch,player.getRandom().nextLong()));
+    }
+
     /** @a выбирает всех, но native playsound затем отсекает другое измерение и неслышимую дистанцию. */
     static void sound(ServerPlayer p,String id,float volume,float pitch,double radius) {
         sound(p,p.position(),id,volume,pitch,radius);

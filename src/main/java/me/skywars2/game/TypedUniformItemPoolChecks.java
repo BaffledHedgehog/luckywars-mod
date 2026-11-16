@@ -33,6 +33,16 @@ public final class TypedUniformItemPoolChecks {
         require(mappings.equals(LbcAllItemPools.uniformTables()),"all 46 dedicated caller translations agree with source metadata");
         require(LbcAllItemPools.uniformTable("lbc:transformables_helmet_moisei").equals("lbc:transformables_helmet_moisei"),"set-specific routes retain their own selector");
         var ops=game.server().reloadableRegistries().lookup().createSerializationContext(JsonOps.INSTANCE);
+        for(String type:List.of("shooter","shooter_all")){
+            var slots=service.slots(LbcAllItemPools.Domain.CUSTOM,List.of(type));
+            require(!slots.contains("vanilla/minecraft:wheat_seeds"),"ammunition has no independent shooter lottery ticket");
+            int index=slots.indexOf("custom/f3061d7a21bbeae7228e");require(index>=0,"source RazorPine weapon ticket");
+            var output=new ArrayList<ItemStack>();service.drawSlot(LbcAllItemPools.Domain.CUSTOM,List.of(type),index,
+                    context(params,net.minecraft.util.RandomSource.create(52)),output::add);
+            var canonical=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/razorpine");
+            require(sameStacks(output,canonical)&&output.size()==2&&output.get(1).is(Items.WHEAT_SEEDS)&&output.get(1).getCount()==16,
+                    "actual typed RazorPine draw retains weapon and complete native sixteen-seed side loot");
+        }
         int checked=0;
         for(var view:views.entrySet()){
             String name=view.getKey();var expected=view.getValue().getAsJsonObject().getAsJsonObject("members").keySet();
@@ -45,13 +55,14 @@ public final class TypedUniformItemPoolChecks {
             require(LootPoolEntries.CODEC.parse(ops,LootPoolEntries.CODEC.encodeStart(ops,entry).getOrThrow()).getOrThrow() instanceof LbcAllItemPools.Entry,"typed native MapCodec roundtrip "+name);
             for(int index=0;index<slots.size();index++){
                 var context=context(params,new FirstIndexRandom(slots.size(),index));var output=emit(entry,context);
-                require(output.size()==1&&output.getFirst().getCount()>=0,"real typed raw draw emits one source callback, including authored zero quantities: "+name+"/"+slots.get(index));
+                require(!output.isEmpty()&&output.size()==callbacks(name,output.getFirst())&&output.stream().allMatch(s->s.getCount()>=0),
+                        "one logical draw retains its source callbacks, including ammunition and zero quantities: "+name+"/"+slots.get(index));
                 String slot=slots.get(index);var stack=output.getFirst();
                 var exact=new ArrayList<ItemStack>();var exactContext=context(params,new FirstIndexRandom(slots.size(),index));
                 exactContext.getRandom().nextInt(slots.size()); // Same initial lottery draw; exact seam itself never falls back.
                 service.drawSlot(LbcAllItemPools.Domain.CUSTOM,List.of(name),index,exactContext,exact::add);
                 if(!exact.isEmpty()){
-                    require(exact.size()==1&&ItemStack.matches(exact.getFirst(),stack),"admitted exact profile equals actual native selector output: "+slot);
+                    require(sameStacks(exact,output),"admitted exact profile and companions equal actual native selector output: "+slot);
                     if(slot.startsWith("custom/")&&!stack.isEmpty()){
                         var row=find(manifest,slot);require(BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(net.minecraft.resources.Identifier.parse(row.getAsJsonObject("identity").get("carrier").getAsString())),"selected logical identity keeps its full native carrier: "+slot);
                     }
@@ -59,12 +70,13 @@ public final class TypedUniformItemPoolChecks {
                 // An outer native modifier must restore a legitimate zero quantity too.
                 var wrapped=entrySource.deepCopy();wrapped.add("modifier",JsonParser.parseString("[{\"type\":\"minecraft:set_count\",\"count\":64},{\"type\":\"minecraft:set_components\",\"components\":{\"minecraft:max_stack_size\":99,\"!minecraft:max_damage\":{}}}]") );
                 var positive=emit(LootPoolEntries.CODEC.parse(ops,wrapped).getOrThrow(),context(params,new FirstIndexRandom(slots.size(),index)));
-                require(positive.size()==1&&positive.getFirst().getCount()==64&&positive.getFirst().getMaxStackSize()==99&&!positive.getFirst().has(DataComponents.MAX_DAMAGE)&&ItemStack.validateStrict(positive.getFirst()).error().isEmpty(),"typed source components survive native count64/max99 wrapper: "+name+"/"+slot);
+                require(positive.size()==output.size()&&positive.stream().allMatch(s->s.getCount()==64&&s.getMaxStackSize()==99&&!s.has(DataComponents.MAX_DAMAGE)&&ItemStack.validateStrict(s).error().isEmpty()),
+                        "every source callback survives native count64/max99 wrapper: "+name+"/"+slot);
                 checked++;
             }
             var max99=entrySource.deepCopy();max99.add("modifier",JsonParser.parseString("[{\"type\":\"minecraft:set_count\",\"count\":99},{\"type\":\"minecraft:set_components\",\"components\":{\"minecraft:max_stack_size\":99,\"!minecraft:max_damage\":{}}}]") );
             var output99=emit(LootPoolEntries.CODEC.parse(ops,max99).getOrThrow(),context(params,new FirstIndexRandom(slots.size(),0)));
-            require(output99.size()==1&&output99.getFirst().getCount()==99&&ItemStack.validateStrict(output99.getFirst()).error().isEmpty(),"typed count99/max99 native wrapper "+name);
+            require(!output99.isEmpty()&&output99.size()==callbacks(name,output99.getFirst())&&output99.stream().allMatch(s->s.getCount()==99&&ItemStack.validateStrict(s).error().isEmpty()),"typed count99/max99 native wrapper "+name);
         }
         for(var combination:manifest.getAsJsonArray("typedCombinations")){
             var types=new ArrayList<String>();combination.getAsJsonArray().forEach(e->types.add(e.getAsString()));
@@ -88,7 +100,17 @@ public final class TypedUniformItemPoolChecks {
             require(before.equals(after),"27-roll caller pool/table functions, conditions and roll providers unchanged: "+name);
             var table=LootTable.DIRECT_CODEC.parse(ops,target).getOrThrow();var output=new ArrayList<ItemStack>();
             table.getRandomItemsRaw(context(params,net.minecraft.util.RandomSource.create(0x5459504544L)),output::add);
-            require(output.size()==27,"dedicated native functional wrapper makes exactly 27 logical draws: "+name);
+            if(name.equals("27_shooters")){
+                int weapons=0;
+                for(int index=0;index<output.size();index++){
+                    var weapon=output.get(index);require(!weapon.is(Items.WHEAT_SEEDS),"no standalone ammunition from functional shooter pool");weapons++;
+                    if(callbacks("shooter_all",weapon)==2){
+                        require(++index<output.size()&&output.get(index).is(Items.WHEAT_SEEDS)&&output.get(index).getCount()==16,
+                                "each functional RazorPine draw retains precisely its sixteen seeds");
+                    }
+                }
+                require(weapons==27,"functional shooter wrapper makes exactly 27 weapon draws plus their ammunition");
+            }else require(output.size()==27,"dedicated native functional wrapper makes exactly 27 logical draws: "+name);
         }
         var vanilla=service.slots(LbcAllItemPools.Domain.VANILLA);var restricted=service.slots(LbcAllItemPools.Domain.VANILLA,List.of("no_recursive_shulker"));
         require(new HashSet<>(restricted).equals(new HashSet<>(vanilla)),"source-compatible vanilla view keeps every ordinary vanilla default, including empty boxes");
@@ -106,6 +128,15 @@ public final class TypedUniformItemPoolChecks {
         SkyWars2.LOGGER.info("[check] PASS typed-uniform-item-pools (34 source views, {} exact-index native draws/wrappers, deduplicated OR views, 12 actual 27-roll callers, vanilla source isolation, four full helper authorities and condition fallback)",checked);
     }
     private static JsonObject find(JsonObject manifest,String id){for(var value:manifest.getAsJsonArray("custom"))if(value.getAsJsonObject().get("id").getAsString().equals(id))return value.getAsJsonObject();throw new IllegalStateException(id);}
+    private static int callbacks(String type,ItemStack primary){
+        return (type.equals("shooter")||type.equals("shooter_all"))
+                &&BuiltInRegistries.ITEM.getKey(primary.getItem()).toString().equals("skywars2:razorpine")?2:1;
+    }
+    private static boolean sameStacks(List<ItemStack> first,List<ItemStack> second){
+        if(first.size()!=second.size())return false;
+        for(int index=0;index<first.size();index++)if(!ItemStack.matches(first.get(index),second.get(index)))return false;
+        return true;
+    }
     private static LootContext context(LootParams params,net.minecraft.util.RandomSource random){return new LootContext.Builder(params).withOptionalRandomSource(random).create(Optional.empty());}
     private static List<ItemStack> emit(LootPoolEntryContainer entry,LootContext context){var expanded=new ArrayList<LootPoolEntry>();entry.expand(context,expanded::add);var output=new ArrayList<ItemStack>();expanded.forEach(e->e.createItemStack(output::add,context));return output;}
     private static void fallback(GameController game,LootParams params){

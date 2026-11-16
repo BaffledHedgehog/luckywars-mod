@@ -53,7 +53,7 @@ final class LbcLibraryRandom {
             case 52 -> {g.items().iceWand().spawn(p,hand,ItemStack.EMPTY);LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.ice_wand",1,.7f,0);}
             default -> throw new IllegalArgumentException("Missing random spell "+roll);
         }
-        }finally{LbcOverload.sound(p,p.position(),"minecraft:item.book.page_turn",10,1,0);}
+        }finally{LbcOverload.selfSound(p,"minecraft:item.book.page_turn",10,1);}
     }
     private boolean active(ServerPlayer p,String epoch,ServerLevel level){return game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&p.isAlive()&&!p.isRemoved()&&p.level()==level&&game.items().currentEpoch(epoch)&&game.canUseGameplayItems(p);}

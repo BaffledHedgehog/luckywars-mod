@@ -418,6 +418,17 @@ def build(table_root=TABLES):
                         issue(table, origin['path'], 'typed logical identity absent from global catalog: ' + key); continue
                 else: slot_id = slot['id']
                 members[slot_id][packed(entry)] = entry
+        companions = {}
+        if name in {'shooter', 'shooter_all'}:
+            # RazorPine's second pool is ammunition for the weapon, not another
+            # equiprobable weapon ticket. Keep the actual native seed profile.
+            ammunition = [entry for entry, chain, origin in expand_table('lbc:ported/razorpine')
+                          if logical_identity(flat_leaf(entry, chain))['carrier'] == 'minecraft:wheat_seeds']
+            weapon = next(slot['id'] for slot in slots.values()
+                          if slot['identity']['carrier'] == 'skywars2:razorpine')
+            assert len(ammunition) == 1 and weapon in members
+            members.pop('vanilla/minecraft:wheat_seeds', None)
+            companions[weapon] = ammunition
         source_ids = set(members)
         if name.endswith('_all'):
             category = name[:-4]
@@ -428,6 +439,9 @@ def build(table_root=TABLES):
         if tmt: members['factory/tmt'] = {}
         typed_views[name] = {'sources': list(source_tables), 'policy': 'exact authored closure' if not name.endswith('_all') else 'original broader closure profiles take precedence; new semantic category members use their full global profiles',
                              'members': members, 'sourceMembers': sorted(source_ids), 'tmtFactory': tmt}
+        if companions:
+            typed_views[name]['companions'] = companions
+            typed_views[name]['policy'] += '; RazorPine ammunition accompanies its weapon without a separate ticket'
     for slot in slots.values():
         slot['sources'] = sorted(slot['sources'])
         slot['semanticTypes'] = sorted(slot['semanticTypes'])
@@ -456,6 +470,9 @@ def build(table_root=TABLES):
     for view in typed_views.values():
         view['members'] = {slot: [intern(entry) for _, entry in sorted(entries.items())]
                            for slot, entries in sorted(view['members'].items())}
+        if 'companions' in view:
+            view['companions'] = {slot: [intern(entry) for entry in entries]
+                                  for slot, entries in view['companions'].items()}
     vanilla_source_members = defaultdict(set)
     for entry, chain, origin in expand_table('lbc:infinity_no_shulker'):
         item = flat_leaf(entry, chain)['name']; item = item if ':' in item else 'minecraft:' + item

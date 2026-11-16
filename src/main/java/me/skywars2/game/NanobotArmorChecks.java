@@ -109,12 +109,12 @@ public final class NanobotArmorChecks {
         }
         void arithmetic(){
             for(int i=0;i<4;i++){wear(0);owner.setItemSlot(SLOTS[i],pieces[i].copy());scores(0,0);service.pulse(owner);values(new int[]{1,3,4,2}[i],0,"individual physical-slot gain");}
-            wear(4);scores(0,0);service.pulse(owner);values(10,-4,"full set signed cooldown");service.pulse(owner);values(20,-8,"negative cooldown persists");
-            for(int tier:new int[]{118,119,120,121}){scores(tier,0);service.pulse(owner);values(tier<120?tier+2:tier,-4,"sequential head first overshoot "+tier);}
-            scores(0,1);service.pulse(owner);values(0,-3,"full recovery happens after gain gate");service.pulse(owner);values(10,-7,"following pulse sees signed recovery");
+            wear(4);scores(0,0);service.pulse(owner);values(10,0,"full set cooldown stops at zero");service.pulse(owner);values(20,0,"idle full set cannot bank a negative cooldown");
+            for(int tier:new int[]{118,119,120,121}){scores(tier,0);service.pulse(owner);values(tier<120?tier+2:tier,0,"sequential head first overshoot "+tier);}
+            scores(0,1);service.pulse(owner);values(0,0,"full recovery happens after gain gate");service.pulse(owner);values(10,0,"following pulse sees recovered cooldown");
             wear(0);for(int n=0;n<4;n++)owner.getInventory().setItem(9+n,pieces[n].copy());owner.setItemInHand(InteractionHand.OFF_HAND,pieces[3].copy());scores(0,1);service.pulse(owner);values(0,0,"carried/offhand set cannot charge or accelerate");owner.getInventory().clearContent();
             owner.setItemSlot(EquipmentSlot.HEAD,pieces[0].copy());scores(0,0);service.pulse(owner);values(2,0,"source flag admission follows actual head slot even wrong leather base");
-            wear(0);scores(-5,-8);service.pulse(owner);values(-5,-8,"negative scores preserved");
+            wear(0);scores(-5,-8);service.pulse(owner);values(-5,0,"tier stays signed while old negative cooldown is repaired");
             scores(Integer.MAX_VALUE,Integer.MAX_VALUE);service.pulse(owner);values(Integer.MAX_VALUE,Integer.MAX_VALUE-1,"external INT_MAX not saturated or reset");
             scores(5,0);service.pulse(owner);game.items().mana().score(owner,"nanobots_tier").set(23);game.items().mana().score(owner,"nanobots_coldown").set(7);service.pulse(owner);values(23,6,"cached service observes external native scoreboard edits");
             scores(9,20);var ledger=LbcKfcFood.sourceScoreAdditions();require(ledger.contains("nanobots_tier")&&ledger.contains("nanobots_coldown"),"existing KFC source ledger includes both authoritative counters");game.items().mana().score(owner,"nanobots_tier").add(1);game.items().mana().score(owner,"nanobots_coldown").add(1);values(10,21,"KFC shared scoreboard addition path");
@@ -123,11 +123,11 @@ public final class NanobotArmorChecks {
         void bands(){
             wear(0);int[] edges={-1,0,1,3,4,11,12,23,24,39,40,59,60,120,Integer.MAX_VALUE};
             for(int value:edges){owner.removeAllEffects();client.wire.packets.clear();scores(value,0);service.pulse(owner);int amp=value<4?-1:value<12?0:value<24?1:value<40?2:value<60?3:4;require(owner.hasEffect(MobEffects.RESISTANCE)==(amp>=0),"threshold edge "+value);if(amp>=0){effect(amp);var d=dust();require(d.size()==1,"one source dust packet at edge "+value);var q=d.getFirst();require(q.count()==5&&!q.overrideLimiter()&&!q.alwaysShow()&&Math.abs(q.x()-owner.getX())<1e-6&&Math.abs(q.y()-owner.getY()-1)<1e-6&&Math.abs(q.xDist()-.3)<1e-6&&Math.abs(q.yDist()-.6)<1e-6&&Math.abs(q.zDist()-.3)<1e-6&&q.xMaxSpeed()==0&&q.yMaxSpeed()==0&&q.zMaxSpeed()==0,"source5 dust normal/spread/origin/speed");}else require(dust().isEmpty(),"below threshold no dust");}
-            wear(4);scores(3,0);service.pulse(owner);values(13,-4,"gain crosses band after resistance phase");require(!owner.hasEffect(MobEffects.RESISTANCE),"no early resistance from newly grown tier");service.pulse(owner);effect(1);
+            wear(4);scores(3,0);service.pulse(owner);values(13,0,"gain crosses band after resistance phase");require(!owner.hasEffect(MobEffects.RESISTANCE),"no early resistance from newly grown tier");service.pulse(owner);effect(1);
             wear(0);owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,200,4));scores(4,0);service.pulse(owner);var e=owner.getEffect(MobEffects.RESISTANCE);require(e.getAmplifier()==4&&e.getDuration()==200,"weaker refresh retains stronger long native layer");
             owner.removeAllEffects();owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,200,0));scores(60,0);service.pulse(owner);effect(4);var hidden=(MobEffectInstance)read(owner.getEffect(MobEffects.RESISTANCE),"hiddenEffect");require(hidden!=null&&hidden.getAmplifier()==0&&hidden.getDuration()==200,"native stronger short grant preserves weaker long hidden layer");
         }
-        void incomingMath(){wear(0);for(int tier:new int[]{0,1,4,5,6,60})for(int cd:new int[]{-8,0,20,21,25}){owner.removeAllEffects();scores(tier,cd);service.incoming(owner);values(tier==0?0:Math.max(0,tier-5),tier==0?cd:cd<=20?cd+5:cd,"damage tier/cooldown boundary "+tier+"/"+cd);}scores(17,0);owner.setAbsorptionAmount(0);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.hurtServer(owner.level(),owner.damageSources().generic(),1);values(12,5,"real native environmental hurt criterion once");owner.removeAllEffects();scores(17,0);owner.setInvulnerableTime(100);owner.damageCooldownTime=100;owner.hurtServer(owner.level(),owner.damageSources().generic(),.1f);values(17,0,"rejected native cooldown attempt has no criterion");owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.setAbsorptionAmount(10);require(owner.getAbsorptionAmount()==10,"native absorption positive control before the single incoming hit");scores(17,0);float hp=owner.getHealth();owner.hurtServer(owner.level(),owner.damageSources().generic(),1);values(12,5,"native absorbed hurt criterion once");require(owner.getHealth()==hp&&owner.getAbsorptionAmount()<10,"actual absorption consumed without health loss");owner.setAbsorptionAmount(0);}
+        void incomingMath(){wear(0);for(int tier:new int[]{0,1,4,5,6,60})for(int cd:new int[]{-8,0,20,21,25}){owner.removeAllEffects();scores(tier,cd);service.incoming(owner);values(tier==0?0:Math.max(0,tier-5),tier==0?Math.max(0,cd):cd<=20?Math.max(0,cd)+5:cd,"damage tier/cooldown boundary "+tier+"/"+cd);}scores(17,0);owner.setAbsorptionAmount(0);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.hurtServer(owner.level(),owner.damageSources().generic(),1);values(12,5,"real native environmental hurt criterion once");owner.removeAllEffects();scores(17,0);owner.setInvulnerableTime(100);owner.damageCooldownTime=100;owner.hurtServer(owner.level(),owner.damageSources().generic(),.1f);values(17,0,"rejected native cooldown attempt has no criterion");owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.setAbsorptionAmount(10);require(owner.getAbsorptionAmount()==10,"native absorption positive control before the single incoming hit");scores(17,0);float hp=owner.getHealth();owner.hurtServer(owner.level(),owner.damageSources().generic(),1);values(12,5,"native absorbed hurt criterion once");require(owner.getHealth()==hp&&owner.getAbsorptionAmount()<10,"actual absorption consumed without health loss");owner.setAbsorptionAmount(0);}
         void guards(){wear(4);for(String tag:List.of("time_stopped","spectator","strict_map_object")){scores(60,10);owner.entityTags().add(tag);try{service.pulse(owner);service.incoming(owner);values(60,10,"role guard "+tag);require(!owner.hasEffect(MobEffects.RESISTANCE),"guard blocks resistance "+tag);}finally{owner.entityTags().remove(tag);}}
             scores(60,10);game.items().timeStop().begin(owner.level(),40);try{service.pulse(owner);service.incoming(owner);values(60,10,"actual dimension Time Stop blocks source operations");}finally{game.items().timeStop().end(owner.level());}
             var old=game.stage();try{set(game,"stage",GameController.Stage.ENDING);service.pulse(owner);service.incoming(owner);values(60,10,"ENDING guard");}finally{set(game,"stage",old);}
@@ -135,14 +135,14 @@ public final class NanobotArmorChecks {
         }
         void policy(){
             wear(4);scores(60,0);owner.entityTags().add("nomagic_active");game.items().mana().noMagic(owner,100);
-            try{service.pulse(owner);values(70,-4,"personal no-magic permits biological passive");effect(4);}finally{owner.entityTags().remove("nomagic_active");game.items().mana().noMagic(owner,0);}
+            try{service.pulse(owner);values(70,0,"personal no-magic permits biological passive");effect(4);}finally{owner.entityTags().remove("nomagic_active");game.items().mana().noMagic(owner,0);}
             wear(4);scores(60,0);require(game.items().shooters().stun(beta,owner,10),"real stun positive control");
-            try{require(game.items().actionsBlocked(owner),"stun blocks active actions");service.pulse(owner);values(70,-4,"stun permits biological passive");effect(4);}finally{game.items().shooters().clearStun(owner);}
+            try{require(game.items().actionsBlocked(owner),"stun blocks active actions");service.pulse(owner);values(70,0,"stun permits biological passive");effect(4);}finally{game.items().shooters().clearStun(owner);}
             wear(4);var marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(owner.position());marker.entityTags().add("stopper");require(owner.level().addFreshEntity(marker),"real TECH jammer marker");game.items().magic().loaded(marker);
             try{require(game.items().magic().mechanismSuppressed(owner),"native TECH positive control");scores(60,10);service.pulse(owner);values(60,9,"TECH blocks gain/full recovery but natural cooldown works");require(!owner.hasEffect(MobEffects.RESISTANCE),"TECH blocks new resistance");scores(60,0);service.pulse(owner);values(60,0,"TECH also blocks accumulation when ready");owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,31,2,false,false));service.pulse(owner);require(owner.getEffect(MobEffects.RESISTANCE).getDuration()==31,"TECH leaves existing resistance to expire");scores(60,20);service.incoming(owner);values(60,20,"TECH temporarily disables charge use without erasing accumulated tier");require(owner.getEffect(MobEffects.RESISTANCE).getDuration()==31,"TECH damage helper cannot refresh resistance");}
             finally{game.items().magic().unloaded(marker);marker.discard();}
             marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(owner.position());marker.entityTags().add("stopper_magic");require(owner.level().addFreshEntity(marker),"real MAG marker");game.items().magic().loaded(marker);
-            try{require(game.items().magic().beaconSuppressed(owner.position()),"MAG positive control");owner.removeAllEffects();scores(60,0);service.pulse(owner);values(70,-4,"MAG allows gains/full recovery");effect(4);}
+            try{require(game.items().magic().beaconSuppressed(owner.position()),"MAG positive control");owner.removeAllEffects();scores(60,0);service.pulse(owner);values(70,0,"MAG allows gains/full recovery");effect(4);}
             finally{game.items().magic().unloaded(marker);marker.discard();}
             wear(0);scores(60,2);service.pulse(owner);values(60,1,"unequip retains stored tier and natural cooldown");effect(4);
         }
@@ -167,7 +167,12 @@ public final class NanobotArmorChecks {
                 require(elapsed==220&&client.updates()-updates>=220,"native player and armor scheduler advance throughout the accumulated pause");
                 lifecycle();return true;
             }
-            values(Math.min(120,10*(elapsed/20)),-4*(elapsed/20),"actual shared20tick cadence at "+elapsed);require((Integer)read(armor,"phase")==elapsed%20,"native shared phase follows actual server clock");if(elapsed<200)return false;require(elapsed==200&&client.updates()-updates>=200,"two hundred actual registered player connection updates");
+            values(Math.min(120,10*(elapsed/20)),0,"actual shared20tick cadence at "+elapsed);require((Integer)read(armor,"phase")==elapsed%20,"native shared phase follows actual server clock");if(elapsed<200)return false;require(elapsed==200&&client.updates()-updates>=200,"two hundred actual registered player connection updates");
+            owner.removeAllEffects();owner.setInvulnerableTime(0);owner.damageCooldownTime=0;
+            require(owner.hurtServer(owner.level(),owner.damageSources().generic(),1),"real hit after long full-set charging");
+            values(95,5,"long worn full set still receives the complete next-hit cooldown");
+            service.pulse(owner);values(95,0,"full set first recovery pulse cannot recharge early");
+            service.pulse(owner);values(105,0,"full set recharges on the following pulse");
             wear(1);scores(40,0);
             for(int n=0;n<2;n++){
                 owner.setInvulnerableTime(0);owner.damageCooldownTime=0;
@@ -177,7 +182,7 @@ public final class NanobotArmorChecks {
             start=game.server().getTickCount();updates=client.updates();stage=2;return false;}
         void lifecycle(){
             wear(0);scores(37,-11);game.items().forget(owner);values(37,-11,"actual disconnect cleanup preserves authoritative Nanobots counters");
-            service.pulse(owner);values(37,-11,"re-entered passive reads preserved disconnected score");
+            service.pulse(owner);values(37,0,"re-entered passive repairs old negative cooldown without changing tier");
             scores(73,19);game.items().clear(owner);values(0,0,"public purify clears both authoritative counters");
             scores(73,-19);service.reset(owner);values(0,0,"explicit lifecycle reset clears signed counters");
         }

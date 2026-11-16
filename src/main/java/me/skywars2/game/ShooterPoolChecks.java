@@ -49,8 +49,8 @@ public final class ShooterPoolChecks {
     private static JsonObject encoded(GameController game,ServerPlayer owner,String id) {
         return LootTable.DIRECT_CODEC.encodeStart(game.server().reloadableRegistries().lookup().createSerializationContext(JsonOps.INSTANCE),table(game,id)).getOrThrow().getAsJsonObject();
     }
-    private static LootParams params(ServerPlayer owner) {
-        return new LootParams.Builder(owner.level()).withParameter(LootContextParams.ORIGIN,owner.position())
+    private static LootParams params(Entity owner) {
+        return new LootParams.Builder((net.minecraft.server.level.ServerLevel)owner.level()).withParameter(LootContextParams.ORIGIN,owner.position())
                 .withOptionalParameter(LootContextParams.THIS_ENTITY,owner).create(LootContextParamSets.COMMAND);
     }
     private static List<ItemStack> isolated(GameController game,ServerPlayer owner,String id,int index,long seed) {
@@ -115,14 +115,80 @@ public final class ShooterPoolChecks {
     private static List<ItemStack> accepted(GameController game,ServerPlayer owner) {
         var result=new ArrayList<ItemStack>(); var names=new HashSet<String>();
         names.addAll(List.of(ORDINARY)); for(var id:EXPANDED) if(id!=null) names.add(id);
+        names.add("ak47_finite"); // The broader uniform shooter category includes the skill variant too.
         for(var id:names) result.addAll(game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:ported/"+id));
         for(var stack:result) if(!stack.is(Items.WHEAT_SEEDS)) require(BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("skywars2"),"qualified native registry identity");
         return result;
     }
+    private record ExpectedStack(ItemStack template,int minimumDamage,int maximumDamage){
+        boolean matches(ItemStack actual){
+            if(minimumDamage==maximumDamage)return ItemStack.isSameItemSameComponents(template,actual);
+            int damage=actual.getDamageValue();
+            if(damage<minimumDamage||damage>maximumDamage)return false;
+            var normalized=actual.copy();normalized.setDamageValue(template.getDamageValue());
+            return ItemStack.isSameItemSameComponents(template,normalized);
+        }
+    }
+    private static void uniformProfiles(GameController game,Entity donor,String type,List<ExpectedStack> result){
+        // The original weighted menu still has its canonical leaf assertions.
+        // Reforge now uses uniform views, which also admit full contextual item
+        // profiles. Enumerate those native factory outputs before checking that
+        // conversion preserves every component; a carrier-only check is too weak.
+        var pools=game.items().allItemPools();pools.initialize();
+        {
+            var types=List.of(type);var slots=pools.slots(LbcAllItemPools.Domain.CUSTOM,types);
+            for(int index=0;index<slots.size();index++){
+                var first=new ProfileChoice(0);
+                pools.drawSlot(LbcAllItemPools.Domain.CUSTOM,types,index,
+                        new net.minecraft.world.level.storage.loot.LootContext.Builder(params(donor)).withOptionalRandomSource(first).create(java.util.Optional.empty()),ignored->{});
+                for(int profile=0;profile<first.bound;profile++){
+                    var bounds=new ArrayList<List<ItemStack>>();
+                    for(float fraction:new float[]{0,Math.nextDown(1f)}){
+                        var choice=new ProfileChoice(profile,fraction);var output=new ArrayList<ItemStack>();
+                        pools.drawSlot(LbcAllItemPools.Domain.CUSTOM,types,index,
+                                new net.minecraft.world.level.storage.loot.LootContext.Builder(params(donor)).withOptionalRandomSource(choice).create(java.util.Optional.empty()),output::add);
+                        require(choice.bound==first.bound,"fixed source context retains its exact admitted profile count");bounds.add(output);
+                    }
+                    require(bounds.get(0).size()==bounds.get(1).size(),"source durability randomization never changes bundle cardinality");
+                    for(int item=0;item<bounds.get(0).size();item++){
+                        var low=bounds.get(0).get(item);var high=bounds.get(1).get(item);
+                        int minimum=Math.min(low.getDamageValue(),high.getDamageValue()),maximum=Math.max(low.getDamageValue(),high.getDamageValue());
+                        var expected=new ExpectedStack(low,minimum,maximum);
+                        require(expected.matches(low)&&expected.matches(high),"native damage extrema preserve every other component");
+                        if(minimum!=maximum){
+                            require(low.is(Items.CROSSBOW),"reviewed source random durability is restricted to crossbows");
+                            var invalid=low.copy();invalid.setDamageValue(minimum-1);require(!expected.matches(invalid),"reject damage below native source range");
+                            invalid.setDamageValue(maximum+1);require(!expected.matches(invalid),"reject damage above native source range");
+                        }
+                        result.add(expected);
+                    }
+                }
+            }
+        }
+    }
+    private static final class ProfileChoice extends net.minecraft.world.level.levelgen.LegacyRandomSource {
+        final int profile;final Float fraction;int bound;boolean selected;
+        ProfileChoice(int profile){this(profile,null);}
+        ProfileChoice(int profile,Float fraction){super(0x53484f4f544552L);this.profile=profile;this.fraction=fraction;}
+        @Override public float nextFloat(){
+            // Inverted imba/Halloween chance gates exclude copies of these source
+            // profiles. Admit all copies for the oracle, then vary durability only
+            // after materialize has selected its profile with nextInt.
+            if(!selected)return Math.nextDown(1f);
+            return fraction==null?super.nextFloat():fraction;
+        }
+        @Override public int nextInt(int bound){
+            if(!selected){selected=true;this.bound=bound;require(profile<bound,"valid exact native profile index");return profile;}
+            return super.nextInt(bound);
+        }
+    }
     private static int recognized(List<ItemStack> stacks,List<ItemStack> accepted,String label) {
+        return recognized(stacks,stack->accepted.stream().anyMatch(ref->ItemStack.isSameItemSameComponents(ref,stack)),label);
+    }
+    private static int recognized(List<ItemStack> stacks,java.util.function.Predicate<ItemStack> accepted,String label) {
         int weapons=0,seeds=0;
         for(var stack:stacks) {
-            require(accepted.stream().anyMatch(ref->ItemStack.isSameItemSameComponents(ref,stack)),label+" recognized full native payload");
+            require(accepted.test(stack),label+" recognized full native payload: "+stack.getItem()+" "+stack.getComponentsPatch());
             if(stack.is(Items.WHEAT_SEEDS)) seeds+=stack.getCount(); else weapons+=stack.getCount();
         }
         require(weapons>0 && seeds%16==0 && seeds<=weapons*16,label+" one weapon/unit and source16 seed side output");
@@ -155,6 +221,11 @@ public final class ShooterPoolChecks {
         for(int x=1;x<=3;x++) for(int z=1;z<=3;z++) owner.level().getChunk(x,z);
         game.items().mana().noMagic(owner,0); game.items().mana().set(owner,0);
     }
+    private static void fundReforge(GameController game,ServerPlayer owner) {
+        var mana=game.items().mana();
+        mana.set(owner,owner.getMainHandItem().is(LbcWands.INFBOLT)?0:
+                Math.max(0,mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("lightning_bolt_wand_mana_use"),"lbc.math").get()));
+    }
     public static void run(GameController game) {
         var owner=owner(game); require(game.playing() && game.allowDamage(owner),"active native match");
         var saved=new GameChecks.WandThirdPlayerState(owner,game.items().mana());
@@ -167,16 +238,23 @@ public final class ShooterPoolChecks {
                 owner.setItemInHand(InteractionHand.MAIN_HAND,tool(ultra));
                 owner.getInventory().setItem(9,new ItemStack(Items.DIAMOND,11));
                 var input=input(owner,5);
-                require(game.items().wands().use(owner,InteractionHand.MAIN_HAND) && game.items().bolts().pendingReforgeCount()>0,"actual zero-mana cast queues "+ultra);
-                require(game.items().wands().use(owner,InteractionHand.MAIN_HAND),"repeat pending cast accepted"); drain(game);
+                var profiles=new ArrayList<ExpectedStack>();
+                for(var stack:accepted)profiles.add(new ExpectedStack(stack,stack.getDamageValue(),stack.getDamageValue()));
+                uniformProfiles(game,input,ultra?"shooter_all":"shooter",profiles);
+                fundReforge(game,owner);
+                require(game.items().wands().use(owner,InteractionHand.MAIN_HAND) && game.items().bolts().pendingReforgeCount()>0
+                        &&game.items().mana().get(owner)==0,"configured-price cast queues "+ultra);
+                fundReforge(game,owner);
+                require(game.items().wands().use(owner,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==0,"repeat pending cast pays the same configured price"); drain(game);
                 var output=new ArrayList<ItemEntity>();
                 owner.level().getAllEntities().forEach(e->{if(e instanceof ItemEntity item && !initial.contains(e) && !e.isRemoved()) output.add(item);});
-                require(input.isRemoved() && recognized(output.stream().map(ItemEntity::getItem).toList(),accepted,"actual reforge "+ultra)==5,"full stack converts once without recursive outputs");
+                require(input.isRemoved() && recognized(output.stream().map(ItemEntity::getItem).toList(),stack->profiles.stream().anyMatch(profile->profile.matches(stack)),"actual reforge "+ultra)==5,"full stack converts once without recursive outputs");
                 require(owner.getMainHandItem().getCount()==1 && owner.getInventory().getItem(9).is(Items.DIAMOND)
-                        && owner.getInventory().getItem(9).getCount()==11 && game.items().mana().get(owner)==0,"weapon/inventory/mana unchanged");
+                        && owner.getInventory().getItem(9).getCount()==11 && game.items().mana().get(owner)==0,"weapon/inventory preserved and mana debited");
                 output.forEach(Entity::discard);
                 for(boolean stop:new boolean[]{false,true}) {
                     var pending=input(owner,64); var before=pending.getItem().copy();
+                    fundReforge(game,owner);
                     require(game.items().wands().use(owner,InteractionHand.MAIN_HAND) && game.items().bolts().pendingReforgeCount()>0,"cancellation fixture queued");
                     if(stop) game.items().bolts().stop(); else game.items().bolts().forget(owner);
                     drain(game); require(!pending.isRemoved() && pending.getItem().getCount()==64 && ItemStack.isSameItemSameComponents(before,pending.getItem()),"cancel/stop preserves unprocessed shooter stack"); pending.discard();
@@ -195,6 +273,7 @@ public final class ShooterPoolChecks {
         try {
             prepare(game,owner); owner.setItemInHand(InteractionHand.MAIN_HAND,tool(true));
             stopInput=input(owner,64); stopEpoch=game.items().epoch();
+            fundReforge(game,owner);
             require(game.items().wands().use(owner,InteractionHand.MAIN_HAND) && game.items().bolts().pendingReforgeCount()>0,"old match shooter work queued");
         } finally { saved.restore(game); owner.entityTags().add("time_stopped"); }
         SkyWars2.LOGGER.info("[check] PASS shooter-pools-stop-probe");

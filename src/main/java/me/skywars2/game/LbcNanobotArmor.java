@@ -47,6 +47,7 @@ public final class LbcNanobotArmor {
     /** Apply resistance before gains, then full-set acceleration, then the positive-only global decay. */
     public void pulse(ServerPlayer player){
         if(!admitted(player))return;
+        floorCooldown(player);
         resist(player);
         if(worn(player)&&chargeAllowed(player)){
             boolean full=true;
@@ -54,7 +55,7 @@ public final class LbcNanobotArmor {
                 boolean present=piece(player,SLOTS[i]);full&=present;
                 if(present&&cooldown(player)<=0&&tier(player)<=119)game.items().mana().score(player,TIER).add(GAINS[i]);
             }
-            if(full)game.items().mana().score(player,COOLDOWN).add(-4);
+            if(full)game.items().mana().score(player,COOLDOWN).set(Math.max(0,cooldown(player)-4));
         }
         if(cooldown(player)>0)game.items().mana().score(player,COOLDOWN).add(-1);
     }
@@ -69,11 +70,18 @@ public final class LbcNanobotArmor {
     public void incoming(ServerPlayer player){
         var attempt=attempts.peek();
         boolean allowed=attempt!=null&&attempt.player()==player?attempt.admitted():admitted(player);
-        if(!allowed||!resistanceAllowed(player)||tier(player)<1)return;
+        if(!allowed||!resistanceAllowed(player))return;
+        floorCooldown(player);
+        if(tier(player)<1)return;
         var tier=game.items().mana().score(player,TIER);
         if(tier.get()<=4)tier.set(0);else tier.add(-5);
         if(cooldown(player)<=20)game.items().mana().score(player,COOLDOWN).add(5);
         resist(player);
+    }
+
+    /** Full-set recovery cannot bank negative seconds and cancel the next hit's delay. */
+    private void floorCooldown(ServerPlayer player){
+        if(cooldown(player)<0)game.items().mana().score(player,COOLDOWN).set(0);
     }
 
     private void resist(ServerPlayer player){

@@ -9577,17 +9577,23 @@ public final class GameChecks {
                         }
                         owner.setShiftKeyDown(false); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY);
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,boltboltMode(true,2)); mana.set(owner,0);
-                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,"Reforge has zero entry threshold and zero cost");
+                        int reforgeCost=mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("lightning_bolt_wand_mana_use"),"lbc.math").get();
+                        require(reforgeCost>0&&!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND)
+                                &&mana.get(owner)==0,"Reforge requires the same positive mana price as other donor wand modes");
+                        mana.set(owner,reforgeCost);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND)&&mana.get(owner)==0,
+                                "Empty-target Reforge still pays the configured donor wand price exactly once");
                         var reforgeStack=legacyFireblazeDonor("transformable",Items.STICK).copyWithCount(3);
                         var reforgeData=reforgeStack.get(DataComponents.CUSTOM_DATA).copyTag(); reforgeData.putInt("staff",1);
                         reforgeStack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(reforgeData));
                         var reforgeInput=new net.minecraft.world.entity.item.ItemEntity(level,owner.getX(),259.3,owner.getZ(),reforgeStack);
                         require(level.addFreshEntity(reforgeInput),"Reforge input enters world");
                         try {
+                                mana.set(owner,reforgeCost);
                                 require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,
-                                                "Free Reforge queues a full transformable stack without mana");
+                                                "Paid Reforge queues a full transformable stack for the configured donor wand cost");
                                 drainInfboltWork(game);
-                                require(reforgeInput.isRemoved(),"Free Reforge drains the entire input stack");
+                                require(reforgeInput.isRemoved(),"Paid Reforge drains the entire input stack");
                         } finally {
                                 reforgeInput.discard();
                                 // The following trial counts separate dropped entities; isolate the Reforge outputs.

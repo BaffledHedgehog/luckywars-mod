@@ -24,7 +24,8 @@ public final class ChaosRewardItemChecks {
         final MatchRandomState random,playerRandom;
         final Map<AdvancementHolder,Set<String>> advancements=new LinkedHashMap<>();
         final Map<Item,Integer> stats=new IdentityHashMap<>();
-        final int cost;boolean closed;
+        final RegenerationBeltChecks.ScheduledClient audience;
+        final int cost;long pageTurns;boolean closed;
         Fixture(GameController game){
             this.game=game;base=new AllGrimoireChecks.Fixture(game);p=base.base.owner;
             random=MatchRandomState.capture(base.level.getRandom());playerRandom=MatchRandomState.capture(p.getRandom());
@@ -36,6 +37,9 @@ public final class ChaosRewardItemChecks {
             }
             for(var item:List.of(Items.CARROT_ON_A_STICK,Items.DIAMOND_SWORD,Items.NETHERITE_SWORD))stats.put(item,p.getStats().getValue(Stats.ITEM_USED.get(item)));
             LbcChaosRewardItems.prepare(game.items().mana());
+            audience=new RegenerationBeltChecks.ScheduledClient(game,base.beta);
+            base.beta.setPos(p.position().add(2,0,0));
+            pageTurns=base.base.recording.packets.stream().filter(Fixture::pageTurn).count();
         }
         void ack(){
             p.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
@@ -55,22 +59,24 @@ public final class ChaosRewardItemChecks {
             throw new IllegalStateException("bounded native random selection");
         }
         void input(InteractionHand hand){ack();require(p.gameMode.useItem(p,base.level,p.getItemInHand(hand),hand).consumesAction(),"actual native hand route "+hand);}
+        static boolean pageTurn(net.minecraft.network.protocol.Packet<?> packet){return packet instanceof ClientboundSoundPacket sound&&sound.getSound().value().location().toString().equals("minecraft:item.book.page_turn");}
+        void privatePage(){require(base.base.recording.packets.stream().filter(Fixture::pageTurn).count()==++pageTurns&&audience.packets().stream().noneMatch(Fixture::pageTurn),"real book branch sends its volume10 page-turn only to the caster, even with a listener2blocks away");}
         void books(){
             for(var h:InteractionHand.values()){
                 var stack=book();hand(stack,h);var original=stack.copy();game.items().mana().set(p,10000);
-                choose(55,54);input(h);
+                choose(55,54);input(h);privatePage();
                 require(game.items().sauvojen().count()==1&&game.items().mana().get(p)==7500,"source55 real retained Sauvojen producer and one2500 payment");
                 require(ItemStack.matches(stack,original),"random ordinary raw stack retains all components/count");game.items().sauvojen().stop();
             }
             var stack=book();hand(stack,InteractionHand.MAIN_HAND);
             var data=LbcFartus.data(stack);data.putInt("upgradable",1);for(int n=1;n<=52;n++)data.putInt("have"+n,1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
-            game.items().mana().set(p,10000);choose(55,52);input(InteractionHand.MAIN_HAND);
+            game.items().mana().set(p,10000);choose(55,52);input(InteractionHand.MAIN_HAND);privatePage();
             require(game.items().danmaku().externalRemaining(p)==20,"source53 enqueues existing independent20tick native owner");
             require(LbcFartus.data(stack).getIntOr("have53",0)==1&&LbcFartus.data(stack).getIntOr("upgrade_available",0)==1,"all53 stack-local trial branches use existing Academy ready transition");
             game.items().danmaku().forget(p);
             require(LbcChaosRewardItems.academy(game,p,InteractionHand.MAIN_HAND)&&LbcFartus.data(stack).getIntOr("upgraded",0)==1,"same raw book completes Academy upgrade");
             data=LbcFartus.data(stack);data.putInt("mode",54);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
-            game.items().mana().set(p,10000);choose(242,241);input(InteractionHand.MAIN_HAND);
+            game.items().mana().set(p,10000);choose(242,241);input(InteractionHand.MAIN_HAND);privatePage();
             require(game.items().sauvojen().count()==1&&game.items().mana().get(p)==7500,"source54 random-all reaches242 through same Sauvojen owner");game.items().sauvojen().stop();
             p.setShiftKeyDown(true);p.setXRot(-30);int balance=game.items().mana().get(p);input(InteractionHand.MAIN_HAND);
             require(LbcFartus.data(stack).getIntOr("mode",0)==55&&game.items().mana().get(p)==balance,"upgraded sneak cycles actual stack without debit");
@@ -124,7 +130,7 @@ public final class ChaosRewardItemChecks {
                 for(var e:advancements.entrySet())for(var criterion:e.getKey().value().criteria().keySet())if(!e.getValue().contains(criterion))p.getAdvancements().revoke(e.getKey(),criterion);
                 stats.forEach((item,value)->p.getStats().setValue(p,Stats.ITEM_USED.get(item),value));
                 game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("unstable_spellbook_mana_use"),"lbc.math").set(cost);
-            }finally{try{base.close();}finally{random.restore(base.level.getRandom());playerRandom.restore(p.getRandom());}}
+            }finally{try{audience.close();}finally{try{base.close();}finally{random.restore(base.level.getRandom());playerRandom.restore(p.getRandom());}}}
         }
     }
     public static void run(GameController game){try(var f=new Fixture(game)){f.books();f.whips();}

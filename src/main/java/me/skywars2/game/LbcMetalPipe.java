@@ -65,7 +65,7 @@ public final class LbcMetalPipe {
     public void unloaded(Entity entity){items.remove(entity);craftPipes.remove(entity);pipes.remove(entity);}
     private void landing(ItemEntity item,State state){
         var level=(ServerLevel)item.level();var at=item.position();
-        LbcOverload.sound(level,at,"minecraft:lbcsounds.metal_pipe",4,1,0,0);
+        LbcOverload.sound(level,at,"minecraft:lbcsounds.metal_pipe",4,1,27,0);
         var cold=state.producer==null?null:game.items().indirectKills().restoreColdCause(state.producer,0,false);
         var cause=cold==null?null:new LbcIndirectKills.Owner(cold.player(),cold.order(),true,false);
         // Keep the actual pipe as direct source, so landing cannot masquerade as a real held-weapon hit.

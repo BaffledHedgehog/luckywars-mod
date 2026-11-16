@@ -36,7 +36,7 @@ public final class CaseCosmeticChecks {
     private static Object get(Object object,String name){try{return field(object,name).get(object);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static void set(Object object,String name,Object value){try{field(object,name).set(object,value);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static Object invoke(Object target,String name,Class<?>[] types,Object... args){try{var method=target.getClass().getDeclaredMethod(name,types);method.setAccessible(true);return method.invoke(target,args);}catch(ReflectiveOperationException e){throw new IllegalStateException("Native fixture call "+name,e instanceof InvocationTargetException i?i.getCause():e);}}
-    public static void runCases(GameController game){checkDropRequests();checkLootText(game);start(game,0);}
+    public static void runCases(GameController game){checkDropRequests();start(game,0);}
     private static void checkLootText(GameController game){
         var player=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
         var literal=Component.literal("Ordinary loot").withColor(0x12abcd);
@@ -52,6 +52,20 @@ public final class CaseCosmeticChecks {
         var hover=Component.literal("hover").withStyle(style->style.withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(reference)));
         require(OriginalGuiDesign.resolveLootText(hover,player).getStyle().getHoverEvent() instanceof net.minecraft.network.chat.HoverEvent.ShowText text
                 &&text.value().getString().equals(resolved.getString()),"hover payloads retain the full source resolver");
+        for(int i=0;i<4;i++){
+            int amount=new int[]{20,50,100,1000}[i];
+            var coins=game.lbc().rollTable(player.level(),player.position(),player,"swrg:gui/roll/coins/"+(char)('a'+i));
+            require(coins.size()==1&&coins.getFirst().getHoverName().getString().endsWith(" x"+amount),
+                    "real source currency card retains its amount suffix: "+amount);
+            var name=coins.getFirst().getHoverName();
+            int expectedColour=new int[]{0x55ffff,0xffaa00,0xff55ff,0xff5555}[i];
+            var colours=new ArrayList<net.minecraft.network.chat.Style>();
+            name.visit((style,text)->{if(!text.isBlank())colours.add(style);return Optional.empty();},net.minecraft.network.chat.Style.EMPTY);
+            require(!colours.isEmpty()&&colours.stream().allMatch(style->style.getColor()!=null&&style.getColor().getValue()==expectedColour),
+                    "source storage binding keeps this currency tier's rendered name colour: "+name.toFlatList(net.minecraft.network.chat.Style.EMPTY));
+            var message=OriginalGuiDesign.sourceMessage("reward.coin",player,game.players().get(player.getUUID()),game.config(),coins.getFirst());
+            require(message.getString().contains(" x"+amount),"real source payout text retains currency amount: "+amount);
+        }
     }
     public static void checkDropRequests(){
         var profile=new PlayerStore.Profile();
@@ -130,7 +144,7 @@ public final class CaseCosmeticChecks {
                 else if(method.getName().equals("cageWrite"))remember((BlockPos)args[1]);
                 try{return method.invoke(policy,args);}catch(InvocationTargetException e){throw e.getCause();}
             }));
-            if(kind==0){keyShop();ordinaryMapping();ioFailure();beginCase(0);}else if(kind==1){cosmeticMenus();cages();suffixes();sounds();startKills();}else if(kind>=3)next(49);else beginReplay();
+            if(kind==0){checkLootText(game);keyShop();ordinaryMapping();ioFailure();beginCase(0);}else if(kind==1){cosmeticMenus();cages();suffixes();sounds();startKills();}else if(kind>=3)next(49);else beginReplay();
         }
         void clearOwnership(ServerPlayer p){var row=game.players().get(p.getUUID());row.legacyUnlocks.clear();row.revokedLegacyUnlocks.clear();row.lbcUnlocks.clear();row.casePending="";row.killSound=row.cage=row.suffix=row.winEffect=row.killEffect=0;p.entityTags().removeIf(s->s.startsWith("swrg.kit")||s.startsWith("swrg.skill")||s.startsWith("swrg.sound")||s.startsWith("swrg.bars"));for(var a:game.server().getAdvancements().getAllAdvancements())if(a.id().toString().startsWith("swrg:rewards/")||Set.of("lbc:true_advancements/event/pumpkin_sword","lbc:true_advancements/event/soulcorrupt_wand_upgraded","lbc:true_advancements/event/soulhunter_mace").contains(a.id().toString()))for(var criterion:a.value().criteria().keySet())p.getAdvancements().revoke(a,criterion);}
         void grant(ServerPlayer p,String key){var row=game.players().get(p.getUUID());if(LbcSourceUnlocks.valid(key)){row.legacyUnlocks.add(key);LbcSourceUnlocks.publish(p,row);}else{row.lbcUnlocks.add(key);game.items().mana().award(p,key);}require(LbcSourceUnlocks.has(p,row,key),"canonical source ownership "+key);}
@@ -200,6 +214,9 @@ public final class CaseCosmeticChecks {
                 if(!payout.unlock().isEmpty())require(profile().legacyUnlocks.contains(payout.unlock())&&LbcSourceUnlocks.has(owner,profile(),payout.unlock()),"durable award projects actual source ownership");
                 if(payout.message().startsWith("reward.")){
                     var winner=cases.renderView(owner).strip().get(2);String name=winner.getHoverName().getString();
+                    if(payout.coins()>0||payout.memcoins()>0)
+                        require(name.endsWith(" x"+Math.addExact(payout.coins(),payout.memcoins())),
+                                "actual paid coin/memcoin card names the exact committed wallet amount");
                     require(!name.isBlank()&&packets(client).stream().filter(ClientboundSystemChatPacket.class::isInstance).map(ClientboundSystemChatPacket.class::cast)
                             .anyMatch(p->p.content().getString().contains(name)),"native committed payout message includes the actual winning item name, without querying a legacy block: kind="+caseKind+", payout="+payout.message()+", name="+name
                                     +", constructed="+OriginalGuiDesign.sourceMessage(payout.message(),owner,profile(),game.config(),winner).getString()
