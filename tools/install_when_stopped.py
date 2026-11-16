@@ -19,6 +19,8 @@ def qualified(qualification):
     qualification = qualification.resolve(strict=True)
     qualification.relative_to(PROJECT / "build/verification")
     evidence = json.loads(qualification.read_text(encoding="utf-8"))
+    if evidence.get("qualified") is not True or evidence.get("withdrawn") is True:
+        raise ValueError("Release qualification is missing or withdrawn")
     artifact = (PROJECT / evidence["artifact"]).resolve(strict=True)
     artifact.relative_to(PROJECT / "build/verification")
     expected = evidence["sha256"]

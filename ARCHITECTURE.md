@@ -7,7 +7,13 @@ Base move/look/jump/body controls, navigation policies, path costs and relative
 world-clock timestamps return with it. An idle image removes a future route. No
 extra AI tick loop or whole-world scan is introduced.
 
-`MatchMobGoals` retains both native selectors' original ordered wrappers, running
+The unfinished `MatchMobGoals` experiment is OFF by default. Only isolated native
+fixtures opt in with `skywars2.experimental-native-goal-replay=true`; ordinary
+rollback keeps its existing native AI handling. Generic running-task replay is
+not release-ready: native ranged tasks clear cached targets on stop, and partial
+state replay can dereference that cleared target on the next AI half-step.
+
+The experimental image retains both native selectors' original ordered wrappers, running
 flags, control locks and disabled-control sets, plus the underlying goal flags.
 Restore retires future wrappers and installs these values without invoking goal
 start/stop callbacks. The reviewed `MeleeAttackGoal` adapter restores its attack and

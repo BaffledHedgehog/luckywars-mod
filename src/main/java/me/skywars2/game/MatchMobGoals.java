@@ -8,6 +8,8 @@ import net.minecraft.world.level.pathfinder.Path;
 
 /** Original native selector identities and reviewed melee continuation; no goal lifecycle callbacks on replay. */
 final class MatchMobGoals {
+    private static final boolean ENABLED=Boolean.getBoolean("skywars2.experimental-native-goal-replay");
+    static boolean enabled(){return ENABLED;}
     private final Mob owner;
     private final long worldTime;
     private final List<Selector> selectors=new ArrayList<>();

@@ -21,7 +21,7 @@ final class MatchEntityRuntime {
 
     MatchEntityRuntime(Entity entity) {
         navigation=entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobNavigation(mob):null;
-        goals=entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobGoals(mob):null;
+        goals=MatchMobGoals.enabled()&&entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobGoals(mob):null;
         worldTime=entity.level().getGameTime();using=entity instanceof LivingEntity living&&living.isUsingItem();
         usedHand=entity instanceof LivingEntity living?living.getUsedItemHand():net.minecraft.world.InteractionHand.MAIN_HAND;
         capture(Entity.class,entity,"tickCount","remainingFireTicks","invulnerableTime","portalCooldown","fallDistance",

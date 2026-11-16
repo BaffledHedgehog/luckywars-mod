@@ -20,6 +20,7 @@ public final class VanityGoalChecks {
     private VanityGoalChecks(){}
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Vanity goals: "+why);}
     public static void run(GameController game){
+        require(MatchMobGoals.enabled(),"native goal replay experiment explicitly enabled in isolated fixture");
         require(running==null,"one native goal scene");var f=new Fixture(game);running=f;
         try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}
     }
