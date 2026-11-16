@@ -1,5 +1,8 @@
 package me.skywars2.game;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityTypes;
@@ -35,7 +38,8 @@ public final class VanityRangedGoalChecks {
     }
     private static final class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;final boolean gate;SnowGolem golem;Cow target;
-        GoalSelector selector;RangedAttackGoal goal;WrappedGoal wrapper;int began;boolean closed;
+        GoalSelector selector;RangedAttackGoal goal;WrappedGoal wrapper;int began,phase,when,delay,visibility;
+        MatchEntityState image;final Set<UUID> shots=new HashSet<>();boolean closed;
         Fixture(GameController game,boolean gate){this.game=game;this.gate=gate;f=new WoolBucketChecks.Fixture(game,false);}
         void begin(){
             f.prepareParticipants();var floor=BlockPos.containing(f.home).above(3);
@@ -54,9 +58,18 @@ public final class VanityRangedGoalChecks {
         }
         boolean step(){
             f.client.acknowledge();f.audience.acknowledge();require(game.server().getTickCount()-began<100,"bounded real ranged activation");
+            if(phase>0){
+                int elapsed=game.server().getTickCount()-when;observeShots();
+                if(elapsed<delay-1){require(shots.isEmpty(),"no native shot before restored attack delay");return false;}
+                if(shots.isEmpty())return false;
+                require(shots.size()==1&&wrapper.isRunning()&&WoolBucketChecks.read(goal,"target")==target,"exactly one actual native volley at restored target");
+                if(phase==2)return true;
+                removeShots();restore();phase=2;when=game.server().getTickCount();return false;
+            }
             if(!wrapper.isRunning()||(Integer)WoolBucketChecks.read(goal,"seeTime")<2)return false;
             require(WoolBucketChecks.read(goal,"target")==target,"native goal really acquired its cached target");
-            var image=new MatchEntityState(game,golem);
+            delay=(Integer)WoolBucketChecks.read(goal,"attackTime");visibility=(Integer)WoolBucketChecks.read(goal,"seeTime");
+            require(delay>8,"saved delayed native volley");image=new MatchEntityState(game,golem);
             if(gate)wrapper.stop();else selector.removeAllGoals(g->true);
             require(WoolBucketChecks.read(goal,"target")==null&&!wrapper.isRunning(),"native stop actually cleared the cache");
             boolean frozen=game.server().tickRateManager().isFrozen();game.server().tickRateManager().setFrozen(true);
@@ -67,11 +80,22 @@ public final class VanityRangedGoalChecks {
                 return true;
             }
             require(wrapper.isRunning(),"saved native running wrapper restored");
-            // This is the actual branch Mob.serverAiStep uses on alternate ticks: no canContinue refresh first.
-            selector.tickRunningGoals(false);
-            require(WoolBucketChecks.read(goal,"target")==target,"restored cached target remains the original real entity");
-            return true;
+            verify();selector.tickRunningGoals(false);
+            require((Integer)WoolBucketChecks.read(goal,"attackTime")==delay-1,"native half-step advances restored countdown exactly once");
+            observeShots();require(shots.isEmpty(),"native half-step does not fire a fresh immediate volley");
+            phase=1;when=game.server().getTickCount();return false;
         }
+        void restore(){
+            boolean frozen=game.server().tickRateManager().isFrozen();game.server().tickRateManager().setFrozen(true);
+            try{image.load(golem);}finally{game.server().tickRateManager().setFrozen(frozen);}
+            verify();selector.tickRunningGoals(false);
+        }
+        void verify(){
+            require(wrapper.isRunning()&&WoolBucketChecks.read(goal,"target")==target,"cached target restored before any native task tick");
+            require((Integer)WoolBucketChecks.read(goal,"attackTime")==delay&&(Integer)WoolBucketChecks.read(goal,"seeTime")==visibility,"restore native ranged delay and accumulated visibility");
+        }
+        void observeShots(){for(var shot:f.level.getEntitiesOfClass(Projectile.class,golem.getBoundingBox().inflate(48),p->p.getOwner()==golem)){shots.add(shot.getUUID());f.own(shot);}}
+        void removeShots(){for(var shot:f.level.getEntitiesOfClass(Projectile.class,golem.getBoundingBox().inflate(48),p->p.getOwner()==golem))shot.discard();shots.clear();}
         @Override public void close(){if(closed)return;closed=true;
             if(golem!=null)for(var shot:f.level.getEntitiesOfClass(Projectile.class,golem.getBoundingBox().inflate(48),p->p.getOwner()==golem))f.own(shot);
             f.close();}

@@ -54,6 +54,7 @@ public final class MatchActorCheckpoint {
             var target=actor instanceof Mob mob?mob.getTargetUnchecked():null;
             var owner=actor instanceof Projectile shot?shot.getOwner():null;
             var state=new MatchEntityState(game,actor);
+            state.captureGoalReferences(result.damageSources);
             var ownerId=actor instanceof Projectile?state.nbt.read("Owner",net.minecraft.core.UUIDUtil.CODEC).orElse(owner==null?null:owner.getUUID()):null;
             Tag leash=null;UUID leashHolder=null;double angular=0;
             if(actor instanceof Leashable leashed&&leashed.getLeashData()!=null) {
@@ -215,6 +216,7 @@ public final class MatchActorCheckpoint {
                     var target=MatchDamageSources.resolve(image.target,this::resolve,pending);
                     ((ActorCheckpointAccess.Target)actor).skywars2$target(target instanceof LivingEntity living?living:null);
                 }
+                image.state.restoreGoalReferences(this::resolve,pending);
                 if(actor instanceof Projectile shot) {
                     var owner=MatchDamageSources.resolveNative(image.owner,image.ownerResolved,this::resolve,pending);
                     if(image.owner==null||owner!=null)shot.setOwner(owner);

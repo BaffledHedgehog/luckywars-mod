@@ -66,6 +66,9 @@ public final class VanityActorChecks {
         UnsavedCow rider;
         Pig vehicle;
         Skeleton skeleton;
+        net.minecraft.world.entity.animal.golem.SnowGolem rangedMob;
+        net.minecraft.world.entity.ai.goal.RangedAttackGoal rangedGoal;
+        int rangedDelay,rangedVisibility;
         Snowball shot;
         Snowball unowned;
         net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl pearl;
@@ -130,6 +133,16 @@ public final class VanityActorChecks {
             require(rider.startRiding(vehicle,true,false)&&gamma.startRiding(vehicle,true,false),"ordered native mob/player riders");
             passengerOrder=vehicle.getPassengers().stream().map(Entity::getUUID).toList();
             skeleton=add(new Skeleton(EntityTypes.SKELETON,base.owner.level()),at.add(0,0,5));skeleton.setTarget(gamma);
+            if(MatchMobGoals.enabled()) {
+                rangedMob=add(new net.minecraft.world.entity.animal.golem.SnowGolem(EntityTypes.SNOW_GOLEM,base.owner.level()),at.add(0,0,7));
+                var selector=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"goalSelector");
+                selector.removeAllGoals(goal->true);
+                ((net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"targetSelector")).removeAllGoals(goal->true);
+                rangedGoal=new net.minecraft.world.entity.ai.goal.RangedAttackGoal(rangedMob,1,20,20,10);
+                selector.addGoal(1,rangedGoal);rangedMob.setTarget(gamma);selector.tick();
+                require(WoolBucketChecks.read(rangedGoal,"target")==gamma&&selector.getAvailableGoals().iterator().next().isRunning(),"actual native ranged goal caches the real captured player body");
+                rangedDelay=(Integer)WoolBucketChecks.read(rangedGoal,"attackTime");rangedVisibility=(Integer)WoolBucketChecks.read(rangedGoal,"seeTime");
+            }
             shot=add(new Snowball(EntityTypes.SNOWBALL,base.owner.level()),at.add(0,1,2));shot.setOwner(gamma);shot.setDeltaMovement(motion);
             unowned=add(new Snowball(EntityTypes.SNOWBALL,base.owner.level()),at.add(1,2,2));unowned.setDeltaMovement(Vec3.ZERO);
             gamma.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(Items.FISHING_ROD));
@@ -243,6 +256,10 @@ public final class VanityActorChecks {
             require(vehicle.getPassengers().stream().map(Entity::getUUID).toList().equals(passengerOrder)&&vehicle.getPassengers().contains(gamma)
                     &&rider.getVehicle()==vehicle&&gamma.getVehicle()==vehicle,"ordered native passenger graph uses current player body: "+vehicle.getPassengers());
             require(skeleton.getTargetUnchecked()==gamma&&shot.getOwner()==gamma&&cow.getLeashHolder()==gamma&&cow.getLeashData().angularMomentum==.37,"mob target/projectile owner/leash resolve current UUID session");
+            if(rangedMob!=null)require(rangedMob.getTargetUnchecked()==gamma&&WoolBucketChecks.read(rangedGoal,"target")==gamma,
+                    "ranged private cache follows the genuine replacement player body, not the removed captured body");
+            if(rangedMob!=null)require((Integer)WoolBucketChecks.read(rangedGoal,"attackTime")==rangedDelay&&
+                    (Integer)WoolBucketChecks.read(rangedGoal,"seeTime")==rangedVisibility,"canonical target binding does not restart native ranged counters");
             require(tethered.getLeashHolder()==knot&&tethered.getLeashData().angularMomentum==.19,"native fence-pos leash codec rebinds original knot immediately, without manufacturing another knot");
             require(shot.position().equals(at.add(0,1,2))&&shot.getDeltaMovement().equals(motion)&&shot.level()==level&&alias.isRemoved()
                     &&game.server().getLevel(Level.NETHER).getEntity(shot.getUUID())==null,"native dimension alias removed, original projectile and raw motion restored: phase="+phase+", pos="+shot.position()+", motion="+shot.getDeltaMovement()+", aliasRemoved="+alias.isRemoved());
@@ -266,6 +283,15 @@ public final class VanityActorChecks {
                 require(actors.restoreLinksFrozen().equals(Set.of(id))&&skeleton.getTargetUnchecked()==null&&gamma.getEnderPearls().isEmpty()&&gamma.fishing==null
                         &&cow.getLastHurtByPlayer()==null&&cow.getLastHurtMob()==null&&combatSource.getEntity()==null,
                         "offline native target/owner/leash/rider remains explicit pending UUID, old logout-body ledgers cleared");
+                if(rangedMob!=null) {
+                    require(actors.restoreLinksFrozen(Set.of(id)).isEmpty(),"explicit native absent-player policy resolves offline goal dependency");
+                    var selector=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"goalSelector");
+                    require(rangedMob.getTargetUnchecked()==null&&WoolBucketChecks.read(rangedGoal,"target")==null&&
+                            selector.getAvailableGoals().stream().noneMatch(goal->goal.getGoal()==rangedGoal&&goal.isRunning()),
+                            "absent target cache is cleared only with its running task retired");
+                    selector.tickRunningGoals(false);
+                    require((Integer)WoolBucketChecks.read(rangedGoal,"attackTime")==-1,"absent task cannot shoot on the native half-step");
+                }
                 // Configuration's native loaders deserialize the actual logout file. Do this
                 // before actor replay, with disconnected actors absent, so UUID aliases really spawn.
                 gamma=GameChecks.createBot(game,"TestGamma");

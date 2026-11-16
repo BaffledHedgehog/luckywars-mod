@@ -64,5 +64,7 @@ final class MatchEntityState {
         finishRuntime(target);
     }
     void finishRandom(Entity target){random.restore(target.getRandom());}
+    void captureGoalReferences(MatchDamageSources sources){runtime.captureGoalReferences(sources);}
+    void restoreGoalReferences(java.util.function.Function<java.util.UUID,Entity> lookup,java.util.Set<java.util.UUID> pending){runtime.restoreGoalReferences(lookup,pending);}
     void finishRuntime(Entity target) {runtime.restore(target);finishRandom(target);target.setDeltaMovement(motion);target.needsSync=true;}
 }

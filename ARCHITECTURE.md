@@ -10,8 +10,8 @@ extra AI tick loop or whole-world scan is introduced.
 The unfinished `MatchMobGoals` experiment is OFF by default. Only isolated native
 fixtures opt in with `skywars2.experimental-native-goal-replay=true`; ordinary
 rollback keeps its existing native AI handling. Generic running-task replay is
-not release-ready: native ranged tasks clear cached targets on stop, and partial
-state replay can dereference that cleared target on the next AI half-step.
+not release-ready: every task that retains continuation state needs a reviewed
+adapter before restoring its running flag can be safe.
 
 The experimental image retains both native selectors' original ordered wrappers, running
 flags, control locks and disabled-control sets, plus the underlying goal flags.
@@ -23,6 +23,15 @@ checks observe a real hit before capture, a later hit only after the saved delay
 and the same behavior after a second restore. Other goal-specific continuations,
 Brain/sensor/behavior state and species-specific control extensions remain parts
 of the broader audit.
+
+The reviewed `RangedAttackGoal` adapter preserves its separate cached target,
+attack countdown and accumulated visibility before any AI half-step. Actor capture
+records that target with the shared body-reference resolver; the actor link phase
+binds the genuine current player body while preserving historical references.
+An intentionally absent target clears and retires the ranged task without replaying
+callbacks, so it cannot run with an empty cache. Native tests cover two actual
+delayed volleys, real player death/replacement, pending and intentionally absent
+players, repeated link replay and real login. This remains an experimental subset.
 
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners

@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Function;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.level.pathfinder.Path;
@@ -15,6 +18,7 @@ final class MatchMobGoals {
     private final List<Selector> selectors=new ArrayList<>();
     private final Map<Goal,EnumSet<Goal.Flag>> flags=new IdentityHashMap<>();
     private final Map<MeleeAttackGoal,Melee> attacks=new IdentityHashMap<>();
+    private final Map<RangedAttackGoal,Ranged> ranged=new IdentityHashMap<>();
 
     MatchMobGoals(Mob mob) {
         owner=mob;worldTime=mob.level().getGameTime();
@@ -27,7 +31,25 @@ final class MatchMobGoals {
         flags.forEach((goal,saved)->{var live=goal.getFlags();live.clear();live.addAll(saved);});
         long delta=owner.level().getGameTime()-worldTime;
         attacks.values().forEach(attack->attack.restore(delta));
+        ranged.values().forEach(Ranged::restore);
         selectors.forEach(Selector::restore);
+    }
+    void captureReferences(MatchDamageSources sources){ranged.values().forEach(attack->attack.captureReferences(sources));}
+    void restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending) {
+        for(var attack:ranged.values()) {
+            if(!attack.referencesCaptured)continue;
+            Entity resolved=MatchDamageSources.resolve(attack.targetRef,lookup,pending);
+            if(attack.targetRef!=null&&resolved==null) {
+                if(MatchDamageSources.intentionallyAbsent(attack.targetRef.id())) {
+                    // Match the native absent-target policy without calling stop() during world replay.
+                    attack.absent();
+                    for(var selector:selectors)selector.retire(attack.goal);
+                }
+                continue;
+            }
+            if(resolved!=null&&!(resolved instanceof LivingEntity))throw new IllegalStateException("Native ranged target resolved to a non-living body");
+            write(attack.goal,RangedAttackGoal.class,"target",resolved);
+        }
     }
     private final class Selector {
         final Set<WrappedGoal> available;
@@ -45,6 +67,7 @@ final class MatchMobGoals {
                 running.put(wrapper,wrapper.isRunning());Goal goal=wrapper.getGoal();
                 flags.computeIfAbsent(goal,key->key.getFlags().clone());
                 if(goal instanceof MeleeAttackGoal attack)attacks.computeIfAbsent(attack,Melee::new);
+                if(goal instanceof RangedAttackGoal attack)ranged.computeIfAbsent(attack,Ranged::new);
             }
         }
         void retireFuture() {
@@ -55,6 +78,10 @@ final class MatchMobGoals {
             available.clear();available.addAll(ordered);
             running.forEach((wrapper,active)->write(wrapper,WrappedGoal.class,"isRunning",active));
             locked.clear();locked.putAll(savedLocked);disabled.clear();disabled.addAll(savedDisabled);
+        }
+        void retire(Goal goal) {
+            for(var wrapper:available)if(wrapper.getGoal()==goal)write(wrapper,WrappedGoal.class,"isRunning",false);
+            locked.entrySet().removeIf(entry->entry.getValue().getGoal()==goal);
         }
     }
     private static final class Melee {
@@ -74,6 +101,22 @@ final class MatchMobGoals {
             if(route!=null)route.restore();values.forEach((field,value)->set(field,goal,value));
             write(goal,MeleeAttackGoal.class,"lastCanUseCheck",Math.addExact(lastCheck,delta));
         }
+    }
+    /** The target is not Mob.target: native stop clears this separate cache before a half-step. */
+    private static final class Ranged {
+        final RangedAttackGoal goal;
+        final Map<Field,Object> values=new LinkedHashMap<>();
+        final LivingEntity target;
+        MatchDamageSources.Ref targetRef;boolean referencesCaptured;
+        Ranged(RangedAttackGoal goal) {
+            this.goal=goal;target=(LivingEntity)read(goal,RangedAttackGoal.class,"target");
+            for(String name:List.of("target","attackTime","seeTime")) {
+                Field field=field(RangedAttackGoal.class,name);values.put(field,get(field,goal));
+            }
+        }
+        void restore(){values.forEach((field,value)->set(field,goal,value));}
+        void captureReferences(MatchDamageSources sources){targetRef=sources.bodyRef(target);referencesCaptured=true;}
+        void absent(){write(goal,RangedAttackGoal.class,"target",null);write(goal,RangedAttackGoal.class,"attackTime",-1);write(goal,RangedAttackGoal.class,"seeTime",0);}
     }
     private static Field field(Class<?> type,String name) {
         try{var field=type.getDeclaredField(name);field.setAccessible(true);return field;}

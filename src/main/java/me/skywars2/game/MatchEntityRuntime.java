@@ -59,6 +59,8 @@ final class MatchEntityRuntime {
     private static Object read(Object target,Class<?> type,String name) {
         try{return field(type,name).get(target);}catch(IllegalAccessException e){throw new IllegalStateException(e);}
     }
+    void captureGoalReferences(MatchDamageSources sources){if(goals!=null)goals.captureReferences(sources);}
+    void restoreGoalReferences(java.util.function.Function<java.util.UUID,Entity> lookup,java.util.Set<java.util.UUID> pending){if(goals!=null)goals.restoreReferences(lookup,pending);}
     void restore(Entity entity) {
         if(navigation!=null)navigation.requireOwner(entity);
         try {
