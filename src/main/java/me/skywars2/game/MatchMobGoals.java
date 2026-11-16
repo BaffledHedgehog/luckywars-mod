@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.*;
 import net.minecraft.world.level.pathfinder.Path;
@@ -21,6 +22,7 @@ final class MatchMobGoals {
     private final Map<MeleeAttackGoal,Melee> attacks=new IdentityHashMap<>();
     private final Map<RangedAttackGoal,Ranged> ranged=new IdentityHashMap<>();
     private final Map<TargetGoal,Target> targets=new IdentityHashMap<>();
+    private final Map<BreedGoal,Breeding> breeding=new IdentityHashMap<>();
 
     MatchMobGoals(Mob mob) {
         owner=mob;worldTime=mob.level().getGameTime();
@@ -35,11 +37,13 @@ final class MatchMobGoals {
         attacks.values().forEach(attack->attack.restore(delta));
         ranged.values().forEach(Ranged::restore);
         targets.values().forEach(Target::restore);
+        breeding.values().forEach(Breeding::restore);
         selectors.forEach(Selector::restore);
     }
     void captureReferences(MatchDamageSources sources){
         ranged.values().forEach(attack->attack.captureReferences(sources));
         targets.values().forEach(target->target.captureReferences(sources));
+        breeding.values().forEach(task->task.captureReferences(sources));
     }
     void restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending) {
         for(var attack:ranged.values()) {
@@ -58,6 +62,18 @@ final class MatchMobGoals {
         }
         for(var target:targets.values())if(target.restoreReferences(lookup,pending)){
             target.absent();for(var selector:selectors)selector.retire(target.goal);
+        }
+        for(var task:breeding.values()){
+            if(!task.referencesCaptured)continue;
+            Entity resolved=MatchDamageSources.resolve(task.partnerRef,lookup,pending);
+            if(task.partnerRef!=null&&resolved==null){
+                if(MatchDamageSources.intentionallyAbsent(task.partnerRef.id())){
+                    task.absent();for(var selector:selectors)selector.retire(task.goal);
+                }
+                continue;
+            }
+            if(resolved!=null&&!(resolved instanceof Animal))throw new IllegalStateException("Native breeding partner resolved to a non-animal body");
+            write(task.goal,BreedGoal.class,"partner",resolved);
         }
     }
     private final class Selector {
@@ -78,6 +94,7 @@ final class MatchMobGoals {
                 if(goal instanceof MeleeAttackGoal attack)attacks.computeIfAbsent(attack,Melee::new);
                 if(goal instanceof RangedAttackGoal attack)ranged.computeIfAbsent(attack,Ranged::new);
                 if(goal instanceof TargetGoal target)targets.computeIfAbsent(target,Target::new);
+                if(goal instanceof BreedGoal task)breeding.computeIfAbsent(task,Breeding::new);
             }
         }
         void retireFuture() {
@@ -164,6 +181,18 @@ final class MatchMobGoals {
             bodies.keySet().forEach(field->set(field,goal,null));
             for(String name:List.of("reachCache","reachCacheTime","unseenTicks"))write(goal,TargetGoal.class,name,0);
         }
+    }
+    private static final class Breeding {
+        final BreedGoal goal;
+        final Animal partner;
+        final int loveTime;
+        MatchDamageSources.Ref partnerRef;boolean referencesCaptured;
+        Breeding(BreedGoal goal){
+            this.goal=goal;partner=(Animal)read(goal,BreedGoal.class,"partner");loveTime=(Integer)read(goal,BreedGoal.class,"loveTime");
+        }
+        void restore(){write(goal,BreedGoal.class,"partner",partner);write(goal,BreedGoal.class,"loveTime",loveTime);}
+        void captureReferences(MatchDamageSources sources){partnerRef=sources.bodyRef(partner);referencesCaptured=true;}
+        void absent(){write(goal,BreedGoal.class,"partner",null);write(goal,BreedGoal.class,"loveTime",0);}
     }
     private static Field field(Class<?> type,String name) {
         try{var field=type.getDeclaredField(name);field.setAccessible(true);return field;}

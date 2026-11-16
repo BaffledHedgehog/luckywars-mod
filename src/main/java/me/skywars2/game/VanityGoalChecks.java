@@ -28,7 +28,7 @@ public final class VanityGoalChecks {
         if(running==null)return;var f=running;
         try{
             require(f.game==game,"same match");if(!f.step())return;VanityTargetGoalChecks.verify(game,f.f);running=null;f.close();
-            SkyWars2.LOGGER.info("[check] PASS vanity-goals (actual native melee hit; selector/lock/flag/wrapper identity; no start/stop replay; saved melee cooldown/path/world age; repeated delayed attacks; native target search, remaining sight-memory expiry and accepted-hurt deduplication)");
+            SkyWars2.LOGGER.info("[check] PASS vanity-goals (actual native melee hit; selector/lock/flag/wrapper identity; no start/stop replay; saved melee cooldown/path/world age; repeated delayed attacks; native target search, sight-memory expiry, hurt deduplication; actual repeated breeding/birth timing/future removal and absent partner)");
         }catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL vanity-goals",error);}
     }
     private static int count(Object goal,String name){return (Integer)WoolBucketChecks.read(goal,name);}
@@ -38,6 +38,7 @@ public final class VanityGoalChecks {
         WrappedGoal original,future;List<WrappedGoal> order;Set<WrappedGoal> available;
         Map<?,?> locks;EnumSet<?> disabled;EnumSet<Goal.Flag> flags;
         MatchEntityState image,victim;Path goalPath;int cooldown,phase,when;long capturedAt,lastCheck;
+        VanityBreedingGoalChecks breeding;
         float health;boolean closed;
         Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);}
         void begin(){
@@ -61,6 +62,7 @@ public final class VanityGoalChecks {
             when=game.server().getTickCount();
         }
         boolean step(){
+            if(breeding!=null)return breeding.step();
             f.client.acknowledge();f.audience.acknowledge();int elapsed=game.server().getTickCount()-when;
             require(elapsed<100,"bounded native scene phase="+phase+", HP="+cow.getHealth());
             if(phase==0){
@@ -88,7 +90,7 @@ public final class VanityGoalChecks {
                 if(elapsed<cooldown-1){require(cow.getHealth()==health,"load must not restart the attack early");return false;}
                 if(cow.getHealth()==health)return false;
                 require(original.isRunning()&&cow.getHealth()<health,"restored original task inflicts a later actual native hit");
-                if(phase==3)return true;
+                if(phase==3){zombie.setNoAi(true);breeding=new VanityBreedingGoalChecks(game,f);return false;}
                 load();verify();health=cow.getHealth();phase=3;when=game.server().getTickCount();return false;
             }
             throw new IllegalStateException("Unknown native goal phase");

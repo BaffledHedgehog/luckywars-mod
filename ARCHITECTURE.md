@@ -43,6 +43,14 @@ two restores, no duplicate retaliation for restored damage, and player-body
 replacement/login. Other target subclasses' private fields remain unreviewed,
 and the experiment remains OFF by default.
 
+The reviewed `BreedGoal` image retains its chosen animal partner and elapsed
+courtship. Partner references resolve through the existing actor body/link phases;
+an intentionally omitted partner clears and retires the task without callbacks.
+An ordinary server-tick fixture observes three real births around repeated
+restoration, checks identical remaining birth timing, removes discarded offspring
+and birth XP, and proves the same image remains usable after partner omission.
+This adds no separate breeding simulation and does not enable generic AI replay.
+
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners
 restore and publish those abilities afterward. A retained offline rocket-boot
