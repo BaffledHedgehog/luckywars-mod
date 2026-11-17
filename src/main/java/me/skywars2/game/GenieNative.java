@@ -11,6 +11,18 @@ public final class GenieNative {
     public static boolean stopped(GameController game,ServerPlayer player){return game.items().wands().inputTimeStopped(player);}
     public static boolean enemy(GameController game,ServerPlayer player,Entity entity){return game.items().wands().projectileTarget(player,entity,true);}
     public static void mark(GameController game,Entity entity){game.items().markCurrentItemEpoch(entity);}
+    public static void credit(GameController game,Entity entity,ServerPlayer author){
+        var cause=game.items().indirectKills().coldCause(author,entity instanceof net.minecraft.world.entity.projectile.Projectile);
+        game.items().spellSources().bind(entity,new LbcSpellSource.Source(entity.getUUID(),author.getUUID(),game.items().epoch(),cause,java.util.Set.of()));
+    }
+    public static void initialize(GameController game,net.minecraft.world.entity.Mob mob){
+        if(mob.level() instanceof ServerLevel level)try(var scope=game.items().spellSources().scope(mob)){
+            mob.finalizeSpawn(level,level.getCurrentDifficultyAt(mob.blockPosition()),net.minecraft.world.entity.EntitySpawnReason.TRIGGERED,null);
+        }
+    }
+    public static void rejected(GameController game,Entity entity){
+        entity.discard();game.items().spellSources().unloaded(entity);
+    }
     public static boolean write(GameController game,ServerPlayer player,ServerLevel level,BlockPos pos,BlockState state){
         return game.items().writeOwnedTerrain(level,pos,state,game.items().indirectKills().coldCause(player,false),true);
     }

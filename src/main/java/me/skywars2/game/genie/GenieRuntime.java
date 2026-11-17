@@ -35,7 +35,7 @@ public final class GenieRuntime {
     private final Map<Key,Integer> cooldowns=new HashMap<>();
     private final Map<String,GenieBlueprint> programs=new LinkedHashMap<>();
     private boolean dispatching;
-    private final Set<Projectile> projectiles=Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Set<Entity> projectiles=Collections.newSetFromMap(new IdentityHashMap<>());
     private static final String SHOT_POWER="skywars2.genie_power/",SHOT_LIFE="skywars2.genie_life/";
     GenieRuntime(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){return ItemData.contains(stack,PROGRAM);}
@@ -48,7 +48,7 @@ public final class GenieRuntime {
     }
     /** Resolve all ids first: a failed program cannot consume a lamp or half-apply attributes. */
     public static void validateNative(GenieBlueprint plan){
-        plan.validate();var icon=BuiltInRegistries.ITEM.get(id(plan.icon())).orElseThrow(()->new IllegalArgumentException("unknown item icon")).value();
+        double cost=plan.validatedCost();var icon=BuiltInRegistries.ITEM.get(id(plan.icon())).orElseThrow(()->new IllegalArgumentException("unknown item icon")).value();
         require(!forbiddenItem(icon),"unsupported native item");
         require(!icon.components().has(DataComponents.CONSUMABLE)||!Set.of(TwistKind.BRITTLE,TwistKind.DROP_ITEM).contains(plan.twist().kind()),"consumables need a drawback beyond consuming or dropping their already-spent source");
         for(var stat:plan.stats())require(BuiltInRegistries.ATTRIBUTE.get(id(stat.id())).isPresent(),"unknown attribute");
@@ -57,6 +57,7 @@ public final class GenieRuntime {
             if(Set.of(Effect.DAMAGE,Effect.HEAL,Effect.STATUS,Effect.FIRE,Effect.PUSH,Effect.PULL,Effect.MANA,Effect.FOOD,Effect.CLEANSE).contains(rule.effect()))require(rule.target()!=Target.LOOK_POINT,"effect needs living targets");
             if(rule.effect()==Effect.EXPLOSION)require(!Set.of(Target.NEARBY_ALL,Target.NEARBY_ENEMIES).contains(rule.target()),"area explosion uses one centre, not one explosion per nearby body");
             if(rule.effect()==Effect.PROJECTILE)require(rule.target()==Target.SELF||rule.target()==Target.LOOK_POINT,"projectiles originate at the owner's camera");
+            if(rule.effect()==Effect.ENTITY_LAUNCH)require(rule.target()==Target.SELF||rule.target()==Target.LOOK_POINT,"native bodies originate at the owner's camera");
             if(rule.effect()==Effect.TELEPORT||rule.effect()==Effect.REPAIR)require(rule.target()==Target.SELF,"self primitive requires SELF");
             if(rule.effect()==Effect.TELEPORT)require(rule.radius()>0,"teleport needs a nonzero range");
             if(rule.effect()==Effect.REPAIR)require(icon.components().has(DataComponents.MAX_DAMAGE),"repair needs a native durable item");
@@ -65,6 +66,12 @@ public final class GenieRuntime {
             if(rule.trigger()==Trigger.EAT)require(icon.components().has(DataComponents.CONSUMABLE),"EAT needs a real consumable");
             if(rule.target()==Target.HIT_TARGET)require(rule.trigger()==Trigger.HIT||rule.trigger()==Trigger.HURT,"hit target needs a contact event");
             switch(rule.effect()){
+                case ENTITY_LAUNCH -> {
+                    var type=BuiltInRegistries.ENTITY_TYPE.get(id(rule.id())).orElseThrow(()->new IllegalArgumentException("unknown native entity")).value();
+                    require(GenieEntities.launchable(type),"native entity needs a summonable mob or projectile factory");
+                    require(rule.cooldown()>=GenieEntities.minimumCooldown(type),"native body's cadence exceeds its power budget");
+                    cost+=GenieEntities.populationCost(type,rule.ticks(),rule.cooldown());
+                }
                 case STATUS -> require(BuiltInRegistries.MOB_EFFECT.get(id(rule.id())).isPresent(),"unknown status");
                 case SOUND -> require(BuiltInRegistries.SOUND_EVENT.get(id(rule.id())).isPresent(),"unknown sound");
                 case PARTICLES -> require(BuiltInRegistries.PARTICLE_TYPE.get(id(rule.id())).map(h->h.value() instanceof SimpleParticleType).orElse(false),"particle needs a simple native type");
@@ -75,6 +82,7 @@ public final class GenieRuntime {
                 default -> {}
             }
         }
+        require(cost<=48,"native population exceeds constructor power budget");
     }
     public static ItemStack construct(GenieBlueprint plan){
         validateNative(plan);var item=new ItemStack(BuiltInRegistries.ITEM.get(id(plan.icon())).orElseThrow().value(),plan.count());
@@ -182,6 +190,7 @@ public final class GenieRuntime {
                 victims.forEach(t->t.hurtServer(level,source,(float)rule.amount()));
             }
             case PROJECTILE -> projectile(owner,stack,rule);
+            case ENTITY_LAUNCH -> launch(owner,stack,rule);
             case REPAIR -> {if(owned(owner,physical)&&physical.isDamageableItem())physical.setDamageValue(Math.max(0,physical.getDamageValue()-(int)rule.amount()));}
             case MANA -> targets.stream().filter(ServerPlayer.class::isInstance).map(ServerPlayer.class::cast).forEach(p->game.items().mana().add(p,(int)rule.amount()));
             case FOOD -> targets.stream().filter(ServerPlayer.class::isInstance).map(ServerPlayer.class::cast).forEach(p->p.getFoodData().eat((int)rule.amount(),.2f));
@@ -214,6 +223,26 @@ public final class GenieRuntime {
         shot.entityTags().add(SHOT_POWER+rule.amount());shot.entityTags().add(SHOT_LIFE+Math.max(1,rule.ticks()==0?200:rule.ticks()));
         GenieNative.mark(game,shot);p.level().addFreshEntity(shot);loaded(shot);
     }
+    private void launch(ServerPlayer owner,ItemStack weapon,Rule rule){
+        var level=owner.level();var type=BuiltInRegistries.ENTITY_TYPE.get(id(rule.id())).orElseThrow().value();
+        var body=type.create(level,EntitySpawnReason.TRIGGERED);if(body==null)return;
+        var look=owner.getLookAngle();var origin=owner.getEyePosition();
+        if(body instanceof Mob)origin=origin.add(look.scale((owner.getBbWidth()+body.getBbWidth())*.5+.1)).add(0,-body.getBbHeight()*.5,0);
+        body.setPos(origin);
+        if(level.isOutsideBuildHeight(body.blockPosition())||!level.hasChunkAt(body.blockPosition())
+                ||!level.getWorldBorder().isWithinBounds(body.getBoundingBox())||!level.noCollision(body,body.getBoundingBox()))return;
+        if(body instanceof Projectile shot){
+            shot.setOwner(owner);shot.shoot(look.x,look.y,look.z,(float)rule.amount(),1);
+            if(shot instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow)arrow.pickup=net.minecraft.world.entity.projectile.arrow.AbstractArrow.Pickup.DISALLOWED;
+        }else{body.setDeltaMovement(look.scale(rule.amount()));body.syncVelocity=true;}
+        body.entityTags().add(SHOT_LIFE+Math.max(1,rule.ticks()==0?200:rule.ticks()));
+        GenieNative.mark(game,body);GenieNative.credit(game,body,owner);
+        if(body instanceof Mob mob){GenieNative.initialize(game,mob);if(!level.noCollision(body,body.getBoundingBox())){GenieNative.rejected(game,body);return;}}
+        if(level.addFreshEntity(body)){
+            if(body instanceof Projectile shot)shot.applyOnProjectileSpawned(level,weapon);
+            loaded(body);
+        }else GenieNative.rejected(game,body);
+    }
     private static boolean owned(ServerPlayer p,ItemStack item){
         if(item.isEmpty())return false;if(p.containerMenu.getCarried()==item)return true;
         for(int i=0;i<p.getInventory().getContainerSize();i++)if(p.getInventory().getItem(i)==item)return true;
@@ -241,7 +270,7 @@ public final class GenieRuntime {
             case WET_ONLY,DRY_ONLY,NIGHT_ONLY,AIR_ONLY -> {}
         }
     }
-    public void loaded(Entity entity){if(entity instanceof Projectile shot&&tagNumber(shot,SHOT_LIFE,-1)>0)projectiles.add(shot);}
+    public void loaded(Entity entity){if((entity instanceof Projectile||entity instanceof Mob)&&tagNumber(entity,SHOT_LIFE,-1)>0)projectiles.add(entity);}
     public void unloaded(Entity entity){projectiles.remove(entity);}
     private static double tagNumber(Entity entity,String prefix,double fallback){
         for(var tag:entity.entityTags())if(tag.startsWith(prefix))try{return Double.parseDouble(tag.substring(prefix.length()));}catch(NumberFormatException ignored){}

@@ -9,7 +9,7 @@ public record GenieBlueprint(String name,String description,String icon,int coun
     public enum Trigger { USE,HIT,HURT,JUMP,SHOT,EAT,SPRINT,TICK,MINING }
     public enum Target { SELF,HIT_TARGET,AIMED_TARGET,NEARBY_ENEMIES,NEARBY_ALL,LOOK_POINT }
     public enum Condition { ALWAYS,WET,DRY,ON_GROUND,IN_AIR,DAY,NIGHT,SNEAKING,SPRINTING,LOW_HEALTH,FULL_HEALTH }
-    public enum Effect { DAMAGE,HEAL,STATUS,FIRE,PUSH,PULL,TELEPORT,EXPLOSION,LIGHTNING,PROJECTILE,REPAIR,MANA,FOOD,CLEANSE,SOUND,PARTICLES,BLOCK }
+    public enum Effect { DAMAGE,HEAL,STATUS,FIRE,PUSH,PULL,TELEPORT,EXPLOSION,LIGHTNING,PROJECTILE,ENTITY_LAUNCH,REPAIR,MANA,FOOD,CLEANSE,SOUND,PARTICLES,BLOCK }
     public enum Slot { AUTO,MAIN_HAND,OFF_HAND,HAND,HEAD,CHEST,LEGS,FEET }
     public enum TwistKind { HEALTH_PRICE,MANA_PRICE,HUNGER_PRICE,RECOIL,SELF_POISON,SELF_FIRE,
         SELF_GLOW,SELF_LAUNCH,SELF_TELEPORT,SHUFFLE_POCKETS,DROP_ITEM,BRITTLE,
@@ -39,7 +39,8 @@ public record GenieBlueprint(String name,String description,String icon,int coun
         require(value.indexOf('\u00a7')<0,"formatting codes in text");return value.strip();
     }
     /** Validate before resolving native registries or mutating a lamp/player. */
-    public void validate(){
+    public void validate(){validatedCost();}
+    public double validatedCost(){
         plain(name,64);plain(description,240);identifier(icon);
         require(count>=1&&count<=64,"item quantity outside constructor bounds");
         require(rules.size()<=6&&stats.size()<=5&&(!rules.isEmpty()||!stats.isEmpty()),"empty or excessive item program");
@@ -55,6 +56,7 @@ public record GenieBlueprint(String name,String description,String icon,int coun
             if(rule.trigger()==Trigger.TICK)require(rule.cooldown()>=20,"continuous effects need a one-second cadence");
             if(rule.effect()==Effect.EXPLOSION)require(rule.amount()<=4&&rule.cooldown()>=40,"explosion exceeds constructor bounds");
             if(rule.effect()==Effect.PROJECTILE)require(Set.of("arrow","snowball","small_fireball").contains(identifier(rule.id())),"unsupported projectile primitive");
+            if(rule.effect()==Effect.ENTITY_LAUNCH){identifier(rule.id());require(rule.amount()<=3&&rule.cooldown()>=40,"native entity launch needs speed<=3 and at least40 ticks between bodies");}
             if(Set.of(Effect.STATUS,Effect.SOUND,Effect.PARTICLES,Effect.BLOCK).contains(rule.effect()))identifier(rule.id());
             if(rule.effect()==Effect.STATUS){
                 require(rule.amount()<=4,"status level exceeds constructor bounds");
@@ -64,7 +66,7 @@ public record GenieBlueprint(String name,String description,String icon,int coun
             if(rule.effect()==Effect.TELEPORT)require(rule.radius()<=6,"teleport exceeds constructor bounds");
             double area=rule.target()==Target.NEARBY_ALL||rule.target()==Target.NEARBY_ENEMIES?1+rule.radius()*.4:1;
             double power=switch(rule.effect()){
-                case DAMAGE,HEAL,EXPLOSION,LIGHTNING,PROJECTILE -> 2+rule.amount();
+                case DAMAGE,HEAL,EXPLOSION,LIGHTNING,PROJECTILE,ENTITY_LAUNCH -> 2+rule.amount();
                 case STATUS -> 2+rule.amount()*2+rule.ticks()/100.;
                 case BLOCK -> 4+rule.radius()*3;
                 default -> 2+rule.amount()*.5;
@@ -81,6 +83,7 @@ public record GenieBlueprint(String name,String description,String icon,int coun
             cost+=Math.abs(stat.amount())/maximum*8;
         }
         require(cost<=48,"requested item exceeds constructor power budget");
+        return cost;
     }
     public static Reply parseReply(String content){
         require(content!=null&&content.length()<=32768,"excessive model reply");

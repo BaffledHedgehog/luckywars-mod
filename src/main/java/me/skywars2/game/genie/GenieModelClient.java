@@ -83,7 +83,11 @@ public final class GenieModelClient implements AutoCloseable {
             cooldown5..1200 ticks and chance(0,1]. TICK cooldown is at least20. Explosions: amount<=4 and
             cooldown>=40. Block conversion: radius<=2 and cooldown>=20. Status amount is amplifier0..4, but blindness/darkness amplifier is at most1 (level II).
             PROJECTILE id: arrow, snowball or small_fireball. STATUS/SOUND/PARTICLES/BLOCK id must be a real
-            built-in Minecraft id. Other rules use id="". Zero radius means a single target. ticks is duration
+            built-in Minecraft id.
+            ENTITY_LAUNCH can launch any listed native_entity_launch mob/projectile, e.g. a creeper from a bow.
+            For ENTITY_LAUNCH amount is speed0..3, not damage; ticks is lifetime (0=200). Native power,
+            population cost and minimum cooldown are listed in GAME_KNOWLEDGE and must fit budget48.
+            Other rules use id="". Zero radius means a single target. ticks is duration
             or projectile lifetime. PUSH/PULL use amount as strength. TELEPORT uses radius as range.
             PROJECTILE target is SELF or LOOK_POINT, spawning once from the camera. REPAIR and TELEPORT
             target is SELF. Living effects (DAMAGE/HEAL/STATUS/FIRE/PUSH/PULL/MANA/FOOD/CLEANSE) cannot

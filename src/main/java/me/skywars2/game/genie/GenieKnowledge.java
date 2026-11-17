@@ -2,18 +2,12 @@ package me.skywars2.game.genie;
 
 import com.google.gson.*;
 import java.io.InputStreamReader;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import me.skywars2.game.AttributePolicy;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
-import net.minecraft.world.entity.projectile.Projectile;
 
 /** Immutable classpath/registry knowledge. Building this index never rolls loot or creates world entities. */
 public final class GenieKnowledge {
@@ -63,18 +57,18 @@ public final class GenieKnowledge {
         }
         root.addProperty("logical_luckywars_item_count",logical.size());root.addProperty("logical_item_format","[canonical loot table, native item carrier]; repeated tables can contain distinct logical slots");root.add("logical_luckywars_items",logical);
 
-        // Native generic signatures identify classes without instantiating mobs, changing RNG or loading chunks.
-        var classes=new IdentityHashMap<EntityType<?>,Class<?>>();
-        for(var field:EntityTypes.class.getFields())if(Modifier.isStatic(field.getModifiers())&&field.getGenericType() instanceof ParameterizedType generic
-                &&generic.getRawType()==EntityType.class&&generic.getActualTypeArguments()[0] instanceof Class<?> type){
-            try{classes.put((EntityType<?>)field.get(null),type);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
-        }
-        var entities=new JsonArray();
+        var entities=new JsonArray();var launchable=new JsonArray();
         for(var id:BuiltInRegistries.ENTITY_TYPE.keySet().stream().sorted().toList()){
-            var type=BuiltInRegistries.ENTITY_TYPE.getValue(id);var body=classes.get(type);var row=new JsonArray();row.add(id.toString());
-            row.add(body!=null&&Projectile.class.isAssignableFrom(body)?"projectile":body!=null&&LivingEntity.class.isAssignableFrom(body)?"living":"other");entities.add(row);
+            var type=BuiltInRegistries.ENTITY_TYPE.getValue(id);var row=new JsonArray();row.add(id.toString());
+            row.add(GenieEntities.category(type));entities.add(row);
+            if(GenieEntities.launchable(type)){
+                var limits=new JsonObject();limits.addProperty("id",id.toString());limits.addProperty("minimum_cooldown",GenieEntities.minimumCooldown(type));
+                limits.addProperty("native_power",GenieEntities.power(type));launchable.add(limits);
+            }
         }
         root.addProperty("entity_format","[registry id, native class category]; living includes mobs and avatars, not only ballistic projectiles");root.add("entities",entities);
+        root.add("native_entity_launch",launchable);
+        root.addProperty("native_entity_launch_contract","ENTITY_LAUNCH uses these exact native factories: amount is initial speed 0..3 blocks/tick, ticks lifetime (0=200); body retains native AI, physics and attack power. Target SELF or LOOK_POINT means camera origin, never one mob per nearby victim. Add 2*native_power*max(1,lifetime/cooldown) to the ordinary power budget, and respect minimum_cooldown. New combinations are allowed, e.g. bow + SHOT + creeper; statistical author does not replace the physical attacking mob.");
         var attributes=new JsonArray();
         for(var id:BuiltInRegistries.ATTRIBUTE.keySet().stream().sorted().toList()){
             var attribute=BuiltInRegistries.ATTRIBUTE.getValue(id);var row=new JsonObject();row.addProperty("id",id.toString());row.addProperty("default",attribute.getDefaultValue());

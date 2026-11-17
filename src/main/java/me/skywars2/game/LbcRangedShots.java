@@ -11,6 +11,15 @@ public final class LbcRangedShots {
     private LbcRangedShots(){}
     public static void accepted(GameController game,ServerPlayer player,InteractionHand hand,ItemStack weapon,
             ItemStack firedWeapon,List<Projectile> spawned){
+        try{acceptedTraits(game,player,hand,weapon,firedWeapon,spawned);}
+        finally{
+            if(!spawned.isEmpty()&&me.skywars2.game.genie.GenieRuntime.matches(firedWeapon))
+                LbcTmtShotCompletion.afterNativeAction(()->game.items().genie().runtime().event(player,
+                        me.skywars2.game.genie.GenieBlueprint.Trigger.SHOT,null,firedWeapon,hand));
+        }
+    }
+    private static void acceptedTraits(GameController game,ServerPlayer player,InteractionHand hand,ItemStack weapon,
+            ItemStack firedWeapon,List<Projectile> spawned){
         var fired=firedWeapon;boolean traitsRolled=false;
         if(me.skywars2.game.LbcTmtRanged.onShot(game,player,hand,weapon,fired,List.copyOf(spawned))){
             return;

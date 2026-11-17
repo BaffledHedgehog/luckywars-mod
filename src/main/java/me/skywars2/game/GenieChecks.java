@@ -57,7 +57,7 @@ public final class GenieChecks {
         boolean pending(){return !((Map<?,?>)WoolBucketChecks.read(service,"wishes")).isEmpty();}
         static GenieBlueprint plan(){return new GenieBlueprint("A generous sword","Heals the wielder on every accepted sword hit.","iron_sword",1,
                 List.of(new Rule(Trigger.HIT,Target.SELF,Condition.ALWAYS,Effect.HEAL,"",4,0,0,5,1)),List.of(),new Twist(TwistKind.HUNGER_PRICE,1));}
-        String stablePrompt,previousHistory;
+        String stablePrompt,previousHistory;GenieLaunchChecks launches;
         void submit(){submit("A sword that heals me whenever I hit someone, with communism visuals.");}
         void submit(String wish){
             base.owner.closeContainer();base.client.acknowledge();base.owner.connection.handleClientTickEnd(new net.minecraft.network.protocol.game.ServerboundClientTickEndPacket());
@@ -173,8 +173,10 @@ public final class GenieChecks {
                 service.runtime().event(base.owner,Trigger.SHOT,null,snapshot,InteractionHand.MAIN_HAND);
                 require(actual.getDamageValue()==98+actual.getMaxDamage()/10&&snapshot.getDamageValue()==50&&duplicate.getDamageValue()==100,"snapshot unchanged; repair/brittle mutate real used bow, not identical offhand clone");
                 actual=GenieRuntime.construct(repair);actual.setDamageValue(100);snapshot=actual.copy();base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.OFF_HAND,actual);
-                service.runtime().event(base.owner,Trigger.SHOT,null,snapshot,InteractionHand.MAIN_HAND);require(actual.getDamageValue()==100,"missing physical source cannot mutate offhand clone with same serial");return true;
+                service.runtime().event(base.owner,Trigger.SHOT,null,snapshot,InteractionHand.MAIN_HAND);require(actual.getDamageValue()==100,"missing physical source cannot mutate offhand clone with same serial");
+                launches=new GenieLaunchChecks(game,base);next(10);return false;
             }
+            if(phase==10)return launches.tick();
             throw new IllegalStateException("unknown genie phase");
         }
         void knowledge(JsonObject request){
