@@ -89,7 +89,62 @@ final class GenieWorldChecks {
             " run clone ~ ~ ~ ~1 ~ ~ "+coordinates(to)))).getAsJsonObject();
         require(denied.get("successes").getAsInt()==0&&base.level.getBlockState(to).isAir()&&base.level.getBlockState(to.east()).isAir(),
             "native clone rejects selected control block before mutating even ordinary preceding cells");
+        var fill=complete(host,queued(host,"world.command",new JsonPrimitive("fill "+coordinates(from)+" "+
+            coordinates(control)+" minecraft:air destroy"))).getAsJsonObject();
+        require(fill.get("successes").getAsInt()==0&&base.level.getBlockState(from).is(Blocks.STONE)
+            &&base.level.getBlockState(control).is(Blocks.STRUCTURE_BLOCK),"fill rejects protected destinations before destroying any selected cell");
+        var single=complete(host,queued(host,"world.command",new JsonPrimitive("setblock "+coordinates(control)+
+            " minecraft:air destroy"))).getAsJsonObject();
+        require(single.get("successes").getAsInt()==0&&base.level.getBlockState(control).is(Blocks.STRUCTURE_BLOCK),
+            "single destroy preserves native control destination");
+        var filtered=complete(host,queued(host,"world.command",new JsonPrimitive("fill "+coordinates(from)+" "+
+            coordinates(control)+" minecraft:dirt replace minecraft:stone"))).getAsJsonObject();
+        require(filtered.get("successes").getAsInt()==1&&base.level.getBlockState(from).is(Blocks.DIRT)
+            &&base.level.getBlockState(control).is(Blocks.STRUCTURE_BLOCK),"filtered local fill still edits its ordinary selected target");
         base.set(from,Blocks.AIR.defaultBlockState());base.set(control,Blocks.AIR.defaultBlockState());
+        gameItemTransfers(base,host,to);
+    }
+
+    private static void gameItemTransfers(WoolBucketChecks.Fixture base,GenieWorldHost host,BlockPos box){
+        base.set(box,Blocks.SHULKER_BOX.defaultBlockState());
+        var source=(net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity)base.level.getBlockEntity(box);
+        var inventory=base.owner.getInventory();
+        var original=inventory.getItem(7);
+        String copy="item replace entity @s hotbar.7 from block "+coordinates(box)+" container.0";
+        String loot="loot replace entity @s hotbar.7 mine "+coordinates(box);
+        try{
+            source.setItem(0,new ItemStack(Items.STONE,3));
+            var allowed=complete(host,queued(host,"world.command",new JsonPrimitive(copy))).getAsJsonObject();
+            require(allowed.get("successes").getAsInt()==1&&inventory.getItem(7).is(Items.STONE)&&inventory.getItem(7).getCount()==3,
+                "actual native inventory transfer preserves ordinary item and count");
+            source.setItem(0,new ItemStack(Items.STRUCTURE_BLOCK));
+            var denied=complete(host,queued(host,"world.command",new JsonPrimitive(copy))).getAsJsonObject();
+            require(denied.get("successes").getAsInt()==0&&inventory.getItem(7).is(Items.STONE)
+                &&source.getItem(0).is(Items.STRUCTURE_BLOCK),"materialized stack is checked before target write");
+            denied=complete(host,queued(host,"world.command",new JsonPrimitive(loot))).getAsJsonObject();
+            require(denied.get("successes").getAsInt()==0&&inventory.getItem(7).is(Items.STONE),
+                "real generated loot with restricted nested payload is checked before distribution");
+            source.setItem(0,new ItemStack(Items.STONE,2));
+            allowed=complete(host,queued(host,"world.command",new JsonPrimitive(loot))).getAsJsonObject();
+            require(allowed.get("successes").getAsInt()==1&&inventory.getItem(7).is(Items.SHULKER_BOX),
+                "ordinary generated loot remains usable");
+            String modify="item modify entity @s hotbar.7 {type:\"minecraft:set_count\",count:2}";
+            inventory.setItem(7,new ItemStack(Items.STRUCTURE_BLOCK));
+            denied=complete(host,queued(host,"world.command",new JsonPrimitive(modify))).getAsJsonObject();
+            require(denied.get("successes").getAsInt()==0&&inventory.getItem(7).getCount()==1,
+                "modifier skips a protected original instead of writing it back");
+            inventory.setItem(7,new ItemStack(Items.STONE));
+            allowed=complete(host,queued(host,"world.command",new JsonPrimitive(modify))).getAsJsonObject();
+            require(allowed.get("successes").getAsInt()==1&&inventory.getItem(7).getCount()==2,
+                "ordinary native modifier still changes a slot");
+            String forbiddenOutput="item modify entity @s hotbar.7 {type:\"minecraft:set_item\",item:\"minecraft:structure_block\"}";
+            denied=complete(host,queued(host,"world.command",new JsonPrimitive(forbiddenOutput))).getAsJsonObject();
+            require(denied.get("successes").getAsInt()==0&&inventory.getItem(7).is(Items.STONE)
+                &&inventory.getItem(7).getCount()==2,"modifier validates produced stack before slot write");
+        }finally{
+            inventory.setItem(7,original);
+            source.clearContent();base.set(box,Blocks.AIR.defaultBlockState());
+        }
     }
 
     private static String coordinates(BlockPos pos){return pos.getX()+" "+pos.getY()+" "+pos.getZ();}

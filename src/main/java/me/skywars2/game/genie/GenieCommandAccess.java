@@ -9,6 +9,7 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.DimensionArgument;
@@ -23,6 +24,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.nbt.*;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 
@@ -100,11 +103,50 @@ public final class GenieCommandAccess {
         if (value instanceof Holder<?> holder && holder.value()==EntityTypes.COMMAND_BLOCK_MINECART) throw outsideScope();
         if (value instanceof CompoundTag tag) checkPayload(tag);
         if (value instanceof Component text) checkPayload(ComponentSerialization.CODEC.encodeStart(ops,text).getOrThrow());
-        if (value instanceof ItemInput item) {
-            var type=item.item().value();
-            if (type==Items.COMMAND_BLOCK_MINECART || type instanceof BlockItem block && controlBlock(block.getBlock())) throw outsideScope();
-            if (!item.components().isEmpty())
-                checkPayload(DataComponentPatch.CODEC.encodeStart(ops,item.components()).getOrThrow());
+        if (value instanceof ItemInput item) checkItem(item.item().value(),item.components(),ops);
+    }
+
+    private static void checkItem(Item type, DataComponentPatch patch, RegistryOps<Tag> ops) {
+        if (type==Items.COMMAND_BLOCK_MINECART || type instanceof BlockItem block && controlBlock(block.getBlock()))
+            throw outsideScope();
+        if (!patch.isEmpty()) checkPayload(DataComponentPatch.CODEC.encodeStart(ops,patch).getOrThrow());
+    }
+
+    public static void checkItems(CommandSourceStack source, Iterable<ItemStack> items) throws CommandSyntaxException {
+        if (level(source)==null) return;
+        var ops=source.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        try {
+            for (var item:items) if (!item.isEmpty()) checkItem(item.getItem(),item.getComponentsPatch(),ops);
+        } catch (IllegalArgumentException denied) {
+            throw NATIVE_DENIED.create();
+        }
+    }
+
+    public static UnaryOperator<ItemStack> itemModifier(CommandSourceStack source, UnaryOperator<ItemStack> original) {
+        return level(source)==null ? original : new ScopedItemModifier(original,source.registryAccess().createSerializationContext(NbtOps.INSTANCE));
+    }
+
+    public static final class DeniedItemModifier extends RuntimeException {
+        private DeniedItemModifier() { super(DENIED); }
+        public CommandSyntaxException commandError() { return NATIVE_DENIED.create(); }
+    }
+
+    public record ScopedItemModifier(UnaryOperator<ItemStack> original, RegistryOps<Tag> ops) implements UnaryOperator<ItemStack> {
+        @Override public ItemStack apply(ItemStack item) {
+            var result=checked(item);
+            if (result==null) throw new DeniedItemModifier();
+            return result;
+        }
+
+        public ItemStack checked(ItemStack item) {
+            try {
+                if (!item.isEmpty()) checkItem(item.getItem(),item.getComponentsPatch(),ops);
+                var result=original.apply(item.copy());
+                if (!result.isEmpty()) checkItem(result.getItem(),result.getComponentsPatch(),ops);
+                return result;
+            } catch (IllegalArgumentException denied) {
+                return null;
+            }
         }
     }
 
@@ -120,8 +162,17 @@ public final class GenieCommandAccess {
         }
     }
 
+    public static void checkLevel(CommandSourceStack source, ServerLevel target) throws CommandSyntaxException {
+        var allowed=level(source);
+        if (allowed!=null && allowed!=target) throw NATIVE_DENIED.create();
+    }
+
+    public static boolean controlState(net.minecraft.world.level.block.state.BlockState block) {
+        return controlBlock(block.getBlock());
+    }
+
     public static void checkDestination(net.minecraft.world.level.block.state.BlockState block) throws CommandSyntaxException {
-        if (controlBlock(block.getBlock())) throw NATIVE_DENIED.create();
+        if (controlState(block)) throw NATIVE_DENIED.create();
     }
 
 
