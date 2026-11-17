@@ -33,6 +33,15 @@ public final class SkyWarsFeedbackCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
         LbcDropRequests.register(dispatcher);
         SkyWarsAdminCommands.register(dispatcher);
+        var genie = Commands.literal("genie").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+            .then(Commands.literal("login").executes(ctx -> {
+                var link = Component.literal("chatgpt.com").withStyle(style -> style
+                    .withColor(net.minecraft.ChatFormatting.AQUA).withUnderlined(true)
+                    .withClickEvent(new net.minecraft.network.chat.ClickEvent.OpenUrl(java.net.URI.create("https://chatgpt.com/"))));
+                ctx.getSource().sendSuccess(() -> link, false);
+                return 1;
+            }));
+        SkyWarsCommandTree.add(dispatcher, genie);
         var glitch=Commands.literal("atlasglitch").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .executes(ctx->atlasGlitch(ctx.getSource(),List.of(ctx.getSource().getPlayerOrException()),"toggle"));
         for(String mode:List.of("on","off","toggle"))glitch.then(Commands.literal(mode)

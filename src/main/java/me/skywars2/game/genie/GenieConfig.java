@@ -1,29 +1,41 @@
 package me.skywars2.game.genie;
 
-import com.google.gson.*;
-import java.io.*;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import com.google.gson.Gson;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import net.fabricmc.loader.api.FabricLoader;
 
-/** The key is private server configuration, never a gamerule, command argument or model message. */
+/** Local Firefox bridge configuration. Authentication stays with the browser profile. */
 final class GenieConfig {
-    private record FileOptions(String endpoint,String model,int timeoutSeconds){}
-    static GenieModelClient load(){
-        var folder=FabricLoader.getInstance().getConfigDir().resolve("skywars2/genie");
-        var defaults=GenieModelClient.Options.defaults();
-        try{
-            Files.createDirectories(folder);var path=folder.resolve("api.json");
-            if(!Files.exists(path))Files.writeString(path,new GsonBuilder().setPrettyPrinting().create().toJson(
-                    new FileOptions(defaults.endpoint().toString(),defaults.model(),defaults.timeoutSeconds())),StandardCharsets.UTF_8,StandardOpenOption.CREATE_NEW);
-            var config=new Gson().fromJson(Files.readString(path,StandardCharsets.UTF_8),FileOptions.class);
-            String key=System.getenv("SKYWARS2_GENIE_API_KEY");var keyFile=folder.resolve("api-key.txt");
-            if((key==null||key.isBlank())&&Files.isRegularFile(keyFile))key=Files.readString(keyFile,StandardCharsets.UTF_8);
-            return new GenieModelClient(new GenieModelClient.Options(URI.create(config.endpoint()),config.model(),config.timeoutSeconds()),key);
-        }catch(IOException|RuntimeException failure){
-            // Do not echo a file, endpoint credentials or provider error body into logs/chat.
-            return new GenieModelClient(defaults,"");
+    private record FirefoxOptions(String node, String mcpDirectory, String stateDirectory, Integer port) {}
+
+    static GenieScriptModel loadScript() {
+        var folder = FabricLoader.getInstance().getConfigDir().resolve("skywars2/genie").toAbsolutePath().normalize();
+        try {
+            Path config = folder.resolve("firefox.json");
+            FirefoxOptions options = Files.isRegularFile(config)
+                ? new Gson().fromJson(Files.readString(config), FirefoxOptions.class)
+                : new FirefoxOptions(null, null, null, null);
+            Path shared = Path.of(".browser-tools").toAbsolutePath().normalize();
+            Path mcp = options.mcpDirectory == null ? shared.resolve("firefox-mcp") : local(options.mcpDirectory);
+            Path state = options.stateDirectory == null ? shared.resolve("firefox-state") : local(options.stateDirectory);
+            int port = options.port == null ? 1025 : options.port;
+            if (port < 1 || port > 65535 || !Files.isRegularFile(mcp.resolve("dist/server/index.js"))) return null;
+            Path node = options.node == null ? defaultNode() : local(options.node);
+            return new GenieScriptModel(new GenieFirefoxTransport(node, mcp, state, port, folder.resolve("requests")));
+        } catch (Exception unreadable) {
+            return null;
         }
+    }
+
+    private static Path local(String path) { return Path.of(path).toAbsolutePath().normalize(); }
+
+    private static Path defaultNode() {
+        String programs = System.getenv("ProgramFiles");
+        if (programs != null) {
+            Path installed = Path.of(programs,"nodejs","node.exe");
+            if (Files.isRegularFile(installed)) return installed;
+        }
+        return Path.of("node");
     }
 }

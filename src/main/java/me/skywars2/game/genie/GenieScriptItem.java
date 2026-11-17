@@ -25,7 +25,7 @@ public final class GenieScriptItem {
     }
     public static ItemStack construct(ScriptRepository.Loaded code,String icon,String name,String description,int count){
         Objects.requireNonNull(code);if(count<1)throw new IllegalArgumentException("positive item count required");
-        var type=BuiltInRegistries.ITEM.get(Identifier.withDefaultNamespace(icon)).orElseThrow(()->new IllegalArgumentException("unknown item icon")).value();
+        var type=BuiltInRegistries.ITEM.get(Identifier.parse(icon)).orElseThrow(()->new IllegalArgumentException("unknown item icon")).value();
         var stack=new ItemStack(type,count);if(stack.isEmpty())throw new IllegalArgumentException("item icon cannot be empty");
         stack.set(DataComponents.CUSTOM_NAME,Component.literal(name).withStyle(style->style.withItalic(false)));
         stack.set(DataComponents.LORE,new ItemLore(List.of(Component.literal(description).withStyle(style->style.withItalic(false).withColor(0xffffff)))));

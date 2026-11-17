@@ -54,13 +54,13 @@ public final class GenieScriptRuntime implements AutoCloseable {
         final ArrayDeque<Event> events=new ArrayDeque<>();final ArrayDeque<Fiber> fibers=new ArrayDeque<>();
         JsonObject state;long clock;boolean failed,retired,detached;Fiber running;
         Context(ServerPlayer owner,String epoch,ItemStack item,CompletableFuture<ScriptRepository.Loaded> program,boolean detached){
-            this(owner, epoch, item, program, detached, GenieScriptItem.state(item));
+            this(owner, epoch, item, program, detached, GenieScriptItem.state(item), GenieScriptItem.code(item));
         }
         Context(ServerPlayer owner, String epoch, ItemStack item, CompletableFuture<ScriptRepository.Loaded> program,
-                boolean detached, JsonObject state) {
+                boolean detached, JsonObject state, String code) {
             this.owner=owner.getUUID();this.epoch=epoch;this.item=item;this.program=program;
             this.detached=detached;
-            code=GenieScriptItem.code(item);serial=GenieScriptItem.serial(item);encoded=GenieScriptItem.encodedState(item);this.state=state;
+            this.code=code;serial=GenieScriptItem.serial(item);encoded=GenieScriptItem.encodedState(item);this.state=state;
         }
     }
     private final GameController game;
@@ -174,7 +174,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
         if (!attached) item = saved.item.copy();
         var graph = new ScriptGraphCopy();
         var program = saved.program != null ? saved.program : repository().load(saved.code);
-        var context = new Context(owner, saved.epoch, item, program, !attached, graph.copy(saved.state).getAsJsonObject());
+        var context = new Context(owner, saved.epoch, item, program, !attached, graph.copy(saved.state).getAsJsonObject(), saved.code);
         context.clock = saved.clock;
         context.failed = saved.failed;
         for (var event : saved.events) context.events.addLast(copyEvent(event, graph));

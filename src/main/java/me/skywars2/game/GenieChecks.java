@@ -57,7 +57,7 @@ public final class GenieChecks {
         boolean pending(){return !((Map<?,?>)WoolBucketChecks.read(service,"wishes")).isEmpty();}
         static GenieBlueprint plan(){return new GenieBlueprint("A generous sword","Heals the wielder on every accepted sword hit.","iron_sword",1,
                 List.of(new Rule(Trigger.HIT,Target.SELF,Condition.ALWAYS,Effect.HEAL,"",4,0,0,5,1)),List.of(),new Twist(TwistKind.HUNGER_PRICE,1));}
-        String stablePrompt,previousHistory;GenieLaunchChecks launches;GenieScriptChecks scripts;
+        String stablePrompt,previousHistory;GenieLaunchChecks launches;GenieScriptChecks scripts;GenieLampScriptChecks scriptedLamp;
         void submit(){submit("A sword that heals me whenever I hit someone, with communism visuals.");}
         void submit(String wish){
             base.owner.closeContainer();base.client.acknowledge();base.owner.connection.handleClientTickEnd(new net.minecraft.network.protocol.game.ServerboundClientTickEndPacket());
@@ -180,7 +180,12 @@ public final class GenieChecks {
                 if(!launches.tick())return false;
                 GenieWorldChecks.run(game,base);scripts=new GenieScriptChecks(game,base);next(11);return false;
             }
-            if(phase==11)return scripts.tick();
+            if(phase==11){
+                if(!scripts.tick())return false;
+                try{scriptedLamp=new GenieLampScriptChecks(game,base);}catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
+                scriptedLamp.submit();next(12);return false;
+            }
+            if(phase==12)return scriptedLamp.tick();
             throw new IllegalStateException("unknown genie phase");
         }
         void knowledge(JsonObject request){
@@ -251,6 +256,6 @@ public final class GenieChecks {
                 require(base.level.addFreshEntity(reference),"ordinary native arrow with exact initial motion");base.own(reference);
             }
         }
-        @Override public void close(){if(closed)return;closed=true;if(scripts!=null)scripts.close();service.cancelAll();model.close();http.stop(0);executor.shutdownNow();try{modelField.set(service,previous);}catch(IllegalAccessException error){throw new IllegalStateException(error);}finally{base.close();}}
+        @Override public void close(){if(closed)return;closed=true;if(scriptedLamp!=null)scriptedLamp.close();if(scripts!=null)scripts.close();service.cancelAll();model.close();http.stop(0);executor.shutdownNow();try{modelField.set(service,previous);}catch(IllegalAccessException error){throw new IllegalStateException(error);}finally{base.close();}}
     }
 }

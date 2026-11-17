@@ -13,11 +13,19 @@ import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 public final class GenieKnowledge {
     private GenieKnowledge(){}
     private record Profile(JsonObject value,String search){}
-    private record Snapshot(String prefix,List<Profile> profiles){}
+    private record Snapshot(String prefix,String scriptPrefix,List<Profile> profiles){}
     private static volatile Snapshot cached;
 
     /** Called by the model worker, not by the server tick. Full compact index plus relevant prototype details. */
     public static String forWish(String wish,Collection<GenieBlueprint.TwistKind> recent){
+        return forWish(wish,recent.stream().map(Enum::name).toList(),false);
+    }
+
+    static String forScriptWish(String wish, Collection<String> recent) {
+        return forWish(wish, recent, true);
+    }
+
+    private static String forWish(String wish,Collection<String> recent,boolean scripted){
         var snapshot=snapshot();
         var words=new LinkedHashSet<String>();
         for(var word:wish.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{N}_]+"))if(word.length()>2)words.add(word);
@@ -28,8 +36,8 @@ public final class GenieKnowledge {
         ranked.sort(Comparator.<Map.Entry<Profile,Integer>>comparingInt(Map.Entry::getValue).reversed().thenComparing(e->e.getKey().search));
         var related=new JsonArray();for(int i=0;i<Math.min(24,ranked.size());i++)related.add(ranked.get(i).getKey().value.deepCopy());
         // Keep the full factual prefix byte-identical between wishes, before all variable context.
-        return snapshot.prefix+",\"related_source_prototypes\":"+related
-                +",\"recent_drawback_kinds\":"+strings(recent.stream().map(Enum::name).toList())+"}";
+        return (scripted?snapshot.scriptPrefix:snapshot.prefix)+",\"related_source_prototypes\":"+related
+                +",\"recent_drawback_kinds\":"+strings(recent)+"}";
     }
     private static Snapshot snapshot(){
         var value=cached;if(value!=null)return value;
@@ -103,6 +111,9 @@ public final class GenieKnowledge {
             profiles.add(new Profile(row,row.toString().toLowerCase(Locale.ROOT)));
         }
         root.addProperty("source_prototype_count",profiles.size());String encoded=root.toString();
-        return new Snapshot(encoded.substring(0,encoded.length()-1),List.copyOf(profiles));
+        root.remove("constructor_schema");root.remove("native_entity_launch");root.remove("native_entity_launch_contract");
+        root.addProperty("index_contract", "Registry IDs and source prototypes are reference data. Use only operations named in this request's attached item program contract.");
+        String scriptEncoded=root.toString();
+        return new Snapshot(encoded.substring(0,encoded.length()-1),scriptEncoded.substring(0,scriptEncoded.length()-1),List.copyOf(profiles));
     }
 }
