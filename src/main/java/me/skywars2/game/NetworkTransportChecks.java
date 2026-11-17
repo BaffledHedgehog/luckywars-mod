@@ -39,6 +39,44 @@ public final class NetworkTransportChecks {
         @Override public void flush(ChannelHandlerContext ctx) throws Exception { flushes++; super.flush(ctx); }
     }
 
+    private static final class FrameConnection extends Connection {
+        final List<Boolean> flushing=new ArrayList<>();
+        int flushes;
+        FrameConnection(){super(PacketFlow.SERVERBOUND);}
+        @Override public void send(Packet<?> packet,ChannelFutureListener listener,boolean flush){flushing.add(flush);}
+        @Override public void flushChannel(){flushes++;}
+    }
+
+    private static void gameFrame(GameController game,ServerPlayer player){
+        var previous=player.connection;var connection=new FrameConnection();
+        var listener=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),connection,player,
+            new net.minecraft.server.network.CommonListenerCookie(player.getGameProfile(),0,player.clientInformation(),false));
+        try{
+            require(player.connection==listener,"real native listener used by end-tick frame");
+            connection.flushing.clear();connection.flushes=0;
+            var packet=new ClientboundSystemChatPacket(Component.literal("frame-probe"),false);
+            ServerNetworkTransport.endTick(game.server(),()->{
+                for(int i=0;i<5;i++)listener.send(packet);
+                ServerNetworkTransport.endTick(game.server(),()->listener.send(packet));
+                require(connection.flushing.size()==6&&connection.flushing.stream().noneMatch(Boolean::booleanValue)
+                    &&connection.flushes==0,"nested native game frames do not flush individual packets or finish their parent");
+                var failed=new java.util.concurrent.atomic.AtomicReference<Throwable>();
+                var worker=new Thread(()->{try{listener.send(packet);}catch(Throwable error){failed.set(error);}},"skywars2-frame-audio-probe");
+                worker.setDaemon(true);worker.start();
+                try{worker.join(5000);}catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException(error);}
+                require(!worker.isAlive()&&failed.get()==null&&connection.flushing.size()==7&&connection.flushing.getLast(),
+                    "worker-thread streaming remains immediate during the native game-frame batch");
+            });
+            require(connection.flushes==1,"one native flush closes the whole mod frame");
+            listener.send(packet);require(connection.flushing.getLast(),"native send resumes immediate flushing after frame");
+            var expected=new IllegalStateException("frame failure probe");
+            try{ServerNetworkTransport.endTick(game.server(),()->{listener.send(packet);throw expected;});throw new AssertionError("missing frame failure");}
+            catch(IllegalStateException actual){require(actual==expected,"original frame exception preserved");}
+            require(connection.flushes==2,"failed frame also drains its native writes");
+            listener.send(packet);require(connection.flushing.getLast(),"failed frame does not strand the native listener in suspended flushing");
+        }finally{player.connection=previous;}
+    }
+
     static Wire encode(ServerPlayer player, List<Packet<?>> packets, boolean optimized, int compression, boolean encrypted) {
         var connection = new Connection(PacketFlow.SERVERBOUND);
         var channel = new EmbeddedChannel();
@@ -281,6 +319,7 @@ public final class NetworkTransportChecks {
     public static void run(GameController game) {
         boundaries();loginCompression();
         var player = Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
+        gameFrame(game,player);
         List<Packet<?>> packets = new ArrayList<>();
         for (int i = 0; i < 300; i++) packets.add(new ClientboundSystemChatPacket(Component.literal("native-packet-" + i + "-" + "payload".repeat(i % 4 == 0 ? 100 : 1)), false));
         packets.add(new ClientboundBundlePacket(List.of(new ClientboundSystemChatPacket(Component.literal("bundle-a"), false), new ClientboundSystemChatPacket(Component.literal("bundle-b"), false))));

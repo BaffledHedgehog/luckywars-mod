@@ -248,11 +248,23 @@ public final class LbcRainbowAura {
                 if(w==null){f.walker++;f.sample=0;return;}
                 // Source cosmetic markers sleep with their native chunk; no TTL or forced loading.
                 if(!loaded(s.level,BlockPos.containing(w.position))){f.walker++;f.sample=0;return;}
-                if(w.blue){particle(s.level,ParticleTypes.ELECTRIC_SPARK,w.position,1,0,0,0,0);particle(s.level,BLUE,w.position,1,0,0,0,0);
-                    if(s.random(100)<5)w.direction=AXES[s.random(6)];}
-                else particle(s.level,PURPLE,w.position.add(0,.2,0),1,0,0,0,0);
+                if(w.blue){
+                    // Seven source samples form one bounded native-particle run.
+                    // Preserve every RNG turn and terminal test; only their wire
+                    // representation changes, without introducing display actors.
+                    try(var line=new LbcParticleBatch.AxisLine(s.level,ParticleTypes.ELECTRIC_SPARK,BLUE)){
+                        while(f.sample<7){
+                            if(!loaded(s.level,BlockPos.containing(w.position))){f.walker++;f.sample=0;return;}
+                            line.add(w.position);
+                            if(s.random(100)<5)w.direction=AXES[s.random(6)];
+                            w.position=w.position.add(w.direction);f.sample++;
+                        }
+                    }
+                    if(s.random(100)<3)s.walkers.set(f.walker,null);f.walker++;f.sample=0;return;
+                }
+                particle(s.level,PURPLE,w.position.add(0,.2,0),1,0,0,0,0);
                 w.position=w.position.add(w.direction);
-                if(++f.sample==7){if(s.random(100)<(w.blue?3:20))s.walkers.set(f.walker,null);f.walker++;f.sample=0;}
+                if(++f.sample==7){if(s.random(100)<20)s.walkers.set(f.walker,null);f.walker++;f.sample=0;}
                 return;
             }
             f.stage=2;

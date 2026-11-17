@@ -3459,6 +3459,14 @@ pipelines are excluded. Packet contents, ordering, protocol transitions and nati
 compression/encryption are preserved; there is no packet queue or worker thread.
 This reduces flush overhead, not the number or encoded payload of game packets.
 
+The mod's END_SERVER_TICK handlers run after vanilla has resumed flushing.
+`ServerNetworkTransport.endTick` brackets these handlers with the native listener
+suspend/resume operations, so their writes drain once per listener on exit.
+Nested frames share listener ownership; newly replaced sessions are scoped
+independently. Exception cleanup resumes every acquired listener. Native sends
+from audio workers still flush immediately because they are outside the server
+thread. No extra frame queue or timer is introduced.
+
 LbcBolts' common ray and Infinite Bolt reuse the existing bounded three-sample
 LbcParticleBatch.Group. Particle counts/types, distance, collision, suppression and
 server RNG behavior remain; nearby samples use the existing mean/variance visual
@@ -3466,6 +3474,17 @@ approximation. True-legacy keeps the original individual sendParticles calls.
 Native tests preserve 21 Infinite Bolt particles with 21->7 packets/1428->476 bytes,
 and 30 cloud/soul particles with 30->10 packets/1680->560 bytes. These byte counts
 include native packet encoding/framing with compression threshold256.
+
+Rainbow Aura's blue walkers use `LbcParticleBatch.AxisLine` for at most seven
+samples per operation. Original electric sparks and blue dust keep their count,
+color, scale and native providers. Uniform client sampling stays within each
+original straight segment (at most0.6 blocks); it replaces the fine0.1-block
+sample lattice, not the trail's turns or gameplay. Every source RNG turn and
+terminal test remains; unloaded points and viewer range boundaries retain the
+original admission rules. The selected native scene emits700 particles in114
+packets instead of700. Orange's three71-point flame arms are one queue operation,
+so their upward motion starts in the same tick. Other particle owners still need
+individual review; these changes do not certify every effect's network load.
 
 NetworkTransportChecks also validates real PLAY codecs/bundle delimiters,
 compression on/off, AES/CFB8, byte-exact output/order, lifecycle/backpressure and

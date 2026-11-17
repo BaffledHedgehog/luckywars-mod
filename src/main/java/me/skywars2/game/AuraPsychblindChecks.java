@@ -51,7 +51,7 @@ public final class AuraPsychblindChecks {
         final net.minecraft.world.scores.PlayerTeam oldTeam,otherTeam,team;
         double attack,armor,toughness,knockback;int manaRegen,stage,when;boolean closed,stopped,restoring;
         Cow target,ally,shop,observer;BlockPos support;float health;UUID doppelId;Vec3 frozenPosition;ServerPlayer doppelCaster;
-        int gramPackets,orangePackets;boolean orangeFrame;
+        int gramPackets,orangePackets,bluePackets;boolean orangeFrame;
         Map<UUID,Vec3> replayBodies=new LinkedHashMap<>();
         final Set<UUID> removedGrams=new LinkedHashSet<>();
         Fixture(GameController game,int kind){
@@ -187,9 +187,32 @@ public final class AuraPsychblindChecks {
                     for(var id:removedGrams)require(level.getEntity(id)==null&&!checkpoint.actorIds().contains(id),"native visual unload retires removed managram UUID "+id);
                     require(checkpoint.prepare(level::getEntity).pending().isEmpty(),"future native checkpoint has no dead visual links");
                     require(color()==LbcRainbowAura.Color.AQUA&&game.items().mana().baseRegen(owner)==manaRegen+5&&game.items().mana().get(owner)==10000,"visual removal preserves active aqua color and resource ownership");
-                    hit();near(game.items().mana().baseRegen(owner),manaRegen,"blue reverses source5");game.items().mana().score(owner,"nanobots_tier").set(217);next(4);
+                    hit();near(game.items().mana().baseRegen(owner),manaRegen,"blue reverses source5");game.items().mana().score(owner,"nanobots_tier").set(217);bluePackets=client.packets().size();next(4);
                 }
-                case 4->{if(elapsed<25)return false;require(game.items().mana().score(owner,"nanobots_tier").get()==217,"blue preserves charge already above120");game.items().mana().score(owner,"nanobots_tier").set(118);next(5);}
+                case 4->{
+                    if(elapsed<25)return false;
+                    var packets=new ArrayList<Packet<?>>();for(var packet:client.packets().subList(bluePackets,client.packets().size()))flatten(packet,packets);
+                    var sparks=packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast)
+                        .filter(packet->packet.particle().getType()==net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK).toList();
+                    var dust=packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast)
+                        .filter(packet->packet.particle() instanceof net.minecraft.core.particles.DustParticleOptions d
+                            &&d.getColor().equals(net.minecraft.util.ARGB.vector3fFromRGB24(0x3e2af7))&&d.getScale()==.8f).toList();
+                    int samples=sparks.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
+                    require(!sparks.isEmpty()&&sparks.size()<samples,"native blue paths batch multiple original particles, packets="+sparks.size()+" samples="+samples);
+                    require(dust.size()==sparks.size()&&dust.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum()==samples,
+                        "each original blue spark keeps a native blue dust particle of source color/scale");
+                    for(var packet:sparks){
+                        int axes=(packet.xDist()!=0?1:0)+(packet.yDist()!=0?1:0)+(packet.zDist()!=0?1:0);
+                        require(packet.count()>0&&packet.count()<=7&&axes<=1&&Math.abs(packet.xDist())<=.60001
+                            &&Math.abs(packet.yDist())<=.60001&&Math.abs(packet.zDist())<=.60001,
+                            "no diagonal Gaussian cloud or enlarged native source extent");
+                        require(packet.xMaxSpeed()==0&&packet.yMaxSpeed()==0&&packet.zMaxSpeed()==0&&!packet.overrideLimiter()&&!packet.alwaysShow()
+                            &&packet.randomizationType()==(packet.count()==1?ClientboundLevelParticlesPacket.RandomizationType.DEFAULT:ClientboundLevelParticlesPacket.RandomizationType.ALTERNATIVE),
+                            "native source motion/visibility and uniform straight-line sampling");
+                    }
+                    SkyWars2.LOGGER.info("[check] blue particle runs: {} native particles in {} packets instead of {}",samples*2,sparks.size()+dust.size(),samples*2);
+                    require(game.items().mana().score(owner,"nanobots_tier").get()==217,"blue preserves charge already above120");game.items().mana().score(owner,"nanobots_tier").set(118);next(5);
+                }
                 case 5->{if(game.items().mana().score(owner,"nanobots_tier").get()==118){require(elapsed<40,"second blue source20 cadence");return false;}require(game.items().mana().score(owner,"nanobots_tier").get()==120,"blue118 saturates at120");hit();support=BlockPos.containing(origin).below();block(support,Blocks.CHEST.defaultBlockState());((ChestBlockEntity)level.getBlockEntity(support)).setItem(0,new ItemStack(Items.DIAMOND,3));for(var d:List.of(support.north(),support.south(),support.east(),support.west()))block(d,Blocks.AIR.defaultBlockState());move(owner,Vec3.atBottomCenterOf(support.above()));owner.setOnGround(true);next(6);}
                 case 6->{
                     var neighbors=List.of(support.north(),support.south(),support.east(),support.west());if(neighbors.stream().anyMatch(p->!level.getBlockState(p).is(Blocks.CHEST))){require(elapsed<20,"purple native support copy finishes");owner.setOnGround(true);return false;}

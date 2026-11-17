@@ -142,7 +142,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             me.skywars2.game.TpsCompensation.beginTick(server);
             me.skywars2.game.SignedEnvironmentalEffects.beginTick();
         });
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
+        ServerTickEvents.END_SERVER_TICK.register(server -> me.skywars2.game.ServerNetworkTransport.endTick(server,()->{
             if (game != null) { game.tick(); GameChecks.tick(game); game.items().psycho().audioMaintenance(); }
             me.skywars2.game.SignedEnvironmentalEffects.tick();
             me.skywars2.game.SignedEffectVisuals.tick(server);
@@ -151,7 +151,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(game!=null)game.itemQueue().endTick();
             AtlasGlitchSignal.tick(server);
             me.skywars2.game.PlayerLatency.tick(server);
-        });
+        }));
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;
             if (game != null && game.items().polymorph().nativeTransition(entity)) return;
