@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 /** Native WILD arrows and a single server-wide held-item music session. */
 public final class LbcMusicStaff {
     public static final String FLAG="music_staff";
-    public static final Identifier MUSIC=Identifier.parse("skywars2:music_staff");
+    public static final Identifier MUSIC=Identifier.parse("minecraft:lbcsounds.music_staff");
     public static final Identifier ARROW_MODEL=Identifier.parse("lbc:music_staff/arrow");
     static final int STUDY_TICKS=52*20;
     static final String BASE_MANA="music_staff_mana_use",ACADEMY_MANA="academy_music_staff_mana_use";

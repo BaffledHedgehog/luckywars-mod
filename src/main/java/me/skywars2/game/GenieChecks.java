@@ -28,7 +28,7 @@ public final class GenieChecks {
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.begin();}catch(Throwable error){running=null;f.close();throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS genie (real HTTP, dialog nonce, overstack lamp conservation, movable pending lamp, Q/cursor/chest/frame protection, exact reward slot, native lethal hit, denial10 distinct pockets, reset cancellation/late reply, TimeStop-safe HTTP completion, real arrow/snowball/fireball8HP impacts, native consumed/broken source identity)");}
+        try{if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS genie (real HTTP, dialog nonce, overstack lamp conservation, movable pending lamp, Q/cursor/chest/frame protection, exact reward slot, native lethal hit, denial10 distinct pockets, reset cancellation/late reply, TimeStop-safe HTTP completion, real native-arrow control and snowball/fireball8HP impacts, native consumed/broken source identity)");}
         catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL genie",error);}
     }
     private record Request(String body,CompletableFuture<String> reply){}
@@ -37,7 +37,7 @@ public final class GenieChecks {
         final HttpServer http;final ExecutorService executor;final BlockingQueue<Request> requests=new LinkedBlockingQueue<>();
         final GenieModelClient previous,model;final java.lang.reflect.Field modelField;
         final net.minecraft.world.SimpleContainer chest=new net.minecraft.world.SimpleContainer(27);
-        int phase,when,shotIndex,inputSequence=300;float health;ItemStack edible;net.minecraft.world.entity.LivingEntity target;Request request;ItemStack[] before;ItemStack waiting;boolean closed;
+        int phase,when,shotIndex,inputSequence=300;float health;ItemStack edible;net.minecraft.world.entity.LivingEntity target,referenceTarget;Request request;ItemStack[] before;ItemStack waiting;boolean closed;
         Fixture(GameController game){
             this.game=game;base=new WoolBucketChecks.Fixture(game,false);base.prepareParticipants();service=game.items().genie();
             require(((Map<?,?>)WoolBucketChecks.read(service,"wishes")).isEmpty(),"no user wishes in fixture");
@@ -133,7 +133,12 @@ public final class GenieChecks {
             if(phase==5){if(game.server().getTickCount()-when<8)return false;require(base.owner.getMainHandItem().is(GenieItems.LAMP)&&!GenieRuntime.matches(base.owner.getMainHandItem()),"late cancelled reply cannot replace item after reset");shoot();next(6);return false;}
             if(phase==6){
                 if(target.getHealth()==1000){require(game.server().getTickCount()-when<30,"native projectile reaches target: kind="+List.of("arrow","snowball","small_fireball").get(shotIndex));return false;}
-                require(target.getHealth()==992,"real native tagged projectile applies8 damage: kind="+List.of("arrow","snowball","small_fireball").get(shotIndex)+" HP="+target.getHealth());base.discard(target);
+                if(shotIndex==0){
+                    if(referenceTarget.getHealth()==1000){require(game.server().getTickCount()-when<30,"matching native reference arrow reaches target");return false;}
+                    require(target.getHealth()==referenceTarget.getHealth(),"tagged arrow retains native speed/drag/gravity/rounding damage: genie="+target.getHealth()+" reference="+referenceTarget.getHealth());
+                    base.discard(referenceTarget);referenceTarget=null;
+                }else require(target.getHealth()==992,"real native tagged projectile applies8 direct damage: kind="+List.of("arrow","snowball","small_fireball").get(shotIndex)+" HP="+target.getHealth());
+                base.discard(target);
                 if(++shotIndex<3){shoot();next(6);return false;}
                 require(requests.isEmpty(),"dialog replay made no extra model request");
                 var old=base.owner.position();base.owner.setYRot(0);base.owner.setXRot(0);base.owner.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
@@ -183,6 +188,24 @@ public final class GenieChecks {
             LbcTmtTriggers.input(base.owner,LbcTmtTriggers.Input.RIGHT_CLICK);
             var added=base.level.getEntitiesOfClass(net.minecraft.world.entity.projectile.Projectile.class,base.owner.getBoundingBox().inflate(5),e->!before.contains(e.getUUID()));
             require(added.size()==1&&added.getFirst().getOwner()==base.owner,"one real native physically owned "+kind);added.forEach(base::own);
+            if(shotIndex==0){
+                // A native arrow's ceil(speed*baseDamage) can legitimately be9
+                // after bow spread. Compare a real ordinary arrow, not a flat8.
+                var offset=new net.minecraft.world.phys.Vec3(8,0,0);
+                for(var cell:net.minecraft.core.BlockPos.betweenClosed(base.owner.blockPosition().offset(7,0,0),base.owner.blockPosition().offset(9,3,6)))
+                    base.set(cell.immutable(),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                var control=EntityTypes.COW.create(base.level,EntitySpawnReason.TRIGGERED);Objects.requireNonNull(control);
+                control.setNoAi(true);control.setNoGravity(true);control.setPos(cow.position().add(offset));
+                control.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);control.setHealth(1000);
+                require(base.level.addFreshEntity(control),"ordinary native arrow control target");base.own(control);referenceTarget=control;
+                var original=(net.minecraft.world.entity.projectile.arrow.Arrow)added.getFirst();
+                require(((Number)WoolBucketChecks.read(original,"baseDamage")).doubleValue()==4,"requested arrow amount8 retains native speed2 base damage4");
+                var reference=new net.minecraft.world.entity.projectile.arrow.Arrow(base.level,base.owner,new ItemStack(Items.ARROW),base.owner.getMainHandItem().copyWithCount(1));
+                reference.setPos(original.position().add(offset));reference.setDeltaMovement(original.getDeltaMovement());
+                reference.setNoGravity(original.isNoGravity());reference.setBaseDamage(4);
+                reference.pickup=net.minecraft.world.entity.projectile.arrow.AbstractArrow.Pickup.DISALLOWED;
+                require(base.level.addFreshEntity(reference),"ordinary native arrow with exact initial motion");base.own(reference);
+            }
         }
         @Override public void close(){if(closed)return;closed=true;service.cancelAll();model.close();http.stop(0);executor.shutdownNow();try{modelField.set(service,previous);}catch(IllegalAccessException error){throw new IllegalStateException(error);}finally{base.close();}}
     }

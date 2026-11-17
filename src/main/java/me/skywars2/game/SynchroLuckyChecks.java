@@ -24,7 +24,43 @@ public final class SynchroLuckyChecks {
         void begin(long seed){inputs();sync.begin(true,seed);}
         List<ItemStack> drop(ServerPlayer player,LbcLuckyBlocks.Kind kind,ItemStack tool){var state=LbcLuckyBlocks.block(kind).defaultBlockState();return state.getDrops(new LootParams.Builder(f.level).withParameter(LootContextParams.ORIGIN,player.position()).withParameter(LootContextParams.THIS_ENTITY,player).withParameter(LootContextParams.BLOCK_STATE,state).withParameter(LootContextParams.TOOL,tool));}
         long cursor(ServerPlayer p,LbcLuckyBlocks.Kind kind){return sync.position(p.getUUID(),Identifier.parse("lbc:native_lucky/"+kind.name().toLowerCase(Locale.ROOT)));}
-        void same(List<ItemStack> left,List<ItemStack> right,String why){require(left.size()==right.size(),why+" stack counts "+left.size()+"/"+right.size());for(int i=0;i<left.size();i++)require(ItemStack.matches(left.get(i),right.get(i)),why+" output"+i+" "+left.get(i)+" / "+right.get(i));}
+        void same(List<ItemStack> left,List<ItemStack> right,String why){
+            require(left.size()==right.size(),why+" stack counts "+left.size()+"/"+right.size());
+            for(int i=0;i<left.size();i++)if(!ItemStack.matches(left.get(i),right.get(i))){
+                if(contextName(left.get(i),right.get(i)))continue;
+                var ops=net.minecraft.resources.RegistryOps.create(com.mojang.serialization.JsonOps.INSTANCE,f.level.registryAccess());
+                var differences=new ArrayList<String>();
+                diff(ItemStack.CODEC.encodeStart(ops,left.get(i)).getOrThrow(),ItemStack.CODEC.encodeStart(ops,right.get(i)).getOrThrow(),"",differences);
+                throw new IllegalStateException("Synchro lucky: "+why+" output"+i+" "+left.get(i)+" / "+right.get(i)+" differences="+differences);
+            }
+        }
+        boolean contextName(ItemStack left,ItemStack right){
+            // This authored egg uses @p[gamemode=!spectator] in set_name. The
+            // identical roll intentionally receives each recipient's native name.
+            // Do not normalize arbitrary lore, owner NBT or other random metadata.
+            if(!left.is(Items.VILLAGER_SPAWN_EGG)||!right.is(Items.VILLAGER_SPAWN_EGG))return false;
+            var data=left.get(net.minecraft.core.component.DataComponents.ENTITY_DATA);
+            if(data==null||!data.getUnsafe().getList("Tags").map(tags->tags.contains(net.minecraft.nbt.StringTag.valueOf("fake_player"))).orElse(false))return false;
+            var a=left.get(net.minecraft.core.component.DataComponents.CUSTOM_NAME);var b=right.get(net.minecraft.core.component.DataComponents.CUSTOM_NAME);
+            var expectedA=f.owner.getDisplayName().copy().withStyle(style->style.withItalic(false));
+            var expectedB=f.other.getDisplayName().copy().withStyle(style->style.withItalic(false));
+            if(!Objects.equals(a,expectedA)||!Objects.equals(b,expectedB))return false;
+            var named=right.copy();named.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,a);
+            require(ItemStack.matches(left,named),"personalized fake-player egg retains exactly matching count and every other component");
+            return true;
+        }
+        void diff(com.google.gson.JsonElement a,com.google.gson.JsonElement b,String path,List<String> out){
+            if(Objects.equals(a,b)||out.size()>=12)return;
+            if(a!=null&&b!=null&&a.isJsonObject()&&b.isJsonObject()){
+                var keys=new TreeSet<>(a.getAsJsonObject().keySet());keys.addAll(b.getAsJsonObject().keySet());
+                for(var key:keys)diff(a.getAsJsonObject().get(key),b.getAsJsonObject().get(key),path+"/"+key,out);
+            }else if(a!=null&&b!=null&&a.isJsonArray()&&b.isJsonArray()&&a.getAsJsonArray().size()==b.getAsJsonArray().size()){
+                for(int i=0;i<a.getAsJsonArray().size();i++)diff(a.getAsJsonArray().get(i),b.getAsJsonArray().get(i),path+"/"+i,out);
+            }else{
+                String x=String.valueOf(a),y=String.valueOf(b);
+                out.add(path+"="+x.substring(0,Math.min(180,x.length()))+" / "+y.substring(0,Math.min(180,y.length())));
+            }
+        }
         void luck(){
             for(var kind:LbcLuckyBlocks.Kind.values()){
                 begin(9020+kind.ordinal());var slow=new ArrayList<ItemStack>();var fast=new ArrayList<ItemStack>();var a=new ArrayList<SynchroLuckyDraws.Draw>();var b=new ArrayList<SynchroLuckyDraws.Draw>();

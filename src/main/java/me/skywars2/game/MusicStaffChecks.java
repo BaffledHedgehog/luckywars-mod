@@ -55,7 +55,13 @@ public final class MusicStaffChecks {
                 var document=com.google.gson.JsonParser.parseString(new String(original,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();var values=document.getAsJsonObject("values");
                 values.remove(LbcMusicStaff.BASE_MANA);values.remove(LbcMusicStaff.ACADEMY_MANA);java.nio.file.Files.writeString(path,document.toString());game.items().mana().sourceConfig().reload();
                 var expanded=com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path)).getAsJsonObject().getAsJsonObject("values");
-                require(expanded.get(LbcMusicStaff.BASE_MANA).getAsInt()==52&&expanded.get(LbcMusicStaff.ACADEMY_MANA).getAsInt()==52,"new editable prices are persisted into an existing configuration");
+                try(var input=MusicStaffChecks.class.getResourceAsStream("/skywars2/source_config_defaults.json")){
+                    require(input!=null,"packaged authored source defaults exist");
+                    var defaults=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8))
+                        .getAsJsonObject().getAsJsonObject("values");
+                    for(var key:List.of(LbcMusicStaff.BASE_MANA,LbcMusicStaff.ACADEMY_MANA))
+                        require(expanded.get(key).equals(defaults.get(key)),"new editable price persists its current authored default: "+key);
+                }
                 for(var previous:values.entrySet())require(previous.getValue().equals(expanded.get(previous.getKey())),"expansion preserves authored setting "+previous.getKey());
                 values.addProperty(LbcMusicStaff.BASE_MANA,37);values.addProperty(LbcMusicStaff.ACADEMY_MANA,73);java.nio.file.Files.writeString(path,document.toString());
                 require(game.server().getCommands().getDispatcher().execute("skywars reloadconfig",game.server().createCommandSourceStack())>0,"actual source-config reload");
