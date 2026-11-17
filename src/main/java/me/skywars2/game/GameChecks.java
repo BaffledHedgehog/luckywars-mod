@@ -1246,6 +1246,7 @@ public final class GameChecks {
                                 case "network-transport" -> { NetworkTransportChecks.run(game); return; }
                                 case "smoke-volume" -> { SmokeVolumeChecks.run(game); return; }
                                 case "smoke-ending" -> { SmokeEndingChecks.run(game); return; }
+                                case "smoke-attachment" -> { SmokeAttachmentChecks.run(game); return; }
                                 case "tesla-network" -> { TeslaTrafficChecks.runNetwork(game); return; }
                                 case "potion-ground-impact" -> { PotionGroundImpactChecks.run(game); return; }
                                 case "tesla" -> { TeslaChecks.run(game); return; }
@@ -1963,6 +1964,7 @@ public final class GameChecks {
         SynchroRankedChecks.tick(game);
         TikTokBulkImportChecks.tick(game);
         SmokeEndingChecks.tick(game);
+        SmokeAttachmentChecks.tick(game);
         PotionGroundImpactChecks.tick(game);PolymorphWandChecks.tick(game);
         AwakenedAcidChecks.tick(game);
         GaycasterChecks.tick(game);

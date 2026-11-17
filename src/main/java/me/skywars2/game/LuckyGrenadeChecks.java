@@ -103,7 +103,8 @@ public final class LuckyGrenadeChecks {
         }
         void visual(){
             reset();var arrow=shot(base.at.add(0,5,0));
-            var polymer=(eu.pb4.polymer.core.api.entity.PolymerEntity)arrow;
+            var polymer=eu.pb4.polymer.core.api.entity.PolymerEntity.get(arrow);
+            require(polymer!=null,"native Polymer lookup actually owns the grenade renderer");
             require(polymer.getPolymerEntityType(null)==EntityTypes.MARKER,"physical native arrow is hidden from vanilla renderer");
             var raw=new ArrayList<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>>();var nativeValues=arrow.getEntityData().getNonDefaultValues();if(nativeValues!=null)raw.addAll(nativeValues);polymer.modifyRawTrackedData(raw,p,true);require(raw.isEmpty(),"arrow-specific metadata never leaks into marker client carrier");
             var holder=(eu.pb4.polymer.virtualentity.api.ElementHolder)WoolBucketChecks.read(arrow,"visual");

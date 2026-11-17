@@ -74,7 +74,7 @@ public final class SmokeVolumeChecks {
                 int poof=graphics.stream().filter(p->p.particle()==ParticleTypes.POOF).mapToInt(ClientboundLevelParticlesPacket::count).sum();
                 if(elapsed==0&&poof==0)return false;
                 require(poof-oldParticleTotal==70,"exact old POOF70 each observed native frame: before="+oldParticleTotal+" now="+poof+" tick="+elapsed);
-                oldParticleTotal=poof;if(++oldParticleFrames<2)return false;
+                oldParticleTotal=poof;if(++oldParticleFrames<2||elapsed<4)return false;
                 require(graphics.stream().noneMatch(p->p.particle().getType()==ParticleTypes.BLOCK_MARKER),"modern block-marker spam removed");
                 require(graphics.stream().anyMatch(p->SmokeVisuals.particle(p.particle())&&p.count()>0&&p.count()<=12),"bounded custom smoke puffs actually reach owner");
                 require(flatten(f.audience.packets()).stream().filter(ClientboundLevelParticlesPacket.class::isInstance)

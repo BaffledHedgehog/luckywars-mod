@@ -44,6 +44,9 @@ public final class LbcReactiveArtifacts {
     }
     /** Vanilla item physics owns support loss, fluid flow and explosion knockback. */
     private static final class SmokeCarrier extends net.minecraft.world.entity.item.ItemEntity {
+        private BlockPos support;
+        private Vec3 contact,attachment;
+        private net.minecraft.world.level.block.state.BlockState supportState;
         SmokeCarrier(ServerLevel level,Vec3 at){
             super(level,at.x,at.y+.05,at.z,spentSmoke());
             setDeltaMovement(Vec3.ZERO);setNoGravity(false);setPermanentlyInvulnerable(true);
@@ -57,6 +60,36 @@ public final class LbcReactiveArtifacts {
         @Override public boolean shouldBeSaved(){return false;}
         @Override public boolean canUsePortal(boolean ignorePassenger){return false;}
         @Override public boolean canTeleport(net.minecraft.world.level.Level from,net.minecraft.world.level.Level to){return from==to;}
+        void attach(BlockHitResult hit){
+            var face=hit.getDirection();var normal=Vec3.atLowerCornerOf(face.getUnitVec3i());
+            support=hit.getBlockPos().immutable();contact=hit.getLocation().subtract(normal.scale(.01));
+            double offset=face==net.minecraft.core.Direction.DOWN?getBbHeight()+.02:
+                face==net.minecraft.core.Direction.UP?.02:getBbWidth()/2+.02;
+            attachment=hit.getLocation().add(normal.scale(offset));
+            setPos(attachment);setDeltaMovement(Vec3.ZERO);setNoGravity(true);
+        }
+        private boolean supported(){
+            if(((ServerLevel)level()).getChunkSource().getChunkNow(support.getX()>>4,support.getZ()>>4)==null)return false;
+            var state=level().getBlockState(support);
+            if(state==supportState)return true;
+            // Recheck the actual hit face after a block/shape change, not just "not air".
+            boolean holds=state.getCollisionShape(level(),support).toAabbs().stream()
+                .anyMatch(box->box.move(support).inflate(.001).contains(contact));
+            if(holds)supportState=state;
+            return holds;
+        }
+        @Override public void tick(){
+            if(support!=null){
+                if(getDeltaMovement().lengthSqr()<1e-8&&position().distanceToSqr(attachment)<1e-8&&supported())return;
+                // A native blast impulse or support loss releases the same physical item.
+                support=null;supportState=null;contact=attachment=null;setNoGravity(false);
+            }
+            super.tick();
+        }
+        void restoreAttachment(SmokeCarrier previous){
+            support=previous.support;supportState=previous.supportState;
+            contact=previous.contact;attachment=previous.attachment;setNoGravity(support!=null);
+        }
     }
     private static final class Puff implements SmokeVisuals.Volume {
         final Cloud source;final Vec3 center;final double radius,strength;final int life;int age;
@@ -141,10 +174,14 @@ public final class LbcReactiveArtifacts {
         }
     }
     void grenadeSmoke(ServerPlayer owner,Vec3 at,boolean old){
+        grenadeSmoke(owner,at,old,null);
+    }
+    void grenadeSmoke(ServerPlayer owner,Vec3 at,boolean old,BlockHitResult hit){
         if(!valid(owner))return;
         var cloud=new Cloud(owner,game.items().epoch(),at,5,1,1200,old?2:1);
         if(!old){
             var carrier=new SmokeCarrier(owner.level(),at);game.items().markCurrentItemEpoch(carrier);
+            if(hit!=null)carrier.attach(hit);
             game.items().timeStop().prepareFrozen(carrier);
             if(!owner.level().addFreshEntity(carrier)||carrier.isRemoved()){carrier.discard();return;}
             cloud.carrier=carrier;cloud.center=carrier.position();cloud.motionPoint=cloud.center;
@@ -203,6 +240,7 @@ public final class LbcReactiveArtifacts {
         if(!cloud.level.isPositionEntityTicking(BlockPos.containing(cloud.center)))return true;
         var fresh=new SmokeCarrier(cloud.level,cloud.center);fresh.setPos(cloud.center);
         fresh.setDeltaMovement(old.getDeltaMovement());fresh.setOnGround(old.onGround());
+        fresh.restoreAttachment(old);
         game.items().markCurrentItemEpoch(fresh);game.items().timeStop().prepareFrozen(fresh);
         if(!cloud.level.addFreshEntity(fresh)||fresh.isRemoved()){fresh.discard();return false;}
         cloud.carrier=fresh;return true;

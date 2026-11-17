@@ -30,6 +30,12 @@ import static me.skywars2.game.LbcHedgehogItems.SpikeKind;
 
 /** Seven real wall drops: six native arrow transports and the authored piercing impulse ray. */
 public final class LbcHedgehogSpikes {
+    static {
+        // Native ARROW subclasses are not registered custom entity types. Merely
+        // implementing PolymerEntity does not install their per-instance overlay.
+        eu.pb4.polymer.core.api.entity.PolymerEntityUtils.registerPolymerEntityConstructor(
+            net.minecraft.world.entity.EntityTypes.ARROW,e->e instanceof SpikeArrow spike?spike:null);
+    }
     private static final String TAG="skywars2.hedgehog_spike";
     private final GameController game;
     private final List<SpikeArrow> arrows=new ArrayList<>();
@@ -129,7 +135,9 @@ public final class LbcHedgehogSpikes {
         }
         @Override protected void onHitBlock(BlockHitResult result){
             super.onHitBlock(result);if(blockDone||retired)return;blockDone=true;
-            if(legacy>0&&valid(this)&&getOwner() instanceof ServerPlayer p)legacyImpact(this,null,p,result.getLocation());
+            if(legacy==7&&valid(this)&&getOwner() instanceof ServerPlayer p)
+                game.items().reactiveArtifacts().grenadeSmoke(p,result.getLocation(),false,result);
+            else if(legacy>0&&valid(this)&&getOwner() instanceof ServerPlayer p)legacyImpact(this,null,p,result.getLocation());
             else if(kind==SpikeKind.BOOM&&valid(this)&&getOwner() instanceof ServerPlayer p&&!game.items().magic().suppressedAt((ServerLevel)level(),position()))
                 game.items().hedgehog().spawnWall((ServerLevel)level(),position(),p,Vec3.directionFromRotation(getXRot(),getYRot()));
             retire(this);
