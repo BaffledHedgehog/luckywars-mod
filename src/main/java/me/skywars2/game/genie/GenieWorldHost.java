@@ -132,7 +132,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
     }
     private CommandSourceStack source(CommandSource output){
         // Gameplay authority does not inherit the account's operator/owner authority.
-        return owner.createCommandSourceStack().withSource(output).withPermission(LevelBasedPermissionSet.GAMEMASTER);
+        return owner.createCommandSourceStack().withSource(GenieCommandAccess.scopedOutput(owner.level(),output)).withPermission(LevelBasedPermissionSet.GAMEMASTER);
     }
     /** Technical preflight is also available before accepting a generated literal command. */
     public void validateCommand(String line){mainThread();parseCommand(line,source(CommandSource.NULL));}
@@ -197,9 +197,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         }catch(com.mojang.brigadier.exceptions.CommandSyntaxException invalid){throw new IllegalArgumentException(invalid.getRawMessage().getString());}
     }
     private Entity find(String id){
-        var uuid=UUID.fromString(id);
-        for(var level:game.server().getAllLevels()){var found=level.getEntity(uuid);if(found!=null)return found;}
-        return null;
+        return owner.level().getEntity(UUID.fromString(id));
     }
     private JsonElement info(Entity entity){
         if(entity==null)return JsonNull.INSTANCE;

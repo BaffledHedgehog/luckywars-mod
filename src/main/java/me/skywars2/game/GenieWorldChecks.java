@@ -32,6 +32,68 @@ final class GenieWorldChecks {
         require(host.drain(1,Long.MAX_VALUE)==1&&work.future().isDone(),"one native job completes in its owned budget");
         return work.future().join();
     }
+    private static void authorityScope(GameController game,WoolBucketChecks.Fixture base,
+                                       GenieWorldHost host,BlockPos start){
+        var foreign=java.util.stream.StreamSupport.stream(game.server().getAllLevels().spliterator(),false)
+            .filter(level->level!=base.level).findFirst().orElseThrow();
+        var witness=base.other;
+        var before=witness.position();var original=witness.level();
+        float yaw=witness.getYRot(),pitch=witness.getXRot();var movement=witness.getDeltaMovement();
+        String marker="skywars2.genie.authority.fixture";
+        String uuid=witness.getUUID().toString(),playerName=witness.getGameProfile().name();
+        try{
+            require(witness.teleportTo(foreign,before.x,before.y,before.z,Set.of(),yaw,pitch,true),"native foreign-dimension participant");
+            base.audience.acknowledge();
+            var scoped=complete(host,queued(host,"world.select",new JsonPrimitive("@a"))).getAsJsonArray();
+            require(scoped.contains(new JsonPrimitive(base.owner.getUUID().toString()))&&!scoped.contains(new JsonPrimitive(uuid)),
+                "local player remains visible, foreign player is excluded");
+            for(String lookup:List.of(uuid,playerName)){
+                var selected=complete(host,queued(host,"world.select",new JsonPrimitive(lookup))).getAsJsonArray();
+                require(selected.isEmpty(),"explicit identity still follows scoped selector authority");
+                var tagged=complete(host,queued(host,"world.command",new JsonPrimitive("tag "+lookup+" add "+marker))).getAsJsonObject();
+                require(tagged.get("successes").getAsInt()==0&&!witness.entityTags().contains(marker),"raw named or UUID target remains untouched");
+            }
+            require(complete(host,queued(host,"entity.info",new JsonPrimitive(uuid))).isJsonNull(),"foreign UUID is outside item world info");
+            var nested=complete(host,queued(host,"world.command",new JsonPrimitive("execute as @a run tag @s add "+marker))).getAsJsonObject();
+            require(nested.get("successes").getAsInt()>0&&base.owner.entityTags().contains(marker)&&!witness.entityTags().contains(marker),
+                "execute child keeps its source dimension");
+            try{
+                var normal=game.server().createCommandSourceStack().withLevel(base.level);
+                var unrestricted=net.minecraft.commands.arguments.EntityArgument.players().parse(new com.mojang.brigadier.StringReader("@a"));
+                require(unrestricted.findPlayers(normal).contains(witness),"ordinary selectors keep native cross-dimension lookup");
+            }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
+            rejected(()->host.validateCommand("clone from "+foreign.dimension().identifier()+" ~ ~ ~ ~ ~ ~ ~ ~1 ~"),
+                "cross-dimension clone argument accepted");
+        }finally{
+            base.owner.entityTags().remove(marker);witness.entityTags().remove(marker);
+            require(witness.teleportTo(original,before.x,before.y,before.z,Set.of(),yaw,pitch,true),"foreign-dimension witness restored");
+            witness.setDeltaMovement(movement);base.audience.acknowledge();
+        }
+
+        host.validateCommand("give @s minecraft:bundle[bundle_contents=[{id:\"minecraft:stone\",count:1}]]");
+        rejected(()->host.validateCommand("give @s minecraft:bundle[bundle_contents=[{id:\"minecraft:structure_block\",count:1}]]"),
+            "nested item payload bypassed typed input checks");
+        host.validateCommand("setblock ~ ~ ~ minecraft:chest{Items:[{Slot:0b,id:\"minecraft:stone\",count:1}]}");
+        rejected(()->host.validateCommand("setblock ~ ~ ~ minecraft:chest{Items:[{Slot:0b,id:\"minecraft:structure_block\",count:1}]}"),
+            "typed block entity payload bypassed nested checks");
+
+        var from=start.offset(1,1,0);var to=start.offset(7,1,0);
+        base.set(from,Blocks.STONE.defaultBlockState());
+        base.set(to,Blocks.AIR.defaultBlockState());
+        var ok=complete(host,queued(host,"world.command",new JsonPrimitive("clone "+coordinates(from)+" "+coordinates(from)+" "+coordinates(to)))).getAsJsonObject();
+        require(ok.get("successes").getAsInt()==1&&base.level.getBlockState(to).is(Blocks.STONE),"real scoped clone of ordinary block");
+        var control=from.east();
+        base.set(control,Blocks.STRUCTURE_BLOCK.defaultBlockState());base.set(to,Blocks.AIR.defaultBlockState());
+        base.set(to.east(),Blocks.AIR.defaultBlockState());
+        var denied=complete(host,queued(host,"world.command",new JsonPrimitive("execute positioned "+coordinates(from)+
+            " run clone ~ ~ ~ ~1 ~ ~ "+coordinates(to)))).getAsJsonObject();
+        require(denied.get("successes").getAsInt()==0&&base.level.getBlockState(to).isAir()&&base.level.getBlockState(to.east()).isAir(),
+            "native clone rejects selected control block before mutating even ordinary preceding cells");
+        base.set(from,Blocks.AIR.defaultBlockState());base.set(control,Blocks.AIR.defaultBlockState());
+    }
+
+    private static String coordinates(BlockPos pos){return pos.getX()+" "+pos.getY()+" "+pos.getZ();}
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -72,6 +134,7 @@ final class GenieWorldChecks {
             host.validateCommand("datapack list");
             host.validateCommand("execute if entity @s run give @s minecraft:stick");
             host.validateCommand("summon minecraft:pig");
+            authorityScope(game,base,host,start);
 
             Vec3 launchSpot=Vec3.atBottomCenterOf(start.offset(6,0,0));
             var motion=new Vec3(.1,.2,.9);
