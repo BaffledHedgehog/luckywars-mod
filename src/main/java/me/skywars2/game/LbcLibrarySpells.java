@@ -127,6 +127,7 @@ public final class LbcLibrarySpells {
         p.awardStat(Stats.ITEM_USED.get(used));
     }
     static boolean cast(GameController g,ServerPlayer p,InteractionHand hand,int id){
+        try(var castOrigin=WandCastOrigin.scope(p,true)){
         if(id>=LbcExtraGrimoires.FIRST&&id<=LbcExtraGrimoires.LAST)return LbcExtraGrimoires.cast(g,p,hand,id);
         for(var kind:LbcElementalGrimoires.Kind.values())if(kind.spellId==id)return LbcElementalGrimoires.cast(g,p,hand,kind);
         if(id>=28&&id<=111){g.items().enderWiki().libraryEffect(p,WIKI.get(id));return true;}
@@ -174,5 +175,6 @@ public final class LbcLibrarySpells {
             default -> throw new IllegalArgumentException("Unsupported library spell "+id);
         }
         return true;
+        }
     }
 }

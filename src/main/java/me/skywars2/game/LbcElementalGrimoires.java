@@ -202,6 +202,7 @@ public final class LbcElementalGrimoires {
         return true;
     }
     static boolean cast(GameController game,ServerPlayer player,InteractionHand hand,Kind kind){
+        try(var castOrigin=WandCastOrigin.scope(player,true)){
         switch(kind) {
             case CONSUMING,CONSUMING_AVARICE,CONSUMING_SILENCE,CONSUMING_END -> {
                 if(!game.items().consuming().ready())return false;
@@ -274,6 +275,7 @@ public final class LbcElementalGrimoires {
             case BLIND_RAIN -> game.items().blind().cast(player,hand,3,ItemStack.EMPTY);
         }
         return true;
+        }
     }
 
 }

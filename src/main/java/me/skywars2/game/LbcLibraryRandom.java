@@ -39,6 +39,7 @@ final class LbcLibraryRandom {
     }
     LbcLibraryRandom(GameController game){this.game=game;}
     static void castRandom(GameController g,ServerPlayer p,InteractionHand hand,int roll){
+        try(var castOrigin=WandCastOrigin.scope(p,true)){
         if(roll<1||roll>53)throw new IllegalArgumentException("Random spell "+roll);
         try{
         if(BASIC[roll-1]>0){LbcLibrarySpells.cast(g,p,hand,BASIC[roll-1]);return;}
@@ -54,6 +55,7 @@ final class LbcLibraryRandom {
             default -> throw new IllegalArgumentException("Missing random spell "+roll);
         }
         }finally{LbcOverload.selfSound(p,"minecraft:item.book.page_turn",10,1);}
+        }
     }
     private boolean active(ServerPlayer p,String epoch,ServerLevel level){return game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&p.isAlive()&&!p.isRemoved()&&p.level()==level&&game.items().currentEpoch(epoch)&&game.canUseGameplayItems(p);}

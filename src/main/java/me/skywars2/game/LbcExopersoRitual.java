@@ -60,7 +60,7 @@ final class LbcExopersoRitual {
         if(!level.hasChunkAt(BlockPos.containing(target)))target=target.subtract(owner.getLookAngle().scale(.5));
         if(!level.hasChunkAt(BlockPos.containing(target))||game.items().magic().suppressedAt(level,target))return false;
         var anchor=EntityTypes.MARKER.create(level,net.minecraft.world.entity.EntitySpawnReason.COMMAND);
-        if(anchor==null)return false;anchor.setPos(target);
+        if(anchor==null)return false;anchor.setPos(target);WandCastOrigin.stamp(anchor,owner);
         var timer=new Display.TextDisplay(EntityTypes.TEXT_DISPLAY,level);timer.setPos(target.add(0,1,0));
         timer.setBillboardConstraints(Display.BillboardConstraints.CENTER);timer.setViewRange(8);
         var rings=new ArrayList<Display.ItemDisplay>();var random=level.getRandom();
@@ -119,7 +119,7 @@ final class LbcExopersoRitual {
             if(state.terrain!=null)geometry=state.terrain.finish(state.level);
             // No join/world access on the worker. A busy decoder cannot postpone the accepted deadline.
             if(geometry==null)geometry=NuclearTerrain.Geometry.prepare(NuclearTerrain.wand(state.target));
-            remove(state);spell.ritualImpact(owner,state.target,geometry);
+            remove(state);try(var castOrigin=WandCastOrigin.scope(owner,state.anchor)){spell.ritualImpact(owner,state.target,geometry);}
         }
     }
     void loaded(Entity actor){

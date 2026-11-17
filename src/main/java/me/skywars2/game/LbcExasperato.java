@@ -48,6 +48,7 @@ public final class LbcExasperato {
     private static final net.minecraft.core.particles.DustColorTransitionOptions NUKE_PARTICLE=
             new net.minecraft.core.particles.DustColorTransitionOptions(0xFFDC40,0,4);
     private static final class Search {
+        final boolean borrowedWand;
         ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
@@ -70,7 +71,7 @@ public final class LbcExasperato {
         Search(ServerPlayer owner,String epoch,Vec3 from,Vec3 direction,double remaining,boolean walls,
                 java.util.function.BiConsumer<Vec3,Vec3> trail,boolean blocksOnly,boolean technology,
                 java.util.function.Predicate<Entity> target) {
-            this.owner=owner; this.level=owner.level(); this.epoch=epoch;
+            this.owner=owner; this.level=owner.level(); this.epoch=epoch;borrowedWand=WandCastOrigin.borrowed(owner);
             this.direction=direction; this.position=from; this.remaining=remaining; this.walls=walls; this.trail=trail;
             this.blocksOnly=blocksOnly;
             this.technology=technology; this.target=target;
@@ -176,7 +177,7 @@ public final class LbcExasperato {
         if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
     }
     private static boolean done(Search s){return s.replay==null?s.result.isDone():s.finished;}
-    private static void complete(Search s,net.minecraft.world.phys.HitResult hit){if(done(s))return;if(s.replay==null)s.result.complete(hit);else{s.finished=true;s.replay.complete(hit);}}
+    private static void complete(Search s,net.minecraft.world.phys.HitResult hit){try(var castOrigin=WandCastOrigin.scope(s.owner,s.borrowedWand)){if(done(s))return;if(s.replay==null)s.result.complete(hit);else{s.finished=true;s.replay.complete(hit);}}}
     void replayableSpell(ServerPlayer owner,Vec3 from,Vec3 direction,double range,ReplayableRay replay){
         var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,replay::trail,false,false,replay::target);search.blockRule=replay::block;search.shieldBlockable=false;search.replay=replay;
         if(range>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
@@ -501,6 +502,7 @@ public final class LbcExasperato {
         int budget=headroom<=started?8:spare?SEARCH_HEADROOM_BUDGET:SEARCH_BUDGET;
         for(int work=0;work<budget && !searches.isEmpty() && System.nanoTime()<deadline;work++) {
             var search=searches.removeFirst(); var owner=search.owner; var level=search.level;
+            try(var castOrigin=WandCastOrigin.scope(owner,search.borrowedWand)){
             if(done(search)) continue;
             if(game.items().timeStop().stopped(level)){searches.addLast(search);continue;}
             boolean sampled=search.replay!=null&&search.replay.sampleStep()>0;
@@ -556,6 +558,7 @@ public final class LbcExasperato {
             else if(wall!=null) complete(search,level.hasChunkAt(wall.getBlockPos())?wall:null);
             else {
                 search.position=end; search.remaining-=length; searches.addLast(search);
+            }
             }
         }
         }finally{searching=false;}

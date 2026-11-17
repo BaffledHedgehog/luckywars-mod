@@ -73,13 +73,14 @@ public final class LbcExoperso {
 
     private final class Series implements MatchBlastCheckpoint.Binding {
         final UUID owner;
+        final boolean borrowedWand;
         final String epoch;
         final Set<UUID> requiredPlayers = new HashSet<>();
         final Set<UUID> kills = new HashSet<>();
         Series(ServerPlayer owner, String epoch) {
-            this(owner.getUUID(),epoch);
+            this(owner.getUUID(),epoch,WandCastOrigin.borrowed(owner));
         }
-        Series(UUID owner,String epoch){this.owner=owner;this.epoch=epoch;}
+        Series(UUID owner,String epoch,boolean borrowedWand){this.owner=owner;this.epoch=epoch;this.borrowedWand=borrowedWand;}
         public void accept(PrimedTnt tnt){if(tnt==null)return;tnt.entityTags().add(EXPLOSIVE);game.items().markCurrentItemEpoch(tnt);blastSources.put(tnt,this);}
         public void checkpoint(MatchBlastCheckpoint.Graph graph){graph.remember(this,()->{var required=Set.copyOf(requiredPlayers);var saved=Set.copyOf(kills);return links->()->{requiredPlayers.clear();requiredPlayers.addAll(required);kills.clear();kills.addAll(saved);};});}
     }
@@ -123,7 +124,7 @@ public final class LbcExoperso {
         if(!validOwner(owner)||owner.level()!=level||paused(owner)||game.items().timeStop().stopped(level)
                 ||!level.hasChunkAt(net.minecraft.core.BlockPos.containing(origin))||game.items().magic().suppressedAt(level,origin))return false;
         var aim=direction.lengthSqr()==0?new Vec3(1,0,0):direction.normalize();
-        var charge=new Charge(TYPE,level);charge.setOwner(owner);charge.setPos(origin);charge.setNoGravity(true);
+        var charge=new Charge(TYPE,level);charge.setOwner(owner);charge.setPos(origin);charge.setNoGravity(true);WandCastOrigin.stamp(charge,owner);
         charge.age=321;charge.releasedRemaining=379;charge.aim=aim;charge.setDeltaMovement(aim.scale(2));
         game.items().markCurrentItemEpoch(charge);game.items().spellSources().bind(charge,source);
         try(var ignored=game.items().spellSources().scope((LbcSpellSource.Source)null,level)){
@@ -139,7 +140,7 @@ public final class LbcExoperso {
         for(int sample=0;sample<5;sample++){
             end=from.add(step.scale(sample));var at=net.minecraft.core.BlockPos.containing(end);
             if(!level.hasChunkAt(at)||game.items().magic().suppressedAt(level,end)){remove(charge);return;}
-            if(!level.getBlockState(at).is(AIRS)){emitFlight(owner,from,end);remove(charge);impact(owner,end);return;}
+            if(!level.getBlockState(at).is(AIRS)){emitFlight(owner,from,end);remove(charge);try(var castOrigin=WandCastOrigin.scope(owner,charge)){impact(owner,end);}return;}
         }
         emitFlight(owner,from,end);charge.setPos(end);charge.flightAge++;
         if(--charge.releasedRemaining==0)remove(charge);
@@ -208,7 +209,7 @@ public final class LbcExoperso {
                             && entityHit.getEntity() instanceof LivingEntity target
                             && !target.entityTags().contains("strict_map_object")
                             && game.items().lifetimes().target(owner, target))
-                        impact(owner, end);
+                        try(var castOrigin=WandCastOrigin.scope(owner,charge)){impact(owner, end);}
                     continue;
                 }
                 charge.flightAge++;
@@ -279,7 +280,7 @@ public final class LbcExoperso {
         ServerPlayer owner = victim.level().getServer().getPlayerList().getPlayer(series.owner);
         if (owner == null || !owner.isAlive() || game.isObserver(owner) || !game.canUseGameplayItems(owner)) return;
         if (series.requiredPlayers.size() >= 2 && series.kills.containsAll(series.requiredPlayers))
-            game.items().mana().award(owner, "lbc:true_advancements/staffs/exoperso");
+            try(var castOrigin=WandCastOrigin.scope(owner,series.borrowedWand)){game.items().mana().award(owner, "lbc:true_advancements/staffs/exoperso");}
     }
 
     boolean validOwner(ServerPlayer owner) {
@@ -327,7 +328,7 @@ public final class LbcExoperso {
         var series=blastSources.get(source);
         if(series!=null){var owner=series.owner;var epoch=series.epoch;
             var required=Set.copyOf(series.requiredPlayers);var kills=Set.copyOf(series.kills);
-            return CloneComplexProjectileStates.image(e->{var copy=new Series(owner,epoch);
+            return CloneComplexProjectileStates.image(e->{var copy=new Series(owner,epoch,series.borrowedWand);
                 copy.requiredPlayers.addAll(required);copy.kills.addAll(kills);blastSources.put(e,copy);
             },e->blastSources.remove(e));
         }

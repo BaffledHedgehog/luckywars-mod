@@ -68,6 +68,7 @@ public final class LbcChaosRewardItems {
     }
     /** Source random_spell uses55 branches; the source library random_spell_lib uses only53. */
     static void cast(GameController g,ServerPlayer p,InteractionHand hand,int roll){
+        try(var castOrigin=WandCastOrigin.scope(p,true)){
         if(roll>=1&&roll<=53){LbcLibraryRandom.castRandom(g,p,hand,roll);return;}
         if(roll==54){
             int spell=p.getRandom().nextInt(242)+1;
@@ -77,6 +78,7 @@ public final class LbcChaosRewardItems {
             award(g,p,"lbc:true_advancements/staffs/unstable_book");
         }else if(roll==55)flying(g,p,hand);
         LbcOverload.selfSound(p,"minecraft:item.book.page_turn",10,1);
+        }
     }
     private static void flying(GameController g,ServerPlayer p,InteractionHand hand){
         int kind=p.getRandom().nextInt(9);g.items().sauvojen().cast(p,hand,ItemStack.EMPTY,kind);

@@ -10,6 +10,7 @@ final class LbcExtraGrimoires {
     static boolean retired(int id){return id>=262&&id<=270;}
     private LbcExtraGrimoires() { }
     static boolean cast(GameController game,ServerPlayer owner,InteractionHand hand,int id){
+        try(var castOrigin=WandCastOrigin.scope(owner,true)){
         if(id>=243&&id<=251){game.items().wands().extraTiny(owner,id-FIRST);return true;}
         switch(id){
             case 252 -> game.items().soulless().cast(owner);
@@ -32,5 +33,6 @@ final class LbcExtraGrimoires {
             default -> throw new IllegalArgumentException("Unknown extra grimoire "+id);
         }
         return true;
+        }
     }
 }

@@ -96,7 +96,7 @@ public final class LbcPrism {
     }
     boolean cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){return cast(owner,hand,stack,academy,false);}
     private boolean cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,boolean wandBonus){
-        var charge=new Charge(TYPE,owner.level());charge.setOwner(owner);charge.hand=hand;charge.stack=stack;charge.caster=owner.getUUID();
+        var charge=new Charge(TYPE,owner.level());charge.setOwner(owner);charge.hand=hand;charge.stack=stack;charge.caster=owner.getUUID();WandCastOrigin.stamp(charge,owner);
         charge.origin=owner.getEyePosition().add(owner.getLookAngle().scale(hand==InteractionHand.OFF_HAND?.5:0));charge.setPos(charge.origin);charge.setDeltaMovement(owner.getLookAngle());
         charge.entityTags().addAll(List.of("prism","player","slowraycast","magic",game.items().epoch()));
         if(academy){
@@ -207,6 +207,7 @@ public final class LbcPrism {
         else if(level.getRandom().nextFloat()<.1f)LbcOverload.sound((ServerPlayer)c.getOwner(),p,"minecraft:block.amethyst_cluster.break",.3f,1,0);
     }
     private void damage(Charge c){
+        try(var castOrigin=WandCastOrigin.scope((ServerPlayer)c.getOwner(),c)){
         var owner=(ServerPlayer)c.getOwner();var p=c.position();var level=(ServerLevel)c.level();
         var source=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(c.phase==Charge.Phase.ACADEMY?DamageTypes.GENERIC:DamageTypes.CACTUS),c,owner);
         int count=0,limit=c.phase==Charge.Phase.ACADEMY?1:2;
@@ -214,9 +215,10 @@ public final class LbcPrism {
                 &&e.position().distanceToSqr(p)<=225&&!game.items().magic().suppressedAt(level,e.position()))){
             if(c.phase==Charge.Phase.ACADEMY&&!c.hit.add(target.getUUID()))continue;
             boolean applied=target.hurtServer(level,source,c.phase==Charge.Phase.ACADEMY?7:8);
-            if(applied&&c.phase==Charge.Phase.STABLE)game.items().mana().award(owner,"lbc:true_advancements/staffs/prism");
+            if(applied&&c.phase==Charge.Phase.STABLE&&!WandCastOrigin.borrowed(c))game.items().mana().award(owner,"lbc:true_advancements/staffs/prism");
             if(applied&&c.phase!=Charge.Phase.ACADEMY&&c.caster.equals(owner.getUUID())&&owner.getItemInHand(c.hand)==c.stack&&LbcAcademy.trial(c.stack))trial(c,owner);
             if(++count>=limit)break;
+        }
         }
     }
     private void trial(Charge c,ServerPlayer owner){
