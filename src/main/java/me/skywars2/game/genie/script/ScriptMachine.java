@@ -4,6 +4,7 @@ import com.google.gson.*;
 import java.math.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /** Cooperative stack machine: loops, recursion, data, host calls and waits require no server reload. */
 public final class ScriptMachine {
@@ -16,6 +17,75 @@ public final class ScriptMachine {
         public Pending{Objects.requireNonNull(future);Objects.requireNonNull(cancel);}
     }
     @FunctionalInterface public interface Host { Result call(String name,List<JsonElement> arguments); }
+    @FunctionalInterface public interface PendingImage {
+        Pending restore(Host host, ScriptGraphCopy graph);
+    }
+    private record FrameImage(String name, int base, int pc, Map<String,JsonElement> locals) {}
+
+    public static final class Image {
+        private final ScriptProgram program;
+        private final List<FrameImage> frames;
+        private final List<JsonElement> operands;
+        private final long wakeTick, stateRevision;
+        private final Status status;
+        private final PendingImage pending;
+
+        private Image(ScriptMachine machine, ScriptGraphCopy graph, Function<Pending,PendingImage> queued) {
+            program = machine.program;
+            frames = machine.frames.stream().map(frame -> {
+                var locals = new HashMap<String,JsonElement>();
+                frame.locals.forEach((name, value) -> locals.put(name, graph.copy(value)));
+                return new FrameImage(frame.name, frame.base, frame.pc, Map.copyOf(locals));
+            }).toList();
+            operands = machine.operands.stream().map(graph::copy).toList();
+            wakeTick = machine.wakeTick;
+            stateRevision = machine.stateRevision;
+            status = machine.status;
+            pending = capturePending(machine.pending, graph, queued);
+        }
+
+        public ScriptMachine restore(JsonObject state, ScriptGraphCopy graph, Host host, ScriptMemory memory) {
+            var machine = new ScriptMachine(program, state, host, memory);
+            for (var saved : frames) {
+                var frame = new Frame(saved.name, program.function(saved.name), List.of(), saved.base);
+                frame.pc = saved.pc;
+                saved.locals.forEach((name, value) -> frame.locals.put(name, graph.copy(value)));
+                machine.frames.addLast(frame);
+            }
+            for (var operand : operands) machine.operands.add(graph.copy(operand));
+            machine.wakeTick = wakeTick;
+            machine.stateRevision = stateRevision;
+            machine.status = status;
+            machine.trackMemory();
+            try {
+                if (pending != null) machine.pending = pending.restore(host, graph);
+                memory.census();
+                return machine;
+            } catch (RuntimeException failure) {
+                machine.cancel();
+                throw failure;
+            }
+        }
+    }
+
+    public Image checkpoint(ScriptGraphCopy graph, Function<Pending,PendingImage> queued) {
+        if(status==Status.DONE||status==Status.CANCELLED||!nativeArguments.isEmpty())
+            throw new IllegalStateException("Checkpoint requires an active item script between instructions");
+        return new Image(this, graph, queued);
+    }
+
+    private static PendingImage capturePending(Pending task, ScriptGraphCopy graph, Function<Pending,PendingImage> queued) {
+        if (task == null) return null;
+        if (!task.future.isDone()) return Objects.requireNonNull(queued.apply(task));
+        try {
+            JsonElement saved = graph.copy(task.future.join());
+            return (host, restoreGraph) -> new Pending(CompletableFuture.completedFuture(restoreGraph.copy(saved)), () -> {});
+        } catch (java.util.concurrent.CompletionException | java.util.concurrent.CancellationException failed) {
+            Throwable cause = failed.getCause() == null ? failed : failed.getCause();
+            String message = cause.getMessage();
+            return (host, restoreGraph) -> new Pending(CompletableFuture.failedFuture(new IllegalStateException(message)), () -> {});
+        }
+    }
     private static final MathContext MATH=MathContext.DECIMAL128;
     private static final class Frame {
         final String name;final ScriptProgram.Function function;final Map<String,JsonElement> locals=new HashMap<>();final int base;int pc;
@@ -42,10 +112,16 @@ public final class ScriptMachine {
         this(program,entry,arguments,state,host,new ScriptMemory());
     }
     public ScriptMachine(ScriptProgram program,String entry,List<JsonElement> arguments,JsonObject state,Host host,ScriptMemory memory){
-        this.program=Objects.requireNonNull(program);this.host=Objects.requireNonNull(host);this.state=Objects.requireNonNull(state);
-        this.memory=Objects.requireNonNull(memory);
+        this(program,state,host,memory);
         for(var argument:arguments)ScriptValues.check(argument);
         ScriptValues.check(state);enter(entry,List.copyOf(arguments));
+        trackMemory();
+    }
+    private ScriptMachine(ScriptProgram program,JsonObject state,Host host,ScriptMemory memory){
+        this.program=Objects.requireNonNull(program);this.host=Objects.requireNonNull(host);this.state=Objects.requireNonNull(state);
+        this.memory=Objects.requireNonNull(memory);
+    }
+    private void trackMemory(){
         memory.track(this,this::memoryRoots,this::memoryOverhead,program,program.memoryOverhead());
     }
     public JsonElement result(){return result;}

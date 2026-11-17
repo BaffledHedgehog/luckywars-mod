@@ -295,10 +295,20 @@ public final class GenieRuntime {
     }
     public static final class Snapshot {
         private final Map<Key,Integer> cooldowns;
-        private Snapshot(Map<Key,Integer> values){cooldowns=Map.copyOf(values);}
-        public void restore(GenieRuntime runtime){runtime.cooldowns.clear();runtime.cooldowns.putAll(cooldowns);}
+        private final GenieScriptRuntime.Snapshot scripts;
+
+        private Snapshot(GenieRuntime runtime) {
+            cooldowns = Map.copyOf(runtime.cooldowns);
+            scripts = runtime.scripts.snapshot();
+        }
+
+        public void restore(GenieRuntime runtime) {
+            runtime.cooldowns.clear();
+            runtime.cooldowns.putAll(cooldowns);
+            runtime.scripts.restore(scripts);
+        }
     }
-    public Snapshot snapshot(){return new Snapshot(cooldowns);}
+    public Snapshot snapshot(){return new Snapshot(this);}
     public void forget(ServerPlayer p){scripts.forget(p);cooldowns.keySet().removeIf(key->key.owner.equals(p.getUUID()));}
     public void clear(){scripts.clear();cooldowns.clear();programs.clear();projectiles.clear();}
 }

@@ -15,6 +15,34 @@ import net.minecraft.world.level.storage.LevelResource;
 public final class GenieScriptRuntime implements AutoCloseable {
     public static final Set<String> EVENTS=Set.of("USE","HIT","HURT","JUMP","SHOT","EAT","SPRINT","TICK","MINING","LEFT_CLICK","SNEAK","THROW","SNEAK_PRESS","BLOCK_USE");
     private record Event(String name,JsonObject data,ItemStack captured){}
+    private record ItemLocation(int inventorySlot, EquipmentSlot equipmentSlot, boolean carried) {
+        ItemStack get(ServerPlayer owner) {
+            if (carried) return owner.containerMenu.getCarried();
+            if (equipmentSlot != null) return owner.getItemBySlot(equipmentSlot);
+            return owner.getInventory().getItem(inventorySlot);
+        }
+
+        static ItemLocation locate(ServerPlayer owner, ItemStack item) {
+            if (item.isEmpty()) return null;
+            var inventory = owner.getInventory();
+            for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+                if (inventory.getItem(slot) == item) return new ItemLocation(slot, null, false);
+            }
+            for (var slot : EquipmentSlot.values()) {
+                if (owner.getItemBySlot(slot) == item) return new ItemLocation(-1, slot, false);
+            }
+            return owner.containerMenu.getCarried() == item ? new ItemLocation(-1, null, true) : null;
+        }
+    }
+    private record FiberImage(String event, ItemStack captured, long revision, ScriptMachine.Image machine) {}
+    private record ContextImage(UUID owner, String epoch, String code, ItemLocation location, ItemStack item,
+                                CompletableFuture<ScriptRepository.Loaded> program, JsonObject state, long clock,
+                                boolean failed, List<Event> events, List<FiberImage> fibers) {}
+
+    public static final class Snapshot {
+        private final List<ContextImage> contexts;
+        private Snapshot(List<ContextImage> contexts) { this.contexts = List.copyOf(contexts); }
+    }
     private static final class Fiber {
         final String event;final ScriptMachine machine;final GenieWorldHost host;long revision;
         Fiber(String event,ScriptMachine machine,GenieWorldHost host){this.event=event;this.machine=machine;this.host=host;}
@@ -26,9 +54,13 @@ public final class GenieScriptRuntime implements AutoCloseable {
         final ArrayDeque<Event> events=new ArrayDeque<>();final ArrayDeque<Fiber> fibers=new ArrayDeque<>();
         JsonObject state;long clock;boolean failed,retired,detached;Fiber running;
         Context(ServerPlayer owner,String epoch,ItemStack item,CompletableFuture<ScriptRepository.Loaded> program,boolean detached){
+            this(owner, epoch, item, program, detached, GenieScriptItem.state(item));
+        }
+        Context(ServerPlayer owner, String epoch, ItemStack item, CompletableFuture<ScriptRepository.Loaded> program,
+                boolean detached, JsonObject state) {
             this.owner=owner.getUUID();this.epoch=epoch;this.item=item;this.program=program;
             this.detached=detached;
-            code=GenieScriptItem.code(item);serial=GenieScriptItem.serial(item);encoded=GenieScriptItem.encodedState(item);state=GenieScriptItem.state(item);
+            code=GenieScriptItem.code(item);serial=GenieScriptItem.serial(item);encoded=GenieScriptItem.encodedState(item);this.state=state;
         }
     }
     private final GameController game;
@@ -37,6 +69,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
     private final ScriptMemory memory=new ScriptMemory();
     private final ArrayDeque<Context> contexts=new ArrayDeque<>();
     private final Map<ItemStack,Context> bindings=new IdentityHashMap<>();
+    private final List<ContextImage> pendingRestore = new ArrayList<>();
     private ScriptRepository repository;
     private boolean dispatching;
     public GenieScriptRuntime(GameController game){this(game,4096,1_500_000L);}
@@ -62,7 +95,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
         for(var slot:EquipmentSlot.values())result.add(owner.getItemBySlot(slot));
         result.add(owner.containerMenu.getCarried());return result;
     }
-    private boolean owned(ServerPlayer owner,ItemStack item){for(var candidate:inventory(owner))if(candidate==item&&!item.isEmpty())return true;return false;}
+    private boolean owned(ServerPlayer owner,ItemStack item){return ItemLocation.locate(owner, item)!=null;}
     private static boolean same(Context context,ItemStack stack){
         return !stack.isEmpty()&&context.code.equals(GenieScriptItem.code(stack))&&context.serial.equals(GenieScriptItem.serial(stack))&&context.encoded.equals(GenieScriptItem.encodedState(stack));
     }
@@ -75,10 +108,100 @@ public final class GenieScriptRuntime implements AutoCloseable {
         }
         if(moved!=null){bindings.remove(moved.item);moved.item=item;moved.detached=detached;bindings.put(item,moved);return moved;}
         var created=new Context(owner,game.items().epoch(),item,repository().load(GenieScriptItem.code(item)),detached);
-        memory.track(created,()->{
-            var roots=new ArrayList<JsonElement>();roots.add(created.state);for(var event:created.events)roots.add(event.data);return roots;
-        },()->24L+16L*created.events.size());
+        track(created);
         contexts.addLast(created);bindings.put(item,created);return created;
+    }
+
+    private void track(Context context) {
+        memory.track(context, () -> {
+            var roots = new ArrayList<JsonElement>();
+            roots.add(context.state);
+            for (var event : context.events) roots.add(event.data);
+            return roots;
+        }, () -> 24L + 16L * context.events.size());
+    }
+
+    public Snapshot snapshot() {
+        mainThread();
+        var saved = new ArrayList<ContextImage>(pendingRestore);
+        for (var context : contexts) {
+            if (context.running != null) throw new IllegalStateException("Capture item scripts between ticks");
+            var owner = game.server().getPlayerList().getPlayer(context.owner);
+            if (owner == null || !context.epoch.equals(game.items().epoch())) continue;
+            var graph = new ScriptGraphCopy();
+            var state = graph.copy(context.state).getAsJsonObject();
+            var events = context.events.stream().map(event -> copyEvent(event, graph)).toList();
+            var fibers = context.fibers.stream().map(fiber -> new FiberImage(fiber.event, fiber.host.capturedItem(), fiber.revision,
+                fiber.machine.checkpoint(graph, task -> fiber.host.checkpointPending(task, graph)))).toList();
+            var location = context.detached ? null : ItemLocation.locate(owner, context.item);
+            var program = context.program.isDone() ? context.program : null;
+            saved.add(new ContextImage(context.owner, context.epoch, context.code, location, context.item.copy(), program,
+                state, context.clock, context.failed, events, fibers));
+        }
+        return new Snapshot(saved);
+    }
+
+    public void restore(Snapshot snapshot) {
+        clear();
+        // Player inventories and menu views are published separately by the rollback coordinator.
+        // Bind only after publication. Offline owners keep their image until their real body rejoins.
+        pendingRestore.addAll(snapshot.contexts);
+    }
+
+    private static Event copyEvent(Event event, ScriptGraphCopy graph) {
+        return new Event(event.name, graph.copy(event.data).getAsJsonObject(), event.captured.copy());
+    }
+
+    private void restorePending(UUID ownerId) {
+        if (pendingRestore.isEmpty()) return;
+        for (var iterator = pendingRestore.iterator(); iterator.hasNext();) {
+            var saved = iterator.next();
+            if (!saved.epoch.equals(game.items().epoch())) { iterator.remove(); continue; }
+            if (ownerId != null && !saved.owner.equals(ownerId)) continue;
+            var owner = game.server().getPlayerList().getPlayer(saved.owner);
+            if (owner == null || game.vanity().blocked(owner)) continue;
+            iterator.remove();
+            if (!owner.isAlive() || owner.isRemoved()) continue;
+            try { install(saved, owner); }
+            catch (RuntimeException error) { report(owner, error); }
+        }
+    }
+
+    private void install(ContextImage saved, ServerPlayer owner) {
+        ItemStack item = saved.location == null ? ItemStack.EMPTY : saved.location.get(owner);
+        boolean attached = !item.isEmpty() && item.getCount() == saved.item.getCount()
+            && ItemStack.isSameItemSameComponents(item, saved.item) && !bindings.containsKey(item);
+        if (!attached) item = saved.item.copy();
+        var graph = new ScriptGraphCopy();
+        var program = saved.program != null ? saved.program : repository().load(saved.code);
+        var context = new Context(owner, saved.epoch, item, program, !attached, graph.copy(saved.state).getAsJsonObject());
+        context.clock = saved.clock;
+        context.failed = saved.failed;
+        for (var event : saved.events) context.events.addLast(copyEvent(event, graph));
+        track(context);
+        try {
+            for (var image : saved.fibers) {
+                var host = host(owner, context, image.captured.copy());
+                try {
+                    var fiber = new Fiber(image.event, image.machine.restore(context.state, graph, host, memory), host);
+                    fiber.revision = image.revision;
+                    context.fibers.addLast(fiber);
+                } catch (RuntimeException error) {
+                    host.close();
+                    throw error;
+                }
+            }
+            contexts.addLast(context);
+            bindings.put(item, context);
+        } catch (RuntimeException error) {
+            release(context);
+            throw error;
+        }
+    }
+
+    private GenieWorldHost host(ServerPlayer owner, Context context, ItemStack captured) {
+        return new GenieWorldHost(game, owner, captured,
+            () -> admitted(owner) && context.epoch.equals(game.items().epoch()), () -> context.clock, memory);
     }
     public void input(ServerPlayer owner,LbcTmtTriggers.Input input,Entity target){
         // The native consumption, mining and volley continuations provide their exact used source.
@@ -88,6 +211,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
     public void event(ServerPlayer owner,String name,Entity target,ItemStack captured,InteractionHand hand){
         mainThread();if(dispatching||!EVENTS.contains(name)||!admitted(owner))return;dispatching=true;
         try{
+            restorePending(owner.getUUID());
             var selected=Collections.newSetFromMap(new IdentityHashMap<ItemStack,Boolean>());
             if(captured!=null)selected.add(captured);else{
                 selected.add(owner.getMainHandItem());selected.add(owner.getOffhandItem());
@@ -106,7 +230,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
                     context=context(owner,physical,!owned(owner,physical));if(context.failed)continue;
                     if(context.program.isDone()&&!context.program.isCompletedExceptionally()&&!context.program.isCancelled()){
                         var program=context.program.join().program();
-                        if(program.handler(name)==null&&(!name.equals("BLOCK_USE")||program.handler("USE")==null))continue;
+                        if(program.handler(name)==null)continue;
                     }
                     if(name.equals("TICK")&&(context.events.stream().anyMatch(event->event.name.equals("TICK"))||context.fibers.stream().anyMatch(fiber->fiber.event.equals("TICK"))))continue;
                     if(context.events.size()>=64)throw new IllegalArgumentException("item event backlog exceeds storage bounds");
@@ -120,7 +244,8 @@ public final class GenieScriptRuntime implements AutoCloseable {
     }
     /** Includes loading contexts: accepted clicks wait for disk instead of disappearing on cache misses. */
     public void tick(){
-        mainThread();if(contexts.isEmpty())return;
+        mainThread();if (!pendingRestore.isEmpty()) restorePending(null);
+        if(contexts.isEmpty())return;
         // Logical clocks advance even for items which do not receive a CPU slice this tick.
         for(var context:List.copyOf(contexts)){
             var owner=game.server().getPlayerList().getPlayer(context.owner);
@@ -140,9 +265,8 @@ public final class GenieScriptRuntime implements AutoCloseable {
                 var program=context.program.join().program();
                 if(!context.events.isEmpty()){
                     var event=context.events.removeFirst();String handler=program.handler(event.name);
-                    if(handler==null&&event.name.equals("BLOCK_USE"))handler=program.handler("USE");
                     if(handler!=null){
-                        var host=new GenieWorldHost(game,owner,event.captured,()->admitted(owner)&&context.epoch.equals(game.items().epoch()),()->context.clock,memory);
+                        var host=host(owner,context,event.captured);
                         try{context.fibers.addLast(new Fiber(event.name,new ScriptMachine(program,handler,List.of(event.data),context.state,host,memory),host));}
                         catch(RuntimeException error){host.close();throw error;}
                     }
@@ -173,6 +297,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
             }
             if(replacement!=null){bindings.remove(context.item);context.item=replacement;bindings.put(replacement,context);}
         }
+        if (context.item.isEmpty()) return;
         context.encoded=encoded;GenieScriptItem.state(context.item,encoded);
         owner.getInventory().setChanged();owner.containerMenu.broadcastChanges();
     }
@@ -185,7 +310,10 @@ public final class GenieScriptRuntime implements AutoCloseable {
         context.retired=true;context.events.clear();if(context.running!=null)context.running.close();
         while(!context.fibers.isEmpty())context.fibers.removeFirst().close();memory.forget(context);bindings.remove(context.item,context);
     }
-    public void forget(ServerPlayer owner){mainThread();for(var context:List.copyOf(contexts))if(context.owner.equals(owner.getUUID())){contexts.remove(context);release(context);}}
-    public void clear(){mainThread();while(!contexts.isEmpty())release(contexts.removeFirst());bindings.clear();}
+    public void forget(ServerPlayer owner){
+        mainThread();pendingRestore.removeIf(image -> image.owner.equals(owner.getUUID()));
+        for(var context:List.copyOf(contexts))if(context.owner.equals(owner.getUUID())){contexts.remove(context);release(context);}
+    }
+    public void clear(){mainThread();pendingRestore.clear();while(!contexts.isEmpty())release(contexts.removeFirst());bindings.clear();}
     @Override public void close(){clear();if(repository!=null){repository.close();repository=null;}}
 }

@@ -4,10 +4,13 @@ import java.util.concurrent.CompletableFuture;
 import me.skywars2.game.genie.*;
 import me.skywars2.game.genie.script.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 /** Real vanilla input, persisted per-item state, clone isolation, pause and reset cancellation. */
 final class GenieScriptChecks implements AutoCloseable {
@@ -19,6 +22,8 @@ final class GenieScriptChecks implements AutoCloseable {
     private final GenieScriptRuntime fairness;
     private final BlockPos marker;
     private ItemStack original,clone;
+    private GenieRuntime.Snapshot rewindScripts;
+    private MatchPlayerCheckpoint rewindPlayer;
     private int phase,when,sequence=600;
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Genie item script: "+why);}
     GenieScriptChecks(GameController game,WoolBucketChecks.Fixture base){
@@ -28,7 +33,7 @@ final class GenieScriptChecks implements AutoCloseable {
         String source="""
             {"version":1,"state":{"counter":0},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
             ["load","state"],["const","counter"],["load","state"],["const","counter"],["get"],["const",1],["add"],["put"],["drop"],
-            ["const",2],["wait"],["const",%s],["call","world.command",1],["return"]]}}}
+            ["const",8],["wait"],["const",%s],["call","world.command",1],["return"]]}}}
             """.formatted(new com.google.gson.JsonPrimitive(command));
         prepared=runtime.prepare(source);when=game.server().getTickCount();
         fairness=new GenieScriptRuntime(game,32,100_000_000L);
@@ -70,13 +75,13 @@ final class GenieScriptChecks implements AutoCloseable {
             game.items().genie().cancel(base.owner);next(3);return false;
         }
         if(phase==3){
-            if(game.server().getTickCount()-when<6)return false;
+            if(game.server().getTickCount()-when<12)return false;
             require(base.level.getBlockState(marker).isAir()&&count(original)==2,"reset cancels a waiting native command instead of replaying it after the delay");
             click();runtime.tick();require(count(original)==3,"a later accepted click reloads the persisted item state");
             base.pause();next(4);return false;
         }
         if(phase==4){
-            if(game.server().getTickCount()-when<6)return false;
+            if(game.server().getTickCount()-when<12)return false;
             require(base.level.getBlockState(marker).isAir()&&count(original)==3,"TimeStop pauses item continuations and their logical waits");
             base.thaw();next(5);return false;
         }
@@ -89,6 +94,41 @@ final class GenieScriptChecks implements AutoCloseable {
             fairness.event(base.owner,"USE",null,null,null);fairness.tick();fairness.tick();
             require(count(first)>0&&count(second)>0,"a balanced infinite first handler cannot starve another item when the shared instruction budget expires");
             close();base.owner.setItemInHand(InteractionHand.MAIN_HAND,original);base.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            base.set(marker,Blocks.AIR.defaultBlockState());
+            click();runtime.tick();require(count(original)==4,"physical item begins the pre-rewind action");
+            // Save with identical NBT in a second slot. The running action belongs to the selected stack.
+            base.owner.getInventory().setItem(10,original.copy());
+            click(); // This accepted event is still queued at the save point.
+            rewindScripts=game.items().genie().runtime().snapshot();
+            rewindPlayer=new MatchPlayerCheckpoint(game,base.owner);
+            next(6);return false;
+        }
+        if(phase==6){
+            if(!base.level.getBlockState(marker).is(Blocks.GOLD_BLOCK)||game.server().getTickCount()-when<16)return false;
+            require(count(original)==5,"future processes the second accepted click before rewind");
+            var manager=game.server().tickRateManager();boolean frozen=manager.isFrozen();manager.setFrozen(true);
+            try {
+                game.items().genie().stop();
+                rewindPlayer.restoreFrozen();
+                rewindScripts.restore(game.items().genie().runtime());
+                base.set(marker,Blocks.AIR.defaultBlockState());
+            } finally { manager.setFrozen(frozen); }
+            base.client.acknowledge();
+            original=base.owner.getMainHandItem();clone=base.owner.getInventory().getItem(10);
+            require(count(original)==4&&count(clone)==4,"native player rewind re-creates both stacks with their saved data");
+            next(7);return false;
+        }
+        if(phase==7){
+            if(!base.level.getBlockState(marker).is(Blocks.GOLD_BLOCK))return false;
+            require(count(original)==5&&count(clone)==4,"saved queue and wait resume beside an identical copy without rewriting its slot");
+            var below = base.owner.blockPosition().below();
+            var hit = new BlockHitResult(Vec3.atCenterOf(below).add(0,.5,0),Direction.UP,below,false);
+            base.owner.gameMode.useItemOn(base.owner,base.level,original,InteractionHand.MAIN_HAND,hit);
+            next(8);return false;
+        }
+        if(phase==8){
+            if(game.server().getTickCount()-when<5)return false;
+            require(count(original)==6&&count(clone)==4,"native use-on-block invokes the generic USE handler once even though the block event is also emitted");
             runtime.forget(base.owner);return true;
         }
         throw new IllegalStateException("unknown script check phase");

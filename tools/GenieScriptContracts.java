@@ -58,6 +58,32 @@ public final class GenieScriptContracts {
         require(during[0]>before+150,"native argument copies must remain rooted while a host call takes its own census");
         require(nativePool.census()==0,"completed fibers release shared code and continuation roots");
     }
+    private static void checkpointContracts(){
+        var program = compile("""
+            {"version":1,"state":{"nested":{"counter":0}},"handlers":{"USE":"main"},"functions":{
+            "waiter":{"parameters":["alias"],"code":[["const",5],["wait"],["load","alias"],["const","counter"],["const",42],["put"],["return"]]},
+            "main":{"parameters":["event"],"code":[["load","state"],["const","nested"],["get"],["dup"],["call","waiter",1],["drop"],["const","counter"],["get"],["return"]]}}}
+            """);
+        ScriptMachine.Host host = (name,args) -> { throw new AssertionError("unexpected native call"); };
+        var state = program.initialState();
+        var machine = new ScriptMachine(program,"main",List.of(new JsonObject()),state,host);
+        require(machine.advance(10,100)==ScriptMachine.Status.WAITING,"checkpoint captures wait inside a nested call");
+        var graph = new ScriptGraphCopy();
+        var savedState = graph.copy(state);
+        var image = machine.checkpoint(graph,pending -> { throw new AssertionError("unexpected deferred host call"); });
+        require(machine.advance(15,100)==ScriptMachine.Status.DONE&&state.getAsJsonObject("nested").get("counter").getAsInt()==42,"future mutates live state only");
+        for (int repeat=0; repeat<2; repeat++) {
+            var copies = new ScriptGraphCopy();
+            var restoredState = copies.copy(savedState).getAsJsonObject();
+            var restored = image.restore(restoredState,copies,host,new ScriptMemory());
+            require(restored.advance(14,100)==ScriptMachine.Status.WAITING&&restoredState.getAsJsonObject("nested").get("counter").getAsInt()==0,
+                "reusable image retains the saved clock and independent mutable state");
+            require(restored.advance(15,100)==ScriptMachine.Status.DONE&&restored.result().getAsInt()==42
+                &&restoredState.getAsJsonObject("nested").get("counter").getAsInt()==42,
+                "operand, nested frame local and item state all keep the same restored alias");
+        }
+    }
+
     private static void repositoryContracts()throws Exception{
         Files.createDirectories(Path.of("build/verification"));var root=Files.createTempDirectory(Path.of("build/verification"),"genie-code-contracts-").toAbsolutePath();
         String source="""
@@ -177,6 +203,7 @@ public final class GenieScriptContracts {
         require(ScriptJson.canonical(ScriptJson.parse("{\"z\":-0.00,\"a\":\"ё\\n😀\",\"n\":1.2300e2}")).equals("{\"a\":\"ё\\n😀\",\"n\":123,\"z\":0}"),
             "canonical JSON preserves Unicode and numeric values");
         memoryContracts();
+        checkpointContracts();
         repositoryContracts();
         System.out.println("GENIE_SCRIPT_CONTRACTS_PASS functions, loops, mutable state, cooperative fuel, delays, host calls, cancellation, static verifier and aggregate live memory; no gameplay-power policy");
     }

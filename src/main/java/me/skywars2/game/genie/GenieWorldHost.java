@@ -64,9 +64,31 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         if(queue.size()>=4096)throw new IllegalStateException("item native-work backlog exceeds storage bounds");
         memory.reserveValues(values);
         var arguments=new ArrayList<JsonElement>();for(var value:values)arguments.add(value.deepCopy());
+        return enqueue(name, List.copyOf(arguments));
+    }
+
+    private ScriptMachine.Pending enqueue(String name, List<JsonElement> arguments) {
         var future=new CompletableFuture<JsonElement>();
-        var work=new Work(name,List.copyOf(arguments),future);queue.addLast(work);
+        var work=new Work(name,arguments,future);queue.addLast(work);
         return new ScriptMachine.Pending(future,()->{queue.remove(work);future.cancel(false);});
+    }
+
+    ItemStack capturedItem() { return captured.copy(); }
+
+    public ScriptMachine.PendingImage checkpointPending(ScriptMachine.Pending task, ScriptGraphCopy graph) {
+        mainThread();
+        if (draining) throw new IllegalStateException("Cannot checkpoint a native item action during execution");
+        for (var work : queue) {
+            if (work.future != task.future()) continue;
+            String name = work.name;
+            var arguments = work.arguments.stream().map(graph::copy).toList();
+            return (host, restoreGraph) -> {
+                var restored = (GenieWorldHost) host;
+                restored.memory.reserveValues(arguments);
+                return restored.enqueue(name, arguments.stream().map(restoreGraph::copy).toList());
+            };
+        }
+        throw new IllegalStateException("Item continuation has no queued native action");
     }
     /** Share maximum/deadline across hosts in the scheduler; this method does not own another clock. */
     public int drain(int maximum,long deadlineNanos){

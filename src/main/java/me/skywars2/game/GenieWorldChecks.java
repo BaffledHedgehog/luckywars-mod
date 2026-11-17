@@ -99,6 +99,30 @@ final class GenieWorldChecks {
             require(host.drain(1,Long.MAX_VALUE)==1&&fiber.advance(1,100)==ScriptMachine.Status.DONE,"VM resumes after real command");
             require(fiber.result().getAsJsonObject().get("successes").getAsInt()>0
                 &&!fiber.result().getAsJsonObject().getAsJsonArray("output").isEmpty(),"native data-get result and output are available to code");
+
+            var queuedCode = ScriptJson.parse("""
+                {"version":1,"state":{},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
+                ["const","setblock %d %d %d minecraft:gold_block"],["call","world.command",1],["return"]]}}}
+                """.formatted(second.getX(),second.getY(),second.getZ()));
+            var nativeProgram = ScriptProgram.compile(queuedCode, GenieWorldHost.api(), Set.of("USE"));
+            var nativeFiber = new ScriptMachine(nativeProgram,"main",List.of(new JsonObject()),nativeProgram.initialState(),host);
+            require(nativeFiber.advance(0,100)==ScriptMachine.Status.WAITING,"saved real write awaits its host job");
+            var graph = new ScriptGraphCopy();
+            var beforeWrite = nativeFiber.checkpoint(graph, pending -> host.checkpointPending(pending, graph));
+            require(host.drain(1,Long.MAX_VALUE)==1&&base.level.getBlockState(second).is(Blocks.GOLD_BLOCK),"original queued command applies once");
+            var afterWrite = nativeFiber.checkpoint(graph, pending -> { throw new AssertionError("completed result has no queued work"); });
+            nativeFiber.cancel();
+            base.set(second, Blocks.AIR.defaultBlockState());
+            try (var restoredHost = new GenieWorldHost(game,base.owner,new ItemStack(Items.STICK),()->true,()->2L)) {
+                var restored = beforeWrite.restore(new JsonObject(),new ScriptGraphCopy(),restoredHost,new ScriptMemory());
+                require(restoredHost.pending()==1&&base.level.getBlockState(second).isAir(),"installing the snapshot never executes queued work");
+                require(restoredHost.drain(1,Long.MAX_VALUE)==1&&restored.advance(2,100)==ScriptMachine.Status.DONE
+                    &&base.level.getBlockState(second).is(Blocks.GOLD_BLOCK),"restored wait is connected to a fresh native job");
+                base.set(second, Blocks.AIR.defaultBlockState());
+                var completed = afterWrite.restore(new JsonObject(),new ScriptGraphCopy(),restoredHost,new ScriptMemory());
+                require(restoredHost.pending()==0&&completed.advance(2,100)==ScriptMachine.Status.DONE&&base.level.getBlockState(second).isAir()
+                    &&completed.result().getAsJsonObject().get("successes").getAsInt()==1,"restoring a completed result does not replay its command");
+            }
             var abandoned=queued(host,"world.select",new JsonPrimitive("@s"));
             host.close();require(abandoned.future().isCancelled()&&host.pending()==0,"item context close cancels every owned pending job");
         }
