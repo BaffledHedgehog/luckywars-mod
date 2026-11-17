@@ -67,7 +67,7 @@ public final class KfcCounterChecks {
             require(items.reactive().cooldownTicks(player)==5,"reactive counter adds one original five-tick unit");
             require(items.timeStop().cooldownTicks(player)==1 && items.stand().cooldownTicks(player)==1
                     && items.stand().lightningCooldownTicks(player)==1,"cooldowns keep their native stored increment of one");
-            require(items.homing().curseSeconds(player)==1 && items.curseTicks(player)==1,"target and skill_issue update actual owner effects from zero");
+            require(items.homing().curseSeconds(player)==1 && items.curseTicks(player)==1,"target and skill_issue update actual owner effects from zero: target="+items.homing().curseSeconds(player)+" skill_issue="+items.curseTicks(player)+" ledger="+mana.hudValue(player,"skill_issue")+" rejected="+items.magic().rejectCustomDebuff(player));
             require(items.blind().queued(player)==1,"gatling source grant enrolls exactly one volley");
             require(items.frost().cold(player)==cold+1 && items.frost().cooldown(player)==coldCd+1,"existing frost values update in their stored units");
             require(mana.boost(player)==31,"active mana boost timer increments once");

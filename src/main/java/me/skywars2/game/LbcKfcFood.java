@@ -186,6 +186,8 @@ public final class LbcKfcFood {
                 case "coldownshish" -> game.items().reactive().addPlayerCounter(p);
                 case "ray" -> game.items().erecto().addPlayerCounter(p);
                 case "acid_rifle" -> game.items().awakenedAcid().addPlayerCounter(p);
+                // The turn-curse owner below publishes skill_issue; pre-incrementing its ledger adds it twice.
+                case "skill_issue" -> { }
                 default -> mana.score(p,name).add(1);
                 case "november","lucky_block_count" -> {mana.score(p,name).add(1);game.items().lightsabers().sourceScoreChanged(p);}
             }
