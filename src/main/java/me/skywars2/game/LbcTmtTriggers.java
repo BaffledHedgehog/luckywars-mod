@@ -139,6 +139,7 @@ public final class LbcTmtTriggers {
         try{
             for(var hand:InteractionHand.values()){
                 var stack=owner.getItemInHand(hand);if(!modern(stack)||LbcTmtAbilities.active(stack)||!LbcDimensionItems.allowed(owner,stack))continue;
+                hideDescriptions(stack);
                 var all=LbcTmtAbilities.read(stack);
                 for(var action:Action.values()){
                     if(!game.items().tmt().admitted(owner))break;
@@ -218,15 +219,20 @@ public final class LbcTmtTriggers {
             if(sneaking)input(owner,Input.SNEAK);if(owner.isSprinting())input(owner,Input.SPRINT);input(owner,Input.TICK);
         }
     }
-    static void describe(GameController game,ItemStack stack){
-        var lines=new ArrayList<>(stack.getOrDefault(DataComponents.LORE,ItemLore.EMPTY).lines());
-        for(var property:LbcTmtAbilities.read(stack)){
-            var source=LbcTmtComponents.source(game,property);
-            var name=source.getOrDefault(DataComponents.CUSTOM_NAME,source.getOrDefault(DataComponents.ITEM_NAME,net.minecraft.network.chat.Component.literal(property.id())));
-            for(var action:Action.values())if(property.inputs().containsKey(action))lines.add(net.minecraft.network.chat.Component.literal(label(property.inputs().get(action))+" → "+actionLabel(action)+": ")
-                    .withStyle(net.minecraft.ChatFormatting.GRAY).append(name.copy()));
-        }
-        stack.set(DataComponents.LORE,new ItemLore(List.copyOf(lines)));
+    /** Retire only the generated disclosures; preserve every original/random lore component. */
+    static void hideDescriptions(ItemStack stack){
+        var lore=stack.getOrDefault(DataComponents.LORE,ItemLore.EMPTY);
+        if(lore.lines().size()<=6)return;
+        var lines=lore.lines().stream().filter(line->!disclosureLine(line)).toList();
+        if(lines.size()!=lore.lines().size())stack.set(DataComponents.LORE,new ItemLore(lines));
+    }
+    static boolean disclosureLine(net.minecraft.network.chat.Component line){
+        var gray=net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.GRAY);
+        if(!gray.equals(line.getStyle().getColor())||line.getSiblings().isEmpty())return false;
+        String text=line.getString();
+        for(var input:Input.values())for(var action:Action.values())
+            if(text.startsWith(label(input)+" → "+actionLabel(action)+": "))return true;
+        return false;
     }
     static boolean canCycle(GameController game,ItemStack stack){
         return LbcTmtAbilities.read(stack).stream().anyMatch(a->LbcModeScroll.supports(game,LbcTmtComponents.source(game,a)));

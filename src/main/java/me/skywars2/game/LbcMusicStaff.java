@@ -115,7 +115,7 @@ public final class LbcMusicStaff {
     }
     public static final class Shot extends Arrow implements PolymerEntity,FixedArrowDamage {
         int damage=8;ItemStack weapon=ItemStack.EMPTY;ProjectileModel model;
-        Shot(EntityType<? extends Arrow> type,Level level){super(type,level);}
+        Shot(EntityType<? extends Arrow> type,Level level){super(type,level);entityTags().add("magic");}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
         @Override public boolean shouldBeSaved(){return false;}
         @Override public ItemStack getWeaponItem(){return weapon;}
@@ -126,6 +126,7 @@ public final class LbcMusicStaff {
             var game=me.skywars2.SkyWars2.game();
             if(game==null||!game.items().currentEpoch(this)){discard();return;}
             if(game.items().timeStop().frozen(this)||game.items().timeStop().stopped((ServerLevel)level())||entityTags().contains("time_stopped"))return;
+            if(game.items().magic().suppressionFraction((ServerLevel)level(),position(),position().add(getDeltaMovement()))<=1){discard();return;}
             super.tick();if(isRemoved())return;
             if(tickCount>=1200){discard();return;}
             if(model==null)model=new ProjectileModel(this,ARROW_MODEL);

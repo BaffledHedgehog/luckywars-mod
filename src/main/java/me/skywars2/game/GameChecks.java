@@ -1244,6 +1244,7 @@ public final class GameChecks {
                                 case "erecto-cleanup" -> { ErectoChecks.cleanup(game); return; }
                                 case "tesla-traffic" -> { TeslaTrafficChecks.run(game); return; }
                                 case "network-transport" -> { NetworkTransportChecks.run(game); return; }
+                                case "smoke-staff-suppression" -> { SmokeStaffSuppressionChecks.run(game); return; }
                                 case "smoke-volume" -> { SmokeVolumeChecks.run(game); return; }
                                 case "smoke-ending" -> { SmokeEndingChecks.run(game); return; }
                                 case "smoke-attachment" -> { SmokeAttachmentChecks.run(game); return; }

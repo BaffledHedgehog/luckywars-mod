@@ -51,6 +51,7 @@ public final class LbcReactiveArtifacts {
             super(level,at.x,at.y+.05,at.z,spentSmoke());
             setDeltaMovement(Vec3.ZERO);setNoGravity(false);setPermanentlyInvulnerable(true);
             setNeverPickUp();setUnlimitedLifetime();
+            entityTags().add("mecha");
         }
         private static net.minecraft.world.item.ItemStack spentSmoke(){
             var item=new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.SNOWBALL);
@@ -203,6 +204,10 @@ public final class LbcReactiveArtifacts {
         smokeTrails.removeIf(p->p.age>=p.life||!game.playing()||!p.source.epoch.equals(game.items().epoch()));
         var players=new IdentityHashMap<LivingEntity,Cloud>();var mobs=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
         for(var cloud:List.copyOf(clouds)){
+            if(cloud.visual!=0&&game.items().magic().mechanismSuppressedAt(cloud.level,
+                    cloud.carrier==null?cloud.center:cloud.carrier.position())){
+                smokeTrails.removeIf(p->p.source==cloud);removeCloud(cloud);continue;
+            }
             boolean validSource=cloud.visual==0?valid(cloud.owner):game.playing()&&game.stage()!=GameController.Stage.ENDING&&cloud.level==game.maps().level();
             if(!validSource||!cloud.epoch.equals(game.items().epoch())||game.server().getTickCount()>=cloud.expires||!carrierPresent(cloud)){removeCloud(cloud);continue;}
             if(cloud.visual==0?paused(cloud.owner):game.items().timeStop().stopped(cloud.level)){if(advance)cloud.expires++;continue;}

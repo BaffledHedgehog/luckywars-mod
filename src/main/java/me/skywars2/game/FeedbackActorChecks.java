@@ -67,6 +67,20 @@ final class FeedbackActorChecks {
         require(tail(f.client,own).stream().noneMatch(ClientboundSetEntityDataPacket.class::isInstance),"stationary mark does not resend unchanged display metadata");
         own=f.client.packets().size();service.begin();service.end();
         require(service.count()==0&&tail(f.client,own).stream().anyMatch(ClientboundRemoveEntitiesPacket.class::isInstance),"inactive radar removes client display immediately");
+        service.begin();service.mark(f.owner,f.other);service.end();own=f.client.packets().size();
+        float hp=f.owner.getHealth();
+        try{
+            f.owner.setHealth(0);service.begin();service.mark(f.owner,f.other);service.end();
+            require(service.count()==0&&tail(f.client,own).stream().anyMatch(ClientboundRemoveEntitiesPacket.class::isInstance),
+                    "a dead viewer cannot retain or renew radar even if stale armor producers still submit it");
+        }finally{f.owner.setHealth(hp);}
+        var target=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,f.level);
+        target.setPos(f.owner.position().add(0,0,2));target.setNoAi(true);f.own(target);
+        require(f.level.addFreshEntity(target),"real radar target");
+        service.begin();service.mark(f.owner,target);service.end();own=f.client.packets().size();
+        target.kill(f.level);
+        require(service.count()==0&&tail(f.client,own).stream().anyMatch(ClientboundRemoveEntitiesPacket.class::isInstance),
+                "native AFTER_DEATH removes private radar immediately without waiting for another gameplay frame");
     }
     private static void transformer(WoolBucketChecks.Fixture f){
         var service=f.game.items().transformator();var token=token(f,new ItemStack(LbcNpcDropItems.TRANSFORMATOR));
@@ -91,8 +105,10 @@ final class FeedbackActorChecks {
         f.owner.setInvulnerableTime(0);f.owner.damageCooldownTime=0;
         require(f.owner.hurtServer(f.level,f.owner.damageSources().playerAttack(f.other),1),"accepted damage triggers native status callback");service.tick();
         require(f.other.getHealth()==hp-6,"charge actually discharges six native damage to next target");
-        var ray=f.level.getEntitiesOfClass(Display.ItemDisplay.class,f.owner.getBoundingBox().inflate(2),LbcStaticCharge::visual).getFirst();
-        DisplayTransformChecks.pose(ray,0,0,0,3,3,(float)-f.owner.getEyePosition().distanceTo(f.other.getEyePosition()));
+        var ray=f.level.getEntitiesOfClass(Display.ItemDisplay.class,f.other.getBoundingBox().inflate(2),LbcStaticCharge::visual).getFirst();
+        var impact=f.other.getBoundingBox().clip(f.owner.getEyePosition(),f.other.getEyePosition()).orElseThrow();
+        require(ray.position().distanceToSqr(impact)<1e-10,"discharge visual is anchored at the actual target hitbox face");
+        DisplayTransformChecks.pose(ray,0,0,0,3,3,(float)-f.owner.getEyePosition().distanceTo(impact));
         require(f.game.items().mana().hudValue(f.other,LbcStaticCharge.COUNTER)==9,"remaining charge transferred");
         service.clear(f.owner);service.clear(f.other);hp=f.other.getHealth();
         var wall=f.owner.blockPosition().offset(2,0,0);

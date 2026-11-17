@@ -100,7 +100,7 @@ public final class WeaponSuppressionChecks {
             }
             owner.getInventory().clearContent();home();witness.discard();
         }
-        void armCurse(int variant){clearField();home();owner.removeAllEffects();owner.setHealth(1000);owner.setAbsorptionAmount(0);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;curses.remove(owner.getUUID());rotations.remove(owner.getUUID());
+        void armCurse(int variant){clearField();home();owner.removeAllEffects();owner.setHealth(1000);owner.setAbsorptionAmount(0);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;game.items().clearTurnCurse(owner);rotations.remove(owner.getUUID());
             if(variant<4)zone((variant&1)!=0,variant>=2,at.add(3,0,0));
             var broken=new ItemStack(Items.TOTEM_OF_UNDYING);var flags=new net.minecraft.nbt.CompoundTag();flags.putInt("broken_totem",1);broken.set(DataComponents.CUSTOM_DATA,CustomData.of(flags));game.items().usedTotem(owner,broken);
             require(game.items().curseTicks(owner)==100,"actual broken-totem reward arms psychic disorder variant="+variant);owner.removeEffect(MobEffects.BLINDNESS);expected=100;stage=variant*2;beforeHealth=owner.getHealth();

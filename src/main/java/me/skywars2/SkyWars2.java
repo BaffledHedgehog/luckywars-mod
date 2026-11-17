@@ -208,6 +208,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             me.skywars2.game.SignedEffectVisuals.joined(player);
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damage) -> {
+            if(game!=null)game.items().radar().forget(entity);
             if(game!=null&&entity instanceof ServerPlayer player)game.items().fpvDrone().forget(player);
             me.skywars2.game.LbcAcceptedHits.lethal(entity,damage);
             if (game != null) game.items().specialTools().died(entity,damage);

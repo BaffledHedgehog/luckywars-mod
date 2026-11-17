@@ -27,7 +27,7 @@ public final class LbcRadarDisplays {
     LbcRadarDisplays(GameController game){this.game=game;}
     void begin(){frame++;}
     void mark(ServerPlayer viewer,LivingEntity target){
-        if(viewer==target||viewer.isRemoved()||target.isRemoved()||!target.isAlive()||viewer.level()!=target.level())return;
+        if(viewer==target||viewer.isRemoved()||!viewer.isAlive()||target.isRemoved()||!target.isAlive()||viewer.level()!=target.level())return;
         var key=new Key(viewer,target);var mark=marks.get(key);
         if(mark==null){
             var stack=new ItemStack(Items.PAPER);stack.set(DataComponents.ITEM_MODEL,
@@ -45,7 +45,8 @@ public final class LbcRadarDisplays {
     private static Vec3 position(LivingEntity target){return new Vec3(target.getX(),target.getBoundingBox().maxY+.3,target.getZ());}
     void end(){
         for(var it=marks.entrySet().iterator();it.hasNext();){var entry=it.next();var key=entry.getKey();var mark=entry.getValue();
-            if(mark.frame!=frame||key.viewer.level()!=key.target.level()||key.viewer.connection==null
+            if(mark.frame!=frame||!key.viewer.isAlive()||!key.target.isAlive()||key.target.isRemoved()
+                    ||key.viewer.level()!=key.target.level()||key.viewer.connection==null
                     ||game.server().getPlayerList().getPlayer(key.viewer.getUUID())!=key.viewer){mark.holder.destroy();it.remove();continue;}
             // Only position changes: teleport_duration handles movement. Restarting
             // transform interpolation would emit metadata even for stationary targets.
@@ -53,5 +54,10 @@ public final class LbcRadarDisplays {
         }
     }
     int count(){return marks.size();}
+    public void forget(LivingEntity entity){
+        for(var it=marks.entrySet().iterator();it.hasNext();){var entry=it.next();
+            if(entry.getKey().viewer==entity||entry.getKey().target==entity){entry.getValue().holder.destroy();it.remove();}
+        }
+    }
     void stop(){for(var mark:marks.values())mark.holder.destroy();marks.clear();}
 }

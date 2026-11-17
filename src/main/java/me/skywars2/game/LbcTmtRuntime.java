@@ -141,7 +141,6 @@ public final class LbcTmtRuntime {
         if(assigned.stream().anyMatch(a->((ItemData.IntReader)(Object)a.data()).skywars2$readInt(LbcTmtDrops.FLAG,0)==1))root.putInt(LbcTmtDrops.FLAG,1);
         result.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(root));
         LbcTmtEquipment.apply(game,result);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);
-        LbcTmtTriggers.describe(game,result);
         return result;
     }
     /** Shared special-drop dispatcher owns admission, TimeStop and the sole token debit. */

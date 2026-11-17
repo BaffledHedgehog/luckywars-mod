@@ -2253,7 +2253,7 @@ public final class LbcItems {
         musicStaff.tick();
         LbcTmtTriggers.tick(game);
         // Keep accepted ability graphs visible until the real lobby transition retires them.
-        if(game.stage()==GameController.Stage.ENDING){rifleZoom.tick();reactiveArtifacts.tickEnding();return;}
+        if(game.stage()==GameController.Stage.ENDING){radar.stop();rifleZoom.tick();reactiveArtifacts.tickEnding();return;}
         radar.begin();
         hedgehogDimensions.tickReturns();
         steampunkRocket.tick();trollBox.tick();
@@ -2478,6 +2478,7 @@ public final class LbcItems {
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
     private void clear(ServerPlayer player,boolean resetNanobots) { genie.cancel(player); steampunkHook.clear(player);steampunkGlove.clear(player);legacyEffects.clear(player); if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); clearTurnCurse(player); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
+        radar.forget(player);
         genie.cancel(player);
         musicStaff.forget(player);
         tmt.forget(player);

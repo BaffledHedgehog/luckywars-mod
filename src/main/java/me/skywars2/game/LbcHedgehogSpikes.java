@@ -102,6 +102,7 @@ public final class LbcHedgehogSpikes {
         SpikeArrow(ServerPlayer p,SpikeKind kind){this(p,kind,0);}
         SpikeArrow(ServerPlayer p,SpikeKind kind,int legacy){this(p,kind,legacy,p.getUUID());}
         SpikeArrow(ServerPlayer p,SpikeKind kind,int legacy,UUID originalAuthor){super(p.level(),p,pickup(kind,legacy),null);this.kind=kind;this.legacy=legacy;this.originalAuthor=originalAuthor;
+            if(legacy==7||legacy==8)entityTags().add("mecha");
             setBaseDamage(legacy==0?baseDamage(kind):switch(legacy){case 1->3;case 2,6->2.5;case 3->2;case 4->4;case 5->1.8;default->.01;});
             if(kind!=SpikeKind.BOOM||legacy>0)pickup=legacy==3||legacy>=7?AbstractArrow.Pickup.DISALLOWED:AbstractArrow.Pickup.CREATIVE_ONLY;}
         @Override public boolean shouldBeSaved(){return false;}
