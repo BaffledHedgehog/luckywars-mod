@@ -17,6 +17,8 @@ import net.minecraft.world.phys.*;
 /** Tranquillizer126: persistent charge, refreshed by its cloud, discharged on an accepted hit. */
 public final class LbcStaticCharge {
     static final String COUNTER="effect_shock_potion";
+    // check runs at the origin, then49 quarter-block advances before Distance50.
+    private static final double RAY_REACH=49*.25;
     private static final String BEAM="skywars2.static_charge_visual";
     private static final DustColorTransitionOptions DUST=new DustColorTransitionOptions(0xff00ccff,0xff003333,.9f);
     private static final net.minecraft.nbt.CompoundTag BEAM_DATA=beamData();
@@ -74,6 +76,8 @@ public final class LbcStaticCharge {
             for(var target:accepted){if(paused(target)){pending.add(target);continue;}if(valid(target)&&amount(target)>0)discharge(target);}
             for(var it=beams.entrySet().iterator();it.hasNext();){var beam=it.next();var entity=beam.getKey();
                 if(entity.isRemoved()){it.remove();continue;}if(paused(entity))continue;
+                // Source starts its four zap pulses two ticks after publication.
+                if(beam.getValue()<=4)LbcOverload.sound((ServerLevel)entity.level(),entity.position(),"minecraft:lbcsounds.zap",1,1,0,0);
                 if(beam.getValue()<=1){entity.discard();it.remove();}else beam.setValue(beam.getValue()-1);}
             clouds.removeIf(Entity::isRemoved);for(var cloud:clouds)if(!paused(cloud)){
                 var random=cloud.getRandom();double angle=random.nextDouble()*Math.PI*2,r=Math.sqrt(random.nextDouble())*cloud.getRadius();
@@ -83,43 +87,80 @@ public final class LbcStaticCharge {
     private void discharge(LivingEntity emitter){
         int charge=amount(emitter);if(charge<=0||!valid(emitter))return;write(emitter,0);pending.remove(emitter);
         var level=(ServerLevel)emitter.level();var visited=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());visited.add(emitter);
+        var recipients=new ArrayList<LivingEntity>();
         Vec3 from=emitter.getEyePosition();
         for(int link=0;link<charge;link++){
-            final Vec3 origin=from;double radius=link==0?10:20;
-            var target=level.getEntitiesOfClass(LivingEntity.class,new AABB(origin,origin).inflate(radius),e->!visited.contains(e)&&valid(e)
-                    &&!e.isAlliedTo(emitter)&&e.getEyePosition().distanceToSqr(origin)<=radius*radius)
-                    .stream().min(Comparator.comparingDouble(e->e.getEyePosition().distanceToSqr(origin))).orElse(null);
-            if(target==null||game.items().magic().mechanismSuppressedAt(level,from))break;
-            // Source ray50 quarter-block steps; a wall terminates the chain.
-            var delta=target.getEyePosition().subtract(from);var end=from.add(delta.normalize().scale(Math.min(12.5,delta.length())));
-            var wall=LbcTerra.wallHit(level,from,end);
-            if(wall!=null){beam(level,from,wall.getLocation());break;}
+            // as_target/run resolves the original damager within20 of the next
+            // eyes-anchored origin before it can invoke another nested cast.
+            if(link>0&&emitter.position().distanceToSqr(from)>400)break;
+            var next=nearest(level,emitter,from,link==0?10:20,visited);
+            if(next==null||game.items().magic().mechanismSuppressedAt(level,from))break;
+            var target=next.target();var end=next.impact();
+            var wall=blockHit(level,from,end);
+            if(wall!=null){beam(level,from,wall);
+                level.sendParticles(ParticleTypes.ELECTRIC_SPARK,wall.x,wall.y,wall.z,20,0,0,0,.3);break;}
             boolean stopped=false;int steps=(int)Math.ceil(from.distanceTo(end)*4);
             for(int step=1;step<=steps;step++)if(game.items().magic().mechanismSuppressedAt(level,from.lerp(end,step/(double)steps))){stopped=true;break;}
             if(stopped)break;
-            if(target.getBoundingBox().clip(from,end).isEmpty()&&!target.getBoundingBox().contains(end)){beam(level,from,end);break;}
             if(game.items().magic().mechanismSuppressedAt(level,target.position()))break;
-            beam(level,from,target.getEyePosition());visited.add(target);write(target,Math.max(0,charge-1));
-            if(!game.items().fpvDrone().tryShortCircuit(target)){
-                // A transferred charge stays available for the next external hit.
-                // Damage from this discharge must not immediately start an echo chain.
-                discharging++;try{target.hurtServer(level,new DamageSource(level.registryAccess()
-                        .lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),emitter),6);}
-                finally{discharging--;}
-            }
+            beam(level,from,end);level.sendParticles(ParticleTypes.ELECTRIC_SPARK,end.x,end.y,end.z,1,0,0,0,.1);
+            visited.add(target);write(target,Math.max(0,charge-1));recipients.add(target);
             from=target.getEyePosition();
         }
+        // Legacy nested calls deal damage while unwinding, last recipient first.
+        for(int index=recipients.size()-1;index>=0;index--){
+            var target=recipients.get(index);
+            // The source damage command also resolves its author within20, now
+            // relative to the victim's feet. Charge transfer already happened.
+            if(target.position().distanceToSqr(emitter.position())>400)continue;
+            // All reactions from this discharge, including drone short circuits,
+            // retain charge for a future external hit instead of echoing now.
+            discharging++;try{
+                if(!game.items().fpvDrone().tryShortCircuit(target))target.hurtServer(level,new DamageSource(level.registryAccess()
+                        .lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),emitter),6);
+            }finally{discharging--;}
+        }
+    }
+    private static Vec3 blockHit(ServerLevel level,Vec3 from,Vec3 to){
+        // Source checks #minecraft:airs, not a collision shape. Fluids and webs
+        // stop the ray too. Traverse local voxels without loading absent chunks.
+        return net.minecraft.world.level.BlockGetter.<Vec3,ServerLevel>traverseBlocks(from,to,level,(world,pos)->{
+            if(world.hasChunkAt(pos)&&world.getBlockState(pos).isAir())return null;
+            var box=new AABB(pos);return box.contains(from)?from:box.clip(from,to).orElse(null);
+        },ignored->null);
+    }
+    private record Reachable(LivingEntity target,Vec3 impact) { }
+    private Reachable nearest(ServerLevel level,LivingEntity emitter,Vec3 from,double radius,Set<LivingEntity> visited){
+        LivingEntity closest=null;Vec3 impact=null;double best=Double.POSITIVE_INFINITY;
+        // Native entity-section index, bounded to the legacy selector sphere.
+        // A single pass also rejects candidates the short ray cannot intersect.
+        for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(from,from).inflate(radius),
+                e->!visited.contains(e)&&valid(e)&&!e.isAlliedTo(emitter))){
+            double distance=target.position().distanceToSqr(from);
+            if(distance>radius*radius||distance>=best)continue;
+            var delta=target.getEyePosition().subtract(from);
+            var end=from.add(delta.normalize().scale(Math.min(RAY_REACH,delta.length())));
+            var contact=target.getBoundingBox().contains(from)?from:target.getBoundingBox().clip(from,end).orElse(null);
+            if(contact==null)continue;
+            closest=target;impact=contact;best=distance;
+        }
+        return closest==null?null:new Reachable(closest,impact);
     }
     private void beam(ServerLevel level,Vec3 from,Vec3 to){
         var entity=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);
         var direction=to.subtract(from);
-        var data=BEAM_DATA.copy();data.getCompoundOrEmpty("transformation").getListOrEmpty("scale").set(2,net.minecraft.nbt.FloatTag.valueOf((float)-direction.length()));
-        entity.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),data));
-        entity.setPos(from);
-        entity.setYRot((float)-Math.toDegrees(Math.atan2(direction.x,direction.z)));
-        entity.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
+        double length=direction.length();if(length<1e-7)return;
+        entity.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),BEAM_DATA.copy()));
+        var unit=direction.scale(1/length);
+        // ItemDisplayRenderer rotates this authored -Z model by Y+PI. Its
+        // negative scale therefore extends BACK from the impact to the emitter.
+        // Quaternion metadata avoids AddEntity's byte-quantized entity angles.
+        entity.setTransformation(new com.mojang.math.Transformation(new org.joml.Vector3f(),
+                new org.joml.Quaternionf().rotationTo(0,0,1,(float)unit.x,(float)unit.y,(float)unit.z),
+                new org.joml.Vector3f(3,3,(float)-length),new org.joml.Quaternionf()));
+        entity.setPos(to);
         entity.entityTags().add(BEAM);game.items().markCurrentItemEpoch(entity);
-        if(level.addFreshEntity(entity))beams.put(entity,8);
+        if(level.addFreshEntity(entity))beams.put(entity,6);
     }
     public void clear(LivingEntity target){pending.remove(target);write(target,0);}
     public void stop(){for(var target:List.copyOf(charged))clear(target);for(var beam:beams.keySet())beam.discard();beams.clear();pending.clear();clouds.clear();frozen=false;}

@@ -25,6 +25,7 @@ public final class StaticChargeRewindChecks {
         Display.ItemDisplay beam;
         ItemStack picture;
         int phase,when,ttl,cloudAge;
+        float beamLength;
         float ownerHp,otherHp;
         boolean restoring,closed;
         Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,true);service=game.items().legacyEffects().staticCharge();started=game.server().getTickCount();}
@@ -52,13 +53,14 @@ public final class StaticChargeRewindChecks {
             var image=view();require(charge(f.owner)==0&&charge(f.other)==9&&waiting(f.other),"pending accepted charge before full capture");
             require(image.live.stream().anyMatch(ref->ref.id().equals(f.other.getUUID()))&&image.fields.stream().anyMatch(ref->ref.id().equals(cloud.getUUID())),"live charged body and actual cloud tracked");
             require(image.rays.size()==1,"one live original discharge visual");var entry=image.rays.entrySet().iterator().next();
-            beam=(Display.ItemDisplay)f.level.getEntity(entry.getKey().id());ttl=entry.getValue();require(beam!=null&&ttl>0&&ttl<8,"original arc has a real partial active lifetime");
+            beam=(Display.ItemDisplay)f.level.getEntity(entry.getKey().id());ttl=entry.getValue();require(beam!=null&&ttl>0&&ttl<6,"original arc has a real partial active lifetime");
+            beamLength=(float)f.owner.getEyePosition().distanceTo(f.other.getBoundingBox().clip(f.owner.getEyePosition(),f.other.getEyePosition()).orElseThrow());
             picture=beam.getItemStack().copy();cloudAge=cloud.tickCount;ownerHp=f.owner.getHealth();otherHp=f.other.getHealth();
         }
         void verify(){
             require(f.level.getEntity(cloud.getUUID())==cloud&&!cloud.isRemoved()&&cloud.tickCount==cloudAge&&cloud.getDuration()==300,"canonical native cloud identity and partial age restored");
             require(f.level.getEntity(beam.getUUID())==beam&&!beam.isRemoved()&&remaining(beam)==ttl&&ItemStack.matches(picture,beam.getItemStack()),"same native arc body/model and exact remaining lifetime restored");
-            DisplayTransformChecks.pose(beam,0,0,0,3,3,(float)-f.owner.getEyePosition().distanceTo(f.other.getEyePosition()));
+            DisplayTransformChecks.pose(beam,0,0,0,3,3,-beamLength);
             require(charge(f.owner)==0&&charge(f.other)==9&&waiting(f.other),"charged and waiting collections rebound to restored bodies");
             require(f.owner.getHealth()==ownerHp&&f.other.getHealth()==otherHp&&game.items().timeStop().stopped(f.level),"original HP and TimeStop restored without an early discharge");
         }

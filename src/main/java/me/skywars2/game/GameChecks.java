@@ -885,6 +885,7 @@ public final class GameChecks {
                                 case "tmt-triggers" -> { TmtTriggerChecks.run(game); return; }
                                 case "vanilla-skill-feedback" -> { VanillaSkillFeedbackChecks.run(game); return; }
                                 case "static-charge-no-echo" -> { StaticChargeNoEchoChecks.run(game); return; }
+                                case "static-charge-geometry" -> { StaticChargeGeometryChecks.run(game); return; }
                                 case "feedback-round-two" -> { FeedbackRoundTwoChecks.run(game); return; }
                                 case "lucky-reset-prepare12" -> { FeedbackRoundTwoChecks.prepareLuck(game,12); return; }
                                 case "lucky-reset-prepare1" -> { FeedbackRoundTwoChecks.prepareLuck(game,1); return; }
@@ -1828,6 +1829,7 @@ public final class GameChecks {
             BotIslandTrapChecks.tick(game);
             FeedbackNov9Checks.tick(game);
         StaticChargeNoEchoChecks.tick(game);
+        StaticChargeGeometryChecks.tick(game);
             FeedbackRoundTwoChecks.tick(game);
             OreshekChecks.tickInput(game);
             DimensionTickChecks.tick(game);
