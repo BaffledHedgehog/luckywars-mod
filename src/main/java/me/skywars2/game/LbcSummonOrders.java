@@ -61,7 +61,18 @@ public final class LbcSummonOrders {
     }
     private void assign(ServerPlayer owner,Mob mob,LivingEntity target){
         if(target==null){assignments.remove(mob);mob.setTarget(null);return;}
-        assignments.put(mob,new Assignment(owner.getUUID(),target));mob.setTarget(target);
+        assignments.put(mob,new Assignment(owner.getUUID(),target));restoreTarget(mob,target);
+    }
+    private void restoreTarget(Mob mob,LivingEntity target){
+        // Native completion clears the target before stopping its attack goal.
+        // Both automatic orders and explicit commands must let that goal reset.
+        // Changing focus mid-beam also requires a new charge and target packet.
+        if(mob instanceof net.minecraft.world.entity.monster.Guardian guardian
+                &&guardian.hasActiveAttackTarget()&&mob.getTarget()!=target){
+            if(mob.getTarget()!=null)mob.setTarget(null);
+            return;
+        }
+        if(mob.getTarget()!=target)mob.setTarget(target);
     }
     private double radius(Mob mob){return mob.entityTags().contains("summactivated")||mob instanceof net.minecraft.world.entity.monster.Vex?200:100;}
     /** Distance stays primary in sparse terrain; nearby equal choices spread across available enemies. */
@@ -98,7 +109,7 @@ public final class LbcSummonOrders {
         @Override public boolean canContinueToUse(){return canUse();}
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void start(){tick();}
-        @Override public void tick(){var target=assigned(mob);if(target!=null&&mob.getTarget()!=target)mob.setTarget(target);}
+        @Override public void tick(){var target=assigned(mob);if(target!=null)restoreTarget(mob,target);}
         @Override public void stop(){mob.setTarget(null);}
     }
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}

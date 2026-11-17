@@ -576,6 +576,16 @@ public final class LbcSummons {
     }
     private final class SoulGuardian extends net.minecraft.world.entity.monster.Guardian {
         SoulGuardian(ServerLevel level) { super(EntityTypes.GUARDIAN,level); }
+        @Override public boolean hasLineOfSight(Entity target,net.minecraft.world.level.ClipContext.Block block,
+                net.minecraft.world.level.ClipContext.Fluid fluid,double eyeY) {
+            // The authored summon follows targets to 200 blocks; vanilla's hard
+            // 128-block sight cutoff otherwise interrupts an unobstructed beam.
+            var from=getEyePosition();var to=new Vec3(target.getX(),eyeY,target.getZ());
+            double reach=getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE);
+            return target.level()==level()&&from.distanceToSqr(to)<=reach*reach
+                    &&level().clip(new net.minecraft.world.level.ClipContext(from,to,block,fluid,this)).getType()
+                    ==net.minecraft.world.phys.HitResult.Type.MISS;
+        }
         @Override public boolean shouldBeSaved() { return false; }
         @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
         @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }

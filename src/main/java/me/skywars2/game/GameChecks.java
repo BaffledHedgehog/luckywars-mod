@@ -1476,6 +1476,7 @@ public final class GameChecks {
                                 case "exahoming-crafting" -> checkExahomingCrafting(game);
                                 case "summons-menu" -> checkSummonsMenu(game);
                                 case "summon-orders" -> { SummonOrderChecks.run(game); return; }
+                                case "guardian-beams" -> { GuardianBeamChecks.run(game); return; }
                                 case "summon-orders-stop-probe" -> { SummonOrderChecks.stopProbe(game); return; }
                                 case "summon-orders-cleanup" -> { SummonOrderChecks.cleanup(game); return; }
                                 case "native-melee" -> { NativeMeleeChecks.run(game); return; }
@@ -1952,6 +1953,7 @@ public final class GameChecks {
         TikTokNetworkChecks.tick(game);
         MusicStaffChecks.tick(game);
         GenieChecks.tick(game);
+        GuardianBeamChecks.tick(game);
         SynchroRankedChecks.tick(game);
         TikTokBulkImportChecks.tick(game);
         SmokeEndingChecks.tick(game);
