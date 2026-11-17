@@ -1,0 +1,14 @@
+{
+  "assets/lbc/models/item/music_staff/staff.json": "3cb6ba719cf8fa8fbc46618d9a5e04e70c8c899d07d4d86d0e6644d5d49638c0",
+  "assets/minecraft/textures/item/wand_52.png": "a8518a8b9e817bcd68b542149de9c4c97992233ad856eff05e201f0b634ecc50",
+  "assets/lbc/shaders/include/bloom_rules.glsl": "7f62cae1fe9eaf639706005db605a5568cdcd07d2d87ae7525e05c2065e3c30f",
+  "bloom_rules.json": "9f83c63edccbe9675f9765f7aabd0d015aa9a2e5ea4dbeb31e122e8ada46eafa",
+  "edit_bloom.py": "cab87199101119e940fba0b2bc2e169ae2a79bb7fb2b0a35b519beed9f3bca5c",
+  "assets/minecraft/shaders/post/bloom_sample.fsh": "9aa138e55a36aa164f78e8c8f3d63b6c606b80d110bb224a69ac837882f8ee9b",
+  "assets/lbc/shaders/post/material_bloom.fsh": "eac5fcb4a364ac6418d75299ac1a790876c2de82807c9cf49b7b79e06de4a819",
+  "assets/minecraft/post_effect/end_of_frame.json": "a02c1bc64e230b78b785e35072bcb9a6e91ff931bd8b53e4c3f4d4e73a97b5a9",
+  "assets/minecraft/shaders/core/item.fsh": "e27bc685751be5ee8a91ffe5693195fbcc282fc4b5832176867450244c8c9d65",
+  "assets/minecraft/shaders/core/entity.fsh": "8090730ddea46d9578e718894a39193827fa13695af17144c04027b780d224e2",
+  "assets/minecraft/shaders/core/terrain.fsh": "40e3d0104491b9f5c77743b8e4bb51e3d965b35f25c9d7da0e9df639869023f4",
+  "assets/minecraft/shaders/core/particle.fsh": "1eb38346baf6d3c590fd39d7c0dbe056d08a2656160e353593aad7d4d7fd3540"
+}

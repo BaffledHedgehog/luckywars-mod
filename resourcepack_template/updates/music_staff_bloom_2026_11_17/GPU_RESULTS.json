@@ -1,0 +1,708 @@
+{
+  "passed": true,
+  "renderer": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "cases": [
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "item",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "entity",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "item",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "entity",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "item",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "entity",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "item",
+      "rgb": [
+        255,
+        142,
+        50
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "entity",
+      "rgb": [
+        255,
+        142,
+        50
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        255,
+        142,
+        50
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        255,
+        142,
+        50
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        255,
+        142,
+        50
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        255,
+        142,
+        50
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "item",
+      "rgb": [
+        255,
+        0,
+        64
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "entity",
+      "rgb": [
+        255,
+        0,
+        64
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        255,
+        0,
+        64
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        255,
+        0,
+        64
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        255,
+        0,
+        64
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        255,
+        0,
+        64
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "item",
+      "rgb": [
+        29,
+        28,
+        32
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "entity",
+      "rgb": [
+        29,
+        28,
+        32
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        29,
+        28,
+        32
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "terrain",
+      "rgb": [
+        29,
+        28,
+        32
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        29,
+        28,
+        32
+      ],
+      "alpha": 255,
+      "passed": true
+    },
+    {
+      "case": "ordinary-rgb-collision",
+      "kind": "particle",
+      "rgb": [
+        29,
+        28,
+        32
+      ],
+      "alpha": 254,
+      "passed": true
+    },
+    {
+      "case": "ordinary-opacity254",
+      "kind": "item",
+      "passed": true
+    },
+    {
+      "case": "ordinary-opacity254",
+      "kind": "entity",
+      "passed": true
+    },
+    {
+      "case": "marked-item-and-halo",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "whiteCore": false,
+      "passed": true
+    },
+    {
+      "case": "marked-item-and-halo",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "whiteCore": false,
+      "passed": true
+    },
+    {
+      "case": "marked-item-and-halo",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "whiteCore": true,
+      "passed": true
+    },
+    {
+      "case": "weak-normal-strong",
+      "strengths": [
+        0.25,
+        1.0,
+        3.0
+      ],
+      "haloEnergy": [
+        5844,
+        24520,
+        71148
+      ],
+      "passed": true
+    },
+    {
+      "case": "custom-halo-colored-core",
+      "passed": true
+    },
+    {
+      "case": "service-alpha-is-not-material",
+      "passed": true
+    },
+    {
+      "case": "actual-saber-texture",
+      "texture": "lightsaber_sith",
+      "emittingPixels": 1216,
+      "hiltNeverEmits": true,
+      "passed": true
+    },
+    {
+      "case": "actual-saber-texture",
+      "texture": "lightsaber_jedi",
+      "emittingPixels": 1216,
+      "hiltNeverEmits": true,
+      "passed": true
+    },
+    {
+      "case": "artist-rgb-preserved",
+      "redPixels": 102,
+      "darkPixels": 159,
+      "passed": true
+    },
+    {
+      "case": "actual-lightning-model-uv",
+      "elements": 15,
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        255,
+        252,
+        253
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        238,
+        50,
+        115
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        43,
+        216,
+        147
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        51,
+        220,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        52,
+        55,
+        229
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        195,
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        147,
+        0,
+        237
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        116,
+        0,
+        228
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        105,
+        218,
+        82
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        255,
+        142,
+        50
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        235,
+        79,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        180,
+        53,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        122,
+        42,
+        232
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-rule-pixel-identical",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "case": "staff-white-core-and-halo",
+      "kind": "item",
+      "dark": true,
+      "outsideRgb": [
+        50,
+        53,
+        56
+      ],
+      "passed": true
+    },
+    {
+      "case": "staff-white-core-and-halo",
+      "kind": "entity",
+      "dark": true,
+      "outsideRgb": [
+        50,
+        53,
+        56
+      ],
+      "passed": true
+    },
+    {
+      "case": "staff-white-core-and-halo",
+      "kind": "item",
+      "dark": false,
+      "outsideRgb": [
+        209,
+        172,
+        182
+      ],
+      "passed": true
+    },
+    {
+      "case": "staff-white-core-and-halo",
+      "kind": "entity",
+      "dark": false,
+      "outsideRgb": [
+        209,
+        172,
+        182
+      ],
+      "passed": true
+    },
+    {
+      "case": "black-halo-strength",
+      "strengths": [
+        0,
+        0.25,
+        1,
+        3
+      ],
+      "darkeningEnergy": [
+        0,
+        11860,
+        49188,
+        142468
+      ],
+      "passed": true
+    },
+    {
+      "case": "actual-staff-texture",
+      "kind": "item",
+      "handleNeverEmits": true,
+      "passed": true
+    },
+    {
+      "case": "actual-staff-texture",
+      "kind": "entity",
+      "handleNeverEmits": true,
+      "passed": true
+    }
+  ],
+  "oldRgbOnlyNegativeControlEmits": true,
+  "authorPackUnchanged": true,
+  "scope": "Actual opaque/cutout material shaders and RGBA8 post passes on GPU; no physical Minecraft reload or OIT/translucent attachment transport claim."
+}

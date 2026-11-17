@@ -22,6 +22,121 @@ limits = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(limits)
 
 
+def check_music_staff(args, ctx, source, screen_vertex, programs, sample, composite,
+                      texture, render, raw, sample_source, results, hashes, width, height):
+    """Exercise the actual staff material pixels and the existing additive palette."""
+    from PIL import Image
+    relative = "assets/minecraft/textures/item/wand_52.png"
+    original = (args.pack / relative).read_bytes()
+    hashes[relative] = hashlib.sha256(original).hexdigest()
+    authored = np.array(Image.open(args.pack / relative).convert("RGBA"))
+    marked = np.array(Image.open(args.overlay / relative).convert("RGBA"))
+    assert np.array_equal(authored[:, :, :3], marked[:, :, :3]), "Artist RGB was repainted"
+    red = np.all(authored[:, :, :3] == [255, 0, 64], axis=2)
+    dark = np.all(authored[:, :, :3] == [29, 28, 32], axis=2)
+    assert red.sum() == 102 and dark.sum() == 159
+    expected = authored.copy();expected[red | dark, 3] = 254
+    assert np.array_equal(marked, expected), "Only the two material-alpha sets may change"
+    results.append({"case": "artist-rgb-preserved", "redPixels": int(red.sum()),
+                    "darkPixels": int(dark.sum()), "passed": True})
+
+    # Verify the current model really maps every lightning face to this material.
+    model_path = "assets/lbc/models/item/music_staff/staff.json"
+    data = (args.pack / model_path).read_bytes();hashes[model_path] = hashlib.sha256(data).hexdigest()
+    model = json.loads(data)
+    assert model["textures"]["2"] == "minecraft:item/wand_52"
+    group = next(g for g in model["groups"] if g["name"] == "zzzzz")
+    for index in group["children"]:
+        for face in model["elements"][index]["faces"].values():
+            u, v, u1, v1 = face["uv"]
+            x, x1 = sorted((round(2*u), round(2*u1)));y, y1 = sorted((round(2*v), round(2*v1)))
+            assert np.all(marked[y:y1, x:x1] == [29, 28, 32, 254]), (index, face)
+    assert not (args.overlay / model_path).exists(), "The authored geometry must stay original"
+    results.append({"case": "actual-lightning-model-uv", "elements": len(group["children"]), "passed": True})
+
+    # The exact same two-pass RGB result must remain for EVERY pre-existing rule.
+    old_sample = ctx.program(vertex_shader=screen_vertex, fragment_shader=source("assets/minecraft/shaders/post/bloom_sample.fsh", False))
+    old_composite = ctx.program(vertex_shader=screen_vertex, fragment_shader=source("assets/lbc/shaders/post/material_bloom.fsh", False))
+    rule_path = "bloom_rules.json"
+    rules_bytes = (args.pack / rule_path).read_bytes();hashes[rule_path] = hashlib.sha256(rules_bytes).hexdigest()
+
+    def pipeline(scene, sampler=sample, composer=composite):
+        extracted, extracted_pixels = render(sampler, {"DiffuseSampler": scene})
+        extracted.filter = (gl.LINEAR, gl.LINEAR)
+        horizontal, _ = render(composer, {"DiffuseSampler": extracted}, (1, 0))
+        horizontal.filter = (gl.LINEAR, gl.LINEAR)
+        final, pixels = render(composer, {"DiffuseSampler": scene, "BloomSampler": horizontal}, (0, 1))
+        extracted.release();horizontal.release();final.release()
+        return pixels, extracted_pixels
+
+    for rule in json.loads(rules_bytes):
+        image = raw(rule["source"], 254)
+        scene, _ = render(programs["item"], {"Sampler0": image})
+        reference, _ = pipeline(scene, old_sample, old_composite)
+        actual, _ = pipeline(scene)
+        assert np.array_equal(actual, reference), ("Existing bloom changed", rule["source"])
+        results.append({"case": "existing-rule-pixel-identical", "rgb": rule["source"], "passed": True})
+        image.release();scene.release()
+    old_sample.release();old_composite.release()
+
+    # A black halo must DARKEN the surrounding scene, while its core stays white.
+    # Check both native item and entity fragments, not a manufactured post-only tag.
+    background = np.array([160, 170, 180], dtype="u1")
+    for rgb, dark_halo in (([29, 28, 32], True), ([255, 0, 64], False)):
+        for kind in ("item", "entity"):
+            raw_pixels = np.full((height, width, 4), 255, dtype="u1")
+            raw_pixels[:, :, :3] = background
+            raw_pixels[72:88, 120:136] = [*rgb, 254]
+            image = texture(raw_pixels.tobytes())
+            scene, scene_pixels = render(programs[kind], {"Sampler0": image})
+            pixels, extracted = pipeline(scene)
+            assert np.all(pixels[72:88, 120:136, :3] == 255), (kind, rgb, "Nonwhite core")
+            assert np.array_equal(pixels[:, :, 3], scene_pixels[:, :, 3]), "Scene metadata changed"
+            outside = pixels[70, 128, :3]
+            if dark_halo:
+                assert np.all(outside < background), (kind, "No black halo", outside)
+                assert np.any(extracted[:, :, 3]) and not np.any(extracted[:, :, :3])
+            else:
+                assert outside[0] > background[0] and outside[0]-int(background[0]) > outside[1]-int(background[1])
+                assert not np.any(extracted[:, :, 3]), "Colored halo polluted the dark channel"
+            assert np.array_equal(pixels[60, 160, :3], background), "Halo became fullscreen"
+            Image.fromarray(np.flipud(pixels)).save(args.output / f"staff-{'black' if dark_halo else 'red'}-{kind}.png")
+            results.append({"case": "staff-white-core-and-halo", "kind": kind,
+                            "dark": dark_halo, "outsideRgb": outside.tolist(), "passed": True})
+            image.release();scene.release()
+
+    energy = []
+    for strength in (0.0, 0.25, 1.0, 3.0):
+        old = "ivec3(29,28,32), ivec3(0,0,0), 2.0, LBC_CORE_WHITE)"
+        configured = sample_source.replace(old, f"ivec3(29,28,32), ivec3(0,0,0), {strength}, LBC_CORE_WHITE)")
+        assert configured != sample_source
+        sampler = ctx.program(vertex_shader=screen_vertex, fragment_shader=configured)
+        raw_pixels = np.full((height, width, 4), 255, dtype="u1");raw_pixels[:, :, :3] = background
+        raw_pixels[72:88, 120:136] = [29, 28, 32, 254]
+        image = texture(raw_pixels.tobytes());scene, _ = render(programs["item"], {"Sampler0": image})
+        pixels, _ = pipeline(scene, sampler)
+        outside = background.astype("i4") - pixels[:, :, :3].astype("i4")
+        outside[72:88, 120:136] = 0
+        assert np.all(outside >= 0) and np.all(pixels[72:88, 120:136, :3] == 255)
+        energy.append(int(outside.sum()))
+        sampler.release();image.release();scene.release()
+    assert energy[0] == 0 and energy[0] < energy[1] < energy[2] < energy[3], energy
+    results.append({"case": "black-halo-strength", "strengths": [0, .25, 1, 3], "darkeningEnergy": energy, "passed": True})
+
+    actual_texture = np.array(Image.fromarray(marked).resize((width, height), Image.Resampling.NEAREST))
+    for kind in ("item", "entity"):
+        image = texture(actual_texture.tobytes())
+        scene, _ = render(programs[kind], {"Sampler0": image})
+        extracted, pixels = render(sample, {"DiffuseSampler": scene})
+        red_mask = np.all(actual_texture[:, :, :3] == [255, 0, 64], axis=2)
+        dark_mask = np.all(actual_texture[:, :, :3] == [29, 28, 32], axis=2)
+        material = np.any(pixels, axis=2)
+        assert np.any(material & red_mask) and np.any(material & dark_mask), "Staff material did not emit"
+        assert not np.any(material & ~(red_mask | dark_mask)), "Handle or transparent texel emitted"
+        results.append({"case": "actual-staff-texture", "kind": kind, "handleNeverEmits": True, "passed": True})
+        image.release();scene.release();extracted.release()
+
+
 def main():
     limits.limit_resources()
     parser = argparse.ArgumentParser(description=__doc__)
@@ -29,6 +144,7 @@ def main():
     parser.add_argument("--overlay", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--native-compiler", action="store_true", help="Also compile core glint/per-face/OIT variants with the game's shaderc")
+    parser.add_argument("--music-staff", action="store_true", help="Check the staff texture, dark halo and all existing material rules")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     if args.native_compiler:
@@ -47,7 +163,10 @@ def main():
                 relative = f"assets/verification/shaders/core/{kind}-{profile}.fsh"
                 path = compiler_overlay / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
-                text = (args.overlay / f"assets/minecraft/shaders/core/{kind}.fsh").read_text(encoding="utf-8")
+                relative_source = f"assets/minecraft/shaders/core/{kind}.fsh"
+                source_path = args.overlay / relative_source
+                if not source_path.is_file(): source_path = args.pack / relative_source
+                text = source_path.read_text(encoding="utf-8")
                 text = text.replace("#version 330", "#version 330\n#define ALPHA_CUTOUT 0.1\n" + "\n".join("#define " + value for value in defines))
                 path.write_text(text, encoding="utf-8")
                 shader_args += ["--shader", relative]
@@ -164,7 +283,11 @@ def main():
     composite_source = source("assets/lbc/shaders/post/material_bloom.fsh")
     sample = ctx.program(vertex_shader=screen_vertex, fragment_shader=sample_source)
     composite = ctx.program(vertex_shader=screen_vertex, fragment_shader=composite_source)
-    old = ctx.program(vertex_shader=screen_vertex, fragment_shader=source("assets/minecraft/shaders/post/bloom_sample.fsh", False))
+    # Explicit negative control also works after the author has applied the fix:
+    # remove only the alpha admission gate and prove that RGB alone leaks bloom.
+    guard = "if (!lbc_bloom_marked(scene)) return;"
+    assert sample_source.count(guard) == 1
+    old = ctx.program(vertex_shader=screen_vertex, fragment_shader=sample_source.replace(guard, ""))
     results = []
 
     def raw(rgb, alpha):
@@ -173,13 +296,13 @@ def main():
         return texture(pixels.tobytes())
 
     # Same RGB must be harmless on every ordinary renderer, including alpha255 skins.
-    for rgb in ((255, 14, 14), (0, 48, 255), (255, 3, 3), (255, 142, 50)):
+    for rgb in ((255, 14, 14), (0, 48, 255), (255, 3, 3), (255, 142, 50), (255, 0, 64), (29, 28, 32)):
         for kind in programs:
             for alpha in ((255, 254) if kind in ("terrain", "particle") else (255,)):
                 image = raw(rgb, alpha)
                 scene, _ = render(programs[kind], {"Sampler0": image})
                 extracted, pixels = render(sample, {"DiffuseSampler": scene})
-                assert not np.any(pixels[:, :, :3]), ("RGB collision", kind, rgb, alpha)
+                assert not np.any(pixels), ("RGB collision", kind, rgb, alpha)
                 results.append({"case": "ordinary-rgb-collision", "kind": kind, "rgb": rgb, "alpha": alpha, "passed": True})
                 image.release();scene.release();extracted.release()
     for kind in ("item", "entity"):
@@ -208,7 +331,7 @@ def main():
         results.append({"case": "marked-item-and-halo", "rgb": rgb, "whiteCore": rgb == (255, 3, 3), "passed": True})
         for image in (image, scene, extracted, horizontal, final):image.release()
 
-    # The old exact same unmarked red frame DOES emit: guard is a behavioral fix.
+    # The same unmarked red frame DOES emit without the explicit alpha gate.
     image = raw((255, 14, 14), 255)
     negative, pixels = render(old, {"DiffuseSampler": image})
     assert np.any(pixels[:, :, :3]), "Negative control unexpectedly rejects RGB-only"
@@ -255,7 +378,7 @@ def main():
     transport[-50:, :171] = [255, 3, 3, 254]
     image = texture(transport.tobytes())
     extracted, pixels = render(sample, {"DiffuseSampler": image})
-    assert not np.any(pixels[:, :, :3]), "Transport bytes emitted light"
+    assert not np.any(pixels), "Transport bytes emitted a light or dark halo"
     black = texture(bytes(width * height * 4))
     final, pixels = render(composite, {"DiffuseSampler": image, "BloomSampler": black}, (0, 1))
     assert np.array_equal(pixels[:, :, :3], transport[:, :, :3]), "White core corrupted service strip"
@@ -276,6 +399,9 @@ def main():
         assert not np.any(emitting & (original_pixels[:, :, 3] != 254)), (name, "hilt emitted")
         results.append({"case": "actual-saber-texture", "texture": name, "emittingPixels": int(emitting.sum()), "hiltNeverEmits": True, "passed": True})
         for image in (image, scene, extracted):image.release()
+    if args.music_staff:
+        check_music_staff(args, ctx, source, screen_vertex, programs, sample, composite,
+                          texture, render, raw, sample_source, results, hashes, width, height)
     for name, digest in hashes.items():
         assert hashlib.sha256((args.pack / name).read_bytes()).hexdigest() == digest
     report = {"passed": True, "renderer": ctx.info["GL_RENDERER"], "cases": results,
