@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import java.util.List;
+import me.skywars2.game.genie.GenieRuntime;
+import me.skywars2.game.genie.GenieScriptItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -9,13 +11,19 @@ import net.minecraft.world.item.ItemStack;
 /** One accepted-volley continuation for native bows/crossbows and automatic bow pulses. */
 public final class LbcRangedShots {
     private LbcRangedShots(){}
+    public static boolean replacesNative(GameController game,ServerPlayer player,ItemStack firedWeapon){
+        return GenieScriptItem.replacesShot(firedWeapon)&&game.items().genie().runtime().admitted(player);
+    }
+    public static void acceptedReplacement(GameController game,ServerPlayer player,InteractionHand hand,
+            ItemStack firedWeapon,List<Projectile> templates){
+        LbcTmtShotCompletion.afterNativeAction(()->game.items().genie().runtime().shot(player,hand,firedWeapon,templates,true));
+    }
     public static void accepted(GameController game,ServerPlayer player,InteractionHand hand,ItemStack weapon,
             ItemStack firedWeapon,List<Projectile> spawned){
         try{acceptedTraits(game,player,hand,weapon,firedWeapon,spawned);}
         finally{
-            if(!spawned.isEmpty()&&me.skywars2.game.genie.GenieRuntime.matches(firedWeapon))
-                LbcTmtShotCompletion.afterNativeAction(()->game.items().genie().runtime().event(player,
-                        me.skywars2.game.genie.GenieBlueprint.Trigger.SHOT,null,firedWeapon,hand));
+            if(!spawned.isEmpty()&&GenieRuntime.matches(firedWeapon))
+                LbcTmtShotCompletion.afterNativeAction(()->game.items().genie().runtime().shot(player,hand,firedWeapon,spawned,false));
         }
     }
     private static void acceptedTraits(GameController game,ServerPlayer player,InteractionHand hand,ItemStack weapon,

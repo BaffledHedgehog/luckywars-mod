@@ -5,15 +5,18 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import me.skywars2.game.*;
 import me.skywars2.game.genie.script.*;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.phys.Vec3;
 
 /** Cooperative item-local programs, with one shared game-thread budget and no blocking disk reads. */
 public final class GenieScriptRuntime implements AutoCloseable {
-    public static final Set<String> EVENTS=Set.of("USE","HIT","HURT","JUMP","SHOT","EAT","SPRINT","TICK","MINING","LEFT_CLICK","SNEAK","THROW","SNEAK_PRESS","BLOCK_USE");
+    public static final Set<String> EVENTS=Set.of("USE","HIT","HURT","JUMP","SHOT","EAT","SPRINT","TICK","MINING","LEFT_CLICK","SNEAK","THROW","SNEAK_PRESS","BLOCK_USE",GenieScriptItem.REPLACE_SHOT_EVENT);
     private record Event(String name,JsonObject data,ItemStack captured){}
     private record ItemLocation(int inventorySlot, EquipmentSlot equipmentSlot, boolean carried) {
         ItemStack get(ServerPlayer owner) {
@@ -209,6 +212,24 @@ public final class GenieScriptRuntime implements AutoCloseable {
         event(owner,input==LbcTmtTriggers.Input.RIGHT_CLICK?"USE":input.name(),target,null,null);
     }
     public void event(ServerPlayer owner,String name,Entity target,ItemStack captured,InteractionHand hand){
+        event(owner,name,target,captured,hand,null);
+    }
+    public void shot(ServerPlayer owner,ItemStack captured,InteractionHand hand,List<Projectile> volley,boolean replacement){
+        if(!GenieScriptItem.matches(captured)||!admitted(owner))return;
+        var projectiles=new JsonArray();
+        for(var projectile:volley){
+            var sample=new JsonObject();
+            sample.addProperty("type",BuiltInRegistries.ENTITY_TYPE.getKey(projectile.getType()).toString());
+            sample.add("position",vector(projectile.position()));
+            sample.add("velocity",vector(projectile.getDeltaMovement()));
+            projectiles.add(sample);
+        }
+        event(owner,replacement?GenieScriptItem.REPLACE_SHOT_EVENT:"SHOT",null,captured,hand,projectiles);
+    }
+    private static JsonArray vector(Vec3 vector){
+        var value=new JsonArray();value.add(vector.x);value.add(vector.y);value.add(vector.z);return value;
+    }
+    private void event(ServerPlayer owner,String name,Entity target,ItemStack captured,InteractionHand hand,JsonArray projectiles){
         mainThread();if(dispatching||!EVENTS.contains(name)||!admitted(owner))return;dispatching=true;
         try{
             restorePending(owner.getUUID());
@@ -237,6 +258,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
                     var data=new JsonObject();data.addProperty("type",name);data.addProperty("owner",owner.getUUID().toString());data.addProperty("tick",context.clock);
                     data.addProperty("hand",hand==null?source==owner.getOffhandItem()?"offhand":"mainhand":hand==InteractionHand.MAIN_HAND?"mainhand":"offhand");
                     data.add("target",target==null?JsonNull.INSTANCE:new JsonPrimitive(target.getUUID().toString()));
+                    if(projectiles!=null)data.add("projectiles",projectiles);
                     memory.reserveValue(data);context.events.addLast(new Event(name,data,source.copy()));
                 }catch(RuntimeException error){if(context!=null)fail(context,error);else report(owner,error);}
             }

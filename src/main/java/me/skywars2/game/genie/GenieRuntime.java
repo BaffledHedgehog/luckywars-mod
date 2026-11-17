@@ -126,6 +126,10 @@ public final class GenieRuntime {
         scripts.event(owner,trigger.name(),target,captured,usedHand);
         legacyEvent(owner,trigger,target,captured,usedHand);
     }
+    public void shot(ServerPlayer owner,InteractionHand hand,ItemStack captured,List<Projectile> volley,boolean replacement){
+        scripts.shot(owner,captured,hand,volley,replacement);
+        if(!replacement)legacyEvent(owner,Trigger.SHOT,null,captured,hand);
+    }
     private void legacyEvent(ServerPlayer owner,Trigger trigger,Entity target,ItemStack captured,InteractionHand usedHand){
         if(dispatching||!admitted(owner))return;dispatching=true;
         try{

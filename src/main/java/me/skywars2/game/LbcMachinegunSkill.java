@@ -2,11 +2,13 @@ package me.skywars2.game;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
@@ -132,15 +134,20 @@ public final class LbcMachinegunSkill {
         var arrow=((ArrowItem)ammo.getItem()).createArrow(p.level(),ammo,p,fired);double damage=2;
         arrow.setPos(p.getEyePosition());arrow.entityTags().add(TAG);arrow.entityTags().add("killedarrow");
         arrow.setBaseDamage(damage);arrow.setDeltaMovement(motion);
-        game.items().projectileLevelups().beforePublish(p,arrow,LbcProjectileLevelups.Launch.MACHINEGUN);
-        LbcShooters.orient(arrow);game.items().markCurrentItemEpoch(arrow);
-        game.items().timeStop().prepareFrozen(arrow);
-        if(!p.level().addFreshEntity(arrow))return false;
-        arrow.applyOnProjectileSpawned(p.level(),ammo.copyWithCount(1));
-        game.items().lifetimes().track(arrow);
+        boolean replacement=LbcRangedShots.replacesNative(game,p,fired);
+        if(!replacement){
+            game.items().projectileLevelups().beforePublish(p,arrow,LbcProjectileLevelups.Launch.MACHINEGUN);
+            LbcShooters.orient(arrow);game.items().markCurrentItemEpoch(arrow);
+            game.items().timeStop().prepareFrozen(arrow);
+            if(!p.level().addFreshEntity(arrow))return false;
+            arrow.applyOnProjectileSpawned(p.level(),ammo.copyWithCount(1));
+            game.items().lifetimes().track(arrow);
+        }
         var accepted=game.items().mana().score(p,"machinegun_shots");if(accepted.get()<Integer.MAX_VALUE)accepted.add(1);
         if(random.nextBoolean()&&!LbcInfiniteAmmo.conserves(ammo)){ammo.shrink(1);p.getInventory().setChanged();}
-        LbcRangedShots.accepted(game,p,p.getUsedItemHand(),weapon,fired,java.util.List.of(arrow));
+        List<Projectile> volley=List.of(arrow);
+        if(replacement)LbcRangedShots.acceptedReplacement(game,p,p.getUsedItemHand(),fired,volley);
+        else LbcRangedShots.accepted(game,p,p.getUsedItemHand(),weapon,fired,volley);
         return true;
     }
     public static boolean managed(Entity actor){return actor!=null&&actor.entityTags().contains(TAG);}

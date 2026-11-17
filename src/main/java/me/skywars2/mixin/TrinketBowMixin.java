@@ -3,8 +3,10 @@ package me.skywars2.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.LbcRangedShots;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -27,14 +29,26 @@ import java.util.function.Consumer;
 public abstract class TrinketBowMixin {
     @Inject(method="shoot",at=@At("HEAD"))
     private void skywars2$captureWeapon(ServerLevel level,LivingEntity shooter,InteractionHand hand,ItemStack weapon,List<ItemStack> ammunition,
-            float power,float uncertainty,boolean critical,LivingEntity target,CallbackInfo ci,@Share("firedWeapon") LocalRef<ItemStack> firedWeapon){
+            float power,float uncertainty,boolean critical,LivingEntity target,CallbackInfo ci,
+            @Share("firedWeapon") LocalRef<ItemStack> firedWeapon,@Share("replaceShot") LocalBooleanRef replaceShot){
         firedWeapon.set(weapon.copy());
+        var game=SkyWars2.game();
+        replaceShot.set(game!=null&&((Object)this instanceof BowItem||(Object)this instanceof CrossbowItem)
+                &&shooter instanceof ServerPlayer player&&LbcRangedShots.replacesNative(game,player,firedWeapon.get()));
     }
     @WrapOperation(method = "shoot", at = @At(value = "INVOKE", target =
             "Lnet/minecraft/world/entity/projectile/Projectile;spawnProjectile(Lnet/minecraft/world/entity/projectile/Projectile;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/item/ItemStack;Ljava/util/function/Consumer;)Lnet/minecraft/world/entity/projectile/Projectile;"))
     private Projectile skywars2$spawned(Projectile projectile, ServerLevel level, ItemStack ammo,
                                        Consumer<Projectile> configure, Operation<Projectile> original,
-                                       @Share("spawned") LocalRef<List<Projectile>> spawned) {
+                                       @Share("spawned") LocalRef<List<Projectile>> spawned,
+                                       @Share("replaceShot") LocalBooleanRef replaceShot) {
+        if(replaceShot.get()){
+            // Keep native launch setup and costs. The script receives the trajectory without publishing an arrow.
+            configure.accept(projectile);
+            if(spawned.get()==null)spawned.set(new java.util.ArrayList<>());
+            spawned.get().add(projectile);
+            return projectile;
+        }
         Consumer<Projectile> modified=body->{
             configure.accept(body);
             var game=SkyWars2.game();
@@ -54,11 +68,14 @@ public abstract class TrinketBowMixin {
     @Inject(method = "shoot", at = @At("RETURN"))
     private void skywars2$shot(ServerLevel level, LivingEntity shooter, InteractionHand hand, ItemStack weapon,
                                List<ItemStack> ammunition, float power, float uncertainty, boolean critical,
-                               LivingEntity target, CallbackInfo ci, @Share("spawned") LocalRef<List<Projectile>> spawned,@Share("firedWeapon") LocalRef<ItemStack> firedWeapon) {
+                               LivingEntity target, CallbackInfo ci, @Share("spawned") LocalRef<List<Projectile>> spawned,
+                               @Share("firedWeapon") LocalRef<ItemStack> firedWeapon,@Share("replaceShot") LocalBooleanRef replaceShot) {
         var game = SkyWars2.game();
         if (spawned.get()!=null&&!spawned.get().isEmpty() && game != null && ((Object) this instanceof BowItem || (Object) this instanceof CrossbowItem)
                 && shooter instanceof ServerPlayer player){
-            me.skywars2.game.LbcRangedShots.accepted(game,player,hand,weapon,firedWeapon.get(),List.copyOf(spawned.get()));
+            var volley=List.copyOf(spawned.get());
+            if(replaceShot.get())LbcRangedShots.acceptedReplacement(game,player,hand,firedWeapon.get(),volley);
+            else LbcRangedShots.accepted(game,player,hand,weapon,firedWeapon.get(),volley);
         }
     }
 }
