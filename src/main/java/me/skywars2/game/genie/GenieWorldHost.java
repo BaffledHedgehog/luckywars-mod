@@ -31,6 +31,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         "entity.info",new ScriptProgram.Signature(1,1),
         "entity.launch",new ScriptProgram.Signature(1,4),
         "lbc.grimoire",new ScriptProgram.Signature(1,2),
+        "lbc.cast",new ScriptProgram.Signature(1,3),
         "math.random",new ScriptProgram.Signature(0,2),
         "time.tick",new ScriptProgram.Signature(0,0));
     private final GameController game;
@@ -127,6 +128,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "entity.info"->info(find(text(values.getFirst())));
             case "entity.launch"->launch(values);
             case "lbc.grimoire"->grimoire(values);
+            case "lbc.cast"->cast(values);
             default->throw new IllegalArgumentException("unknown queued world API");
         };
     }
@@ -160,6 +162,13 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         }
         var entity=game.items().genie().runtime().launchNative(owner,captured,type,position,velocity,life,0);
         return entity==null?JsonNull.INSTANCE:new JsonPrimitive(entity.getUUID().toString());
+    }
+
+    private JsonElement cast(List<JsonElement> values) {
+        var id = Identifier.parse(text(values.getFirst()));
+        Vec3 origin = values.size() >= 2 && !values.get(1).isJsonNull() ? vector(values.get(1)) : owner.getEyePosition();
+        Vec3 direction = values.size() >= 3 && !values.get(2).isJsonNull() ? vector(values.get(2)) : owner.getLookAngle();
+        return new JsonPrimitive(GenieNative.cast(game, owner, captured, id, origin, direction));
     }
 
     private JsonElement grimoire(List<JsonElement> values) {

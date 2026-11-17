@@ -232,7 +232,7 @@ public final class LbcIndirectKills {
         if(source instanceof CapturedDamage captured&&captured.cause!=null)return captured.cause.enchantmentWeapon();
         if(source instanceof InheritedKill inherited&&inherited.cause!=null)return inherited.cause.enchantmentWeapon();
         if(source instanceof TransferredDamage transferred)return enchantmentWeapon(transferred.original);
-        return net.minecraft.world.item.ItemStack.EMPTY;
+        return GenieCombat.spellWeapon(source);
     }
     net.minecraft.world.item.ItemStack damageWeapon(DamageSource source){
         if(LbcSpellSource.unownedHazard(source.getDirectEntity())||game.items().spellSources().lootProjectile(source.getDirectEntity()))return net.minecraft.world.item.ItemStack.EMPTY;
@@ -242,7 +242,7 @@ public final class LbcIndirectKills {
         if(source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile shot&&shot.getOwner() instanceof ServerPlayer player
                 &&source.getEntity()==player){var weapon=shot.getWeaponItem();if(weapon!=null&&!weapon.isEmpty())return weapon.copyWithCount(1);}
         if(source instanceof TransferredDamage transferred)return damageWeapon(transferred.original);
-        return net.minecraft.world.item.ItemStack.EMPTY;
+        return GenieCombat.spellWeapon(source);
     }
     public net.minecraft.world.item.ItemStack lootWeapon(LivingEntity victim){
         var cause=lootOwners.get(victim);var marker=victim.getLastHurtByPlayer();

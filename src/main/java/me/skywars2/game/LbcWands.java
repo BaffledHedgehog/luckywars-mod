@@ -1231,12 +1231,18 @@ for(double step=0;step<=distance;step+=.5) {
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
     void sauvojenElectro(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean ray){
-        if(ray){electroRayAt(owner,origin,direction);return;}
-        float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
-        float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
-        for(int i=0;i<3;i++){
-            var trace=new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),40+i*5);
-            trace.yaw=yaw;trace.pitch=pitch;electroTraces.add(trace);
+        if(ray) electroRayAt(owner,origin,direction,null);
+        else directedElectro(owner,origin,direction,3,null);
+    }
+    void directedElectro(ServerPlayer owner, Vec3 origin, Vec3 direction, int count, LbcIndirectKills.Owner cause) {
+        float yaw = (float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+        float pitch = (float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        for (int i = 0; i < count; i++) {
+            var trace = new ElectroTrace(owner, origin.subtract(direction.scale(i*.01)), game.items().epoch(), 40+i*5);
+            trace.yaw = yaw;
+            trace.pitch = pitch;
+            trace.cause = cause;
+            electroTraces.add(trace);
         }
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
@@ -1370,8 +1376,8 @@ for(double step=0;step<=distance;step+=.5) {
         }
     }
     /** Режим Academy: одна геометрическая проверка пути и хитбоксов вместо рекурсии на 1001 шаг. */
-    void electroRay(ServerPlayer owner) {electroRayAt(owner,owner.getEyePosition(),owner.getLookAngle());}
-    private void electroRayAt(ServerPlayer owner,Vec3 from,Vec3 direction) {
+    void electroRay(ServerPlayer owner) {electroRayAt(owner,owner.getEyePosition(),owner.getLookAngle(),null);}
+    void electroRayAt(ServerPlayer owner,Vec3 from,Vec3 direction,LbcIndirectKills.Owner cause) {
         var level=owner.level();
         Vec3 end=from.add(direction.scale(100));
         double boundary=game.items().magic().mechanismSuppressionFraction(level,from,end);
@@ -1394,7 +1400,11 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
 }
         if(distance>0)LbcOverload.sound(owner,from.lerp(end,.5),"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
         // Проводники останавливают этот режим; отдельного импульса проводимости в нём нет.
-        if(distance>1e-7) electroHits(new ElectroTrace(owner,from,game.items().epoch()),from,end,.1,.4f,1);
+        if(distance>1e-7) {
+            var trace = new ElectroTrace(owner,from,game.items().epoch());
+            trace.cause = cause;
+            electroHits(trace,from,end,.1,.4f,1);
+        }
         LbcOverload.sound(owner,from,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
     void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {

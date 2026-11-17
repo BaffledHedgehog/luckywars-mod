@@ -149,6 +149,77 @@ final class GenieWorldChecks {
 
     private static String coordinates(BlockPos pos){return pos.getX()+" "+pos.getY()+" "+pos.getZ();}
 
+    private static void directedCasts(GameController game, WoolBucketChecks.Fixture base, Vec3 origin) {
+        var wands = game.items().wands();
+        var initialTraces = wands.electroSnapshot();
+        var main = base.owner.getMainHandItem();
+        var off = base.owner.getOffhandItem();
+        var weapon = new ItemStack(Items.IRON_SWORD);
+        weapon.enchant(base.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+            .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING), 3);
+        var aim = new Vec3(2, 0, 0);
+        var arc = new JsonPrimitive("skywars2:electro_arc");
+        var victim = Objects.requireNonNull(EntityTypes.COW.create(base.level, EntitySpawnReason.TRIGGERED));
+        victim.setPos(origin.add(1.5, -.65, 0));
+        victim.setNoAi(true);
+        require(base.level.addFreshEntity(victim), "native directed cast target");
+        base.own(victim);
+        try (var host = new GenieWorldHost(game, base.owner, weapon, () -> true, () -> 0)) {
+            var pending = queued(host, "lbc.cast", arc, vector(origin), vector(aim));
+            require(wands.electroSnapshot().equals(initialTraces), "deferred cast emits nothing before drain");
+            require(complete(host, pending).getAsBoolean(), "directed arc accepted");
+            var traces = wands.electroSnapshot().stream().filter(trace -> !initialTraces.contains(trace)).toList();
+            require(traces.size() == 1, "single native Electro arc");
+            var trace = traces.getFirst();
+            require(trace.owner == base.owner && trace.position.equals(origin) && trace.lifetime == 40
+                    && Vec3.directionFromRotation(trace.pitch, trace.yaw).distanceTo(aim.normalize()) < 1e-5,
+                "native arc keeps explicit origin and aim");
+            require(trace.cause != null && trace.cause.player().equals(base.owner.getUUID())
+                    && ItemStack.matches(trace.cause.enchantmentWeapon(), weapon),
+                "the delayed arc carries the originating item's enchantments");
+            float health = victim.getHealth();
+            wands.tick();
+            require(victim.getHealth() < health, "native arc actually hits along the supplied direction");
+
+            var terra = new JsonPrimitive("skywars2:terra_charge");
+            require(complete(host, queued(host, "lbc.cast", terra, vector(origin), vector(aim))).getAsBoolean(),
+                "real Terra launch accepted");
+            var shots = base.level.getEntitiesOfClass(LbcTerra.TerraProjectile.class, new AABB(origin, origin).inflate(1),
+                shot -> shot.getOwner() == base.owner);
+            require(shots.size() == 1, "one actual native Terra projectile published");
+            var shot = shots.getFirst();
+            base.own(shot);
+            try {
+                require(shot.position().equals(origin) && shot.getDeltaMovement().distanceTo(new Vec3(1.8, 0, 0)) < 1e-5,
+                    "Terra keeps native speed at the supplied normalized aim");
+                var damage = new net.minecraft.world.damagesource.DamageSource(
+                    base.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE)
+                        .getOrThrow(net.minecraft.world.damagesource.DamageTypes.CACTUS), shot, base.owner);
+                require(ItemStack.matches(game.items().indirectKills().damageWeapon(damage), weapon)
+                        && ItemStack.matches(game.items().indirectKills().enchantmentWeapon(damage), weapon),
+                    "native projectile damage and loot can recover the captured weapon snapshot");
+            } finally {
+                base.discard(shot);
+            }
+
+            base.field(false, origin);
+            require(game.items().magic().suppressedAt(base.level, origin), "native field covers requested position");
+            require(!complete(host, queued(host, "lbc.cast", arc, vector(origin), vector(aim))).getAsBoolean(),
+                "native magic suppression denies directed launch");
+            var absent = new Vec3(1048576.25, origin.y, 1048576.25);
+            require(!complete(host, queued(host, "lbc.cast", terra, vector(absent), vector(aim))).getAsBoolean()
+                    && !base.level.hasChunkAt(BlockPos.containing(absent)),
+                "directed cast does not load an absent chunk");
+            require(base.owner.getMainHandItem() == main && base.owner.getOffhandItem() == off,
+                "script casts never replace either physical hand");
+        } finally {
+            base.removeFields();
+            base.discard(victim);
+            wands.electroSnapshot().stream().filter(trace -> !initialTraces.contains(trace))
+                .forEach(trace -> trace.age = trace.lifetime);
+        }
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -206,6 +277,8 @@ final class GenieWorldChecks {
                     &&a.getDeltaMovement().distanceTo(motion)<.00001,"an actual native arrow retains the owner and exact initial direction");
                 base.own(arrow);base.discard(arrow);
             } finally { base.discard(spawned); }
+
+            directedCasts(game, base, launchSpot.add(0, .65, 0));
 
             require(GenieNative.grimoires().containsKey(net.minecraft.resources.Identifier.parse("skywars2:tesla_instant_grimoire")),"real Tesla grimoire is indexed by the engine");
             var oldSpeed=base.owner.getEffect(MobEffects.SPEED);

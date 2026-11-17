@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import me.skywars2.game.genie.GenieRuntime;
 import me.skywars2.game.genie.GenieScriptItem;
 import net.minecraft.core.BlockPos;
@@ -13,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 /** Narrow bridge to existing package-owned policies, keeping the new feature in game.genie. */
 public final class GenieNative {
@@ -36,6 +39,58 @@ public final class GenieNative {
         if(spell==null)throw new IllegalArgumentException("unknown native grimoire");
         return LbcLibrarySpells.admitted(game,player,hand)&&LbcLibrarySpells.cast(game,player,hand,spell);
     }
+    private enum Cast { ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY, TERRA_CHARGE, ACADEMY_TERRA_CHARGE }
+    private static final Map<Identifier, Cast> CASTS = Map.of(
+        Identifier.parse("skywars2:electro_arc"), Cast.ELECTRO_ARC,
+        Identifier.parse("skywars2:electro_volley"), Cast.ELECTRO_VOLLEY,
+        Identifier.parse("skywars2:electro_ray"), Cast.ELECTRO_RAY,
+        Identifier.parse("skywars2:terra_charge"), Cast.TERRA_CHARGE,
+        Identifier.parse("skywars2:academy_terra_charge"), Cast.ACADEMY_TERRA_CHARGE
+    );
+
+    public static Set<Identifier> casts() {
+        return CASTS.keySet();
+    }
+
+    /** Directed spell effects, independent of the actual item occupying either hand. */
+    public static boolean cast(GameController game, ServerPlayer player, ItemStack weapon, Identifier id,
+                               Vec3 origin, Vec3 direction) {
+        var spell = CASTS.get(id);
+        if (spell == null) throw new IllegalArgumentException("unknown directed LuckyWars spell");
+        double length = direction.length();
+        if (!Double.isFinite(length) || length < 1e-4) throw new IllegalArgumentException("finite nonzero aim required");
+
+        var level = player.level();
+        if (Math.abs(origin.x) >= 30_000_000 || Math.abs(origin.z) >= 30_000_000
+                || origin.y < level.getMinY() || origin.y > level.getMaxY()) return false;
+        var pos = BlockPos.containing(origin);
+        if (!LbcLibrarySpells.admitted(game, player, InteractionHand.MAIN_HAND)
+                || !level.isInWorldBounds(pos) || !level.hasChunkAt(pos)
+                || !level.getWorldBorder().isWithinBounds(pos)
+                || game.items().magic().suppressedAt(level, origin)) return false;
+
+        Vec3 aim = direction.scale(1 / length);
+        try (var borrowed = WandCastOrigin.scope(player, true)) {
+            return switch (spell) {
+                case ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY -> {
+                    if (game.items().magic().mechanismSuppressedAt(level, origin)) yield false;
+                    var cause = game.items().indirectKills().coldCause(player, true);
+                    var wands = game.items().wands();
+                    if (spell == Cast.ELECTRO_RAY) wands.electroRayAt(player, origin, aim, cause);
+                    else wands.directedElectro(player, origin, aim, spell == Cast.ELECTRO_ARC ? 1 : 3, cause);
+                    yield true;
+                }
+                case TERRA_CHARGE, ACADEMY_TERRA_CHARGE -> {
+                    var kind = spell == Cast.TERRA_CHARGE ? LbcTerra.Kind.REGULAR : LbcTerra.Kind.ACADEMY;
+                    var body = game.items().terra().castAt(player, origin, aim, kind, 0);
+                    if (body == null || body.getOwner() != player || level.getEntity(body.getUUID()) != body) yield false;
+                    GenieCombat.castProjectile(game, player, body, weapon);
+                    yield true;
+                }
+            };
+        }
+    }
+
     public static net.minecraft.world.phys.BlockHitResult wall(ServerLevel level,net.minecraft.world.phys.Vec3 from,net.minecraft.world.phys.Vec3 to){
         return LbcTerra.shapeHit(level,from,to,(pos,state)->state.getCollisionShape(level,pos));
     }

@@ -117,6 +117,7 @@ public final class GenieKnowledge {
         root.addProperty("index_contract", "Registry IDs and source prototypes are reference data. Use only operations named in this request's attached item program contract.");
         root.add("script_launchable_entity_types",standaloneTypes);
         root.add("script_grimoires",strings(GenieNative.grimoires().keySet().stream().sorted().map(Object::toString).toList()));
+        root.add("script_directed_casts",strings(GenieNative.casts().stream().sorted().map(Object::toString).toList()));
         root.add("script_gameplay_commands",strings(GenieCommandAccess.commands()));
         String scriptEncoded=root.toString();
         return new Snapshot(encoded.substring(0,encoded.length()-1),scriptEncoded.substring(0,scriptEncoded.length()-1),List.copyOf(profiles));

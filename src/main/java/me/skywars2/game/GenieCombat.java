@@ -38,6 +38,8 @@ public final class GenieCombat {
     ).apply(fields, Weapon::new));
     private static final AttachmentType<Weapon> FIRED = AttachmentRegistry.create(
         Identifier.parse("skywars2:genie_attack_source"), builder -> builder.persistent(CODEC));
+    private static final AttachmentType<Weapon> SPELL = AttachmentRegistry.create(
+        Identifier.parse("skywars2:genie_spell_weapon"), builder -> builder.persistent(CODEC));
     // No value retains its DamageSource key. One native source covers primary and sweeping contacts.
     private static final Map<DamageSource, Weapon> MELEE = new WeakHashMap<>();
 
@@ -57,6 +59,21 @@ public final class GenieCombat {
         for (var projectile : projectiles) {
             if (projectile.getOwner() == owner) projectile.setAttached(FIRED, weapon);
         }
+    }
+
+    static void castProjectile(GameController game, ServerPlayer owner, Projectile shot, ItemStack stack) {
+        if (!stack.isEmpty()) shot.setAttached(SPELL, new Weapon(owner.getUUID(), game.items().epoch(), false, stack.copyWithCount(1)));
+    }
+
+    // A spell effect can carry enchants without admitting a second input event for the same script.
+    static ItemStack spellWeapon(DamageSource source) {
+        if (!(source.getEntity() instanceof ServerPlayer owner)
+                || !(source.getDirectEntity() instanceof Projectile shot) || shot.getOwner() != owner) return ItemStack.EMPTY;
+        var weapon = shot.getAttached(SPELL);
+        if (weapon == null || !weapon.owner().equals(owner.getUUID())) return ItemStack.EMPTY;
+        var game = SkyWars2.game();
+        return game != null && weapon.epoch().equals(game.items().epoch())
+            ? weapon.snapshot().copy() : ItemStack.EMPTY;
     }
 
     static void accepted(GameController game, LivingEntity victim, DamageSource actual) {
