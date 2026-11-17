@@ -142,12 +142,12 @@ public final class LbcDamage {
         }
     }
     /** (user) Зона снимает HP без hurt pipeline: броня, эффекты, absorption и velocity не участвуют. */
-    public static void removeHealth(ServerPlayer player, float amount, DamageSource source) {
-        if (LbcGreed.active(player)) return;
-        if (!(amount > 0) || !Float.isFinite(amount) || !player.isAlive()) return;
-        player.getCombatTracker().recordDamage(source, amount);
-        player.setHealth(Math.max(0, player.getHealth() - amount));
-        if (player.getHealth() <= 0) player.die(source);
+    public static void removeHealth(LivingEntity target, float amount, DamageSource source) {
+        if (LbcGreed.active(target)) return;
+        if (!(amount > 0) || !Float.isFinite(amount) || !target.isAlive()) return;
+        target.getCombatTracker().recordDamage(source, amount);
+        target.setHealth(Math.max(0, target.getHealth() - amount));
+        if (target.getHealth() <= 0) target.die(source);
     }
     private static CompoundTag flag(String name) {
         var data = new CompoundTag(); data.putInt(name, 1); return data;

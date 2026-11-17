@@ -59,11 +59,19 @@ public final class HakureiSkillChecks {
             return result;
         }
         int newDrops(Set<Entity> previous){int result=0;for(var entity:nativeDrops())if(!previous.contains(entity))result++;return result;}
+        Map<Item,Long> newItemCounts(Set<Entity> previous){
+            Map<Item,Long> counts=new HashMap<>();
+            for(var entity:nativeDrops())if(!previous.contains(entity)&&entity instanceof ItemEntity drop){
+                var stack=drop.getItem();
+                counts.merge(stack.getItem(),(long)stack.getCount(),Long::sum);
+            }
+            return counts;
+        }
         void kill(LivingEntity victim){require(victim.hurtServer(f.owner.level(),victim.damageSources().playerAttack(f.owner),1000)&&victim.isDeadOrDying(),"actual credited native death");}
         void deathScopes(){
             int tick=game.server().getTickCount();
             for(int n=0;n<2;n++){
-                var previous=nativeDrops();int queued=skill.pendingCount();kill(f.cow(f.at.add(2,0,n*2)));
+                var previous=nativeDrops();int queued=skill.pendingCount();kill(f.cow(f.at.add(2,0,n*6)));
                 int actual=newDrops(previous);require(actual>0&&skill.pendingCount()-queued==4*actual,"two same-tick victims each reward only their own newly admitted bodies");
             }
             require(game.server().getTickCount()==tick,"both genuine kills occur in one server tick");
@@ -78,15 +86,20 @@ public final class HakureiSkillChecks {
             require(!resident.isRemoved()&&((CoreEntityMerging.Orb)resident).skywars2$totalExperience()>xp&&orbs==0,"native victim XP really merges into resident without publishing another body");
             require(items>0&&skill.pendingCount()-queued==items*4,"absorbed XP keeps all experience and adds zero body rolls");
             // An inner skill18 finish publishes its copies while the outer skill28 scope is live.
-            var outer2=f.cow(f.at.add(0,0,-8));var inner2=f.cow(f.at.add(2,0,-8));
+            var outer2=f.cow(f.at.add(0,0,-8));var inner2=f.cow(f.at.add(6,0,-8));
             int queuedBefore=skill.pendingCount();int[] outerBodies={0};
             game.players().get(f.other.getUUID()).lbcSkill=18;
             try{
                 game.items().combatRewards().withDeathLoot(outer2,f.owner.level(),outer2.damageSources().playerAttack(f.owner),()->{
                     int accepted=skill.pendingCount();var innerPrevious=nativeDrops();
-                    require(inner2.hurtServer(f.other.level(),inner2.damageSources().playerAttack(f.other),1000)&&inner2.isDeadOrDying(),"actual inner skill18 death");
-                    int innerItems=0;for(var entity:nativeDrops())if(!innerPrevious.contains(entity)&&entity instanceof ItemEntity)innerItems++;
-                    require(innerItems>0&&innerItems%2==0&&skill.pendingCount()==accepted,"skill18 publishes original/copy pairs and never enqueues Hakurei");
+                    var innerSource=inner2.damageSources().playerAttack(f.other);
+                    Map<Item,Long> expected=new HashMap<>();
+                    game.items().combatRewards().withDeathLoot(inner2,f.other.level(),innerSource,()->{
+                        require(inner2.hurtServer(f.other.level(),innerSource,1000)&&inner2.isDeadOrDying(),"actual inner skill18 death");
+                        newItemCounts(innerPrevious).forEach((item,count)->expected.put(item,2*count));
+                    });
+                    require(!expected.isEmpty()&&newItemCounts(innerPrevious).equals(expected)&&skill.pendingCount()==accepted,
+                        "skill18 doubles each drop quantity even when ground stacks merge, without enqueuing Hakurei");
                     var outerPrevious=nativeDrops();kill(outer2);outerBodies[0]=newDrops(outerPrevious);
                 });
                 require(outerBodies[0]>0&&skill.pendingCount()-queuedBefore==outerBodies[0]*4,"inner skill18 copy publications cannot leak into enclosing Hakurei death");
