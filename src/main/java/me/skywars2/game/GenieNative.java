@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import java.util.List;
+import me.skywars2.game.genie.GenieRuntime;
 import me.skywars2.game.genie.GenieScriptItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -17,9 +19,11 @@ public final class GenieNative {
     private GenieNative(){}
     public static void acceptedThrow(LivingEntity thrower, InteractionHand hand, ItemStack physical, ItemStack projectileStack,
                                      Projectile projectile) {
-        if(!GenieScriptItem.matches(projectileStack)||!(thrower instanceof ServerPlayer player))return;
+        if(!GenieRuntime.matches(projectileStack)||!(thrower instanceof ServerPlayer player))return;
         var game=SkyWars2.game();
         if(game==null||projectile.getOwner()!=player||player.level().getEntity(projectile.getUUID())!=projectile)return;
+        GenieCombat.launched(game,player,hand,physical,projectileStack,List.of(projectile));
+        if(!GenieScriptItem.matches(projectileStack))return;
         var runtime=game.items().genie().runtime().scripts();
         var accepted=runtime.captureThrow(player,hand,physical,projectileStack,projectile);
         LbcTmtShotCompletion.afterNativeAction(accepted);

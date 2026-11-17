@@ -50,6 +50,7 @@ public final class LbcAcceptedHits {
         // Match the native criterion's empty parent-spell scope; keep every source,
         // ownership, team, target, suppression and live-owner filter in the skill owner.
         try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)){
+            GenieCombat.accepted(game,victim,source);
             if(source.getEntity() instanceof ServerPlayer attacker&&LbcDamage.isMeleeAttack(source,attacker))
                 LbcTmtTriggers.input(attacker,LbcTmtTriggers.Input.HIT,victim,null,null);
             game.items().outgoingHit(victim,source);

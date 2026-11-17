@@ -114,10 +114,10 @@ public final class GenieRuntime {
             &&game.canUseGameplayItems(owner)&&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner);}
     public void input(ServerPlayer owner,LbcTmtTriggers.Input input,Entity target){
         scripts.input(owner,input,target);
-        Trigger trigger=switch(input){case RIGHT_CLICK,BLOCK_USE -> Trigger.USE;case HIT -> Trigger.HIT;case HURT -> Trigger.HURT;case JUMP -> Trigger.JUMP;
+        Trigger trigger=switch(input){case RIGHT_CLICK,BLOCK_USE -> Trigger.USE;case HURT -> Trigger.HURT;case JUMP -> Trigger.JUMP;
             case SPRINT -> Trigger.SPRINT;case TICK -> Trigger.TICK;
             // These events have an exact captured native source, including its final consumed/broken item.
-            case SHOT,EAT,MINING -> null;default -> null;};
+            case SHOT,EAT,MINING,HIT -> null;default -> null;};
         if(trigger!=null)legacyEvent(owner,trigger,target,null,null);
     }
     /** Captured source survives the last consumable/shot/break without becoming a held replacement. */
@@ -130,7 +130,15 @@ public final class GenieRuntime {
         scripts.shot(owner,captured,hand,volley,replacement);
         if(!replacement)legacyEvent(owner,Trigger.SHOT,null,captured,hand);
     }
+    public void hit(ServerPlayer owner, LivingEntity target, InteractionHand hand, ItemStack physical,
+                    ItemStack captured, Projectile projectile) {
+        scripts.hit(owner,target,hand,physical,captured,projectile);
+        legacyEvent(owner,Trigger.HIT,target,captured,hand,physical);
+    }
     private void legacyEvent(ServerPlayer owner,Trigger trigger,Entity target,ItemStack captured,InteractionHand usedHand){
+        legacyEvent(owner,trigger,target,captured,usedHand,null);
+    }
+    private void legacyEvent(ServerPlayer owner,Trigger trigger,Entity target,ItemStack captured,InteractionHand usedHand,ItemStack exactPhysical){
         if(dispatching||!admitted(owner))return;dispatching=true;
         try{
             var selected=Collections.newSetFromMap(new IdentityHashMap<ItemStack,Boolean>());
@@ -142,7 +150,8 @@ public final class GenieRuntime {
             for(var stack:selected){
                 var plan=plan(stack);if(plan==null)continue;String serial=ItemData.stringValue(stack,SERIAL,"");if(serial.isEmpty())continue;
                 // Snapshot components own effects/enchantments; wear/repair stays on the real used hand.
-                var physical=captured==null?stack:usedHand==null?ItemStack.EMPTY:owner.getItemInHand(usedHand);
+                var physical=exactPhysical!=null?(owned(owner,exactPhysical)?exactPhysical:ItemStack.EMPTY)
+                    :captured==null?stack:usedHand==null?ItemStack.EMPTY:owner.getItemInHand(usedHand);
                 if(!serial.equals(ItemData.stringValue(physical,SERIAL,"")))physical=ItemStack.EMPTY;
                 if(plan.rules().isEmpty()&&trigger==Trigger.TICK){
                     var passive=new Key(owner.getUUID(),serial,-1);if(!cooldowns.containsKey(passive)){cooldowns.put(passive,20);drawback(owner,physical,target,plan.twist());}

@@ -230,7 +230,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
     public void input(ServerPlayer owner,LbcTmtTriggers.Input input,Entity target){
         // Native continuations supply the exact source of these actions.
         if(input==LbcTmtTriggers.Input.SHOT||input==LbcTmtTriggers.Input.EAT
-                ||input==LbcTmtTriggers.Input.MINING||input==LbcTmtTriggers.Input.THROW)return;
+                ||input==LbcTmtTriggers.Input.MINING||input==LbcTmtTriggers.Input.THROW||input==LbcTmtTriggers.Input.HIT)return;
         event(owner,input==LbcTmtTriggers.Input.RIGHT_CLICK?"USE":input.name(),target,null,null);
     }
     public void event(ServerPlayer owner,String name,Entity target,ItemStack captured,InteractionHand hand){
@@ -245,13 +245,22 @@ public final class GenieScriptRuntime implements AutoCloseable {
     public Runnable captureThrow(ServerPlayer owner,InteractionHand hand,ItemStack physical,ItemStack source,Projectile projectile){
         mainThread();
         var captured=source.copyWithCount(1);
-        var sample=projectileSample(projectile);
-        sample.addProperty("id",projectile.getUUID().toString());
-        var projectiles=new JsonArray();projectiles.add(sample);
+        var projectiles=publishedProjectile(projectile);
         String epoch=game.items().epoch();
         return ()->{
             if(epoch.equals(game.items().epoch()))event(owner,"THROW",null,captured,hand,projectiles,physical);
         };
+    }
+    public void hit(ServerPlayer owner, LivingEntity target, InteractionHand hand, ItemStack physical,
+                    ItemStack captured, Projectile projectile) {
+        if(!GenieScriptItem.matches(captured))return;
+        event(owner,"HIT",target,captured,hand,projectile==null?null:publishedProjectile(projectile),physical);
+    }
+    private static JsonArray publishedProjectile(Projectile projectile){
+        var sample=projectileSample(projectile);
+        sample.addProperty("id",projectile.getUUID().toString());
+        var projectiles=new JsonArray();projectiles.add(sample);
+        return projectiles;
     }
     private static JsonObject projectileSample(Projectile projectile){
         var sample=new JsonObject();

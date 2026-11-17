@@ -20,6 +20,7 @@ public final class LbcRangedShots {
     }
     public static void accepted(GameController game,ServerPlayer player,InteractionHand hand,ItemStack weapon,
             ItemStack firedWeapon,List<Projectile> spawned){
+        GenieCombat.launched(game,player,hand,weapon,firedWeapon,spawned);
         try{acceptedTraits(game,player,hand,weapon,firedWeapon,spawned);}
         finally{
             if(!spawned.isEmpty()&&GenieRuntime.matches(firedWeapon))
