@@ -282,17 +282,21 @@ public final class LbcRainbowAura {
                     .add(forward(f.yaw+f.ticker*18.0)),1,0,0,0,0);return true;}
             case ORANGE->{
                 if(f.phase%5!=0)return true;
-                if(f.index==0){
-                    p.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,20,0,false,false,false));
-                    // Existing ordinary roles/teams and native hurt own actual acceptance; never ignite.
-                    for(var victim:s.level.getEntitiesOfClass(LivingEntity.class,p.getBoundingBox().move(f.position.subtract(p.position())).inflate(3.5),
-                            e->e!=p&&e.position().distanceToSqr(f.position)<=12.25&&targetAdmission.test(p,e)))
-                        victim.hurtServer(s.level,s.level.damageSources().source(DamageTypes.ON_FIRE,p),1);
-                    f.index++;return false;
+                p.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,20,0,false,false,false));
+                // Existing ordinary roles/teams and native hurt own actual acceptance; never ignite.
+                for(var victim:s.level.getEntitiesOfClass(LivingEntity.class,p.getBoundingBox().move(f.position.subtract(p.position())).inflate(3.5),
+                        e->e!=p&&e.position().distanceToSqr(f.position)<=12.25&&targetAdmission.test(p,e)))
+                    victim.hurtServer(s.level,s.level.damageSources().source(DamageTypes.ON_FIRE,p),1);
+                // A fixed source primitive is one queue operation. Splitting its213
+                // points over the128-step budget gives already-born flames a head start.
+                for(int arm=0;arm<3;arm++){
+                    double start=f.yaw+(arm==2?120:0),angle=start+(arm==1?-150:150);
+                    var from=f.position.add(forward(start).scale(4));
+                    var step=forward(angle).scale(.1);
+                    for(int point=0;point<=70;point++)
+                        particle(s.level,ParticleTypes.SMALL_FLAME,from.add(step.scale(point)),0,0,1,0,1);
                 }
-                int n=f.index-1,arm=n/71,point=n%71;double start=f.yaw+(arm==2?120:0),angle=start+(arm==1?-150:150);
-                var at=f.position.add(forward(start).scale(4)).add(forward(angle).scale(point*.1));
-                particle(s.level,ParticleTypes.SMALL_FLAME,at,0,0,1,0,1);return ++f.index==214;
+                return true;
             }
             case AQUA->{if(f.phase==0){
                 int value=game.items().mana().get(p);if(value<=9500)value+=500;if(value>=9501&&value<=9999)value=10000;

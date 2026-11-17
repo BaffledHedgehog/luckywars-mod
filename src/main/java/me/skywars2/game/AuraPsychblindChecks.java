@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.server.level.*;
 import net.minecraft.stats.Stats;
@@ -50,7 +51,7 @@ public final class AuraPsychblindChecks {
         final net.minecraft.world.scores.PlayerTeam oldTeam,otherTeam,team;
         double attack,armor,toughness,knockback;int manaRegen,stage,when;boolean closed,stopped,restoring;
         Cow target,ally,shop,observer;BlockPos support;float health;UUID doppelId;Vec3 frozenPosition;ServerPlayer doppelCaster;
-        int gramPackets;
+        int gramPackets,orangePackets;boolean orangeFrame;
         Map<UUID,Vec3> replayBodies=new LinkedHashMap<>();
         final Set<UUID> removedGrams=new LinkedHashSet<>();
         Fixture(GameController game,int kind){
@@ -127,10 +128,28 @@ public final class AuraPsychblindChecks {
                     int blocked=owner.getStats().getValue(Stats.CUSTOM.get(Stats.DAMAGE_BLOCKED_BY_SHIELD));float hp=owner.getHealth();
                     require(!owner.hurtServer(level,source,4)&&owner.getHealth()==hp,"real fully blocked incoming control");
                     require(owner.getStats().getValue(Stats.CUSTOM.get(Stats.DAMAGE_BLOCKED_BY_SHIELD))>blocked&&color()==LbcRainbowAura.Color.ORANGE,"positive native shield stat and criterion advance");
-                    near(owner.getAttributeValue(Attributes.ATTACK_DAMAGE),attack,"orange removes only aura red delta");owner.stopUsingItem();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);health=target.getHealth();next(1);
+                    near(owner.getAttributeValue(Attributes.ATTACK_DAMAGE),attack,"orange removes only aura red delta");owner.stopUsingItem();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);health=target.getHealth();orangePackets=client.packets().size();next(1);
                 }
                 case 1->{
-                    if(target.getHealth()==health){require(elapsed<30,"ordinary orange source cadence");return false;}
+                    var packets=new ArrayList<Packet<?>>();for(var packet:client.packets().subList(orangePackets,client.packets().size()))flatten(packet,packets);
+                    orangePackets=client.packets().size();
+                    var flames=packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast)
+                        .filter(packet->packet.particle().getType()==net.minecraft.core.particles.ParticleTypes.SMALL_FLAME).toList();
+                    if(!flames.isEmpty()){
+                        require(flames.size()==213,"all three71-point orange arms arrive in one actual native frame: "+flames.size());
+                        for(int i=0;i<flames.size();i++){
+                            var packet=flames.get(i);double yaw=i/71==2?120:0,angle=yaw+(i/71==1?-150:150);
+                            double a=Math.toRadians(yaw),b=Math.toRadians(angle),distance=(i%71)*.1;
+                            near(packet.x(),origin.x-Math.sin(a)*4-Math.sin(b)*distance,"legacy orange arm X");
+                            near(packet.y(),origin.y,"legacy orange ground-plane Y");
+                            near(packet.z(),origin.z+Math.cos(a)*4+Math.cos(b)*distance,"legacy orange arm Z");
+                            require(packet.count()==0&&packet.xDist()==0&&packet.yDist()==1&&packet.zDist()==0
+                                &&packet.xMaxSpeed()==1&&packet.yMaxSpeed()==1&&packet.zMaxSpeed()==1,
+                                "original single native flame with upward velocity1 at every point");
+                        }
+                        orangeFrame=true;
+                    }
+                    if(target.getHealth()==health||!orangeFrame){require(elapsed<30,"ordinary orange source cadence and full native frame");return false;}
                     require(target.getHealth()==health-1&&!target.isOnFire()&&owner.hasEffect(MobEffects.FIRE_RESISTANCE),"actual orange1 damage without ignition plus source resistance");target.discard();
                     owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,40,4,false,false));resetHit();float hp=owner.getHealth();owner.hurtServer(level,owner.damageSources().generic(),4);
                     require(owner.getHealth()==hp&&color()==LbcRainbowAura.Color.YELLOW,"actual resistance-zero incoming criterion advances once");owner.removeAllEffects();
