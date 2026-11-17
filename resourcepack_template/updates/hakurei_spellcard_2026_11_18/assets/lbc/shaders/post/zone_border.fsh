@@ -4,6 +4,7 @@
 #include <minecraft:globals.glsl>
 #include <lbc:zone_border.glsl>
 #include <lbc:zone_window.glsl>
+#include <lbc:hakurei_sphere_data.glsl>
 
 uniform sampler2D SceneSampler;
 uniform sampler2D SceneDepthSampler;
@@ -11,7 +12,9 @@ layout(location = 0) in vec2 texCoord;
 layout(location = 1) flat in mat4 zoneInverseViewProjection;
 layout(location = 5) flat in mat3 zoneInverseBasis;
 layout(location = 8) flat in vec3 zoneCenter;
-layout(location = 9) flat in int zoneEnabled;
+// Zone active, zone outside distance, sphere count, camera depth in sphere.
+layout(location = 9) flat in vec4 zoneInfo;
+layout(location = 10) flat in vec4 hakureiSpheres[LBC_HAKUREI_SLOTS];
 layout(location = 0) out vec4 fragColor;
 
 vec3 zoneUnproject(vec2 ndc, float depth) {
@@ -52,6 +55,8 @@ vec3 zoneHitDifferential(float distance, vec3 normal, ZoneRay ray, ZoneRay neigh
     denominator = (denominator < 0.0 ? -1.0 : 1.0) * max(abs(denominator), 0.001);
     return delta - ray.direction * (dot(normal, delta) / denominator);
 }
+
+#include <lbc:hakurei_sphere.glsl>
 
 float zoneTerrainContact(vec3 position, vec3 pixelDX, vec3 pixelDY, bool finiteDepth) {
     if (!finiteDepth) return 0.0;
@@ -106,44 +111,10 @@ vec4 zoneEnergy(float distance, ZoneRay ray, ZoneRay rayX, ZoneRay rayY,
     return energy;
 }
 
-void main() {
-    vec4 scene = texture(SceneSampler, texCoord);
-    fragColor = scene;
-    if (zoneEnabled == 0) return;
-    vec2 ndc = texCoord * 2.0 - 1.0;
-    // Two finite points on the camera ray work with both depth conventions,
-    // reverse Z and infinite far planes, without assuming the player's FOV.
-    ZoneRay ray = zoneRay(ndc);
-    ZoneRay rayX = zoneRay(ndc + vec2(2.0 / ScreenSize.x, 0.0));
-    ZoneRay rayY = zoneRay(ndc + vec2(0.0, 2.0 / ScreenSize.y));
+vec3 renderZone(vec3 color, ZoneRay ray, ZoneRay rayX, ZoneRay rayY, vec3 surfacePosition,
+                bool finiteDepth, float sceneDistance, float depthUncertainty) {
     vec3 origin = ray.origin;
     vec3 direction = ray.direction;
-
-    float deviceDepth = texture(SceneDepthSampler, texCoord).r;
-    float sceneDepth = deviceDepth;
-    float depthScale = 1.0;
-    #ifndef RENDERPEARL_DEPTH_IS_ZERO_TO_ONE
-    sceneDepth = sceneDepth * 2.0 - 1.0;
-    depthScale = 2.0;
-    #endif
-    vec4 scenePosition = zoneInverseViewProjection * vec4(ndc, sceneDepth, 1.0);
-    bool finiteDepth = abs(scenePosition.w) >= 1e-7;
-    vec3 surfacePosition = scenePosition.xyz / (finiteDepth ? scenePosition.w : 1.0);
-    float sceneDistance = finiteDepth ? dot(surfacePosition - origin, direction) : 1e30;
-    // D32_FLOAT precision is in device depth, not metres. Propagate a few ULPs
-    // through homogeneous unprojection to account for distance, FOV and both
-    // normal/reverse Z. A fixed world-space epsilon fails far from the camera.
-    float depthUlp = uintBitsToFloat(floatBitsToUint(deviceDepth) + 1u) - deviceDepth;
-    float ndcMagnitude = abs(sceneDepth);
-    float ndcUlp = uintBitsToFloat(floatBitsToUint(ndcMagnitude) + 1u) - ndcMagnitude;
-    // Mapping tiny reverse-Z depth to [-1,1] can lose more bits than the
-    // original depth texture. Include that conversion's precision as well.
-    float ndcUncertainty = max(depthUlp * depthScale, ndcUlp);
-    vec3 depthDerivative = (zoneInverseViewProjection[2].xyz -
-                            surfacePosition * zoneInverseViewProjection[2].w) /
-                           (finiteDepth ? scenePosition.w : 1.0);
-    float depthUncertainty = finiteDepth ?
-        8.0 * ndcUncertainty * abs(dot(depthDerivative, direction)) : 0.0;
     // Evaluate derivatives before any per-pixel visibility branches. Contact
     // follows the main depth buffer, so hills, steps and vertical faces work.
     vec3 surfaceDX = dFdx(surfacePosition);
@@ -152,18 +123,16 @@ void main() {
     vec3 viewDY = rayY.origin - origin + sceneDistance * (rayY.direction - direction);
     float maxFootprint = clamp(3.0 * max(length(viewDX), length(viewDY)), 0.01, 2.0);
     float terrainContact = zoneTerrainContact(surfacePosition, surfaceDX, surfaceDY, finiteDepth);
-    vec3 color = zoneSurfaceContact(scene.rgb, surfacePosition, surfaceDX, surfaceDY,
-                                   maxFootprint, terrainContact);
-    fragColor = vec4(color, scene.a);
+    color = zoneSurfaceContact(color, surfacePosition, surfaceDX, surfaceDY, maxFootprint, terrainContact);
 
     vec3 localOrigin = zoneInverseBasis * (origin - zoneCenter);
     vec3 localDirection = zoneInverseBasis * direction;
     float quadratic = dot(localDirection.xz, localDirection.xz);
-    if (quadratic < 1e-15) return;
+    if (quadratic < 1e-15) return color;
     float middle = -dot(localOrigin.xz, localDirection.xz) / quadratic;
     vec2 closest = localOrigin.xz + localDirection.xz * middle;
     float remainder = 1.0 - dot(closest, closest);
-    if (remainder < 0.0) return;
+    if (remainder < 0.0) return color;
     float halfDistance = sqrt(remainder / quadratic);
     vec2 hits = vec2(middle - halfDistance, middle + halfDistance);
 
@@ -188,7 +157,7 @@ void main() {
     bool farVisible = hits.y - hits.x > 0.00001 &&
                       zoneVisibleHit(hits.y, origin, direction, farSceneDistance, depthUncertainty);
     int surfaces = (nearVisible ? 1 : 0) + (farVisible ? 1 : 0);
-    if (surfaces == 0) return;
+    if (surfaces == 0) return color;
 
     // Do not try to invert Minecraft's OIT blend using an assumed surface
     // count. That cannot recover the background and amplifies panel seams.
@@ -200,5 +169,61 @@ void main() {
         vec4 energy = zoneEnergy(hits.x, ray, rayX, rayY, sceneDistance, terrainContact);
         color = mix(color, energy.rgb, energy.a);
     }
+    return color;
+}
+
+void main() {
+    vec4 scene = texture(SceneSampler, texCoord);
+    fragColor = scene;
+    if (zoneInfo.x == 0.0 && zoneInfo.z == 0.0) return;
+    // Preserve the nexus fog transport pixels before applying world effects.
+    if (all(lessThan(ivec2(texCoord * ScreenSize), ivec2(4))) &&
+        all(lessThanEqual(abs(ivec3(round(scene.rgb * 255.0)) - ivec3(72, 82, 25)), ivec3(1)))) return;
+    vec2 ndc = texCoord * 2.0 - 1.0;
+    // Two finite points on the camera ray work with both depth conventions,
+    // reverse Z and infinite far planes, without assuming the player's FOV.
+    ZoneRay ray = zoneRay(ndc);
+    ZoneRay rayX = zoneRay(ndc + vec2(2.0 / ScreenSize.x, 0.0));
+    ZoneRay rayY = zoneRay(ndc + vec2(0.0, 2.0 / ScreenSize.y));
+    vec3 origin = ray.origin;
+    vec3 direction = ray.direction;
+
+    ivec2 depthSize = textureSize(SceneDepthSampler, 0);
+    ivec2 depthPixel = clamp(ivec2(texCoord * vec2(depthSize)), ivec2(0), depthSize - 1);
+    float deviceDepth = texelFetch(SceneDepthSampler, depthPixel, 0).r;
+    float sceneDepth = deviceDepth;
+    float depthScale = 1.0;
+    #ifndef RENDERPEARL_DEPTH_IS_ZERO_TO_ONE
+    sceneDepth = sceneDepth * 2.0 - 1.0;
+    depthScale = 2.0;
+    #endif
+    vec4 scenePosition = zoneInverseViewProjection * vec4(ndc, sceneDepth, 1.0);
+    bool finiteDepth = deviceDepth > 0.0 && abs(scenePosition.w) >= 1e-7;
+    vec3 surfacePosition = scenePosition.xyz / (finiteDepth ? scenePosition.w : 1.0);
+    float sceneDistance = finiteDepth ? dot(surfacePosition - origin, direction) : 1e30;
+    // D32_FLOAT precision is in device depth, not metres. Propagate a few ULPs
+    // through homogeneous unprojection to account for distance, FOV and both
+    // normal/reverse Z. A fixed world-space epsilon fails far from the camera.
+    float depthUlp = uintBitsToFloat(floatBitsToUint(deviceDepth) + 1u) - deviceDepth;
+    float ndcMagnitude = abs(sceneDepth);
+    float ndcUlp = uintBitsToFloat(floatBitsToUint(ndcMagnitude) + 1u) - ndcMagnitude;
+    // Mapping tiny reverse-Z depth to [-1,1] can lose more bits than the
+    // original depth texture. Include that conversion's precision as well.
+    float ndcUncertainty = max(depthUlp * depthScale, ndcUlp);
+    vec3 depthDerivative = (zoneInverseViewProjection[2].xyz -
+                            surfacePosition * zoneInverseViewProjection[2].w) /
+                           (finiteDepth ? scenePosition.w : 1.0);
+    float depthUncertainty = finiteDepth ?
+        8.0 * ndcUncertainty * abs(dot(depthDerivative, direction)) : 0.0;
+    vec3 color = scene.rgb;
+    // Minecraft 26.3 clears reverse-Z depth to zero. Native OIT writes
+    // nearest transparent coverage into this depth texture before the pass.
+    if (deviceDepth == 0.0 && zoneInfo.w > 0.0) {
+        color *= mix(1.0, 0.45, smoothstep(0.0, 0.9, zoneInfo.w));
+    }
+    if (zoneInfo.x != 0.0) color = renderZone(color, ray, rayX, rayY, surfacePosition,
+                                             finiteDepth, sceneDistance, depthUncertainty);
+    if (zoneInfo.z > 0.0) color = lbc_hakurei_render(color, ray, rayX, rayY,
+                                                      sceneDistance + depthUncertainty + 0.001);
     fragColor = vec4(color, scene.a);
 }

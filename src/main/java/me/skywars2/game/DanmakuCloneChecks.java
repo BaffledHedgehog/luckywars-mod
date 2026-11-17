@@ -23,11 +23,11 @@ public final class DanmakuCloneChecks {
     }
     public static void tick(GameController game){
         if(running==null)return;var run=running;
-        try{if(run.step()){running=null;run.close();SkyWars2.LOGGER.info("[check] PASS danmaku-clones (registered x2 projectiles-only/x4 mob inclusion; managed cards and paired fast bombs; actual consumable input; active typed whole-coordinator rewind; native310+60 retirement and no orphan displays)");}}
+        try{if(run.step()){running=null;run.close();SkyWars2.LOGGER.info("[check] PASS danmaku-clones (registered x2 projectiles-only/x4 mob inclusion; managed cards and spheres; actual consumable input; distinct outline rows; active typed whole-coordinator rewind; native310+60 retirement and no orphan displays)");}}
         catch(RuntimeException|Error failure){running=null;try{run.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL danmaku-clones",failure);}
     }
     private record CardState(UUID owner,int age,boolean homing,Vec3 direction,Vec3 position){}
-    private record BombState(UUID owner,UUID negative,int charge,boolean fast,int age,int empty,Vec3 position){}
+    private record BombState(UUID owner,int slot,int charge,boolean fast,int age,int empty,int pulse,Vec3 position){}
     private static final class Run implements AutoCloseable {
         final GameController game;final ChefChecks.Fixture f;final LbcDanmaku danmaku;
         final String cowTag="danmaku_clone_fixture."+UUID.randomUUID();
@@ -72,7 +72,7 @@ public final class DanmakuCloneChecks {
             require(f.other.gameMode.useItem(f.other,f.other.level(),stack,InteractionHand.MAIN_HAND).consumesAction()
                     &&stack.getCount()==1,"ordinary native consumable input debits exactly one");
             f.other.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
-            require(danmaku.bombs().size()==1,"one actual source paired fast bomb");sourceBomb=danmaku.bombs().getFirst();
+            require(danmaku.bombs().size()==1,"one actual source fast bomb");sourceBomb=danmaku.bombs().getFirst();
             require(sourceBomb.fast&&sourceBomb.charge==300&&sourceBomb.age==0&&sourceBomb.empty==0,"source fast phase starts at age0/charge300");
             var cow=f.cow(f.at.add(3,0,-3));cow.entityTags().add(cowTag);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);cows.add(cow);
             f.move(f.other,f.at.add(12,0,-12));audience.acknowledge();
@@ -82,6 +82,7 @@ public final class DanmakuCloneChecks {
         void family(int count,String marker){
             require(danmaku.cards().size()==count&&danmaku.bombs().size()==count,"exact native managed family count "+count);
             var ids=new HashSet<UUID>();
+            var slots=new HashSet<Integer>();
             for(var c:danmaku.cards()){
                 require(c.owner==f.other&&!c.display.isRemoved()&&c.display.entityTags().contains(marker),"native card author and clone marker");
                 require(c.age==sourceCard.age&&!c.homing&&c.direction.equals(sourceCard.direction),"card source age/direction retained independently");
@@ -89,20 +90,20 @@ public final class DanmakuCloneChecks {
             }
             for(var b:danmaku.bombs()){
                 require(b.owner==f.other&&b.fast&&b.charge==300&&b.age==sourceBomb.age&&b.empty==sourceBomb.empty,"fast source phase/author copied");
-                require(!b.positive.isRemoved()&&!b.negative.isRemoved()&&b.positive!=b.negative&&b.positive.position().equals(b.negative.position()),"one colocated live companion per positive");
-                require(b.positive.entityTags().contains(marker)&&game.items().cloneSkills().protectedFamilyActor(b.negative),"positive participates and negative remains protected");
-                require(ids.add(b.positive.getUUID())&&ids.add(b.negative.getUUID()),"all paired bodies have fresh distinct UUIDs");
+                require(!b.display.isRemoved()&&b.display.entityTags().contains(marker),"one live display for the sphere");
+                require(b.sphereSlot()>=0&&slots.add(b.sphereSlot()),"sphere colors assign distinct outline rows for copied bombs");
+                require(ids.add(b.display.getUUID()),"every sphere has a fresh distinct body");
             }
             census();
         }
         void census(){
             var expected=new HashSet<UUID>();for(var c:danmaku.cards())expected.add(c.display.getUUID());
-            for(var b:danmaku.bombs()){expected.add(b.positive.getUUID());expected.add(b.negative.getUUID());}
+            for(var b:danmaku.bombs())expected.add(b.display.getUUID());
             var actual=new HashSet<UUID>();for(var e:f.owner.level().getEntities((Entity)null,new AABB(f.at,f.at).inflate(24),LbcDanmaku::managed))actual.add(e.getUUID());
-            require(actual.equals(expected),"no independently cloned negative or orphan managed display");
+            require(actual.equals(expected),"exactly one resident body per card and sphere");
         }
         Map<UUID,CardState> cards(){var out=new LinkedHashMap<UUID,CardState>();for(var c:danmaku.cards())out.put(c.display.getUUID(),new CardState(c.owner.getUUID(),c.age,c.homing,c.direction,c.display.position()));return out;}
-        Map<UUID,BombState> bombs(){var out=new LinkedHashMap<UUID,BombState>();for(var b:danmaku.bombs())out.put(b.positive.getUUID(),new BombState(b.owner.getUUID(),b.negative.getUUID(),b.charge,b.fast,b.age,b.empty,b.positive.position()));return out;}
+        Map<UUID,BombState> bombs(){var out=new LinkedHashMap<UUID,BombState>();for(var b:danmaku.bombs())out.put(b.display.getUUID(),new BombState(b.owner.getUUID(),b.sphereSlot(),b.charge,b.fast,b.age,b.empty,b.pulseTicks,b.display.position()));return out;}
         void clearCows(){for(var cow:nativeCows()){cows.add(cow);game.items().indirectKills().clear(cow);cow.discard();}}
         boolean step(){
             require(game.server().getTickCount()-started<1000,"bounded scheduled fixture stage "+stage);
@@ -112,7 +113,7 @@ public final class DanmakuCloneChecks {
             if(stage==-1){begin(15);stage=0;return false;}
             if(stage==0){
                 require(nativeCows().size()==1,"registered x2 excludes ordinary mobs");
-                require(danmaku.cards().size()<=2&&danmaku.bombs().size()<=2,"x2 never clones paired negative separately");
+                require(danmaku.cards().size()<=2&&danmaku.bombs().size()<=2,"x2 clones each card and sphere at most once");
                 if(elapsed<4||danmaku.cards().size()!=2||danmaku.bombs().size()!=2){require(elapsed<12,"registered x2 completes bounded proximity work");return false;}
                 family(2,"doubled");require(sourceBomb.age==10*elapsed,"source fast bomb advances10 per actual tick");
                 danmaku.forget(f.other);clearCows();begin(17);stage=1;return false;
@@ -133,7 +134,7 @@ public final class DanmakuCloneChecks {
             }
             if(stage==3){
                 if(game.vanity().busy())return false;
-                require(cards().equals(savedCards)&&bombs().equals(savedBombs),"shared typed Danmaku links restore exact active card and both bomb body identities/phase");
+                require(cards().equals(savedCards)&&bombs().equals(savedBombs),"shared typed Danmaku links restore exact bodies, outline rows and pulse phase");
                 require(f.owner.level().getEntity(future)==null,"abandoned future display removed by canonical body restore");census();
                 require(game.items().timeStop().stopped(f.owner.level()),"shared stop is restored with actors");
                 game.vanity().stop();

@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "lbc:item/hakurei_sphere",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 15180567
+      }
+    ]
+  }
+}

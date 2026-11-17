@@ -1,4 +1,11 @@
 {
+  "assets/lbc/models/item/zone_border.json": "4b2d5c2f66769b1a1750f6d5ad603a71913d19173c96524e8600ec489be68123",
+  "assets/lbc/shaders/include/zone_border.glsl": "9d8fec1cc9b4a842802af45d580666127f690a10607b101533340ead45b6cc7f",
+  "assets/lbc/shaders/post/zone_border.fsh": "be29d4b784c903be27c8666f327f4f92419a38260a7802d2a88dd98d4bf167da",
+  "assets/lbc/shaders/post/zone_border.vsh": "cf77653b22b6c934177b3305e2a8e2e637cd9e650da57642fb86c6b7de849d84",
+  "assets/lbc/shaders/post/zone_damage.fsh": "f7b1448b7b2a4fb1dbdeecc73fe3f0e6de8de9596869cac944beec501191c19f",
   "assets/minecraft/shaders/core/item.fsh": "e27bc685751be5ee8a91ffe5693195fbcc282fc4b5832176867450244c8c9d65",
-  "assets/lbc/shaders/post/zone_border.fsh": "be29d4b784c903be27c8666f327f4f92419a38260a7802d2a88dd98d4bf167da"
+  "assets/minecraft/shaders/core/item.vsh": "0ffb7736374c97fddc05f8f68e6c707fc88c8f9f5af720219e9f99b870ff2455",
+  "assets/minecraft/shaders/core/rendertype_outline.fsh": "f1290994de41a727b17db33ac1066d014aa87c521fd6e7d7963188be54a80ed6",
+  "assets/minecraft/shaders/core/rendertype_outline.vsh": "bfb3379c49b211f667c23717e2dcce4bc59d8970744b70847a08ea831599b8b7"
 }

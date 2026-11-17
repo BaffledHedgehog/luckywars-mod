@@ -157,7 +157,8 @@ public final class DanmakuChecks {
                 require(Math.abs(left.x()-expected.x())<1e-5&&Math.abs(left.y()-expected.y())<1e-5&&Math.abs(left.z()-expected.z())<1e-5&&Math.abs(left.w()-expected.w())<1e-5,"wire source left rotation");
                 require(received.getItemTransform()==(card?net.minecraft.world.item.ItemDisplayContext.FIXED:net.minecraft.world.item.ItemDisplayContext.NONE)&&raw.readableBytes()==0,"native fixed context and complete metadata stream");
                 if(card)require(received.getItemStack().is(Items.REPEATING_COMMAND_BLOCK)&&Identifier.parse(model).equals(received.getItemStack().get(DataComponents.ITEM_MODEL)),"authored card carrier and model survive wire");
-                else require(received.getItemStack().is(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:red_stained_glass")))&&Objects.equals(received.getItemStack().get(DataComponents.ITEM_MODEL),new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:red_stained_glass"))).get(DataComponents.ITEM_MODEL)),"authored red glass shell without model override");
+                else require(received.getItemStack().is(Items.PAPER)&&Identifier.parse(model).equals(received.getItemStack().get(DataComponents.ITEM_MODEL))
+                        &&received.getGlowColorOverride()==display.getGlowColorOverride(),"sphere model and outline row survive the display metadata stream");
             }catch(ReflectiveOperationException error){throw new IllegalStateException("Danmaku native display metadata",error);}finally{raw.release();}
         }
         void guards(){
@@ -247,11 +248,14 @@ public final class DanmakuChecks {
             clear();held(loot("danmaku_staff"),InteractionHand.MAIN_HAND);owner.setShiftKeyDown(true);mana.set(owner,0);mana.score(owner,"danmaku_score").set(49);
             require(!input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&mana.score(owner,"danmaku_score").get()==49&&danmaku.bombs().isEmpty(),"free bomb still requires charge50");
             mana.score(owner,"danmaku_score").set(50);require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&mana.score(owner,"danmaku_score").get()==0&&danmaku.bombs().size()==1,"zero-mana bomb captures all50 charge and consumes no mana");
-            var bomb=danmaku.bombs().getFirst();owned.add(bomb.positive);owned.add(bomb.negative);
-            require(bomb.owner==owner&&bomb.charge==50,"stable bomb owner and captured source charge");displayPacket(bomb.positive,null,1,false);displayPacket(bomb.negative,null,-1,false);
-            danmaku.tick();require(bomb.age==4&&bomb.radius()==0,"bomb advances four source age units and integer radius");displayPacket(bomb.positive,null,.8f,false);displayPacket(bomb.negative,null,-.8f,false);
-            var fixed=bomb.positive.position();move(owner,at.add(3,0,0));danmaku.tick();require(bomb.positive.position().equals(fixed)&&bomb.negative.position().equals(fixed),"bomb stays at cast position as owner moves");
-            var center=bomb.positive.position();
+            var bomb=danmaku.bombs().getFirst();owned.add(bomb.display);
+            require(bomb.owner==owner&&bomb.charge==50&&bomb.display.getGlowColorOverride()==LbcDanmaku.SPELLCARD_GLOW,
+                "stable bomb owner, captured source charge and red palette");
+            displayPacket(bomb.display,"lbc:hakurei_sphere",0,false);
+            danmaku.tick();require(bomb.age==4&&bomb.radius()==0,"bomb advances four source age units and integer radius");
+            var fixed=bomb.display.position();move(owner,at.add(3,0,0));danmaku.tick();
+            require(bomb.display.position().equals(fixed),"bomb stays at cast position as owner moves");
+            var center=bomb.display.position();
             var victim=cow(center);
             var armored=cow(center.add(.5,0,0));
             armored.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR).setBaseValue(40);
@@ -270,6 +274,7 @@ public final class DanmakuChecks {
             near(victim.getHealth(),victimHealth,"no HP pulse through active tick nine");
             danmaku.tick();
             require(bomb.age==40&&bomb.pulseTicks==0&&bomb.radius()==2,"normal bomb emits its first scheduled radius-two pulse");
+            displayPacket(bomb.display,"lbc:hakurei_sphere",2,false);
             near(victim.getHealth(),victimHealth-.5,"normal bomb removes its balance-adjusted half HP on tick ten");
             near(armored.getHealth(),armoredHealth-.1,"40 armor mitigates the direct debit by the native .8 armor fraction");
             near(outside.getHealth(),outsideHealth,"cube corner outside the real sphere takes no damage");
@@ -281,13 +286,13 @@ public final class DanmakuChecks {
             require(!victim.entityTags().contains("nodmg")&&!victim.entityTags().contains("nodmg1"),"bomb does not leak legacy global no-damage tags to mobs");
             victim.discard();armored.discard();outside.discard();role.discard();greed.discard();friendly.discard();move(other,at.add(0,20,0));
             int age=bomb.age;game.items().timeStop().begin(owner.level(),40);try{danmaku.tick();require(bomb.age==age,"Time Stop freezes bomb captured lifetime");}finally{game.items().timeStop().end(owner.level());}
-            bomb.age=48;danmaku.tick();require(bomb.positive.isRemoved()&&bomb.negative.isRemoved()&&danmaku.bombs().isEmpty(),"bomb expires only once age exceeds captured charge");clear();move(owner,at);
+            bomb.age=48;danmaku.tick();require(bomb.display.isRemoved()&&danmaku.bombs().isEmpty(),"bomb expires only once age exceeds captured charge");clear();move(owner,at);
             mana.score(owner,"danmaku_score").set(1500);
             require(input(InteractionHand.MAIN_HAND),"large source bomb is uncapped");
-            bomb=danmaku.bombs().getFirst();owned.add(bomb.positive);owned.add(bomb.negative);
+            bomb=danmaku.bombs().getFirst();owned.add(bomb.display);
             bomb.age=996;danmaku.tick();
             require(bomb.age==1000&&bomb.radius()==60,"large bomb nested floor radius at source age1000");
-            var repeated=cow(bomb.positive.position());float repeatedHealth=repeated.getHealth();
+            var repeated=cow(bomb.display.position());float repeatedHealth=repeated.getHealth();
             for(int i=0;i<9;i++)danmaku.tick();
             near(repeated.getHealth(),repeatedHealth-.5,"first direct pulse");
             for(int i=0;i<9;i++)danmaku.tick();
@@ -299,9 +304,10 @@ public final class DanmakuChecks {
             held(game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:bomb_item").getFirst(),InteractionHand.MAIN_HAND);
             require(input(InteractionHand.MAIN_HAND)&&owner.getMainHandItem().isEmpty(),"actual Hakurei bomb consumes one collectible");
             var fast=danmaku.bombs().getFirst();
-            require(fast.fast&&fast.owner==owner,"consumable publishes the fast bomb");
-            var fastVictim=cow(fast.positive.position());
-            var immune=cow(fast.positive.position());
+            require(fast.fast&&fast.owner==owner&&fast.display.getGlowColorOverride()==LbcDanmaku.HAKUREI_BOMB_GLOW,
+                "consumable publishes the fast bomb with the yellow palette");
+            var fastVictim=cow(fast.display.position());
+            var immune=cow(fast.display.position());
             immune.setPermanentlyInvulnerable(true);
             float fastHealth=fastVictim.getHealth(),immuneHealth=immune.getHealth();
             for(int i=0;i<9;i++)danmaku.tick();
@@ -310,6 +316,13 @@ public final class DanmakuChecks {
             near(fastVictim.getHealth(),fastHealth-1,"Hakurei bomb keeps its independent damage amount");
             near(immune.getHealth(),immuneHealth,"direct HP pulse respects permanent invulnerability");
             fastVictim.discard();immune.discard();clear();
+            for (int i=0;i<=LbcDanmaku.SPHERE_SLOTS;i++) require(danmaku.useTouhouBomb(owner),"concurrent native bomb "+i);
+            var spheres=danmaku.bombs();
+            for (int i=0;i<LbcDanmaku.SPHERE_SLOTS;i++) require(spheres.get(i).sphereSlot()==i,"distinct outline row "+i);
+            require(spheres.getLast().sphereSlot()==-1,"extra gameplay bomb waits for an available outline row");
+            danmaku.unloaded(spheres.getFirst().display);
+            require(spheres.getLast().sphereSlot()==0,"waiting bomb inherits the released outline row");
+            clear();
         }
         final Set<UUID> emitted=new HashSet<>();int pattern=-1;boolean patternStarted,geometry;int elapsed,homingEmitted;
         void startPattern(){
@@ -406,7 +419,7 @@ public final class DanmakuChecks {
             require(owner.gameMode.useItem(owner,owner.level(),stack,InteractionHand.MAIN_HAND).consumesAction(),"actual native retained volley input");service.tick();require(!service.cards().isEmpty(),"actual service tick emitted retained cards");
             owner.setShiftKeyDown(true);game.items().mana().score(owner,"danmaku_score").set(1500);require(owner.gameMode.useItem(owner,owner.level(),stack,InteractionHand.MAIN_HAND).consumesAction()&&service.bombs().size()==1,"native zero-mana retained bomb input");
             var actors=new ArrayList<Entity>();for(var card:service.cards()){actors.add(card.display);card.display.entityTags().add("time_stopped");card.display.setPos(owner.position().add(0,40,0));}
-            for(var bomb:service.bombs()){actors.add(bomb.positive);actors.add(bomb.negative);bomb.positive.entityTags().add("time_stopped");bomb.negative.entityTags().add("time_stopped");}
+            for(var bomb:service.bombs()){actors.add(bomb.display);bomb.display.entityTags().add("time_stopped");}
             retained=List.copyOf(actors);retainedEpoch=game.items().epoch();
         }catch(RuntimeException|Error error){service.forget(owner);retained=null;retainedEpoch=null;throw error;}
         finally{saved.restore(game);game.items().magic().flushCleansing();}

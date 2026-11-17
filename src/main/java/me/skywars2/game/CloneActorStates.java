@@ -16,7 +16,7 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
     public boolean completeCoverage(){return true;}
     public boolean protectedActor(Entity e){
         return LbcCosmetics.managed(e)&&e instanceof net.minecraft.world.entity.Display||game.items().rainbowAura().protectedActor(e)||LbcBedwars.shopRole(e)||e.entityTags().contains("skywars2.bedwars.chest_visual")
-                ||game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.protectedActor(e)||CloneComplexProjectileStates.protectedActor(e)
+                ||CloneSimpleProjectileStates.protectedActor(e)||CloneComplexProjectileStates.protectedActor(e)
                 ||CloneMobStates.protectedActor(e)||CloneOtherActorStates.protectedActor(e)
                 ||CloneEncounterStates.protectedActor(e)||CloneVirtualAbilityStates.protectedActor(e)
                 ||CloneRemainingStatusStates.protectedActor(e)||CloneExtraAbilityStates.protectedActor(e)
@@ -29,7 +29,7 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
     }
     public boolean gameplayActor(Entity e){
         return CloneLateProjectileStates.recognizes(e)||LbcKfcRewards.cloneProjectile(e)||game.items().reactiveTrinkets().defense().cloneRecognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
-                ||LbcDanmaku.managed(e)&&!game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
+                ||LbcDanmaku.managed(e)||CloneSimpleProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||CloneComplexProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||e instanceof LbcFpvDrone.Drone||CloneVirtualAbilityStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||(CloneRemainingStatusStates.recognizesGameplay(e)||CloneExtraAbilityStates.recognizesGameplay(e))&&!(e instanceof net.minecraft.world.entity.Mob)

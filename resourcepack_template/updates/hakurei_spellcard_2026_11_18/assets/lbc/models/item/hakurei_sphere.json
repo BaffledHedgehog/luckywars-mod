@@ -1,0 +1,1227 @@
+{
+  "gui_light": "front",
+  "textures": {
+    "0": {
+      "sprite": "lbc:item/hakurei_sphere",
+      "force_translucent": true
+    },
+    "particle": "lbc:item/hakurei_sphere"
+  },
+  "elements": [
+    {
+      "name": "post_data_00",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            0.125,
+            8,
+            0.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_01",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            0.375,
+            8,
+            0.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_02",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            0.625,
+            8,
+            0.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_03",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            0.875,
+            8,
+            0.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_04",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            1.125,
+            8,
+            1.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_05",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            1.375,
+            8,
+            1.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_06",
+      "from": [
+        23.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        24.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            1.625,
+            8,
+            1.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_07",
+      "from": [
+        23.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        24.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            1.875,
+            8,
+            1.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_08",
+      "from": [
+        23.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        24.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            2.125,
+            8,
+            2.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_09",
+      "from": [
+        23.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        24.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            2.375,
+            8,
+            2.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_10",
+      "from": [
+        23.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        24.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            2.625,
+            8,
+            2.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_11",
+      "from": [
+        23.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        24.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            2.875,
+            8,
+            2.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_24",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            6.125,
+            8,
+            6.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_25",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            6.375,
+            8,
+            6.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_26",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            6.625,
+            8,
+            6.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_27",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            6.875,
+            8,
+            6.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_28",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            7.125,
+            8,
+            7.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_29",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            7.375,
+            8,
+            7.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_30",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            7.625,
+            8,
+            7.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_31",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            7.875,
+            8,
+            7.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_32",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            8.125,
+            8,
+            8.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_33",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            8.375,
+            8,
+            8.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_34",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            8.625,
+            8,
+            8.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_35",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            8.875,
+            8,
+            8.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_36",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            9.125,
+            8,
+            9.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_37",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            9.375,
+            8,
+            9.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_38",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            9.625,
+            8,
+            9.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_39",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            9.875,
+            8,
+            9.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_40",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            10.125,
+            8,
+            10.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_41",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            10.375,
+            8,
+            10.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_42",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            10.625,
+            8,
+            10.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_43",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            10.875,
+            8,
+            10.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_44",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            11.125,
+            8,
+            11.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_45",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            11.375,
+            8,
+            11.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_46",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            11.625,
+            8,
+            11.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_47",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            11.875,
+            8,
+            11.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_48",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            12.125,
+            8,
+            12.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_49",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            12.375,
+            8,
+            12.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_50",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            12.625,
+            8,
+            12.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_51",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            12.875,
+            8,
+            12.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_52",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            13.125,
+            8,
+            13.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_53",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            13.375,
+            8,
+            13.375,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_54",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            13.625,
+            8,
+            13.625,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_55",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            13.875,
+            8,
+            13.875,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "post_data_56",
+      "from": [
+        7.9990234375,
+        8,
+        7.9990234375
+      ],
+      "to": [
+        8.0009765625,
+        8,
+        8.0009765625
+      ],
+      "shade_direction_override": "up",
+      "light_emission": 15,
+      "faces": {
+        "up": {
+          "uv": [
+            14.125,
+            8,
+            14.125,
+            8
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}
