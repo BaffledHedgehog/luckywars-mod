@@ -58,6 +58,39 @@ public final class CubeInteractionChecks {
                 f.owner.setItemInHand(hand,new ItemStack(Items.BUCKET));test.clear();test.send(hand,true);
                 require(f.level.getBlockState(at.above()).isAir()&&f.owner.getItemInHand(hand).is(bucket),"native bucket pickup also works without duplicate use");test.other(hand);
             }
+            var mains=List.of(Items.DIAMOND_SWORD,LbcWands.FIRE_WAND,LbcWands.ACADEMY_FIRE,
+                    LbcChargedSwords.BLAZE,LbcMeleeItems.Kind.PISTON_SWORD.item,LbcMeleeItems.Kind.EPIC_SWORD.item);
+            for(var support:supports)for(var main:mains)for(boolean crouch:new boolean[]{false,true}){
+                test.prepare(support,InteractionHand.OFF_HAND,new ItemStack(Items.COBBLESTONE,3),crouch);
+                f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(main));game.items().mana().set(f.owner,5000);
+                int mana=game.items().mana().get(f.owner);
+                test.clientClick(support.getBlock() instanceof LbcBlockModels.Cube&&!crouch);
+                require(f.level.getBlockState(at.above()).is(Blocks.COBBLESTONE)&&f.level.getBlockState(at.above(2)).isAir(),
+                        "real vanilla packet sequence places one offhand block beside "+main+" on "+support+" crouch="+crouch);
+                require(f.owner.getOffhandItem().getCount()==2&&f.owner.getMainHandItem().is(main),"one offhand debit and preserved main hand");
+                require(game.items().mana().get(f.owner)==mana,"offhand placement never also casts the main-hand spell");
+            }
+            test.prepare(Blocks.STONE.defaultBlockState(),InteractionHand.OFF_HAND,new ItemStack(Items.COBBLESTONE,3),false);
+            f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcWands.FIRE_WAND));
+            f.set(at.above(),Blocks.BEDROCK.defaultBlockState());game.items().mana().set(f.owner,5000);
+            int beforeMana=game.items().mana().get(f.owner);var before=new HashSet<UUID>();
+            for(var entity:f.level.getAllEntities())before.add(entity.getUUID());
+            test.clientClick(false);
+            require(f.level.getBlockState(at.above()).is(Blocks.BEDROCK)&&f.owner.getOffhandItem().getCount()==3
+                    &&game.items().mana().get(f.owner)<beforeMana,"unplaceable offhand leaves the ordinary wand cast available");
+            var spawned=new ArrayList<net.minecraft.world.entity.Entity>();
+            for(var entity:f.level.getAllEntities())if(!before.contains(entity.getUUID()))spawned.add(entity);
+            for(var entity:spawned){f.own(entity);entity.discard();}
+            for(var block:List.of(Blocks.CHEST,Blocks.BARREL,Blocks.FURNACE,Blocks.HOPPER,Blocks.DISPENSER,
+                    Blocks.ENDER_CHEST,Blocks.CRAFTING_TABLE,Blocks.ANVIL))for(var main:mains){
+                test.prepare(block.defaultBlockState(),InteractionHand.OFF_HAND,new ItemStack(Items.COBBLESTONE,3),false);
+                f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(main));int mana=game.items().mana().get(f.owner);
+                f.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND,test.hit(),++test.sequence));
+                require(f.owner.containerMenu!=f.owner.inventoryMenu&&f.owner.getOffhandItem().getCount()==3
+                        &&f.level.getBlockState(at.above()).isAir()&&game.items().mana().get(f.owner)==mana,
+                        "native menu takes priority without offhand placement or cast: "+block+" held="+main);
+                f.owner.closeContainer();
+            }
         }
         SkyWars2.LOGGER.info("[check] PASS cube-interactions (all4 cubes; vanilla first-state projection, hidden transport/full native roundtrip;100 actual placement inputs with both hands/crouch/ordinary surface and exact self/observer audio;32 fluid pour/pickup inputs with duplicate-use suppression)");
     }
@@ -76,6 +109,16 @@ public final class CubeInteractionChecks {
         void send(InteractionHand hand,boolean air){
             f.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(hand,hit(),++sequence));
             if(air)f.owner.connection.handleUseItem(new ServerboundUseItemPacket(hand,++sequence,f.owner.getYRot(),f.owner.getXRot()));
+            f.owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
+        }
+        void clientClick(boolean noteConsumes){
+            // Exact Minecraft.startUseItem ordering, including the passive
+            // carrier's main-air packet before the predicted offhand placement.
+            f.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND,hit(),++sequence));
+            if(!noteConsumes){
+                f.owner.connection.handleUseItem(new ServerboundUseItemPacket(InteractionHand.MAIN_HAND,++sequence,f.owner.getYRot(),f.owner.getXRot()));
+                f.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.OFF_HAND,hit(),++sequence));
+            }
             f.owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
         }
         void other(InteractionHand used){var s=f.owner.getItemInHand(used==InteractionHand.MAIN_HAND?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND);require(s.is(Items.STICK)&&s.getCount()==7,"other hand remains intact");}

@@ -179,6 +179,9 @@ public final class LbcAcademy {
         if(LbcModeScroll.scrolling()
                 ||!active(player)||game.items().actionsBlocked(player)
                 ||!teachingItem(player.getItemInHand(hand)))return false;
+        // Promotion may already have discarded a single-use teacher. The rest
+        // of this click still belongs to the academy, even without its hitbox.
+        if(lastInteractions.getOrDefault(player.getUUID(),Long.MIN_VALUE)==player.level().getGameTime())return true;
         var from=player.getEyePosition();var to=from.add(player.getLookAngle().scale(player.entityInteractionRange()));
         var wall=player.level().clip(new net.minecraft.world.level.ClipContext(from,to,net.minecraft.world.level.ClipContext.Block.OUTLINE,
                 net.minecraft.world.level.ClipContext.Fluid.NONE,player));

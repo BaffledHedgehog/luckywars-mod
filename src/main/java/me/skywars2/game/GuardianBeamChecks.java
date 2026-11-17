@@ -44,10 +44,13 @@ public final class GuardianBeamChecks {
         final Set<Long> forced=new LinkedHashSet<>();
         final List<BlockPos> wall=new ArrayList<>();
         final List<Integer> hitTicks=new ArrayList<>();
+        final List<Integer> attemptTicks=new ArrayList<>();
+        final List<Integer> beamResetPackets=new ArrayList<>();
         final Vec3 origin;
         Guardian guardian;
         Cow target,previousTarget;
         int phase,when,firstAge,beamFrames,beamStreak,longestBeam,visibleFrames,resets,previousBeam;
+        int packetCursor,beamStartPackets;
         float health,previousHealth,previousTargetHealth;
         boolean closed,ownsSummons;
         Fixture(GameController game) {
@@ -72,7 +75,18 @@ public final class GuardianBeamChecks {
             next(0,48);
         }
         Cow cow(Vec3 at) {
-            var result=new Cow(EntityTypes.COW,base.level);result.setNoAi(true);result.setNoGravity(true);
+            var result=new Cow(EntityTypes.COW,base.level){
+                @Override public boolean hurtServer(net.minecraft.server.level.ServerLevel level,
+                        net.minecraft.world.damagesource.DamageSource source,float amount){
+                    if(this==target&&source.getEntity()==guardian){
+                        int now=game.server().getTickCount();
+                        // Count attempts BEFORE native damage immunity can hide a repeated hot beam.
+                        // Vanilla applies magic and melee in the same discharge tick.
+                        if(attemptTicks.isEmpty()||attemptTicks.getLast()!=now)attemptTicks.add(now);
+                    }
+                    return super.hurtServer(level,source,amount);
+                }
+            };result.setNoAi(true);result.setNoGravity(true);
             result.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);result.setHealth(1000);
             result.setPos(at);base.own(result);
             require(base.level.addFreshEntity(result),"published ordinary nonplayer enemy");return result;
@@ -99,7 +113,8 @@ public final class GuardianBeamChecks {
             command();
             require(clear(),"native COLLIDER/Fluid.NONE corridor is empty at"+distance);
             firstAge=guardian.tickCount;beamFrames=beamStreak=longestBeam=visibleFrames=resets=previousBeam=0;
-            health=base.other.getHealth();previousHealth=1000;hitTicks.clear();
+            health=base.other.getHealth();previousHealth=1000;hitTicks.clear();attemptTicks.clear();beamResetPackets.clear();
+            packetCursor=base.client.packets().size();beamStartPackets=0;
         }
         boolean clear() {
             return base.level.clip(new ClipContext(guardian.getEyePosition(),target.getEyePosition(),
@@ -111,10 +126,22 @@ public final class GuardianBeamChecks {
                     +" LOS="+guardian.hasLineOfSight(target)+" target="+(guardian.getTarget()==target)
                     +" assigned="+(game.items().summons().orders().assigned(guardian)==target)
                     +" active="+(guardian.getActiveAttackTarget()==target)+" beamFrames="+beamFrames
-                    +" longestBeam="+longestBeam+" visibleFrames="+visibleFrames+" resets="+resets+" hits="+hitTicks;
+                    +" longestBeam="+longestBeam+" visibleFrames="+visibleFrames+" resets="+resets+" hits="+hitTicks
+                    +" attempts="+attemptTicks+" starts="+beamStartPackets+" resetPackets="+beamResetPackets;
+        }
+        void beamPackets(){
+            var key=(net.minecraft.network.syncher.EntityDataAccessor<?>)WoolBucketChecks.read(guardian,"DATA_ID_ATTACK_TARGET");
+            var packets=base.client.packets();
+            for(;packetCursor<packets.size();packetCursor++)
+                if(packets.get(packetCursor) instanceof net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet
+                        &&packet.id()==guardian.getId())for(var value:packet.packedItems())if(value.id()==key.id()){
+                    if(value.value().equals(0))beamResetPackets.add(game.server().getTickCount());
+                    else beamStartPackets++;
+                }
         }
         boolean step() {
             base.client.acknowledge();base.audience.acknowledge();
+            beamPackets();
             int elapsed=game.server().getTickCount()-when;
             require(guardian.isAlive()&&!guardian.isRemoved()&&target.isAlive(),"live native actors"+diagnostics());
             require(base.other.getHealth()==health,"command retained despite closer player"+diagnostics());
@@ -129,6 +156,8 @@ public final class GuardianBeamChecks {
                 hitTicks.add(now);
             }
             previousHealth=target.getHealth();
+            for(int i=1;i<attemptTicks.size();i++)require(attemptTicks.get(i)-attemptTicks.get(i-1)>=guardian.getAttackDuration(),
+                    "native hurt ATTEMPTS require a fresh full charge, independently of HP immunity"+diagnostics());
             boolean beam=guardian.getActiveAttackTarget()==target;
             if(beam) {beamFrames++;longestBeam=Math.max(longestBeam,++beamStreak);}
             else {if(previousBeam==1&&target.getHealth()==1000)resets++;beamStreak=0;}
@@ -144,8 +173,11 @@ public final class GuardianBeamChecks {
             if(phase==3) {
                 command(); // Repeated player orders must not bypass native beam reset.
                 target.setPos(origin.add(Math.sin(elapsed*.04)*2,0,128+Math.sin(elapsed*.05)*8));
-                require(elapsed<=320,"eventual active beam before wall control"+diagnostics());
-                if(elapsed<220||!guardian.hasActiveAttackTarget())return false;
+                require(elapsed<=600,"eventual active beam before wall control"+diagnostics());
+                if(elapsed<500||!guardian.hasActiveAttackTarget())return false;
+                require(attemptTicks.size()>=4,"at least four real native discharge attempts"+diagnostics());
+                require(beamStartPackets>=4&&beamResetPackets.size()>=attemptTicks.size()-1,
+                        "real tracking packets clear the client beam between discharges"+diagnostics());
                 require(target.getHealth()<990&&visibleFrames==elapsed&&resets==0,
                         "crossing vanilla128-block visibility limit never interrupts a valid summon beam"+diagnostics());
                 base.move(base.other,origin.add(6,300,0));

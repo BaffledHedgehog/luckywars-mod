@@ -33,6 +33,16 @@ public final class LbcCubeInteractions {
     // Inside the Cube wrapper use its original call; a proxy starts outside that wrapper.
     private static InteractionResult afterBlock(ServerPlayerGameMode mode,ServerPlayer player,Level level,
             InteractionHand hand,BlockHitResult hit,Operation<InteractionResult> original){
+        // The client's note block consumed this click before it could send an
+        // offhand packet. Place its real offhand block before a server-only cast.
+        if(hand==InteractionHand.MAIN_HAND&&LbcUseInteractions.canPlaceOffhand(player,hit)){
+            var placed=original==null?mode.useItemOn(player,level,player.getOffhandItem(),InteractionHand.OFF_HAND,hit)
+                    :original.call(player,level,player.getOffhandItem(),InteractionHand.OFF_HAND,hit);
+            if(placed instanceof InteractionResult.Success success){
+                if(success.swingSource()!=InteractionResult.SwingSource.NONE)player.swing(InteractionHand.OFF_HAND,player.getOffhandItem().getInteractAnimation(),true);
+                return new InteractionResult.Success(InteractionResult.SwingSource.NONE,success.itemContext());
+            }
+        }
         var air=air(mode,player,level,hand);
         if(air instanceof InteractionResult.Success)return air;
         if(hand!=InteractionHand.MAIN_HAND)return air;

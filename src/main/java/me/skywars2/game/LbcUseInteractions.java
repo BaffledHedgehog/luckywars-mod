@@ -15,6 +15,33 @@ import net.minecraft.world.level.Level;
 /** A server-only one-shot on a passive client carrier still permits the vanilla offhand shield. */
 public final class LbcUseInteractions {
     private LbcUseInteractions(){}
+    public interface BlockInput { void skywars2$finishBlockInput(); }
+    public static void endClientInput(ServerPlayer player){
+        if(player.gameMode instanceof BlockInput input)input.skywars2$finishBlockInput();
+    }
+    /** Passive client carriers send main-on, main-air, then offhand-on for one click. */
+    public static boolean deferAirToOffhand(ServerPlayer player,ItemStack stack,InteractionHand hand,
+            net.minecraft.world.phys.BlockHitResult hit){
+        if(hand!=InteractionHand.MAIN_HAND||hit==null||stack.has(DataComponents.CONSUMABLE)
+                ||stack.has(DataComponents.EQUIPPABLE)||stack.has(DataComponents.BLOCKS_ATTACKS))return false;
+        Item carrier=stack.getItem();
+        if(carrier instanceof PolymerItem polymer)carrier=polymer.getPolymerItem(stack,player.connection.getPacketContext());
+        return (carrier.getClass()==Item.class||carrier instanceof FoodOnAStickItem)&&canPlaceOffhand(player,hit);
+    }
+    public static boolean canPlaceOffhand(ServerPlayer player,net.minecraft.world.phys.BlockHitResult hit){
+        var stack=player.getOffhandItem();
+        if(stack.isEmpty()||!(stack.getItem() instanceof net.minecraft.world.item.BlockItem block)
+                ||player.isSpectator()||player.getCooldowns().isOnCooldown(stack)
+                ||!stack.isItemEnabled(player.level().enabledFeatures()))return false;
+        var context=new net.minecraft.world.item.context.BlockPlaceContext(player,InteractionHand.OFF_HAND,stack,hit);
+        if(!player.level().hasChunkAt(context.getClickedPos())||!context.canPlace())return false;
+        context=block.updatePlacementContext(context);
+        if(context==null||!player.level().hasChunkAt(context.getClickedPos())
+                ||!player.level().getWorldBorder().isWithinBounds(context.getClickedPos())
+                ||!player.mayUseItemAt(context.getClickedPos(),context.getClickedFace(),stack)
+                ||!player.level().mayInteract(player,context.getClickedPos()))return false;
+        return ((me.skywars2.mixin.BlockPlacementAccess)block).skywars2$placementState(context)!=null;
+    }
     /** The passive legacy carrier never swung the hand for a successful server-side cast. */
     public static boolean quietUse(ServerPlayer player,ItemStack stack){
         Item carrier=stack.getItem();

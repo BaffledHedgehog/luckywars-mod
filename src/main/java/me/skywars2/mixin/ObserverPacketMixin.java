@@ -78,6 +78,7 @@ public abstract class ObserverPacketMixin {
             shift = At.Shift.AFTER))
     private void skywars2$expireSlrAttack(CallbackInfo ci) {
         skywars2$slrEntityAttack=false;
+        me.skywars2.game.LbcUseInteractions.endClientInput(player);
     }
 
     /** Air/mining clicks toggle scope; SLG entity attacks retain ordinary melee semantics. */

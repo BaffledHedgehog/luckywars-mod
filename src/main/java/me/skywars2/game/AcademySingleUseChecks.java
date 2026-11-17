@@ -187,12 +187,31 @@ public final class AcademySingleUseChecks {
         void promoted(ServerPlayer player) {
             require(player.getMainHandItem().is(LbcWands.ACADEMY_FIRE) && flag(player.getMainHandItem(),"upgraded")==1,"actual base-to-upgraded native item replacement");
         }
+        Set<UUID> projectiles(){
+            var result=new HashSet<UUID>();
+            for(var entity:level.getAllEntities())if(entity instanceof net.minecraft.world.entity.projectile.Projectile)result.add(entity.getUUID());
+            return result;
+        }
+        void afterConsumedClick(ServerPlayer player){
+            var mana=game.items().mana();mana.set(player,5000);int beforeMana=mana.get(player);
+            var before=projectiles();float pitch=player.getXRot();player.setXRot(-89);
+            try{
+                require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker()
+                        .interact(player,level,InteractionHand.MAIN_HAND).consumesAction(),
+                        "removed teacher still consumes duplicate registered use callback");
+                require(player.gameMode.useItem(player,level,player.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction(),
+                        "removed teacher still consumes duplicate native item dispatch");
+                require(mana.get(player)==beforeMana&&projectiles().equals(before),
+                        "same click after single-use promotion creates no spell or mana debit without a teacher hitbox");
+            }finally{player.setXRot(pitch);}
+        }
         boolean step() {
             require(game.playing(),"match remains active");
             long now=level.getGameTime();if(now==lastTime)return false;lastTime=now;
             switch(phase++) {
                 case 0 -> {
-                    alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));click(alpha,first);alive(first);
+                    alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));
+                    require(!academy.interact(alpha,InteractionHand.MAIN_HAND,first.actor),"ordinary item clicks pass through the teacher");alive(first);
                     beta.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcWands.ACADEMY_FIRE));click(beta,first);alive(first);
                 }
                 case 1 -> {
@@ -214,6 +233,7 @@ public final class AcademySingleUseChecks {
                     require(!alpha.getMainHandItem().is(LbcWands.ACADEMY_FIRE),"Time Stop guards actual promotion");alive(first);
                     game.items().timeStop().end(level);click(alpha,first);promoted(alpha);
                     require(first.actor.isRemoved() && first.label.isRemoved(),"successful promotion removes only own foreground and actor");
+                    afterConsumedClick(alpha);
                     for(int x=4;x<=7;x++)for(int y=2;y<=3;y++) {
                         var p=base.offset(x,y,10);require(level.getBlockState(p).is(p.equals(edited)?Blocks.GOLD_BLOCK:Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE)),"exact owned blue-to-white conversion preserves block edit");
                     }
@@ -222,6 +242,12 @@ public final class AcademySingleUseChecks {
                     wand(beta);click(beta,second);ready(beta);pendingBeta=beta.getMainHandItem();
                 }
                 case 4 -> {
+                    var before=projectiles();int mana=game.items().mana().get(alpha);float pitch=alpha.getXRot();alpha.setXRot(-89);
+                    try{
+                        require(alpha.gameMode.useItem(alpha,level,alpha.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction()
+                                &&game.items().mana().get(alpha)<mana&&!projectiles().equals(before),
+                                "next real tick permits an independent ordinary cast away from the consumed teacher");
+                    }finally{alpha.setXRot(pitch);}
                     wand(alpha);click(alpha,second);ready(alpha);alive(second);
                 }
                 case 5 -> {
