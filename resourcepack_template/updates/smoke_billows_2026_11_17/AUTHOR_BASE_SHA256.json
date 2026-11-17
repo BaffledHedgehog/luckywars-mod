@@ -1,0 +1,22 @@
+{
+  "assets/minecraft/particles/flash.json": {
+    "source": "native",
+    "sha256": "afc9fed65acb2620fa5da4cbf8b50d7b926dd4f5458ef84c10c347bc6debcc8f"
+  },
+  "assets/minecraft/textures/particle/flash.png": {
+    "source": "native",
+    "sha256": "fb43dd3a354fb84f31b00a1d286a4dcd8beeb5daba75986ca1a5d18594500f30"
+  },
+  "assets/minecraft/textures/particle/flash.png.mcmeta": {
+    "source": "absent",
+    "sha256": null
+  },
+  "assets/minecraft/shaders/core/particle.vsh": {
+    "source": "author",
+    "sha256": "7b6e04d388a0f301f9b7ddfc73e96719129ac8d5cbfc1d93e806a8104c52070f"
+  },
+  "assets/minecraft/shaders/core/particle.fsh": {
+    "source": "author",
+    "sha256": "1eb38346baf6d3c590fd39d7c0dbe056d08a2656160e353593aad7d4d7fd3540"
+  }
+}

@@ -156,7 +156,8 @@ def main():
                     "oit-transmittance": oit + ["OIT_ALPHA_ONLY", "OIT_TRANSMITTANCE"],
                     "oit-accumulate": oit + ["OIT_ACCUMULATE"]}
         for kind in ("item", "entity", "terrain", "particle"):
-            shader_args += ["--shader", f"assets/minecraft/shaders/core/{kind}.fsh"]
+            shader_args += ["--shader", f"assets/minecraft/shaders/core/{kind}.fsh",
+                            "--shader", f"assets/minecraft/shaders/core/{kind}.vsh"]
             for profile, defines in profiles.items():
                 if profile == "glint" and kind not in ("item", "entity"): continue
                 if profile == "per-face" and kind != "entity": continue
@@ -270,7 +271,8 @@ def main():
         "tmtVertexLight": ("vec4", "vec4(1)"), "tmtSourceCells": ("flat uvec4", "uvec4(0)"),
         "atlasGlitchCode": ("flat float", "0."), "tmtEquipmentSeed": ("flat uvec2", "uvec2(0)"),
         "tiktokPixels": ("flat uvec4", "uvec4(0)"), "tiktokU": ("float", "0."),
-        "customParticle": ("flat int", "0"), "particleCoord": ("vec2", "p")}
+        "customParticle": ("flat int", "0"), "particleCoord": ("vec2", "p"),
+        "smokeWorldRay": ("vec3", "vec3(0,0,-1)")}
     for kind in ("item", "entity", "terrain", "particle"):
         fragment = source(f"assets/minecraft/shaders/core/{kind}.fsh")
         # Test the actual cutout/opaque branch; native shaderc separately covers variants.

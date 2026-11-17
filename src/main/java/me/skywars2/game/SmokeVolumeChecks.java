@@ -30,7 +30,7 @@ public final class SmokeVolumeChecks {
     private static final class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;final LbcReactiveArtifacts smoke;
         ItemEntity carrier;Object cloud;BlockPos origin;Vec3 blastStart,pausePosition;
-        int began,phase,when,expiryBeforePause,oldParticleFrames,oldParticleTotal,suspendedExpiry;boolean closing;
+        int began,phase,when,expiryBeforePause,oldParticleFrames,oldParticleTotal,suspendedExpiry,puffPayloadBytes;boolean closing;
         Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);smoke=game.items().reactiveArtifacts();}
         List<?> clouds(){return (List<?>)WoolBucketChecks.read(smoke,"clouds");}
         List<?> trails(){return (List<?>)WoolBucketChecks.read(smoke,"smokeTrails");}
@@ -76,7 +76,7 @@ public final class SmokeVolumeChecks {
                 require(poof-oldParticleTotal==70,"exact old POOF70 each observed native frame: before="+oldParticleTotal+" now="+poof+" tick="+elapsed);
                 oldParticleTotal=poof;if(++oldParticleFrames<2||elapsed<4)return false;
                 require(graphics.stream().noneMatch(p->p.particle().getType()==ParticleTypes.BLOCK_MARKER),"modern block-marker spam removed");
-                require(graphics.stream().anyMatch(p->SmokeVisuals.particle(p.particle())&&p.count()>0&&p.count()<=12),"bounded custom smoke puffs actually reach owner");
+                require(graphics.stream().anyMatch(p->SmokeVisuals.particle(p.particle())&&p.count()>0&&p.count()<=48),"bounded custom smoke puffs actually reach owner");
                 require(flatten(f.audience.packets()).stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
                     .map(ClientboundLevelParticlesPacket.class::cast).anyMatch(p->SmokeVisuals.particle(p.particle())),"other players see public smoke too");
                 require(f.owner.getEffect(MobEffects.BLINDNESS)!=null&&f.owner.getEffect(MobEffects.BLINDNESS).getAmplifier()==1,"source native BlindnessII preserved");
@@ -110,7 +110,7 @@ public final class SmokeVolumeChecks {
             if(phase==4){
                 if(elapsed<70)return false;
                 require(trails().isEmpty()&&!shaderMarker(f.client.packets()),"motion plume dissipates without fullscreen shader bodies");
-                require(Math.abs((Double)WoolBucketChecks.read(cloud,"visualRadius")-7.5)<.05,"smoke grows to full7.5block horizontal radius");
+                require(Math.abs((Double)WoolBucketChecks.read(cloud,"visualRadius")-7.5)<.05,"smoke reaches the full source-scale growth driver");
                 smoke.clearEffects(f.owner);smoke.forget(f.owner);
                 require(!carrier.isRemoved()&&smoke.cloudCount()==1,"owner purification/logout cleanup does not erase independent physical smoke");
                 require(!carrier.canUsePortal(false),"transient arena emitter cannot leave orphan unlimited items through a portal");
@@ -127,9 +127,37 @@ public final class SmokeVolumeChecks {
                 next(5);return false;
             }
             if(phase==5){
+                require(elapsed<160,"stationary source reaches its final growth state");
+                // Support loss/flight intentionally shrink a moving plume. Measure
+                // the exact legacy spread only after its native easing has settled.
+                if((Double)WoolBucketChecks.read(cloud,"visualRadius")!=7.5
+                        ||(Double)WoolBucketChecks.read(cloud,"density")!=1)return false;
+                next(9);return false;
+            }
+            if(phase==9){
                 if(elapsed<20)return false;
-                require(flatten(f.client.packets()).stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
-                    .map(ClientboundLevelParticlesPacket.class::cast).anyMatch(p->SmokeVisuals.particle(p.particle())&&p.count()<=12),"stationary cloud retains bounded puff emission");
+                var puffs=flatten(f.client.packets()).stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast).filter(p->SmokeVisuals.particle(p.particle())).toList();
+                require(puffs.size()==elapsed,"one mature smoke packet per actual tick, not individual puff packets: "+puffs.size()+"/"+elapsed);
+                for(var packet:puffs){
+                    var raw=io.netty.buffer.Unpooled.buffer();
+                    try{
+                        var buffer=new net.minecraft.network.RegistryFriendlyByteBuf(raw,f.level.registryAccess());
+                        ClientboundLevelParticlesPacket.STREAM_CODEC.encode(buffer,packet);puffPayloadBytes+=buffer.readableBytes();
+                        var decoded=ClientboundLevelParticlesPacket.STREAM_CODEC.decode(buffer);
+                        require(!buffer.isReadable()&&decoded.particle().getType()==ParticleTypes.FLASH&&decoded.count()==48,
+                            "real wire codec retains the short native flash carrier and bounded batch");
+                        require(decoded.particle() instanceof net.minecraft.core.particles.ColorParticleOption color
+                            &&Math.round(color.getRed()*255)==83&&Math.round(color.getGreen()*255)==77&&Math.round(color.getBlue()*255)==127,
+                            "wire keeps the full-growth material/size signature");
+                        require(Math.abs(decoded.xDist()-7)<.001&&Math.abs(decoded.yDist()-4)<.001&&Math.abs(decoded.zDist()-7)<.001
+                            &&Math.abs(decoded.y()-carrier.getY()-2.5)<.001,"original7/4/7 Gaussian spread andY2.5: "+decoded.xDist()+"/"+decoded.yDist()+"/"+decoded.zDist()+" dy="+(decoded.y()-carrier.getY()));
+                        require(decoded.xMaxSpeed()==0&&decoded.yMaxSpeed()==0&&decoded.zMaxSpeed()==0
+                            &&decoded.randomizationType()==ClientboundLevelParticlesPacket.RandomizationType.DEFAULT
+                            &&decoded.overrideLimiter()&&!decoded.alwaysShow(),"source speed0/Gaussian/public depth-tested delivery");
+                    }finally{raw.release();}
+                }
+                require(puffPayloadBytes>0&&puffPayloadBytes<=1400,"bounded one-second encoded payload, excluding protocol framing");
                 expiryBeforePause=expires();pausePosition=carrier.position();f.pause();next(6);return false;
             }
             if(phase==6){
@@ -144,7 +172,7 @@ public final class SmokeVolumeChecks {
             }
             require(smoke.cloudCount()==0&&carrier.isRemoved()&&!shaderMarker(f.client.packets()),"actual native deadline removes physical and visual source");
             require(flatten(f.client.packets()).stream().anyMatch(p->p instanceof ClientboundRemoveEntitiesPacket r&&r.entityIds().contains(carrier.getId())),"client receives actual physical source removal");
-            SkyWars2.LOGGER.info("[check] PASS smoke-volume ({} actual ticks; real explosion, support-loss fall, resolved Gravitas isolation, dissipating trail, bounded stationary puff emission, TimeStop/full1200tick lifetime, bounded public custom particles and unchanged old particles)",now-began);
+            SkyWars2.LOGGER.info("[check] PASS smoke-volume ({} actual ticks; real explosion, support-loss fall, resolved Gravitas isolation, dissipating trail, TimeStop/full1200tick lifetime; native flash batches48/tick, source7/4/7 andY2.5; {} encoded payload bytes/20ticks/viewer, unchanged old particles)",now-began,puffPayloadBytes);
             return true;
         }
         public void close(){if(closing)return;closing=true;smoke.stop();f.close();}

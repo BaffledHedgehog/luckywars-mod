@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "nativePngDecode": true,
+  "nativeSpriteContentsMip0": true,
+  "retainedMarkers": 4,
+  "autoNegativeControlRetainedMarkers": 0,
+  "windowOpened": false,
+  "nativeCodeSource": "file:/E:/servers_mew/skywars2_last/luckywars-mod/.gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-d6f9bb6878/26.3/minecraft-merged-d6f9bb6878-26.3.jar",
+  "inputs": {
+    "assets/minecraft/textures/particle/flash.png": "df7131511a9107b51585e64ab571efd5ab80ae9a3e0b4b485231d26582fcf719",
+    "assets/minecraft/textures/particle/flash.png.mcmeta": "32147c236714d59a6621d73b718d81f435a5c634756c20d758114bfadd0fcb9b"
+  },
+  "nativeCodeSourceSha256": "93c8b4cfa03c73e5f41cd16cd1ad98f66121664162a9811104ce678a688696bc",
+  "javaSourceSha256": "bc6b4a7d486fcae8d27652265cb94e000eabb75dd9ab4e52a22de2567cfda98d"
+}

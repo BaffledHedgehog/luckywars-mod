@@ -1,0 +1,47 @@
+{
+  "assets": [
+    {
+      "path": "assets/minecraft/shaders/core/particle.fsh",
+      "sha256": "bf6ef5328318a5ae3cf49fdc6bfb64cd4fda5ece670f7d893ec1e39c0148836f",
+      "base": {
+        "source": "author",
+        "sha256": "1eb38346baf6d3c590fd39d7c0dbe056d08a2656160e353593aad7d4d7fd3540"
+      }
+    },
+    {
+      "path": "assets/minecraft/shaders/core/particle.vsh",
+      "sha256": "e97976faa76bd0c89f4c3394628cee852a965912f4dfc61658084c85b862d678",
+      "base": {
+        "source": "author",
+        "sha256": "7b6e04d388a0f301f9b7ddfc73e96719129ac8d5cbfc1d93e806a8104c52070f"
+      }
+    },
+    {
+      "path": "assets/minecraft/textures/particle/flash.png",
+      "sha256": "df7131511a9107b51585e64ab571efd5ab80ae9a3e0b4b485231d26582fcf719",
+      "base": {
+        "source": "native",
+        "sha256": "fb43dd3a354fb84f31b00a1d286a4dcd8beeb5daba75986ca1a5d18594500f30"
+      }
+    },
+    {
+      "path": "assets/minecraft/textures/particle/flash.png.mcmeta",
+      "sha256": "32147c236714d59a6621d73b718d81f435a5c634756c20d758114bfadd0fcb9b",
+      "base": {
+        "source": "absent",
+        "sha256": null
+      }
+    }
+  ],
+  "unchangedDependencies": {
+    "assets/minecraft/particles/flash.json": {
+      "source": "native",
+      "sha256": "afc9fed65acb2620fa5da4cbf8b50d7b926dd4f5458ef84c10c347bc6debcc8f"
+    }
+  },
+  "authorPackReadOnly": true,
+  "serverJarRequired": true,
+  "serverBuild": 366,
+  "productionSha256": "4433bd034f87d68b7312d86c4311af13cf613ed0fc74331fa8d0712b8fccd797",
+  "physicalClientReloadObserved": false
+}
