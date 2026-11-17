@@ -53,3 +53,4 @@ Thumbs.db
 
 # Private model credentials and local genie endpoint configuration.
 /config/skywars2/genie/
+/resourcepack_template/openaicookie.json

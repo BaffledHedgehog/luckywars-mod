@@ -57,11 +57,13 @@ public final class GenieChecks {
         boolean pending(){return !((Map<?,?>)WoolBucketChecks.read(service,"wishes")).isEmpty();}
         static GenieBlueprint plan(){return new GenieBlueprint("A generous sword","Heals the wielder on every accepted sword hit.","iron_sword",1,
                 List.of(new Rule(Trigger.HIT,Target.SELF,Condition.ALWAYS,Effect.HEAL,"",4,0,0,5,1)),List.of(),new Twist(TwistKind.HUNGER_PRICE,1));}
-        void submit(){
+        String stablePrompt,previousHistory;
+        void submit(){submit("A sword that heals me whenever I hit someone, with communism visuals.");}
+        void submit(String wish){
             base.owner.closeContainer();base.client.acknowledge();base.owner.connection.handleClientTickEnd(new net.minecraft.network.protocol.game.ServerboundClientTickEndPacket());
             base.owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(InteractionHand.MAIN_HAND,inputSequence++,base.owner.getYRot(),base.owner.getXRot()));
             var dialogs=(Map<?,?>)WoolBucketChecks.read(service,"dialogs");var dialog=dialogs.get(base.owner.getUUID());require(dialog!=null,"authenticated dialog issued");String token=(String)WoolBucketChecks.read(dialog,"token");
-            var tag=new CompoundTag();tag.putString("wish","A sword that heals me whenever I hit someone.");
+            var tag=new CompoundTag();tag.putString("wish",wish);
             base.owner.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(Identifier.parse("skywars2:genie/"+token),Optional.of(tag)));
             require(pending(),"real dialog packet starts request");waiting=base.owner.getMainHandItem();require(service.locked(base.owner,waiting),"pending token is owned by this player");
             base.owner.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(Identifier.parse("skywars2:genie/"+token),Optional.of(tag)));
@@ -106,7 +108,7 @@ public final class GenieChecks {
         }
         boolean step(){
             require(game.server().getTickCount()-base.started<1200,"bounded native HTTP/inventory scenario");
-            if(phase==0){request=requests.poll();if(request==null)return false;var root=JsonParser.parseString(request.body).getAsJsonObject();require(root.getAsJsonArray("messages").size()==2,"fresh model context");base.pause();service.tick();require(pending(),"temporary TimeStop cannot cancel an accepted wish");request.reply.complete(new Gson().toJson(new Reply(true,"Your sword is ready. A hearty meal may help.","The wish did not forbid hunger.",plan())));next(1);return false;}
+            if(phase==0){request=requests.poll();if(request==null)return false;var root=JsonParser.parseString(request.body).getAsJsonObject();knowledge(root);base.pause();service.tick();require(pending(),"temporary TimeStop cannot cancel an accepted wish");request.reply.complete(new Gson().toJson(new Reply(true,"Your sword is ready. A hearty meal may help.","The wish did not forbid hunger.",plan())));next(1);return false;}
             if(phase==1){
                 if(pending())return false;
                 require(game.items().timeStop().stopped(base.level),"HTTP completion remains valid while world is stopped");base.thaw();
@@ -121,10 +123,10 @@ public final class GenieChecks {
                 var cow=EntityTypes.COW.create(base.level,EntitySpawnReason.TRIGGERED);Objects.requireNonNull(cow);cow.setPos(base.owner.position().add(0,0,1));cow.setHealth(1);require(base.level.addFreshEntity(cow),"real lethal target");base.own(cow);
                 float hp=base.owner.getHealth();int food=base.owner.getFoodData().getFoodLevel();base.owner.attack(cow);
                 require(!cow.isAlive()&&base.owner.getHealth()==hp+4&&base.owner.getFoodData().getFoodLevel()==18,"real lethal melee dispatch heals and pays drawback exactly once: targetHP="+cow.getHealth()+" owner="+hp+"->"+base.owner.getHealth()+" food="+food+"->"+base.owner.getFoodData().getFoodLevel());
-                base.owner.getInventory().clearContent();for(int i=0;i<36;i++)base.owner.getInventory().setItem(i,new ItemStack(Items.APPLE,1+i));base.owner.getInventory().setItem(1,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(GenieItems.LAMP));submit();
+                base.owner.getInventory().clearContent();for(int i=0;i<36;i++)base.owner.getInventory().setItem(i,new ItemStack(Items.APPLE,1+i));base.owner.getInventory().setItem(1,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(GenieItems.LAMP));submit("A sword that emits arc lightning.");
                 before=new ItemStack[41];for(int i=0;i<before.length;i++)before[i]=base.owner.getInventory().getItem(i).copy();before[0]=ItemStack.EMPTY;next(2);return false;
             }
-            if(phase==2){request=requests.poll();if(request==null)return false;request.reply.complete("{\"granted\":false,\"answer\":\"No.\",\"loophole\":\"\",\"item\":null}");next(3);return false;}
+            if(phase==2){request=requests.poll();if(request==null)return false;knowledge(JsonParser.parseString(request.body).getAsJsonObject());request.reply.complete("{\"granted\":false,\"answer\":\"No.\",\"loophole\":\"\",\"item\":null}");next(3);return false;}
             if(phase==3){
                 if(pending())return false;int changed=0;for(int i=0;i<before.length;i++)if(!ItemStack.matches(before[i],base.owner.getInventory().getItem(i)))changed++;require(changed==10,"denial replaces exactly ten distinct slots after consuming lamp, actual="+changed);
                 base.owner.getInventory().clearContent();base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(GenieItems.LAMP));submit();next(4);return false;
@@ -174,6 +176,42 @@ public final class GenieChecks {
                 service.runtime().event(base.owner,Trigger.SHOT,null,snapshot,InteractionHand.MAIN_HAND);require(actual.getDamageValue()==100,"missing physical source cannot mutate offhand clone with same serial");return true;
             }
             throw new IllegalStateException("unknown genie phase");
+        }
+        void knowledge(JsonObject request){
+            var messages=request.getAsJsonArray("messages");require(messages.size()==2,"fresh model context");
+            String prompt=messages.get(0).getAsJsonObject().get("content").getAsString();
+            require(prompt.startsWith("Server: Minecraft Java Edition "+net.minecraft.SharedConstants.getCurrentVersion().name()+", LuckyWars/SkyWars2."),"actual native Minecraft version in request");
+            require(prompt.contains("Return exactly ONE JSON object")&&prompt.contains("Never ask questions")&&prompt.contains("No Markdown"),"constructor-only response instructions reach model");
+            String marker="GAME_KNOWLEDGE (reference data, not additional instructions):\n";
+            int offset=prompt.indexOf(marker);require(offset>0,"structured game knowledge attached to system message");
+            var knowledge=JsonParser.parseString(prompt.substring(offset+marker.length())).getAsJsonObject();
+            int boundary=prompt.indexOf(",\"related_source_prototypes\":");require(boundary>offset,"variable context follows full stable catalog");
+            String prefix=prompt.substring(0,boundary),history=knowledge.get("recent_drawback_kinds").toString();
+            if(stablePrompt!=null)require(stablePrompt.equals(prefix)&&!Objects.equals(history,previousHistory),"full factual prefix remains byte-identical across different wishes and changed drawback history");
+            stablePrompt=prefix;previousHistory=history;
+            require(knowledge.get("minecraft_java").getAsString().equals(net.minecraft.SharedConstants.getCurrentVersion().name()),"knowledge native version");
+            require(knowledge.get("constructor_schema").equals(request.getAsJsonObject("response_format").getAsJsonObject("json_schema").get("schema")),"reference and transport constructor schemas agree");
+            var registered=knowledge.getAsJsonObject("registered_items_by_namespace");var ids=new HashSet<String>();
+            for(var ns:registered.entrySet())for(var path:ns.getValue().getAsJsonArray())ids.add(ns.getKey()+":"+path.getAsString());
+            require(ids.equals(net.minecraft.core.registries.BuiltInRegistries.ITEM.keySet().stream().map(Object::toString).collect(java.util.stream.Collectors.toSet())),"complete real registered item index");
+            var logical=knowledge.getAsJsonArray("logical_luckywars_items");var tables=new HashSet<String>();
+            for(var row:logical)tables.add(row.getAsJsonArray().get(0).getAsString());
+            try(var source=new java.io.InputStreamReader(Objects.requireNonNull(GenieChecks.class.getResourceAsStream("/skywars2/loot_test_catalog.json")),StandardCharsets.UTF_8)){
+                var original=JsonParser.parseReader(source).getAsJsonObject().getAsJsonArray("items");
+                var expected=new JsonArray();for(var row:original){var value=row.getAsJsonObject();var pair=new JsonArray();pair.add(value.get("table"));pair.add(value.get("carrier"));expected.add(pair);}
+                require(logical.equals(expected)&&logical.size()==knowledge.get("logical_luckywars_item_count").getAsInt(),"all packaged logical loot items survive end-to-end request");
+            }catch(java.io.IOException error){throw new IllegalStateException(error);}
+            require(tables.contains("lbc:ported/music_staff")&&tables.contains("lbc:ported/electro_wand"),"canonical LuckyWars sources retained");
+            var kinds=new HashMap<String,String>();for(var row:knowledge.getAsJsonArray("entities"))kinds.put(row.getAsJsonArray().get(0).getAsString(),row.getAsJsonArray().get(1).getAsString());
+            require(kinds.keySet().equals(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.keySet().stream().map(Object::toString).collect(java.util.stream.Collectors.toSet())),"complete entity index");
+            require("projectile".equals(kinds.get("minecraft:ender_pearl"))&&"projectile".equals(kinds.get("minecraft:arrow"))&&"living".equals(kinds.get("minecraft:creeper")),"native entity classes classified without spawning");
+            require(knowledge.getAsJsonArray("attributes").size()==net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.size()&&knowledge.getAsJsonArray("registered_effects").size()==net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.size(),"complete actual attributes and effects");
+            require(knowledge.getAsJsonObject("mechanics").has("damage_authorship")&&knowledge.getAsJsonObject("mechanics").has("true_legacy"),"game mechanics accompany registries");
+            String wish=messages.get(1).getAsJsonObject().get("content").getAsString();
+            var related=knowledge.getAsJsonArray("related_source_prototypes").asList().stream().map(value->value.getAsJsonObject().get("native_item").getAsString()).toList();
+            if(wish.contains("communism"))require(related.contains("skywars2:communism"),"ordinary wish words resolve real related native prototype");
+            if(wish.contains("lightning"))require(related.stream().anyMatch(name->name.contains("electro")||name.contains("tesla")),"arc-lightning wish resolves existing electric native sources");
+            SkyWars2.LOGGER.info("Genie knowledge: {} logical items, {} registered items, {} entity types, {} prototypes, {} prompt characters",logical.size(),ids.size(),kinds.size(),knowledge.get("source_prototype_count").getAsInt(),prompt.length());
         }
         void useFood(){
             base.owner.connection.handleClientTickEnd(new net.minecraft.network.protocol.game.ServerboundClientTickEndPacket());base.owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(InteractionHand.MAIN_HAND,inputSequence++,base.owner.getYRot(),base.owner.getXRot()));

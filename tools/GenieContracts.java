@@ -10,6 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** Real loopback HTTP, no provider credentials, Minecraft or external service required. */
 public final class GenieContracts {
+    static GenieModelClient offline(GenieModelClient.Options options){
+        return new GenieModelClient(options,"fake-secret",(wish,recent)->"Offline transport contract. Return only constructor JSON.");
+    }
     static void require(boolean condition,String why){if(!condition)throw new AssertionError(why);}
     static void rejected(Runnable action,String why){try{action.run();throw new AssertionError(why);}catch(IllegalArgumentException expected){}}
     static JsonObject accepted(){return JsonParser.parseString("""
@@ -58,16 +61,16 @@ public final class GenieContracts {
         });server.start();
         String base="http://127.0.0.1:"+server.getAddress().getPort();
         try{
-            for(String mode:List.of("ok","deny","bad","large","limit"))try(var client=new GenieModelClient(new GenieModelClient.Options(URI.create(base+"/"+mode),"test-model",5),"fake-secret")){
+            for(String mode:List.of("ok","deny","bad","large","limit"))try(var client=offline(new GenieModelClient.Options(URI.create(base+"/"+mode),"test-model",5))){
                 var job=client.request("Make a healing sword "+mode,List.of(GenieBlueprint.TwistKind.RECOIL));
                 if(mode.equals("ok"))require(job.future().get(5,TimeUnit.SECONDS).granted(),"valid item response");
                 else if(mode.equals("deny"))require(!job.future().get(5,TimeUnit.SECONDS).granted(),"denial response");
                 else {var error=failure(job.future());require(error instanceof GenieModelClient.ModelFailure,"typed HTTP failure");if(mode.equals("limit")){var f=(GenieModelClient.ModelFailure)error;require(f.retrySeconds()==12&&f.kind()==GenieModelClient.FailureKind.RATE_LIMIT,"rate limit metadata");}}
             }
-            try(var client=new GenieModelClient(new GenieModelClient.Options(URI.create(base+"/cancel"),"test-model",5),"fake-secret")){
+            try(var client=offline(new GenieModelClient.Options(URI.create(base+"/cancel"),"test-model",5))){
                 var pending=client.request("Cancel this wish",List.of());require(arrived.await(5,TimeUnit.SECONDS),"cancellable streaming request actually arrived");pending.close();require(pending.future().isCancelled(),"cancellation did not complete");
             }
-            try(var client=new GenieModelClient(new GenieModelClient.Options(URI.create(base+"/timeout"),"test-model",5),"fake-secret")){
+            try(var client=offline(new GenieModelClient.Options(URI.create(base+"/timeout"),"test-model",5))){
                 require(failure(client.request("Timeout this wish",List.of()).future())!=null,"streaming body timeout");
             }
             require(calls.get()==7,"unexpected retry or missing HTTP request");System.out.println("GENIE_CONTRACTS_PASS schema, bounds, speech, fresh HTTP contexts, deny, invalid/oversized replies, rate limit, stream cancellation, deadline");

@@ -16,6 +16,10 @@ public final class AttributePolicy {
     public record Bounds(double minimum,double maximum){}
     public static Bounds bounds(Attribute attribute,double nativeMinimum,double nativeMaximum){
         if(!VanillaExpansionRules.enabled())return new Bounds(nativeMinimum,nativeMaximum);
+        return expandedBounds(attribute,nativeMinimum,nativeMaximum);
+    }
+    /** Stable normal-game rules for descriptions and off-thread constructor metadata. */
+    public static Bounds expandedBounds(Attribute attribute,double nativeMinimum,double nativeMaximum){
         var id=BuiltInRegistries.ATTRIBUTE.getKey(attribute);
         if(id==null||!id.getNamespace().equals("minecraft"))return new Bounds(nativeMinimum,nativeMaximum);
         String path=id.getPath();
