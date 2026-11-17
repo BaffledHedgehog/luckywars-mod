@@ -8,6 +8,8 @@ import me.skywars2.game.genie.script.*;
 import net.minecraft.commands.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
@@ -59,7 +61,45 @@ final class GenieWorldChecks {
             rejected(()->host.validateCommand("execute run reload"),"execute wrapper bypassed reload guard");
             rejected(()->host.validateCommand("return run reload"),"return wrapper bypassed reload guard");
             rejected(()->host.validateCommand("datapack disable vanilla"),"pack reload accepted");
+            rejected(()->host.validateCommand("skywars reloadconfig"),"mod configuration reload accepted");
+            rejected(()->host.validateCommand("execute as @s run sw stop"),"match administration alias accepted inside execute");
+            rejected(()->host.validateCommand("return run function lbc:test"),"arbitrary server function accepted");
+            rejected(()->host.validateCommand("execute if function lbc:test"),"execute condition invoked an arbitrary server function");
+            rejected(()->host.validateCommand("data merge storage skywars2:test {witness:1b}"),"external data storage write accepted");
+            rejected(()->host.validateCommand("setblock ~ ~ ~ minecraft:command_block"),"operator block creation accepted");
+            rejected(()->host.validateCommand("give @s minecraft:command_block"),"operator control item creation accepted");
+            rejected(()->host.validateCommand("summon minecraft:command_block_minecart"),"operator vehicle creation accepted");
             host.validateCommand("datapack list");
+            host.validateCommand("execute if entity @s run give @s minecraft:stick");
+            host.validateCommand("summon minecraft:pig");
+
+            Vec3 launchSpot=Vec3.atBottomCenterOf(start.offset(6,0,0));
+            var motion=new Vec3(.1,.2,.9);
+            var uuid=complete(host,queued(host,"entity.launch",new JsonPrimitive("minecraft:creeper"),vector(launchSpot),vector(motion),new JsonPrimitive(20)));
+            var spawned=base.level.getEntity(UUID.fromString(uuid.getAsString()));
+            require(spawned instanceof Creeper&&spawned.getDeltaMovement().equals(motion)&&spawned.position().equals(launchSpot),"the real creeper factory preserves explicit origin and initial velocity");
+            base.own(spawned);
+            try {
+                var cause=game.items().spellSources().source(spawned);
+                require(cause!=null&&cause.emitter().equals(spawned.getUUID())&&cause.author().equals(base.owner.getUUID()),"native body is the source, player retains statistical credit");
+                var arrows=complete(host,queued(host,"entity.launch",new JsonPrimitive("minecraft:arrow"),vector(launchSpot.add(0,3,0)),vector(motion),new JsonPrimitive(19)));
+                var arrow=base.level.getEntity(UUID.fromString(arrows.getAsString()));
+                require(arrow instanceof net.minecraft.world.entity.projectile.arrow.Arrow a&&a.getOwner()==base.owner
+                    &&a.getDeltaMovement().distanceTo(motion)<.00001,"an actual native arrow retains the owner and exact initial direction");
+                base.own(arrow);base.discard(arrow);
+            } finally { base.discard(spawned); }
+
+            require(GenieNative.grimoires().containsKey(net.minecraft.resources.Identifier.parse("skywars2:tesla_instant_grimoire")),"real Tesla grimoire is indexed by the engine");
+            var oldSpeed=base.owner.getEffect(MobEffects.SPEED);
+            base.owner.removeEffect(MobEffects.SPEED);
+            try {
+                var cast=complete(host,queued(host,"lbc.grimoire",new JsonPrimitive("skywars2:badwiki_23_grimoire")));
+                var speed=base.owner.getEffect(MobEffects.SPEED);
+                require(cast.getAsBoolean()&&speed!=null&&speed.getAmplifier()==0&&speed.getDuration()==1200,"registered grimoire runs its exact native effect and duration");
+            } finally {
+                base.owner.removeEffect(MobEffects.SPEED);
+                if(oldSpeed!=null)base.owner.addEffect(oldSpeed);
+            }
 
             var grass=start.offset(2,0,0);var slab=start.offset(4,0,0);var stone=start.offset(10,0,0);
             base.set(grass,Blocks.SHORT_GRASS.defaultBlockState());base.set(slab,Blocks.STONE_SLAB.defaultBlockState());base.set(stone,Blocks.STONE.defaultBlockState());

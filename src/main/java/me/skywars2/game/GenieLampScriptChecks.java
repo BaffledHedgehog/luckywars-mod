@@ -42,6 +42,9 @@ final class GenieLampScriptChecks implements AutoCloseable {
             JsonObject facts = ScriptJson.parse(knowledge);
             require(facts.getAsJsonArray("logical_luckywars_items").size() > 1000 && !facts.has("constructor_schema"),
                 "the new request carries the actual index without the old rule budget");
+            require(facts.getAsJsonArray("script_grimoires").contains(new com.google.gson.JsonPrimitive("skywars2:tesla_instant_grimoire"))
+                && facts.getAsJsonArray("script_launchable_entity_types").contains(new com.google.gson.JsonPrimitive("minecraft:creeper")),
+                "the model receives the executable definitions of real factory types and spells");
             var response = new CompletableFuture<GenieScriptModel.Observation>();
             requests.add(new Call(ScriptJson.parse(contract), response));
             return response.get(8, TimeUnit.SECONDS);

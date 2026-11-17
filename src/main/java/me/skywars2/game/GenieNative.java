@@ -1,7 +1,9 @@
 package me.skywars2.game;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -10,6 +12,12 @@ public final class GenieNative {
     private GenieNative(){}
     public static boolean stopped(GameController game,ServerPlayer player){return game.items().wands().inputTimeStopped(player);}
     public static boolean enemy(GameController game,ServerPlayer player,Entity entity){return game.items().wands().projectileTarget(player,entity,true);}
+    public static java.util.Map<Identifier,Integer> grimoires(){return LbcLibrarySpells.scriptSpells();}
+    public static boolean grimoire(GameController game,ServerPlayer player,Identifier id,InteractionHand hand){
+        Integer spell=grimoires().get(id);
+        if(spell==null)throw new IllegalArgumentException("unknown native grimoire");
+        return LbcLibrarySpells.admitted(game,player,hand)&&LbcLibrarySpells.cast(game,player,hand,spell);
+    }
     public static net.minecraft.world.phys.BlockHitResult wall(ServerLevel level,net.minecraft.world.phys.Vec3 from,net.minecraft.world.phys.Vec3 to){
         return LbcTerra.shapeHit(level,from,to,(pos,state)->state.getCollisionShape(level,pos));
     }

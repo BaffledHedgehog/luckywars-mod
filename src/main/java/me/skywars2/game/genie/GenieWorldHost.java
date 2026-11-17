@@ -18,7 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.*;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.ParseResults;
-import com.mojang.brigadier.tree.CommandNode;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
 
 /** Real world API for item code. Call/drain on the game thread; no network worker touches a level. */
 public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
@@ -28,6 +29,8 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         "world.select",new ScriptProgram.Signature(1,1),
         "world.raycast",new ScriptProgram.Signature(4,4),
         "entity.info",new ScriptProgram.Signature(1,1),
+        "entity.launch",new ScriptProgram.Signature(1,4),
+        "lbc.grimoire",new ScriptProgram.Signature(1,2),
         "math.random",new ScriptProgram.Signature(0,2),
         "time.tick",new ScriptProgram.Signature(0,0));
     private final GameController game;
@@ -122,6 +125,8 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "world.select"->select(text(values.getFirst()));
             case "world.raycast"->ray(vector(values.get(0)),vector(values.get(1)),number(values.get(2)),bool(values.get(3)));
             case "entity.info"->info(find(text(values.getFirst())));
+            case "entity.launch"->launch(values);
+            case "lbc.grimoire"->grimoire(values);
             default->throw new IllegalArgumentException("unknown queued world API");
         };
     }
@@ -139,20 +144,31 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         try{Commands.validateParseResults(parsed);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException invalid){
             throw new IllegalArgumentException(invalid.getRawMessage().getString());
         }
-        // Vanilla permits /reload at GAMEMASTER too. Item code has no reload/restart lifecycle.
-        // Inspect the parsed redirect chain, not text prefixes: execute/return wrappers are included.
-        var forbidden=Collections.newSetFromMap(new IdentityHashMap<CommandNode<CommandSourceStack>,Boolean>());
-        var root=dispatcher.getRoot();
-        for(String name:List.of("reload","stop")){var node=root.getChild(name);if(node!=null)forbidden.add(node);}
-        var packs=root.getChild("datapack");
-        if(packs!=null)for(String name:List.of("enable","disable")){var node=packs.getChild(name);if(node!=null)forbidden.add(node);}
-        for(var context=parsed.getContext();context!=null;context=context.getChild())for(var part:context.getNodes()){
-            var node=part.getNode();
-            for(var excluded:forbidden)if(node==excluded||node.getRedirect()==excluded
-                    ||node.getCommand()!=null&&node.getCommand()==excluded.getCommand())
-                throw new IllegalArgumentException("item commands cannot reload packs or control the server lifecycle");
-        }
+        GenieCommandAccess.check(parsed,dispatcher.getRoot());
         return parsed;
+    }
+
+    private JsonElement launch(List<JsonElement> values) {
+        var type=BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(text(values.getFirst())))
+            .orElseThrow(()->new IllegalArgumentException("unknown entity type")).value();
+        Vec3 position=values.size()>=2&&!values.get(1).isJsonNull()?vector(values.get(1)):null;
+        Vec3 velocity=values.size()>=3&&!values.get(2).isJsonNull()?vector(values.get(2)):owner.getLookAngle().scale(1.6);
+        int life=200;
+        if(values.size()==4){
+            if(!values.get(3).isJsonPrimitive()||!values.get(3).getAsJsonPrimitive().isNumber())throw new IllegalArgumentException("integer lifetime expected");
+            life=values.get(3).getAsBigDecimal().intValueExact();
+        }
+        var entity=game.items().genie().runtime().launchNative(owner,captured,type,position,velocity,life,0);
+        return entity==null?JsonNull.INSTANCE:new JsonPrimitive(entity.getUUID().toString());
+    }
+
+    private JsonElement grimoire(List<JsonElement> values) {
+        InteractionHand hand=values.size()==1?InteractionHand.MAIN_HAND:switch(text(values.get(1))){
+            case "mainhand"->InteractionHand.MAIN_HAND;
+            case "offhand"->InteractionHand.OFF_HAND;
+            default->throw new IllegalArgumentException("unknown grimoire hand");
+        };
+        return new JsonPrimitive(GenieNative.grimoire(game,owner,Identifier.parse(text(values.getFirst())),hand));
     }
     private JsonObject command(String line){
         var result=new JsonObject();var output=new JsonArray();int[] totals={0,0};

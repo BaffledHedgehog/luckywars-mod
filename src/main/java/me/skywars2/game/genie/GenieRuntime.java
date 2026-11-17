@@ -231,24 +231,42 @@ public final class GenieRuntime {
         GenieNative.mark(game,shot);p.level().addFreshEntity(shot);loaded(shot);
     }
     private void launch(ServerPlayer owner,ItemStack weapon,Rule rule){
-        var level=owner.level();var type=BuiltInRegistries.ENTITY_TYPE.get(id(rule.id())).orElseThrow().value();
-        var body=type.create(level,EntitySpawnReason.TRIGGERED);if(body==null)return;
-        var look=owner.getLookAngle();var origin=owner.getEyePosition();
-        if(body instanceof Mob)origin=origin.add(look.scale((owner.getBbWidth()+body.getBbWidth())*.5+.1)).add(0,-body.getBbHeight()*.5,0);
+        var type=BuiltInRegistries.ENTITY_TYPE.get(id(rule.id())).orElseThrow().value();
+        launchNative(owner,weapon,type,null,owner.getLookAngle().scale(rule.amount()),rule.ticks()==0?200:rule.ticks(),1);
+    }
+
+    Entity launchNative(ServerPlayer owner, ItemStack weapon, EntityType<?> type, Vec3 requestedOrigin, Vec3 velocity, int lifetime, float spread) {
+        if (!GenieEntities.launchable(type)) throw new IllegalArgumentException("entity has no standalone mob or projectile factory");
+        double speed = velocity.length();
+        if (!Double.isFinite(speed) || speed > Float.MAX_VALUE || lifetime < 1)
+            throw new IllegalArgumentException("motion or lifetime outside native representation");
+        var level=owner.level();
+        var body=type.create(level,EntitySpawnReason.TRIGGERED);if(body==null)return null;
+        Vec3 origin=requestedOrigin;
+        if(origin==null){
+            origin=owner.getEyePosition();
+            if(body instanceof Mob)origin=origin.add(owner.getLookAngle().scale((owner.getBbWidth()+body.getBbWidth())*.5+.1)).add(0,-body.getBbHeight()*.5,0);
+        }
+        if(Math.abs(origin.x)>=30_000_000||Math.abs(origin.z)>=30_000_000||origin.y<level.getMinY()||origin.y>level.getMaxY())return null;
         body.setPos(origin);
         if(level.isOutsideBuildHeight(body.blockPosition())||!level.hasChunkAt(body.blockPosition())
-                ||!level.getWorldBorder().isWithinBounds(body.getBoundingBox())||!level.noCollision(body,body.getBoundingBox()))return;
+                ||!level.getWorldBorder().isWithinBounds(body.getBoundingBox())||!level.noCollision(body,body.getBoundingBox()))return null;
         if(body instanceof Projectile shot){
-            shot.setOwner(owner);shot.shoot(look.x,look.y,look.z,(float)rule.amount(),1);
+            shot.setOwner(owner);
+            Vec3 direction=speed==0?owner.getLookAngle():velocity.scale(1/speed);
+            shot.shoot(direction.x,direction.y,direction.z,(float)speed,spread);
             if(shot instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow)arrow.pickup=net.minecraft.world.entity.projectile.arrow.AbstractArrow.Pickup.DISALLOWED;
-        }else{body.setDeltaMovement(look.scale(rule.amount()));body.syncVelocity=true;}
-        body.entityTags().add(SHOT_LIFE+Math.max(1,rule.ticks()==0?200:rule.ticks()));
+        }else{body.setDeltaMovement(velocity);body.syncVelocity=true;}
+        body.entityTags().add(SHOT_LIFE+lifetime);
         GenieNative.mark(game,body);GenieNative.credit(game,body,owner);
-        if(body instanceof Mob mob){GenieNative.initialize(game,mob);if(!level.noCollision(body,body.getBoundingBox())){GenieNative.rejected(game,body);return;}}
+        if(body instanceof Mob mob){GenieNative.initialize(game,mob);if(!level.noCollision(body,body.getBoundingBox())){GenieNative.rejected(game,body);return null;}}
         if(level.addFreshEntity(body)){
             if(body instanceof Projectile shot)shot.applyOnProjectileSpawned(level,weapon);
             loaded(body);
-        }else GenieNative.rejected(game,body);
+            return body;
+        }
+        GenieNative.rejected(game,body);
+        return null;
     }
     private static boolean owned(ServerPlayer p,ItemStack item){
         if(item.isEmpty())return false;if(p.containerMenu.getCarried()==item)return true;

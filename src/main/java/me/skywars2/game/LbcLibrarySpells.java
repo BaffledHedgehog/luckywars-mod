@@ -65,6 +65,16 @@ public final class LbcLibrarySpells {
     public static void register(){ }
     static List<Definition> definitions(){return BOOKS.values().stream().filter(d->d.spellId()<LbcExtraGrimoires.FIRST).toList();}
     static List<Definition> extraDefinitions(){return BOOKS.values().stream().filter(d->d.spellId()>=LbcExtraGrimoires.FIRST).toList();}
+    private static final class ScriptSpells {
+        static final Map<Identifier,Integer> BY_ITEM = collect();
+        private static Map<Identifier,Integer> collect() {
+            Map<Identifier,Integer> ids = new LinkedHashMap<>();
+            for (var book : BOOKS.values()) if (!LbcExtraGrimoires.retired(book.spellId()))
+                ids.put(BuiltInRegistries.ITEM.getKey(book.item()), book.spellId());
+            return Collections.unmodifiableMap(ids);
+        }
+    }
+    static Map<Identifier,Integer> scriptSpells() { return ScriptSpells.BY_ITEM; }
     static LbcEnderWiki.Effect fixedEffect(int id){return WIKI.get(id);}
     static Definition kind(ItemStack stack){
         if(stack.isEmpty())return null;var data=LbcFartus.data(stack);

@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import me.skywars2.game.AttributePolicy;
+import me.skywars2.game.GenieNative;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
@@ -65,11 +66,12 @@ public final class GenieKnowledge {
         }
         root.addProperty("logical_luckywars_item_count",logical.size());root.addProperty("logical_item_format","[canonical loot table, native item carrier]; repeated tables can contain distinct logical slots");root.add("logical_luckywars_items",logical);
 
-        var entities=new JsonArray();var launchable=new JsonArray();
+        var entities=new JsonArray();var launchable=new JsonArray();var standaloneTypes=new JsonArray();
         for(var id:BuiltInRegistries.ENTITY_TYPE.keySet().stream().sorted().toList()){
             var type=BuiltInRegistries.ENTITY_TYPE.getValue(id);var row=new JsonArray();row.add(id.toString());
             row.add(GenieEntities.category(type));entities.add(row);
             if(GenieEntities.launchable(type)){
+                standaloneTypes.add(id.toString());
                 var limits=new JsonObject();limits.addProperty("id",id.toString());limits.addProperty("minimum_cooldown",GenieEntities.minimumCooldown(type));
                 limits.addProperty("native_power",GenieEntities.power(type));launchable.add(limits);
             }
@@ -113,6 +115,9 @@ public final class GenieKnowledge {
         root.addProperty("source_prototype_count",profiles.size());String encoded=root.toString();
         root.remove("constructor_schema");root.remove("native_entity_launch");root.remove("native_entity_launch_contract");
         root.addProperty("index_contract", "Registry IDs and source prototypes are reference data. Use only operations named in this request's attached item program contract.");
+        root.add("script_launchable_entity_types",standaloneTypes);
+        root.add("script_grimoires",strings(GenieNative.grimoires().keySet().stream().sorted().map(Object::toString).toList()));
+        root.add("script_gameplay_commands",strings(GenieCommandAccess.commands()));
         String scriptEncoded=root.toString();
         return new Snapshot(encoded.substring(0,encoded.length()-1),scriptEncoded.substring(0,scriptEncoded.length()-1),List.copyOf(profiles));
     }
