@@ -29,8 +29,7 @@ public final class CosmeticNameMixin {
             var game=SkyWars2.game();if(game==null)return;
             var player=(ServerPlayer)(Object)this;
             Component original=ci.getReturnValue();
-            var name=original==null?player.getDisplayName():game.items().cosmetics().displayName(player,original);
-            ci.setReturnValue(name);
+            ci.setReturnValue(game.items().cosmetics().tabName(player,original));
         }
     }
 }

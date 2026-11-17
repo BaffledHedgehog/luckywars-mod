@@ -1478,6 +1478,7 @@ public final class GameChecks {
                                 case "summon-orders" -> { SummonOrderChecks.run(game); return; }
                                 case "guardian-beams" -> { GuardianBeamChecks.run(game); return; }
                                 case "cast-achievements" -> { CastAchievementChecks.run(game); return; }
+                                case "player-names" -> { PlayerNameChecks.run(game); return; }
                                 case "summon-orders-stop-probe" -> { SummonOrderChecks.stopProbe(game); return; }
                                 case "summon-orders-cleanup" -> { SummonOrderChecks.cleanup(game); return; }
                                 case "native-melee" -> { NativeMeleeChecks.run(game); return; }
@@ -1956,6 +1957,7 @@ public final class GameChecks {
         GenieChecks.tick(game);
         GuardianBeamChecks.tick(game);
         CastAchievementChecks.tick(game);
+        PlayerNameChecks.tick(game);
         SynchroRankedChecks.tick(game);
         TikTokBulkImportChecks.tick(game);
         SmokeEndingChecks.tick(game);

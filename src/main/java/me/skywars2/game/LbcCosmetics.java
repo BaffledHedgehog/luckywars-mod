@@ -7,7 +7,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
 import net.minecraft.sounds.*;
@@ -97,12 +96,15 @@ public final class LbcCosmetics {
         int id=choice(player,Kind.SUFFIX);
         return id==0?original:original.copy().append(suffix(id));
     }
+    /** A queued PlayerInfo packet must not keep live mutable team text. */
+    public Component tabName(ServerPlayer player,Component original){
+        return LbcNameplates.frozen(original==null?player.getDisplayName():displayName(player,original));
+    }
     /** Native TAB entries cache their component, so publish after selection, join and rewind. */
     public void refreshSuffixes(Collection<ServerPlayer> players){
         if(players.isEmpty())return;
         nameplates.refresh(players);
-        var packet=new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),players);
-        game.server().getPlayerList().broadcastAll(packet);
+        TabPresentation.refreshNames(game.server(),players);
     }
     /** Remove only the old source cosmetic projection; preserve unrelated team formatting. */
     public void startSuffixes(Collection<ServerPlayer> participants,long seed){

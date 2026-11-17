@@ -4,6 +4,7 @@ import java.util.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.protocol.game.ClientboundTabListPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +19,8 @@ final class TabPresentation {
     private static final int[] NUMBER_ADVANCES=numberAdvances();
     private static final int NUMBER_CELL=Arrays.stream(NUMBER_ADVANCES).max().orElseThrow();
     private static final Map<ServerGamePacketListenerImpl,Component> HEADERS=new IdentityHashMap<>();
+    private static final Map<UUID,Component> NAMES=new HashMap<>();
+    private static boolean namesDirty=true;
     private static MinecraftServer owner;private static long sampled;private static Component header;
     private TabPresentation(){}
     private static int[] advances(){
@@ -56,14 +59,38 @@ final class TabPresentation {
     }
     static void tick(MinecraftServer server){
         if(owner!=server){stop();owner=server;}
-        long now=System.nanoTime();if(header==null||now-sampled>=1_000_000_000L){
+        long now=System.nanoTime();boolean resample=header==null||now-sampled>=1_000_000_000L;
+        if(resample){
             sampled=now;double target=server.tickRateManager().isFrozen()?0:server.tickRateManager().tickrate();double value=ServerTickMetrics.tps(60_000_000_000L,now,target);
             var color=target<=0?ChatFormatting.GRAY:value>=target*.9?ChatFormatting.GREEN:value>=target*.75?ChatFormatting.YELLOW:ChatFormatting.RED;
             header=Component.literal("TPS: ").withStyle(ChatFormatting.AQUA).append(Component.literal(String.format(Locale.ROOT,"%.1f",value)).withStyle(color));
         }
         HEADERS.keySet().removeIf(c->c.player.connection!=c||server.getPlayerList().getPlayer(c.player.getUUID())!=c.player);
         for(var player:server.getPlayerList().getPlayers()){var c=player.connection;if(c!=null&&c.hasClientLoaded()&&!header.equals(HEADERS.get(c))){c.send(new ClientboundTabListPacket(header,Component.empty()));HEADERS.put(c,header);}}
+        // Team mutations can happen many times during one round transition. Publish
+        // their final names together; the slow fallback also catches external aliases.
+        if(namesDirty||resample){
+            namesDirty=false;var players=server.getPlayerList().getPlayers();
+            var present=new HashSet<UUID>();for(var player:players)present.add(player.getUUID());
+            NAMES.keySet().retainAll(present);publishNames(server,players,false);
+        }
     }
-    static void forget(ServerPlayer player){HEADERS.keySet().removeIf(c->c.player==player);}
-    static void stop(){HEADERS.clear();owner=null;sampled=0;header=null;}
+    static void namesChanged(){namesDirty=true;}
+    static void refreshNames(MinecraftServer server,Collection<ServerPlayer> players){
+        if(owner!=server){stop();owner=server;}
+        publishNames(server,players,true);
+    }
+    private static void publishNames(MinecraftServer server,Collection<ServerPlayer> players,boolean force){
+        var changed=new ArrayList<ServerPlayer>();
+        for(var player:new LinkedHashSet<>(players)){
+            if(player.connection==null)continue;var id=player.getUUID();var name=player.getTabListDisplayName();
+            if(force||!NAMES.containsKey(id)||!Objects.equals(NAMES.get(id),name)){
+                NAMES.put(id,name==null?null:LbcNameplates.frozen(name));changed.add(player);
+            }
+        }
+        if(!changed.isEmpty())server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(
+                EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),changed));
+    }
+    static void forget(ServerPlayer player){HEADERS.keySet().removeIf(c->c.player==player);NAMES.remove(player.getUUID());namesDirty=true;}
+    static void stop(){HEADERS.clear();NAMES.clear();namesDirty=true;owner=null;sampled=0;header=null;}
 }

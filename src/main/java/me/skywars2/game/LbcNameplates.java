@@ -37,9 +37,18 @@ public final class LbcNameplates {
     /** Called once at the canonical mutation boundary, before ServerScoreboard broadcasts. */
     public static void changed(Scoreboard board){
         var game=SkyWars2.game();if(game==null||game.server().getScoreboard()!=board||!game.server().isSameThread())return;
+        TabPresentation.namesChanged();
         var service=game.items().cosmetics().nameplates();if(service!=null)service.refresh(List.of());
     }
-    private static Component frozen(Component component){var copy=component.plainCopy().setStyle(component.getStyle());for(var child:component.getSiblings())copy.append(frozen(child));return copy;}
+    static Component frozen(Component component){
+        var copy=component.plainCopy();
+        if(component.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents translated){
+            var args=translated.getArgs().clone();
+            for(int i=0;i<args.length;i++)if(args[i] instanceof Component child)args[i]=frozen(child);
+            copy=Component.translatableWithFallback(translated.getKey(),translated.getFallback(),args);
+        }
+        copy.setStyle(component.getStyle());for(var child:component.getSiblings())copy.append(frozen(child));return copy;
+    }
     private static ClientboundSetPlayerTeamPacket.Parameters freeze(PlayerTeam team){
         return new ClientboundSetPlayerTeamPacket.Parameters(frozen(team.getDisplayName()),frozen(team.getPlayerPrefix()),frozen(team.getPlayerSuffix()),team.getNameTagVisibility(),team.getCollisionRule(),team.getColor(),team.packOptions());
     }
