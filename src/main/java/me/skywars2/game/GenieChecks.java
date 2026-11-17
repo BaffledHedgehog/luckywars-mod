@@ -28,7 +28,7 @@ public final class GenieChecks {
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.begin();}catch(Throwable error){running=null;f.close();throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS genie (real HTTP, dialog nonce, overstack lamp conservation, movable pending lamp, Q/cursor/chest/frame protection, exact reward slot, native lethal hit, denial10 distinct pockets, reset cancellation/late reply, TimeStop-safe HTTP completion, real native-arrow control and snowball/fireball8HP impacts, native consumed/broken source identity; queued native commands/selectors/collision rays and unresident guards)");}
+        try{if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS genie (real HTTP, dialog nonce, overstack lamp conservation, movable pending lamp, Q/cursor/chest/frame protection, exact reward slot, native lethal hit, denial10 distinct pockets, reset cancellation/late reply, TimeStop-safe HTTP completion, real native-arrow control and snowball/fireball8HP impacts, native consumed/broken source identity, eight native THROW carriers, used-hand and same-serial clone isolation; queued native commands/selectors/collision rays and unresident guards)");}
         catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL genie",error);}
     }
     private record Request(String body,CompletableFuture<String> reply){}
@@ -57,7 +57,7 @@ public final class GenieChecks {
         boolean pending(){return !((Map<?,?>)WoolBucketChecks.read(service,"wishes")).isEmpty();}
         static GenieBlueprint plan(){return new GenieBlueprint("A generous sword","Heals the wielder on every accepted sword hit.","iron_sword",1,
                 List.of(new Rule(Trigger.HIT,Target.SELF,Condition.ALWAYS,Effect.HEAL,"",4,0,0,5,1)),List.of(),new Twist(TwistKind.HUNGER_PRICE,1));}
-        String stablePrompt,previousHistory;GenieLaunchChecks launches;GenieScriptChecks scripts;GenieLampScriptChecks scriptedLamp;
+        String stablePrompt,previousHistory;GenieLaunchChecks launches;GenieScriptChecks scripts;GenieLampScriptChecks scriptedLamp;GenieThrowChecks throwsCheck;
         void submit(){submit("A sword that heals me whenever I hit someone, with communism visuals.");}
         void submit(String wish){
             base.owner.closeContainer();base.client.acknowledge();base.owner.connection.handleClientTickEnd(new net.minecraft.network.protocol.game.ServerboundClientTickEndPacket());
@@ -185,7 +185,11 @@ public final class GenieChecks {
                 try{scriptedLamp=new GenieLampScriptChecks(game,base);}catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
                 scriptedLamp.submit();next(12);return false;
             }
-            if(phase==12)return scriptedLamp.tick();
+            if(phase==12){
+                if(!scriptedLamp.tick())return false;
+                throwsCheck=new GenieThrowChecks(game,base);next(13);return false;
+            }
+            if(phase==13)return throwsCheck.tick();
             throw new IllegalStateException("unknown genie phase");
         }
         void knowledge(JsonObject request){

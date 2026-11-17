@@ -110,6 +110,27 @@ public final class GenieScriptRuntime implements AutoCloseable {
             if(moved!=null){moved=null;break;}moved=candidate;
         }
         if(moved!=null){bindings.remove(moved.item);moved.item=item;moved.detached=detached;bindings.put(item,moved);return moved;}
+        return createContext(owner,item,detached);
+    }
+
+    private Context exactContext(ServerPlayer owner,ItemStack physical,ItemStack captured){
+        String code=GenieScriptItem.code(captured),serial=GenieScriptItem.serial(captured);
+        boolean attached=owned(owner,physical)&&code.equals(GenieScriptItem.code(physical))
+                &&serial.equals(GenieScriptItem.serial(physical));
+        var bound=bindings.get(physical);
+        if(bound!=null&&bound.owner.equals(owner.getUUID())&&bound.code.equals(code)&&bound.serial.equals(serial)){
+            if(!attached){
+                bindings.remove(physical,bound);
+                bound.item=captured;
+                bound.detached=true;
+                bindings.put(captured,bound);
+            }
+            return bound;
+        }
+        return createContext(owner,attached?physical:captured,!attached);
+    }
+
+    private Context createContext(ServerPlayer owner,ItemStack item,boolean detached){
         var created=new Context(owner,game.items().epoch(),item,repository().load(GenieScriptItem.code(item)),detached);
         track(created);
         contexts.addLast(created);bindings.put(item,created);return created;
@@ -207,29 +228,43 @@ public final class GenieScriptRuntime implements AutoCloseable {
             () -> admitted(owner) && context.epoch.equals(game.items().epoch()), () -> context.clock, memory);
     }
     public void input(ServerPlayer owner,LbcTmtTriggers.Input input,Entity target){
-        // The native consumption, mining and volley continuations provide their exact used source.
-        if(input==LbcTmtTriggers.Input.SHOT||input==LbcTmtTriggers.Input.EAT||input==LbcTmtTriggers.Input.MINING)return;
+        // Native continuations supply the exact source of these actions.
+        if(input==LbcTmtTriggers.Input.SHOT||input==LbcTmtTriggers.Input.EAT
+                ||input==LbcTmtTriggers.Input.MINING||input==LbcTmtTriggers.Input.THROW)return;
         event(owner,input==LbcTmtTriggers.Input.RIGHT_CLICK?"USE":input.name(),target,null,null);
     }
     public void event(ServerPlayer owner,String name,Entity target,ItemStack captured,InteractionHand hand){
-        event(owner,name,target,captured,hand,null);
+        event(owner,name,target,captured,hand,null,null);
     }
     public void shot(ServerPlayer owner,ItemStack captured,InteractionHand hand,List<Projectile> volley,boolean replacement){
         if(!GenieScriptItem.matches(captured)||!admitted(owner))return;
         var projectiles=new JsonArray();
-        for(var projectile:volley){
-            var sample=new JsonObject();
-            sample.addProperty("type",BuiltInRegistries.ENTITY_TYPE.getKey(projectile.getType()).toString());
-            sample.add("position",vector(projectile.position()));
-            sample.add("velocity",vector(projectile.getDeltaMovement()));
-            projectiles.add(sample);
-        }
-        event(owner,replacement?GenieScriptItem.REPLACE_SHOT_EVENT:"SHOT",null,captured,hand,projectiles);
+        for(var projectile:volley)projectiles.add(projectileSample(projectile));
+        event(owner,replacement?GenieScriptItem.REPLACE_SHOT_EVENT:"SHOT",null,captured,hand,projectiles,null);
+    }
+    public Runnable captureThrow(ServerPlayer owner,InteractionHand hand,ItemStack physical,ItemStack source,Projectile projectile){
+        mainThread();
+        var captured=source.copyWithCount(1);
+        var sample=projectileSample(projectile);
+        sample.addProperty("id",projectile.getUUID().toString());
+        var projectiles=new JsonArray();projectiles.add(sample);
+        String epoch=game.items().epoch();
+        return ()->{
+            if(epoch.equals(game.items().epoch()))event(owner,"THROW",null,captured,hand,projectiles,physical);
+        };
+    }
+    private static JsonObject projectileSample(Projectile projectile){
+        var sample=new JsonObject();
+        sample.addProperty("type",BuiltInRegistries.ENTITY_TYPE.getKey(projectile.getType()).toString());
+        sample.add("position",vector(projectile.position()));
+        sample.add("velocity",vector(projectile.getDeltaMovement()));
+        return sample;
     }
     private static JsonArray vector(Vec3 vector){
         var value=new JsonArray();value.add(vector.x);value.add(vector.y);value.add(vector.z);return value;
     }
-    private void event(ServerPlayer owner,String name,Entity target,ItemStack captured,InteractionHand hand,JsonArray projectiles){
+    private void event(ServerPlayer owner,String name,Entity target,ItemStack captured,InteractionHand hand,
+                       JsonArray projectiles,ItemStack exactPhysical){
         mainThread();if(dispatching||!EVENTS.contains(name)||!admitted(owner))return;dispatching=true;
         try{
             restorePending(owner.getUUID());
@@ -242,13 +277,14 @@ public final class GenieScriptRuntime implements AutoCloseable {
             for(var source:selected){
                 if(!GenieScriptItem.matches(source))continue;
                 ItemStack physical=source;
-                if(captured!=null){
+                if(captured!=null&&exactPhysical==null){
                     physical=hand==null?ItemStack.EMPTY:owner.getItemInHand(hand);
                     if(!GenieScriptItem.code(source).equals(GenieScriptItem.code(physical))||!GenieScriptItem.serial(source).equals(GenieScriptItem.serial(physical)))physical=source;
                 }
                 Context context=null;
                 try{
-                    context=context(owner,physical,!owned(owner,physical));if(context.failed)continue;
+                    context=exactPhysical==null?context(owner,physical,!owned(owner,physical)):exactContext(owner,exactPhysical,source);
+                    if(context.failed)continue;
                     if(context.program.isDone()&&!context.program.isCompletedExceptionally()&&!context.program.isCancelled()){
                         var program=context.program.join().program();
                         if(program.handler(name)==null)continue;

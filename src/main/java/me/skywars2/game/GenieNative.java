@@ -1,15 +1,29 @@
 package me.skywars2.game;
 
+import me.skywars2.SkyWars2;
+import me.skywars2.game.genie.GenieScriptItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 /** Narrow bridge to existing package-owned policies, keeping the new feature in game.genie. */
 public final class GenieNative {
     private GenieNative(){}
+    public static void acceptedThrow(LivingEntity thrower, InteractionHand hand, ItemStack physical, ItemStack projectileStack,
+                                     Projectile projectile) {
+        if(!GenieScriptItem.matches(projectileStack)||!(thrower instanceof ServerPlayer player))return;
+        var game=SkyWars2.game();
+        if(game==null||projectile.getOwner()!=player||player.level().getEntity(projectile.getUUID())!=projectile)return;
+        var runtime=game.items().genie().runtime().scripts();
+        var accepted=runtime.captureThrow(player,hand,physical,projectileStack,projectile);
+        LbcTmtShotCompletion.afterNativeAction(accepted);
+    }
     public static boolean stopped(GameController game,ServerPlayer player){return game.items().wands().inputTimeStopped(player);}
     public static boolean enemy(GameController game,ServerPlayer player,Entity entity){return game.items().wands().projectileTarget(player,entity,true);}
     public static java.util.Map<Identifier,Integer> grimoires(){return LbcLibrarySpells.scriptSpells();}

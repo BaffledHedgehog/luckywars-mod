@@ -35,8 +35,19 @@ public final class TmtNativeThrowChecks {
         Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,true);for(var e:f.level.getAllEntities())initial.add(e.getUUID());
             var items=new ArrayList<Item>(LbcWoolTrailItems.tokens().values());items.addAll(List.of(LbcThrownUtilityItems.RUCHKA,LbcThrownUtilityItems.HONEW,LbcThrownUtilityItems.THROWABLE_METAL_PIPE,LbcThrownUtilityItems.BUCKET_PROJECTILE,LbcThrownUtilityItems.THROWABLE_PUMPKIN,LbcBridgeBuilderItem.TOKEN));
             for(int i=0;i<5;i++)items.add(LbcTmtItems.prototype(i).getItem());for(var item:items){var stat=net.minecraft.stats.Stats.ITEM_USED.get(item);stats.put(stat,f.owner.getStats().getValue(stat));}}
-        LbcTmtAbilities.Ability property(Item item){String id=BuiltInRegistries.ITEM.getKey(item).toString();return game.items().tmt().useProfiles().families().stream().flatMap(row->row.variants().stream())
-                .filter(property->((ItemData.IntReader)(Object)property.data()).skywars2$readString(LbcTmtAbilities.NATIVE,"").equals(id)).findFirst().orElseThrow();}
+        LbcTmtAbilities.Ability property(Item item){
+            String id=BuiltInRegistries.ITEM.getKey(item).toString();
+            var required=new net.minecraft.nbt.CompoundTag();
+            required.putString(LbcTmtAbilities.NATIVE,id);
+            // Ordinary bridge and lime wool share a carrier but have separate authored payloads.
+            var color=LbcBalanceExtras.woolColor(item.getDefaultInstance());
+            if(color!=null){
+                required.putInt("wool",1);
+                required.putInt(color.getName(),1);
+            }
+            return game.items().tmt().useProfiles().families().stream().flatMap(row->row.variants().stream())
+                .filter(property->property.data().matchedBy(required)).findFirst().orElseThrow();
+        }
         void next(int value){phase=value;when=game.server().getTickCount();}
         void begin(){f.prepareParticipants();started=game.server().getTickCount();f.move(f.owner,f.home.add(0,500,0));
             var ids=new HashSet<String>();for(var item:LbcWoolTrailItems.tokens().values())ids.add(property(item).id());require(ids.size()==1,"all sixteen authored colors share one lottery family");

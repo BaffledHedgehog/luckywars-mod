@@ -7,6 +7,8 @@
     "GenieProjectileMixin$Fireball",
     "GenieInteractionMixin$EntityUse",
     "GenieProjectileMixin",
+    "GenieProjectileMixin$ThrowingItems",
+    "GenieProjectileMixin$Trident",
     "GenieInteractionMixin",
     "GenieInteractionMixin$Dialog",
     "GenieInteractionMixin$Drop",
