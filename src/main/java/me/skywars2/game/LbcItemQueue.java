@@ -82,6 +82,16 @@ public final class LbcItemQueue {
         var w=worlds.get(level);if(w==null)return;var order=w.order.remove(entity.getUUID());
         if(order!=null)w.live.remove(order,entity);
     }
+    /** A fresh drop renews its resident group without publishing another native body. */
+    public void merged(ItemEntity resident,ItemEntity incoming){
+        if(closed||!(resident.level() instanceof ServerLevel level))return;
+        var w=worlds.get(level);if(w==null)return;
+        var current=w.order.get(resident.getUUID());if(current==null)return;
+        for(var tag:incoming.entityTags())if(tag.startsWith(ORDER))try{
+            if(Long.parseLong(tag.substring(ORDER.length()))<=current)return;
+        }catch(NumberFormatException ignored){}
+        unloaded(resident);resident.entityTags().removeIf(tag->tag.startsWith(ORDER));loaded(resident);
+    }
     private static Dormant sleep(long order,ItemEntity item) throws IOException {
         var output=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,item.registryAccess());
         item.saveWithoutId(output);var tag=output.buildResult();tag.putString("id","minecraft:item");

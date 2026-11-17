@@ -19,7 +19,7 @@ public final class ItemQueueChecks {
             try{
                 require(queue.dormant(level)==0,"no borrowed dormant items in fixture dimension");
                 for(int i=0;i<1006;i++){
-                    var stack=new ItemStack(Items.PAPER,17);stack.set(DataComponents.CUSTOM_NAME,Component.literal("Dormant native "+i));
+                    var stack=new ItemStack(Items.PAPER,i<6?12_000:17);stack.set(DataComponents.CUSTOM_NAME,Component.literal("Dormant native "+i));
                     var item=new ItemEntity(level,f.owner.getX(),f.owner.getY()+12,f.owner.getZ(),stack);
                     item.setNoGravity(true);item.setPickUpDelay(0);item.setThrower(f.owner);item.setDeltaMovement(99,.02,.03);item.setExtendedLifetime();
                     item.entityTags().add("queue-fixture-"+i);require(level.addFreshEntity(item),"actual native drop publication "+i);drops.add(item);

@@ -170,6 +170,8 @@
     "TeleportMomentumMixin$Command",
     "EquipmentHealthLoadMixin",
     "CoreEntityMergeMixin$Items",
+    "GroundItemTransferMixin$Pickup",
+    "GroundItemTransferMixin$Hopper",
     "CoreEntityMergeMixin$Orbs",
     "CoreEntityMergeMixin$Level",
     "DeathCompassWardenMixin",
