@@ -77,7 +77,8 @@ public final class ScriptJson {
         if(primitive.isString())quote(primitive.getAsString(),out);
         else if(primitive.isBoolean())out.append(primitive.getAsBoolean());
         else{
-            var number=ScriptValues.number(value);out.append(number.signum()==0?"0":number.stripTrailingZeros().toPlainString());
+            // Scientific notation keeps compact input such as 1e4096 compact in a digest.
+            var number=ScriptValues.number(value);out.append(number.signum()==0?"0":number.stripTrailingZeros().toString());
         }
     }
     private static void quote(String value,StringBuilder out){

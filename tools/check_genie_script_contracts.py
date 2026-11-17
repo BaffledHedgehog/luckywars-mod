@@ -31,6 +31,11 @@ def check(java, classpath, output):
     add("Unicode canonical order", unicode, True)
     add("exact decimals", json.dumps(program()).replace('"state": {}',
         '"state":{"n":1.2300e2,"z":-0.000,"large":1e4096,"tiny":1e-4096}'), True)
+    add("decimal notation thresholds", json.dumps(program()).replace('"state": {}',
+        '"state":{"a":1000.00,"b":0.000001,"c":0.0000001,"d":1.230000e-6,"e":-123000e10}'), True)
+    compact = json.dumps(program()).replace('"state": {}', '"state":{"values":[' + ",".join(["1e4096"] * 1000) + "]}")
+    add("compact exponents remain compact", compact, True)
+    assert len(verifier.canonical(verifier.parse(compact))) < 20000, "canonical output expanded compact exponents"
     for op, definition in contract["opcodes"].items():
         if op in {"LOAD", "STORE", "JUMP", "JUMP_IF_FALSE", "CALL"}:
             operand = "event" if op == "LOAD" else "local" if op == "STORE" else "end"
@@ -85,6 +90,7 @@ def check(java, classpath, output):
         ("NaN", raw.replace('"state": {}', '"state":{"x":NaN}')),
         ("Infinity", raw.replace('"state": {}', '"state":{"x":Infinity}')),
         ("large exponent", raw.replace('"state": {}', '"state":{"x":1e4097}')),
+        ("unstable normalized exponent", raw.replace('"state": {}', '"state":{"x":10000000000000000e4096}')),
         ("trailing document", raw + "{}"),
         ("lenient quotes", raw.replace('"version"', "'version'")),
     ]:

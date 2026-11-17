@@ -10,6 +10,9 @@ public final class GenieNative {
     private GenieNative(){}
     public static boolean stopped(GameController game,ServerPlayer player){return game.items().wands().inputTimeStopped(player);}
     public static boolean enemy(GameController game,ServerPlayer player,Entity entity){return game.items().wands().projectileTarget(player,entity,true);}
+    public static net.minecraft.world.phys.BlockHitResult wall(ServerLevel level,net.minecraft.world.phys.Vec3 from,net.minecraft.world.phys.Vec3 to){
+        return LbcTerra.shapeHit(level,from,to,(pos,state)->state.getCollisionShape(level,pos));
+    }
     public static void mark(GameController game,Entity entity){game.items().markCurrentItemEpoch(entity);}
     public static void credit(GameController game,Entity entity,ServerPlayer author){
         var cause=game.items().indirectKills().coldCause(author,entity instanceof net.minecraft.world.entity.projectile.Projectile);

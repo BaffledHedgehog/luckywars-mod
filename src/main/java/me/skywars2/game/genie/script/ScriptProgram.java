@@ -48,6 +48,7 @@ public final class ScriptProgram {
     /** Export the actual compiler contract for the cloud verifier, never a second handwritten schema. */
     public static JsonObject contract(Map<String,Signature> api,Set<String> events){
         var root=new JsonObject();root.addProperty("language","luckywars-item-script");root.addProperty("version",VERSION);
+        root.addProperty("canonical","unicode-utf16-bigdecimal-v2");
         var limits=new JsonObject();
         limits.addProperty("functions",256);limits.addProperty("parameters",64);limits.addProperty("instructions",65536);
         limits.addProperty("stack",65536);limits.addProperty("collection",65536);

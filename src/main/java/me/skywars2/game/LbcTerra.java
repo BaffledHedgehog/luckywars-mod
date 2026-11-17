@@ -539,9 +539,13 @@ public final class LbcTerra {
     /** Position-aware rule shares the same resident DDA, e.g. two-air wall exits. */
     static BlockHitResult wallHit(ServerLevel level,Vec3 from,Vec3 to,
             java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks) {
-        return BlockGetter.traverseBlocks(from, to, level,
-                (world, pos) -> world.hasChunkAt(pos) && !blocks.test(pos,world.getBlockState(pos))
-                        ? null : Shapes.block().clip(from, to, pos), world -> null);
+        return shapeHit(level,from,to,(pos,state)->blocks.test(pos,state)?Shapes.block():Shapes.empty());
+    }
+    /** Resident-chunk traversal also supports actual collision shapes for new callers. */
+    static BlockHitResult shapeHit(ServerLevel level,Vec3 from,Vec3 to,
+            java.util.function.BiFunction<BlockPos,net.minecraft.world.level.block.state.BlockState,net.minecraft.world.phys.shapes.VoxelShape> shapes) {
+        return BlockGetter.traverseBlocks(from,to,level,(world,pos)->
+                (world.hasChunkAt(pos)?shapes.apply(pos,world.getBlockState(pos)):Shapes.block()).clip(from,to,pos),world->null);
     }
     /** Resident DDA with exact native collision faces, for placing bodies on the looked-at surface. */
     static BlockHitResult surfaceHit(ServerLevel level,Vec3 from,Vec3 to,Entity viewer) {

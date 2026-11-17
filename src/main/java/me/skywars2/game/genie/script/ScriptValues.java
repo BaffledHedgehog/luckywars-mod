@@ -33,7 +33,8 @@ final class ScriptValues {
     static BigDecimal number(JsonElement value){
         if(!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isNumber())throw new IllegalArgumentException("numeric operand expected");
         var number=value.getAsBigDecimal();
-        if(number.precision()>4096||Math.abs((long)number.scale())>4096)throw new IllegalArgumentException("numeric storage exceeds memory bounds");
+        if(number.precision()>4096||Math.abs((long)number.scale())>4096
+                ||Math.abs((long)number.stripTrailingZeros().scale())>4096)throw new IllegalArgumentException("numeric storage exceeds memory bounds");
         return number;
     }
     static JsonElement number(BigDecimal value){var result=new JsonPrimitive(value);number(result);return result;}

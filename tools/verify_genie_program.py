@@ -14,7 +14,7 @@ from pathlib import Path
 import re
 import sys
 
-VERIFIER_VERSION = "luckywars-script-1.0.0"
+VERIFIER_VERSION = "luckywars-script-1.1.0"
 NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_.:]*\Z")
 
 
@@ -86,6 +86,15 @@ def check_data(root, limits):
             parts = number.as_tuple()
             require(len(parts.digits) <= limits["number_precision"] and
                     abs(parts.exponent) <= limits["number_scale"], "numeric storage exceeds memory bounds")
+            compact_exponent = parts.exponent
+            if number:
+                for digit in reversed(parts.digits):
+                    if digit:
+                        break
+                    compact_exponent += 1
+            else:
+                compact_exponent = 0
+            require(abs(compact_exponent) <= limits["number_scale"], "numeric storage exceeds memory bounds")
         else:
             require(value is None or isinstance(value, bool), "not a JSON value")
         require(characters <= limits["characters"], "script text exceeds memory bounds")
@@ -108,8 +117,13 @@ def canonical(value):
     require(number.is_finite(), "non-finite number")
     if not number:
         return "0"
-    result = format(number, "f")
-    return result.rstrip("0").rstrip(".") if "." in result else result
+    # Build a normalized tuple without Decimal.normalize(), whose context can round.
+    sign, digits, exponent = number.as_tuple()
+    digits = list(digits)
+    while digits[-1] == 0:
+        digits.pop()
+        exponent += 1
+    return str(Decimal((sign, tuple(digits), exponent)))
 
 
 def digest(value):
@@ -176,6 +190,7 @@ def compile_function(parameters, source, signatures, contract):
 def verify(program, contract):
     require(contract["language"] == "luckywars-item-script" and integer(contract["version"]) == 1,
             "unsupported compiler contract")
+    require(contract.get("canonical") == "unicode-utf16-bigdecimal-v2", "unsupported canonical number format")
     limits = contract["limits"]
     check_data(program, limits)
     require(isinstance(program, dict) and set(program) == {"version", "state", "handlers", "functions"},

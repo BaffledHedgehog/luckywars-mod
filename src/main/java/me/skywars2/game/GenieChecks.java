@@ -28,7 +28,7 @@ public final class GenieChecks {
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.begin();}catch(Throwable error){running=null;f.close();throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS genie (real HTTP, dialog nonce, overstack lamp conservation, movable pending lamp, Q/cursor/chest/frame protection, exact reward slot, native lethal hit, denial10 distinct pockets, reset cancellation/late reply, TimeStop-safe HTTP completion, real native-arrow control and snowball/fireball8HP impacts, native consumed/broken source identity)");}
+        try{if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS genie (real HTTP, dialog nonce, overstack lamp conservation, movable pending lamp, Q/cursor/chest/frame protection, exact reward slot, native lethal hit, denial10 distinct pockets, reset cancellation/late reply, TimeStop-safe HTTP completion, real native-arrow control and snowball/fireball8HP impacts, native consumed/broken source identity; queued native commands/selectors/collision rays and unresident guards)");}
         catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL genie",error);}
     }
     private record Request(String body,CompletableFuture<String> reply){}
@@ -176,7 +176,10 @@ public final class GenieChecks {
                 service.runtime().event(base.owner,Trigger.SHOT,null,snapshot,InteractionHand.MAIN_HAND);require(actual.getDamageValue()==100,"missing physical source cannot mutate offhand clone with same serial");
                 launches=new GenieLaunchChecks(game,base);next(10);return false;
             }
-            if(phase==10)return launches.tick();
+            if(phase==10){
+                if(!launches.tick())return false;
+                GenieWorldChecks.run(game,base);return true;
+            }
             throw new IllegalStateException("unknown genie phase");
         }
         void knowledge(JsonObject request){
