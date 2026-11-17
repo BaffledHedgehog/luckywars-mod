@@ -10,33 +10,49 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-/** Finite ray visuals. Hit detection and damage remain with the ability that requested the ray. */
+/** Fading shots and one refreshed display per continuous laser. The ability owns damage and collision. */
 final class LbcFadingBeams {
-    record Image(ServerLevel level,Vec3 from,Vec3 to,boolean sniper,int age,String epoch){}
-    private record Beam(Image initial,ElementHolder holder,ItemDisplayElement display,int born,int[] age){}
+    record Image(ServerLevel level,Vec3 from,Vec3 to,LbcHedgehog.Kind kind,UUID source,int age,String epoch){}
+    private static final class Beam {
+        Image initial;final ElementHolder holder;final ItemDisplayElement display;int born,age;
+        Beam(Image image,ElementHolder holder,ItemDisplayElement display,int tick){initial=image;this.holder=holder;this.display=display;born=tick;age=image.age;}
+    }
     private final GameController game;
     private final List<Beam> beams=new ArrayList<>();
+    private final Map<UUID,Beam> sustained=new HashMap<>();
     // Laser Minigun's six-frame width envelope is 6*.04. Keep the same model geometry.
     static final float LASER_WIDTH=.24f;
     LbcFadingBeams(GameController game){this.game=game;}
-    void show(ServerLevel level,Vec3 from,Vec3 to,boolean sniper){spawn(new Image(level,from,to,sniper,0,game.items().epoch()));}
-    private static int duration(Image image){return image.sniper?20:10;}
-    private static float width(Image image,int age){return LASER_WIDTH*(image.sniper?1.25f:1.5f)*Math.max(0,1-age/(float)duration(image));}
+    void show(ServerLevel level,Vec3 from,Vec3 to,LbcHedgehog.Kind kind,UUID source){
+        if(from.distanceToSqr(to)<.000001)return;
+        var image=new Image(level,from,to,kind,source,0,game.items().epoch());var old=kind==LbcHedgehog.Kind.LASER?sustained.get(source):null;
+        if(old==null){spawn(image);return;}
+        old.initial=image;old.born=game.server().getTickCount();old.display.setInterpolationDuration(1);
+        pose(old);old.display.startInterpolation();old.holder.tick();
+    }
+    private static int duration(Image image){return image.kind==LbcHedgehog.Kind.SNIPER?20:10;}
+    private static float width(Image image,int age){return LASER_WIDTH*(image.kind==LbcHedgehog.Kind.SNIPER?5f:1.5f)*(image.kind==LbcHedgehog.Kind.LASER?1:Math.max(0,1-age/(float)duration(image)));}
+    private static void pose(Beam beam){
+        var image=beam.initial;var delta=image.to.subtract(image.from);
+        beam.display.setYaw((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));
+        beam.display.setPitch((float)-Math.toDegrees(Math.atan2(delta.y,delta.horizontalDistance())));
+        beam.display.setScale(new Vector3f(width(image,beam.age),width(image,beam.age),(float)delta.length()*2));
+    }
     private void spawn(Image image){
         var delta=image.to.subtract(image.from);if(delta.lengthSqr()<.000001)return;
         var stack=new ItemStack(Items.REPEATING_COMMAND_BLOCK);
-        stack.set(DataComponents.ITEM_MODEL,Identifier.parse(image.sniper?"lbc:laser_minigun_ray":"lbc:hedgehog_ray"));
+        stack.set(DataComponents.ITEM_MODEL,Identifier.parse(switch(image.kind){
+            case SNIPER->"lbc:hedgehog_sniper_ray";case LASER->"lbc:hedgehog_laser_ray";
+            case HEALER->"lbc:hedgehog_healer_ray";default->"lbc:hedgehog_ray";}));
         var display=new ItemDisplayElement(stack);display.setItemDisplayContext(ItemDisplayContext.NONE);
-        display.setYaw((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));
-        display.setPitch((float)-Math.toDegrees(Math.atan2(delta.y,delta.horizontalDistance())));
-        display.setShadowRadius(0);display.setShadowStrength(0);display.setInterpolationDuration(0);
-        display.setScale(new Vector3f(width(image,image.age),width(image,image.age),(float)delta.length()*2));
+        display.setShadowRadius(0);display.setShadowStrength(0);display.setInterpolationDuration(0);display.setTeleportDuration(1);
+        display.setBrightness(new net.minecraft.util.Brightness(15,15));
         var holder=new ElementHolder();holder.addElement(display);
+        var beam=new Beam(image,holder,display,game.server().getTickCount());pose(beam);
         // Native ItemDisplayRenderer adds Y180: model Z[-.5,0] therefore extends forward from the muzzle.
-        game.visualTracking().attach(holder,image.level,()->image.from);
+        game.visualTracking().attach(holder,image.level,()->beam.initial.from);
         holder.tick();
-        var beam=new Beam(image,holder,display,game.server().getTickCount(),new int[]{image.age});
-        viewers(beam);holder.tick();beams.add(beam);
+        viewers(beam);holder.tick();beams.add(beam);if(image.kind==LbcHedgehog.Kind.LASER)sustained.put(image.source,beam);
     }
     private void viewers(Beam beam){
         var image=beam.initial;var players=game.server().getPlayerList().getPlayers();var axis=image.to.subtract(image.from);double length=axis.lengthSqr();
@@ -51,18 +67,24 @@ final class LbcFadingBeams {
     }
     void tick(){
         for(var iterator=beams.iterator();iterator.hasNext();){var beam=iterator.next();var image=beam.initial;
-            if(!game.playing()||!game.items().currentEpoch(image.epoch)||beam.age[0]>duration(image)){
-                beam.holder.destroy();iterator.remove();continue;
+            boolean laser=image.kind==LbcHedgehog.Kind.LASER;
+            var source=laser?image.level.getEntity(image.source):null;
+            boolean paused=!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(image.level)
+                    ||source!=null&&(game.items().timeStop().frozen(source)||source.entityTags().contains("time_stopped")
+                            ||source instanceof net.minecraft.world.entity.LivingEntity living&&game.items().frost().isFrozen(living));
+            if(!game.playing()||!game.items().currentEpoch(image.epoch)||(!laser&&beam.age>duration(image))
+                    ||laser&&(source==null||!source.isAlive()||!paused&&beam.born!=game.server().getTickCount())){
+                beam.holder.destroy();iterator.remove();if(laser)sustained.remove(image.source,beam);continue;
             }
             viewers(beam);
-            if(beam.born==game.server().getTickCount()||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(image.level))continue;
-            beam.age[0]++;beam.display.setInterpolationDuration(1);
-            beam.display.setScale(new Vector3f(width(image,beam.age[0]),width(image,beam.age[0]),(float)image.from.distanceTo(image.to)*2));
+            if(laser||beam.born==game.server().getTickCount()||paused)continue;
+            beam.age++;beam.display.setInterpolationDuration(1);
+            beam.display.setScale(new Vector3f(width(image,beam.age),width(image,beam.age),(float)image.from.distanceTo(image.to)*2));
             beam.display.startInterpolation();beam.holder.tick();
         }
     }
-    List<Image> checkpoint(){return beams.stream().map(b->new Image(b.initial.level,b.initial.from,b.initial.to,b.initial.sniper,b.age[0],b.initial.epoch)).toList();}
+    List<Image> checkpoint(){return beams.stream().map(b->new Image(b.initial.level,b.initial.from,b.initial.to,b.initial.kind,b.initial.source,b.age,b.initial.epoch)).toList();}
     void restore(List<Image> images){stop();for(var image:images)spawn(image);}
     int count(){return beams.size();}
-    void stop(){for(var beam:beams)beam.holder.destroy();beams.clear();}
+    void stop(){for(var beam:beams)beam.holder.destroy();beams.clear();sustained.clear();}
 }

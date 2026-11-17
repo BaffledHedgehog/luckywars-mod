@@ -1190,6 +1190,7 @@ public final class GameChecks {
                                 case "hedgehog-spikes-cleanup" -> { HedgehogSpikeChecks.cleanup(game); return; }
                                 case "hedgehog" -> { HedgehogChecks.run(game); return; }
                                 case "hedgehog-source" -> { HedgehogChecks.runSource(game); return; }
+                                case "hedgehog-laser" -> { HedgehogChecks.runLaser(game); return; }
                                 case "hedgehog-stop-probe" -> { HedgehogChecks.stopProbe(game); return; }
                                 case "hedgehog-cleanup" -> { HedgehogChecks.cleanup(game); return; }
                                 case "god-hedgehog" -> { GodHedgehogChecks.run(game); return; }

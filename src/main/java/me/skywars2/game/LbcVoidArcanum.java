@@ -47,6 +47,7 @@ public final class LbcVoidArcanum {
     // Legacy block footprints, rounded outward to a radial whole-block reach; cube corners stay excluded.
     private static final double[] RADII={0,2,3,5,9,24}, HURT={0,1.5,2,4,8,24}, PULL={0,3,4,8,12,30};
     private static final float[] DAMAGE={0,.2f,.25f,.3f,.35f,.4f};
+    private static final float[] SOUND_VOLUME={0,.8f,1.2f,1.8f,2,7};
     // Legacy voidcursed1..4 move .13 per tick; voidcursed5 moves .5.
     private static final double[] ACCELERATION={0,.025,.035,.018,.022,.025}, MAX_SPEED={0,.078,.078,.078,.078,.3};
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
@@ -276,6 +277,7 @@ public final class LbcVoidArcanum {
     void physics(Hole hole,ServerPlayer author,LbcIndirectKills.Owner cause){
         if(rewinding)return;
         callbackDepth++;try{
+        LbcOverload.sound(hole.world,hole.point,"minecraft:entity.creeper.primed",SOUND_VOLUME[hole.level],2,0,0);
         double influence=PULL[hole.level],hurt=HURT[hole.level];
         var source=hole.wild?new WildDamage(author):new DamageSource(author.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),author);
         for(var target:hole.world.getEntities((Entity)null,new AABB(hole.point,hole.point).inflate(influence),entity->physicalTarget(hole,author,entity))){

@@ -73,6 +73,7 @@ public final class HedgehogChecks {
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final Set<Long> forced=new HashSet<>(),previousForced;
         final net.minecraft.world.scores.PlayerTeam oldOwnerTeam,oldOtherTeam,team;final Vec3 at;final String epoch;final int cost;
         long last=Long.MIN_VALUE;int phase,sneezeWarmTicks;boolean closed;
+        boolean laserOnly;Silverfish continuousLaser;Cow continuousTarget;int laserBegan,laserIdentity=-1;
         Fixture(GameController game){this.game=game;service=game.items().hedgehog();epoch=game.items().epoch();
             owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(game.playing()&&owner!=null&&other!=null&&owner.level()==other.level()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two actual active participants");
@@ -107,6 +108,31 @@ public final class HedgehogChecks {
             for(var e:List.copyOf(owned)){if(e instanceof LivingEntity l)game.items().indirectKills().clear(l);e.discard();}owned.clear();}
         Cow cow(Vec3 point){var c=new Cow(EntityTypes.COW,owner.level());c.setPos(point);c.setNoAi(true);c.setNoGravity(true);c.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);c.setHealth(100);require(owner.level().addFreshEntity(c),"resident native cow");owned.add(c);return c;}
         Silverfish helper(LbcHedgehog.Kind kind,Vec3 point){service.spawnHelper(owner,owner.level(),point,kind);var f=service.helpers().getLast();f.setNoGravity(true);return f;}
+        void surfaces(){
+            var block=BlockPos.containing(at).offset(0,6,5);var center=Vec3.atCenterOf(block);
+            for(var normal:net.minecraft.core.Direction.values())for(var kind:List.of(LbcHedgehog.Kind.ORDINARY,LbcHedgehog.Kind.SNIPER)){
+                place(block,Blocks.STONE);var eye=center.add(Vec3.atLowerCornerOf(normal.getUnitVec3i()).scale(3));
+                move(owner,eye.add(0,-owner.getEyeHeight(),0));var direction=center.subtract(owner.getEyePosition()).normalize();
+                owner.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));owner.setXRot((float)-Math.toDegrees(Math.asin(direction.y)));
+                var hit=owner.level().clip(new net.minecraft.world.level.ClipContext(eye,center,net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,owner));
+                require(hit.getDirection()==normal,"independent native surface control "+normal);
+                service.cast(owner,kind);require(service.helpers().size()==1,"exactly one surface helper "+normal+"/"+kind);
+                var fish=service.helpers().getFirst();require(owner.level().noCollision(fish,fish.getBoundingBox()),"whole native body outside solid surface "+normal);
+                require(fish.position().distanceTo(hit.getLocation())<.4,"spawn hugs exact looked-at face "+normal);
+                clear();
+            }
+            // A native slab is a half-height surface, rather than the containing block's cube.
+            var slab=Blocks.STONE_SLAB.defaultBlockState();blocks.putIfAbsent(block.immutable(),game.maps().snapshot(owner.level(),block));owner.level().setBlock(block,slab,2);
+            move(owner,center.add(0,3-owner.getEyeHeight(),0));owner.setXRot(90);owner.setYRot(0);service.cast(owner,LbcHedgehog.Kind.HEALER);
+            require(service.helpers().size()==1&&Math.abs(service.helpers().getFirst().getY()-(block.getY()+.51))<1e-5,"native slab top, no integer cube approximation");clear();
+            place(block,Blocks.STONE);move(owner,center.add(0,-owner.getEyeHeight(),-3));owner.setYRot(0);owner.setXRot(0);
+            var existing=helper(LbcHedgehog.Kind.DEFAULT,center.add(0,-.1,-.71));var cow=cow(center.add(0,-.6,-1.5));
+            require(cow.getBoundingBox().clip(owner.getEyePosition(),center).isPresent()&&existing.getBoundingBox().clip(owner.getEyePosition(),center).isPresent(),"actual native bodies cross the aim ray");
+            service.cast(owner,LbcHedgehog.Kind.SNIPER);require(service.helpers().size()==2,"entity in front of block cannot cause duplicate summon");
+            require(service.helpers().getLast().getBoundingBox().minZ<block.getZ()&&owner.level().noCollision(service.helpers().getLast(),service.helpers().getLast().getBoundingBox()),"entity does not redirect surface position into wall");clear();
+            require(service.spawnHelper(owner,owner.level(),center,LbcHedgehog.Kind.SNIPER)==null&&service.helpers().isEmpty(),"all spawn entry points reject suffocating body before publication");
+            owner.level().setBlock(block,Blocks.AIR.defaultBlockState(),2);move(owner,at);owner.setYRot(0);owner.setXRot(0);
+        }
         void guards(){
             for(var hand:InteractionHand.values()){
                 held(new ItemStack(LbcHedgehogItems.WAND),hand);game.items().mana().set(owner,2499);require(!input(hand)&&service.helpers().isEmpty()&&game.items().mana().get(owner)==2499,"ordinary exact2500 admission "+hand);
@@ -155,8 +181,34 @@ public final class HedgehogChecks {
             }finally{owner.getAbilities().invulnerable=immune;owner.setPermanentlyInvulnerable(entityImmune);owner.setInvulnerableTime(immunityTicks);clear();}
         }
         void beams(){
+            for(var kind:List.of(LbcHedgehog.Kind.DEFAULT,LbcHedgehog.Kind.SNIPER,LbcHedgehog.Kind.LASER)){
+                var shooter=helper(kind,at.add(0,1,0));var victim=cow(at.add(0,1,4));
+                var friend=helper(LbcHedgehog.Kind.SNIPER,shooter.getEyePosition().lerp(victim.getEyePosition(),.5).add(0,-.1,0));
+                var teammate=service.spawnHelper(other,other.level(),shooter.getEyePosition().lerp(victim.getEyePosition(),.75).add(0,-.1,0),LbcHedgehog.Kind.SNIPER);require(teammate!=null,"teammate native helper");teammate.setNoGravity(true);
+                require(friend.getBoundingBox().clip(shooter.getEyePosition(),victim.getEyePosition()).isPresent()
+                        &&teammate.getBoundingBox().clip(shooter.getEyePosition(),victim.getEyePosition()).isPresent(),"both native allied hitboxes actually cross damaging beam "+kind);
+                float health=friend.getHealth(),teamHealth=teammate.getHealth();
+                for(int shot=0;shot<20;shot++){victim.damageCooldownTime=0;victim.setInvulnerableTime(0);service.fireBeam(shooter,victim);}
+                require(friend.isAlive()&&friend.getHealth()==health&&teammate.isAlive()&&teammate.getHealth()==teamHealth,"damaging beam crosses own/team sniper without friendly damage "+kind);
+                require(victim.getHealth()<100,"friendly helper does not absorb enemy beam "+kind);clear();
+            }
+            var healer=helper(LbcHedgehog.Kind.HEALER,at.add(0,1,0));var wounded=helper(LbcHedgehog.Kind.SNIPER,at.add(0,1,2));wounded.setHealth(1);
+            service.fireBeam(healer,wounded);require(wounded.getHealth()>1,"healer still hits and heals allied native helper");clear();
+            var visuals=(LbcFadingBeams)WoolBucketChecks.read(service,"beamVisuals");
+            var laser=helper(LbcHedgehog.Kind.LASER,at.add(0,1,0));var laserTarget=cow(at.add(0,1,4));
+            service.fireBeam(laser,laserTarget);int beamCount=visuals.count();
+            @SuppressWarnings("unchecked") var records=(List<Object>)WoolBucketChecks.read(visuals,"beams");
+            var record=records.stream().filter(r->((LbcFadingBeams.Image)WoolBucketChecks.read(r,"initial")).source().equals(laser.getUUID())).findFirst().orElseThrow();
+            var display=(eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement)WoolBucketChecks.read(record,"display");int identity=display.getEntityId();
+            for(int frame=0;frame<100;frame++){laser.setPos(at.add(frame*.001,1,0));service.fireBeam(laser,laserTarget);}
+            require(visuals.count()==beamCount&&display.getEntityId()==identity&&display.getInterpolationDuration()==1&&display.getTeleportDuration()==1,"continuous laser reuses one native virtual display with one-tick interpolation");
+            var image=visuals.checkpoint().stream().filter(i->i.source().equals(laser.getUUID())).findFirst().orElseThrow();
+            require(image.from().equals(laser.getEyePosition())&&Math.abs(image.from().distanceTo(image.to())-9)<1e-5,"reused moving laser keeps exact full legacy9-block span beyond near target");
+            clear();visuals.tick();require(visuals.checkpoint().stream().noneMatch(i->i.source().equals(laser.getUUID())),"source removal retires sustained laser");
             var f=helper(LbcHedgehog.Kind.DEFAULT,at.add(0,1,0));var target=cow(at.add(0,1,4));
+            place(BlockPos.containing(at.add(0,1,2)),Blocks.SHORT_GRASS);
             for(int i=0;i<8;i++)service.tick();require(target.getHealth()==96&&target.getLastHurtByMob()==f,"Default source4 beam retains its native helper attacker");clear();
+            owner.level().setBlock(BlockPos.containing(at.add(0,1,2)),Blocks.AIR.defaultBlockState(),2);
             f=helper(LbcHedgehog.Kind.HEALER,at.add(0,1,0));move(owner,at.add(8,0,0));other.setHealth(8);move(other,at.add(0,1,4));for(int i=0;i<8;i++)service.tick();
             require(other.getHealth()>8,"actual Healer repeated allied-cell instantaneous health");other.setHealth(20);move(other,at.add(10,0,-10));move(owner,at);clear();
             f=helper(LbcHedgehog.Kind.LASER,at.add(0,1,0));target=cow(at.add(0,1,4));place(BlockPos.containing(at.add(0,1,2)),Blocks.STONE);place(BlockPos.containing(at.add(0,2,2)),Blocks.STONE);
@@ -254,7 +306,25 @@ public final class HedgehogChecks {
             service.unloaded(f);require(f.isRemoved()&&service.trackedCount()==0,"actual unloaded callback retires actor");
             f=helper(LbcHedgehog.Kind.TANK,at.add(0,1,0));service.forget(owner);require(f.isRemoved()&&service.trackedCount()==0,"owner departure closes actor");
         }
+        void beginLaser(){laserOnly=true;move(owner,at.add(-4,0,-4));continuousLaser=helper(LbcHedgehog.Kind.LASER,at.add(0,1,0));continuousTarget=cow(at.add(0,1,4));laserBegan=game.server().getTickCount();}
+        boolean laserStep(){
+            int elapsed=game.server().getTickCount()-laserBegan;var visuals=(LbcFadingBeams)WoolBucketChecks.read(service,"beamVisuals");
+            if(elapsed<=20){
+                var images=visuals.checkpoint().stream().filter(i->i.source().equals(continuousLaser.getUUID())).toList();
+                require(images.size()==1&&visuals.count()==1,"one continuous display across actual server frames: "+elapsed);
+                require(images.getFirst().from().equals(continuousLaser.getEyePosition())&&Math.abs(images.getFirst().from().distanceTo(images.getFirst().to())-9)<1e-5,"actual moving source refreshes full9-block segment");
+                @SuppressWarnings("unchecked") var records=(List<Object>)WoolBucketChecks.read(visuals,"beams");
+                var display=(eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement)WoolBucketChecks.read(records.getFirst(),"display");
+                if(laserIdentity<0)laserIdentity=display.getEntityId();else require(display.getEntityId()==laserIdentity,"same display identity across real native frames");
+                if(elapsed>1)require(display.getInterpolationDuration()==1&&display.getTeleportDuration()==1,"one-tick pose and movement interpolation");
+                continuousLaser.setPos(at.add(elapsed*.02,1,0));
+                if(elapsed==20){require(continuousTarget.getHealth()<100,"continuous beam really damages native target");continuousTarget.discard();}
+                return false;
+            }
+            require(continuousLaser.isAlive()&&visuals.count()==0,"loss of the last enemy retires the beam on the next actual frame without retiring its source");return true;
+        }
         boolean step(){if(owner.level().getGameTime()==last)return false;last=owner.level().getGameTime();require(game.playing()&&game.items().currentEpoch(epoch),"match epoch retained");
+            if(laserOnly)return laserStep();
             if(phase==6&&!prepareSneeze())return false;
             switch(phase++){case 0->guards();case 1->modes();case 2->timerAndArrow();case 3->beams();case 4->advancement();case 5->wallTrial();case 6->sneeze();case 7->{lifecycle();return true;}default->throw new IllegalStateException();}return false;}
         @Override public void close(){if(closed)return;closed=true;try{game.items().timeStop().end(owner.level());clear();
@@ -265,8 +335,9 @@ public final class HedgehogChecks {
             }finally{for(long key:forced)owner.level().setChunkForced(net.minecraft.world.level.ChunkPos.getX(key),net.minecraft.world.level.ChunkPos.getZ(key),false);}}
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.initialize();}catch(RuntimeException|Error e){try{f.close();}finally{running=null;}throw e;}}
-    public static void runSource(GameController game){require(running==null,"exclusive source fixture");try(var f=new Fixture(game)){f.initialize();f.timerAndArrow();f.beams();f.wallTrial();}SkyWars2.LOGGER.info("[check] PASS hedgehog-source (native NPC arrow/beam attacker, actual guaranteed thorns on helper not summoner, same piercing collision lethal player credit, reflected author, native Tank kill and WILD wall melee/beam)");}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{if(f.step()){f.close();running=null;SkyWars2.LOGGER.info("[check] PASS hedgehog");}}catch(Throwable error){try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL hedgehog",error);}}
+    public static void runLaser(GameController game){require(running==null,"exclusive laser fixture");var f=new Fixture(game);running=f;try{f.initialize();f.beginLaser();}catch(RuntimeException|Error e){try{f.close();}finally{running=null;}throw e;}}
+    public static void runSource(GameController game){require(running==null,"exclusive source fixture");try(var f=new Fixture(game)){f.initialize();f.surfaces();f.timerAndArrow();f.beams();f.wallTrial();}SkyWars2.LOGGER.info("[check] PASS hedgehog-source (native surface faces/slab/body rejection/single spawn; own/team beam immunity and healing; native NPC arrow/beam attacker, thorns and lethal player credit; Tank and WILD wall)");}
+    public static void tick(GameController game){if(running==null)return;var f=running;String suite=f.laserOnly?"hedgehog-laser":"hedgehog";try{if(f.step()){f.close();running=null;SkyWars2.LOGGER.info("[check] PASS {}",suite);}}catch(Throwable error){try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL {}",suite,error);}}
     private static List<Entity> retained;private static String stopEpoch;
     public static void stopProbe(GameController game){require(retained==null&&running==null&&game.items().hedgehog().trackedCount()==0&&game.items().hedgehog().pendingBlasts()==0,"exclusive retained probe");var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(owner!=null&&game.canUseGameplayItems(owner),"actual stop owner");
         var f=game.items().hedgehog();var saved=new Saved(game,owner);try{f.spawnHelper(owner,owner.level(),owner.position().add(0,10,0),LbcHedgehog.Kind.DEFAULT);f.spawnHelper(owner,owner.level(),owner.position().add(0,10,1),LbcHedgehog.Kind.TANK);

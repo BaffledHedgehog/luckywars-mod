@@ -91,10 +91,12 @@ public final class LbcHedgehog {
     private boolean eligible(LivingEntity e){return e.isAlive()&&game.items().wands().validTarget(e)&&e.getType().builtInRegistryHolder().is(MOBS)
             &&!frozen(e)&&!suppressed((ServerLevel)e.level(),e.position());}
     private boolean allied(Fish f,LivingEntity e){var p=player(f.author);return e==p||e==f||p!=null&&p.isAlliedTo(e)
-            ||e instanceof Fish other&&other.kind!=Kind.WALL&&other.author.equals(f.author);}
+            ||e instanceof Fish other&&other.kind!=Kind.WALL&&(other.author.equals(f.author)
+                    ||p!=null&&player(other.author)!=null&&p.isAlliedTo(player(other.author)));}
     private boolean enemy(Fish f,LivingEntity e){return e!=f&&eligible(e)&&(f.kind==Kind.WALL?!(e instanceof Fish other&&other.kind==Kind.WALL)&&!e.entityTags().contains("baffled_wall"):!allied(f,e))&&!e.entityTags().contains("strict_map_object")
             &&!e.entityTags().contains("nomagic_active")&&!LbcGreed.active(e);}
     private boolean impact(Fish f,LivingEntity e){var p=player(f.author);return e!=f&&eligible(e)&&!LbcGreed.active(e)
+            &&!(e instanceof Fish&&allied(f,e))
             &&(f.kind!=Kind.WALL||!(e instanceof Fish other&&other.kind==Kind.WALL)&&!e.entityTags().contains("baffled_wall"))
             &&(f.kind==Kind.WALL||p==null||!(e instanceof ServerPlayer)||game.items().wands().projectileTarget(p,e));}
     public boolean use(ServerPlayer p,InteractionHand hand){
@@ -119,20 +121,25 @@ public final class LbcHedgehog {
     }
     void cast(ServerPlayer p,Kind kind){
         boolean academy=kind!=Kind.ORDINARY;var direction=p.getLookAngle().normalize();var origin=p.getEyePosition();double step=academy?.6:1;
-        for(int sample=0;sample<=(academy?400:200);sample++){
-            var at=origin.add(direction.scale(sample*step));if(!resident(p.level(),at)||suppressed(p.level(),at))return;
+        var end=origin.add(direction.scale(academy?240:200));
+        var hit=LbcTerra.surfaceHit(p.level(),origin,end,p);
+        if(hit!=null)end=hit.getLocation();
+        double stop=game.items().magic().suppressionFraction(p.level(),origin,end);
+        if(stop<=1)end=origin.lerp(end,stop);
+        double distance=origin.distanceTo(end);
+        for(double travelled=0;travelled<=distance;travelled+=step){
+            var at=origin.add(direction.scale(travelled));if(!resident(p.level(),at))break;
             if(kind==Kind.ORDINARY||kind==Kind.DEFAULT)p.level().sendParticles(ParticleTypes.WHITE_ASH,at.x,at.y,at.z,2,.5,.5,.5,0);
             else {int color=switch(kind){case HEALER->0xff9591;case TANK->0;case SNIPER->0x0084ff;default->0x8dffd3;};
                 p.level().sendParticles(new DustColorTransitionOptions(color,0x999999,1),at.x,at.y,at.z,1,.5,.5,.5,0);}
-            // Source uses one selector cell, not a radius around every sample.
-            boolean entity=!p.level().getEntitiesOfClass(LivingEntity.class,cell(at),e->e!=p&&eligible(e)).isEmpty();
-            boolean block=!p.level().getBlockState(BlockPos.containing(at)).isAir();
-            if(entity)spawn(p,p.level(),academy?at:at.subtract(direction),kind);
-            if(block){var b=BlockPos.containing(at.subtract(direction));spawn(p,p.level(),new Vec3(b.getX()+.5,b.getY(),b.getZ()+.5),kind);}
-            if(entity||block)return;
         }
+        if(hit==null||stop<=1||!resident(p.level(),hit.getLocation())||!p.level().hasChunkAt(hit.getBlockPos()))return;
+        var normal=hit.getDirection();double width=EntityTypes.SILVERFISH.getDimensions().width(),height=EntityTypes.SILVERFISH.getDimensions().height();
+        var at=hit.getLocation().add(normal.getStepX()*(width/2+.01),normal.getStepY()<0?-height-.01:normal.getStepY()*.01,
+                normal.getStepZ()*(width/2+.01));
+        if(normal.getAxis().isHorizontal())at=at.add(0,-height/2,0);
+        spawn(p,p.level(),at,kind);
     }
-    private static AABB cell(Vec3 at){return new AABB(at.x,at.y,at.z,at.x+1,at.y+1,at.z+1);}
     private final class Fish extends Silverfish {
         final UUID author;final Kind kind;final LbcIndirectKills.Owner cause;int timer=8;boolean retired,retainedOwner;
         Fish(ServerLevel level,ServerPlayer p,Kind kind){super(EntityTypes.SILVERFISH,level);this.author=p.getUUID();this.kind=kind;
@@ -169,7 +176,9 @@ public final class LbcHedgehog {
     private Fish spawn(ServerPlayer p,ServerLevel level,Vec3 at,Kind kind){
         enterCheckpointCallback();try {
             if(!(kind==Kind.WALL?wallAuthorValid(p):ownerValid(p))||game.items().godHedgehog().blocksSilverfish(level)||!resident(level,at)||suppressed(level,at))return null;
-            var f=new Fish(level,p,kind);f.setPos(at);f.entityTags().add(TAG);
+            var f=new Fish(level,p,kind);f.setPos(at);
+            if(!level.noCollision(f,f.getBoundingBox()))return null;
+            f.entityTags().add(TAG);
             String legacy=switch(kind){case ORDINARY->"hedgehog";case WALL->"baffled_wall";default->"hedgehog_"+kind.name().toLowerCase(java.util.Locale.ROOT);};
             f.entityTags().add(legacy);if(kind!=Kind.ORDINARY&&kind!=Kind.WALL)f.entityTags().add("hedgehog_upgraded");
             if(kind!=Kind.TANK)f.entityTags().add("lucky_mob");
@@ -237,20 +246,28 @@ public final class LbcHedgehog {
         var p=player(f.author);if(p==null&&f.kind!=Kind.WALL)return;var level=(ServerLevel)f.level();var from=f.getEyePosition();var direction=target.getEyePosition().subtract(from).normalize();
         LbcOverload.sound(level,from,"minecraft:entity.silverfish.hurt",1,1,0,0);
         if(kind==Kind.SNIPER)LbcOverload.sound(p,from,"minecraft:item.trident.return",5,1,0);
-        int max=kind==Kind.SNIPER?300:kind==Kind.LASER?30:50;int color=kind==Kind.HEALER?0xffdcdc:kind==Kind.SNIPER?0xbeb3ff:kind==Kind.LASER?0x3fffbf:0xbdbdbd;
-        boolean display=kind==Kind.SNIPER||kind==Kind.WALL||kind==Kind.DEFAULT;Vec3 end=from;
-        try{for(int i=0;i<=max;i++){
-            var at=from.add(direction.scale(i*.3));if(!resident(level,at)||suppressed(level,at))return;
-            end=at;
-            if(!display)level.sendParticles(new DustParticleOptions(color,kind==Kind.SNIPER?3:1),at.x,at.y,at.z,1,0,0,0,0);
-            var targets=level.getEntitiesOfClass(LivingEntity.class,cell(at),e->kind==Kind.HEALER?e!=f&&eligible(e)&&allied(f,e):impact(f,e));
-            if(!targets.isEmpty()){
-                var hit=targets.getFirst();
-                if(kind==Kind.HEALER)game.items().indirectKills().withCause(hit,f.cause,()->MobEffects.INSTANT_HEALTH.value().applyInstantaneousEffect(level,f,p,hit,0,1));
-                else{damage(f,hit,kind==Kind.SNIPER?20:kind==Kind.LASER?.02f:4,kind==Kind.LASER);if(kind!=Kind.LASER)return;}
-            }
-            if(kind!=Kind.LASER&&!level.getBlockState(BlockPos.containing(at)).isAir())return;
-        }}finally{if(display)beamVisuals.show(level,from,end,kind==Kind.SNIPER);}
+        double range=(kind==Kind.SNIPER?300:kind==Kind.LASER?30:50)*.3;var end=from.add(direction.scale(range));
+        var wall=kind==Kind.LASER?LbcTerra.wallHit(level,from,end,state->false):LbcTerra.surfaceHit(level,from,end,f);
+        if(wall!=null)end=wall.getLocation();double suppression=game.items().magic().suppressionFraction(level,from,end);
+        if(suppression<=1)end=from.lerp(end,suppression);
+        // One native section-index query over the whole segment, not one world query per .3 block.
+        var hits=new ArrayList<>(net.minecraft.world.entity.projectile.ProjectileUtil.getManyEntityHitResult(level,f,from,end,new AABB(from,end).inflate(1),
+                e->e instanceof LivingEntity living&&(kind==Kind.HEALER?eligible(living)&&allied(f,living):impact(f,living)),
+                0,net.minecraft.world.level.ClipContext.Block.COLLIDER,true,false));
+        hits.sort(java.util.Comparator.comparingDouble(h->from.distanceToSqr(h.getLocation())));
+        try{for(var contact:hits){
+            var hit=(LivingEntity)contact.getEntity();
+            if(kind==Kind.HEALER||kind==Kind.LASER){
+                // Retain the source's per-.3-cell healing/laser dose after continuous collision detection.
+                var box=hit.getBoundingBox();var exit=box.contains(end)?end:box.clip(end,from).orElse(contact.getLocation());
+                double entry=from.distanceTo(contact.getLocation()),last=from.distanceTo(exit);
+                int repeats=Math.max(1,(int)Math.floor(last/.3+1e-7)-(int)Math.ceil(entry/.3-1e-7)+1);
+                for(int dose=0;dose<repeats;dose++){
+                    if(kind==Kind.HEALER)game.items().indirectKills().withCause(hit,f.cause,()->MobEffects.INSTANT_HEALTH.value().applyInstantaneousEffect(level,f,p,hit,0,1));
+                    else damage(f,hit,.02f,true);
+                }
+            }else{end=contact.getLocation();damage(f,hit,kind==Kind.SNIPER?20:4,false);return;}
+        }}finally{beamVisuals.show(level,from,end,kind,f.getUUID());}
     }
     /** The same attack boundary used after the source random wall/Sniper admission. */
     public void fireBeam(Silverfish helper,LivingEntity target){

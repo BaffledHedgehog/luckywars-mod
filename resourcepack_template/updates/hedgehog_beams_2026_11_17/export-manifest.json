@@ -1,0 +1,8 @@
+{
+  "copy": [
+    "assets/",
+    "bloom_rules.json"
+  ],
+  "merge": "All current artist rules preserved; one additional opt-in alpha254 sniper rule. Check AUTHOR_BASE_SHA256 before copying shared include/config.",
+  "authorPackWritten": false
+}

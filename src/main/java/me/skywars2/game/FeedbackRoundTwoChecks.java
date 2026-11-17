@@ -133,7 +133,7 @@ public final class FeedbackRoundTwoChecks {
             require(cow.getHealth()==972&&beams.count()==3,"three new visuals retain native20/4/4 damage and original target tracing");
             @SuppressWarnings("unchecked") var records=(List<Object>)WoolBucketChecks.read(beams,"beams");
             for(int i=0;i<records.size();i++){
-                var display=(ItemDisplayElement)WoolBucketChecks.read(records.get(i),"display");float expected=LbcFadingBeams.LASER_WIDTH*(i==0?1.25f:1.5f);
+                var display=(ItemDisplayElement)WoolBucketChecks.read(records.get(i),"display");float expected=LbcFadingBeams.LASER_WIDTH*(i==0?5f:1.5f);
                 require(Math.abs(display.getScale().x()-expected)<.00001&&display.getScale().x()==display.getScale().y()&&display.getScale().z()>5,"full initial symmetric width and already-stretched length before first spawn");
                 var id=display.getEntityId();boolean positioned=false;
                 for(var packet:f.client.packets().stream().flatMap(FeedbackRoundTwoChecks::flatten).toList())if(packet instanceof net.minecraft.network.protocol.game.ClientboundAddEntityPacket add&&add.getId()==id)
@@ -160,7 +160,7 @@ public final class FeedbackRoundTwoChecks {
             if(phase==0){if(now-when<3)return false;frozen=beams.checkpoint();game.items().timeStop().begin(f.level,100);when=now;phase=1;return false;}
             if(phase==1){if(now-when<3)return false;require(beams.checkpoint().equals(frozen),"TimeStop pauses all display ages");game.items().timeStop().end(f.level);phase=2;}
             int age=now-began-3;
-            if(age>=12&&!whiteFinished){require(beams.checkpoint().stream().allMatch(LbcFadingBeams.Image::sniper),"both white rays complete their10tick fade");whiteFinished=true;}
+            if(age>=12&&!whiteFinished){require(beams.checkpoint().stream().allMatch(i->i.kind()==LbcHedgehog.Kind.SNIPER),"both white rays complete their10tick fade");whiteFinished=true;}
             if(age<24)return false;require(whiteFinished&&beams.count()==0,"all rays shrink to zero then retire, including20tick sniper");return true;
         }
         public void close(){beams.stop();game.items().timeStop().end(f.level);f.close();}

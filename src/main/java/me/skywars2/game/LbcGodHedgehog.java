@@ -209,7 +209,8 @@ public final class LbcGodHedgehog {
         if(phase>=100&&phase<=140){
             var dir=boss.getLookAngle().normalize();var at=boss.getEyePosition().add(dir.scale(10));seed(e,at,dir);
             sound(e.level,at,"minecraft:lbcsounds.energy_2",1,1,.5f);
-            var next=boss.position().add(0,-2,0);if(resident(e.level,next))boss.setPos(next);boss.setYRot(boss.getYRot()+20);return;
+            // spawn_dim_scrap runs at the eyes anchor, including its final relative teleport.
+            var next=boss.getEyePosition().add(0,-2,0);if(resident(e.level,next))boss.setPos(next);boss.setYRot(boss.getYRot()+20);return;
         }
         if(phase<240||phase>440)return;
         var candidates=e.level.players().stream().filter(p->!p.isSpectator()&&game.canUseGameplayItems(p)&&!game.isObserver(p)).toList();

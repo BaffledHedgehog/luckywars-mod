@@ -543,6 +543,13 @@ public final class LbcTerra {
                 (world, pos) -> world.hasChunkAt(pos) && !blocks.test(pos,world.getBlockState(pos))
                         ? null : Shapes.block().clip(from, to, pos), world -> null);
     }
+    /** Resident DDA with exact native collision faces, for placing bodies on the looked-at surface. */
+    static BlockHitResult surfaceHit(ServerLevel level,Vec3 from,Vec3 to,Entity viewer) {
+        var context=net.minecraft.world.phys.shapes.CollisionContext.of(viewer);
+        return BlockGetter.traverseBlocks(from,to,level,(world,pos)->
+                (world.hasChunkAt(pos)?world.getBlockState(pos).getCollisionShape(world,pos,context):Shapes.block())
+                        .clip(from,to,pos),world->null);
+    }
 
     /** Прогноз только картинки: без поиска целей, урона, роста растений или загрузки чанков. */
     private Vec3 visualEnd(TerraProjectile projectile, ServerPlayer owner) {
