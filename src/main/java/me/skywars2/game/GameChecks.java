@@ -1558,6 +1558,7 @@ public final class GameChecks {
                                 case "tmt-ammo-rewind" -> { TmtAmmoRewindChecks.run(game); return; }
                                 case "tmt-extra-use" -> { TmtExtraUseChecks.run(game); return; }
                                 case "entity-protocol" -> { EntityProtocolChecks.run(game); return; }
+                                case "fake-player" -> { FakePlayerChecks.run(game); return; }
                                 case "lucky-chests" -> { LuckyChestChecks.run(game); return; }
                                 case "native-utility-tail" -> { NativeUtilityTailChecks.run(game); return; }
                                 case "native-projectile-weapons" -> { NativeProjectileWeaponChecks.run(game); return; }

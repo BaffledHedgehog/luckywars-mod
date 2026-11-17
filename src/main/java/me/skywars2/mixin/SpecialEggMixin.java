@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.LbcFakePlayer;
 import me.skywars2.game.LbcSpecialEggs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -48,7 +49,8 @@ public abstract class SpecialEggMixin {
                 "Lnet/minecraft/server/level/ServerLevel;addFreshEntityWithPassengers(Lnet/minecraft/world/entity/Entity;)V"))
         private static void skywars2$offspringPayload(ServerLevel level,Entity child,Operation<Void> original,
                 @Local(argsOnly=true) Player player,@Local(argsOnly=true) ItemStack stack) {
-            if(LbcSpecialEggs.matches(stack)) EntityType.<Entity>createDefaultStackConfig(level,stack,player).apply(child);
+            if(LbcSpecialEggs.matches(stack) || LbcFakePlayer.matches(stack))
+                EntityType.<Entity>createDefaultStackConfig(level,stack,player).apply(child);
             original.call(level,child);
         }
     }
