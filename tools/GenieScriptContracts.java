@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.concurrent.TimeUnit;
 
 /** VM contracts need neither a Minecraft world nor credentials or a model request. */
 public final class GenieScriptContracts {
@@ -15,7 +17,84 @@ public final class GenieScriptContracts {
     private static ScriptProgram compile(String code){
         return ScriptProgram.compile(JsonParser.parseString(code).getAsJsonObject(),Map.of("world.command",new ScriptProgram.Signature(1,1)),Set.of("USE"));
     }
-    public static void main(String[] args)throws IOException{
+    private static void memoryContracts(){
+        var spin=compile("""
+            {"version":1,"state":{},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[["label","loop"],["jump","loop"]]}}}
+            """);
+        ScriptMachine.Host unused=(name,values)->{throw new AssertionError("unexpected native call");};
+        var shared=new ScriptMemory(1800);var live=new ArrayList<ScriptMachine>();boolean exhausted=false;
+        for(int i=0;i<20;i++){
+            var state=new JsonObject();state.addProperty("text","x".repeat(3000));
+            try{live.add(new ScriptMachine(spin,"main",List.of(new JsonObject()),state,unused,shared));}
+            catch(IllegalArgumentException expected){exhausted=true;break;}
+        }
+        require(exhausted&&live.size()>1,"individually valid fibers must share one aggregate live-data bound");
+        live.removeFirst().cancel();var replacement=new JsonObject();replacement.addProperty("text","y".repeat(3000));
+        live.add(new ScriptMachine(spin,"main",List.of(new JsonObject()),replacement,unused,shared));
+        for(var fiber:live)fiber.cancel();require(shared.census()==0,"cancelled fibers release their state, frames and shared program");
+        var transientSource=ScriptJson.parse("""
+            {"version":1,"state":{},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[["label","loop"],["const",[]],["drop"],["jump","loop"]]}}}
+            """);
+        var data=new JsonArray();for(int i=0;i<200;i++)data.add(i);
+        transientSource.getAsJsonObject("functions").getAsJsonObject("main").getAsJsonArray("code").get(1).getAsJsonArray().set(1,data);
+        var churn=new ScriptMachine(ScriptProgram.compile(transientSource,Map.of(),Set.of("USE")),"main",List.of(new JsonObject()),new JsonObject(),unused,new ScriptMemory(3000));
+        require(churn.advance(0,9000)==ScriptMachine.Status.RUNNING,"discarded temporary values must be reclaimed instead of accumulating an allocation quota");
+        churn.cancel();
+        var pendingCode=compile("""
+            {"version":1,"state":{},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[["const","x"],["call","world.command",1],["return"]]}}}
+            """);
+        var future=new CompletableFuture<JsonElement>();var memory=new ScriptMemory(512);
+        var pending=new ScriptMachine(pendingCode,"main",List.of(new JsonObject()),new JsonObject(),
+            (name,values)->new ScriptMachine.Pending(future,()->future.cancel(false)),memory);
+        pending.advance(0,20);var oversized=new JsonObject();oversized.addProperty("text","x".repeat(8000));future.complete(oversized);
+        rejected(()->pending.advance(1,20),"a native continuation bypassed the aggregate memory bound");
+        require(pending.status()==ScriptMachine.Status.CANCELLED&&memory.census()==0,"oversized native output cancels only its fiber and releases it");
+        var nativePool=new ScriptMemory(10000);long[] during={0};
+        var argumentSource=transientSource.deepCopy();var code=argumentSource.getAsJsonObject("functions").getAsJsonObject("main").getAsJsonArray("code");
+        code.remove(0);code.remove(1);code.remove(1);code.add(JsonParser.parseString("[\"call\",\"world.command\",1]"));code.add(JsonParser.parseString("[\"return\"]"));
+        var argumentMachine=new ScriptMachine(ScriptProgram.compile(argumentSource,Map.of("world.command",new ScriptProgram.Signature(1,1)),Set.of("USE")),"main",List.of(new JsonObject()),new JsonObject(),
+            (name,values)->{during[0]=nativePool.census();return new ScriptMachine.Value(JsonNull.INSTANCE);},nativePool);
+        long before=nativePool.census();argumentMachine.advance(0,20);
+        require(during[0]>before+150,"native argument copies must remain rooted while a host call takes its own census");
+        require(nativePool.census()==0,"completed fibers release shared code and continuation roots");
+    }
+    private static void repositoryContracts()throws Exception{
+        Files.createDirectories(Path.of("build/verification"));var root=Files.createTempDirectory(Path.of("build/verification"),"genie-code-contracts-").toAbsolutePath();
+        String source="""
+            {"version":1,"state":{"counter":7},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[["load","state"],["const","counter"],["get"],["return"]]}}}
+            """;
+        String id;
+        try{
+            try(var repository=new ScriptRepository(root,Map.of(),Set.of("USE"),1024)){
+                var ready=repository.prepare(source).get(10,TimeUnit.SECONDS);id=ready.id();
+                require(Files.isRegularFile(root.resolve(id+".json.gz")),"granted code must already exist independently of the process cache");
+                require(id.equals(ScriptJson.digest(ScriptJson.parse(source))),"code identity comes from canonical program contents");
+                var first=ready.program().initialState();first.addProperty("counter",99);
+                require(ready.program().initialState().get("counter").getAsInt()==7,"item copies start with independent mutable state");
+            }
+            try(var reopened=new ScriptRepository(root,Map.of(),Set.of("USE"),1024)){
+                var restored=reopened.load(id).get(10,TimeUnit.SECONDS);
+                var fiber=new ScriptMachine(restored.program(),"main",List.of(new JsonObject()),restored.program().initialState(),(name,values)->{throw new AssertionError();});
+                require(fiber.advance(0,100)==ScriptMachine.Status.DONE&&fiber.result().getAsInt()==7,"compressed code survives cache eviction and reopening");
+                require(reopened.load("../outside").handle((value,error)->error!=null).get(10,TimeUnit.SECONDS),"item hashes cannot escape the code directory");
+            }
+            byte[] valid=Files.readAllBytes(root.resolve(id+".json.gz"));
+            var other=ScriptJson.parse(source);other.getAsJsonObject("state").addProperty("counter",8);
+            try(var gzip=new java.util.zip.GZIPOutputStream(Files.newOutputStream(root.resolve(id+".json.gz")))){gzip.write(ScriptJson.canonical(other).getBytes(StandardCharsets.UTF_8));}
+            try(var reopened=new ScriptRepository(root,Map.of(),Set.of("USE"),1024)){
+                require(reopened.load(id).handle((value,error)->error!=null).get(10,TimeUnit.SECONDS),"another technically valid program cannot silently replace a referenced hash");
+                reopened.prepare(source).get(10,TimeUnit.SECONDS);
+                require(Arrays.equals(valid,Files.readAllBytes(root.resolve(id+".json.gz"))),"preparing identical contents repairs only their own code file");
+            }
+            var closed=new ScriptRepository(root,Map.of(),Set.of("USE"));closed.close();
+            require(closed.prepare(source).handle((value,error)->error!=null).get(10,TimeUnit.SECONDS),"a stopped repository must not accept another item generation");
+        }finally{
+            try(var paths=Files.walk(root)){for(var path:paths.sorted(Comparator.reverseOrder()).toList()){
+                require(path.toAbsolutePath().normalize().startsWith(root),"fixture cleanup escaped its own directory");Files.deleteIfExists(path);
+            }}
+        }
+    }
+    public static void main(String[] args)throws Exception{
         if(args.length==1&&args[0].equals("--contract")){
             System.out.println(ScriptJson.canonical(ScriptProgram.contract(Map.of("world.command",new ScriptProgram.Signature(1,1)),Set.of("USE"))));return;
         }
@@ -97,6 +176,8 @@ public final class GenieScriptContracts {
         rejected(()->ScriptJson.parse("{\"value\":\"\\ud800\"}"),"unpaired Unicode surrogate accepted");
         require(ScriptJson.canonical(ScriptJson.parse("{\"z\":-0.00,\"a\":\"ё\\n😀\",\"n\":1.2300e2}")).equals("{\"a\":\"ё\\n😀\",\"n\":123,\"z\":0}"),
             "canonical JSON preserves Unicode and numeric values");
-        System.out.println("GENIE_SCRIPT_CONTRACTS_PASS functions, loops, mutable state, cooperative fuel, delays, host calls, cancellation, static verifier and data bounds; no gameplay-power policy");
+        memoryContracts();
+        repositoryContracts();
+        System.out.println("GENIE_SCRIPT_CONTRACTS_PASS functions, loops, mutable state, cooperative fuel, delays, host calls, cancellation, static verifier and aggregate live memory; no gameplay-power policy");
     }
 }

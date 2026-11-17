@@ -179,5 +179,5 @@ public final class GenieService implements AutoCloseable {
     }
     public void cancelAll(){for(var wish:List.copyOf(wishes.values()))cancel(wish.owner);dialogs.clear();warnings.clear();}
     public void stop(){cancelAll();runtime.clear();}
-    @Override public void close(){stop();if(model!=null){model.close();model=null;}}
+    @Override public void close(){stop();runtime.scripts().close();if(model!=null){model.close();model=null;}}
 }

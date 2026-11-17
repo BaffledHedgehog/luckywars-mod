@@ -22,7 +22,7 @@ import com.mojang.brigadier.tree.CommandNode;
 
 /** Real world API for item code. Call/drain on the game thread; no network worker touches a level. */
 public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
-    private record Work(Supplier<JsonElement> action,CompletableFuture<JsonElement> future){}
+    private record Work(String name,List<JsonElement> arguments,CompletableFuture<JsonElement> future){}
     private static final Map<String,ScriptProgram.Signature> API=Map.of(
         "world.command",new ScriptProgram.Signature(1,1),
         "world.select",new ScriptProgram.Signature(1,1),
@@ -35,12 +35,18 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
     private final ItemStack captured;
     private final BooleanSupplier admitted;
     private final LongSupplier clock;
+    private final ScriptMemory memory;
     private final ArrayDeque<Work> queue=new ArrayDeque<>();
+    private Work active;
     private boolean closed,draining;
 
     public GenieWorldHost(GameController game,ServerPlayer owner,ItemStack captured,BooleanSupplier admitted,LongSupplier clock){
+        this(game,owner,captured,admitted,clock,new ScriptMemory());
+    }
+    public GenieWorldHost(GameController game,ServerPlayer owner,ItemStack captured,BooleanSupplier admitted,LongSupplier clock,ScriptMemory memory){
         this.game=Objects.requireNonNull(game);this.owner=Objects.requireNonNull(owner);
         this.captured=Objects.requireNonNull(captured);this.admitted=Objects.requireNonNull(admitted);this.clock=Objects.requireNonNull(clock);
+        this.memory=Objects.requireNonNull(memory);memory.track(this,this::memoryRoots,()->16+8L*queue.size());
     }
     public static Map<String,ScriptProgram.Signature> api(){return API;}
     private void mainThread(){if(!game.server().isSameThread())throw new IllegalStateException("item world API requires the game thread");}
@@ -56,9 +62,10 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         }
         // Pending work retains immutable arguments, never references the VM's mutable state.
         if(queue.size()>=4096)throw new IllegalStateException("item native-work backlog exceeds storage bounds");
+        memory.reserveValues(values);
         var arguments=new ArrayList<JsonElement>();for(var value:values)arguments.add(value.deepCopy());
         var future=new CompletableFuture<JsonElement>();
-        var work=new Work(()->execute(name,arguments),future);queue.addLast(work);
+        var work=new Work(name,List.copyOf(arguments),future);queue.addLast(work);
         return new ScriptMachine.Pending(future,()->{queue.remove(work);future.cancel(false);});
     }
     /** Share maximum/deadline across hosts in the scheduler; this method does not own another clock. */
@@ -69,18 +76,23 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             while(completed<maximum&&!queue.isEmpty()&&System.nanoTime()<deadlineNanos){
                 if(!owner.isAlive()||owner.isRemoved()){close();break;}
                 if(!admitted.getAsBoolean())break;
-                var work=queue.removeFirst();if(work.future.isDone())continue;completed++;
+                var work=queue.removeFirst();if(work.future.isDone())continue;completed++;active=work;
                 try(var scope=WeaponEnchantments.using(owner,captured)){
-                    work.future.complete(executeChecked(work.action));
+                    var result=execute(work.name,work.arguments);result=result==null?JsonNull.INSTANCE:result;
+                    memory.reserveValue(result);work.future.complete(result);
                 }catch(RuntimeException error){work.future.completeExceptionally(error);}
+                finally{active=null;}
             }
         }finally{draining=false;}
         return completed;
     }
-    private static JsonElement executeChecked(Supplier<JsonElement> action){var result=action.get();return result==null?JsonNull.INSTANCE:result;}
+    private List<JsonElement> memoryRoots(){
+        var roots=new ArrayList<JsonElement>();for(var work:queue)roots.addAll(work.arguments);
+        if(active!=null)roots.addAll(active.arguments);return roots;
+    }
     public int pending(){return queue.size();}
     @Override public void close(){
-        mainThread();closed=true;while(!queue.isEmpty())queue.removeFirst().future.cancel(false);
+        mainThread();closed=true;while(!queue.isEmpty())queue.removeFirst().future.cancel(false);memory.forget(this);
     }
     private JsonElement execute(String name,List<JsonElement> values){
         return switch(name){

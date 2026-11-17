@@ -27,18 +27,20 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.phys.*;
 import static me.skywars2.game.genie.GenieBlueprint.*;
 
-/** Bounded native primitives. A blueprint cannot execute Java, commands or custom NBT. */
+/** Routes executable item programs and the original declarative item format through native events. */
 public final class GenieRuntime {
     public static final String PROGRAM="genie_program",SERIAL="genie_serial";
     private record Key(UUID owner,String serial,int rule){}
     private final GameController game;
+    private final GenieScriptRuntime scripts;
     private final Map<Key,Integer> cooldowns=new HashMap<>();
     private final Map<String,GenieBlueprint> programs=new LinkedHashMap<>();
     private boolean dispatching;
     private final Set<Entity> projectiles=Collections.newSetFromMap(new IdentityHashMap<>());
     private static final String SHOT_POWER="skywars2.genie_power/",SHOT_LIFE="skywars2.genie_life/";
-    GenieRuntime(GameController game){this.game=game;}
-    public static boolean matches(ItemStack stack){return ItemData.contains(stack,PROGRAM);}
+    GenieRuntime(GameController game){this.game=game;scripts=new GenieScriptRuntime(game);}
+    public GenieScriptRuntime scripts(){return scripts;}
+    public static boolean matches(ItemStack stack){return ItemData.contains(stack,PROGRAM)||GenieScriptItem.matches(stack);}
     private static Identifier id(String text){return Identifier.withDefaultNamespace(text);}
     private static void require(boolean condition,String reason){if(!condition)throw new IllegalArgumentException(reason);}
     private static boolean forbiddenItem(Item item){
@@ -111,15 +113,20 @@ public final class GenieRuntime {
     public boolean admitted(ServerPlayer owner){return game.playing()&&!game.balanceLegacy()&&!game.isObserver(owner)&&owner.isAlive()
             &&game.canUseGameplayItems(owner)&&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner);}
     public void input(ServerPlayer owner,LbcTmtTriggers.Input input,Entity target){
+        scripts.input(owner,input,target);
         Trigger trigger=switch(input){case RIGHT_CLICK,BLOCK_USE -> Trigger.USE;case HIT -> Trigger.HIT;case HURT -> Trigger.HURT;case JUMP -> Trigger.JUMP;
             case SPRINT -> Trigger.SPRINT;case TICK -> Trigger.TICK;
             // These events have an exact captured native source, including its final consumed/broken item.
             case SHOT,EAT,MINING -> null;default -> null;};
-        if(trigger!=null)event(owner,trigger,target,null);
+        if(trigger!=null)legacyEvent(owner,trigger,target,null,null);
     }
     /** Captured source survives the last consumable/shot/break without becoming a held replacement. */
     public void event(ServerPlayer owner,Trigger trigger,Entity target,ItemStack captured){event(owner,trigger,target,captured,null);}
     public void event(ServerPlayer owner,Trigger trigger,Entity target,ItemStack captured,InteractionHand usedHand){
+        scripts.event(owner,trigger.name(),target,captured,usedHand);
+        legacyEvent(owner,trigger,target,captured,usedHand);
+    }
+    private void legacyEvent(ServerPlayer owner,Trigger trigger,Entity target,ItemStack captured,InteractionHand usedHand){
         if(dispatching||!admitted(owner))return;dispatching=true;
         try{
             var selected=Collections.newSetFromMap(new IdentityHashMap<ItemStack,Boolean>());
@@ -278,6 +285,7 @@ public final class GenieRuntime {
     }
     public static float projectilePower(Projectile shot,float ordinary){double power=tagNumber(shot,SHOT_POWER,-1);return Double.isFinite(power)&&power>=0&&power<=16?(float)power:ordinary;}
     public void tick(){
+        scripts.tick();
         for(var shot:List.copyOf(projectiles)){
             if(shot.isRemoved()){projectiles.remove(shot);continue;}
             if(shot.tickCount>=tagNumber(shot,SHOT_LIFE,200)||shot.level().isOutsideBuildHeight(shot.blockPosition())){shot.discard();projectiles.remove(shot);}
@@ -291,6 +299,6 @@ public final class GenieRuntime {
         public void restore(GenieRuntime runtime){runtime.cooldowns.clear();runtime.cooldowns.putAll(cooldowns);}
     }
     public Snapshot snapshot(){return new Snapshot(cooldowns);}
-    public void forget(ServerPlayer p){cooldowns.keySet().removeIf(key->key.owner.equals(p.getUUID()));}
-    public void clear(){cooldowns.clear();programs.clear();projectiles.clear();}
+    public void forget(ServerPlayer p){scripts.forget(p);cooldowns.keySet().removeIf(key->key.owner.equals(p.getUUID()));}
+    public void clear(){scripts.clear();cooldowns.clear();programs.clear();projectiles.clear();}
 }

@@ -38,13 +38,27 @@ public final class ScriptProgram {
     private final Map<String,String> handlers;
     private final Map<String,Signature> api;
     private final JsonObject initialState;
+    private final List<JsonElement> memoryRoots;
+    private final long memoryOverhead;
     private ScriptProgram(Map<String,Function> functions,Map<String,String> handlers,Map<String,Signature> api,JsonObject initialState){
         this.functions=Map.copyOf(functions);this.handlers=Map.copyOf(handlers);this.api=Map.copyOf(api);this.initialState=initialState.deepCopy();
+        var roots=new ArrayList<JsonElement>();roots.add(this.initialState);long overhead=16;
+        for(var entry:this.functions.entrySet()){
+            overhead+=8+(entry.getKey().length()+7L)/8;
+            for(var parameter:entry.getValue().parameters())overhead+=4+(parameter.length()+7L)/8;
+            for(var instruction:entry.getValue().code()){
+                overhead+=8;if(instruction.text()!=null)overhead+=(instruction.text().length()+7L)/8;
+                if(instruction.value()!=null)roots.add(instruction.value());
+            }
+        }
+        memoryRoots=List.copyOf(roots);memoryOverhead=overhead;
     }
     public Function function(String name){return functions.get(name);}
     public Signature signature(String name){return api.get(name);}
     public String handler(String event){return handlers.get(event);}
     public JsonObject initialState(){return initialState.deepCopy();}
+    List<JsonElement> memoryRoots(){return memoryRoots;}
+    long memoryOverhead(){return memoryOverhead;}
     /** Export the actual compiler contract for the cloud verifier, never a second handwritten schema. */
     public static JsonObject contract(Map<String,Signature> api,Set<String> events){
         var root=new JsonObject();root.addProperty("language","luckywars-item-script");root.addProperty("version",VERSION);
