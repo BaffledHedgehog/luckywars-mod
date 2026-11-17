@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "compiler": "LWJGL shaderc 3.4.3 native DLL, Minecraft 26.3 GlslCompiler base options",
+  "checks": [
+    {
+      "name": "assets/minecraft/shaders/core/gui.vsh",
+      "variant": 0,
+      "negative_control": false,
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "assets/minecraft/shaders/core/gui.vsh",
+      "variant": 1,
+      "negative_control": false,
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "assets/minecraft/shaders/core/gui.fsh",
+      "variant": 0,
+      "negative_control": false,
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "assets/minecraft/shaders/core/gui.fsh",
+      "variant": 1,
+      "negative_control": false,
+      "passed": true,
+      "error": ""
+    }
+  ],
+  "unrelatedActiveStagesAlsoCompiled": 31,
+  "physicalClientReloadObserved": false
+}
