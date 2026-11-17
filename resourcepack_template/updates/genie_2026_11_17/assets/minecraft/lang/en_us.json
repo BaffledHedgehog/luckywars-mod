@@ -1,0 +1,14 @@
+{
+  "genie.lamp": "Genie lamp",
+  "genie.prompt": "Enter your wish for an item",
+  "genie.warning": "If the genie finds your wish disrespectful, he will crap in your pockets",
+  "genie.submit": "Make a wish",
+  "genie.thinking": "The genie is thinking",
+  "genie.rejected": "The genie crapped in your pockets and flew away",
+  "genie.answer": "<Genie> %s",
+  "genie.dont_drop": "<Genie> Hey, stop tickling my balls! Put me back!",
+  "genie.unavailable": "The server has not configured the genie connection. Your lamp is safe.",
+  "genie.failed": "The genie lost his train of thought. Your lamp is safe; try again.",
+  "genie.need_slot": "Free one slot to separate a lamp from its stack.",
+  "genie.invalid_wish": "Write a wish between 1 and 2000 characters."
+}

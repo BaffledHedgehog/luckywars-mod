@@ -1534,6 +1534,7 @@ public final class GameChecks {
                                 case "tmt-native-identities" -> {TmtNativeIdentityChecks.run(game);return;}
                                 case "current-lucky-spawner" -> {CurrentSpawnerChecks.run(game);return;}
                                 case "uniform-item-pools" -> {UniformItemPoolChecks.run(game);return;}
+                                case "genie" -> { GenieChecks.run(game); return; }
                                 case "bulk-loot" -> {BulkLootChecks.run(game);return;}
                                 case "bucks-trader" -> {BucksTraderChecks.run(game);return;}
                                 case "tmt-mana-potions" -> {TmtManaPotionChecks.run(game);return;}
@@ -1950,6 +1951,7 @@ public final class GameChecks {
         TikTokPlaybackChecks.tick(game);
         TikTokNetworkChecks.tick(game);
         MusicStaffChecks.tick(game);
+        GenieChecks.tick(game);
         SynchroRankedChecks.tick(game);
         TikTokBulkImportChecks.tick(game);
         SmokeEndingChecks.tick(game);

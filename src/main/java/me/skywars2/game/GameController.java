@@ -1504,6 +1504,7 @@ public final class GameController {
 
     public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
     public void consumed(ServerPlayer player, ItemStack stack) {
+        items.genie().runtime().event(player,me.skywars2.game.genie.GenieBlueprint.Trigger.EAT,null,stack,player.getUsedItemHand());
         LbcTmtTriggers.input(player,LbcTmtTriggers.Input.EAT);
         items.tmt().withConsumedTraits(player,stack,()->consumedProperties(player,stack));
         events.onConsumed(player, stack);
@@ -1866,6 +1867,7 @@ public final class GameController {
     }
 
     public void shutdown() {
+        items.genie().close();
         itemQueue.close(); // Closing the process is not a round reset; native SavedData retains dormant loot.
         LbcPerkStatistics.get(server).flush();
         perkChoices.clear();

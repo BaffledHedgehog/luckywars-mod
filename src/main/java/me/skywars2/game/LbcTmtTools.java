@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class LbcTmtTools {
     private LbcTmtTools(){}
     public static boolean blockCandidate(ItemStack stack){
+        if(me.skywars2.game.genie.GenieRuntime.matches(stack))return true;
         if(LbcTmtTriggers.modern(stack))return true;
         if(!LbcTmtItems.matches(stack))return LbcSteampunkBreaker.matches(stack)||LbcImbaAxe.recognized(stack)
                 ||LbcImbaShovel.matches(stack)||LbcImbaHoe.matches(stack)||LbcImbaPickaxe.matches(stack);
@@ -32,6 +33,7 @@ public final class LbcTmtTools {
     }
     /** Called only after the real destroyBlock succeeds; source was captured before final durability debit. */
     public static void broken(GameController game,ServerPlayer owner,ItemStack source,BlockPos pos,BlockState before){
+        game.items().genie().runtime().event(owner,me.skywars2.game.genie.GenieBlueprint.Trigger.MINING,null,source,net.minecraft.world.InteractionHand.MAIN_HAND);
         LbcTmtTriggers.captured(owner,LbcTmtTriggers.Input.MINING,source,net.minecraft.world.InteractionHand.MAIN_HAND,null,pos,before);
         if(!LbcTmtItems.matches(source)){brokenOwners(game,owner,source,pos,before);return;}
         for(var property:LbcTmtTriggers.effective(source))LbcTmtAbilities.invoke(source,property.id(),()->{

@@ -3,6 +3,13 @@
   "package": "me.skywars2.mixin",
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "GenieProjectileMixin$Fireball",
+    "GenieInteractionMixin$EntityUse",
+    "GenieProjectileMixin",
+    "GenieInteractionMixin",
+    "GenieInteractionMixin$Dialog",
+    "GenieInteractionMixin$Drop",
+    "GenieInteractionMixin$Use",
     "PoiJournalMixin",
     "InventoryPublicationMixin",
     "OversizedLootMixin",

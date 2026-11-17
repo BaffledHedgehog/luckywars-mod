@@ -131,6 +131,7 @@ public final class LbcTmtTriggers {
     public static void input(ServerPlayer owner,Input input,Entity target,net.minecraft.core.BlockPos block,
                              net.minecraft.world.level.block.state.BlockState before){
         var game=me.skywars2.SkyWars2.game();
+        if(game!=null)game.items().genie().runtime().input(owner,input,target);
         if(game==null||game.balanceLegacy()||dispatchDepth.get()>0||LbcModeScroll.scrolling()||!game.items().tmt().admitted(owner))return;
         int now=game.server().getTickCount();if(tick!=now){dispatched.clear();tick=now;}
         dispatchDepth.set(dispatchDepth.get()+1);

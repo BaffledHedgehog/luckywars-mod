@@ -230,12 +230,22 @@ public final class LbcKfcFood {
     private void replaceRandomSlot(ServerPlayer p) {
         if(game.items().inventoryHazards().protectedInventory(p))return;
         int roll=p.getRandom().nextInt(38);
+        replacePocket(p,roll);
+        p.inventoryMenu.broadcastChanges();
+    }
+    /** Same KFC outcome and sound, sampled without replacement for the genie. */
+    public void poopPockets(ServerPlayer p,int count) {
+        sound(p,"minecraft:lbcsounds.shitting_1",1,2);
+        var slots=new java.util.ArrayList<Integer>();for(int i=0;i<38;i++)slots.add(i);
+        for(int i=0;i<Math.min(38,Math.max(0,count));i++){int index=i+p.getRandom().nextInt(38-i);java.util.Collections.swap(slots,i,index);replacePocket(p,slots.get(i));}
+        p.inventoryMenu.broadcastChanges();
+    }
+    private void replacePocket(ServerPlayer p,int roll) {
         var stacks=game.lbc().rollTable(p.level(),p.position(),p,"lbc:govno_lot_2");
         var replacement=stacks.isEmpty()?ItemStack.EMPTY:stacks.getFirst();
         if(roll<27) p.getInventory().setItem(roll+9,replacement);
         else if(roll<36) p.getInventory().setItem(roll-27,replacement);
         else p.setItemSlot(roll==36?EquipmentSlot.HEAD:EquipmentSlot.OFFHAND,replacement);
-        p.inventoryMenu.broadcastChanges();
     }
     private void drop(ServerPlayer p,String table) {
         for(var stack:game.lbc().rollTable(p.level(),p.position(),p,table)) {
