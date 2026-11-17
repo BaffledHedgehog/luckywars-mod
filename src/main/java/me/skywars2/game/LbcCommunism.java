@@ -32,7 +32,6 @@ import java.util.*;
 
 /** Source one-block samples, through mobs until terrain, with native AI and explicit ownership. */
 public final class LbcCommunism {
-    private static final TagKey<net.minecraft.world.level.block.Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     public static final Item ITEM=create();
     private final GameController game;
@@ -141,22 +140,21 @@ public final class LbcCommunism {
                 ||p.entityTags().contains("nomagic_active")||p.entityTags().contains("time_stopped")||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
         var level=p.level();var direction=p.getLookAngle();var start=p.getEyePosition().add(direction.scale(hand==InteractionHand.OFF_HAND?.5:0));
         if(game.items().magic().suppressedAt(level,start))return false;
-        var visited=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
-        // Legacy Distance starts at zero and tests <=200 after increment: exactly201 samples.
-        // Only resident chunks are read; the ray never loads terrain or delays movement over ticks.
-        for(int step=0;step<=200;step++){
-            var at=start.add(direction.scale(step));var block=BlockPos.containing(at);
-            if(level.isOutsideBuildHeight(block)||level.getChunkSource().getChunkNow(block.getX()>>4,block.getZ()>>4)==null)break;
-            var box=new AABB(at.x,at.y,at.z,at.x+1,at.y+1,at.z+1);
-            var targets=level.getEntities(p,box,e->!(e instanceof Player)&&e.getType().builtInRegistryHolder().is(MOBS)
-                    &&game.items().wands().validTarget(e)&&!LbcGreed.active(e));
-            for(var target:targets){
-                if(!visited.add(target))continue;
-                control(p,target,true);target.entityTags().add("communist");
-            }
-            if(!targets.isEmpty())LbcOverload.sound(p,at,"minecraft:entity.villager.trade",1,1,0);
+        if(level.isOutsideBuildHeight(BlockPos.containing(start)))return true;
+        double reach=200;
+        if(direction.y>0)reach=Math.min(reach,(level.getMaxY()-start.y)/direction.y);
+        else if(direction.y<0)reach=Math.min(reach,(level.getMinY()-start.y)/direction.y);
+        var end=start.add(direction.scale(reach));var wall=LbcTerra.surfaceHit(level,start,end,p);
+        if(wall!=null)end=wall.getLocation();double distance=start.distanceTo(end);
+        final var stop=end;
+        var hits=net.minecraft.world.entity.projectile.ProjectileUtil.getManyEntityHitResult(level,p,start,end,new AABB(start,end).inflate(1),
+                e->!(e instanceof Player)&&e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validTarget(e)&&!LbcGreed.active(e)
+                        &&LbcBeamGeometry.selectorIntersects(e.getBoundingBox(),start,stop),
+                1,net.minecraft.world.level.ClipContext.Block.COLLIDER,true,false);
+        for(var hit:hits){var target=hit.getEntity();control(p,target,true);target.entityTags().add("communist");LbcOverload.sound(p,hit.getLocation(),"minecraft:entity.villager.trade",1,1,0);}
+        for(int sample=0;sample<=200&&sample<=distance+1e-7;sample++){
+            var at=start.add(direction.scale(sample));if(level.isOutsideBuildHeight(BlockPos.containing(at)))break;
             level.sendParticles(ParticleTypes.HAPPY_VILLAGER,at.x,at.y,at.z,1,.1,.1,.1,.2);
-            if(!level.getBlockState(block).is(AIRS))break;
         }
         return true;
     }

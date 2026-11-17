@@ -101,8 +101,22 @@ public final class HedgehogSpikeChecks {
             var block=BlockPos.containing(at.add(0,1,4));blocks.put(block,game.maps().snapshot(owner.level(),block));owner.level().setBlock(block,Blocks.STONE.defaultBlockState(),2);
             var shot=service.emit(owner,SpikeKind.BOOM,new Vec3(block.getX()+.5,block.getY()+.5,block.getZ()-1),new Vec3(0,0,2));require(shot!=null,"BOOM block launch");shot.tick();
             require(shot.isRemoved()&&game.items().hedgehog().wallCount(owner.level())==65,"actual native block impact triggers65walls once");clear();owner.level().setBlock(block,Blocks.AIR.defaultBlockState(),2);
-            var first=cow(at.add(0,1,3));var second=cow(at.add(0,1,6));service.impulse(owner);
-            require(first.getHealth()<193&&second.getHealth()<193&&first.getLastHurtByMob()==owner&&second.getLastHurtByMob()==owner,"source impulse repeated7/cell pierces both creatures with owner credit");clear();
+            var first=cow(at.add(0,1,3));var second=cow(at.add(0,1,6));int firstDoses=legacyImpulseDoses(first),secondDoses=legacyImpulseDoses(second);
+            var grass=BlockPos.containing(at.add(0,1,2));blocks.putIfAbsent(grass,game.maps().snapshot(owner.level(),grass));owner.level().setBlock(grass,Blocks.SHORT_GRASS.defaultBlockState(),2);
+            service.impulse(owner);
+            require(firstDoses>1&&secondDoses>1&&first.getHealth()==200-firstDoses*7&&second.getHealth()==200-secondDoses*7
+                    &&first.getLastHurtByMob()==owner&&second.getLastHurtByMob()==owner,"continuous impulse pierces grass and both creatures with exact old selector7/cell doses and owner credit");clear();
+            owner.level().setBlock(grass,Blocks.AIR.defaultBlockState(),2);
+        }
+        int legacyImpulseDoses(LivingEntity target){
+            int count=0;var from=owner.getEyePosition();var direction=owner.getLookAngle();
+            for(int sample=0;sample<=1000;sample++){
+                var point=from.add(direction.scale(sample*.25));var pos=BlockPos.containing(point);
+                if(!owner.level().hasChunkAt(pos)||!owner.level().getBlockState(pos).isAir())break;
+                // Independent old-cell oracle against the actual native body, without the new interval formula.
+                if(target.getBoundingBox().intersects(new net.minecraft.world.phys.AABB(point,point.add(1,1,1))))count++;
+            }
+            return count;
         }
         void dimensions(){
             var originalLevel=other.level();var point=other.position();var board=game.server().getScoreboard();

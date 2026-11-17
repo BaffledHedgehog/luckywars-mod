@@ -138,12 +138,14 @@ public final class LbcPendingCombat {
                 ||game.items().magic().artifactSuppressedAt(owner.level(),owner.position())
                 ||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
         LbcOverload.sound(owner,"minecraft:block.piston.extend",1,1,0);
-        var direction=owner.getLookAngle();var at=owner.getEyePosition();
-        for(int sample=0;sample<=200;sample++,at=at.add(direction.scale(.33))){
-            var pos=BlockPos.containing(at);if(!resident(owner.level(),pos))return true;
+        var direction=owner.getLookAngle();var from=owner.getEyePosition();var end=from.add(direction.scale(66));
+        var hit=LbcTerra.wallHit(owner.level(),from,end,state->!state.is(Blocks.AIR));if(hit!=null)end=hit.getLocation();
+        double distance=from.distanceTo(end);
+        for(int sample=0;sample<=200&&sample*.33<=distance+1e-7;sample++){
+            var at=from.add(direction.scale(sample*.33));if(!resident(owner.level(),BlockPos.containing(at)))break;
             if(owner.getRandom().nextFloat()<.15)owner.level().sendParticles(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK,Blocks.REDSTONE_BLOCK.defaultBlockState()),at.x,at.y,at.z,1,0,0,0,0);
-            if(!owner.level().getBlockState(pos).is(Blocks.AIR)){shift(owner,pos,direction);return true;}
         }
+        if(hit!=null&&resident(owner.level(),hit.getBlockPos()))shift(owner,hit.getBlockPos(),direction);
         return true;
     }
     /** One forward pass over the digital path; never loads chunks, caps chain length or delays a shift. */

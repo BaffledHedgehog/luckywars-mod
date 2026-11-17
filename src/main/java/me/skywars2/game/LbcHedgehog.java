@@ -259,9 +259,7 @@ public final class LbcHedgehog {
             var hit=(LivingEntity)contact.getEntity();
             if(kind==Kind.HEALER||kind==Kind.LASER){
                 // Retain the source's per-.3-cell healing/laser dose after continuous collision detection.
-                var box=hit.getBoundingBox();var exit=box.contains(end)?end:box.clip(end,from).orElse(contact.getLocation());
-                double entry=from.distanceTo(contact.getLocation()),last=from.distanceTo(exit);
-                int repeats=Math.max(1,(int)Math.floor(last/.3+1e-7)-(int)Math.ceil(entry/.3-1e-7)+1);
+                int repeats=LbcBeamGeometry.selectorSamples(hit.getBoundingBox(),from,end,.3);
                 for(int dose=0;dose<repeats;dose++){
                     if(kind==Kind.HEALER)game.items().indirectKills().withCause(hit,f.cause,()->MobEffects.INSTANT_HEALTH.value().applyInstantaneousEffect(level,f,p,hit,0,1));
                     else damage(f,hit,.02f,true);

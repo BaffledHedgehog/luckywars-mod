@@ -1120,25 +1120,20 @@ for(double step=0;step<=distance;step+=.5) {
     /** (user) Terra пробивает существ, но каждая цель получает лишь одну попытку 5 cactus-урона за каст. */
     private void terraRay(ServerPlayer player) {
         var level=player.level();
-        Vec3 origin=player.getEyePosition(),step=player.getLookAngle().scale(.35);
-        Vec3 end=origin;
-        double boundary=game.items().magic().suppressionFraction(level,origin,origin.add(step.scale(100)))*100;
-        BlockPos wall=null;
-        for(int i=0;i<=100;i++) {
-            if(i>=boundary){end=origin.add(step.scale(boundary));break;}
+        Vec3 origin=player.getEyePosition(),step=player.getLookAngle().scale(.35),limit=origin.add(step.scale(100));
+        double boundary=game.items().magic().suppressionFraction(level,origin,limit)*100;
+        if(Double.isFinite(boundary))limit=origin.add(step.scale(boundary));
+        var contact=LbcTerra.wallHit(level,origin,limit);Vec3 end=contact==null?limit:contact.getLocation();
+        BlockPos wall=contact!=null&&level.hasChunkAt(contact.getBlockPos())
+                &&(!Double.isFinite(boundary)||origin.distanceToSqr(end)<step.lengthSqr()*boundary*boundary-1e-9)?contact.getBlockPos():null;
+        double distance=origin.distanceTo(end);
+        for(int i=0;i<=100&&i*.35<=distance+1e-7;i++) {
             Vec3 point=origin.add(step.scale(i));
             var pos=BlockPos.containing(point);
             if(!level.hasChunkAt(pos)) break;
-            end=point;
             if(player.getRandom().nextFloat()<.3f)
                 level.sendParticles(TERRA_PARTICLE,true,false,point.x,point.y,point.z,1,0,0,0,0);
             LbcOverload.sound(player,point,"minecraft:block.amethyst_cluster.hit",.1f,2,0);
-            if(!level.getBlockState(pos).is(AIRS)) {
-                wall=pos;
-                // Попадания заканчиваются на границе стены, а не внутри последнего visual sample.
-                end=new AABB(pos).clip(origin,point).orElse(origin);
-                break;
-            }
         }
         // (user) Нативный отрезок против хитбоксов: один spatial query и одна проверка на кандидата.
         // 101 visual samples выше больше не умножают число проверок сущностей.
@@ -1167,27 +1162,12 @@ for(double step=0;step<=distance;step+=.5) {
     /** От блока дуга уходит по наружной нормали грани; попадание в существо сохраняет направление выстрела. */
     private void electro(ServerPlayer owner) {
         var level=owner.level();
-        Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),end=from;
-        boolean wall=false;
-        Vec3 wallNormal=null;
+        Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),limit=from.add(direction.scale(35));
         double boundary=game.items().magic().mechanismSuppressionFraction(level,from,from.add(direction.scale(35)))*35;
-        for(int i=0;i<=100;i++) {
-            if(i*.35>=boundary){end=from.add(direction.scale(boundary));break;}
-            Vec3 point=from.add(direction.scale(i*.35));
-            var pos=BlockPos.containing(point);
-            if(!level.hasChunkAt(pos)) break;
-            end=point;
-            if(!level.getBlockState(pos).is(AIRS)) {
-                // clip не принимает t=1: короткое продление сохраняет контакт точно на конце шага.
-                Vec3 pastFace=point.add(direction.scale(1e-4));
-                var contact=Shapes.block().clip(from,pastFace,pos);
-                end=contact==null ? new AABB(pos).clip(from,pastFace).orElse(from) : contact.getLocation();
-                // Native clip даёт именно задетую грань, в том числе при косом выстреле.
-                wallNormal=(contact==null ? Direction.getApproximateNearest(direction.reverse())
-                        : contact.getDirection()).getUnitVec3();
-                wall=true; break;
-            }
-        }
+        if(Double.isFinite(boundary))limit=from.add(direction.scale(boundary));
+        var contact=LbcTerra.wallHit(level,from,limit);Vec3 end=contact==null?limit:contact.getLocation();
+        boolean wall=contact!=null&&level.hasChunkAt(contact.getBlockPos());
+        Vec3 wallNormal=wall?contact.getDirection().getUnitVec3():null;
         var hit=ProjectileUtil.getEntityHitResult(level,owner,from,end,new AABB(from,end).inflate(1),
                 entity->projectileTarget(owner,entity) && !entity.entityTags().contains("raycaster"),0);
         if(hit!=null) end=hit.getLocation();

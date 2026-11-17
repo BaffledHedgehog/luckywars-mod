@@ -13,6 +13,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
@@ -135,12 +136,17 @@ public final class LbcHedgehogSpikes {
             if(getOwner() instanceof ServerPlayer p){if(legacy>0)legacyImpact(this,target,p,target.position());else accepted(this,target,p);}
         }
         @Override protected void onHitBlock(BlockHitResult result){
+            var incoming=getDeltaMovement().normalize();
             super.onHitBlock(result);if(blockDone||retired)return;blockDone=true;
             if(legacy==7&&valid(this)&&getOwner() instanceof ServerPlayer p)
                 game.items().reactiveArtifacts().grenadeSmoke(p,result.getLocation(),false,result);
             else if(legacy>0&&valid(this)&&getOwner() instanceof ServerPlayer p)legacyImpact(this,null,p,result.getLocation());
-            else if(kind==SpikeKind.BOOM&&valid(this)&&getOwner() instanceof ServerPlayer p&&!game.items().magic().suppressedAt((ServerLevel)level(),position()))
-                game.items().hedgehog().spawnWall((ServerLevel)level(),position(),p,Vec3.directionFromRotation(getXRot(),getYRot()));
+            else if(kind==SpikeKind.BOOM&&valid(this)&&getOwner() instanceof ServerPlayer p&&!game.items().magic().suppressedAt((ServerLevel)level(),position())){
+                var normal=result.getDirection().getUnitVec3();if(incoming.lengthSqr()<1e-10)incoming=normal.reverse();
+                // spawnWall adds its forward offset. Keep its central body's whole width outside the struck face.
+                var anchor=result.getLocation().add(normal.scale(EntityTypes.SILVERFISH.getDimensions().width()/2+.01)).subtract(incoming);
+                game.items().hedgehog().spawnWall((ServerLevel)level(),anchor,p,incoming);
+            }
             retire(this);
         }
     }
@@ -201,13 +207,20 @@ public final class LbcHedgehogSpikes {
     void impulse(ServerPlayer p){
         var origin=p.getEyePosition();var direction=p.getLookAngle().normalize();var level=p.level();var cause=game.items().indirectKills().coldCause(p,true);
         var source=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),p),cause);
-        for(int i=0;i<=1000;i++){
-            var at=origin.add(direction.scale(i*.25));if(!resident(level,at)||game.items().magic().suppressedAt(level,at))return;
-            level.sendParticles(new DustParticleOptions(0xd2e3e4,1),at.x,at.y,at.z,1,0,0,0,0);
-            var targets=level.getEntitiesOfClass(LivingEntity.class,new AABB(at.x,at.y,at.z,at.x+1,at.y+1,at.z+1),e->game.items().wands().projectileTarget(p,e));
-            if(!targets.isEmpty())targets.getFirst().hurtServer(level,source,7);
-            // Source checks the next sample's air before recursing; entities never terminate this ray.
-            var next=at.add(direction.scale(.25));if(!resident(level,next)||!level.getBlockState(BlockPos.containing(next)).isAir())return;
+        var end=origin.add(direction.scale(250));var wall=LbcTerra.surfaceHit(level,origin,end,p);
+        if(wall!=null)end=wall.getLocation();double suppression=game.items().magic().suppressionFraction(level,origin,end);
+        if(suppression<=1)end=origin.lerp(end,suppression);
+        double distance=origin.distanceTo(end);
+        try(var trail=new LbcParticleBatch.Group(level,new DustParticleOptions(0xd2e3e4,1),0,0,false)){
+            for(int sample=0;sample<=1000&&sample*.25<=distance+1e-7;sample++)trail.add(origin.add(direction.scale(sample*.25)));
+        }
+        final var stop=end;
+        var hits=net.minecraft.world.entity.projectile.ProjectileUtil.getManyEntityHitResult(level,p,origin,end,new AABB(origin,end).inflate(1),
+                e->e instanceof LivingEntity&&game.items().wands().projectileTarget(p,e)&&LbcBeamGeometry.selectorIntersects(e.getBoundingBox(),origin,stop),
+                1,net.minecraft.world.level.ClipContext.Block.COLLIDER,true,false);
+        for(var hit:hits){
+            var target=(LivingEntity)hit.getEntity();int doses=LbcBeamGeometry.selectorSamples(target.getBoundingBox(),origin,end,.25);
+            for(int dose=0;dose<doses&&target.isAlive()&&game.items().wands().projectileTarget(p,target);dose++)target.hurtServer(level,source,7);
         }
     }
     public void tick(){
