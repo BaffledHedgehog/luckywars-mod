@@ -105,7 +105,7 @@ public final class GenieCombat {
     }
 
     static boolean ownedLaunch(Entity body, ServerPlayer owner) {
-        return body instanceof TraceableEntity trace && trace.getOwner() == owner;
+        return body instanceof TraceableEntity trace ? trace.getOwner() == owner : LbcBouncingPoop.thrownBy(body, owner);
     }
 
     static void castProjectile(GameController game, ServerPlayer owner, Projectile shot, ItemStack stack) {

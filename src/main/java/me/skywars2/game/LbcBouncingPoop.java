@@ -43,7 +43,12 @@ public final class LbcBouncingPoop {
     static CompoundTag state(Entity actor){return actor.getAttached(DATA);}
     public static boolean matches(ItemStack stack){var custom=stack.get(DataComponents.CUSTOM_DATA);return !stack.isEmpty()
             &&(stack.is(LbcPursuitItems.BOUNCING_POOP)||custom!=null&&custom.copyTag().getIntOr("govno_raskid",0)==1);}
-    private UUID author(CompoundTag d){try{return UUID.fromString(d.getStringOr("author",""));}catch(IllegalArgumentException e){return null;}}
+    private static UUID author(CompoundTag d){try{return UUID.fromString(d.getStringOr("author",""));}catch(IllegalArgumentException e){return null;}}
+    static boolean thrownBy(Entity body,ServerPlayer player){
+        if(!(body instanceof Display.ItemDisplay)||!body.entityTags().contains(TAG))return false;
+        var data=state(body);
+        return data!=null&&player.getUUID().equals(author(data));
+    }
     private LbcIndirectKills.Owner cause(CompoundTag d){return new LbcIndirectKills.Owner(author(d),d.getLongOr("order",0),false,true);}
     private LbcSpellSource.Source source(Entity actor){var d=state(actor);return new LbcSpellSource.Source(actor.getUUID(),author(d),d.getStringOr("epoch",""),cause(d),Set.of(),true);}
     public boolean use(ServerPlayer owner,InteractionHand hand){
@@ -67,7 +72,15 @@ public final class LbcBouncingPoop {
         actor.setDeltaMovement(Vec3.directionFromRotation(actor.getXRot(),actor.getYRot()).scale(.4));
         actor.setAttached(DATA,d);actor.entityTags().add(TAG);game.items().markCurrentItemEpoch(actor);
         if(!owner.level().hasChunkAt(actor.blockPosition())||!owner.level().addFreshEntity(actor)){actor.discard();return false;}
-        actors.add(actor);game.items().spellSources().bind(actor,source(actor));owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem()));stack.shrink(1);owner.getInventory().setChanged();owner.containerMenu.broadcastChanges();return true;
+        actors.add(actor);
+        game.items().spellSources().bind(actor,source(actor));
+        var script=GenieNative.capturePublishedThrow(game,owner,hand,stack,stack,List.of(actor));
+        owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem()));
+        stack.shrink(1);
+        owner.getInventory().setChanged();
+        owner.containerMenu.broadcastChanges();
+        if(script!=null)LbcTmtShotCompletion.afterNativeAction(script);
+        return true;
     }
     public void loaded(Entity entity){if(!(entity instanceof Display.ItemDisplay actor)||!entity.entityTags().contains(TAG))return;
         var d=state(actor);if(d==null||author(d)==null||!game.items().currentEpoch(d.getStringOr("epoch",""))||!game.playing()){

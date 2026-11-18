@@ -45,7 +45,8 @@ final class GenieThrowChecks {
         new LaunchFamily("honew", "snowball", 1),
         new LaunchFamily("bucket_projectile", "snowball", 1),
         new LaunchFamily("throwable_pumpkin", "snowball", 1),
-        new LaunchFamily("throwable_metal_pipe", "item", 1));
+        new LaunchFamily("throwable_metal_pipe", "item", 1),
+        new LaunchFamily("bouncing_poop", "item_display", 1));
 
     private final GameController game;
     private final WoolBucketChecks.Fixture base;
@@ -181,7 +182,8 @@ final class GenieThrowChecks {
 
     private List<Entity> nearbyLaunches() {
         return base.level.getEntitiesOfClass(Entity.class, base.owner.getBoundingBox().inflate(10),
-            entity -> entity instanceof TraceableEntity launch && launch.getOwner() == base.owner);
+            entity -> entity instanceof TraceableEntity launch && launch.getOwner() == base.owner
+                || entity.entityTags().contains(LbcBouncingPoop.TAG));
     }
 
     private void rejectDrop(){
