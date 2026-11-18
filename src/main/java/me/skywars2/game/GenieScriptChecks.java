@@ -58,7 +58,9 @@ final class GenieScriptChecks implements AutoCloseable {
         require(game.server().getTickCount()-when<100,"bounded real event/state scenario phase "+phase);
         if(phase==0){
             if(!prepared.isDone())return false;
-            original=GenieScriptItem.construct(prepared.join(),"iron_sword","Native script test","A normal click runs item-local code.",1);clone=original.copy();
+            original=GenieChecks.restoreSavedGift(
+                    GenieScriptItem.construct(prepared.join(),"iron_sword","Native script test","A normal click runs item-local code.",1),base.owner);
+            clone=original.copy();
             require(GenieRuntime.matches(original)&&original.has(net.minecraft.core.component.DataComponents.TOOL),"script item retains real native sword tools and event capture");
             GenieChecks.requireGiftPresentation(original);
             var data=original.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag();

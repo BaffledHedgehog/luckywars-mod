@@ -18,6 +18,8 @@ import net.minecraft.world.*;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.ItemLore;
 import static me.skywars2.game.genie.GenieBlueprint.*;
 
 /** Loopback model plus real dialog packets, native inventory transactions, melee and reset. */
@@ -34,6 +36,33 @@ public final class GenieChecks {
                         && text.getKey().equals("genie.gift.lore")
                         && !footer.getStyle().isItalic() && footer.getStyle().getColor().getValue() == 0xffffff,
                 "native Genie gift uses the localizable white non-italic footer and tier_q");
+    }
+    static ItemStack restoreSavedGift(ItemStack expected, net.minecraft.server.level.ServerPlayer player) {
+        return net.fabricmc.fabric.api.networking.v1.context.PacketContext.supplyWithoutContext(() -> {
+            var ops=player.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+            var old=expected.copy();
+            var description=expected.get(DataComponents.LORE).lines().getFirst();
+            old.set(DataComponents.LORE,new ItemLore(List.of(description)));
+            old.remove(DataComponents.TOOLTIP_STYLE);
+            var unrelated=new ItemStack(Items.BOOK);
+            unrelated.set(DataComponents.LORE,new ItemLore(List.of(description)));
+            var box=new ItemStack(Items.SHULKER_BOX);
+            box.set(DataComponents.CONTAINER,ItemContainerContents.fromItems(List.of(old,unrelated)));
+            var saved=ItemStack.CODEC.encodeStart(ops,box).getOrThrow();
+            var reloaded=ItemStack.CODEC.parse(ops,saved).getOrThrow().get(DataComponents.CONTAINER);
+            var entries=reloaded.itemCopies().toList();
+            require(entries.size()==2&&ItemStack.matches(entries.get(1),unrelated),"stored non-gift retains its exact components");
+            var restored=entries.getFirst();
+            requireGiftPresentation(restored);
+            require(ItemStack.matches(restored,expected),"saved gift differs only by the restored presentation");
+            var roundTrip=ItemStack.CODEC.parse(ops,ItemStack.CODEC.encodeStart(ops,restored).getOrThrow()).getOrThrow();
+            require(ItemStack.matches(roundTrip,restored)&&!old.has(DataComponents.TOOLTIP_STYLE)
+                    &&old.get(DataComponents.LORE).lines().size()==1,"load is idempotent and leaves the source stack untouched");
+            var projected=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(restored,TooltipFlag.NORMAL,
+                    player.connection.getPacketContext(),player.registryAccess());
+            requireGiftPresentation(projected);
+            return restored;
+        });
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.begin();}catch(Throwable error){running=null;f.close();throw error;}}
     public static void tick(GameController game){
@@ -84,6 +113,7 @@ public final class GenieChecks {
         void begin(){
             var source=plan();var item=GenieRuntime.construct(source);require(item.is(Items.IRON_SWORD)&&item.has(DataComponents.MAX_DAMAGE)&&item.has(DataComponents.TOOL)&&item.get(DataComponents.ENCHANTMENT_GLINT_OVERRIDE),"native sword tool, durability and glint retained");
             requireGiftPresentation(item);
+            restoreSavedGift(item,base.owner);
             var ordinary=new ItemStack(Items.IRON_SWORD);require(item.get(DataComponents.MAX_DAMAGE).equals(ordinary.get(DataComponents.MAX_DAMAGE)),"constructor does not rewrite native durability");
             var invalid=new GenieBlueprint("Bad","Bad","not_a_real_item",1,source.rules(),List.of(),source.twist());try{GenieRuntime.construct(invalid);throw new IllegalStateException("unknown native icon accepted");}catch(IllegalArgumentException expected){}
             base.owner.getInventory().clearContent();base.owner.getInventory().setSelectedSlot(0);base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(GenieItems.LAMP,3));submit();

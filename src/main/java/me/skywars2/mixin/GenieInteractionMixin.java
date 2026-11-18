@@ -1,6 +1,10 @@
 package me.skywars2.mixin;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.genie.GenieItems;
+import me.skywars2.game.genie.GenieRuntime;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.util.Prediction;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
@@ -12,6 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -72,6 +77,13 @@ public abstract class GenieInteractionMixin {
     }
     @Mixin(ItemStack.class)
     public abstract static class Use {
+        @Inject(method="<init>(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/DataComponentPatch;)V",at=@At("RETURN"))
+        private void skywars2$restoreGiftPresentation(Holder<Item> item,int count,DataComponentPatch patch,CallbackInfo ci) {
+            // Native saved stacks and container item templates both materialize here.
+            var stack=(ItemStack)(Object)this;
+            if (!patch.isEmpty() && GenieRuntime.matches(stack)) GenieItems.applyGiftPresentation(stack);
+        }
+
         private boolean skywars2$locked(Player player){
             var game=SkyWars2.game();if(game==null||!(player instanceof ServerPlayer owner)||!game.items().genie().locked(owner,(ItemStack)(Object)this))return false;
             game.items().genie().refuse(owner);return true;
