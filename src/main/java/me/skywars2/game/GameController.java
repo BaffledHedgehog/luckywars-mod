@@ -725,7 +725,7 @@ public final class GameController {
         bar.removePlayer(player);
         if (player.getUUID().equals(host)) host = server.getPlayerList().getPlayers().stream()
                 .filter(other -> !other.getUUID().equals(player.getUUID())).map(ServerPlayer::getUUID).findFirst().orElse(null);
-        players.save();
+        players.saveDeferred();
     }
 
     public boolean canStart(ServerPlayer player) {
@@ -1006,7 +1006,7 @@ public final class GameController {
                 var profile = players.get(player.getUUID()); profile.games++; profile.coins += 10;
                 player.sendSystemMessage(rewardText("swrg.reward.start_game"));
             }
-            players.save(); if(!bedwars.mode()){
+            players.saveDeferred(); if(!bedwars.mode()){
                 maps.cages(true);
                 for(var player:ready){var member=participants.get(player.getUUID());items.cosmetics().cage(player,maps.level(),net.minecraft.core.BlockPos.containing(member.spawn.position()),gameMode());}
             }
@@ -1311,7 +1311,7 @@ public final class GameController {
                     + killer.getScoreboardName() + " ~ ~ ~ 1 2");
             killer.sendSystemMessage(rewardText("swrg.reward.kill"));}
         }
-        players.save();
+        if (!developerMode()) players.saveDeferred();
     }
 
     public void respawned(ServerPlayer player) {
@@ -1557,12 +1557,21 @@ public final class GameController {
         victoryWinner = winner == null ? null : winner.getUUID();
         // Team victory belongs to every enrolled teammate, including dead/offline teammates.
         List<UUID> rewarded=bedwarsResult?bedwarsRewarded:winner==null?List.of():List.of(winner.getUUID());
-        for(UUID id:rewarded){var profile=players.get(id);profile.coins+=100;profile.wins++;
-            var choice=perkChoices.get(id);
-            if(choice!=null)LbcPerkStatistics.get(server).recordWins(choice.receipt(),choice.playerName(),choice.choices());
-            profile.keys[ThreadLocalRandom.current().nextInt(4)]++;
-            var onlineWinner=server.getPlayerList().getPlayer(id);
-            if(onlineWinner!=null)onlineWinner.sendSystemMessage(rewardText("swrg.reward.win"));}
+        if (!rewarded.isEmpty()) {
+            var statistics = LbcPerkStatistics.get(server);
+            try (var batch = statistics.batchDeferred()) {
+                for (UUID id : rewarded) {
+                    var profile = players.get(id);
+                    profile.coins += 100;
+                    profile.wins++;
+                    var choice = perkChoices.get(id);
+                    if (choice != null) statistics.recordWins(choice.receipt(), choice.playerName(), choice.choices());
+                    profile.keys[ThreadLocalRandom.current().nextInt(4)]++;
+                    var onlineWinner = server.getPlayerList().getPlayer(id);
+                    if (onlineWinner != null) onlineWinner.sendSystemMessage(rewardText("swrg.reward.win"));
+                }
+            }
+        }
         if (winner != null) {
             announce(Component.translatable("swrg.title.player_win")
                     .withStyle(ChatFormatting.DARK_GREEN)
@@ -1590,7 +1599,7 @@ public final class GameController {
         maps.level().getGameRules().set(GameRules.ENTITY_DROPS, false, server);
         maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
         items.seasonal().finished(rewarded);
-        config.gamesPlayed++; config.save(); players.save();
+        config.gamesPlayed++; config.save(); players.saveDeferred();
         transition(Stage.ENDING); finishTicks = Math.max(1, config.endingSeconds) * 20;
         // В исходном конце игры первая четвёрка ракет появляется сразу, затем раз в секунду.
         if(winner!=null)items.cosmetics().winner(winner,gameTicks);
@@ -1766,7 +1775,7 @@ public final class GameController {
             players.get(player.getUUID()).coins += coins;
             player.sendSystemMessage(rewardText(translationKey));
         }
-        players.save();
+        players.saveDeferred();
     }
     private static Component rewardText(String translationKey) {
         return Component.translatable(translationKey)

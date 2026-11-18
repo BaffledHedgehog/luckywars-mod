@@ -113,7 +113,7 @@ public final class PlayerStore {
         Profile profile = get(uuid);
         if (username != null && !username.isBlank() && !username.equals(profile.username)) {
             profile.username = username;
-            save();
+            saveDeferred();
         }
         return profile;
     }

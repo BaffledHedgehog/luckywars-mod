@@ -57,7 +57,8 @@ public final class PerkStatisticsChecks {
         var profile = store.get(player);
         require(profile.wins == 999, "profile indexed by UUID");
 
-        store.saveDeferred();
+        require(store.get(player, "Profile999") == profile && !Files.exists(file) && tasks.size() == 1,
+                "login or rename queues the same UUID profile without touching disk");
         profile.wins++;
         profile.trinkets[0] = 4;
         String unlock = "lbc:true_advancements/storage_probe";
@@ -70,8 +71,9 @@ public final class PerkStatisticsChecks {
         diskTask(tasks.removeFirst());
         JsonObject root = read(file);
         JsonObject saved = root.getAsJsonObject(player.toString());
-        require(root.size() == 1000 && saved.get("wins").getAsInt() == 1000,
-                "latest scheduled save persists all profiles");
+        require(root.size() == 1000 && saved.get("wins").getAsInt() == 1000
+                && saved.get("username").getAsString().equals("Profile999"),
+                "latest scheduled save persists all profiles and the username");
         require(saved.getAsJsonArray("trinkets").get(0).getAsInt() == 4
                 && saved.getAsJsonArray("lbcUnlocks").get(0).getAsString().equals(unlock),
                 "autosave isolates mutable inventories and unlocks from later edits");
@@ -97,11 +99,36 @@ public final class PerkStatisticsChecks {
         try(var batch=store.batchDeferred()){store.recordPicks("deferred/A","AsyncA",Map.of("kit",List.of(1)));}
         require(java.util.Arrays.equals(before,Files.readAllBytes(file))&&store.value("AsyncA","pick_count_kit[0]").equals("1"),
                 "native counters visible immediately while deferred boundary performs no disk write");
-        try(var batch=store.batchDeferred()){store.recordPicks("deferred/B","AsyncB",Map.of("kit",List.of(1)));}
-        require(tasks.size()==1&&java.util.Arrays.equals(before,Files.readAllBytes(file)),"two pending full images share one queued worker");
-        diskTask(tasks.removeFirst());store.flush();var loaded=new LbcPerkStatistics(file);
-        require(loaded.value("AsyncA","pick_count_kit[0]").equals("1")&&loaded.value("AsyncB","pick_count_kit[0]").equals("1"),
-                "latest coalesced snapshot durably retains every accepted event");
+        try (var batch = store.batchDeferred()) {
+            for (int i = 0; i < 1000; i++) {
+                store.recordPicks("deferred/" + i, "Profile" + i, Map.of("kit", List.of(1)));
+            }
+            store.recordWins("deferred/A", "AsyncA", Map.of("kit", List.of(1), "trinket", List.of(1, 2)));
+
+            var invalid = new java.util.LinkedHashMap<String, List<Integer>>();
+            invalid.put("kit", List.of(1));
+            invalid.put("trinket", java.util.Collections.nCopies(13, 2));
+            try {
+                store.recordWins("deferred/999", "Profile999", invalid);
+                throw new AssertionError("invalid late category must reject the entire event");
+            } catch (IllegalStateException expected) {
+                require(store.value("Profile999", "win_count_kit[0]").equals("0"),
+                        "a rejected event publishes no earlier category");
+            }
+            store.recordWins("deferred/999", "Profile999", Map.of("kit", List.of(1)));
+        }
+        require(tasks.size() == 1 && Arrays.equals(before, Files.readAllBytes(file)),
+                "deferred match picks and wins coalesce even with a thousand players");
+        require(store.value("AsyncA", "win_count_trinket[0]").equals("0.5"),
+                "deferred weighted wins are visible before disk I/O");
+        diskTask(tasks.removeFirst());
+        store.flush();
+        var loaded = new LbcPerkStatistics(file);
+        require(loaded.value("AsyncA", "pick_count_kit[0]").equals("1")
+                && loaded.value("Profile999", "pick_count_kit[0]").equals("1")
+                && loaded.value("Profile999", "win_count_kit[0]").equals("1")
+                && loaded.value("AsyncA", "win_count_trinket[0]").equals("0.5"),
+                "latest deferred image includes picks, one accepted win and weighted counters");
         Files.delete(file);Files.createDirectory(file);var sentinel=file.resolve("preserve.txt");Files.writeString(sentinel,"keep");
         try(var batch=store.batchDeferred()){store.recordPicks("deferred/C","AsyncC",Map.of("kit",List.of(1)));}
         require(tasks.size()==1,"one owned failed-write task");diskTask(tasks.removeFirst());store.flush();

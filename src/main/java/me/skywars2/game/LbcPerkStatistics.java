@@ -32,6 +32,7 @@ final class LbcPerkStatistics {
     private static final Path FILE = Path.of("config", "luckywars", "perk-statistics.json");
     private static final Identifier LEGACY = Identifier.parse("stats:stats");
     private static final Map<MinecraftServer, LbcPerkStatistics> STORES = new WeakHashMap<>();
+    private static final Pattern CATEGORY = Pattern.compile("[a-z][a-z0-9_]*");
     private static final Pattern PATH = Pattern.compile("(pick|win)_(count|rate)_([a-z][a-z0-9_]*)\\[(\\d+)]");
     private static final Pattern RAW = Pattern.compile("(?:.*_)?\\d+_(?:kit|x_kit|skill|trinket|levelup)_(?:pick|win)|(?:kit|x_kit|skill|trinket|levelup)_(?:picks|wins)");
     private final Map<String, Long> counters = new LinkedHashMap<>();
@@ -44,7 +45,10 @@ final class LbcPerkStatistics {
     });
     private final java.util.concurrent.Executor writer;
     private final Object diskLock=new Object();
-    private byte[] queuedPayload;
+    private record Snapshot(boolean imported, String legacySnapshot, List<String> receipts,
+                            Map<String, Long> counters, Map<String, BigInteger> trinketWins) {}
+
+    private Snapshot queuedSnapshot;
     private boolean writing;
     private java.util.concurrent.CompletableFuture<Void> pending=java.util.concurrent.CompletableFuture.completedFuture(null);
     private final Set<String> receipts = new LinkedHashSet<>();
@@ -120,12 +124,12 @@ final class LbcPerkStatistics {
         String event = receipt + "/" + kind;
         if (receipts.contains(event)) { flush(); return; }
         if (playerName == null || playerName.isBlank()) throw new IllegalArgumentException("Missing perk-statistics player name");
-        var before = new LinkedHashMap<>(counters);
-        var beforeTrinkets=new LinkedHashMap<>(personalTrinketWins);
+        var increments = new LinkedHashMap<String, Long>();
+        var trinketIncrements = new LinkedHashMap<String, BigInteger>();
         try {
             for (var entry : choices.entrySet()) {
                 String category = entry.getKey();
-                if (!category.matches("[a-z][a-z0-9_]*")) throw new IllegalArgumentException("Invalid perk-statistics category " + category);
+                if (!CATEGORY.matcher(category).matches()) throw new IllegalArgumentException("Invalid perk-statistics category " + category);
                 boolean weighted=kind.equals("win")&&category.equals("trinket");
                 long selected=entry.getValue().stream().filter(id->id>0).count();
                 if(weighted&&selected>12)throw new IllegalArgumentException("More than twelve selected trinkets");
@@ -133,20 +137,19 @@ final class LbcPerkStatistics {
                 for (int nativeId : entry.getValue()) {
                     if (nativeId <= 0) continue;
                     String suffix = (nativeId - 1) + "_" + category + "_" + kind;
-                    increment(suffix);
-                    if(weighted)personalTrinketWins.merge(playerName+"_"+suffix,share,BigInteger::add);
-                    else increment(playerName + "_" + suffix);
-                    increment(category + "_" + kind + "s");
+                    increments.merge(suffix, 1L, Long::sum);
+                    if (weighted) trinketIncrements.merge(playerName + "_" + suffix, share, BigInteger::add);
+                    else increments.merge(playerName + "_" + suffix, 1L, Long::sum);
+                    increments.merge(category + "_" + kind + "s", 1L, Long::sum);
                 }
             }
-            receipts.add(event);
         } catch (RuntimeException error) {
-            counters.clear();
-            counters.putAll(before);
-            personalTrinketWins.clear();personalTrinketWins.putAll(beforeTrinkets);
-            receipts.remove(event);
-            throw new IllegalStateException("Could not save perk statistics", error);
+            throw new IllegalStateException("Invalid perk-statistics event", error);
         }
+        increments.forEach((key, amount) -> counters.merge(key, amount,
+                (previous, added) -> previous > Long.MAX_VALUE - added ? Long.MAX_VALUE : previous + added));
+        trinketIncrements.forEach((key, amount) -> personalTrinketWins.merge(key, amount, BigInteger::add));
+        receipts.add(event);
         dirty = true;
         flush();
     }
@@ -174,9 +177,9 @@ final class LbcPerkStatistics {
     }
     private void flushDeferred(){
         if(batchDepth>0||!dirty)return;
-        byte[] payload=payload();
+        var snapshot = snapshot();
         synchronized(diskLock){
-            queuedPayload=payload;
+            queuedSnapshot = snapshot;
             if(!writing){
                 writing=true;
                 pending=java.util.concurrent.CompletableFuture.runAsync(this::drain,writer).whenComplete((unused,error)->{
@@ -189,19 +192,15 @@ final class LbcPerkStatistics {
     /** One writer plus one latest snapshot: rapid restarts cannot accumulate old JSON images. */
     private void drain(){
         for(;;){
-            byte[] next;
-            synchronized(diskLock){next=queuedPayload;queuedPayload=null;if(next==null){writing=false;return;}}
-            try{write(next);}catch(IOException error){synchronized(diskLock){writing=false;}throw new java.util.concurrent.CompletionException(error);}
+            Snapshot next;
+            synchronized(diskLock){next=queuedSnapshot;queuedSnapshot=null;if(next==null){writing=false;return;}}
+            try{write(payload(next));}catch(IOException error){synchronized(diskLock){writing=false;}throw new java.util.concurrent.CompletionException(error);}
         }
     }
     /** Synchronous/import/shutdown boundaries fence older images before replacing the file. */
     private void awaitWrites(){
         try{pending.join();}catch(java.util.concurrent.CompletionException error){dirty=true;}
-        synchronized(diskLock){queuedPayload=null;pending=java.util.concurrent.CompletableFuture.completedFuture(null);}
-    }
-
-    private void increment(String key) {
-        counters.compute(key, (ignored, value) -> value == null ? 1L : value == Long.MAX_VALUE ? value : value + 1);
+        synchronized(diskLock){queuedSnapshot=null;pending=java.util.concurrent.CompletableFuture.completedFuture(null);}
     }
 
     static String value(MinecraftServer server, String playerName, String path) {
@@ -250,19 +249,27 @@ final class LbcPerkStatistics {
         }
     }
 
-    private void save() throws IOException {awaitWrites();write(payload());}
-    private byte[] payload() {
+    private void save() throws IOException {awaitWrites();write(payload(snapshot()));}
+
+    private Snapshot snapshot() {
+        return new Snapshot(imported, legacySnapshot, List.copyOf(receipts),
+                new LinkedHashMap<>(counters), new LinkedHashMap<>(personalTrinketWins));
+    }
+
+    private static byte[] payload(Snapshot snapshot) {
         var root = new JsonObject();
         root.addProperty("version", 1);
-        root.addProperty("legacyImported", imported);
-        root.addProperty("legacySnapshot", legacySnapshot);
+        root.addProperty("legacyImported", snapshot.imported());
+        root.addProperty("legacySnapshot", snapshot.legacySnapshot());
         var accepted = new com.google.gson.JsonArray();
-        receipts.forEach(accepted::add);
+        snapshot.receipts().forEach(accepted::add);
         root.add("receipts", accepted);
         var values = new JsonObject();
-        counters.forEach(values::addProperty);
+        snapshot.counters().forEach(values::addProperty);
         root.add("counters", values);
-        var trinkets=new JsonObject();personalTrinketWins.forEach(trinkets::addProperty);root.add("personalTrinketWinUnits",trinkets);
+        var trinkets = new JsonObject();
+        snapshot.trinketWins().forEach(trinkets::addProperty);
+        root.add("personalTrinketWinUnits", trinkets);
         return new GsonBuilder().setPrettyPrinting().create().toJson(root).getBytes(StandardCharsets.UTF_8);
     }
     private void write(byte[] payload) throws IOException {
