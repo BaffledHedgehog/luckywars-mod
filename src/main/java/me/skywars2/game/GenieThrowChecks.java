@@ -46,7 +46,9 @@ final class GenieThrowChecks {
         new LaunchFamily("bucket_projectile", "snowball", 1),
         new LaunchFamily("throwable_pumpkin", "snowball", 1),
         new LaunchFamily("throwable_metal_pipe", "item", 1),
-        new LaunchFamily("bouncing_poop", "item_display", 1));
+        new LaunchFamily("bouncing_poop", "item_display", 1),
+        new LaunchFamily("clown_smoke_bomb", "arrow", 1),
+        new LaunchFamily("lucky_grenade", "arrow", 1));
 
     private final GameController game;
     private final WoolBucketChecks.Fixture base;
@@ -94,6 +96,11 @@ final class GenieThrowChecks {
         if(!program.isDone())return false;
         for(var carrier:THROWN)testCarrier(carrier);
         for (var family : CUSTOM) testFamily(family);
+        for (var kind : LbcHedgehogItems.SpikeKind.values()) {
+            var id = BuiltInRegistries.ITEM.getKey(kind.item()).getPath();
+            if (kind == LbcHedgehogItems.SpikeKind.IMPULSE) testImpulse(id);
+            else testFamily(new LaunchFamily(id, "arrow", 1));
+        }
         rejectDrop();
         trident=item("trident",1);
         twin=trident.copy();
@@ -184,6 +191,18 @@ final class GenieThrowChecks {
         return base.level.getEntitiesOfClass(Entity.class, base.owner.getBoundingBox().inflate(10),
             entity -> entity instanceof TraceableEntity launch && launch.getOwner() == base.owner
                 || entity.entityTags().contains(LbcBouncingPoop.TAG));
+    }
+
+    private void testImpulse(String id) {
+        var used = item("skywars2:" + id, 2);
+        var twin = used.copy();
+        equip(twin, used);
+        var before = nearbyLaunches();
+        useOffhand();
+        require(used.getCount() == 1 && nearbyLaunches().equals(before), "impulse applies and consumes one without publishing a projectile");
+        reject("impulse ray");
+        require(GenieScriptItem.state(used).get("throws").getAsInt() == 0
+                && GenieScriptItem.state(twin).get("throws").getAsInt() == 0, "ray activates neither THROW handler");
     }
 
     private void rejectDrop(){

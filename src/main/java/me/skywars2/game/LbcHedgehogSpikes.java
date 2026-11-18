@@ -61,9 +61,10 @@ public final class LbcHedgehogSpikes {
         if(variant==9&&(game.items().magic().mechanismSuppressed(p)||!game.items().clownKit().smokeAllowed(p.level(),p.getEyePosition())))return false;
         if(variant==10&&!luckyGrenadeAllowed(p.level(),p.position()))return false;
         var transport=new Snowball(p.level(),p,stack);transport.shootFromRotation(p,p.getXRot(),p.getYRot(),0,1.5f,1);
-        if(emitLegacy(p,variant,transport.position(),transport.getDeltaMovement())==null)return false;
-        LbcOverload.sound(p,p.position(),"minecraft:entity.snowball.throw",.5f,.4f/(p.getRandom().nextFloat()*.4f+.8f),0);
-        p.awardStat(Stats.ITEM_USED.get(stack.getItem()));stack.consume(1,p);return true;
+        var arrow = emitLegacy(p, variant, transport.position(), transport.getDeltaMovement());
+        if (arrow == null) return false;
+        completeUse(p, hand, stack, arrow);
+        return true;
     }
     public static boolean managed(Entity e){return e!=null&&e.entityTags().contains(TAG);}
     private boolean resident(ServerLevel level,Vec3 at){var b=BlockPos.containing(at);return level.getChunkSource().getChunkNow(b.getX()>>4,b.getZ()>>4)!=null;}
@@ -83,9 +84,23 @@ public final class LbcHedgehogSpikes {
     public boolean use(ServerPlayer p,InteractionHand hand){
         var stack=p.getItemInHand(hand);var kind=LbcHedgehogItems.spike(stack);if(kind==null||!allowed(p))return false;
         var transport=new Snowball(p.level(),p,stack);transport.shootFromRotation(p,p.getXRot(),p.getYRot(),0,1.5f,1);
-        if(kind==SpikeKind.IMPULSE)impulse(p);else if(emit(p,kind,transport.position(),transport.getDeltaMovement())==null)return false;
-        LbcOverload.sound(p,p.position(),"minecraft:entity.snowball.throw",.5f,.4f/(p.getRandom().nextFloat()*.4f+.8f),0);
-        p.awardStat(Stats.ITEM_USED.get(stack.getItem()));stack.consume(1,p);return true;
+        Arrow arrow = null;
+        if (kind == SpikeKind.IMPULSE) {
+            impulse(p);
+        } else {
+            arrow = emit(p, kind, transport.position(), transport.getDeltaMovement());
+            if (arrow == null) return false;
+        }
+        completeUse(p, hand, stack, arrow);
+        return true;
+    }
+    private void completeUse(ServerPlayer player, InteractionHand hand, ItemStack stack, Arrow arrow) {
+        var script = arrow == null ? null : GenieNative.capturePublishedThrow(game, player, hand, stack, stack, List.of(arrow));
+        LbcOverload.sound(player, player.position(), "minecraft:entity.snowball.throw", .5f,
+            .4f / (player.getRandom().nextFloat() * .4f + .8f), 0);
+        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        stack.consume(1, player);
+        if (script != null) LbcTmtShotCompletion.afterNativeAction(script);
     }
     private static double baseDamage(SpikeKind kind){return switch(kind){case STANDARD->10;case BLIND,POISON->1.5;case BOOM->.01;default->1;};}
     private static int color(SpikeKind kind){return switch(kind){case CONFUSE->16746227;case BLIND->16771895;case POISON->1119083;case WITHER->0;case BOOM->9079434;default->-1;};}
