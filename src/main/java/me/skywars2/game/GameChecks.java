@@ -7005,6 +7005,33 @@ public final class GameChecks {
                         owner.setNoGravity(true);
                         owner.teleportTo(level, cx + .5, 260, cz + .5, java.util.Set.of(), -90, 0, true);
                         owner.setXRot(0);
+                        var trialCenter=owner.blockPosition();
+                        var trialBricks=java.util.List.of(trialCenter.offset(1,1,-5),trialCenter.offset(-1,0,5),
+                                trialCenter.offset(5,0,1),trialCenter.offset(-5,0,-1));
+                        for(var brick:trialBricks) snapshots.putIfAbsent(brick,game.maps().snapshot(brick));
+                        for(int i=0;i<3;i++) level.setBlockAndUpdate(trialBricks.get(i),net.minecraft.world.level.block.Blocks.BRICKS.defaultBlockState());
+                        owner.setYRot(45);
+                        owner.setXRot(-90);
+                        var upward=owner.getEyePosition();
+                        require(game.items().wands().firstHit(owner,upward,upward.add(0,100,0))==null,
+                                "Wall meditation test deliberately casts into open sky");
+                        var upwardTrial=wallFixture(LbcWands.WALL,1,true);
+                        owner.getInventory().setItem(0,upwardTrial);
+                        owner.getInventory().setSelectedSlot(0);
+                        game.items().mana().set(owner,1500);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND)
+                                        && game.items().mana().get(owner)==0
+                                        && wallData(upwardTrial).getIntOr("upgrade_available",0)==0,
+                                "A paid cast into the sky with only three sides cannot complete meditation");
+                        level.setBlockAndUpdate(trialBricks.getLast(),net.minecraft.world.level.block.Blocks.BRICKS.defaultBlockState());
+                        game.items().mana().set(owner,1500);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND)
+                                        && game.items().mana().get(owner)==0
+                                        && wallData(upwardTrial).getIntOr("upgrade_available",0)==1,
+                                "Four brick sides from feet to eyes complete meditation even if a paid cast hits nothing");
+                        restoreWallFixture(game,snapshots);
+                        owner.setYRot(-90);
+                        owner.setXRot(0);
                         target = new net.minecraft.core.BlockPos(cx + 8, 261, cz);
                         snapshotWallBox(game, snapshots, new net.minecraft.core.BlockPos(cx + 8, 261, cz), 4, 4, 4);
                         for (var pos : java.util.List.of(new net.minecraft.core.BlockPos(cx - 5, 261, cz),

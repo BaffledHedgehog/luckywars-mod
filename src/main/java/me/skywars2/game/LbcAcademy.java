@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -407,21 +408,26 @@ public final class LbcAcademy {
         game.items().indirectKills().fillTrap(player,center.offset(-10,-10,-10),center.offset(10,10,10),Blocks.BEDROCK.defaultBlockState());
         return true;
     }
-    /** Испытание Wall проверяет четыре кирпичные стороны вокруг глаз, а не число кастов. */
+    /** Четыре отдельные кирпичные стороны ищутся вокруг игрока от ног до глаз. */
     void wallTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
         if(!trial(stack)) return;
-        Vec3 from=player.getEyePosition().add(Vec3.directionFromRotation(0,player.getYRot()));
-        BlockPos start=BlockPos.containing(from);
-        var walls=new HashSet<BlockPos>();
-        for(int yaw:new int[]{0,90,180,270}) {
-            Vec3 direction=Vec3.directionFromRotation(0,yaw);
+        var level=player.level();
+        var eyes=BlockPos.containing(player.getEyePosition());
+        int feet=player.blockPosition().getY();
+        var probe=new BlockPos.MutableBlockPos();
+        for(var direction:Direction.Plane.HORIZONTAL) {
+            var side=direction.getClockWise();
             boolean found=false;
-            for(int step=0;step<=10;step++) {
-                var pos=BlockPos.containing(from.add(direction.scale(step*.9)));
-                if(!player.level().hasChunkAt(pos)) break;
-                // (user) Общий старт внутри кирпича не заменяет четыре разные стороны.
-                if(!pos.equals(start) && player.level().getBlockState(pos).is(Blocks.BRICKS) && walls.add(pos)) {
-                    found=true; break;
+            for(int distance=1;distance<=9&&!found;distance++) {
+                // Distinct sides use non-overlapping strips. A near diagonal or
+                // a brick shared at the origin cannot satisfy two directions.
+                int width=distance==1?0:1;
+                for(int offset=-width;offset<=width&&!found;offset++) {
+                    int x=eyes.getX()+direction.getStepX()*distance+side.getStepX()*offset;
+                    int z=eyes.getZ()+direction.getStepZ()*distance+side.getStepZ()*offset;
+                    if(!level.hasChunkAt(probe.set(x,eyes.getY(),z))) continue;
+                    for(int y=eyes.getY();y>=feet&&!found;y--)
+                        found=level.getBlockState(probe.set(x,y,z)).is(Blocks.BRICKS);
                 }
             }
             if(!found) return;

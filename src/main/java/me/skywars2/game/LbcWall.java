@@ -67,20 +67,23 @@ final class LbcWall {
             Vec3 point=from.add(direction.scale(d));
             owner.level().sendParticles(PARTICLES,point.x,point.y,point.z,2,.5,.5,.5,.1);
         }
-        if(hit==null || hit instanceof BlockHitResult wall && !owner.level().hasChunkAt(wall.getBlockPos())
-                || Double.isFinite(suppression) && end.distanceToSqr(from)>=limit.distanceToSqr(from)-1e-6) return;
-
-        // Точка native clip лежит на грани: небольшое смещение внутрь исключает соседнюю клетку и дрожание floor.
-        Vec3 placement=hit instanceof BlockHitResult?end.add(direction.scale(1e-4)):end;
-        BlockPos center=hit instanceof BlockHitResult wall?wall.getBlockPos():BlockPos.containing(end);
-        switch(mode) {
-            case 1 -> vertical(game,owner,placement);
-            case 2 -> horizontal(game,owner,end.add(direction.scale(.5)));
-            case 3 -> dismantle(game,owner,center);
-            case 4 -> stairs(game,owner,center);
+        boolean impact=hit!=null && (!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos()))
+                && (!Double.isFinite(suppression) || end.distanceToSqr(from)<limit.distanceToSqr(from)-1e-6);
+        if(impact) {
+            // Точка native clip лежит на грани: небольшое смещение внутрь исключает соседнюю клетку и дрожание floor.
+            Vec3 placement=hit instanceof BlockHitResult?end.add(direction.scale(1e-4)):end;
+            BlockPos center=hit instanceof BlockHitResult wall?wall.getBlockPos():BlockPos.containing(end);
+            switch(mode) {
+                case 1 -> vertical(game,owner,placement);
+                case 2 -> horizontal(game,owner,end.add(direction.scale(.5)));
+                case 3 -> dismantle(game,owner,center);
+                case 4 -> stairs(game,owner,center);
+            }
         }
+        // Проверка окружения относится к принятому касту. Если он достроил
+        // четвёртую стену, проверяем уже новую геометрию.
         if(!upgraded) game.items().academy().wallTrial(owner,hand,stack);
-        if(!owner.level().getEntitiesOfClass(ServerPlayer.class,new AABB(end,end).inflate(3),
+        if(impact && !owner.level().getEntitiesOfClass(ServerPlayer.class,new AABB(end,end).inflate(3),
                 target->game.items().wands().target(owner,target) && target.position().distanceToSqr(end)<=9).isEmpty())
             game.items().mana().award(owner,"lbc:true_advancements/staffs/wall");
     }
