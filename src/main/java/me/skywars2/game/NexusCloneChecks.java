@@ -31,7 +31,7 @@ public final class NexusCloneChecks {
     }
     public static void tick(GameController game){
         if(game==null||running==null)return;
-        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native async/full-height Stonekivi MOVE, two-world TimeStop, source deduplication/capture barrier, exact chest stack and AIR replacement, UUID/entity/passenger delta, player/marker exclusions, callback3centers/16trees and scoped restoration)");}
+        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native async/full-height Stonekivi MOVE, failed load releases the capture barrier without writes, two-world TimeStop, source deduplication, exact chest stack and AIR replacement, UUID/entity/passenger delta, player/marker exclusions, callback3centers/16trees and scoped restoration)");}
         catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL nexus-clone",error);}
     }
 
@@ -50,6 +50,8 @@ public final class NexusCloneChecks {
         final Map<UUID,Vec3> lastSourcePositions=new LinkedHashMap<>();
         final Set<UUID> owned=new LinkedHashSet<>(),destinationBefore=new HashSet<>();
         final LbcNexusClone clone;
+        final LbcNexusClone failedClone;
+        final CompletableFuture<?> pendingSource=new CompletableFuture<>();
         RegenerationBeltChecks.ScheduledClient client,audience;
         CompletableFuture<?> sourceLoad,destinationLoad;
         LbcNexusClone.View view;
@@ -71,6 +73,10 @@ public final class NexusCloneChecks {
             base=new ChefChecks.Fixture(game);source=base.owner.level();destination=game.server().getLevel(LbcHedgehogDimensions.NEXUS);
             require(destination!=null&&source!=destination,"ordinary source and native Nexus");
             require(!game.items().timeStop().stopped(destination),"no borrowed Nexus TimeStop");
+            failedClone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
+                throw new IllegalStateException("Failed destination must never receive terrain or a completion callback");
+            },(level,chunk)->level==source?pendingSource:CompletableFuture.completedFuture(
+                    net.minecraft.server.level.ChunkResult.error("controlled destination load failure")));
             clone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
                 require(level==destination&&owner==cause,"completion retains native dimension and exact causal owner");
                 require(view!=null&&tx-8==view.targetMin().getX()&&ty-8==view.targetMin().getY()&&tz-8==view.targetMin().getZ(),"callback source target geometry");
@@ -85,6 +91,8 @@ public final class NexusCloneChecks {
         void init(){
             base.init();client=new RegenerationBeltChecks.ScheduledClient(game,base.owner);audience=new RegenerationBeltChecks.ScheduledClient(game,base.other);
             game.config().noBorders=true;base.owner.getAbilities().invulnerable=true;
+            require(failedClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null)
+                    &&!failedClone.captureReady(),"failed transfer enters the actual shared scheduler");
             sourceLoad=game.maps().prepareChunk(source,sourceChunk);begin(0);
             SkyWars2.LOGGER.info("[check] START nexus-clone (real ticks; reserved source {},{})",sourceChunk.x(),sourceChunk.z());
         }
@@ -152,7 +160,13 @@ public final class NexusCloneChecks {
 
         boolean observe(){
             int elapsed=game.server().getTickCount()-when;require(game.playing()&&elapsed<1200,"bounded real-tick phase "+stage+" completed="+lastCompleted);
-            if(stage==0){if(ready(sourceLoad,source,sourceChunk))seed();return false;}
+            if(stage==0){
+                if(elapsed==0)return false;
+                require(!pendingSource.isDone()&&failedClone.captureReady()&&!failedClone.sourceInFlight(source,sourceChunk),
+                        "a completed native failure releases the transfer while the other load remains pending");
+                if(ready(sourceLoad,source,sourceChunk))seed();
+                return false;
+            }
             if(stage==1){
                 hold();if(!ready(destinationLoad,destination,view.destinationChunk()))return false;
                 destinationOriginal.putAll(column(destination,view.destinationChunk()));destinationCaptured=true;
@@ -216,6 +230,7 @@ public final class NexusCloneChecks {
             Throwable failure=null;
             for(Runnable action:List.<Runnable>of(
                     clone::stop,
+                    failedClone::stop,
                     ()->{for(var level:List.of(source,destination))for(var id:owned){var entity=level.getEntity(id);if(entity!=null){if(entity instanceof LivingEntity living)game.items().indirectKills().clear(living);entity.discard();}}},
                     ()->{if(sourceCaptured)restoreColumn(source,sourceChunk,sourceOriginal);},
                     ()->{if(destinationCaptured)restoreColumn(destination,view.destinationChunk(),destinationOriginal);},

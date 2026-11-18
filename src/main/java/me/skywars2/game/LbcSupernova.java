@@ -97,7 +97,8 @@ public final class LbcSupernova {
         });
     }
     public Phase phase(){return phase;}
-    public String status(){return phase+" clock="+clock+" clones="+clones.pending()+" tickets="+loading.size();}
+    public String status(){return phase+" clock="+clock+" clones="+clones.pendingStatus()+" tickets="+loading.keySet()
+            +" settled="+points.stream().filter(p->p.settled).count()+" terrain="+startedTerrain+" anchors="+anchors;}
     public UUID eventId(){return event;}
     public UUID owner(){return owner;}
     public ServerLevel level(){return level;}
@@ -233,7 +234,7 @@ public final class LbcSupernova {
     }
     private boolean loadFailed(ChunkPos position){
         var future=loading.get(position);
-        return future!=null&&(future.isCompletedExceptionally()||future.isCancelled());
+        return future!=null&&LbcNexusClone.loadFailed(future);
     }
     private static int top(LevelChunk chunk,int x,int z){
         return chunk.getHeight(Heightmap.Types.WORLD_SURFACE,x&15,z&15);

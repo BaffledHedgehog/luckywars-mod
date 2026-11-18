@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.entity.Entity;
@@ -40,6 +43,7 @@ final class LbcNexusClone {
     private static final int CELLS_PER_STEP = 256;
     private final GameController game;
     private final Completion completion;
+    private final BiFunction<ServerLevel, ChunkPos, CompletableFuture<?>> chunkLoader;
     private final Map<Source, Job> jobs = new HashMap<>();
     private final Map<Source, Load> loads = new HashMap<>();
     private record Source(ServerLevel level, ChunkPos chunk) { }
@@ -55,7 +59,7 @@ final class LbcNexusClone {
         var key = new Source(level, chunk);
         var held = loads.get(key);
         if (held != null) { held.users++; return held.future; }
-        var future = level.getChunkSource().addTicketAndLoadWithRadius(TICKET, chunk, 0);
+        var future = chunkLoader.apply(level, chunk);
         loads.put(key, new Load(future));
         return future;
     }
@@ -74,8 +78,23 @@ final class LbcNexusClone {
     }
 
     LbcNexusClone(GameController game, Completion completion) {
+        this(game, completion, (level, chunk) -> level.getChunkSource().addTicketAndLoadWithRadius(TICKET, chunk, 0));
+    }
+
+    LbcNexusClone(GameController game, Completion completion, BiFunction<ServerLevel, ChunkPos, CompletableFuture<?>> chunkLoader) {
         this.game = game;
         this.completion = completion;
+        this.chunkLoader = chunkLoader;
+    }
+
+    static boolean loadFailed(CompletableFuture<?> future) {
+        if (!future.isDone()) return false;
+        return future.isCompletedExceptionally()
+                || future.getNow(null) instanceof ChunkResult<?> result && !result.isSuccess();
+    }
+
+    private static String loadStatus(CompletableFuture<?> future) {
+        return !future.isDone() ? "pending" : loadFailed(future) ? "failed" : "loaded";
     }
 
     /** Server thread only. Deduplication lasts until this source chunk's operation completes. */
@@ -103,6 +122,11 @@ final class LbcNexusClone {
     }
 
     int pending() { return jobs.size(); }
+    List<String> pendingStatus() {
+        return jobs.values().stream().map(job -> job.source.chunk + " " + loadStatus(job.sourceLoad)
+                + " -> " + job.targetChunk + " " + loadStatus(job.destinationLoad)
+                + " (" + job.copied + "/" + job.count + ")").toList();
+    }
     List<View> snapshot() {
         return jobs.values().stream().map(job -> new View(job.source.level, job.source.chunk,
                 job.destination, job.targetChunk, new BlockPos(job.tx - 8, job.ty - 8, job.tz - 8),
@@ -139,9 +163,8 @@ final class LbcNexusClone {
 
         @Override public boolean ready() {
             if (finished) return true;
+            if (loadFailed(sourceLoad) || loadFailed(destinationLoad)) return true;
             if (!sourceLoad.isDone() || !destinationLoad.isDone()) return false;
-            if (sourceLoad.isCompletedExceptionally() || destinationLoad.isCompletedExceptionally()
-                    || sourceLoad.isCancelled() || destinationLoad.isCancelled()) return true;
             return source.level.getChunkSource().getChunkNow(source.chunk.x(), source.chunk.z()) != null
                     && destination.getChunkSource().getChunkNow(targetChunk.x(), targetChunk.z()) != null
                     && !game.items().timeStop().stopped(source.level)
@@ -159,8 +182,12 @@ final class LbcNexusClone {
 
         @Override public boolean step() {
             if (finished) return true;
-            if (!started && (sourceLoad.isCompletedExceptionally() || destinationLoad.isCompletedExceptionally()
-                    || sourceLoad.isCancelled() || destinationLoad.isCancelled())) { release(); return true; }
+            if (!started && (loadFailed(sourceLoad) || loadFailed(destinationLoad))) {
+                SkyWars2.LOGGER.warn("Nexus transfer cancelled before terrain writes: source {} ({}), destination {} ({})",
+                        source.chunk, loadStatus(sourceLoad), targetChunk, loadStatus(destinationLoad));
+                release();
+                return true;
+            }
             started = true;
             if (copied < count) {
                 int end = Math.min(count, copied + CELLS_PER_STEP);
