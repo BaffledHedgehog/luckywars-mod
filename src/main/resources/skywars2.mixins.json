@@ -28,6 +28,8 @@
     "InventoryPublicationMixin",
     "OversizedLootMixin",
     "OversizedLootMixin$Storage",
+    "OversizedLootMixin$StoredContents",
+    "OversizedLootMixin$ContainerLimits",
     "OversizedLootMixin$Durability",
     "OversizedLootMixin$Vehicle",
     "TimeStopViewMixin$Listener",

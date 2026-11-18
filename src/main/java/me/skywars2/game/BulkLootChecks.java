@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -12,6 +13,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.storage.TagValueInput;
@@ -54,6 +56,7 @@ public final class BulkLootChecks {
             for(int count:List.of(64,99)){
                 var table=mass(game,count);
                 clientStorage(owner,original,count);
+                storedContents(owner, original, count);
                 for(long seed=0;seed<8;seed++){
                     var result=table.getRandomItems(params,seed);require(result.size()==2,"public loot does not split mass sword quantity");
                     var stack=result.stream().filter(s->s.is(original.getItem())).findFirst().orElseThrow();
@@ -96,13 +99,45 @@ public final class BulkLootChecks {
             require(HopperBlockEntity.suckInItems(level,hopper)&&chest.getItem(0).getCount()==63&&hopper.getItem(0).getCount()==1,"real hopper extracts one native-max sword without losing the oversized remainder");
             var ordinary=new ArrayList<ItemStack>();LootTable.createStackSplitter(level,ordinary::add).accept(original.copyWithCount(200));
             require(ordinary.size()==200&&ordinary.stream().allMatch(s->s.getCount()==1&&ItemStack.isSameItemSameComponents(s,original)),"quantities beyond native persistent count99 retain ordinary safe splitting");
-            SkyWars2.LOGGER.info("[check] PASS bulk-loot (count64/99, original Terra components/durability, native chest/barrel/shulker/hopper save-load, legal Shift-click and hopper transfer)");
+            SkyWars2.LOGGER.info("[check] PASS bulk-loot (count64/99, original Terra components/durability, native storage save-load and packed shulker contents, legal Shift-click and hopper transfer)");
         }finally{
             owner.closeContainer();
             clear(level,pos);clear(level,upper);game.maps().restoreSnapshot(level,upper,above);game.maps().restoreSnapshot(level,pos,before);
             saved.restore(game);saved.restoreAttributes();saved.restoreUse();game.players().save();
         }
     }
+    private static void storedContents(net.minecraft.server.level.ServerPlayer owner, ItemStack original, int count) {
+        ItemStack swords = original.copyWithCount(count);
+        swords.setDamageValue(1);
+        ItemStack apples = new ItemStack(Items.APPLE, 3);
+        ItemContainerContents contents = ItemContainerContents.fromItems(List.of(swords, ItemStack.EMPTY, apples));
+        ItemStack box = new ItemStack(Items.SHULKER_BOX);
+        box.set(DataComponents.CONTAINER, contents);
+
+        var ops = owner.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+        var encoded = ItemStack.CODEC.encodeStart(ops, box).getOrThrow();
+        ItemStack saved = ItemStack.CODEC.parse(ops, encoded).getOrThrow();
+        require(ItemStack.matches(box, saved), "packed box retains its exact components during serialization");
+        ItemStack restored = ItemStackTemplate.fromNonEmptyStack(saved).create();
+        require(ItemStack.matches(saved, restored), "materializing a box also accepts its stored slot count");
+        ItemContainerContents restoredContents = restored.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+
+        NonNullList<ItemStack> slots = NonNullList.withSize(4, ItemStack.EMPTY);
+        restoredContents.copyInto(slots);
+        require(ItemStack.matches(slots.get(0), swords) && slots.get(0).getMaxStackSize() == 1
+                        && slots.get(1).isEmpty() && ItemStack.matches(slots.get(2), apples) && slots.get(3).isEmpty(),
+                "packed loot restores one slot, including real maximum, damage, components and empty indices");
+        require(ItemStack.matches(restoredContents.copyOne(), swords), "slot zero restores the full quantity");
+        var copies = restoredContents.itemCopies().toList();
+        require(copies.size() == 3 && ItemStack.matches(copies.get(0), swords) && copies.get(1).isEmpty()
+                        && ItemStack.matches(copies.get(2), apples), "slot stream restores all slots in order");
+        var nonEmpty = restoredContents.nonEmptyItemCopyStream().toList();
+        require(nonEmpty.size() == 2 && ItemStack.matches(nonEmpty.get(0), swords)
+                        && ItemStack.matches(nonEmpty.get(1), apples), "nonempty stream restores both stored stacks");
+        require(restoredContents.asMutable().toImmutable().equals(contents), "mutable view preserves exact contents");
+        require(ItemStack.validateStrict(swords).isError(), "standalone template validation retains the native limit");
+    }
+
     private static void clientStorage(net.minecraft.server.level.ServerPlayer owner,ItemStack original,int count){
         try{
             // Load the UNTRANSFORMED native client container, not the patched server

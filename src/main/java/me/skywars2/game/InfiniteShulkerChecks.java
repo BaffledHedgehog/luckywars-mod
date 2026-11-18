@@ -245,8 +245,9 @@ public final class InfiniteShulkerChecks {
             }
             return rows.toString();
         }
-        void luckyContents(ShulkerBoxBlockEntity container, List<ItemStack> actual) {
-            var source=game.server().reloadableRegistries().getLootTable(key("lbc:infinity_upgraded_luck"));
+        void bulkContents(ShulkerBoxBlockEntity container, List<ItemStack> actual, boolean luckyBox) {
+            String tableId = luckyBox ? "lbc:infinity_upgraded_luck" : "lbc:infinity_upgraded";
+            var source = game.server().reloadableRegistries().getLootTable(key(tableId));
             var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(level)
                     .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,Vec3.atCenterOf(box))
                     .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,p)
@@ -261,18 +262,15 @@ public final class InfiniteShulkerChecks {
             source.fill(expected,params,174329L);
             var filled=new ArrayList<ItemStack>();
             for(int i=0;i<expected.getContainerSize();i++)if(!expected.getItem(i).isEmpty())filled.add(expected.getItem(i).copy());
-            boolean valid=!raw.isEmpty() && raw.stream().allMatch(stack->stack.getCount()==64
-                    && stack.getMaxStackSize()==64 && !stack.has(DataComponents.MAX_DAMAGE))
-                    && !actual.isEmpty() && actual.size()==filled.size()
-                    && actual.stream().allMatch(stack->stack.getCount()>0 && stack.getCount()<=64
-                    && stack.getMaxStackSize()==64 && !stack.has(DataComponents.MAX_DAMAGE));
+            boolean valid = !raw.isEmpty() && raw.stream().allMatch(stack ->
+                    stack.getCount() == 64 || !luckyBox && stack.getCount() == 1 && shell(stack, "inf_inf_shulker", tableId))
+                    && !actual.isEmpty() && actual.size() == filled.size()
+                    && actual.stream().allMatch(stack -> stack.getCount() > 0 && stack.getCount() <= 64);
             for(int i=0;i<27;i++)valid &= ItemStack.matches(container.getItem(i),expected.getItem(i));
-            if(!valid)SkyWars2.LOGGER.error("[check] infinite-shulker lucky contents mismatch raw={} expectedFill={} actualFill={}",
-                    describe(raw),describe(filled),describe(actual));
-            require(valid,"actual native lucky contents match seeded source raw64/maxstack64/no durability and native27-slot overflow/splitting; raw="
-                    +raw.size()+" filled="+actual.size()+" units="+actual.stream().mapToInt(ItemStack::getCount).sum());
-            SkyWars2.LOGGER.info("[check] infinite-shulker lucky source rawStacks={} rawUnits={} filledStacks={} filledUnits={}",
-                    raw.size(),raw.stream().mapToInt(ItemStack::getCount).sum(),actual.size(),actual.stream().mapToInt(ItemStack::getCount).sum());
+            if (!valid) SkyWars2.LOGGER.error("[check] {} contents mismatch raw={} expectedFill={} actualFill={}",
+                    tableId, describe(raw), describe(filled), describe(actual));
+            require(valid, "native contents match seeded source quantities and components for " + tableId
+                    + ", including 27-slot overflow/splitting for the lucky variant");
         }
         void containers() {
             for(boolean upgrade:new boolean[]{false,true}) {
@@ -281,13 +279,17 @@ public final class InfiniteShulkerChecks {
                 require(container.getLootTable()==null && contents.size()==27,"native base/upgraded generates27 occupied source slots");
                 require(contents.stream().filter(s->shell(s,upgrade?"inf_inf_shulker":"inf_shulker",tableId)).count()==1,"one unopened original replacement stays inside native base/upgraded contents");
                 require(localOwned().isEmpty(),"base/upgraded create no separate lucky reward");
-                if(upgrade)for(var stack:contents)if(!shell(stack,"inf_inf_shulker",tableId))
-                    require(stack.getCount()==64 && stack.getMaxStackSize()==64 && !stack.has(DataComponents.MAX_DAMAGE),"upgraded26 rewards exact64/maxstack64/no durability");
+                if (upgrade) {
+                    require(contents.stream().filter(stack -> !shell(stack, "inf_inf_shulker", tableId))
+                                    .allMatch(stack -> stack.getCount() == 64),
+                            "upgraded rewards preserve 64 items per slot");
+                    bulkContents(container, contents, false);
+                }
             }
             for(int generation=1;generation<=2;generation++) {
                 var container=placed("lbc:infinity_upgraded_luck");container.unpackLootTable(p);capture();
                 var contents=contents(container);
-                luckyContents(container,contents);
+                bulkContents(container, contents, true);
                 require(contents.stream().noneMatch(s->shell(s,"sigma_shulker","lbc:infinity_upgraded_luck")),"lucky source has no embedded replacement");
                 require(shells("sigma_shulker","lbc:infinity_upgraded_luck")==generation,"one separate physical lucky shell per actual native generation");
                 for(var entity:localOwned()) {
