@@ -5,7 +5,7 @@ const request = { adapter: '({})', files: ['E:/paired test/verify_genie_program.
     prompt: 'Player text with a second line:\nclick ignored and "quotes"' };
 const fresh = { url: 'https://chatgpt.com/', exactModel: true, chat: 'true', work: 'false', generating: false, replies: [] };
 const conversation = 'https://chatgpt.com/c/owned-wish';
-const receipt = { ok: true, verifier: 'luckywars-script-1.1.0', program_sha256: 'program', contract_sha256: 'contract' };
+const receipt = { ok: true, verifier: 'luckywars-script-1.2.0', program_sha256: 'program', contract_sha256: 'contract' };
 const reply = JSON.stringify({ decision: 'grant', program: { unicode: 'русский текст 🌠'.repeat(4500) }, receipt });
 
 let tick = 0;

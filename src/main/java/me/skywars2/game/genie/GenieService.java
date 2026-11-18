@@ -11,6 +11,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.*;
 import net.minecraft.server.dialog.action.CustomAll;
@@ -27,6 +28,7 @@ import static me.skywars2.game.genie.GenieBlueprint.*;
 /** Server-thread ownership of dialogs, a movable unique pending lamp and cancellation boundaries. */
 public final class GenieService implements AutoCloseable {
     public static final String TOKEN="genie_pending";
+    private static final String LAMP_CUSTOM_NAME="genie_lamp_original_name";
     private final GameController game;
     private final GenieRuntime runtime;
     // The declarative transport remains injectable so existing loopback regression tests exercise old items.
@@ -107,7 +109,21 @@ public final class GenieService implements AutoCloseable {
     }
     private static void mark(ItemStack lamp,String token){
         if(lamp.isEmpty())return;var data=lamp.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(token.isEmpty())data.remove(TOKEN);else data.putString(TOKEN,token);
+        if(token.isEmpty()){
+            data.remove(TOKEN);
+            var saved=data.get(LAMP_CUSTOM_NAME);
+            if(saved!=null)ComponentSerialization.CODEC.parse(NbtOps.INSTANCE,saved).result()
+                    .ifPresent(name->lamp.set(DataComponents.CUSTOM_NAME,name));
+            data.remove(LAMP_CUSTOM_NAME);
+            lamp.set(DataComponents.ITEM_NAME,GenieItems.IDLE_NAME);
+        }else{
+            data.putString(TOKEN,token);
+            var custom=lamp.get(DataComponents.CUSTOM_NAME);
+            if(custom!=null)ComponentSerialization.CODEC.encodeStart(NbtOps.INSTANCE,custom).result()
+                    .ifPresent(saved->{data.put(LAMP_CUSTOM_NAME,saved);lamp.remove(DataComponents.CUSTOM_NAME);});
+            lamp.set(DataComponents.ITEM_NAME,GenieItems.THINKING_NAME);
+        }
+        lamp.set(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_q"));
         lamp.set(DataComponents.CUSTOM_DATA,CustomData.of(data));lamp.set(DataComponents.ITEM_MODEL,token.isEmpty()?GenieItems.IDLE:GenieItems.THINKING);
     }
     private static boolean containsIdentity(ServerPlayer p,ItemStack stack){

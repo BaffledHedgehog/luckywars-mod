@@ -1,6 +1,7 @@
 package me.skywars2.game.genie;
 
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
+import net.minecraft.ChatFormatting;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.ItemData;
 import net.minecraft.core.Registry;
@@ -17,6 +18,9 @@ import net.minecraft.world.level.Level;
 /** Both lamp views use inert vanilla carriers, so neither predicts a throw on the client. */
 public final class GenieItems {
     public static final Identifier IDLE=Identifier.parse("lbc:genie/lamp"),THINKING=Identifier.parse("lbc:genie/thinking");
+    static final Component IDLE_NAME=Component.translatable("genie.lamp").withStyle(ChatFormatting.GOLD).withStyle(s->s.withItalic(false));
+    static final Component THINKING_NAME=Component.translatableWithFallback("genie.lamp.thinking", "Лампа джина (думает)")
+            .withStyle(ChatFormatting.GOLD).withStyle(s->s.withItalic(false));
     public static final Item LAMP=create();
     private GenieItems(){}
     public static void register(){}
@@ -24,7 +28,8 @@ public final class GenieItems {
     private static Item create(){
         var id=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:genie_lamp"));
         var properties=new Item.Properties().setId(id).stacksTo(1).component(DataComponents.ITEM_MODEL,IDLE)
-                .component(DataComponents.ITEM_NAME,Component.translatable("genie.lamp"));
+                .component(DataComponents.ITEM_NAME,IDLE_NAME)
+                .component(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_q"));
         return Registry.register(BuiltInRegistries.ITEM,id,new SimplePolymerItem(properties,Items.GOLD_NUGGET,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
                 var game=SkyWars2.game();

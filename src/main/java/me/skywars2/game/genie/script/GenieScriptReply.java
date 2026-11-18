@@ -7,7 +7,7 @@ import java.util.Set;
 
 /** The model decides whether to grant a wish. The server checks the format and verifier witness. */
 public sealed interface GenieScriptReply {
-    String VERIFIER_VERSION = "luckywars-script-1.1.0";
+    String VERIFIER_VERSION = "luckywars-script-1.2.0";
 
     record Rejected() implements GenieScriptReply {}
 

@@ -11,6 +11,9 @@ import me.skywars2.game.genie.*;
 import me.skywars2.game.genie.script.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.common.ClientboundShowDialogPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.network.protocol.game.ServerboundClientTickEndPacket;
@@ -94,6 +97,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
         base.owner.getInventory().setSelectedSlot(0);
         base.owner.getInventory().setItem(10, ItemStack.EMPTY);
         base.owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(GenieItems.LAMP));
+        base.owner.getMainHandItem().set(DataComponents.CUSTOM_NAME, Component.literal("Лампа из проверки"));
         use();
         var dialog = ((Map<?,?>) WoolBucketChecks.read(service, "dialogs")).get(base.owner.getUUID());
         require(dialog != null, "the native use packet opens the lamp dialog");
@@ -109,6 +113,10 @@ final class GenieLampScriptChecks implements AutoCloseable {
             Identifier.parse("skywars2:genie/" + token), Optional.of(input)));
         var lamp = base.owner.getMainHandItem();
         require(service.locked(base.owner, lamp), "a scripted request reserves the specific lamp");
+        require(lamp.getHoverName().getContents() instanceof TranslatableContents translated
+                && translated.getKey().equals("genie.lamp.thinking")
+                && Identifier.parse("lbc:tier_q").equals(lamp.get(DataComponents.TOOLTIP_STYLE)),
+                "thinking lamp uses the independent translation and Q tooltip");
         base.owner.getInventory().setItem(10, lamp);
         base.owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.APPLE, 3));
         when = game.server().getTickCount();
@@ -143,6 +151,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
             if (service.locked(base.owner, item)) return false;
             require(item.is(GenieItems.LAMP) && !GenieScriptItem.matches(item) && base.owner.getMainHandItem().getCount() == 3,
                 "an unwitnessed grant returns the moved lamp without punishing the player");
+            require(item.getHoverName().getString().equals("Лампа из проверки"),"the original custom name is restored after the request");
             submit();phase = 2;return false;
         }
         if (phase == 3) {

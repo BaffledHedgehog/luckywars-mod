@@ -8,13 +8,17 @@ An ok receipt is useful only with an observed code-execution trace; it is not pr
 """
 from collections import deque
 from decimal import Decimal
+import base64
+import gzip
 import hashlib
+import io
 import json
 from pathlib import Path
 import re
+import struct
 import sys
 
-VERIFIER_VERSION = "luckywars-script-1.1.0"
+VERIFIER_VERSION = "luckywars-script-1.2.0"
 NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_.:]*\Z")
 
 
@@ -56,9 +60,95 @@ def text_units(value):
         raise ValueError("unpaired Unicode surrogate") from error
 
 
+def verify_structure(archive):
+    require(len(archive) <= 262148, "compressed structure exceeds storage bounds")
+    try:
+        with gzip.GzipFile(fileobj=io.BytesIO(base64.b64decode(archive[4:], validate=True))) as gzip_file:
+            data = gzip_file.read(2 * 1024 * 1024 + 1)
+    except (OSError, EOFError, ValueError) as error:
+        raise ValueError("invalid compressed structure") from error
+    require(len(data) <= 2 * 1024 * 1024, "structure exceeds decoded storage bounds")
+    source = io.BytesIO(data)
+    tags = 0
+
+    def read(fmt):
+        length = struct.calcsize(fmt)
+        raw = source.read(length)
+        require(len(raw) == length, "truncated structure NBT")
+        return struct.unpack(fmt, raw)[0]
+
+    def text():
+        length = read(">H")
+        value = source.read(length)
+        require(len(value) == length, "truncated structure text")
+        return value.decode("utf-8")
+
+    def payload(kind, depth):
+        nonlocal tags
+        tags += 1
+        require(depth <= 24 and tags <= 100000, "structure NBT exceeds complexity bounds")
+        formats = {1: ">b", 2: ">h", 3: ">i", 4: ">q", 5: ">f", 6: ">d"}
+        if kind in formats:
+            return read(formats[kind])
+        if kind == 8:
+            return text()
+        if kind == 9:
+            child, count = read(">B"), read(">i")
+            require(0 <= count <= 4096, "structure list exceeds bounds")
+            return [payload(child, depth + 1) for _ in range(count)]
+        if kind == 10:
+            fields = {}
+            while child := read(">B"):
+                key = text()
+                require(key not in fields, "duplicate structure NBT key")
+                fields[key] = payload(child, depth + 1)
+            return fields
+        if kind in (7, 11, 12):
+            count = read(">i")
+            require(0 <= count <= 4096, "structure array exceeds bounds")
+            result = source.read(count * {7: 1, 11: 4, 12: 8}[kind])
+            require(len(result) == count * {7: 1, 11: 4, 12: 8}[kind], "truncated structure array")
+            return result
+        raise ValueError("unsupported structure NBT tag")
+
+    require(read(">B") == 10, "structure root must be an NBT compound")
+    text()
+    root = payload(10, 0)
+    require(not source.read(1), "trailing structure data")
+    size = root.get("size")
+    require(isinstance(size, list) and len(size) == 3 and all(isinstance(axis, int) and 1 <= axis <= 64 for axis in size),
+            "invalid structure dimensions")
+    require(root.get("entities", []) == [], "entities are outside the structure API")
+    palette = root.get("palette")
+    if palette is None and root.get("palettes"):
+        palette = root["palettes"][0]
+    require(isinstance(palette, list) and 0 < len(palette) <= 4096, "invalid structure palette")
+    control_blocks = {"command_block", "chain_command_block", "repeating_command_block", "structure_block", "jigsaw"}
+    for entry in palette:
+        require(isinstance(entry, dict), "structure palette entry must be a compound")
+        name = entry.get("Name", entry.get("id"))
+        require(isinstance(name, str) and re.fullmatch(r"[a-z0-9_.-]+:[a-z0-9_/.-]+", name), "invalid structure block identifier")
+        require(name not in {"minecraft:" + block for block in control_blocks}, "control blocks cannot be placed")
+        properties = entry.get("Properties", entry.get("properties", {}))
+        require(isinstance(properties, dict) and all(re.fullmatch(r"[a-z0-9_]+", key) and isinstance(value, str)
+                and re.fullmatch(r"[a-z0-9_-]+", value) for key, value in properties.items()), "invalid structure block property")
+    blocks = root.get("blocks")
+    require(isinstance(blocks, list) and 0 < len(blocks) <= 4096, "invalid structure blocks")
+    seen = set()
+    for block in blocks:
+        require(isinstance(block, dict) and "nbt" not in block, "block entity payloads are outside the structure API")
+        index, pos = block.get("state"), block.get("pos")
+        require(isinstance(index, int) and 0 <= index < len(palette), "invalid structure palette index")
+        require(isinstance(pos, list) and len(pos) == 3 and all(isinstance(axis, int) and 0 <= axis < bound
+                for axis, bound in zip(pos, size)), "invalid structure block position")
+        require(tuple(pos) not in seen, "duplicate structure block position")
+        seen.add(tuple(pos))
+
+
 def check_data(root, limits):
     pending = [(root, 0, False)]
     active = set()
+    structures = set()
     nodes = characters = 0
     while pending:
         value, depth, exiting = pending.pop()
@@ -80,6 +170,9 @@ def check_data(root, limits):
                 pending.extend((child, depth + 1, False) for child in value)
         elif isinstance(value, str):
             characters += text_units(value)
+            if value.startswith("nbt:") and value not in structures:
+                verify_structure(value)
+                structures.add(value)
         elif isinstance(value, (int, Decimal)) and not isinstance(value, bool):
             number = Decimal(value)
             require(number.is_finite(), "non-finite number")

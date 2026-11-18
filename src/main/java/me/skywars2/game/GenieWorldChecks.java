@@ -7,6 +7,7 @@ import me.skywars2.game.genie.GenieWorldHost;
 import me.skywars2.game.genie.script.*;
 import net.minecraft.commands.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.*;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.Creeper;
@@ -102,7 +103,35 @@ final class GenieWorldChecks {
         require(filtered.get("successes").getAsInt()==1&&base.level.getBlockState(from).is(Blocks.DIRT)
             &&base.level.getBlockState(control).is(Blocks.STRUCTURE_BLOCK),"filtered local fill still edits its ordinary selected target");
         base.set(from,Blocks.AIR.defaultBlockState());base.set(control,Blocks.AIR.defaultBlockState());
+        structure(base,host,to);
         gameItemTransfers(base,host,to);
+    }
+
+    private static void structure(WoolBucketChecks.Fixture fixture, GenieWorldHost host, BlockPos at) {
+        try {
+            var template = TagParser.parseCompoundFully("{size:[2,1,1],palette:[{Name:'minecraft:iron_block'},"
+                    + "{Name:'minecraft:oak_log',Properties:{axis:'x'}}],blocks:[{pos:[0,0,0],state:0},{pos:[1,0,0],state:1}],entities:[]}");
+            var file = new java.io.ByteArrayOutputStream();
+            NbtIo.writeCompressed(template, file);
+            var archive = new JsonPrimitive("nbt:" + Base64.getEncoder().encodeToString(file.toByteArray()));
+            var base = fixture.owner.blockPosition();
+            var relative = new JsonArray();
+            relative.add(at.getX()-base.getX());relative.add(at.getY()-base.getY());relative.add(at.getZ()-base.getZ());
+            fixture.set(at,Blocks.AIR.defaultBlockState());
+            fixture.set(at.east(),Blocks.STRUCTURE_BLOCK.defaultBlockState());
+            require(complete(host,queued(host,"structure.place",archive,relative)).getAsInt()==0
+                    &&fixture.level.getBlockState(at).isAir()&&fixture.level.getBlockState(at.east()).is(Blocks.STRUCTURE_BLOCK),
+                    "relative template preflights every target before any block changes");
+            fixture.set(at.east(),Blocks.AIR.defaultBlockState());
+            require(complete(host,queued(host,"structure.place",archive,relative)).getAsInt()==2
+                    &&fixture.level.getBlockState(at).is(Blocks.IRON_BLOCK)
+                    &&fixture.level.getBlockState(at.east()).getValue(net.minecraft.world.level.block.RotatedPillarBlock.AXIS)==net.minecraft.core.Direction.Axis.X,
+                    "real gzip .nbt placed both cells at the offset with the authored block state");
+            fixture.set(at,Blocks.AIR.defaultBlockState());
+            fixture.set(at.east(),Blocks.AIR.defaultBlockState());
+        } catch (java.io.IOException | com.mojang.brigadier.exceptions.CommandSyntaxException error) {
+            throw new IllegalStateException(error);
+        }
     }
 
     private static void gameItemTransfers(WoolBucketChecks.Fixture base,GenieWorldHost host,BlockPos box){

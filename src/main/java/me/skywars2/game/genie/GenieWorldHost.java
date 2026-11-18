@@ -28,6 +28,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         "world.command",new ScriptProgram.Signature(1,1),
         "world.select",new ScriptProgram.Signature(1,1),
         "world.raycast",new ScriptProgram.Signature(4,4),
+        "structure.place",new ScriptProgram.Signature(2,2),
         "entity.info",new ScriptProgram.Signature(1,1),
         "entity.launch",new ScriptProgram.Signature(1,4),
         "lbc.grimoire",new ScriptProgram.Signature(1,2),
@@ -125,6 +126,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "world.command"->command(text(values.getFirst()));
             case "world.select"->select(text(values.getFirst()));
             case "world.raycast"->ray(vector(values.get(0)),vector(values.get(1)),number(values.get(2)),bool(values.get(3)));
+            case "structure.place"->GenieStructures.place(owner,text(values.get(0)),values.get(1));
             case "entity.info"->info(find(text(values.getFirst())));
             case "entity.launch"->launch(values);
             case "lbc.grimoire"->grimoire(values);
