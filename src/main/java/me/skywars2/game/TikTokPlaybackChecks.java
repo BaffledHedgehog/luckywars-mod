@@ -73,7 +73,7 @@ public final class TikTokPlaybackChecks {
         void use(){require(f.owner.gameMode.useItem(f.owner,f.level,f.owner.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction(),"real native phone use accepted");}
         void next(int value){phase=value;when=game.server().getTickCount();windowStarted=System.nanoTime();f.client.packets().clear();f.audience.packets().clear();}
         void begin()throws Exception{
-            pixels();audio();use();started=System.nanoTime();
+            pixels();audio();partialSoundReceipts();use();started=System.nanoTime();
             int amount=frames(f.client.packets()).size();use();
             require(frames(f.client.packets()).size()==amount,"hidden five-second cooldown does not restart video");
             var chats=SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSystemChatPacket.class::isInstance).map(ClientboundSystemChatPacket.class::cast).toList();
@@ -82,6 +82,41 @@ public final class TikTokPlaybackChecks {
             var clock=(TikTokSoundClock)WoolBucketChecks.read(playback,"audioClock");long slices=clock.emittedSlices.get();
             Thread.sleep(200);require(clock.emittedSlices.get()-slices>=7,"60Hz audio advances independently during an actual200ms fixture tick stall");
             next(0);
+        }
+        void partialSoundReceipts(){
+            var output=TikTokOutput.forPlayer(f.owner);
+            require(output!=null,"real PLAY output is available");
+            byte[] bands=new byte[TikTokMedia.BANDS];
+            Arrays.fill(bands,(byte)40);
+            var slice=new ClientboundBundlePacket(TikTokAudio.packets(f.owner,bands,1));
+            echoMediaReceipts=false;
+            f.client.packets().clear();
+            try{
+                long expires=System.nanoTime()+2_000_000_000L;
+                for(int i=0;i<6;i++)require(output.offerSound(slice,expires,()->true),"initial audio credit "+i);
+                require(!output.soundReady(),"six unacknowledged slices exhaust the audio window");
+                int first=f.client.packets().stream().filter(ClientboundPingPacket.class::isInstance)
+                        .map(ClientboundPingPacket.class::cast).findFirst().orElseThrow().getId();
+                channel.writeInbound(new ServerboundPongPacket(first));
+                require(channel.readInbound()==null&&output.soundReady(),"first real receipt opens one audio slot");
+                require(output.offerSound(slice,expires,()->true)&&!output.soundReady(),
+                        "a single Pong restores exactly one audio slot while the other five are unacknowledged");
+                require(!output.offerSound(slice,expires,()->true),"no extra credit from the other unopened slices");
+                var duplicate=new ServerboundPongPacket(first);
+                channel.writeInbound(duplicate);
+                require(channel.readInbound()==duplicate&&!output.soundReady(),"a repeated audio Pong never grants more credit");
+                var stillPending=f.client.packets().stream().filter(ClientboundPingPacket.class::isInstance)
+                        .map(ClientboundPingPacket.class::cast).map(ClientboundPingPacket::getId)
+                        .filter(id->id!=first).toList();
+                require(stillPending.size()==6,"one ordered receipt per outstanding slice");
+                for(int id:stillPending.reversed())channel.writeInbound(new ServerboundPongPacket(id));
+                require(channel.readInbound()==null&&output.soundReady()&&output.frameReady(),
+                        "all outstanding receipts release audio without affecting independent video credit");
+                SkyWars2.LOGGER.info("[check] TikTok sound window: six outstanding, one replacement per client receipt");
+            }finally{
+                echoMediaReceipts=true;
+                f.client.packets().clear();
+            }
         }
         void pixels()throws Exception{
             byte[] data=new byte[TikTokMedia.PIXELS];for(int i=0;i<data.length;i++)data[i]=(byte)(4+i%244);

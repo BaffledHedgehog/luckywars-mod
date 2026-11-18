@@ -22,22 +22,36 @@ final class TikTokOutput {
     private final Window sound = new Window(SOUND_WINDOW);
 
     private static final class Window {
-        final int capacity;
         final AtomicBoolean scheduled = new AtomicBoolean();
         volatile int remaining;
         // Owned by the channel event loop.
-        int receipt;
+        final int[] receipts;
 
         Window(int capacity) {
-            this.capacity = capacity;
+            receipts = new int[capacity];
             remaining = capacity;
         }
 
+        int reserve() {
+            for (int slot = 0; slot < receipts.length; slot++) {
+                if (receipts[slot] != 0) continue;
+                int id = PlayerLatency.nextProbeId();
+                receipts[slot] = id;
+                remaining--;
+                return id;
+            }
+            throw new IllegalStateException("Media window has no available receipt slot");
+        }
+
         boolean acknowledge(int id) {
-            if (receipt == 0 || receipt != id) return false;
-            receipt = 0;
-            remaining = capacity;
-            return true;
+            if (id >= 0) return false;
+            for (int slot = 0; slot < receipts.length; slot++) {
+                if (receipts[slot] != id) continue;
+                receipts[slot] = 0;
+                remaining++;
+                return true;
+            }
+            return false;
         }
     }
 
@@ -107,16 +121,11 @@ final class TikTokOutput {
         Runnable write = () -> {
             try {
                 if (!writable(window) || expires - System.nanoTime() <= 0 || !valid.getAsBoolean()) return;
-                int receipt = 0;
-                if (window.receipt == 0) {
-                    receipt = PlayerLatency.nextProbeId();
-                    window.receipt = receipt;
-                }
-                window.remaining--;
+                int receipt = window.reserve();
                 listener.send(packet);
-                // TCP orders the receipt behind the media. Netty writability alone cannot see
-                // the backlog in the operating system or at the receiving end.
-                if (receipt != 0) listener.send(new ClientboundPingPacket(receipt));
+                // Each Ping follows its own media write in TCP order. A Pong for an
+                // earlier write cannot grant credit for later, still queued traffic.
+                listener.send(new ClientboundPingPacket(receipt));
             } finally {
                 window.scheduled.set(false);
             }
