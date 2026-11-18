@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
@@ -10,8 +11,13 @@ import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.ClientboundPingPacket;
+import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
@@ -32,7 +38,9 @@ public final class TikTokPlaybackChecks {
         final Path directory;final TikTokCache cache;final TikTokPlayback playback,previous;
         final TikTokCache migrationCache;
         final java.lang.reflect.Field playbackField,channelField;final Object previousChannel;
-        final EmbeddedChannel channel=new EmbeddedChannel();final ItemStack authored;
+        final EmbeddedChannel channel = new EmbeddedChannel();
+        final ItemStack authored;
+        volatile boolean echoMediaReceipts = true;
         final List<net.minecraft.world.entity.item.ItemEntity> dropped=new ArrayList<>();
         long started,windowStarted;int began,phase,when;long now,wireBytes;boolean closing,realReference;
         Fixture(GameController game)throws Exception{
@@ -48,7 +56,17 @@ public final class TikTokPlaybackChecks {
             channelField=net.minecraft.network.Connection.class.getDeclaredField("channel");channelField.setAccessible(true);
             previousChannel=channelField.get(f.client.connection);channelField.set(f.client.connection,channel);
             var recorded=((Object)f.client.connection).getClass().getDeclaredField("packets");recorded.setAccessible(true);
-            recorded.set(f.client.connection,new java.util.concurrent.CopyOnWriteArrayList<>(f.client.packets()));
+            channel.pipeline().addLast("packet_handler", new ChannelInboundHandlerAdapter());
+            ServerNetworkTransport.configure(channel.pipeline(), PacketFlow.SERVERBOUND, true, ConnectionProtocol.PLAY);
+            recorded.set(f.client.connection, new java.util.concurrent.CopyOnWriteArrayList<Packet<?>>(f.client.packets()) {
+                @Override public boolean add(Packet<?> packet) {
+                    boolean added = super.add(packet);
+                    if (echoMediaReceipts && packet instanceof ClientboundPingPacket ping) {
+                        TikTokOutput.acknowledge(channel, ping.getId());
+                    }
+                    return added;
+                }
+            });
             authored=new ItemStack(LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item);f.owner.getInventory().setSelectedSlot(0);f.owner.setItemInHand(InteractionHand.MAIN_HAND,authored.copy());
             began=when=f.level.getServer().getTickCount();
         }
@@ -140,11 +158,16 @@ public final class TikTokPlaybackChecks {
             require(tick-began<400,"bounded asynchronous native fixture");
             if(phase==0){
                 if(now-windowStarted<1_200_000_000L)return false;
-                var packets=frames(f.client.packets());require(packets.size()>=16&&packets.size()<=26,"actual near20FPS native packet cadence "+packets.size()+" elapsedMs="+((now-windowStarted)/1_000_000)+" serial="+(playback.screen(f.owner)==null?-1:playback.screen(f.owner).serial()));
+                var packets=frames(f.client.packets());require(packets.size()>=16&&packets.size()<=26,"actual near20FPS native packet cadence "+packets.size()+" elapsedMs="+((now-windowStarted)/1_000_000));
                 require(packets.stream().map(p->p.contents().get(DataComponents.CUSTOM_MODEL_DATA)).distinct().count()>=12,"moving independent frame pixels");
                 var last=packets.getLast();require(last.contents().is(Items.CARROT_ON_A_STICK)&&!last.contents().has(DataComponents.MAP_ID),"real held phone carrier, no map or extra entities");
                 require(ItemStack.matches(authored,PolymerItemUtils.getRealItemStack(last.contents(),((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)f.client.connection).getPacketContext(),f.owner.registryAccess())),"projection roundtrip retains exact server phone/NBT");
                 require(ItemStack.matches(authored,f.owner.getMainHandItem()),"all frames leave authoritative item unchanged");
+                var normal = PolymerItemUtils.getPolymerItemStack(authored, TooltipFlag.NORMAL,
+                        ((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider) f.client.connection).getPacketContext(), f.owner.registryAccess());
+                require(Identifier.parse("lbc:zaika").equals(normal.get(DataComponents.ITEM_MODEL))
+                        && !normal.has(DataComponents.CUSTOM_MODEL_DATA),
+                        "ordinary slot, inventory and equipment projection cannot bypass the media window");
                 require(frames(f.audience.packets()).isEmpty(),"frames private to viewer");
                 var audio=SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSoundEntityPacket.class::isInstance).map(ClientboundSoundEntityPacket.class::cast).filter(p->p.getSound().value().location().getPath().startsWith("tiktok.v2.noise_")).toList();
                 require(!audio.isEmpty()&&audio.size()<=16*80,"independent60Hz sound clock emits bounded16-event slices");
@@ -166,7 +189,40 @@ public final class TikTokPlaybackChecks {
                 channel.unsafe().outboundBuffer().setUserDefinedWritability(1,true);next(2);return false;
             }
             if(phase==2){
-                if(now-windowStarted<500_000_000L)return false;require(frames(f.client.packets()).size()>=8&&frames(f.client.packets()).size()<=12,"resume latest frame clock without catch-up burst");next(3);return false;
+                if (now - windowStarted < 500_000_000L) return false;
+                require(frames(f.client.packets()).size() >= 8 && frames(f.client.packets()).size() <= 12,
+                        "resume latest frame clock without catch-up burst");
+                echoMediaReceipts = false;
+                next(11);
+                return false;
+            }
+            if (phase == 11) {
+                if (now - windowStarted < 350_000_000L) return false;
+                require(channel.isWritable() && frames(f.client.packets()).size() == 1,
+                        "OS acceptance without a client receipt admits only one video frame");
+                var noise = SmokeVolumeChecks.flatten(f.client.packets()).stream()
+                        .filter(ClientboundSoundEntityPacket.class::isInstance).map(ClientboundSoundEntityPacket.class::cast)
+                        .filter(p -> p.getSound().value().location().getPath().startsWith("tiktok.v2.noise_")).count();
+                require(noise > 0 && noise <= 6 * 16, "independent bounded audio window: " + noise);
+                var output = TikTokOutput.forPlayer(f.owner);
+                require(output != null && !output.frameReady() && !output.soundReady(), "both media lanes wait for actual receipt");
+                var foreign = new ServerboundPongPacket(123);
+                channel.writeInbound(foreign);
+                require(channel.readInbound() == foreign && !output.frameReady(), "unrelated Pong still reaches the game handler");
+                var gameplay = new ClientboundSystemChatPacket(Component.literal("gameplay"), false);
+                f.owner.connection.send(gameplay);
+                require(f.client.packets().contains(gameplay), "gameplay can send while media waits");
+                var receipts = f.client.packets().stream().filter(ClientboundPingPacket.class::isInstance)
+                        .map(ClientboundPingPacket.class::cast).map(ClientboundPingPacket::getId).toList();
+                for (int receipt : receipts) channel.writeInbound(new ServerboundPongPacket(receipt));
+                while (channel.readInbound() != null) { }
+                require(output.frameReady() && output.soundReady(), "native PLAY inbound handler releases both media receipts");
+                for (int receipt : receipts) channel.writeInbound(new ServerboundPongPacket(receipt));
+                require(channel.readInbound() instanceof ServerboundPongPacket, "a repeated receipt cannot open a second publication");
+                while (channel.readInbound() != null) { }
+                echoMediaReceipts = true;
+                next(3);
+                return false;
             }
             if(phase==3){
                 if(now-started<5_200_000_000L)return false;
@@ -209,7 +265,7 @@ public final class TikTokPlaybackChecks {
             }
             if(phase==7){
                 if(elapsed<6)return false;
-                require(playback.screen(f.owner)==null&&playback.pins().isEmpty()&&frames(f.client.packets()).isEmpty(),"no held phone stops display/audio/I/O pins");
+                require(playback.pins().isEmpty()&&frames(f.client.packets()).isEmpty(),"no held phone stops display/audio/I/O pins");
                 f.owner.setItemInHand(InteractionHand.MAIN_HAND,authored.copy());next(8);return false;
             }
             if(phase==8){
@@ -226,18 +282,18 @@ public final class TikTokPlaybackChecks {
                 next(10);return false;
             }
             if(elapsed<6)return false;
-            require(playback.screen(f.owner)==null&&frames(f.client.packets()).isEmpty(),"Q stops video and cannot republish stale frame");
+            require(playback.pins().isEmpty()&&frames(f.client.packets()).isEmpty(),"Q stops video and cannot republish stale frame");
             require(SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSetPlayerInventoryPacket.class::isInstance)
                     .map(ClientboundSetPlayerInventoryPacket.class::cast).anyMatch(p->p.slot()==1&&p.contents().isEmpty()),"Q explicitly restores authoritative empty client slot");
             enhanced();
-            SkyWars2.LOGGER.info("[check] PASS tiktok-playback (native480p20FPS/60Hz old fallback,20Hz spectral stereo, actual cookie-free background cache upgrade; real Fabric Hello/version/channel gate, enhanced independent20Hz JPEG/48k stereo PCM, native shared codecs/JPEG bomb bound, no vanilla pixels/tones on enhanced path, private stream, TimeStop, Q/Stop/empty-slot ordering; {} compressed vanilla bytes/frame, realForYouBinary={})",wireBytes,realReference);
+            SkyWars2.LOGGER.info("[check] PASS tiktok-playback (native480p20FPS/60Hz old fallback,20Hz spectral stereo, actual cookie-free background cache upgrade; real Fabric Hello/version/channel gate, enhanced independent20Hz JPEG/48k stereo PCM, native shared codecs/JPEG bomb bound, no vanilla pixels/tones on enhanced path, private stream, bounded video/audio while writable, live receipt recovery, TimeStop, Q/Stop/empty-slot ordering; {} compressed vanilla bytes/frame, realForYouBinary={})",wireBytes,realReference);
             return true;
         }
         void enhanced()throws Exception{
             require(SmokeVolumeChecks.flatten(f.client.packets()).stream().noneMatch(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Frame),"unmodified client never receives unsupported media payloads");
             MediaProtocolChecks.codecs(f.owner);MediaProtocolChecks.negotiate(f.owner);
             playback.reset();f.owner.setItemInHand(InteractionHand.MAIN_HAND,authored.copy());f.client.packets().clear();f.audience.packets().clear();
-            use();require(playback.screen(f.owner).enhanced(),"negotiated connection selects enhanced projection");
+            use();require(playback.enhanced(f.owner),"negotiated connection selects enhanced projection");
             var proxy=PolymerItemUtils.getPolymerItemStack(authored,TooltipFlag.NORMAL,((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)f.client.connection).getPacketContext(),f.owner.registryAccess());
             require(TikTokPlayback.CLIENT_MODEL.equals(proxy.get(DataComponents.ITEM_MODEL))&&!proxy.has(DataComponents.CUSTOM_MODEL_DATA),"enhanced renderer uses one quad and no per-frame tint NBT");
             Thread.sleep(280);var packets=SmokeVolumeChecks.flatten(f.client.packets());
@@ -252,7 +308,7 @@ public final class TikTokPlaybackChecks {
             packets=SmokeVolumeChecks.flatten(f.client.packets());
             require(packets.stream().anyMatch(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Stop),"unheld stops exact client session");
             require(packets.stream().noneMatch(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Frame),"Stop gate prevents late frames after authoritative empty slot");
-            require(playback.screen(f.owner)==null&&ItemStack.matches(authored,PolymerItemUtils.getRealItemStack(proxy,((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)f.client.connection).getPacketContext(),f.owner.registryAccess())),"enhanced stream preserves exact server item/NBT and cleans screen");
+            require(!playback.enhanced(f.owner)&&ItemStack.matches(authored,PolymerItemUtils.getRealItemStack(proxy,((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)f.client.connection).getPacketContext(),f.owner.registryAccess())),"enhanced stream preserves exact server item/NBT and cleans screen");
         }
         public void close(){
             if(closing)return;closing=true;

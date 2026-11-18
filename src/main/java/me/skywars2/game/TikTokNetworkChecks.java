@@ -1,6 +1,5 @@
 package me.skywars2.game;
 
-import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -10,7 +9,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
 import me.skywars2.SkyWars2;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.item.*;
@@ -41,8 +39,6 @@ public final class TikTokNetworkChecks {
         final AtomicLong receivedBytes=new AtomicLong();
         final CRC32 sentCrc=new CRC32(),receivedCrc=new CRC32();
         final TikTokVoiceBudget voices=new TikTokVoiceBudget();
-        final Map<UUID,TikTokPlayback.Screen> screens;
-        final TikTokPlayback.Screen previous;
         final ItemStack phone;
         final int began;
         final long beganNanos=System.nanoTime();
@@ -63,7 +59,6 @@ public final class TikTokNetworkChecks {
             var header=ByteBuffer.allocate(16);while(header.hasRemaining())require(spectral.read(header)>=0,"spectral header");header.flip();
             require(header.getInt()==0x544b4131,"real spectral sidecar");spectralFrames=header.getInt();
             require(spectralFrames>0&&header.getInt()==20&&header.getInt()==88,"native spectral format");
-            screens=(Map<UUID,TikTokPlayback.Screen>)WoolBucketChecks.read(Objects.requireNonNull(TikTokAccounts.playback()),"screens");previous=screens.get(f.owner.getUUID());
             phone=new ItemStack(LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item);f.owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,phone);
             try(var listener=new ServerSocket(0,1,InetAddress.getLoopbackAddress())){
                 sender=new Socket(listener.getInetAddress(),listener.getLocalPort());receiver=listener.accept();
@@ -87,8 +82,7 @@ public final class TikTokNetworkChecks {
             if(frame<media.frames*2){
                 profile=frame/media.frames;int index=frame%media.frames;
                 var source=media.frame(index,false);
-                screens.put(f.owner.getUUID(),new TikTokPlayback.Screen(TikTokPixels.encode(source.map()),index,index));
-                var proxy=PolymerItemUtils.getPolymerItemStack(phone,TooltipFlag.NORMAL,((PacketContextProvider)f.client.connection).getPacketContext(),f.owner.registryAccess());
+                var proxy = TikTokPlayback.frameStack(f.owner, phone, TikTokPixels.encode(source.map()));
                 require(proxy.get(net.minecraft.core.component.DataComponents.ITEM_MODEL).equals(TikTokPlayback.VIDEO_MODEL),"actual vanilla phone factory");
                 var video=NetworkTransportChecks.encode(f.owner,List.of(new ClientboundSetPlayerInventoryPacket(0,proxy)),true,256,false);
                 long nanos=index*50_000_000L;int limit=profile==0?72:Math.min(72,voices.available(nanos,index));
@@ -115,7 +109,6 @@ public final class TikTokNetworkChecks {
         }
         @Override public void close(){
             if(closed)return;closed=true;
-            if(previous==null)screens.remove(f.owner.getUUID());else screens.put(f.owner.getUUID(),previous);
             try{sender.close();receiver.close();spectral.close();media.close();}catch(Exception error){throw new IllegalStateException(error);}finally{f.close();}
         }
     }

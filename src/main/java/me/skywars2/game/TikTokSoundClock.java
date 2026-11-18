@@ -1,14 +1,11 @@
 package me.skywars2.game;
 
-import io.netty.channel.Channel;
 import java.util.UUID;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
-import me.skywars2.mixin.MediaTransportAccess;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -17,14 +14,13 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 final class TikTokSoundClock implements AutoCloseable {
     private static final long PERIOD=1_000_000_000L/TikTokMedia.AUDIO_FPS;
     private static final class Stream {
-        final ServerPlayer identity;final ServerGamePacketListenerImpl listener;final Channel channel;
+        final ServerPlayer identity;
+        final TikTokOutput output;
         final TikTokMedia clip;final long started;volatile boolean active=true;long last=-1,lastSpectral=-1;
         long lastClientTick=Long.MIN_VALUE;
         final TikTokVoiceBudget voices=new TikTokVoiceBudget();
-        Stream(ServerPlayer player,TikTokMedia clip,long started){
-            identity=player;listener=player.connection;this.clip=clip;this.started=started;
-            var connection=((MediaTransportAccess.Listener)listener).skywars2$mediaConnection();
-            channel=((MediaTransportAccess.Transport)connection).skywars2$mediaChannel();
+        Stream(ServerPlayer player, TikTokMedia clip, long started, TikTokOutput output) {
+            identity=player;this.clip=clip;this.started=started;this.output=output;
         }
     }
     private final ConcurrentMap<UUID,Stream> streams=new ConcurrentHashMap<>();
@@ -34,19 +30,22 @@ final class TikTokSoundClock implements AutoCloseable {
     TikTokSoundClock(Consumer<String> pin,Consumer<String> release){
         this.pin=pin;this.release=release;clock.scheduleAtFixedRate(this::pulse,0,PERIOD,TimeUnit.NANOSECONDS);
     }
-    void play(ServerPlayer player,TikTokMedia clip,long started){stop(player);streams.put(player.getUUID(),new Stream(player,clip,started));}
+    void play(ServerPlayer player, TikTokMedia clip, long started, TikTokOutput output) {
+        stop(player);
+        streams.put(player.getUUID(), new Stream(player, clip, started, output));
+    }
     void stop(ServerPlayer player){var stream=streams.remove(player.getUUID());if(stream!=null)stream.active=false;}
     private void pulse(){
         long now=System.nanoTime();
         for(var stream:streams.values()){
             long serial=Math.max(0,now-stream.started)/PERIOD;
             if(serial==stream.last)continue;stream.last=serial;
-            if(!stream.active||stream.channel==null||!stream.channel.isActive()||!stream.channel.isWritable()||TimeStopView.frozen(stream.identity))continue;
+            if (!stream.active || !stream.output.soundReady() || TimeStopView.frozen(stream.identity)) continue;
             pin.accept(stream.clip.id);
             try{
                 // These constructors read only getId()/getUUID(), not mutable entity position or inventory.
                 List<Packet<? super ClientGamePacketListener>> packets;
-                long clientTick=ServerNetworkTransport.mediaClientTicks(stream.channel);
+                long clientTick = stream.output.clientTicks();
                 if(stream.clip.hasSpectral()){
                     long frame=serial/TikTokMedia.SLICES;
                     if(frame==stream.lastSpectral)continue;stream.lastSpectral=frame;
@@ -61,9 +60,11 @@ final class TikTokSoundClock implements AutoCloseable {
                     packets=TikTokAudio.packets(stream.identity,stream.clip.audio(serial),serial);
                     if(packets.size()>stream.voices.available(now,clientTick))continue;
                 }
-                if(stream.active&&!packets.isEmpty()&&stream.channel.isWritable()){
-                    stream.voices.emitted(System.nanoTime(),clientTick,packets.size());
-                    stream.listener.send(new ClientboundBundlePacket(packets));emittedSlices.incrementAndGet();
+                if (!packets.isEmpty() && stream.output.offerSound(
+                        new ClientboundBundlePacket(packets), now + 100_000_000L,
+                        () -> stream.active && !TimeStopView.frozen(stream.identity))) {
+                    stream.voices.emitted(System.nanoTime(), clientTick, packets.size());
+                    emittedSlices.incrementAndGet();
                 }
             }catch(Exception ignored){/* A retired/closed clip or connection has no sound backlog. */}
             finally{release.accept(stream.clip.id);}

@@ -24,10 +24,9 @@ final class TikTokPhoneItem extends SimplePolymerItem {
     @Override public ItemStack getPolymerItemStack(ItemStack stack,TooltipFlag flag,PacketContext context,HolderLookup.Provider lookup){
         var result=super.getPolymerItemStack(stack,flag,context,lookup);
         var player=PolymerCommonUtils.getPlayer(context);var playback=TikTokAccounts.playback();
-        var screen=player==null||playback==null?null:playback.screen(player);
-        if(screen!=null){
-            result.set(DataComponents.ITEM_MODEL,screen.enhanced()?TikTokPlayback.CLIENT_MODEL:TikTokPlayback.VIDEO_MODEL);
-            if(screen.enhanced())result.remove(DataComponents.CUSTOM_MODEL_DATA);else result.set(DataComponents.CUSTOM_MODEL_DATA,screen.colors());
+        if (player != null && playback != null && playback.enhanced(player)) {
+            result.set(DataComponents.ITEM_MODEL, TikTokPlayback.CLIENT_MODEL);
+            result.remove(DataComponents.CUSTOM_MODEL_DATA);
         }
         return result;
     }

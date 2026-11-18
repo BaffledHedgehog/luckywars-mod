@@ -12,6 +12,8 @@ import java.util.IdentityHashMap;
 import java.util.Set;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.ServerboundPongPacket;
+import net.minecraft.network.protocol.game.ServerboundClientTickEndPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 
@@ -59,12 +61,14 @@ public final class ServerNetworkTransport {
     }
 
     public static void configure(ChannelPipeline pipeline, PacketFlow receiving, boolean local, ConnectionProtocol protocol) {
-        if (!local && receiving == PacketFlow.SERVERBOUND && protocol == ConnectionProtocol.PLAY) {
+        if (receiving == PacketFlow.SERVERBOUND && protocol == ConnectionProtocol.PLAY) {
             // Netty drains on read completion, backpressure, close and exception as well.
-            if (pipeline.get(HANDLER) == null) pipeline.addFirst(HANDLER, new FlushConsolidationHandler(256, true));
+            if (!local && pipeline.get(HANDLER) == null) pipeline.addFirst(HANDLER, new FlushConsolidationHandler(256, true));
             if(pipeline.get(MEDIA_TICKS)==null&&pipeline.get("packet_handler")!=null)pipeline.addBefore("packet_handler",MEDIA_TICKS,new ChannelInboundHandlerAdapter(){
                 @Override public void channelRead(ChannelHandlerContext ctx,Object message)throws Exception{
-                    if(message instanceof net.minecraft.network.protocol.game.ServerboundClientTickEndPacket){
+                    if (message instanceof ServerboundPongPacket pong
+                            && TikTokOutput.acknowledge(ctx.channel(), pong.getId())) return;
+                    if(message instanceof ServerboundClientTickEndPacket){
                         var count=ctx.channel().attr(CLIENT_TICKS);var previous=count.get();count.set(previous==null?0:previous+1);
                     }
                     super.channelRead(ctx,message);
@@ -78,5 +82,6 @@ public final class ServerNetworkTransport {
         if (pipeline.get(HANDLER) != null) pipeline.remove(HANDLER);
         if (pipeline.get(MEDIA_TICKS) != null) pipeline.remove(MEDIA_TICKS);
         pipeline.channel().attr(CLIENT_TICKS).set(null);
+        TikTokOutput.detach(pipeline.channel());
     }
 }

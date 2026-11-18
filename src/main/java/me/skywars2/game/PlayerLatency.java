@@ -41,10 +41,13 @@ public final class PlayerLatency {
     }
     private PlayerLatency(){}
     private static boolean realClient(ServerPlayer player){return !player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake");}
+    static int nextProbeId() {
+        return NONCE.getAndUpdate(value -> value == Integer.MIN_VALUE ? -1 : value - 1);
+    }
     static void request(ServerGamePacketListenerImpl listener){
         if(!realClient(listener.player)||!listener.hasClientLoaded())return;
         var sample=SAMPLES.computeIfAbsent(listener,key->new Sample());long now=System.nanoTime();
-        int id=NONCE.getAndUpdate(value->value==Integer.MIN_VALUE?-1:value-1);
+        int id=nextProbeId();
         sample.lastSent=now;sample.pending.set(new Probe(id,now));
         listener.send(new ClientboundPingPacket(id));
     }
