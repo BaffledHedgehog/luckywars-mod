@@ -42,7 +42,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -1137,8 +1136,7 @@ for(double step=0;step<=distance;step+=.5) {
         }
         // (user) Нативный отрезок против хитбоксов: один spatial query и одна проверка на кандидата.
         // 101 visual samples выше больше не умножают число проверок сущностей.
-        var hits=ProjectileUtil.getManyEntityHitResult(level,player,origin,end,new AABB(origin,end).inflate(1),
-                entity->projectileTarget(player,entity),0,ClipContext.Block.COLLIDER,true,false);
+        var hits=LbcProjectileSweep.all(level,player,origin,end,entity->projectileTarget(player,entity));
         var damage=new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),player);
         for(var hit:hits) if(projectileTarget(player,hit.getEntity())
                 &&(!Double.isFinite(boundary)||origin.distanceToSqr(hit.getLocation())<step.lengthSqr()*boundary*boundary-1e-9)) {
@@ -1168,8 +1166,8 @@ for(double step=0;step<=distance;step+=.5) {
         var contact=LbcTerra.wallHit(level,from,limit);Vec3 end=contact==null?limit:contact.getLocation();
         boolean wall=contact!=null&&level.hasChunkAt(contact.getBlockPos());
         Vec3 wallNormal=wall?contact.getDirection().getUnitVec3():null;
-        var hit=ProjectileUtil.getEntityHitResult(level,owner,from,end,new AABB(from,end).inflate(1),
-                entity->projectileTarget(owner,entity) && !entity.entityTags().contains("raycaster"),0);
+        var hit=LbcProjectileSweep.first(level,owner,from,end,
+                entity->projectileTarget(owner,entity) && !entity.entityTags().contains("raycaster"),false);
         if(hit!=null) end=hit.getLocation();
         double distance=from.distanceTo(end);
         for(int i=0;i<=100 && i*.35<=distance+1e-7;i++) {
@@ -1585,9 +1583,10 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
     private void electroHits(ElectroTrace trace,Vec3 from,Vec3 to,double spacing,float amount,int targetLimit) {
         var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(trace.hostileSauvojen ? LbcDamage.ELECTRIC : trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.statusWild?trace.owner:trace.damageEmitter());
-        LbcDamage.hurtSegment(trace.level,game.items().indirectKills().captureDamage(damage,traceCause(trace)),from,to,Vec3.ZERO,spacing,amount,targetLimit,
+        LbcDamage.hurtArc(trace.level,game.items().indirectKills().captureDamage(damage,traceCause(trace)),from,to,spacing,amount,targetLimit,
                 entity->entity.getType().builtInRegistryHolder().is(MOBS)
-                        && (trace.statusWild?validTarget(entity):electroTarget(trace.source(),entity,trace.meditation)),trace.meditation||trace.statusWild||trace.sourcePolicy!=null);
+                        && (trace.statusWild?validTarget(entity):electroTarget(trace.source(),entity,trace.meditation)),
+                trace.meditation||trace.statusWild||trace.sourcePolicy!=null,false,null);
     }
     private LbcIndirectKills.Owner traceCause(ElectroTrace trace){
         if(trace.statusWild&&trace.owner!=null&&(trace.cause==null||!trace.cause.player().equals(trace.owner.getUUID())))

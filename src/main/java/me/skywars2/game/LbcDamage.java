@@ -5,18 +5,24 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /** Общие правила урона; источник атаки по-прежнему определяет допустимые цели. */
 public final class LbcDamage {
@@ -94,6 +100,15 @@ public final class LbcDamage {
             java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
         hurtSegment(level,damage,from,to,padding,spacing,amount,targetLimit,target,includeOwner,isElectric(damage),sampledHit,acceptedHit);
     }
+    private enum Sweep { LINE, ARROW, PHANTOM_ARROW }
+
+    static void hurtArc(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to,
+            double spacing, float amount, int targetLimit, Predicate<Entity> target, boolean includeOwner,
+            boolean throughBlocks, Consumer<Entity> acceptedHit) {
+        hurtSegment(level, damage, from, to, Vec3.ZERO, spacing, amount, targetLimit, target, includeOwner,
+            isElectric(damage), null, acceptedHit, throughBlocks ? Sweep.PHANTOM_ARROW : Sweep.ARROW);
+    }
+
     /** Exact line admission with source unit-cell multiplicity, independent of the native damage type. */
     static void hurtSegment(net.minecraft.server.level.ServerLevel level,DamageSource damage,
             net.minecraft.world.phys.Vec3 from,net.minecraft.world.phys.Vec3 to,
@@ -101,34 +116,45 @@ public final class LbcDamage {
             java.util.function.Predicate<net.minecraft.world.entity.Entity> target,boolean includeOwner,boolean sourceCells,
             java.util.function.Consumer<net.minecraft.world.entity.Entity> sampledHit,
             java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
+        hurtSegment(level, damage, from, to, padding, spacing, amount, targetLimit, target, includeOwner,
+            sourceCells, sampledHit, acceptedHit, Sweep.LINE);
+    }
+
+    private static void hurtSegment(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to, Vec3 padding,
+            double spacing, float amount, int targetLimit, Predicate<Entity> target, boolean includeOwner,
+            boolean sourceCells, Consumer<Entity> sampledHit, Consumer<Entity> acceptedHit, Sweep sweep) {
         double length=from.distanceTo(to);
-        boolean electrical=sourceCells;
         boolean shortCircuit=isElectricalContact(damage);
-        java.util.function.Predicate<net.minecraft.world.entity.Entity> admitted=shortCircuit
+        Predicate<Entity> admitted=shortCircuit
                 ?entity->entity instanceof LbcFpvDrone.Drone||target.test(entity):target;
         int maxSample=(int)Math.floor(length/spacing+1e-6);
         int[] perSample=new int[maxSample+1];
-        var volume=new net.minecraft.world.phys.AABB(from,to).inflate(padding.x+1,padding.y+1,padding.z+1);
+        var volume=new AABB(from,to).inflate(padding.x+1,padding.y+1,padding.z+1);
         for(var entity:level.getEntities(includeOwner ? null : damage.getEntity(),volume,admitted)) {
             var box=entity.getBoundingBox().inflate(padding.x,padding.y,padding.z);
-            var entry=box.contains(from) ? java.util.Optional.of(from) : box.clip(from,to);
-            if(entry.isEmpty()) continue;
+            var entry=LbcProjectileSweep.entry(box,from,to);
+            boolean graze=entry==null;
+            if(graze) {
+                if(sweep==Sweep.LINE) continue;
+                entry=LbcProjectileSweep.arrowContact(level,damage.getDirectEntity(),box,from,to,sweep==Sweep.PHANTOM_ARROW);
+                if(entry==null)continue;
+                box=LbcProjectileSweep.arrowBounds(box);
+            }
             var game=me.skywars2.SkyWars2.game();
             if(shortCircuit&&game!=null&&game.items().fpvDrone().tryShortCircuit(entity))continue;
-            // Admission stays an exact body/line intersection. Once admitted, electrical
-            // pulses retain the legacy unit-cell sample count, rather than losing hits
-            // when the selector cell was replaced by a line. This does not admit nearby bodies.
-            if(electrical) {
-                box=new net.minecraft.world.phys.AABB(box.minX-1,box.minY-1,box.minZ-1,box.maxX,box.maxY,box.maxZ);
-                entry=box.contains(from) ? java.util.Optional.of(from) : box.clip(from,to);
+            // Keep the authored sample count for line hits. A grazing hit uses only its swept overlap.
+            boolean useSourceCells=sourceCells&&!graze;
+            if(useSourceCells) {
+                box=new AABB(box.minX-1,box.minY-1,box.minZ-1,box.maxX,box.maxY,box.maxZ);
+                entry=LbcProjectileSweep.entry(box,from,to);
             }
-            double first=from.distanceTo(entry.orElseThrow());
+            double first=from.distanceTo(entry);
             double last=box.contains(to) ? length : box.clip(to,from).map(from::distanceTo).orElse(first);
             int begin=Math.max(0,(int)Math.ceil(first/spacing-1e-6));
             int end=Math.min(maxSample,(int)Math.floor(last/spacing+1e-6));
             if(end<begin) begin=end=Math.min(maxSample,begin);
             for(int i=begin;i<=end;i++) if(perSample[i]<targetLimit && admitted.test(entity)) {
-                if(electrical){
+                if(useSourceCells){
                     var point=from.lerp(to,length>0?i*spacing/length:0);
                     // Native selector cells use strict overlap, including at sample endpoints.
                     if(point.x<=box.minX||point.x>=box.maxX||point.y<=box.minY||point.y>=box.maxY

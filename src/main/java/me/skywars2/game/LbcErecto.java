@@ -201,8 +201,8 @@ final class LbcErecto {
     private static void aim(LbcWands.ElectroTrace t,Vec3 direction){t.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));t.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));}
     private void hurt(LbcWands.ElectroTrace t,Vec3 from,Vec3 to,double spacing,float amount,int limit){
         var damage=new DamageSource(t.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),t.owner);
-        LbcDamage.hurtSegment(t.level,damage,from,to,Vec3.ZERO,spacing,amount,limit,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(t.owner,e)
-                && (t.erecto.kind!=CENTRAL&&t.erecto.kind!=SNIPER||!e.entityTags().contains("transformator")),false,e->{
+        LbcDamage.hurtArc(t.level,damage,from,to,spacing,amount,limit,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(t.owner,e)
+                && (t.erecto.kind!=CENTRAL&&t.erecto.kind!=SNIPER||!e.entityTags().contains("transformator")),false,t.erecto.kind==PHANTOM,e->{
             var p=t.erecto;
             if(p.kind==SIDE&&t.owner==p.caster&&e.position().distanceToSqr(p.origin)>4900&&LbcAcademy.trial(p.stack))game.items().academy().ready(p.caster,p.hand,p.stack);
         });

@@ -23,7 +23,6 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.BlockGetter;
@@ -286,8 +285,7 @@ public final class LbcBlind {
                 var boundary=charge.phantom
                         ? unloadedBoundary((net.minecraft.server.level.ServerLevel)charge.level(),from,to) : null;
                 Vec3 collisionEnd=boundary==null?to:boundary.getLocation();
-                HitResult hit=charge.phantom ? phantomHit(owner,from,collisionEnd)
-                        : game.items().wands().firstHit(owner,from,collisionEnd);
+                HitResult hit=chargeHit(charge,owner,from,collisionEnd);
                 var shield=game.items().wands().shieldHit(owner,from,hit==null?collisionEnd:hit.getLocation());
                 // Legacy shield_block_2 only removes shieldable markers while their contact point is in air.
                 if(shield!=null && !charge.level().getBlockState(BlockPos.containing(shield.getLocation())).isAir()) shield=null;
@@ -316,9 +314,14 @@ public final class LbcBlind {
         } finally { batch.clear(); }
     }
 
-    private HitResult phantomHit(ServerPlayer owner,Vec3 from,Vec3 to) {
-        return ProjectileUtil.getEntityHitResult(sourceLevel(owner),owner,from,to,new AABB(from,to).inflate(1),
-                entity->game.items().lifetimes().target(owner,entity),0);
+    private HitResult chargeHit(Charge charge, ServerPlayer owner, Vec3 from, Vec3 to) {
+        var level = (net.minecraft.server.level.ServerLevel) charge.level();
+        var wall = charge.phantom ? null : LbcTerra.wallHit(level, from, to);
+        var end = wall == null ? to : wall.getLocation();
+        var source = charge.phantom || game.items().spellSources().current() == null ? owner : null;
+        var hit = LbcProjectileSweep.first(level, source, from, end,
+            entity -> game.items().lifetimes().target(owner, entity), charge.phantom);
+        return hit == null ? wall : hit;
     }
     private boolean emitterStep(Charge charge,ServerPlayer owner){
         var from=charge.position();var direction=charge.getDeltaMovement().normalize();

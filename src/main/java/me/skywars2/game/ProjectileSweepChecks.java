@@ -1,0 +1,128 @@
+package me.skywars2.game;
+
+import me.skywars2.SkyWars2;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
+
+/** Real one-step casts with misses measured from the native target's bounding box. */
+public final class ProjectileSweepChecks {
+    private static final Vec3 DIRECTION = new Vec3(1, 0, 0);
+    private enum Shot { ELECTRO, TERRA, SHADOW, DOPPEL }
+
+    private ProjectileSweepChecks() {}
+
+    public static void run(GameController game) {
+        try (var fixture = new WoolBucketChecks.Fixture(game, false)) {
+            fixture.prepareParticipants();
+            require(game.items().wands().electroCount() == 0 && game.items().terra().count() == 0
+                && game.items().blind().snapshot().isEmpty() && game.items().psycho().snapshot().isEmpty(), "exclusive projectile fixture");
+            var origin = fixture.resident(false).add(0, .5, 0);
+            var start = BlockPos.containing(origin);
+            for (var cell : BlockPos.betweenClosed(start.offset(-1, -1, -2), start.offset(4, 1, 2))) {
+                if (!fixture.level.getBlockState(cell).isAir()) fixture.set(cell, Blocks.AIR.defaultBlockState());
+            }
+            fixture.move(fixture.owner, origin.add(-3, 0, 0));
+            fixture.move(fixture.other, origin.add(-5, 0, 0));
+            for (var shot : Shot.values()) {
+                scenario(fixture, shot, origin, .20, true, "positive flank");
+                scenario(fixture, shot, origin, -.20, true, "negative flank");
+                scenario(fixture, shot, origin, shot == Shot.DOPPEL ? .55 : .30, false, "outside sweep");
+                var wall = start.east();
+                fixture.set(wall, Blocks.OBSIDIAN.defaultBlockState());
+                try {
+                    scenario(fixture, shot, origin, .20, shot == Shot.DOPPEL, "solid wall");
+                } finally {
+                    fixture.set(wall, Blocks.AIR.defaultBlockState());
+                }
+            }
+            directArcSamples(fixture, origin);
+        }
+        SkyWars2.LOGGER.info("[check] PASS projectile-sweep (real Electro, Terra, Volos and Doppel contacts on both flanks, out-of-range grazes, wall order and direct electric damage)");
+    }
+
+    private static void scenario(WoolBucketChecks.Fixture fixture, Shot shot, Vec3 origin, double gap, boolean expectHit, String description) {
+        var target = cow(fixture, origin, gap);
+        try {
+            var health = target.getHealth();
+            advance(fixture, shot, origin);
+            require((target.getHealth() < health) == expectHit, shot + " " + description
+                + " gap=" + gap + " HP " + health + " -> " + target.getHealth());
+        } finally {
+            fixture.discard(target);
+        }
+    }
+
+    private static Cow cow(WoolBucketChecks.Fixture fixture, Vec3 origin, double gap) {
+        var target = new Cow(EntityTypes.COW, fixture.level);
+        var z = gap == 0 ? 0 : Math.copySign(target.getBbWidth() * .5 + Math.abs(gap), gap);
+        target.setPos(origin.add(1.35, -.5, z));
+        target.setNoAi(true);
+        target.setNoGravity(true);
+        require(fixture.level.addFreshEntity(target), "native collision target");
+        fixture.own(target);
+        return target;
+    }
+
+    private static void advance(WoolBucketChecks.Fixture fixture, Shot shot, Vec3 origin) {
+        var items = fixture.game.items();
+        switch (shot) {
+            case ELECTRO -> {
+                items.wands().directedElectro(fixture.owner, origin, DIRECTION, 1, null);
+                try { items.wands().tick(); } finally { items.wands().stop(); }
+            }
+            case TERRA -> {
+                var charge = items.terra().castAt(fixture.owner, origin, DIRECTION, LbcTerra.Kind.REGULAR, 5);
+                require(charge != null && fixture.level.getEntity(charge.getUUID()) == charge, "native Terra charge");
+                fixture.own(charge);
+                try { items.terra().tick(); } finally { fixture.discard(charge); }
+            }
+            case SHADOW -> {
+                var arrow = new Arrow(EntityTypes.ARROW, fixture.level);
+                arrow.setOwner(fixture.owner);
+                try {
+                    items.blind().spawnFromTrinket(arrow, origin, DIRECTION.scale(1.8));
+                    var charges = items.blind().snapshot();
+                    require(charges.size() == 1, "native trinket shadow charge");
+                    var charge = charges.getFirst();
+                    fixture.own(charge);
+                    try { items.blind().tick(); } finally { fixture.discard(charge); }
+                } finally { arrow.discard(); }
+            }
+            case DOPPEL -> {
+                require(items.psycho().emitDoppel(fixture.owner, origin, DIRECTION), "native doppel charge");
+                var charges = items.psycho().snapshot();
+                require(charges.size() == 1, "one native doppel projectile");
+                var charge = charges.getFirst();
+                fixture.own(charge);
+                try { items.psycho().tick(); } finally { fixture.discard(charge); }
+            }
+        }
+    }
+
+    private static void directArcSamples(WoolBucketChecks.Fixture fixture, Vec3 origin) {
+        var cow = cow(fixture, origin, 0);
+        try {
+            var source = new DamageSource(fixture.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(LbcDamage.ELECTRO_BOLT), fixture.owner);
+            var end = origin.add(DIRECTION.scale(2));
+            var health = cow.getHealth();
+            LbcDamage.hurtSegment(fixture.level, source, origin, end, Vec3.ZERO, .2, .5f, 2, target -> target == cow, false);
+            var oldDamage = health - cow.getHealth();
+            cow.setHealth(health);
+            cow.setInvulnerableTime(0);
+            cow.damageCooldownTime = 0;
+            LbcDamage.hurtArc(fixture.level, source, origin, end, .2, .5f, 2, target -> target == cow, false, false, null);
+            require(oldDamage > .5 && oldDamage == health - cow.getHealth(), "direct arc preserves legacy sample count");
+        } finally { fixture.discard(cow); }
+    }
+
+    private static void require(boolean condition, String message) {
+        if (!condition) throw new IllegalStateException("Projectile sweep: " + message);
+    }
+}

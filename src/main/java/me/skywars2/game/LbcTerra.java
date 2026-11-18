@@ -34,13 +34,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -450,8 +448,7 @@ public final class LbcTerra {
         boolean shieldFirst = shield != null && from.distanceToSqr(shield.getLocation()) <= wallDistance;
         Vec3 end = shieldFirst ? shield.getLocation() : wall == null ? to : wall.getLocation();
         var hits = projectile.kind == Kind.TRUE_BEAM ? beamHits(projectile, owner, from, end)
-                : ProjectileUtil.getManyEntityHitResult(level, owner, from, end, new AABB(from, end).inflate(1),
-                    entity -> target(owner, entity), 0, ClipContext.Block.COLLIDER, true, false);
+                : LbcProjectileSweep.all(level, owner, from, end, entity -> target(owner, entity));
         var damage = new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(projectile.kind == Kind.TRUE_BEAM ? LbcDamage.TERRA_BEAM : DamageTypes.CACTUS), projectile, owner);
         for (var hit : hits) {
@@ -549,7 +546,8 @@ public final class LbcTerra {
     }
     /** Resident DDA with exact native collision faces, for placing bodies on the looked-at surface. */
     static BlockHitResult surfaceHit(ServerLevel level,Vec3 from,Vec3 to,Entity viewer) {
-        var context=net.minecraft.world.phys.shapes.CollisionContext.of(viewer);
+        var context=viewer==null ? net.minecraft.world.phys.shapes.CollisionContext.empty()
+                : net.minecraft.world.phys.shapes.CollisionContext.of(viewer);
         return BlockGetter.traverseBlocks(from,to,level,(world,pos)->
                 (world.hasChunkAt(pos)?world.getBlockState(pos).getCollisionShape(world,pos,context):Shapes.block())
                         .clip(from,to,pos),world->null);

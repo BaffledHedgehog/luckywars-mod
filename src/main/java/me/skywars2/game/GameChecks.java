@@ -1108,6 +1108,7 @@ public final class GameChecks {
                                 case "momentum-teleports" -> { TeleportMomentumChecks.run(game); return; }
                                 case "projectile-self-hits" -> { ProjectileSelfHitChecks.run(game); return; }
                                 case "projectile-body-collision" -> { ProjectileBodyCollisionChecks.run(game); return; }
+                                case "projectile-sweep" -> { ProjectileSweepChecks.run(game); return; }
                                 case "shulker-armor" -> { ShulkerArmorChecks.run(game); return; }
                                 case "shulker-armor-stop-probe" -> { ShulkerArmorChecks.stopProbe(game); return; }
                                 case "shulker-armor-cleanup" -> { ShulkerArmorChecks.cleanup(game); return; }
