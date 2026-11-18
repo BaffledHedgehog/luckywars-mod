@@ -187,9 +187,10 @@ final class GenieApiDialog implements AutoCloseable {
             try {
                 String json = file ? readCookieFile(input) : input;
                 var cookies = GenieGeminiWebTransport.Cookies.parse(json);
-                var transport = GenieConfig.geminiWeb(cookies);
+                var session = new GenieConfig.WebSession(cookies, java.util.UUID.randomUUID());
+                var transport = GenieConfig.geminiWeb(session);
                 transport.testConnection();
-                GenieConfig.saveGeminiWeb(GenieConfig.apiPath(), cookies);
+                GenieConfig.saveGeminiWeb(GenieConfig.apiPath(), session);
                 ready = transport;
             } catch (GenieGeminiWebTransport.SessionFailure failure) {
                 issue = failure.issue;

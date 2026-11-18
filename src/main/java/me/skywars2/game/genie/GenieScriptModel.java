@@ -32,7 +32,7 @@ public final class GenieScriptModel implements AutoCloseable {
     private final ConcurrentHashMap<FutureTask<Void>,CompletableFuture<GenieScriptReply>> pending = new ConcurrentHashMap<>();
 
     public GenieScriptModel(Transport transport) {
-        this.transport = Objects.requireNonNull(transport);
+        useTransport(transport);
     }
 
     private static ThreadPoolExecutor worker(int threads) {
@@ -82,7 +82,13 @@ public final class GenieScriptModel implements AutoCloseable {
         });
     }
 
-    void useTransport(Transport next) { transport = Objects.requireNonNull(next); }
+    void useTransport(Transport next) {
+        Objects.requireNonNull(next);
+        if (transport == next) return;
+        if (transport instanceof GenieGeminiWebTransport previous) previous.stopMaintenance();
+        transport = next;
+        if (next instanceof GenieGeminiWebTransport gemini) gemini.startMaintenance();
+    }
 
     private static byte[] verifier() throws IOException {
         try (var file = GenieScriptModel.class.getResourceAsStream("/skywars2/genie/verify_genie_program.py")) {
@@ -112,6 +118,7 @@ public final class GenieScriptModel implements AutoCloseable {
     }
 
     @Override public void close() {
+        if (transport instanceof GenieGeminiWebTransport gemini) gemini.stopMaintenance();
         sharedConversationWorker.shutdownNow();
         independentConversationsWorker.shutdownNow();
         for (var entry : pending.entrySet()) {

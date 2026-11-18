@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Objects;
+import java.util.UUID;
 import me.skywars2.SkyWars2;
 import net.fabricmc.loader.api.FabricLoader;
 import me.skywars2.game.genie.GenieGeminiWebTransport.Cookies;
@@ -87,18 +88,34 @@ final class GenieConfig {
         }
     }
 
-    static void saveApi(Path path, Api settings) throws IOException {
+    static synchronized void saveApi(Path path, Api settings) throws IOException {
         saveConfiguration(path, JSON.toJson(settings));
     }
 
-    static void saveGeminiWeb(Path path, Cookies cookies) throws IOException {
-        var settings = cookies.json();
+    record WebSession(Cookies cookies, UUID id) {
+        static WebSession read(JsonObject settings) {
+            return new WebSession(Cookies.parse(settings.toString()), settings.has("session_id")
+                    ? UUID.fromString(settings.get("session_id").getAsString()) : null);
+        }
+    }
+
+    static synchronized void saveGeminiWeb(Path path, WebSession session) throws IOException {
+        var settings = session.cookies().json();
         settings.addProperty("provider", "GEMINI_WEB");
+        if (session.id() != null) settings.addProperty("session_id", session.id().toString());
         saveConfiguration(path, JSON.toJson(settings));
     }
 
-    static GenieGeminiWebTransport geminiWeb(Cookies cookies) {
-        return new GenieGeminiWebTransport(cookies, folder().resolve("requests"));
+    static synchronized boolean refreshGeminiWeb(Path path, WebSession expected, WebSession refreshed) throws IOException {
+        var stored = readConfiguration(path);
+        if (stored == null || !stored.has("provider") || !"GEMINI_WEB".equals(stored.get("provider").getAsString())
+                || !expected.equals(WebSession.read(stored))) return false;
+        saveGeminiWeb(path, refreshed);
+        return true;
+    }
+
+    static GenieGeminiWebTransport geminiWeb(WebSession session) {
+        return new GenieGeminiWebTransport(session, apiPath());
     }
 
     private static void saveConfiguration(Path path, String serialized) throws IOException {
@@ -121,7 +138,7 @@ final class GenieConfig {
             var settings = readConfiguration(apiPath());
             if (settings != null) {
                 if ("GEMINI_WEB".equals(settings.get("provider").getAsString())) {
-                    return new GenieScriptModel(geminiWeb(Cookies.parse(settings.toString())));
+                    return new GenieScriptModel(geminiWeb(WebSession.read(settings)));
                 }
                 return new GenieScriptModel(JSON.fromJson(settings, Api.class).transport());
             }

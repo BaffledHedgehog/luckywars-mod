@@ -6,9 +6,14 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import me.skywars2.SkyWars2;
+import me.skywars2.game.genie.GenieConfig.WebSession;
 import me.skywars2.game.genie.script.ScriptJson;
 
 /** A fresh Gemini web conversation, with verification in a separate worker process. */
@@ -16,8 +21,11 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
     static final int MAX_IMPORT = 128 * 1024;
     private static final int MAX_REPLY = 4_194_304;
     private static final String SID = "__Secure-1PSID", SID_TS = "__Secure-1PSIDTS";
-    private final Cookies cookies;
+    private volatile WebSession session;
+    private WebSession persistedSession;
+    private final Path configuration;
     private final Path directory;
+    private volatile ScheduledExecutorService maintenance;
 
     enum SessionIssue {
         UNAUTHENTICATED("Вход в Gemini не подтверждён. Войди в Gemini и импортируй свежий JSON cookies."),
@@ -90,25 +98,84 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
         @Override public String toString() { return "Gemini web session"; }
     }
 
-    GenieGeminiWebTransport(Cookies cookies, Path directory) {
-        this.cookies = cookies;
-        this.directory = directory;
+    GenieGeminiWebTransport(WebSession session, Path configuration) {
+        this.session = session;
+        this.persistedSession = session;
+        this.configuration = configuration;
+        this.directory = configuration.getParent().resolve("requests");
+    }
+
+    void startMaintenance() {
+        if (maintenance != null) return;
+        var worker = Executors.newSingleThreadScheduledExecutor(task -> {
+            var thread = new Thread(task, "skywars2-genie-session");
+            thread.setDaemon(true);
+            thread.setPriority(Thread.MIN_PRIORITY);
+            return thread;
+        });
+        maintenance = worker;
+        worker.scheduleWithFixedDelay(() -> renew(worker), 1, 10, TimeUnit.MINUTES);
+    }
+
+    void stopMaintenance() {
+        var worker = maintenance;
+        maintenance = null;
+        if (worker != null) worker.shutdownNow();
+    }
+
+    private void renew(ScheduledExecutorService worker) {
+        if (maintenance != worker) return;
+        try {
+            if (!persistSession(worker)) return;
+            WebSession expected = session;
+            var result = invoke(expected.cookies(), true, null, null, null, null);
+            if (maintenance != worker || Thread.currentThread().isInterrupted()) return;
+            var timestamp = result.get("timestamp");
+            if (timestamp == null || !timestamp.isJsonPrimitive() || !timestamp.getAsJsonPrimitive().isString())
+                throw new IOException("Gemini returned no refreshed timestamp");
+            var next = new WebSession(new Cookies(expected.cookies().psid(), timestamp.getAsString()), expected.id());
+            if (!next.equals(expected)) {
+                session = next;
+                persistSession(worker);
+            }
+        } catch (SessionFailure failure) {
+            if (maintenance == worker) {
+                SkyWars2.LOGGER.info("Gemini web session refresh requires a fresh import ({})", failure.issue);
+                worker.shutdown();
+            }
+        } catch (InterruptedException canceled) {
+            Thread.currentThread().interrupt();
+        } catch (IOException | RuntimeException failure) {
+            if (maintenance == worker) SkyWars2.LOGGER.warn("Gemini web session refresh failed ({})",
+                    failure.getClass().getSimpleName());
+        }
+    }
+
+    private boolean persistSession(ScheduledExecutorService worker) throws IOException {
+        if (session.equals(persistedSession)) return true;
+        if (GenieConfig.refreshGeminiWeb(configuration, persistedSession, session)) {
+            persistedSession = session;
+            return true;
+        }
+        worker.shutdown();
+        return false;
     }
 
     void testConnection() throws IOException, InterruptedException {
-        if (!invoke(null, null, null, null).has("connected")) throw new IOException("Gemini web session unavailable");
+        if (!invoke(session.cookies(), false, null, null, null, null).has("connected"))
+            throw new IOException("Gemini web session unavailable");
     }
 
     @Override public boolean independentConversations() { return true; }
 
     @Override public GenieScriptModel.Observation run(String prompt, String knowledge, String contract, byte[] verifier)
             throws IOException, InterruptedException {
-        JsonObject result = invoke(prompt, knowledge, contract, verifier);
+        JsonObject result = invoke(session.cookies(), false, prompt, knowledge, contract, verifier);
         var receipt = result.getAsJsonObject("receipt");
         return new GenieScriptModel.Observation(result.get("reply").getAsString(), receipt == null ? List.of() : List.of(receipt));
     }
 
-    private JsonObject invoke(String prompt, String knowledge, String contract, byte[] verifier)
+    private JsonObject invoke(Cookies cookies, boolean refresh, String prompt, String knowledge, String contract, byte[] verifier)
             throws IOException, InterruptedException {
         Files.createDirectories(directory);
         Path request = Files.createTempDirectory(directory, "gemini-");
@@ -127,7 +194,9 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
             Path result = request.resolve("response.json");
             String python = System.getenv("SKYWARS2_GENIE_PYTHON");
             if (python == null || python.isBlank()) python = java.io.File.separatorChar == '\\' ? "python" : "python3";
-            var process = new ProcessBuilder(python, script.toString(), directory.getParent().resolve("python").toString())
+            var command = new ArrayList<>(List.of(python, script.toString(), directory.getParent().resolve("python").toString()));
+            if (refresh) command.add("refresh");
+            var process = new ProcessBuilder(command)
                     .directory(request.toFile()).redirectOutput(result.toFile()).redirectError(ProcessBuilder.Redirect.DISCARD).start();
             try {
                 try (var stdin = process.getOutputStream()) {

@@ -88,6 +88,22 @@ async def probe_attachment(client, model):
     return {"connected": True}
 
 
+async def refresh(cookie):
+    from curl_cffi.requests import AsyncSession, Cookies
+    from gemini_webapi.exceptions import AuthError
+    from gemini_webapi.utils import rotate_1psidts
+
+    jar = Cookies()
+    for name in ("__Secure-1PSID", "__Secure-1PSIDTS"):
+        jar.set(name, cookie[name], domain=".google.com", secure=True)
+    try:
+        async with AsyncSession(cookies=jar, timeout=35) as session:
+            timestamp = await rotate_1psidts(session)
+    except AuthError as error:
+        raise SessionFailure("UNAUTHENTICATED") from error
+    return {"timestamp": timestamp}
+
+
 async def run(cookie):
     from loguru import logger
     logger.remove()
@@ -126,8 +142,13 @@ def main():
     sys.path.insert(1, sys.argv[1])
     with tempfile.TemporaryDirectory(prefix="gemini-session-", dir=".") as cache:
         os.environ["GEMINI_COOKIE_PATH"] = str(Path(cache).resolve())
-        request = run(json.load(sys.stdin))
-        if not Path("prompt.txt").is_file():
+        cookie = json.load(sys.stdin)
+        refresh_only = sys.argv[2:] == ["refresh"]
+        if refresh_only:
+            from loguru import logger
+            logger.remove()
+        request = refresh(cookie) if refresh_only else run(cookie)
+        if refresh_only or not Path("prompt.txt").is_file():
             request = asyncio.wait_for(request, 65)
         print(json.dumps(asyncio.run(request), ensure_ascii=False))
 

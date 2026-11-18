@@ -51,7 +51,10 @@ public final class GenieService implements AutoCloseable {
             if (prepared != null) prepared.cancel(false);
         }
     }
-    public GenieService(GameController game){this.game=game;runtime=new GenieRuntime(game);}
+    public GenieService(GameController game){
+        this.game=game;runtime=new GenieRuntime(game);
+        scriptModel=GenieConfig.loadScript();
+    }
     public static void registerCommands() { GenieApiDialog.register(); }
     public GenieRuntime runtime(){return runtime;}
     private boolean livingOwner(ServerPlayer p){return game.playing()&&!game.balanceLegacy()&&!game.isObserver(p)&&p.isAlive()&&!p.isRemoved()
