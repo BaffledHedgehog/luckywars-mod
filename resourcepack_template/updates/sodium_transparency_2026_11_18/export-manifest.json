@@ -59,6 +59,192 @@
         ],
         "report_sha256": "1ad4fb0418e9ee18f4592af3f7a4def2b0db8c8fd2214bc8564d3a4fe58cb579"
       }
+    },
+    "vulkan_renderpearl": {
+      "minecraft": "26.3",
+      "renderer": "Vulkan NVIDIA GeForce RTX 4080 SUPER",
+      "minecraft_required_and_optional_pipelines_passed": 192,
+      "pack_post_effects": 99,
+      "pack_post_passes_compiled": 258,
+      "obsolete_post_passes_missing_BlurSampler": [
+        "minecraft:zoom",
+        "minecraft:zoom_out"
+      ],
+      "scenes": {
+        "sodium": {
+          "classic_terrain": {
+            "stockMarker": [
+              183,
+              33,
+              21,
+              254
+            ],
+            "patchMarker": [
+              183,
+              33,
+              21,
+              255
+            ],
+            "patchGlitch": [
+              25,
+              191,
+              61,
+              128
+            ]
+          },
+          "particle_behind_glass": {
+            "stockOff": [
+              93,
+              19,
+              70,
+              192
+            ],
+            "stockOn": [
+              4,
+              7,
+              180,
+              192
+            ],
+            "patchOff": [
+              93,
+              19,
+              70,
+              192
+            ],
+            "patchOn": [
+              14,
+              98,
+              91,
+              192
+            ],
+            "reversed": [
+              14,
+              98,
+              91,
+              192
+            ]
+          },
+          "particle_in_front": {
+            "stockOff": [
+              49,
+              13,
+              126,
+              192
+            ],
+            "stockOn": [
+              4,
+              7,
+              180,
+              192
+            ],
+            "patchOff": [
+              49,
+              13,
+              126,
+              192
+            ],
+            "patchOn": [
+              9,
+              53,
+              136,
+              192
+            ],
+            "reversed": [
+              9,
+              53,
+              136,
+              192
+            ]
+          }
+        },
+        "sodium-extra": {
+          "classic_terrain": {
+            "stockMarker": [
+              183,
+              33,
+              21,
+              254
+            ],
+            "patchMarker": [
+              183,
+              33,
+              21,
+              255
+            ],
+            "patchGlitch": [
+              25,
+              191,
+              61,
+              128
+            ]
+          },
+          "particle_behind_glass": {
+            "stockOff": [
+              93,
+              19,
+              70,
+              192
+            ],
+            "stockOn": [
+              4,
+              7,
+              180,
+              192
+            ],
+            "patchOff": [
+              93,
+              19,
+              70,
+              192
+            ],
+            "patchOn": [
+              14,
+              98,
+              91,
+              192
+            ],
+            "reversed": [
+              14,
+              98,
+              91,
+              192
+            ]
+          },
+          "particle_in_front": {
+            "stockOff": [
+              49,
+              13,
+              126,
+              192
+            ],
+            "stockOn": [
+              4,
+              7,
+              180,
+              192
+            ],
+            "patchOff": [
+              49,
+              13,
+              126,
+              192
+            ],
+            "patchOn": [
+              9,
+              53,
+              136,
+              192
+            ],
+            "reversed": [
+              9,
+              53,
+              136,
+              192
+            ]
+          }
+        }
+      },
+      "log_sha256": "5b0b24194ca087f90890176e3f56d77a6fe07872f8241d4acdd36a8375a3300a"
     }
   }
 }
