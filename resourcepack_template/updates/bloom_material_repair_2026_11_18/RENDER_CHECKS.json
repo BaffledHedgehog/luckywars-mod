@@ -254,5 +254,34 @@
   "shadercStages": 52,
   "shadercVariantsPerStage": 2,
   "authorPackUnchanged": true,
-  "physicalClientReload": false
+  "physicalClientReload": false,
+  "nativeClientStart": {
+    "game": "26.3",
+    "driver": "OpenGL NVIDIA RTX 4080 SUPER",
+    "client": "Fabric and Sodium with stock terrain backend",
+    "scene": "loopback vanilla server with old and corrected staff and minigun item_display entities side by side",
+    "renderedAndViewed": [
+      "world comparison",
+      "old staff held",
+      "corrected staff held",
+      "inventory"
+    ],
+    "frameSize": [
+      640,
+      480
+    ],
+    "captureMethod": "Native Screenshot.grab",
+    "nativeCodec": {
+      "byteListArgb": "ff040307",
+      "packedRgbArgb": "fffcfdf9"
+    },
+    "screenshotSha256": {
+      "bloom-world.png": "95f6fbb6436a1fde6541beb36f7a9391f365509f9b6b7338ea90ce4f47de6281",
+      "bloom-old-hand.png": "3626cb25c4f93964f2e862896e9b93824d3f30276e6e7969de0f02193a9d72ae",
+      "bloom-fixed-hand.png": "c55a08758e8f8063f01393e4957ab68b4b1fc91ec38193055be808846dd29fa2",
+      "bloom-inventory.png": "99cead2300f24c81c2f11c392b61c5a76f23701611c0c49aa747d86b33567c7e"
+    },
+    "packScope": "Current author item shaders and end-of-frame chain against selected authored item assets and vanilla scenery",
+    "nativeVulkan": false
+  }
 }

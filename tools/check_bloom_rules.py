@@ -408,7 +408,7 @@ def main():
         manifest = json.loads((args.overlay / "export-manifest.json").read_bytes())
         rules = json.loads((args.overlay / "bloom_rules.json").read_bytes())
         palette = [tuple(rule["source"]) for rule in rules]
-        tag = {"type": "minecraft:constant", "value": [252, 253, 249]}
+        tag = {"type": "minecraft:constant", "value": 0xFCFDF9}
         assert "#ifndef OIT" in source("assets/minecraft/shaders/core/item.fsh")
         assert all(tuple(rgb) in palette for rgb in ([51, 220, 255], [255, 0, 64], [29, 28, 32]))
         chain = json.loads((args.pack / "assets/minecraft/post_effect/end_of_frame.json").read_bytes())
@@ -473,7 +473,7 @@ def main():
             image.release()
 
         # Test a sub-texel UV under filtered texture lookup and reject emitted color outside the tagged face.
-        live_staff_path = args.pack / "assets/lbc/items/music_staff/staff.json"
+        live_staff_path = args.overlay / "assets/lbc/items/music_staff/staff.json"
         assert json.loads(live_staff_path.read_bytes())["model"]["tints"] == [tag]
         staff = np.array(Image.open(args.pack / "assets/minecraft/textures/item/wand_52.png").convert("RGBA"))
         staff_model = json.loads((args.pack / "assets/lbc/models/item/music_staff/staff.json").read_bytes())

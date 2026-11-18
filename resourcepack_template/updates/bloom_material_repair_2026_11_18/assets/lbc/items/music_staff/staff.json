@@ -1,0 +1,13 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "lbc:item/music_staff/staff",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 16580089
+      }
+    ]
+  },
+  "hand_animation_on_swap": false
+}
