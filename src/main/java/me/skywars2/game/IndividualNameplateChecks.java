@@ -89,8 +89,42 @@ public final class IndividualNameplateChecks {
                 require(self.team(other).getCollisionRule()==(push?Team.CollisionRule.ALWAYS:Team.CollisionRule.NEVER),"native viewer relation controls client collision "+collision+" ally="+ally);
             }
         }
+        void batchPackets() {
+            var board = game.server().getScoreboard();
+            int selfStart = self.teams.size(), audienceStart = audience.teams.size();
+            try (var names = LbcNameplates.batch(board)) {
+                var temporary = board.addPlayerTeam("sw2_np_batch");
+                board.addPlayerToTeam(owner.getScoreboardName(), temporary);
+                temporary.setPlayerSuffix(Component.literal("uncommitted"));
+                try (var nested = LbcNameplates.batch(board)) {
+                    board.addPlayerToTeam("np_batch_actor", shared);
+                    shared.setPlayerPrefix(Component.literal("batched:"));
+                }
+                board.addPlayerToTeam(owner.getScoreboardName(), shared);
+                board.removePlayerTeam(temporary);
+            }
+            receive();
+            for (var client : List.of(self, audience)) {
+                int start = client == self ? selfStart : audienceStart;
+                var packets = client.teams.subList(start, client.teams.size());
+                require(packets.stream().noneMatch(p -> p.getName().startsWith("sw2np:") && mode(p) != 2),
+                        "batch sends final presentation without temporary player alias churn");
+                require(client.team(owner).getPlayerPrefix().getString().equals("batched:")
+                        && client.team(other).getPlayerPrefix().getString().equals("batched:"),
+                        "both clients received the final prefix");
+                require(client.board.getPlayerTeam("sw2_np_batch") == null
+                        && client.board.getPlayersTeam("np_batch_actor") == client.board.getPlayerTeam(shared.getName()),
+                        "native team lifecycle and non-player membership stay coherent during the batch");
+            }
+            board.removePlayerFromTeam("np_batch_actor", shared);
+            shared.setPlayerPrefix(Component.literal("prefix:"));
+            receive();
+        }
+
         void nativePackets(){
-            var board=game.server().getScoreboard();var baseline=new NativeTeam(shared);
+            var board=game.server().getScoreboard();
+            batchPackets();
+            var baseline=new NativeTeam(shared);
             for(int n=1;n<=29;n++){select(n,n%29+1);for(var view:List.of(self,audience)){projected(view,owner,n);projected(view,other,n%29+1);require(view.team(owner)!=view.team(other),"same actual team has separate owner projections");var nativeTeam=view.board.getPlayerTeam(shared.getName());require(nativeTeam!=null&&view.board.getPlayersTeam("np_actor")==nativeTeam&&nativeTeam.getPlayerSuffix().equals(shared.getPlayerSuffix()),"native team definition and non-player suffix/membership remain");}baseline.verify(game);}
             select(0,0);projected(self,owner,0);projected(self,other,0);baseline.verify(game);
             enemy=board.addPlayerTeam("sw2_np_enemy");enemy.setCollisionRule(Team.CollisionRule.ALWAYS);relation(true);relation(false);

@@ -32,13 +32,40 @@ public final class LbcNameplates {
     private final ThreadLocal<Boolean> emitting=ThreadLocal.withInitial(()->false);
     private volatile Image image=new Image(0,Map.of(),Map.of(),false);
     private long generation;
+    private volatile int batchDepth;
+    private boolean batchChanged;
     public LbcNameplates(GameController game){this.game=game;}
+
+    record Batch(LbcNameplates owner) implements AutoCloseable {
+        @Override public void close() { owner.finishBatch(); }
+    }
+
+    static Batch batch(Scoreboard board) {
+        var service = forScoreboard(board);
+        if (service == null) return null;
+        service.batchDepth++;
+        return new Batch(service);
+    }
+
+    private void finishBatch() {
+        if (--batchDepth == 0 && batchChanged) {
+            batchChanged = false;
+            publish(image);
+        }
+    }
+
+    private static LbcNameplates forScoreboard(Scoreboard board) {
+        var game = SkyWars2.game();
+        if (game == null || !game.server().isSameThread() || game.server().getScoreboard() != board) return null;
+        return game.items().cosmetics().nameplates();
+    }
 
     /** Called once at the canonical mutation boundary, before ServerScoreboard broadcasts. */
     public static void changed(Scoreboard board){
-        var game=SkyWars2.game();if(game==null||game.server().getScoreboard()!=board||!game.server().isSameThread())return;
+        var service = forScoreboard(board);
+        if (service == null) return;
         TabPresentation.namesChanged();
-        var service=game.items().cosmetics().nameplates();if(service!=null)service.refresh(List.of());
+        service.refresh(List.of());
     }
     static Component frozen(Component component){
         var copy=component.plainCopy();
@@ -68,7 +95,17 @@ public final class LbcNameplates {
     public void refresh(Collection<ServerPlayer> changed){
         if(!game.server().isSameThread())throw new IllegalStateException("Refresh nameplates on the native server thread");
         for(var player:changed)departing.remove(player.getUUID());
-        capture();var snapshot=image;
+        capture();
+        if (batchDepth > 0) {
+            // Rewrite native team packets against current membership throughout the batch.
+            // Publish individual nameplates only once, after the final assignment.
+            batchChanged = true;
+            return;
+        }
+        publish(image);
+    }
+
+    private void publish(Image snapshot) {
         for(var viewer:game.server().getPlayerList().getPlayers()){
             if(departing.contains(viewer.getUUID()))continue;
             var view=view(viewer);List<Packet<?>> packets;
@@ -157,10 +194,12 @@ public final class LbcNameplates {
     @SuppressWarnings({"unchecked","rawtypes"})
     public Packet<?> project(ServerPlayer recipient,Packet<?> original){
         if(emitting.get()||!(original instanceof ClientboundSetPlayerTeamPacket)&&!(original instanceof ClientboundBundlePacket))return original;
-        var snapshot=image;var view=view(recipient);
+        var view = view(recipient);
         synchronized(view){
+            boolean deferred = batchDepth > 0;
+            var snapshot = image;
             var transformed=new ArrayList<Packet<?>>();rewrite(view,snapshot,recipient.getUUID(),original,transformed);
-            var updates=delta(view,snapshot,recipient.getUUID());
+            var updates = deferred ? List.<Packet<?>>of() : delta(view, snapshot, recipient.getUUID());
             if(updates.isEmpty()&&transformed.size()==1)return transformed.getFirst();
             var packets=new ArrayList<Packet<? super ClientGamePacketListener>>();for(var packet:transformed)packets.add((Packet)packet);for(var packet:updates)packets.add((Packet)packet);
             var player=viewer(snapshot,recipient.getUUID());if(view.hiddenTeam!=null&&player!=null&&!updates.isEmpty())packets.add(membership(view.hiddenTeam,player.name,true));

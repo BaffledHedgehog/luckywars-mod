@@ -36,7 +36,8 @@ final class LbcTeamColors {
         for(int number=1;number<=32;number++){
             String name=Integer.toString(number);var team=board.getPlayerTeam(name);
             if(team==null){team=board.addPlayerTeam(name);sourceMetadata(team);}
-            if(!active())team.setColor(Optional.of(color(number)));
+            var expected = Optional.of(color(number));
+            if (!active() && !expected.equals(team.getColor())) team.setColor(expected);
         }
     }
     private static void sourceMetadata(PlayerTeam team){
@@ -45,35 +46,40 @@ final class LbcTeamColors {
         // Source leaves friendly fire, collision and name tags at vanilla defaults.
     }
     void begin(List<ServerPlayer> participants){
-        stop();ensurePalette();
-        var colors=new java.util.ArrayList<>(PALETTE);
-        var random=participants.isEmpty()?null:participants.getFirst().level().getRandom();
-        for(int i=0;i<participants.size();i++){
-            if(i%colors.size()==0)for(int j=colors.size()-1;j>0;j--){
-                int other=random.nextInt(j+1);var value=colors.get(j);colors.set(j,colors.get(other));colors.set(other,value);
+        try (var names = LbcNameplates.batch(board)) {
+            stop();ensurePalette();
+            var colors=new java.util.ArrayList<>(PALETTE);
+            var random=participants.isEmpty()?null:participants.getFirst().level().getRandom();
+            for(int i=0;i<participants.size();i++){
+                if(i%colors.size()==0)for(int j=colors.size()-1;j>0;j--){
+                    int other=random.nextInt(j+1);var value=colors.get(j);colors.set(j,colors.get(other));colors.set(other,value);
+                }
+                var player=participants.get(i);String name=player.getScoreboardName();var original=board.getPlayersTeam(name);
+                var team=i<32?board.getPlayerTeam(Integer.toString(i+1)):null;
+                // Never put a solo participant beside an unrelated player or entity.
+                if(team==null||!team.getPlayers().isEmpty()){
+                    String base="swrg_s"+player.getUUID().toString().replace("-","").substring(0,8),candidate=base;
+                    int suffix=0;while(board.getPlayerTeam(candidate)!=null)candidate=base+(++suffix);
+                    team=board.addPlayerTeam(candidate);sourceMetadata(team);team.setColor(Optional.of(color(i+1)));temporaryTeams.add(team);
+                }
+                var tint = Optional.of(colors.get(i % colors.size()));
+                if (!tint.equals(team.getColor())) team.setColor(tint);
+                assignments.put(name,new Assignment(original,team));board.addPlayerToTeam(name,team);
             }
-            var player=participants.get(i);String name=player.getScoreboardName();var original=board.getPlayersTeam(name);
-            var team=i<32?board.getPlayerTeam(Integer.toString(i+1)):null;
-            // Never put a solo participant beside an unrelated player or entity.
-            if(team==null||!team.getPlayers().isEmpty()){
-                String base="swrg_s"+player.getUUID().toString().replace("-","").substring(0,8),candidate=base;
-                int suffix=0;while(board.getPlayerTeam(candidate)!=null)candidate=base+(++suffix);
-                team=board.addPlayerTeam(candidate);sourceMetadata(team);team.setColor(Optional.of(color(i+1)));temporaryTeams.add(team);
-            }
-            team.setColor(Optional.of(colors.get(i%colors.size())));
-            assignments.put(name,new Assignment(original,team));board.addPlayerToTeam(name,team);
+            prefixes();
         }
-        prefixes();
     }
     /** Real BedWars participants may share the same source numeric team; lobby choices remain restorable. */
     void beginBedwars(List<ServerPlayer> participants,Map<java.util.UUID,Integer> selected){
-        for(var player:participants){var number=selected.get(player.getUUID());if(number==null||number<1||number>16)
-            throw new IllegalArgumentException("BedWars requires a complete source team assignment");}
-        stop();ensurePalette();bedwars=true;
-        for(var player:participants){String name=player.getScoreboardName();var original=board.getPlayersTeam(name);
-            var team=board.getPlayerTeam(Integer.toString(selected.get(player.getUUID())));
-            assignments.put(name,new Assignment(original,team));board.addPlayerToTeam(name,team);}
-        prefixes();
+        try (var names = LbcNameplates.batch(board)) {
+            for(var player:participants){var number=selected.get(player.getUUID());if(number==null||number<1||number>16)
+                throw new IllegalArgumentException("BedWars requires a complete source team assignment");}
+            stop();ensurePalette();bedwars=true;
+            for(var player:participants){String name=player.getScoreboardName();var original=board.getPlayersTeam(name);
+                var team=board.getPlayerTeam(Integer.toString(selected.get(player.getUUID())));
+                assignments.put(name,new Assignment(original,team));board.addPlayerToTeam(name,team);}
+            prefixes();
+        }
     }
     private void prefixes(){
         var game=me.skywars2.SkyWars2.game();
@@ -145,5 +151,13 @@ final class LbcTeamColors {
             if(board.getPlayerTeam(team.getName())==team)board.removePlayerTeam(team);temporaryTeams.remove(team);
         }
     }
-    void stop(){for(String name:List.copyOf(assignments.keySet()))restore(name);removeEmptyTemporaryTeams();temporaryTeams.clear();departed.clear();bedwars=false;}
+    void stop() {
+        try (var names = LbcNameplates.batch(board)) {
+            for (String name : List.copyOf(assignments.keySet())) restore(name);
+            removeEmptyTemporaryTeams();
+            temporaryTeams.clear();
+            departed.clear();
+            bedwars = false;
+        }
+    }
 }
