@@ -1,0 +1,29 @@
+{
+  "assets": [
+    {
+      "path": "assets/lbc/shaders/include/reticle_gui_settings.glsl",
+      "sha256": "54a75fea0f1f6f245f07f6ff5f6d99d1cd46cc55bfce9516ad6d009c11f1be8f"
+    },
+    {
+      "path": "assets/lbc/shaders/include/reticle_native.glsl",
+      "sha256": "0b4a4dceb24a6a037a5134f6dfae94bd43354340789510db9e51c6daf430cefe"
+    },
+    {
+      "path": "assets/lbc/shaders/post/weapon_spread_resolve.fsh",
+      "sha256": "378ee4c731a0d1fe9f303762b71af54b784fc5da65153d1cd8a4a778311f3adb"
+    },
+    {
+      "path": "assets/lbc/shaders/post/weapon_spread_resolve.vsh",
+      "sha256": "f991906a5129f130473e17925222cafe637ce1cd53b0717b78f4fcda337a9b57"
+    },
+    {
+      "path": "assets/minecraft/shaders/core/position_tex_color.vsh",
+      "sha256": "fd65086235954d1c2eff288aad926b03e2eb1aec07cc9e1547a8627df060528c"
+    }
+  ],
+  "checks": {
+    "nativeHudAndXorOpenGL": 60,
+    "minecraftShadercStages": 78,
+    "minecraftShadercProfiles": 2
+  }
+}
