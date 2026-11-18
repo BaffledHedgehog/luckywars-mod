@@ -24,11 +24,10 @@ final class SmokeStaffSuppressionChecks {
                 if(!old){
                     f.own(carrier);require(carrier.entityTags().contains("mecha"),"native dropped carrier retains mechanism identity");
                     carrier.setPos(center.add(1,0,0));smoke.tick();
-                    require(!((List<?>)WoolBucketChecks.read(smoke,"smokeTrails")).isEmpty(),"real detached motion puff exists before cleanup");
+                    require(carrier.position().equals(WoolBucketChecks.read(cloud,"center")),"smoke center follows displaced native carrier before cleanup");
                 }
                 f.field(true,center);smoke.tick();
-                require(smoke.cloudCount()==0&&((List<?>)WoolBucketChecks.read(smoke,"smokeTrails")).isEmpty()
-                        &&(carrier==null||carrier.isRemoved()),"TECH removes grenade emitter, physical carrier and detached smoke puffs");
+                require(smoke.cloudCount()==0&&(carrier==null||carrier.isRemoved()),"TECH removes grenade emitter and physical carrier");
                 smoke.grenadeSmoke(f.owner,center,old);require(smoke.cloudCount()==0,"a newly published grenade inside TECH cannot persist");
                 f.removeFields();
             }
@@ -54,6 +53,6 @@ final class SmokeStaffSuppressionChecks {
                 }else f.removeFields();
             }
         }finally{smoke.stop();for(var shot:music.arrows())shot.discard();}
-        SkyWars2.LOGGER.info("[check] PASS smoke-staff-suppression (TECH modern/legacy smoke and detached puffs; beacon/artifact cast admission and real arrow boundary crossing)");
+        SkyWars2.LOGGER.info("[check] PASS smoke-staff-suppression (TECH removes both smoke emitters; beacon/artifact cast admission and real arrow boundary crossing)");
     }
 }

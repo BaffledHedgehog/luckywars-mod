@@ -11,6 +11,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerInventoryPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -86,14 +88,15 @@ public final class LbcFoodLifecycle {
         if(stack.isEmpty()||!admitted(p)||!matches(stack))return;
         var data=LbcFartus.data(stack);
         if(countsAsFood(stack)&&!LbcTmtAbilities.active(stack))game.items().mana().score(p,"food_count").add(1);
-        var hand=p.getUsedItemHand();
         boolean tmt=LbcTmtItems.matches(stack);
-        if(tmt&&(data.getIntOr("inf",0)==1||data.getIntOr("inf_old",0)==1)){
-            var frame=finishing.peek();if(frame!=null&&frame.player==p&&frame.stack==stack)frame.retainTmt=true;
+        boolean steak=data.getIntOr("inf",0)==1, stew=data.getIntOr("inf_old",0)==1;
+        var frame=finishing.peek();
+        if(frame!=null&&frame.player==p&&frame.stack==stack){
+            if(tmt)frame.retainTmt=steak||stew;
+            else if(steak)frame.replacement=infiniteSteak();
+            else if(stew)frame.oldStew=true;
         }
-        if(!tmt&&data.getIntOr("inf",0)==1)p.setItemInHand(hand,infiniteSteak());
-        if(data.getIntOr("inf_old",0)==1){
-            var frame=finishing.peek();if(!tmt&&frame!=null&&frame.player==p&&frame.stack==stack)frame.oldStew=true;
+        if(stew){
             p.entityTags().remove("scheduled_eating");
         }
         if(data.getIntOr("halloween_food",0)==1)halloween(p);
@@ -113,8 +116,15 @@ public final class LbcFoodLifecycle {
         var frame=new Finishing(player,stack,game.items().epoch());finishing.push(frame);
         try{
             var result=nativeFinish.get();
-            if(frame.replacement!=null&&game.items().currentEpoch(frame.epoch)&&admitted(player))return frame.replacement;
-            return frame.oldStew&&game.items().currentEpoch(frame.epoch)&&admitted(player)?oldInfiniteStew():result;
+            if((frame.replacement==null&&!frame.oldStew)||!game.items().currentEpoch(frame.epoch)||!admitted(player))return result;
+            var replacement=frame.replacement!=null?frame.replacement:oldInfiniteStew();
+            var hand=player.getUsedItemHand();
+            if(player.isUsingItem()&&player.getUseItem()==stack&&player.getItemInHand(hand)==stack){
+                int slot=hand==InteractionHand.MAIN_HAND?player.getInventory().getSelectedSlot():Inventory.SLOT_OFFHAND;
+                // The client's consume event predicts a debit even if the server slot ends with the same stack.
+                player.connection.send(new ClientboundSetPlayerInventoryPacket(slot,replacement.copy()));
+            }
+            return replacement;
         }finally{finishing.pop();}
     }
     public static ItemStack infiniteSteak(){

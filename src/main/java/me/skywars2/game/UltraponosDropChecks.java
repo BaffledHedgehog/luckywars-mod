@@ -235,7 +235,8 @@ public final class UltraponosDropChecks {
             for(int tick=1;tick<=280;tick++) {
                 var before=entities();ticks(1);var rewards=addedItems(before);
                 require(rewards.size()==1,"one real govno item on active tick "+tick);var reward=rewards.getFirst();var velocity=reward.getDeltaMovement();
-                require(govno(reward.getItem()) && reward.getItem().getCount()==1 && reward.getX()==base.getX()+.5 && reward.getZ()==base.getZ()+.5
+                require(govno(reward.getItem()) && reward.entityTags().contains(LbcUltraponos.UNMERGEABLE_REWARD)
+                        && reward.getItem().getCount()==1 && reward.getX()==base.getX()+.5 && reward.getZ()==base.getZ()+.5
                         && Math.abs(reward.getY()-base.getY()-1.05)<1e-9,"real single reward centered just above hopper rim");
                 require(Math.abs(velocity.y-.8)<1e-9 && velocity.x>=-.2 && velocity.x<=.2 && velocity.z>=-.2 && velocity.z<=.2,
                         "upward .8 velocity with independently bounded horizontal scatter");
@@ -313,6 +314,7 @@ public final class UltraponosDropChecks {
             for(int i=0;i<201;i++) {
                 var stack=new ItemStack(Items.DIRT,64);var tag=new CompoundTag();tag.putInt("govnoq",1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
                 var item=new ItemEntity(level,center.x,center.y,center.z,stack);item.setNoGravity(true);item.setDeltaMovement(Vec3.ZERO);item.setPickUpDelay(1000);
+                item.entityTags().add(LbcUltraponos.UNMERGEABLE_REWARD);
                 require(level.addFreshEntity(item),"threshold native item");owned.add(item);blockers.add(item);
             }
             var before=entities();ticks(1);require(addedItems(before).isEmpty(),"201 flagged entities suppress the active tick");
@@ -324,6 +326,7 @@ public final class UltraponosDropChecks {
             for(int i=0;i<200;i++) {
                 var stack=new ItemStack(Items.DIRT);var tag=new CompoundTag();tag.putInt("govnoq",1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
                 var item=new ItemEntity(level,center.x,center.y,center.z,stack);item.setNoGravity(true);
+                item.entityTags().add(LbcUltraponos.UNMERGEABLE_REWARD);
                 require(level.addFreshEntity(item),"sphere boundary native item");owned.add(item);
             }
             var out=new ItemEntity(level,center.x+14.9,center.y+14.9,center.z,new ItemStack(Items.DIRT,64));

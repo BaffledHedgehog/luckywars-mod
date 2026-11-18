@@ -284,10 +284,8 @@ public final class LbcBolts {
     }
     /** Chain lightning is wild: allies and caster share the same magic/role checks. */
     private List<LivingEntity> chainTargets(ServerPlayer owner,Vec3 at,double radius) {
-        var result=new ArrayList<LivingEntity>();
-        for(var target:game.items().lifetimes().loadedTargets())
-            if(chainTarget(owner,target) && target.position().distanceToSqr(at)<=radius*radius) result.add(target);
-        return result;
+        return owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(radius),
+                target->target.position().distanceToSqr(at)<=radius*radius&&chainTarget(owner,target));
     }
     private List<LivingEntity> targets(ServerPlayer owner,Vec3 at,double radius) {
         var result=new ArrayList<LivingEntity>();

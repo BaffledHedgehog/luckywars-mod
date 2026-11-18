@@ -24,8 +24,6 @@ public final class LbcReactiveArtifacts {
     private static final Identifier RANGE=Identifier.parse("skywars2:reactive_smoke");
     private final GameController game;
     private final SmokeVisuals smokeVisuals;
-    private final List<Puff> smokeTrails=new ArrayList<>();
-    private int smokeClock;
     private final Map<ServerPlayer,Window> attacks=new IdentityHashMap<>();
     private final List<Cloud> clouds=new ArrayList<>();
     private final Map<LivingEntity,Blindness> blind=new IdentityHashMap<>();
@@ -34,13 +32,11 @@ public final class LbcReactiveArtifacts {
     private static final class Window {int depth=1;final List<Runnable> moves=new ArrayList<>();}
     private static final class Cloud implements SmokeVisuals.Volume {
         final ServerPlayer owner;final ServerLevel level;final String epoch;Vec3 center;final double radius;final int amplifier,visual;int expires;
-        SmokeCarrier carrier;boolean moving;Vec3 motionPoint;int stillTicks,lastPuffTick;double visualRadius,density=1;
+        SmokeCarrier carrier;
         public ServerLevel level(){return level;}
         public Vec3 center(){return center;}
-        public double radius(){return visualRadius;}
-        public double density(){return density;}
         Cloud(ServerPlayer p,String e){this(p,e,p.position(),7,0,100,0);}
-        Cloud(ServerPlayer p,String e,Vec3 center,double radius,int amplifier,int life,int visual){owner=p;level=p.level();epoch=e;this.center=center;this.radius=radius;this.visualRadius=visual==1?.15:radius;density=visual==1?.1:1;this.amplifier=amplifier;this.visual=visual;expires=p.level().getServer().getTickCount()+life;}
+        Cloud(ServerPlayer p,String e,Vec3 center,double radius,int amplifier,int life,int visual){owner=p;level=p.level();epoch=e;this.center=center;this.radius=radius;this.amplifier=amplifier;this.visual=visual;expires=p.level().getServer().getTickCount()+life;}
     }
     /** Vanilla item physics owns support loss, fluid flow and explosion knockback. */
     private static final class SmokeCarrier extends net.minecraft.world.entity.item.ItemEntity {
@@ -91,14 +87,6 @@ public final class LbcReactiveArtifacts {
             support=previous.support;supportState=previous.supportState;
             contact=previous.contact;attachment=previous.attachment;setNoGravity(support!=null);
         }
-    }
-    private static final class Puff implements SmokeVisuals.Volume {
-        final Cloud source;final Vec3 center;final double radius,strength;final int life;int age;
-        Puff(Cloud source,Vec3 center,double radius,double strength,int life){this.source=source;this.center=center;this.radius=radius;this.strength=strength;this.life=life;}
-        public ServerLevel level(){return source.level;}
-        public Vec3 center(){return center;}
-        public double radius(){return radius*(1+.18*age/life);}
-        public double density(){double remaining=Math.max(0,1-(double)age/life);return strength*remaining*remaining;}
     }
     private static final class Blindness {MobEffectInstance baseline;final int amplifier;int lastTick;
         Blindness(MobEffectInstance original,int tick,int amplifier){this.amplifier=amplifier;baseline=smokeLayer(original,amplifier);lastTick=tick;}}
@@ -185,7 +173,7 @@ public final class LbcReactiveArtifacts {
             if(hit!=null)carrier.attach(hit);
             game.items().timeStop().prepareFrozen(carrier);
             if(!owner.level().addFreshEntity(carrier)||carrier.isRemoved()){carrier.discard();return;}
-            cloud.carrier=carrier;cloud.center=carrier.position();cloud.motionPoint=cloud.center;
+            cloud.carrier=carrier;cloud.center=carrier.position();
         }
         clouds.add(cloud);updateSmoke(false);
     }
@@ -200,18 +188,16 @@ public final class LbcReactiveArtifacts {
     private void reduce(LivingEntity target){var attribute=target.getAttribute(Attributes.FOLLOW_RANGE);if(attribute==null)return;attribute.removeModifier(RANGE);double additive=attribute.getBaseValue(),base=1,total=1;for(var modifier:attribute.getModifiers())switch(modifier.operation()){case ADD_VALUE->additive+=modifier.amount();case ADD_MULTIPLIED_BASE->base+=modifier.amount();case ADD_MULTIPLIED_TOTAL->total*=1+modifier.amount();}double factor=base*total;if(Double.isFinite(factor)&&Math.abs(factor)>1e-12)attribute.addTransientModifier(new AttributeModifier(RANGE,3/factor-additive,AttributeModifier.Operation.ADD_VALUE));reduced.add(target);if(target instanceof Mob mob&&mob.getTarget()!=null&&mob.distanceToSqr(mob.getTarget())>9){mob.setTarget(null);mob.getNavigation().stop();}}
     private void updateSmoke(boolean advance){
         if(game.stage()==GameController.Stage.ENDING){synchronizeSmokeVisuals();return;}
-        if(advance){smokeClock++;for(var puff:smokeTrails)puff.age++;}
-        smokeTrails.removeIf(p->p.age>=p.life||!game.playing()||!p.source.epoch.equals(game.items().epoch()));
         var players=new IdentityHashMap<LivingEntity,Cloud>();var mobs=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
         for(var cloud:List.copyOf(clouds)){
             if(cloud.visual!=0&&game.items().magic().mechanismSuppressedAt(cloud.level,
                     cloud.carrier==null?cloud.center:cloud.carrier.position())){
-                smokeTrails.removeIf(p->p.source==cloud);removeCloud(cloud);continue;
+                removeCloud(cloud);continue;
             }
             boolean validSource=cloud.visual==0?valid(cloud.owner):game.playing()&&game.stage()!=GameController.Stage.ENDING&&cloud.level==game.maps().level();
             if(!validSource||!cloud.epoch.equals(game.items().epoch())||game.server().getTickCount()>=cloud.expires||!carrierPresent(cloud)){removeCloud(cloud);continue;}
             if(cloud.visual==0?paused(cloud.owner):game.items().timeStop().stopped(cloud.level)){if(advance)cloud.expires++;continue;}
-            if(cloud.carrier!=null)moveSmoke(cloud,advance);
+            if(cloud.carrier!=null)cloud.center=cloud.carrier.position();
             for(var target:cloud.level.getEntitiesOfClass(LivingEntity.class,new AABB(cloud.center,cloud.center).inflate(cloud.radius),e->e.position().distanceToSqr(cloud.center)<=cloud.radius*cloud.radius&&wildTarget(e))){
                 if(target instanceof ServerPlayer){var previous=players.get(target);if(previous==null||cloud.amplifier>previous.amplifier)players.put(target,cloud);}
                 else if(target.getType().builtInRegistryHolder().is(MOBS)&&target.getAttribute(Attributes.FOLLOW_RANGE)!=null)mobs.add(target);
@@ -253,11 +239,9 @@ public final class LbcReactiveArtifacts {
     /** Celebration pauses gameplay graphs but native physical grenades can still move. */
     void tickEnding(){
         if(!game.server().tickRateManager().runsNormally())return;
-        smokeClock++;for(var p:smokeTrails)p.age++;
-        smokeTrails.removeIf(p->p.age>=p.life||!p.source.epoch.equals(game.items().epoch()));
         for(var cloud:List.copyOf(clouds))if(cloud.visual==1){
             if(!cloud.epoch.equals(game.items().epoch())||!carrierPresent(cloud)){removeCloud(cloud);continue;}
-            cloud.expires++;moveSmoke(cloud,true);
+            cloud.expires++;cloud.center=cloud.carrier.position();
         }
         synchronizeSmokeVisuals();
     }
@@ -266,37 +250,16 @@ public final class LbcReactiveArtifacts {
         // Placed modern grenades are independent world sources, not removable player debuffs.
         for(var cloud:List.copyOf(clouds))if(cloud.owner==owner&&cloud.visual!=1)removeCloud(cloud);
     }
-    private void trail(Cloud cloud,Vec3 at,double radius,double density,int life){
-        int count=0;for(var p:smokeTrails)if(p.source==cloud)count++;
-        if(count>=8)for(var i=smokeTrails.iterator();i.hasNext();)if(i.next().source==cloud){i.remove();break;}
-        smokeTrails.add(new Puff(cloud,at,radius,density,life));
-    }
-    private void moveSmoke(Cloud cloud,boolean advance){
-        Vec3 at=cloud.carrier.position(),previous=cloud.motionPoint;
-        if(advance){
-            if(at.distanceToSqr(previous)>.05*.05){
-                if(!cloud.moving)trail(cloud,previous,cloud.visualRadius,cloud.density,36);
-                if(smokeClock-cloud.lastPuffTick>=4){trail(cloud,previous,cloud.radius*.75,.65,24);cloud.lastPuffTick=smokeClock;}
-                cloud.moving=true;cloud.stillTicks=0;
-            }else if(cloud.moving&&++cloud.stillTicks>=4)cloud.moving=false;
-            cloud.motionPoint=at;
-            double desiredRadius=7.5*(cloud.moving?.85:1),desiredDensity=cloud.moving?.8:1;
-            cloud.visualRadius+=(desiredRadius-cloud.visualRadius)*.06;cloud.density+=(desiredDensity-cloud.density)*.07;
-            if(Math.abs(cloud.visualRadius-desiredRadius)<.001)cloud.visualRadius=desiredRadius;
-            if(Math.abs(cloud.density-desiredDensity)<.001)cloud.density=desiredDensity;
-        }
-        cloud.center=at;
-    }
     private void synchronizeSmokeVisuals(){
         var volumes=new ArrayList<SmokeVisuals.Volume>();for(var cloud:clouds)if(cloud.visual==1)volumes.add(cloud);
-        volumes.addAll(smokeTrails);smokeVisuals.synchronize(volumes);
+        smokeVisuals.synchronize(volumes);
     }
     public void tick(){if(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(game.maps().level())){for(var state:blind.values())state.lastTick=game.server().getTickCount();for(var cloud:clouds)cloud.expires++;synchronizeSmokeVisuals();return;}updateSmoke(true);}
     public void loaded(Entity entity){if(entity instanceof LivingEntity target&&!reduced.contains(target)){var range=target.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.removeModifier(RANGE);}}
     public void unloaded(Entity entity){if(entity instanceof LivingEntity target){var state=blind.remove(target);if(state!=null)restoreBlindness(target,state);var range=target.getAttribute(Attributes.FOLLOW_RANGE);if(reduced.remove(target)&&range!=null)range.removeModifier(RANGE);}}
     public void clearEffects(ServerPlayer player){removeOwnedSmoke(player);updateSmoke(false);blind.remove(player);var range=player.getAttribute(Attributes.FOLLOW_RANGE);if(reduced.remove(player)&&range!=null)range.removeModifier(RANGE);}
     public void forget(ServerPlayer owner){attacks.remove(owner);removeOwnedSmoke(owner);updateSmoke(false);}
-    public void stop(){smokeClock=0;smokeVisuals.stop();for(var cloud:List.copyOf(clouds))removeCloud(cloud);smokeTrails.clear();attacks.clear();for(var entry:List.copyOf(blind.entrySet()))restoreBlindness(entry.getKey(),entry.getValue());blind.clear();for(var mob:reduced){var range=mob.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.removeModifier(RANGE);}reduced.clear();producing=false;}
+    public void stop(){smokeVisuals.stop();for(var cloud:List.copyOf(clouds))removeCloud(cloud);attacks.clear();for(var entry:List.copyOf(blind.entrySet()))restoreBlindness(entry.getKey(),entry.getValue());blind.clear();for(var mob:reduced){var range=mob.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.removeModifier(RANGE);}reduced.clear();producing=false;}
     LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof LivingEntity target))return null;var state=blind.get(target);boolean range=reduced.contains(target);
         if(state==null&&!range)return null;var baseline=state==null||state.baseline==null?null:EffectLayers.copy(state.baseline);

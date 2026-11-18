@@ -116,15 +116,16 @@ final class LbcLibraryRandom {
                     if(x==0&&y==0&&z==0)continue;
                     var tnt=new PrimedTnt(p.level(),at.x,at.y+.5,at.z,p);tnt.setFuse(56);tnt.setDeltaMovement(x*.4,y*.4,z*.4);insert(p,tnt);
                 }
-            }else if(type==13||type==18||type==19){
-                if(type==13)game.items().bolts().libraryChainArea(p,at,16);
-                for(var target:p.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(type==13?16:15),
-                        e->game.items().wands().validTarget(e)&&e.position().distanceToSqr(at)<=(type==13?256:225))){
-                    if(type==13){continue;}
-                    else target.addEffect(ItemEffectLevels.create(type==18?MobEffects.WITHER:MobEffects.INSTANT_HEALTH,type==18?1200:200,type==18?0:4,false,false),p);
+            }else if(type==13){
+                game.items().bolts().libraryChainArea(p,at,16);
+                p.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,at.x,at.y,at.z,200,1,1,1,1);
+            }else if(type==18||type==19){
+                for(var target:p.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(15),
+                        e->game.items().wands().validTarget(e)&&e.position().distanceToSqr(at)<=225)){
+                    target.addEffect(ItemEffectLevels.create(type==18?MobEffects.WITHER:MobEffects.INSTANT_HEALTH,type==18?1200:200,type==18?0:4,false,false),p);
                 }
-                p.level().sendParticles(type==13?ParticleTypes.ELECTRIC_SPARK:type==18?ParticleTypes.SMOKE:ParticleTypes.HEART,at.x,at.y,at.z,type==13?200:type==18?100:300,10,10,10,0);
-                if(type!=13)LbcOverload.sound(p,at,type==18?"minecraft:entity.wither.ambient":"minecraft:entity.player.levelup",1,type==18?1:1.5f,0);
+                p.level().sendParticles(type==18?ParticleTypes.SMOKE:ParticleTypes.HEART,at.x,at.y,at.z,type==18?100:300,10,10,10,0);
+                LbcOverload.sound(p,at,type==18?"minecraft:entity.wither.ambient":"minecraft:entity.player.levelup",1,type==18?1:1.5f,0);
             }else if(type==20)lava(p,BlockPos.containing(at));
             else if(type==17||type==21||type==22){
                 if(type==17){p.level().sendParticles(ParticleTypes.POOF,at.x,at.y,at.z,100,1,1,1,1);LbcOverload.sound(p,at,"minecraft:particle.soul_escape",1,0,0);}

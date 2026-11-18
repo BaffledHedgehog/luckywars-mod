@@ -1,6 +1,7 @@
 package me.skywars2.mixin;
 
 import me.skywars2.game.CoreEntityMerging;
+import me.skywars2.game.LbcUltraponos;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.serialization.Codec;
@@ -40,7 +41,8 @@ public final class CoreEntityMergeMixin {
         @Override public boolean skywars2$mergeableItem() {
             var self = (ItemEntity) (Object) this;
             return self.isAlive() && !self.getItem().isEmpty() && pickupDelay != 32767
-                    && age != -32768 && age < 6000 && !self.isPassenger() && !self.isVehicle();
+                    && age != -32768 && age < 6000 && !self.isPassenger() && !self.isVehicle()
+                    && !self.entityTags().contains(LbcUltraponos.UNMERGEABLE_REWARD);
         }
 
         @Override public boolean skywars2$absorbItem(ItemEntity incoming) {

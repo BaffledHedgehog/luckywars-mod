@@ -91,6 +91,18 @@ public final class CoreEntityMergeChecks {
             merge(a);
             require(!a.isRemoved() && b.isRemoved() && a.getItem().getCount() == 80 && a.getItem().getMaxStackSize() == 64, "ground group exceeds component maximum without changing it");
             clear();
+            var reward = game.lbc().rollTable(owner.level(), at(), owner, "lbc:govno").getFirst();
+            var trapA = item(reward.copy(), at(), e -> e.entityTags().add(LbcUltraponos.UNMERGEABLE_REWARD));
+            var trapB = item(reward.copy(), at(), e -> e.entityTags().add(LbcUltraponos.UNMERGEABLE_REWARD));
+            var ordinary = item(reward.copy(), at());
+            var merged = item(reward.copy(), at());
+            merge(trapA);
+            merge(ordinary);
+            require(owner.level().getEntity(trapA.getUUID()) == trapA && owner.level().getEntity(trapB.getUUID()) == trapB
+                    && trapA.getItem().getCount() == 1 && trapB.getItem().getCount() == 1
+                    && merged.isRemoved() && ordinary.getItem().getCount() == 2,
+                    "Ultraponos rewards remain separate at spawn and in native merges, ordinary matching drops merge");
+            clear();
             a = item(new ItemStack(Items.STONE, 1), at());
             var named = new ItemStack(Items.STONE, 1);
             named.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, Component.literal("distinct"));

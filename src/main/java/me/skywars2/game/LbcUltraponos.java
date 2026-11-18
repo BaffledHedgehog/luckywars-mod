@@ -25,6 +25,7 @@ import java.util.List;
 public final class LbcUltraponos {
     private static final Identifier STRUCTURE=Identifier.parse("lbc:ponos");
     private static final double[] HEIGHTS={-1.5,-2.5,.5,1.5};
+    public static final String UNMERGEABLE_REWARD = "skywars2.ultraponos.reward";
     private static final CompoundTag GOVNO=govno();
     private static CompoundTag govno() { var tag=new CompoundTag(); tag.putInt("govnoq",1); return tag; }
     private final GameController game;
@@ -160,6 +161,7 @@ public final class LbcUltraponos {
         var position=emitter.center.add(0,.55,0);
         for(var stack:game.lbc().rollTable(level,position,emitter.author,"lbc:govno")) {
             var item=new ItemEntity(level,position.x,position.y,position.z,stack);
+            item.entityTags().add(UNMERGEABLE_REWARD);
             var random=level.getRandom();
             item.setDeltaMovement(random.nextDouble()*.4-.2,.8,random.nextDouble()*.4-.2);
             item.setDefaultPickUpDelay(); game.items().markCurrentItemEpoch(item);
