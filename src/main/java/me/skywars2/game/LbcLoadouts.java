@@ -30,6 +30,15 @@ import java.util.stream.Collectors;
 /** LBC selection, initial grants and attribute cleanup; no legacy tick/function engine. */
 public final class LbcLoadouts {
     public enum Kind { KITS, SKILLS, LEVELUPS, TRINKETS }
+    public record CatalogEntry(int id, String menuTable, String grantTable, List<String> names, List<String> lore) {}
+
+    public static List<CatalogEntry> catalog(Kind kind) {
+        return CATALOG.get(kind).stream().map(entry -> {
+            var text = OriginalGuiDesign.loadoutText(entry.page(), entry.slot());
+            return new CatalogEntry(entry.id(), text.menuTable(), entry.table(), text.names(), text.lore());
+        }).toList();
+    }
+
     private record Modifier(Holder<Attribute> attribute, AttributeModifier value) {}
     private record UnlockNotification(String subtitle, List<String> requiresAll) {}
     private record Entry(int id, int page, int slot, String table, String gate,

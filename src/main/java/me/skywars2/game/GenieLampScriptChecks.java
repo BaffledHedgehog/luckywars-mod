@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -72,6 +73,29 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(tables.keySet().equals(ids), "the model sees all loaded loot table IDs");
             require(tables.asMap().values().stream().noneMatch(table -> table.getAsJsonObject().has("contents_unavailable")),
                 "all loaded loot tables were decoded for the model");
+            var loadouts = facts.getAsJsonObject("loadouts");
+            for (var kind : LbcLoadouts.Kind.values()) {
+                var rows = loadouts.getAsJsonArray(kind.name().toLowerCase(java.util.Locale.ROOT));
+                var live = LbcLoadouts.catalog(kind);
+                require(rows.size() == live.size(), "every selection has a description in " + kind);
+                for (int i = 0; i < rows.size(); i++) {
+                    var row = rows.get(i).getAsJsonObject();
+                    var entry = live.get(i);
+                    require(row.get("id").getAsInt() == entry.id()
+                            && tables.has(row.get("menu_table").getAsString())
+                            && !row.getAsJsonArray("name_keys").isEmpty() && !row.getAsJsonArray("lore_keys").isEmpty()
+                            && (!row.has("grant_table") || tables.has(row.get("grant_table").getAsString())),
+                            "index connects native selection, descriptions and loaded tables for " + kind + "/" + entry.id());
+                }
+            }
+            var rerollMachine = loadouts.getAsJsonArray("kits").asList().stream().map(JsonElement::getAsJsonObject)
+                    .filter(row -> row.get("id").getAsInt() == 25).findFirst().orElseThrow();
+            require(rerollMachine.get("menu_table").getAsString().equals("lbc:gui/page/9000/24")
+                    && rerollMachine.get("grant_table").getAsString().equals("lbc:kit/reroll_machine"),
+                    "actual menu alias is resolved separately from the kit grant");
+            require(facts.getAsJsonArray("script_targeted_casts").size() == GenieNative.TargetedCast.values().length
+                    && facts.getAsJsonArray("script_directed_casts").contains(new com.google.gson.JsonPrimitive("skywars2:terra_razor")),
+                    "the prompt exposes all additional native script bindings");
             String boots = tables.get("lbc:ported/moisei_boots").toString();
             require(boots.contains("skywars2:moisei_boots") && boots.contains("\"translate\":\"moisei_boots\""),
                 "a named loot entry includes its carrier and original translation key");

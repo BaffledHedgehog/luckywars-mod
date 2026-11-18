@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.LbcLoadouts;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -56,9 +57,37 @@ final class GenieContentIndex {
             tables.add(key.identifier().toString(), entry);
         }
         root.add("loot_tables", tables);
+        root.add("loadouts", loadouts());
         root.add("item_name_translations", translations());
         String encoded = root.toString();
         return "," + encoded.substring(1, encoded.length() - 1);
+    }
+
+    private JsonObject loadouts() {
+        var catalog = new JsonObject();
+        for (var kind : LbcLoadouts.Kind.values()) {
+            var rows = new JsonArray();
+            for (var entry : LbcLoadouts.catalog(kind)) {
+                var row = new JsonObject();
+                row.addProperty("id", entry.id());
+                if (entry.menuTable() != null) row.addProperty("menu_table", entry.menuTable());
+                if (entry.grantTable() != null) row.addProperty("grant_table", entry.grantTable());
+                row.add("name_keys", references(entry.names()));
+                row.add("lore_keys", references(entry.lore()));
+                rows.add(row);
+            }
+            catalog.add(kind.name().toLowerCase(Locale.ROOT), rows);
+        }
+        return catalog;
+    }
+
+    private JsonArray references(Iterable<String> keys) {
+        var result = new JsonArray();
+        for (String key : keys) {
+            result.add(key);
+            translationKeys.add(key);
+        }
+        return result;
     }
 
     private void describe(JsonObject result, JsonElement table) {

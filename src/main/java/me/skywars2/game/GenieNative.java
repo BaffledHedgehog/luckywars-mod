@@ -55,15 +55,64 @@ public final class GenieNative {
         if(spell==null)throw new IllegalArgumentException("unknown native grimoire");
         return LbcLibrarySpells.admitted(game,player,hand)&&LbcLibrarySpells.cast(game,player,hand,spell);
     }
-    private enum Cast { ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY, TERRA_CHARGE, ACADEMY_TERRA_CHARGE }
+    private enum Cast {
+        ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY,
+        TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
+        TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
+        TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
+
+        final LbcTerra.Kind terra;
+
+        Cast() { this(null); }
+        Cast(LbcTerra.Kind terra) { this.terra = terra; }
+    }
     private static final Map<Identifier, Cast> CASTS = Map.of(
         Identifier.parse("skywars2:electro_arc"), Cast.ELECTRO_ARC,
         Identifier.parse("skywars2:electro_volley"), Cast.ELECTRO_VOLLEY,
         Identifier.parse("skywars2:electro_ray"), Cast.ELECTRO_RAY,
         Identifier.parse("skywars2:terra_charge"), Cast.TERRA_CHARGE,
-        Identifier.parse("skywars2:academy_terra_charge"), Cast.ACADEMY_TERRA_CHARGE
+        Identifier.parse("skywars2:academy_terra_charge"), Cast.ACADEMY_TERRA_CHARGE,
+        Identifier.parse("skywars2:terra_sword_charge"), Cast.TERRA_SWORD_CHARGE,
+        Identifier.parse("skywars2:true_terra_charge"), Cast.TRUE_TERRA_CHARGE,
+        Identifier.parse("skywars2:true_terra_beam"), Cast.TRUE_TERRA_BEAM,
+        Identifier.parse("skywars2:terra_razor"), Cast.TERRA_RAZOR
     );
-    public static final Identifier ORESHNIK = Identifier.parse("skywars2:oreshnik");
+    public enum TargetedCast {
+        ORESHNIK("oreshnik", "Absolute Cinema: Putin / Oreshnik", "Абсолютное кино: Путин / Орешник",
+                "Launches the original rocket and its cluster at target."),
+        HEDGEHOG("hedgehog", "Ordinary Hedgehog", "Обычный ёж", LbcHedgehog.Kind.ORDINARY),
+        HEDGEHOG_STANDARD("hedgehog_standard", "Standard Hedgehog", "Стандартный ёж", LbcHedgehog.Kind.DEFAULT),
+        HEDGEHOG_HEALER("hedgehog_healer", "Healing Hedgehog", "Исцеляющий ёж", LbcHedgehog.Kind.HEALER),
+        HEDGEHOG_TANK("hedgehog_tank", "Heavy Hedgehog", "Тяжёлый ёж", LbcHedgehog.Kind.TANK),
+        HEDGEHOG_SNIPER("hedgehog_sniper", "Sniper Hedgehog", "Ёж-снайпер", LbcHedgehog.Kind.SNIPER),
+        HEDGEHOG_LASER("hedgehog_laser", "Laser Hedgehog", "Лазерный ёж", LbcHedgehog.Kind.LASER),
+        HEDGEHOG_WALL("hedgehog_wall", "Hedgehog Wall", "Ежовая стена",
+                "Summons the original Hedgehog Wall towers, oriented along the player's aim.");
+
+        public final Identifier id;
+        public final List<String> names;
+        public final String effect;
+        private final LbcHedgehog.Kind helper;
+
+        TargetedCast(String path, String english, String russian, String effect) {
+            this(path, english, russian, effect, null);
+        }
+
+        TargetedCast(String path, String english, String russian, LbcHedgehog.Kind helper) {
+            this(path, english, russian, "Summons one native allied hedgehog. Target is its unobstructed feet position.", helper);
+        }
+
+        TargetedCast(String path, String english, String russian, String effect, LbcHedgehog.Kind helper) {
+            this.id = Identifier.parse("skywars2:" + path);
+            this.names = List.of(english, russian);
+            this.effect = effect;
+            this.helper = helper;
+        }
+    }
+
+    public static final Identifier ORESHNIK = TargetedCast.ORESHNIK.id;
+    private static final Map<Identifier, TargetedCast> TARGETED_CASTS = java.util.Arrays.stream(TargetedCast.values())
+            .collect(java.util.stream.Collectors.toUnmodifiableMap(spell -> spell.id, spell -> spell));
 
     public static Set<Identifier> casts() {
         return CASTS.keySet();
@@ -100,7 +149,8 @@ public final class GenieNative {
 
     /** Point-targeted abilities keep their own permissions, effects and native attribution. */
     public static boolean castAt(GameController game, ServerPlayer player, Identifier id, Vec3 target) {
-        if (!id.equals(ORESHNIK)) throw new IllegalArgumentException("unknown targeted LuckyWars ability");
+        var spell = TARGETED_CASTS.get(id);
+        if (spell == null) throw new IllegalArgumentException("unknown targeted LuckyWars ability");
         var level = player.level();
         if (!(Math.abs(target.x) < 30_000_000 && Math.abs(target.z) < 30_000_000
                 && target.y >= level.getMinY() && target.y < level.getMaxY() + 1.0)) return false;
@@ -109,7 +159,13 @@ public final class GenieNative {
                 || !game.canUseGameplayItems(player) || game.items().actionsBlocked(player) || stopped(game, player)
                 || !level.isInWorldBounds(position) || !level.hasChunkAt(position)
                 || !level.getWorldBorder().isWithinBounds(position)) return false;
-        return game.items().cinema().rockets().launch(player, target);
+        if (spell == TargetedCast.ORESHNIK) return game.items().cinema().rockets().launch(player, target);
+        var magic = game.items().magic();
+        if (magic.suppressed(player) || magic.suppressedAt(level, player.getEyePosition())) return false;
+        var hedgehog = game.items().hedgehog();
+        return spell == TargetedCast.HEDGEHOG_WALL
+                ? hedgehog.spawnWall(level, target, player) > 0
+                : hedgehog.spawnHelper(player, level, target, spell.helper) != null;
     }
 
     /** Directed spell effects, independent of the actual item occupying either hand. */
@@ -140,9 +196,8 @@ public final class GenieNative {
                     else wands.directedElectro(player, origin, aim, spell == Cast.ELECTRO_ARC ? 1 : 3, cause);
                     yield true;
                 }
-                case TERRA_CHARGE, ACADEMY_TERRA_CHARGE -> {
-                    var kind = spell == Cast.TERRA_CHARGE ? LbcTerra.Kind.REGULAR : LbcTerra.Kind.ACADEMY;
-                    var body = game.items().terra().castAt(player, origin, aim, kind, 0);
+                default -> {
+                    var body = game.items().terra().castAt(player, origin, aim, spell.terra, 0);
                     if (body == null || body.getOwner() != player || level.getEntity(body.getUUID()) != body) yield false;
                     GenieCombat.castProjectile(game, player, body, weapon);
                     yield true;

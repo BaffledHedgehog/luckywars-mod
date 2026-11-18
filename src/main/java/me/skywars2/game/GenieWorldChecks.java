@@ -231,6 +231,31 @@ final class GenieWorldChecks {
                 base.discard(shot);
             }
 
+            var variants = java.util.Map.of(
+                    "academy_terra_charge", LbcTerra.Kind.ACADEMY,
+                    "terra_sword_charge", LbcTerra.Kind.SWORD,
+                    "true_terra_charge", LbcTerra.Kind.TRUE_CHARGE,
+                    "true_terra_beam", LbcTerra.Kind.TRUE_BEAM,
+                    "terra_razor", LbcTerra.Kind.RAZOR);
+            for (var variant : variants.entrySet()) {
+                require(complete(host, queued(host, "lbc.cast", new JsonPrimitive("skywars2:" + variant.getKey()),
+                        vector(origin), vector(aim))).getAsBoolean(), "native Terra variant accepted: " + variant.getKey());
+                var kind = variant.getValue();
+                var projectile = base.level.getEntitiesOfClass(LbcTerra.TerraProjectile.class,
+                        new AABB(origin, origin).inflate(1), body -> body.getOwner() == base.owner).getFirst();
+                try {
+                    var velocity = projectile.getDeltaMovement();
+                    double allowedSpread = kind == LbcTerra.Kind.RAZOR ? 4.25 : .01;
+                    require(WoolBucketChecks.read(projectile, "kind") == kind
+                            && kind.model.equals(projectile.display().getItem().get(net.minecraft.core.component.DataComponents.ITEM_MODEL))
+                            && Math.abs(velocity.length() - kind.speed) < 1e-5
+                            && velocity.normalize().dot(aim.normalize()) >= Math.cos(Math.toRadians(allowedSpread)),
+                            "native model, speed and aim match Terra variant " + kind);
+                } finally {
+                    base.discard(projectile);
+                }
+            }
+
             base.field(false, origin);
             require(game.items().magic().suppressedAt(base.level, origin), "native field covers requested position");
             require(!complete(host, queued(host, "lbc.cast", arc, vector(origin), vector(aim))).getAsBoolean(),
@@ -282,6 +307,55 @@ final class GenieWorldChecks {
         } finally {
             base.removeFields();
             rockets.stop();
+        }
+    }
+
+    private static void targetedHedgehogs(GameController game, WoolBucketChecks.Fixture base, Vec3 target) {
+        var service = game.items().hedgehog();
+        var initial = service.views().stream().map(LbcHedgehog.View::entity).collect(java.util.stream.Collectors.toSet());
+        var modes = java.util.Map.of(
+                GenieNative.TargetedCast.HEDGEHOG, LbcHedgehog.Kind.ORDINARY,
+                GenieNative.TargetedCast.HEDGEHOG_STANDARD, LbcHedgehog.Kind.DEFAULT,
+                GenieNative.TargetedCast.HEDGEHOG_HEALER, LbcHedgehog.Kind.HEALER,
+                GenieNative.TargetedCast.HEDGEHOG_TANK, LbcHedgehog.Kind.TANK,
+                GenieNative.TargetedCast.HEDGEHOG_SNIPER, LbcHedgehog.Kind.SNIPER,
+                GenieNative.TargetedCast.HEDGEHOG_LASER, LbcHedgehog.Kind.LASER);
+        try (var host = new GenieWorldHost(game, base.owner, new ItemStack(Items.STICK), () -> true, () -> 0)) {
+            var sniper = new JsonPrimitive(GenieNative.TargetedCast.HEDGEHOG_SNIPER.id.toString());
+            base.field(false, target);
+            require(!complete(host, queued(host, "lbc.cast_at", sniper, vector(target))).getAsBoolean(),
+                    "normal antimagic denies a magic summon");
+            base.removeFields();
+            var cell = BlockPos.containing(target);
+            base.set(cell, Blocks.STONE.defaultBlockState());
+            require(!complete(host, queued(host, "lbc.cast_at", sniper, vector(target))).getAsBoolean()
+                    && service.views().stream().allMatch(view -> initial.contains(view.entity())),
+                    "no summon is admitted inside a solid block");
+            base.set(cell, Blocks.AIR.defaultBlockState());
+            for (var mode : modes.entrySet()) {
+                require(complete(host, queued(host, "lbc.cast_at", new JsonPrimitive(mode.getKey().id.toString()),
+                        vector(target))).getAsBoolean(), "native helper accepted: " + mode.getKey());
+                var view = service.views().stream().filter(v -> !initial.contains(v.entity()))
+                        .filter(v -> base.level.getEntity(v.entity()) != null).findFirst().orElseThrow();
+                require(view.kind() == mode.getValue() && view.owner().equals(base.owner.getUUID())
+                        && view.point().equals(target), "native helper keeps exact variant, owner and target");
+                base.discard(base.level.getEntity(view.entity()));
+            }
+            for (var pos : BlockPos.betweenClosed(cell.offset(-3, 0, -3), cell.offset(3, 2, 3)))
+                base.set(pos.immutable(), Blocks.AIR.defaultBlockState());
+            var wall = new JsonPrimitive(GenieNative.TargetedCast.HEDGEHOG_WALL.id.toString());
+            require(complete(host, queued(host, "lbc.cast_at", wall, vector(target))).getAsBoolean(),
+                    "native Hedgehog Wall accepted");
+            var towers = service.views().stream().filter(v -> !initial.contains(v.entity()))
+                    .filter(v -> base.level.getEntity(v.entity()) != null).toList();
+            require(towers.size() == 65 && towers.stream().filter(LbcHedgehog.View::passenger).count() == 60
+                    && towers.stream().allMatch(v -> v.kind() == LbcHedgehog.Kind.WALL && v.owner().equals(base.owner.getUUID())),
+                    "native Hedgehog Wall keeps all five towers and contextual ownership");
+        } finally {
+            base.removeFields();
+            for (var view : service.views()) {
+                if (!initial.contains(view.entity())) base.discard(base.level.getEntity(view.entity()));
+            }
         }
     }
 
@@ -345,6 +419,7 @@ final class GenieWorldChecks {
 
             directedCasts(game, base, launchSpot.add(0, .65, 0));
             targetedOreshnik(game, base, launchSpot);
+            targetedHedgehogs(game, base, launchSpot);
 
             require(GenieNative.grimoires().containsKey(net.minecraft.resources.Identifier.parse("skywars2:tesla_instant_grimoire")),"real Tesla grimoire is indexed by the engine");
             var oldSpeed=base.owner.getEffect(MobEffects.SPEED);

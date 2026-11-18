@@ -36,7 +36,7 @@ import java.util.Map;
 public final class OriginalGuiDesign {
     private static final Logger LOGGER = LoggerFactory.getLogger(OriginalGuiDesign.class);
     private static final String DESIGN_RESOURCE = "/skywars2/gui_design.json";
-    private static JsonObject design;
+    private static volatile JsonObject design;
     private static Map<String, JsonObject> sourceBindings;
     private static Map<String, Component> sourceMapNames;
     private static Map<String, JsonObject> sourceSlots;
@@ -200,17 +200,53 @@ public final class OriginalGuiDesign {
         return name == null ? null : name.copy();
     }
 
+    record LoadoutText(String menuTable, List<String> names, List<String> lore) {}
+
+    static LoadoutText loadoutText(int page, int slot) {
+        design();
+        var entry = sourceSlots.get("lbc:" + page + ":" + slot);
+        if (entry == null) return new LoadoutText(null, List.of(), List.of());
+        for (var element : entry.getAsJsonArray("sources")) {
+            var source = element.getAsJsonObject();
+            if (!source.has("sourceLootTable")) continue;
+            String table = source.get("sourceLootTable").getAsString();
+            var binding = sourceBindings.get(table);
+            if (binding == null) return new LoadoutText(table, List.of(), List.of());
+            return new LoadoutText(table, translationKeys(binding, "name"), translationKeys(binding, "lore"));
+        }
+        return new LoadoutText(null, List.of(), List.of());
+    }
+
+    private static List<String> translationKeys(JsonObject binding, String field) {
+        var lines = binding.getAsJsonArray(field);
+        if (lines == null) return List.of();
+        var keys = new ArrayList<String>();
+        for (var line : lines) {
+            var literals = new ArrayList<JsonObject>();
+            for (var term : line.getAsJsonObject().getAsJsonArray("terms")) {
+                if (term.getAsJsonObject().get("literalComponent") instanceof JsonObject literal)
+                    literals.add(literal);
+            }
+            // Pick and win counters are per-player UI data and do not describe the loadout.
+            if (literals.stream().anyMatch(part -> part.has("storage"))) continue;
+            for (var literal : literals) {
+                if (literal.has("translate")) keys.add(literal.get("translate").getAsString());
+            }
+        }
+        return List.copyOf(keys);
+    }
+
     private static JsonObject design() {
         if (design != null) return design;
         synchronized (OriginalGuiDesign.class) {
             if (design != null) return design;
             try (InputStream input = OriginalGuiDesign.class.getResourceAsStream(DESIGN_RESOURCE)) {
                 if (input == null) throw failure("Missing prepared GUI design resource " + DESIGN_RESOURCE);
-                design = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
-                sourceBindings = loadSourceBindings(design);
-                sourceMapNames = loadSourceMapNames(design);
+                var loaded = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
+                sourceBindings = loadSourceBindings(loaded);
+                sourceMapNames = loadSourceMapNames(loaded);
                 Map<String, JsonObject> slots = new HashMap<>();
-                for (var pageElement : design.getAsJsonArray("pages")) {
+                for (var pageElement : loaded.getAsJsonArray("pages")) {
                     var page = pageElement.getAsJsonObject();
                     for (var slotElement : page.getAsJsonArray("slots")) {
                         var slot = slotElement.getAsJsonObject();
@@ -219,7 +255,8 @@ public final class OriginalGuiDesign {
                     }
                 }
                 sourceSlots = Map.copyOf(slots);
-                return design;
+                design = loaded;
+                return loaded;
             } catch (RuntimeException e) {
                 LOGGER.error("Could not load prepared GUI design", e);
                 throw e;
