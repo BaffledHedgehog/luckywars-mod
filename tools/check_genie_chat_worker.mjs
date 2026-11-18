@@ -5,7 +5,8 @@ const request = { adapter: '({})', files: ['E:/paired test/verify_genie_program.
     prompt: 'Player text with a second line:\nclick ignored and "quotes"' };
 const fresh = { url: 'https://chatgpt.com/', exactModel: true, chat: 'true', work: 'false', generating: false, replies: [] };
 const conversation = 'https://chatgpt.com/c/owned-wish';
-const reply = JSON.stringify({ unicode: 'русский текст 🌠'.repeat(4500) });
+const receipt = { ok: true, verifier: 'luckywars-script-1.1.0', program_sha256: 'program', contract_sha256: 'contract' };
+const reply = JSON.stringify({ decision: 'grant', program: { unicode: 'русский текст 🌠'.repeat(4500) }, receipt });
 
 let tick = 0;
 let opened = false;
@@ -33,14 +34,28 @@ const browser = async command => {
         const offsets = command.match(/text\.slice\((\d+),(\d+)\)/).slice(1).map(Number);
         return JSON.stringify({ url: conversation, message: 'assistant-1', length: reply.length, text: reply.slice(...offsets) });
     }
-    return JSON.stringify({ ...fresh, url: conversation, replies: [{ message: 'assistant-1', length: reply.length }], executions: [{ ok: true }] });
+    return JSON.stringify({ ...fresh, url: conversation, generating: true,
+        replies: [{ message: 'assistant-1', length: reply.length, closed: true }], executions: [receipt] });
 };
 const timing = { clock: () => tick, pause: async milliseconds => { tick += milliseconds; }, timeout: 10_000, reloadAfter: 3_000, interval: 1_000 };
 const verified = await runWish(browser, request, undefined, timing);
 assert.equal(verified.reply, reply);
-assert.deepEqual(verified.executions, [{ ok: true }]);
+assert.deepEqual(verified.executions, [receipt]);
 assert.equal(calls.filter(call => call.startsWith('click ')).length, 1);
 assert.equal(calls.at(-1), 'tab close 18');
+
+let polls = 0;
+sent = false;
+tick = 0;
+await runWish(async command => {
+    if (command === 'reload') throw new Error('ready reply must not reload');
+    if (!sent || command.includes('text.slice') || command.startsWith('tab close ')) return browser(command);
+    return JSON.stringify({ ...fresh, url: conversation, generating: true,
+        replies: [{ message: 'assistant-1', length: reply.length, closed: true }],
+        executions: ++polls === 1 ? [{ ...receipt, program_sha256: 'wrong' }] : [receipt] });
+}, request, undefined, timing);
+assert.equal(polls, 2, 'wait for the matching witness even with the final JSON already visible');
+assert.ok(tick < timing.reloadAfter);
 
 const wrongPage = [];
 await assert.rejects(runWish(async command => {
@@ -52,4 +67,4 @@ await assert.rejects(runWish(async command => {
 assert.ok(!wrongPage.some(call => /^(upload|fill|click) /.test(call)));
 assert.equal(wrongPage.at(-1), 'tab close 19');
 
-console.log('GENIE_CHAT_WORKER_PASS fresh route, literal prompt, upload-before-submit, one submit, bounded reload and sliced reply');
+console.log('GENIE_CHAT_WORKER_PASS fresh route, one submit, matching witness, early reply, bounded reload and sliced reply');

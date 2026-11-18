@@ -27,12 +27,22 @@ function evaluation(output) {
     return JSON.parse(json);
 }
 
+function readyReply(text, executions) {
+    let reply;
+    try { reply = JSON.parse(text); } catch { return false; }
+    if (reply?.decision === 'reject') return Object.keys(reply).length === 1;
+    if (reply?.decision !== 'grant' || !reply.receipt || !reply.program) return false;
+    const fields = Object.keys(reply.receipt);
+    return executions.some(receipt => fields.length === Object.keys(receipt).length
+        && fields.every(key => Object.hasOwn(receipt, key) && receipt[key] === reply.receipt[key]));
+}
+
 export async function runWish(browser, request, signal, timing = {}) {
     const clock = timing.clock ?? Date.now;
     const pause = timing.pause ?? (milliseconds => sleep(milliseconds, undefined, { signal }));
     const deadline = clock() + (timing.timeout ?? 210_000);
     const pageSource = request.adapter.replace(/\/\*[\s\S]*?\*\//g, '').trim().replace(/\r?\n/g, ' ');
-    const projection = `p=>({...p,replies:p.replies?.map(r=>({message:r.message,length:r.text.length})),executions:p.executions?.filter(r=>r?.ok===true&&typeof r.verifier==='string'&&typeof r.program_sha256==='string'&&typeof r.contract_sha256==='string'&&JSON.stringify(r).length<700).slice(-32)})`;
+    const projection = `p=>({...p,replies:p.replies?.slice(-1).map(r=>({message:r.message,length:r.text.length,closed:r.text.trimEnd().endsWith('}')})),executions:p.executions?.filter(r=>r?.ok===true&&typeof r.verifier==='string'&&typeof r.program_sha256==='string'&&typeof r.contract_sha256==='string'&&JSON.stringify(r).length<700).slice(-32)})`;
     const step = async (command, stage = command.split(' ', 1)[0]) => {
         signal?.throwIfAborted();
         try { return await browser(command, signal); }
@@ -95,28 +105,31 @@ export async function runWish(browser, request, signal, timing = {}) {
 
         let conversation;
         let reloaded = false;
+        let candidate;
         const submittedAt = clock();
         while (clock() < deadline) {
-            await pause(timing.interval ?? 2000);
+            await pause(timing.interval ?? 750);
             page = await read();
             const current = route(page.url);
             if (conversation && current !== conversation) throw new Error('Chat conversation changed');
             if (current !== '/') conversation = current;
-            if (conversation && !page.generating && page.replies?.length === 1) {
+            if (conversation && page.replies?.[0]?.closed) {
                 const message = page.replies[0];
                 if (message.length > 4_194_304) throw new Error('Chat reply exceeds input bounds');
-                // Responses can exceed an MCP tool read, so retrieve stable slices of the same message.
-                let reply = '';
-                while (reply.length < message.length && clock() < deadline) {
-                    const chunk = await evaluate(`(()=>{const p=${pageSource};const r=p.replies?.[0];return {url:p.url,length:r?.text.length,message:r?.message,text:r?.text.slice(${reply.length},${reply.length + 12000})}})()`);
-                    if (route(chunk.url) !== conversation || chunk.message !== message.message || chunk.length !== message.length || !chunk.text) {
-                        throw new Error('Chat response changed while reading');
+                if (candidate?.message !== message.message || candidate?.reply.length !== message.length) {
+                    // A streaming answer can grow while its slices are being read.
+                    let reply = '';
+                    while (reply.length < message.length && clock() < deadline) {
+                        const chunk = await evaluate(`(()=>{const p=${pageSource};const r=p.replies?.at(-1);return {url:p.url,length:r?.text.length,message:r?.message,text:r?.text.slice(${reply.length},${reply.length + 12000})}})()`);
+                        if (route(chunk.url) !== conversation) throw new Error('Chat conversation changed');
+                        if (chunk.message !== message.message || chunk.length !== message.length || !chunk.text) break;
+                        reply += chunk.text;
                     }
-                    reply += chunk.text;
+                    candidate = reply.length === message.length ? {message: message.message, reply} : undefined;
                 }
-                if (reply.length === message.length && reply.trim().endsWith('}')) {
+                if (candidate && readyReply(candidate.reply, page.executions ?? [])) {
                     completed = true;
-                    return { reply, executions: page.executions ?? [] };
+                    return { reply: candidate.reply, executions: page.executions ?? [] };
                 }
             }
             if (conversation && !reloaded && clock() - submittedAt >= (timing.reloadAfter ?? 50_000)) {

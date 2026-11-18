@@ -61,8 +61,10 @@ final class GenieApiChecks {
                 ClientboundShowDialogPacket.CONTEXT_FREE_STREAM_CODEC.encode(buffer, packet);
                 var dialog = (MultiActionDialog) ClientboundShowDialogPacket.CONTEXT_FREE_STREAM_CODEC.decode(buffer).dialog().value();
                 var inputs = dialog.common().inputs();
-                require(inputs.stream().map(net.minecraft.server.dialog.Input::key).toList()
-                        .equals(java.util.List.of("provider", "base_url", "model", "key")), "wire form includes all provider inputs");
+                var keys = command.endsWith(" api")
+                        ? java.util.List.of("provider", "base_url", "model", "key") : java.util.List.of("cookies");
+                require(inputs.stream().map(net.minecraft.server.dialog.Input::key).toList().equals(keys),
+                        "wire form includes the expected credential inputs");
                 require(inputs.getLast().control() instanceof TextInput key && key.initial().isEmpty(), "key is blank on the wire");
                 return ((CustomAll) dialog.actions().getFirst().action().orElseThrow()).id();
             } finally {
@@ -86,6 +88,8 @@ final class GenieApiChecks {
             require(node != null && !node.canUse(owner.withPermission(PermissionSet.NO_PERMISSIONS)),
                     "command tree denies non-operators");
             game.server().setUsesAuthentication(true);
+            require(!open("sw genie gemini import").equals(open("skywars genie gemini importfile")),
+                    "cookie paste and server file forms have distinct nonces");
             var invalid = open("skywars genie api");
             participants.client.listener.handleCustomClickAction(reply(invalid, "http://example.invalid/v1", "", "synthetic-key"));
             require(!Files.exists(settings), "plaintext API address rejected");

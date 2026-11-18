@@ -10,10 +10,14 @@ import java.util.concurrent.*;
 import me.skywars2.game.genie.*;
 import me.skywars2.game.genie.script.*;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.protocol.common.ClientboundShowDialogPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.network.protocol.game.ServerboundClientTickEndPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.dialog.MultiActionDialog;
+import net.minecraft.server.dialog.body.PlainMessage;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 
@@ -70,6 +74,12 @@ final class GenieLampScriptChecks implements AutoCloseable {
         use();
         var dialog = ((Map<?,?>) WoolBucketChecks.read(service, "dialogs")).get(base.owner.getUUID());
         require(dialog != null, "the native use packet opens the lamp dialog");
+        var shown = base.client.packets().stream().filter(ClientboundShowDialogPacket.class::isInstance)
+                .map(ClientboundShowDialogPacket.class::cast).reduce((first, last) -> last).orElseThrow();
+        require(shown.dialog().value() instanceof MultiActionDialog content && content.actions().size() == 1
+                && content.common().body().getFirst() instanceof PlainMessage warning
+                && warning.contents().getStyle().getColor().equals(net.minecraft.network.chat.TextColor.fromLegacyFormat(ChatFormatting.RED))
+                && warning.contents().getString().lines().count() == 2, "warning is two red lines of plain text");
         String token = (String) WoolBucketChecks.read(dialog, "token");
         var input = new CompoundTag();input.putString("wish", "LuckyWars script lamp witness");
         base.owner.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(

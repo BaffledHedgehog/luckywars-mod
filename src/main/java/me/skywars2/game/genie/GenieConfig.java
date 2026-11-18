@@ -1,6 +1,7 @@
 package me.skywars2.game.genie;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +12,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Objects;
 import me.skywars2.SkyWars2;
 import net.fabricmc.loader.api.FabricLoader;
+import me.skywars2.game.genie.GenieGeminiWebTransport.Cookies;
 
 /** Official server API when configured, with the local browser bridge for existing installations. */
 final class GenieConfig {
@@ -72,15 +74,34 @@ final class GenieConfig {
     static Path apiPath() { return folder().resolve("api.json"); }
 
     static Api readApi(Path path) throws IOException {
+        var data = readConfiguration(path);
+        return data == null ? null : JSON.fromJson(data, Api.class);
+    }
+
+    private static JsonObject readConfiguration(Path path) throws IOException {
         if (!Files.exists(path)) return null;
         try (var input = Files.newInputStream(path)) {
             byte[] data = input.readNBytes(32769);
             if (data.length > 32768) throw new IOException("Genie API configuration is too large");
-            return Objects.requireNonNull(JSON.fromJson(new String(data, StandardCharsets.UTF_8), Api.class));
+            return Objects.requireNonNull(JSON.fromJson(new String(data, StandardCharsets.UTF_8), JsonObject.class));
         }
     }
 
     static void saveApi(Path path, Api settings) throws IOException {
+        saveConfiguration(path, JSON.toJson(settings));
+    }
+
+    static void saveGeminiWeb(Path path, Cookies cookies) throws IOException {
+        var settings = cookies.json();
+        settings.addProperty("provider", "GEMINI_WEB");
+        saveConfiguration(path, JSON.toJson(settings));
+    }
+
+    static GenieGeminiWebTransport geminiWeb(Cookies cookies) {
+        return new GenieGeminiWebTransport(cookies, folder().resolve("requests"));
+    }
+
+    private static void saveConfiguration(Path path, String serialized) throws IOException {
         Files.createDirectories(path.getParent());
         var store = Files.getFileStore(path.getParent());
         Path pending = store.supportsFileAttributeView("posix")
@@ -88,7 +109,7 @@ final class GenieConfig {
                         PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")))
                 : Files.createTempFile(path.getParent(), ".genie-api-", ".tmp");
         try {
-            Files.writeString(pending, JSON.toJson(settings));
+            Files.writeString(pending, serialized);
             Files.move(pending, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
         } finally {
             Files.deleteIfExists(pending);
@@ -97,8 +118,13 @@ final class GenieConfig {
 
     static GenieScriptModel loadScript() {
         try {
-            var settings = readApi(apiPath());
-            if (settings != null) return new GenieScriptModel(settings.transport());
+            var settings = readConfiguration(apiPath());
+            if (settings != null) {
+                if ("GEMINI_WEB".equals(settings.get("provider").getAsString())) {
+                    return new GenieScriptModel(geminiWeb(Cookies.parse(settings.toString())));
+                }
+                return new GenieScriptModel(JSON.fromJson(settings, Api.class).transport());
+            }
         } catch (Exception unreadable) {
             SkyWars2.LOGGER.warn("Genie API configuration could not be loaded");
             return null;

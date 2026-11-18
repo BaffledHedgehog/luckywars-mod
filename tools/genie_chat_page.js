@@ -16,7 +16,7 @@
     };
     const replies = [...main.querySelectorAll('[data-markdown-text-style="assistant-message"]')].map(e => ({
         message: e.closest("[data-response-body]")?.getAttribute("data-response-body") ?? null,
-        text: e.textContent
+        text: e.querySelector?.("pre code")?.textContent ?? e.textContent
     }));
     const executions = [];
     for (const node of main.querySelectorAll("pre.text-execution-output")) {
@@ -39,7 +39,6 @@
         exactModel: /\b5\.6 Medium$/.test(selected),
         chat: mode("Chat"),
         work: mode("Work"),
-        generating: Boolean(main.querySelector('button[aria-label="Stop"]')),
         replies,
         executions
     };

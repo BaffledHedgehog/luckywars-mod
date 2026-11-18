@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.*;
 import net.minecraft.server.dialog.action.CustomAll;
+import net.minecraft.server.dialog.body.PlainMessage;
 import net.minecraft.server.dialog.input.TextInput;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.*;
@@ -63,9 +64,12 @@ public final class GenieService implements AutoCloseable {
         p.level().playSound(null,p.getX(),p.getY(),p.getZ(),Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse("minecraft:lbcsound.djin_says"))),SoundSource.PLAYERS,1,1);
         var input=new Input("wish",new TextInput(360,text("genie.prompt"),true,"",2000,Optional.empty()));
         var send=new ActionButton(new CommonButtonData(text("genie.submit"),150),Optional.of(new CustomAll(Identifier.parse("skywars2:genie/"+session.token),Optional.empty())));
-        var warning=new ActionButton(new CommonButtonData(text("genie.warning").withStyle(ChatFormatting.RED),Optional.of(text("genie.warning").withStyle(ChatFormatting.RED)),360),Optional.empty());
-        var data=new CommonDialogData(text("genie.lamp"),Optional.empty(),true,false,DialogAction.CLOSE,List.of(),List.of(input));
-        p.openDialog(Holder.direct(new MultiActionDialog(data,List.of(warning,send),Optional.empty(),1)));return true;
+        var warning = Component.translatableWithFallback("genie.warning.first", "Если джин сочтёт ваше желание неуважительным,")
+                .append("\n").append(Component.translatableWithFallback("genie.warning.second", "он насрёт вам в карманы."))
+                .withStyle(ChatFormatting.RED);
+        var data=new CommonDialogData(text("genie.lamp"),Optional.empty(),true,false,DialogAction.CLOSE,
+                List.of(new PlainMessage(warning, 360)),List.of(input));
+        p.openDialog(Holder.direct(new MultiActionDialog(data,List.of(send),Optional.empty(),1)));return true;
     }
     public void click(ServerPlayer p,Identifier id,Optional<Tag> payload){
         if (id.getPath().startsWith(GenieApiDialog.PREFIX)) {
