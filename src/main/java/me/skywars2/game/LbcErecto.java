@@ -171,16 +171,24 @@ final class LbcErecto {
         double mechanismDistance=game.items().magic().mechanismSuppressionFraction(trace.level,from,from.add(direction.scale(samples*spacing)))*samples*spacing;
         boolean jammed=false;
         BlockPos struckBlock=null;
-        for(int i=0;i<=samples;i++){
-            Vec3 point=from.add(direction.scale(i*spacing));if(i*spacing>=Math.min(mechanismDistance,shieldDistance)){
-                jammed=mechanismDistance<=shieldDistance;end=jammed?from.add(direction.scale(mechanismDistance)):shield.getLocation();clear=false;break;
-            }
-            var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){clear=false;break;}
-            emitted=true;end=point;
-            if(p.kind!=PHANTOM||trace.level.getRandom().nextFloat()<.2f)particles(trace,point,p.kind==CENTRAL?.03f:.01f,false);
-            var state=trace.level.getBlockState(pos);
-            if (p.kind == PHANTOM ? LbcLuckyBlocks.kind(state) == LbcLuckyBlocks.Kind.LOLI : !state.is(AIRS)) {
-                struckBlock=pos;clear=false;break;
+        int batchSize=game.balanceLegacy()?1:3;
+        try (var dust = new LbcParticleBatch.Group(trace.level,DUST,.1,.1,.1,0,true,.55,batchSize);
+             var spark = new LbcParticleBatch.Group(trace.level,ParticleTypes.ELECTRIC_SPARK,.1,.1,.1,1,false,.55,batchSize)) {
+            for(int i=0;i<=samples;i++){
+                Vec3 point=from.add(direction.scale(i*spacing));if(i*spacing>=Math.min(mechanismDistance,shieldDistance)){
+                    jammed=mechanismDistance<=shieldDistance;end=jammed?from.add(direction.scale(mechanismDistance)):shield.getLocation();clear=false;break;
+                }
+                var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){clear=false;break;}
+                emitted=true;end=point;
+                if(p.kind!=PHANTOM||trace.level.getRandom().nextFloat()<.2f){
+                    dust.add(point);
+                    spark.add(point);
+                    LbcOverload.sound(trace.owner,point,"minecraft:entity.firework_rocket.twinkle",p.kind==CENTRAL?.03f:.01f,2,0);
+                }
+                var state=trace.level.getBlockState(pos);
+                if (p.kind == PHANTOM ? LbcLuckyBlocks.kind(state) == LbcLuckyBlocks.Kind.LOLI : !state.is(AIRS)) {
+                    struckBlock=pos;clear=false;break;
+                }
             }
         }
         var contact = game.items().familyDrops().reactToArc(trace.level, from, end, struckBlock, trace.owner);
@@ -203,11 +211,6 @@ final class LbcErecto {
         }
         return true;
     }
-    private void particles(LbcWands.ElectroTrace t,Vec3 at,float volume,boolean sniper){
-        t.level.sendParticles(sniper?(t.erecto.kind==CROSSBOW?CROSSBOW_DUST:SNIPER_DUST):DUST,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
-        if(!sniper)t.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,at.x,at.y,at.z,1,.1,.1,.1,1);
-        if(volume>0)LbcOverload.sound(t.owner,at,sniper?"minecraft:item.trident.riptide_3":"minecraft:entity.firework_rocket.twinkle",volume,2,0);
-    }
     private static void aim(LbcWands.ElectroTrace t,Vec3 direction){t.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));t.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));}
     private void hurt(LbcWands.ElectroTrace t,Vec3 from,Vec3 to,double spacing,float amount,int limit){
         var damage=new DamageSource(t.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),t.owner);
@@ -229,28 +232,34 @@ final class LbcErecto {
     private boolean sniper(LbcWands.ElectroTrace trace){
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean alive=true,emitted=false;
         double mechanismDistance=game.items().magic().mechanismSuppressionFraction(trace.level,from,from.add(direction.scale(18)))*18;
-        for(int i=0;i<=60;i++){
-            if(i*.3>=mechanismDistance){end=from.add(direction.scale(mechanismDistance));alive=false;break;}
-            Vec3 point=from.add(direction.scale(i*.3));var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){alive=false;break;}
-            emitted=true;end=point;particles(trace,point,trace.level.getRandom().nextBoolean()?.1f:0,true);
-            if((i+1)%12==0){
-                Vec3 right=new Vec3(Math.cos(Math.toRadians(trace.yaw)),0,Math.sin(Math.toRadians(trace.yaw)));
-                for(int sign:new int[]{-1,1}){var at=point.add(right.scale(sign));trace.level.sendParticles(ParticleTypes.SCULK_SOUL,true,false,at.x,at.y,at.z,3,.1,.1,.1,0);}
-            }
-            if(!trace.level.getBlockState(pos).is(AIRS)){
-                if(trace.erecto.kind==CROSSBOW){
-                    if(trace.erecto.ammunition!=null)trace.erecto.ammunition.blockContact(trace.level,point,trace.cause);
-                    var cause=trace.cause;var damage=game.items().indirectKills().captureDamage(trace.level.damageSources().explosion(null,trace.owner),cause);
-                    game.items().indirectKills().trapChanges(trace.level,cause,()->trace.level.explode(null,damage,null,point,20,false,net.minecraft.world.level.Level.ExplosionInteraction.MOB));
-                    continue;
+        var particle=trace.erecto.kind==CROSSBOW?CROSSBOW_DUST:SNIPER_DUST;
+        try (var dust = new LbcParticleBatch.Group(trace.level,particle,.1,.1,.1,0,true,.31,game.balanceLegacy()?1:3)) {
+            for(int i=0;i<=60;i++){
+                if(i*.3>=mechanismDistance){end=from.add(direction.scale(mechanismDistance));alive=false;break;}
+                Vec3 point=from.add(direction.scale(i*.3));var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){alive=false;break;}
+                emitted=true;end=point;
+                dust.add(point);
+                if(trace.level.getRandom().nextBoolean())
+                    LbcOverload.sound(trace.owner,point,"minecraft:item.trident.riptide_3",.1f,2,0);
+                if((i+1)%12==0){
+                    Vec3 right=new Vec3(Math.cos(Math.toRadians(trace.yaw)),0,Math.sin(Math.toRadians(trace.yaw)));
+                    for(int sign:new int[]{-1,1}){var at=point.add(right.scale(sign));trace.level.sendParticles(ParticleTypes.SCULK_SOUL,true,false,at.x,at.y,at.z,3,.1,.1,.1,0);}
                 }
-                impact(trace,point);var p=trace.erecto;
-                if(p.terrainCause==null||!p.terrainCause.player().equals(trace.owner.getUUID()))p.terrainCause=game.items().indirectKills().coldCause(trace.owner,true);
-                game.items().indirectKills().trapChanges(trace.level,p.terrainCause,()->{
-                    for(var block:BlockPos.betweenClosed(BlockPos.containing(point.add(-.5,-.5,-.5)),BlockPos.containing(point.add(.5,.5,.5))))
-                        if(trace.level.hasChunkAt(block)&&!trace.level.getBlockState(block).isAir())trace.level.destroyBlock(block,true,trace.owner);
-                });
-                if(trace.level.getRandom().nextFloat()<.2f){alive=false;break;}
+                if(!trace.level.getBlockState(pos).is(AIRS)){
+                    if(trace.erecto.kind==CROSSBOW){
+                        if(trace.erecto.ammunition!=null)trace.erecto.ammunition.blockContact(trace.level,point,trace.cause);
+                        var cause=trace.cause;var damage=game.items().indirectKills().captureDamage(trace.level.damageSources().explosion(null,trace.owner),cause);
+                        game.items().indirectKills().trapChanges(trace.level,cause,()->trace.level.explode(null,damage,null,point,20,false,net.minecraft.world.level.Level.ExplosionInteraction.MOB));
+                        continue;
+                    }
+                    impact(trace,point);var p=trace.erecto;
+                    if(p.terrainCause==null||!p.terrainCause.player().equals(trace.owner.getUUID()))p.terrainCause=game.items().indirectKills().coldCause(trace.owner,true);
+                    game.items().indirectKills().trapChanges(trace.level,p.terrainCause,()->{
+                        for(var block:BlockPos.betweenClosed(BlockPos.containing(point.add(-.5,-.5,-.5)),BlockPos.containing(point.add(.5,.5,.5))))
+                            if(trace.level.hasChunkAt(block)&&!trace.level.getBlockState(block).isAir())trace.level.destroyBlock(block,true,trace.owner);
+                    });
+                    if(trace.level.getRandom().nextFloat()<.2f){alive=false;break;}
+                }
             }
         }
         if(emitted&&trace.erecto.kind==CROSSBOW){

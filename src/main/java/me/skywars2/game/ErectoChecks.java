@@ -3,8 +3,14 @@ package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
@@ -66,6 +72,31 @@ public final class ErectoChecks {
 
         List<LbcWands.ElectroTrace> traces(){return game.items().wands().electroSnapshot().stream().filter(t->t.erecto!=null&&t.erecto.caster==owner&&t.age<t.lifetime).toList();}
         void clearTraces(){for(var t:traces())t.age=t.lifetime;game.items().wands().tick();}
+        List<ClientboundLevelParticlesPacket> advanceWithParticles(){
+            var original=owner.connection;
+            var recording=new ElementalGrimoireChecks.Recording(owner);
+            owner.connection=new ServerGamePacketListenerImpl(game.server(),recording,owner,
+                    new CommonListenerCookie(owner.getGameProfile(),0,owner.clientInformation(),false));
+            try {
+                owner.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
+                recording.packets.clear();
+                game.items().wands().tick();
+                return recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                        .map(ClientboundLevelParticlesPacket.class::cast).toList();
+            } finally {
+                owner.connection=original;
+            }
+        }
+        void assertParticles(List<ClientboundLevelParticlesPacket> packets,ParticleType<?> type,
+                int expectedPackets,int expectedParticles,float speed,boolean force){
+            var trail=packets.stream().filter(p->p.particle().getType()==type).toList();
+            int count=trail.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
+            require(trail.size()==expectedPackets&&count==expectedParticles
+                            &&trail.stream().allMatch(p->p.overrideLimiter()==force&&p.xMaxSpeed()==speed
+                                    &&p.yMaxSpeed()==speed&&p.zMaxSpeed()==speed),
+                    type+" retains particle count, settings and speed: "+trail.size()+" packets, "+count+" particles");
+        }
+        int groupedCount(int samples){return game.balanceLegacy()?samples:(samples+2)/3;}
         static final class ProbeCow extends Cow {
             int direct;boolean reject;ProbeCow(net.minecraft.server.level.ServerLevel l){super(EntityTypes.COW,l);}
             @Override public boolean hurtServer(net.minecraft.server.level.ServerLevel l,net.minecraft.world.damagesource.DamageSource s,float n){if(s.is(LbcDamage.ELECTRO_BOLT)){direct++;if(reject)return false;}return super.hurtServer(l,s,n);}
@@ -88,7 +119,11 @@ public final class ErectoChecks {
         }
         void geometry(){
             var point=at.add(0,4,12);var friend=cow(point.add(0,-.6,1));friend.getAttribute(Attributes.SCALE).setBaseValue(2);friend.refreshDimensions();game.server().getScoreboard().addPlayerToTeam(friend.getScoreboardName(),team);other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);other.setHealth(1000);other.setAbsorptionAmount(0);other.teleportTo(other.level(),point.x,point.y-.6,point.z+1,Set.of(),0,0,true);
-            require(use(loot("erecto_wand"),InteractionHand.OFF_HAND),"actual offhand ordinary cast");var center=traces().stream().filter(t->t.erecto.kind==LbcErecto.CENTRAL).findFirst().orElseThrow();for(var t:traces())if(t!=center)t.age=t.lifetime;center.position=point;center.yaw=0;center.pitch=0;game.items().wands().tick();require(Math.abs(center.position.distanceTo(point)-2)<1e-6&&friend.getHealth()<1000&&friend.direct>=2&&friend.getKillCredit()==owner&&other.getHealth()==1000,"central moves2 each tick, repeated native hits credit owner; friendly mob hit, allied player protected: movement="+center.position.distanceTo(point)+" hp="+friend.getHealth()+" calls="+friend.direct+" credit="+(friend.getKillCredit()==owner)+" allyHp="+other.getHealth());
+            require(use(loot("erecto_wand"),InteractionHand.OFF_HAND),"actual offhand ordinary cast");var center=traces().stream().filter(t->t.erecto.kind==LbcErecto.CENTRAL).findFirst().orElseThrow();for(var t:traces())if(t!=center)t.age=t.lifetime;center.position=point;center.yaw=0;center.pitch=0;
+            var particles=advanceWithParticles();
+            assertParticles(particles,ParticleTypes.DUST_COLOR_TRANSITION,groupedCount(5),5,0,true);
+            assertParticles(particles,ParticleTypes.ELECTRIC_SPARK,groupedCount(5),5,1,false);
+            require(Math.abs(center.position.distanceTo(point)-2)<1e-6&&friend.getHealth()<1000&&friend.direct>=2&&friend.getKillCredit()==owner&&other.getHealth()==1000,"central moves2 each tick, repeated native hits credit owner; friendly mob hit, allied player protected: movement="+center.position.distanceTo(point)+" hp="+friend.getHealth()+" calls="+friend.direct+" credit="+(friend.getKillCredit()==owner)+" allyHp="+other.getHealth());
             game.items().wands().reflectElectro(other);require(center.owner==other,"higher electric arc reflection changes owner");center.owner=owner;clearTraces();friend.discard();
             var iron=BlockPos.containing(point.add(0,0,10));block(iron,Blocks.IRON_BLOCK);var victim=cow(Vec3.atLowerCornerOf(iron).add(4,0,0));game.server().getScoreboard().addPlayerToTeam(victim.getScoreboardName(),team);var technical=cow(Vec3.atLowerCornerOf(iron).add(-4,0,0));technical.entityTags().add("strict_map_object");other.teleportTo(other.level(),iron.getX()+3,iron.getY(),iron.getZ(),Set.of(),0,0,true);other.setHealth(1000);
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);require(use(loot("erecto_wand"),InteractionHand.MAIN_HAND),"conductor cast");center=traces().stream().filter(t->t.erecto.kind==LbcErecto.CENTRAL).findFirst().orElseThrow();for(var t:traces())if(t!=center)t.age=t.lifetime;center.position=Vec3.atCenterOf(iron);center.yaw=0;center.pitch=0;game.items().wands().tick();require(victim.getHealth()==992&&victim.getKillCredit()==owner&&other.getHealth()==1000&&technical.getHealth()==1000&&!traces().contains(center),"first conductive wall8 damage radius15, owner credit and role/player protection");clearTraces();victim.discard();technical.discard();other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);
@@ -104,7 +139,13 @@ public final class ErectoChecks {
         void sniper(){
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);owner.setXRot(0);owner.setYRot(0);var s=loot("academy_erecto_wand");flag(s,"mode",4);game.items().mana().set(owner,1100);double movement=owner.getAttributeValue(Attributes.MOVEMENT_SPEED);require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==-3900,"source1100 admission/5000 actual cost");var shot=traces().getFirst();require(shot.erecto.kind==LbcErecto.SNIPER&&shot.pitch==0&&owner.getXRot()==-15&&game.items().erecto().sniperWindupTicks(owner)==20&&owner.getAttributeValue(Attributes.MOVEMENT_SPEED)==0&&!owner.hasEffect(MobEffects.SLOWNESS),"sniper heading precedes native recoil and safe20tick zero movement without negative speed");
             CombatVisualChecks.movementPacket(owner,0);for(int i=0;i<19;i++)game.items().erecto().tick();require(owner.getAttributeValue(Attributes.MOVEMENT_SPEED)==0&&game.items().erecto().sniperWindupTicks(owner)==1,"safe sniper windup lasts19 active boundaries");game.items().erecto().tick();require(game.items().erecto().sniperWindupTicks(owner)==0&&Math.abs(owner.getAttributeValue(Attributes.MOVEMENT_SPEED)-movement)<1e-9,"20th active boundary restores prior movement attribute");CombatVisualChecks.movementPacket(owner,movement);for(var t:traces())if(t!=shot)t.age=t.lifetime;
-            var start=at.add(0,5,35);var victim=cow(start.add(0,-.6,2));shot.position=start;shot.yaw=0;shot.pitch=0;game.items().wands().tick();require(Math.abs(shot.position.distanceTo(start)-18)<1e-6&&victim.getHealth()<1000&&victim.getKillCredit()==owner,"sniper advances18 each tick and owns repeated20 hits");victim.discard();clearTraces();
+            var start=at.add(0,5,35);var victim=cow(start.add(0,-.6,2));shot.position=start;shot.yaw=0;shot.pitch=0;
+            var particles=advanceWithParticles();
+            assertParticles(particles,ParticleTypes.DUST_COLOR_TRANSITION,groupedCount(61),61,0,true);
+            assertParticles(particles,ParticleTypes.SCULK_SOUL,10,30,0,true);
+            SkyWars2.LOGGER.info("[check] Erecto packets: central {} for 10 particles, sniper {} for 91 particles",
+                    2*groupedCount(5),groupedCount(61)+10);
+            require(Math.abs(shot.position.distanceTo(start)-18)<1e-6&&victim.getHealth()<1000&&victim.getKillCredit()==owner,"sniper advances18 each tick and owns repeated20 hits");victim.discard();clearTraces();
             boolean stopped=false,continued=false;var wall=BlockPos.containing(start);
             for(int seed=0;seed<64&&!(stopped&&continued);seed++){
                 block(wall,Blocks.STONE);owner.setXRot(0);game.items().mana().set(owner,1100);require(use(s,InteractionHand.MAIN_HAND),"repeat native sniper for collision branch");shot=traces().getFirst();shot.position=Vec3.atCenterOf(wall);shot.yaw=0;shot.pitch=0;owner.level().getRandom().setSeed(seed);game.items().wands().tick();boolean alive=traces().contains(shot);continued|=alive;stopped|=!alive;require(owner.level().getBlockState(wall).isAir(),"sniper removes collision blocks even on final impact");clearTraces();
