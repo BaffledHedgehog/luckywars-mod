@@ -9199,7 +9199,7 @@ public final class GameChecks {
                                 try { require(!castExahomingAndDrain(game,owner,net.minecraft.world.InteractionHand.MAIN_HAND)
                                                 && mana.get(owner)==cost && service.count()==0,"Stopped caster cannot cast homing family"); }
                                 finally { owner.entityTags().remove("time_stopped"); }
-                                require(castExahomingAndDrain(game,owner,net.minecraft.world.InteractionHand.MAIN_HAND)
+                                require(checkExahomingCastParticles(game,owner,base,donor)
                                                 && mana.get(owner)==0,"Homing family pays its source cost exactly once");
                                 var shots=service.snapshot();
                                 require(shots.size()==(donor?14:10),"One terminal produces exactly one source fireball formation");
@@ -9323,6 +9323,54 @@ public final class GameChecks {
                         game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
                         owner.setShiftKeyDown(oldShift); other.setShiftKeyDown(otherShift); game.config().offhandWands=oldOffhand;
                         state.restore(game); otherState.restore(game);
+                }
+        }
+
+        private static boolean checkExahomingCastParticles(GameController game,ServerPlayer owner,
+                        net.minecraft.core.BlockPos block,boolean donor) {
+                var original=owner.connection;
+                var recording=new ElementalGrimoireChecks.Recording(owner);
+                owner.connection=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),recording,owner,
+                                new CommonListenerCookie(owner.getGameProfile(),0,owner.clientInformation(),false));
+                try {
+                        owner.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
+                        recording.packets.clear();
+                        if(!castExahomingAndDrain(game,owner,net.minecraft.world.InteractionHand.MAIN_HAND))return false;
+                        var packets=recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                                        .map(ClientboundLevelParticlesPacket.class::cast).toList();
+                        var trail=packets.stream().filter(p->p.particle().getType()==net.minecraft.core.particles.ParticleTypes.FIREWORK
+                                        &&p.count()<=6&&p.overrideLimiter()!=donor).toList();
+                        boolean legacy=game.balanceLegacy();
+                        int trailPoints=donor?6:3;
+                        require(trail.size()==(legacy?trailPoints:trailPoints/3)
+                                        &&trail.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum()==trailPoints*2
+                                        &&trail.stream().allMatch(p->p.xMaxSpeed()==0&&p.yMaxSpeed()==0&&p.zMaxSpeed()==0),
+                                        "Source cast keeps every firework particle and correct admission: "+trail);
+                        if(donor)return true;
+                        double y=block.getY()+11;
+                        var dust=packets.stream().filter(p->p.particle().getType()==net.minecraft.core.particles.ParticleTypes.DUST
+                                        &&Math.abs(p.y()-y)<1e-7).toList();
+                        int perPacket=legacy?1:3;
+                        require(dust.size()==180/perPacket
+                                        &&dust.stream().allMatch(p->p.count()==perPacket&&p.overrideLimiter()&&p.yDist()==0),
+                                        "The seal keeps 180 forced black dust particles in its original plane: "+dust.size());
+                        // The last packet on each arm contains only the perpendicular leg.
+                        // An accidental batch spanning the turn would shift its centroid.
+                        int[] directions={0,30,60,90,120,150,180,210,240,270,300,320};
+                        var center=new Vec3(block.getX()+.5,y,block.getZ()+.5);
+                        for(int i=0;i<directions.length;i++){
+                                double yaw=Math.toRadians(directions[i]),side=legacy?1.5:1;
+                                var packet=dust.get((i+1)*15/perPacket-1);
+                                var expected=center.add(-5.5*Math.sin(yaw)-side*Math.cos(yaw),0,
+                                                5.5*Math.cos(yaw)-side*Math.sin(yaw));
+                                require(new Vec3(packet.x(),packet.y(),packet.z()).distanceToSqr(expected)<1e-10,
+                                                "Seal arm "+i+" keeps its right-angle turn");
+                        }
+                        SkyWars2.LOGGER.info("[check] Exahoming particles: seal {} packets for 180 particles, cast trail {} for {}",
+                                        dust.size(),trail.size(),trailPoints*2);
+                        return true;
+                } finally {
+                        owner.connection=original;
                 }
         }
 

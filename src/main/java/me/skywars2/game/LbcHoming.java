@@ -286,14 +286,17 @@ public final class LbcHoming {
     }
     private void figure(ServerPlayer owner,Vec3 point) {
         int[] angles={0,30,60,90,120,150,180,210,240,270,300,320};
-        for(int angle:angles) {
-            double yaw=Math.toRadians(angle);
-            Vec3 forward=new Vec3(-Math.sin(yaw),0,Math.cos(yaw));
-            Vec3 side=new Vec3(-Math.cos(yaw),0,-Math.sin(yaw));
-            for(int i=0;i<15;i++) {
-                Vec3 p=i<12?point.add(forward.scale(i*.5)):
-                        point.add(forward.scale(5.5)).add(side.scale((i-11)*.5));
-                owner.level().sendParticles(BLACK,true,false,p.x,p.y,p.z,1,0,0,0,0);
+        try (var particles = new LbcParticleBatch.Group(owner.level(), BLACK, 0, 0, 0, 0, true, .51,
+                game.balanceLegacy() ? 1 : 3)) {
+            for (int angle : angles) {
+                double yaw=Math.toRadians(angle);
+                Vec3 forward=new Vec3(-Math.sin(yaw),0,Math.cos(yaw));
+                Vec3 side=new Vec3(-Math.cos(yaw),0,-Math.sin(yaw));
+                for (int i=0; i<12; i++) particles.add(point.add(forward.scale(i*.5)));
+                particles.flush();
+                Vec3 corner=point.add(forward.scale(5.5));
+                for (int i=1; i<=3; i++) particles.add(corner.add(side.scale(i*.5)));
+                particles.flush();
             }
         }
     }
@@ -556,9 +559,9 @@ public final class LbcHoming {
 
     private void trail(ServerPlayer owner,Vec3 from,Vec3 to,double step,boolean force) {
         Vec3 delta=to.subtract(from); double length=delta.length();
-        for(double d=0;d<length;d+=step) {
-            Vec3 p=from.add(delta.scale(d/length));
-            owner.level().sendParticles(ParticleTypes.FIREWORK,force,false,p.x,p.y,p.z,2,.5,.5,.5,0);
+        try (var particles = new LbcParticleBatch.Group(owner.level(), ParticleTypes.FIREWORK, .5, .5, .5, 0,
+                force, step+1e-6, game.balanceLegacy() ? 1 : 3)) {
+            for (double d=0; d<length; d+=step) particles.add(from.add(delta.scale(d/length)), 2);
         }
     }
     private void tickCurses() {
