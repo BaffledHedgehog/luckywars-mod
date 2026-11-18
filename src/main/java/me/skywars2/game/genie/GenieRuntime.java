@@ -113,12 +113,20 @@ public final class GenieRuntime {
     public boolean admitted(ServerPlayer owner){return game.playing()&&!game.balanceLegacy()&&!game.isObserver(owner)&&owner.isAlive()
             &&game.canUseGameplayItems(owner)&&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner);}
     public void input(ServerPlayer owner,LbcTmtTriggers.Input input,Entity target){
+        if (!scripts.hasPendingRestore() && !hasInputSource(owner, input)) return;
         scripts.input(owner,input,target);
         Trigger trigger=switch(input){case RIGHT_CLICK,BLOCK_USE -> Trigger.USE;case HURT -> Trigger.HURT;case JUMP -> Trigger.JUMP;
             case SPRINT -> Trigger.SPRINT;case TICK -> Trigger.TICK;
             // These events have an exact captured native source, including its final consumed/broken item.
             case SHOT,EAT,MINING,HIT -> null;default -> null;};
         if(trigger!=null)legacyEvent(owner,trigger,target,null,null);
+    }
+    private static boolean hasInputSource(ServerPlayer owner, LbcTmtTriggers.Input input) {
+        if (matches(owner.getMainHandItem()) || matches(owner.getOffhandItem())) return true;
+        if (input != LbcTmtTriggers.Input.TICK && input != LbcTmtTriggers.Input.HURT
+                && input != LbcTmtTriggers.Input.JUMP && input != LbcTmtTriggers.Input.SPRINT) return false;
+        return matches(owner.getItemBySlot(EquipmentSlot.HEAD)) || matches(owner.getItemBySlot(EquipmentSlot.CHEST))
+                || matches(owner.getItemBySlot(EquipmentSlot.LEGS)) || matches(owner.getItemBySlot(EquipmentSlot.FEET));
     }
     /** Captured source survives the last consumable/shot/break without becoming a held replacement. */
     public void event(ServerPlayer owner,Trigger trigger,Entity target,ItemStack captured){event(owner,trigger,target,captured,null);}

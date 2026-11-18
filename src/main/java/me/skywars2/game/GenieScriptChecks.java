@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
@@ -19,6 +20,7 @@ final class GenieScriptChecks implements AutoCloseable {
     private final GenieScriptRuntime runtime;
     private final CompletableFuture<ScriptRepository.Loaded> prepared;
     private final CompletableFuture<ScriptRepository.Loaded> preparedFairness;
+    private final CompletableFuture<ScriptRepository.Loaded> preparedPassive;
     private final GenieScriptRuntime fairness;
     private final BlockPos marker;
     private ItemStack original,clone;
@@ -36,6 +38,10 @@ final class GenieScriptChecks implements AutoCloseable {
             ["const",8],["wait"],["const",%s],["call","world.command",1],["return"]]}}}
             """.formatted(new com.google.gson.JsonPrimitive(command));
         prepared=runtime.prepare(source);when=game.server().getTickCount();
+        preparedPassive = runtime.prepare("""
+            {"version":1,"state":{"counter":0},"handlers":{"TICK":"main"},"functions":{"main":{"parameters":["event"],"code":[
+            ["load","state"],["const","counter"],["load","state"],["const","counter"],["get"],["const",1],["add"],["put"],["return"]]}}}
+            """);
         fairness=new GenieScriptRuntime(game,32,100_000_000L);
         preparedFairness=fairness.prepare("""
             {"version":1,"state":{"counter":0},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
@@ -127,11 +133,42 @@ final class GenieScriptChecks implements AutoCloseable {
             next(8);return false;
         }
         if(phase==8){
-            if(game.server().getTickCount()-when<5)return false;
+            if (game.server().getTickCount() - when < 5 || !preparedPassive.isDone()) return false;
             require(count(original)==6&&count(clone)==4,"native use-on-block invokes the generic USE handler once even though the block event is also emitted");
+            checkPassiveInput();
             runtime.forget(base.owner);return true;
         }
         throw new IllegalStateException("unknown script check phase");
     }
+    private void checkPassiveInput() {
+        var owner = base.owner;
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var head = owner.getItemBySlot(EquipmentSlot.HEAD);
+        var stored = owner.getInventory().getItem(10);
+        var passive = GenieScriptItem.construct(preparedPassive.join(), "iron_helmet", "Passive script", "Native tick input.", 1);
+        var backpackCopy = passive.copy();
+        try {
+            owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STICK));
+            owner.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+            owner.setItemSlot(EquipmentSlot.HEAD, passive);
+            owner.getInventory().setItem(10, backpackCopy);
+            LbcTmtTriggers.input(owner, LbcTmtTriggers.Input.TICK);
+            runtime.tick();
+            require(count(passive) == 1 && count(backpackCopy) == 0, "the equipped-only Genie receives TICK; the inventory copy stays idle");
+
+            owner.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+            owner.setItemInHand(InteractionHand.OFF_HAND, passive);
+            LbcTmtTriggers.input(owner, LbcTmtTriggers.Input.TICK);
+            runtime.tick();
+            require(count(passive) == 2 && count(backpackCopy) == 0, "an offhand-only Genie receives TICK after moving off the armor slot");
+        } finally {
+            owner.setItemSlot(EquipmentSlot.HEAD, head);
+            owner.setItemInHand(InteractionHand.MAIN_HAND, main);
+            owner.setItemInHand(InteractionHand.OFF_HAND, off);
+            owner.getInventory().setItem(10, stored);
+        }
+    }
+
     @Override public void close(){fairness.close();}
 }

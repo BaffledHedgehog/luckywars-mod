@@ -176,6 +176,8 @@ public final class GenieScriptRuntime implements AutoCloseable {
         return new Event(event.name, graph.copy(event.data).getAsJsonObject(), event.captured.copy());
     }
 
+    boolean hasPendingRestore() { return !pendingRestore.isEmpty(); }
+
     private void restorePending(UUID ownerId) {
         if (pendingRestore.isEmpty()) return;
         for (var iterator = pendingRestore.iterator(); iterator.hasNext();) {
