@@ -171,15 +171,16 @@ public final class LbcBlaze {
     }
     void turret(ServerPlayer owner,int cost) {
         checkpointCallbacks++;try {
-            Vec3 from=owner.getEyePosition(),to=from.add(owner.getLookAngle().scale(200));
+            Vec3 direction = owner.getLookAngle();
+            Vec3 from=owner.getEyePosition(),to=from.add(direction.scale(200));
             double stop=game.items().magic().suppressionFraction(owner.level(),from,to);
             if(Double.isFinite(stop)) to=from.lerp(to,stop);
             var hit=game.items().wands().firstHit(owner,from,to);
             Vec3 end=hit==null?to:hit.getLocation();
             double length=from.distanceTo(end);
-            for(double d=0;d<=length;d+=1) {
-                Vec3 p=from.add(owner.getLookAngle().scale(d));
-                owner.level().sendParticles(ParticleTypes.FLAME,p.x,p.y,p.z,2,.5,.5,.5,0);
+            try (var trail = new LbcParticleBatch.Group(owner.level(), ParticleTypes.FLAME, .5, 0, false, 1.01,
+                    game.balanceLegacy() ? 1 : 3)) {
+                for (double d = 0; d <= length; d += 1) trail.add(from.add(direction.scale(d)), 2);
             }
             if(hit==null || hit instanceof BlockHitResult wall && !owner.level().hasChunkAt(wall.getBlockPos())
                     || Double.isFinite(stop) && end.distanceToSqr(from)>=to.distanceToSqr(from)-1e-6) return;

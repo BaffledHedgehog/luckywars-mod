@@ -70,13 +70,32 @@ public final class RewardToolChecks {
             p.setItemInHand(InteractionHand.MAIN_HAND,tool("krazha"));require(LbcRewardTools.steal(game,p,InteractionHand.MAIN_HAND,villager)&&villager.getInventory().isEmpty()&&result(p.getMainHandItem(),bread),"native mob inventory full-stack fallback");
             var failed=tool("krazha");p.setItemInHand(InteractionHand.MAIN_HAND,failed);require(!LbcRewardTools.steal(game,p,InteractionHand.MAIN_HAND,villager)&&p.getMainHandItem()==failed&&failed.getCount()==1,"nothing to steal preserves exact glove");
         }
+        void checkBrushTrail() {
+            var trail = base.base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast)
+                    .filter(packet -> packet.overrideLimiter() &&
+                            packet.particle().getType() == net.minecraft.core.particles.ParticleTypes.DUST).toList();
+            int expected = 0;
+            double distance = block.getZ() - p.getEyePosition().z;
+            for (double d = 0; d <= distance; d += .15) expected++;
+            int limit = game.balanceLegacy() ? 1 : 3;
+            require(trail.size() == (expected + limit - 1) / limit &&
+                    trail.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum() == expected &&
+                    trail.stream().allMatch(packet -> packet.xDist() == 0 && packet.yDist() == 0 &&
+                            packet.xMaxSpeed() == .01f && packet.yMaxSpeed() == .01f && packet.zMaxSpeed() == .01f),
+                    "brush preserves " + expected + " particles on the original axis: " + trail.size() + " packets");
+            SkyWars2.LOGGER.info("[check] Brush ray: {} packets for {} particles", trail.size(), expected);
+        }
         long bolts(){long n=0;for(var e:p.level().getAllEntities())if(e instanceof LightningBolt&&!e.isRemoved())n++;return n;}
         boolean tick(){ack();int now=game.server().getTickCount();require(now-at<20,"bounded native queue stage="+stage);
             if(stage==0){transferCases();cow=cow();cow.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIAMOND,7));cow.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(Items.EMERALD,3));give("krazha",InteractionHand.OFF_HAND);stage++;return false;}
             if(now==at)return false;
             if(stage==1){if(p.getOffhandItem()==glove)return false;require(cow.getMainHandItem().isEmpty()&&cow.getOffhandItem().getCount()==3&&result(p.getOffhandItem(),new ItemStack(Items.DIAMOND,7)),"queued exact mob hit uses mainhand before offhand");cow.discard();
-                p.level().setBlock(block,Blocks.BEDROCK.defaultBlockState(),3);give("shetka",InteractionHand.MAIN_HAND);stage++;return false;}
-            if(stage==2){if(!p.level().getBlockState(block).isAir())return false;require(p.getMainHandItem()==glove,"brush retains item after native erase");p.level().setBlock(block,Blocks.STONE.defaultBlockState(),3);bolts=bolts();give("lightning_bolt",InteractionHand.MAIN_HAND);stage++;return false;}
+                p.level().setBlock(block,Blocks.BEDROCK.defaultBlockState(),3);
+                base.base.recording.packets.removeIf(ClientboundLevelParticlesPacket.class::isInstance);
+                give("shetka",InteractionHand.MAIN_HAND);stage++;return false;}
+            if(stage==2){if(!p.level().getBlockState(block).isAir())return false;require(p.getMainHandItem()==glove,"brush retains item after native erase");
+                checkBrushTrail();p.level().setBlock(block,Blocks.STONE.defaultBlockState(),3);bolts=bolts();give("lightning_bolt",InteractionHand.MAIN_HAND);stage++;return false;}
             if(stage==3){if(bolts()==bolts)return false;require(bolts()==bolts+1,"one wall terminal produces exactly one native bolt");return true;}
             throw new IllegalStateException("unknown stage");
         }

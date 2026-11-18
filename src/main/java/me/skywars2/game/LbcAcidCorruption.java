@@ -120,10 +120,16 @@ final class LbcAcidCorruption {
                 &&(mode==1?game.items().wands().projectileTarget(owner,e):wild(e)),from.distanceToSqr(to));
         HitResult hit=entity!=null?entity:wall;Vec3 end=hit==null?to:hit.getLocation();
         double spacing=mode==1?.75:.5;int samples=(int)Math.floor(from.distanceTo(end)/spacing);
-        for(int i=0;i<=samples;i++){
-            var at=from.add(direction.scale(i*spacing));if(!level.hasChunkAt(BlockPos.containing(at))||mode!=1&&game.items().magic().suppressedAt(level,at))return;
-            if(mode==1)level.sendParticles(ParticleTypes.SNEEZE,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
-            else level.sendParticles(new DustParticleOptions(mode==3?0:0x1ce9f8,.8f),true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
+        var particle = mode == 1 ? ParticleTypes.SNEEZE : new DustParticleOptions(mode == 3 ? 0 : 0x1ce9f8, .8f);
+        try (var trail = new LbcParticleBatch.Group(level, particle, .1, 0, true, spacing + .01,
+                game.balanceLegacy() ? 1 : 3)) {
+            for (int i = 0; i <= samples; i++) {
+                var at = from.add(direction.scale(i * spacing));
+                if (!level.hasChunkAt(BlockPos.containing(at)) || mode != 1 && game.items().magic().suppressedAt(level, at)) {
+                    return;
+                }
+                trail.add(at);
+            }
         }
         if(hit==null||!level.hasChunkAt(BlockPos.containing(end))||mode!=1&&game.items().magic().suppressedAt(level,end))return;
         if(mode==1)spawn(owner,end,true);

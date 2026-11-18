@@ -59,8 +59,14 @@ public final class LbcRewardTools {
         }
         public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return kind.equals("shetka")?!state.isAir():!state.is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK,Identifier.withDefaultNamespace("airs")));}
         public boolean target(net.minecraft.world.entity.Entity e){return !e.getUUID().equals(author)&&e instanceof LivingEntity&&game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e);}
-        public void trail(net.minecraft.world.phys.Vec3 a,net.minecraft.world.phys.Vec3 b){double distance=a.distanceTo(b),step=kind.equals("shetka")?.15:kind.equals("krazha")?.5:.4;
-            for(double d=0;d<=distance;d+=step){var p=a.add(direction.scale(d));level.sendParticles(dust,true,false,p.x,p.y,p.z,1,0,0,0,.01);}}
+        public void trail(net.minecraft.world.phys.Vec3 a, net.minecraft.world.phys.Vec3 b) {
+            double distance = a.distanceTo(b);
+            double step = kind.equals("shetka") ? .15 : kind.equals("krazha") ? .5 : .4;
+            try (var trail = new LbcParticleBatch.Group(level, dust, 0, .01, true, step + .01,
+                    game.balanceLegacy() ? 1 : 3)) {
+                for (double d = 0; d <= distance; d += step) trail.add(a.add(direction.scale(d)));
+            }
+        }
         public void complete(HitResult hit){var player=game.server().getPlayerList().getPlayer(author);if(player==null)return;
             if(hit==null||!game.items().currentEpoch(epoch)||!player.isAlive()||player.level()!=level
                     ||!game.canUseGameplayItems(player)||game.items().magic().suppressed(player))return;

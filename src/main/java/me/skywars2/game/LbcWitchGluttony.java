@@ -107,7 +107,15 @@ public final class LbcWitchGluttony {
         Cast(Kind kind,ServerLevel level,Vec3 direction,float yaw,float pitch,UUID author,String epoch,LbcIndirectKills.Owner cause){this.kind=kind;this.level=level;this.direction=direction;this.yaw=yaw;this.pitch=pitch;this.author=author;this.epoch=epoch;this.cause=cause;}
         public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return !state.is(AIRS);}
         public boolean target(Entity entity){return entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validRoleTarget(entity,false);}
-        public void trail(Vec3 from,Vec3 to){for(double d=0;d<from.distanceTo(to);d+=.5){var p=from.add(to.subtract(from).normalize().scale(d));if(kind==Kind.RABBIT)level.sendParticles(ParticleTypes.CLOUD,p.x,p.y,p.z,1,.1,.1,.1,.2);else level.sendParticles(new DustParticleOptions(0x000000,4),p.x,p.y,p.z,1,.1,.1,.1,.2);}}
+        public void trail(Vec3 from, Vec3 to) {
+            double length = from.distanceTo(to);
+            var aim = to.subtract(from).normalize();
+            var particle = kind == Kind.RABBIT ? ParticleTypes.CLOUD : new DustParticleOptions(0x000000, 4);
+            try (var trail = new LbcParticleBatch.Group(level, particle, .1, .2, false, .51,
+                    game.balanceLegacy() ? 1 : 3)) {
+                for (double d = 0; d < length; d += .5) trail.add(from.add(aim.scale(d)));
+            }
+        }
         public void complete(net.minecraft.world.phys.HitResult hit){pending.remove(kind);if(hit==null||!live(epoch,level))return;
             var at=hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK?hit.getLocation().subtract(direction):hit.getLocation();spawn(kind,level,at,kind==Kind.SNAKE?0:yaw,kind==Kind.SNAKE?0:pitch,author,epoch,cause);}
     }

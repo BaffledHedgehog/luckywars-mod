@@ -37,6 +37,7 @@ public final class LbcHoming {
             {12,90,12},{-12,100,-12},{12,110,-12},{-12,120,12},{0,130,0}};
     private static final DustParticleOptions BLACK=new DustParticleOptions(net.minecraft.util.ARGB.colorFromFloat(1,.001f,0,.001f)&0xffffff,4);
     private static final DustParticleOptions STAR_DUST=new DustParticleOptions(0xccccff,4);
+    private static final DustParticleOptions DESTINY_DUST=new DustParticleOptions(0x412c13,1);
     private final GameController game;
     private final Set<LargeFireball> fireballs=new LinkedHashSet<>();
     // Для глобального Curse нужен индекс уже загруженных снарядов, не новый трекер их физики.
@@ -248,17 +249,17 @@ public final class LbcHoming {
     }
 
     /** Единое первое попадание: блок и существо в одной ячейке не удваивают эффект. */
-    private Vec3 ray(ServerPlayer owner,Vec3 from,Vec3 direction,double range,double step) {
-        Vec3 to=from.add(direction.scale(range));
+    Vec3 destinyRay(ServerPlayer owner, Vec3 from, Vec3 direction) {
+        Vec3 to=from.add(direction.scale(30));
         double barrier=game.items().magic().suppressionFraction(owner.level(),from,to);
         if(Double.isFinite(barrier)) to=from.lerp(to,barrier);
         var hit=game.items().wands().firstHit(owner,from,to,e->e instanceof LivingEntity living && game.items().lifetimes().target(owner,living)
                 && !game.items().magic().suppressedAt(owner.level(),living.getEyePosition()));
         Vec3 end=hit==null?to:hit.getLocation();
         double length=from.distanceTo(end);
-        for(double d=0;d<=length;d+=step) {
-            Vec3 p=from.add(direction.scale(d));
-            owner.level().sendParticles(new DustParticleOptions(0x412c13,1),true,false,p.x,p.y,p.z,1,0,0,0,0);
+        try (var trail = new LbcParticleBatch.Group(owner.level(), DESTINY_DUST, 0, 0, true, .51,
+                game.balanceLegacy() ? 1 : 3)) {
+            for (double d = 0; d <= length; d += .5) trail.add(from.add(direction.scale(d)));
         }
         if(hit==null || hit instanceof BlockHitResult wall && !owner.level().hasChunkAt(wall.getBlockPos())
                 || Double.isFinite(barrier) && end.distanceToSqr(from)>=to.distanceToSqr(from)-1e-8) return null;
@@ -524,7 +525,7 @@ public final class LbcHoming {
         double distance=target.position().distanceToSqr(effect.position);
         Vec3 direction=target.getEyePosition().subtract(effect.position).normalize();
         if(distance<=900 && owner.getRandom().nextFloat()<.05f) {
-            Vec3 point=ray(owner,effect.position,direction,30,.5);
+            Vec3 point=destinyRay(owner,effect.position,direction);
             if(point!=null) for(int i=0;i<3;i++)
                 game.items().exasperato().instantBlast(owner,effect.level,point,4,effect.epoch);
         }

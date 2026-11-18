@@ -9306,6 +9306,7 @@ public final class GameChecks {
                                 }
                                 service.stop();
                         }
+                        checkExahomingDestinyParticles(game, owner);
                         academyNpc.entityTags().add("magic_academy"); academyNpc.setPos(owner.position());
                         require(level.addFreshEntity(academyNpc),"Academy fixture NPC enters the world");
                         // Separate players avoid the NPC's intended one-interaction-per-player-per-tick guard.
@@ -9352,6 +9353,53 @@ public final class GameChecks {
                         game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
                         owner.setShiftKeyDown(oldShift); other.setShiftKeyDown(otherShift); game.config().offhandWands=oldOffhand;
                         state.restore(game); otherState.restore(game);
+                }
+        }
+
+        private static void checkExahomingDestinyParticles(GameController game, ServerPlayer owner) {
+                var level = owner.level();
+                var from = owner.getEyePosition();
+                var direction = new Vec3(1, 1, 0).normalize();
+                var wall = net.minecraft.core.BlockPos.containing(from.add(direction.scale(19)));
+                level.getChunk(wall);
+                var oldWall = game.maps().snapshot(level, wall);
+                var original = owner.connection;
+                var recording = new ElementalGrimoireChecks.Recording(owner);
+                owner.connection = new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(), recording, owner,
+                                new CommonListenerCookie(owner.getGameProfile(), 0, owner.clientInformation(), false));
+                try {
+                        level.setBlockAndUpdate(wall, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+                        owner.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
+                        recording.packets.clear();
+                        var hit = game.items().homing().destinyRay(owner, from, direction);
+                        double distance = Math.max((wall.getX() - from.x) / direction.x, (wall.getY() - from.y) / direction.y);
+                        require(hit != null && hit.distanceToSqr(from.add(direction.scale(distance))) < 1e-10,
+                                        "Destiny resolves the exact resident wall contact along an oblique ray");
+                        var packets = recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                                        .map(ClientboundLevelParticlesPacket.class::cast).toList();
+                        var dust = new net.minecraft.core.particles.DustParticleOptions(0x412c13, 1);
+                        int expected = (int) Math.floor(distance / .5) + 1;
+                        int limit = game.balanceLegacy() ? 1 : 3;
+                        require(packets.size() == (expected + limit - 1) / limit &&
+                                        packets.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum() == expected,
+                                        "Destiny preserves " + expected + " particles while grouping packets: " + packets.size());
+                        int first = 0;
+                        for (var packet : packets) {
+                                int count = Math.min(limit, expected - first);
+                                var center = from.add(direction.scale(.5 * (first + (count - 1) / 2.0)));
+                                require(packet.count() == count && packet.particle() instanceof net.minecraft.core.particles.DustParticleOptions actual
+                                                && actual.getColor().equals(dust.getColor()) && actual.getScale() == dust.getScale()
+                                                && packet.overrideLimiter()
+                                                && !packet.alwaysShow() && packet.xMaxSpeed() == 0 && packet.yMaxSpeed() == 0
+                                                && packet.zMaxSpeed() == 0 && packet.zDist() == 0
+                                                && center.distanceToSqr(new Vec3(packet.x(), packet.y(), packet.z())) < 1e-12,
+                                                "Each Destiny packet keeps the native dust, range and group centroid");
+                                first += count;
+                        }
+                        SkyWars2.LOGGER.info("[check] Destiny ray: {} packets for {} particles", packets.size(), expected);
+                } finally {
+                        owner.connection = original;
+                        game.maps().restoreSnapshot(level, wall, oldWall);
                 }
         }
 

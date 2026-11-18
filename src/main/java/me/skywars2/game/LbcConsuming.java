@@ -392,11 +392,14 @@ public final class LbcConsuming {
         Vec3 end=hit==null?limit:hit.getLocation();
         var particle=dust(.667f,.459f,.941f,1);
         double distance=start.distanceTo(end);
-        for(int sample=0;sample<=200 && sample*.7<=distance+1e-6;sample++) {
-            Vec3 point=start.add(direction.scale(sample*.7));
-            if(!owner.level().hasChunkAt(BlockPos.containing(point))) break;
-            owner.level().sendParticles(particle,true,false,point.x,point.y,point.z,1,.05,.05,.05,0);
-            LbcOverload.sound(owner,point,"minecraft:block.deepslate.break",.2f,1,25,1);
+        try (var trail = new LbcParticleBatch.Group(owner.level(), particle, .05, 0, true, .71,
+                game.balanceLegacy() ? 1 : 3)) {
+            for (int sample = 0; sample <= 200 && sample * .7 <= distance + 1e-6; sample++) {
+                Vec3 point = start.add(direction.scale(sample * .7));
+                if (!owner.level().hasChunkAt(BlockPos.containing(point))) break;
+                trail.add(point);
+                LbcOverload.sound(owner,point,"minecraft:block.deepslate.break",.2f,1,25,1);
+            }
         }
         if(hit==null || !traversable(owner,end)) return;
         Vec3 impact=hit instanceof BlockHitResult?end.subtract(direction.scale(.7)):end;

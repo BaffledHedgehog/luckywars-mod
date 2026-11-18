@@ -60,6 +60,10 @@ final class LbcParticleBatch {
         Group(ServerLevel level,ParticleOptions particle,double jitter,double speed,boolean force) {
             this(level,particle,jitter,jitter,jitter,speed,force);
         }
+        Group(ServerLevel level, ParticleOptions particle, double jitter, double speed, boolean force,
+              double maxStep, int samplesPerPacket) {
+            this(level, particle, jitter, jitter, jitter, speed, force, maxStep, samplesPerPacket);
+        }
         Group(ServerLevel level,ParticleOptions particle,double dx,double dy,double dz,double speed,boolean force){
             this(level,particle,dx,dy,dz,speed,force,.75,3);
         }

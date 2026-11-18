@@ -252,14 +252,17 @@ public final class LbcShooters {
         var from=owner.getEyePosition(); var direction=owner.getLookAngle();
         // Distance is incremented before recursion: the source samples 0..75 inclusive, through walls/entities.
         // Union masks retain exactly the overlapping 5^3 cubes; no enclosing corridor or duplicate writes.
-        for(int sample=0;sample<=50;sample++) {
-            var point=from.add(direction.scale(sample*1.5));
-            var center=BlockPos.containing(point);
-            job.terrain.include(new BlockAreaWork.Bounds(center.getX()-2,center.getY()-2,center.getZ()-2,
-                    center.getX()+2,center.getY()+2,center.getZ()+2));
-            owner.level().sendParticles(WOODIFICATOR_PARTICLE,true,false,point.x,point.y,point.z,1,0,0,0,0);
-            if(owner.getRandom().nextFloat()<.05f)
-                LbcOverload.sound(owner,point,"minecraft:block.roots.break",.5f,1,0);
+        try (var trail = new LbcParticleBatch.Group(owner.level(), WOODIFICATOR_PARTICLE, 0, 0, true, 1.51,
+                game.balanceLegacy() ? 1 : 2)) {
+            for (int sample = 0; sample <= 50; sample++) {
+                var point = from.add(direction.scale(sample * 1.5));
+                var center = BlockPos.containing(point);
+                job.terrain.include(new BlockAreaWork.Bounds(center.getX()-2,center.getY()-2,center.getZ()-2,
+                        center.getX()+2,center.getY()+2,center.getZ()+2));
+                trail.add(point);
+                if (owner.getRandom().nextFloat() < .05f)
+                    LbcOverload.sound(owner,point,"minecraft:block.roots.break",.5f,1,0);
+            }
         }
         // Repeated free casts merge into the owner's pending masks without dropping accepted regions.
         if(job.terrain.hasWork() && woodificatorWork.add(job)) game.items().stonekivi().queuedWork(job);

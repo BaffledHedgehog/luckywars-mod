@@ -93,8 +93,10 @@ final class LbcLibraryRandom {
         public boolean target(Entity entity){return entity instanceof LivingEntity&&!entity.getUUID().equals(author)&&game.items().wands().validTarget(entity);}
         public void trail(Vec3 from,Vec3 to){
             ++inProgress;try{
-                double distance=from.distanceTo(to);for(double d=0;d<=distance;d++){
-                    var at=from.add(direction.scale(d));level.sendParticles(particle,true,false,at.x,at.y,at.z,1,0,0,0,.01);
+                double distance = from.distanceTo(to);
+                try (var trail = new LbcParticleBatch.Group(level, particle, 0, .01, true, 1.01,
+                        game.balanceLegacy() ? 1 : 2)) {
+                    for (double d = 0; d <= distance; d++) trail.add(from.add(direction.scale(d)));
                 }
             }finally{--inProgress;}
         }
