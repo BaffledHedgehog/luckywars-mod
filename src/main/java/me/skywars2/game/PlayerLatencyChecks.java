@@ -20,6 +20,7 @@ final class PlayerLatencyChecks {
         int stage,at,id,measured,obsolete;long sent;
         final AtomicLong arrived=new AtomicLong();CompletableFuture<Void> reply;
         RegenerationBeltChecks.ScheduledClient replacement;String chat;boolean closed;
+        BulkPlayerProfileChecks bulkProfiles;
         Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);start=game.server().getTickCount();}
         int latest(RegenerationBeltChecks.ScheduledClient client){return client.packets().stream().filter(ClientboundPingPacket.class::isInstance).map(ClientboundPingPacket.class::cast).filter(p->p.getId()<0).reduce((a,b)->b).orElseThrow().getId();}
         void setup(){
@@ -43,7 +44,8 @@ final class PlayerLatencyChecks {
                 try{dispatcher.execute("player spawn invalid-name 1",source.withPermission(PermissionSet.ALL_PERMISSIONS));throw new IllegalStateException("invalid prefix accepted");}catch(com.mojang.brigadier.exceptions.CommandSyntaxException expected){require(expected.getRawMessage().getString().contains("Use letters"),"root alias executes real validated bulk-spawn handler without creating a player");}
             }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
         }
-        boolean step(){
+        boolean step() throws Exception {
+            if (bulkProfiles != null) return bulkProfiles.step();
             require(game.server().getTickCount()-start<60,"bounded real native round trip and reconnection scene");
             if(replacement==null)f.client.acknowledge();else replacement.acknowledge();f.audience.acknowledge();
             int elapsed=game.server().getTickCount()-at;
@@ -75,9 +77,14 @@ final class PlayerLatencyChecks {
                 require(PlayerLatency.millis(replacement.listener)<0&&PlayerLatency.millis(f.client.listener)<0,"late old-connection Pong remains ignored after pruning");at=game.server().getTickCount();stage=3;return false;
             }
             if(elapsed<2)return false;
-            replacement.listener.handlePong(new ServerboundPongPacket(id));require(PlayerLatency.millis(replacement.listener)>0&&replacement.listener.latency()==PlayerLatency.millis(replacement.listener),"new connection measures its own real round trip");return true;
+            replacement.listener.handlePong(new ServerboundPongPacket(id));require(PlayerLatency.millis(replacement.listener)>0&&replacement.listener.latency()==PlayerLatency.millis(replacement.listener),"new connection measures its own real round trip");
+            if (Boolean.getBoolean("skywars2.check.bulk.profileLookup")) {
+                bulkProfiles = new BulkPlayerProfileChecks(game.server(), f.owner.createCommandSourceStack());
+                return false;
+            }
+            return true;
         }
-        @Override public void close(){if(closed)return;closed=true;try{if(reply!=null)reply.join();}finally{try{PlayerLatency.forget(f.owner);if(replacement!=null)replacement.close();}finally{f.close();}}}
+        @Override public void close() throws Exception {if(closed)return;closed=true;try{if(bulkProfiles!=null)bulkProfiles.close();if(reply!=null)reply.join();}finally{try{PlayerLatency.forget(f.owner);if(replacement!=null)replacement.close();}finally{f.close();}}}
     }
     static void run(GameController game){require(running==null,"exclusive native scene");running=new Scene(game);try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
     static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS player-latency (real delayed RTT/native right-aligned TAB scores, sprite-font HP/half-heart overlays, actual TPS header, no unchanged-state traffic, reconnection/late responses and command permissions)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL player-latency",error);}}
