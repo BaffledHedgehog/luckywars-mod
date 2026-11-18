@@ -23,7 +23,7 @@ public final class TikTokPlayback implements AutoCloseable {
     static final Identifier VIDEO_MODEL=Identifier.parse("lbc:zaika_video");
     static final Identifier CLIENT_MODEL=Identifier.parse("skywars2:phone_client");
     private static final long FRAME_NANOS=50_000_000L, COOLDOWN=5_000_000_000L;
-    private record Read(long serial, CustomModelData colors) {}
+    private record Read(long serial, int pixelStep, CustomModelData colors) {}
     private static final class View {
         final TikTokMedia clip;
         final long started;
@@ -117,6 +117,7 @@ public final class TikTokPlayback implements AutoCloseable {
     private static void publishFrame(ServerPlayer player, View view, Read frame) {
         // Ordinary inventory and equipment replication use the small phone model. Only this
         // recipient-specific path can attach pixels, and every write consumes media credit.
+        if (frame.pixelStep != view.output.vanillaPixelStep()) return;
         var slots = view.slots;
         var packets = new ArrayList<Packet<? super ClientGamePacketListener>>(slots.size());
         for (int slot : slots) {
@@ -125,8 +126,8 @@ public final class TikTokPlayback implements AutoCloseable {
         }
         if (packets.isEmpty()) return;
         var packet = packets.size() == 1 ? packets.getFirst() : new ClientboundBundlePacket(packets);
-        view.output.offerFrame(packet, view.started + (frame.serial + 3) * FRAME_NANOS,
-                () -> view.active && view.slots == slots && !TimeStopView.frozen(player));
+        view.output.offerVanillaFrame(packet, view.started + (frame.serial + 3) * FRAME_NANOS,
+                () -> view.active && view.slots == slots && !TimeStopView.frozen(player), frame.pixelStep);
     }
     private static void original(ServerPlayer player,int slot){
         var stack=player.getInventory().getItem(slot);
@@ -156,7 +157,7 @@ public final class TikTokPlayback implements AutoCloseable {
                 for(int slot:prior)if(!current.contains(slot))original(player,slot);
                 publish(player,current);
             }
-            if (view.enhanced || TimeStopView.frozen(player) || !view.output.frameReady()) continue;
+            if (view.enhanced || TimeStopView.frozen(player) || !view.output.vanillaFrameReady()) continue;
             long serial=Math.max(0,now-view.started)/FRAME_NANOS;
             if (view.pending != null && view.pending.isDone()) {
                 try {
@@ -173,11 +174,12 @@ public final class TikTokPlayback implements AutoCloseable {
             // Prefetch at most one newer frame while the sent frame awaits its receipt.
             if(view.pending==null&&serial!=view.lastRead){
                 view.lastRead=serial;int frame=(int)(serial%view.clip.frames);
+                int pixelStep=view.output.vanillaPixelStep();
                 // One pending read per active view; a hard queue cap also bounds rapid view replacements during stalled I/O.
                 inFlight.merge(view.clip.id,1,Integer::sum);
                 try{
                     view.pending=reader.submit(()->{
-                        try{return new Read(serial,TikTokPixels.encode(view.clip.frame(frame,false).map()));}
+                        try{return new Read(serial,pixelStep,TikTokPixels.encode(view.clip.frame(frame,false).map(),pixelStep));}
                         finally{release(view.clip.id);}
                     });
                 }catch(RejectedExecutionException busy){release(view.clip.id);}

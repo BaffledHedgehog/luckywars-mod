@@ -15,11 +15,20 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 final class TikTokOutput {
     private static final AttributeKey<TikTokOutput> KEY = AttributeKey.valueOf("skywars2:tiktok_output");
     private static final int SOUND_WINDOW = 6;
+    private static final long SLOW_FRAME_NANOS = 100_000_000L;
+    private static final long FAST_FRAME_NANOS = 25_000_000L;
+    private static final long QUALITY_HOLD_NANOS = 5_000_000_000L;
 
     private final Channel channel;
     private final ServerGamePacketListenerImpl listener;
     private final Window frames = new Window(1);
     private final Window sound = new Window(SOUND_WINDOW);
+    private volatile int pixelStep = 1;
+    private volatile long videoBackoffUntil;
+    // Single outstanding frame. Bracket only vanilla frames, whose encoded size is high.
+    private int beforeFrame;
+    private long beforeFrameAck;
+    private long upgradeAfter;
 
     private static final class Window {
         final AtomicBoolean scheduled = new AtomicBoolean();
@@ -76,7 +85,36 @@ final class TikTokOutput {
 
     static boolean acknowledge(Channel channel, int id) {
         var output = channel.attr(KEY).get();
-        return output != null && (output.frames.acknowledge(id) || output.sound.acknowledge(id));
+        return output != null && output.acknowledge(id);
+    }
+
+    private boolean acknowledge(int id) {
+        if (id < 0 && beforeFrame == id) {
+            beforeFrame = 0;
+            beforeFrameAck = System.nanoTime();
+            return true;
+        }
+        if (!frames.acknowledge(id)) return sound.acknowledge(id);
+        if (beforeFrameAck != 0) {
+            long now = System.nanoTime();
+            adaptVideo(now, now - beforeFrameAck);
+        }
+        beforeFrame = 0;
+        beforeFrameAck = 0;
+        return true;
+    }
+
+    private void adaptVideo(long now, long frameDelay) {
+        // The two probes travel with the same RTT. The gap measures how long
+        // the frame occupied client delivery, rather than the player's ping.
+        if (frameDelay > SLOW_FRAME_NANOS) {
+            if (pixelStep == TikTokPixels.MAX_STEP) videoBackoffUntil = now + QUALITY_HOLD_NANOS;
+            pixelStep = Math.min(TikTokPixels.MAX_STEP, pixelStep * (frameDelay > 2 * SLOW_FRAME_NANOS ? 4 : 2));
+            upgradeAfter = now + QUALITY_HOLD_NANOS;
+        } else if (frameDelay <= FAST_FRAME_NANOS && pixelStep > 1 && now - upgradeAfter >= 0) {
+            pixelStep /= 2;
+            upgradeAfter = now + QUALITY_HOLD_NANOS;
+        }
     }
 
     static void detach(Channel channel) {
@@ -95,16 +133,32 @@ final class TikTokOutput {
         return ready(frames);
     }
 
+    int vanillaPixelStep() { return pixelStep; }
+
+    boolean vanillaFrameReady() {
+        return vanillaBackoffElapsed() && frameReady();
+    }
+
     boolean soundReady() {
         return ready(sound);
     }
 
     boolean offerFrame(Packet<?> packet, long expires, BooleanSupplier valid) {
-        return offer(frames, packet, expires, valid);
+        return offer(frames, packet, expires, valid, 0);
+    }
+
+    boolean offerVanillaFrame(Packet<?> packet, long expires, BooleanSupplier valid, int step) {
+        if (!vanillaFrameReady() || step != pixelStep) return false;
+        return offer(frames, packet, expires, () -> step == pixelStep && vanillaBackoffElapsed() && valid.getAsBoolean(), step);
+    }
+
+    private boolean vanillaBackoffElapsed() {
+        long until = videoBackoffUntil;
+        return until == 0 || System.nanoTime() - until >= 0;
     }
 
     boolean offerSound(Packet<?> packet, long expires, BooleanSupplier valid) {
-        return offer(sound, packet, expires, valid);
+        return offer(sound, packet, expires, valid, 0);
     }
 
     private boolean ready(Window window) {
@@ -115,13 +169,17 @@ final class TikTokOutput {
         return window.remaining > 0 && active() && channel.isWritable();
     }
 
-    private boolean offer(Window window, Packet<?> packet, long expires, BooleanSupplier valid) {
+    private boolean offer(Window window, Packet<?> packet, long expires, BooleanSupplier valid, int frameStep) {
         if (!writable(window) || !window.scheduled.compareAndSet(false, true)) return false;
 
         Runnable write = () -> {
             try {
                 if (!writable(window) || expires - System.nanoTime() <= 0 || !valid.getAsBoolean()) return;
                 int receipt = window.reserve();
+                if (frameStep > 0) {
+                    beforeFrame = PlayerLatency.nextProbeId();
+                    listener.send(new ClientboundPingPacket(beforeFrame));
+                }
                 listener.send(packet);
                 // Each Ping follows its own media write in TCP order. A Pong for an
                 // earlier write cannot grant credit for later, still queued traffic.

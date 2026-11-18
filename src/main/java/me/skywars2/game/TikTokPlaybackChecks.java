@@ -5,10 +5,16 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.embedded.EmbeddedChannel;
+import java.io.DataInputStream;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.locks.LockSupport;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.ConnectionProtocol;
@@ -43,6 +49,11 @@ public final class TikTokPlaybackChecks {
         volatile boolean echoMediaReceipts = true;
         final List<net.minecraft.world.entity.item.ItemEntity> dropped=new ArrayList<>();
         long started,windowStarted;int began,phase,when;long now,wireBytes;boolean closing,realReference;
+        byte[] shapedPixels;
+        int shapedPhase;
+        long firstGameDelay, lastSlowReceipt;
+        CompletableFuture<LinkSample> link;
+        private record LinkSample(int videoBytes,long gameDelay) {}
         Fixture(GameController game)throws Exception{
             this.game=game;f=new WoolBucketChecks.Fixture(game,false);f.prepareParticipants();
             directory=Files.createTempDirectory(game.server().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT),"tiktok-stream-");
@@ -125,6 +136,17 @@ public final class TikTokPlaybackChecks {
                 int packed=model.colors().get(y*TikTokPixels.GROUPS_PER_ROW+x/3);int index=(packed>>(16-8*(x%3)))&255;
                 require(index==Byte.toUnsignedInt(data[y*TikTokMedia.WIDTH+x]),"every native pixel decodes independently");
             }
+            for(int step:new int[]{2,4,8,16}){
+                var reduced=TikTokPixels.encode(data,step);
+                require(reduced.colors().size()==TikTokPixels.TINTS,"slow link frames retain the native RP geometry");
+                for(int y=0;y<TikTokMedia.HEIGHT;y++)for(int x=0;x<TikTokMedia.WIDTH;x++){
+                    int packed=reduced.colors().get(y*TikTokPixels.GROUPS_PER_ROW+x/3);
+                    int index=(packed>>(16-8*(x%3)))&255;
+                    int sampleX=Math.min(x/step*step+step/2,TikTokMedia.WIDTH-1);
+                    int sampleY=Math.min(y/step*step+step/2,TikTokMedia.HEIGHT-1);
+                    require(index==Byte.toUnsignedInt(data[sampleY*TikTokMedia.WIDTH+sampleX]),"reduced frame preserves exact palette indices and edges");
+                }
+            }
             var raw=Unpooled.buffer();try{
                 net.minecraft.world.item.component.CustomModelData.STREAM_CODEC.encode(raw,model);
                 require(net.minecraft.world.item.component.CustomModelData.STREAM_CODEC.decode(raw).equals(model)&&!raw.isReadable(),"actual native custom-model-data codec accepts all136640 tints");
@@ -135,6 +157,7 @@ public final class TikTokPlaybackChecks {
                 for(String name:List.of("clip.tkp","clip.idx"))Files.copy(Path.of(source).resolve(name),copy.resolve(name));
                 try(var actual=new TikTokMedia("12345678",copy)){
                     require(actual.frames>1,"real ForYou processed video has moving frames");
+                    shapedPixels=actual.frame(0,false).map();
                     for(int frame:List.of(0,actual.frames/2,actual.frames-1)){
                         var payload=actual.frame(frame,true);var colours=TikTokPixels.encode(payload.map());
                         require(colours.colors().size()==TikTokPixels.TINTS&&payload.jpeg().length>4&&payload.jpeg()[0]==(byte)255&&payload.jpeg()[1]==(byte)216,"real worker binary/header/index/JPEG native reader compatibility");
@@ -143,6 +166,124 @@ public final class TikTokPlaybackChecks {
                 }
                 realReference=true;
             }
+        }
+        void beginLink(int step,int bytesPerSecond){
+            var output=TikTokOutput.forPlayer(f.owner);
+            require(output.vanillaPixelStep()==step,"expected link quality "+step+", actual "+output.vanillaPixelStep());
+            echoMediaReceipts=false;
+            f.client.packets().clear();
+            var frame=new ClientboundSetPlayerInventoryPacket(1,
+                    TikTokPlayback.frameStack(f.owner,authored,TikTokPixels.encode(shapedPixels,step)));
+            require(output.offerVanillaFrame(frame,System.nanoTime()+2_000_000_000L,()->true,step),"frame as real media output");
+            var probes=f.client.packets().stream().filter(ClientboundPingPacket.class::isInstance)
+                    .map(ClientboundPingPacket.class::cast).toList();
+            require(probes.size()==2 && f.client.packets().indexOf(probes.getFirst())<f.client.packets().indexOf(frame)
+                    && f.client.packets().indexOf(frame)<f.client.packets().indexOf(probes.getLast()),"two native Ping packets bracket the actual frame");
+            var gamePacket=new ClientboundSystemChatPacket(Component.literal("gameplay after video"),false);
+            f.owner.connection.send(gamePacket);
+            require(f.client.packets().contains(gamePacket)&&!output.frameReady(),"gameplay is admitted while video is still unacknowledged");
+            var encoded=NetworkTransportChecks.encode(f.owner,List.of(probes.getFirst(),frame,probes.getLast(),gamePacket),true,256,false);
+            require(encoded.frames()==4,"native compressed game and media frames");
+            var pending=new CompletableFuture<LinkSample>();
+            link=pending;
+            Thread.ofVirtual().name("skywars-tiktok-shaped-link").start(()->{
+                try(var acceptor=new ServerSocket(0,1,InetAddress.getLoopbackAddress());
+                    var sender=new Socket(acceptor.getInetAddress(),acceptor.getLocalPort());
+                    var receiver=acceptor.accept()){
+                    receiver.setSoTimeout(4000);
+                    var sending=CompletableFuture.runAsync(()->{
+                        try{
+                            sender.getOutputStream().write(encoded.bytes());
+                            sender.shutdownOutput();
+                        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+                    });
+                    var input=new DataInputStream(receiver.getInputStream());
+                    long baseline=System.nanoTime()+180_000_000L;
+                    int moved=0,fullFrame=0;
+                    long first=0,gameDelay=0;
+                    for(int index=0;index<4;index++){
+                        int length=0,count=0,value;
+                        do{
+                            value=input.readUnsignedByte();
+                            require(count<3,"native length prefix");
+                            length|=(value&127)<<(7*count++);
+                        }while((value&128)!=0);
+                        require(input.readNBytes(length).length==length,"real TCP receives each entire PLAY packet");
+                        moved+=count+length;
+                        long due=baseline+1_000_000_000L*moved/bytesPerSecond;
+                        long remaining;
+                        while((remaining=due-System.nanoTime())>0)LockSupport.parkNanos(remaining);
+                        long received=System.nanoTime();
+                        if(index==0)first=received;
+                        if(index==1)fullFrame=count+length;
+                        if(index==3)gameDelay=received-first;
+                        if(index==0||index==2){
+                            int id=probes.get(index/2).getId();
+                            game.server().execute(()->{if(channel.isActive())channel.writeInbound(new ServerboundPongPacket(id));});
+                        }
+                    }
+                    sending.join();
+                    require(input.read()==-1&&moved==encoded.bytes().length,"real loopback DTO exact length");
+                    var result=new LinkSample(fullFrame,gameDelay);
+                    game.server().execute(()->pending.complete(result));
+                }catch(Throwable error){pending.completeExceptionally(error);}
+            });
+        }
+        boolean shapedLink(){
+            var output=TikTokOutput.forPlayer(f.owner);
+            if(shapedPhase==0){
+                beginLink(1,10_000_000);
+                shapedPhase++;
+                return false;
+            }
+            if(!link.isDone())return false;
+            var sample=link.join();
+            switch(shapedPhase){
+                case 1->{
+                    require(output.vanillaPixelStep()==1,"shared 180ms delay on fast link preserves native detail");
+                    beginLink(1,125_000);
+                }
+                case 2->{
+                    require(sample.videoBytes>50_000 && sample.gameDelay>350_000_000L && output.vanillaPixelStep()==4,
+                            "1Mbit/s full frame delays the next gameplay packet, then drops wire cost");
+                    firstGameDelay=sample.gameDelay;
+                    beginLink(4,125_000);
+                }
+                case 3->{
+                    require(sample.gameDelay<firstGameDelay/2 && output.vanillaPixelStep()==8,
+                            "substantially smaller packets on the next stage of real shaped TCP");
+                    beginLink(8,125_000);
+                }
+                case 4->{
+                    require(sample.videoBytes<14_000 && sample.gameDelay<firstGameDelay/4 && output.vanillaPixelStep()==8,
+                            "step-eight gameplay delivery is at least four times faster in the 1Mbit/s fixture");
+                    SkyWars2.LOGGER.info("[check] TikTok shaped TCP: trailing gameplay delay {} -> {} ms at 1 Mbit/s, adapted frame {} bytes",
+                            firstGameDelay/1_000_000,sample.gameDelay/1_000_000,sample.videoBytes);
+                    beginLink(8,30_000);
+                }
+                case 5->{
+                    require(output.vanillaPixelStep()==16,"lower bandwidth reduces quality to the minimum");
+                    beginLink(16,30_000);
+                }
+                case 6->{
+                    require(output.frameReady() && output.soundReady() && !output.vanillaFrameReady(),
+                            "severe congestion backs off only vanilla video admission");
+                    lastSlowReceipt=System.nanoTime();
+                }
+                case 7->{
+                    if(System.nanoTime()-lastSlowReceipt<5_100_000_000L)return false;
+                    echoMediaReceipts=true;
+                    var frame=new ClientboundSetPlayerInventoryPacket(1,
+                            TikTokPlayback.frameStack(f.owner,authored,TikTokPixels.encode(shapedPixels,16)));
+                    require(output.offerVanillaFrame(frame,System.nanoTime()+1_000_000_000L,()->true,16)
+                            && output.vanillaPixelStep()==8,
+                            "a fast receipt after cooldown restores quality one step at a time");
+                    return true;
+                }
+                default->throw new IllegalStateException("unexpected shaped link phase");
+            }
+            shapedPhase++;
+            return false;
         }
         void audio(){
             TikTokVoiceBudget.verify();
@@ -190,7 +331,7 @@ public final class TikTokPlaybackChecks {
         boolean step()throws Exception{
             now=System.nanoTime();int tick=game.server().getTickCount(),elapsed=tick-when;
             migrationCache.tick(tick,Set.of());
-            require(tick-began<400,"bounded asynchronous native fixture");
+            require(tick-began<620,"bounded asynchronous native fixture");
             if(phase==0){
                 if(now-windowStarted<1_200_000_000L)return false;
                 var packets=frames(f.client.packets());require(packets.size()>=16&&packets.size()<=26,"actual near20FPS native packet cadence "+packets.size()+" elapsedMs="+((now-windowStarted)/1_000_000));
@@ -316,10 +457,14 @@ public final class TikTokPlaybackChecks {
                 require(f.owner.getMainHandItem().isEmpty()&&dropped.size()==1&&ItemStack.matches(dropped.getFirst().getItem(),authored),"native Q creates original server phone without projected frame components");
                 next(10);return false;
             }
-            if(elapsed<6)return false;
-            require(playback.pins().isEmpty()&&frames(f.client.packets()).isEmpty(),"Q stops video and cannot republish stale frame");
-            require(SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSetPlayerInventoryPacket.class::isInstance)
+            if(phase==10){
+                if(elapsed<6)return false;
+                require(playback.pins().isEmpty()&&frames(f.client.packets()).isEmpty(),"Q stops video and cannot republish stale frame");
+                require(SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSetPlayerInventoryPacket.class::isInstance)
                     .map(ClientboundSetPlayerInventoryPacket.class::cast).anyMatch(p->p.slot()==1&&p.contents().isEmpty()),"Q explicitly restores authoritative empty client slot");
+                next(12);
+            }
+            if(shapedPixels!=null&&!shapedLink())return false;
             enhanced();
             SkyWars2.LOGGER.info("[check] PASS tiktok-playback (native480p20FPS/60Hz old fallback,20Hz spectral stereo, actual cookie-free background cache upgrade; real Fabric Hello/version/channel gate, enhanced independent20Hz JPEG/48k stereo PCM, native shared codecs/JPEG bomb bound, no vanilla pixels/tones on enhanced path, private stream, bounded video/audio while writable, live receipt recovery, TimeStop, Q/Stop/empty-slot ordering; {} compressed vanilla bytes/frame, realForYouBinary={})",wireBytes,realReference);
             return true;
