@@ -19,8 +19,14 @@ public final class LbcPhdCrafting {
     private static final TagKey<Item> BIO=TagKey.create(net.minecraft.core.registries.Registries.ITEM,Identifier.parse("minecraft:bioitems"));
     private static final ScoreHolder SEED=ScoreHolder.forNameOnly("#game_seed");
     private LbcPhdCrafting(){}
+    static void prepare(GameController game) {
+        seedScore(game);
+    }
     public static void matchStarted(GameController game){
-        game.items().mana().score(SEED,"lbc.math").set(game.maps().level().getRandom().nextInt(10_000_000)+1);
+        seedScore(game).set(game.maps().level().getRandom().nextInt(10_000_000)+1);
+    }
+    private static net.minecraft.world.scores.ScoreAccess seedScore(GameController game) {
+        return game.items().mana().score(SEED, "lbc.math");
     }
     public static int seed(GameController game){return game.items().mana().hudValue(SEED,"lbc.math");}
     /** Every authored LBC Polymer carrier is stable and does not depend on viewer/tooltip projection. */

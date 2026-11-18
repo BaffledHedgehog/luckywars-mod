@@ -17,7 +17,8 @@ final class MatchStartup24Checks {
     private static final class Fixture {
         final GameController game;final int countdown;final List<UUID> bots=new ArrayList<>();
         final Map<String,Double> phases=new LinkedHashMap<>();final List<Long> before=new ArrayList<>(),after=new ArrayList<>();
-        int armed,release=-1,cages;long phaseTime,releaseNanos;boolean ready,requested,passed,closed;
+        final Map<String,Double> resetSteps = new LinkedHashMap<>();
+        int armed,release=-1,cages;long phaseTime,releaseNanos,resetTime;boolean ready,requested,passed,closed;
         Fixture(GameController game){this.game=game;countdown=game.config().countdownSeconds;armed=game.server().getTickCount();}
         void prepare() throws ReflectiveOperationException {
             require(game.inLobby()&&!game.maps().busy()&&game.maps().spawns().size()==24,"source map64 ready with24 spawns");
@@ -34,7 +35,12 @@ final class MatchStartup24Checks {
                 bot.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
             }
         }
-        void phase(String name){long now=System.nanoTime();if(phaseTime!=0)phases.put(name,(now-phaseTime)/1e6);phaseTime=now;}
+        void phase(String name){long now=System.nanoTime();if(phaseTime!=0)phases.put(name,(now-phaseTime)/1e6);phaseTime=now;if(name.equals("enter"))resetTime=now;}
+        void resetStep(String name) {
+            long now = System.nanoTime();
+            resetSteps.put(name, (now - resetTime) / 1e6);
+            resetTime = now;
+        }
         void tick(){
             int now=game.server().getTickCount();require(now-armed<800,"bounded native startup window");
             if(passed){if(game.inLobby())close();return;}
@@ -69,7 +75,7 @@ final class MatchStartup24Checks {
                 if(block instanceof RandomizableContainerBlockEntity chest){containers++;for(int i=0;i<chest.getContainerSize();i++)if(!chest.getItem(i).isEmpty()){nonempty++;break;}}
             }
             require(containers>=24&&nonempty>0,"source chest markers retain real generated loot");
-            SkyWars2.LOGGER.info("[check] bot-startup-24 metrics: map64 players=24 carpet=23 vanilla=1 cages={} containers={} nonempty={} releaseFullTickMs={} phasesMs={} countdown={} first25={} fullServerTicks=true",cages,containers,nonempty,releaseNanos/1e6,phases,metrics(before),metrics(after));
+            SkyWars2.LOGGER.info("[check] bot-startup-24 metrics: map64 players=24 carpet=23 vanilla=1 cages={} containers={} nonempty={} releaseFullTickMs={} phasesMs={} countdown={} first25={} fullServerTicks=true resetSteps={}",cages,containers,nonempty,releaseNanos/1e6,phases,metrics(before),metrics(after),resetSteps);
             passed=true;SkyWars2.LOGGER.info("[check] PASS bot-startup-24 (actual native roster/map/cages/chests and full completed startup ticks)");
         }
         void close(){
@@ -88,6 +94,10 @@ final class MatchStartup24Checks {
         try{f.prepare();}catch(Throwable error){try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw new IllegalStateException(error);}}
     static void run(GameController game){require(running!=null&&running.ready&&game.playing(),"prepared native24 match actually started");running.requested=true;}
     static void phase(GameController game,String name){var f=running;if(f!=null&&f.game==game)f.phase(name);}
+    static void resetStep(GameController game, String name) {
+        var f = running;
+        if (f != null && f.game == game) f.resetStep(name);
+    }
     static void tick(GameController game){var f=running;if(f==null||f.game!=game)return;try{f.tick();}
-        catch(Throwable error){try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL bot-startup-24 phases="+f.phases+" release="+f.release+" fullNanos="+f.releaseNanos+" cages="+f.cages,error);}}
+        catch(Throwable error){try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL bot-startup-24 phases="+f.phases+" release="+f.release+" fullNanos="+f.releaseNanos+" cages="+f.cages+" resetSteps="+f.resetSteps,error);}}
 }

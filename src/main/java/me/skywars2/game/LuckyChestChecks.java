@@ -80,6 +80,42 @@ public final class LuckyChestChecks {
             require(!stack.is(Items.RED_MUSHROOM_BLOCK),"functional Lucky blocks use real native block identity");}
         require(blocks==(lucky?1:0),"exactly one lucky profile only in Lucky family");
     }
+    private static void compareRefill(GameController game, WoolBucketChecks.Fixture f, BlockPos at) {
+        var sync = game.synchroRanked();
+        var previous = sync.checkpoint();
+        var chest = chest(f, at);
+        try {
+            for (boolean ranked : new boolean[]{false, true}) {
+                var key = MapManager.chestLootTable(2, "default", false);
+                var table = game.server().reloadableRegistries().getLootTable(key);
+                long seed = 34671L;
+                sync.begin(ranked, 427828L);
+                chest.clearContent();
+                chest.setLootTable(key);
+                chest.setLootTableSeed(seed);
+                try (var scope = sync.island(Vec3.atCenterOf(at), game.maps().spawns(), false)) {
+                    chest.unpackLootTable(null);
+                }
+                var expectedCounts = MapManager.normalizeLootCounts(chest);
+                var expected = new ArrayList<ItemStack>();
+                for (int i = 0; i < chest.getContainerSize(); i++) expected.add(chest.getItem(i).copy());
+                var expectedSequence = sync.checkpoint();
+
+                sync.begin(ranked, 427828L);
+                chest.setItem(0, sentinel());
+                var scope = sync.island(Vec3.atCenterOf(at), game.maps().spawns(), false);
+                var actualCounts = MapManager.fillArenaChest(f.level, chest, table, seed, scope);
+                require(Arrays.equals(actualCounts, expectedCounts), "same normalized counts");
+                require(chest.getLootTable() == null && chest.getLootTableSeed() == seed, "refill eagerly consumes its table and retains its seed");
+                require(sync.checkpoint().equals(expectedSequence), "same chest sequence advancement, ranked=" + ranked);
+                for (int i = 0; i < expected.size(); i++)
+                    require(ItemStack.matches(chest.getItem(i), expected.get(i)), "same slot " + i + ", ranked=" + ranked);
+            }
+        } finally {
+            sync.restore(previous);
+        }
+    }
+
     public static void run(GameController game){try(var f=new WoolBucketChecks.Fixture(game,false);var stats=new NativeMeleeChecks.NativeStats(f.owner,List.of(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NORMAL)))){
         int savedMode=game.config().gameMode,activeMode=game.gameMode();var markerTags=new HashMap<Entity,Set<String>>();try{
             for(var kind:LbcLuckyBlocks.Kind.values()){var carrier=switch(kind){case NORMAL->Items.RED_MUSHROOM_BLOCK;case NEKO->Items.BROWN_MUSHROOM_BLOCK;case LOLI->Items.MUSHROOM_STEM;};require(Objects.equals(LbcLuckyBlocks.item(kind).getDefaultInstance().get(DataComponents.COMPOSTABLE),carrier.getDefaultInstance().get(DataComponents.COMPOSTABLE)),"exact original composting component "+kind);}
@@ -89,6 +125,10 @@ public final class LuckyChestChecks {
             var origin=f.owner.blockPosition().offset(0,8,5);var positions=new ArrayList<BlockPos>();
             for(int i=0;i<3;i++){var at=origin.offset(i*3,0,0);positions.add(at);f.set(at,Blocks.BARREL.defaultBlockState());marker(f,at,CATEGORIES.get(i));}
             var control=origin.offset(0,0,24);f.set(control,Blocks.BARREL.defaultBlockState());marker(f,control,"default");
+            compareRefill(game, f, positions.getFirst());
+            var nativeChest = origin.offset(0, 0, 10);
+            f.set(nativeChest, Blocks.CHEST.defaultBlockState());
+            compareRefill(game, f, nativeChest);
             var fakeAt=origin.offset(0,0,5);f.set(fakeAt,Blocks.AIR.defaultBlockState());var fake=new ItemEntity(f.level,fakeAt.getX()+.5,fakeAt.getY(),fakeAt.getZ()+.5,new ItemStack(Items.COPPER_INGOT));fake.entityTags().add("swrg.center");f.own(fake);require(f.level.addFreshEntity(fake),"tagged non-marker witness");
             for(int mode:new int[]{1,2,2}){game.config().gameMode=mode;game.beginMatchMode(game.config().gameMode);for(boolean upgrade:new boolean[]{false,true}){
                 for(var at:positions)chest(f,at).setItem(0,sentinel());game.maps().fillChests(upgrade);

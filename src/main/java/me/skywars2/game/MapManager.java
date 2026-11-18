@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ArenaChestContentsAccess;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
@@ -43,6 +45,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.TagValueInput;
 import org.slf4j.Logger;
@@ -892,41 +897,55 @@ public final class MapManager {
             if (table == null) continue;
 
             BlockPos pos = BlockPos.containing(marker.position());
-            if (!level.getBlockState(pos).is(Blocks.CHEST)
-                    && !level.getBlockState(pos).is(Blocks.BARREL)) {
+            var state = level.getBlockState(pos);
+            if (!state.is(Blocks.CHEST) && !state.is(Blocks.BARREL)) {
                 level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 3);
             }
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof RandomizableContainerBlockEntity container) {
                 ResourceKey<LootTable> loot = chestLootTable(mode,table,upgrade);
-                String lootId=loot.identifier().toString();
-                // The original SWRG refill first removes Items, then assigns a
-                // new lazy loot table. Do the same so opened chests never retain
-                // old-round contents alongside a newly selected table.
-                container.clearContent();
-                if (server.reloadableRegistries().getLootTable(loot) == LootTable.EMPTY) {
+                var lootTable = server.reloadableRegistries().getLootTable(loot);
+                if (lootTable == LootTable.EMPTY) {
+                    String lootId = loot.identifier().toString();
                     if (missingLootReported.add(lootId)) {
                         LOGGER.error("SWRG chest loot table {} is missing or failed to load; leaving chest unfilled.", lootId);
                     }
+                    container.clearContent();
+                    container.setLootTable(null);
                     container.setChanged();
                     continue;
                 }
-                // Keep the table lazy, as vanilla containers do.
-                container.setLootTable(loot);
-                container.setLootTableSeed(level.getRandom().nextLong());
-                // The legacy chest refill forces lazy generation, then moves
-                // its synthetic minecraft:count modifier into stack count.
-                var game=SkyWars2.game();
-                try(var synchro=game==null?null:game.synchroRanked().island(marker.position(),spawns,"center".equals(table))){container.getItem(0);}
-                int[] normalized = normalizeLootCounts(container);
+                long seed = level.getRandom().nextLong();
+                var game = SkyWars2.game();
+                var synchro = game == null ? null : game.synchroRanked().island(marker.position(), spawns, "center".equals(table));
+                int[] normalized = fillArenaChest(level, container, lootTable, seed, synchro);
                 generatedChests++;
                 encodedCounts += normalized[0];
                 multiCounts += normalized[1];
-                container.setChanged();
             }
         }
         LOGGER.info("SWRG refill upgrade={} generatedChests={} syntheticCounts={} countsAboveOne={}",
                 upgrade, generatedChests, encodedCounts, multiCounts);
+    }
+
+    static int[] fillArenaChest(ServerLevel level, RandomizableContainerBlockEntity chest,
+                                LootTable table, long seed, SynchroRanked.Scope synchro) {
+        SimpleContainer contents;
+        try (synchro) {
+            var params = new LootParams.Builder(level)
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(chest.getBlockPos()))
+                    .create(LootContextParamSets.CHEST);
+            contents = new SimpleContainer(chest.getContainerSize());
+            chest.clearContent();
+            chest.setLootTable(null);
+            chest.setLootTableSeed(seed);
+            table.fill(contents, params, seed);
+        }
+        var counts = normalizeLootCounts(contents);
+        // Publish once so native callbacks see the complete, normalized inventory.
+        ((ArenaChestContentsAccess) chest).skywars2$setArenaItems(contents.getItems());
+        chest.setChanged();
+        return counts;
     }
 
     /** Legacy white-world reference, bounded to the only regions respawn can restore. */
@@ -1105,22 +1124,18 @@ public final class MapManager {
             ItemStack stack = container.getItem(slot);
             if (stack.isEmpty()) continue;
             ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
-            if (modifiers == null) continue;
-            List<ItemAttributeModifiers.Entry> retained = new ArrayList<>(modifiers.modifiers().size());
+            if (modifiers == null || modifiers.modifiers().isEmpty()) continue;
             Integer count = null;
-            for (ItemAttributeModifiers.Entry entry : modifiers.modifiers()) {
-                if (entry.modifier().id().equals(CHEST_COUNT_MODIFIER)) {
+            for (var entry : modifiers.modifiers()) {
+                if (entry.modifier().id().equals(CHEST_COUNT_MODIFIER))
                     count = (int) entry.modifier().amount();
-                } else {
-                    retained.add(entry);
-                }
             }
-            if (count != null) {
-                encodedCounts++;
-                if (count > 1) multiCounts++;
-                stack.setCount(Math.max(1, count));
-                stack.set(DataComponents.ATTRIBUTE_MODIFIERS, new ItemAttributeModifiers(retained));
-            }
+            if (count == null) continue;
+            encodedCounts++;
+            if (count > 1) multiCounts++;
+            stack.setCount(Math.max(1, count));
+            stack.set(DataComponents.ATTRIBUTE_MODIFIERS, new ItemAttributeModifiers(modifiers.modifiers().stream()
+                    .filter(entry -> !entry.modifier().id().equals(CHEST_COUNT_MODIFIER)).toList()));
         }
         return new int[] {encodedCounts, multiCounts};
     }

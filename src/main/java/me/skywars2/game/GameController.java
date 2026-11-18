@@ -248,6 +248,7 @@ public final class GameController {
         this.events = new MatchEvents(this, maps, config, players);
         this.lbc = new LbcLoadouts(this, config, players);
         this.items = new LbcItems(this);
+        LbcPhdCrafting.prepare(this);
         this.bedwars = new LbcBedwars(this);
         this.cases = new LbcCases(this);
         this.luckyModifiers = new GameLuckyModifiers(this);
@@ -1167,10 +1168,15 @@ public final class GameController {
         if (alivePlayers().size() < (developerMode() ? 1 : 2)) { restoreLobby(); return; }
         MatchStartup24Checks.phase(this,"enter");
         perkChoices.clear();
+        MatchStartup24Checks.resetStep(this,"perk_choices");
         LbcGayradar.resetRound(this);
+        MatchStartup24Checks.resetStep(this,"damage_scores");
         lbc.resetLevelupMatch();
+        MatchStartup24Checks.resetStep(this,"levelups");
         LbcPhdCrafting.matchStarted(this);
+        MatchStartup24Checks.resetStep(this,"crafting_seed");
         luckyModifiers.startMatch();
+        MatchStartup24Checks.resetStep(this,"lucky_modifier");
         MatchStartup24Checks.phase(this,"reset");
         if(!bedwars.mode()){
             maps.cages(false);MatchStartup24Checks.phase(this,"cages");
@@ -1179,6 +1185,7 @@ public final class GameController {
         }
         transition(Stage.PLAYING); gameTicks = 0;
         events.start();
+        var cinemaCenters = maps.centerPositions();
         try(var statisticsBatch=LbcPerkStatistics.get(server).batchDeferred()){
         for (ServerPlayer player : alivePlayers()) {
             player.setGameMode(GameType.SURVIVAL); player.setHealth(player.getMaxHealth());
@@ -1191,7 +1198,7 @@ public final class GameController {
             LbcPerkStatistics.get(server).recordPicks(choice.receipt(), choice.playerName(), choice.choices());
             var member=participants.get(player.getUUID());
             member.lives=items.phoenix().start(player,member.lives);player.setHealth(player.getMaxHealth());
-            items.cinema().start(player,maps.centerPositions());
+            items.cinema().start(player,cinemaCenters);
             items.stand().matchStarted(player);
         }
         }

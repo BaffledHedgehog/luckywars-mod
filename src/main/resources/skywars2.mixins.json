@@ -26,6 +26,7 @@
     "GenieInteractionMixin$Use",
     "PoiJournalMixin",
     "InventoryPublicationMixin",
+    "ArenaChestContentsAccess",
     "OversizedLootMixin",
     "OversizedLootMixin$Storage",
     "OversizedLootMixin$StoredContents",
