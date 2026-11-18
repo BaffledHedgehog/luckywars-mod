@@ -169,6 +169,7 @@ public final class LbcClouds {
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mobs"));
     private static final TagKey<EntityType<?>> RAYCASTERS = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:raycasters"));
     private static final DustColorTransitionOptions ORDINARY_ACID_DUST = new DustColorTransitionOptions(0x09e27e,0x067564,2);
+    private static final DustColorTransitionOptions AWAKENED_ACID_FIRE = new DustColorTransitionOptions(0xffbf60,0xffe600,3);
     private static final BlockRotProcessor SULFUR_EROSION = new BlockRotProcessor(0.005f);
     private static final String ACID = "skywars2.acid";
     private static final String WAND_ACID = "skywars2.wand.acid";
@@ -697,25 +698,35 @@ public final class LbcClouds {
         Vec3 path=to.subtract(from);double length=path.length();int samples=variant==2?Math.min(7,1+Mth.ceil(length*2-1e-6)):1;
         if(!shot.entityTags().contains("on_fire")&&ordinaryAcidIgnited(shot))shot.entityTags().add("on_fire");
         boolean burning=shot.entityTags().contains("on_fire");
-        for(int i=0;i<samples;i++){
-            double distance=length>3&&samples>1?length*i/(samples-1):Math.min(length,i*.5);
-            Vec3 at=length<1e-8?to:from.add(path.scale(distance/length));
-            if(burning){
-                var fire=new DustColorTransitionOptions(0xffbf60,0xffe600,3);
-                level.sendParticles(fire,true,false,at.x,at.y,at.z,variant==1?5:1,variant==1?6:1,variant==1?6:1,variant==1?6:1,.4);
-                if(variant==1)level.sendParticles(fire,at.x,at.y,at.z,40,6,6,6,.4);
-            }else{
-                level.sendParticles(ParticleTypes.SNEEZE,at.x,at.y,at.z,variant==1?10:1,variant==1?4:1,variant==1?4:1,variant==1?4:1,.1);
-                level.sendParticles(ORDINARY_ACID_DUST,true,false,at.x,at.y,at.z,variant==1?20:1,variant==1?8:1,variant==1?8:1,variant==1?8:1,.1);
-            }
-            for(var e:nearby)if(e.position().distanceToSqr(at)<=radius*radius&&hit.add(e)){
-                if(burning)e.hurtServer(level,ownedDamage(level,DamageTypes.ON_FIRE,shot,shot.getOwner()),variant==1?15:25);
-                else{
-                    e.addEffect(ItemEffectLevels.create(MobEffects.POISON,variant==1?2400:1000,10),shot.getOwner());
-                    if(variant==2)e.addEffect(ItemEffectLevels.create(MobEffects.WITHER,200,10),shot.getOwner());
+        boolean batch = variant == 2 && samples > 1 && !game.balanceLegacy();
+        try (var dust = batch ? new LbcParticleBatch.Group(level,
+                    burning ? AWAKENED_ACID_FIRE : ORDINARY_ACID_DUST,1,burning ? .4 : .1,true) : null;
+             var sneeze = batch && !burning ? new LbcParticleBatch.Group(level,ParticleTypes.SNEEZE,1,.1,false) : null) {
+            for (int i=0;i<samples;i++) {
+                double distance=length>3&&samples>1?length*i/(samples-1):Math.min(length,i*.5);
+                Vec3 at=length<1e-8?to:from.add(path.scale(distance/length));
+                if (dust != null) {
+                    if (sneeze != null) sneeze.add(at);
+                    dust.add(at);
+                } else if (burning) {
+                    int spread = variant == 1 ? 6 : 1;
+                    level.sendParticles(AWAKENED_ACID_FIRE,true,false,at.x,at.y,at.z,variant==1?5:1,spread,spread,spread,.4);
+                    if (variant==1) level.sendParticles(AWAKENED_ACID_FIRE,at.x,at.y,at.z,40,6,6,6,.4);
+                } else {
+                    int sneezeSpread = variant == 1 ? 4 : 1;
+                    int dustSpread = variant == 1 ? 8 : 1;
+                    level.sendParticles(ParticleTypes.SNEEZE,at.x,at.y,at.z,variant==1?10:1,sneezeSpread,sneezeSpread,sneezeSpread,.1);
+                    level.sendParticles(ORDINARY_ACID_DUST,true,false,at.x,at.y,at.z,variant==1?20:1,dustSpread,dustSpread,dustSpread,.1);
                 }
+                for (var e:nearby) if(e.position().distanceToSqr(at)<=radius*radius&&hit.add(e)) {
+                    if (burning) e.hurtServer(level,ownedDamage(level,DamageTypes.ON_FIRE,shot,shot.getOwner()),variant==1?15:25);
+                    else {
+                        e.addEffect(ItemEffectLevels.create(MobEffects.POISON,variant==1?2400:1000,10),shot.getOwner());
+                        if (variant==2) e.addEffect(ItemEffectLevels.create(MobEffects.WITHER,200,10),shot.getOwner());
+                    }
+                }
+                if (level.getRandom().nextFloat()<(variant==1?.2f:.7f)) sound(level,at,SoundEvents.FIRE_EXTINGUISH,variant==1?2:.5f,2,Double.POSITIVE_INFINITY,0);
             }
-            if(level.getRandom().nextFloat()<(variant==1?.2f:.7f))sound(level,at,SoundEvents.FIRE_EXTINGUISH,variant==1?2:.5f,2,Double.POSITIVE_INFINITY,0);
         }
     }
 

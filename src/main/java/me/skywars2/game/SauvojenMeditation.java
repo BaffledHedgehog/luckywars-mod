@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -43,6 +44,7 @@ public final class SauvojenMeditation {
     static final String TAG="skywars2.sauvojen.meditation";
     static final Identifier STONE=Identifier.parse("lbc:stone_cylinder");
     private static final TagKey<Block> AIRS=tag("airs"),TO_LIME=tag("to_lime");
+    private static final DustColorTransitionOptions WEB_DUST = new DustColorTransitionOptions(0x00ccff,0x003333,.8f);
     private static final int STRICT=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
     enum Kind { TERRA,TERRA_RAY,WEB,AIR,ACID_RING,ACID_BALLER,ACID_BALL,SCARE }
@@ -419,6 +421,7 @@ public final class SauvojenMeditation {
         var active=new ArrayList<Hazard>();active.add(webs.getFirst());
         for(int i=1;i<webs.size();i++){
             var h=webs.get(i);
+            int sourcePulses = 0;
             for(var target:active){edges++;
                 Vec3 aim=target.at.subtract(h.at);double distance=aim.length();Vec3 direction=aim.normalize();
                 double step=damage?.5:.2;int limit=damage?201:1000;
@@ -443,17 +446,24 @@ public final class SauvojenMeditation {
                 }
                 if(last!=null&&damage){
                     int count=Math.min(samples,visualSamples);
-                    for(int j=0;j<count;j++){
-                        // All emitted coordinates are actual .2/.5 source samples, including both endpoints.
-                        int sample=count==1?0:(int)Math.round((samples-1)*(double)j/(count-1));
+                    // Every edge from this node starts at the very same sample.
+                    // Sum those counts while keeping the remaining positions exact.
+                    sourcePulses++;
+                    for(int j=1;j<count;j++){
+                        int sample=(int)Math.round((samples-1)*(double)j/(count-1));
                         Vec3 point=h.at.add(direction.scale(sample*step));
-                        if(damage){t.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,4,.1,.1,.1,1);
-                            t.level.sendParticles(new net.minecraft.core.particles.DustColorTransitionOptions(0x00ccff,0x003333,.8f),point.x,point.y,point.z,1,.1,.1,.1,0);}
-                        else t.level.sendParticles(new DustParticleOptions(0xcc0000,1),point.x,point.y,point.z,1,0,0,0,0);
+                        webParticles(t.level,point,1);
                     }
                 }
-            }active.add(h);
+            }
+            if (sourcePulses > 0) webParticles(t.level,h.at,sourcePulses);
+            active.add(h);
         }t.webEdges=edges;return edges;
+    }
+
+    private static void webParticles(ServerLevel level, Vec3 point, int pulses) {
+        level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,4*pulses,.1,.1,.1,1);
+        level.sendParticles(WEB_DUST,point.x,point.y,point.z,pulses,.1,.1,.1,0);
     }
     private List<LivingEntity> targets(Trial t,Vec3 at,double radius){return t.level.getEntitiesOfClass(LivingEntity.class,
             new AABB(at,at).inflate(radius),e->e.isAlive()&&game.items().wands().validTarget(e)&&!LbcGreed.active(e)

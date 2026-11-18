@@ -3,6 +3,9 @@ package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.DustColorTransitionOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -114,13 +117,61 @@ public final class AwakenedAcidChecks {
             reset(victim);p.entityTags().add("on_fire");game.items().clouds().tick();require(victim.getHealth()==985&&victim.getKillCredit()==owner,"caust15 ON_FIRE damage");int age=game.items().clouds().acidAge(p);game.items().clouds().tick();require(victim.getHealth()==985&&game.items().clouds().acidAge(p)==age+1,"native fire hurt cooldown retained and caust age one per tick");
             var wall=BlockPos.containing(center.add(0,0,4));block(wall,Blocks.STONE);p.setPos(wall.getX()+.5,wall.getY()+.2,wall.getZ()-.1);p.setDeltaMovement(0,0,.2);p.tick();var stuck=p.position();require(p.entityTags().contains("skywars2.acid_stuck")&&p.getDeltaMovement().equals(Vec3.ZERO),"native first wall sticks without restored velocity");p.tick();require(p.position().equals(stuck),"sticky charge stationary");clearAcid();
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);friend.discard();technical.discard();reset(victim);
-            flag(s,"mode",3);require(use(s,InteractionHand.MAIN_HAND)&&shots().size()==8,"native eight-charge Gatling");var burst=shots().getFirst();shots().stream().filter(q->q!=burst).forEach(Entity::discard);
+            flag(s,"mode",3);
+            require(use(s,InteractionHand.MAIN_HAND)&&shots().size()==8,"native eight-charge Gatling");
+            var volley=shots();
+            var burst=volley.getFirst();
             require(LbcClouds.awakenedVariant(burst)==2&&LbcClouds.acidLifetime(burst)==200&&Math.abs(burst.getDeltaMovement().length()-3)<1e-6,"burst speed3/lifetime200");
-            burst.setPos(center.add(0,0,-1.5));burst.setDeltaMovement(0,0,3);burst.tick();game.items().clouds().tick();effect(victim,MobEffects.POISON,1000,4);effect(victim,MobEffects.WITHER,200,5);
+            try (var client = new RegenerationBeltChecks.ScheduledClient(game,owner)) {
+                client.packets().clear();
+                for (int i=0;i<volley.size();i++) {
+                    var shot=volley.get(i);
+                    shot.setPos(center.add(i*.125,0,-1.5));
+                    shot.setDeltaMovement(0,0,3);
+                    shot.tick();
+                }
+                game.items().clouds().tick();
+                checkGatlingParticles(client,8,false);
+            }
+            volley.stream().filter(q->q!=burst).forEach(Entity::discard);
+            effect(victim,MobEffects.POISON,1000,4);effect(victim,MobEffects.WITHER,200,5);
             MobEffects.WITHER.value().applyEffectTick(owner.level(),victim,10);require(victim.getKillCredit()==owner,"native wither cause");
             victim.setInvulnerableTime(0);victim.damageCooldownTime=0;victim.hurtServer(owner.level(),owner.level().damageSources().playerAttack(other),1);victim.setInvulnerableTime(0);victim.damageCooldownTime=0;MobEffects.WITHER.value().applyEffectTick(owner.level(),victim,10);require(victim.getKillCredit()==other,"later real player hit wins old wither");
-            reset(victim);victim.fireCalls=0;burst.setPos(center.add(0,0,-1.5));burst.setDeltaMovement(0,0,3);burst.entityTags().add("on_fire");burst.tick();game.items().clouds().tick();require(victim.getHealth()==975&&victim.fireCalls==1,"one25 fire call per target per tick");game.items().clouds().tick();require(victim.getHealth()==975&&victim.fireCalls==2,"exactly one call per tick and normal fire cooldown");
+            reset(victim);victim.fireCalls=0;burst.setPos(center.add(0,0,-1.5));burst.setDeltaMovement(0,0,3);burst.entityTags().add("on_fire");
+            try (var client = new RegenerationBeltChecks.ScheduledClient(game,owner)) {
+                client.packets().clear();
+                burst.tick();
+                game.items().clouds().tick();
+                checkGatlingParticles(client,1,true);
+            }
+            require(victim.getHealth()==975&&victim.fireCalls==1,"one25 fire call per target per tick");
+            game.items().clouds().tick();require(victim.getHealth()==975&&victim.fireCalls==2,"exactly one call per tick and normal fire cooldown");
             clearAcid();victim.discard();owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+        }
+        void checkGatlingParticles(RegenerationBeltChecks.ScheduledClient client, int shots, boolean burning) {
+            var particles = client.packets().stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast).toList();
+            var dust = particles.stream().filter(packet -> packet.particle() instanceof DustColorTransitionOptions).toList();
+            var sneeze = particles.stream().filter(packet -> packet.particle().getType() == ParticleTypes.SNEEZE).toList();
+            require(dust.size() == shots*3 && dust.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum() == shots*7,
+                    "all seven trail dust instances survive three native packets per projectile: " + dust);
+            require(sneeze.size() == (burning ? 0 : shots*3)
+                            && sneeze.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum() == (burning ? 0 : shots*7),
+                    "poison sneeze clouds keep their count and fire emits none");
+            float speed = burning ? .4f : .1f;
+            int from = burning ? 0xffbf60 : 0x09e27e;
+            int to = burning ? 0xffe600 : 0x067564;
+            require(dust.stream().allMatch(packet -> {
+                var color = (DustColorTransitionOptions)packet.particle();
+                return packet.overrideLimiter() && !packet.alwaysShow() && packet.xMaxSpeed()==speed
+                        && color.getScale()==(burning ? 3 : 2)
+                        && color.getFromColor().equals(net.minecraft.util.ARGB.vector3fFromRGB24(from))
+                        && color.getToColor().equals(net.minecraft.util.ARGB.vector3fFromRGB24(to));
+            }) && sneeze.stream().noneMatch(ClientboundLevelParticlesPacket::overrideLimiter),
+                    "both native types preserve their original colors, sizes, speed and recipient range");
+            int actual = dust.size()+sneeze.size();
+            SkyWars2.LOGGER.info("[check] awakened acid Gatling burning={} shots={} particle packets={} vs {} original",
+                    burning,shots,actual,shots*7*(burning ? 1 : 2));
         }
         void rifle(){
             var service=game.items().awakenedAcid();var s=loot("academy_awakened_acid_wand");flag(s,"mode",4);flag(s,"tier",1);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);game.items().mana().set(owner,100000);

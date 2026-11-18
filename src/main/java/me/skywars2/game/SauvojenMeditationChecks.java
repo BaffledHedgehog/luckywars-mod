@@ -279,6 +279,21 @@ public final class SauvojenMeditationChecks {
                 packets.recording.particles.clear();require(service.webLines(t,true)==120,"full damage graph retains all120 edges");
                 require(t.webQueries==1&&t.webEdges==120&&t.webSamples>120,"full damage graph uses one native spatial query for all source collision samples");
                 require(packets.recording.particles.size()<=1600&&packets.recording.particles.stream().mapToInt(p->p.count()).sum()<=4000,"bounded actual full-graph damage packets and client particle instances");
+                var dust=packets.recording.particles.stream()
+                        .filter(packet->packet.particle().getType()==net.minecraft.core.particles.ParticleTypes.DUST_COLOR_TRANSITION).toList();
+                var sparks=packets.recording.particles.stream()
+                        .filter(packet->packet.particle().getType()==net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK).toList();
+                int samples=dust.stream().mapToInt(packet->packet.count()).sum();
+                require(sparks.stream().mapToInt(packet->packet.count()).sum()==4*samples,
+                        "web still emits four sparks for every dust instance");
+                int unbatched=2*samples;
+                int actual=packets.recording.particles.size();
+                require(unbatched-actual==2*(120-15),"one exact shared start per source node instead of 120 repeated starts");
+                var lastNode=t.hazards.getLast().at;
+                require(dust.stream().filter(packet->new Vec3(packet.x(),packet.y(),packet.z()).distanceToSqr(lastNode)<1e-12)
+                                .mapToInt(packet->packet.count()).sum()==15,
+                        "all fifteen outgoing starts remain at the exact native node coordinate");
+                SkyWars2.LOGGER.info("[check] Sauvojen web: {} particle instances in {} packets vs {} original",5*samples,actual,unbatched);
             }
             t.hazards.clear();cow.setHealth(cow.getMaxHealth());cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
             var coincident=cow.position().add(0,.5,0);
