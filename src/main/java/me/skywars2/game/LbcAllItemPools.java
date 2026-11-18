@@ -5,6 +5,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -26,6 +28,9 @@ public final class LbcAllItemPools {
     private static final List<String> FUNCTIONAL_TABLES=List.of("27_acessories","27_bows","27_grimoires","27_instruments","27_potions","27_random_items","27_rofls","27_shooters","27_slabs","27_staffs","27_summons","27_swords");
     private static final Map<String,String> LEGACY_TABLES=legacyTables();
     private static final Set<Filter> REQUESTED=java.util.concurrent.ConcurrentHashMap.newKeySet();
+    // Class initialization runs during Fabric item registration, before the server watchdog.
+    // Datapack reloads rebind against fresh registries, using the same bundled manifest.
+    private static final byte[] BUNDLED_MANIFEST = readBundledManifest();
     public enum Domain { CUSTOM, VANILLA, UNION;
         static Domain parse(String text){return valueOf(text.toUpperCase(Locale.ROOT));}
     }
@@ -35,6 +40,15 @@ public final class LbcAllItemPools {
     /** Translate only designated uniform consumers; weighted/set-specific callers keep their original ID. */
     public static String uniformTable(String legacy){return LEGACY_TABLES.getOrDefault(legacy,legacy);}
     public static Map<String,String> uniformTables(){return LEGACY_TABLES;}
+    private static byte[] readBundledManifest() {
+        try (var stream = LbcAllItemPools.class.getResourceAsStream("/skywars2/all_item_pools.json")) {
+            if (stream == null) throw new IllegalStateException("Missing uniform item manifest");
+            return stream.readAllBytes();
+        } catch (IOException error) {
+            throw new IllegalStateException("Read uniform item catalog", error);
+        }
+    }
+
     private final GameController game;
     private volatile Catalog catalog;
     public LbcAllItemPools(GameController game){this.game=game;}
@@ -140,11 +154,8 @@ public final class LbcAllItemPools {
         final boolean complete;
         final List<String> findings;
         Catalog(){
-            JsonObject manifest;
-            try(var stream=LbcAllItemPools.class.getResourceAsStream("/skywars2/all_item_pools.json")){
-                if(stream==null)throw new IllegalStateException("Missing uniform item manifest");
-                manifest=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-            }catch(Exception error){throw new IllegalStateException("Read uniform item catalog",error);}
+            var reader = new InputStreamReader(new ByteArrayInputStream(BUNDLED_MANIFEST), StandardCharsets.UTF_8);
+            var manifest = JsonParser.parseReader(reader).getAsJsonObject();
             if(manifest.get("schema").getAsInt()!=1)throw new IllegalStateException("Unknown uniform pool schema");
             boolean sourceComplete=manifest.get("complete").getAsBoolean();
             var problems=new ArrayList<String>();
@@ -197,6 +208,7 @@ public final class LbcAllItemPools {
             }
             var byId=new HashMap<String,Slot>();union.forEach(slot->byId.put(slot.id,slot));logical=Map.copyOf(byId);
             var categories=new TreeMap<String,List<Slot>>();
+            var typesByItem = new IdentityHashMap<Item, Set<String>>();
             for(var value:manifest.getAsJsonObject("typedViews").entrySet()){
                 var row=value.getValue().getAsJsonObject();var members=new ArrayList<Slot>();var original=new HashSet<String>();row.getAsJsonArray("sourceMembers").forEach(id->original.add(id.getAsString()));
                 for(var member:row.getAsJsonObject("members").entrySet()){
@@ -215,7 +227,7 @@ public final class LbcAllItemPools {
                     String category=value.getKey().substring(0,value.getKey().length()-4);var present=new HashSet<String>();members.forEach(slot->present.add(slot.id));
                     for(var source:manifest.getAsJsonArray("custom")){
                         var authored=source.getAsJsonObject();String id=authored.get("id").getAsString();var item=BuiltInRegistries.ITEM.getValue(Identifier.parse(authored.getAsJsonObject("identity").get("carrier").getAsString()));
-                        if(!present.contains(id)&&nativeTypes(item).contains(category)){members.add(byId.get(id));present.add(id);}
+                        if(!present.contains(id)&&typesByItem.computeIfAbsent(item,LbcAllItemPools::nativeTypes).contains(category)){members.add(byId.get(id));present.add(id);}
                     }
                 }
                 members.sort(Comparator.comparing(Slot::id));categories.put(value.getKey(),List.copyOf(members));
@@ -225,7 +237,7 @@ public final class LbcAllItemPools {
             for(var category:categories.keySet()){
                 String semantic=category.endsWith("_all")?category.substring(0,category.length()-4):category;var eligible=new ArrayList<Slot>();var unionEligible=new ArrayList<Slot>();
                 for(int i=0;i<vanilla.size();i++){
-                    var slot=vanilla.get(i);boolean admitted=category.equals("no_recursive_shulker")?!slot.nativeItem.getDefaultInstance().has(net.minecraft.core.component.DataComponents.CONTAINER_LOOT):nativeTypes(slot.nativeItem).contains(semantic);
+                    var slot=vanilla.get(i);boolean admitted=category.equals("no_recursive_shulker")?!slot.nativeItem.getDefaultInstance().has(net.minecraft.core.component.DataComponents.CONTAINER_LOOT):typesByItem.computeIfAbsent(slot.nativeItem,LbcAllItemPools::nativeTypes).contains(semantic);
                     if(admitted){eligible.add(category.equals("no_recursive_shulker")?sourceVanilla.getOrDefault(slot.id,slot):slot);unionEligible.add(category.equals("no_recursive_shulker")?sourceVanilla.getOrDefault(slot.id,slot):unionVanillas.get(i));}
                 }
                 nativeCategories.put(category,List.copyOf(eligible));var combinedView=new LinkedHashMap<String,Slot>();categories.get(category).forEach(slot->combinedView.put(slot.id,slot));unionEligible.forEach(slot->combinedView.put(slot.id,slot));combinedCategories.put(category,List.copyOf(combinedView.values()));
