@@ -48,6 +48,8 @@ public final class PsychoSoundChecks {
         int expectedRaySamples;
         BlockPos rayWall;
         BlockState savedRayWall;
+        LbcPsycho.Charge trailCharge;
+        Vec3 trailStart,trailEnd;
         Fixture(GameController game){
             this.game=game;source=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             target=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
@@ -136,6 +138,46 @@ public final class PsychoSoundChecks {
             source.level().setBlock(rayWall,savedRayWall,3);
             rayWall=null;
         }
+        void startCharge(int mode) {
+            service.stop();
+            var origin=source.position().add(-3,3,0);
+            var direction=new Vec3(.6,.12,.8).normalize();
+            if(mode==0)require(service.emitDoppel(source,origin,direction),"native visible charge launches");
+            else service.emitAt(source,mode,origin,direction);
+            var shots=service.snapshot();
+            require(shots.size()==(mode==4?3:1),"expected native charge formation");
+            trailCharge=shots.getFirst();
+            trailStart=trailCharge.position();
+            trailEnd=trailStart.add(trailCharge.getDeltaMovement());
+            packets(client).clear();
+        }
+        void chargeTraffic(int steps) {
+            var particles=packets(client).stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast).filter(packet->
+                        packet.particle()==ParticleTypes.SQUID_INK || packet.particle()==ParticleTypes.GLOW_SQUID_INK).toList();
+            require(trailCharge.position().distanceToSqr(trailEnd)<1e-10,"charge advances its full native segment");
+            if(steps==0) {
+                require(particles.isEmpty(),"invisible charge omits both ink trails");
+                return;
+            }
+            int perPacket=game.balanceLegacy()?1:3;
+            for(var type:List.of(ParticleTypes.SQUID_INK,ParticleTypes.GLOW_SQUID_INK)) {
+                var trail=particles.stream().filter(packet->packet.particle()==type).toList();
+                require(trail.size()==(steps+perPacket)/perPacket,"reduced packets for "+type);
+                int start=0;
+                for(var packet:trail) {
+                    int count=Math.min(perPacket,steps+1-start);
+                    Vec3 center=trailStart.lerp(trailEnd,(start+(count-1)*.5)/steps);
+                    require(packet.count()==count && packet.overrideLimiter()==(type==ParticleTypes.GLOW_SQUID_INK)
+                            && packet.xMaxSpeed()==0 && packet.yMaxSpeed()==0 && packet.zMaxSpeed()==0
+                            && new Vec3(packet.x(),packet.y(),packet.z()).distanceToSqr(center)<1e-10,
+                            "ink retains type, particle count, range flag, group center and zero emission velocity");
+                    start+=count;
+                }
+                require(start==steps+1,"entire section of both ink trails is emitted");
+            }
+            SkyWars2.LOGGER.info("[check] Psycho charge: {} ink trail packets for {} particles",particles.size(),2*(steps+1));
+        }
         boolean step(){
             client.acknowledge();audience.acknowledge();int now=game.server().getTickCount(),elapsed=now-phaseStarted;
             require(now-started<140,"bounded actual scheduled beam fixture");if(elapsed<1)return false;
@@ -183,7 +225,10 @@ public final class PsychoSoundChecks {
                 case 6->{audience(afterContactStarts+4);service.stop();require(empty(service)&&service.rayCount(source)==0&&stops(audience)==0,"ordinary service stop retires renewal lease");
                     for(var c:List.of(client,audience))require(packets(c).stream().filter(ClientboundStopSoundPacket.class::isInstance)
                             .map(ClientboundStopSoundPacket.class::cast).noneMatch(p->p.getName()==null||LbcPsycho.BEAM_SOUND.equals(p.getName())),"no broad or scream-wide stop affects unrelated uses");
-                    return true;}
+                    startCharge(0);next(7);}
+                case 7->{chargeTraffic(8);startCharge(3);next(8);}
+                case 8->{chargeTraffic(4);require(service.count()==2,"spray still emits a child after moving");startCharge(4);next(9);}
+                case 9->{chargeTraffic(0);return true;}
                 default->throw new IllegalStateException("Psycho fixture phase "+phase);
             }return false;
         }

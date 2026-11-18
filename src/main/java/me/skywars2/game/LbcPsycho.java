@@ -420,11 +420,7 @@ public final class LbcPsycho {
             int hits=0;
             for(var target:candidates) { impact(charge,owner,target); if(++hits==2) break; }
             charge.setPos(to);
-            if(!charge.invisible) for(int i=0;i<= (charge.spray?4:8);i++) {
-                var p=from.lerp(to,i/(charge.spray?4.0:8));
-                owner.level().sendParticles(ParticleTypes.SQUID_INK,p.x,p.y,p.z,1,0,0,0,0);
-                owner.level().sendParticles(ParticleTypes.GLOW_SQUID_INK,true,false,p.x,p.y,p.z,1,0,0,0,0);
-            }
+            if(!charge.invisible) chargeTrail(owner.level(),from,to,charge.spray?4:8);
             if(charge.spray) {
                 float yaw=owner.getRandom().nextFloat()*360,pitch=owner.getRandom().nextFloat()*180-90;
                 spawn(owner,to,Vec3.directionFromRotation(pitch,yaw).scale(2),false,false,20);
@@ -433,6 +429,24 @@ public final class LbcPsycho {
             }
             if(hits>0 && !charge.spray || ++charge.age>=charge.lifetime) { remove(charge); continue; }
             if(!charge.spray) home(owner,charge);
+        }
+    }
+    private void chargeTrail(ServerLevel level,Vec3 from,Vec3 to,int steps) {
+        if(game.balanceLegacy()) {
+            for(int i=0;i<=steps;i++) {
+                var point=from.lerp(to,i/(double)steps);
+                level.sendParticles(ParticleTypes.SQUID_INK,point.x,point.y,point.z,1,0,0,0,0);
+                level.sendParticles(ParticleTypes.GLOW_SQUID_INK,true,false,point.x,point.y,point.z,1,0,0,0,0);
+            }
+            return;
+        }
+        try(var ink=new LbcParticleBatch.Group(level,ParticleTypes.SQUID_INK,0,0,false);
+            var glowing=new LbcParticleBatch.Group(level,ParticleTypes.GLOW_SQUID_INK,0,0,true)) {
+            for(int i=0;i<=steps;i++) {
+                var point=from.lerp(to,i/(double)steps);
+                ink.add(point);
+                glowing.add(point);
+            }
         }
     }
     private void home(ServerPlayer owner,Charge charge) {
