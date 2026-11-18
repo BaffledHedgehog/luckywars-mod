@@ -1,0 +1,15 @@
+{
+  "assets/lbc/shaders/include/bloom_rules.glsl": "4294d7c6bc5d6103c1ff6a938b3bc2684ff1cd46f0cec6ee74658100d3c99d0d",
+  "bloom_rules.json": "db59f3f177be3d6535d06ec60673c62a3acc8a82c3ce39da50577732b3679932",
+  "assets/lbc/items/music_staff/staff.json": "ea1ce13415d42ff3a028e4df06b1a76b503deabf9a8d4304dadd7275f82e62c5",
+  "assets/lbc/models/item/music_staff/staff.json": "3cb6ba719cf8fa8fbc46618d9a5e04e70c8c899d07d4d86d0e6644d5d49638c0",
+  "assets/minecraft/textures/item/wand_52.png": "60e6d3433d44a9af2bf8bbce5a2ae300dc2f7f4a8a09ad9eeb3cef11ccb62d78",
+  "assets/lbc/items/hedgehog_laser_ray.json": "67bba59ddf2967321d3cc190fa7cd4385cdb71a9aa18a3b10cb20e74d02729e2",
+  "assets/lbc/models/item/hedgehog_laser_ray.json": "c11d4d601a31da87206d08ab601efa5327132657e885859429b6e1c7d60797f7",
+  "assets/lbc/textures/item/hedgehog_laser_ray.png": "9c4fbd79e9abc08ebdff9f4942c2e6ef10ccc4fd4bb46896e4ed07948c40999b",
+  "assets/lbc/items/hedgehog_sniper_ray.json": "fed609415685ba5bb9b7aa5a17e32c06b1f6f155136a20af11b488c417ca57d6",
+  "assets/lbc/models/item/hedgehog_sniper_ray.json": "654dc43983ec0f7a55c73f0312c2ff193152427bb734b0a111ae58ae5990f3cf",
+  "assets/lbc/textures/item/hedgehog_sniper_ray.png": "4c0608ee6a0855de085d96a3430a913b73e845b34c3b437cc74b3593cec450e9",
+  "assets/minecraft/shaders/core/item.fsh": "f4fcf4776dfca5af1d0b2ff7053e4440f4883291612125e2f57a361366572add",
+  "assets/minecraft/sounds.json": "a68dcd4e3c8f7322bdd1c8beafddfaad6339615740408034cf1dc1eefcf237be"
+}

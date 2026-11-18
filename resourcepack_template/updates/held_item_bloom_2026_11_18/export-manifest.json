@@ -1,0 +1,8 @@
+{
+  "copy": [
+    "assets/",
+    "bloom_rules.json"
+  ],
+  "authorPackWritten": false,
+  "assets": 11
+}

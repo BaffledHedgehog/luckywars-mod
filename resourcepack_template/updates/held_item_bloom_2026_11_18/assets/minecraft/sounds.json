@@ -1,0 +1,988 @@
+{
+    "lbcsounds.music_staff": {
+        "sounds": [{"name":"minecraft:lbcsounds/music_staff","stream":true}]
+    },
+    "lbcsounds.yametekudasai": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/yametekudasai",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.nuke": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/nuke",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.ponos": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/ponos",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.zawardo": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/zawardo",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.shot": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/shot",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.rasstrelat": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/rasstrelat",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.exoperso": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/exoperso",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.scream_1": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/scream_1",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.scream_2": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/scream_2",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.scream_3": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/scream_3",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.backrooms": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/backrooms",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.dick_1": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/dick_1",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.weewee": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/weewee",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.spank": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/spank",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.woo": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/woo",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.suction": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/suction",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.shityeah": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/shityeah",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.bambam": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/bambam",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.metal_pipe": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/metal_pipe",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.icum": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/icum",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.yamai_desu": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/yamai_desu",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.yamai_desu_2": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/yamai_desu_2",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.yamai_desu_3": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/yamai_desu_3",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.ooh": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/ooh",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.nyah": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/nyah",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.whale_1": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/whale_1",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.whale_2": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/whale_2",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.whale_3": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/whale_3",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.whale_clone_1": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/whale_clone_1",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.whale_clone_2": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/whale_clone_2",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.whale_clone_3": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/whale_clone_3",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.vanity_respawn": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/vanity_respawn",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.supply_fall": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/supply_fall",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.agggght": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/agggght",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.burning_balance": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/burning_balance",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.rocket": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/rocket",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.technoflyclick": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/technoflyclick",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.rocket_power": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/rocket_power",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.scream": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/scream",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.laser_mg_shot": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/laser_mg_shot",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.laser_mg_rev_up": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/laser_mg_rev_up",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.laser_mg_rev_down": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/laser_mg_rev_down",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.laser_mg_spin": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/laser_mg_spin",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.ice_wand": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/ice_wand",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.ice_wand_shatter": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/ice_wand_shatter",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.bell": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/bell",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.gayradar": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/gayradar",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.oraora": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/oraora",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.oluh_1": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/oluh_1",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.oluh_2": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/oluh_2",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.oluh_3": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/oluh_3",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.oluh_4": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/oluh_4",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.oluh_5": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/oluh_5",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.oluh_6": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/oluh_6",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.kazahstan": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/kazahstan",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.helicopter": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/helicopter",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.drop_bomb": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/drop_bomb",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.karich": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/karich",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.impulse": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/impulse",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.bomb": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/bomb",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.penis_bossfight": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/penis_bossfight",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.bonk": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/bonk",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.laser_attack": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/laser_attack",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.ui_beam": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/ui_beam",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.vomiting": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/vomiting",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.shitting_1": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/shitting_1",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.shitting_2": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/shitting_2",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.angelic": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/angelic",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.overload_jump": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/overload_jump",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.overload_impact": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/overload_impact",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.snow_wand": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/snow_wand",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.pill_good": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/pill_good",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.pill_bad": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/pill_bad",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.imprinted_enter": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/imprinted_enter",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.nexus_mood": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/nexus_mood",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.drone_signal": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/drone_signal",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.drone_tick": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/drone_tick",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.crocodildo": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/crocodildo",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.hihihiha": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/hihihiha",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.rocketspell": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/rocketspell",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.bad_apple": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/bad_apple",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.energy_1": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/energy_1",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.energy_2": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/energy_2",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.energy_3": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/energy_3",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.flowey_laugh": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/flowey_laugh",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.halloween": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/halloween",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.hahahahaha": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "lbcsounds/hahahahaha",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.s1": {
+        "sounds": [
+            {
+                "name": "lbcsounds/s1",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.s2": {
+        "sounds": [
+            {
+                "name": "lbcsounds/s2",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.s3": {
+        "sounds": [
+            {
+                "name": "lbcsounds/s3",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.s4": {
+        "sounds": [
+            {
+                "name": "lbcsounds/s4",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.s5": {
+        "sounds": [
+            {
+                "name": "lbcsounds/s5",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.s6": {
+        "sounds": [
+            {
+                "name": "lbcsounds/s6",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.s7": {
+        "sounds": [
+            {
+                "name": "lbcsounds/s7",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.skolko_nahui": {
+        "sounds": [
+            {
+                "name": "lbcsounds/skolko_nahui",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.uzhe_krasni": {
+        "sounds": [
+            {
+                "name": "lbcsounds/uzhe_krasni",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.business_suka": {
+        "sounds": [
+            {
+                "name": "lbcsounds/business_suka",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.amamamamam": {
+        "sounds": [
+            {
+                "name": "lbcsounds/amamamamam",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.pampampam": {
+        "sounds": [
+            {
+                "name": "lbcsounds/pampampam",
+                "stream": true
+            }
+        ]
+    },
+    "lbcsounds.bananoponos": {
+        "sounds": [
+            {
+                "name": "lbcsounds/bananoponos",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.ukraine": {
+        "sounds": [
+            {
+                "name": "lbcsounds/ukraine",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.donbass": {
+        "sounds": [
+            {
+                "name": "lbcsounds/donbass",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.awaawa": {
+        "sounds": [
+            {
+                "name": "lbcsounds/awaawa",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.yurayura": {
+        "sounds": [
+            {
+                "name": "lbcsounds/yurayura",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.fuwafuwa": {
+        "sounds": [
+            {
+                "name": "lbcsounds/fuwafuwa",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.ultrascream": {
+        "sounds": [
+            {
+                "name": "lbcsounds/ultrascream",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.bafled": {
+        "sounds": [
+            {
+                "name": "lbcsounds/bafled",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.meat1": {
+        "sounds": [
+            {
+                "name": "lbcsounds/meat1",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.meat2": {
+        "sounds": [
+            {
+                "name": "lbcsounds/meat2",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.meat3": {
+        "sounds": [
+            {
+                "name": "lbcsounds/meat3",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.swap_charge": {
+        "sounds": [
+            {
+                "name": "lbcsounds/swap_charge",
+                "stream": false
+            }
+        ]
+    },
+    "lbcsounds.swap_go": {
+        "sounds": [
+            {
+                "name": "lbcsounds/swap_go",
+                "stream": false
+            }
+        ]
+    }
+}
