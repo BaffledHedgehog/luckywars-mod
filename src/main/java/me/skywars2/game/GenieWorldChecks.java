@@ -359,6 +359,75 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void danmakuCasts(GameController game, WoolBucketChecks.Fixture base, Vec3 center) {
+        var danmaku = game.items().danmaku();
+        require(danmaku.count() == 0, "exclusive Danmaku effects fixture");
+        var owner = base.owner;
+        var weapon = new ItemStack(Items.GOLDEN_SWORD);
+        var chargeScore = game.items().mana().score(owner, "danmaku_score");
+        int initialCharge = chargeScore.get();
+        var victim = Objects.requireNonNull(EntityTypes.COW.create(base.level, EntitySpawnReason.TRIGGERED));
+        victim.setPos(center);
+        victim.setNoAi(true);
+        require(base.level.addFreshEntity(victim), "native Danmaku victim");
+        base.own(victim);
+        try (var host = new GenieWorldHost(game, owner, weapon, () -> true, () -> 0)) {
+            base.field(false, center);
+            require(!complete(host, queued(host, "lbc.cast_at", new JsonPrimitive("skywars2:gohei_spellcard"),
+                    vector(center))).getAsBoolean() && danmaku.bombs().isEmpty(), "Gohei shell respects antimagic at its center");
+            base.removeFields();
+            var bursts = List.of(GenieNative.TargetedCast.GOHEI_SPELLCARD,
+                    GenieNative.TargetedCast.GOHEI_SPELLCARD_FULL, GenieNative.TargetedCast.HAKUREI_BOMB);
+            for (var burst : bursts) {
+                require(complete(host, queued(host, "lbc.cast_at", new JsonPrimitive(burst.id.toString()),
+                        vector(center))).getAsBoolean(), "native sphere accepted: " + burst);
+                var body = danmaku.bombs().getFirst();
+                boolean fast = burst == GenieNative.TargetedCast.HAKUREI_BOMB;
+                int charge = burst == GenieNative.TargetedCast.GOHEI_SPELLCARD_FULL ? 1500 : 300;
+                var expectedGlow = fast ? LbcDanmaku.HAKUREI_BOMB_GLOW : LbcDanmaku.SPELLCARD_GLOW;
+                require(body.owner == owner && body.charge == charge && body.fast == fast
+                        && body.display.position().equals(center) && body.display.getGlowColorOverride() == expectedGlow
+                        && body.cause.player().equals(owner.getUUID()) && ItemStack.matches(body.cause.enchantmentWeapon(), weapon),
+                        "sphere has its native center, variant, color and captured weapon");
+                float health = victim.getHealth();
+                for (int i = 0; i < 9; i++) danmaku.tick();
+                require(victim.getHealth() == health, "sphere does not debit health before the native pulse");
+                danmaku.tick();
+                require(body.age == (fast ? 100 : 40) && victim.getLastHurtByMob() == owner
+                        && Math.abs(health - victim.getHealth() - (fast ? 1 : .5)) < 1e-4
+                        && chargeScore.get() == initialCharge, "sphere deals authored damage on tick ten without taking staff charge");
+                base.discard(body.display);
+            }
+
+            var origin = center.add(-1, .65, 0);
+            var aim = new Vec3(1, 0, 0);
+            var homing = new JsonPrimitive("skywars2:danmaku_homing_card");
+            require(complete(host, queued(host, "lbc.cast", homing, vector(origin), vector(aim))).getAsBoolean(),
+                    "directed native homing card accepted");
+            var guided = danmaku.cards().getFirst();
+            require(guided.homing && guided.display.position().equals(origin) && guided.direction.equals(aim)
+                    && ItemStack.matches(guided.cause.enchantmentWeapon(), weapon), "homing card has exact origin and source");
+            require(danmaku.reflectCard(guided.display, base.other) && guided.owner == base.other && guided.cause == null,
+                    "reflecting a scripted card transfers control without retaining the old weapon");
+            base.discard(guided.display);
+
+            var ordinary = new JsonPrimitive("skywars2:danmaku_card");
+            require(complete(host, queued(host, "lbc.cast", ordinary, vector(origin), vector(aim))).getAsBoolean(),
+                    "directed native ordinary card accepted");
+            var straight = danmaku.cards().getFirst();
+            float before = victim.getHealth();
+            danmaku.tick();
+            require(!straight.homing && straight.display.isRemoved() && Math.abs(before - victim.getHealth() - .325) < 1e-4,
+                    "ordinary card hits once and retires with its original damage");
+        } finally {
+            base.removeFields();
+            for (var bomb : danmaku.bombs()) base.discard(bomb.display);
+            for (var card : danmaku.cards()) base.discard(card.display);
+            base.discard(victim);
+            chargeScore.set(initialCharge);
+        }
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -420,6 +489,7 @@ final class GenieWorldChecks {
             directedCasts(game, base, launchSpot.add(0, .65, 0));
             targetedOreshnik(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
+            danmakuCasts(game, base, launchSpot);
 
             require(GenieNative.grimoires().containsKey(net.minecraft.resources.Identifier.parse("skywars2:tesla_instant_grimoire")),"real Tesla grimoire is indexed by the engine");
             var oldSpeed=base.owner.getEffect(MobEffects.SPEED);

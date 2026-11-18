@@ -56,7 +56,7 @@ public final class GenieNative {
         return LbcLibrarySpells.admitted(game,player,hand)&&LbcLibrarySpells.cast(game,player,hand,spell);
     }
     private enum Cast {
-        ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY,
+        ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY, DANMAKU_CARD, DANMAKU_HOMING_CARD,
         TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
         TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
         TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
@@ -66,17 +66,9 @@ public final class GenieNative {
         Cast() { this(null); }
         Cast(LbcTerra.Kind terra) { this.terra = terra; }
     }
-    private static final Map<Identifier, Cast> CASTS = Map.of(
-        Identifier.parse("skywars2:electro_arc"), Cast.ELECTRO_ARC,
-        Identifier.parse("skywars2:electro_volley"), Cast.ELECTRO_VOLLEY,
-        Identifier.parse("skywars2:electro_ray"), Cast.ELECTRO_RAY,
-        Identifier.parse("skywars2:terra_charge"), Cast.TERRA_CHARGE,
-        Identifier.parse("skywars2:academy_terra_charge"), Cast.ACADEMY_TERRA_CHARGE,
-        Identifier.parse("skywars2:terra_sword_charge"), Cast.TERRA_SWORD_CHARGE,
-        Identifier.parse("skywars2:true_terra_charge"), Cast.TRUE_TERRA_CHARGE,
-        Identifier.parse("skywars2:true_terra_beam"), Cast.TRUE_TERRA_BEAM,
-        Identifier.parse("skywars2:terra_razor"), Cast.TERRA_RAZOR
-    );
+    private static final Map<Identifier, Cast> CASTS = java.util.Arrays.stream(Cast.values())
+            .collect(java.util.stream.Collectors.toUnmodifiableMap(
+                    spell -> Identifier.parse("skywars2:" + spell.name().toLowerCase(java.util.Locale.ROOT)), spell -> spell));
     public enum TargetedCast {
         ORESHNIK("oreshnik", "Absolute Cinema: Putin / Oreshnik", "Абсолютное кино: Путин / Орешник",
                 "Launches the original rocket and its cluster at target."),
@@ -87,7 +79,13 @@ public final class GenieNative {
         HEDGEHOG_SNIPER("hedgehog_sniper", "Sniper Hedgehog", "Ёж-снайпер", LbcHedgehog.Kind.SNIPER),
         HEDGEHOG_LASER("hedgehog_laser", "Laser Hedgehog", "Лазерный ёж", LbcHedgehog.Kind.LASER),
         HEDGEHOG_WALL("hedgehog_wall", "Hedgehog Wall", "Ежовая стена",
-                "Summons the original Hedgehog Wall towers, oriented along the player's aim.");
+                "Summons the original Hedgehog Wall towers, oriented along the player's aim."),
+        GOHEI_SPELLCARD("gohei_spellcard", "Spirit Sign: Fantasy Seal", "Знак духа: Печать фантазии",
+                "Expanding red damaging sphere, equivalent to 300 Gohei charge."),
+        GOHEI_SPELLCARD_FULL("gohei_spellcard_full", "Fully charged Spirit Sign: Fantasy Seal", "Знак духа: Печать фантазии, полный заряд",
+                "Expanding red damaging sphere, equivalent to 1500 Gohei charge."),
+        HAKUREI_BOMB("hakurei_bomb", "Hakurei Shrine: Fantasy Seal bomb", "Храм Хакурей: бомба Печать фантазии",
+                "Original faster yellow Fantasy Seal bomb with its normal 300 charge and lingering shell.");
 
         public final Identifier id;
         public final List<String> names;
@@ -159,13 +157,20 @@ public final class GenieNative {
                 || !game.canUseGameplayItems(player) || game.items().actionsBlocked(player) || stopped(game, player)
                 || !level.isInWorldBounds(position) || !level.hasChunkAt(position)
                 || !level.getWorldBorder().isWithinBounds(position)) return false;
-        if (spell == TargetedCast.ORESHNIK) return game.items().cinema().rockets().launch(player, target);
-        var magic = game.items().magic();
-        if (magic.suppressed(player) || magic.suppressedAt(level, player.getEyePosition())) return false;
-        var hedgehog = game.items().hedgehog();
-        return spell == TargetedCast.HEDGEHOG_WALL
-                ? hedgehog.spawnWall(level, target, player) > 0
-                : hedgehog.spawnHelper(player, level, target, spell.helper) != null;
+        return switch (spell) {
+            case ORESHNIK -> game.items().cinema().rockets().launch(player, target);
+            case GOHEI_SPELLCARD -> game.items().danmaku().scriptBomb(player, target, 300, false);
+            case GOHEI_SPELLCARD_FULL -> game.items().danmaku().scriptBomb(player, target, 1500, false);
+            case HAKUREI_BOMB -> game.items().danmaku().scriptBomb(player, target, 300, true);
+            default -> {
+                var magic = game.items().magic();
+                if (magic.suppressed(player) || magic.suppressedAt(level, player.getEyePosition())) yield false;
+                var hedgehog = game.items().hedgehog();
+                yield spell == TargetedCast.HEDGEHOG_WALL
+                        ? hedgehog.spawnWall(level, target, player) > 0
+                        : hedgehog.spawnHelper(player, level, target, spell.helper) != null;
+            }
+        };
     }
 
     /** Directed spell effects, independent of the actual item occupying either hand. */
@@ -196,6 +201,8 @@ public final class GenieNative {
                     else wands.directedElectro(player, origin, aim, spell == Cast.ELECTRO_ARC ? 1 : 3, cause);
                     yield true;
                 }
+                case DANMAKU_CARD, DANMAKU_HOMING_CARD -> game.items().danmaku()
+                        .scriptCard(player, origin, aim, spell == Cast.DANMAKU_HOMING_CARD);
                 default -> {
                     var body = game.items().terra().castAt(player, origin, aim, spell.terra, 0);
                     if (body == null || body.getOwner() != player || level.getEntity(body.getUUID()) != body) yield false;

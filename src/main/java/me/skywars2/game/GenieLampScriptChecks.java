@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.*;
 import me.skywars2.game.genie.*;
 import me.skywars2.game.genie.script.*;
@@ -96,6 +97,12 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(facts.getAsJsonArray("script_targeted_casts").size() == GenieNative.TargetedCast.values().length
                     && facts.getAsJsonArray("script_directed_casts").contains(new com.google.gson.JsonPrimitive("skywars2:terra_razor")),
                     "the prompt exposes all additional native script bindings");
+            require(facts.getAsJsonArray("script_targeted_casts").asList().stream()
+                    .map(JsonElement::getAsJsonObject).map(row -> row.get("id").getAsString())
+                    .collect(java.util.stream.Collectors.toSet())
+                    .containsAll(Set.of("skywars2:gohei_spellcard", "skywars2:gohei_spellcard_full", "skywars2:hakurei_bomb"))
+                    && facts.getAsJsonArray("script_directed_casts").contains(new com.google.gson.JsonPrimitive("skywars2:danmaku_homing_card")),
+                    "the prompt advertises native Fantasy Seal variants and Danmaku projectiles");
             String boots = tables.get("lbc:ported/moisei_boots").toString();
             require(boots.contains("skywars2:moisei_boots") && boots.contains("\"translate\":\"moisei_boots\""),
                 "a named loot entry includes its carrier and original translation key");
