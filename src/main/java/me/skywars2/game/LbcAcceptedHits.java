@@ -2,9 +2,11 @@ package me.skywars2.game;
 
 import java.util.IdentityHashMap;
 import me.skywars2.SkyWars2;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 
 /** Fabric omits AFTER_DAMAGE on death. Both outcomes share one accepted-hit dispatcher.
  * Death changes delivery timing only: retain the original damage source and every owner's
@@ -50,6 +52,7 @@ public final class LbcAcceptedHits {
         // Match the native criterion's empty parent-spell scope; keep every source,
         // ownership, team, target, suppression and live-owner filter in the skill owner.
         try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)){
+            projectileFeedback(game, source);
             GenieCombat.accepted(game,victim,source);
             if(source.getEntity() instanceof ServerPlayer attacker&&LbcDamage.isMeleeAttack(source,attacker))
                 LbcTmtTriggers.input(attacker,LbcTmtTriggers.Input.HIT,victim,null,null);
@@ -58,6 +61,24 @@ public final class LbcAcceptedHits {
             game.items().manaVampireSkill().damaged(victim,source);
         }
     }
+    private static boolean projectileFeedbackActive(GameController game) {
+        return game != null && (game.playing() || game.stage() == GameController.Stage.ENDING);
+    }
+
+    public static boolean replacesNativeArrowFeedback() {
+        return projectileFeedbackActive(SkyWars2.game());
+    }
+
+    private static void projectileFeedback(GameController game, DamageSource source) {
+        if (!projectileFeedbackActive(game)
+                || !(source.getDirectEntity() instanceof Projectile projectile) || projectile.isSilent()) return;
+        // A projectile can allow friendly fire while keeping its physical shooter.
+        if (game.items().spellSources().projectileController(projectile) instanceof ServerPlayer shooter
+                && game.server().getPlayerList().getPlayer(shooter.getUUID()) == shooter && shooter.connection != null) {
+            shooter.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND, 0));
+        }
+    }
+
     public static void finished(LivingEntity victim){pending.remove(victim);}
     public static void nonlethal(LivingEntity victim,DamageSource source,float amount,boolean blocked){
         var receipt=pending.get(victim);if(receipt!=null&&receipt.source==source)pending.remove(victim);

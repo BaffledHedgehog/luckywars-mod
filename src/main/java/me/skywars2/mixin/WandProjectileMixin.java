@@ -1,7 +1,13 @@
 package me.skywars2.mixin;
 
 import me.skywars2.SkyWars2;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import me.skywars2.game.LbcAcceptedHits;
 import me.skywars2.game.ProjectileLifetimes;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.spongepowered.asm.mixin.Mixin;
@@ -102,6 +108,16 @@ public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownU
     /** Облако использует физику стрелы; до native tick запрещаем движение при time-stop и в выгруженный чанк. */
     @Mixin(net.minecraft.world.entity.projectile.arrow.AbstractArrow.class)
     public static abstract class Cloud {
+        @WrapOperation(method = "onHitEntity", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"))
+        private void skywars2$arrowFeedback(ServerGamePacketListenerImpl connection, Packet<?> packet, Operation<Void> original) {
+            if (!(packet instanceof ClientboundGameEventPacket event)
+                    || event.getEvent() != ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND
+                    || !LbcAcceptedHits.replacesNativeArrowFeedback()) {
+                original.call(connection, packet);
+            }
+        }
+
         @Inject(method="tick",at=@At("HEAD"),cancellable=true)
         private void skywars2$cloudTick(CallbackInfo ci) {
             var game=SkyWars2.game();

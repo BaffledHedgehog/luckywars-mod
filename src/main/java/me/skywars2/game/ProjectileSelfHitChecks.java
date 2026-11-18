@@ -4,6 +4,8 @@ import me.skywars2.SkyWars2;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +17,7 @@ import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ShulkerBullet;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
+import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -51,6 +54,68 @@ public final class ProjectileSelfHitChecks {
                 +" armor="+target.getArmorValue()+" effects="+target.getActiveEffects()+" last="+target.getLastDamageSource()
                 +" motion="+shot.getDeltaMovement()
                 +" permission="+(shot instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow&&SkyWars2.game().items().allowDamage(target,arrow.damageSources().arrow(arrow,arrow.getOwner()))));
+    }
+    private static long hitSounds(RegenerationBeltChecks.ScheduledClient client) {
+        return client.packets().stream().filter(packet -> packet instanceof ClientboundGameEventPacket event
+            && event.getEvent() == ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
+    }
+
+    private static Arrow feedbackArrow(ServerPlayer owner, List<Entity> actors, Vec3 at) {
+        var arrow = new Arrow(owner.level(), owner, new ItemStack(Items.ARROW), null);
+        actors.add(arrow);
+        arrow.setPos(at.add(8, 1, 0));
+        arrow.tick();
+        arrow.setDeltaMovement(new Vec3(0, 0, 2));
+        return arrow;
+    }
+
+    private static void feedback(GameController game, ServerPlayer owner, ServerPlayer ally, Cow cow, List<Entity> actors, Vec3 at) {
+        try (var shooter = new RegenerationBeltChecks.ScheduledClient(game, owner);
+             var audience = new RegenerationBeltChecks.ScheduledClient(game, ally)) {
+            accepted(feedbackArrow(owner, actors, at), ally, "arrow feedback on player");
+            require(hitSounds(shooter) == 1 && hitSounds(audience) == 0, "player arrow hit sends exactly one private packet");
+            accepted(feedbackArrow(owner, actors, at), cow, "arrow feedback on cow");
+            require(hitSounds(shooter) == 2 && hitSounds(audience) == 0, "mob arrow hit sends the same private packet");
+
+            var bullet = new ShulkerBullet(owner.level(), owner, cow, net.minecraft.core.Direction.Axis.Y);
+            actors.add(bullet);
+            bullet.setPos(at.add(8, 1, 0));
+            bullet.tick();
+            bullet.setDeltaMovement(new Vec3(0, 0, 2));
+            accepted(bullet, cow, "shulker feedback");
+            require(hitSounds(shooter) == 3 && hitSounds(audience) == 0, "shulker bullet uses the same native feedback");
+
+            var fatal = new Cow(EntityTypes.COW, owner.level());
+            fatal.setPos(at.add(6, 0, 0));
+            fatal.setHealth(.1f);
+            require(owner.level().addFreshEntity(fatal), "real lethal feedback victim");
+            actors.add(fatal);
+            var fireball = new SmallFireball(owner.level(), owner, new Vec3(0, 0, 1));
+            actors.add(fireball);
+            hit(fireball, fatal);
+            require(!fatal.isAlive() && hitSounds(shooter) == 4 && hitSounds(audience) == 0,
+                "lethal fireball delivers one private signal");
+
+            var wild = feedbackArrow(owner, actors, at);
+            var cause = game.items().indirectKills().wildCause(owner);
+            game.items().spellSources().bind(wild, new LbcSpellSource.Source(wild.getUUID(), owner.getUUID(),
+                game.items().epoch(), cause, Set.of()).hostileLoot());
+            require(wild.getOwner() == null && game.items().spellSources().source(wild).cause().equals(cause),
+                "WILD launch retains statistical credit while clearing the physical owner");
+            accepted(wild, ally, "WILD source still damages players");
+            require(hitSounds(shooter) == 4 && hitSounds(audience) == 0,
+                "WILD causal author receives no native bow signal");
+
+            var reflected = feedbackArrow(owner, actors, at);
+            health(ally);
+            ally.entityTags().add("sin_greed_active");
+            try {
+                hit(reflected, ally);
+                require(hitSounds(shooter) == 4 && hitSounds(audience) == 0, "reflection without damage sends no signal");
+            } finally {
+                ally.entityTags().remove("sin_greed_active");
+            }
+        }
     }
     private static Arrow nativeArrow(GameController game,net.minecraft.world.entity.monster.skeleton.Skeleton emitter,
                                      LivingEntity target,List<Entity> actors){
@@ -134,6 +199,7 @@ public final class ProjectileSelfHitChecks {
             var cow=new Cow(EntityTypes.COW,owner.level());cow.setPos(at.add(4,0,0));cow.setNoAi(true);cow.setNoGravity(true);
             cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);require(owner.level().addFreshEntity(cow),"friendly native mob publication");actors.add(cow);
             board.addPlayerToTeam(cow.getScoreboardName(),team);
+            feedback(game,owner,ally,cow,actors,at);
             sourceArrows(game,owner,ally,cow,actors,at);
             for(var target:List.<LivingEntity>of(owner,ally,cow)){
                 var arrow=new Arrow(owner.level(),owner,new ItemStack(Items.ARROW),null);actors.add(arrow);

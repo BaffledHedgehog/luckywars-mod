@@ -36,6 +36,10 @@ public final class MusicStaffChecks {
         void next(int phase){this.phase=phase;when=game.server().getTickCount();}
         List<ClientboundSoundPacket> songs(RegenerationBeltChecks.ScheduledClient client){return SmokeVolumeChecks.flatten(client.packets()).stream().filter(ClientboundSoundPacket.class::isInstance).map(ClientboundSoundPacket.class::cast).filter(p->p.getSound().value().location().equals(LbcMusicStaff.MUSIC)).toList();}
         long stops(RegenerationBeltChecks.ScheduledClient client){return SmokeVolumeChecks.flatten(client.packets()).stream().filter(ClientboundStopSoundPacket.class::isInstance).map(ClientboundStopSoundPacket.class::cast).filter(p->LbcMusicStaff.MUSIC.equals(p.getName())).count();}
+        long hitSounds(RegenerationBeltChecks.ScheduledClient client) {
+            return SmokeVolumeChecks.flatten(client.packets()).stream().filter(packet -> packet instanceof ClientboundGameEventPacket event
+                && event.getEvent() == ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
+        }
         List<LbcMusicStaff.Shot> shoot(ItemStack item){
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,item);game.items().mana().set(base.owner,5000);
             var prior=Collections.newSetFromMap(new IdentityHashMap<LbcMusicStaff.Shot,Boolean>());prior.addAll(service.arrows());
@@ -83,6 +87,8 @@ public final class MusicStaffChecks {
             require(game.server().getTickCount()-began<1800,"bounded native52second fixture");int elapsed=game.server().getTickCount()-when;
             if(phase==0){
                 if(elapsed<8)return false;require(base.other.getHealth()==health-8,"actual allied native fixed8 hit, HP="+base.other.getHealth());
+                require(hitSounds(base.client) == 1 && hitSounds(base.audience) == 0,
+                    "physically owned WILD staff arrow sends exactly one private hit sound");
                 require(service.playing()&&songs(base.client).size()==1&&songs(base.audience).size()==1,"one common track for holder and other player");
                 var sound=songs(base.client).getFirst();require(sound.getY()==1_000_000&&sound.getVolume()==Float.MAX_VALUE,"exact requested height and finite maximum volume");
                 aim();var improved=base.leaf("academy_music_staff");var shots=shoot(improved);for(int i=1;i<shots.size();i++)base.discard(shots.get(i));
@@ -91,6 +97,8 @@ public final class MusicStaffChecks {
             }
             if(phase==1){
                 if(elapsed<8)return false;require(base.other.getHealth()==health-16,"actual upgraded native fixed16 hit, HP="+base.other.getHealth());
+                require(hitSounds(base.client) == 2 && hitSounds(base.audience) == 0,
+                    "upgraded staff preserves one private hit sound for the actual projectile");
                 base.move(base.other,base.home.add(20,12,0));var improved=base.leaf("academy_music_staff");int doubles=0;
                 for(int cast=0;cast<100;cast++){
                     base.owner.setYRot(cast*17);base.owner.setXRot((cast%13-6)*7);
