@@ -14,6 +14,7 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
 import net.minecraft.core.component.DataComponents;
@@ -11213,8 +11214,9 @@ public final class GameChecks {
                         owner.setShiftKeyDown(false); var endData=academy.get(DataComponents.CUSTOM_DATA).copyTag(); endData.putInt("mode",3);
                         academy.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(endData)); mana.set(owner,2000);
                         target.setInvulnerableTime(0); target.damageCooldownTime=0; float hp=target.getHealth();
-                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && mana.get(owner)==0
-                                        && service.partitionSnapshot().isEmpty() && service.pendingWorkCount()>0,"Academy The End queues its five source rays for2000");
+                        checkConsumingEndPackets(game,owner);
+                        require(mana.get(owner)==0 && service.partitionSnapshot().isEmpty()
+                                        && service.pendingWorkCount()>0,"Academy The End queues its five source rays for2000");
                         require(target.getHealth()==hp-150 && target.getLastDamageSource().getEntity()==owner
                                         && target.getLastDamageSource().is(LbcDamage.CONSUMING)
                                         && LbcDamage.isArrowDamage(target.getLastDamageSource())
@@ -11228,6 +11230,71 @@ public final class GameChecks {
                         board.removePlayerFromTeam(owner.getScoreboardName()); board.removePlayerFromTeam(ally.getScoreboardName()); board.removePlayerTeam(team);
                         if(ownerTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),ownerTeam); if(allyTeam!=null) board.addPlayerToTeam(ally.getScoreboardName(),allyTeam);
                         owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game); allySaved.restore(game);
+                }
+        }
+
+        private static void checkConsumingEndPackets(GameController game, ServerPlayer owner) {
+                var level = owner.level();
+                var dust = new net.minecraft.core.particles.DustParticleOptions(0,4);
+                var unbatched = new java.util.ArrayList<net.minecraft.network.protocol.Packet<?>>();
+                var expectedCenters = new java.util.ArrayList<Vec3>();
+                var start = owner.getEyePosition().add(owner.getLookAngle().normalize().scale(8));
+                for (int bearing : new int[]{0,20,-20,-10,10}) {
+                        var direction = Vec3.directionFromRotation(owner.getXRot(),owner.getYRot() + bearing);
+                        Vec3 pending = null;
+                        for (int i = 0; i <= 200; i++) {
+                                var spot = start.add(direction.scale(i * 2));
+                                if (!level.hasChunkAt(net.minecraft.core.BlockPos.containing(spot))) break;
+                                unbatched.add(new ClientboundLevelParticlesPacket(dust,true,false,
+                                                spot.x,spot.y,spot.z,2,2,2,0,4));
+                                if (pending == null) pending = spot;
+                                else {
+                                        expectedCenters.add(pending.lerp(spot,.5));
+                                        pending = null;
+                                }
+                        }
+                        if (pending != null) expectedCenters.add(pending);
+                }
+                try (var client = new RegenerationBeltChecks.ScheduledClient(game,owner)) {
+                        client.packets().clear();
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND),
+                                        "Actual Academy Consuming cast produces the ray particles");
+                        var packets = client.packets().stream()
+                                        .filter(ClientboundLevelParticlesPacket.class::isInstance)
+                                        .map(ClientboundLevelParticlesPacket.class::cast)
+                                        .filter(packet -> packet.particle() instanceof net.minecraft.core.particles.DustParticleOptions emitted
+                                                        && emitted.getScale() == 4 && emitted.getColor().lengthSquared() == 0).toList();
+                        int total = packets.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
+                        require(unbatched.size() > 20 && total == unbatched.size() * 4 && packets.size() == expectedCenters.size(),
+                                        "All five rays retain exactly four dust particles per sample in adjacent pairs");
+                        for (int i = 0; i < packets.size(); i++) {
+                                var packet = packets.get(i);
+                                var center = new Vec3(packet.x(),packet.y(),packet.z());
+                                require(center.distanceToSqr(expectedCenters.get(i)) < 1e-10 && packet.overrideLimiter()
+                                                && !packet.alwaysShow() && packet.yDist() == 2 && packet.xMaxSpeed() == 0,
+                                                "Cloud pairs retain their centers, transverse height, speed and native forced visibility");
+                        }
+                        var first = packets.getFirst();
+                        require(first.count() == 8 && first.xDist() == 2 && Math.abs(first.zDist() - Math.sqrt(5)) < 1e-6,
+                                        "An axial two-sample cloud preserves the original longitudinal variance");
+                        var oldWire = NetworkTransportChecks.compare(owner,unbatched,256,false);
+                        var newWire = NetworkTransportChecks.compare(owner,new java.util.ArrayList<>(packets),256,false);
+                        require(newWire.frames() < oldWire.frames() * .6 && newWire.bytes().length < oldWire.bytes().length * .6,
+                                        "Actual PLAY traffic uses at least 40 percent fewer particle packets and bytes");
+                        SkyWars2.LOGGER.info("[check] Consuming The End sends {} dust in {} vs {} frames, {} vs {} wire bytes",
+                                        total,newWire.frames(),oldWire.frames(),newWire.bytes().length,oldWire.bytes().length);
+
+                        client.packets().clear();
+                        var edge = Vec3.atCenterOf(owner.blockPosition()).add(511.5,0,0);
+                        try (var batch = new LbcParticleBatch.Group(level,dust,2,2,2,0,true,2.00001,2)) {
+                                batch.add(edge,4);
+                                batch.add(edge.add(2,0,0),4);
+                        }
+                        require(client.packets().size() == 1
+                                        && client.packets().getFirst() instanceof ClientboundLevelParticlesPacket packet
+                                        && packet.x() == edge.x && packet.y() == edge.y && packet.z() == edge.z
+                                        && packet.count() == 4 && packet.xDist() == 2,
+                                        "Viewer at 512-block range edge gets only the original visible cloud");
                 }
         }
 

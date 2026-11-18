@@ -284,16 +284,23 @@ public final class LbcConsuming {
         for(int angle:detached?new int[]{0}:new int[]{0,20,-20,-10,10}) {
             Vec3 direction=Vec3.directionFromRotation(pitch,yaw+angle);
             Vec3 end=start;
-            double suppression=game.items().magic().suppressionFraction(owner.level(),start,start.add(direction.scale(400)));
-            for(int sample=0;sample<201;sample++) {
-                Vec3 point=start.add(direction.scale(sample*2));
-                if(!owner.level().hasChunkAt(BlockPos.containing(point)) || sample>0 && sample/200.0>=suppression) break;
-                end=point; erase(owner,Vec3.atLowerCornerOf(BlockPos.containing(point)),5);
-                owner.level().sendParticles(END_DUST,true,false,point.x,point.y,point.z,4,2,2,2,0);
-                LbcOverload.sound(owner,point,"minecraft:entity.wither.shoot",.01f,0,0);
-                BlockPos portal=BlockPos.containing(point.subtract(direction.scale(4)));
-                boolean nether=owner.getRandom().nextInt(20)==0,ender=owner.getRandom().nextInt(20)==0;
-                if(nether || ender) terrain.get(owner).portals.put(portal,(ender?Blocks.END_PORTAL:Blocks.NETHER_PORTAL).defaultBlockState());
+            var level=owner.level();
+            double suppression=game.items().magic().suppressionFraction(level,start,start.add(direction.scale(400)));
+            // Pair overlapping clouds along each ray, preserving the total
+            // count and the spatial mean and variance on each axis.
+            try(var particles=game.balanceLegacy()?null:new LbcParticleBatch.Group(level,END_DUST,2,2,2,0,true,2.00001,2)){
+                for(int sample=0;sample<201;sample++) {
+                    Vec3 point=start.add(direction.scale(sample*2));
+                    if(!level.hasChunkAt(BlockPos.containing(point)) || sample>0 && sample/200.0>=suppression) break;
+                    end=point;
+                    erase(owner,Vec3.atLowerCornerOf(BlockPos.containing(point)),5);
+                    if(particles==null)level.sendParticles(END_DUST,true,false,point.x,point.y,point.z,4,2,2,2,0);
+                    else particles.add(point,4);
+                    LbcOverload.sound(owner,point,"minecraft:entity.wither.shoot",.01f,0,0);
+                    BlockPos portal=BlockPos.containing(point.subtract(direction.scale(4)));
+                    boolean nether=owner.getRandom().nextInt(20)==0,ender=owner.getRandom().nextInt(20)==0;
+                    if(nether || ender) terrain.get(owner).portals.put(portal,(ender?Blocks.END_PORTAL:Blocks.NETHER_PORTAL).defaultBlockState());
+                }
             }
             endHits(owner,start,end);
         }
