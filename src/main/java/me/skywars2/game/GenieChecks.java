@@ -25,6 +25,16 @@ public final class GenieChecks {
     private static Fixture running;
     private GenieChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Genie: "+why);}
+    static void requireGiftPresentation(ItemStack gift) {
+        var lore = java.util.Objects.requireNonNull(gift.get(DataComponents.LORE)).lines();
+        require(lore.size() == 2, "gift keeps its description and adds exactly one footer");
+        var footer = lore.getLast();
+        require(Identifier.parse("lbc:tier_q").equals(gift.get(DataComponents.TOOLTIP_STYLE))
+                        && footer.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text
+                        && text.getKey().equals("genie.gift.lore")
+                        && !footer.getStyle().isItalic() && footer.getStyle().getColor().getValue() == 0xffffff,
+                "native Genie gift uses the localizable white non-italic footer and tier_q");
+    }
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.begin();}catch(Throwable error){running=null;f.close();throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
@@ -73,6 +83,7 @@ public final class GenieChecks {
         int ownSlot(int index){return base.owner.containerMenu.findSlot(base.owner.getInventory(),index).orElseThrow();}
         void begin(){
             var source=plan();var item=GenieRuntime.construct(source);require(item.is(Items.IRON_SWORD)&&item.has(DataComponents.MAX_DAMAGE)&&item.has(DataComponents.TOOL)&&item.get(DataComponents.ENCHANTMENT_GLINT_OVERRIDE),"native sword tool, durability and glint retained");
+            requireGiftPresentation(item);
             var ordinary=new ItemStack(Items.IRON_SWORD);require(item.get(DataComponents.MAX_DAMAGE).equals(ordinary.get(DataComponents.MAX_DAMAGE)),"constructor does not rewrite native durability");
             var invalid=new GenieBlueprint("Bad","Bad","not_a_real_item",1,source.rules(),List.of(),source.twist());try{GenieRuntime.construct(invalid);throw new IllegalStateException("unknown native icon accepted");}catch(IllegalArgumentException expected){}
             base.owner.getInventory().clearContent();base.owner.getInventory().setSelectedSlot(0);base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(GenieItems.LAMP,3));submit();

@@ -8,7 +8,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
 import net.minecraft.sounds.*;
@@ -88,9 +87,7 @@ public final class GenieRuntime {
     }
     public static ItemStack construct(GenieBlueprint plan){
         validateNative(plan);var item=new ItemStack(BuiltInRegistries.ITEM.get(id(plan.icon())).orElseThrow().value(),plan.count());
-        item.set(DataComponents.CUSTOM_NAME,Component.literal(plan.name()).withStyle(s->s.withItalic(false)));
-        item.set(DataComponents.LORE,new ItemLore(List.of(Component.literal(plan.description()).withStyle(s->s.withItalic(false).withColor(0xffffff)))));
-        item.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE,true);
+        GenieItems.describeGift(item, plan.name(), plan.description());
         var data=item.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();data.putString(PROGRAM,plan.encode());data.putString(SERIAL,UUID.randomUUID().toString());item.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
         var modifiers=item.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY);int index=0;
         for(var stat:plan.stats()){

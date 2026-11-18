@@ -60,6 +60,7 @@ final class GenieScriptChecks implements AutoCloseable {
             if(!prepared.isDone())return false;
             original=GenieScriptItem.construct(prepared.join(),"iron_sword","Native script test","A normal click runs item-local code.",1);clone=original.copy();
             require(GenieRuntime.matches(original)&&original.has(net.minecraft.core.component.DataComponents.TOOL),"script item retains real native sword tools and event capture");
+            GenieChecks.requireGiftPresentation(original);
             var data=original.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag();
             require(!data.contains("functions")&&!data.contains("genie_program")&&GenieScriptItem.encodedState(original).length()<64,"wire NBT contains code identity and small state, not the static program");
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,original);base.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);base.owner.getInventory().setItem(10,clone);

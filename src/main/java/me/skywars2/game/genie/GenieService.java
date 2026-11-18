@@ -123,7 +123,7 @@ public final class GenieService implements AutoCloseable {
                     .ifPresent(saved->{data.put(LAMP_CUSTOM_NAME,saved);lamp.remove(DataComponents.CUSTOM_NAME);});
             lamp.set(DataComponents.ITEM_NAME,GenieItems.THINKING_NAME);
         }
-        lamp.set(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_q"));
+        lamp.set(DataComponents.TOOLTIP_STYLE,GenieItems.TOOLTIP_STYLE);
         lamp.set(DataComponents.CUSTOM_DATA,CustomData.of(data));lamp.set(DataComponents.ITEM_MODEL,token.isEmpty()?GenieItems.IDLE:GenieItems.THINKING);
     }
     private static boolean containsIdentity(ServerPlayer p,ItemStack stack){

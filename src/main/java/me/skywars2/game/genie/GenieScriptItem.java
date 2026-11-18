@@ -6,7 +6,6 @@ import me.skywars2.game.ItemData;
 import me.skywars2.game.genie.script.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.*;
@@ -33,9 +32,7 @@ public final class GenieScriptItem {
         if(replacesShot&&!(type instanceof BowItem||type instanceof CrossbowItem))
             throw new IllegalArgumentException("SHOT_REPLACE requires a bow or crossbow");
         var stack=new ItemStack(type,count);if(stack.isEmpty())throw new IllegalArgumentException("item icon cannot be empty");
-        stack.set(DataComponents.CUSTOM_NAME,Component.literal(name).withStyle(style->style.withItalic(false)));
-        stack.set(DataComponents.LORE,new ItemLore(List.of(Component.literal(description).withStyle(style->style.withItalic(false).withColor(0xffffff)))));
-        stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE,true);
+        GenieItems.describeGift(stack, name, description);
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();tag.putString(CODE,code.id());
         if(replacesShot)tag.putInt(REPLACE_SHOT,1);
         tag.putString(GenieRuntime.SERIAL,UUID.randomUUID().toString());tag.putString(STATE,ScriptJson.canonical(code.program().initialState()));
