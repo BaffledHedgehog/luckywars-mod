@@ -17,6 +17,7 @@ import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
@@ -60,10 +61,22 @@ public final class TechExplosionMixin {
         @WrapMethod(method="explode")
         private int skywars2$techBlast(Operation<Integer> original){
             var blast=(ServerExplosion)(Object)this;
-            var coverage=LbcExplosionSuppression.coverage(SkyWars2.game(),blast.level());
+            var game=SkyWars2.game();
+            var coverage=LbcExplosionSuppression.coverage(game,blast.level());
             if(coverage.contains(blast.center()))return 0;
             var previous=skywars2$techCoverage;skywars2$techCoverage=coverage;
-            try{return original.call();}finally{skywars2$techCoverage=previous;}
+            try{
+                if(game!=null&&blast.getDirectSourceEntity() instanceof PrimedTnt body)game.items().balance().exploding(body);
+                return original.call();
+            }finally{skywars2$techCoverage=previous;}
+        }
+        @WrapOperation(method="hurtEntities",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/Entity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
+        private boolean skywars2$inheritBowAmmo(Entity target,ServerLevel level,DamageSource source,float amount,Operation<Boolean> original){
+            boolean accepted=original.call(target,level,source,amount);
+            var game=SkyWars2.game();
+            if(accepted&&amount>0&&game!=null&&target instanceof LivingEntity living
+                    &&source.getDirectEntity() instanceof PrimedTnt body)game.items().balance().explosionHit(body,living);
+            return accepted;
         }
         // Filter at the caller, after any existing native/TNT-specific calculate wrapper returns.
         @ModifyExpressionValue(method="explode",at=@At(value="INVOKE",target="Lnet/minecraft/world/level/ServerExplosion;calculateExplodedPositions()Ljava/util/List;"))

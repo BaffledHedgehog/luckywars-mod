@@ -6,7 +6,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
+import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -89,7 +91,8 @@ public final class LbcLegacyRanged {
         if(!fire&&!bomb)return false;
         // The source nearest/limit1 selector means one conversion per accepted volley.
         for(var shot:family){
-            if(!(shot instanceof Arrow)||shot.isRemoved()||shot.getOwner()!=owner||shot.level()!=owner.level())continue;
+            if(!(shot instanceof AbstractArrow arrow)||!(arrow.getPickupItemStackOrigin().getItem() instanceof ArrowItem)
+                    ||shot.isRemoved()||shot.getOwner()!=owner||shot.level()!=owner.level())continue;
             var motion=game.items().timeStop().persistedVelocity(shot,shot.getDeltaMovement());
             Entity output;
             if(fire)output=game.items().specialFireballs().spawnRangedFire(owner,owner.getEyePosition().add(owner.getLookAngle().scale(1.2)),motion,shot);

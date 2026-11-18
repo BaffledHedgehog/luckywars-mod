@@ -114,8 +114,12 @@ public final class LbcQuiver {
     }
     /** All sibling terminals finish before the real carrier owner retires its body. */
     void payloadGround(Entity actor,LbcTmtAmmoPayloads.State state,ServerPlayer owner,ServerLevel level,Vec3 at,float yaw,float pitch,LbcIndirectKills.Owner cause){
+        payloadGround(actor,state,owner,level,at,yaw,pitch,amp->true,cause);
+    }
+    void payloadGround(Entity actor,LbcTmtAmmoPayloads.State state,ServerPlayer owner,ServerLevel level,Vec3 at,float yaw,float pitch,
+                       java.util.function.IntPredicate inherited,LbcIndirectKills.Owner cause){
         if(state==null||!runtime(actor)||!game.items().currentEpoch(actor)||game.items().timeStop().stopped(level))return;
-        for(var entry:state.entries){if(entry.terminal||entry.expired())continue;entry.terminal=true;
+        for(var entry:state.entries){if(entry.terminal||entry.expired()||!inherited.test(entry.payload.variant))continue;entry.terminal=true;
             groundVariant(actor,owner,level,at,yaw,pitch,entry.payload.variant,cause);
         }
     }

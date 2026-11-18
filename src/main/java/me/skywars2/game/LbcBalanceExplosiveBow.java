@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -26,9 +27,19 @@ final class LbcBalanceExplosiveBow {
     private final Map<PrimedTnt,State> actors=new IdentityHashMap<>();
     private int callbacks;
     private static final class Family {
-        ServerPlayer author;final LbcIndirectKills.Owner cause;final String epoch;final LbcChargedBows.BeamPayload payload;
-        Set<Integer> extraVariants=Set.of();
-        Family(ServerPlayer author,LbcIndirectKills.Owner cause,String epoch,LbcChargedBows.BeamPayload payload){this.author=author;this.cause=cause;this.epoch=epoch;this.payload=payload;}
+        ServerPlayer author;
+        final LbcIndirectKills.Owner cause;
+        final String epoch;
+        final LbcBeamAmmo payload;
+        final Set<Integer> extraVariants;
+        final ColorParticleOption trail;
+
+        Family(ServerPlayer author,LbcIndirectKills.Owner cause,String epoch,LbcBeamAmmo payload,AbstractArrow arrow){
+            this.author=author;this.cause=cause;this.epoch=epoch;this.payload=payload;
+            extraVariants=LbcTmtAmmoPayloads.variants(arrow);
+            trail=arrow instanceof Arrow tipped&&tipped.getColor()!=-1
+                    ?ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,net.minecraft.util.ARGB.opaque(tipped.getColor())):null;
+        }
     }
     private static final class State {
         final Family family;final int variant;boolean landed,delivered,continued;
@@ -47,12 +58,13 @@ final class LbcBalanceExplosiveBow {
     ServerPlayer owner(Entity body){var state=body instanceof PrimedTnt tnt?actors.get(tnt):null;return state==null?null:state.family.author;}
     boolean convert(ServerPlayer owner,ItemStack weapon,List<Projectile> finalizedFamily){
         if(!LbcBalanceItems.flag(weapon,"explosive")||game.items().magic().mechanismSuppressedAt(owner.level(),owner.position()))return false;
-        var payload=LbcBeamAmmo.captureImpact(game,owner,weapon,finalizedFamily);if(payload==null)return false;
-        var wild=game.items().indirectKills().wildCause(owner);var family=new Family(owner,new LbcIndirectKills.Owner(wild.player(),wild.order(),true,true),game.items().epoch(),payload);boolean converted=false;
-        if(finalizedFamily.stream().anyMatch(p->LbcTmtAmmoPayloads.state(p)!=null)){
-            var extra=new java.util.HashSet<Integer>();for(var p:finalizedFamily)extra.addAll(LbcTmtAmmoPayloads.variants(p));family.extraVariants=Set.copyOf(extra);
-        }
-        for(var projectile:finalizedFamily){if(!(projectile instanceof AbstractArrow arrow)||arrow.isRemoved()||arrow.getOwner()!=owner)continue;
+        var wild=game.items().indirectKills().wildCause(owner);
+        var cause=new LbcIndirectKills.Owner(wild.player(),wild.order(),true,true);
+        boolean converted=false;
+        for(var projectile:finalizedFamily){if(!(projectile instanceof AbstractArrow arrow))continue;
+            var payload=LbcBeamAmmo.captureExplosive(game,owner,weapon,arrow);
+            if(payload==null)continue;
+            var family=new Family(owner,cause,game.items().epoch(),payload,arrow);
             int variant=variant(arrow);var origin=arrow.position().add(0,.75,0);var forward=arrow.getLookAngle();var left=Vec3.directionFromRotation(0,arrow.getYRot()-90);var up=forward.cross(left);
             shells(family,variant,arrow,origin,forward,left,up,LbcBalanceTntShells.BASE);
             if(variant==101||family.extraVariants.contains(101))shells(family,variant,arrow,origin,forward,left,up,LbcBalanceTntShells.EXTRA);
@@ -92,6 +104,7 @@ final class LbcBalanceExplosiveBow {
         if(!game.playing()||!game.items().currentEpoch(state.family.epoch)){actors.remove(body);body.discard();return false;}
         if(paused(body))return false;
         var level=(ServerLevel)body.level();var owner=state.family.author;var at=body.position();
+        if(state.family.trail!=null)level.sendParticles(state.family.trail,at.x,at.y,at.z,1,0,0,0,0);
         if(state.hasVariant(112))game.items().quiver().beamSample(owner,level,at,state.family.cause,112);
         if(state.hasVariant(113))game.items().quiver().beamSample(owner,level,at,state.family.cause,113);
         if(!state.landed&&body.onGround()&&body.entityTags().remove("groundbam")){
@@ -101,7 +114,7 @@ final class LbcBalanceExplosiveBow {
             if(state.hasVariant(111))game.items().indirectKills().capturedWorldChanges(level,state.family.cause,()->{var center=body.blockPosition();for(var pos:BlockPos.betweenClosed(center.offset(-5,-5,-5),center.offset(5,5,5)))if(level.hasChunkAt(pos)&&level.getBlockState(pos).is(AIRS))level.setBlock(pos,Blocks.FIRE.defaultBlockState(),3);});
             if(state.hasVariant(103)){var bolt=new LightningBolt(EntityTypes.LIGHTNING_BOLT,level);bolt.setPos(at);bolt.setCause(owner);game.items().summons().track(owner,bolt);game.items().markCurrentItemEpoch(bolt);level.addFreshEntity(bolt);}
             if(state.hasVariant(301))spawn(state.family,level,at,Vec3.ZERO,0,0,false,false,state.childVariants(0,301));
-            if(state.hasVariant(302)){deliver(body,state);level.sendParticles(ParticleTypes.EXPLOSION,at.x,at.y,at.z,1,0,0,0,0);LbcOverload.sound(owner,at,"minecraft:entity.generic.explode",1,1,0);actors.remove(body);body.discard();return false;}
+            if(state.hasVariant(302)){level.sendParticles(ParticleTypes.EXPLOSION,at.x,at.y,at.z,1,0,0,0,0);LbcOverload.sound(owner,at,"minecraft:entity.generic.explode",1,1,0);actors.remove(body);body.discard();return false;}
         }
         if(state.hasVariant(300)&&!state.continued&&body.getFuse()==1){state.continued=true;
             var nearest=game.items().lifetimes().nearestBeamTarget(level,at,target->!target.isRemoved()&&target.isAlive()&&target.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,target));
@@ -109,9 +122,18 @@ final class LbcBalanceExplosiveBow {
         }
         return true;
     }finally{callbacks--;}}
-    /** Native fuse explosion HEAD, before ordinary damage. A family shares its accepted contact ledger. */
-    void exploding(PrimedTnt body){var state=actors.get(body);if(state!=null)deliver(body,state);}
-    private void deliver(PrimedTnt body,State state){if(state.delivered)return;state.delivered=true;callbacks++;try{state.family.payload.sample((ServerLevel)body.level(),body.position(),state.family.cause,false);}finally{callbacks--;}}
+    void exploding(PrimedTnt body){
+        var state=actors.get(body);
+        if(state==null||state.delivered)return;
+        state.delivered=true;
+        callbacks++;
+        try { state.family.payload.explosionTerminal(body,state.family.cause); }
+        finally { callbacks--; }
+    }
+    void explosionHit(PrimedTnt body,LivingEntity target){
+        var state=actors.get(body);
+        if(state!=null)state.family.payload.explosionContact(body,target,state.family.cause);
+    }
     void loaded(Entity body){
         if(!(body instanceof PrimedTnt tnt)||!managed(body))return;
         if(!game.playing()||!game.items().currentEpoch(body)){body.discard();return;}

@@ -72,6 +72,7 @@ public final class LbcBalance {
     public boolean explosiveBow(ServerPlayer owner,ItemStack weapon,List<net.minecraft.world.entity.projectile.Projectile> family){return explosive.convert(owner,weapon,family);}
     public boolean beforeTnt(net.minecraft.world.entity.item.PrimedTnt body){return explosive.beforeTick(body);}
     public void exploding(net.minecraft.world.entity.item.PrimedTnt body){explosive.exploding(body);}
+    public void explosionHit(net.minecraft.world.entity.item.PrimedTnt body,LivingEntity target){explosive.explosionHit(body,target);}
     public static boolean managedTnt(Entity body){return LbcBalanceExplosiveBow.managed(body);}
     public ServerPlayer tntOwner(Entity body){return explosive.owner(body);}
     public LbcCloneSkills.ActorImage cloneTnt(Entity body){return explosive.cloneImage(body);}

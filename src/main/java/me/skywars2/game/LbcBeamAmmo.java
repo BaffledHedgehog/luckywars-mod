@@ -77,8 +77,10 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         }
         return carriers.isEmpty()?null:new LbcBeamAmmo(game,owner,weapon,carriers);
     }
-    public static LbcChargedBows.BeamPayload captureImpact(GameController game,ServerPlayer owner,ItemStack weapon,List<Projectile> family){
-        var payload=(LbcBeamAmmo)capture(game,owner,weapon,family);if(payload!=null)payload.worldVariants=false;return payload;
+    static LbcBeamAmmo captureExplosive(GameController game,ServerPlayer owner,ItemStack weapon,AbstractArrow arrow){
+        var payload=(LbcBeamAmmo)capture(game,owner,weapon,List.of(arrow));
+        if(payload!=null)payload.worldVariants=false;
+        return payload;
     }
     private LbcBeamAmmo(GameController game,ServerPlayer owner,ItemStack weapon,List<Carrier> carriers){
         this.game=game;this.owner=owner;this.weapon=weapon.copy();this.carriers=List.copyOf(carriers);epoch=game.items().epoch();
@@ -116,6 +118,38 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         if(!game.items().currentEpoch(epoch)||!game.items().wands().projectileTarget(owner,target))return;
         nativeFlight(actor,cause);
         for(var carrier:carriers)if(carrier.contacts.add(target.getUUID())){carrier.context.setPos(point);contact((ServerLevel)actor.level(),carrier,target,cause);}
+    }
+
+    void explosionContact(Entity actor,LivingEntity target,LbcIndirectKills.Owner cause){
+        if(!game.items().currentEpoch(epoch))return;
+        // Each accepted blast has its own damage result, including a hit by a
+        // later shell from the same arrow. Apply the exact source's payload again.
+        var carrier=carriers.getFirst();
+        carrier.context.setPos(target.position());
+        contact((ServerLevel)actor.level(),carrier,target,cause);
+    }
+
+    void explosionTerminal(Entity actor,LbcIndirectKills.Owner cause){
+        if(!game.items().currentEpoch(epoch))return;
+        var level=(ServerLevel)actor.level();
+        var point=actor.position();
+        var carrier=carriers.getFirst();
+        var context=carrier.context;
+        // TNT keeps its own legacy effects for these variants. Other ammo
+        // terminals use the ordinary arrow handler once per accepted arrow.
+        if(!carrier.terminal){
+            carrier.terminal=true;
+            if(!tntVariant(carrier.variant))game.items().quiver().groundCarrier(context,owner,level,point,context.getYRot(),context.getXRot(),carrier.ammo,cause);
+            game.items().quiver().payloadGround(context,carrier.payloads,owner,level,point,context.getYRot(),context.getXRot(),amp->!tntVariant(amp),cause);
+        }
+        if(carrier.traitsActive){
+            game.items().trinketArrows().beamSample(context,point);
+            carrier.traitsActive=!context.isRemoved();
+        }
+    }
+
+    private static boolean tntVariant(int variant){
+        return switch(variant){case 101,102,103,111,112,113,300,301,302,303,304->true;default->false;};
     }
     void nativeGround(Entity actor,Vec3 point,LbcIndirectKills.Owner cause){
         nativeFlight(actor,cause);blockContact((ServerLevel)actor.level(),point,cause);

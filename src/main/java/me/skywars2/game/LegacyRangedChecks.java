@@ -3,16 +3,22 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.arrow.SpectralArrow;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ChargedProjectiles;
+import net.minecraft.world.phys.Vec3;
 
 /** Actual native bow/crossbow input, separate from the TMT coordinator checks. */
 public final class LegacyRangedChecks {
@@ -87,7 +93,11 @@ public final class LegacyRangedChecks {
                 for(var kind:List.of(LbcProjectileWeaponItems.Kind.BLAZE_CROSSBOW,LbcProjectileWeaponItems.Kind.GHAST_CROSSBOW,LbcProjectileWeaponItems.Kind.DILDOMET)){
                     f.owner.getInventory().clearContent();var weapon=kind.item.getDefaultInstance();
                     weapon.set(DataComponents.CUSTOM_NAME,Component.literal("Retain ranged witness"));weapon.setDamageValue(7);
-                    var initial=new ItemStack(kind==LbcProjectileWeaponItems.Kind.BLAZE_CROSSBOW?Items.TIPPED_ARROW:Items.ARROW);
+                    var initial=new ItemStack(switch(kind){
+                        case BLAZE_CROSSBOW->Items.TIPPED_ARROW;
+                        case DILDOMET->Items.SPECTRAL_ARROW;
+                        default->Items.ARROW;
+                    });
                     if(initial.is(Items.TIPPED_ARROW))initial.set(DataComponents.POTION_CONTENTS,new net.minecraft.world.item.alchemy.PotionContents(Optional.empty(),Optional.of(0x123456),
                             List.of(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.POISON,160,1)),Optional.empty()));
                     weapon.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(initial)));
@@ -127,13 +137,78 @@ public final class LegacyRangedChecks {
                         rocket.setPos(victim.position().add(0,.5,-2));rocket.setDeltaMovement(0,0,4);rocket.tick();
                         require(victim.hasEffect(net.minecraft.world.effect.MobEffects.POISON),"actual native rocket explosion executes selected tipped-ammo effect");victim.discard();
                     }else{
-                        require(actors.stream().filter(e->e instanceof ItemEntity item&&ItemData.intValue(item.getItem(),"penis_bomb",0)==1&&!e.isRemoved()).count()==1,"one shared native bomb");
+                        var bombs=actors.stream().filter(e->e instanceof ItemEntity item&&ItemData.intValue(item.getItem(),"penis_bomb",0)==1&&!e.isRemoved()).toList();
+                        require(bombs.size()==1,"the spectral shot converts to one native bomb");
                         require(charged.isEmpty()&&f.owner.getInventory().countItem(Items.ARROW)==5,"one arrow refund and no invented reload");
+                        var bomb=bombs.getFirst();
+                        bomb.setPos(f.owner.position().add(0,10,0));
+                        var victim=cow(f.owner,bomb.position());owned.add(victim);
+                        game.items().kfcRewards().tick();
+                        require(bomb.isRemoved()&&victim.hasEffect(MobEffects.GLOWING),"native bomb contact delivers retained spectral glow");
+                        victim.discard();
                     }
                 }
+                explosiveBow(f,owned);
             }finally{for(var e:owned){game.items().entityUnloaded(e);e.discard();}}
         }
-        SkyWars2.LOGGER.info("[check] PASS legacy-ranged (native double spectral geometry and debit; offhand blaze/ghast/bomb successful shots, exact chambers/refund and component preservation)");
+        SkyWars2.LOGGER.info("[check] PASS legacy-ranged (native double spectral geometry, Blaze/Ghast potion contacts, Dildomet spectral contact, Firework shell color and accepted repeated blast payloads)");
+    }
+    private static void explosiveBow(ElementalGrimoireChecks.Fixture f,Set<Entity> owned){
+        var center=f.owner.position().add(0,10,0);
+        var victim=cow(f.owner,center.add(4.5,0,0));owned.add(victim);
+        var immune=cow(f.owner,center.add(-1.5,0,0));immune.setPermanentlyInvulnerable(true);owned.add(immune);
+        var shells=shootExplosive(f,owned,tipped(1));
+        var first=shells.getFirst();
+        placeShell(first,center,2);
+        f.recording.packets.clear();
+        first.tick();
+        var trail=f.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+            .map(ClientboundLevelParticlesPacket.class::cast)
+            .filter(packet->packet.particle().getType()==ParticleTypes.ENTITY_EFFECT).toList();
+        require(trail.size()==1&&trail.getFirst().count()==1,"one entity_effect particle per active shell tick");
+        var color=(ColorParticleOption)trail.getFirst().particle();
+        require(Math.round(color.getRed()*255)==0x12&&Math.round(color.getGreen()*255)==0x34
+            &&Math.round(color.getBlue()*255)==0x56&&color.getAlpha()==1,"trail uses the exact accepted arrow color");
+        require(victim.getHealth()==100&&!victim.hasEffect(MobEffects.POISON),"flight does not apply potion effects");
+        first.tick();
+        require(first.isRemoved()&&victim.getHealth()<100&&victim.hasEffect(MobEffects.POISON),
+            "real blast carries poison to a damaged target beyond the old three-block sample");
+        require(immune.getHealth()==100&&!immune.hasEffect(MobEffects.POISON),"rejected blast damage does not deliver potion effects");
+        victim.removeEffect(MobEffects.POISON);victim.setHealth(100);victim.damageCooldownTime=0;victim.setInvulnerableTime(0);
+        victim.setDeltaMovement(Vec3.ZERO);
+        var second=shells.get(1);
+        placeShell(second,center,1);second.tick();
+        require(second.isRemoved()&&victim.getHealth()<100&&victim.hasEffect(MobEffects.POISON),
+            "second accepted blast in the same source family reapplies the potion");
+
+        victim.removeEffect(MobEffects.POISON);victim.setHealth(100);victim.setPos(center.add(2,0,0));
+        var weak=tipped(1);
+        var original=weak.get(DataComponents.POTION_CONTENTS);
+        weak.set(DataComponents.POTION_CONTENTS,new net.minecraft.world.item.alchemy.PotionContents(
+            Optional.empty(),Optional.of(6710882),original.customEffects(),Optional.empty()));
+        var weakShell=shootExplosive(f,owned,weak).getFirst();
+        placeShell(weakShell,center,2);weakShell.setOnGround(true);weakShell.tick();
+        require(weakShell.isRemoved()&&victim.getHealth()==100&&!victim.hasEffect(MobEffects.POISON),
+            "weak shell's visual-only terminal never synthesizes a potion hit");
+        victim.discard();immune.discard();
+    }
+    private static List<PrimedTnt> shootExplosive(ElementalGrimoireChecks.Fixture f,Set<Entity> owned,ItemStack ammo){
+        var owner=f.owner;
+        var bow=f.game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:item_defs/lbc/firework__8003a6bf1028").getFirst();
+        owner.setItemInHand(InteractionHand.MAIN_HAND,bow);
+        owner.setItemInHand(InteractionHand.OFF_HAND,ammo);
+        var before=snapshot(owner);
+        require(owner.gameMode.useItem(owner,owner.level(),bow,InteractionHand.MAIN_HAND).consumesAction(),"actual Firework bow draw");
+        require(bow.getItem().releaseUsing(bow,owner.level(),owner,71980),"actual Firework bow release");
+        owner.stopUsingItem();
+        var produced=created(owner,before);owned.addAll(produced);
+        var shells=produced.stream().filter(LbcBalance::managedTnt).map(PrimedTnt.class::cast).toList();
+        require(shells.size()==LbcBalanceTntShells.BASE.length&&owner.getMainHandItem().isEmpty()&&owner.getOffhandItem().isEmpty(),
+            "one bow and arrow debit and unchanged shell count");
+        return shells;
+    }
+    private static void placeShell(PrimedTnt shell,Vec3 center,int fuse){
+        shell.setPos(center);shell.setNoGravity(true);shell.setDeltaMovement(Vec3.ZERO);shell.setFuse(fuse);
     }
     private static Set<Entity> snapshot(net.minecraft.server.level.ServerPlayer owner){var result=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());owner.level().getAllEntities().forEach(result::add);return result;}
     private static net.minecraft.world.entity.animal.cow.Cow cow(net.minecraft.server.level.ServerPlayer owner,net.minecraft.world.phys.Vec3 at){
