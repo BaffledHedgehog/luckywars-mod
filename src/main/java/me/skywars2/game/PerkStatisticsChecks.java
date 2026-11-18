@@ -9,10 +9,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,6 +32,7 @@ public final class PerkStatisticsChecks {
             weightedTrinkets(fixture.resolve("trinkets.json"));
             batchedPicks(fixture.resolve("batch.json"));
             deferredPicks(fixture.resolve("deferred.json"));
+            playerAutosave(fixture.resolve("players.json"));
             migration(fixture.resolve("migration.json"));
             rejectedImport(fixture.resolve("blocked.json"));
             malformedStore(fixture.resolve("malformed.json"));
@@ -46,6 +49,48 @@ public final class PerkStatisticsChecks {
         try{thread.join(10000);}catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException(error);}
         require(!thread.isAlive(),"owned worker finished before file assertions and cleanup");
     }
+    private static void playerAutosave(Path file) throws IOException {
+        var tasks = new ArrayDeque<Runnable>();
+        var store = new PlayerStore(file, tasks::addLast);
+        for (int i = 0; i < 1000; i++) store.get(new UUID(0, i)).wins = i;
+        UUID player = new UUID(0, 999);
+        var profile = store.get(player);
+        require(profile.wins == 999, "profile indexed by UUID");
+
+        store.saveDeferred();
+        profile.wins++;
+        profile.trinkets[0] = 4;
+        String unlock = "lbc:true_advancements/storage_probe";
+        profile.lbcUnlocks.add(unlock);
+        store.saveDeferred();
+        require(!Files.exists(file) && tasks.size() == 1, "periodic save leaves all I/O to a coalesced worker");
+
+        profile.trinkets[0] = 5;
+        profile.lbcUnlocks.clear();
+        diskTask(tasks.removeFirst());
+        JsonObject root = read(file);
+        JsonObject saved = root.getAsJsonObject(player.toString());
+        require(root.size() == 1000 && saved.get("wins").getAsInt() == 1000,
+                "latest scheduled save persists all profiles");
+        require(saved.getAsJsonArray("trinkets").get(0).getAsInt() == 4
+                && saved.getAsJsonArray("lbcUnlocks").get(0).getAsString().equals(unlock),
+                "autosave isolates mutable inventories and unlocks from later edits");
+
+        store.saveDeferred();
+        profile.wins++;
+        store.saveAtomic();
+        diskTask(tasks.removeFirst());
+        saved = read(file).getAsJsonObject(player.toString());
+        require(saved.get("wins").getAsInt() == 1001 && saved.getAsJsonArray("lbcUnlocks").isEmpty(),
+                "an older autosave cannot replace a completed atomic transaction");
+
+        profile.wins++;
+        store.saveDeferred();
+        diskTask(tasks.removeFirst());
+        require(read(file).getAsJsonObject(player.toString()).get("wins").getAsInt() == 1002,
+                "autosave worker can be scheduled again after a transaction");
+    }
+
     private static void deferredPicks(Path file) throws IOException {
         var tasks=new java.util.ArrayList<Runnable>();var store=new LbcPerkStatistics(file,tasks::add);
         store.migrateLegacy(new CompoundTag(),()->{});var before=Files.readAllBytes(file);

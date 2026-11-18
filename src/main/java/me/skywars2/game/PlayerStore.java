@@ -6,27 +6,53 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /** Persistent per-player selections and SkyWars statistics. */
 public final class PlayerStore {
     private static final Path FILE = Path.of("config", "luckywars", "players.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private final Map<UUID, Profile> profiles = new LinkedHashMap<>();
+    private static final Executor AUTOSAVE_WRITER = Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(task, "lbc-player-save");
+        thread.setDaemon(true);
+        thread.setPriority(Thread.MIN_PRIORITY);
+        return thread;
+    });
 
-    private PlayerStore() {}
+    private final Map<UUID, Profile> profiles = new LinkedHashMap<>();
+    private final Path file;
+    private final Executor writer;
+    private final Object queueLock = new Object();
+    private final Object diskLock = new Object();
+    private long revision;
+    private long writtenRevision;
+    private SaveSnapshot pendingSave;
+    private boolean writerScheduled;
+
+    private record SaveSnapshot(long revision, Map<String, Profile> profiles) {}
+
+    PlayerStore(Path file, Executor writer) {
+        this.file = file;
+        this.writer = writer;
+    }
 
     public static PlayerStore load() {
-        PlayerStore store = new PlayerStore();
+        PlayerStore store = new PlayerStore(FILE, AUTOSAVE_WRITER);
         if (!Files.isRegularFile(FILE)) return store;
 
         try (var reader = Files.newBufferedReader(FILE)) {
@@ -93,54 +119,109 @@ public final class PlayerStore {
     }
 
     public void save() {
-        // Профили хранятся по UUID; сначала записываем временный JSON, затем заменяем файл (атомарно, если ФС поддерживает).
-        Path temporary = FILE.resolveSibling(FILE.getFileName() + ".tmp");
         try {
-            Files.createDirectories(FILE.getParent());
-            Map<String, Profile> serialized = new LinkedHashMap<>();
-            profiles.forEach((uuid, profile) -> {
-                profile.normalize();
-                serialized.put(uuid.toString(), profile);
-            });
-            Files.writeString(temporary, GSON.toJson(serialized));
-            try {
-                Files.move(temporary, FILE, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-            } catch (AtomicMoveNotSupportedException e) {
-                Files.move(temporary, FILE, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            System.err.println("Could not write " + FILE + ": " + e.getMessage());
-        } finally {
-            try { Files.deleteIfExists(temporary); } catch (IOException ignored) { }
+            write(snapshot(false), false);
+        } catch (IOException error) {
+            logWriteFailure(error);
         }
     }
 
-    /** Checked canonical save for case debit and payout; ordinary autosave is unchanged. */
+    /** Called on the server thread. At most one newer snapshot waits behind the active write. */
+    void saveDeferred() {
+        SaveSnapshot snapshot = snapshot(true);
+        synchronized (queueLock) {
+            pendingSave = snapshot;
+            scheduleWriter();
+        }
+    }
+
+    /** Checked durable save for transactions such as key debit and case payout. */
     void saveAtomic() throws IOException {
-        Path temporary = FILE.resolveSibling(FILE.getFileName() + ".tmp");
-        try {
-            Files.createDirectories(FILE.getParent());
-            Map<String, Profile> serialized = new LinkedHashMap<>();
-            profiles.forEach((uuid, profile) -> {
+        write(snapshot(false), true);
+    }
+
+    private SaveSnapshot snapshot(boolean copy) {
+        var serialized = new LinkedHashMap<String, Profile>();
+        profiles.forEach((uuid, profile) -> {
+            if (copy) {
+                serialized.put(uuid.toString(), profile.storageCopy());
+            } else {
                 profile.normalize();
                 serialized.put(uuid.toString(), profile);
-            });
-            byte[] payload = GSON.toJson(serialized).getBytes(java.nio.charset.StandardCharsets.UTF_8);
-            try (var channel = java.nio.channels.FileChannel.open(temporary,
-                    java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING,
-                    java.nio.file.StandardOpenOption.WRITE)) {
-                var buffer = java.nio.ByteBuffer.wrap(payload);
-                while (buffer.hasRemaining()) channel.write(buffer);
-                channel.force(true);
             }
-            // Unsupported atomic replacement fails acceptance; never partially accept the key debit.
-            Files.move(temporary, FILE, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        });
+        return new SaveSnapshot(++revision, serialized);
+    }
+
+    // Called with queueLock held. The writer never holds that lock during normalization or I/O.
+    private void scheduleWriter() {
+        if (writerScheduled || pendingSave == null) return;
+        writerScheduled = true;
+        writer.execute(this::drainSaves);
+    }
+
+    private void drainSaves() {
+        try {
+            while (true) {
+                SaveSnapshot snapshot;
+                synchronized (queueLock) {
+                    snapshot = pendingSave;
+                    pendingSave = null;
+                }
+                if (snapshot == null) return;
+
+                try {
+                    snapshot.profiles().values().forEach(Profile::normalize);
+                    write(snapshot, false);
+                } catch (IOException error) {
+                    logWriteFailure(error);
+                }
+            }
         } finally {
-            try { Files.deleteIfExists(temporary); } catch (IOException ignored) { }
+            synchronized (queueLock) {
+                writerScheduled = false;
+                scheduleWriter();
+            }
         }
     }
 
-    public static final class Profile {
+    private void write(SaveSnapshot snapshot, boolean durable) throws IOException {
+        synchronized (diskLock) {
+            // A foreground save can overtake a queued autosave. Never replace a newer file.
+            if (snapshot.revision() <= writtenRevision) return;
+
+            Path temporary = file.resolveSibling(file.getFileName() + ".tmp");
+            try {
+                Files.createDirectories(file.getParent());
+                String json = GSON.toJson(snapshot.profiles());
+                if (durable) {
+                    try (var channel = FileChannel.open(temporary, StandardOpenOption.CREATE,
+                            StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+                        var buffer = ByteBuffer.wrap(json.getBytes(StandardCharsets.UTF_8));
+                        while (buffer.hasRemaining()) channel.write(buffer);
+                        channel.force(true);
+                    }
+                } else {
+                    Files.writeString(temporary, json);
+                }
+                try {
+                    Files.move(temporary, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                } catch (AtomicMoveNotSupportedException error) {
+                    if (durable) throw error;
+                    Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
+                }
+                writtenRevision = snapshot.revision();
+            } finally {
+                try { Files.deleteIfExists(temporary); } catch (IOException ignored) { }
+            }
+        }
+    }
+
+    private void logWriteFailure(IOException error) {
+        System.err.println("Could not write " + file + ": " + error.getMessage());
+    }
+
+    public static final class Profile implements Cloneable {
         public String username = "";
         public int coins;
         public int memcoins;
@@ -185,6 +266,26 @@ public final class PlayerStore {
         // Persist the next cyclic slot (0..11) so expanding the array does not reset selection order.
         public int lbcLevelupSlot = 0;
         public Set<String> lbcUnlocks = new HashSet<>();
+
+        private Profile storageCopy() {
+            try {
+                Profile copy = (Profile) super.clone();
+                copy.keys = keys == null ? null : keys.clone();
+                copy.trinkets = trinkets == null ? null : trinkets.clone();
+                copy.levelups = levelups == null ? null : levelups.clone();
+                copy.legacyUnlocks = copyUnlocks(legacyUnlocks);
+                copy.revokedLegacyUnlocks = copyUnlocks(revokedLegacyUnlocks);
+                copy.dropRequestOverrides = copyUnlocks(dropRequestOverrides);
+                copy.lbcUnlocks = copyUnlocks(lbcUnlocks);
+                return copy;
+            } catch (CloneNotSupportedException impossible) {
+                throw new AssertionError(impossible);
+            }
+        }
+
+        private static Set<String> copyUnlocks(Set<String> source) {
+            return source == null ? null : new HashSet<>(source);
+        }
 
         private void normalize() {
             if (username == null) username = "";

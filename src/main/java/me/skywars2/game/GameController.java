@@ -1143,7 +1143,7 @@ public final class GameController {
                 int team=bedwars.winnerTeam();
                 if(developerMode()||team<0||items.timeStop().stopped(maps.level())||!acceptedNuclearSettled())lastAliveTicks=5;
                 else if(--lastAliveTicks<=0)finish();
-                if(lifetimeTicks%600==0)players.save();
+                if(lifetimeTicks%600==0)players.saveDeferred();
                 return;
             }
             // A player awaiting vanilla respawn still owns remaining lives.
@@ -1159,7 +1159,7 @@ public final class GameController {
             if(finishTicks>1&&(victoryWinner==null||winner!=null))events.victoryTick(winner,finishTicks-1);
             if (--finishTicks <= 0) restoreLobby();
         }
-        if (lifetimeTicks % 600 == 0) players.save();
+        if (lifetimeTicks % 600 == 0) players.saveDeferred();
     }
 
     private void startPlaying() {
