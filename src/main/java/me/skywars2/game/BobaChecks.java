@@ -5,10 +5,13 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.IdentityHashMap;
 
 /** Native-input components for the asynchronous map fixture; the caller owns exact restoration. */
 public final class BobaChecks {
@@ -167,23 +170,30 @@ public final class BobaChecks {
                     var velocity=new Vec3(.28125,-.15625,.40625);beta.setDeltaMovement(velocity);
                     var casterVelocity=new Vec3(-.21875,.125,.34375);owner.setDeltaMovement(casterVelocity);
                     double angle=Math.toRadians(37);var expected=at.add(Math.cos(angle),0,Math.sin(angle));
-                    var before=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<net.minecraft.world.entity.Entity,Boolean>());
-                    beta.level().getAllEntities().forEach(before::add);
+                    var before = new IdentityHashMap<ItemEntity, Integer>();
+                    for (var entity : beta.level().getAllEntities()) {
+                        if (entity instanceof ItemEntity item && item.position().distanceToSqr(expected) < 1e-10)
+                            before.put(item, item.getItem().getCount());
+                    }
                     long visits=game.maps().rotationVisits(),writes=game.maps().rotationWrites();
                     require(owner.gameMode.useItem(owner,owner.level(),clicked,hand).consumesAction(),"actual native Bedwars mode"+sourceMode+" "+hand);
                     require(donor.getCount()==1&&clicked.getCount()==3&&count(owner)==4,"Bedwars exact one inventory-order debit mode"+sourceMode+" "+hand);
                     require(!game.maps().rotationBusy()&&game.maps().rotationVisits()==visits&&game.maps().rotationWrites()==writes,"Bedwars never creates/advances map job");
                     require(beta.position().distanceToSqr(expected)<1e-12&&Math.abs(beta.getYRot()-127)<1e-5&&beta.getXRot()==-90,"source local-left/yaw+90/upward pitch");
                     require(beta.getDeltaMovement().equals(velocity)&&owner.getDeltaMovement().equals(casterVelocity),"source retains target and caster momentum");
-                    var drops=new java.util.ArrayList<net.minecraft.world.entity.item.ItemEntity>();
-                    beta.level().getAllEntities().forEach(e->{if(e instanceof net.minecraft.world.entity.item.ItemEntity item&&!before.contains(e)
-                            &&item.position().distanceToSqr(expected)<1e-10)drops.add(item);});
-                    require(!drops.isEmpty(),"real native source loot actors at moved enemy");
-                    int total=0;for(var drop:drops){
-                        require(LbcFartus.data(drop.getItem()).getIntOr("govnoq",0)==1,"source govno tables rather than invented loot");
-                        total+=drop.getItem().getCount();
+                    // Native spawn can absorb a new drop into a stack from the previous cast.
+                    int total = 0;
+                    for (var entity : beta.level().getAllEntities()) {
+                        if (!(entity instanceof ItemEntity item) || item.position().distanceToSqr(expected) >= 1e-10)
+                            continue;
+                        int added = item.getItem().getCount() - before.getOrDefault(item, 0);
+                        if (added <= 0) continue;
+                        require(LbcFartus.data(item.getItem()).getIntOr("govnoq", 0) == 1,
+                                "source govno tables rather than invented loot");
+                        total += added;
                     }
-                    require(total==94,"source govno_lot ten*3 plus govno_lot_2 sixty-four, actual="+total);
+                    require(total == 94, "source govno tables at moved enemy: mode=" + sourceMode
+                            + ", hand=" + hand + ", expected=94, actual=" + total);
                 }
             }
         }finally{

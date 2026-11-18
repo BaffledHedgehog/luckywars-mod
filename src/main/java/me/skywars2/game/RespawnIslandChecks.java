@@ -99,6 +99,7 @@ public final class RespawnIslandChecks {
         final MapManager maps;
         final MapManager.Spawn spawn;
         final BlockPos center,barrel,far;
+        final BlockPos lowerCorner,upperCorner,outsideCorner;
         final List<BlockPos> near;
         final Map<BlockPos,MapManager.BlockSnapshot> prepared=new LinkedHashMap<>(),before=new LinkedHashMap<>();
         final List<Marker> markers=new ArrayList<>();
@@ -116,6 +117,9 @@ public final class RespawnIslandChecks {
             center=BlockPos.containing(spawn.position());barrel=center.offset(7,-4,7);
             near=List.of(center.offset(7,-3,0),center.offset(-7,-3,0),center.offset(0,-3,7));
             far=center.offset(25,-3,0);
+            lowerCorner = center.offset(-10, -20, -10);
+            upperCorner = center.offset(10, 10, 10);
+            outsideCorner = upperCorner.east();
         }
         void remember(BlockPos pos,Map<BlockPos,MapManager.BlockSnapshot> into) {
             into.computeIfAbsent(pos.immutable(),maps::snapshot);
@@ -129,6 +133,10 @@ public final class RespawnIslandChecks {
         }
         void prepare() {
             for(var pos:near)remember(pos,prepared);remember(far,prepared);remember(barrel,prepared);
+            for (var pos : List.of(lowerCorner, upperCorner, outsideCorner)) {
+                remember(pos, prepared);
+                set(pos, Blocks.OBSIDIAN.defaultBlockState());
+            }
             set(barrel,Blocks.BARREL.defaultBlockState());
             var gift=new ItemStack(Items.DIAMOND,13);
             gift.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("Respawn cached NBT"));
@@ -157,6 +165,8 @@ public final class RespawnIslandChecks {
             var cache=(Map<BlockPos,Map<BlockPos,MapManager.BlockSnapshot>>)read(maps,"respawnIslands");
             original=cache.get(center);
             require(original!=null&&originalBarrel.equals(original.get(barrel)),"genuine start capture retains deliberate unmarked barrel NBT");
+            require(original.containsKey(lowerCorner) && original.containsKey(upperCorner)
+                    && !original.containsKey(outsideCorner), "section traversal clips exactly at the island corners");
             require(maps.hasRespawnLanding(spawn),"original map provides a real landing");
             for(var p:BlockPos.betweenClosed(center.offset(-10,-20,-10),center.offset(10,10,10)))remember(p,before);
             remember(far,before);
@@ -216,6 +226,8 @@ public final class RespawnIslandChecks {
                 for(var entry:original.entrySet())if(!near.contains(entry.getKey()))
                     require(maps.level().getBlockState(entry.getKey()).equals(entry.getValue().state()),"cached nonair state restored at "+entry.getKey());
                 require(originalBarrel.equals(maps.snapshot(barrel)),"original non-chest block entity NBT restored exactly");
+                require(maps.level().getBlockState(outsideCorner).is(Blocks.OBSIDIAN),
+                        "terrain outside the capture stays untouched after a real respawn");
                 require(maps.level().getBlockState(air).is(Blocks.GOLD_BLOCK),"masked clone preserves new block in original air");
                 requireRefilled();
                 SkyWars2.LOGGER.info("[check] PASS respawn-island-restored");

@@ -933,21 +933,41 @@ public final class MapManager {
     void captureRespawnIslands() {
         respawnIslands.clear();
         if(level==null)return;
-        var plain=new java.util.IdentityHashMap<BlockState,BlockSnapshot>();
-        for(var spawn:spawns){
-            var center=BlockPos.containing(spawn.position());var cells=new HashMap<BlockPos,BlockSnapshot>();
-            int low=Math.max(level.getMinY(),center.getY()-20),high=Math.min(level.getMaxY()-1,center.getY()+10);
-            for(int x=(center.getX()-10)>>4;x<=(center.getX()+10)>>4;x++)for(int z=(center.getZ()-10)>>4;z<=(center.getZ()+10)>>4;z++){
-                var chunk=level.getChunk(x,z);
-                int minX=Math.max(center.getX()-10,x<<4),maxX=Math.min(center.getX()+10,(x<<4)+15);
-                int minZ=Math.max(center.getZ()-10,z<<4),maxZ=Math.min(center.getZ()+10,(z<<4)+15);
-                for(var pos:BlockPos.betweenClosed(new BlockPos(minX,low,minZ),new BlockPos(maxX,high,maxZ))){
-                    var state=chunk.getBlockState(pos);if(state.isAir())continue;
-                    var image=state.hasBlockEntity()?snapshot(pos):plain.computeIfAbsent(state,key->new BlockSnapshot(key,null));
-                    cells.put(pos.immutable(),image);
+        var plain = new java.util.IdentityHashMap<BlockState, BlockSnapshot>();
+        for (var spawn : spawns) {
+            var center = BlockPos.containing(spawn.position());
+            var cells = new HashMap<BlockPos, BlockSnapshot>();
+            int lowX = center.getX() - 10, highX = center.getX() + 10;
+            int lowY = Math.max(level.getMinY(), center.getY() - 20);
+            int highY = Math.min(level.getMaxY() - 1, center.getY() + 10);
+            int lowZ = center.getZ() - 10, highZ = center.getZ() + 10;
+            if (lowY <= highY) {
+                for (int chunkX = lowX >> 4; chunkX <= highX >> 4; chunkX++) {
+                    for (int chunkZ = lowZ >> 4; chunkZ <= highZ >> 4; chunkZ++) {
+                        var chunk = level.getChunk(chunkX, chunkZ);
+                        int minX = Math.max(lowX, chunkX << 4), maxX = Math.min(highX, (chunkX << 4) + 15);
+                        int minZ = Math.max(lowZ, chunkZ << 4), maxZ = Math.min(highZ, (chunkZ << 4) + 15);
+                        for (int sy = lowY >> 4; sy <= highY >> 4; sy++) {
+                            var section = chunk.getSection(chunk.getSectionIndexFromSectionY(sy));
+                            if (section.hasOnlyAir()) continue;
+                            int minY = Math.max(lowY, sy << 4), maxY = Math.min(highY, (sy << 4) + 15);
+                            for (int y = minY; y <= maxY; y++) {
+                                for (int z = minZ; z <= maxZ; z++) {
+                                    for (int x = minX; x <= maxX; x++) {
+                                        var state = section.getBlockState(x & 15, y & 15, z & 15);
+                                        if (state.isAir()) continue;
+                                        var pos = new BlockPos(x, y, z);
+                                        var image = state.hasBlockEntity() ? snapshot(pos)
+                                                : plain.computeIfAbsent(state, key -> new BlockSnapshot(key, null));
+                                        cells.put(pos, image);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            respawnIslands.put(center,Map.copyOf(cells));
+            respawnIslands.put(center, Map.copyOf(cells));
         }
     }
 
