@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
 import java.util.*;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -167,24 +170,114 @@ public final class OreshekChecks {
     public static void run(GameController game){try(var f=new Fixture(game)){f.branches();f.producer();}SkyWars2.LOGGER.info("[check] PASS oreshek (actual nut consumption, native15 isolated survivor blast, Nexus, silent obsolete-latch reset,47producer; no Zelensky/nuke cascade qualification)");}
     private static Fixture held;
     private static Choices heldChoices;
-    private static int heldPhase,heldAt;
+    private static int heldPhase,heldAt,heldSequence;
     private static long heldConsumed;
     public static void runInput(GameController game){
-        require(held==null,"exclusive actual held-use fixture");held=new Fixture(game);heldPhase=0;
+        require(held==null,"exclusive actual held-use fixture");held=new Fixture(game);heldPhase=0;heldSequence=0;
         try{beginHeld(game);}catch(Throwable error){closeHeld(error);throw error;}
     }
-    private static void beginHeld(GameController game){
-        var f=held;f.reset();f.p.stopUsingItem();f.p.getFoodData().setFoodLevel(20);
-        if(heldPhase==1)game.items().addTurnCurse(f.p,200);
-        var nut=f.nut.copy();f.p.setItemInHand(InteractionHand.MAIN_HAND,nut);
-        var client=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(nut,TooltipFlag.NORMAL,f.p.connection.getPacketContext(),f.p.registryAccess());
-        require(client.get(DataComponents.CONSUMABLE).equals(nut.get(DataComponents.CONSUMABLE))
-                &&client.get(DataComponents.FOOD).canAlwaysEat(),"real client nut projection remains edible at full hunger");
-        heldConsumed=game.items().oreshek().consumedCount();heldChoices=new Choices(f.level,.5f,.5f,.5f);
-        require(f.p.gameMode.useItem(f.p,f.level,nut,InteractionHand.MAIN_HAND).consumesAction()
-                &&f.p.isUsingItem()&&f.p.getUseItem()==nut,"actual native hand use begins under curse="+(heldPhase==1));
-        heldAt=game.server().getTickCount();
+    private static void beginHeld(GameController game) {
+        var f = held;
+        var player = f.p;
+        f.reset();
+        player.stopUsingItem();
+        player.getInventory().clearContent();
+        player.getFoodData().setFoodLevel(20);
+        if (heldPhase == 1) game.items().addTurnCurse(player, 200);
+        player.connection.handleSetCarriedItem(new ServerboundSetCarriedItemPacket(0));
+        player.inventoryMenu.broadcastFullState();
+        f.base.recording.packets.clear();
+
+        int count = heldPhase == 1 ? 10 : 1;
+        var drops = count == 1 ? List.of(singleDrop(f)) : bigBobDrops(f);
+        int groundCount = drops.stream().mapToInt(drop -> drop.getItem().getCount()).sum();
+        require(groundCount == count, "native dropped Oreshek quantity " + groundCount);
+        for (var drop : drops) {
+            drop.setNoPickUpDelay();
+            drop.playerTouch(player);
+            require(drop.isRemoved(), "native pickup consumes each ground entity");
+        }
+
+        for (int slot = 0; slot < count; slot++) {
+            var inventoryStack = player.getInventory().getItem(slot);
+            require(ItemStack.matches(inventoryStack, f.nut), "first pickup retains the native single-item stack in slot " + slot);
+            validateClientSlot(f, slot, inventoryStack, "first pickup");
+        }
+
+        int selected = heldPhase == 1 ? 5 : 0;
+        if (heldPhase == 2) {
+            selected = 4;
+            f.base.recording.packets.clear();
+            player.inventoryMenu.clicked(36, 0, net.minecraft.world.inventory.ContainerInput.PICKUP, player);
+            player.inventoryMenu.clicked(36 + selected, 0, net.minecraft.world.inventory.ContainerInput.PICKUP, player);
+            player.inventoryMenu.broadcastChanges();
+            require(player.getInventory().getItem(0).isEmpty(), "inventory-move control actually moved the item");
+            validateClientSlot(f, selected, player.getInventory().getItem(selected), "after inventory move");
+        }
+        player.connection.handleSetCarriedItem(new ServerboundSetCarriedItemPacket(selected));
+        var nut = player.getMainHandItem();
+        require(LbcOreshek.matches(nut), "client-selected hotbar slot contains the collected nut");
+        heldConsumed = game.items().oreshek().consumedCount();
+        heldChoices = new Choices(f.level, .5f, .5f, .5f);
+        player.connection.handleUseItem(new ServerboundUseItemPacket(
+                InteractionHand.MAIN_HAND, ++heldSequence, player.getYRot(), player.getXRot()));
+        player.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
+        require(player.isUsingItem() && player.getUseItem() == nut,
+                "real UseItem begins after pickup, phase=" + heldPhase + " slot=" + selected);
+        heldAt = game.server().getTickCount();
     }
+
+    private static net.minecraft.world.entity.item.ItemEntity singleDrop(Fixture f) {
+        var drop = new net.minecraft.world.entity.item.ItemEntity(f.level, f.p.getX(), f.p.getY(), f.p.getZ(), f.nut.copy());
+        drop.setNoGravity(true);
+        require(f.level.addFreshEntity(drop), "new singleton ground entity from the actual Oreshek loot");
+        return drop;
+    }
+
+    private static List<net.minecraft.world.entity.item.ItemEntity> bigBobDrops(Fixture f) {
+        var existing = Collections.newSetFromMap(new IdentityHashMap<Entity, Boolean>());
+        f.level.getAllEntities().forEach(existing::add);
+        var wand = f.game.lbc().rollTable(f.level, f.p.position(), f.p, "lbc:big_bob").getFirst();
+        f.p.setItemInHand(InteractionHand.MAIN_HAND, wand);
+        try {
+            require(LbcBigBob.use(f.game, f.p, InteractionHand.MAIN_HAND), "real Big Bob drop under Skill Issue");
+        } finally {
+            f.p.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        }
+
+        var drops = new ArrayList<net.minecraft.world.entity.item.ItemEntity>();
+        for (var entity : f.level.getAllEntities()) {
+            if (entity instanceof net.minecraft.world.entity.item.ItemEntity item && !existing.contains(item)
+                    && LbcOreshek.matches(item.getItem())) drops.add(item);
+        }
+        SkyWars2.LOGGER.info("[check] Big Bob first pickup from {} native ground entities", drops.size());
+        return drops;
+    }
+
+    private static void validateClientSlot(Fixture f, int inventorySlot, ItemStack original, String occasion) {
+        int menuSlot = inventorySlot < 9 ? 36 + inventorySlot : inventorySlot;
+        var updates = f.base.recording.packets.stream().filter(ClientboundContainerSetSlotPacket.class::isInstance)
+                .map(ClientboundContainerSetSlotPacket.class::cast)
+                .filter(p -> p.getContainerId() == 0 && p.getSlot() == menuSlot).toList();
+        require(!updates.isEmpty(), occasion + " sends a real inventory update for slot " + inventorySlot);
+        for (var update : updates) {
+            var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), f.p.registryAccess());
+            try {
+                // Capture what a vanilla recipient can decode, including Polymer's actual packet projection.
+                PacketContext.runWithContext(f.p.connection, () -> ClientboundContainerSetSlotPacket.STREAM_CODEC.encode(buffer, update));
+                var packet = ClientboundContainerSetSlotPacket.STREAM_CODEC.decode(buffer);
+                var client = packet.getItem();
+                require(!buffer.isReadable() && client.is(Items.REPEATING_COMMAND_BLOCK) && client.getCount() == 1
+                        && Objects.equals(client.get(DataComponents.ITEM_MODEL), original.get(DataComponents.ITEM_MODEL))
+                        && Objects.equals(client.get(DataComponents.CONSUMABLE), original.get(DataComponents.CONSUMABLE))
+                        && client.get(DataComponents.FOOD) != null && client.get(DataComponents.FOOD).canAlwaysEat(),
+                        occasion + " vanilla wire slot " + inventorySlot + " carries full-hunger food and consume components: " + client.getComponents());
+            } finally {
+                buffer.release();
+            }
+        }
+    }
+
     public static void tickInput(GameController game){
         if(held==null)return;
         try{
@@ -199,9 +292,10 @@ public final class OreshekChecks {
             require(game.items().oreshek().consumedCount()==heldConsumed+1&&held.p.getMainHandItem().isEmpty()
                     &&elapsed>=held.nut.get(DataComponents.CONSUMABLE).consumeTicks()-1,"real server ticks finish exactly one nut at native duration");
             if(heldPhase==1)require(game.items().curseTicks(held.p)>0,"Skill Issue stayed active for the entire real native eating interval");
+            SkyWars2.LOGGER.info("[check] Oreshek pickup phase {} finished exactly once in {} ticks", heldPhase, elapsed);
             heldChoices.close();heldChoices=null;
-            if(++heldPhase<2){beginHeld(game);return;}
-            closeHeld(null);SkyWars2.LOGGER.info("[check] PASS oreshek-input (actual full-hunger client consumable projection and native held-use ticks; exactly one debit and callback, with and without active Skill Issue)");
+            if(++heldPhase<3){beginHeld(game);return;}
+            closeHeld(null);SkyWars2.LOGGER.info("[check] PASS oreshek-input (actual ground pickup of singleton and Big Bob drop, first vanilla inventory slot codec, no inventory move and explicit move control, selected slot and native held-use ticks, full hunger and Skill Issue)");
         }catch(Throwable error){closeHeld(error);SkyWars2.LOGGER.error("[check] FAIL oreshek-input",error);}
     }
     private static void closeHeld(Throwable error){
