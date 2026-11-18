@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -85,7 +86,8 @@ public final class LbcLegacyRanged {
         return ItemData.intValue(weapon,"double",0)==1?game.items().balance().augment(owner,weapon,family):family;
     }
     /** After the one shared trait roll. Only the accepted ordinary arrow is converted. */
-    public static boolean convert(GameController game,ServerPlayer owner,ItemStack weapon,List<Projectile> family){
+    public static boolean convert(GameController game, ServerPlayer owner, ItemStack weapon,
+                                  List<Projectile> family, Consumer<Entity> published) {
         boolean fire=ItemData.intValue(weapon,"fastfired",0)==1&&!game.items().magic().mechanismSuppressed(owner);
         boolean bomb=ItemData.intValue(weapon,"penisgun",0)==1;
         if(!fire&&!bomb)return false;
@@ -103,6 +105,7 @@ public final class LbcLegacyRanged {
             if(bomb){
                 output.entityTags().addAll(shot.entityTags());
             }
+            if (published != null) published.accept(output);
             shot.discard();return true;
         }
         return false;

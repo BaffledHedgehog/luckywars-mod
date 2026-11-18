@@ -146,7 +146,7 @@ public final class LbcMachinegunSkill {
         var accepted=game.items().mana().score(p,"machinegun_shots");if(accepted.get()<Integer.MAX_VALUE)accepted.add(1);
         if(random.nextBoolean()&&!LbcInfiniteAmmo.conserves(ammo)){ammo.shrink(1);p.getInventory().setChanged();}
         List<Projectile> volley=List.of(arrow);
-        if(replacement)LbcRangedShots.acceptedReplacement(game,p,p.getUsedItemHand(),fired,volley);
+        if(replacement)LbcRangedShots.acceptedReplacement(game,p,p.getUsedItemHand(),weapon,fired,volley);
         else LbcRangedShots.accepted(game,p,p.getUsedItemHand(),weapon,fired,volley);
         return true;
     }

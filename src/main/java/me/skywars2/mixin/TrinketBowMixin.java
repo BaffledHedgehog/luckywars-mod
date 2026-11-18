@@ -74,7 +74,7 @@ public abstract class TrinketBowMixin {
         if (spawned.get()!=null&&!spawned.get().isEmpty() && game != null && ((Object) this instanceof BowItem || (Object) this instanceof CrossbowItem)
                 && shooter instanceof ServerPlayer player){
             var volley=List.copyOf(spawned.get());
-            if(replaceShot.get())LbcRangedShots.acceptedReplacement(game,player,hand,firedWeapon.get(),volley);
+            if(replaceShot.get())LbcRangedShots.acceptedReplacement(game,player,hand,weapon,firedWeapon.get(),volley);
             else LbcRangedShots.accepted(game,player,hand,weapon,firedWeapon.get(),volley);
         }
     }

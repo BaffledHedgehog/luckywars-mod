@@ -126,9 +126,15 @@ public final class GenieRuntime {
         scripts.event(owner,trigger.name(),target,captured,usedHand);
         legacyEvent(owner,trigger,target,captured,usedHand);
     }
-    public void shot(ServerPlayer owner,InteractionHand hand,ItemStack captured,List<Projectile> volley,boolean replacement){
-        scripts.shot(owner,captured,hand,volley,replacement);
-        if(!replacement)legacyEvent(owner,Trigger.SHOT,null,captured,hand);
+    public Runnable captureShot(ServerPlayer owner, InteractionHand hand, ItemStack physical, ItemStack captured,
+                                List<? extends Entity> bodies, boolean replacement) {
+        var deliver = scripts.captureShot(owner, hand, physical, captured, bodies, replacement);
+        String epoch = game.items().epoch();
+        return () -> {
+            if (!epoch.equals(game.items().epoch())) return;
+            if (deliver != null) deliver.run();
+            if (!replacement) legacyEvent(owner, Trigger.SHOT, null, captured, hand, physical);
+        };
     }
     public void hit(ServerPlayer owner, LivingEntity target, InteractionHand hand, ItemStack physical,
                     ItemStack captured, Entity body) {

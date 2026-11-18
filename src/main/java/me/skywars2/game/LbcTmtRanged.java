@@ -46,16 +46,20 @@ public final class LbcTmtRanged {
      * Own the complete accepted-shot continuation so a scoped native automatic shot
      * cannot mark the tick guard before its sibling traits have been dispatched.
      */
-    public static boolean onShot(GameController game,ServerPlayer owner,InteractionHand hand,
-            ItemStack weapon,ItemStack fired,List<Projectile> nativeFamily){
+    static boolean onShot(GameController game, ServerPlayer owner, InteractionHand hand,
+            ItemStack weapon, ItemStack fired, List<Projectile> nativeFamily, LbcRangedShots.Shot shot) {
         if(ItemData.intValue(fired,"tmt_item",0)!=1)return false;
         var family=List.copyOf(nativeFamily);
         // Native shoot returns before Bow/Crossbow award their weapon statistic
         // (and Crossbow criterion). A legal final-item continuation may consume
         // that weapon, so wait for the true native action, then its private scopes.
         LbcTmtShotCompletion.afterNativeAction(()->{
-            LbcTmtTriggers.shot(fired,()->acceptedShot(game,owner,hand,weapon,fired,family));
-            game.items().tmt().bowShot(owner,hand,weapon,fired,family);
+            try {
+                LbcTmtTriggers.shot(fired, () -> acceptedShot(game, owner, hand, weapon, fired, family, shot));
+                game.items().tmt().bowShot(owner, hand, weapon, fired, family);
+            } finally {
+                if (shot != null) shot.complete();
+            }
         });
         return true;
     }
@@ -63,12 +67,11 @@ public final class LbcTmtRanged {
     /**
      * The caller already owns native ammunition/durability debit and publication. This
      * method never debits that volley or rolls another shot. The existing minigun
-     * owner alone may debit its separate next-chamber reload. Return true only for TMT.
+     * owner alone may debit its separate next-chamber reload.
      */
-    public static boolean acceptedShot(GameController game,ServerPlayer owner,InteractionHand hand,
-            ItemStack weapon,ItemStack fired,List<Projectile> nativeFamily){
-        if(ItemData.intValue(fired,"tmt_item",0)!=1)return false;
-        if(LbcTmtAbilities.active(weapon)||LbcTmtAbilities.active(fired))return true;
+    private static void acceptedShot(GameController game, ServerPlayer owner, InteractionHand hand,
+            ItemStack weapon, ItemStack fired, List<Projectile> nativeFamily, LbcRangedShots.Shot shot) {
+        if (LbcTmtAbilities.active(weapon) || LbcTmtAbilities.active(fired)) return;
         LbcTmtAmmoPayloads.install(game,owner,fired,nativeFamily);
         var abilities=new ArrayList<>(LbcTmtTriggers.effective(fired));
         // Source owner order, independent of random draw/serialization order.
@@ -86,7 +89,8 @@ public final class LbcTmtRanged {
             scope(weapon,fired,ability,()->{result.set(game.items().balance().augment(owner,fired,input));return true;});
             family=result.get();
         }
-        if(family.isEmpty())return true;
+        if (family.isEmpty()) return;
+        if (shot != null) shot.include(family);
         for(var projectile:family)if(LbcTmtAmmoPayloads.hasVariant(projectile,300)&&!LbcHomingArrows.isManaged(projectile))
             game.items().homingArrows().loaded(projectile);
         LbcLegacyRanged.installRocketAmmo(game,owner,fired,family);
@@ -107,12 +111,13 @@ public final class LbcTmtRanged {
             var donors=donors(owner,images);
             if(donors.isEmpty())continue;
             boolean converted=scope(weapon,fired,ability,()->{
-                if(legacyConversion(ability))return LbcLegacyRanged.convert(game,owner,fired,donors);
-                if(flag(ability,"explosive"))return game.items().balance().explosiveBow(owner,fired,donors);
+                if(legacyConversion(ability))return LbcLegacyRanged.convert(game,owner,fired,donors,shot);
+                if(flag(ability,"explosive"))return game.items().balance().explosiveBow(owner,fired,donors,shot);
                 if(charged(ability))return game.items().chargedBows().release(owner,fired,LbcTmtTriggers.shotCharge(owner.getTicksUsingItem()),donors);
                 if(beamImba(ability))return LbcImbaCrossbows.release(game,owner,fired,donors);
                 var result=flag(ability,"shulker_new")?game.items().shulkerBow().augment(owner,fired,donors)
                         :game.items().balance().augment(owner,fired,donors);
+                if (shot != null) shot.include(result);
                 return result.stream().anyMatch(body->!donors.contains(body)&&!body.isRemoved());
             });
             // Shulker owners publish replacements themselves; surviving donors are
@@ -134,6 +139,7 @@ public final class LbcTmtRanged {
                         game.items().timeStop().prepareFrozen(projectile);
                         if(owner.level().addFreshEntity(projectile)){
                             game.items().trinketArrows().loaded(projectile);
+                            if (shot != null) shot.accept(projectile);
                         }else projectile.discard();
                     }else projectile.discard();
                 }
@@ -152,7 +158,6 @@ public final class LbcTmtRanged {
             scope(weapon,fired,ability,()->{LbcMinigunCrossbow.afterShot(game,owner,hand,weapon,accepted,fired);return true;});
         for(var ability:abilities)if(legacyConversion(ability)||flag(ability,"fastexplode"))
             scope(weapon,fired,ability,()->{LbcLegacyRanged.afterShot(game,owner,hand,weapon,accepted,fired);return true;});
-        return true;
     }
 
     private static boolean scope(ItemStack weapon,ItemStack fired,LbcTmtAbilities.Ability ability,BooleanSupplier body){

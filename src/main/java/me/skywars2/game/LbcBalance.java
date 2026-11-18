@@ -69,7 +69,10 @@ public final class LbcBalance {
     public List<net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball> trailActors(){return extras.trailActors();}
     public net.minecraft.world.item.DyeColor trailColor(Entity actor){return extras.trailColor(actor);}
     public LbcIndirectKills.Owner trailCause(Entity actor){return extras.trailCause(actor);}
-    public boolean explosiveBow(ServerPlayer owner,ItemStack weapon,List<net.minecraft.world.entity.projectile.Projectile> family){return explosive.convert(owner,weapon,family);}
+    public boolean explosiveBow(ServerPlayer owner, ItemStack weapon, List<net.minecraft.world.entity.projectile.Projectile> family,
+                                java.util.function.Consumer<net.minecraft.world.entity.Entity> published) {
+        return explosive.convert(owner, weapon, family, published);
+    }
     public boolean beforeTnt(net.minecraft.world.entity.item.PrimedTnt body){return explosive.beforeTick(body);}
     public void exploding(net.minecraft.world.entity.item.PrimedTnt body){explosive.exploding(body);}
     public void explosionHit(net.minecraft.world.entity.item.PrimedTnt body,LivingEntity target){explosive.explosionHit(body,target);}

@@ -129,9 +129,7 @@ public final class LbcSpecialFireballs {
         if(!resident(owner.level(),at))return null;
         var fire=new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level());fire.entityTags().addAll(donor.entityTags());fire.entityTags().add("can_deleted");
         LbcTmtAmmoPayloads.copyPayloads(donor,fire);
-        var published = insert(owner,fire,at,velocity,false);
-        if (published != null) GenieCombat.inheritLaunch(owner, donor, published);
-        return published;
+        return insert(owner, fire, at, velocity, false);
     }
     public void rangedContact(Projectile shot,LivingEntity target,Vec3 point){if(managed(shot))LbcLegacyRanged.contact(game,shot,target,point);}
     public void rangedGround(Projectile shot,Vec3 point){if(managed(shot))LbcLegacyRanged.ground(game,shot,point);}

@@ -67,15 +67,6 @@ public final class GenieCombat {
         return body instanceof TraceableEntity trace && trace.getOwner() == owner;
     }
 
-    /** The final projectile of an accepted native conversion inherits the exact launch receipt. */
-    static void inheritLaunch(ServerPlayer owner, Projectile donor, Projectile replacement) {
-        var weapon = donor.getAttached(FIRED);
-        if (weapon != null && weapon.owner().equals(owner.getUUID())
-                && ownedLaunch(donor, owner) && ownedLaunch(replacement, owner)) {
-            replacement.setAttached(FIRED, weapon);
-        }
-    }
-
     static void castProjectile(GameController game, ServerPlayer owner, Projectile shot, ItemStack stack) {
         if (!stack.isEmpty()) shot.setAttached(SPELL, new Weapon(owner.getUUID(), game.items().epoch(), false, stack.copyWithCount(1)));
     }

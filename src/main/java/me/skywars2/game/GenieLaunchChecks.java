@@ -6,7 +6,9 @@ import me.skywars2.game.genie.*;
 import me.skywars2.game.genie.script.ScriptRepository;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
@@ -15,6 +17,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ChargedProjectiles;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -29,6 +32,7 @@ final class GenieLaunchChecks {
     private Creeper body;
     private Vec3 origin;
     private final CompletableFuture<ScriptRepository.Loaded> replacement;
+    private final CompletableFuture<ScriptRepository.Loaded> shot;
     private Set<UUID> beforeReplacement;
     private ItemStack replacementBow;
     GenieLaunchChecks(GameController game,WoolBucketChecks.Fixture base){
@@ -43,6 +47,14 @@ final class GenieLaunchChecks {
             ["load","state"],["const","body"],["const","minecraft:creeper"],
             ["load","shot"],["const","position"],["get"],["load","shot"],["const","velocity"],["get"],
             ["const",100],["call","entity.launch",4],["put"],["return"]]}}}
+            """);
+        shot=game.items().genie().runtime().scripts().prepare("""
+            {"version":1,"state":{"count":0},"handlers":{"SHOT":"fire"},"functions":{"fire":{
+            "parameters":["event"],"code":[
+            ["load","state"],["const","count"],["load","state"],["const","count"],["get"],["const",1],
+            ["add"],["put"],["drop"],
+            ["load","state"],["const","hand"],["load","event"],["const","hand"],["get"],["put"],["drop"],
+            ["load","state"],["const","volley"],["load","event"],["const","projectiles"],["get"],["put"],["return"]]}}}
             """);
         for(String type:List.of("player","fishing_bobber","item","not_a_native_entity"))reject(type,40,200);
         reject("warden",40,200);
@@ -145,10 +157,109 @@ final class GenieLaunchChecks {
                 &&replacementCrossbow.getDamageValue()>0,"replacement crossbow clears loaded ammo and wears");
             require(projectiles().equals(beforeReplacement),"replacement crossbow never publishes its multishot arrows");
             checkReplacement(replacementCrossbow,3,InteractionHand.MAIN_HAND);
+            checkActualVolleys();
             return true;
         }
         throw new IllegalStateException("unknown native launch phase");
     }
+    private void checkActualVolleys() {
+        base.move(base.owner, base.resident(false));
+        base.owner.setYRot(0);
+        base.owner.setXRot(0);
+        var blaze = shotItem(LbcProjectileWeaponItems.Kind.BLAZE_CROSSBOW.item);
+        checkActualVolley(blaze, Collections.nCopies(1, "minecraft:small_fireball"));
+        checkActualVolley(shotItem(LbcProjectileWeaponItems.Kind.DILDOMET.item), List.of("minecraft:item"));
+        checkActualVolley(shotItem(LbcProjectileWeaponItems.Kind.DOUBLE_BOW.item), Collections.nCopies(2, "minecraft:arrow"));
+        checkActualVolley(shotItem(LbcProjectileWeaponItems.Kind.SHULKER_BOW.item), List.of("minecraft:shulker_bullet"));
+
+        var firework = shotItem(Items.BOW);
+        var fireworkData = scriptData(firework);
+        fireworkData.putInt("explosive",1);
+        firework.set(DataComponents.CUSTOM_DATA,CustomData.of(fireworkData));
+        // The native Firework ability spends one matching bow from inventory.
+        // Give it an earlier ordinary donor, so the fired tool remains observable.
+        var donor = new ItemStack(Items.BOW);
+        var donorData = new CompoundTag();
+        donorData.putInt("explosive",1);
+        donor.set(DataComponents.CUSTOM_DATA,CustomData.of(donorData));
+        base.owner.getInventory().setItem(0,donor);
+        checkActualVolley(firework, Collections.nCopies(29,"minecraft:tnt"));
+        require(donor.isEmpty(), "native Firework still debits its donor");
+        checkActualVolley(shotItem(LbcImbaCrossbows.Kind.SNIPER.item),List.of());
+
+        var tmt = shotItem(LbcTmtItems.prototype(3).getItem());
+        var data = scriptData(tmt);
+        data.putInt("tmt_item",1);
+        var abilities = new ArrayList<LbcTmtAbilities.Ability>();
+        for (var flag : List.of("double","fastfired","penisgun")) {
+            var bits = new CompoundTag();
+            bits.putInt(flag,1);
+            abilities.add(new LbcTmtAbilities.Ability("native/genie_check_" + flag,CustomData.of(bits)));
+        }
+        LbcTmtAbilities.write(data,abilities);
+        tmt.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+        checkActualVolley(tmt,List.of("minecraft:arrow","minecraft:item","minecraft:small_fireball"));
+    }
+
+    private static CompoundTag scriptData(ItemStack stack) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+    }
+
+    private ItemStack shotItem(Item carrier) {
+        return GenieScriptItem.construct(shot.join(),BuiltInRegistries.ITEM.getKey(carrier).toString(),
+            "Native shot report","Records the accepted volley.",1);
+    }
+
+    private void checkActualVolley(ItemStack stack,List<String> expectedTypes) {
+        base.owner.setItemInHand(InteractionHand.OFF_HAND,stack);
+        var before = new HashSet<UUID>();
+        base.level.getAllEntities().forEach(body -> before.add(body.getUUID()));
+        if (stack.getItem() instanceof CrossbowItem) {
+            stack.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
+            require(base.owner.gameMode.useItem(base.owner,base.level,stack,InteractionHand.OFF_HAND).consumesAction(),
+                "actual accepted native crossbow discharge");
+        } else {
+            base.owner.getInventory().setItem(1,new ItemStack(Items.ARROW,4));
+            require(base.owner.gameMode.useItem(base.owner,base.level,stack,InteractionHand.OFF_HAND).consumesAction(),
+                "actual accepted native bow draw");
+            require(stack.getItem().releaseUsing(stack,base.level,base.owner,71980),"actual charged native bow release");
+            base.owner.stopUsingItem();
+        }
+        var live = new HashMap<String,Entity>();
+        base.level.getAllEntities().forEach(body -> {
+            if (!body.isRemoved() && !before.contains(body.getUUID())) {
+                base.own(body);
+                live.put(body.getStringUUID(),body);
+            }
+        });
+        try {
+            var types = live.values().stream().map(e -> BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).toString()).sorted().toList();
+            require(types.equals(expectedTypes.stream().sorted().toList()),"actual published body types: "+types+" expected="+expectedTypes);
+            var scripts = game.items().genie().runtime().scripts();
+            for (int i=0;i<16;i++) scripts.tick();
+            var state = GenieScriptItem.state(stack);
+            require(state.get("count").getAsInt()==1 && state.get("hand").getAsString().equals("offhand"),
+                "one SHOT on the exact firing stack");
+            var volley = state.getAsJsonArray("volley");
+            require(volley.size()==live.size(),"SHOT reports the actual family: "+volley);
+            for (var value : volley) {
+                var sample = value.getAsJsonObject();
+                String type = sample.get("type").getAsString();
+                require(types.contains(type) && sample.has("id"),"SHOT must report real body type and ID: "+sample+" actual="+types);
+                var body = live.remove(sample.get("id").getAsString());
+                require(body!=null && type.equals(BuiltInRegistries.ENTITY_TYPE.getKey(body.getType()).toString()),
+                    "SHOT names each published body once");
+                require(vector(sample.getAsJsonArray("position")).distanceTo(body.position())<1e-9
+                    && vector(sample.getAsJsonArray("velocity")).distanceTo(body.getDeltaMovement())<1e-9,
+                    "SHOT reports actual launch geometry");
+                base.discard(body);
+            }
+            require(live.isEmpty(),"no physical member omitted by the event");
+        } finally {
+            live.values().forEach(base::discard);
+        }
+    }
+
     private Set<UUID> projectiles(){
         var known=new HashSet<UUID>();
         for(var shot:base.level.getEntitiesOfClass(Projectile.class,base.owner.getBoundingBox().inflate(24),e->e.getOwner()==base.owner))known.add(shot.getUUID());

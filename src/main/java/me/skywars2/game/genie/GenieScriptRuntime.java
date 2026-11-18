@@ -236,11 +236,19 @@ public final class GenieScriptRuntime implements AutoCloseable {
     public void event(ServerPlayer owner,String name,Entity target,ItemStack captured,InteractionHand hand){
         event(owner,name,target,captured,hand,null,null);
     }
-    public void shot(ServerPlayer owner,ItemStack captured,InteractionHand hand,List<Projectile> volley,boolean replacement){
-        if(!GenieScriptItem.matches(captured)||!admitted(owner))return;
-        var projectiles=new JsonArray();
-        for(var projectile:volley)projectiles.add(projectileSample(projectile));
-        event(owner,replacement?GenieScriptItem.REPLACE_SHOT_EVENT:"SHOT",null,captured,hand,projectiles,null);
+    public Runnable captureShot(ServerPlayer owner, InteractionHand hand, ItemStack physical, ItemStack captured,
+                                List<? extends Entity> bodies, boolean replacement) {
+        if (!GenieScriptItem.matches(captured)) return null;
+        mainThread();
+        JsonArray projectiles;
+        if (replacement) {
+            projectiles = new JsonArray();
+            for (var template : bodies) projectiles.add(projectileSample(template));
+        } else {
+            projectiles = publishedProjectiles(bodies);
+        }
+        String name = replacement ? GenieScriptItem.REPLACE_SHOT_EVENT : "SHOT";
+        return () -> event(owner, name, null, captured, hand, projectiles, physical);
     }
     public Runnable captureThrow(ServerPlayer owner, InteractionHand hand, ItemStack physical, ItemStack source,
                                   List<? extends Entity> bodies) {

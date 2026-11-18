@@ -56,7 +56,8 @@ final class LbcBalanceExplosiveBow {
     LbcBalanceExplosiveBow(GameController game){this.game=game;}
     static boolean managed(Entity body){return body instanceof PrimedTnt&&body.entityTags().contains(TAG);}
     ServerPlayer owner(Entity body){var state=body instanceof PrimedTnt tnt?actors.get(tnt):null;return state==null?null:state.family.author;}
-    boolean convert(ServerPlayer owner,ItemStack weapon,List<Projectile> finalizedFamily){
+    boolean convert(ServerPlayer owner, ItemStack weapon, List<Projectile> finalizedFamily,
+                    java.util.function.Consumer<Entity> published) {
         if(!LbcBalanceItems.flag(weapon,"explosive")||game.items().magic().mechanismSuppressedAt(owner.level(),owner.position()))return false;
         var wild=game.items().indirectKills().wildCause(owner);
         var cause=new LbcIndirectKills.Owner(wild.player(),wild.order(),true,true);
@@ -66,8 +67,8 @@ final class LbcBalanceExplosiveBow {
             if(payload==null)continue;
             var family=new Family(owner,cause,game.items().epoch(),payload,arrow);
             int variant=variant(arrow);var origin=arrow.position().add(0,.75,0);var forward=arrow.getLookAngle();var left=Vec3.directionFromRotation(0,arrow.getYRot()-90);var up=forward.cross(left);
-            shells(family,variant,arrow,origin,forward,left,up,LbcBalanceTntShells.BASE);
-            if(variant==101||family.extraVariants.contains(101))shells(family,variant,arrow,origin,forward,left,up,LbcBalanceTntShells.EXTRA);
+            shells(family,variant,arrow,origin,forward,left,up,LbcBalanceTntShells.BASE,published);
+            if(variant==101||family.extraVariants.contains(101))shells(family,variant,arrow,origin,forward,left,up,LbcBalanceTntShells.EXTRA,published);
             arrow.discard();converted=true;
         }
         if(converted&&!owner.isCreative())owner.getInventory().clearOrCountMatchingItems(s->LbcBalanceItems.flag(s,"explosive"),false,1,owner.inventoryMenu.getCraftSlots());
@@ -79,10 +80,15 @@ final class LbcBalanceExplosiveBow {
         if(color==6710877)return 300;if(color>=6710881&&color<=6710883)return color-6710881+301;
         for(var effect:contents.getAllEffects())if(effect.is(net.minecraft.world.effect.MobEffects.RAID_OMEN))return effect.getAmplifier();return 0;
     }
-    private void shells(Family family,int variant,AbstractArrow arrow,Vec3 origin,Vec3 forward,Vec3 left,Vec3 up,LbcBalanceTntShells.Shell[] shells){
+    private void shells(Family family,int variant,AbstractArrow arrow,Vec3 origin,Vec3 forward,Vec3 left,Vec3 up,
+                        LbcBalanceTntShells.Shell[] shells, java.util.function.Consumer<Entity> published) {
         for(var shell:shells){var at=origin.add(left.scale(shell.x())).add(up.scale(shell.y())).add(forward.scale(shell.z()));
             var body=spawn(family,(ServerLevel)arrow.level(),at,game.items().timeStop().persistedVelocity(arrow,arrow.getDeltaMovement()),shell.fuse(),variant,true,game.items().timeStop().persistedNoGravity(arrow,arrow.isNoGravity())||variant==303||family.extraVariants.contains(303));
-            if(body!=null){body.setRemainingFireTicks(arrow.getRemainingFireTicks());body.setGlowingTag(variant==103||variant==304||family.extraVariants.contains(103)||family.extraVariants.contains(304));}
+            if (body != null) {
+                body.setRemainingFireTicks(arrow.getRemainingFireTicks());
+                body.setGlowingTag(variant==103||variant==304||family.extraVariants.contains(103)||family.extraVariants.contains(304));
+                if (published != null) published.accept(body);
+            }
         }
     }
     private PrimedTnt spawn(Family family,ServerLevel level,Vec3 at,Vec3 motion,int fuse,int variant,boolean ground){
