@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
+import me.skywars2.SkyWars2;
 import me.skywars2.game.genie.script.GenieScriptReply;
 import me.skywars2.game.genie.script.ScriptJson;
 import me.skywars2.game.genie.script.ScriptProgram;
@@ -23,7 +24,7 @@ public final class GenieScriptModel implements AutoCloseable {
         public void close() { cancel.run(); }
     }
 
-    private final Transport transport;
+    private Transport transport;
     private final ThreadPoolExecutor worker;
     private final ConcurrentHashMap<FutureTask<Void>,CompletableFuture<GenieScriptReply>> pending = new ConcurrentHashMap<>();
 
@@ -42,14 +43,20 @@ public final class GenieScriptModel implements AutoCloseable {
     }
 
     public Pending request(String wish, List<String> recent) {
+        var provider = transport;
         var result = new CompletableFuture<GenieScriptReply>();
         var task = new FutureTask<Void>(() -> {
+            String stage = "provider request";
             try {
                 var contract = contract();
-                var observation = transport.run(prompt(wish), GenieKnowledge.forScriptWish(wish, recent),
+                var observation = provider.run(prompt(wish), GenieKnowledge.forScriptWish(wish, recent),
                     ScriptJson.canonical(contract), verifier());
+                stage = "response and verifier receipt";
                 result.complete(GenieScriptReply.read(observation.reply, observation.executions, contract));
             } catch (Exception failure) {
+                if (!result.isCancelled() && !(failure instanceof InterruptedException)) {
+                    SkyWars2.LOGGER.warn("Genie {} failed ({})", stage, failure.getClass().getSimpleName());
+                }
                 result.completeExceptionally(failure);
             }
             return null;
@@ -64,6 +71,8 @@ public final class GenieScriptModel implements AutoCloseable {
             worker.remove(task);
         });
     }
+
+    void useTransport(Transport next) { transport = Objects.requireNonNull(next); }
 
     private static byte[] verifier() throws IOException {
         try (var file = GenieScriptModel.class.getResourceAsStream("/skywars2/genie/verify_genie_program.py")) {

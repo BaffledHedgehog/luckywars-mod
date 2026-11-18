@@ -31,6 +31,7 @@ public final class GenieService implements AutoCloseable {
     // The declarative transport remains injectable so existing loopback regression tests exercise old items.
     private GenieModelClient model;
     private GenieScriptModel scriptModel;
+    final GenieApiDialog api = new GenieApiDialog();
     private final Map<UUID,Dialog> dialogs=new HashMap<>();
     private final Map<UUID,Wish> wishes=new HashMap<>();
     private final ArrayDeque<TwistKind> recent=new ArrayDeque<>();
@@ -48,6 +49,7 @@ public final class GenieService implements AutoCloseable {
         }
     }
     public GenieService(GameController game){this.game=game;runtime=new GenieRuntime(game);}
+    public static void registerCommands() { GenieApiDialog.register(); }
     public GenieRuntime runtime(){return runtime;}
     private boolean livingOwner(ServerPlayer p){return game.playing()&&!game.balanceLegacy()&&!game.isObserver(p)&&p.isAlive()&&!p.isRemoved()
             &&game.server().getPlayerList().getPlayer(p.getUUID())==p;}
@@ -66,6 +68,10 @@ public final class GenieService implements AutoCloseable {
         p.openDialog(Holder.direct(new MultiActionDialog(data,List.of(warning,send),Optional.empty(),1)));return true;
     }
     public void click(ServerPlayer p,Identifier id,Optional<Tag> payload){
+        if (id.getPath().startsWith(GenieApiDialog.PREFIX)) {
+            api.click(this, p, id, payload);
+            return;
+        }
         var session=dialogs.get(p.getUUID());if(session==null||!id.equals(Identifier.parse("skywars2:genie/"+session.token)))return;
         dialogs.remove(p.getUUID());
         if(!allowed(p)||!game.items().currentEpoch(session.epoch)||wishes.containsKey(p.getUUID())||!containsIdentity(p,session.lamp))return;
@@ -237,8 +243,12 @@ public final class GenieService implements AutoCloseable {
     }
     public void cancelAll(){for(var wish:List.copyOf(wishes.values()))cancel(wish.owner);dialogs.clear();warnings.clear();}
     public void stop(){cancelAll();runtime.clear();}
+    void activateApi(GenieScriptModel.Transport transport) {
+        if (scriptModel == null) scriptModel = new GenieScriptModel(transport);
+        else scriptModel.useTransport(transport);
+    }
     @Override public void close(){
-        stop();runtime.scripts().close();
+        api.close();stop();runtime.scripts().close();
         if(model!=null){model.close();model=null;}
         if(scriptModel!=null){scriptModel.close();scriptModel=null;}
     }

@@ -40,7 +40,151 @@ public final class GenieContracts {
         }
     }
     static Throwable failure(CompletableFuture<?> future){try{future.get(10,TimeUnit.SECONDS);throw new AssertionError("failure expected");}catch(ExecutionException e){return e.getCause();}catch(Exception e){throw new AssertionError(e);}}
+    static void openAiTransport() throws Exception {
+        var api = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        List<String> paths = Collections.synchronizedList(new ArrayList<>());
+        api.createContext("/v1/", exchange -> {
+            try (exchange) {
+                require("Bearer fake-secret".equals(exchange.getRequestHeaders().getFirst("Authorization")), "OpenAI project credential");
+                String path = exchange.getRequestURI().getPath();
+                String operation = exchange.getRequestMethod() + " " + path;
+                paths.add(operation);
+                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                JsonObject reply = new JsonObject();
+                if (operation.equals("POST /v1/containers")) reply.addProperty("id", "cntr_fixture");
+                else if (operation.equals("POST /v1/containers/cntr_fixture/files")) {
+                    var filename = body.split("filename=\"", 2)[1].split("\"", 2)[0];
+                    require(body.contains("fixture-" + filename), "exact verifier or context upload " + filename);
+                    reply.addProperty("path", "/mnt/data/hosted-" + filename);
+                } else if (operation.equals("POST /v1/responses")) {
+                    var request = JsonParser.parseString(body).getAsJsonObject();
+                    require(request.get("model").getAsString().equals("fixture-model")
+                            && request.getAsJsonObject("reasoning").get("effort").getAsString().equals("medium")
+                            && !request.get("store").getAsBoolean(), "configured model, medium reasoning, stateless request");
+                    require(request.get("instructions").getAsString().contains("/mnt/data/hosted-verify_genie_program.py")
+                            && request.getAsJsonArray("tools").get(0).getAsJsonObject().get("container").getAsString().equals("cntr_fixture"),
+                            "run the mounted verifier in this wish's container");
+                    require(request.getAsJsonArray("include").get(0).getAsString().equals("code_interpreter_call.outputs"),
+                            "request provider-observed tool output");
+                    boolean fail = request.get("input").getAsString().equals("missing final output");
+                    reply = JsonParser.parseString("""
+                        {"status":"completed","output":[
+                        {"type":"message","phase":"commentary","role":"assistant","content":[{"type":"output_text","text":"ignored commentary"}]},
+                        {"type":"code_interpreter_call","container_id":"cntr_other","status":"completed","outputs":[{"type":"logs","logs":"{\\"ok\\":true,\\"source\\":\\"wrong\\"}"}]},
+                        {"type":"code_interpreter_call","container_id":"cntr_fixture","status":"completed","outputs":[{"type":"logs","logs":"{\\"ok\\":true,\\"source\\":\\"actual\\"}"}]},
+                        {"type":"message","phase":"final_answer","role":"assistant","content":[{"type":"output_text","text":"{\\"decision\\":\\"reject\\"}"}]}]}
+                        """).getAsJsonObject();
+                    if (fail) reply.getAsJsonArray("output").remove(3);
+                } else require(operation.equals("DELETE /v1/containers/cntr_fixture"), "unexpected OpenAI request");
+                byte[] json = reply.toString().getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, json.length);
+                exchange.getResponseBody().write(json);
+            }
+        });
+        api.start();
+        try (var http = java.net.http.HttpClient.newHttpClient()) {
+            var uri = URI.create("http://127.0.0.1:" + api.getAddress().getPort() + "/v1/");
+            var transport = new GenieOpenAiTransport(http, uri, "fixture-model", "fake-secret");
+            byte[] verifier = "fixture-verify_genie_program.py".getBytes(StandardCharsets.UTF_8);
+            var result = transport.run("wish", "fixture-game_knowledge.json", "fixture-contract.json", verifier);
+            require(result.reply().equals("{\"decision\":\"reject\"}") && result.executions().size() == 1
+                    && result.executions().getFirst().get("source").getAsString().equals("actual"),
+                    "only final text and same-container tool logs are accepted");
+            try {
+                transport.run("missing final output", "fixture-game_knowledge.json", "fixture-contract.json", verifier);
+                throw new AssertionError("missing final output accepted");
+            } catch (java.io.IOException expected) {}
+            require(paths.size() == 12 && paths.get(5).equals("DELETE /v1/containers/cntr_fixture")
+                    && paths.getLast().equals(paths.get(5)), "temporary container deleted on success and failed response");
+            System.out.println("GENIE_OPENAI_TRANSPORT_PASS Responses and Code Interpreter HTTP, final message, same-container receipts and cleanup");
+        } finally {
+            api.stop(0);
+        }
+    }
+    static void geminiTransport() throws Exception {
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        byte[] verifier = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("tools/verify_genie_program.py"));
+        String contract = "{\"events\":[\"HIT\"]}";
+        var script = JsonParser.parseString("{\"functions\":{\"hit\":{\"parameters\":[\"event\"],\"code\":[]}},\"handlers\":{\"HIT\":\"hit\"}}").getAsJsonObject();
+        var receipt = new JsonObject();
+        receipt.addProperty("ok", true);
+        receipt.addProperty("verifier", me.skywars2.game.genie.script.GenieScriptReply.VERIFIER_VERSION);
+        receipt.addProperty("program_sha256", me.skywars2.game.genie.script.ScriptJson.digest(script));
+        receipt.addProperty("contract_sha256", me.skywars2.game.genie.script.ScriptJson.digest(JsonParser.parseString(contract)));
+        receipt.addProperty("instructions", 0);
+        receipt.addProperty("functions", 1);
+        var grant = JsonParser.parseString("""
+            {"decision":"grant","item":{"icon":"minecraft:iron_sword","name":"Wish Sword","description":"A sword."},
+             "answer":"Here, watch your toes.","twist":"toe crunch"}
+            """).getAsJsonObject();
+        grant.add("program", script);
+        grant.add("receipt", receipt);
+        var errors = new ConcurrentLinkedQueue<Throwable>();
+        server.createContext("/generate", exchange -> {
+            try (exchange) {
+                require("fake-gemini-key".equals(exchange.getRequestHeaders().getFirst("x-goog-api-key"))
+                        && exchange.getRequestURI().getQuery() == null, "Gemini key stays in auth header");
+                var body = JsonParser.parseString(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
+                require(body.getAsJsonArray("contents").size() == 1
+                        && body.getAsJsonArray("tools").get(0).getAsJsonObject().has("codeExecution"), "separate wish with cloud Python");
+                var sent = body.getAsJsonArray("contents").get(0).getAsJsonObject().getAsJsonArray("parts");
+                require(sent.get(1).getAsJsonObject().get("text").getAsString().contains("fixture game index"), "full game index supplied");
+                var attachment = sent.get(0).getAsJsonObject().getAsJsonObject("inlineData");
+                require(attachment.get("mimeType").getAsString().equals("text/csv"), "native file attachment type");
+                var decoder = Base64.getDecoder();
+                var rows = new String(decoder.decode(attachment.get("data").getAsString()), StandardCharsets.UTF_8).lines().toList();
+                require(rows.get(0).equals("name,data") && rows.get(1).startsWith("verify_genie_program.py,")
+                        && Arrays.equals(verifier, decoder.decode(rows.get(1).split(",", 2)[1]))
+                        && rows.get(2).startsWith("contract.json,")
+                        && contract.equals(new String(decoder.decode(rows.get(2).split(",", 2)[1]), StandardCharsets.UTF_8)),
+                        "verifier and contract survive file transport byte for byte");
+                String mode = sent.get(3).getAsJsonObject().get("text").getAsString();
+                var response = JsonParser.parseString("""
+                    {"candidates":[{"finishReason":"STOP","content":{"parts":[
+                      {"thought":true,"text":"internal model text"},
+                      {"text":"checking"},
+                      {"executableCode":{"language":"PYTHON","code":"print(receipt)"}},
+                      {"codeExecutionResult":{"outcome":"OUTCOME_OK","output":""}},
+                      {"text":""}]}}]}
+                    """).getAsJsonObject();
+                var candidate = response.getAsJsonArray("candidates").get(0).getAsJsonObject();
+                var parts = candidate.getAsJsonObject("content").getAsJsonArray("parts");
+                var execution = parts.get(3).getAsJsonObject().getAsJsonObject("codeExecutionResult");
+                execution.addProperty("output", receipt + "\n");
+                if (mode.equals("failed validation")) execution.addProperty("outcome", "OUTCOME_FAILED");
+                if (mode.equals("truncated")) candidate.addProperty("finishReason", "MAX_TOKENS");
+                parts.get(4).getAsJsonObject().addProperty("text", grant.toString());
+                byte[] data = response.toString().getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, data.length);
+                exchange.getResponseBody().write(data);
+            } catch (Throwable error) {
+                errors.add(error);
+            }
+        });
+        server.start();
+        try (var http = java.net.http.HttpClient.newHttpClient()) {
+            var transport = new GenieGeminiTransport(http, URI.create("http://127.0.0.1:" + server.getAddress().getPort() + "/generate"), "fake-gemini-key");
+            var shape = JsonParser.parseString(contract).getAsJsonObject();
+            var granted = transport.run("grant", "fixture game index", contract, verifier);
+            require(me.skywars2.game.genie.script.GenieScriptReply.read(granted.reply(), granted.executions(), shape)
+                    instanceof me.skywars2.game.genie.script.GenieScriptReply.Grant, "accept the final exact checked program");
+            var failed = transport.run("failed validation", "fixture game index", contract, verifier);
+            rejected(() -> me.skywars2.game.genie.script.GenieScriptReply.read(failed.reply(), failed.executions(), shape),
+                    "final text alone must not grant an unverified program");
+            try {
+                transport.run("truncated", "fixture game index", contract, verifier);
+                throw new AssertionError("truncated provider response accepted");
+            } catch (java.io.IOException expected) {}
+            require(errors.isEmpty(), "Gemini test HTTP endpoint failed");
+            System.out.println("GENIE_GEMINI_TRANSPORT_PASS exact sandbox file, final JSON, genuine tool results and incomplete replies");
+        } finally {
+            server.stop(0);
+        }
+    }
+
     public static void main(String[] args)throws Exception{
+        openAiTransport();
+        geminiTransport();
         shape();var executor=Executors.newCachedThreadPool(r->{var t=new Thread(r,"genie-contract-http");t.setDaemon(true);return t;});
         var server=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);server.setExecutor(executor);var calls=new AtomicInteger();var arrived=new CountDownLatch(1);
         server.createContext("/",exchange->{

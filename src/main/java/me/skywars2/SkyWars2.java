@@ -94,6 +94,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         LbcCraftingRecipe.register();
         FullInvisibility.register();
         me.skywars2.game.TikTokAccounts.register();
+        me.skywars2.game.genie.GenieService.registerCommands();
         PolymerResourcePackUtils.addModAssets(MOD_ID);
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             var config = GameConfig.load();
