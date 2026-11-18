@@ -256,12 +256,21 @@ public final class LbcDanmaku {
     }
 
     private static void scaleSphere(Bomb bomb) {
-        float radius = bomb.radius();
+        float radius = bomb.age * .06f;
         bomb.display.setTransformation(new com.mojang.math.Transformation(new org.joml.Vector3f(),
                 new org.joml.Quaternionf(), new org.joml.Vector3f(radius), new org.joml.Quaternionf()));
         bomb.display.setTransformationInterpolationDelay(0);
     }
     private static void orient(Card c){var v=c.direction;c.display.setYRot((float)Math.toDegrees(Math.atan2(-v.x,v.z)));c.display.setXRot((float)-Math.toDegrees(Math.atan2(v.y,Math.sqrt(v.x*v.x+v.z*v.z))));}
+    boolean reflectCard(Entity display, ServerPlayer reflector) {
+        for (var card : cards) if (card.display == display) {
+            card.owner = reflector;
+            card.direction = card.direction.reverse();
+            orient(card);
+            return true;
+        }
+        return false;
+    }
     private void tick(Card c){
         if(!valid(c.owner,c.display)){remove(c);return;}if(game.items().timeStop().frozen(c.display)||c.display.entityTags().contains("time_stopped"))return;
         if(++c.age>60){remove(c);return;}
@@ -307,45 +316,48 @@ public final class LbcDanmaku {
         var source = new DamageSource(type);
         var cause = game.items().indirectKills().coldCause(owner, true);
         float dealt = game.balanceLegacy() ? .65f : .325f;
-        game.items().indirectKills().withCause(victim, cause, () -> victim.hurtServer(level, source, dealt));
+        game.items().indirectKills().withCause(victim, cause, () -> {
+            if (victim.hurtServer(level, source, dealt)) LbcAcceptedHits.projectileFeedback(game, owner);
+        });
     }
 
-    private void damageBomb(Bomb bomb, LivingEntity victim, DamageSource source, float amount) {
+    private boolean damageBomb(Bomb bomb, LivingEntity victim, DamageSource source, float amount) {
         var level = (ServerLevel) victim.level();
         if (game.items().magic().suppressedAt(level, victim.position()) || game.items().timeStop().frozen(victim)
                 || victim.isPermanentlyInvulnerable() || !game.items().allowDamage(victim, source)
-                || EnchantmentHelper.isImmuneToDamage(level, victim, source)) return;
+                || EnchantmentHelper.isImmuneToDamage(level, victim, source)) return false;
         if (victim instanceof ServerPlayer player
-                && (player.getAbilities().invulnerable || !player.canHarmPlayer(bomb.owner))) return;
+                && (player.getAbilities().invulnerable || !player.canHarmPlayer(bomb.owner))) return false;
 
         float armor = (float) victim.getAttributeValue(Attributes.ARMOR);
         float toughness = (float) victim.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
         float damage = CombatRules.getDamageAfterAbsorb(victim, amount, source, armor, toughness);
-        if (!(damage > 0) || !Float.isFinite(damage)) return;
+        if (!(damage > 0) || !Float.isFinite(damage)) return false;
         var credit = (me.skywars2.mixin.BlackHoleDeathProtectionAccess) victim;
         credit.skywars2$holeMobCredit(source);
         credit.skywars2$holePlayerCredit(source);
         game.items().indirectKills().damaged(victim, source);
-        LbcDamage.removeHealth(victim, damage, source);
+        if (!LbcDamage.removeHealth(victim, damage, source)) return false;
         if (!victim.isAlive()) game.items().polymorph().finishDirectDamage(victim);
         else {
-            // Send entity health first so the ordinary food/health packet cannot
-            // infer a client-side hit and tilt the victim's camera.
+            // The explicit damage event already delivered the client's hurt response.
+            // Publish health so the periodic player packet cannot infer a second one.
             var player = victim instanceof ServerPlayer direct ? direct : game.items().polymorph().playerOfBody(victim);
             if (player != null && player.isAlive())
                 player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(player.getId(),
                     List.of(net.minecraft.network.syncher.SynchedEntityData.DataValue.create(
                         me.skywars2.mixin.BlackHoleDeathProtectionAccess.skywars2$healthData(), player.getHealth()))));
         }
+        return true;
     }
 
     private void tick(Bomb b){
         if(!valid(b.owner,b.display)){remove(b);return;}
         if(game.items().timeStop().frozen(b.display)||b.display.entityTags().contains("time_stopped"))return;
-        int lastRadius = b.radius();
+        int lastAge = b.age;
         if(b.fast){if(b.age<=b.charge)b.age+=10;}
         else b.age+=4;
-        if (lastRadius != b.radius()) scaleSphere(b);
+        if (lastAge != b.age) scaleSphere(b);
         boolean pulse = ++b.pulseTicks == BOMB_PULSE_INTERVAL;
         if (pulse) b.pulseTicks = 0;
         var level = (ServerLevel)b.display.level();
@@ -354,6 +366,7 @@ public final class LbcDanmaku {
         double radiusSquared = radius * radius;
         game.items().wands().clearDanmakuRays(b.owner, center, radius);
         DamageSource source = null;
+        boolean hit = false;
         float amount = (b.fast ? 2f : 1f) * (game.balanceLegacy() ? 1f : .5f);
         for (var entity : level.getEntities(b.display, new AABB(center,center).inflate(radius),
                 target -> target.distanceToSqr(center) <= radiusSquared)) {
@@ -367,8 +380,9 @@ public final class LbcDanmaku {
                 var cause = game.items().indirectKills().coldCause(b.owner, true);
                 source = game.items().indirectKills().captureDamage(new DamageSource(magic, b.display, b.owner), cause);
             }
-            damageBomb(b, living, source, amount);
+            hit |= damageBomb(b, living, source, amount);
         }
+        if (hit && !b.fast) LbcAcceptedHits.projectileFeedback(game, b.owner);
         if(b.age>b.charge&&(!b.fast||++b.empty>=60))remove(b);
     }
     private boolean hostileProjectile(ServerPlayer p,Entity e){

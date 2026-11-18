@@ -152,13 +152,14 @@ public final class DanmakuChecks {
                 var received=new net.minecraft.world.entity.Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());received.getEntityData().assignValues(decoded.packedItems());
                 var getter=net.minecraft.world.entity.Display.class.getDeclaredMethod("createTransformation",net.minecraft.network.syncher.SynchedEntityData.class);getter.setAccessible(true);
                 var transform=(com.mojang.math.Transformation)getter.invoke(null,received.getEntityData());
-                require(transform.translation().equals(new org.joml.Vector3f())&&transform.scale().equals(new org.joml.Vector3f(scale))&&transform.rightRotation().equals(new org.joml.Quaternionf()),"wire source translation, signed scale and right rotation");
+                require(transform.translation().equals(new org.joml.Vector3f())&&transform.scale().distanceSquared(new org.joml.Vector3f(scale))<1e-10f&&transform.rightRotation().equals(new org.joml.Quaternionf()),"wire source translation, signed scale and right rotation");
                 var expected=card?new org.joml.Quaternionf(1,0,0,1).normalize():new org.joml.Quaternionf();var left=transform.leftRotation();
                 require(Math.abs(left.x()-expected.x())<1e-5&&Math.abs(left.y()-expected.y())<1e-5&&Math.abs(left.z()-expected.z())<1e-5&&Math.abs(left.w()-expected.w())<1e-5,"wire source left rotation");
                 require(received.getItemTransform()==(card?net.minecraft.world.item.ItemDisplayContext.FIXED:net.minecraft.world.item.ItemDisplayContext.NONE)&&raw.readableBytes()==0,"native fixed context and complete metadata stream");
                 if(card)require(received.getItemStack().is(Items.REPEATING_COMMAND_BLOCK)&&Identifier.parse(model).equals(received.getItemStack().get(DataComponents.ITEM_MODEL)),"authored card carrier and model survive wire");
                 else require(received.getItemStack().is(Items.PAPER)&&Identifier.parse(model).equals(received.getItemStack().get(DataComponents.ITEM_MODEL))
-                        &&received.getGlowColorOverride()==display.getGlowColorOverride(),"sphere model and outline row survive the display metadata stream");
+                        &&received.getGlowColorOverride()==display.getGlowColorOverride()&&received.getTransformationInterpolationDuration()==1,
+                        "sphere model, outline row and tick interpolation survive the display metadata stream");
             }catch(ReflectiveOperationException error){throw new IllegalStateException("Danmaku native display metadata",error);}finally{raw.release();}
         }
         void guards(){
@@ -218,6 +219,17 @@ public final class DanmakuChecks {
             var paused=shot.display.position();int age=shot.age;game.items().timeStop().begin(owner.level(),40);
             try{danmaku.tick();require(shot.age==age&&shot.display.position().equals(paused),"Time Stop freezes card motion and age");}finally{game.items().timeStop().end(owner.level());}
             clear();shot=card(origin,new Vec3(0,0,1),true);displayPacket(shot.display,"lbc:card_2",.5f,true);clear();
+            var shield=new ItemStack(LbcElectro.SHIELD);
+            move(other,origin.add(0,-1,3));other.setItemInHand(InteractionHand.MAIN_HAND,shield);
+            shot=card(origin,new Vec3(0,0,1),false);
+            try {
+                require(other.gameMode.useItem(other,other.level(),shield,InteractionHand.MAIN_HAND).consumesAction()
+                        &&other.isUsingItem(),"native electric shield use begins");
+                game.items().electro().tick();
+                require(shot.owner==other&&shot.direction.distanceToSqr(new Vec3(0,0,-1))<1e-10,"electric shield changes authoritative direction and owner of a Danmaku card");
+                danmaku.tick();
+                near(shot.display.getZ(),origin.z-1.2,"reflected direction changes the actual stepped trajectory");
+            } finally {other.stopUsingItem();other.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);move(other,at.add(0,20,0));clear();}
             shot=card(origin,new Vec3(0,0,1),false);shot.age=59;danmaku.tick();require(shot.display.isRemoved()&&danmaku.cards().isEmpty(),"native card lifetime60 retires display");
             var wall=base.offset(6,14,7);owner.level().setBlock(wall.below(),net.minecraft.world.level.block.Blocks.DIRT.defaultBlockState(),3);owner.level().setBlock(wall,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),3);
             shot=card(Vec3.atLowerCornerOf(wall).add(.2,.2,-.3),new Vec3(0,0,1),false);danmaku.tick();require(shot.display.isRemoved(),"solid block intercepts three-substep ray");
@@ -253,6 +265,7 @@ public final class DanmakuChecks {
                 "stable bomb owner, captured source charge and red palette");
             displayPacket(bomb.display,"lbc:hakurei_sphere",0,false);
             danmaku.tick();require(bomb.age==4&&bomb.radius()==0,"bomb advances four source age units and integer radius");
+            displayPacket(bomb.display,"lbc:hakurei_sphere",.24f,false);
             var fixed=bomb.display.position();move(owner,at.add(3,0,0));danmaku.tick();
             require(bomb.display.position().equals(fixed),"bomb stays at cast position as owner moves");
             var center=bomb.display.position();
@@ -274,7 +287,7 @@ public final class DanmakuChecks {
             near(victim.getHealth(),victimHealth,"no HP pulse through active tick nine");
             danmaku.tick();
             require(bomb.age==40&&bomb.pulseTicks==0&&bomb.radius()==2,"normal bomb emits its first scheduled radius-two pulse");
-            displayPacket(bomb.display,"lbc:hakurei_sphere",2,false);
+            displayPacket(bomb.display,"lbc:hakurei_sphere",2.4f,false);
             near(victim.getHealth(),victimHealth-.5,"normal bomb removes its balance-adjusted half HP on tick ten");
             near(armored.getHealth(),armoredHealth-.1,"40 armor mitigates the direct debit by the native .8 armor fraction");
             near(outside.getHealth(),outsideHealth,"cube corner outside the real sphere takes no damage");

@@ -73,8 +73,13 @@ public final class LbcAcceptedHits {
         if (!projectileFeedbackActive(game)
                 || !(source.getDirectEntity() instanceof Projectile projectile) || projectile.isSilent()) return;
         // A projectile can allow friendly fire while keeping its physical shooter.
-        if (game.items().spellSources().projectileController(projectile) instanceof ServerPlayer shooter
-                && game.server().getPlayerList().getPlayer(shooter.getUUID()) == shooter && shooter.connection != null) {
+        if (game.items().spellSources().projectileController(projectile) instanceof ServerPlayer shooter)
+            projectileFeedback(game, shooter);
+    }
+
+    static void projectileFeedback(GameController game, ServerPlayer shooter) {
+        if (projectileFeedbackActive(game) && game.server().getPlayerList().getPlayer(shooter.getUUID()) == shooter
+                && shooter.connection != null) {
             shooter.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND, 0));
         }
     }

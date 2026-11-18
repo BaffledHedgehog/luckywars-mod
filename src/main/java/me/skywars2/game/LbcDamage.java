@@ -168,12 +168,15 @@ public final class LbcDamage {
         }
     }
     /** (user) Зона снимает HP без hurt pipeline: броня, эффекты, absorption и velocity не участвуют. */
-    public static void removeHealth(LivingEntity target, float amount, DamageSource source) {
-        if (LbcGreed.active(target)) return;
-        if (!(amount > 0) || !Float.isFinite(amount) || !target.isAlive()) return;
+    public static boolean removeHealth(LivingEntity target, float amount, DamageSource source) {
+        if (LbcGreed.active(target) || !(amount > 0) || !Float.isFinite(amount) || !target.isAlive()) return false;
+        float before = target.getHealth();
         target.getCombatTracker().recordDamage(source, amount);
-        target.setHealth(Math.max(0, target.getHealth() - amount));
+        target.setHealth(Math.max(0, before - amount));
+        if (target.getHealth() >= before) return false;
+        if (target.level() instanceof ServerLevel level) level.broadcastDamageEvent(target, source);
         if (target.getHealth() <= 0) target.die(source);
+        return true;
     }
     private static CompoundTag flag(String name) {
         var data = new CompoundTag(); data.putInt(name, 1); return data;
@@ -223,6 +226,7 @@ public final class LbcDamage {
         if(LbcGreed.active(victim)) return false;
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().defensiveArcanums().blocksDamage(victim,source)) return false;
+        if(game!=null && game.items().summons().alliedMinionHit(victim,source)) return false;
         if(game!=null && !game.items().indirectKills().allowEnvironmentDamage(victim,source)) return false;
         if(game!=null && source.getDirectEntity()!=null && !isNativeLightning(source) && !allowsKfcFriendlyFire(source) && !allowsTrapFriendlyFire(source)) {
             var reflected=game.items().electro().reflectedOwner(source.getDirectEntity());

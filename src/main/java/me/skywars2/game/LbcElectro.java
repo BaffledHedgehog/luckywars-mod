@@ -528,7 +528,10 @@ for(int i=0;i<=2;i++) {
 
     private void reflect(ServerPlayer player,Entity entity) {
         if(checkpointFrozen)return;checkpointDepth++;try{
-        if(entity instanceof net.minecraft.world.entity.projectile.Projectile projectile) {
+        if(LbcDanmaku.managed(entity)) {
+            if(!game.items().danmaku().reflectCard(entity,player))return;
+            assignOwner(entity,player);
+        } else if(entity instanceof net.minecraft.world.entity.projectile.Projectile projectile) {
             projectile.deflect(REVERSE,player,net.minecraft.world.entity.EntityReference.of((Entity)player),false,1);
             assignOwner(projectile,player);
         } else {

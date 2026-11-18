@@ -159,7 +159,8 @@ public final class HedgehogChecks {
             var f=helper(LbcHedgehog.Kind.ORDINARY,at.add(0,1,0));var target=cow(at.add(0,1,4));
             for(int i=0;i<7;i++)service.tick();require(service.projectiles().isEmpty()&&service.views().getFirst().timer()==1,"initial native source cadence7 quiet updates");service.tick();
             require(service.projectiles().size()==1&&service.views().getFirst().timer()==0,"eighth active update emits one real arrow");var arrow=service.projectiles().getFirst();
-            require(arrow.getOwner()==f&&arrow.getPierceLevel()==100&&Math.abs(arrow.getDeltaMovement().length()-2)<1e-8,"physical arrow exact speed2/piercing100 and actual helper shooter");
+            require(arrow.getOwner()==f&&arrow.getPierceLevel()==100&&Math.abs(arrow.getDeltaMovement().length()-2)<1e-8,"physical arrow exact speed2/piercing100 and actual helper shooter, got speed="
+                    +arrow.getDeltaMovement().length()+", piercing="+arrow.getPierceLevel()+", helper="+(arrow.getOwner()==f));
             require(LbcIndirectKills.playerSource(arrow)==owner&&service.cause(arrow)!=null&&service.cause(arrow).player().equals(owner.getUUID()),"helper arrow retains independent player kill credit");
             arrow.setOwner(other);require(service.cause(arrow)==null&&LbcIndirectKills.playerSource(arrow)==other,"explicit native reflection is not overridden by the helper's original receipt");arrow.setOwner(f);
             // Exercise actual native Arrow collision rather than invoking its damage method.
@@ -181,6 +182,17 @@ public final class HedgehogChecks {
             }finally{owner.getAbilities().invulnerable=immune;owner.setPermanentlyInvulnerable(entityImmune);owner.setInvulnerableTime(immunityTicks);clear();}
         }
         void beams(){
+            var minion=game.items().summons().spawnPreset(owner,"vex",at.add(0,1,4));
+            require(minion!=null,"native player-owned summon");
+            owned.add(minion);minion.setNoAi(true);minion.setNoGravity(true);
+            var alliedHedgehog=helper(LbcHedgehog.Kind.DEFAULT,at.add(0,1,0));
+            minion.setTarget(alliedHedgehog);
+            require(minion.getTarget()==null&&!minion.doHurtTarget(owner.level(),alliedHedgehog),
+                    "native summon refuses to target and melee its owner's hedgehog");
+            float minionHealth=minion.getHealth();
+            service.fireBeam(alliedHedgehog,minion);
+            require(minion.getHealth()==minionHealth,"native hedgehog beam does not damage its owner's other summon");
+            minion.discard();clear();
             for(var kind:List.of(LbcHedgehog.Kind.DEFAULT,LbcHedgehog.Kind.SNIPER,LbcHedgehog.Kind.LASER)){
                 var shooter=helper(kind,at.add(0,1,0));var victim=cow(at.add(0,1,4));
                 var friend=helper(LbcHedgehog.Kind.SNIPER,shooter.getEyePosition().lerp(victim.getEyePosition(),.5).add(0,-.1,0));
@@ -233,6 +245,10 @@ public final class HedgehogChecks {
             move(owner,wall.position().add(6,0,6));move(other,wall.position().add(0,0,-4));other.damageCooldownTime=0;other.setInvulnerableTime(0);
             float beamDamage=switch(owner.level().getDifficulty()){case EASY->3;case HARD->6;case PEACEFUL->0;default->4;};
             service.fireBeam(wall,other);require(other.getHealth()==20-beamDamage&&other.getLastDamageSource().getEntity()==wall,"actual unobstructed native NPC wall beam captures WILD cause with native difficulty scaling: hp="+other.getHealth()+",owner="+owner.position()+",wall="+wall.position()+",target="+other.position());
+            var playerHedgehog=helper(LbcHedgehog.Kind.ORDINARY,wall.position().add(0,0,-3));
+            float helperHealth=playerHedgehog.getHealth();
+            service.fireBeam(wall,playerHedgehog);
+            require(playerHedgehog.getHealth()<helperHealth,"a wall's beam can damage a regular hedgehog summoned by the same player");
             require(walls.stream().allMatch(e->e.getHealth()==30),"wall beam passes through all65 live own tower bodies without self damage");
             service.forget(owner);require(!wall.isRemoved(),"hostile wall persists after author-departure callback");move(other,at.add(10,0,-10));other.setHealth(20);
             clear();require(service.trackedCount()==0,"explicit owned wall retirement removes all native tower riders");

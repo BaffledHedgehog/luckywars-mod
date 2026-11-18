@@ -1,11 +1,10 @@
 package me.skywars2.game;
 
+import me.skywars2.mixin.WandProjectileMixin.ArrowAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -25,7 +24,6 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Silverfish;
-import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
@@ -90,14 +88,14 @@ public final class LbcHedgehog {
             &&game.items().currentEpoch(f)&&resident((ServerLevel)f.level(),f.position())&&!suppressed((ServerLevel)f.level(),f.position());}
     private boolean eligible(LivingEntity e){return e.isAlive()&&game.items().wands().validTarget(e)&&e.getType().builtInRegistryHolder().is(MOBS)
             &&!frozen(e)&&!suppressed((ServerLevel)e.level(),e.position());}
-    private boolean allied(Fish f,LivingEntity e){var p=player(f.author);return e==p||e==f||p!=null&&p.isAlliedTo(e)
+    private boolean allied(Fish f,LivingEntity e){var p=player(f.author);return e==p||e==f||p!=null&&(p.isAlliedTo(e)||game.items().summons().friendly(p,e))
             ||e instanceof Fish other&&other.kind!=Kind.WALL&&(other.author.equals(f.author)
                     ||p!=null&&player(other.author)!=null&&p.isAlliedTo(player(other.author)));}
     private boolean enemy(Fish f,LivingEntity e){return e!=f&&eligible(e)&&(f.kind==Kind.WALL?!(e instanceof Fish other&&other.kind==Kind.WALL)&&!e.entityTags().contains("baffled_wall"):!allied(f,e))&&!e.entityTags().contains("strict_map_object")
             &&!e.entityTags().contains("nomagic_active")&&!LbcGreed.active(e);}
     private boolean impact(Fish f,LivingEntity e){var p=player(f.author);return e!=f&&eligible(e)&&!LbcGreed.active(e)
-            &&!(e instanceof Fish&&allied(f,e))
-            &&(f.kind!=Kind.WALL||!(e instanceof Fish other&&other.kind==Kind.WALL)&&!e.entityTags().contains("baffled_wall"))
+            &&(f.kind==Kind.WALL?!(e instanceof Fish other&&other.kind==Kind.WALL)&&!e.entityTags().contains("baffled_wall")
+                :!game.items().summons().friendly(p,e)&&!(e instanceof Fish&&allied(f,e)))
             &&(f.kind==Kind.WALL||p==null||!(e instanceof ServerPlayer)||game.items().wands().projectileTarget(p,e));}
     public boolean use(ServerPlayer p,InteractionHand hand){
         var stack=p.getItemInHand(hand);
@@ -290,8 +288,9 @@ public final class LbcHedgehog {
         }
     }
     private void shoot(Fish f,LivingEntity target){var p=player(f.author);if(p==null)return;
-        var arrow=new HelperArrow((ServerLevel)f.level(),p,f);var arrowTag=new CompoundTag();arrowTag.putByte("PierceLevel",(byte)100);
-        arrow.load(TagValueInput.create(ProblemReporter.DISCARDING,p.registryAccess(),arrowTag));arrow.entityTags().add(ARROW);arrow.entityTags().add("magic");
+        var arrow=new HelperArrow((ServerLevel)f.level(),p,f);
+        ((ArrowAccess) (Object) arrow).skywars2$setPierceLevel((byte) 100);
+        arrow.entityTags().add(ARROW);arrow.entityTags().add("magic");
         arrow.setPos(f.getEyePosition());arrow.setDeltaMovement(target.getEyePosition().subtract(f.getEyePosition()).normalize().scale(2));
         // Native retaliation targets the actual firing mob. The separate receipt retains player credit.
         arrow.setOwner(f);game.items().markCurrentItemEpoch(arrow);arrows.add(arrow);game.items().timeStop().prepareFrozen(arrow);
@@ -331,6 +330,9 @@ public final class LbcHedgehog {
         }finally{leaveCheckpointCallback();}
     }
     public ServerPlayer owner(Entity e){if(e==blastSource)return blastAuthor;var child=children.get(e);if(child!=null)return child.author;if(e instanceof LbcHedgehog.Fish f)return player(f.author);if(e instanceof LbcHedgehog.HelperArrow a)return player(a.author);return null;}
+    ServerPlayer controlledHelper(Entity e){
+        return e instanceof Fish f && f.kind!=Kind.WALL && !f.retired && game.items().currentEpoch(f) ? player(f.author) : null;
+    }
     public void loaded(Entity e){
         enterCheckpointCallback();try {
         if(checkpointRestoring)return;if(managed(e)&&!fish.contains(e)&&!arrows.contains(e)&&!children.containsKey(e)){e.discard();return;}if(e instanceof Silverfish s)silverfish.add(s);

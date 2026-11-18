@@ -45,7 +45,8 @@ public final class LbcMobgun {
     // User decision: preserve the actual source timer, with corrected 2.5-second lore.
     private static final int COOLDOWN=50;
     private final GameController game;
-    private final Map<UUID,Integer> cooldowns=new HashMap<>();
+    private final Map<UUID,Long> cooldowns=new HashMap<>();
+    private long cooldownClock;
     private final Map<Entity,Owned> actors=new IdentityHashMap<>();
     private CompletableFuture<Prepared> preparation;
     private Prepared prepared;
@@ -145,7 +146,7 @@ public final class LbcMobgun {
         if(luck.get()==7) outcome=22;
         boolean fired=launch(owner,outcome,0);
         if(!fired) return false;
-        cooldowns.put(owner.getUUID(),COOLDOWN);
+        sourceCooldown(owner,COOLDOWN);
         LbcOverload.sound(owner,owner.position(),"minecraft:block.piston.extend",1,2,0);
         if(outcome==22) game.items().mana().award(owner,"lbc:true_advancements/shooter/mob_gun");
         return true;
@@ -284,8 +285,10 @@ public final class LbcMobgun {
     }
     public void tick() {
         ready();
-        if(!game.items().wands().timeStopped()) cooldowns.replaceAll((key,value)->Math.max(0,value-1));
-        cooldowns.values().removeIf(value->value<=0);
+        if(!cooldowns.isEmpty()&&!game.items().wands().timeStopped()) {
+            long now=++cooldownClock;
+            if(now%20==0)cooldowns.values().removeIf(deadline->deadline<=now);
+        }
         for(var entry:List.copyOf(actors.entrySet())) {
             Entity entity=entry.getKey(); Owned state=entry.getValue();
             if(game.items().polymorph().suspended(entity))continue;
@@ -305,12 +308,14 @@ public final class LbcMobgun {
             }
         }
     }
-    public int cooldown(ServerPlayer owner) { return cooldowns.getOrDefault(owner.getUUID(),0); }
+    public int cooldown(ServerPlayer owner) {
+        return (int)Math.max(0,cooldowns.getOrDefault(owner.getUUID(),cooldownClock)-cooldownClock);
+    }
     void sourceCooldown(ServerPlayer owner,int value) {
-        if(value<=0)cooldowns.remove(owner.getUUID());else cooldowns.put(owner.getUUID(),value);
+        if(value<=0)cooldowns.remove(owner.getUUID());else cooldowns.put(owner.getUUID(),cooldownClock+value);
     }
     public void clearCooldown(ServerPlayer owner) { cooldowns.remove(owner.getUUID()); }
-    public void addCounters(ServerPlayer owner) { cooldowns.merge(owner.getUUID(),1,Integer::sum); }
+    public void addCounters(ServerPlayer owner) { sourceCooldown(owner,(int)Math.min(Integer.MAX_VALUE,1L+cooldown(owner))); }
     public List<Entity> snapshot(ServerPlayer owner) {
         for(var entity:List.copyOf(actors.keySet())) owner(entity);
         return actors.entrySet().stream().filter(e->e.getValue().owner==owner).map(Map.Entry::getKey).toList();
@@ -335,7 +340,7 @@ public final class LbcMobgun {
     }
     public void stop() {
         nativeGeneration++;
-        cooldowns.clear(); var entities=List.copyOf(actors.keySet()); actors.clear();
+        cooldowns.clear(); cooldownClock=0; var entities=List.copyOf(actors.keySet()); actors.clear();
         for(var entity:entities) if(!entity.isRemoved()) dispose(entity);
     }
 }

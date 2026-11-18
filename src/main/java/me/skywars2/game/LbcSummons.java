@@ -147,8 +147,13 @@ public final class LbcSummons {
     ServerPlayer owner(Entity entity) {
         var subdued=game.items().communism().owner(entity);if(subdued!=null)return subdued;
         if(LbcWtf.owner(entity) instanceof ServerPlayer chefOwner)return chefOwner;
+        var hedgehogOwner=game.items().hedgehog().controlledHelper(entity);if(hedgehogOwner!=null)return hedgehogOwner;
         var consequence=consequences.get(entity);
-        if(consequence!=null) return game.items().currentEpoch(entity)?game.server().getPlayerList().getPlayer(consequence):null;
+        if(consequence!=null) {
+            if(!game.items().currentEpoch(entity))return null;
+            if(entity instanceof Projectile projectile && projectile.getOwner() instanceof ServerPlayer reflector)return reflector;
+            return game.server().getPlayerList().getPlayer(consequence);
+        }
         if(entity instanceof Projectile projectile) return owner(projectile.getOwner());
         if(entity instanceof EvokerFangs fangs) return owner(fangs.getOwner());
         var summon=entity instanceof Mob mob?mobs.get(mob):null;
@@ -161,7 +166,15 @@ public final class LbcSummons {
         return result;
     }
     boolean friendly(ServerPlayer player,Entity entity) {
-        var owner=owner(entity); return owner!=null && (owner==player || player.isAlliedTo(owner));
+        var owner=owner(entity); return player!=null && owner!=null && (owner==player || player.isAlliedTo(owner));
+    }
+    boolean alliedMinionHit(Entity victim,net.minecraft.world.damagesource.DamageSource source){
+        var defender=owner(victim);
+        if(defender==null || LbcDamage.allowsTrapFriendlyFire(source))return false;
+        var attacker=source.getDirectEntity();
+        if(attacker==null)attacker=source.getEntity();
+        var controller=owner(attacker);
+        return controller!=null && (controller==defender || controller.isAlliedTo(defender));
     }
     void ownerChanged(Entity entity,ServerPlayer owner) {
         orders.changedOwner(entity);
@@ -407,7 +420,7 @@ public final class LbcSummons {
         }
     }
     private void arrow(ServerPlayer owner,Mob mob,Vec3 origin,Vec3 direction,double damage,double speed) {
-        var arrow=new Arrow(owner.level(),owner,new ItemStack(Items.ARROW),null);
+        var arrow=new Arrow(owner.level(),mob,new ItemStack(Items.ARROW),null);
         arrow.setPos(origin); arrow.setBaseDamage(damage); arrow.setDeltaMovement(direction.normalize().scale(speed));
         LbcShooters.orient(arrow); track(owner,arrow); owner.level().addFreshEntity(arrow);
         LbcOverload.sound(owner,origin,"minecraft:entity.arrow.shoot",1,1,0);
@@ -449,7 +462,7 @@ public final class LbcSummons {
                 for(var victim:enemies(owner,mob.position(),30)) victim.hurtServer(owner.level(),damage,7);
             }
             case 5 -> {
-                var trident=new ThrownTrident(owner.level(),owner,new ItemStack(Items.TRIDENT));
+                var trident=new ThrownTrident(owner.level(),mob,new ItemStack(Items.TRIDENT));
                 // Трезубец ванильно наносит 8: исходное поле damage=0.2 игнорировалось (user).
                 trident.setPos(origin.add(direction)); trident.setDeltaMovement(direction.scale(7));
                 LbcShooters.orient(trident); track(owner,trident); owner.level().addFreshEntity(trident);
@@ -510,12 +523,8 @@ public final class LbcSummons {
         if(entity instanceof Projectile projectile) {
             if(game.items().spellSources().persistent(entity))return;
             var owner=owner(projectile.getOwner());
-            if(owner!=null) {
-                var pickup=projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow?arrow.pickup:null;
-                projectile.setOwner(owner);
-                if(projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow)arrow.pickup=pickup;
-                track(owner,projectile);
-            }
+            // The native shooter receives retaliation. Track its controller separately for credit and cleanup.
+            if(owner!=null)track(owner,projectile);
         }
     }
     void unloaded(Entity entity) {
