@@ -77,7 +77,22 @@ final class FeedbackActorChecks {
         var target=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,f.level);
         target.setPos(f.owner.position().add(0,0,2));target.setNoAi(true);f.own(target);
         require(f.level.addFreshEntity(target),"real radar target");
-        service.begin();service.mark(f.owner,target);service.end();own=f.client.packets().size();
+        service.begin();service.mark(f.owner,target);service.end();
+        var spawn=tail(f.client,own).stream().filter(packet->packet instanceof ClientboundAddEntityPacket add
+                &&add.getType()==EntityTypes.ITEM_DISPLAY).map(ClientboundAddEntityPacket.class::cast).reduce((earlier,last)->last).orElseThrow();
+        for(var delta:List.of(new net.minecraft.world.phys.Vec3(.75,.25,-.5),new net.minecraft.world.phys.Vec3(80,0,0))){
+            target.setPos(target.position().add(delta));
+            own=f.client.packets().size();other=f.audience.packets().size();
+            service.begin();service.mark(f.owner,target);service.end();
+            var moves=tail(f.client,own).stream().filter(packet->packet instanceof ClientboundEntityPositionSyncPacket sync
+                    &&sync.id()==spawn.getId()).map(ClientboundEntityPositionSyncPacket.class::cast).toList();
+            require(moves.size()==1&&moves.getFirst().position().endPosition().distanceToSqr(new net.minecraft.world.phys.Vec3(
+                    target.getX(),target.getBoundingBox().maxY+.3,target.getZ()))<.000001,
+                    "the existing mark sends the mob's exact new position, including outside ticking client chunks");
+            require(tail(f.audience,other).stream().noneMatch(packet->packet instanceof ClientboundEntityPositionSyncPacket sync
+                    &&sync.id()==spawn.getId()),"movement stays private to the viewer");
+        }
+        own=f.client.packets().size();
         target.kill(f.level);
         require(service.count()==0&&tail(f.client,own).stream().anyMatch(ClientboundRemoveEntitiesPacket.class::isInstance),
                 "native AFTER_DEATH removes private radar immediately without waiting for another gameplay frame");

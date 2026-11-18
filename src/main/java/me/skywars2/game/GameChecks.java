@@ -5160,6 +5160,15 @@ public final class GameChecks {
                         }
                 }
                 require(boots != null, "Native kit 22 loot table grants rocket boots");
+                int startupCooldown=game.items().rocketCooldownTicks(player);
+                require(game.items().rocketJumps(player)==0&&startupCooldown>0&&startupCooldown<=300,
+                                "The actual match grant starts recharging a kit with zero jumps");
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET,boots.copy());
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET,ItemStack.EMPTY);
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET,boots.copy());
+                require(game.items().rocketJumps(player)==0&&game.items().rocketCooldownTicks(player)==startupCooldown,
+                                "Equipping and re-equipping within one server tick cannot bypass the initial cooldown");
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET,ItemStack.EMPTY);
                 var bootsLore = boots.get(DataComponents.LORE);
                 require(bootsLore != null && bootsLore.lines().size() == 3,
                                 "Delivered boots retain their separate three-row source lore");
@@ -5213,8 +5222,23 @@ public final class GameChecks {
                                         "Observer native output click cannot take a result or consume ingredients");
                         observerCraft.clearContent();
                         target.discard();
-                        beginRocketBootsFlight(game, player, observer, rocketBoots);
+                        awaitRocketKitCharges(game,player,observer,rocketBoots,false);
                 };
+        }
+
+        private static void awaitRocketKitCharges(GameController game,ServerPlayer player,ServerPlayer observer,
+                        ItemStack boots,boolean firstChargeSeen){
+                int charges=game.items().rocketJumps(player);
+                if(charges<3){
+                        int remaining=game.items().rocketCooldownTicks(player);
+                        require(remaining>=0&&remaining<=300,"Kit recharges at the normal maximum interval");
+                        boolean sawFirst=firstChargeSeen||charges==1;
+                        deferredTicks=Math.max(1,remaining);
+                        deferredCheck=()->awaitRocketKitCharges(game,player,observer,boots,sawFirst);
+                        return;
+                }
+                require(firstChargeSeen,"One charge is earned before the kit reaches full capacity");
+                beginRocketBootsFlight(game,player,observer,boots);
         }
 
         /**

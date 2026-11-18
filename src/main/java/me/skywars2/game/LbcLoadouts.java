@@ -469,11 +469,11 @@ public final class LbcLoadouts {
 
     /** Called only at start/respawn. Registry tables preserve source names, models and components. */
     public void apply(ServerPlayer player) {
-        apply(player, true);
+        apply(player, true, true, true);
     }
 
     public void apply(ServerPlayer player, boolean grantTrinkets) {
-        apply(player, grantTrinkets, true);
+        apply(player, grantTrinkets, true, false);
     }
 
     /** Debug selection updates native bonuses immediately without reissuing an unrelated kit. */
@@ -483,7 +483,7 @@ public final class LbcLoadouts {
         if (kind == Kind.KITS || kind == Kind.TRINKETS) {
             var entry = byId(kind, kind == Kind.KITS ? profile.lbcKit : profile.lbcTrinket);
             if (entry != null && allowed(player, entry)) grant(player, entry);
-        } else apply(player, false, false);
+        } else apply(player, false, false, false);
     }
 
     /** New native life reattaches the same match upgrades; choices and startup challenges do not reroll. */
@@ -505,7 +505,7 @@ public final class LbcLoadouts {
         inventoryChanged(player);reconcileReactiveSkills(player);player.setHealth(player.getMaxHealth());
     }
 
-    private void apply(ServerPlayer player, boolean grantTrinkets, boolean grantKits) {
+    private void apply(ServerPlayer player, boolean grantTrinkets, boolean grantKits, boolean matchStart) {
         if (game.balanceLegacy() || resolvedLevelups.rebuilding() || MatchPlayerCheckpoint.restoring(player)) return;
         // При старте и возрождении сначала снимаются старые бонусы, затем выдаются комплект и выбранные улучшения.
         clear(player);
@@ -517,6 +517,7 @@ public final class LbcLoadouts {
             Entry kit = byId(Kind.KITS, profile.lbcKit);
             if (kit != null && allowed(player, kit)) {
                 grant(player, kit);
+                if(matchStart&&kit.id==22)game.items().startRocketKit(player);
             }
         }
         if (grantTrinkets) for (int index = 0; index < Math.min(config.lbcTrinketLimit, profile.trinkets.length); index++) {

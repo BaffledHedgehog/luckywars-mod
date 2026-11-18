@@ -544,12 +544,14 @@ public final class LbcItems {
     private final ArrayList<Entity> entityBatch = new ArrayList<>();
     private final ArrayList<Marker> markerBatch = new ArrayList<>();
     private final Set<Marker> nearbyTraps = new LinkedHashSet<>();
+    private static final int ROCKET_CHARGE_TICKS = 300;
     private static final class RocketState {
         final ServerPlayer owner;
         int jumps = 3;
         int nextCharge;
         int restoredChargeDelay=-1;
         boolean retainedOffline;
+        boolean initialCharging;
         RocketState(ServerPlayer owner) { this.owner = owner; }
     }
     private final Map<UUID, RocketState> rockets = new HashMap<>();
@@ -591,13 +593,30 @@ public final class LbcItems {
         return type.equalsIgnoreCase("rocket_armor") || type.equalsIgnoreCase("rocketarmor") || type.equalsIgnoreCase("rocket");
     }
 
+    void startRocketKit(ServerPlayer player) {
+        var state=new RocketState(player);
+        state.jumps=0;
+        state.initialCharging=true;
+        var previous=rockets.put(player.getUUID(),state);
+        if(previous!=null)rechargingRockets.remove(previous);
+        scheduleRocketCharge(state,game.server().getTickCount());
+    }
+
+    private void scheduleRocketCharge(RocketState state,int now) {
+        state.nextCharge=now+ROCKET_CHARGE_TICKS+1;
+        rechargingRockets.add(state);
+    }
+
     /** onEquipItem бывает вызван до записи слота: изменяем переданный новый стек, не читаем старые ноги. */
     public void rocketEquipment(ServerPlayer player, ItemStack boots) {
         // Login may load equipment before the retained ability is rebound to this new body.
         var retained=rockets.get(player.getUUID());
         if(retained!=null&&retained.retainedOffline&&retained.owner!=player)return;
         if(isRocketBoots(boots))syncRocketGlider(boots,false);
-        if (!active(player) || !isRocketBoots(boots)) { resetRocket(player); return; }
+        if (!active(player) || !isRocketBoots(boots)) {
+            if (!active(player) || retained==null || !retained.initialCharging) resetRocket(player);
+            return;
+        }
         RocketState state = rockets.computeIfAbsent(player.getUUID(), ignored -> new RocketState(player));
         syncRocketGlider(boots, state.jumps > 0);
         rocketHud(state);
@@ -621,7 +640,7 @@ public final class LbcItems {
                     marker->marker.entityTags().contains("stopper")).isEmpty();
         if(stopped||state.jumps==0)return false;
         state.jumps--;
-        if(state.nextCharge==0){state.nextCharge=game.server().getTickCount()+301;rechargingRockets.add(state);}
+        if(state.nextCharge==0)scheduleRocketCharge(state,game.server().getTickCount());
         syncRocketGlider(boots,false);
         Vec3 velocity=player.getDeltaMovement(),direction=player.getLookAngle();
         double y=velocity.y>0?velocity.y+.5:direction.y<0?.5:velocity.y;
@@ -803,7 +822,7 @@ public final class LbcItems {
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_3"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_4"),ChatFormatting.WHITE);
         var rocket=rockets.get(source.getUUID());
-        if(rocket!=null) component.append(rocketHudComponent(rocket));
+        if(rocket!=null&&isRocketBoots(source.getItemBySlot(EquipmentSlot.FEET))) component.append(rocketHudComponent(rocket));
         int akAmmo=akAmmoHudValue(source);
         if(akAmmo>=0) component.append(Component.literal("  \uE206 ")).append(Component.literal(Integer.toString(akAmmo)).withStyle(ChatFormatting.WHITE));
         return component;
@@ -879,12 +898,16 @@ public final class LbcItems {
         for (RocketState state : rocketBatch) {
             if(state.retainedOffline)continue;
             ItemStack boots = state.owner.getItemBySlot(EquipmentSlot.FEET);
-            if (!active(state.owner) || !state.owner.isAlive() || !isRocketBoots(boots)) { resetRocket(state.owner); continue; }
+            if (!active(state.owner) || !state.owner.isAlive() || !state.initialCharging&&!isRocketBoots(boots)) { resetRocket(state.owner); continue; }
             if (now < state.nextCharge) continue;
             state.jumps++;
-            state.nextCharge = state.jumps < 3 ? now + 301 : 0;
-            if (state.jumps == 3) rechargingRockets.remove(state);
-            syncRocketGlider(boots, true);
+            if(state.jumps<3)scheduleRocketCharge(state,now);
+            else {
+                state.nextCharge=0;
+                state.initialCharging=false;
+                rechargingRockets.remove(state);
+            }
+            if(isRocketBoots(boots))syncRocketGlider(boots, true);
             rocketHud(state);
         }
         rocketBatch.clear();
@@ -892,7 +915,7 @@ public final class LbcItems {
             rocketBatch.addAll(rockets.values());
             for (RocketState state : rocketBatch) {
                 if(state.retainedOffline)continue;
-                if (active(state.owner) && isRocketBoots(state.owner.getItemBySlot(EquipmentSlot.FEET))) rocketHud(state);
+                if (active(state.owner) && (state.initialCharging||isRocketBoots(state.owner.getItemBySlot(EquipmentSlot.FEET)))) rocketHud(state);
                 else resetRocket(state.owner);
             }
             rocketBatch.clear();
@@ -2773,7 +2796,7 @@ public final class LbcItems {
     final class ResidentCheckpoint {
         private final me.skywars2.game.genie.GenieRuntime.Snapshot genieState=genie.runtime().snapshot();
         private record CurseImage(MatchDamageSources.Ref owner,int remaining){}
-        private record RocketImage(MatchDamageSources.Ref owner,int jumps,boolean charging,int delay){}
+        private record RocketImage(MatchDamageSources.Ref owner,int jumps,boolean charging,int delay,boolean initialCharging){}
         private final List<CurseImage> curses;
         private final List<RocketImage> boosts;
         private final List<MatchDamageSources.Ref> traps,crafts;
@@ -2783,7 +2806,7 @@ public final class LbcItems {
             curses=turnCurses.values().stream().map(c->new CurseImage(links.key(c.owner),c.remaining)).toList();
             int now=game.server().getTickCount();
             boosts=rockets.values().stream().map(r->new RocketImage(links.key(r.owner),r.jumps,rechargingRockets.contains(r),
-                    r.restoredChargeDelay>=0?r.restoredChargeDelay:Math.max(0,r.nextCharge-now))).toList();
+                    r.restoredChargeDelay>=0?r.restoredChargeDelay:Math.max(0,r.nextCharge-now),r.initialCharging)).toList();
             traps=nanoTraps.stream().filter(e->!e.isRemoved()).map(links::key).toList();
             crafts=rocketCraftDrops.stream().filter(e->!e.isRemoved()).map(links::key).toList();
         }
@@ -2793,6 +2816,7 @@ public final class LbcItems {
                 value.retainedOffline=MatchOfflinePlayers.retained(player);nextCurses.put(player.getUUID(),value);}
             for(var saved:boosts){var player=(ServerPlayer)links.get(saved.owner);var value=new RocketState(player);value.jumps=saved.jumps;
                 value.retainedOffline=MatchOfflinePlayers.retained(player);value.restoredChargeDelay=saved.charging?saved.delay:-1;
+                value.initialCharging=saved.initialCharging;
                 nextRockets.put(player.getUUID(),value);if(saved.charging)charging.add(value);}
             var nextTraps=new LinkedHashSet<Marker>();for(var ref:traps)nextTraps.add((Marker)links.get(ref));
             var nextCrafts=new LinkedHashSet<ItemEntity>();for(var ref:crafts)nextCrafts.add((ItemEntity)links.get(ref));

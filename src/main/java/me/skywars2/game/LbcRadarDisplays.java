@@ -33,6 +33,9 @@ public final class LbcRadarDisplays {
             var stack=new ItemStack(Items.PAPER);stack.set(DataComponents.ITEM_MODEL,
                     Identifier.parse(target instanceof ServerPlayer?"lbc:radar_player":"lbc:radar_mob"));
             var display=new ItemDisplayElement(stack);display.setItemDisplayContext(ItemDisplayContext.NONE);
+            // Relative moves need a client tick to interpolate. Radar is visible even in
+            // non-ticking client chunks, where absolute position packets snap immediately.
+            display.setAlwaysSyncAbsolutePosition(true);
             display.setBillboardMode(Display.BillboardConstraints.CENTER);display.setScale(new Vector3f(.3f));
             display.setTeleportDuration(1);display.setInterpolationDuration(1);display.setDisplaySize(0,0);
             display.setShadowRadius(0);display.setShadowStrength(0);display.setViewRange(1024);
