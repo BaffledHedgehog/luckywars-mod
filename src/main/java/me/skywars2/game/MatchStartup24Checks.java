@@ -4,7 +4,11 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
@@ -18,6 +22,9 @@ final class MatchStartup24Checks {
         final GameController game;final int countdown;final List<UUID> bots=new ArrayList<>();
         final Map<String,Double> phases=new LinkedHashMap<>();final List<Long> before=new ArrayList<>(),after=new ArrayList<>();
         final Map<String,Double> resetSteps = new LinkedHashMap<>();
+        RegenerationBeltChecks.ScheduledClient entryClient;
+        List<Vec3> entryPositions;
+        boolean entryInCage, entryAbilities;
         int armed,release=-1,cages;long phaseTime,releaseNanos,resetTime;boolean ready,requested,passed,closed;
         Fixture(GameController game){this.game=game;countdown=game.config().countdownSeconds;armed=game.server().getTickCount();}
         void prepare() throws ReflectiveOperationException {
@@ -51,9 +58,12 @@ final class MatchStartup24Checks {
                         &&p.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),"real Carpet body and native listener");}
                 var alpha=game.server().getPlayerList().getPlayerByName("TestAlpha");require(alpha!=null&&alpha.getClass()==ServerPlayer.class,"one real vanilla ServerPlayer");
                 ready=true;SkyWars2.LOGGER.info("[check] PASS bot-startup-prepare (map64/23 actual Carpet plus native Alpha)");
+                entryClient = new RegenerationBeltChecks.ScheduledClient(game, alpha);
+                entryClient.packets().clear();
             }
             long previous=ServerTickMetrics.completedTickNanos(game.server(),now-1);require(previous>0,"completed outer tick includes all end callbacks");
             if(game.stage()==GameController.Stage.COUNTDOWN){
+                if (entryPositions == null) captureEntry();
                 before.add(previous);int n=0;for(var spawn:game.maps().spawns())if(game.maps().level().getBlockState(
                         net.minecraft.core.BlockPos.containing(spawn.position()).below()).is(Blocks.GLASS))n++;
                 cages=Math.max(cages,n);require(game.alivePlayers().size()==24,"all24 enrolled before release");return;
@@ -63,6 +73,9 @@ final class MatchStartup24Checks {
             if(release<0){release=now;require(cages==24,"all24 native glass cage floors witnessed");}
             else {after.add(previous);if(now==release+1)releaseNanos=previous;}
             if(!requested||now-release<25)return;
+            require(entryPositions != null && entryPositions.size() == 1 && entryInCage,
+                    "one absolute native teleport to the enrolled cage, sent " + entryPositions);
+            require(entryAbilities, "countdown begins with normal Adventure abilities");
             require(before.size()>=90&&after.size()>=25,"five-second countdown and25 completed release ticks");
             require(phases.keySet().containsAll(List.of("reset","cages","islands","chests","kits_and_statistics","finish")),"complete native release phase timings");
             require(releaseNanos>=phases.values().stream().mapToDouble(Double::doubleValue).sum()*1e6-1000,"full release sample contains every measured controller end-tick phase");
@@ -78,8 +91,27 @@ final class MatchStartup24Checks {
             SkyWars2.LOGGER.info("[check] bot-startup-24 metrics: map64 players=24 carpet=23 vanilla=1 cages={} containers={} nonempty={} releaseFullTickMs={} phasesMs={} countdown={} first25={} fullServerTicks=true resetSteps={}",cages,containers,nonempty,releaseNanos/1e6,phases,metrics(before),metrics(after),resetSteps);
             passed=true;SkyWars2.LOGGER.info("[check] PASS bot-startup-24 (actual native roster/map/cages/chests and full completed startup ticks)");
         }
+        void captureEntry() {
+            var player = entryClient.player;
+            var teleports = entryClient.packets().stream()
+                    .filter(ClientboundPlayerPositionPacket.class::isInstance)
+                    .map(ClientboundPlayerPositionPacket.class::cast).toList();
+            entryPositions = teleports.stream().map(p -> p.change().position()).toList();
+            entryInCage = teleports.size() == 1
+                    && Collections.disjoint(teleports.getFirst().relatives(), Relative.position(true, true, true))
+                    && game.maps().spawns().stream().anyMatch(spawn -> spawn.position().equals(entryPositions.getFirst()))
+                    && player.position().distanceToSqr(entryPositions.getFirst()) < 1.0;
+            var abilities = player.getAbilities();
+            entryAbilities = player.gameMode.getGameModeForPlayer() == GameType.ADVENTURE
+                    && !abilities.flying && !abilities.mayfly && !abilities.invulnerable;
+            entryClient.acknowledge();
+            if (entryInCage && entryAbilities) {
+                SkyWars2.LOGGER.info("[check] PASS bot-startup-direct-handoff (one native spawn position)");
+            }
+        }
         void close(){
             if(closed)return;closed=true;game.config().countdownSeconds=countdown;Throwable failure=null;
+            if (entryClient != null) entryClient.close();
             for(var id:bots){var p=game.server().getPlayerList().getPlayer(id);if(p==null)continue;
                 try{game.carpetBots().forget(p);p.connection.onDisconnect(new DisconnectionDetails(Component.literal("Owned startup cleanup")));}
                 catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}}

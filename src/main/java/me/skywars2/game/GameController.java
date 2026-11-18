@@ -960,73 +960,72 @@ public final class GameController {
         items.terra().resetCharges();
         // Выбранная карта уже размещена; старт только фиксирует состав и распределяет игроков по клеткам.
         transition(Stage.LOADING); lobbyReady = false; mapFailure = Component.empty();
-        var enrolled = new ArrayList<>(online().stream().map(ServerPlayer::getUUID).toList());
-        for (ServerPlayer player : online()) loadingPlayer(player);
+        var connected = online();
+        var enrolled = connected.stream().map(ServerPlayer::getUUID).toList();
+        for (ServerPlayer player : connected) {
+            if (isDeveloper(player)) continue;
+            player.setGameMode(GameType.ADVENTURE);
+            giveLobbyInventory(player);
+        }
         announce(text("game.loading", maps.info(config.mapId).displayName()));
-        java.util.function.Consumer<MapManager.Result> enterCountdown = result -> {
-            if (stopped) return;
-            if (!result.success()) {
-                mapFailure = result.message(); announce(text("game.load_failed", result.message())); restoreLobby(); return;
+        if (stopped) return;
+        List<ServerPlayer> ready = enrolled.stream().map(id -> server.getPlayerList().getPlayer(id)).filter(p -> p != null).toList();
+        if (ready.size() < (developerMode() ? 1 : 2) || !bedwars.mode() && maps.spawns().size() < ready.size()) {
+            announce(text("game.cancelled_players")); restoreLobby(); return;
+        }
+        participants.clear();
+        for (ServerPlayer player : online()) {
+            player.closeContainer();
+            if (!ready.contains(player)) spectators.enter(player);
+        }
+        List<MapManager.Spawn> spawns = new ArrayList<>(maps.spawns());
+        Map<UUID,MapManager.Spawn> teamSpawns=Map.of();
+        if(bedwars.mode()){
+            try{
+                if(!maps.bedwars(config.mapId))throw new IllegalStateException("BedWars requires its map family");
+                teamSpawns=bedwars.prepare(ready);
+                if(!teamSpawns.keySet().containsAll(ready.stream().map(ServerPlayer::getUUID).toList()))
+                    throw new IllegalStateException("Incomplete BedWars spawn assignment");
+            }catch(RuntimeException error){
+                SkyWars2.LOGGER.error("BedWars start topology rejected",error);
+                announce(text("game.cancelled_players"));restoreLobby();return;
             }
-            List<ServerPlayer> ready = enrolled.stream().map(id -> server.getPlayerList().getPlayer(id)).filter(p -> p != null).toList();
-            if (ready.size() < (developerMode() ? 1 : 2) || !bedwars.mode() && maps.spawns().size() < ready.size()) {
-                announce(text("game.cancelled_players")); restoreLobby(); return;
-            }
-            participants.clear();
-            for (ServerPlayer player : online()) {
-                player.closeContainer();
-                if (!ready.contains(player)) spectators.enter(player);
-            }
-            List<MapManager.Spawn> spawns = new ArrayList<>(maps.spawns());
-            Map<UUID,MapManager.Spawn> teamSpawns=Map.of();
-            if(bedwars.mode()){
-                try{
-                    if(!maps.bedwars(config.mapId))throw new IllegalStateException("BedWars requires its map family");
-                    teamSpawns=bedwars.prepare(ready);
-                    if(!teamSpawns.keySet().containsAll(ready.stream().map(ServerPlayer::getUUID).toList()))
-                        throw new IllegalStateException("Incomplete BedWars spawn assignment");
-                }catch(RuntimeException error){
-                    SkyWars2.LOGGER.error("BedWars start topology rejected",error);
-                    announce(text("game.cancelled_players"));restoreLobby();return;
-                }
-            }else Collections.shuffle(spawns);
-            prepareSoloTeams(ready);
-            for (int i = 0; i < ready.size(); i++) {
-                ServerPlayer player = ready.get(i);
-                Participant member = new Participant(bedwars.mode()?teamSpawns.get(player.getUUID()):spawns.get(i), Math.max(1, config.lives));
-                participants.put(player.getUUID(), member);
-                player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
-                        maps.level().dimension(), net.minecraft.core.BlockPos.containing(member.spawn.position()),
-                        member.spawn.yaw(), member.spawn.pitch()), true), false);
-                resetPlayer(player, config.health, true);
-                grantStartExperience(player);
-                player.setGameMode(GameType.ADVENTURE);
-                GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
-                player.onUpdateAbilities();
-                teleport(player, member.spawn.position(), member.spawn.yaw(), member.spawn.pitch());
-                var profile = players.get(player.getUUID()); profile.games++; profile.coins += 10;
-                player.sendSystemMessage(rewardText("swrg.reward.start_game"));
-            }
-            players.saveDeferred(); if(!bedwars.mode()){
-                maps.cages(true);
-                for(var player:ready){var member=participants.get(player.getUUID());items.cosmetics().cage(player,maps.level(),net.minecraft.core.BlockPos.containing(member.spawn.position()),gameMode());}
-            }
-            itemQueue.clearRoundStart(maps.level());
-            items.cosmetics().startSuffixes(ready,maps.level().getRandom().nextLong());
-            countdownTicks = bedwars.mode()?60:Math.max(1, config.countdownSeconds) * 20;
-            gameTicks = 0; lastAliveTicks = 5; fallEnabled = false;
-            maps.level().getGameRules().set(GameRules.FALL_DAMAGE, false, server);
-            maps.level().getGameRules().set(GameRules.BLOCK_DROPS, false, server);
-            maps.level().getGameRules().set(GameRules.ENTITY_DROPS, false, server);
-            maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
-            command("time set " + (config.day == 1 ? 1000 : config.day == 2 ? 13000 : 18000));
-            maps.level().getGameRules().set(GameRules.PVP, true, server);
-            bar.removeAllPlayers(); for (ServerPlayer player : ready) bar.addPlayer(player);
-            bar.setColor(BossEvent.BossBarColor.GREEN); bar.setVisible(false);
-            lastCountdownTitleSeconds = -1;
-            transition(Stage.COUNTDOWN);
-        };
-        enterCountdown.accept(new MapManager.Result(true, Component.empty()));
+        }else Collections.shuffle(spawns);
+        prepareSoloTeams(ready);
+        for (int i = 0; i < ready.size(); i++) {
+            ServerPlayer player = ready.get(i);
+            Participant member = new Participant(bedwars.mode()?teamSpawns.get(player.getUUID()):spawns.get(i), Math.max(1, config.lives));
+            participants.put(player.getUUID(), member);
+            player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
+                    maps.level().dimension(), net.minecraft.core.BlockPos.containing(member.spawn.position()),
+                    member.spawn.yaw(), member.spawn.pitch()), true), false);
+            resetPlayer(player, config.health, true);
+            grantStartExperience(player);
+            player.setGameMode(GameType.ADVENTURE);
+            GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
+            player.onUpdateAbilities();
+            teleport(player, member.spawn.position(), member.spawn.yaw(), member.spawn.pitch());
+            var profile = players.get(player.getUUID()); profile.games++; profile.coins += 10;
+            player.sendSystemMessage(rewardText("swrg.reward.start_game"));
+        }
+        players.saveDeferred(); if(!bedwars.mode()){
+            maps.cages(true);
+            for(var player:ready){var member=participants.get(player.getUUID());items.cosmetics().cage(player,maps.level(),net.minecraft.core.BlockPos.containing(member.spawn.position()),gameMode());}
+        }
+        itemQueue.clearRoundStart(maps.level());
+        items.cosmetics().startSuffixes(ready,maps.level().getRandom().nextLong());
+        countdownTicks = bedwars.mode()?60:Math.max(1, config.countdownSeconds) * 20;
+        gameTicks = 0; lastAliveTicks = 5; fallEnabled = false;
+        maps.level().getGameRules().set(GameRules.FALL_DAMAGE, false, server);
+        maps.level().getGameRules().set(GameRules.BLOCK_DROPS, false, server);
+        maps.level().getGameRules().set(GameRules.ENTITY_DROPS, false, server);
+        maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
+        command("time set " + (config.day == 1 ? 1000 : config.day == 2 ? 13000 : 18000));
+        maps.level().getGameRules().set(GameRules.PVP, true, server);
+        bar.removeAllPlayers(); for (ServerPlayer player : ready) bar.addPlayer(player);
+        bar.setColor(BossEvent.BossBarColor.GREEN); bar.setVisible(false);
+        lastCountdownTitleSeconds = -1;
+        transition(Stage.COUNTDOWN);
     }
 
     void repairHealedDeaths() {
