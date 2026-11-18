@@ -25,7 +25,10 @@ final class MatchStartup24Checks {
         RegenerationBeltChecks.ScheduledClient entryClient;
         List<Vec3> entryPositions;
         boolean entryInCage, entryAbilities;
-        int armed,release=-1,cages;long phaseTime,releaseNanos,resetTime;boolean ready,requested,passed,closed;
+        final int armed;
+        int handoff = -1, release = -1, cages;
+        long preparationNanos, handoffNanos, releaseNanos, phaseTime, resetTime;
+        boolean ready, requested, passed, closed;
         Fixture(GameController game){this.game=game;countdown=game.config().countdownSeconds;armed=game.server().getTickCount();}
         void prepare() throws ReflectiveOperationException {
             require(game.inLobby()&&!game.maps().busy()&&game.maps().spawns().size()==24,"source map64 ready with24 spawns");
@@ -61,25 +64,29 @@ final class MatchStartup24Checks {
                 entryClient = new RegenerationBeltChecks.ScheduledClient(game, alpha);
                 entryClient.packets().clear();
             }
-            long previous=ServerTickMetrics.completedTickNanos(game.server(),now-1);require(previous>0,"completed outer tick includes all end callbacks");
+            recordCompletedTick(now - 1);
             if(game.stage()==GameController.Stage.COUNTDOWN){
-                if (entryPositions == null) captureEntry();
-                before.add(previous);int n=0;for(var spawn:game.maps().spawns())if(game.maps().level().getBlockState(
+                if (handoff < 0) {
+                    handoff = now;
+                    captureEntry();
+                }
+                int n=0;for(var spawn:game.maps().spawns())if(game.maps().level().getBlockState(
                         net.minecraft.core.BlockPos.containing(spawn.position()).below()).is(Blocks.GLASS))n++;
                 cages=Math.max(cages,n);require(game.alivePlayers().size()==24,"all24 enrolled before release");return;
             }
             if(!game.playing())return;
             require(game.alivePlayers().size()==24,"all24 actual bodies survive startup window");
             if(release<0){release=now;require(cages==24,"all24 native glass cage floors witnessed");}
-            else {after.add(previous);if(now==release+1)releaseNanos=previous;}
-            if(!requested||now-release<25)return;
+            if (!requested || after.size() < 25) return;
             require(entryPositions != null && entryPositions.size() == 1 && entryInCage,
                     "one absolute native teleport to the enrolled cage, sent " + entryPositions);
             require(entryAbilities, "countdown begins with normal Adventure abilities");
-            require(before.size()>=90&&after.size()>=25,"five-second countdown and25 completed release ticks");
+            require(preparationNanos > 0 && handoff > armed && handoffNanos > 0 && release > handoff,
+                    "distinct completed preparation and cage handoff ticks");
+            require(before.size() >= 90 && before.size() == release - handoff - 1,
+                    "every completed tick strictly between handoff and release belongs to the countdown");
             require(phases.keySet().containsAll(List.of("reset","cages","islands","chests","kits_and_statistics","finish")),"complete native release phase timings");
             require(releaseNanos>=phases.values().stream().mapToDouble(Double::doubleValue).sum()*1e6-1000,"full release sample contains every measured controller end-tick phase");
-            require(releaseNanos<100_000_000L,"actual24-player release stays below100ms instead of a second-scale stall");
             require(game.maps().spawnState().islands().size()==24,"all24 actual pristine island snapshots captured");
             int containers=0,nonempty=0;
             for(var e:game.maps().level().getAllEntities())if(e instanceof Marker&&e.entityTags().stream().anyMatch(
@@ -88,8 +95,25 @@ final class MatchStartup24Checks {
                 if(block instanceof RandomizableContainerBlockEntity chest){containers++;for(int i=0;i<chest.getContainerSize();i++)if(!chest.getItem(i).isEmpty()){nonempty++;break;}}
             }
             require(containers>=24&&nonempty>0,"source chest markers retain real generated loot");
-            SkyWars2.LOGGER.info("[check] bot-startup-24 metrics: map64 players=24 carpet=23 vanilla=1 cages={} containers={} nonempty={} releaseFullTickMs={} phasesMs={} countdown={} first25={} fullServerTicks=true resetSteps={}",cages,containers,nonempty,releaseNanos/1e6,phases,metrics(before),metrics(after),resetSteps);
+            SkyWars2.LOGGER.info("[check] bot-startup-24 metrics: map64 players=24 carpet=23 vanilla=1 cages={} containers={} nonempty={} "
+                            + "preparationTick={} preparationMs={} handoffTick={} handoffMs={} releaseTick={} releaseFullTickMs={} "
+                            + "phasesMs={} countdown={} first25={} fullServerTicks=true resetSteps={}",
+                    cages, containers, nonempty, armed, preparationNanos / 1e6, handoff, handoffNanos / 1e6, release, releaseNanos / 1e6,
+                    phases, metrics(before, handoff + 1), metrics(after, release + 1), resetSteps);
+            require(releaseNanos<100_000_000L,"actual24-player release stays below100ms instead of a second-scale stall");
             passed=true;SkyWars2.LOGGER.info("[check] PASS bot-startup-24 (actual native roster/map/cages/chests and full completed startup ticks)");
+        }
+        void recordCompletedTick(int tick) {
+            long nanos = ServerTickMetrics.completedTickNanos(game.server(), tick);
+            require(nanos > 0, "completed outer tick includes all end callbacks");
+            // The stage at this callback belongs to the in-progress tick.
+            // Read the previous tick against the boundaries observed in their own ticks.
+            if (tick == armed) preparationNanos = nanos;
+            if (handoff < 0) return;
+            if (tick == handoff) handoffNanos = nanos;
+            else if (release < 0) before.add(nanos);
+            else if (tick == release) releaseNanos = nanos;
+            else if (after.size() < 25) after.add(nanos);
         }
         void captureEntry() {
             var player = entryClient.player;
@@ -119,9 +143,13 @@ final class MatchStartup24Checks {
             if(failure!=null)throw new IllegalStateException("Startup fixture cleanup",failure);
         }
     }
-    private static Map<String,Object> metrics(List<Long> values){var sorted=values.stream().mapToLong(Long::longValue).sorted().toArray();
-        return Map.of("samples",sorted.length,"meanMs",Arrays.stream(sorted).average().orElseThrow()/1e6,
-                "p95Ms",sorted[(int)Math.floor((sorted.length-1)*.95)]/1e6,"maxMs",sorted[sorted.length-1]/1e6);}
+    private static Map<String,Object> metrics(List<Long> values, int firstTick) {
+        var sorted = values.stream().mapToLong(Long::longValue).sorted().toArray();
+        long peak = sorted[sorted.length - 1];
+        return Map.of("samples", sorted.length, "firstTick", firstTick, "maxTick", firstTick + values.indexOf(peak),
+                "meanMs", Arrays.stream(sorted).average().orElseThrow() / 1e6,
+                "p95Ms", sorted[(int) Math.floor((sorted.length - 1) * .95)] / 1e6, "maxMs", peak / 1e6);
+    }
     static void prepare(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;
         try{f.prepare();}catch(Throwable error){try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw new IllegalStateException(error);}}
     static void run(GameController game){require(running!=null&&running.ready&&game.playing(),"prepared native24 match actually started");running.requested=true;}
