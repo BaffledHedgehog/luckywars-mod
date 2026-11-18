@@ -616,9 +616,9 @@ public final class LbcPsycho {
             target.hurtServer(owner.level(),source,.01f);
             if(target instanceof ServerPlayer player) beamSound(owner,player);
         }
-        for(double d=0;d<=length;d+=.33) {
-            var p=from.add(direction.scale(d));
-            owner.level().sendParticles(RAY_DUST,true,false,p.x,p.y,p.z,1,1,1,1,0);
+        try (var trail = new LbcParticleBatch.Group(owner.level(), RAY_DUST, 1, 1, 1, 0, true, .34,
+                game.balanceLegacy() ? 1 : 3)) {
+            for (double d=0; d<=length; d+=.33) trail.add(from.add(direction.scale(d)));
         }
     }
     /** Multiple overlapping beams renew one target-local voice; caster and bystanders receive none. */

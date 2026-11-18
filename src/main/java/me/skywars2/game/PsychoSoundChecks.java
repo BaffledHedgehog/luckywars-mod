@@ -2,13 +2,17 @@ package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +45,9 @@ public final class PsychoSoundChecks {
         RegenerationBeltChecks.ScheduledClient client,audience;
         int started,phaseStarted,phase,initialUpdates,pausedRay,observedAt=-1,observedRay;
         int previousStarts,lastStartFrame,afterContactStarts;boolean ownsStop,closed,resetRay;
+        int expectedRaySamples;
+        BlockPos rayWall;
+        BlockState savedRayWall;
         Fixture(GameController game){
             this.game=game;source=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             target=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
@@ -76,6 +83,16 @@ public final class PsychoSoundChecks {
             client=new RegenerationBeltChecks.ScheduledClient(game,source);audience=new RegenerationBeltChecks.ScheduledClient(game,target);
             client.acknowledge();audience.acknowledge();initialUpdates=client.updates();
             packets(client).clear();packets(audience).clear();aim(true);
+            // End the packet-count probe behind the victim in an already resident
+            // chunk. A 99-block ray can otherwise grow as the test chunks arrive.
+            rayWall=BlockPos.containing(at.add(0,0,9.5));
+            savedRayWall=source.level().getBlockState(rayWall);
+            require(savedRayWall.isAir(),"empty native ray terminator");
+            source.level().setBlock(rayWall,Blocks.STONE.defaultBlockState(),3);
+            Vec3 eye=source.getEyePosition(),direction=source.getLookAngle();
+            double length=(rayWall.getZ()-eye.z)/direction.z;
+            for(double sample=0;sample<=length;sample+=.33)expectedRaySamples++;
+            require(expectedRaySamples>=20,"resident trail extends beyond the struck player");
             // Existing grant API owns the same ray clock used by food and wand casts.
             service.addRayTicks(source,240);require(service.rayCount(source)==240,"one accepted real ray-clock grant");
             started=phaseStarted=game.server().getTickCount();
@@ -101,6 +118,24 @@ public final class PsychoSoundChecks {
             for(var c:List.of(client,audience))require(packets(c).stream().noneMatch(p->p instanceof ClientboundSoundPacket s
                     &&s.getSound().value().location().toString().equals("minecraft:lbcsounds.scream")),"no legacy caster/area scream packet");
         }
+        void rayTraffic(int rayTicks){
+            int expectedPackets=game.balanceLegacy()?expectedRaySamples:(expectedRaySamples+2)/3;
+            var trail=packets(client).stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast)
+                    .filter(packet->packet.particle().getType()==ParticleTypes.DUST_COLOR_TRANSITION).toList();
+            int particles=trail.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
+            require(trail.size()==expectedPackets*rayTicks&&particles==expectedRaySamples*rayTicks
+                            &&trail.stream().allMatch(packet->packet.overrideLimiter()&&packet.xMaxSpeed()==0
+                                    &&packet.yMaxSpeed()==0&&packet.zMaxSpeed()==0),
+                    "forced beam retains all source trail particles with zero speed: "+trail.size()+" packets, "
+                            +particles+" particles for "+rayTicks+" ticks, expected "+expectedPackets+"/"+expectedRaySamples+" per tick");
+            SkyWars2.LOGGER.info("[check] Psycho ray particles: {} packets per tick for {} particles",expectedPackets,expectedRaySamples);
+        }
+        void clearRayWall(){
+            if(rayWall==null)return;
+            source.level().setBlock(rayWall,savedRayWall,3);
+            rayWall=null;
+        }
         boolean step(){
             client.acknowledge();audience.acknowledge();int now=game.server().getTickCount(),elapsed=now-phaseStarted;
             require(now-started<140,"bounded actual scheduled beam fixture");if(elapsed<1)return false;
@@ -114,7 +149,11 @@ public final class PsychoSoundChecks {
                         previousStarts=count;lastStartFrame=now;
                     }
                     int remaining=service.rayCount(source);
-                    if(observedAt<0)require(remaining<240&&remaining>=238,"real scheduler begins source ray clock");
+                    if(observedAt<0){
+                        require(remaining<240&&remaining>=238,"real scheduler begins source ray clock");
+                        rayTraffic(240-remaining);
+                        clearRayWall();
+                    }
                     else require(remaining==observedRay-(now-observedAt),"source clock decrements once per actual scheduler frame");
                     observedAt=now;observedRay=remaining;
                     require(service.effectValue(target,"scared")>0&&service.effectValue(target,"lookback")>0&&service.effectValue(target,"piss")>0,"real hit retains all existing target status counters");
@@ -151,7 +190,7 @@ public final class PsychoSoundChecks {
         public void close(){
             if(closed)return;closed=true;Throwable failure=null;
             for(Runnable action:List.<Runnable>of(()->{if(ownsStop){game.items().timeStop().end(source.level());ownsStop=false;}},
-                    service::stop,()->{if(client!=null)client.close();if(audience!=null)audience.close();},
+                    service::stop,this::clearRayWall,()->{if(client!=null)client.close();if(audience!=null)audience.close();},
                     ()->{saved.restore(game);otherSaved.restore(game);saved.restoreAttributes();otherSaved.restoreAttributes();saved.restoreUse();otherSaved.restoreUse();},
                     attribution::close,()->{game.items().magic().inventoryChanged(source);game.items().magic().inventoryChanged(target);}))
                 try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
