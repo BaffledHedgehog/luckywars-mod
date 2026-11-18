@@ -85,6 +85,32 @@ public final class EnchantmentRulesChecks {
             }
         }finally{actors.forEach(actor->actor.discard());player.setOnGround(ground);player.setSprinting(sprint);player.setKnownMovement(known);player.fallDistance=falling;player.setSpeed(speed);stats.forEach((stat,value)->player.getStats().setValue(player,stat,value));try{clock.setInt(player,previous);}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
     }
+    private static void verifyCarrierWear(GameController game,ServerPlayer player){
+        for(var table:List.of(
+                Map.entry("lbc:ported/piston_sword",0),Map.entry("lbc:ported/terra_razorpine",0),
+                Map.entry("lbc:ported/cyberkatana",0),Map.entry("lbc:ported/shit_katana",0),
+                Map.entry("lbc:ported/vex_sword",0),Map.entry("lbc:ported/lightsaber_empty",0),
+                Map.entry("lbc:anal_whip",0),Map.entry("lbc:items/techrunner_katana",0),
+                Map.entry("lbc:ported/terra_sword",25),Map.entry("lbc:ported/true_terra_sword",9000),
+                Map.entry("lbc:ported/fevgalea_star",4000))){
+            String id=table.getKey();
+            var stack=game.lbc().rollTable(player.level(),player.position(),player,id).getFirst();
+            int durability=table.getValue();
+            require(stack.getMaxDamage()==durability,"source weapon durability "+id);
+            var projected=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(
+                    stack,net.minecraft.world.item.TooltipFlag.NORMAL,player.connection.getPacketContext(),player.registryAccess());
+            require(projected.getMaxDamage()==durability,"client weapon durability "+id);
+            if(durability==0){
+                stack.applyComponents(net.minecraft.core.component.DataComponentPatch.builder()
+                        .set(DataComponents.MAX_DAMAGE,25).set(DataComponents.DAMAGE,7).build());
+                require(!stack.has(DataComponents.MAX_DAMAGE)&&!stack.has(DataComponents.DAMAGE),
+                        "saved carrier durability is removed on component application "+id);
+            }
+        }
+        var chaos=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/chaos_sword").getFirst();
+        require(chaos.has(DataComponents.UNBREAKABLE)&&!chaos.isDamageableItem(),"authored Chaos Sword unbreakable component survives");
+        require(new ItemStack(Items.CARROT_ON_A_STICK).getMaxDamage()==25,"ordinary carrot carrier retains its vanilla durability");
+    }
     public static void run(GameController game) {
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         require(game.playing() && player!=null && game.allowDamage(player),"actual live match participant");
@@ -138,6 +164,7 @@ public final class EnchantmentRulesChecks {
             for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)if(Math.abs(x)==2 || Math.abs(z)==2)
                 for(int y=0;y<=1;y++)level.setBlock(center.offset(x,y,z),Blocks.BOOKSHELF.defaultBlockState(),818);
             swordProperties(game,player,center);swordSweep(player,center);WeaponEnchantmentChecks.run(game,player,center);
+            verifyCarrierWear(game,player);
             var table=new EnchantmentMenu(44,player.getInventory(),ContainerLevelAccess.create(level,center));
             boolean mixed=false;
             for(int trial=1;trial<=128;trial++) {

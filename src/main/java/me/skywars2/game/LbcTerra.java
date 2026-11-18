@@ -70,7 +70,7 @@ public final class LbcTerra {
     public static final EntityType<TerraProjectile> TYPE = registerType();
     public static final Item SWORD = registerSword("skywars2:terra_sword", "terra_sword", "lbc:terrasword", 25);
     public static final Item TRUE_SWORD = registerSword("skywars2:true_terra_sword", "true_terra", "lbc:terrasword_true", 9000);
-    public static final Item RAZOR = registerSword("skywars2:terra_razorpine", "razorterra", "lbc:terra_razorpine", 25);
+    public static final Item RAZOR = registerSword("skywars2:terra_razorpine", "razorterra", "lbc:terra_razorpine", 0);
     private static final CompoundTag SWORD_FLAG = flag("terrasword"), TRUE_SWORD_FLAG = flag("true_terra");
     private static final TagKey<Block> AIRS = TagKey.create(Registries.BLOCK, Identifier.parse("minecraft:airs"));
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mobs"));
@@ -149,8 +149,9 @@ public final class LbcTerra {
     }
     private static Item registerSword(String id, String name, String model, int durability) {
         var key = ResourceKey.create(Registries.ITEM, Identifier.parse(id));
-        var properties = new Item.Properties().setId(key).durability(durability).overrideDescription(name)
+        var properties = new Item.Properties().setId(key).overrideDescription(name)
                 .component(DataComponents.ITEM_MODEL, Identifier.parse(model));
+        if(durability>0)properties.durability(durability);else properties.stacksTo(1);
         return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(properties, Items.CARROT_ON_A_STICK, true) {
             @Override public InteractionResult use(Level level, Player player, InteractionHand hand) {
                 var game = me.skywars2.SkyWars2.game();
