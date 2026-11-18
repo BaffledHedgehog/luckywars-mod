@@ -109,7 +109,10 @@ public final class LbcSteampunkHook {
             if(delta.lengthSqr()<=100)game.items().ownedEffects().grant(player,LANDING,ItemEffectLevels.create(MobEffects.SLOW_FALLING,20,1,false,false),player);
             else game.items().ownedEffects().withdraw(player,LANDING);
             double distance=delta.length();int samples=Math.min(128,(int)Math.ceil(distance/.33));
-            for(int n=0;n<samples;n++){var at=from.lerp(to,(double)n/Math.max(1,samples));player.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,at.x,at.y,at.z,1,0,0,0,0);}
+            try (var trail = new LbcParticleBatch.Group(player.level(), ParticleTypes.ELECTRIC_SPARK, 0, 0, 0, 0, false, .75,
+                    game.balanceLegacy() ? 1 : 3)) {
+                for (int n = 0; n < samples; n++) trail.add(from.lerp(to, (double) n / samples));
+            }
             game.items().indirectKills().displaced(player,new LbcIndirectKills.Owner(player.getUUID(),data.getLongOr("order",0),false,false));
         }
     }

@@ -3,14 +3,20 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.monster.warden.Warden;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -50,8 +56,22 @@ public final class GrimoireBossChecks {
             var d=boss.getAttached(attachment()).copy();d.putInt("phase",1);d.putInt("age",70);d.putDouble("aimX",0);d.putDouble("aimY",0);d.putDouble("aimZ",1);boss.setAttached(attachment(),d);
             // Remove auto-facing ambiguity: actual nearest eye lies precisely on the existing beam.
             hit.setPos(origin.add(0,-hit.getEyeHeight(),4));miss.setPos(origin.add(.8,-hit.getEyeHeight(),4));
-            base.owner.setPos(base.owner.position().add(30,0,0));laserTarget=hit;
-            service.tick();firstHealth=hit.getHealth();require(firstHealth==990,"exact body contact deals ten native HP, actual="+firstHealth);
+            base.owner.setPos(origin.add(8, -6, 0));laserTarget=hit;
+            var stop = BlockPos.containing(origin.add(0, 0, 9));
+            var level = base.owner.level();
+            var previous = level.getBlockState(stop);
+            require(previous.isAir(), "open native laser sample area");
+            level.setBlock(stop, Blocks.STONE.defaultBlockState(), 3);
+            try {
+                base.recording.packets.clear();
+                service.tick();
+                int samples = 0;
+                for (double n = 0; n <= stop.getZ() - origin.z; n += .3) samples++;
+                assertTrail(ParticleTypes.DUST_COLOR_TRANSITION, samples, .15f, "blocked boss laser");
+            } finally {
+                level.setBlock(stop, previous, 3);
+            }
+            firstHealth=hit.getHealth();require(firstHealth==990,"exact body contact deals ten native HP, actual="+firstHealth);
             require(hit.getLastDamageSource()!=null&&hit.getLastDamageSource().getDirectEntity()==boss
                     &&hit.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.MAGIC),"native physical attacker remains the real boss");
             require(miss.getHealth()==1000&&protectedMob.getHealth()==1000,"nearby body outside precise ray and dungeon role stay protected");require(service.warningSnapshot().isEmpty(),"damage starts after warning retirement");
@@ -94,8 +114,55 @@ public final class GrimoireBossChecks {
                     created=service.snapshot().stream().filter(e->e.getAttached(attachment()).getIntOr("kind",0)==kind).toList();
                 }
                 require(!created.isEmpty(),"native chance-gated attack branch "+phase);
-                for(var child:created){require(child.getY()>boss.getY()&&child.position().distanceToSqr(boss.position())<1600,"meteor/prism native position survives render preset "+phase);service.unloaded(child);child.discard();}
+                for (var child : created) {
+                    require(child.getY() > boss.getY() && child.position().distanceToSqr(boss.position()) < 1600,
+                            "meteor/prism native position survives render preset " + phase);
+                }
+                if (phase == 3) prismBurst(created.getFirst());
+                for (var child : created) {
+                    service.unloaded(child);
+                    child.discard();
+                }
             }
+        }
+
+        void prismBurst(Entity prism) {
+            var from = base.owner.position().add(0, 3, 0);
+            prism.setPos(from);
+            prism.setYRot(0);
+            prism.setXRot(0);
+            var d = prism.getAttached(attachment()).copy();
+            d.putInt("age", 30);
+            prism.setAttached(attachment(), d);
+            base.recording.packets.clear();
+            service.tick();
+            require(prism.isRemoved(), "native prism completes its shot");
+            assertTrail(ParticleTypes.FIREWORK, 91, .01f, "prism burst");
+            var flash = packets(ParticleTypes.FLASH);
+            require(flash.size() == 1 && flash.getFirst().count() == 1 && flash.getFirst().overrideLimiter(),
+                    "one forced native flash at prism firing");
+            var packet = flash.getFirst();
+            require(new Vec3(packet.x(), packet.y(), packet.z()).distanceToSqr(from) < 1e-10
+                    && packet.particle() instanceof ColorParticleOption color
+                    && color.getRed() == 1 && Math.abs(color.getGreen() - .1f) <= 1f / 255
+                    && color.getBlue() == 0 && color.getAlpha() == 1,
+                    "legacy red flash color and muzzle position");
+        }
+
+        List<ClientboundLevelParticlesPacket> packets(ParticleType<?> type) {
+            return base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast).filter(p -> p.particle().getType() == type).toList();
+        }
+
+        void assertTrail(ParticleType<?> type, int expected, float speed, String attack) {
+            var trail = packets(type);
+            int total = trail.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
+            require(total == expected && trail.size() == (expected + 2) / 3
+                    && trail.stream().allMatch(p -> !p.overrideLimiter() && p.xMaxSpeed() == speed
+                            && p.yMaxSpeed() == speed && p.zMaxSpeed() == speed),
+                    attack + " keeps samples, settings and speed in fewer packets: " + total + "/" + expected
+                            + " particles, " + trail.size() + " packets");
+            SkyWars2.LOGGER.info("[check] {} particle packets {} -> {}, density {}", attack, expected, trail.size(), total);
         }
         @Override public void close(){try{service.stop();for(var e:victims){game.items().indirectKills().clear((LivingEntity)e);e.discard();}
             var fresh=new ArrayList<Entity>();base.owner.level().getAllEntities().forEach(e->{if(!base.before.contains(e)&&!(e instanceof net.minecraft.server.level.ServerPlayer))fresh.add(e);});fresh.forEach(Entity::discard);worldRandom.restore(base.owner.level().getRandom());}finally{base.close();}}

@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -38,6 +40,9 @@ public final class LbcGrimoireBoss {
     public static void register(){}
     public static final String TAG="skywars2.grimoire_boss";
     private static final String MUSIC="minecraft:lbcsounds.penis_bossfight";
+    private static final DustColorTransitionOptions LASER_DUST = new DustColorTransitionOptions(0xffee00, 0xff8800, 3);
+    private static final ColorParticleOption PRISM_FLASH = ColorParticleOption.create(ParticleTypes.FLASH,
+            net.minecraft.util.ARGB.colorFromFloat(1, 1, .1f, 0));
     private static final Set<String> EXCLUDED=Set.of("dungeon_mob","strict_map_object");
     private static final net.minecraft.tags.TagKey<EntityType<?>> MOBS=net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final AttachmentType<CompoundTag> DATA=AttachmentRegistry.create(
@@ -144,7 +149,13 @@ public final class LbcGrimoireBoss {
             var damage=damage(boss,DamageTypes.MAGIC);
             // Shared exact line/body admission and source .3-step multiplicity; warning is visual only.
             LbcDamage.hurtSegment(level,damage,from,to,Vec3.ZERO,.3,10,2,e->target(boss,e),true);
-            for(double n=0;n<=from.distanceTo(to);n+=.3){var p=from.add(direction.scale(n));level.sendParticles(new net.minecraft.core.particles.DustColorTransitionOptions(0xffee00,0xff8800,3),p.x,p.y,p.z,1,0,0,0,.15);}
+            double length = from.distanceTo(to);
+            try (var trail = new LbcParticleBatch.Group(level, LASER_DUST, 0, 0, 0, .15, false, .35,
+                    game.balanceLegacy() ? 1 : 3)) {
+                for (double distance = 0; distance <= length; distance += .3) {
+                    trail.add(from.add(direction.scale(distance)));
+                }
+            }
         }
         if(age>=250){for(var e:List.copyOf(actors))if(childOf(e,boss)&&data(e)!=null&&integer(data(e),"kind")==4)remove(e);var next=data(boss).copy();next.putInt("age",0);save(boss,next);idle(boss);}
     }
@@ -212,8 +223,13 @@ public final class LbcGrimoireBoss {
             if(age<31){warning(actor,2,age,from,to,31-age);if(age==1||age==11||age==21)sound(level,from,"minecraft:block.beacon.activate",1,2);}
             else{closeWarning(actor);var damage=damage(actor,DamageTypes.ARROW);var hit=new HashSet<UUID>();
                 LbcDamage.hurtSegment(level,damage,from,to,Vec3.ZERO,.3,7,1,e->target(actor,e)&&!hit.contains(e.getUUID()),true,e->hit.add(e.getUUID()),null);
-                for(int n=0;n<=90;n++){var p=from.add(direction.scale(n*.3));level.sendParticles(ParticleTypes.FIREWORK,p.x,p.y,p.z,1,.01,.01,.01,.01);}
-                sound(level,from,"minecraft:lbcsounds.laser_attack",1.5f,1);remove(actor);
+                try (var trail = new LbcParticleBatch.Group(level, ParticleTypes.FIREWORK, .01, .01, .01, .01, false, .35,
+                        game.balanceLegacy() ? 1 : 3)) {
+                    for (int n = 0; n <= 90; n++) trail.add(from.add(direction.scale(n * .3)));
+                }
+                sound(level, from, "minecraft:lbcsounds.laser_attack", 1.5f, 1);
+                level.sendParticles(PRISM_FLASH, true, false, from.x, from.y, from.z, 1, 0, 0, 0, 0);
+                remove(actor);
             }
         }else if(kind==3){
             actor.setPos(actor.position().add(0,-1,0));var at=actor.position().add(.5,0,.5);int hit=0;

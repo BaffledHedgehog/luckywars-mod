@@ -4,6 +4,7 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
@@ -71,7 +72,19 @@ public final class SteampunkHookChecks {
             var anchor=service.anchor(p);var motion=p.getDeltaMovement();int clock=charge();
             p.setYRot(63);p.setXRot(-25);
             String diagnostics=" pendingTeleport="+((LbcAntigravity.PlayerTransport)p.connection).skywars2$hasPendingTeleport()+" tech="+game.items().magic().mechanismSuppressed(p)+" techLine="+game.items().magic().mechanismSuppressionFraction(p.level(),p.getEyePosition(),anchor)+" shift="+p.isShiftKeyDown()+" role="+game.items().wands().validRoleTarget(p,false)+" epoch="+game.items().epoch()+" tags="+p.entityTags();
-            service.tick();near(service.anchor(p),anchor,"camera does not move fixed contact anchor"+diagnostics);require(p.getYRot()==63&&p.getXRot()==-25,"free camera retained");
+            int samples = Math.min(128, (int) Math.ceil(p.getEyePosition().distanceTo(anchor) / .33));
+            packets.clear();
+            service.tick();
+            var sparks = packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast).filter(packet -> packet.particle() == ParticleTypes.ELECTRIC_SPARK).toList();
+            require(samples >= 6 && sparks.size() == (samples + 2) / 3
+                    && sparks.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum() == samples
+                    && sparks.stream().allMatch(packet -> !packet.overrideLimiter() && packet.xMaxSpeed() == 0
+                            && packet.yMaxSpeed() == 0 && packet.zMaxSpeed() == 0),
+                    "real fixed-contact hook trail keeps all electric sparks in fewer packets: " + samples + " -> " + sparks.size());
+            SkyWars2.LOGGER.info("[check] hook particle packets {} -> {}, density {}", samples, sparks.size(), samples);
+            near(service.anchor(p),anchor,"camera does not move fixed contact anchor"+diagnostics);
+            require(p.getYRot()==63&&p.getXRot()==-25,"free camera retained");
             var rotated=anchor.add(3,2,-1);service.transformOrigins(p.level(),v->v.add(3,2,-1));near(service.anchor(p),rotated,"Boba transforms saved hook anchor");service.transformOrigins(p.level(),v->v.add(-3,-2,1));near(service.anchor(p),anchor,"inverse restores native hook anchor");
             var image=new MatchPlayerCheckpoint(game,p);service.clear(p);require(service.anchor(p)==null,"actual clear retires attachment");
             boolean frozen=game.server().tickRateManager().isFrozen();game.server().tickRateManager().setFrozen(true);
