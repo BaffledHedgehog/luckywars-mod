@@ -132,7 +132,7 @@ public final class WeaponSpreadChecks {
                     var stack=new ItemStack(item);held(hand==InteractionHand.MAIN_HAND?stack:ItemStack.EMPTY,hand==InteractionHand.OFF_HAND?stack:ItemStack.EMPTY);
                     aim((float)LbcGunAccuracy.vanillaDegrees(1),WeaponSpreadVisuals.CONE,hand);display();
                 }
-                for(var item:List.of(LbcKapustaItem.ITEM,LbcKapustaItem.JACK,LbcPursuitItems.BOUNCING_POOP,LbcBridgeBuilderItem.TOKEN,LbcSteampunkRocket.TOKEN,LbcImbaNativeItems.FIREWORK)){
+                for(var item:List.of(LbcKapustaItem.ITEM,LbcKapustaItem.JACK,LbcPursuitItems.BOUNCING_POOP,LbcSteampunkRocket.TOKEN,LbcImbaNativeItems.FIREWORK)){
                     held(new ItemStack(item),ItemStack.EMPTY);aim(0,WeaponSpreadVisuals.CONE,InteractionHand.MAIN_HAND);
                 }
                 for(var kind:LbcImbaCrossbows.Kind.values()){
@@ -144,6 +144,33 @@ public final class WeaponSpreadChecks {
                 aim((float)(10+LbcGunAccuracy.vanillaDegrees(1)),WeaponSpreadVisuals.CONE,InteractionHand.MAIN_HAND);
             }finally{game.config().offhandWands=off;}
         }
+        void bridgeHotbarSwitch() {
+            var inventory = owner.getInventory();
+            int bowSlot = inventory.getSelectedSlot();
+            int bridgeSlot = (bowSlot + 1) % 9;
+            var previous = inventory.getItem(bridgeSlot);
+            require(!owner.isShiftKeyDown(), "normal hotbar input");
+            try {
+                held(new ItemStack(Items.BOW), ItemStack.EMPTY);
+                inventory.setItem(bridgeSlot, new ItemStack(LbcBridgeBuilderItem.TOKEN));
+                var first = display();
+                base.recording.packets.clear();
+                owner.connection.handleSetCarriedItem(new net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket(bridgeSlot));
+                WeaponSpreadVisuals.synchronize(game, owner);
+                removed(first, "switching to the bridge gadget");
+                base.recording.packets.clear();
+                owner.connection.handleSetCarriedItem(new net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket(bowSlot));
+                var next = display();
+                aim((float)LbcGunAccuracy.vanillaDegrees(1), WeaponSpreadVisuals.CONE, InteractionHand.MAIN_HAND);
+                require(next.getEntityId()!=first.getEntityId() && flatten(base.recording.packets).stream()
+                        .anyMatch(packet -> packet instanceof net.minecraft.network.protocol.game.ClientboundAddEntityPacket spawn
+                                && spawn.getId()==next.getEntityId()), "switching back sends a fresh bow indicator to the client");
+            } finally {
+                inventory.setItem(bridgeSlot, previous);
+                inventory.setSelectedSlot(bowSlot);
+            }
+        }
+
         void nativeScatter(){
             boolean levelups=game.config().lbcLevelups;game.config().lbcLevelups=false;
             var baseline=Collections.newSetFromMap(new IdentityHashMap<net.minecraft.world.entity.Entity,Boolean>());
@@ -228,7 +255,7 @@ public final class WeaponSpreadChecks {
         try{var field=type.getDeclaredField(name);field.setAccessible(true);return field;}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
     }
     public static void run(GameController game){
-        try(var f=new Fixture(game)){f.weapons();f.readOnly();f.nativeWeapons();f.nativeScatter();f.wire();f.lifecycle();}
+        try(var f=new Fixture(game)){f.weapons();f.readOnly();f.nativeWeapons();f.bridgeHotbarSwitch();f.nativeScatter();f.wire();f.lifecycle();}
         SkyWars2.LOGGER.info("[check] PASS weapon-spread (actual loot/AK flags, shared next-shot geometry and camera independence, minigun no-init/no-RNG, private native wire, scope and dimension/lifecycle cleanup)");
     }
 }

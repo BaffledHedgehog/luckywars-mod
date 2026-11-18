@@ -80,23 +80,32 @@ public final class LbcBridgeBuilder {
         int lifetime;Generation pending;
         Actor(Marker body,LivingEntity author,LbcIndirectKills.Owner cause,String epoch,int lifetime){this.body=body;this.author=author;this.cause=cause;this.epoch=epoch;this.lifetime=lifetime;}
     }
-    /** Called once for actual owned snowball insertion. Native projectile remains independently alive.
-     * The source caller is the thrower's player context at FEET, not the snowball impact location. */
-    boolean launch(Entity projectile,LivingEntity author){
-        if(restoring||author==null||!(projectile.level() instanceof ServerLevel level)||!ready()||!game.playing()
-                ||!LbcDimensionItems.ordinary(level)||acceptedProjectiles.contains(projectile.getUUID())
+    boolean activate(ServerPlayer player) {
+        return start(player.level(), player, null);
+    }
+
+    private boolean launch(Snowball projectile, LivingEntity author) {
+        return start((ServerLevel) projectile.level(), author, projectile);
+    }
+
+    /** The building marker starts at the user's feet and captures their current aim. */
+    private boolean start(ServerLevel level, LivingEntity author, Snowball projectile) {
+        if(restoring||!ready()||!game.playing()||!LbcDimensionItems.ordinary(level)
+                ||projectile!=null&&acceptedProjectiles.contains(projectile.getUUID())
                 ||!policy.launch(author,level,author.position()))return false;
         callbacks++;try{
             var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(author.position());marker.setYRot(author.getYRot());marker.setXRot(author.getXRot());
             marker.entityTags().addAll(List.of(ACTOR,"imba_rc","slowraycast","imba_most","mecha"));game.items().markCurrentItemEpoch(marker);
-            game.items().spellSources().inherit(projectile,marker);
-            var source=game.items().spellSources().source(projectile);
+            if (projectile == null) game.items().spellSources().capture(marker);
+            else game.items().spellSources().inherit(projectile,marker);
+            var source=game.items().spellSources().source(marker);
             var cause=source==null?null:source.cause();
             if(cause==null&&author instanceof ServerPlayer player)cause=game.items().indirectKills().wildCause(player);
             var actor=new Actor(marker,author,cause,game.items().epoch(),0);actors.put(marker.getUUID(),actor);
             game.items().timeStop().prepareFrozen(marker);
             if(!level.addFreshEntity(marker)){actors.remove(marker.getUUID());marker.discard();return false;}
-            acceptedProjectiles.add(projectile.getUUID());return true;
+            if (projectile != null) acceptedProjectiles.add(projectile.getUUID());
+            return true;
         }finally{callbacks--;}
     }
     private boolean nearby(Marker marker){for(var player:((ServerLevel)marker.level()).players())if(!player.isSpectator()&&player.distanceToSqr(marker)<=40_000)return true;return false;}

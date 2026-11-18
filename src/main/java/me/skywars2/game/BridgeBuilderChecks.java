@@ -36,7 +36,7 @@ public final class BridgeBuilderChecks {
     public static void runRewind(GameController game){start(game,1);}
     public static void runBedwars(GameController game){start(game,2);}
     private static void start(GameController game,int kind){require(running==null,"exclusive fixture");var f=new Fixture(game,kind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{require(game==f.game,"same native controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} (actual typed native snowball/thrower, exact source templates and resumable native terrain owner; scoped source-kernel cases are labeled separately)",f.name());}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
+    public static void tick(GameController game){if(running==null)return;var f=running;try{require(game==f.game,"same native controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} (actual native consumable and client projection, exact source templates and resumable native terrain owner; scoped source-kernel cases are labeled separately)",f.name());}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
     private static final String ORACLE_GZIP_BASE64="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";
     private static JsonArray oracle(){try(var input=new java.util.zip.GZIPInputStream(new java.io.ByteArrayInputStream(Base64.getDecoder().decode(ORACLE_GZIP_BASE64)))){return JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonArray();}catch(java.io.IOException e){throw new IllegalStateException(e);}}
     private record Template(String name,int x,int y,int z,Map<BlockPos,BlockState> cells) { }
@@ -70,7 +70,7 @@ public final class BridgeBuilderChecks {
         record ExtraPlayer(ServerPlayer player,ServerLevel level,Vec3 position,float yaw,float pitch,boolean noGravity,Vec3 movement,RegenerationBeltChecks.Snapshot saved,RegenerationBeltChecks.ScheduledClient client) { }
         final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();final Set<UUID> before=new HashSet<>();
         final Vec3 origin;final int began;final boolean frozen;final int usedBefore,otherDanmakuUsed;final MatchRandomState ownerRandom,otherRandom;boolean closed,stopped,restoring;int stage,when,peer;
-        Entity marker;Snowball ball;Object actor,generation;Tape tape;Map<BlockPos,BlockState> expected=new LinkedHashMap<>();
+        Entity marker;Object actor,generation;Tape tape;Map<BlockPos,BlockState> expected=new LinkedHashMap<>();
         List<Object> pendingOps;long pendingRng;LbcBridgeBuilder.View captured;Map<BlockPos,BlockState> capturedTerrain;Set<UUID> family;
         Fixture(GameController game,int kind){
             this.game=game;this.kind=kind;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));level=owner.level();
@@ -105,15 +105,19 @@ public final class BridgeBuilderChecks {
         void input(){
             var loot=game.lbc().rollTable(level,owner.position(),owner,"lbc:ported/bridge_builder_imba");require(loot.size()==1&&loot.getFirst().is(LbcBridgeBuilderItem.TOKEN)&&loot.getFirst().getCount()==1,"actual canonical typed source item");var item=loot.getFirst();
             require(Identifier.parse("lbc:bridgebuilder").equals(item.get(DataComponents.ITEM_MODEL))&&Identifier.parse("lbc:tier_a").equals(item.get(DataComponents.TOOLTIP_STYLE)),"authored model/tier");
+            var context=((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)(Object)owner.connection).getPacketContext();
+            var clientItem=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(item,
+                    net.minecraft.world.item.TooltipFlag.NORMAL,context,owner.registryAccess());
+            require(clientItem.is(Items.BLAZE_ROD)&&clientItem.getMaxStackSize()==16,
+                    "the wire item retains the original stack limit and cannot predict a vanilla throw");
             require(LbcBridgeBuilder.recognized(item)&&ItemData.intValue(item,"gadget",0)==1&&ItemData.intValue(item,"imba",0)==1&&ItemData.intValue(item,"most",0)==0&&ItemData.intValue(item,"projegadget",0)==0,"new IMBA is distinct from old wool-trail Most");
             owner.setYRot(90);owner.setXRot(15);other.setYRot(-90);other.setXRot(-30);owner.setItemInHand(InteractionHand.MAIN_HAND,item.copyWithCount(2));int used=owner.getStats().getValue(Stats.ITEM_USED.get(LbcBridgeBuilderItem.TOKEN));
-            require(owner.gameMode.useItem(owner,level,owner.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction(),"actual native SnowballItem use");
+            require(owner.gameMode.useItem(owner,level,owner.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction(),"actual native gadget use");
             require(owner.getMainHandItem().getCount()==1&&owner.getStats().getValue(Stats.ITEM_USED.get(LbcBridgeBuilderItem.TOKEN))==used+1,"single native debit and item statistic");
             require(service.count()==1,"one logical source marker per actual input");marker=service.snapshot().getFirst();
-            require(marker.position().equals(owner.position())&&marker.getYRot()==90&&marker.getXRot()==15&&service.owner(marker)==owner,"actual thrower FEET/aim wins over nearer differently facing player");
-            ball=null;for(var e:level.getAllEntities())if(!before.contains(e.getUUID())&&e instanceof Snowball shot&&!shot.isRemoved()&&shot.getOwner()==owner&&LbcBridgeBuilder.recognized(shot.getItem())){require(ball==null,"one native transport projectile");ball=shot;}
-            require(ball!=null&&!ball.isRemoved()&&service.protectedCloneActor(ball),"vanilla snowball continues independently; logical marker is sole clone boundary");
-            require(!service.launch(ball,owner)&&service.count()==1,"same actual projectile insertion cannot create duplicate marker");
+            require(marker.position().equals(owner.position())&&marker.getYRot()==90&&marker.getXRot()==15&&service.owner(marker)==owner,"actual user feet/aim wins over nearer differently facing player");
+            for(var e:level.getAllEntities())if(!before.contains(e.getUUID())&&e instanceof Snowball shot)
+                require(!LbcBridgeBuilder.recognized(shot.getItem()),"gadget use never creates a transport snowball");
             actor=((Map<?,?>)get(service,"actors")).get(marker.getUUID());
         }
         void dormantPlayers(){
@@ -191,13 +195,13 @@ public final class BridgeBuilderChecks {
             String key=id==15?"lbc:true_advancements/bows/double":"lbc:true_advancements/hoes/sickle";game.config().lbcSkills=true;game.config().ranked=false;game.items().mana().award(owner,key);game.menus().openDebug(owner);owner.entityTags().remove("skywars2.debug_perks");require(game.canUseMenus(owner)&&!game.debugPerks(owner),"actual owned skill selector GUI without bypass");require(game.lbc().select(owner,LbcLoadouts.Kind.SKILLS,10000,id-1)&&game.lbc().hasSkill(owner,id),"actual source15/17 clone selection");owner.closeContainer();
         }
         void cloneStart(int id){
-            service.stop();if(ball!=null)ball.discard();game.items().stonekivi().tick();move(owner,origin);move(other,origin.add(12,0,0));selectClone(id);input();next(id==15?10:11);
+            service.stop();game.items().stonekivi().tick();move(owner,origin);move(other,origin.add(12,0,0));selectClone(id);input();next(id==15?10:11);
         }
         BlockPos beacon;MapManager.BlockSnapshot beaconBefore;int fieldKind;Snowball friendly;BlockPos bombRemainder;
         void removeBeacon(){if(beacon==null)return;game.maps().restoreSnapshot(level,beacon,beaconBefore,818);game.items().magic().blockChanged(beacon,level.getBlockState(beacon));beacon=null;}
         long noBranchSeed(){for(long seed=1;seed<100000;seed++){var body=new java.util.Random(seed);boolean good=true;for(int n=0;n<3;n++){var r=new java.util.Random(body.nextLong());if(r.nextFloat()<.5f||r.nextFloat()<.05f){good=false;break;}}if(good)return seed;}throw new IllegalStateException("No finite no-branch fixture seed");}
         void suppression(int index){
-            service.stop();if(ball!=null)ball.discard();game.items().stonekivi().tick();game.lbc().clear(owner);game.config().lbcSkills=false;move(owner,origin);move(other,origin.add(12,0,0));
+            service.stop();game.items().stonekivi().tick();game.lbc().clear(owner);game.config().lbcSkills=false;move(owner,origin);move(other,origin.add(12,0,0));
             fieldKind=index;beacon=BlockPos.containing(origin).below(2);beaconBefore=game.maps().snapshot(level,beacon);block(beacon,(index==0?LbcMagic.MAGIC_BEACON_BLOCK:LbcMagic.MECHANISM_BEACON_BLOCK).defaultBlockState());game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
             require(index==0?game.items().magic().suppressed(owner):game.items().magic().mechanismSuppressed(owner),"actual native block beacon positive control");
             if(index==1){
@@ -232,7 +236,8 @@ public final class BridgeBuilderChecks {
                 case 10,11->{int id=stage==10?15:17,count=id==15?2:4;if(service.count()<count){require(elapsed<12,"registered clone aura sees native logical marker");return false;}require(service.count()==count,"exact actual x2/x4 logical family, transport not multiplied");
                     for(var e:service.snapshot())require(service.owner(e)==owner&&e.entityTags().contains(id==15?"doubled":"quadried"),"cloned logical owner/copy-once state");
                     if(service.views().stream().anyMatch(v->v.lifetime()==0)){require(elapsed<12,"every actual cloned logical actor receives registered native ticks");return false;}
-                    long transports=0;for(var e:level.getAllEntities())if(e instanceof Snowball shot&&!shot.isRemoved()&&shot.getOwner()==owner&&LbcBridgeBuilder.recognized(shot.getItem()))transports++;require(transports<=1,"native transport is not a second logical clone producer");
+                    for(var e:level.getAllEntities())if(e instanceof Snowball shot)
+                        require(!LbcBridgeBuilder.recognized(shot.getItem()),"cloning activates only the logical builder");
                     if(id==15)cloneStart(17);else suppression(0);}
                 case 12->{
                     require(service.count()==1&&!marker.isRemoved(),"mechanical source actor survives native MAG erase ticks");require(game.items().magic().suppressed(owner),"native MAG beacon remains active during source generation");
@@ -247,7 +252,7 @@ public final class BridgeBuilderChecks {
                 case 13->{require(marker.isRemoved()&&!friendly.isRemoved(),"actual native hostile bomb clears logical marker while preserving caster-owned projectile");require(done()&&level.getBlockState(bombRemainder).is(Blocks.QUARTZ_PILLAR),"bomb removal still drains already accepted source cell");next(15);}
                 // ENTITY_UNLOAD queues retirement for the next native GameController tick.
                 case 15->{require(marker.isRemoved()&&service.count()==0&&!friendly.isRemoved(),"canonical queued unload retires bomb-cleared producer while preserving caster-owned projectile");game.items().danmaku().forget(other);other.setShiftKeyDown(false);return true;}
-                case 16->{require(marker.isRemoved(),"TECH removes an already launched mechanical bridge producer");if(service.count()!=0){require(elapsed<8,"queued native unload retires TECH producer");return false;}removeBeacon();game.items().stonekivi().tick();if(ball!=null)ball.discard();input();marker.getRandom().setSeed(noBranchSeed());dormantPlayers();next(14);}
+                case 16->{require(marker.isRemoved(),"TECH removes an already launched mechanical bridge producer");if(service.count()!=0){require(elapsed<8,"queued native unload retires TECH producer");return false;}removeBeacon();game.items().stonekivi().tick();input();marker.getRandom().setSeed(noBranchSeed());dormantPlayers();next(14);}
                 default->throw new IllegalStateException("Bridge ordinary stage "+stage);
             }return false;
         }
@@ -312,7 +317,7 @@ public final class BridgeBuilderChecks {
             if(!done()){require(elapsed<30,"native protected/admitted writes finish as one source generation");return false;}
             require((long)get(generation,"writes")==1&&level.getBlockState(admitted).is(Blocks.QUARTZ_BRICKS),"actual canonical BedWars allows added terrain while rejecting originals");
             for(var entry:protectedImages.entrySet()){var now=game.maps().snapshot(level,entry.getKey());require(now.state().equals(entry.getValue().state())&&Objects.equals(now.entity(),entry.getValue().entity()),"original terrain/bed state and complete container data preserved");}
-            service.stop();if(ball!=null)ball.discard();game.items().stonekivi().tick();move(owner,origin);game.spectators().enter(owner);var held=new ItemStack(LbcBridgeBuilderItem.TOKEN,2);owner.setItemInHand(InteractionHand.MAIN_HAND,held);
+            service.stop();game.items().stonekivi().tick();move(owner,origin);game.spectators().enter(owner);var held=new ItemStack(LbcBridgeBuilderItem.TOKEN,2);owner.setItemInHand(InteractionHand.MAIN_HAND,held);
             try{owner.gameMode.useItem(owner,level,held,InteractionHand.MAIN_HAND);require(service.count()==0&&held.getCount()==2,"actual observer native item admission produces no marker or debit");}
             finally{game.spectators().remove(owner);owner.setGameMode(GameType.SURVIVAL);}return true;
         }

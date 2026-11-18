@@ -3,11 +3,11 @@ package me.skywars2.game;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SnowballItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,14 +30,13 @@ public final class LbcBridgeBuilderItem {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:bridge_builder_imba"));
         var properties=LbcUtilityItemPrototypes.properties("skywars2:bridge_builder_imba",DEFINITION,Items.SNOWBALL,16)
                 .overrideDescription("bridge_builder_imba");
-        return Registry.register(BuiltInRegistries.ITEM,key,new NativeSnowball(properties));
+        return Registry.register(BuiltInRegistries.ITEM,key,new Gadget(properties));
     }
 
 
-    /** Vanilla SnowballItem owns the projectile, causal thrower, aim, sound, stat and sole debit. */
-    private static final class NativeSnowball extends SnowballItem implements PolymerItem {
-        NativeSnowball(Properties properties) { super(properties); }
-        @Override public Item getPolymerItem(ItemStack stack, PacketContext context) { return Items.SNOWBALL; }
+    private static final class Gadget extends Item implements PolymerItem {
+        Gadget(Properties properties) { super(properties); }
+        @Override public Item getPolymerItem(ItemStack stack, PacketContext context) { return Items.BLAZE_ROD; }
         @Override public InteractionResult use(Level level, Player player, InteractionHand hand) {
             var game = me.skywars2.SkyWars2.game();
             if (game == null || !(player instanceof ServerPlayer owner) || !game.playing()
@@ -49,7 +48,10 @@ public final class LbcBridgeBuilderItem {
                     || game.items().actionsBlocked(owner)
                     || game.items().magic().mechanismSuppressed(owner)
                     || game.items().wands().inputTimeStopped(owner)) return InteractionResult.FAIL;
-            return super.use(level, player, hand);
+            if (!game.items().bridgeBuilder().activate(owner)) return InteractionResult.FAIL;
+            player.awardStat(Stats.ITEM_USED.get(this));
+            player.getItemInHand(hand).consume(1, player);
+            return InteractionResult.SUCCESS_SERVER;
         }
     }
 
