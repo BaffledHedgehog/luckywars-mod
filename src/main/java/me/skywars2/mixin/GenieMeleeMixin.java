@@ -12,6 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
 public abstract class GenieMeleeMixin {
@@ -21,8 +23,13 @@ public abstract class GenieMeleeMixin {
     @WrapOperation(method = "attack", at = @At(value = "INVOKE", target = SOURCE))
     private DamageSource skywars2$attackSource(Player attacker, ItemStack weapon, Operation<DamageSource> original) {
         var source = original.call(attacker, weapon);
-        if (attacker instanceof ServerPlayer player) GenieCombat.beganMelee(player, InteractionHand.MAIN_HAND, weapon, source);
+        if (attacker instanceof ServerPlayer player) GenieCombat.beganAttack(player, weapon, source);
         return source;
+    }
+
+    @Inject(method = "startAutoSpinAttack", at = @At("HEAD"))
+    private void skywars2$resetSpinReceipt(int ticks, float damage, ItemStack stack, CallbackInfo ci) {
+        if ((Object) this instanceof ServerPlayer player) GenieCombat.clearSpin(player);
     }
 
     @WrapOperation(method = "stabAttack", at = @At(value = "INVOKE", target = SOURCE))

@@ -21,6 +21,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -32,7 +33,8 @@ final class MatchCombatCheckpoint {
     private record Kinetic(MatchDamageSources.Ref target,long stamp) { }
     private record Image(Class<?> type,UUID player,boolean playerResolved,UUID mob,boolean mobResolved,MatchDamageSources.Ref attacked,int memory,int mobTime,int attackTime,
                          MatchDamageSources.Image damage,long damageStamp,long worldTime,List<History> entries,int last,int start,int end,
-                         boolean combat,boolean taking,ItemStack spin,EquipmentSlot spinSlot,boolean kineticPresent,
+                         boolean combat,boolean taking,ItemStack spin,EquipmentSlot spinSlot,int spinInventorySlot,
+                         GenieCombat.SpinImage genieSpin,boolean kineticPresent,
                          long kineticDefault,List<Kinetic> kinetic,Optional<BlockPos> climb,BlockPos position) { }
     private final Map<UUID,Image> images=new LinkedHashMap<>();
     private final MatchDamageSources sources;
@@ -49,11 +51,14 @@ final class MatchCombatCheckpoint {
             var kinetic=new ArrayList<Kinetic>();var recent=access.skywars2$kinetic();
             if(recent!=null)for(var entry:recent.object2LongEntrySet())kinetic.add(new Kinetic(ref(entry.getKey()),entry.getLongValue()));
             var spin=access.skywars2$spin();EquipmentSlot slot=null;
-            if(spin!=null&&!spin.isEmpty())for(var candidate:EquipmentSlot.values())if(living.getItemBySlot(candidate)==spin){slot=candidate;break;}
+            int inventorySlot = spinInventorySlot(living, spin);
+            if(inventorySlot < 0 && spin!=null&&!spin.isEmpty())for(var candidate:EquipmentSlot.values())if(living.getItemBySlot(candidate)==spin){slot=candidate;break;}
+            var genieSpin = living instanceof ServerPlayer player ? GenieCombat.checkpointSpin(player, spin) : null;
             images.put(living.getUUID(),new Image(living.getClass(),id(access.skywars2$player()),EntityReference.getPlayer(access.skywars2$player(),living.level())!=null,id(access.skywars2$mob()),EntityReference.getLivingEntity(access.skywars2$mob(),living.level())!=null,ref(living.getLastHurtMob()),
                     access.skywars2$memory(),living.getLastHurtByMobTimestamp(),living.getLastHurtMobTimestamp(),source(access.skywars2$damage()),
                     access.skywars2$damageTime(),living.level().getGameTime(),List.copyOf(history),tracker.skywars2$last(),tracker.skywars2$start(),tracker.skywars2$end(),
-                    tracker.skywars2$combat(),tracker.skywars2$taking(),spin==null?null:spin.copy(),slot,recent!=null,recent==null?0:recent.defaultReturnValue(),
+                    tracker.skywars2$combat(),tracker.skywars2$taking(),spin==null?null:spin.copy(),slot,inventorySlot,genieSpin,
+                    recent!=null,recent==null?0:recent.defaultReturnValue(),
                     List.copyOf(kinetic),access.skywars2$climb().map(BlockPos::immutable),access.skywars2$position()==null?null:access.skywars2$position().immutable()));
         }
     }
@@ -67,6 +72,24 @@ final class MatchCombatCheckpoint {
         return MatchDamageSources.resolve(ref,lookup,pending);
     }
     private static DamageSource value(MatchDamageSources.Image source){return MatchDamageSources.value(source);}
+
+    private static int spinInventorySlot(LivingEntity living, ItemStack spin) {
+        if (!(living instanceof ServerPlayer player) || spin == null || spin.isEmpty()) return -1;
+        var inventory = player.getInventory();
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            if (inventory.getItem(slot) == spin) return slot;
+        }
+        return -1;
+    }
+
+    private static ItemStack restoreSpinStack(LivingEntity living, Image image) {
+        if (image.spin == null) return null;
+        if (living instanceof ServerPlayer player && image.spinInventorySlot >= 0) {
+            return player.getInventory().getItem(image.spinInventorySlot);
+        }
+        return image.spinSlot == null ? image.spin.copy() : living.getItemBySlot(image.spinSlot);
+    }
+
     /** Body and player phases must already have restored native clocks and identities. */
     void restore(Function<UUID,Entity> lookup,Set<UUID> pending) {
         // Retain exact source classes, original accepted immutable causes and nested wrappers.
@@ -84,7 +107,9 @@ final class MatchCombatCheckpoint {
             access.skywars2$mobTime(image.mobTime);access.skywars2$attackTime(image.attackTime);access.skywars2$damage(value(image.damage));
             long delta=living.level().getGameTime()-image.worldTime;
             access.skywars2$damageTime(image.damageStamp<0?image.damageStamp:Math.addExact(image.damageStamp,delta));
-            access.skywars2$spin(image.spin==null?null:image.spinSlot==null?image.spin.copy():living.getItemBySlot(image.spinSlot));
+            var spin = restoreSpinStack(living, image);
+            access.skywars2$spin(spin);
+            if (living instanceof ServerPlayer p) GenieCombat.restoreSpin(p, image.genieSpin, spin);
             var kinetic=image.kineticPresent?new Object2LongOpenHashMap<Entity>():null;
             if(kinetic!=null) {
                 kinetic.defaultReturnValue(image.kineticDefault);

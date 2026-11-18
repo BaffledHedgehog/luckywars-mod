@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.genie.GenieRuntime;
+import me.skywars2.mixin.CombatCheckpointAccess;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.UUIDUtil;
@@ -44,6 +45,9 @@ public final class GenieCombat {
         Identifier.parse("skywars2:genie_spell_weapon"), builder -> builder.persistent(CODEC));
     // No value retains its DamageSource key. One native source covers primary and sweeping contacts.
     private static final Map<DamageSource, Weapon> MELEE = new WeakHashMap<>();
+    private static final Map<ServerPlayer, Weapon> SPINS = new WeakHashMap<>();
+
+    record SpinImage(String epoch, InteractionHand hand, ItemStack snapshot) {}
 
     private GenieCombat() {}
     static void register() {}
@@ -52,6 +56,43 @@ public final class GenieCombat {
         if (!GenieRuntime.matches(stack)) return;
         var game = SkyWars2.game();
         if (game != null) MELEE.put(source, capture(game, owner, hand, stack, stack));
+    }
+
+    public static void beganAttack(ServerPlayer owner, ItemStack stack, DamageSource source) {
+        if (!owner.isAutoSpinAttack() || ((CombatCheckpointAccess.Living) owner).skywars2$spin() != stack) {
+            clearSpin(owner);
+            beganMelee(owner, InteractionHand.MAIN_HAND, stack, source);
+            return;
+        }
+        var weapon = spinWeapon(owner, stack);
+        if (weapon != null) MELEE.put(source, weapon);
+    }
+
+    public static void clearSpin(ServerPlayer owner) {
+        SPINS.remove(owner);
+    }
+
+    public static void startedSpin(ServerPlayer owner, InteractionHand hand, ItemStack stack) {
+        if (!GenieRuntime.matches(stack)) return;
+        var game = SkyWars2.game();
+        if (game != null) SPINS.put(owner, capture(game, owner, hand, stack, stack));
+    }
+
+    static SpinImage checkpointSpin(ServerPlayer owner, ItemStack stack) {
+        var weapon = spinWeapon(owner, stack);
+        return weapon == null ? null : new SpinImage(weapon.epoch(), weapon.hand(), weapon.snapshot().copy());
+    }
+
+    static void restoreSpin(ServerPlayer owner, SpinImage image, ItemStack stack) {
+        clearSpin(owner);
+        if (image == null || stack == null || stack.isEmpty()) return;
+        SPINS.put(owner, new Weapon(owner.getUUID(), image.epoch(), image.hand() == InteractionHand.OFF_HAND,
+            image.snapshot().copy(), new WeakReference<>(stack)));
+    }
+
+    private static Weapon spinWeapon(ServerPlayer owner, ItemStack stack) {
+        var weapon = SPINS.get(owner);
+        return stack != null && owner.isAutoSpinAttack() && weapon != null && weapon.physical().get() == stack ? weapon : null;
     }
 
     static void launched(GameController game, ServerPlayer owner, InteractionHand hand, ItemStack physical,

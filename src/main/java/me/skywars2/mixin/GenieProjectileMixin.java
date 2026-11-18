@@ -4,10 +4,12 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import me.skywars2.game.GenieCombat;
 import me.skywars2.game.GenieNative;
 import me.skywars2.game.LbcTmtShotCompletion;
 import me.skywars2.game.genie.GenieRuntime;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -60,6 +62,14 @@ public abstract class GenieProjectileMixin {
             var shot=original.call(factory,level,thrownStack,owner,offset,speed,spread);
             GenieNative.acceptedThrow(owner,hand,physical,thrownStack,shot);
             return shot;
+        }
+
+        @WrapOperation(method = "releaseUsing", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/player/Player;startAutoSpinAttack(IFLnet/minecraft/world/item/ItemStack;)V"))
+        private void skywars2$startedRiptide(Player owner, int ticks, float damage, ItemStack stack, Operation<Void> original) {
+            var hand = owner.isUsingItem() && owner.getUseItem() == stack ? owner.getUsedItemHand() : null;
+            original.call(owner, ticks, damage, stack);
+            if (hand != null && owner instanceof ServerPlayer player) GenieCombat.startedSpin(player, hand, stack);
         }
     }
 

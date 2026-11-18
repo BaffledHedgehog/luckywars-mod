@@ -7,8 +7,11 @@ import java.util.stream.Collectors;
 import me.skywars2.game.genie.GenieScriptItem;
 import me.skywars2.game.genie.GenieScriptRuntime;
 import me.skywars2.game.genie.script.ScriptRepository;
+import me.skywars2.mixin.CombatCheckpointAccess;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ServerboundClientTickEndPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.world.InteractionHand;
@@ -21,6 +24,8 @@ import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ChargedProjectiles;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 /** Real hits are delivered once to the used item, including after a weapon switch. */
@@ -37,14 +42,15 @@ final class GenieHitChecks {
     GenieHitChecks(GameController game,WoolBucketChecks.Fixture base){
         this.game=game;this.base=base;scripts=game.items().genie().runtime().scripts();
         program=scripts.prepare("""
-            {"version":1,"state":{"count":0},"handlers":{"HIT":"hit"},"functions":{"hit":{
+            {"version":1,"state":{"count":0,"throws":0},"handlers":{"HIT":"hit","THROW":"thrown"},"functions":{"hit":{
             "parameters":["event"],"code":[
             ["load","state"],["const","count"],["load","state"],["const","count"],["get"],["const",1],
             ["add"],["put"],["drop"],
             ["load","state"],["const","hand"],["load","event"],["const","hand"],["get"],["put"],["drop"],
             ["load","state"],["const","target"],["load","event"],["const","target"],["get"],["put"],["drop"],
             ["load","state"],["const","projectile"],["load","event"],["const","projectiles"],["get"],
-            ["const",0],["get"],["put"],["return"]]}}}
+            ["const",0],["get"],["put"],["return"]]},"thrown":{"parameters":["event"],"code":[
+            ["load","state"],["const","throws"],["const",1],["put"],["return"]]}}}
             """);
         when=game.server().getTickCount();
     }
@@ -88,12 +94,15 @@ final class GenieHitChecks {
         require(state.get("hand").getAsString().equals("offhand"),"arrow keeps original use hand");
         require(state.get("target").getAsString().equals(target.getUUID().toString()),"arrow event names actual victim");
         require(state.getAsJsonObject("projectile").get("id").getAsString().equals(arrowId.toString()),"arrow event names actual native body");
+        base.discard(target);
         var throwable = item("skywars2:throwable_small_fireball");
         throwable.setCount(2);
         fireballHit(throwable, 31001, "hand-thrown fireball");
         var blaze = item(BuiltInRegistries.ITEM.getKey(LbcProjectileWeaponItems.Kind.BLAZE_CROSSBOW.item).toString());
         blaze.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.ofNonEmpty(java.util.List.of(new ItemStack(Items.ARROW))));
         fireballHit(blaze, 31002, "Blaze crossbow conversion");
+        riptideHit(false, 31003);
+        riptideHit(true, 31004);
         base.owner.setNoGravity(false);
         return true;
     }
@@ -130,6 +139,53 @@ final class GenieHitChecks {
     private java.util.List<SmallFireball> fireballs() {
         return base.level.getEntitiesOfClass(SmallFireball.class, base.owner.getBoundingBox().inflate(16),
             body -> body.getOwner() == base.owner);
+    }
+
+    private void riptideHit(boolean rewind, int sequence) {
+        var owner = base.owner;
+        base.move(owner, base.resident(false));
+        base.set(BlockPos.containing(owner.position()), Blocks.WATER.defaultBlockState());
+        owner.doTick();
+        require(owner.isInWaterOrRain(), "native Riptide admits water contact");
+        owner.setOnGround(false);
+        var trident = item("trident");
+        trident.enchant(owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.RIPTIDE), 1);
+        equip(ItemStack.EMPTY, trident);
+        base.client.acknowledge();
+        owner.connection.handleClientTickEnd(new ServerboundClientTickEndPacket());
+        owner.connection.handleUseItem(new ServerboundUseItemPacket(InteractionHand.OFF_HAND, sequence, 0, 0));
+        require(owner.isUsingItem() && owner.getUsedItemHand() == InteractionHand.OFF_HAND, "real offhand Riptide charge");
+        for (int tick = 0; tick < 11; tick++) owner.doTick();
+        var access = (CombatCheckpointAccess.Living) owner;
+        var before = arrows().stream().map(Entity::getUUID).collect(Collectors.toSet());
+        owner.releaseUsingItem();
+        require(owner.isAutoSpinAttack() && access.skywars2$spin() == trident && trident.getDamageValue() == 1,
+            "Riptide initiates native propulsion with the exact used item and durability debit");
+        var twin = trident.copy();
+        equip(ItemStack.EMPTY, twin);
+        int slot = 17;
+        owner.getInventory().setItem(slot, trident);
+        if (rewind) {
+            var actors = java.util.List.<Entity>of();
+            var checkpoint = new MatchCombatCheckpoint(game, actors, new MatchDamageSources(game, actors));
+            trident = trident.copy();
+            owner.getInventory().setItem(slot, trident);
+            checkpoint.restore(id -> base.level.getEntity(id), new java.util.HashSet<>());
+            require(access.skywars2$spin() == trident, "rewind reconnects the spin to its exact original inventory slot");
+        }
+        var victim = cow(owner.position().add(0, 0, .65), .1f);
+        owner.doTick();
+        drain();
+        var state = GenieScriptItem.state(trident);
+        require(!victim.isAlive() && !owner.isAutoSpinAttack() && count(trident) == 1 && count(twin) == 0,
+            "lethal Riptide contact ends the spin and activates only its actual trident");
+        require("offhand".equals(state.get("hand").getAsString())
+                && state.get("target").getAsString().equals(victim.getUUID().toString()),
+            "Riptide remembers the native launch hand and victim, got " + state.get("hand"));
+        require(state.get("throws").getAsInt() == 0 && arrows().stream().allMatch(shot -> before.contains(shot.getUUID())),
+            "Riptide produces HIT without a projectile or THROW event");
+        base.discard(victim);
+        owner.setDeltaMovement(Vec3.ZERO);
     }
 
     private void melee(){
