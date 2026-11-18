@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import com.mojang.math.Transformation;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
@@ -33,9 +34,12 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 import java.util.function.Predicate;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 /** Standalone bot and its complete rare native dolphin/physical bitcoin result. */
 public final class LbcPozdmanBot {
@@ -169,7 +173,17 @@ public final class LbcPozdmanBot {
         display.setNoGravity(true);display.entityTags().add("skywars2.pozdman_display");game.items().markCurrentItemEpoch(display);return display;
     }
     private void orient(Coin coin,Actor state){
-        var display=state.display;if(display==null||display.isRemoved())return;display.snapTo(coin.getX(),coin.getY(),coin.getZ(),state.yaw,90);
+        var display=state.display;if(display==null||display.isRemoved())return;
+        // bitcoin_tick spins the display's entity while legacy physical-object motion
+        // only tilts its model through the left transformation quaternion.
+        display.snapTo(coin.getX(),coin.getY(),coin.getZ(),state.yaw,state.age==0?0:90);
+        var motion=coin.getDeltaMovement();
+        if(state.age>0&&motion.lengthSqr()>1e-6){
+            float yaw=(float)Math.atan2(-motion.x,motion.z);
+            float pitch=(float)-Math.atan2(motion.y,Math.hypot(motion.x,motion.z));
+            display.setTransformation(new Transformation(new Vector3f(),new Quaternionf().rotateY(-yaw).rotateX(pitch),
+                    new Vector3f(2),new Quaternionf()));
+        }
     }
     boolean coinContact(Coin coin){
         var state=actors.get(coin);if(state==null)return false;var owner=coin.getOwner() instanceof ServerPlayer player?player:game.server().getPlayerList().getPlayer(state.owner);
@@ -268,7 +282,18 @@ public final class LbcPozdmanBot {
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){
                 var visual=clone instanceof Coin?display((ServerLevel)clone.level()):null;
                 var next=new Actor(state.owner,state.epoch,state.age,state.yaw,visual);actors.put(clone,next);
-                if(clone instanceof Coin coin){orient(coin,next);game.items().timeStop().prepareFrozen(visual);if(!clone.level().addFreshEntity(visual))throw new IllegalStateException("Bitcoin clone visual publication");}
+                if(clone instanceof Coin coin){
+                    orient(coin,next);
+                    if(state.display!=null){
+                        var registries=visual.registryAccess();
+                        var saved=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,registries);
+                        state.display.saveWithoutId(saved);
+                        TagValueInput.create(ProblemReporter.DISCARDING,registries,saved.buildResult())
+                                .read("transformation",Transformation.EXTENDED_CODEC).ifPresent(visual::setTransformation);
+                    }
+                    game.items().timeStop().prepareFrozen(visual);
+                    if(!clone.level().addFreshEntity(visual))throw new IllegalStateException("Bitcoin clone visual publication");
+                }
             }
             public void rollback(Entity clone){remove(clone);}
         };

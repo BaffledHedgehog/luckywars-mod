@@ -71,6 +71,7 @@ public final class PozdmanChecks {
             require(service.nearest(dolphin)==enemy,"pursuit uses1..200 and actual ownership, even with equal obsolete team scores; nearer allied mob excluded");
             service.dolphinTick(dolphin);require(Math.abs(dolphin.position().distanceTo(origin)-1)<1e-9,"native pursuit advances exactly one horizontal source block");
             var coin=service.spawnCoin(dolphin);require(coin!=null&&coin.getOwner()==owner,"physical coin inherits actual controller");nativeActors.add(coin);DisplayTransformChecks.pose(service.state(coin).display(),0,0,0,2,2,2);
+            require(service.state(coin).display().getXRot()==0,"coin spawns at the original zero entity pitch before its first source tick");
             coin.setPos(enemy.position());coin.setDeltaMovement(Vec3.ZERO);
             float before=enemy.getHealth();require(service.coinContact(coin)&&coin.isRemoved()&&Math.abs(enemy.getHealth()-(before-15))<1e-6,"native falling_block15 accepted hit consumes physical coin");
             require(enemy.getLastDamageSource()!=null&&enemy.getLastDamageSource().is(DamageTypes.FALLING_BLOCK)&&enemy.getLastDamageSource().getEntity()==owner&&enemy.getLastDamageSource().getDirectEntity()==coin,"native direct coin and actual owner damage attribution");
@@ -83,7 +84,11 @@ public final class PozdmanChecks {
             require(!age.isRemoved()&&service.state(age).display().getYRot()==spin+20&&service.state(age).display().getXRot()==90,"coin spins exactly20degrees independently of its physical trajectory");
             var visual=service.state(age).display();var rotation=Display.class.getDeclaredField("DATA_LEFT_ROTATION_ID");rotation.setAccessible(true);
             @SuppressWarnings("unchecked") var rotationKey=(net.minecraft.network.syncher.EntityDataAccessor<org.joml.Quaternionfc>)rotation.get(null);
-            require(visual.getEntityData().get(rotationKey).equals(new org.joml.Quaternionf()),"physical velocity never adds a second orientation quaternion");
+            var motion=age.getDeltaMovement();
+            var expected=new org.joml.Quaternionf().rotateY((float)-Math.atan2(-motion.x,motion.z))
+                    .rotateX((float)-Math.atan2(motion.y,Math.hypot(motion.x,motion.z)));
+            require(Math.abs(expected.dot(visual.getEntityData().get(rotationKey)))>.999999f,
+                    "real display metadata uses the legacy physics quaternion while entity rotation keeps its source spin");
             age.setDeltaMovement(new Vec3(.2,0,.1));
             LbcPhysicalObjects.step(age,1,1,.8,1,(a,b)->false,(a,b)->false);require(Math.abs(age.getDeltaMovement().y+.08)<1e-9&&Math.abs(age.getDeltaMovement().x-.2)<1e-9,"shared physical .08 gravity and exact air friction1");
             var denied=new LbcPozdmanBot(game,p->false);require(!denied.use(owner,InteractionHand.MAIN_HAND,100)&&denied.count()==0,"injected author TECH gate blocks before waiting/spawn");
@@ -131,8 +136,14 @@ public final class PozdmanChecks {
         }
         void packet(InteractionHand hand,boolean block){
             require(client.ready(),"native input ready "+client.diagnostics());
-            if(block){var pos=base.center.offset(-6,1,-4);base.block(pos,Blocks.STONE);var hit=new BlockHitResult(Vec3.atCenterOf(pos),Direction.NORTH,pos,false);require(base.owner.isWithinBlockInteractionRange(pos,1),"native block interaction within reach");base.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(hand,hit,++sequence));}
-            else base.owner.connection.handleUseItem(new ServerboundUseItemPacket(hand,++sequence,0,0));
+            if(block){
+                var pos=base.center.offset(-6,1,-4);base.block(pos,Blocks.STONE);
+                var hit=new BlockHitResult(Vec3.atCenterOf(pos),Direction.NORTH,pos,false);
+                require(base.owner.isWithinBlockInteractionRange(pos,1),"native block interaction within reach");
+                base.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(hand,hit,++sequence));
+                require(!service.waiting(base.owner),"the block packet defers to vanilla before the air-use fallback");
+            }
+            base.owner.connection.handleUseItem(new ServerboundUseItemPacket(hand,++sequence,0,0));
             base.owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
         }
         @SuppressWarnings("unchecked") List<net.minecraft.network.protocol.Packet<?>> packets(){try{var connection=RegenerationBeltChecks.ScheduledClient.class.getDeclaredField("connection");connection.setAccessible(true);var wire=connection.get(client);var field=wire.getClass().getDeclaredField("packets");field.setAccessible(true);return (List<net.minecraft.network.protocol.Packet<?>>)field.get(wire);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
@@ -165,7 +176,7 @@ public final class PozdmanChecks {
                     packets().clear();input(InteractionHand.MAIN_HAND,false,99);require(text("pozdman_girl_99")&&service.waiting(base.owner),"native UseItem under MAG sends exact source reply99 and wait");input(InteractionHand.MAIN_HAND,false,null);require(service.count()==0,"global wait prevents native rare replay");begin(0);}
                 case 0->{if(service.waiting(base.owner)){require(elapsed<=21,"original second phase clears on actual registered ticks");return false;}
                     base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcPozdmanBot.ITEM));input(InteractionHand.OFF_HAND,true,100);
-                    require(text("akyla_privet")&&service.count()==1,"actual offhand UseBlock emits rare native result under MAG");dolphin=service.snapshot().getFirst();dolphinId=dolphin.getUUID();coin=service.spawnCoin(dolphin);require(coin!=null,"native physical coin before clone/full capture");coinId=coin.getUUID();positionParents();cloneBodies();
+                    require(text("akyla_privet")&&service.count()==1,"actual offhand fallback after UseBlock emits rare native result under MAG");dolphin=service.snapshot().getFirst();dolphinId=dolphin.getUUID();coin=service.spawnCoin(dolphin);require(coin!=null,"native physical coin before clone/full capture");coinId=coin.getUUID();positionParents();cloneBodies();
                     pursuitWitness=base.cow(dolphin.position().add(0,0,8));game.items().mana().score(pursuitWitness,"team_number").set(0);
                     require(service.nearest(dolphin)==pursuitWitness,"actual scheduler target with the same obsolete zero team score");dolphinAt=dolphin.position();dolphin.setYRot(0);dolphin.setXRot(0);begin(8);}
                 case 8->{if(elapsed<3)return false;
