@@ -40,7 +40,21 @@ public final class NativeUtilityInputChecks {
                     var raw=JsonParser.parseReader(new InputStreamReader(Objects.requireNonNull(stream),StandardCharsets.UTF_8)).getAsJsonObject();raw.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().addProperty("name",BuiltInRegistries.ITEM.getKey(source.carrier).toString());
                     var result=LootTable.DIRECT_CODEC.parse(ops,raw).getOrThrow().getRandomItems(params,17);require(result.size()==1,"one independent source output");var expected=result.getFirst();var actual=new ItemStack(source.carrier);actual.applyComponents(stack.getComponents());
                     // Native item's intrinsic fallback title is stable; the authored visible custom name is compared normally.
-                    actual.set(DataComponents.ITEM_NAME,expected.get(DataComponents.ITEM_NAME));require(ItemStack.matches(actual.copyWithCount(1),expected.copyWithCount(1)),"all original source components and vanilla intrinsic properties "+source.id);
+                    actual.set(DataComponents.ITEM_NAME, expected.get(DataComponents.ITEM_NAME));
+                    // The server's enchantable-wand rule intentionally extends the source carrot carrier.
+                    if (source.item instanceof LbcWands.NativeTool) {
+                        expected.set(DataComponents.ENCHANTABLE, new net.minecraft.world.item.enchantment.Enchantable(1));
+                    }
+                    if (!ItemStack.matches(actual.copyWithCount(1), expected.copyWithCount(1))) {
+                        var mismatches = new ArrayList<String>();
+                        var keys = new LinkedHashSet<>(expected.getComponents().keySet());
+                        keys.addAll(actual.getComponents().keySet());
+                        for (var key : keys) {
+                            Object want = expected.get(key), got = actual.get(key);
+                            if (!Objects.equals(want, got)) mismatches.add(key + " expected=" + want + " actual=" + got);
+                        }
+                        require(false, "source component mismatch " + source.id + ": " + mismatches);
+                    }
                 }catch(java.io.IOException error){throw new IllegalStateException(error);}
                 var proxy=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(stack,TooltipFlag.NORMAL,provider.getPacketContext(),f.owner.registryAccess());require(ItemStack.matches(stack,eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(proxy,provider.getPacketContext(),f.owner.registryAccess())),"recipient Polymer all-component roundtrip "+source.id);
             }

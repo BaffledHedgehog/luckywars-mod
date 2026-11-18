@@ -51,7 +51,12 @@ public final class ArmorSetChecks {
             var missing=wanted.stream().filter(key->!owner.level().areEntitiesLoaded(key)).toList();
             require(++warmTicks<=200,"native aura corridor ready within200 ticks; missing="+missing);
             if(!missing.isEmpty())return false;
-            preparing=false;acquisition();reforges();paladin();auras();erosion();guards();schedule();return true;
+            preparing = false;
+            acquisition();
+            reforges();
+            paladin();
+            SkyWars2.LOGGER.info("[check] Paladin native max health 20 -> 2 and 40 -> 4, removal restores the base");
+            auras();erosion();guards();schedule();return true;
         }
         void auraEffect(LivingEntity target,Holder<MobEffect> type,int amount,String label){
             var active=target.getEffect(type);boolean visible=owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(80),value->value==target).contains(target);
@@ -78,34 +83,125 @@ public final class ArmorSetChecks {
                     if(family.equals("paladin")){
                         var entry=List.of(Enchantments.FEATHER_FALLING,Enchantments.FIRE_PROTECTION,Enchantments.BLAST_PROTECTION,Enchantments.PROJECTILE_PROTECTION).get(n);
                         require(EnchantmentHelper.getItemEnchantmentLevel(owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(entry),stack)==255,"authored extreme secondary enchantment");
-                        var mods=stack.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers();require(mods.size()==3,"three source Paladin attributes");double armor=new double[]{7,10,15,8}[n],health=new double[]{-.1,-.3,-.3,-.2}[n];
-                        require(mods.stream().anyMatch(e->e.attribute().equals(Attributes.ARMOR)&&e.modifier().amount()==armor)&&mods.stream().anyMatch(e->e.attribute().equals(Attributes.ARMOR_TOUGHNESS)&&e.modifier().amount()==armor)&&mods.stream().anyMatch(e->e.attribute().equals(Attributes.MAX_HEALTH)&&Math.abs(e.modifier().amount()-health)<.00001),"exact source armor/toughness/health amounts");
+                        var nativeSlot=SLOTS[n];var mods=stack.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers();require(mods.size()==3,"three source Paladin attributes");double armor=new double[]{7,10,15,8}[n],health=new double[]{-.1,-.3,-.3,-.2}[n];
+                        require(mods.stream().anyMatch(e->e.attribute().equals(Attributes.ARMOR)&&e.modifier().amount()==armor)&&mods.stream().anyMatch(e->e.attribute().equals(Attributes.ARMOR_TOUGHNESS)&&e.modifier().amount()==armor)&&mods.stream().anyMatch(e->e.attribute().equals(Attributes.MAX_HEALTH)&&e.modifier().operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE&&e.slot().test(nativeSlot)&&Math.abs(e.modifier().amount()-health)<.00001),"exact source armor/toughness/health amounts");
                     }else if(family.equals("erosion"))require(stack.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers().size()==1,"source erosion armor attribute");
                 }
                 var full=roll("neko_set_"+family+"_full");require(full.size()==4,"four-piece source full acquisition");for(var leaf:leaves)require(full.stream().anyMatch(s->ItemStack.matches(s,leaf)),"full acquisition retains every original component");
                 var seen=new HashSet<Integer>();for(int attempt=0;attempt<256&&seen.size()<4;attempt++){var root=roll("neko_set_"+family);require(root.size()==1,"native root one weighted piece");int selected=-1;for(int n=0;n<4;n++)if(ItemStack.matches(root.getFirst(),leaves[n]))selected=n;require(selected>=0,"root preserves source leaf identity");seen.add(selected);}require(seen.size()==4,"all four native root outcomes");
             }
         }
-        @SuppressWarnings("unchecked") void reforges(){
-            for(int slot:new int[]{0,1,3})for(var family:List.of("shitty","paladin","erosion")){
-                int selected=family.equals("shitty")?5:family.equals("paladin")?11:13;String id="transformables_"+PARTS[slot];
-                var table=game.server().reloadableRegistries().getLootTable(net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,net.minecraft.resources.Identifier.parse("lbc:"+id)));
-                var pools=(List<net.minecraft.world.level.storage.loot.LootPool>)member(table,"pools");require(pools.size()==1,"one native original armor reforge pool");
-                var sequence=(Optional<net.minecraft.resources.Identifier>)member(table,"randomSequence");require(sequence.isEmpty(),"normal armor reforge uses native level RNG");
-                var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(owner.level()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,at).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,owner).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.COMMAND);
-                var context=new net.minecraft.world.level.storage.loot.LootContext.Builder(params).create(sequence);var pool=pools.getFirst();int total=0,offset=-1,selectedWeight=0;
-                for(int n=0;n<pool.entries.size();n++){var expanded=new ArrayList<net.minecraft.world.level.storage.loot.entries.LootPoolEntry>();pool.entries.get(n).expand(context,expanded::add);for(var entry:expanded){int weight=entry.getWeight(context.getLuck());if(weight<=0)continue;if(n==selected){if(offset<0)offset=total;selectedWeight+=weight;}total+=weight;}}
-                require(selectedWeight==1&&offset>=0,"exact original weight1 set reforge branch");int bound=total,pick=offset;var random=field(owner.level(),"random");Object original=member(owner.level(),"random");int[] calls={0};
-                var input=new net.minecraft.world.item.ItemStack(Items.STICK);var flags=new net.minecraft.nbt.CompoundTag();flags.putInt("transformable",1);flags.putInt(PARTS[slot],1);input.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(flags));var donor=new net.minecraft.world.entity.item.ItemEntity(owner.level(),at.x,at.y,at.z,input);donor.setNoGravity(true);require(owner.level().addFreshEntity(donor),"real native armor reforge donor");var outputs=new ArrayList<ItemStack>();
-                try{random.set(owner.level(),java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{if(method.getName().equals("nextInt")&&args!=null&&args.length==1&&args[0].equals(bound)){calls[0]++;return pick;}try{return method.invoke(original,args);}catch(java.lang.reflect.InvocationTargetException e){throw e.getCause();}}));
-                    var factory=LbcBolts.class.getDeclaredMethod("reforgeInput",net.minecraft.world.entity.item.ItemEntity.class,LbcBolts.ReforgeFamily.class,int.class,ServerPlayer.class,java.util.function.Consumer.class);factory.setAccessible(true);var work=(LbcStonekivi.Work)factory.invoke(game.items().bolts(),donor,LbcBolts.ReforgeFamily.NORMAL,1,owner,(java.util.function.Consumer<ItemStack>)outputs::add);require(work!=null&&work.step(),"existing native normal armor reforge Work");
-                    require(calls[0]==1&&donor.isRemoved()&&input.isEmpty()&&outputs.size()==1&&ItemStack.matches(outputs.getFirst(),sources.get(family)[slot]),"native reforge consumes one input and retains exact authored leaf "+family+"/"+PARTS[slot]);
-                }catch(ReflectiveOperationException e){throw new IllegalStateException(e);}finally{try{random.set(owner.level(),original);}catch(IllegalAccessException e){throw new IllegalStateException(e);}finally{donor.discard();}}
+        void reforges() {
+            var catalog = game.items().allItemPools();
+            for (int slot = 0; slot < PARTS.length; slot++) {
+                String part = PARTS[slot];
+                var types = List.of(part);
+                var tickets = catalog.slots(LbcAllItemPools.Domain.CUSTOM, types);
+                var params = new net.minecraft.world.level.storage.loot.LootParams.Builder(owner.level())
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, at)
+                        .withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, owner)
+                        .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.COMMAND);
+                var context = new net.minecraft.world.level.storage.loot.LootContext.Builder(params)
+                        .withOptionalRandomSeed(17L).create(Optional.empty());
+                for (String family : List.of("shitty", "paladin", "erosion")) {
+                    var expected = sources.get(family)[slot];
+                    int selected = -1;
+                    for (int index = 0; index < tickets.size(); index++) {
+                        var candidates = new ArrayList<ItemStack>();
+                        catalog.drawSlot(LbcAllItemPools.Domain.CUSTOM, types, index, context, candidates::add);
+                        if (candidates.size() != 1 || !ItemStack.matches(candidates.getFirst(), expected)) continue;
+                        require(selected == -1, "one logical armor reforge ticket " + family + "/" + part);
+                        selected = index;
+                    }
+                    require(selected >= 0, "source leaf present in uniform reforge " + family + "/" + part);
+                    reforge(part, family, expected, tickets.size(), selected);
+                }
             }
         }
-        void paladin(){
-            for(int count=0;count<=4;count++){wear("paladin",count);service.pulse20(owner);require(owner.hasEffect(MobEffects.RESISTANCE)==(count==4),"Paladin requires actual four worn pieces, count="+count);if(count==4)effect(owner,MobEffects.RESISTANCE,60,3);}
-            empty();for(int n=0;n<4;n++)owner.getInventory().setItem(9+n,sources.get("paladin")[n].copy());service.pulse20(owner);require(!owner.hasEffect(MobEffects.RESISTANCE),"carried full set is not equipped");owner.getInventory().clearContent();
+
+        void reforge(String part, String family, ItemStack expected, int bound, int pick) {
+            var level = owner.level();
+            var random = field(level, "random");
+            Object original = member(level, "random");
+            int[] calls = {0};
+            var input = new ItemStack(Items.STICK);
+            var flags = new net.minecraft.nbt.CompoundTag();
+            flags.putInt("transformable", 1);
+            flags.putInt(part, 1);
+            input.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(flags));
+            var donor = new net.minecraft.world.entity.item.ItemEntity(level, at.x, at.y, at.z, input);
+            donor.setNoGravity(true);
+            require(level.addFreshEntity(donor), "real native armor reforge donor");
+            var outputs = new ArrayList<ItemStack>();
+            try {
+                var controlled = java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),
+                        new Class<?>[]{net.minecraft.util.RandomSource.class}, (proxy, method, args) -> {
+                            if (method.getName().equals("nextInt") && args != null && args.length == 1 && args[0].equals(bound)) {
+                                calls[0]++;
+                                return pick;
+                            }
+                            try { return method.invoke(original, args); }
+                            catch (java.lang.reflect.InvocationTargetException error) { throw error.getCause(); }
+                        });
+                random.set(level, controlled);
+                var factory = LbcBolts.class.getDeclaredMethod("reforgeInput", net.minecraft.world.entity.item.ItemEntity.class,
+                        LbcBolts.ReforgeFamily.class, int.class, ServerPlayer.class, java.util.function.Consumer.class);
+                factory.setAccessible(true);
+                var work = (LbcStonekivi.Work) factory.invoke(game.items().bolts(), donor, LbcBolts.ReforgeFamily.NORMAL, 1, owner,
+                        (java.util.function.Consumer<ItemStack>) outputs::add);
+                require(work != null && work.step(), "native normal armor reforge completes");
+                require(calls[0] == 1 && donor.isRemoved() && input.isEmpty() && outputs.size() == 1
+                        && ItemStack.matches(outputs.getFirst(), expected),
+                        "uniform reforge consumes the donor and retains exact " + family + "/" + part
+                                + " calls=" + calls[0] + " donorCount=" + input.getCount() + " outputs=" + outputs);
+            } catch (ReflectiveOperationException error) {
+                throw new IllegalStateException(error);
+            } finally {
+                try { random.set(level, original); }
+                catch (IllegalAccessException error) { throw new IllegalStateException(error); }
+                finally { donor.discard(); }
+            }
+        }
+
+        void paladin() {
+            var maxHealth = owner.getAttribute(Attributes.MAX_HEALTH);
+            var oldAttribute = new net.minecraft.world.entity.ai.attributes.AttributeInstance(Attributes.MAX_HEALTH, ignored -> {});
+            oldAttribute.replaceFrom(maxHealth);
+            float oldHealth = owner.getHealth();
+            var equipment = (me.skywars2.mixin.ArmorReserveMixin.Equipment) owner;
+            try {
+                empty();
+                equipment.skywars2$refreshArmorReserveEquipment();
+                maxHealth.removeModifiers();
+                for (double baseHealth : new double[]{20, 40}) {
+                    maxHealth.setBaseValue(baseHealth);
+                    var factors = new double[]{1, .9, .6, .3, .1};
+                    for (int count = 0; count <= 4; count++) {
+                        wear("paladin", count);
+                        equipment.skywars2$refreshArmorReserveEquipment();
+                        double expected = baseHealth * factors[count];
+                        require(Math.abs(owner.getMaxHealth() - expected) < .0001,
+                                "native legacy Paladin maximum health with " + count + " worn pieces at base "
+                                        + baseHealth + ": " + owner.getMaxHealth() + ", expected " + expected);
+                        service.pulse20(owner);
+                        require(owner.hasEffect(MobEffects.RESISTANCE) == (count == 4),
+                                "Paladin requires actual four worn pieces, count=" + count);
+                        if (count == 4) effect(owner, MobEffects.RESISTANCE, 60, 3);
+                    }
+                    empty();
+                    equipment.skywars2$refreshArmorReserveEquipment();
+                    require(Math.abs(owner.getMaxHealth() - baseHealth) < .0001, "removing all Paladin pieces restores base health");
+                    for (int n = 0; n < 4; n++) owner.getInventory().setItem(9 + n, sources.get("paladin")[n].copy());
+                    service.pulse20(owner);
+                    require(!owner.hasEffect(MobEffects.RESISTANCE), "carried full set is not equipped");
+                    owner.getInventory().clearContent();
+                }
+            } finally {
+                empty();
+                equipment.skywars2$refreshArmorReserveEquipment();
+                maxHealth.replaceFrom(oldAttribute);
+                owner.setHealth(oldHealth);
+            }
         }
         void auras(){
             var inner=cow(at.add(1,0,0));var edge=cow(at.add(10,0,0));var outside=cow(at.add(10.01,0,0));var same=cow(at);var greed=cow(at.add(2,0,0));greed.entityTags().add("sin_greed_active");var technical=cow(at.add(2,0,1));technical.entityTags().add("strict_map_object");
