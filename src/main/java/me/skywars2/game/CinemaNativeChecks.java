@@ -16,7 +16,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
-/** Scoped real-engine groups. Blast rewind is one accepted nineteen-site kernel, not a 162-blast stress claim. */
+/** Scoped native Cinema checks, including one complete nineteen-site parent impact. */
 final class CinemaNativeChecks {
     private CinemaNativeChecks(){}
     private static Fixture running;
@@ -26,7 +26,7 @@ final class CinemaNativeChecks {
     private static Object get(Object target,String name){try{return field(target,name).get(target);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static void set(Object target,String name,Object value){try{field(target,name).set(target,value);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     static void start(GameController game,boolean rewind){require(running==null,"exclusive fixture");AbsoluteCinemaChecks.sourceRules();var f=new Fixture(game,rewind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
-    static void tick(GameController game){if(running==null)return;var f=running;try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.rewind?"actual TECH/TimeStop/split/native x2, nonempty native-flight and partial19-blast kernel whole rewind":"actual finite AK/8 owner-safe acids/Lenin/Trump native criteria/Pozdman native death wolf/Nahida native death creative");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
+    static void tick(GameController game){if(running==null)return;var f=running;try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.rewind?"TECH/TimeStop, angled approach, eleven children per parent, native clone and rewind, same-tick nineteen-site explosion":"actual finite AK/8 owner-safe acids/Lenin/Trump native criteria/Pozdman native death wolf/Nahida native death creative");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
 
     private static final class Member {
         ServerPlayer p;final RegenerationBeltChecks.Snapshot saved;RegenerationBeltChecks.ScheduledClient client;final int kills,killedBy;
@@ -37,7 +37,7 @@ final class CinemaNativeChecks {
         final GameController game;final boolean rewind;final LbcAbsoluteCinema service;final LbcOreshnik rockets;final ServerLevel level;
         final Member owner,victim,attacker;final List<Member> members;final MatchCoreCheckpoint core;final MatchWorldCheckpoint world;final MatchWorldRandomCheckpoint random;
         final List<MatchRandomState> playerRandom;final Set<UUID> originals=new HashSet<>();final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
-        final boolean frozen;final int started;final Vec3 origin,remote;int stage,when;boolean closed,paused,restoring;Marker jammer;Cow cow;Object accepted;Map<String,Object> picture;int remaining;
+        final boolean frozen;final int started;final Vec3 origin,remote;int stage,when;boolean closed,paused,restoring;Marker jammer;Cow cow;Map<String,Object> picture;
         Fixture(GameController game,boolean rewind){
             this.game=game;this.rewind=rewind;var alive=game.alivePlayers();require(game.playing()&&!game.bedwars().mode()&&!game.developerMode()&&alive.size()>=3,"three ordinary active native participants");
             require(!game.vanity().busy()&&!game.vanity().hasSnapshot()&&!game.items().timeStop().stopped(alive.getFirst().level())&&game.items().stonekivi().queuedSnapshot().isEmpty(),"exclusive unpaused coordinator and no accepted work");
@@ -58,7 +58,14 @@ final class CinemaNativeChecks {
             game.server().tickRateManager().setFrozen(false);game.config().lbcSkills=false;game.config().lbcKits=false;game.config().lbcLevelups=false;game.config().lbcTrinketLimit=0;game.config().vanillaKits=false;game.config().vanillaSkills=false;
             for(var m:members){game.lbc().clear(m.p);game.players().get(m.p.getUUID()).lbcSkill=0;m.p.closeContainer();m.p.getInventory().clearContent();m.p.removeAllEffects();m.p.entityTags().removeAll(Set.of("skywars2.debug_perks","sin_vanity"));m.p.setGameMode(GameType.SURVIVAL);m.p.setNoGravity(true);m.p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);m.p.setHealth(1000);m.p.setAbsorptionAmount(0);for(var key:List.of(Attributes.ARMOR,Attributes.ARMOR_TOUGHNESS)){var attribute=m.p.getAttribute(key);attribute.removeModifiers();attribute.setBaseValue(0);}}
             move(victim,origin.add(8,0,0));move(attacker,origin.add(12,0,0));
-            if(rewind){zone("stopper");service.startRoll(owner.p,1,List.of(remote.subtract(0,100,0)));require(rockets.flightCount()==0,"TECH blocks launch without rerolling Putin");service.forget(owner.p);zone(null);service.startRoll(owner.p,1,List.of(remote.subtract(0,100,0)));require(rockets.flightCount()==1,"actual source Putin parent accepted");next(20);}
+            if(rewind){zone("stopper");service.startRoll(owner.p,1,List.of(remote));require(rockets.flightCount()==0,"TECH blocks launch without rerolling Putin");service.forget(owner.p);zone(null);
+                owner.p.getRandom().setSeed(2);service.startRoll(owner.p,1,List.of(remote));require(rockets.flightCount()==1,"actual source Putin parent accepted");
+                var parent=flights().getFirst();var start=(Vec3)get(parent,"at");float pitch=(float)get(parent,"pitch");
+                require(get(parent,"target").equals(remote)&&pitch>=10&&pitch<=60,"parent retains selected target and requested pitch bounds");
+                near(start.distanceTo(remote),100,"three-dimensional launch distance");
+                int split=(int)get(parent,"splitAge");require(split>5,"seed leaves time to clone before the steep-approach split");
+                near(Math.floor(start.y+((Vec3)get(parent,"direction")).y*split-remote.y),59,"split crosses the old altitude within one movement step");
+                loadedRegion(start,0);next(20);}
             else nativeRoles();
         }
         int count(Item item){int count=0;for(int slot=0;slot<owner.p.getInventory().getContainerSize();slot++){var stack=owner.p.getInventory().getItem(slot);if(stack.is(item))count+=stack.getCount();}return count;}
@@ -95,11 +102,11 @@ final class CinemaNativeChecks {
             owner.respawn(game);require(owner.p.gameMode()==GameType.CREATIVE&&service.role(owner.p.getUUID())==LbcAbsoluteCinema.Role.NAHIDA,"actual native Nahida body awakens despite MAG");require(!service.beforeLastLifeLost(owner.p,1,false),"awakening cannot repeat");service.forget(owner.p);require(owner.p.gameMode()==GameType.SURVIVAL,"retirement releases installed creative lease");return true;
         }
         @SuppressWarnings("unchecked") List<Object> flights(){return new ArrayList<>((Set<Object>)get(rockets,"flights"));}
-        @SuppressWarnings("unchecked") List<Object> blastJobs(){return new ArrayList<>((Set<Object>)get(rockets,"blasts"));}
         Map<String,Object> image(Object flight){var result=new LinkedHashMap<String,Object>();for(String key:List.of("at","age","closed","child","owner","cause","epoch"))result.put(key,get(flight,key));return result;}
         void loadedRegion(Vec3 point,int reach){var p=BlockPos.containing(point);for(int x=(p.getX()-reach)>>4;x<=(p.getX()+reach)>>4;x++)for(int z=(p.getZ()-reach)>>4;z<=(p.getZ()+reach)>>4;z++)level.getChunk(x,z);}
         void smokePackets(){
-            loadedRegion(remote,3);rockets.tick();
+            for(var flight:flights()) loadedRegion((Vec3)get(flight,"at"),3);
+            rockets.tick();
             var expected=new ArrayList<Vec3>();
             for(var flight:flights()){
                 var display=(Display.ItemDisplay)get(flight,"display");require(display!=null,"all split models published before smoke witness");
@@ -133,15 +140,29 @@ final class CinemaNativeChecks {
         boolean rewindStep(){
             if(stage==20){if(flights().isEmpty()||get(flights().getFirst(),"display")==null)return false;pause();picture=image(flights().getFirst());next(21);return false;}
             if(stage==21){require(image(flights().getFirst()).equals(picture),"TimeStop holds actual Oreshnik flight");if(game.server().getTickCount()-when<3)return false;thaw();var display=(Entity)get(flights().getFirst(),"display");require(game.items().cloneSkills().copyNow(display,15)&&rockets.flightCount()==2,"native x2 reconstructs one causal flight rather than inert display");next(22);return false;}
-            if(stage==22){if(flights().stream().filter(f->(boolean)get(f,"child")).count()<22)return false;require(rockets.flightCount()==24&&flights().stream().filter(f->!(boolean)get(f,"child")).count()==2,"both actual parents continue and each source age40 creates eleven children");smokePackets();rockets.stop();
-                level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,true,game.server());var block=BlockPos.containing(remote.add(0,-1,0));loadedRegion(remote,24);for(var pos:BlockPos.betweenClosed(block.offset(-24,-24,-24),block.offset(24,24,24)))require(level.getBlockState(pos).isAir(),"supporting blast kernel has an empty, isolated terrain footprint");terrain.put(block,game.maps().snapshot(level,block));level.setBlock(block,Blocks.STONE.defaultBlockState(),3);
-                require(rockets.launch(owner.p,remote),"supporting parent kernel launch");rockets.tick();require(rockets.blastCount()==19,"real native collision accepts nineteen immutable blast sites");accepted=blastJobs().getFirst();require(((LbcStonekivi.Work)accepted).step()==false&&(int)get(accepted,"cursor")==1&&level.getBlockState(block).isAir(),"one actual native radius10 explosion advances the accepted cursor");
-                require(rockets.launch(owner.p,remote.add(40,20,0)),"live flight accompanies partial accepted blast snapshot");loadedRegion(remote.add(40,20,0),0);rockets.tick();pause();picture=image(flights().getFirst());remaining=rockets.blastCount();require(remaining==18,"partial supporting native blast journal");require(game.vanity().requestCapture(owner.p,false),"actual whole coordinator captures nonempty flight and partial native blast cursor");next(23);return false;
+            if(stage==22){
+                require(flights().stream().filter(f->!(boolean)get(f,"child")).count()==2,"both parents reach the split: "+flights().stream().map(this::image).toList());
+                if(flights().stream().filter(f->(boolean)get(f,"child")).count()<22){
+                    require(game.server().getTickCount()-when<300,"both parents complete the split: "+flights().stream().filter(f->!(boolean)get(f,"child")).map(this::image).toList());return false;
+                }
+                require(rockets.flightCount()==24,"each actual cloned parent creates eleven children");smokePackets();rockets.stop();
+                level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,true,game.server());
+                var block=BlockPos.containing(remote);var target=Vec3.atCenterOf(block);
+                loadedRegion(target,25);terrain.put(block,game.maps().snapshot(level,block));level.setBlock(block,Blocks.STONE.defaultBlockState(),3);
+                require(rockets.launch(owner.p,target),"supporting parent kernel launch");
+                var parent=flights().getFirst();set(parent,"age",99);set(parent,"at",target.subtract((Vec3)get(parent,"direction")));
+                owner.client.packets().clear();rockets.tick();
+                var explosions=owner.client.packets().stream().filter(net.minecraft.network.protocol.game.ClientboundExplodePacket.class::isInstance)
+                        .map(net.minecraft.network.protocol.game.ClientboundExplodePacket.class::cast).toList();
+                require(rockets.flightCount()==0&&rockets.blastCount()==0&&level.getBlockState(block).isAir(),"impact removes the target block and finishes the whole kernel in the same tick");
+                require(explosions.size()==19&&explosions.getFirst().center().equals(target),"all native blast packets, starting at the exact target");
+                require(rockets.launch(owner.p,remote.add(40,20,0)),"another flight for the native rewind");
+                loadedRegion((Vec3)get(flights().getFirst(),"at"),3);rockets.tick();pause();picture=image(flights().getFirst());
+                require(game.vanity().requestCapture(owner.p,false),"actual whole coordinator captures the live flight");next(23);return false;
             }
-            if(stage==23){require(rockets.blastCount()==remaining&&image(flights().getFirst()).equals(picture),"TimeStop preserves flight and accepted blast during capture");if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;thaw();next(24);return false;}
-            if(stage==24){if(rockets.blastCount()!=0)return false;require((int)get(accepted,"cursor")==19,"future native shared queue drained every accepted site");pause();require(game.vanity().requestRestoreForCheck(),"actual whole coordinator rewinds accepted blast future");restoring=true;next(25);return false;}
-            if(stage==25){if(game.vanity().busy())return false;require(rockets.blastCount()==18&&(int)get(accepted,"cursor")==1&&image(flights().getFirst()).equals(picture)&&service.role(owner.p.getUUID())==LbcAbsoluteCinema.Role.PUTIN,"typed whole rewind restores source role/nonempty native flight/partial blast cursor");game.vanity().stop();thaw();restoring=false;next(26);return false;}
-            if(rockets.blastCount()!=0)return false;require((int)get(accepted,"cursor")==19,"same accepted remainder drains after actual rewind without reroll");return true;
+            if(stage==23){require(image(flights().getFirst()).equals(picture),"TimeStop preserves flight during capture");if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;thaw();next(24);return false;}
+            if(stage==24){if(image(flights().getFirst()).equals(picture))return false;pause();require(game.vanity().requestRestoreForCheck(),"actual whole coordinator rewinds the flight");restoring=true;next(25);return false;}
+            if(game.vanity().busy())return false;require(image(flights().getFirst()).equals(picture)&&service.role(owner.p.getUUID())==LbcAbsoluteCinema.Role.PUTIN,"typed whole rewind restores source role and the angled flight");game.vanity().stop();thaw();restoring=false;return true;
         }
         boolean step(){for(var m:members)if(m.p.isAlive())m.client.acknowledge();require(game.server().getTickCount()-started<1600,"bounded scheduled fixture "+name()+" stage="+stage);if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();return rewind?rewindStep():nativeStep();}
         @Override public void close(){if(closed)return;closed=true;Throwable failure=null;for(Runnable action:List.<Runnable>of(

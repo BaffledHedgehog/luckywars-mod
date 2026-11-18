@@ -49,7 +49,7 @@ public final class LbcAbsoluteCinema {
         if(!role.tag.isEmpty())player.entityTags().add(role.tag);
         switch(role){
             case PUTIN -> {
-                if(!originalCenters.isEmpty())rockets.launch(player,originalCenters.get(player.getRandom().nextInt(originalCenters.size())).add(0,100,0));
+                if(!originalCenters.isEmpty())rockets.launch(player,originalCenters.get(player.getRandom().nextInt(originalCenters.size())));
                 broadcast("putin",0xAA0000,true,null);
             }
             case HITLER -> {startAcid(player);broadcast("hitler",0xAA0000,true,null);identity(player,"hitler");}

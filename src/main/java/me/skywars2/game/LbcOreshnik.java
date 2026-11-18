@@ -17,9 +17,11 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.Vec3;
 
-/** Source parent plus eleven children. Accepted native blasts drain separately through the shared fair queue. */
+/** One guided parent and eleven children, with each rocket's full blast applied at impact. */
 public final class LbcOreshnik {
     private static final String TAG="skywars2.oreshnik";
+    private static final int APPROACH_TICKS=100;
+    private static final int PARENT_BLAST_REACH=25, CHILD_BLAST_REACH=14;
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private static final TagKey<net.minecraft.world.level.block.Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.withDefaultNamespace("airs"));
     private static final String MODEL="{item_display:'fixed',teleport_duration:1,interpolation_duration:1,brightness:{block:15,sky:15},item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:oreshnik'}},transformation:{translation:[0f,4.5f,0f],scale:[%sf,%sf,%sf],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}";
@@ -36,7 +38,8 @@ public final class LbcOreshnik {
     public boolean copyActor(Entity original,Entity copy){
         if(!(copy instanceof Display.ItemDisplay display))return false;
         for(var f:List.copyOf(flights))if(f.display==original){
-            var next=new Flight((ServerLevel)display.level(),f.owner,f.cause,f.epoch,display.position(),display.getYRot(),display.getXRot(),f.age,f.child);
+            var next=new Flight((ServerLevel)display.level(),f.owner,f.cause,f.epoch,display.position(),f.yaw,f.pitch,
+                    f.age,f.child,f.translatedTarget(display.position()),f.splitAge);
             next.display=display;flights.add(next);return true;
         }
         return false;
@@ -44,10 +47,12 @@ public final class LbcOreshnik {
     LbcCloneSkills.ActorImage cloneImage(Entity source){
         for(var f:flights)if(f.display==source){
             var owner=f.owner;var cause=f.cause;var epoch=f.epoch;boolean child=f.child;int age=f.age;
+            var origin=f.at;var target=f.target;int splitAge=f.splitAge;float yaw=f.yaw,pitch=f.pitch;
             return new LbcCloneSkills.ActorImage(){
                 public void install(Entity original,Entity clone,Map<Entity,Entity> family){
                     if(!(clone instanceof Display.ItemDisplay display))throw new IllegalStateException("Oreshnik clone display type");
-                    var next=new Flight((ServerLevel)clone.level(),owner,cause,epoch,clone.position(),clone.getYRot(),clone.getXRot(),age,child);
+                    var next=new Flight((ServerLevel)clone.level(),owner,cause,epoch,clone.position(),yaw,pitch,age,child,
+                            target==null?null:target.add(clone.position().subtract(origin)),splitAge);
                     next.display=display;flights.add(next);
                 }
                 public void rollback(Entity clone){for(var f:List.copyOf(flights))if(f.display==clone)f.close();}
@@ -59,10 +64,19 @@ public final class LbcOreshnik {
     private boolean live(String epoch){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch);}
     public boolean launch(ServerPlayer author,Vec3 point){
         if(restoring||!live(game.items().epoch())||game.items().magic().mechanismSuppressed(author)||game.items().magic().mechanismSuppressedAt(author.level(),point))return false;
-        add(author.level(),author.getUUID(),game.items().indirectKills().wildCause(author),game.items().epoch(),point,0,90,0,false);return true;
+        float yaw=author.getRandom().nextFloat()*360-180;
+        float pitch=10+author.getRandom().nextFloat()*50;
+        var direction=Vec3.directionFromRotation(pitch,yaw).normalize();
+        var origin=point.subtract(direction.scale(APPROACH_TICKS));
+        // The old cluster opened 60 blocks above the target. A shallow approach
+        // starts below that altitude, so it opens as soon as it enters flight.
+        int splitAge=Math.clamp((int)Math.ceil(APPROACH_TICKS-60/-direction.y),1,APPROACH_TICKS-1);
+        flights.add(new Flight(author.level(),author.getUUID(),game.items().indirectKills().wildCause(author),
+                game.items().epoch(),origin,yaw,pitch,0,false,point,splitAge));
+        return true;
     }
-    private void add(ServerLevel level,UUID owner,LbcIndirectKills.Owner cause,String epoch,Vec3 point,float yaw,float pitch,int age,boolean child){
-        var flight=new Flight(level,owner,cause,epoch,point,yaw,pitch,age,child);flights.add(flight);
+    private void addChild(ServerLevel level,UUID owner,LbcIndirectKills.Owner cause,String epoch,Vec3 point,float yaw,float pitch){
+        flights.add(new Flight(level,owner,cause,epoch,point,yaw,pitch,41,true,null,0));
     }
     public void tick(){
         if(restoring)return;callbacks++;
@@ -91,14 +105,18 @@ public final class LbcOreshnik {
             var p=BlockPos.containing(point);boolean ready=true;var wanted=new LinkedHashSet<ChunkPos>();
             for(int x=(p.getX()-reach)>>4;x<=(p.getX()+reach)>>4;x++)for(int z=(p.getZ()-reach)>>4;z<=(p.getZ()+reach)>>4;z++){
                 var chunk=new ChunkPos(x,z);wanted.add(chunk);
-                if(held.add(chunk)){
-                    var counts=leases.computeIfAbsent(level,ignored->new LinkedHashMap<>());int count=counts.getOrDefault(chunk,0);
-                    counts.put(chunk,count+1);if(count==0)level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0);
-                }
+                hold(chunk);
                 if(level.getChunkSource().getChunkNow(x,z)==null)ready=false;
             }
             for(var previous:List.copyOf(held))if(!wanted.contains(previous))release(previous);
             return ready;
+        }
+        void hold(ChunkPos chunk){
+            if(!held.add(chunk))return;
+            var counts=leases.computeIfAbsent(level,ignored->new LinkedHashMap<>());
+            int count=counts.getOrDefault(chunk,0);
+            counts.put(chunk,count+1);
+            if(count==0)level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0);
         }
         void release(ChunkPos chunk){
             if(!held.remove(chunk))return;var counts=leases.get(level);int count=counts.getOrDefault(chunk,0);
@@ -108,11 +126,15 @@ public final class LbcOreshnik {
         void close(){for(var chunk:List.copyOf(held))release(chunk);}
     }
     private final class Flight {
-        final ServerLevel level;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;final boolean child;final float yaw,pitch;final Tickets tickets;final Vec3 exhaust;
+        final ServerLevel level;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;final boolean child;final float yaw,pitch;
+        final Tickets tickets,impactTickets;final Vec3 exhaust,direction,target;final int splitAge;
         Vec3 at;int age;Display.ItemDisplay display;boolean closed;
-        Flight(ServerLevel level,UUID owner,LbcIndirectKills.Owner cause,String epoch,Vec3 at,float yaw,float pitch,int age,boolean child){
+        Flight(ServerLevel level,UUID owner,LbcIndirectKills.Owner cause,String epoch,Vec3 at,float yaw,float pitch,int age,boolean child,Vec3 target,int splitAge){
             this.level=level;this.owner=owner;this.cause=cause;this.epoch=epoch;this.at=at;this.yaw=yaw;this.pitch=pitch;this.age=age;this.child=child;tickets=new Tickets(level);exhaust=exhaustOffset(yaw,pitch,child);
+            this.direction=Vec3.directionFromRotation(pitch,yaw).normalize();this.target=target;this.splitAge=splitAge;
+            impactTickets=child?null:new Tickets(level);
         }
+        Vec3 translatedTarget(Vec3 copy){return target==null?null:target.add(copy.subtract(at));}
         void model(){
             if(display!=null&&!display.isRemoved())return;
             display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);int scale=child?5:8;
@@ -127,7 +149,17 @@ public final class LbcOreshnik {
             if(closed)return;if(!live(epoch)||display!=null&&display.isRemoved()){close();return;}
             if(game.items().timeStop().stopped(level))return;
             if(game.items().magic().mechanismSuppressedAt(level,at)){close();return;}
-            var next=at.add(Vec3.directionFromRotation(pitch,yaw));if(!tickets.resident(next,0))return;
+            boolean arrives=!child&&age+1>=APPROACH_TICKS;
+            var next=arrives?target:at.add(direction);
+            if(impactTickets!=null&&impactTickets.held.isEmpty()){
+                impactTickets.resident(target,PARENT_BLAST_REACH);
+                // Keep the full approach resident while the display crosses chunk boundaries.
+                for(int i=0;i<=APPROACH_TICKS;i++){
+                    var cell=BlockPos.containing(at.lerp(target,i/(double)APPROACH_TICKS));
+                    impactTickets.hold(new ChunkPos(cell.getX()>>4,cell.getZ()>>4));
+                }
+            }
+            if(!tickets.resident(next,0))return;
             boolean birth=display==null;model();
             if(birth)game.items().cloneSkills().beforeOwnedStep(List.of(display));
             age++;
@@ -135,15 +167,19 @@ public final class LbcOreshnik {
             for(var viewer:game.server().getPlayerList().getPlayers())if(viewer.level()==level)level.sendParticles(viewer,ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,smoke.x,smoke.y,smoke.z,5,.3,.3,.3,.05);
             LbcOverload.sound(level,at,"minecraft:lbcsounds.rocket_power",net.minecraft.sounds.SoundSource.MASTER,1,child?1.5f:1,0,child?.08f:.5f);
             at=next;display.setPos(at);
-            if(!child&&age==40)for(int n=0;n<11;n++){
+            if(!child&&age==splitAge)for(int n=0;n<11;n++){
                 float childYaw=(level.getRandom().nextInt(360001)-180000)*.001f,childPitch=(level.getRandom().nextInt(30001)+60000)*.001f;
-                add(level,owner,cause,epoch,at,childYaw,childPitch,41,true);
+                addChild(level,owner,cause,epoch,at,childYaw,childPitch);
             }
-            if(!level.getBlockState(BlockPos.containing(at)).is(AIRS)){
-                var work=new Blasts(level,owner,cause,epoch,at,child);blasts.add(work);game.items().stonekivi().queuedWork(work);close();
+            if(arrives||child&&!level.getBlockState(BlockPos.containing(at)).is(AIRS)){
+                var work=new Blasts(level,owner,cause,epoch,at,child);
+                blasts.add(work);
+                if(!work.step())game.items().stonekivi().queuedWork(work);
+                close();
             }else if(age>=180)close();
         }
-        void close(){closed=true;tickets.close();if(display!=null)display.discard();flights.remove(this);}
+        void releaseTickets(){tickets.close();if(impactTickets!=null)impactTickets.close();}
+        void close(){closed=true;releaseTickets();if(display!=null)display.discard();flights.remove(this);}
     }
     private final class Blasts implements LbcStonekivi.Work {
         final ServerLevel level;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;final Vec3 at;final boolean child;final List<Vec3> offsets;final Tickets tickets;
@@ -154,15 +190,22 @@ public final class LbcOreshnik {
         @Override public boolean step(){
             callbacks++;try{
                 if(closed||!live(epoch)){cancel();return true;}
-                if(cursor==offsets.size()){cancel();return true;}
-                var point=at.add(offsets.get(cursor));float power=child?5:10;
-                if(!tickets.resident(point,(int)(power*2)+1))return false;
-                var direct=new Marker(EntityTypes.MARKER,level);direct.setPos(point);direct.entityTags().addAll(List.of(TAG,epoch));direct.setCustomName(Component.translatable("oreshnik"));
+                if(!tickets.resident(at,child?CHILD_BLAST_REACH:PARENT_BLAST_REACH))return false;
+                float power=child?5:10;
+                var direct=new Marker(EntityTypes.MARKER,level);direct.setPos(at);direct.entityTags().addAll(List.of(TAG,epoch));direct.setCustomName(Component.translatable("oreshnik"));
                 var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.EXPLOSION),direct,game.server().getPlayerList().getPlayer(owner));
                 var captured=game.items().indirectKills().captureDamage(damage,cause);
-                try{game.items().indirectKills().trapChanges(level,cause,()->level.explode(direct,captured,null,point.x,point.y,point.z,power,false,Level.ExplosionInteraction.MOB));}
+                try {
+                    game.items().indirectKills().trapChanges(level,cause,()->{
+                        while(cursor<offsets.size()){
+                            var point=at.add(offsets.get(cursor++));
+                            direct.setPos(point);
+                            level.explode(direct,captured,null,point.x,point.y,point.z,power,false,Level.ExplosionInteraction.MOB);
+                        }
+                    });
+                }
                 finally{direct.discard();}
-                cursor++;if(cursor==offsets.size()){cancel();return true;}return false;
+                cancel();return true;
             }finally{callbacks--;}
         }
         @Override public void cancel(){closed=true;tickets.close();blasts.remove(this);}
@@ -173,7 +216,7 @@ public final class LbcOreshnik {
     }
     public void stop(){for(var flight:List.copyOf(flights))flight.close();for(var work:List.copyOf(blasts))work.cancel();}
     void boundary(){if(callbacks!=0)throw new IllegalStateException("Finish Oreshnik native quantum before capture");}
-    void prepareFrozen(){boundary();restoring=true;for(var flight:flights)flight.tickets.close();for(var work:blasts)work.tickets.close();}
+    void prepareFrozen(){boundary();restoring=true;for(var flight:flights)flight.releaseTickets();for(var work:blasts)work.tickets.close();}
     void publishFrozen(){boundary();restoring=false;}
     Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){boundary();return new Checkpoint(graph);}
     final class Checkpoint {
@@ -186,7 +229,7 @@ public final class LbcOreshnik {
         Runnable prepare(MatchSpellCheckpoint.Links links){
             var displays=image.stream().map(i->i.display==null?null:(Display.ItemDisplay)links.get(i.display)).toList();
             return ()->{
-                for(var flight:flights)flight.tickets.close();for(var work:blasts)work.tickets.close();
+                for(var flight:flights)flight.releaseTickets();for(var work:blasts)work.tickets.close();
                 flights=new LinkedHashSet<>();for(int n=0;n<image.size();n++){var i=image.get(n);var f=i.original;f.at=i.at;f.age=i.age;f.closed=i.closed;f.display=displays.get(n);flights.add(f);}
                 blasts=new LinkedHashSet<>(accepted);
             };
