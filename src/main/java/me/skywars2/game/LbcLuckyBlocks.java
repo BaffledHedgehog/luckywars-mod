@@ -1,7 +1,17 @@
 package me.skywars2.game;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
+import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
+import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
+import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import java.util.List;
+import java.util.UUID;
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ArenaChunkAccess;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,14 +22,19 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -27,9 +42,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import org.joml.Vector3f;
 
 /** Three stable server blocks; vanilla BLOCK loot owns rolls, tools and explosion context. */
 public final class LbcLuckyBlocks {
@@ -48,6 +65,11 @@ public final class LbcLuckyBlocks {
     private static final Item[] ITEMS=new Item[3];
     private static final BlockState[] LEGACY_STATES=new BlockState[3];
     private static final BlockState[] CLIENT_STATES=new BlockState[3];
+    // Classic yellow question-mark skin from Minecraft-Heads 1709, served by textures.minecraft.net.
+    private static final ResolvableProfile CLASSIC_PROFILE=ResolvableProfile.createResolved(new GameProfile(
+            UUID.fromString("a132369f-bac5-4c35-b251-25990ae7a4b1"),"LuckyBlock",
+            new PropertyMap(ImmutableMultimap.of("textures",new Property("textures",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGI5MmNiNDMzMzNhYTYyMWM3MGVlZjRlYmYyOTliYTQxMmI0NDZmZTEyZTM0MWNjYzU4MmYzMTkyMTg5In19fQ==")))));
     static {
         for(var kind:Kind.values()) {
             var raw=carrierBlock(kind).defaultBlockState();
@@ -88,6 +110,34 @@ public final class LbcLuckyBlocks {
     private static Item carrierItem(Kind kind){return switch(kind){case NORMAL->Items.RED_MUSHROOM_BLOCK;case NEKO->Items.BROWN_MUSHROOM_BLOCK;case LOLI->Items.MUSHROOM_STEM;};}
     public static Block block(Kind kind){return BLOCKS[kind.ordinal()];}
     public static Item item(Kind kind){return ITEMS[kind.ordinal()];}
+
+    /** Balance toggles after map placement, so update existing visible blocks once at the boundary. */
+    static void legacyPresentationChanged(MinecraftServer server,boolean active){
+        var lucky=(LuckyBlock)block(Kind.NORMAL);
+        for(var level:server.getAllLevels()){
+            var tracking=(ArenaChunkAccess)level.getChunkSource().chunkMap;
+            for(var entry:tracking.skywars2$visibleChunks().values()){
+                if(!(entry.getLatestChunk() instanceof LevelChunk chunk))continue;
+                var sections=chunk.getSections();
+                for(int i=0;i<sections.length;i++){
+                    var section=sections[i];
+                    if(!section.maybeHas(state->state.is(lucky)))continue;
+                    int floor=chunk.getSectionYFromSectionIndex(i)<<4;
+                    for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++){
+                        var state=section.getBlockState(x,y,z);
+                        if(!state.is(lucky))continue;
+                        var pos=chunk.getPos().getBlockAt(x,floor+y,z);
+                        var attachment=BlockBoundAttachment.get(chunk,pos);
+                        if(active&&attachment==null){
+                            var holder=lucky.createElementHolder(level,pos,state);
+                            if(holder!=null)BlockBoundAttachment.of(holder,level,chunk,pos,state);
+                        }else if(!active&&attachment!=null)attachment.destroy();
+                        level.getChunkSource().blockChanged(pos);
+                    }
+                }
+            }
+        }
+    }
     private static Component name(Kind kind){return switch(kind){
         case NORMAL->Component.translatable("skywars2.item.lucky_block.name").withColor(0xffff55).withStyle(s->s.withItalic(false));
         case NEKO->Component.literal("Lucky Block Neko").withColor(0xff55ff).withStyle(s->s.withItalic(false));
@@ -150,10 +200,24 @@ public final class LbcLuckyBlocks {
         return breaker instanceof ServerPlayer player
                 ?game.items().spellSources().scope(game.items().spellSources().hostile(player,player,java.util.Set.of()).hostileLoot(),player.level()):null;
     }
-    private static final class LuckyBlock extends LbcBlockModels.Cube {
+    private static final class LuckyBlock extends LbcBlockModels.Cube implements BlockWithElementHolder {
         private final Kind kind;
         LuckyBlock(Properties properties,Kind kind){super(properties);this.kind=kind;}
-        @Override public BlockState getPolymerBlockState(BlockState state,PacketContext context){return CLIENT_STATES[kind.ordinal()];}
+        private boolean classic(){var game=SkyWars2.game();return kind==Kind.NORMAL&&game!=null&&game.balanceLegacy();}
+        @Override public BlockState getPolymerBlockState(BlockState state,PacketContext context){
+            return classic()?Blocks.STAINED_GLASS.pick(DyeColor.YELLOW).defaultBlockState():CLIENT_STATES[kind.ordinal()];
+        }
+        @Override public ElementHolder createElementHolder(ServerLevel level,BlockPos pos,BlockState state){
+            if(!classic())return null;
+            var head=new ItemStack(Items.PLAYER_HEAD);
+            head.set(DataComponents.PROFILE,CLASSIC_PROFILE);
+            var display=new ItemDisplayElement(head);
+            display.setItemDisplayContext(ItemDisplayContext.FIXED);
+            display.setScale(new Vector3f(.85f));
+            var holder=new ElementHolder();
+            holder.addElement(display);
+            return holder;
+        }
         @Override protected List<ItemStack> getDrops(BlockState state,LootParams.Builder params){return drops(kind,params);}
         @Override protected ItemStack getCloneItemStack(LevelReader level,BlockPos pos,BlockState state,boolean includeData){
             var game=SkyWars2.game();

@@ -19,15 +19,24 @@ public final class SupernovaChecks {
         require(running==null,"exclusive fixture");running=new Fixture(game);
         try{running.begin();}catch(Throwable e){running.close();running=null;throw new IllegalStateException(e);}
     }
+    public static void runLegacyPresentation(GameController game){
+        require(running==null,"exclusive fixture");running=new Fixture(game);
+        try{running.beginLegacyPresentation();}catch(Throwable e){running.close();running=null;throw new IllegalStateException(e);}
+    }
     public static void tick(GameController game){
         if(running==null)return;
-        try{if(!running.step())return;running.close();running=null;
-            SkyWars2.LOGGER.info("[check] PASS supernova-chain (real grid exact pair, active-event exclusion, native TimeStop, complete map renewal, same epoch/inventory/XP/lives/effects, Nexus return, owner-only Balance reward and real full legacy transition)");
-        }catch(Throwable e){try{running.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL supernova-chain",e);}
+        boolean legacyOnly=running.legacyOnly;
+        try{if(!running.step())return;
+            if(legacyOnly)TrueLegacyChecks.run(game);
+            running.close();running=null;
+            if(legacyOnly)SkyWars2.LOGGER.info("[check] PASS balance-presentation (real Balance cast and native block/head/tooltip projection)");
+            else SkyWars2.LOGGER.info("[check] PASS supernova-chain (real grid exact pair, active-event exclusion, native TimeStop, complete map renewal, same epoch/inventory/XP/lives/effects, Nexus return, owner-only Balance reward and real full legacy transition)");
+        }catch(Throwable e){try{running.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL {}",legacyOnly?"balance-presentation":"supernova-chain",e);}
     }
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ServerPlayer owner,other;final boolean borders;
         final String epoch;int state,at,start,clock,lives,otherLives,xp,initialEcology;boolean closed,seenTerrainMove,seenStrike;
+        boolean legacyOnly;
         final boolean ownerPreview,otherPreview;
         Fixture(GameController game){
             this.game=game;require(game.playing(),"actual active match");
@@ -54,8 +63,18 @@ public final class SupernovaChecks {
             owner.inventoryMenu.getCraftSlots().setItem(0,katana);owner.inventoryMenu.getCraftSlots().setItem(1,gun);game.items().supernova().craftChanged(owner);
             game.items().timeStop().begin(owner.level(),200);clock=game.items().supernova().activeTicks();
         }
+        void beginLegacyPresentation(){
+            legacyOnly=true;xp=owner.experienceLevel;
+            activateBalance();
+        }
+        void activateBalance(){
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcBalanceItems.BALANCE));
+            require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker()
+                    .interact(owner,owner.level(),InteractionHand.MAIN_HAND).consumesAction(),"real Balance item callback");
+            state=4;
+        }
         boolean step(){
-            int now=game.server().getTickCount();var service=game.items().supernova();require(now-start<2200,"bounded full chain scheduler timeout: fixture="+state+", event="+service.phase()+", map="+game.supernovaMapTransition());
+            int now=game.server().getTickCount();var service=game.items().supernova();require(now-start<2200,"bounded full chain scheduler timeout: fixture="+state+", event="+service.status()+", map="+game.supernovaMapTransition());
             if(state==0){if(now-at<8)return false;require(service.phase()==LbcSupernova.Phase.IDLE&&service.activeTicks()==clock,"stopped activation and timer");require(owner.inventoryMenu.getCraftSlots().getItem(0).getCount()==2,"stopped recipe debit absent");game.items().timeStop().end(owner.level());state=1;at=now;return false;}
             if(state==1){if(service.phase()==LbcSupernova.Phase.IDLE){require(now-at<80,"event admitted from real crafting slots");return false;}
                 for(var viewer:game.server().getPlayerList().getPlayers())require(viewer.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"actual Supernova start projects every online viewer, including Nexus and spectators");
@@ -91,8 +110,7 @@ public final class SupernovaChecks {
                 }
                 require(reward==1,"one owner reward");
                 for(var stack:java.util.stream.IntStream.range(0,other.getInventory().getContainerSize()).mapToObj(other.getInventory()::getItem).toList())require(!LbcBalanceItems.isBalance(stack),"no foreign reward");
-                owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcBalanceItems.BALANCE));
-                require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(owner,owner.level(),InteractionHand.MAIN_HAND).consumesAction(),"real Balance item callback");state=4;at=now;return false;}
+                activateBalance();return false;}
             if(state==4){if(!game.balanceLegacy()||game.supernovaMapTransition())return false;
                 require(!game.items().epoch().equals(epoch)&&game.maps().spawns().size()==12,"new original overlay with exact twelve source spawns");
                 require(owner.level()==game.maps().level()&&other.level()==game.maps().level()&&game.lives(owner.getUUID())==1&&game.lives(other.getUUID())==1,"old map cohorts and source one life");

@@ -341,6 +341,7 @@ public final class GameController {
         balanceLegacy=active;
         items.mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("legacy"),"lbc.math").set(active?1:0);
         if(!changed)return;
+        LbcLuckyBlocks.legacyPresentationChanged(server,active);
         VanillaExpansionRules.changed(this);
         attributeHud.stop();
         for(var player:online()) {

@@ -2,12 +2,17 @@ package me.skywars2.game;
 
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import me.skywars2.SkyWars2;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
@@ -21,6 +26,21 @@ public final class TrueLegacyRules {
     public static boolean kit(int id) { return id>0 && id<=21; } // Through Half Slabs, including the source ID gap19.
     public static boolean skill(int id) { return id > 0 && id <= 11; } // Wind Runner and Duelist are Halloween rewards.
     public static void warmup() { if(VANILLA.tags.isEmpty()||VANILLA.types.isEmpty())throw new IllegalStateException("Empty vanilla legacy damage snapshot"); }
+
+    public static void registerItemProjection(){
+        PolymerItemUtils.CONTEXT_ITEM_CHECK.register((stack,context)->stack.get(DataComponents.TOOLTIP_STYLE)!=null&&legacyViewer(context));
+        PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original,client,context)->{
+            if(!client.has(DataComponents.TOOLTIP_STYLE)||!legacyViewer(context))return client;
+            var projected=client.copy();
+            projected.remove(DataComponents.TOOLTIP_STYLE);
+            return projected;
+        });
+    }
+
+    private static boolean legacyViewer(PacketContext context){
+        var game=SkyWars2.game();
+        return context!=null&&game!=null&&game.balanceLegacy()&&PolymerCommonUtils.getPlayer(context)!=null;
+    }
     private static Vanilla load() {
         try(var input=TrueLegacyRules.class.getResourceAsStream("/skywars2/vanilla_damage_26_3.json")) {
             if(input==null)throw new IllegalStateException("Missing vanilla legacy damage snapshot");

@@ -77,6 +77,8 @@ public final class TrueLegacyChecks {
             require(target.hurtServer(p.level(),source,3)&&target.getHealth()==17,"first real native arrow damage accepted");
             require(!target.hurtServer(p.level(),source,3)&&target.getHealth()==17,"second same-tick arrow obeys native hurt cooldown");
             require(Math.abs(CombatRules.getDamageAfterAbsorb(target,10,source,100,0)-2)<.0001,"real CombatRules uses vanilla armor cap");
+            legacyItemProjection(p);
+            classicLuckyBlock(game,p);
             legacySwap(game,p,client);
             TrueLegacyVanillaChecks.run(game,p,target);
         }finally{
@@ -90,6 +92,37 @@ public final class TrueLegacyChecks {
         }
         SkyWars2.LOGGER.info("[check] PASS true-legacy-rules (real Balance, selected vanilla kit/skills, disabled supers/cosmetics/both HUDs, actual clean team packets, vanilla arrow tags/definition/native cooldown and armor)");
     }
+    private static void legacyItemProjection(net.minecraft.server.level.ServerPlayer player){
+        var source=new ItemStack(Items.DIAMOND_SWORD);
+        source.set(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_q"));
+        var context=player.connection.getPacketContext();
+        net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(player.connection,()->{
+            var projected=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(source,
+                    net.minecraft.world.item.TooltipFlag.NORMAL,context,player.registryAccess());
+            require(!projected.has(DataComponents.TOOLTIP_STYLE)&&source.has(DataComponents.TOOLTIP_STYLE),
+                    "stored stacks display a vanilla frame during true legacy and keep their authoritative components");
+        });
+    }
+    private static void classicLuckyBlock(GameController game,net.minecraft.server.level.ServerPlayer player){
+        var level=player.level();var pos=BlockPos.containing(player.position()).above(5);
+        var previous=game.maps().snapshot(level,pos);
+        var state=LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL).defaultBlockState();
+        var block=(eu.pb4.polymer.core.api.block.PolymerBlock)state.getBlock();
+        try{
+            require(level.setBlock(pos,state,3)&&block.getPolymerBlockState(state,null).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.YELLOW)),
+                    "actual native lucky block projects yellow glass in true legacy");
+            var attachment=eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment.get(level,pos);
+            require(attachment!=null&&!attachment.shouldTick(),"head is a static block-bound virtual visual");
+            var head=attachment.holder().getElements().stream()
+                    .filter(eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement.class::isInstance)
+                    .map(eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement.class::cast).findFirst().orElseThrow().getItem();
+            require(head.is(Items.PLAYER_HEAD)&&head.has(DataComponents.PROFILE),"real skull renderer receives the classic skin profile");
+            require(level.setBlock(pos,Blocks.AIR.defaultBlockState(),3)
+                    &&eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment.get(level,pos)==null,
+                    "removing the lucky block also removes its virtual visual");
+        }finally{game.maps().restoreSnapshot(level,pos,previous);}
+    }
+
     private static void legacySwap(GameController game,net.minecraft.server.level.ServerPlayer player,
             RegenerationBeltChecks.ScheduledClient client){
         var other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));

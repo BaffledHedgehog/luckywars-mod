@@ -1412,6 +1412,7 @@ public final class GameChecks {
                                 case "native-test-report-combat" -> {NativeTestReportCombatChecks.run(game);return;}
                                 case "rotated-physics" -> {RotatedPhysicsChecks.run(game);return;}
                                 case "perk-statistics" -> {PerkStatisticsChecks.run(game);return;}
+                                case "balance-presentation" -> {SupernovaChecks.runLegacyPresentation(game);return;}
                                 case "test-report-core" -> {TestReportCoreChecks.run(game);return;}
                                 case "mellstroy-native" -> {MellstroyChecks.run(game);return;}
                                 case "mellstroy-rewind" -> {MellstroyChecks.runRewind(game);return;}
