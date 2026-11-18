@@ -96,6 +96,7 @@ public final class GameMenus {
 
     private Menu open(ServerPlayer player, Page page, boolean debug) {
         debug = debug && GameController.operator(player);
+        if (controller.runeRestarting()) return null;
         if (controller.items().shooters().stunned(player)) return null;
         boolean observer = controller.isObserver(player);
         if (observer && !observerPage(page)) {

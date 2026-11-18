@@ -137,7 +137,7 @@ public final class GameController {
         validateCheckpoint(image);
         carpetBots.reset(); // Intent/path caches are derived from restored native bodies and terrain.
         // Unsupported short restart intent is cancelled by rewind, as other transient actions are.
-        runeRestartPending=false;
+        runeRestart=null;
         cunnyRestart=null;
         activeGameMode=image.activeGameMode;
         synchroRanked.restore(image.synchroLoot);
@@ -221,7 +221,8 @@ public final class GameController {
     private boolean fallEnabled;
     private Component mapFailure = Component.empty();
     private String readyMap;
-    private boolean runeRestartPending;
+    private record RuneRestart(Set<UUID> players,String map,boolean broken,int mode) {}
+    private RuneRestart runeRestart;
     private enum CunnyRestartPhase { DRAINING, PREPARING }
     private CunnyRestartPhase cunnyRestart;
     private SupernovaMap supernovaMap;
@@ -267,9 +268,9 @@ public final class GameController {
     public Stage stage() { return stage; }
     public UUID host() { return host; }
     public boolean inLobby() { return stage == Stage.LOBBY && lobbyReady; }
-    public boolean canUseMenus() { return !stopped && (inLobby() || stage == Stage.LOADING); }
-    public boolean canUseMenus(ServerPlayer player) { return canUseMenus() || !stopped && (isObserver(player)
-            || menus != null && menus.debugAccess(player)); }
+    public boolean canUseMenus() { return !stopped && !runeRestarting() && (inLobby() || stage == Stage.LOADING); }
+    public boolean canUseMenus(ServerPlayer player) { return !runeRestarting() && (canUseMenus() || !stopped && (isObserver(player)
+            || menus != null && menus.debugAccess(player))); }
     public static boolean operator(ServerPlayer player) {
         return net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS)
                 .test(player.createCommandSourceStack());
@@ -291,7 +292,7 @@ public final class GameController {
     public boolean isDeveloper(ServerPlayer player) { return player.entityTags().contains("developer"); }
     public boolean isObserver(ServerPlayer player) { return spectators.contains(player); }
     public Spectators spectators() { return spectators; }
-    public boolean inventoryLocked() { return canUseMenus(); }
+    public boolean inventoryLocked() { return runeRestarting() || canUseMenus(); }
     public boolean inventoryLocked(ServerPlayer player) {
         return isObserver(player) || inventoryLocked() && !isDeveloper(player);
     }
@@ -300,7 +301,7 @@ public final class GameController {
         var member=participants.get(player.getUUID());
         boolean retained=supernovaNativeTick && playing() && member!=null && member.lives>0
                 && !member.disconnected && !member.awaitingRespawn;
-        return (!supernovaMapTransition() || supernovaNativeTick || !renewalPlayer(player)) && !isObserver(player)
+        return !runeRestarting() && (!supernovaMapTransition() || supernovaNativeTick || !renewalPlayer(player)) && !isObserver(player)
                 && (allowDamage(player) || retained || isDeveloper(player) && !stopped
                 && (inLobby() || stage == Stage.LOADING));
     }
@@ -332,6 +333,7 @@ public final class GameController {
     public int matchTicks() { return gameTicks; }
     public boolean supernovaMapTransition() { return supernovaMap != null || balanceMap != null; }
     boolean cunnyRestartPending() { return cunnyRestart != null; }
+    boolean runeRestarting() { return runeRestart!=null; }
     public boolean balanceLegacy() { return balanceLegacy; }
     private void balanceLegacy(boolean active){
         if(active)TrueLegacyRules.warmup();
@@ -691,6 +693,7 @@ public final class GameController {
         else if (stage == Stage.LOADING) {
             pendingLobby.add(player.getUUID());
             loadingPlayer(player);
+            if(runeRestarting()&&!runeRestart.players().contains(player.getUUID()))spectators.enter(player);
         }
         else {
             spectators.enter(player);
@@ -954,16 +957,19 @@ public final class GameController {
     }
 
     private void begin() {
+        begin(online());
+    }
+
+    private void begin(List<ServerPlayer> connected) {
         // A selected-map callback can start before the restart driver gets its next tick.
         // Entering the fresh round consumes every old lobby/start intent at this common boundary.
-        cunnyRestart=null;runeRestartPending=false;startAfterSelection=false;pendingStarter=null;
+        cunnyRestart=null;runeRestart=null;startAfterSelection=false;pendingStarter=null;
         beginMatchMode(config.gameMode);
         developerTools.gallery().clearForMatchStart();
         maps.removeLobbyOverlay();
         items.terra().resetCharges();
         // Выбранная карта уже размещена; старт только фиксирует состав и распределяет игроков по клеткам.
         transition(Stage.LOADING); lobbyReady = false; mapFailure = Component.empty();
-        var connected = online();
         var enrolled = connected.stream().map(ServerPlayer::getUUID).toList();
         for (ServerPlayer player : connected) {
             if (isDeveloper(player)) continue;
@@ -1075,9 +1081,7 @@ public final class GameController {
             try { items.tick(); } finally { supernovaNativeTick=false; }
             tickSupernovaMap(); tickBalanceMap(); return;
         }
-        if(runeRestartPending&&stage==Stage.LOBBY&&lobbyReady&&!maps.busy()){
-            runeRestartPending=false;requestStart(null,true);
-        }
+        if(runeRestarting()&&playing()) { startRuneMap(runeRestart); return; }
         // В лобби предметы доступны только developer; основной игровой tick items уже вызывается ниже.
         if (!playing()) items.tick();
         if (stage == Stage.LOBBY && lobbyReady) {
@@ -1367,7 +1371,10 @@ public final class GameController {
             items.indolenceFingers().respawned(player);
             respawnProtection(player,!fingerSpawn);
         } else if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
-        else if (stage == Stage.LOADING) loadingPlayer(player);
+        else if (stage == Stage.LOADING) {
+            loadingPlayer(player);
+            if(runeRestarting()&&!runeRestart.players().contains(player.getUUID()))spectators.enter(player);
+        }
         else { if (p != null) p.awaitingRespawn = false; spectators.enter(player); teleport(player, maps.look(), 0, 0); }
     }
 
@@ -1473,10 +1480,43 @@ public final class GameController {
         begin();
     }
 
-    /** Nautiz replaces the round through the same map-ready/lobby/new-match transitions as normal play. */
-    void restartFromRune(ServerPlayer author){
-        if(!playing()||maps.busy()||stopped||cunnyRestart!=null)return;
-        stopMatch();runeRestartPending=true;
+    /** Nautiz uses the next random map while retaining the current round's eligible roster. */
+    boolean restartFromRune(ServerPlayer author){
+        if(!playing()||!canUseGameplayItems(author)||maps.busy()||stopped||cunnyRestart!=null||runeRestarting()
+                ||vanity.busy()||vanity.capturePreparing()||developerTools.authoring().busy()||supernovaMapTransition()
+                ||items.supernova().phase()!=LbcSupernova.Phase.IDLE||!modeReady(config.gameMode))return false;
+        var players=online().stream().filter(p->!isObserver(p)&&!p.isSpectator()).filter(p->{
+            var member=participants.get(p.getUUID());return member!=null&&member.lives>0&&!member.disconnected;
+        }).map(ServerPlayer::getUUID).collect(java.util.stream.Collectors.toUnmodifiableSet());
+        int minimum=developerMode()?1:2;
+        if(players.size()<minimum)return false;
+        var candidates=maps.quickStartCandidates(config.gameMode>=3?minimum:players.size(),config.broken,config.gameMode>=3);
+        if(candidates.isEmpty())return false;
+        var map=candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+        runeRestart=new RuneRestart(players,map.id(),config.broken,config.gameMode);
+        for(var player:online())player.closeContainer();
+        return true;
+    }
+
+    private void startRuneMap(RuneRestart restart){
+        resetForLoading();
+        for(var player:online())if(!restart.players().contains(player.getUUID()))spectators.enter(player);
+        developerTools.gallery().clearForMatchStart();
+        var map=maps.info(restart.map());
+        announce(text("game.loading",map.displayName()));
+        maps.load(restart.map(),restart.broken(),result->{
+            if(stopped||runeRestart!=restart)return;
+            if(!result.success()){
+                announce(text("game.load_failed",result.message()));restoreLobby();return;
+            }
+            var ready=online().stream().filter(p->restart.players().contains(p.getUUID())).toList();
+            if(config.gameMode!=restart.mode()||ready.size()<(developerMode()?1:2)||!mapCapacity(map,ready.size())){
+                announce(text("game.cancelled_players"));restoreLobby();return;
+            }
+            config.mapId=restart.map();config.broken=restart.broken();config.save();
+            readyMap=restart.map();readyBroken=restart.broken();
+            begin(ready);
+        });
     }
     void addRuneLives(ServerPlayer author,int amount){
         var member=participants.get(author.getUUID());if(member==null)return;
@@ -1618,19 +1658,32 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        boolean preserveFinishedMap = playing() || stage == Stage.ENDING;
+        runeRestart=null;
+        resetForLoading();
+        maps.lobby(result -> {
+            if (stopped) return;
+            if (!result.success()) { mapFailure = result.message(); SkyWars2.LOGGER.error("Lobby: {}", mapFailure.getString()); return; }
+            lobbyReady = true; transition(Stage.LOBBY);
+            for (ServerPlayer player : online()) lobbyPlayer(player);
+            pendingLobby.clear();
+            // После матча оставляем его результат для осмотра. Следующий выбор/start подготовит новую карту.
+            if (!preserveFinishedMap) prepareSelectedMap();
+        });
+    }
+
+    private void resetForLoading() {
         synchroRanked.clear();
         perkChoices.clear();
         cunnyRestart=null;
         vanity.stop();
         lbc.resetLevelupMatch();
         bedwars.stop();
-        runeRestartPending=false;
         supernovaMap=null;
         balanceMap=null;balanceLegacy(false);balancePendingReset.clear();balancePendingRewards.clear();
         teamColors.stop();
         luckyModifiers.endMatch();
         // Общая точка завершения/отмены матча: снимает временные состояния, готовит арену и ждёт callback лобби.
-        boolean preserveFinishedMap = playing() || stage == Stage.ENDING;
         attributeHud.stop();
         items.stop();
         spectators.clear();
@@ -1654,15 +1707,6 @@ public final class GameController {
             maps.level().getGameRules().set(GameRules.FALL_DAMAGE, false, server);
             maps.level().getGameRules().set(GameRules.KEEP_INVENTORY, false, server);
         }
-        maps.lobby(result -> {
-            if (stopped) return;
-            if (!result.success()) { mapFailure = result.message(); SkyWars2.LOGGER.error("Lobby: {}", mapFailure.getString()); return; }
-            lobbyReady = true; transition(Stage.LOBBY);
-            for (ServerPlayer player : online()) lobbyPlayer(player);
-            pendingLobby.clear();
-            // После матча оставляем его результат для осмотра. Следующий выбор/start подготовит новую карту.
-            if (!preserveFinishedMap) prepareSelectedMap();
-        });
     }
 
     private void lobbyPlayer(ServerPlayer player) {
@@ -1703,7 +1747,7 @@ public final class GameController {
         boolean changed = false;
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack current = inventory.getItem(slot);
-            if (slot == MENU_COMPASS_SLOT) {
+            if (slot == MENU_COMPASS_SLOT && !runeRestarting()) {
                 if (current.getCount() != 1 || !ItemStack.isSameItemSameComponents(current, lobbyCompass)) {
                     inventory.setItem(slot, lobbyCompass.copy()); changed = true;
                 }

@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 final class LbcRuneGlobals implements LbcImbaRunes.GlobalActions {
     private final GameController game;
     LbcRuneGlobals(GameController game){this.game=game;}
-    public void restart(ServerPlayer author){game.restartFromRune(author);}
+    public boolean restart(ServerPlayer author){return game.restartFromRune(author);}
     public void addLives(ServerPlayer author,int amount){game.addRuneLives(author,amount);}
     public void clearMap(ServerPlayer author){
         var level=author.level();var epoch=game.items().epoch();var cause=game.items().indirectKills().wildCause(author);

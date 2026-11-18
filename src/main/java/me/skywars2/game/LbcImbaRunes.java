@@ -37,7 +37,7 @@ public final class LbcImbaRunes {
     /** Match/map ownership stays with GameController and MapManager. */
     public interface GlobalActions {
         void clearMap(ServerPlayer author);
-        void restart(ServerPlayer author);
+        boolean restart(ServerPlayer author);
         void addLives(ServerPlayer author,int amount);
     }
     static final Identifier POSITIVE=Identifier.parse("minecraft:rune_thurisaz"),NEGATIVE=Identifier.parse("minecraft:rune_thurisaz_negative");
@@ -58,6 +58,10 @@ public final class LbcImbaRunes {
     public boolean use(ServerPlayer p,InteractionHand hand){var stack=p.getItemInHand(hand);var k=kind(stack);if(k==null||!admitted(p))return false;
         if(k==Kind.FEHU||k==Kind.GIFU){var direction=p.getLookAngle();var from=p.getEyePosition().add(direction.scale(hand==InteractionHand.OFF_HAND?.5:0));
             game.items().exasperato().replayableSamples(p,from,direction,200,new RuneRay(p,hand,stack,k,direction));return true;}
+        if(k==Kind.NAUTIZ){
+            if(!globals.restart(p))return false;
+            debit(p,stack);title("new_game",true);return true;
+        }
         debit(p,stack);
         switch(k){
             case URUZ->{p.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(1e100);p.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,-1,4,false,false),p);}
@@ -67,10 +71,6 @@ public final class LbcImbaRunes {
             case KENAZ->{nether(p);title("kysinlava",false);}
             case WUNJO->{globals.addLives(p,16);p.level().getGameRules().set(GameRules.KEEP_INVENTORY,true,game.server());title("keepinventory",true);}
             case HAGALAZ->{globals.clearMap(p);for(var e:entities(p.level()))if(e instanceof ItemEntity)e.discard();title("hagalaz",false);}
-            case NAUTIZ->{title("new_game",true);for(var target:List.copyOf(game.server().getPlayerList().getPlayers())){target.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,200,4,false,false),p);target.teleportTo(p.level(),0,1000,0,TeleportMomentum.positionFlags(Set.of()),target.getYRot(),target.getXRot(),true);}
-                p.level().getGameRules().set(GameRules.FALL_DAMAGE,false,game.server());globals.restart(p);
-                for(int n=0;n<4;n++)for(var e:List.copyOf(entities(p.level())))if(!(e instanceof ServerPlayer)&&!(e instanceof net.minecraft.world.entity.Marker)){
-                    if(e instanceof LivingEntity living)game.items().indirectKills().inheritedExecution(living,game.items().indirectKills().wildCause(p));else e.kill(p.level());}}
             default->throw new IllegalStateException("Unexpected immediate rune "+k);
         }return true;
     }

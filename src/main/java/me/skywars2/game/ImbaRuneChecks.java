@@ -150,21 +150,29 @@ public final class ImbaRuneChecks {
     private static RestartFixture restart;
     /** Destructive final-match fixture: the disposable native harness owns restoring its server snapshot. */
     private static final class RestartFixture implements AutoCloseable {
-        final GameController game;final UUID author;final String epoch;final ItemStack held;
+        final GameController game;final UUID author;final UUID observer;final String epoch;final ItemStack held;
         final net.minecraft.server.network.ServerGamePacketListenerImpl connection;final ElementalGrimoireChecks.Recording wire;
         int frames;boolean closed;
         RestartFixture(GameController game){this.game=game;require(globals==null&&!game.vanity().busy()&&game.playing()&&!game.maps().busy(),"final isolated actual playing match");
             var p=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(p!=null&&game.canUseGameplayItems(p)&&!game.items().magic().suppressed(p),"actual unsuppressed restart author");
+            var watching=GameChecks.createBot(game,"TestRuneWatcher");
+            game.spectators().enter(watching);observer=watching.getUUID();
             author=p.getUUID();epoch=game.items().epoch();connection=p.connection;wire=new ElementalGrimoireChecks.Recording(p);
             p.connection=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),wire,p,new net.minecraft.server.network.CommonListenerCookie(p.getGameProfile(),0,p.clientInformation(),false));
             p.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());p.setGameMode(GameType.SURVIVAL);
             held=loot(game,p,LbcImbaRunes.Kind.NAUTIZ);held.setCount(2);p.setItemInHand(InteractionHand.MAIN_HAND,held);
-            require(p.gameMode.useItem(p,p.level(),held,InteractionHand.MAIN_HAND).consumesAction()&&held.getCount()==1,"actual Nautiz input and one native debit before restart");}
+            require(p.gameMode.useItem(p,p.level(),held,InteractionHand.MAIN_HAND).consumesAction()&&held.getCount()==1,"actual Nautiz input and one native debit before restart");
+            var blocked=game.menus();blocked.open(p,GameMenus.Page.STATS);blocked.open(watching);
+            require(p.containerMenu==p.inventoryMenu&&watching.containerMenu==watching.inventoryMenu,
+                    "neither the caster nor the observer can open a menu during the restart");}
         boolean step(){require(++frames<2400,"bounded native controller restart/map preparation");var p=game.server().getPlayerList().getPlayer(author);require(p!=null,"restart preserves real participant connection");
+            var watching=game.server().getPlayerList().getPlayer(observer);
+            require(watching!=null&&game.isObserver(watching)&&!game.inLobby(),"Nautiz never enters the lobby or enrolls the existing spectator");
             p.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());var positions=wire.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::cast).toList();
             if(!positions.isEmpty())p.connection.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(positions.getLast().id(),p.getX(),p.getY(),p.getZ(),p.getYRot(),p.getXRot()));
             if(game.items().currentEpoch(epoch)||game.maps().busy()||!game.playing())return false;
-            require(game.canUseGameplayItems(p)&&!game.isObserver(p)&&game.lives(author)==Math.max(1,game.config().lives)&&game.selectedMapReady(),"actual selected new match/reinitialized participant lives/ready native map");return true;}
+            require(game.canUseGameplayItems(p)&&!game.isObserver(p)&&game.lives(author)==Math.max(1,game.config().lives)&&game.selectedMapReady(),"actual selected new match/reinitialized participant lives/ready native map");
+            require(!game.canUseGameplayItems(watching)&&game.lives(observer)==0,"the previous spectator stays outside the new match roster");return true;}
         @Override public void close(){if(closed)return;closed=true;var p=game.server().getPlayerList().getPlayer(author);if(p!=null){p.connection=connection;p.connection.resetPosition();}}
     }
     public static void startRestart(GameController game){require(restart==null,"exclusive final restart fixture");restart=new RestartFixture(game);}
