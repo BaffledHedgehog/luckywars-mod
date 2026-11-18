@@ -320,17 +320,17 @@ def build(table_root=TABLES):
             issue(table, path, 'nonliteral/non-LBC table reference'); return []
         if kind in {'group', 'sequence', 'alternatives'}:
             children = entry.get('children', [])
-            # Alternatives/sequence may impose sibling success/failure semantics.
-            # Preserve the real subtree for single-logical-item composites only.
+            # Only the result of a child with later siblings needs to become a
+            # condition. A final composite can contribute its leaves directly.
             flattened = []
             prior = []
             for ci, child in enumerate(children):
-                if kind != 'group' and node_kind(child) not in {'item', 'loot_table'}:
-                    issue(table, path, kind + ' has non-singleton sibling success semantics')
                 gate = None
                 if kind == 'alternatives' and any(condition is None for condition in prior):
                     findings.append({'table': table, 'path': path + ['children', ci], 'reason': 'unreachable after unconditional alternatives sibling'})
                     continue
+                if kind != 'group' and ci < len(children) - 1 and node_kind(child) not in {'item', 'loot_table'}:
+                    issue(table, path + ['children', ci], kind + ' has non-singleton sibling success semantics')
                 terms = [({'type': 'minecraft:inverted', 'term': condition} if kind == 'alternatives' else condition)
                          for condition in prior if condition is not None]
                 if kind != 'group' and terms:

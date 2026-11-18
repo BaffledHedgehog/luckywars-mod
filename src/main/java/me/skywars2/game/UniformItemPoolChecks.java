@@ -144,9 +144,15 @@ public final class UniformItemPoolChecks {
         var nodes=manifest.getAsJsonObject("entryNodes");JsonObject wrapper=null;
         for(var value:selected.getAsJsonArray("profiles")){
             var node=nodes.getAsJsonObject(value.getAsJsonObject().get("entry").getAsString());
-            if(node.has("modifier")&&node.get("modifier").isJsonObject()){
-                var modifier=node.getAsJsonObject("modifier");var count=modifier.get("count");
-                if(count!=null&&count.isJsonObject()&&count.getAsJsonObject().has("min")&&count.getAsJsonObject().get("min").getAsInt()==3&&count.getAsJsonObject().get("max").getAsInt()==6){require(wrapper==null,"one exact source shock3..6 outer profile");wrapper=node;}
+            while(node.has("children")){
+                var children=node.getAsJsonArray("children");
+                require(children.size()==1,"source shock profile follows singleton boundaries");
+                var modifier=node.get("modifier");
+                if(modifier instanceof JsonObject function&&function.get("count") instanceof JsonObject count
+                        &&count.has("min")&&count.get("min").getAsInt()==3&&count.get("max").getAsInt()==6){
+                    require(wrapper==null,"one exact source shock3..6 outer profile");wrapper=node;
+                }
+                node=nodes.getAsJsonObject(children.get(0).getAsString());
             }
         }
         require(wrapper!=null&&wrapper.getAsJsonArray("children").size()==1,"source shock profile retains outer3..6 native count modifier");
@@ -155,15 +161,20 @@ public final class UniformItemPoolChecks {
         // A real native table modifier has exactly the source boundary ordering:
         // leaf functions first, enclosing caller modifier afterward.
         var source=new JsonObject();var pools=new JsonArray();var pool=new JsonObject();var entries=new JsonArray();
-        entries.add(leaf.deepCopy());pool.addProperty("rolls",1);pool.add("entries",entries);pools.add(pool);source.add("pools",pools);source.add("modifier",wrapper.get("modifier").deepCopy());
+        entries.add(leaf.deepCopy());pool.addProperty("rolls",1);pool.add("entries",entries);pools.add(pool);source.add("pools",pools);
         var ops=game.server().reloadableRegistries().lookup().createSerializationContext(JsonOps.INSTANCE);
+        var unwrapped=LootTable.DIRECT_CODEC.parse(ops,source).getOrThrow();
+        source.add("modifier",wrapper.get("modifier").deepCopy());
         var table=LootTable.DIRECT_CODEC.parse(ops,source).getOrThrow();
         for(int seed=0;seed<8;seed++){
             var context=new LootContext.Builder(params).withOptionalRandomSource(net.minecraft.util.RandomSource.create(seed)).create(Optional.empty());
             var output=new ArrayList<ItemStack>();table.getRandomItemsRaw(context,output::add);
-            require(output.size()==1&&output.getFirst().is(Items.LINGERING_POTION)&&output.getFirst().getCount()>=3&&output.getFirst().getCount()<=6&&output.getFirst().getMaxStackSize()==1,"native source outer3..6 overrides innercount1 without changing potion components");
-            var raw=output.getFirst();var error=ItemStack.validateStrict(raw).error().orElseThrow().message();
-            if(seed==0)SkyWars2.LOGGER.info("[check] uniform source shock quantity witness: raw_count={} max_stack={} native_strict_error={}",raw.getCount(),raw.getMaxStackSize(),error);
+            require(output.size()==1&&output.getFirst().is(Items.LINGERING_POTION)&&output.getFirst().getCount()>=3&&output.getFirst().getCount()<=6&&output.getFirst().getMaxStackSize()==64,"native source outer3..6 uses the configured potion maximum64");
+            var raw=output.getFirst();var original=new ArrayList<ItemStack>();
+            unwrapped.getRandomItemsRaw(new LootContext.Builder(params).withOptionalRandomSource(net.minecraft.util.RandomSource.create(seed)).create(Optional.empty()),original::add);
+            require(original.size()==1&&original.getFirst().getCount()==1&&ItemStack.isSameItemSameComponents(raw,original.getFirst()),
+                    "native source outer3..6 changes only the authored potion quantity");
+            if(seed==0)SkyWars2.LOGGER.info("[check] uniform source shock quantity witness: raw_count={} max_stack={}",raw.getCount(),raw.getMaxStackSize());
             rawBoundary(raw,params.getLevel(),"shock_potion/source3..6/seed"+seed);
         }
     }

@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 import me.skywars2.game.LbcBulkLoot;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +24,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -79,10 +81,26 @@ public abstract class OversizedLootMixin {
 
     @Mixin(ItemStack.class)
     public abstract static class ContainerLimits {
+        private static final int POTION_STACK_SIZE = 64;
+
         @Inject(method="<init>(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/PatchedDataComponentMap;)V",at=@At("TAIL"))
         private void skywars2$potionStackLimit(Holder<Item> item,int count,PatchedDataComponentMap components,CallbackInfo ci){
             // Set an explicit component so an unmodified client sees the same limit as the server.
-            if(item.value() instanceof PotionItem)components.set(DataComponents.MAX_STACK_SIZE,64);
+            if(item.value() instanceof PotionItem)components.set(DataComponents.MAX_STACK_SIZE,POTION_STACK_SIZE);
+        }
+
+        @ModifyVariable(method = {"applyComponentsAndValidate", "applyComponents(Lnet/minecraft/core/component/DataComponentPatch;)V"},
+                at = @At("HEAD"), argsOnly = true)
+        private DataComponentPatch skywars2$keepPotionStackLimit(DataComponentPatch patch){
+            var stack = (ItemStack)(Object)this;
+            if (!(stack.getItem() instanceof PotionItem)
+                    || Integer.valueOf(POTION_STACK_SIZE).equals(patch.get(stack, DataComponents.MAX_STACK_SIZE))) return patch;
+            // Older loot may still supply a smaller limit. Keep all the other
+            // components and validate the patch with the same cap as a new stack.
+            var parts = patch.split();
+            var normalized = DataComponentPatch.builder().set(parts.added());
+            parts.removed().forEach(normalized::remove);
+            return normalized.set(DataComponents.MAX_STACK_SIZE, POTION_STACK_SIZE).build();
         }
 
         // The first validation is for the slotted CONTAINER component.

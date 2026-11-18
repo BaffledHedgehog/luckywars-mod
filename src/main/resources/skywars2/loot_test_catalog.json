@@ -2496,6 +2496,12 @@
       "generated": false
     },
     {
+      "table": "lbc:ported/genie_lamp",
+      "slot": "custom/01676e19e981a1b7a6b3",
+      "carrier": "skywars2:genie_lamp",
+      "generated": false
+    },
+    {
       "table": "lbc:items/firework.lbc__01754f9245",
       "slot": "custom/01754f924582d7bec65c",
       "carrier": "minecraft:bow",
@@ -16895,5 +16901,5 @@
     "lbc:white_arrow",
     "lbc:wtf_item"
   ],
-  "all_item_manifest_sha256": "4f778a4593b50fe988b4b390019fbb5904e46356d2abfb22e3dd7ef894db7aba"
+  "all_item_manifest_sha256": "91e6f3364f09d3f8ee6ea90b0a671baf2070154f30bb3b081b826ff735b45659"
 }

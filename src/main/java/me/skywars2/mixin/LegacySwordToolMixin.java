@@ -1,5 +1,7 @@
 package me.skywars2.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import java.util.Optional;
 import me.skywars2.game.LbcSwordTools;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -26,4 +28,11 @@ public abstract class LegacySwordToolMixin {
     }
     @Inject(method="applyComponents",at=@At("RETURN"))
     private void skywars2$swordComponents(CallbackInfo ci){LbcSwordTools.repair((ItemStack)(Object)this);}
+
+    @Inject(method="applyComponentsAndValidate",at=@At("RETURN"))
+    private void skywars2$validatedSwordComponents(CallbackInfo ci,@Local Optional<?> validationError){
+        // Loot functions use the validated patch path. Repair the published stack
+        // here so its first copy does not introduce new derived components.
+        if(validationError.isEmpty())LbcSwordTools.repair((ItemStack)(Object)this);
+    }
 }
