@@ -115,6 +115,16 @@ final class GenieLampScriptChecks implements AutoCloseable {
             }
             require(payloadCount == 89 && contract.contains("\"lbc.cast\""),
                     "model receives all 9 base and 80 Academy mode identifiers and their host operation");
+            var summons = facts.getAsJsonObject("script_summons");
+            require(summons.size() == 20 && contract.contains("\"lbc.summon\"") && prompt.contains("UUIDs for all live entities"),
+                    "model receives the native formations and the applicable script operation");
+            for (var entry : LbcSummons.scriptSummons()) {
+                var row = summons.getAsJsonObject(entry.id().toString());
+                require(row.get("roots").getAsInt() == entry.roots()
+                        && row.get("source_item").getAsString().equals(entry.sourceItem().toString())
+                        && facts.getAsJsonObject("item_names").has(entry.sourceItem().toString()),
+                        "summon descriptor uses actual content and name reference for " + entry.id());
+            }
             String boots = tables.get("lbc:ported/moisei_boots").toString();
             require(boots.contains("skywars2:moisei_boots") && boots.contains("\"translate\":\"moisei_boots\""),
                 "a named loot entry includes its carrier and original translation key");

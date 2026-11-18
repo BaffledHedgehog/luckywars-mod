@@ -9061,20 +9061,23 @@ public final class GameChecks {
                         for(var mob:service.snapshot()) { mob.setNoAi(true); mob.setNoGravity(true); }
                         var luck=service.snapshot().stream().filter(mob->mob.entityTags().contains("luck")).findFirst().orElseThrow();
                         long before=level.getEntitiesOfClass(net.minecraft.world.entity.projectile.arrow.Arrow.class,
-                                        luck.getBoundingBox().inflate(20),arrow->arrow.getOwner()==owner && arrow.entityTags().contains(LbcSummons.PROJECTILE)).size();
+                                        luck.getBoundingBox().inflate(20),arrow->arrow.getOwner()==luck && service.owner(arrow)==owner
+                                                && arrow.entityTags().contains(LbcSummons.PROJECTILE)).size();
                         require(luck.hurtServer(level,level.damageSources().mobAttack(other),1),"Real damage reaches the Luck callback fixture");
                         long after=level.getEntitiesOfClass(net.minecraft.world.entity.projectile.arrow.Arrow.class,
-                                        luck.getBoundingBox().inflate(20),arrow->arrow.getOwner()==owner && arrow.entityTags().contains(LbcSummons.PROJECTILE)).size();
+                                        luck.getBoundingBox().inflate(20),arrow->arrow.getOwner()==luck && service.owner(arrow)==owner
+                                                && arrow.entityTags().contains(LbcSummons.PROJECTILE)).size();
                         require(after-before==4,"One real Luck AFTER_DAMAGE callback launches exactly four native arrows");
                         var omni=service.snapshot().stream().filter(mob->mob.entityTags().contains("omnipresence")).findFirst().orElseThrow();
                         var priorOmniArrows=new java.util.HashSet<java.util.UUID>();
                         for(var entity:level.getAllEntities()) if(entity instanceof net.minecraft.world.entity.projectile.arrow.Arrow arrow
-                                        && arrow.getOwner()==owner && arrow.entityTags().contains(LbcSummons.PROJECTILE)) priorOmniArrows.add(arrow.getUUID());
+                                        && arrow.getOwner()==omni && service.owner(arrow)==owner
+                                        && arrow.entityTags().contains(LbcSummons.PROJECTILE)) priorOmniArrows.add(arrow.getUUID());
                         require(omni.hurtServer(level,level.damageSources().mobAttack(other),1),"Real damage reaches Omnipresence callback fixture");
                         int omniArrows=0;
                         // Native teleport lands on terrain, possibly far below this high-altitude fixture.
                         for(var entity:level.getAllEntities()) if(entity instanceof net.minecraft.world.entity.projectile.arrow.Arrow arrow
-                                        && arrow.getOwner()==owner && arrow.entityTags().contains(LbcSummons.PROJECTILE)
+                                        && arrow.getOwner()==omni && service.owner(arrow)==owner && arrow.entityTags().contains(LbcSummons.PROJECTILE)
                                         && !priorOmniArrows.contains(arrow.getUUID())) omniArrows++;
                         require(omniArrows==1,"One real Omnipresence callback targets one nearest enemy and emits one arrow: "+omniArrows);
                         var chaos=service.snapshot().stream().filter(mob->mob.entityTags().contains("chaos")).findFirst().orElseThrow();
@@ -9098,9 +9101,9 @@ public final class GameChecks {
                         net.minecraft.world.entity.projectile.arrow.ThrownTrident chaosTrident=null;
                         for(var entity:level.getAllEntities()) if(!existingConsequences.contains(entity)
                                         && entity instanceof net.minecraft.world.entity.projectile.arrow.ThrownTrident trident) chaosTrident=trident;
-                        require(chaosTrident!=null && chaosTrident.getOwner()==owner
+                        require(chaosTrident!=null && chaosTrident.getOwner()==chaos
                                         && Math.abs(chaosTrident.getDeltaMovement().length()-7)<.0001
-                                        && service.owner(chaosTrident)==owner,"Chaos launches native trident at speed seven with inherited owner");
+                                        && service.owner(chaosTrident)==owner,"Chaos launches native trident at speed seven with separate shooter and caster");
                         chaosTrident.discard();
                         int expectedFangs=0;
                         for(var entity:level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,chaos.getBoundingBox().inflate(50)))

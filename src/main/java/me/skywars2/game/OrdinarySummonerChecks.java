@@ -89,8 +89,11 @@ public final class OrdinarySummonerChecks {
         reset(f);service.castOrdinary(p,LbcSummonerItems.kinds().get(3));var rider=(Skeleton)service.ordinarySnapshot("ghostrider").stream().filter(e->e instanceof Skeleton).findFirst().orElseThrow();
         var victim=cow(f,rider.position().add(0,0,12),100);rider.performRangedAttack(victim,1);
         var arrow=new ArrayList<AbstractArrow>();for(var e:f.level.getAllEntities())if(!f.base.before.contains(e)&&e instanceof AbstractArrow a)arrow.add(a);
-        require(arrow.size()==1&&arrow.getFirst().getOwner()==p&&service.owner(arrow.getFirst())==p&&arrow.getFirst().isOnFire()
-                &&arrow.getFirst().pickup==AbstractArrow.Pickup.DISALLOWED,"native enchanted rider arrow retains no-pickup while transferring owner/flame");
+        require(arrow.size()==1&&arrow.getFirst().getOwner()==rider&&service.owner(arrow.getFirst())==p&&arrow.getFirst().isOnFire()
+                &&arrow.getFirst().pickup==AbstractArrow.Pickup.DISALLOWED,"native enchanted rider remains the physical shooter with separate caster credit, flame and no pickup");
+        var hit = f.level.damageSources().arrow(arrow.getFirst(), rider);
+        require(victim.hurtServer(f.level, hit, 1000) && victim.isDeadOrDying() && victim.getKillCredit() == p,
+                "a lethal rider arrow still credits the summoner");
         f.beta.teleportTo(f.level,f.at.x,f.at.y+500,f.at.z,Set.of(),0,0,true);f.beta.setNoGravity(true);
         for(int kind:new int[]{4,5}){
             reset(f);var def=LbcSummonerItems.kinds().get(kind);service.castOrdinary(p,def);var shooter=service.ordinarySnapshot(def.kind()).stream().filter(e->e.getPassengers().isEmpty()).findFirst().orElseThrow();shooter.setNoGravity(true);
@@ -99,7 +102,9 @@ public final class OrdinarySummonerChecks {
             var root=shooter.getRootVehicle();root.setNoGravity(true);
             for(int tick=0;tick<130;tick++)f.level.tickNonPassenger(root);
             var projectiles=new ArrayList<Projectile>();for(var e:f.level.getAllEntities())if(!f.base.before.contains(e)&&!e.isRemoved()&&e instanceof Projectile shot)projectiles.add(shot);
-            require(!projectiles.isEmpty()&&projectiles.stream().allMatch(e->e.getOwner()==p&&service.owner(e)==p),"native "+def.kind()+" AI shoots owned projectiles; count="+projectiles.size()+", target="+shooter.getTarget()+", pos="+shooter.position()+", canAttack="+shooter.canAttack(enemy));
+            var family = service.ordinarySnapshot(def.kind());
+            require(!projectiles.isEmpty()&&projectiles.stream().allMatch(e->family.contains(e.getOwner())&&service.owner(e)==p),
+                    "native "+def.kind()+" AI retains physical shooters with caster credit; count="+projectiles.size()+", target="+shooter.getTarget());
         }
         reset(f);service.castOrdinary(p,LbcSummonerItems.kinds().get(6));var guardian=service.ordinarySnapshot("guardians").getFirst();
         f.level.setBlock(BlockPos.containing(f.at.add(0,p.getEyeHeight(),8)),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2);

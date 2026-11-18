@@ -151,6 +151,12 @@ public final class GenieNative {
         return accepted;
     }
 
+    public static List<java.util.UUID> summon(GameController game, ServerPlayer player, Identifier id, Vec3 center) {
+        try (var scope = WandCastOrigin.scope(player, true)) {
+            return game.items().summons().scriptSummon(player, id, center);
+        }
+    }
+
     /** Point-targeted abilities keep their own permissions, effects and native attribution. */
     public static boolean castAt(GameController game, ServerPlayer player, Identifier id, Vec3 target) {
         var spell = TARGETED_CASTS.get(id);

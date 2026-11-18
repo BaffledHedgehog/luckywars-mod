@@ -11,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -74,6 +76,41 @@ public final class LbcSummons {
         return LbcSummonerItems.kind(stack)!=null||stack.is(LbcWands.SUMMONER_VEXES)||stack.is(LbcWands.PSYCHOVEX)
                 ||data.getIntOr("summonervexes",0)==1||data.getIntOr("psychovex_wand",0)==1||LbcKfcRewards.isCultus(stack);
     }
+    public enum SummonFamily { ORDINARY, VEX, PSYCHOVEX, CUNNY }
+
+    public record SummonOption(Identifier id, Identifier sourceItem, SummonFamily family, String variant, int roots) {}
+
+    private record Recipe(SummonOption option, LbcSummonerItems.Kind ordinary, int cultist) {}
+
+    private static final class ScriptRecipes {
+        private static final Map<Identifier, Recipe> RECIPES = map();
+
+        private static Map<Identifier, Recipe> map() {
+            var recipes = new LinkedHashMap<Identifier, Recipe>();
+            for (var item : LbcSummonerItems.kinds()) {
+                var id = Identifier.parse("skywars2:" + item.id());
+                var option = new SummonOption(id, id, SummonFamily.ORDINARY, item.kind(), item.roots().size());
+                recipes.put(id, new Recipe(option, item, 0));
+            }
+            var vex = Identifier.parse("skywars2:summoner_vexes_wand");
+            recipes.put(vex, new Recipe(new SummonOption(vex, vex, SummonFamily.VEX, "vex", 4), null, 0));
+            for (int i = 0; i < CULTISTS.length; i++) {
+                String variant = CULTISTS[i];
+                var psycho = Identifier.parse("skywars2:psychovex_" + variant);
+                var psychoItem = Identifier.parse("skywars2:psychovex_wand");
+                var cunny = Identifier.parse("skywars2:cunny_cultist_" + variant);
+                var cunnyItem = Identifier.parse("skywars2:cunny_4");
+                recipes.put(psycho, new Recipe(new SummonOption(psycho, psychoItem, SummonFamily.PSYCHOVEX, variant, 1), null, i+1));
+                recipes.put(cunny, new Recipe(new SummonOption(cunny, cunnyItem, SummonFamily.CUNNY, variant, 1), null, i+1));
+            }
+            return java.util.Collections.unmodifiableMap(recipes);
+        }
+    }
+
+    public static List<SummonOption> scriptSummons() {
+        return ScriptRecipes.RECIPES.values().stream().map(Recipe::option).toList();
+    }
+
     private record Summon(UUID owner,String epoch,String kind) { }
     private static final class StrangeRay {
         final UUID owner; final String epoch; final ServerLevel level; final Vec3 origin; final int due; final Mob actor;
@@ -223,20 +260,77 @@ public final class LbcSummons {
     }
     boolean castOrdinary(ServerPlayer owner,LbcSummonerItems.Kind kind){
         if(!ready())return false;
-        String family="ordinary_"+kind.kind();
-        // Direct owner/group handles replace the source's32 team selectors; unrelated casts stay intact.
-        for(var mob:List.copyOf(mobs.keySet())){var state=mobs.get(mob);
-            if(state!=null&&state.kind.equals(family)&&state.owner.equals(owner.getUUID()))remove(mob);
-        }
-        Vec3 forward=horizontal(owner),left=new Vec3(forward.z,0,-forward.x);
-        for(var root:kind.roots()){
-            var v=root.offset();var offset=root.local()?left.scale(v.x).add(0,v.y,0).add(forward.scale(v.z)):v;
-            var position=owner.position().add(offset);
-            if(owner.level().hasChunkAt(BlockPos.containing(position)))ordinaryTree(owner,family,presets.get(family),position,null);
-        }
+        ordinaryFormation(owner, kind, owner.position(), false);
         effects(owner,false);return true;
     }
-    private Mob ordinaryTree(ServerPlayer owner,String family,CompoundTag tag,Vec3 at,Mob vehicle){
+
+    private static boolean scriptPosition(ServerLevel level, Vec3 position) {
+        if (!(Math.abs(position.x) < 30_000_000 && Math.abs(position.z) < 30_000_000
+                && position.y >= level.getMinY() && position.y < level.getMaxY() + 1.0)) return false;
+        var cell = BlockPos.containing(position);
+        return level.isInWorldBounds(cell) && level.hasChunkAt(cell) && level.getWorldBorder().isWithinBounds(cell);
+    }
+
+    private boolean scriptCell(ServerLevel level, Vec3 position) {
+        return scriptPosition(level, position) && !game.items().magic().suppressedAt(level, position);
+    }
+
+    List<UUID> scriptSummon(ServerPlayer owner, Identifier id, Vec3 center) {
+        var recipe = ScriptRecipes.RECIPES.get(id);
+        if (recipe == null) throw new IllegalArgumentException("unknown native LuckyWars summon");
+        var level = owner.level();
+        if (!LbcLibrarySpells.admitted(game, owner, InteractionHand.MAIN_HAND) || !LbcDimensionItems.ordinary(level)
+                || game.isObserver(owner) || !valid(owner) || paused(owner) || !scriptCell(level, center) || !ready()) return List.of();
+
+        var family = recipe.option().family();
+        List<Mob> published = switch (family) {
+            case ORDINARY -> ordinaryFormation(owner, recipe.ordinary(), center, true);
+            case VEX -> vexFormation(owner, center, true);
+            case PSYCHOVEX -> {
+                var body = spawnPreset(owner, recipe.option().variant(), center);
+                yield body == null ? List.of() : List.of(body);
+            }
+            case CUNNY -> {
+                var body = game.items().cunny().summonAt(owner, center, recipe.cultist());
+                yield body == null ? List.of() : List.of(body);
+            }
+        };
+        var ids = published.stream().filter(mob -> !mob.isRemoved() && level.getEntity(mob.getUUID()) == mob)
+                .map(Entity::getUUID).toList();
+        if (!ids.isEmpty() && family != SummonFamily.CUNNY) {
+            effects(owner, family == SummonFamily.PSYCHOVEX);
+            game.items().trinkets().summoned(owner);
+        }
+        return ids;
+    }
+
+    private void replaceFamily(ServerPlayer owner, String family) {
+        // Retire just the caster's previous formation of this family.
+        for (var mob : List.copyOf(mobs.keySet())) {
+            var state = mobs.get(mob);
+            if (state != null && state.kind.equals(family) && state.owner.equals(owner.getUUID())) remove(mob);
+        }
+    }
+
+    private List<Mob> ordinaryFormation(ServerPlayer owner, LbcSummonerItems.Kind kind, Vec3 center, boolean scripted) {
+        Vec3 forward = horizontal(owner), left = new Vec3(forward.z, 0, -forward.x);
+        var positions = new ArrayList<Vec3>();
+        for (var root : kind.roots()) {
+            var offset = root.offset();
+            if (root.local()) offset = left.scale(offset.x).add(0, offset.y, 0).add(forward.scale(offset.z));
+            var position = center.add(offset);
+            if (scripted ? scriptCell(owner.level(), position) : owner.level().hasChunkAt(BlockPos.containing(position)))
+                positions.add(position);
+        }
+        if (scripted && positions.isEmpty()) return List.of();
+        String family = "ordinary_" + kind.kind();
+        replaceFamily(owner, family);
+        var born = new ArrayList<Mob>();
+        for (var position : positions) ordinaryTree(owner, family, presets.get(family), position, null, born);
+        return born;
+    }
+
+    private void ordinaryTree(ServerPlayer owner, String family, CompoundTag tag, Vec3 at, Mob vehicle, List<Mob> born) {
         Mob mob=switch(tag.getStringOr("id","")){
             case "minecraft:skeleton"->new CultSkeleton(owner.level());
             case "minecraft:ravager"->new SoulRavager(owner.level());
@@ -251,19 +345,16 @@ public final class LbcSummons {
         mob.setPos(at);mob.entityTags().add("summactivated");mob.entityTags().add("skywars2.summons.actor");game.items().markCurrentItemEpoch(mob);
         mobs.put(mob,new Summon(owner.getUUID(),game.items().epoch(),family));orders.attach(mob);
         if(owner.getTeam()!=null)owner.level().getScoreboard().addPlayerToTeam(mob.getStringUUID(),owner.getTeam());
-        if(!owner.level().addFreshEntity(mob)){remove(mob);return null;}
-        if(vehicle!=null)mob.startRiding(vehicle,true,true);
-        for(var child:tag.getListOrEmpty("Passengers"))if(child instanceof CompoundTag passenger)ordinaryTree(owner,family,passenger,at,mob);
-        return mob;
+        if (!owner.level().addFreshEntity(mob)) { remove(mob); return; }
+        if (vehicle != null) mob.startRiding(vehicle, true, true);
+        born.add(mob);
+        for (var child : tag.getListOrEmpty("Passengers")) {
+            if (child instanceof CompoundTag passenger) ordinaryTree(owner, family, passenger, at, mob, born);
+        }
     }
     private boolean castSummon(ServerPlayer owner,boolean psycho,boolean down,ServerPlayer destination){
         if(!psycho) {
-            for(var mob:List.copyOf(mobs.keySet())) {
-                var state=mobs.get(mob);
-                if(state!=null && state.kind.equals("vex") && state.owner.equals(owner.getUUID())) remove(mob);
-            }
-            for(int[] shift:new int[][]{{1,0},{-1,0},{0,1},{0,-1}})
-                spawnPreset(owner,"vex",owner.position().add(shift[0],1,shift[1]));
+            vexFormation(owner, owner.position(), false);
         } else {
             Vec3 point;
             if(down) point=owner.position().add(horizontal(owner).scale(2));
@@ -278,6 +369,20 @@ public final class LbcSummons {
         }
         effects(owner,psycho); game.items().trinkets().summoned(owner); return true;
     }
+    private List<Mob> vexFormation(ServerPlayer owner, Vec3 center, boolean scripted) {
+        var positions = List.of(center.add(1, 1, 0), center.add(-1, 1, 0),
+                center.add(0, 1, 1), center.add(0, 1, -1));
+        if (scripted) positions = positions.stream().filter(at -> scriptCell(owner.level(), at)).toList();
+        if (scripted && positions.isEmpty()) return List.of();
+        replaceFamily(owner, "vex");
+        var born = new ArrayList<Mob>();
+        for (var position : positions) {
+            var mob = spawnPreset(owner, "vex", position);
+            if (mob != null) born.add(mob);
+        }
+        return born;
+    }
+
     void sauvojenCultist(ServerPlayer owner,Vec3 origin,Vec3 direction){
         var target=owner.level().players().stream().filter(p->p!=owner&&!p.isSpectator()&&!game.isObserver(p)&&p.isAlive())
                 .min(Comparator.comparingDouble(p->p.position().distanceToSqr(origin))).orElse(null);

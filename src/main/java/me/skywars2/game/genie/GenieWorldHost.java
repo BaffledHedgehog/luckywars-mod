@@ -35,6 +35,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         Map.entry("lbc.grimoire",new ScriptProgram.Signature(1,2)),
         Map.entry("lbc.cast",new ScriptProgram.Signature(1,4)),
         Map.entry("lbc.cast_at",new ScriptProgram.Signature(2,2)),
+        Map.entry("lbc.summon",new ScriptProgram.Signature(2,2)),
         Map.entry("math.random",new ScriptProgram.Signature(0,2)),
         Map.entry("time.tick",new ScriptProgram.Signature(0,0)));
     private final GameController game;
@@ -134,6 +135,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "entity.info"->info(find(text(values.getFirst())));
             case "entity.launch"->launch(values);
             case "lbc.grimoire"->grimoire(values);
+            case "lbc.summon"->summon(values);
             case "lbc.cast"->cast(values);
             case "lbc.cast_at"->new JsonPrimitive(GenieNative.castAt(game,owner,
                 Identifier.parse(text(values.getFirst())),vector(values.get(1))));
@@ -170,6 +172,13 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         }
         var entity=game.items().genie().runtime().launchNative(owner,captured,type,position,velocity,life,0);
         return entity==null?JsonNull.INSTANCE:new JsonPrimitive(entity.getUUID().toString());
+    }
+
+    private JsonElement summon(List<JsonElement> values) {
+        var ids = GenieNative.summon(game, owner, Identifier.parse(text(values.get(0))), vector(values.get(1)));
+        var bodies = new JsonArray();
+        for (var id : ids) bodies.add(id.toString());
+        return bodies;
     }
 
     private JsonElement cast(List<JsonElement> values) {

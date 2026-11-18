@@ -477,6 +477,65 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void nativeSummons(GameController game, WoolBucketChecks.Fixture base, Vec3 near) {
+        var service = game.items().summons();
+        var initial = Set.copyOf(service.snapshot());
+        var owner = base.owner;
+        var center = near.add(0, -22, 0);
+        var block = BlockPos.containing(center);
+        // The native Ghast Soul formation reaches ten blocks in both horizontal directions.
+        for (int x = (block.getX() - 10) >> 4; x <= ((block.getX() + 10) >> 4); x++)
+            for (int z = (block.getZ() - 10) >> 4; z <= ((block.getZ() + 10) >> 4); z++)
+                base.level.getChunk(x, z);
+
+        var soul = new JsonPrimitive("skywars2:summoner_guardians");
+        var mana = game.items().mana();
+        int balance = mana.get(owner);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        try (var host = new GenieWorldHost(game, owner, new ItemStack(Items.STICK), () -> true, () -> 0)) {
+            var absent = new Vec3(1048576.25, center.y, 1048576.25);
+            require(complete(host, queued(host, "lbc.summon", soul, vector(absent))).getAsJsonArray().isEmpty()
+                    && !base.level.hasChunkAt(BlockPos.containing(absent)), "summoning does not fetch absent chunks");
+            base.field(false, center);
+            require(complete(host, queued(host, "lbc.summon", soul, vector(center))).getAsJsonArray().isEmpty()
+                    && Set.copyOf(service.snapshot()).equals(initial), "antimagic suppresses the scripted formation");
+            base.removeFields();
+
+            for (var option : LbcSummons.scriptSummons()) {
+                var id = new JsonPrimitive(option.id().toString());
+                var ids = complete(host, queued(host, "lbc.summon", id, vector(center))).getAsJsonArray();
+                int expected = switch (option.variant()) {
+                    case "ghostrider", "blaze" -> 3;
+                    default -> option.roots();
+                };
+                require(ids.size() == expected, "returns every native body in " + option.id());
+                var bodies = ids.asList().stream().map(value -> base.level.getEntity(UUID.fromString(value.getAsString()))).toList();
+                require(bodies.stream().allMatch(entity -> entity instanceof Mob mob && service.owner(mob) == owner
+                        && game.items().currentEpoch(mob) && !mob.canAttack(owner)),
+                        "actual mobs have native ownership and cannot target their controller " + option.id());
+                if (option.variant().equals("ghostrider")) {
+                    require(bodies.get(0).getType() == EntityTypes.BAT && bodies.get(1).getType() == EntityTypes.SKELETON_HORSE
+                            && bodies.get(1).getVehicle() == bodies.get(0) && bodies.get(2).getVehicle() == bodies.get(1),
+                            "returns the mounted Ghost Rider in the native passenger order");
+                }
+                if (option.variant().equals("guardians")) {
+                    require(bodies.stream().allMatch(entity -> entity.getType() == EntityTypes.GUARDIAN && entity.isNoGravity()),
+                            "native Guardian Soul ships all four no-gravity bodies");
+                    var next = complete(host, queued(host, "lbc.summon", id, vector(center))).getAsJsonArray();
+                    require(next.size() == expected && bodies.stream().allMatch(Entity::isRemoved),
+                            "same-family recast replaces only those bodies");
+                }
+                service.snapshot().stream().filter(mob -> !initial.contains(mob)).forEach(base::discard);
+            }
+            require(mana.get(owner) == balance && owner.getMainHandItem() == main && owner.getOffhandItem() == off,
+                    "borrowing a summon factory does not consume the existing wand or spend its mana");
+        } finally {
+            base.removeFields();
+            service.snapshot().stream().filter(mob -> !initial.contains(mob)).forEach(base::discard);
+        }
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -540,6 +599,7 @@ final class GenieWorldChecks {
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);
             sauvojenCasts(game, base, launchSpot.add(0, .65, 0));
+            nativeSummons(game, base, launchSpot);
 
             require(GenieNative.grimoires().containsKey(net.minecraft.resources.Identifier.parse("skywars2:tesla_instant_grimoire")),"real Tesla grimoire is indexed by the engine");
             var oldSpeed=base.owner.getEffect(MobEffects.SPEED);

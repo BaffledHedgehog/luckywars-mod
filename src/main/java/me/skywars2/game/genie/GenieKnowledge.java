@@ -7,6 +7,7 @@ import java.util.*;
 import me.skywars2.game.AttributePolicy;
 import me.skywars2.game.GenieNative;
 import me.skywars2.game.LbcSauvojen;
+import me.skywars2.game.LbcSummons;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -128,6 +129,16 @@ public final class GenieKnowledge {
             sauvojen.add(branch.name().toLowerCase(Locale.ROOT), strings(ids));
         }
         root.add("script_sauvojen_payloads", sauvojen);
+        var summons = new JsonObject();
+        for (var option : LbcSummons.scriptSummons()) {
+            var row = new JsonObject();
+            row.addProperty("source_item", option.sourceItem().toString());
+            row.addProperty("family", option.family().name().toLowerCase(Locale.ROOT));
+            row.addProperty("variant", option.variant());
+            row.addProperty("roots", option.roots());
+            summons.add(option.id().toString(), row);
+        }
+        root.add("script_summons", summons);
         var targetedCasts = new JsonArray();
         for (var spell : GenieNative.TargetedCast.values()) {
             var row = new JsonObject();

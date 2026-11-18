@@ -88,10 +88,15 @@ final class LbcCunny {
     private void announce(ServerPlayer owner,int outcome){var text=Component.translatable(OUTCOME_KEYS[outcome]).withColor(0xe680f3);
         if(outcome==0||outcome==1||outcome==8||outcome==10||outcome==21)game.server().getPlayerList().broadcastSystemMessage(text,false);else owner.sendSystemMessage(text);}
     private void buff(ServerPlayer p,Holder<Attribute> type,double value,AttributeModifier.Operation operation){var a=p.getAttribute(type);if(a!=null&&!a.hasModifier(BUFF))a.addPermanentModifier(new AttributeModifier(BUFF,value,operation));}
-    void summonAt(ServerPlayer p,Vec3 at,int choice){if(game.items().summons().cunnyCultist(p,at,choice)!=null){summons++;
+    Mob summonAt(ServerPlayer p, Vec3 at, int choice) {
+        var mob = game.items().summons().cunnyCultist(p, at, choice);
+        if (mob == null) return null;
+        summons++;
         p.level().sendParticles(ParticleTypes.SOUL_FIRE_FLAME,at.x,at.y+1,at.z,100,5,5,5,0);
         for(float pitch:new float[]{2,1})LbcOverload.sound(p,at,"minecraft:entity.warden.agitated",1,pitch,0);
-        for(int n=0;n<2;n++)LbcOverload.sound(p,at,"minecraft:entity.vex.ambient",1,1,0);}}
+        for(int n=0;n<2;n++)LbcOverload.sound(p,at,"minecraft:entity.vex.ambient",1,1,0);
+        return mob;
+    }
     private boolean killCandidate(ServerPlayer owner,Entity e){return !e.isRemoved()&&e.isAlive()&&game.items().wands().validRoleTarget(e,false)
             ;}
     boolean randomKill(ServerPlayer owner,Entity e){if(!killCandidate(owner,e))return false;
