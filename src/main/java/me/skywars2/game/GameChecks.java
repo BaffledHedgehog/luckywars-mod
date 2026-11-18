@@ -6005,7 +6005,7 @@ public final class GameChecks {
                         // A nearby active shield transfers the ray owner's attribution just like other reflectable entities.
                         ally.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, new ItemStack(LbcElectro.SHIELD));
                         ally.startUsingItem(net.minecraft.world.InteractionHand.OFF_HAND);
-                        electro.tick();
+                        checkYellowSpinPackets(game, owner);
                         require(electro.yellowSnapshot().stream().anyMatch(trace -> trace.owner == ally),
                                         "Shield reflection transfers yellow-ray attribution to the blocker");
                         ally.releaseUsingItem();
@@ -6047,6 +6047,32 @@ public final class GameChecks {
                         try { ownerState.restore(game); } finally { allyState.restore(game); }
                 }
                 SkyWars2.LOGGER.info("[check] PASS yellow-katana");
+        }
+
+        private static void checkYellowSpinPackets(GameController game, ServerPlayer viewer) {
+                var oldConnection = viewer.connection;
+                var recording = new ElementalGrimoireChecks.Recording(viewer);
+                viewer.connection = new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(), recording, viewer,
+                                new CommonListenerCookie(viewer.getGameProfile(), 0, viewer.clientInformation(), false));
+                try {
+                        viewer.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
+                        recording.packets.clear();
+                        game.items().electro().tick();
+                        var spin = recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                                        .map(ClientboundLevelParticlesPacket.class::cast)
+                                        .filter(packet -> packet.particle().getType() == net.minecraft.core.particles.ParticleTypes.DUST
+                                                        && packet.yDist() == 1).toList();
+                        int expectedPackets = game.balanceLegacy() ? 66 : 23;
+                        int particles = spin.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
+                        require(spin.size() == expectedPackets && particles == 196
+                                        && spin.stream().allMatch(packet -> !packet.overrideLimiter() && packet.xMaxSpeed() == 0),
+                                        "Centered yellow spin keeps 196 particles with native range and zero speed: "
+                                                        + spin.size() + "/" + expectedPackets + " packets, " + particles + " particles");
+                        SkyWars2.LOGGER.info("[check] Yellow Katana spin particles: {} packets for {} particles",
+                                        spin.size(), particles);
+                } finally {
+                        viewer.connection = oldConnection;
+                }
         }
 
         private static void checkYellowKatanaCleanup(GameController game) {

@@ -371,11 +371,14 @@ for(int i=0;i<=2;i++) {
         var from=trace.position.add(0,1.1,0).subtract(direction.scale(8));
         Vec3 end=from;
         trace.level.sendParticles(SPIN_PARTICLE,trace.position.x,trace.position.y+1,trace.position.z,1,.2,1,.2,0);
-        for(int step=0;step<=64;step++) {
-            var point=from.add(direction.scale(step*.25));
-            if(!trace.level.hasChunkAt(net.minecraft.core.BlockPos.containing(point))) break;
-            end=point;
-            trace.level.sendParticles(SPIN_PARTICLE,point.x,point.y+.5,point.z,3,.01,1,.01,0);
+        try (var trail = new LbcParticleBatch.Group(trace.level, SPIN_PARTICLE, .01, 1, .01, 0, false, .26,
+                game.balanceLegacy() ? 1 : 3)) {
+            for (int step=0; step<=64; step++) {
+                var point=from.add(direction.scale(step*.25));
+                if (!trace.level.hasChunkAt(net.minecraft.core.BlockPos.containing(point))) break;
+                end=point;
+                trail.add(point.add(0,.5,0), 3);
+            }
         }
         // Старый dx=0,dy=8,dz=0 означает полосу 1×9×1 вокруг каждого sample, а не 65 entity queries.
         LbcDamage.hurtSegment(trace.level,yellowDamage(trace,LbcDamage.YELLOW_SPIN),from.add(0,1.5,0),end.add(0,1.5,0),
