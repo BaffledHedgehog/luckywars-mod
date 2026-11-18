@@ -131,8 +131,8 @@ public final class GenieRuntime {
         if(!replacement)legacyEvent(owner,Trigger.SHOT,null,captured,hand);
     }
     public void hit(ServerPlayer owner, LivingEntity target, InteractionHand hand, ItemStack physical,
-                    ItemStack captured, Projectile projectile) {
-        scripts.hit(owner,target,hand,physical,captured,projectile);
+                    ItemStack captured, Entity body) {
+        scripts.hit(owner,target,hand,physical,captured,body);
         legacyEvent(owner,Trigger.HIT,target,captured,hand,physical);
     }
     private void legacyEvent(ServerPlayer owner,Trigger trigger,Entity target,ItemStack captured,InteractionHand usedHand){

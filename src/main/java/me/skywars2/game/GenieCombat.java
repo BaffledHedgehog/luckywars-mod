@@ -15,7 +15,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 
@@ -53,11 +55,24 @@ public final class GenieCombat {
     }
 
     static void launched(GameController game, ServerPlayer owner, InteractionHand hand, ItemStack physical,
-                         ItemStack snapshot, Iterable<? extends Projectile> projectiles) {
+                         ItemStack snapshot, Iterable<? extends Entity> bodies) {
         if (!GenieRuntime.matches(snapshot)) return;
         var weapon = capture(game, owner, hand, physical, snapshot);
-        for (var projectile : projectiles) {
-            if (projectile.getOwner() == owner) projectile.setAttached(FIRED, weapon);
+        for (var body : bodies) {
+            if (ownedLaunch(body, owner)) body.setAttached(FIRED, weapon);
+        }
+    }
+
+    static boolean ownedLaunch(Entity body, ServerPlayer owner) {
+        return body instanceof TraceableEntity trace && trace.getOwner() == owner;
+    }
+
+    /** The final projectile of an accepted native conversion inherits the exact launch receipt. */
+    static void inheritLaunch(ServerPlayer owner, Projectile donor, Projectile replacement) {
+        var weapon = donor.getAttached(FIRED);
+        if (weapon != null && weapon.owner().equals(owner.getUUID())
+                && ownedLaunch(donor, owner) && ownedLaunch(replacement, owner)) {
+            replacement.setAttached(FIRED, weapon);
         }
     }
 
@@ -79,19 +94,19 @@ public final class GenieCombat {
     static void accepted(GameController game, LivingEntity victim, DamageSource actual) {
         var source = LbcIndirectKills.originalDamage(actual);
         if (!(source.getEntity() instanceof ServerPlayer owner) || actual.getEntity() != owner) return;
-        Projectile projectile = source.getDirectEntity() instanceof Projectile body ? body : null;
+        Entity body = source.getDirectEntity();
         Weapon weapon;
-        if (projectile == null) {
+        if (body == owner) {
             // Witch statistics wraps each actual contact, preserving the attack's original source.
             var attack = LbcWitchStatistics.checkpointWrappedSource(source);
-            weapon = source.getDirectEntity() == owner && attack != null ? MELEE.get(attack) : null;
+            weapon = attack == null ? null : MELEE.get(attack);
         } else {
-            weapon = projectile.getOwner() == owner ? projectile.getAttached(FIRED) : null;
+            weapon = ownedLaunch(body, owner) ? body.getAttached(FIRED) : null;
         }
         if (weapon == null || !weapon.owner().equals(owner.getUUID()) || !weapon.epoch().equals(game.items().epoch())) return;
         var physical = weapon.physical().get();
         game.items().genie().runtime().hit(owner, victim, weapon.hand(),
-            physical == null ? ItemStack.EMPTY : physical, weapon.snapshot().copy(), projectile);
+            physical == null ? ItemStack.EMPTY : physical, weapon.snapshot().copy(), body == owner ? null : body);
     }
 
     private static Weapon capture(GameController game, ServerPlayer owner, InteractionHand hand,

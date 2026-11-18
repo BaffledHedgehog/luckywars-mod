@@ -24,12 +24,22 @@ public final class GenieNative {
                                      Projectile projectile) {
         if(!GenieRuntime.matches(projectileStack)||!(thrower instanceof ServerPlayer player))return;
         var game=SkyWars2.game();
-        if(game==null||projectile.getOwner()!=player||player.level().getEntity(projectile.getUUID())!=projectile)return;
-        GenieCombat.launched(game,player,hand,physical,projectileStack,List.of(projectile));
-        if(!GenieScriptItem.matches(projectileStack))return;
-        var runtime=game.items().genie().runtime().scripts();
-        var accepted=runtime.captureThrow(player,hand,physical,projectileStack,projectile);
-        LbcTmtShotCompletion.afterNativeAction(accepted);
+        if (game == null) return;
+        var accepted = capturePublishedThrow(game, player, hand, physical, projectileStack, List.of(projectile));
+        if (accepted != null) LbcTmtShotCompletion.afterNativeAction(accepted);
+    }
+
+    /** Capture the final admitted bodies before debit. Dispatch the returned work after the use completes. */
+    static Runnable capturePublishedThrow(GameController game, ServerPlayer owner, InteractionHand hand,
+                                          ItemStack physical, ItemStack source, List<? extends Entity> bodies) {
+        if (!GenieRuntime.matches(source)) return null;
+        var published = bodies.stream().filter(body -> !body.isRemoved() && GenieCombat.ownedLaunch(body, owner)
+                && owner.level().getEntity(body.getUUID()) == body).toList();
+        if (published.isEmpty()) return null;
+
+        GenieCombat.launched(game, owner, hand, physical, source, published);
+        if (!GenieScriptItem.matches(source)) return null;
+        return game.items().genie().runtime().scripts().captureThrow(owner, hand, physical, source, published);
     }
     public static boolean stopped(GameController game,ServerPlayer player){return game.items().wands().inputTimeStopped(player);}
     public static boolean enemy(GameController game,ServerPlayer player,Entity entity){return game.items().wands().projectileTarget(player,entity,true);}

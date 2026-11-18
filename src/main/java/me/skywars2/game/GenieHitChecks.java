@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import me.skywars2.game.genie.GenieScriptItem;
 import me.skywars2.game.genie.GenieScriptRuntime;
 import me.skywars2.game.genie.script.ScriptRepository;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ServerboundClientTickEndPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.world.InteractionHand;
@@ -15,8 +17,10 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.phys.Vec3;
 
 /** Real hits are delivered once to the used item, including after a weapon switch. */
@@ -84,8 +88,48 @@ final class GenieHitChecks {
         require(state.get("hand").getAsString().equals("offhand"),"arrow keeps original use hand");
         require(state.get("target").getAsString().equals(target.getUUID().toString()),"arrow event names actual victim");
         require(state.getAsJsonObject("projectile").get("id").getAsString().equals(arrowId.toString()),"arrow event names actual native body");
+        var throwable = item("skywars2:throwable_small_fireball");
+        throwable.setCount(2);
+        fireballHit(throwable, 31001, "hand-thrown fireball");
+        var blaze = item(BuiltInRegistries.ITEM.getKey(LbcProjectileWeaponItems.Kind.BLAZE_CROSSBOW.item).toString());
+        blaze.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.ofNonEmpty(java.util.List.of(new ItemStack(Items.ARROW))));
+        fireballHit(blaze, 31002, "Blaze crossbow conversion");
         base.owner.setNoGravity(false);
         return true;
+    }
+
+    private void fireballHit(ItemStack source, int sequence, String description) {
+        var sibling = source.copy();
+        equip(ItemStack.EMPTY, source);
+        var before = fireballs().stream().map(Entity::getUUID).collect(Collectors.toSet());
+        base.client.acknowledge();
+        base.owner.connection.handleClientTickEnd(new ServerboundClientTickEndPacket());
+        base.owner.connection.handleUseItem(new ServerboundUseItemPacket(InteractionHand.OFF_HAND, sequence, 0, 0));
+        var launched = fireballs().stream().filter(shot -> !before.contains(shot.getUUID())).toList();
+        require(launched.size() == 1, description + " launches one real fireball");
+        var shot = launched.getFirst();
+        base.own(shot);
+        require(source.getCount() == 1, description + " preserves the native post-use stack count");
+        base.owner.setItemInHand(InteractionHand.OFF_HAND, sibling);
+        base.owner.getInventory().setItem(11, source);
+        var at = shot.position().add(shot.getDeltaMovement().normalize().scale(1.5)).add(0, -.5, 0);
+        var victim = cow(at, .1f);
+        shot.tick();
+        drain();
+        var state = GenieScriptItem.state(source);
+        require(!victim.isAlive() && count(source) == 1 && count(sibling) == 0,
+            description + " lethal contact activates the original item exactly once");
+        require(state.get("hand").getAsString().equals("offhand")
+                && state.get("target").getAsString().equals(victim.getUUID().toString())
+                && state.getAsJsonObject("projectile").get("id").getAsString().equals(shot.getUUID().toString()),
+            description + " reports the real hand, victim and native fireball");
+        base.discard(victim);
+        base.discard(shot);
+    }
+
+    private java.util.List<SmallFireball> fireballs() {
+        return base.level.getEntitiesOfClass(SmallFireball.class, base.owner.getBoundingBox().inflate(16),
+            body -> body.getOwner() == base.owner);
     }
 
     private void melee(){

@@ -242,27 +242,31 @@ public final class GenieScriptRuntime implements AutoCloseable {
         for(var projectile:volley)projectiles.add(projectileSample(projectile));
         event(owner,replacement?GenieScriptItem.REPLACE_SHOT_EVENT:"SHOT",null,captured,hand,projectiles,null);
     }
-    public Runnable captureThrow(ServerPlayer owner,InteractionHand hand,ItemStack physical,ItemStack source,Projectile projectile){
+    public Runnable captureThrow(ServerPlayer owner, InteractionHand hand, ItemStack physical, ItemStack source,
+                                  List<? extends Entity> bodies) {
         mainThread();
-        var captured=source.copyWithCount(1);
-        var projectiles=publishedProjectile(projectile);
+        var captured = source.copyWithCount(1);
+        var projectiles = publishedProjectiles(bodies);
         String epoch=game.items().epoch();
         return ()->{
             if(epoch.equals(game.items().epoch()))event(owner,"THROW",null,captured,hand,projectiles,physical);
         };
     }
     public void hit(ServerPlayer owner, LivingEntity target, InteractionHand hand, ItemStack physical,
-                    ItemStack captured, Projectile projectile) {
+                    ItemStack captured, Entity body) {
         if(!GenieScriptItem.matches(captured))return;
-        event(owner,"HIT",target,captured,hand,projectile==null?null:publishedProjectile(projectile),physical);
+        event(owner,"HIT",target,captured,hand,body==null?null:publishedProjectiles(List.of(body)),physical);
     }
-    private static JsonArray publishedProjectile(Projectile projectile){
-        var sample=projectileSample(projectile);
-        sample.addProperty("id",projectile.getUUID().toString());
-        var projectiles=new JsonArray();projectiles.add(sample);
+    private static JsonArray publishedProjectiles(List<? extends Entity> bodies) {
+        var projectiles = new JsonArray();
+        for (var body : bodies) {
+            var sample = projectileSample(body);
+            sample.addProperty("id", body.getUUID().toString());
+            projectiles.add(sample);
+        }
         return projectiles;
     }
-    private static JsonObject projectileSample(Projectile projectile){
+    private static JsonObject projectileSample(Entity projectile){
         var sample=new JsonObject();
         sample.addProperty("type",BuiltInRegistries.ENTITY_TYPE.getKey(projectile.getType()).toString());
         sample.add("position",vector(projectile.position()));

@@ -81,25 +81,31 @@ public final class LbcThrownUtilities {
                 ||!policy.allowsLaunch(kind,owner))return false;
         // Vanilla aims the exact native projectile; attach before publication so entity-load callbacks see authority.
         var shot=new Snowball(owner.level(),owner,stack);shot.shootFromRotation(owner,owner.getXRot(),owner.getYRot(),0,1.5f,1);
+        Entity published;
         if(kind==Kind.THROWABLE_METAL_PIPE){
-            if(!pipe(owner,shot.position(),shot.getDeltaMovement()))return false;
+            published = pipe(owner, shot.position(), shot.getDeltaMovement());
+            if (published == null) return false;
         }else{
             var state=new Flight(kind,owner.getUUID(),game.items().epoch(),false);
             shot.entityTags().add(TAG);write(shot,state);flights.put(shot,state);previousPositions.put(shot,shot.position());game.items().markCurrentItemEpoch(shot);
             if(!owner.level().addFreshEntity(shot)){flights.remove(shot);previousPositions.remove(shot);shot.discard();return false;}
+            published = shot;
         }
+        var script = GenieNative.capturePublishedThrow(game, owner, hand, stack, stack, List.of(published));
         LbcOverload.sound(owner,owner.position(),"minecraft:entity.snowball.throw",.5f,.4f/(owner.getRandom().nextFloat()*.4f+.8f),0);
-        owner.awardStat(Stats.ITEM_USED.get(stack.getItem()));stack.consume(1,owner);return true;
+        owner.awardStat(Stats.ITEM_USED.get(stack.getItem()));stack.consume(1,owner);
+        if (script != null) LbcTmtShotCompletion.afterNativeAction(script);
+        return true;
     }
-    private boolean pipe(ServerPlayer owner,Vec3 at,Vec3 velocity){
+    private ItemEntity pipe(ServerPlayer owner,Vec3 at,Vec3 velocity){
         var output=game.lbc().rollTable(owner.level(),at,owner,"lbc:metal_pipe");
         // This table is the ordinary, recoverable pipe consumed by the existing landing engine.
-        if(output.size()!=1||!LbcMetalPipe.matches(output.getFirst()))return false;
+        if(output.size()!=1||!LbcMetalPipe.matches(output.getFirst()))return null;
         var stack=output.getFirst();LbcInventoryHazards.recordProducer(stack,owner.getUUID(),game.items().epoch());
         var item=new ItemEntity(owner.level(),at.x,at.y,at.z,stack);item.setDeltaMovement(velocity);item.setThrower(owner);
         item.entityTags().add(LbcMetalPipe.THROWN);item.setPickUpDelay(32767);game.items().markCurrentItemEpoch(item);
-        if(!owner.level().addFreshEntity(item))return false;
-        game.items().metalPipe().loaded(item);return true;
+        if(!owner.level().addFreshEntity(item))return null;
+        game.items().metalPipe().loaded(item);return item;
     }
     /** Call only after accepted native melee damage; never infer a hit from nearest HurtTime. */
     public void damaged(LivingEntity victim,DamageSource source){

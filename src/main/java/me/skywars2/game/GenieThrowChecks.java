@@ -17,6 +17,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -25,10 +26,26 @@ import net.minecraft.world.phys.Vec3;
 /** Accepted native throws carry source identity past debit and leave identical sibling stacks alone. */
 final class GenieThrowChecks {
     private record Carrier(String item,String projectile) {}
+    private record LaunchFamily(String item, String path, int size) {}
     private static final List<Carrier> THROWN=List.of(
         new Carrier("snowball","snowball"),new Carrier("egg","egg"),new Carrier("ender_pearl","ender_pearl"),
         new Carrier("wind_charge","wind_charge"),new Carrier("experience_bottle","experience_bottle"),
         new Carrier("splash_potion","splash_potion"),new Carrier("lingering_potion","lingering_potion"));
+
+    private static final List<LaunchFamily> CUSTOM = List.of(
+        new LaunchFamily("throwable_small_fireball", "small_fireball", 1),
+        new LaunchFamily("throwable_large_fireball", "fireball", 1),
+        new LaunchFamily("throwable_dragon_fireball", "dragon_fireball", 1),
+        new LaunchFamily("imba_throwable_small_fireball", "tnt", 33),
+        new LaunchFamily("imba_throwable_large_fireball", "fireball", 1),
+        new LaunchFamily("imba_throwable_dragon_fireball", "dragon_fireball", 17),
+        new LaunchFamily("imba_ender_pearl", "ender_pearl", 17),
+        new LaunchFamily("impulse_dart", "arrow", 1),
+        new LaunchFamily("ruchka", "snowball", 1),
+        new LaunchFamily("honew", "snowball", 1),
+        new LaunchFamily("bucket_projectile", "snowball", 1),
+        new LaunchFamily("throwable_pumpkin", "snowball", 1),
+        new LaunchFamily("throwable_metal_pipe", "item", 1));
 
     private final GameController game;
     private final WoolBucketChecks.Fixture base;
@@ -53,6 +70,7 @@ final class GenieThrowChecks {
             ["load","state"],["const","hand"],["load","event"],["const","hand"],["get"],["put"],["drop"],
             ["load","state"],["const","projectile"],["load","event"],["const","projectiles"],["get"],
             ["const",0],["get"],["put"],["drop"],
+            ["load","state"],["const","family"],["load","event"],["const","projectiles"],["get"],["put"],["drop"],
             ["load","state"],["const","throws"],["load","state"],["const","throws"],["get"],["const",1],
             ["add"],["put"],["const",2],["eq"],["jump_if_false","first"],
             ["const",%s],["call","world.command",1],["return"],
@@ -74,6 +92,7 @@ final class GenieThrowChecks {
         require(tick-started<100,"script prepares off-thread");
         if(!program.isDone())return false;
         for(var carrier:THROWN)testCarrier(carrier);
+        for (var family : CUSTOM) testFamily(family);
         rejectDrop();
         trident=item("trident",1);
         twin=trident.copy();
@@ -121,6 +140,48 @@ final class GenieThrowChecks {
         useOffhand();
         require(source.isEmpty(),"last snowball is consumed");
         accept(before,carrier.projectile(),twin,Blocks.EMERALD_BLOCK);
+    }
+
+    private void testFamily(LaunchFamily family) {
+        var used = item("skywars2:" + family.item(), 2);
+        var twin = used.copy();
+        equip(twin, used);
+        var before = nearbyLaunches().stream().map(Entity::getUUID).collect(Collectors.toSet());
+        useOffhand();
+        var launched = nearbyLaunches().stream().filter(body -> !before.contains(body.getUUID())).toList();
+        try {
+            require(used.getCount() == 1 && base.owner.getOffhandItem() == used, "one real debit for " + family.item());
+            require(launched.size() == family.size(), "actual body count for " + family.item());
+            require(launched.stream().allMatch(body ->
+                BuiltInRegistries.ENTITY_TYPE.getKey(body.getType()).toString().equals("minecraft:" + family.path())),
+                "only final bodies are published for " + family.item());
+
+            for (int i = 0; i < 16; i++) scripts.tick();
+            var state = GenieScriptItem.state(used);
+            require(state.get("throws").getAsInt() == 1 && base.level.getBlockState(marker).is(Blocks.GOLD_BLOCK),
+                "one THROW for the whole " + family.item() + " launch");
+            require(state.get("hand").getAsString().equals("offhand")
+                    && GenieScriptItem.state(twin).get("throws").getAsInt() == 0, "exact used hand and stack");
+            var expected = launched.stream().map(body -> body.getUUID().toString()).collect(Collectors.toSet());
+            var actual = state.getAsJsonArray("family");
+            require(actual.size() == family.size(), "event reports the complete published family");
+            for (var value : actual) {
+                var body = value.getAsJsonObject();
+                require(expected.remove(body.get("id").getAsString())
+                        && body.get("type").getAsString().equals("minecraft:" + family.path())
+                        && body.getAsJsonArray("position").size() == 3 && body.getAsJsonArray("velocity").size() == 3,
+                    "event carries each exact final actor once");
+            }
+            require(expected.isEmpty(), "every published UUID is recorded");
+        } finally {
+            launched.forEach(base::discard);
+            base.set(marker, Blocks.AIR.defaultBlockState());
+        }
+    }
+
+    private List<Entity> nearbyLaunches() {
+        return base.level.getEntitiesOfClass(Entity.class, base.owner.getBoundingBox().inflate(10),
+            entity -> entity instanceof TraceableEntity launch && launch.getOwner() == base.owner);
     }
 
     private void rejectDrop(){

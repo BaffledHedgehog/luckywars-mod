@@ -95,12 +95,16 @@ public final class LbcSpecialFireballs {
         carrier.shootFromRotation(owner,owner.getXRot(),owner.getYRot(),0,1.5f,1);
         game.items().projectileLevelups().beforePublish(owner,carrier,LbcProjectileLevelups.Launch.SNOWBALL);
         carrier.entityTags().add(game.items().epoch()); // Geometry only: never index this unpublished carrier.
-        if(convert(carrier).isEmpty()){carrier.discard();return false;}
+        var launched = convert(carrier);
+        if (launched.isEmpty()) { carrier.discard(); return false; }
         carrier.discard();
+        var script = GenieNative.capturePublishedThrow(game, owner, hand, stack, stack, launched);
         LbcOverload.sound(owner,owner.position(),variant(stack)==8?"minecraft:entity.snowball.throw":"minecraft:item.firecharge.use",1,1,0);
         owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem()));
         owner.gameEvent(net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT);
-        stack.consume(1,owner);return true;
+        stack.consume(1,owner);
+        if (script != null) LbcTmtShotCompletion.afterNativeAction(script);
+        return true;
     }
     public void loaded(Entity entity){
         if(restoring||MatchActorCheckpoint.restoring(entity))return;
@@ -124,7 +128,10 @@ public final class LbcSpecialFireballs {
     public Projectile spawnRangedFire(ServerPlayer owner,Vec3 at,Vec3 velocity,Projectile donor){
         if(!resident(owner.level(),at))return null;
         var fire=new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level());fire.entityTags().addAll(donor.entityTags());fire.entityTags().add("can_deleted");
-        LbcTmtAmmoPayloads.copyPayloads(donor,fire);return insert(owner,fire,at,velocity,false);
+        LbcTmtAmmoPayloads.copyPayloads(donor,fire);
+        var published = insert(owner,fire,at,velocity,false);
+        if (published != null) GenieCombat.inheritLaunch(owner, donor, published);
+        return published;
     }
     public void rangedContact(Projectile shot,LivingEntity target,Vec3 point){if(managed(shot))LbcLegacyRanged.contact(game,shot,target,point);}
     public void rangedGround(Projectile shot,Vec3 point){if(managed(shot))LbcLegacyRanged.ground(game,shot,point);}
