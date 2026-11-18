@@ -31,6 +31,19 @@ final class HomingTurnChecks {
         require(ProjectileSteering.turn(Vec3.ZERO,new Vec3(0,1,0),1).equals(Vec3.ZERO),"stationary projectile never invents motion");
         require(ProjectileSteering.turn(new Vec3(1,2,3),Vec3.ZERO,1).equals(new Vec3(1,2,3)),"coincident target keeps finite original motion");
     }
+    private static final class ProbeCow extends Cow {
+        int roleChecks;
+
+        ProbeCow(net.minecraft.server.level.ServerLevel level) {
+            super(EntityTypes.COW, level);
+        }
+
+        @Override public boolean isAlive() {
+            roleChecks++;
+            return super.isAlive();
+        }
+    }
+
     private static final class Scene implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;final List<Projectile> shots=new ArrayList<>();
         final List<Vec3> initial=new ArrayList<>();LivingEntity target;LbcDanmaku.Card card;Vec3 cardStart,cardGoal;
@@ -47,7 +60,50 @@ final class HomingTurnChecks {
             f.move(f.owner,f.home.add(0,60,0));f.move(f.other,f.owner.position().add(30,0,0));
             var cow=new Cow(EntityTypes.COW,f.level);cow.setNoAi(true);cow.setNoGravity(true);cow.setPos(f.owner.position().add(0,4,15));
             require(f.level.addFreshEntity(cow),"native target publication");target=cow;f.owned.add(cow.getUUID());
+            nearbySelectors();
         }
+
+        ProbeCow probe(Vec3 point) {
+            var cow = new ProbeCow(f.level);
+            cow.setPos(point);
+            cow.setNoGravity(true);
+            cow.setNoAi(true);
+            require(f.level.addFreshEntity(cow), "published real selector probe");
+            f.owned.add(cow.getUUID());
+            require(game.items().lifetimes().loadedTargets().contains(cow), "probe exists in the shared target index");
+            return cow;
+        }
+
+        void nearbySelectors() {
+            var from = f.owner.position().add(0, 60, 0);
+            // Both probes sit in loaded sections, with an exact tie at separate X coordinates.
+            var first = probe(from.add(-4, 0, 0));
+            var last = probe(from.add(4, 0, 0));
+            var out = probe(from.add(0, 120, 0));
+            try {
+                var lifetimes = game.items().lifetimes();
+                int[] remoteRoleChecks = {0};
+                var beam = lifetimes.nearestBeamTarget(f.level, from, candidate -> {
+                    if (candidate == out) remoteRoleChecks[0]++;
+                    return candidate == out || candidate == first || candidate == last;
+                });
+                require(beam == first, "unlimited beam keeps its first published tie winner");
+
+                out.roleChecks = 0;
+                var heading = game.items().homing().skillDirection(f.owner, f.level, from, new Vec3(0, 0, 1));
+                require(heading.x > 0, "skill 30 preserves last-published equal-distance tie selection");
+                require(out.roleChecks == 0 && remoteRoleChecks[0] == 0,
+                        "remote published probe requires no role check with a valid local target: homing=" + out.roleChecks +
+                                " beam=" + remoteRoleChecks[0]);
+                require(lifetimes.nearestBeamTarget(f.level, from, candidate -> candidate == out) == out,
+                        "unlimited beam finds the same distant target when no local entity qualifies");
+            } finally {
+                first.discard();
+                last.discard();
+                out.discard();
+            }
+        }
+
         void launch(){
             var at=target.getEyePosition().add(0,0,-15);
             shot(new Snowball(EntityTypes.SNOWBALL,f.level),at,heading(.4),f.owner);

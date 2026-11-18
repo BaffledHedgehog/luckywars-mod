@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,11 +15,13 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /** Общая очередь проверки дальних снарядов: ограничиваем CPU, а не дальность полёта. */
 public final class ProjectileLifetimes {
@@ -40,6 +43,7 @@ public final class ProjectileLifetimes {
     private static final int REVIEW_BUDGET = 2048;
     private static final int REVIEWS_PER_TICK = 8;
     private static final double TARGET_BUFFER = 48;
+    private static final double LOCAL_NEAREST_RANGE = 32;
     // Длина отрезка ограничивает native DDA: даже диагональ посещает не более 32 клеток за порцию.
     private static final int TERRAIN_SEGMENT = 16, TERRAIN_WORK = 32, TERRAIN_BUDGET = 2048;
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE,
@@ -254,12 +258,57 @@ public final class ProjectileLifetimes {
         }
     }
 
-    LivingEntity nearestBeamTarget(net.minecraft.server.level.ServerLevel level,Vec3 at,java.util.function.Predicate<Entity> selection){
-        LivingEntity nearest=null;double distance=Double.POSITIVE_INFINITY;
-        for(var candidate:targets)if(candidate.level()==level&&!candidate.isRemoved()&&candidate.isAlive()&&selection.test(candidate)){
-            double next=candidate.position().distanceToSqr(at);if(next<distance){distance=next;nearest=candidate;}
+    private List<LivingEntity> targetSphere(ServerLevel level, Vec3 at, double radius,
+                                            Map<LivingEntity, Integer> ranks) {
+        // Native intersection excludes the boundary. The final feet-distance check includes it.
+        var box = new AABB(at, at).inflate(radius + 1e-6);
+        double squaredRadius = radius * radius;
+        return level.getEntitiesOfClass(LivingEntity.class, box,
+                target -> ranks.containsKey(target) && target.position().distanceToSqr(at) <= squaredRadius);
+    }
+
+    List<LivingEntity> nearbyTargets(ServerLevel level, Vec3 at, double radius, Predicate<LivingEntity> selection) {
+        var ranks = loadedTargetRanks();
+        var nearby = targetSphere(level, at, radius, ranks);
+        nearby.removeIf(selection.negate());
+        nearby.sort(Comparator.comparingInt(ranks::get));
+        return nearby;
+    }
+
+    LivingEntity nearestTarget(ServerLevel level, Vec3 at, double radius, boolean preferLastOnTie,
+                               Predicate<LivingEntity> selection) {
+        var ranks = loadedTargetRanks();
+        boolean bounded = Double.isFinite(radius);
+        // A target inside the sphere is nearer than every target outside it.
+        var local = targetSphere(level, at, bounded ? radius : LOCAL_NEAREST_RANGE, ranks);
+        var nearest = nearestEligible(level, at, local, ranks, preferLastOnTie, selection);
+        if (nearest != null || bounded) return nearest;
+        return nearestEligible(level, at, loadedTargets(), ranks, preferLastOnTie, selection);
+    }
+
+    private static LivingEntity nearestEligible(ServerLevel level, Vec3 at, List<LivingEntity> candidates,
+                                                Map<LivingEntity, Integer> ranks, boolean preferLastOnTie,
+                                                Predicate<LivingEntity> selection) {
+        LivingEntity nearest = null;
+        double best = Double.POSITIVE_INFINITY;
+        int bestRank = 0;
+        for (var candidate : candidates) {
+            if (candidate.level() != level) continue;
+            double squared = candidate.position().distanceToSqr(at);
+            if (!(squared <= best)) continue;
+            int rank = ranks.get(candidate);
+            if (nearest != null && squared == best && (preferLastOnTie ? rank <= bestRank : rank >= bestRank)) continue;
+            if (!selection.test(candidate)) continue;
+            nearest = candidate;
+            best = squared;
+            bestRank = rank;
         }
         return nearest;
+    }
+
+    LivingEntity nearestBeamTarget(ServerLevel level, Vec3 at, Predicate<Entity> selection) {
+        return nearestTarget(level, at, Double.POSITIVE_INFINITY, false,
+                target -> !target.isRemoved() && target.isAlive() && selection.test(target));
     }
     boolean target(ServerPlayer owner, Entity entity) {
         return entity instanceof LivingEntity && entity.level() == game.items().spellSources().level(owner)

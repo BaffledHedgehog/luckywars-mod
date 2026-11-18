@@ -9792,7 +9792,14 @@ public final class GameChecks {
                                 trialItems.add(packed); require(level.addFreshEntity(packed),"Stacked donor trial input enters world"); mana.set(owner,3000);
                                 require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND)
                                                 && donorTrial.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("upgrade_available",0)==0,"Donor trial counts separate entities rather than stack size"); packed.discard();
-                                for(int i=0;i<4;i++) { var item=new net.minecraft.world.entity.item.ItemEntity(level,owner.getX()+i*.05,259.5,owner.getZ(),legacyFireblazeDonor("transformable",Items.STICK)); trialItems.add(item); require(level.addFreshEntity(item),"Separate donor trial input enters world"); }
+                                // Distinct item types stay distinct under pre-spawn ground merging.
+                                for (var type : java.util.List.of(Items.STICK, Items.BLAZE_ROD, Items.BONE, Items.IRON_INGOT)) {
+                                        var item = new net.minecraft.world.entity.item.ItemEntity(level, owner.getX(), 259.5,
+                                                        owner.getZ(), legacyFireblazeDonor("transformable", type));
+                                        trialItems.add(item);
+                                        require(level.addFreshEntity(item) && !item.isRemoved(),
+                                                        "Separate native donor trial input enters world");
+                                }
                                 mana.set(owner,3000); require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND)
                                                 && donorTrial.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("upgrade_available",0)==1,"Four separate transformable entities complete the used offhand donor trial");
                         } finally { trialItems.forEach(net.minecraft.world.entity.Entity::discard); }
@@ -10748,9 +10755,14 @@ public final class GameChecks {
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,tool); var beforeAcademy=tool.copy();
                         var academy=new net.minecraft.world.entity.Interaction(net.minecraft.world.entity.EntityTypes.INTERACTION,level);
                         academy.setPos(owner.position()); academy.entityTags().add("magic_academy");
-                        require(game.items().academy().interact(owner,net.minecraft.world.InteractionHand.MAIN_HAND,academy)
-                                        && ItemStack.isSameItemSameComponents(owner.getMainHandItem(),beforeAcademy),
-                                        "Academy NPC leaves Infbolt unchanged even with manually supplied upgrade readiness"); academy.discard();
+                        require(level.addFreshEntity(academy), "Native Academy NPC enters the fixture");
+                        try {
+                                require(!game.items().academy().interact(owner, net.minecraft.world.InteractionHand.MAIN_HAND, academy)
+                                                && ItemStack.isSameItemSameComponents(owner.getMainHandItem(), beforeAcademy),
+                                                "Academy declines the Infbolt click and preserves its exact stack even with forced readiness");
+                        } finally {
+                                academy.discard();
+                        }
                         var wand=new ItemStack(LbcWands.INFBOLT); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,wand); mana.set(owner,0);
                         var mixed=legacyFireblazeDonor("transformable",Items.STICK).copyWithCount(3);
                         var data=mixed.get(DataComponents.CUSTOM_DATA).copyTag(); data.putInt("staff",1); data.putInt("sword",1);

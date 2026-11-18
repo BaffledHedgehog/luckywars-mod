@@ -31,6 +31,7 @@ import net.minecraft.world.scores.ScoreHolder;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
@@ -270,11 +271,8 @@ public final class LbcBolts {
                 && !game.items().magic().suppressedAt(owner.level(),target.position())
                 && !target.entityTags().contains("nomagic_active");
     }
-    private List<LivingEntity> projectileTargets(ServerPlayer owner,Vec3 at,double radius) {
-        var result=new ArrayList<LivingEntity>();
-        for(var target:game.items().lifetimes().loadedTargets())
-            if(projectileTarget(owner,target) && target.position().distanceToSqr(at)<=radius*radius) result.add(target);
-        return result;
+    private List<LivingEntity> projectileTargets(ServerPlayer owner, Vec3 at, double radius) {
+        return game.items().lifetimes().nearbyTargets(owner.level(), at, radius, target -> projectileTarget(owner, target));
     }
     private boolean chainTarget(ServerPlayer owner,LivingEntity target) {
         return target.level()==owner.level() && game.items().wands().validTarget(target)
@@ -287,11 +285,8 @@ public final class LbcBolts {
         return owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(radius),
                 target->target.position().distanceToSqr(at)<=radius*radius&&chainTarget(owner,target));
     }
-    private List<LivingEntity> targets(ServerPlayer owner,Vec3 at,double radius) {
-        var result=new ArrayList<LivingEntity>();
-        for(var target:game.items().lifetimes().loadedTargets())
-            if(target.level()==owner.level() && target(owner,target) && target.position().distanceToSqr(at)<=radius*radius) result.add(target);
-        return result;
+    private List<LivingEntity> targets(ServerPlayer owner, Vec3 at, double radius) {
+        return game.items().lifetimes().nearbyTargets(owner.level(), at, radius, target -> target(owner, target));
     }
     public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean donor,boolean upgraded) {
         callbackDepth++;try{
@@ -735,10 +730,9 @@ public final class LbcBolts {
                 boolean near=nearby.stream().anyMatch(target->target.position().distanceToSqr(bolt.position)<=225);
                 if(near) bolt.position=nearby.get(bolt.owner.getRandom().nextInt(nearby.size())).position();
                 else {
-                    LivingEntity nearest=null; double distance=Double.POSITIVE_INFINITY;
-                    for(var target:game.items().lifetimes().loadedTargets()) if(target.level()==bolt.level && target(bolt.owner,target)) {
-                        double d=target.position().distanceToSqr(bolt.position); if(d<distance) { nearest=target; distance=d; }
-                    }
+                    var nearest = nearby.stream().min(Comparator.comparingDouble(target -> target.position().distanceToSqr(bolt.position)))
+                            .orElseGet(() -> game.items().lifetimes().nearestTarget(bolt.level, bolt.position,
+                                    Double.POSITIVE_INFINITY, false, target -> target(bolt.owner, target)));
                     if(nearest!=null) bolt.position=bolt.position.add(nearest.getEyePosition().subtract(bolt.position).normalize().scale(.5));
                 }
                 if(bolt.age%bolt.strikeInterval==0) game.items().electro().lightning(bolt.owner,bolt.position);

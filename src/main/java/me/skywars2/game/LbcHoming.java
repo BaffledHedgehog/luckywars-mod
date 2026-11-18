@@ -398,13 +398,8 @@ public final class LbcHoming {
             if(target(owner,living) && living.position().distanceToSqr(point)>=64) return true;
         return false;
     }
-    private LivingEntity nearest(ServerPlayer owner,Vec3 point,double radius) {
-        LivingEntity nearest=null; double distance=radius*radius;
-        for(var living:game.items().lifetimes().loadedTargets()) if(target(owner,living)) {
-            double d=living.position().distanceToSqr(point);
-            if(d<=distance) { distance=d; nearest=living; }
-        }
-        return nearest;
+    private LivingEntity nearest(ServerPlayer owner, Vec3 point, double radius) {
+        return game.items().lifetimes().nearestTarget(owner.level(), point, radius, true, living -> target(owner, living));
     }
 
     public void tick() {
@@ -441,14 +436,9 @@ public final class LbcHoming {
                 &&game.lbc().hasSkill(owner,30)&&!game.items().wands().inputTimeStopped(owner)
                 &&!game.items().timeStop().stopped(level)&&!game.items().magic().suppressed(owner);
     }
-    private LivingEntity skillTarget(ServerPlayer owner,Vec3 from){
-        LivingEntity aimed=null;double best=10000;
-        for(var candidate:game.items().lifetimes().loadedTargets())
-            if(candidate.getType().builtInRegistryHolder().is(FOURIER_MOBS)&&target(owner,candidate)){
-                double squared=candidate.position().distanceToSqr(from);
-                if(squared<=best){best=squared;aimed=candidate;}
-            }
-        return aimed;
+    private LivingEntity skillTarget(ServerPlayer owner, Vec3 from) {
+        return game.items().lifetimes().nearestTarget(owner.level(), from, 100, true,
+                candidate -> candidate.getType().builtInRegistryHolder().is(FOURIER_MOBS) && target(owner, candidate));
     }
     private void tickSkillProjectiles(){
         for(var body:List.copyOf(projectiles)){
