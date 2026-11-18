@@ -898,7 +898,9 @@ public final class MapManager {
 
             BlockPos pos = BlockPos.containing(marker.position());
             var state = level.getBlockState(pos);
-            if (!state.is(Blocks.CHEST) && !state.is(Blocks.BARREL)) {
+            // The legacy chest tag includes trapped chests. Replacing a saved
+            // trapped chest here would spill its old inventory after round cleanup.
+            if (!state.is(Blocks.CHEST) && !state.is(Blocks.TRAPPED_CHEST) && !state.is(Blocks.BARREL)) {
                 level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 3);
             }
             BlockEntity blockEntity = level.getBlockEntity(pos);
