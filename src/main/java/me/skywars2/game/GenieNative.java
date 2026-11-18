@@ -112,8 +112,14 @@ public final class GenieNative {
     private static final Map<Identifier, TargetedCast> TARGETED_CASTS = java.util.Arrays.stream(TargetedCast.values())
             .collect(java.util.stream.Collectors.toUnmodifiableMap(spell -> spell.id, spell -> spell));
 
+    private static final Map<Identifier, LbcSauvojen.Payload> SAUVOJEN_CASTS = LbcSauvojen.payloads().stream()
+            .collect(java.util.stream.Collectors.toUnmodifiableMap(LbcSauvojen.Payload::id, payload -> payload));
+    private static final Set<Identifier> DIRECTED_CAST_IDS = java.util.stream.Stream
+            .concat(CASTS.keySet().stream(), SAUVOJEN_CASTS.keySet().stream())
+            .collect(java.util.stream.Collectors.toUnmodifiableSet());
+
     public static Set<Identifier> casts() {
-        return CASTS.keySet();
+        return DIRECTED_CAST_IDS;
     }
 
     public static boolean hitscan(GameController game, ServerPlayer player, Vec3 from, Vec3 direction,
@@ -174,10 +180,11 @@ public final class GenieNative {
     }
 
     /** Directed spell effects, independent of the actual item occupying either hand. */
-    public static boolean cast(GameController game, ServerPlayer player, ItemStack weapon, Identifier id,
-                               Vec3 origin, Vec3 direction) {
+    public static boolean cast(GameController game, ServerPlayer player, InteractionHand hand, ItemStack weapon,
+                               Identifier id, Vec3 origin, Vec3 direction) {
         var spell = CASTS.get(id);
-        if (spell == null) throw new IllegalArgumentException("unknown directed LuckyWars spell");
+        var payload = SAUVOJEN_CASTS.get(id);
+        if (spell == null && payload == null) throw new IllegalArgumentException("unknown directed LuckyWars spell");
         double length = direction.length();
         if (!Double.isFinite(length) || length < 1e-4) throw new IllegalArgumentException("finite nonzero aim required");
 
@@ -185,13 +192,17 @@ public final class GenieNative {
         if (Math.abs(origin.x) >= 30_000_000 || Math.abs(origin.z) >= 30_000_000
                 || origin.y < level.getMinY() || origin.y > level.getMaxY()) return false;
         var pos = BlockPos.containing(origin);
-        if (!LbcLibrarySpells.admitted(game, player, InteractionHand.MAIN_HAND)
+        if (!LbcLibrarySpells.admitted(game, player, hand) || game.isObserver(player)
                 || !level.isInWorldBounds(pos) || !level.hasChunkAt(pos)
                 || !level.getWorldBorder().isWithinBounds(pos)
                 || game.items().magic().suppressedAt(level, origin)) return false;
 
         Vec3 aim = direction.scale(1 / length);
         try (var borrowed = WandCastOrigin.scope(player, true)) {
+            if (payload != null) {
+                game.items().sauvojen().emitPayload(player, hand, weapon, payload, origin, aim);
+                return true;
+            }
             return switch (spell) {
                 case ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY -> {
                     if (game.items().magic().mechanismSuppressedAt(level, origin)) yield false;

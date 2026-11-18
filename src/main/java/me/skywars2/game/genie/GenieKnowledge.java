@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import me.skywars2.game.AttributePolicy;
 import me.skywars2.game.GenieNative;
+import me.skywars2.game.LbcSauvojen;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -120,6 +121,13 @@ public final class GenieKnowledge {
         root.add("script_launchable_entity_types",standaloneTypes);
         root.add("script_grimoires",strings(GenieNative.grimoires().keySet().stream().sorted().map(Object::toString).toList()));
         root.add("script_directed_casts",strings(GenieNative.casts().stream().sorted().map(Object::toString).toList()));
+        var sauvojen = new JsonObject();
+        for (var branch : LbcSauvojen.Kind.values()) {
+            var ids = LbcSauvojen.payloads().stream().filter(payload -> payload.branch() == branch)
+                    .map(payload -> payload.id().toString()).toList();
+            sauvojen.add(branch.name().toLowerCase(Locale.ROOT), strings(ids));
+        }
+        root.add("script_sauvojen_payloads", sauvojen);
         var targetedCasts = new JsonArray();
         for (var spell : GenieNative.TargetedCast.values()) {
             var row = new JsonObject();

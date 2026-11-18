@@ -34,11 +34,34 @@ public final class LbcSauvojen {
     public static final String DRONE="skywars2.sauvojen.flying";
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     public enum Kind {
-        RUBY(60),TERRA(20),ELECTRO(20),AIR(60),ACID(20),TELEPORT(80),STONE(60),FIRE(5),BLIND(10);
+        RUBY(60, "drill_charge", "hole_ray", "cutting_ray", "duplicate", "black_hole", "divide", "expand",
+                "avarice", "end_ray", "silence"),
+        TERRA(20, "charge", "academy_charge", "true_charge", "razor", "true_beam", "fevgalea_beam",
+                "fevgalea_rain", "star_charge", "star_charge_2", "star_charge_3"),
+        ELECTRO(20, "arc_volley", "instant_ray", "erecto_volley", "erecto_ray", "erecto_sniper", "erecto_sphere"),
+        AIR(60, "charge", "scatter", "fast_charge", "homing_charge", "homing_stars", "homing_sisyphus",
+                "destiny", "homing_curse", "exasperato_charge", "exasperato_volley", "exasperato_fast",
+                "exasperato_chaos", "exasperato_nuke"),
+        ACID(20, "charge", "awakened_acid", "awakened_caustic", "awakened_acid_extra", "awakened_gatling",
+                "awakened_rifle_shot", "hard_acid_ball", "sacrifice", "mana_reversal", "death_ray"),
+        TELEPORT(80, "charge", "inverted_charge", "boltbolt_ray", "boltbolt_meteor", "boltbolt_watering"),
+        STONE(60, "charge", "stone_ray", "bridge", "shield", "academy_stone_ray", "stonekivi_layers",
+                "stonekivi_earth", "stonekivi_comets", "stonekivi_magma"),
+        FIRE(5, "small_fireball_volley", "large_fireball", "concentrated_fire", "blaze_random_fire",
+                "blaze_fire_and_lava", "blaze_volley", "blaze_lava_columns", "blaze_target_fire"),
+        BLIND(10, "blind_volley", "phantom_volley", "blind_rain", "psycho_volley", "psycho_academy_volley",
+                "psycho_invisible_volley", "psycho_ray", "psycho_charge", "cultist");
+
         final int cadence;
-        Kind(int cadence){this.cadence=cadence;}
+        private final List<String> academyPayloads;
+
+        Kind(int cadence, String... academyPayloads) {
+            this.cadence = cadence;
+            this.academyPayloads = List.of(academyPayloads);
+        }
+
         int academyCadence(){return switch(this){case RUBY,AIR->10;case TERRA->1;case STONE->40;default->5;};}
-        int modes(){return switch(this){case RUBY,TERRA,ACID->10;case ELECTRO->6;case AIR->13;case TELEPORT->5;case STONE,BLIND->9;case FIRE->8;};}
+        int modes(){return academyPayloads.size();}
         List<String> models(){return switch(this){
             case RUBY->List.of("st/ruby","consuming_wand","dublicating_wand");
             case TERRA->List.of("st/terra","terra_razorpine","terrasword_true","fevgalea_star");
@@ -51,6 +74,25 @@ public final class LbcSauvojen {
             case BLIND->List.of("st/blind","psychoblind","blindvex");
         };}
     }
+    public record Payload(Identifier id, Kind branch, int academyMode) {
+        public boolean academy() { return academyMode >= 0; }
+    }
+
+    private static final List<Payload> PAYLOADS = java.util.Arrays.stream(Kind.values()).flatMap(branch -> {
+        String name = branch.name().toLowerCase(java.util.Locale.ROOT);
+        var ordinary = new Payload(Identifier.parse("skywars2:sauvojen_" + name), branch, -1);
+        return java.util.stream.Stream.concat(java.util.stream.Stream.of(ordinary),
+                java.util.stream.IntStream.range(0, branch.modes()).mapToObj(mode -> new Payload(
+                        Identifier.parse("skywars2:sauvojen_" + name + "_" + branch.academyPayloads.get(mode)), branch, mode)));
+    }).toList();
+
+    public static List<Payload> payloads() { return PAYLOADS; }
+
+    void emitPayload(ServerPlayer owner, InteractionHand hand, ItemStack source, Payload payload, Vec3 origin, Vec3 aim) {
+        if (payload.academy()) emitAcademy(owner, hand, source, payload.branch(), payload.academyMode(), origin, aim);
+        else emit(owner, hand, source, payload.branch(), origin, aim);
+    }
+
     /** Native-check inspection is deliberately detached from input admission and random choice. */
     static final class Drone {
         ServerPlayer owner;

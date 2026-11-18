@@ -103,6 +103,18 @@ final class GenieLampScriptChecks implements AutoCloseable {
                     .containsAll(Set.of("skywars2:gohei_spellcard", "skywars2:gohei_spellcard_full", "skywars2:hakurei_bomb"))
                     && facts.getAsJsonArray("script_directed_casts").contains(new com.google.gson.JsonPrimitive("skywars2:danmaku_homing_card")),
                     "the prompt advertises native Fantasy Seal variants and Danmaku projectiles");
+            var payloads = facts.getAsJsonObject("script_sauvojen_payloads");
+            var directed = facts.getAsJsonArray("script_directed_casts");
+            int payloadCount = 0;
+            require(payloads.size() == 9, "all native Sauvojen families appear in the request");
+            for (var branch : LbcSauvojen.Kind.values()) {
+                var rows = payloads.getAsJsonArray(branch.name().toLowerCase(java.util.Locale.ROOT));
+                require(rows.size() == branch.modes() + 1 && rows.asList().stream().allMatch(directed::contains),
+                        "each native payload in " + branch + " has a callable script identifier");
+                payloadCount += rows.size();
+            }
+            require(payloadCount == 89 && contract.contains("\"lbc.cast\""),
+                    "model receives all 9 base and 80 Academy mode identifiers and their host operation");
             String boots = tables.get("lbc:ported/moisei_boots").toString();
             require(boots.contains("skywars2:moisei_boots") && boots.contains("\"translate\":\"moisei_boots\""),
                 "a named loot entry includes its carrier and original translation key");

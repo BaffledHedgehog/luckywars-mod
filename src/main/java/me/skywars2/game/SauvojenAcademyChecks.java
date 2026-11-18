@@ -222,6 +222,27 @@ public final class SauvojenAcademyChecks {
                 require(owner.getYRot()==yaw&&owner.getXRot()==pitch,"exasperato preserves owner camera");clear();
             }
         }
+        List<ClientboundLevelParticlesPacket> rayPackets() {
+            return base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast).toList();
+        }
+
+        void rayStart(ClientboundLevelParticlesPacket packet, Vec3 origin, Vec3 direction, double step,
+                      int pointsPerPacket, int particlesPerPoint, double jitter, String label) {
+            require(packet.count() >= particlesPerPoint && packet.count() % particlesPerPoint == 0
+                    && packet.count() / particlesPerPoint <= pointsPerPacket, label + " particle count");
+            int samples = packet.count() / particlesPerPoint;
+            var spacing = direction.scale(step);
+            var center = origin.add(spacing.scale((samples - 1) * .5));
+            near(new Vec3(packet.x(), packet.y(), packet.z()), center, label + " weighted center");
+            double variance = (samples * samples - 1) / 12.0;
+            near(new Vec3(packet.xDist(), packet.yDist(), packet.zDist()),
+                    new Vec3(Math.sqrt(jitter * jitter + variance * spacing.x * spacing.x),
+                            Math.sqrt(jitter * jitter + variance * spacing.y * spacing.y),
+                            Math.sqrt(jitter * jitter + variance * spacing.z * spacing.z)),
+                    label + " authored per-axis extent");
+        }
+
         void detachedHomingAndBolts() {
             var owner=base.owner;var stack=held(InteractionHand.OFF_HAND);
             Vec3 origin=owner.getEyePosition().add(2,1,-2),direction=new Vec3(.6,0,.8);
@@ -234,8 +255,9 @@ public final class SauvojenAcademyChecks {
                     if(mode<6) {
                         var shots=game.items().homing().snapshot();require(shots.size()==(mode==4?10:1),"source homing fireball count "+mode);
                         for(var shot:shots)require(shot.getOwner()==owner&&game.items().currentEpoch(shot),"actual detached Homing owner/epoch "+mode);
-                        require(base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast)
-                                .anyMatch(p->new Vec3(p.x(),p.y(),p.z()).distanceToSqr(origin)<1e-9),"actual detached Homing ray starts at drone "+mode);
+                        var packet = rayPackets().stream().filter(p -> p.particle().getType()
+                                == net.minecraft.core.particles.ParticleTypes.FIREWORK).findFirst().orElseThrow();
+                        rayStart(packet, origin, direction, 1, 3, 2, .5, "detached Homing ray " + mode);
                     } else {
                         require(game.items().homing().destinyCount()==1,"one detached Destiny center");
                         var destiny=game.items().homing().destinySnapshot().getFirst();
@@ -278,13 +300,16 @@ public final class SauvojenAcademyChecks {
                         var levitation=owner.getEffect(MobEffects.LEVITATION);var falling=owner.getEffect(MobEffects.SLOW_FALLING);
                         require(levitation!=null&&levitation.getAmplifier()==30&&levitation.getDuration()==60&&falling!=null&&falling.getDuration()==1200,"explicit upgraded Ruby9 source owner effects");
                     } else {
-                        var particles=base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast).toList();
-                        require(!particles.isEmpty(),"actual consuming ray particles mode="+mode);
-                        near(new Vec3(particles.getFirst().x(),particles.getFirst().y(),particles.getFirst().z()),origin,"consuming ray starts exactly at drone "+mode);
+                        var particles = rayPackets();
+                        require(!particles.isEmpty(), "actual consuming ray particles mode=" + mode);
                         Vec3 ray=mode==8?Vec3.directionFromRotation((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())),(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))):direction;
-                        for(int i=0;i<particles.size();i++) {
-                            var p=particles.get(i);
-                            near(new Vec3(p.x(),p.y(),p.z()),origin.add(ray.scale(i*(mode==8?2:.7))),"one exact detached source ray sample, no donor five-ray fan "+mode+"/"+i);
+                        double step = mode == 8 ? 2 : .7;
+                        int samples = 0;
+                        int particlesPerSample = mode == 8 ? 4 : 1;
+                        for (var packet : particles) {
+                            rayStart(packet, origin.add(ray.scale(samples * step)), ray, step, mode == 8 ? 2 : 3,
+                                    particlesPerSample, mode == 8 ? 2 : .05, "one exact consuming ray, no donor fan " + mode + "/" + samples);
+                            samples += packet.count() / particlesPerSample;
                         }
                     }
                     clear();owner.removeEffect(MobEffects.LEVITATION);owner.removeEffect(MobEffects.SLOW_FALLING);
@@ -493,16 +518,21 @@ public final class SauvojenAcademyChecks {
             Vec3 origin=owner.getEyePosition().add(2,1,-2),direction=new Vec3(0,0,1);
             var center=BlockPos.containing(origin.add(0,0,6));
             var saved=new LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
-            for(var p:BlockPos.betweenClosed(BlockPos.containing(origin.add(-8,-8,-8)),BlockPos.containing(origin.add(8,12,68)))) {
-                require(owner.level().hasChunkAt(p),"resident ray/bridge impact fixture");saved.put(p.immutable(),game.maps().snapshot(owner.level(),p));
-            }
+            var min = BlockPos.containing(origin.add(-8, -8, -8));
+            var max = BlockPos.containing(origin.add(8, 12, 68));
+            for (int x = min.getX() >> 4; x <= (max.getX() >> 4); x++)
+                for (int z = min.getZ() >> 4; z <= (max.getZ() >> 4); z++)
+                    owner.level().getChunk(x, z);
+            for (var p : BlockPos.betweenClosed(min, max))
+                saved.put(p.immutable(), game.maps().snapshot(owner.level(), p));
             Runnable restore=()->saved.forEach((p,s)->game.maps().restoreSnapshot(owner.level(),p,s));
             try {
                 for(int mode=1;mode<=2;mode++) {
                     owner.level().setBlock(center,Blocks.STONE.defaultBlockState(),2|16|32);
                     emit(stack,LbcSauvojen.Kind.RUBY,mode,origin,direction);
                     require(mode==1?owner.level().getBlockState(center).is(Blocks.BEDROCK):owner.level().getBlockState(center).isAir(),"actual detached Ruby source hole/cutting ray terminal "+mode);
-                    require(base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast).anyMatch(p->new Vec3(p.x(),p.y(),p.z()).distanceToSqr(origin)<1e-9),"Ruby actual detached ray starts at drone "+mode);
+                    rayStart(rayPackets().getFirst(), origin, direction, mode == 1 ? .5 : .2, 3, 1, 0,
+                            "actual detached Ruby ray " + mode);
                     clear();restore.run();
                 }
                 for(int mode=1;mode<=4;mode++) {
@@ -516,7 +546,8 @@ public final class SauvojenAcademyChecks {
                     } else {
                         long changed=saved.entrySet().stream().filter(e->!owner.level().getBlockState(e.getKey()).equals(e.getValue().state())).count();
                         require(changed>8,"source rock/spike actual native template placement "+mode);
-                        require(base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast).anyMatch(p->new Vec3(p.x(),p.y(),p.z()).distanceToSqr(origin)<1e-9),"Stone actual detached ray starts at drone "+mode);
+                        rayStart(rayPackets().getFirst(), origin, direction, .5, 3, 1, .05,
+                                "actual detached Stone ray " + mode);
                     }
                     clear();restore.run();
                 }
@@ -557,7 +588,24 @@ public final class SauvojenAcademyChecks {
                 owner.level().setBlock(wall,Blocks.OBSIDIAN.defaultBlockState(),2|16|32);
                 for(int mode=1;mode<=5;mode++) {
                     Cow victim=mode==3?cow(origin.add(0,-.5,3)):null;
-                    emit(stack,LbcSauvojen.Kind.ELECTRO,mode,origin,direction);
+                    if (mode == 3) {
+                        var random = owner.getRandom();
+                        var previous = MatchRandomState.capture(random);
+                        try {
+                            // Find an actual owner stream that publishes the first sampled point.
+                            long seed = 0;
+                            while (seed < 8192) {
+                                random.setSeed(seed);
+                                if (random.nextFloat() < .35f) break;
+                                seed++;
+                            }
+                            require(seed < 8192, "deterministic Erecto particle witness");
+                            random.setSeed(seed);
+                            emit(stack,LbcSauvojen.Kind.ELECTRO,mode,origin,direction);
+                        } finally {
+                            previous.restore(random);
+                        }
+                    } else emit(stack,LbcSauvojen.Kind.ELECTRO,mode,origin,direction);
                     var arcs=game.items().wands().electroSnapshot();
                     if(mode==2||mode==4) {
                         require(arcs.size()==(mode==2?9:1),"actual Erecto volley/sniper trace count "+mode);
@@ -625,7 +673,9 @@ public final class SauvojenAcademyChecks {
                 require(fireballs.size()==1,"one actual native large Fireball");projectile(fireballs.getFirst(),origin.add(direction),direction,2.5,"source big Fire localforward1");fireballs.forEach(Entity::discard);clear();
                 emit(stack,LbcSauvojen.Kind.FIRE,2,origin,direction);
                 require(saved.keySet().stream().anyMatch(p->owner.level().getBlockState(p).is(Blocks.LAVA)),"concentrated Fire creates actual owned terminal lava at detached wall");
-                require(base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast).anyMatch(p->p.particle().getType()==net.minecraft.core.particles.ParticleTypes.FALLING_LAVA&&new Vec3(p.x(),p.y(),p.z()).distanceToSqr(origin)<1e-9),"concentrated Fire source trail begins at drone");
+                var fireTrail = rayPackets().stream().filter(p -> p.particle().getType()
+                        == net.minecraft.core.particles.ParticleTypes.FALLING_LAVA).findFirst().orElseThrow();
+                rayStart(fireTrail, origin, direction, .5, 3, 1, .05, "concentrated Fire source trail");
             } finally{clear();removeCows();saved.forEach((p,s)->game.maps().restoreSnapshot(owner.level(),p,s));}
         }
         void curseAndCultist() {

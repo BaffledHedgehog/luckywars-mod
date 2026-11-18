@@ -245,12 +245,19 @@ final class GenieWorldChecks {
                         new AABB(origin, origin).inflate(1), body -> body.getOwner() == base.owner).getFirst();
                 try {
                     var velocity = projectile.getDeltaMovement();
-                    double allowedSpread = kind == LbcTerra.Kind.RAZOR ? 4.25 : .01;
+                    Vec3 expected = aim.normalize().scale(kind.speed);
+                    double tolerance = 1e-5;
+                    if (kind == LbcTerra.Kind.RAZOR) {
+                        require(Math.abs(projectile.getYRot() + 90) <= 3.0001 && Math.abs(projectile.getXRot()) <= 3.0001,
+                                "native Razor keeps its three-degree spread on both axes");
+                        expected = Vec3.directionFromRotation(projectile.getXRot(), projectile.getYRot()).scale(kind.speed);
+                        // Rounding the stored yaw can advance one entry of the native 65536-step sine table.
+                        tolerance += kind.speed * (Math.TAU / 65536);
+                    }
                     require(WoolBucketChecks.read(projectile, "kind") == kind
                             && kind.model.equals(projectile.display().getItem().get(net.minecraft.core.component.DataComponents.ITEM_MODEL))
-                            && Math.abs(velocity.length() - kind.speed) < 1e-5
-                            && velocity.normalize().dot(aim.normalize()) >= Math.cos(Math.toRadians(allowedSpread)),
-                            "native model, speed and aim match Terra variant " + kind);
+                            && velocity.distanceTo(expected) < tolerance,
+                            "native model, velocity and aim match Terra variant " + kind + " actual=" + velocity + " expected=" + expected);
                 } finally {
                     base.discard(projectile);
                 }
@@ -428,6 +435,48 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void sauvojenCasts(GameController game, WoolBucketChecks.Fixture base, Vec3 origin) {
+        var owner = base.owner;
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var before = Set.copyOf(game.items().clouds().acidSnapshot());
+        var wandOffhand = game.config().offhandWands;
+        var mana = game.items().mana();
+        int balance = mana.get(owner);
+        var aim = new Vec3(1, 0, 0);
+        var plain = new JsonPrimitive("skywars2:sauvojen_acid");
+        var awake = new JsonPrimitive("skywars2:sauvojen_acid_awakened_caustic");
+        var offhand = new JsonPrimitive("offhand");
+        try (var host = new GenieWorldHost(game, owner, new ItemStack(Items.STICK), () -> true, () -> 0)) {
+            game.config().offhandWands = false;
+            require(!complete(host, queued(host, "lbc.cast", awake, vector(origin), vector(aim), offhand)).getAsBoolean()
+                    && Set.copyOf(game.items().clouds().acidSnapshot()).equals(before), "native offhand toggle denies the directed cast");
+            game.config().offhandWands = true;
+            require(complete(host, queued(host, "lbc.cast", plain, vector(origin), vector(aim))).getAsBoolean(),
+                    "ordinary Sauvojen acid route accepted");
+            require(complete(host, queued(host, "lbc.cast", awake, vector(origin), vector(aim), offhand)).getAsBoolean(),
+                    "Academy Sauvojen acid mode accepted in the allowed offhand");
+            var shots = game.items().clouds().acidSnapshot().stream().filter(shot -> !before.contains(shot)).toList();
+            require(shots.size() == 2 && shots.stream().allMatch(shot -> shot.getOwner() == owner
+                    && shot.position().equals(origin) && shot.getDeltaMovement().normalize().distanceTo(aim) < 1e-5)
+                    && shots.stream().anyMatch(shot -> LbcClouds.awakenedVariant(shot) == 1)
+                    && shots.stream().anyMatch(shot -> LbcClouds.awakenedVariant(shot) != 1),
+                    "both real variants keep their authored projectile and supplied aim");
+            require(mana.get(owner) == balance && owner.getMainHandItem() == main && owner.getOffhandItem() == off
+                    && game.items().sauvojen().count() == 0, "script emits the individual payload without spawning a drone, spending mana or switching hands");
+
+            var stars = game.items().sauvojen().stars();
+            var star = new JsonPrimitive("skywars2:sauvojen_terra_star_charge");
+            require(complete(host, queued(host, "lbc.cast", star, vector(origin), vector(aim))).getAsBoolean()
+                    && stars.snapshot().stream().anyMatch(actor -> actor.owner() == owner && actor.position().equals(origin)
+                    && actor.direction().equals(aim)), "a managed Fevgalea charge is published through the source dispatcher");
+        } finally {
+            game.config().offhandWands = wandOffhand;
+            game.items().clouds().acidSnapshot().stream().filter(shot -> !before.contains(shot)).forEach(base::discard);
+            game.items().sauvojen().stars().stop();
+        }
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -490,6 +539,7 @@ final class GenieWorldChecks {
             targetedOreshnik(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);
+            sauvojenCasts(game, base, launchSpot.add(0, .65, 0));
 
             require(GenieNative.grimoires().containsKey(net.minecraft.resources.Identifier.parse("skywars2:tesla_instant_grimoire")),"real Tesla grimoire is indexed by the engine");
             var oldSpeed=base.owner.getEffect(MobEffects.SPEED);

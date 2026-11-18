@@ -33,7 +33,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         Map.entry("entity.info",new ScriptProgram.Signature(1,1)),
         Map.entry("entity.launch",new ScriptProgram.Signature(1,4)),
         Map.entry("lbc.grimoire",new ScriptProgram.Signature(1,2)),
-        Map.entry("lbc.cast",new ScriptProgram.Signature(1,3)),
+        Map.entry("lbc.cast",new ScriptProgram.Signature(1,4)),
         Map.entry("lbc.cast_at",new ScriptProgram.Signature(2,2)),
         Map.entry("math.random",new ScriptProgram.Signature(0,2)),
         Map.entry("time.tick",new ScriptProgram.Signature(0,0)));
@@ -176,15 +176,21 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         var id = Identifier.parse(text(values.getFirst()));
         Vec3 origin = values.size() >= 2 && !values.get(1).isJsonNull() ? vector(values.get(1)) : owner.getEyePosition();
         Vec3 direction = values.size() >= 3 && !values.get(2).isJsonNull() ? vector(values.get(2)) : owner.getLookAngle();
-        return new JsonPrimitive(GenieNative.cast(game, owner, captured, id, origin, direction));
+        InteractionHand hand = values.size() == 4 && !values.get(3).isJsonNull()
+                ? castHand(values.get(3)) : InteractionHand.MAIN_HAND;
+        return new JsonPrimitive(GenieNative.cast(game, owner, hand, captured, id, origin, direction));
+    }
+
+    private static InteractionHand castHand(JsonElement value) {
+        return switch (text(value)) {
+            case "mainhand" -> InteractionHand.MAIN_HAND;
+            case "offhand" -> InteractionHand.OFF_HAND;
+            default -> throw new IllegalArgumentException("unknown spell hand");
+        };
     }
 
     private JsonElement grimoire(List<JsonElement> values) {
-        InteractionHand hand=values.size()==1?InteractionHand.MAIN_HAND:switch(text(values.get(1))){
-            case "mainhand"->InteractionHand.MAIN_HAND;
-            case "offhand"->InteractionHand.OFF_HAND;
-            default->throw new IllegalArgumentException("unknown grimoire hand");
-        };
+        InteractionHand hand = values.size() == 1 ? InteractionHand.MAIN_HAND : castHand(values.get(1));
         return new JsonPrimitive(GenieNative.grimoire(game,owner,Identifier.parse(text(values.getFirst())),hand));
     }
     private JsonObject command(String line){
