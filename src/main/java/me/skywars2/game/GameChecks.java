@@ -1621,6 +1621,7 @@ public final class GameChecks {
                                 case "fireblaze-menu" -> checkFireblazeMenu(game);
                                 case "fireblaze-crafting" -> checkFireblazeCrafting(game);
                                 case "fireblaze-wand" -> checkFireblazeWand(game);
+                                case "fireblaze-flight" -> { FireblazeFlightChecks.run(game); return; }
                                 case "fireblaze-cleanup" -> checkFireblazeCleanup(game);
                                 case "stonekivi-wand" -> checkStonekiviWand(game);
                                 case "stonekivi-sun-start" -> checkStonekiviSunStart(game);
@@ -1893,6 +1894,7 @@ public final class GameChecks {
             FastVirtualCloneChecks.tick(game);
             HomingTurnChecks.tick(game);
             CombatLogoutChecks.tick(game);
+            FireblazeFlightChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
             PendingSwordChecks.tick(game);
@@ -13400,10 +13402,14 @@ public final class GameChecks {
                         owner.setShiftKeyDown(true); mana.set(owner,50);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,
                                         "Fireblaze Academy trial is a paid native cast");
-                        var trialShots=fresh.get(); spawned.addAll(trialShots);
-                        var trialFireballs=trialShots.stream().filter(p->p instanceof net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball
-                                        && p.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE))
-                                        .map(p->(net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball)p).toList();
+                        var trialShots = new java.util.LinkedHashSet<>(fresh.get());
+                        var trialFireballs = MatchActorCheckpoint.currentBodies(game).values().stream()
+                                .filter(actor -> actor instanceof net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball ball
+                                        && !before.contains(ball.getUUID()) && ball.getOwner() == owner
+                                        && ball.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE))
+                                .map(actor -> (net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball) actor).toList();
+                        trialShots.addAll(trialFireballs);
+                        spawned.addAll(trialShots);
                         var powers=trialFireballs.stream().map(GameChecks::fireballPower).sorted().toList();
                         require(trialFireballs.size()==14 && powers.equals(java.util.stream.IntStream.rangeClosed(1,14).boxed().toList())
                                         && trialFireballs.stream().allMatch(p->p.getOwner()==owner
@@ -13652,7 +13658,7 @@ public final class GameChecks {
                 }
         }
 
-        private static int fireballPower(net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball projectile) {
+        static int fireballPower(net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball projectile) {
                 var saved=net.minecraft.world.level.storage.TagValueOutput.createWithContext(
                                 net.minecraft.util.ProblemReporter.DISCARDING,projectile.registryAccess());
                 projectile.saveWithoutId(saved);

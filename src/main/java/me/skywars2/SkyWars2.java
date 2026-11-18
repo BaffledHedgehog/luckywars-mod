@@ -82,6 +82,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         DeveloperTools.registerItem();
         LbcHomes.registerTicket();
         LbcPortalDrops.registerTicket();
+        me.skywars2.game.LbcBlaze.registerTrialTicket();
         LbcItems.register();
         LbcPortalDropItem.register();
         LbcLuckyRoomDropItem.register();

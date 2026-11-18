@@ -1,12 +1,16 @@
 package me.skywars2.game;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -19,6 +23,7 @@ import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -30,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.ArrayDeque;
 
@@ -39,6 +45,15 @@ public final class LbcBlaze {
     private static final DustParticleOptions CHICKEN_DUST=new DustParticleOptions(0xfda500,4);
     private static final DustParticleOptions CHICKEN_BURST=new DustParticleOptions(0xfff59a,4);
     public static final String TRIAL_PROJECTILE="skywars2.blaze.trial";
+    // Entity ticking for this column and its nearest neighbors until the fireball moves its ticket.
+    private static final int TRIAL_TICKET_RADIUS = 3;
+    private static final int MAX_TRIAL_FLIGHT_TICKS = 200;
+    private static final TicketType TRIAL_TICKET = new TicketType(TicketType.NO_TIMEOUT,
+            TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+
+    public static void registerTrialTicket() {
+        Registry.register(BuiltInRegistries.TICKET_TYPE, Identifier.parse("skywars2:fireblaze_trial"), TRIAL_TICKET);
+    }
     public static final String KFC_SPIRIT_PROJECTILE="skywars2.kfc.spirit";
     public static boolean isKfcSpirit(Entity entity) {
         return entity instanceof SmallFireball && entity.entityTags().contains(KFC_SPIRIT_PROJECTILE);
@@ -51,11 +66,28 @@ public final class LbcBlaze {
     private final Map<UUID,ServerPlayer> heads=new HashMap<>();
     private final Map<Blaze,UUID> blazes=new HashMap<>();
     private final ArrayDeque<Terrain> terrain=new ArrayDeque<>();
+    private final List<TrialFlight> trialFlights = new ArrayList<>();
+    private final Map<TrialChunk, Integer> trialTickets = new HashMap<>();
     private int ticks;
     private int checkpointCallbacks;
     private boolean checkpointRestoring;
     private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust,boolean wild) { }
     private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas) { }
+
+    private record TrialChunk(ServerLevel level, ChunkPos pos) {}
+
+    private static final class TrialFlight {
+        final LargeFireball shot;
+        final Vec3 destination;
+        final Vec3 direction;
+        TrialChunk chunk;
+
+        TrialFlight(LargeFireball shot, Vec3 destination, Vec3 direction) {
+            this.shot = shot;
+            this.destination = destination;
+            this.direction = direction;
+        }
+    }
 
     LbcBlaze(GameController game) { this.game=game; }
     void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
@@ -71,7 +103,7 @@ public final class LbcBlaze {
         }finally{checkpointCallbacks--;}
     }
 
-    public int count() { return turrets.size()+heads.size()+terrain.size()+blazes.size(); }
+    public int count() { return turrets.size()+heads.size()+terrain.size()+blazes.size()+trialFlights.size(); }
     int turretCount() { return turrets.size(); }
     int terrainCount() { return terrain.size(); }
     int headCharges(ServerPlayer owner) { return game.items().mana().hudValue(owner,"blaze"); }
@@ -128,24 +160,78 @@ public final class LbcBlaze {
             } else {
                 fireblaze(owner,mode);
                 if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
-                    // (user) Все 14 шаров и исходные мощности сохраняются, владельца не теряем.
-                    for(int i=1;i<=14;i++) {
-                        int axis=(i-1)%6; double distance=10+i*10;
-                        Vec3 offset=switch(axis) {
-                            case 0->new Vec3(0,distance,0); case 1->new Vec3(0,0,distance);
-                            case 2->new Vec3(distance,0,0); case 3->new Vec3(0,-distance,0);
-                            case 4->new Vec3(0,0,-distance); default->new Vec3(-distance,0,0);
-                        };
-                        Vec3 velocity=offset.normalize().scale(-1);
-                        var shot=new LargeFireball(owner.level(),owner,velocity,i); shot.entityTags().add(TRIAL_PROJECTILE);
-                        game.items().wands().launchFire(owner,shot,owner.position().add(offset),velocity);
-                    }
+                    launchFireblazeTrial(owner);
                     game.items().academy().ready(owner,hand,stack);
                 }
             }
             game.items().wands().wandCasted(owner);
             return true;
         }finally{checkpointCallbacks--;}
+    }
+
+    private void launchFireblazeTrial(ServerPlayer owner) {
+        var level = owner.level();
+        var destination = owner.position();
+        for (int power = 1; power <= 14; power++) {
+            double distance = 10 + power * 10;
+            Vec3 offset = switch ((power - 1) % 6) {
+                case 0 -> new Vec3(0, distance, 0);
+                case 1 -> new Vec3(0, 0, distance);
+                case 2 -> new Vec3(distance, 0, 0);
+                case 3 -> new Vec3(0, -distance, 0);
+                case 4 -> new Vec3(0, 0, -distance);
+                default -> new Vec3(-distance, 0, 0);
+            };
+            var position = destination.add(offset);
+            var velocity = offset.normalize().scale(-1);
+            var shot = new LargeFireball(level, owner, velocity, power);
+            shot.entityTags().add(TRIAL_PROJECTILE);
+
+            var flight = new TrialFlight(shot, destination, velocity);
+            moveTrialTicket(flight, new TrialChunk(level, ChunkPos.containing(BlockPos.containing(position))));
+            trialFlights.add(flight);
+            game.items().wands().launchFire(owner, shot, position, velocity);
+        }
+    }
+
+    private void moveTrialTicket(TrialFlight flight, TrialChunk next) {
+        var previous = flight.chunk;
+        if (Objects.equals(previous, next)) return;
+        if (next != null && trialTickets.merge(next, 1, Integer::sum) == 1) {
+            next.level.getChunkSource().addTicketWithRadius(TRIAL_TICKET, next.pos, TRIAL_TICKET_RADIUS);
+        }
+        flight.chunk = next;
+        if (previous != null && trialTickets.merge(previous, -1, Integer::sum) == 0) {
+            trialTickets.remove(previous);
+            previous.level.getChunkSource().removeTicketWithRadius(TRIAL_TICKET, previous.pos, TRIAL_TICKET_RADIUS);
+        }
+    }
+
+    void tickTrialFlights() {
+        if (checkpointRestoring) return;
+        for (var it = trialFlights.iterator(); it.hasNext();) {
+            var flight = it.next();
+            var shot = flight.shot;
+            if (shot.isRemoved() || !game.items().currentEpoch(shot)
+                    || shot.tickCount >= MAX_TRIAL_FLIGHT_TICKS
+                    || shot.position().subtract(flight.destination).dot(flight.direction) >= 0) {
+                moveTrialTicket(flight, null);
+                it.remove();
+                if (shot.tickCount >= MAX_TRIAL_FLIGHT_TICKS && !shot.isRemoved()) shot.discard();
+            } else if (game.items().polymorph().suspended(shot)) {
+                moveTrialTicket(flight, null);
+            } else {
+                moveTrialTicket(flight, new TrialChunk((ServerLevel) shot.level(), shot.chunkPosition()));
+            }
+        }
+    }
+
+    private void clearTrialFlights(boolean discard) {
+        for (var flight : trialFlights) {
+            moveTrialTicket(flight, null);
+            if (discard) flight.shot.discard();
+        }
+        trialFlights.clear();
     }
 
     /** Mode zero is the single at_random_fireball helper, rather than the paid nearby volley. */
@@ -368,6 +454,7 @@ public final class LbcBlaze {
     public void tick() {
         checkpointCallbacks++;try {
             if(checkpointRestoring)return;
+            tickTrialFlights();
             int now=++ticks;
             // Один снимок живых кандидатов на общий импульс, независимо от числа турелей и снарядов.
             List<LivingEntity> candidates=now%10==0 && (!turrets.isEmpty() || !heads.isEmpty())
@@ -437,6 +524,7 @@ public final class LbcBlaze {
         checkpointCallbacks++;try {
             for(var owner:List.copyOf(heads.values())) clearEffects(owner);
             turrets.clear(); terrain.clear();
+            clearTrialFlights(true);
             var pending=List.copyOf(blazes.keySet()); blazes.clear(); for(var mob:pending) mob.discard();
             ticks=0;checkpointRestoring=false;
         }finally{checkpointCallbacks--;}
@@ -444,15 +532,17 @@ public final class LbcBlaze {
     void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Blaze aura callbacks before checkpointing");}
     void prepareAuraFrozen(){checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();}
     void clearFutureTerrain(){for(var job:terrain)for(var area:job.areas)area.clear();terrain.clear();}
-    void publishAuraFrozen(){checkpointBoundary();checkpointRestoring=false;}
+    void publishAuraFrozen(){checkpointBoundary();checkpointRestoring=false;tickTrialFlights();}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
         checkpointBoundary();if(!terrain.isEmpty())throw new IllegalStateException("Finish Blaze terrain before taking aura essentials");return new Checkpoint(links);
     }
     final class Checkpoint {
         private record TurretImage(Turret source,UUID owner,ServerLevel ownerLevel) { }
         private record HeadImage(UUID key,UUID owner,ServerLevel level) { }
+        private record TrialImage(MatchDamageSources.Ref body, Vec3 destination, Vec3 direction) {}
         private final List<TurretImage> saved;
         private final List<HeadImage> headOwners;
+        private final List<TrialImage> trials;
         private final Map<MatchDamageSources.Ref,UUID> nativeOwners=new HashMap<>();
         private final java.util.Set<UUID> installed=new java.util.HashSet<>();private boolean baseInstalled;
         private final int cadence=ticks;
@@ -460,12 +550,14 @@ public final class LbcBlaze {
             saved=turrets.stream().map(t->new TurretImage(t,t.owner.getUUID(),t.owner.level())).toList();
             headOwners=heads.entrySet().stream().map(e->new HeadImage(e.getKey(),e.getValue().getUUID(),e.getValue().level())).toList();
             blazes.forEach((body,owner)->nativeOwners.put(links.key(body),owner));
+            trials = trialFlights.stream().filter(flight -> !flight.shot.isRemoved() && !links.omitted(flight.shot))
+                    .map(flight -> new TrialImage(links.key(flight.shot), flight.destination, flight.direction)).toList();
             saved.forEach(image->installed.add(image.owner));headOwners.forEach(image->installed.add(image.owner));baseInstalled=true;
         }
         private Checkpoint(Checkpoint current,Checkpoint previous){
             var turrets=new ArrayList<>(current.saved);for(var image:previous.saved)if(!previous.installed.contains(image.owner))turrets.add(image);saved=List.copyOf(turrets);
             var heads=new ArrayList<>(current.headOwners);for(var image:previous.headOwners)if(!previous.installed.contains(image.owner))heads.add(image);headOwners=List.copyOf(heads);
-            nativeOwners.putAll(current.nativeOwners);installed.addAll(current.installed);baseInstalled=true;
+            nativeOwners.putAll(current.nativeOwners);trials=current.trials;installed.addAll(current.installed);baseInstalled=true;
         }
         Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
         void resetReplay(){installed.clear();baseInstalled=false;}
@@ -478,8 +570,26 @@ public final class LbcBlaze {
                 var t=image.source;MatchAuthorityCheckpoint.world(game,t.level);nextTurrets.add(new Turret(current,t.level,t.position,t.epoch,t.remaining,t.speed,t.dust,t.wild));admitted.add(image.owner);}
             for(var image:headOwners){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.level);if(current!=null){nextHeads.put(image.key,current);admitted.add(image.owner);}}
             if(!baseInstalled)nativeOwners.forEach((ref,id)->nextBlazes.put((Blaze)links.get(ref),id));
-            return ()->{checkpointRestoring=true;if(!baseInstalled){clearFutureTerrain();turrets.clear();heads.clear();blazes.clear();blazes.putAll(nextBlazes);ticks=cadence;baseInstalled=true;}
-                turrets.addAll(nextTurrets);heads.putAll(nextHeads);installed.addAll(admitted);};
+            var nextTrials = baseInstalled ? List.<TrialFlight>of() : trials.stream()
+                    .map(image -> new TrialFlight((LargeFireball) links.get(image.body), image.destination, image.direction))
+                    .toList();
+            return () -> {
+                checkpointRestoring = true;
+                if (!baseInstalled) {
+                    clearFutureTerrain();
+                    turrets.clear();
+                    heads.clear();
+                    blazes.clear();
+                    blazes.putAll(nextBlazes);
+                    clearTrialFlights(false);
+                    trialFlights.addAll(nextTrials);
+                    ticks = cadence;
+                    baseInstalled = true;
+                }
+                turrets.addAll(nextTurrets);
+                heads.putAll(nextHeads);
+                installed.addAll(admitted);
+            };
         }
     }
 
