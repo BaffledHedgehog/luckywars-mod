@@ -62,6 +62,10 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(facts.getAsJsonArray("script_grimoires").contains(new com.google.gson.JsonPrimitive("skywars2:tesla_instant_grimoire"))
                 && facts.getAsJsonArray("script_launchable_entity_types").contains(new com.google.gson.JsonPrimitive("minecraft:creeper")),
                 "the model receives the executable definitions of real factory types and spells");
+            require(facts.getAsJsonArray("script_targeted_casts").asList().stream().anyMatch(value ->
+                    value.getAsJsonObject().get("id").getAsString().equals(GenieNative.ORESHNIK.toString()))
+                    && prompt.contains("lbc.cast_at") && contract.contains("\"lbc.cast_at\""),
+                "the model receives the native Oreshnik binding in the prompt, index and executable contract");
             var tables = facts.getAsJsonObject("loot_tables");
             var registry = game.server().reloadableRegistries().lookup().lookupOrThrow(net.minecraft.core.registries.Registries.LOOT_TABLE);
             var ids = registry.listElementIds().map(key -> key.identifier().toString()).collect(java.util.stream.Collectors.toSet());

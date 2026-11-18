@@ -249,6 +249,42 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void targetedOreshnik(GameController game, WoolBucketChecks.Fixture base, Vec3 target) {
+        var rockets = game.items().cinema().rockets();
+        require(rockets.flightCount() == 0 && rockets.blastCount() == 0, "Oreshnik fixture starts empty");
+        var id = new JsonPrimitive(GenieNative.ORESHNIK.toString());
+        var captured = new ItemStack(Items.SPYGLASS);
+        try (var host = new GenieWorldHost(game, base.owner, captured, () -> true, () -> 0)) {
+            var absent = new Vec3(1048576.25, target.y, 1048576.25);
+            require(!complete(host, queued(host, "lbc.cast_at", id, vector(absent))).getAsBoolean()
+                    && !base.level.hasChunkAt(BlockPos.containing(absent)), "an unloaded target does not schedule a rocket or load terrain");
+            base.field(true, target);
+            require(game.items().magic().mechanismSuppressedAt(base.level, target)
+                    && !complete(host, queued(host, "lbc.cast_at", id, vector(target))).getAsBoolean(),
+                    "the native mechanism jammer still blocks the targeted ability");
+            base.removeFields();
+            base.field(false, target);
+            require(game.items().magic().suppressedAt(base.level, target), "the ordinary antimagic control covers the target");
+            var code = ScriptJson.parse("""
+                {"version":1,"state":{},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
+                ["const","%s"],["const",%s],["call","lbc.cast_at",2],["return"]]}}}
+                """.formatted(id.getAsString(), vector(target)));
+            var program = ScriptProgram.compile(code, GenieWorldHost.api(), Set.of("USE"));
+            var fiber = new ScriptMachine(program, "main", List.of(new JsonObject()), program.initialState(), host);
+            require(fiber.advance(0, 100) == ScriptMachine.Status.WAITING && rockets.flightCount() == 0,
+                    "compiled USE handler queues the ability until native work is admitted");
+            require(host.drain(1, Long.MAX_VALUE) == 1 && fiber.advance(1, 100) == ScriptMachine.Status.DONE
+                    && fiber.result().getAsBoolean() && rockets.flightCount() == 1, "script runs the original single Oreshnik approach");
+            var flight = ((SequencedSet<?>) WoolBucketChecks.read(rockets, "flights")).getFirst();
+            var cause = (LbcIndirectKills.Owner) WoolBucketChecks.read(flight, "cause");
+            require(target.equals(WoolBucketChecks.read(flight, "target")) && cause.player().equals(base.owner.getUUID())
+                    && ItemStack.matches(cause.enchantmentWeapon(), captured), "native flight keeps the exact target, owner and item attribution");
+        } finally {
+            base.removeFields();
+            rockets.stop();
+        }
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -308,6 +344,7 @@ final class GenieWorldChecks {
             } finally { base.discard(spawned); }
 
             directedCasts(game, base, launchSpot.add(0, .65, 0));
+            targetedOreshnik(game, base, launchSpot);
 
             require(GenieNative.grimoires().containsKey(net.minecraft.resources.Identifier.parse("skywars2:tesla_instant_grimoire")),"real Tesla grimoire is indexed by the engine");
             var oldSpeed=base.owner.getEffect(MobEffects.SPEED);

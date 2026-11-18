@@ -57,9 +57,24 @@ public final class GenieNative {
         Identifier.parse("skywars2:terra_charge"), Cast.TERRA_CHARGE,
         Identifier.parse("skywars2:academy_terra_charge"), Cast.ACADEMY_TERRA_CHARGE
     );
+    public static final Identifier ORESHNIK = Identifier.parse("skywars2:oreshnik");
 
     public static Set<Identifier> casts() {
         return CASTS.keySet();
+    }
+
+    /** Point-targeted abilities keep their own permissions, effects and native attribution. */
+    public static boolean castAt(GameController game, ServerPlayer player, Identifier id, Vec3 target) {
+        if (!id.equals(ORESHNIK)) throw new IllegalArgumentException("unknown targeted LuckyWars ability");
+        var level = player.level();
+        if (!(Math.abs(target.x) < 30_000_000 && Math.abs(target.z) < 30_000_000
+                && target.y >= level.getMinY() && target.y < level.getMaxY() + 1.0)) return false;
+        var position = BlockPos.containing(target);
+        if (!player.isAlive() || player.isRemoved() || level != game.maps().level()
+                || !game.canUseGameplayItems(player) || game.items().actionsBlocked(player) || stopped(game, player)
+                || !level.isInWorldBounds(position) || !level.hasChunkAt(position)
+                || !level.getWorldBorder().isWithinBounds(position)) return false;
+        return game.items().cinema().rockets().launch(player, target);
     }
 
     /** Directed spell effects, independent of the actual item occupying either hand. */

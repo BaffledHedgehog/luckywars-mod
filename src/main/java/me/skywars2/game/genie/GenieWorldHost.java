@@ -24,17 +24,18 @@ import net.minecraft.world.InteractionHand;
 /** Real world API for item code. Call/drain on the game thread; no network worker touches a level. */
 public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
     private record Work(String name,List<JsonElement> arguments,CompletableFuture<JsonElement> future){}
-    private static final Map<String,ScriptProgram.Signature> API=Map.of(
-        "world.command",new ScriptProgram.Signature(1,1),
-        "world.select",new ScriptProgram.Signature(1,1),
-        "world.raycast",new ScriptProgram.Signature(4,4),
-        "structure.place",new ScriptProgram.Signature(2,2),
-        "entity.info",new ScriptProgram.Signature(1,1),
-        "entity.launch",new ScriptProgram.Signature(1,4),
-        "lbc.grimoire",new ScriptProgram.Signature(1,2),
-        "lbc.cast",new ScriptProgram.Signature(1,3),
-        "math.random",new ScriptProgram.Signature(0,2),
-        "time.tick",new ScriptProgram.Signature(0,0));
+    private static final Map<String,ScriptProgram.Signature> API=Map.ofEntries(
+        Map.entry("world.command",new ScriptProgram.Signature(1,1)),
+        Map.entry("world.select",new ScriptProgram.Signature(1,1)),
+        Map.entry("world.raycast",new ScriptProgram.Signature(4,4)),
+        Map.entry("structure.place",new ScriptProgram.Signature(2,2)),
+        Map.entry("entity.info",new ScriptProgram.Signature(1,1)),
+        Map.entry("entity.launch",new ScriptProgram.Signature(1,4)),
+        Map.entry("lbc.grimoire",new ScriptProgram.Signature(1,2)),
+        Map.entry("lbc.cast",new ScriptProgram.Signature(1,3)),
+        Map.entry("lbc.cast_at",new ScriptProgram.Signature(2,2)),
+        Map.entry("math.random",new ScriptProgram.Signature(0,2)),
+        Map.entry("time.tick",new ScriptProgram.Signature(0,0)));
     private final GameController game;
     private final ServerPlayer owner;
     private final ItemStack captured;
@@ -131,6 +132,8 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "entity.launch"->launch(values);
             case "lbc.grimoire"->grimoire(values);
             case "lbc.cast"->cast(values);
+            case "lbc.cast_at"->new JsonPrimitive(GenieNative.castAt(game,owner,
+                Identifier.parse(text(values.getFirst())),vector(values.get(1))));
             default->throw new IllegalArgumentException("unknown queued world API");
         };
     }

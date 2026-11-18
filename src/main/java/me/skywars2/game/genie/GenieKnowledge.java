@@ -120,6 +120,12 @@ public final class GenieKnowledge {
         root.add("script_launchable_entity_types",standaloneTypes);
         root.add("script_grimoires",strings(GenieNative.grimoires().keySet().stream().sorted().map(Object::toString).toList()));
         root.add("script_directed_casts",strings(GenieNative.casts().stream().sorted().map(Object::toString).toList()));
+        var oreshnik=new JsonObject();
+        oreshnik.addProperty("id",GenieNative.ORESHNIK.toString());
+        oreshnik.add("names",strings(List.of("Абсолютное кино: Путин / Орешник","Absolute Cinema: Putin / Oreshnik")));
+        oreshnik.addProperty("effect","Launches the original Oreshnik rocket and its cluster at an absolute xyz target in a loaded arena chunk.");
+        var targetedCasts=new JsonArray();targetedCasts.add(oreshnik);
+        root.add("script_targeted_casts",targetedCasts);
         root.add("script_gameplay_commands",strings(GenieCommandAccess.commands()));
         String scriptEncoded=root.toString();
         return new Snapshot(encoded.substring(0,encoded.length()-1),scriptEncoded.substring(0,scriptEncoded.length()-1),List.copyOf(profiles));
