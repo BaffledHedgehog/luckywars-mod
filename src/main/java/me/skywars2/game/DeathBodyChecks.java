@@ -38,6 +38,29 @@ public final class DeathBodyChecks {
         connection.handlePlayerInput(new ServerboundPlayerInputPacket(new Input(false,false,false,false,false,true,false)));
         require(connection.hasClientLoaded()&&repaired.isShiftKeyDown(),"actual input packet accepted on the replacement");
         require(repaired.getStats().getValue(Stats.CUSTOM.get(Stats.DEATHS))==deaths,"repair does not count a second death");
-        SkyWars2.LOGGER.info("[check] PASS death-body (native lethal death, dead spectator keeps zero HP, real client respawn, healed-ghost replacement, load/teleport ACK, native input and no duplicate death)");
+        checkCarpetDeath(game,repaired);
+        SkyWars2.LOGGER.info("[check] PASS death-body (real client healed-ghost recovery, native input and no duplicate death, Carpet owns its own death)");
+    }
+
+    private static void checkCarpetDeath(GameController game,ServerPlayer reference){
+        ServerPlayer player;
+        try{
+            player=CarpetBotChecks.connect(game,"TestDelta",reference.level(),reference.clientInformation());
+        }catch(ReflectiveOperationException error){
+            throw new IllegalStateException("Could not connect the real Carpet actor",error);
+        }
+        require(game.returnFromGameModeCommand(player,GameType.SURVIVAL),"ordinary Carpet fake participates in the round");
+        player.setGameMode(GameType.SURVIVAL);player.getAbilities().invulnerable=false;
+        player.hasChangedDimension();
+        player.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
+        require(player.connection.hasClientLoaded()&&game.allowDamage(player),"Carpet actor is ready for gameplay damage");
+        player.removeAllEffects();player.setAbsorptionAmount(0);player.setHealth(1);
+        player.setInvulnerableTime(0);player.damageCooldownTime=0;
+        require(player.hurtServer(player.level(),player.damageSources().fellOutOfWorld(),100000),"accepted native Carpet lethal hit");
+        var connection=(MatchPlayerCheckpoint.SimulatedAcknowledgement)player.connection;
+        require(connection.skywars2$waitingForRespawn()&&player.getHealth()==20,"Carpet schedules its own disconnect with positive HP");
+        game.repairHealedDeaths();
+        require(game.server().getPlayerList().getPlayer(player.getUUID())==player&&player.connection.player==player,
+                "real-player health repair leaves the registered Carpet body and its listener to the queued disconnect");
     }
 }

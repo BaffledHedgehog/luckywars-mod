@@ -1033,6 +1033,8 @@ public final class GameController {
         // the connection. Use the existing respawn machinery, never unlock packets
         // or revive the dying object in place. The callback installs the current role.
         for (var player : List.copyOf(online())) {
+            // Carpet sets positive health in die() before disconnecting or running its fake respawn.
+            if (player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake")) continue;
             var connection=(MatchPlayerCheckpoint.SimulatedAcknowledgement)player.connection;
             if (connection.skywars2$waitingForRespawn() && player.getHealth()>0) {
                 SkyWars2.LOGGER.warn("Repairing healed death body for {}: health={}, deathTime={}, stage={}",
