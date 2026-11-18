@@ -65,6 +65,7 @@ public final class LbcTeleportGadgets {
     public LbcTeleportGadgets(GameController game){this.game=game;}
     private static int kind(ItemStack stack){
         if(stack.isEmpty())return 0;
+        if(stack.is(LbcGadgetItems.LEGACY_SWAPPER))return 5;
         if(ItemData.intValue(stack,"teleport1",0)==1&&ItemData.intValue(stack,"gadget",0)==1)return 3;
         var data=LbcFartus.data(stack);
         if(data.getIntOr("teleport1_imba",0)==1&&data.getIntOr("gadget",0)==1)return 4;
@@ -99,6 +100,7 @@ public final class LbcTeleportGadgets {
             debit(player,stack);return true;
         }
         if(suppressed(player))return false;
+        if(kind==5)return game.balanceLegacy()&&legacySwap(player,stack);
         if(kind==1){if(!island(player))return false;debit(player,stack);return true;}
         // Held use and the other hand cannot restart an existing charge.
         if(charges.containsKey(player))return false;
@@ -137,8 +139,7 @@ public final class LbcTeleportGadgets {
         }
     }
     private boolean swap(ServerPlayer player){
-        var candidates=new ArrayList<ServerPlayer>();
-        for(var other:player.level().players())if(other!=player&&eligible(other)&&!suppressed(other)&&!paused(other)&&!LbcGreed.active(other))candidates.add(other);
+        var candidates=swapCandidates(player);
         if(candidates.isEmpty())return false;
         var target=candidates.get(player.getRandom().nextInt(candidates.size()));
         var level=player.level();var origin=player.position();var destination=target.position();
@@ -149,6 +150,51 @@ public final class LbcTeleportGadgets {
         sound(player,SUCCESS_SOUND);sound(target,SUCCESS_SOUND);
         particles(level,origin,ParticleTypes.PORTAL);particles(level,destination,ParticleTypes.PORTAL);
         game.items().indirectKills().teleported(target,player,true);
+        return true;
+    }
+    private List<ServerPlayer> swapCandidates(ServerPlayer player){
+        var candidates=new ArrayList<ServerPlayer>();
+        for(var other:player.level().players())
+            if(other!=player&&eligible(other)&&!suppressed(other)&&!paused(other)&&!LbcGreed.active(other))candidates.add(other);
+        return candidates;
+    }
+    private boolean legacySwap(ServerPlayer player,ItemStack stack){
+        var level=player.level();
+        var origin=player.position();
+        var destination=origin.y<=2?new Vec3(origin.x,3,origin.z)
+                :origin.y>=319?new Vec3(origin.x,315,origin.z):origin;
+        int platformY=origin.y<=2?1:origin.y>=319?314:net.minecraft.util.Mth.floor(origin.y-1.5);
+        var platform=BlockPos.containing(origin.x,platformY,origin.z);
+        var clearFrom=BlockPos.containing(destination.x,origin.y<=2?2:destination.y,destination.z);
+        for(var corner:List.of(platform.offset(-1,0,-1),platform.offset(1,0,1),
+                platform.offset(-1,0,1),platform.offset(1,0,-1))){
+            if(!level.hasChunkAt(corner)||!level.getWorldBorder().isWithinBounds(corner))return false;
+        }
+        var obsidian=new MapManager.BlockSnapshot(Blocks.OBSIDIAN.defaultBlockState(),null);
+        final int flags=net.minecraft.world.level.block.Block.UPDATE_CLIENTS
+                |net.minecraft.world.level.block.Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
+        var cause=game.items().indirectKills().wildCause(player);
+        game.items().indirectKills().capturedWorldChanges(level,cause,()->{
+            for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){
+                game.maps().restoreSnapshot(level,platform.offset(x,0,z),obsidian,flags);
+                if(origin.y<319)
+                    for(int y=0;y<3;y++)
+                        game.maps().restoreSnapshot(level,clearFrom.offset(x,y,z),MapManager.BlockSnapshot.air(),flags);
+            }
+        });
+        particles(level,destination,ParticleTypes.PORTAL);
+        var candidates=swapCandidates(player);
+        if(!candidates.isEmpty()){
+            var target=candidates.get(player.getRandom().nextInt(candidates.size()));
+            var targetPosition=target.position();
+            particles(level,targetPosition,ParticleTypes.PORTAL);
+            float yaw=player.getYRot(),pitch=player.getXRot();
+            if(move(player,targetPosition,target.getYRot(),target.getXRot())){
+                if(move(target,destination,0,0))game.items().indirectKills().teleported(target,player,true);
+                else move(player,origin,yaw,pitch);
+            }
+        }
+        debit(player,stack);
         return true;
     }
     private static boolean move(ServerPlayer player,Vec3 destination,float yaw,float pitch){

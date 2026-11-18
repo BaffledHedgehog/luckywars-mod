@@ -428,8 +428,8 @@
           "value": "lbc:item_defs/lbc/smokegrenade__958129b2ae2f"
         },
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/lbc/swapper__91d330d0996d"
+          "type": "minecraft:item",
+          "name": "skywars2:legacy_swapper"
         },
         {
           "type": "minecraft:loot_table",
@@ -581,5 +581,11 @@
         }
       ]
     }
-  ]
+  ],
+  "modifier": {
+    "type": "minecraft:set_components",
+    "components": {
+      "!minecraft:tooltip_style": {}
+    }
+  }
 }
