@@ -191,6 +191,7 @@
     "TeleportMomentumMixin$Command",
     "EquipmentHealthLoadMixin",
     "CoreEntityMergeMixin$Items",
+    "EntityItemMetadataMixin",
     "GroundItemTransferMixin$Pickup",
     "GroundItemTransferMixin$Hopper",
     "CoreEntityMergeMixin$Orbs",

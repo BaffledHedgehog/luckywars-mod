@@ -139,6 +139,31 @@ public final class BulkLootChecks {
                 raw.release();
             }
         });
+        mergedGroundStackWire(owner, pos);
+    }
+
+    private static void mergedGroundStackWire(net.minecraft.server.level.ServerPlayer owner, net.minecraft.core.BlockPos pos) {
+        net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(owner.connection, () -> {
+            for (ItemStack actual : List.of(new ItemStack(LbcKfcFood.GOVNO_EATEN, 128), new ItemStack(Items.STONE, 512))) {
+                var drop = new net.minecraft.world.entity.item.ItemEntity(owner.level(),pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,actual);
+                var packet = new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(
+                        drop.getId(),drop.getEntityData().getNonDefaultValues());
+                int serverCount = actual.getCount();
+                var raw = io.netty.buffer.Unpooled.buffer();
+                try {
+                    var wire = new net.minecraft.network.RegistryFriendlyByteBuf(raw,owner.registryAccess());
+                    net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.encode(wire,packet);
+                    var received = net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.decode(wire);
+                    require(received.id()==drop.getId()&&!wire.isReadable(),"native client decodes the complete wide-stack metadata");
+                    var view = received.packedItems().stream().map(net.minecraft.network.syncher.SynchedEntityData.DataValue::value)
+                            .filter(ItemStack.class::isInstance).map(ItemStack.class::cast).findFirst().orElseThrow();
+                    require(!view.isEmpty()&&view.getCount()==99,"world display keeps a legal visible stack instead of Polymer's failed projection");
+                    require(drop.getItem()==actual&&actual.getCount()==serverCount,"outgoing data does not change the native drop or its quantity");
+                } finally {
+                    raw.release();
+                }
+            }
+        });
     }
 
     private static void storedContents(net.minecraft.server.level.ServerPlayer owner, ItemStack original, int count) {
