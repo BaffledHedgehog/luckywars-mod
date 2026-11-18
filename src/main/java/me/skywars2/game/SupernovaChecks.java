@@ -27,7 +27,7 @@ public final class SupernovaChecks {
     }
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ServerPlayer owner,other;final boolean borders;
-        final String epoch;int state,at,start,clock,lives,otherLives,xp;boolean closed;
+        final String epoch;int state,at,start,clock,lives,otherLives,xp,initialEcology;boolean closed,seenTerrainMove,seenStrike;
         final boolean ownerPreview,otherPreview;
         Fixture(GameController game){
             this.game=game;require(game.playing(),"actual active match");
@@ -43,6 +43,7 @@ public final class SupernovaChecks {
             game.config().noBorders=true;for(var p:List.of(owner,other)){p.closeContainer();p.inventoryMenu.getCraftSlots().clearContent();p.getInventory().clearContent();p.removeAllEffects();}
             move(owner,game.maps().level(),new Vec3(1024.5,1000,1024.5));
             var nexus=game.server().getLevel(LbcHedgehogDimensions.NEXUS);require(nexus!=null,"native Nexus dimension");move(other,nexus,new Vec3(1,2332,1));
+            initialEcology=game.items().nexusAcquisition().ecology().count();
             owner.getInventory().setItem(8,new ItemStack(Items.DIAMOND,7));other.getInventory().setItem(8,new ItemStack(Items.EMERALD,9));
             owner.setExperienceLevels(17);xp=owner.experienceLevel;lives=game.lives(owner.getUUID());otherLives=game.lives(other.getUUID());
             owner.addEffect(new MobEffectInstance(MobEffects.REGENERATION,12000,1,false,false),owner);
@@ -62,20 +63,43 @@ public final class SupernovaChecks {
                 var id=service.eventId();service.craftChanged(owner);require(Objects.equals(id,service.eventId()),"busy service retains single event");
                 owner.inventoryMenu.getCraftSlots().clearContent();service.craftChanged(owner);clock=service.activeTicks();game.items().timeStop().begin(owner.level(),200);state=2;at=now;return false;}
             if(state==2){if(now-at<8)return false;require(service.activeTicks()==clock,"running event paused by real TimeStop");game.items().timeStop().end(owner.level());state=3;at=now;return false;}
-            if(state==3){if(service.phase()!=LbcSupernova.Phase.IDLE||game.supernovaMapTransition())return false;
+            if(state==3){
+                seenTerrainMove|=service.pendingClones()>0;
+                if(!seenStrike&&service.phase()==LbcSupernova.Phase.RUNNING)
+                    for(var entity:game.maps().level().getAllEntities()){
+                        var floor=net.minecraft.core.BlockPos.containing(entity.position().add(0,-.6,0));
+                        if(entity instanceof net.minecraft.world.entity.LightningBolt&&game.maps().arenaTerrainAt(floor)){seenStrike=true;break;}
+                    }
+                if(service.phase()!=LbcSupernova.Phase.IDLE||game.supernovaMapTransition())return false;
+                require(seenTerrainMove&&seenStrike,"a cast over the void still strikes and transfers occupied arena chunks before replacement");
+                require(game.items().nexusAcquisition().ecology().count()>initialEcology,"real chunk transfer activates the received terrain in Nexus");
                 require(!owner.getPostEffects().contains(AtlasGlitchSignal.EFFECT)&&other.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"real map completion releases automatic shader but preserves the separate manual preview");
                 AtlasGlitchSignal.manual(other,false);
                 require(game.items().epoch().equals(epoch),"same match epoch after Supernova");require(game.lives(owner.getUUID())==lives&&game.lives(other.getUUID())==otherLives,"same lives");
                 require(owner.experienceLevel==xp&&owner.getInventory().getItem(8).is(Items.DIAMOND)&&owner.getInventory().getItem(8).getCount()==7,"XP and inventory retained");
                 require(other.level()==game.maps().level()&&other.getInventory().getItem(8).is(Items.EMERALD),"Nexus player returned with items");
                 require(owner.hasEffect(MobEffects.REGENERATION)&&ShadowAbsorption.state(owner).entries.containsKey(2)&&ShadowAbsorption.state(owner).entries.containsKey(30),"foreign native effects and same-amp absorption baseline retained");
-                int reward=0;for(var stack:java.util.stream.IntStream.range(0,owner.getInventory().getContainerSize()).mapToObj(owner.getInventory()::getItem).toList())if(LbcBalanceItems.isBalance(stack))reward+=stack.getCount();require(reward==1,"one owner reward");
+                int reward=0;
+                for(var stack:java.util.stream.IntStream.range(0,owner.getInventory().getContainerSize()).mapToObj(owner.getInventory()::getItem).toList()){
+                    if(!LbcBalanceItems.isBalance(stack))continue;
+                    reward+=stack.getCount();
+                    var projected=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(stack,
+                            net.minecraft.world.item.TooltipFlag.NORMAL,owner.connection.getPacketContext(),owner.registryAccess());
+                    require(projected.is(Items.CARROT_ON_A_STICK)
+                            && net.minecraft.resources.Identifier.parse("lbc:balance").equals(projected.get(DataComponents.ITEM_MODEL)),
+                            "actual Balance reward retains the authored model on the vanilla client");
+                }
+                require(reward==1,"one owner reward");
                 for(var stack:java.util.stream.IntStream.range(0,other.getInventory().getContainerSize()).mapToObj(other.getInventory()::getItem).toList())require(!LbcBalanceItems.isBalance(stack),"no foreign reward");
                 owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcBalanceItems.BALANCE));
                 require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(owner,owner.level(),InteractionHand.MAIN_HAND).consumesAction(),"real Balance item callback");state=4;at=now;return false;}
             if(state==4){if(!game.balanceLegacy()||game.supernovaMapTransition())return false;
                 require(!game.items().epoch().equals(epoch)&&game.maps().spawns().size()==12,"new original overlay with exact twelve source spawns");
                 require(owner.level()==game.maps().level()&&other.level()==game.maps().level()&&game.lives(owner.getUUID())==1&&game.lives(other.getUUID())==1,"old map cohorts and source one life");
+                for(var player:List.of(owner,other))
+                    require(game.maps().spawns().stream().anyMatch(marker->marker.position().add(0,1,0).distanceToSqr(player.position())<.25),
+                            "each active player arrives above an actual Balance marker");
+                require(owner.position().distanceToSqr(other.position())>1,"two active players have distinct Balance arrivals");
                 require(owner.getInventory().getItem(8).isEmpty()&&!owner.hasEffect(MobEffects.REGENERATION),"explicit Balance inventory/effect wipe");
                 require(owner.experienceLevel==xp,"source Balance keeps existing XP");return true;}
             return false;

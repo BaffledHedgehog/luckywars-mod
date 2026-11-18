@@ -81,7 +81,7 @@ public final class LbcNexusEcology {
     Actor tree(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){return create(level,point,cause,Kind.TREE);}
     Actor spread(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){return create(level,point,cause,Kind.SPREAD);}
     private Actor create(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,Kind kind){
-        if(restoring||!nexus(level))return null;
+        if(restoring||!nexus(level)||level.isOutsideBuildHeight(BlockPos.containing(point)))return null;
         var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(point);marker.entityTags().add(TAG);marker.entityTags().add("nexus_rc");marker.entityTags().add(kind.tag);
         if(cause!=null){tag(marker,"owner",cause.player().toString());tag(marker,"order",Long.toString(cause.order()));}
         var actor=new Actor(marker.getUUID(),level,kind,cause,marker,point,game.server().getTickCount(),0,null);install(actor);
@@ -91,6 +91,7 @@ public final class LbcNexusEcology {
         if(restoring||!(body instanceof Marker)||!(body.level() instanceof ServerLevel level)||!nexus(level))return;
         if(retired.remove(body.getUUID())){body.discard();return;}
         Kind kind=kind(body);if(kind==null||!body.entityTags().contains("nexus_rc"))return;
+        if(level.isOutsideBuildHeight(body.blockPosition())){body.discard();return;}
         var previous=actors.get(body.getUUID());if(previous!=null){previous.body=body;previous.position=body.position();return;}
         LbcIndirectKills.Owner cause=null;
         try{String owner=value(body,"owner");if(!owner.isEmpty())cause=new LbcIndirectKills.Owner(UUID.fromString(owner),Long.parseLong(value(body,"order")),true,false);}
@@ -133,6 +134,14 @@ public final class LbcNexusEcology {
     }
     private void write(ServerLevel level,BlockPos position,net.minecraft.world.level.block.Block block){if(!level.isOutsideBuildHeight(position))LbcDropBlocks.setBlock(level,position,block.defaultBlockState(),true);}
     private boolean playerNear(Actor a){for(var player:a.level.players())if(player.position().distanceToSqr(a.position)<=22500)return true;return false;}
+    private boolean watchedIsland(Actor actor){
+        if(!actor.level.getChunkSource().chunkMap.getPlayers(ChunkPos.containing(BlockPos.containing(actor.position)),false).isEmpty())return true;
+        for(var player:actor.level.players()){
+            double dx=player.getX()-actor.position.x,dz=player.getZ()-actor.position.z;
+            if(dx*dx+dz*dz<=22500)return true;
+        }
+        return false;
+    }
     private void treeStep(Actor a){
         if(a.pending==null){if(!playerNear(a))return;a.pending=new Step(a.level.getRandom().nextInt(6),1+a.level.getRandom().nextInt(6));}
         if(!resident(a,7))return;
@@ -184,9 +193,11 @@ public final class LbcNexusEcology {
             work++;
             UUID id=queue.removeFirst();var a=actors.get(id);if(a==null)continue;var body=a.body;
             if(body!=null){
-                if(body.isRemoved()){remove(a);continue;}
+                if(body.isRemoved()||a.level.isOutsideBuildHeight(body.blockPosition())){remove(a);continue;}
                 a.position=body.position();
-                if(a.born!=tick&&!game.items().timeStop().stopped(a.level)&&!body.entityTags().contains("time_stopped")&&policy.allowed(a.level,a.position,a.cause==null?null:a.cause.player())){
+                if(a.born!=tick&&!game.items().timeStop().stopped(a.level)&&!body.entityTags().contains("time_stopped")
+                        && (a.kind==Kind.TREE||watchedIsland(a))
+                        &&policy.allowed(a.level,a.position,a.cause==null?null:a.cause.player())){
                     a.lifetime++;switch(a.kind){case CENTER->centerStep(a);case TREE->treeStep(a);case SPREAD->spreadStep(a);}
                 }else release(a.id);
             }

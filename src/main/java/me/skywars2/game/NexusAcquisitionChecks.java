@@ -161,6 +161,8 @@ public final class NexusAcquisitionChecks {
         void recipe(){
             stop();red=wire(1,2,origin);green=wire(2,2,origin.add(1,0,0));black=wire(3,2,origin.add(-1,0,0));wire(2,1,origin.add(0,0,1));wire(3,1,origin.add(0,0,-1));
             redTotal=count(1);greenTotal=count(2);blackTotal=count(3);require(redTotal==2&&greenTotal==3&&blackTotal==3,"recipe source counts plus extra singletons");
+            require(ecology.spread(nexus,new Vec3(origin.x,nexus.getMinY()-1,origin.z),cause)==null,
+                    "no spreading actor can be born beneath the Nexus floor");
             center=ecology.center(nexus,origin.add(-3,0,0),cause);require(center!=null,"native center admitted");nexus.setBlock(center.body.blockPosition(),Blocks.STONE.defaultBlockState(),2);
             var checkpoint=service.checkpoint();require(checkpoint.prepare(id->id.equals(center.id)?null:lookup(id)).pending().contains(center.id),"typed actor lookup reports a deliberately missing required native UUID");
             var plan=checkpoint.prepare(this::lookup);require(plan.pending().isEmpty(),"nonempty cage/wire/actor checkpoint resolves all native UUIDs");

@@ -17,6 +17,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.MinecraftServer;
@@ -227,6 +228,7 @@ public final class GameController {
     private boolean supernovaNativeTick;
     private BalanceMap balanceMap;
     private volatile boolean balanceLegacy;
+    private static final Identifier BALANCE_MUSIC = Identifier.parse("minecraft:lbcsounds.burning_balance");
     private final Set<UUID> balancePendingReset=new java.util.HashSet<>();
     private final Map<UUID,Integer> balancePendingRewards=new LinkedHashMap<>();
     private boolean readyBroken;
@@ -342,6 +344,8 @@ public final class GameController {
         for(var player:online()) {
             lbc.refreshArtifactView(player);lbc.refreshKnowledgeView(player);
             if(active)player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket(Component.empty()));
+            else player.connection.send(new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(
+                    BALANCE_MUSIC, net.minecraft.sounds.SoundSource.MASTER));
         }
         items.cosmetics().refreshSuffixes(online());
     }
@@ -477,8 +481,7 @@ public final class GameController {
                     maps.level().dimension(),net.minecraft.core.BlockPos.containing(member.spawn.position()),
                     member.spawn.yaw(),member.spawn.pitch()),true),false);
             if (member.awaitingRespawn || !player.isAlive() || isObserver(player)) continue;
-            teleport(player,member.spawn.position(),member.spawn.yaw(),member.spawn.pitch());
-            player.setDeltaMovement(Vec3.ZERO);player.fallDistance=0;
+            placeAfterRenewal(player,member.spawn,!bedwarsRenewal);
             items.ownedEffects().grant(player,"supernova.map.arrival",new net.minecraft.world.effect.MobEffectInstance(
                     net.minecraft.world.effect.MobEffects.SLOW_FALLING,200,0,false,false),null);
         }
@@ -590,15 +593,15 @@ public final class GameController {
         if(spawns.isEmpty()){
             mapFailure=Component.literal("Balance map has no spawns");balanceMap=balanceMap.phase(RenewalPhase.FAILED);return;
         }
-        // Source has twelve real spawn markers. Excess players remain on its staging platform.
+        // Reuse real spawn markers when the current match has more than twelve players.
         for(int i=0;i<retained.size();i++){
             var entry=retained.get(i);var member=entry.getValue();
-            var spawn=i<spawns.size()?spawns.get(i):new MapManager.Spawn(new Vec3(0,128,0),0,0);
+            var spawn=spawns.get(i%spawns.size());
             member.spawn=spawn;var player=server.getPlayerList().getPlayer(entry.getKey());
             if(player==null)continue;
             player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(maps.level().dimension(),
                     net.minecraft.core.BlockPos.containing(spawn.position()),spawn.yaw(),spawn.pitch()),true),false);
-            if(player.isAlive()&&!member.awaitingRespawn&&!isObserver(player))teleport(player,spawn.position(),spawn.yaw(),spawn.pitch());
+            if(player.isAlive()&&!member.awaitingRespawn&&!isObserver(player))placeAfterRenewal(player,spawn,true);
         }
         for(var player:online()){
             items.ownedEffects().withdraw(player,"supernova.map.hold");
@@ -621,8 +624,8 @@ public final class GameController {
             player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE,100,4,false,false),player);
             net.minecraft.world.effect.MobEffects.INSTANT_HEALTH.value().applyInstantaneousEffect(player.level(),player,player,player,4,1);
             net.minecraft.world.effect.MobEffects.SATURATION.value().applyInstantaneousEffect(player.level(),player,player,player,40,1);
-            LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.burning_balance",1,1,1);
-            LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.burning_balance",1,1,1);
+            LbcOverload.sound(player,player.position(),BALANCE_MUSIC.toString(),1,1,1);
+            LbcOverload.sound(player,player.position(),BALANCE_MUSIC.toString(),1,1,1);
             if(!player.isSpectator())items.mana().award(player,"lbc:true_advancements/legends/new_world");
         }
         bar.setColor(BossEvent.BossBarColor.GREEN);updateBar();
@@ -1776,6 +1779,16 @@ public final class GameController {
 
     private void teleport(ServerPlayer player, Vec3 position, float yaw, float pitch) {
         if (maps.level() != null) player.teleportTo(maps.level(), position.x, position.y, position.z, Set.of(), yaw, pitch, true);
+    }
+
+    private void placeAfterRenewal(ServerPlayer player, MapManager.Spawn spawn, boolean aboveMarker) {
+        // Legacy moves the player up one block after selecting the spawn marker.
+        var destination=aboveMarker?spawn.position().add(0,1,0):spawn.position();
+        player.setDeltaMovement(Vec3.ZERO);
+        player.setKnownMovement(Vec3.ZERO);
+        player.fallDistance=0;
+        teleport(player,destination,spawn.yaw(),spawn.pitch());
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
     }
 
     private void rewardAlive(int coins, String translationKey) {

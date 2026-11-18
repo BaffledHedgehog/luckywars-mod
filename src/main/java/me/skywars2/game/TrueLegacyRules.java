@@ -19,7 +19,7 @@ public final class TrueLegacyRules {
     private static final Vanilla VANILLA=load();
     private TrueLegacyRules() {}
     public static boolean kit(int id) { return id>0 && id<=21; } // Through Half Slabs, including the source ID gap19.
-    public static boolean skill(int id) { return id>0 && id<=13 && id!=11 && id!=13; } // Heavyweight12 remains available.
+    public static boolean skill(int id) { return id > 0 && id <= 11; } // Wind Runner and Duelist are Halloween rewards.
     public static void warmup() { if(VANILLA.tags.isEmpty()||VANILLA.types.isEmpty())throw new IllegalStateException("Empty vanilla legacy damage snapshot"); }
     private static Vanilla load() {
         try(var input=TrueLegacyRules.class.getResourceAsStream("/skywars2/vanilla_damage_26_3.json")) {

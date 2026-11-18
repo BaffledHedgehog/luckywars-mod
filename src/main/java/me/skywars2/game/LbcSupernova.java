@@ -30,8 +30,10 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -45,6 +47,7 @@ public final class LbcSupernova {
     }
     public enum Phase { IDLE, RUNNING, DRAINING, DELAY, MAP }
     private static final String TAG="skywars2.supernova", BENEFIT="skywars2.supernova.benefit";
+    private static final int MAX_TRANSFERS=2;
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private static final CompoundTag GUN_FLAG=new CompoundTag();
     private static final TagKey<Block> AIRS_ONLY=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs_only"));
@@ -58,6 +61,9 @@ public final class LbcSupernova {
     private final Set<UUID> craftDirty=new LinkedHashSet<>();
     private final Map<ChunkPos,CompletableFuture<?>> loading=new HashMap<>();
     private final List<Point> points=new ArrayList<>(5);
+    private ArrayDeque<ArenaChunk> arenaSearch;
+    private int anchors;
+    private boolean startedTerrain;
     private final Set<UUID> retired=new HashSet<>();
     private final Map<UUID,BenefitLease> deferredBenefits=new LinkedHashMap<>();
     private Phase phase=Phase.IDLE;
@@ -76,9 +82,11 @@ public final class LbcSupernova {
     }
     private static final class Point {
         final UUID id; Vec3 position,candidate; Marker body;
+        boolean settled;
         Point(UUID id,Vec3 position){this.id=id;this.position=position;}
     }
-    private record PointImage(UUID id,Vec3 position,boolean loaded){}
+    private record PointImage(UUID id,Vec3 position,boolean loaded,boolean settled){}
+    private record ArenaChunk(ChunkPos position,List<BoundingBox> bounds){}
     public LbcSupernova(GameController game,GlobalActions actions,BooleanSupplier acceptNewWork){
         this.game=game;this.actions=actions;this.acceptNewWork=acceptNewWork;
         clones=new LbcNexusClone(game,(destination,tx,ty,tz,centers,trees,author)->{
@@ -202,23 +210,121 @@ public final class LbcSupernova {
     private boolean scatter(Point point){
         if(point.candidate==null){var random=level.getRandom();point.candidate=new Vec3(point.position.x+(random.nextDouble()*100-50),0,point.position.z+(random.nextDouble()*100-50));}
         var pos=BlockPos.containing(point.candidate);var chunkPos=new ChunkPos(pos.getX()>>4,pos.getZ()>>4);
-        var chunk=level.getChunkSource().getChunkNow(chunkPos.x(),chunkPos.z());
-        if(chunk==null){
-            var future=loading.get(chunkPos);
-            if(future!=null&&(future.isCompletedExceptionally()||future.isCancelled())){release(chunkPos);point.candidate=null;return false;}
-            if(loading.size()<5)loading.computeIfAbsent(chunkPos,k->level.getChunkSource().addTicketAndLoadWithRadius(TICKET,k,0));return false;
+        if(!game.maps().arenaTerrainColumn(pos.getX(),pos.getZ())){
+            move(point,new Vec3(pos.getX()+.5,level.getMinY(),pos.getZ()+.5));
+            point.candidate=null;
+            return true;
         }
-        int y=chunk.getHeight(Heightmap.Types.WORLD_SURFACE,pos.getX()&15,pos.getZ()&15)+1;
-        var ground=chunk.getBlockState(new BlockPos(pos.getX(),y-1,pos.getZ()));
-        if(y>0&&(!ground.getFluidState().isEmpty()||ground.is(Blocks.FIRE)||ground.is(Blocks.SOUL_FIRE))){point.candidate=null;release(chunkPos);return false;}
-        point.position=new Vec3(Math.floor(point.candidate.x)+.5,y,Math.floor(point.candidate.z)+.5);point.candidate=null;
-        if(point.body!=null&&!point.body.isRemoved())point.body.setPos(point.position);
+        var chunk=load(chunkPos);
+        if(chunk==null){
+            if(!loadFailed(chunkPos))return false;
+            release(chunkPos);point.candidate=null;return false;
+        }
+        int y=top(chunk,pos.getX(),pos.getZ());
+        move(point,new Vec3(pos.getX()+.5,y+1,pos.getZ()+.5));
+        point.candidate=null;
         release(chunkPos);return true;
+    }
+    private LevelChunk load(ChunkPos position){
+        var chunk=level.getChunkSource().getChunkNow(position.x(),position.z());
+        if(chunk==null&&loading.size()<5)
+            loading.computeIfAbsent(position,k->level.getChunkSource().addTicketAndLoadWithRadius(TICKET,k,0));
+        return chunk;
+    }
+    private boolean loadFailed(ChunkPos position){
+        var future=loading.get(position);
+        return future!=null&&(future.isCompletedExceptionally()||future.isCancelled());
+    }
+    private static int top(LevelChunk chunk,int x,int z){
+        return chunk.getHeight(Heightmap.Types.WORLD_SURFACE,x&15,z&15);
+    }
+    private static void move(Point point,Vec3 position){
+        point.position=position;
+        if(point.body!=null&&!point.body.isRemoved())point.body.setPos(position);
     }
     private void release(ChunkPos chunk){if(loading.remove(chunk)!=null)level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);}
     private void releaseTickets(){for(var chunk:List.copyOf(loading.keySet()))release(chunk);}
-    private boolean unsupported(Point point){if(point.position.y<=0)return true;var pos=BlockPos.containing(point.position.add(0,-.6,0));
-        var chunk=level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4);return chunk!=null&&chunk.getBlockState(pos).is(AIRS_ONLY);}
+    private boolean supported(Vec3 spot){
+        var floor=BlockPos.containing(spot.add(0,-.6,0));
+        if(!game.maps().arenaTerrainAt(floor))return false;
+        var chunk=level.getChunkSource().getChunkNow(floor.getX()>>4,floor.getZ()>>4);
+        return chunk!=null&&validFloor(chunk,floor);
+    }
+    private boolean validFloor(LevelChunk chunk,BlockPos floor){
+        if(floor.getY()<0)return false;
+        var state=chunk.getBlockState(floor);
+        return !state.isAir()&&!state.is(AIRS_ONLY)&&state.getFluidState().isEmpty()
+                &&!state.is(Blocks.FIRE)&&!state.is(Blocks.SOUL_FIRE)&&game.bedwars().arena().allowsRemoval(level,floor);
+    }
+    private boolean strike(Vec3 position){
+        if(clones.pending()>=MAX_TRANSFERS)return false;
+        if(!clones.request(level,position,cause))return false;
+        lightning(position);lightning(position);
+        dust(position,0xffffff,50,.5,20,.5,1);
+        return true;
+    }
+    private ArrayDeque<ArenaChunk> arenaSearch(){
+        var chunks=new LinkedHashMap<ChunkPos,List<BoundingBox>>();
+        for(var bounds:game.maps().arenaTerrainBounds()){
+            for(int x=bounds.minX()>>4;x<=bounds.maxX()>>4;x++)
+                for(int z=bounds.minZ()>>4;z<=bounds.maxZ()>>4;z++)
+                    chunks.computeIfAbsent(new ChunkPos(x,z),key->new ArrayList<>()).add(bounds);
+        }
+        var order=new ArrayList<>(chunks.entrySet());
+        Collections.shuffle(order,new Random(level.getRandom().nextLong()));
+        var search=new ArrayDeque<ArenaChunk>(order.size());
+        for(var entry:order)search.add(new ArenaChunk(entry.getKey(),List.copyOf(entry.getValue())));
+        return search;
+    }
+    private Vec3 arenaSurface(LevelChunk chunk,ArenaChunk search){
+        int offset=level.getRandom().nextInt(256);
+        var floor=new BlockPos.MutableBlockPos();
+        for(int n=0;n<256;n++){
+            int index=(offset+n)&255;
+            int x=search.position.getMinBlockX()+(index&15);
+            int z=search.position.getMinBlockZ()+(index>>4);
+            int top=top(chunk,x,z);
+            for(var bounds:search.bounds){
+                if(x<bounds.minX()||x>bounds.maxX()||z<bounds.minZ()||z>bounds.maxZ())continue;
+                for(int y=Math.min(bounds.maxY(),top);y>=Math.max(0,bounds.minY());y--){
+                    floor.set(x,y,z);
+                    if(validFloor(chunk,floor))return new Vec3(x+.5,y+1,z+.5);
+                }
+            }
+        }
+        return null;
+    }
+    private void scanArena(){
+        // A first wave over the void should still find the islands. Seed all
+        // five walkers once, then let subsequent waves move from those points.
+        if(clones.pending()>=MAX_TRANSFERS)return;
+        if(arenaSearch==null)arenaSearch=arenaSearch();
+        for(int checked=0;checked<4&&!arenaSearch.isEmpty();checked++){
+            var candidate=arenaSearch.getFirst();
+            var chunk=load(candidate.position);
+            if(chunk==null&&!loadFailed(candidate.position))return;
+            arenaSearch.removeFirst();
+            var surface=chunk==null?null:arenaSurface(chunk,candidate);
+            if(surface!=null&&strike(surface)){
+                release(candidate.position);
+                move(points.get(anchors++),surface);
+                break;
+            }
+            release(candidate.position);
+        }
+        if(anchors<points.size()&&!arenaSearch.isEmpty())return;
+        arenaSearch=null;
+        if(anchors==0)drainTerrain();
+        else { startedTerrain=true; nextWave(); }
+    }
+    private void nextWave(){
+        for(var point:points)point.settled=false;
+    }
+    private void drainTerrain(){
+        phase=Phase.DRAINING;
+        releaseTickets();
+        removeBodies();
+    }
     public void tick(){
         int tick=game.server().getTickCount();if(lastTick==tick)return;lastTick=tick;
         if(!running())return;
@@ -237,12 +343,21 @@ public final class LbcSupernova {
         if(phase==Phase.MAP&&pendingCompletion!=null){finish(pendingCompletion);return;}
         if(phase==Phase.RUNNING){
             if(!acceptNewWork.getAsBoolean())return;
-            boolean settled=true;
-            for(var point:points){if(!scatter(point)){settled=false;continue;}
-                if(!unsupported(point)){clones.request(level,point.position,cause);lightning(point.position);dust(point.position,0xffffff,50,.5,20,.5,1);}
-                lightning(point.position);
+            if(arenaSearch!=null)scanArena();
+            else if(clones.pending()<MAX_TRANSFERS){
+                boolean settled=true;
+                for(var point:points){
+                    if(!point.settled)point.settled=scatter(point);
+                    settled&=point.settled;
+                }
+                if(settled){
+                    boolean struck=false;
+                    for(var point:points)if(supported(point.position))struck|=strike(point.position);
+                    if(struck){startedTerrain=true;nextWave();}
+                    else if(!startedTerrain)scanArena();
+                    else if(clones.captureReady())drainTerrain();
+                }
             }
-            if(settled&&points.stream().allMatch(this::unsupported)){phase=Phase.DRAINING;releaseTickets();removeBodies();}
         }
         if(phase==Phase.DRAINING&&clones.captureReady()){phase=Phase.DELAY;delay=0;actions.preparingMap(event,owner,cause);}
         else if(phase==Phase.DELAY&&++delay>=60){phase=Phase.MAP;mapIntent=true;actions.replaceMap(event,owner,cause);}
@@ -264,12 +379,12 @@ public final class LbcSupernova {
     private void removeBodies(){if(root!=null){if(core!=null&&!core.isRemoved())core.discard();else retired.add(root);}core=null;
         for(var p:points){if(p.body!=null&&!p.body.isRemoved())p.body.discard();else retired.add(p.id);p.body=null;}}
     private void finish(boolean success){var id=event;var recipient=owner;removeBodies();releaseTickets();benefits();drops(success||blockDrops,success||entityDrops,success||mobDrops);
-        phase=Phase.IDLE;points.clear();event=owner=root=null;cause=null;origin=null;level=null;absorptionBaseline=null;pendingCompletion=null;mapIntent=false;actions.finished(id,recipient,success);AtlasGlitchSignal.tick(game.server());}
+        phase=Phase.IDLE;points.clear();arenaSearch=null;anchors=0;startedTerrain=false;event=owner=root=null;cause=null;origin=null;level=null;absorptionBaseline=null;pendingCompletion=null;mapIntent=false;actions.finished(id,recipient,success);AtlasGlitchSignal.tick(game.server());}
     public void stop(){clones.stop();if(phase!=Phase.IDLE)finish(false);releaseTickets();craftDirty.clear();katanas.clear();restoring=false;}
     /** Capture only waits for accepted atomic terrain writes, never for the whole event. */
     public boolean captureReady(){return clones.captureReady()&&loading.isEmpty()&&phase!=Phase.MAP;}
     public void settle(){if(!acceptNewWork.getAsBoolean()){releaseTickets();for(var p:points)p.candidate=null;}}
-    public void prepareFrozen(){releaseTickets();points.clear();katanas.clear();craftDirty.clear();retired.clear();deferredBenefits.clear();core=null;restoring=true;}
+    public void prepareFrozen(){releaseTickets();points.clear();arenaSearch=null;anchors=0;startedTerrain=false;katanas.clear();craftDirty.clear();retired.clear();deferredBenefits.clear();core=null;restoring=true;}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
     Checkpoint checkpoint(){if(!captureReady())throw new IllegalStateException("Drain accepted Supernova terrain before capture");return new Checkpoint();}
     final class Checkpoint {
@@ -277,7 +392,9 @@ public final class LbcSupernova {
         final ServerLevel savedLevel=level;final Vec3 savedOrigin=origin;final LbcIndirectKills.Owner savedCause=cause;
         final int savedClock=clock,savedDelay=delay;final boolean savedIntent=mapIntent,savedBlock=blockDrops,savedEntity=entityDrops,savedMob=mobDrops,rootLoaded=core!=null&&!core.isRemoved();
         final MobEffectInstance baseline=absorptionBaseline==null?null:EffectLayers.copy(absorptionBaseline);
-        final List<PointImage> actors=points.stream().map(p->new PointImage(p.id,p.position,p.body!=null&&!p.body.isRemoved())).toList();
+        final List<PointImage> actors=points.stream().map(p->new PointImage(p.id,p.position,p.body!=null&&!p.body.isRemoved(),p.settled)).toList();
+        final List<ArenaChunk> savedSearch=arenaSearch==null?null:List.copyOf(arenaSearch);
+        final int savedAnchors=anchors;final boolean savedStartedTerrain=startedTerrain;
         final List<UUID> dropped=katanas.values().stream().filter(i->!i.isRemoved()).map(Entity::getUUID).toList(),dirty=List.copyOf(craftDirty);
         final Set<UUID> cancelled=Set.copyOf(retired);
         final Map<UUID,BenefitLease> leases=new LinkedHashMap<>();
@@ -285,9 +402,9 @@ public final class LbcSupernova {
         MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var missing=new LinkedHashSet<UUID>();var restored=new ArrayList<Point>();
             Marker body=savedRoot!=null&&lookup.apply(savedRoot) instanceof Marker m?m:null;if(rootLoaded&&body==null)missing.add(savedRoot);
-            for(var image:actors){var p=new Point(image.id(),image.position());if(lookup.apply(p.id) instanceof Marker m)p.body=m;else if(image.loaded())missing.add(p.id);restored.add(p);}
+            for(var image:actors){var p=new Point(image.id(),image.position());p.settled=image.settled();if(lookup.apply(p.id) instanceof Marker m)p.body=m;else if(image.loaded())missing.add(p.id);restored.add(p);}
             var items=new LinkedHashMap<UUID,ItemEntity>();for(var id:dropped)if(lookup.apply(id) instanceof ItemEntity item)items.put(id,item);else missing.add(id);
-            return new MatchFieldCheckpoint.Plan(Set.copyOf(missing),()->{phase=savedPhase;event=savedEvent;owner=savedOwner;root=savedRoot;level=savedLevel;origin=savedOrigin;cause=savedCause;clock=savedClock;delay=savedDelay;mapIntent=savedIntent;blockDrops=savedBlock;entityDrops=savedEntity;mobDrops=savedMob;core=body;points.clear();points.addAll(restored);katanas.clear();katanas.putAll(items);craftDirty.clear();craftDirty.addAll(dirty);retired.clear();retired.addAll(cancelled);deferredBenefits.clear();leases.forEach((id,lease)->deferredBenefits.put(id,lease.copy()));absorptionBaseline=baseline==null?null:EffectLayers.copy(baseline);});
+            return new MatchFieldCheckpoint.Plan(Set.copyOf(missing),()->{phase=savedPhase;event=savedEvent;owner=savedOwner;root=savedRoot;level=savedLevel;origin=savedOrigin;cause=savedCause;clock=savedClock;delay=savedDelay;mapIntent=savedIntent;blockDrops=savedBlock;entityDrops=savedEntity;mobDrops=savedMob;core=body;points.clear();points.addAll(restored);arenaSearch=savedSearch==null?null:new ArrayDeque<>(savedSearch);anchors=savedAnchors;startedTerrain=savedStartedTerrain;katanas.clear();katanas.putAll(items);craftDirty.clear();craftDirty.addAll(dirty);retired.clear();retired.addAll(cancelled);deferredBenefits.clear();leases.forEach((id,lease)->deferredBenefits.put(id,lease.copy()));absorptionBaseline=baseline==null?null:EffectLayers.copy(baseline);});
         }
     }
 }

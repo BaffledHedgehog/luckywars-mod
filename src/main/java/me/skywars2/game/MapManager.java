@@ -808,6 +808,20 @@ public final class MapManager {
         return look;
     }
 
+    List<BoundingBox> arenaTerrainBounds() {
+        return List.copyOf(mapBounds);
+    }
+
+    boolean arenaTerrainColumn(int x, int z) {
+        for (var box : mapBounds)
+            if (x >= box.minX() && x <= box.maxX() && z >= box.minZ() && z <= box.maxZ()) return true;
+        return false;
+    }
+
+    boolean arenaTerrainAt(BlockPos position) {
+        return insideAny(position, mapBounds);
+    }
+
     /** Cosmetic variants share the exact native cage removal set, including source chain corners. */
     void cageBlock(ServerLevel target,BlockPos pos,BlockState state){
         if(target!=level||!target.hasChunkAt(pos))throw new IllegalStateException("Cosmetic cage must be in its loaded native map");

@@ -41,6 +41,6 @@ public final class LbcBalanceItems {
             .component(DataComponents.CUSTOM_DATA,CustomData.of(flags)).component(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_x"))
             .component(DataComponents.ITEM_NAME,Component.translatable(name).withStyle(s->s.withColor(ChatFormatting.GOLD).withItalic(false)))
             .component(DataComponents.LORE,new ItemLore(lines));
-        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(properties,Items.CARROT_ON_A_STICK));
+        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(properties,Items.CARROT_ON_A_STICK,true));
     }
 }

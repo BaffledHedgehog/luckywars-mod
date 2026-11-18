@@ -50,7 +50,7 @@ public final class TrueLegacyChecks {
             require(count(p,Items.OAK_SLAB)==1&&count(p,Items.COBBLESTONE_SLAB)==16,"actual selected Half Slabs kit is granted");
             p.getInventory().clearContent();profile.kit=22;game.events().giveKit(p);
             require(p.getInventory().isEmpty(),"post-Half-Slabs kit stays inactive without changing selection");
-            for(int id=1;id<=13;id++){profile.skill=id;require(game.events().selectedSkill(p)==(id==11||id==13?0:id),"actual ordinary skill eligibility "+id);}
+            for(int id=1;id<=13;id++){profile.skill=id;require(game.events().selectedSkill(p)==(id<=11?id:0),"actual ordinary skill eligibility "+id);}
             profile.lbcKit=6;profile.lbcSkill=2;game.lbc().apply(p);
             require(p.getInventory().isEmpty()&&!game.lbc().skillsEnabled()&&!game.items().inventoryHazards().protectedInventory(p),"selected super kit/skill cannot leak into legacy");
             profile.suffix=1;profile.winEffect=1;profile.killEffect=1;

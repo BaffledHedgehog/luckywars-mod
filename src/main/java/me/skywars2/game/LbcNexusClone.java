@@ -164,15 +164,25 @@ final class LbcNexusClone {
             started = true;
             if (copied < count) {
                 int end = Math.min(count, copied + CELLS_PER_STEP);
+                var sourceChunk = source.level.getChunkSource().getChunkNow(source.chunk.x(), source.chunk.z());
+                var destinationChunk = destination.getChunkSource().getChunkNow(targetChunk.x(), targetChunk.z());
+                var air = Blocks.AIR.defaultBlockState();
                 game.items().indirectKills().capturedWorldChanges(destination, cause, () -> {
                     while (copied < end) {
                         var from = sourceCell(copied);
+                        var to = targetCell(copied);
+                        // The empty columns of a SkyWars island still occupy most of
+                        // the clone volume. Identical plain air needs no world write.
+                        if (sourceChunk.getBlockState(from) == air && destinationChunk.getBlockState(to) == air) {
+                            copied++;
+                            continue;
+                        }
                         var arena=game.bedwars().arena();
                         if(!arena.allowsRemoval(source.level,from)){copied++;continue;}
                         // One server-thread MOVE: inventory is never usable in both worlds between ticks.
                         var cell = game.maps().snapshot(source.level, from);
-                        if(!arena.allowsType(destination,targetCell(copied),cell.state())){copied++;continue;}
-                        game.maps().restoreSnapshot(destination, targetCell(copied), cell, FLAGS);
+                        if(!arena.allowsType(destination,to,cell.state())){copied++;continue;}
+                        game.maps().restoreSnapshot(destination, to, cell, FLAGS);
                         game.items().indirectKills().capturedWorldChanges(source.level, cause, () ->
                                 game.maps().restoreSnapshot(source.level, from, MapManager.BlockSnapshot.air(), FLAGS));
                         copied++;
@@ -216,7 +226,8 @@ final class LbcNexusClone {
                     int x = tx - 8 + destination.getRandom().nextInt(16);
                     int z = tz - 8 + destination.getRandom().nextInt(16);
                     // Bukkit highestBlockYAt is the highest occupied block, not the first air above it.
-                    int y = destination.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) - 1;
+                    int y = Math.max(destination.getMinY() + 1,
+                            destination.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) - 1);
                     var support = new BlockPos(x, y - 1, z);
                     if (!destination.isOutsideBuildHeight(support) && !destination.getBlockState(support).isSolid())
                         game.maps().restoreSnapshot(destination, support,
