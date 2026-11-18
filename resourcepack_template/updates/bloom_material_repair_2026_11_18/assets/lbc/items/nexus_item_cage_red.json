@@ -1,0 +1,17 @@
+{
+  "model": {
+    "type": "model",
+    "model": "lbc:item/nexus_item_cage_red",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": [
+          252,
+          253,
+          249
+        ]
+      }
+    ]
+  },
+  "oversized_in_gui": true
+}

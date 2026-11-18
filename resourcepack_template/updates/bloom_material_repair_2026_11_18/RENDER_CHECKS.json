@@ -1,0 +1,258 @@
+{
+  "renderer": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "offscreenPassed": 64,
+  "materialCases": [
+    {
+      "case": "marked-item-and-halo",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "whiteCore": false,
+      "passed": true
+    },
+    {
+      "case": "marked-item-and-halo",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "whiteCore": false,
+      "passed": true
+    },
+    {
+      "case": "marked-item-and-halo",
+      "rgb": [
+        255,
+        3,
+        3
+      ],
+      "whiteCore": true,
+      "passed": true
+    },
+    {
+      "case": "weak-normal-strong",
+      "strengths": [
+        0.25,
+        1.0,
+        3.0
+      ],
+      "haloEnergy": [
+        5844,
+        24520,
+        71148
+      ],
+      "passed": true
+    },
+    {
+      "case": "custom-halo-colored-core",
+      "passed": true
+    },
+    {
+      "case": "service-alpha-is-not-material",
+      "passed": true
+    },
+    {
+      "case": "actual-saber-texture",
+      "texture": "lightsaber_sith",
+      "emittingPixels": 1216,
+      "hiltNeverEmits": true,
+      "passed": true
+    },
+    {
+      "case": "actual-saber-texture",
+      "texture": "lightsaber_jedi",
+      "emittingPixels": 1216,
+      "hiltNeverEmits": true,
+      "passed": true
+    },
+    {
+      "case": "native-translucent-blend-loses-minigun-mask",
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "laser_mg_ray",
+      "rgb": [
+        51,
+        220,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "lasermg",
+      "rgb": [
+        51,
+        220,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "lightning_bolt_linear",
+      "rgb": [
+        51,
+        220,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "lightsaber_jedi",
+      "rgb": [
+        0,
+        48,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "lightsaber_sith",
+      "rgb": [
+        255,
+        14,
+        14
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "managram",
+      "rgb": [
+        51,
+        220,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "mammamiapepperoni",
+      "rgb": [
+        238,
+        50,
+        115
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "trinket_14",
+      "rgb": [
+        195,
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "spirit_air",
+      "rgb": [
+        255,
+        252,
+        253
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "spirit_fire",
+      "rgb": [
+        255,
+        142,
+        50
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "spirit_light",
+      "rgb": [
+        255,
+        252,
+        253
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "spirit_nature",
+      "rgb": [
+        105,
+        218,
+        82
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "spirit_shadow",
+      "rgb": [
+        195,
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "migrated-legacy-asset",
+      "texture": "spirit_water",
+      "rgb": [
+        51,
+        220,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "case": "staff-emissive-texels-on-actual-tinted-faces",
+      "texels": {
+        "(255, 0, 64)": 102,
+        "(29, 28, 32)": 159
+      },
+      "passed": true
+    },
+    {
+      "case": "filtered-staff-material",
+      "source": [
+        255,
+        0,
+        64
+      ],
+      "core": 255,
+      "haloRGB": [
+        140,
+        121,
+        121
+      ],
+      "passed": true
+    },
+    {
+      "case": "filtered-staff-material",
+      "source": [
+        29,
+        28,
+        32
+      ],
+      "core": 0,
+      "haloRGB": [
+        146,
+        146,
+        146
+      ],
+      "passed": true
+    }
+  ],
+  "shadercStages": 52,
+  "shadercVariantsPerStage": 2,
+  "authorPackUnchanged": true,
+  "physicalClientReload": false
+}

@@ -1,0 +1,176 @@
+{
+  "base": "all_in_one_1.21.8",
+  "authorPackReadOnly": true,
+  "legacyMaterials": {
+    "laser_mg_ray": {
+      "indicated": 72,
+      "models": [
+        "laser_minigun_ray"
+      ]
+    },
+    "lasermg": {
+      "indicated": 4,
+      "models": [
+        "laser_minigun/1",
+        "laser_minigun/2",
+        "laser_minigun/3",
+        "laser_minigun/4",
+        "laser_minigun/5",
+        "laser_minigun/6",
+        "laser_minigun/7",
+        "laser_minigun/8"
+      ]
+    },
+    "lightning_bolt_linear": {
+      "indicated": 506,
+      "models": [
+        "lightning_bolt_linear"
+      ]
+    },
+    "lightsaber_jedi": {
+      "indicated": 288,
+      "models": [
+        "lightsaber_jedi"
+      ]
+    },
+    "lightsaber_sith": {
+      "indicated": 288,
+      "models": [
+        "lightsaber_sith",
+        "lightsaber_empty"
+      ]
+    },
+    "managram": {
+      "indicated": 34439,
+      "models": [
+        "managram"
+      ]
+    },
+    "mammamiapepperoni": {
+      "indicated": 3,
+      "models": [
+        "nexus_item_cage_black",
+        "nexus_item_cage_green",
+        "nexus_item_cage_red",
+        "nexus_item_cage_white"
+      ]
+    },
+    "trinket_14": {
+      "indicated": 38,
+      "models": [
+        "trinket_14"
+      ]
+    },
+    "spirit_air": {
+      "indicated": 294,
+      "models": [
+        "spirit_air"
+      ]
+    },
+    "spirit_fire": {
+      "indicated": 294,
+      "models": [
+        "spirit_fire"
+      ]
+    },
+    "spirit_light": {
+      "indicated": 296,
+      "models": [
+        "spirit_light"
+      ]
+    },
+    "spirit_nature": {
+      "indicated": 294,
+      "models": [
+        "spirit_nature"
+      ]
+    },
+    "spirit_shadow": {
+      "indicated": 294,
+      "models": [
+        "spirit_shadow"
+      ]
+    },
+    "spirit_water": {
+      "indicated": 294,
+      "models": [
+        "spirit_water"
+      ]
+    }
+  },
+  "files": {
+    "assets/lbc/shaders/include/bloom_rules.glsl": "c7109bb2b1270b96d8b5af151e5c97ce5010d48b02dce3adec4921bf4adce146",
+    "assets/lbc/shaders/post/material_bloom.fsh": "3b5289f3d01e1c0f487176de4b6b2daba2b4ec9a830a4af292be8fc6edbbc5f2",
+    "assets/minecraft/shaders/core/item.fsh": "dfb407b8de6908b018c0129ff825305d68f001f84919467b84402593fd874e92",
+    "bloom_rules.json": "2e5cd9b263016807d568ee912b2875e55e2e5284a6671dd1dfde2c161cf3658b",
+    "edit_bloom.py": "b8337ff2c0a9b943613f93c5c0b48441cd71525a9e2ee1354e8eec9a14411fc0",
+    "assets/minecraft/textures/item/laser_mg_ray.png": "89483e83cfc94613066c90080ad586429bf0ef7ebfb8efe64eb52053a036b0a2",
+    "assets/lbc/models/item/laser_minigun_ray.json": "503a13a91adfd1a4b13aa35a355024f202c07908abdb6d3590e4560b01d1927b",
+    "assets/lbc/items/laser_minigun_ray.json": "b59d5bb7489236b9c2bc61034cabbad1bb840f235cf8ca21de1987e086c905f2",
+    "assets/minecraft/textures/item/lasermg.png": "d4c2c21af47d3c6236450c27800b5c4f1a143096f662982c46a8b52af773d1cb",
+    "assets/lbc/models/item/laser_minigun/1.json": "e952a7a1c0a00020ba92a898bbc960f63a4389811b3cc96c7d9398f010b46956",
+    "assets/lbc/items/laser_minigun/1.json": "01bd5b27cf10c154301fe996a675319c2914c660e7f7d1296975db76462ffb3d",
+    "assets/lbc/models/item/laser_minigun/2.json": "cea28b37d6611c99d7e5b1e90f3357edd052a82d796d72eb9547d44774e8974c",
+    "assets/lbc/items/laser_minigun/2.json": "c44122cb9667dfb6dcce5682a6b18e80f3b32fc8ad436dc17771e21fb65cea01",
+    "assets/lbc/models/item/laser_minigun/3.json": "c00b9fe1316f773f0dc7e83d0917fc2641495aa62236bb2e03bed9c2ac34e80c",
+    "assets/lbc/items/laser_minigun/3.json": "222ec13dcc78e1c84c0baee8de93c5668b9c935c345a4ccbecae5c6a30b9bb9e",
+    "assets/lbc/models/item/laser_minigun/4.json": "78d1f368399e04bcc8702d7d0fb0896f951f9623f5ae70b73e9fd409abc48808",
+    "assets/lbc/items/laser_minigun/4.json": "014883ed033965ab2730e347aa7380813fcbf4541c70525178e7fbd541356ec0",
+    "assets/lbc/models/item/laser_minigun/5.json": "ede00d94cae227714a5fa6ae5d3e57ca8e941731ed08de78b07031604caa8173",
+    "assets/lbc/items/laser_minigun/5.json": "507a187e029a09d58467a58e8a4b942006b71b1bbd0bee3915bf3b1abd7aaeb6",
+    "assets/lbc/models/item/laser_minigun/6.json": "07c601dcdf84af0d26aa283c496a622a6b97073c1c530338122be412795eebfd",
+    "assets/lbc/items/laser_minigun/6.json": "7746e30c6d5dd9437911c5b1a7375f277e014801a771b3fde7c64c8e56adb6dc",
+    "assets/lbc/models/item/laser_minigun/7.json": "6d206d0a7da727c5e0ab41188cbe7eeb657cc3032646b55132fa09c070f35194",
+    "assets/lbc/items/laser_minigun/7.json": "ceba47e2a961e6d5c6ee4991e5b08611a0d113ee5731f2fe8b9802a7f1a7ab37",
+    "assets/lbc/models/item/laser_minigun/8.json": "a25a5e04aff5c2c25cb0806d17e459b55fe67defc7606bcd8c00b309b8ab4c58",
+    "assets/lbc/items/laser_minigun/8.json": "689f9f55b17aabd2f0a74f15a74664e2dba55e7a0b99088cc22add2144459fe3",
+    "assets/minecraft/textures/item/lightning_bolt_linear.png": "7a105702eb3a02d9bb68d2b7fe7e206877552ca951c8f4479a05608de7370df8",
+    "assets/minecraft/textures/item/lightning_bolt_linear.png.mcmeta": "1b7fc59bb8b3e2b2438cef0bae57838abf5b9e2ada3a2cb5a186d41f4910d40a",
+    "assets/lbc/models/item/lightning_bolt_linear.json": "b3381105020568f8aaaeaa20a489a8daef90b9148cada13de5b0ba4d917050c3",
+    "assets/lbc/items/lightning_bolt_linear.json": "6c2668d8589b32d1946b5de9dc32667bc97de7e914d2fb462baab34ef942ede6",
+    "assets/minecraft/textures/item/lightsaber_jedi.png": "4272101b722795f338dc460612214c73a471ed584c68dab9df39cd5e97451efa",
+    "assets/lbc/models/item/lightsaber_jedi.json": "f67bea5efaa047d1c00b25ff9bbd93cd37c93c50f61ecf67a3158375e05b9beb",
+    "assets/lbc/items/lightsaber_jedi.json": "289f8a3073a0df8228ef9face3f28ff7fc3003cbc5e9b9d5fde001f4813c9979",
+    "assets/minecraft/textures/item/lightsaber_sith.png": "1f99133a39ef72cb45c9780940da3e2a4f0b7de2e4165a1d298d582b367e9e4a",
+    "assets/lbc/models/item/lightsaber_sith.json": "6781be2ad2a2509385bda00ae95e9407bd1daafb7d157eefcfd4e501ab72307a",
+    "assets/lbc/items/lightsaber_sith.json": "bcd0119898fe55675b17709d6014055305c97324e4a5be3aa3fb5f9644351cc7",
+    "assets/lbc/models/item/lightsaber_empty.json": "00fb4663732057c7f5601f5587a037d01aa5f33d23b6f05e511dd19e42043a61",
+    "assets/lbc/items/lightsaber_empty.json": "8b76d1e91fbec6fe2d557004264e9d1e0a8babecb546293dea3972782d74cafd",
+    "assets/minecraft/textures/item/managram.png": "a5f4e1daa8b6c09e3179525cb982f62150f1d36d8d193d4a86b98dcde2b753e9",
+    "assets/lbc/models/item/managram.json": "f29738f6c473edadbb186de210ca704cf8a89238914bb302364fb9ee78c36487",
+    "assets/lbc/items/managram.json": "add1e3a9cb483a89d86993211d384d9e7791ad4d68cd13d4533fc81cfbee3504",
+    "assets/minecraft/textures/item/mammamiapepperoni.png": "bd64a9c2d63826f7a77a08f3cd8c48bd15dee7543ed092100130c9e279cd129c",
+    "assets/lbc/models/item/nexus_item_cage_black.json": "fbc0458db1dd8e35b0c93d00d2ede0fe68647b0a712a543db7e8bd0831554d55",
+    "assets/lbc/items/nexus_item_cage_black.json": "c718ebf84c83289ca7c2cfa81d59fe70caa4bc85b3829db92eb268c13151170e",
+    "assets/lbc/models/item/nexus_item_cage_green.json": "80cea07d8d2763451cfcc45fca2f49c318cc73bcb0a37301e99fe74a38d65672",
+    "assets/lbc/items/nexus_item_cage_green.json": "2dba9160215ad59698c9922caeecff24958d17bfc5ccc23fe448bdb261f8dd4e",
+    "assets/lbc/models/item/nexus_item_cage_red.json": "5883674249db055a03b0c579e0feaccb4e89e92c3c2fb9d76ed755ae65d25fe3",
+    "assets/lbc/items/nexus_item_cage_red.json": "67d30f8ec2caa160516588d14eddd72a34df381324857354caadc4d221cdcc27",
+    "assets/lbc/models/item/nexus_item_cage_white.json": "bf000798a8a82381f47a799dcb729297049a524a30547b336ce66e13c8158a3f",
+    "assets/lbc/items/nexus_item_cage_white.json": "b027e9087d5e3a99c93c6580a714294ad845456c5c86ce60ed2be08b8daf9269",
+    "assets/minecraft/textures/item/trinket_14.png": "82c61697f54890d04800c77dff528722daf857e31038d47b623e1920f3219198",
+    "assets/lbc/items/trinket_14.json": "c4b9cac01f286a68c451671eba604fa460828dbc31a9b558829f121a0849b92e",
+    "assets/minecraft/textures/item/spirit_air.png": "ea953174ad00480ef3a5fa4ded64122206f4f8f72493d43d89e27857117e56b1",
+    "assets/lbc/models/item/spirit_air.json": "0b6c29778cfbb2366e1a8820bedff22b89eeb73900dc5e11920eee796027813c",
+    "assets/lbc/items/spirit_air.json": "bf578d1b9bb6a4e486b8aa266d834d41959bf709deca1a905238d6c86016dfef",
+    "assets/minecraft/textures/item/spirit_fire.png": "3d9e3ed7a9710e51fe573bd70a3ebf329b2981d9820e5b74254ffe064b1f8540",
+    "assets/lbc/models/item/spirit_fire.json": "b6cfe3283d6070b09f05bf8946a4d39c01ff5a3aa3399359da9e847a2d5ed126",
+    "assets/lbc/items/spirit_fire.json": "eaa84884823703ba6a2ea74c0af79352348dc04c94b38014ca32248e27cd8fc7",
+    "assets/minecraft/textures/item/spirit_light.png": "84c4e4cea48e1ec57eebaa1195463e01a060a1af3de75ccf7f12ae0e7207d269",
+    "assets/lbc/models/item/spirit_light.json": "4d0375b749e18d9bdb44ccb2c6c0caa485dbf63ca7d46c8f2110fbad86fab552",
+    "assets/lbc/items/spirit_light.json": "c92b5aabcefed48cd6cb4db95307ec826e0e29693076dc7530d40b7bb74d275a",
+    "assets/minecraft/textures/item/spirit_nature.png": "995415ee814f1fae64afa99a1d2fc2693b28ff6cd9347e3c21be740ad1bb40ad",
+    "assets/lbc/models/item/spirit_nature.json": "28763b0e32beaf733c67abd9e5aebaf68b84691fe1da7ad9fdfcb3bd7400ad63",
+    "assets/lbc/items/spirit_nature.json": "7354ffdb9ae14d30b68e1f8b5d31551d1d49e0e7f9a781ed9c2b5bc859831666",
+    "assets/minecraft/textures/item/spirit_shadow.png": "0d4b5200d36fe71e4953b739bd39338fad8970dc6d319601054718817159fc15",
+    "assets/lbc/models/item/spirit_shadow.json": "9e151ae2a9b2d41c2b8e9ab51b76fc1c684e0d6544c523134b83b9bf6a3caa11",
+    "assets/lbc/items/spirit_shadow.json": "a315e382e5fd595896c7e34af3e56a15c059fd4fa94fefce9818ecd713719b4e",
+    "assets/minecraft/textures/item/spirit_water.png": "b901e6842ab0b35c58e82d671c343acba45ccb5708322af18881445e5df8c1f7",
+    "assets/lbc/models/item/spirit_water.json": "4cf33f6448ccbbdd9026e8535299be95c13dc4bc2ad0e79c8a4b90abf932ad7c",
+    "assets/lbc/items/spirit_water.json": "d1868e58f63a5f9a9d0e811781c9ea823e2d8472bb640f9020e431ddad9cc042",
+    "AUTHOR_BASE_SHA256.json": "18eb0d37000f4fb5ae6393b5840f6f1424756292877b7dcd947cb0ab97ec0fc7",
+    "README_RU.txt": "5d505a18a4f4980e34eb2272840af26c1aea9b8926730b593dd6e165e7b87c96",
+    "pack.mcmeta": "a6876ddaf54d22c95c66a6a406da3ff4cb42538a723a654c201fc133df73baa3",
+    "RENDER_CHECKS.json": "1c0cad337f638e8bef0a50a99dd5049ce104d7b76b6005b8ec8ec00ef8189673"
+  }
+}

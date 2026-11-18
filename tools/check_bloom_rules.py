@@ -144,6 +144,7 @@ def main():
     parser.add_argument("--overlay", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--native-compiler", action="store_true", help="Also compile core glint/per-face/OIT variants with the game's shaderc")
+    parser.add_argument("--material-repair", action="store_true", help="Verify native blend loss and repaired opaque item materials")
     parser.add_argument("--music-staff", action="store_true", help="Check the staff texture, dark halo and all existing material rules")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -237,12 +238,12 @@ def main():
         result.repeat_x = result.repeat_y = False
         return result
 
-    def render(program, inputs, direction=None, opacity=1.0):
+    def render(program, inputs, direction=None, opacity=1.0, clear=(0, 0, 0, 0)):
         target = texture(None)
         fbo = ctx.framebuffer([target])
         fbo.use()
         ctx.viewport = (0, 0, width, height)
-        fbo.clear()
+        fbo.clear(*clear)
         blocks = uniforms(program, direction, opacity)
         for i, buffer in enumerate(blocks):
             buffer.bind_to_uniform_block(i)
@@ -401,6 +402,119 @@ def main():
         assert not np.any(emitting & (original_pixels[:, :, 3] != 254)), (name, "hilt emitted")
         results.append({"case": "actual-saber-texture", "texture": name, "emittingPixels": int(emitting.sum()), "hiltNeverEmits": True, "passed": True})
         for image in (image, scene, extracted):image.release()
+    if args.material_repair:
+        from io import BytesIO
+        from PIL import Image
+        manifest = json.loads((args.overlay / "export-manifest.json").read_bytes())
+        rules = json.loads((args.overlay / "bloom_rules.json").read_bytes())
+        palette = [tuple(rule["source"]) for rule in rules]
+        tag = {"type": "minecraft:constant", "value": [252, 253, 249]}
+        assert "#ifndef OIT" in source("assets/minecraft/shaders/core/item.fsh")
+        assert all(tuple(rgb) in palette for rgb in ([51, 220, 255], [255, 0, 64], [29, 28, 32]))
+        chain = json.loads((args.pack / "assets/minecraft/post_effect/end_of_frame.json").read_bytes())
+        passes = chain["passes"]
+        assert all(port["target"] in {*chain["targets"], "minecraft:main"}
+                   for pass_ in passes for port in pass_.get("inputs", []))
+        assert [pass_["fragment_shader"] for pass_ in passes].count("lbc:post/material_bloom") == 2
+        start = next(i for i, pass_ in enumerate(passes) if pass_["fragment_shader"] == "minecraft:post/bloom_sample")
+        assert [p["output"] for p in passes[start:start+3]] == ["bloomh", "bloomv", "black_hole_scene"]
+
+        # Render the old path using vanilla's actual separate RGB/alpha blend factors.
+        original_fragment = source("assets/minecraft/shaders/core/item.fsh", False).replace(
+            "#version 330", "#version 330\n#define ALPHA_CUTOUT 0.1")
+        tagged_vertex = vertex.replace("tmtTintSeed=uvec3(0)", "tmtTintSeed=uvec3(252u,(253u<<8u)|249u,0u)")
+        filtered_vertex = tagged_vertex.replace("texCoord0=p", "texCoord0=p+vec2(0.37/256.0,0.37/160.0)")
+        current_fragment = source("assets/minecraft/shaders/core/item.fsh").replace(
+            "#version 330", "#version 330\n#define ALPHA_CUTOUT 0.1")
+        old_item = ctx.program(vertex_shader=vertex, fragment_shader=original_fragment)
+        old_staff = ctx.program(vertex_shader=filtered_vertex, fragment_shader=original_fragment)
+        new_item = ctx.program(vertex_shader=filtered_vertex, fragment_shader=current_fragment)
+        ctx.blend_func = gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA
+        ctx.enable(gl.BLEND)
+        image = raw((51, 220, 255), 254)
+        composited, loss = render(old_item, {"Sampler0": image}, clear=(.12, .12, .12, 1))
+        ctx.disable(gl.BLEND)
+        extracted, no_bloom = render(sample, {"DiffuseSampler": composited})
+        assert loss[80, 128, 3] == 255 and not np.any(no_bloom), "Native translucent minigun marker must be lost"
+        for t in (image, composited, extracted): t.release()
+        results.append({"case": "native-translucent-blend-loses-minigun-mask", "passed": True})
+
+        def pipeline(image, program):
+            scene, scene_pixels = render(program, {"Sampler0": image})
+            extract, pixels = render(sample, {"DiffuseSampler": scene})
+            extract.filter = (gl.LINEAR, gl.LINEAR)
+            blur, _ = render(composite, {"DiffuseSampler": extract}, (1, 0))
+            blur.filter = (gl.LINEAR, gl.LINEAR)
+            final, composed = render(composite, {"DiffuseSampler": scene, "BloomSampler": blur}, (0, 1))
+            for t in (scene, extract, blur, final): t.release()
+            return pixels, composed, scene_pixels
+
+        # Sample the original RGBA source and the overlay migration of each real asset.
+        for name, info in manifest["legacyMaterials"].items():
+            relative = f"assets/minecraft/textures/item/{name}.png"
+            old_material = np.array(Image.open(BytesIO((args.pack / relative).read_bytes())).convert("RGBA"))
+            new_material = np.array(Image.open(args.overlay / relative).convert("RGBA"))
+            expected = old_material.copy()
+            expected[:, :, 3][expected[:, :, 3] == 254] = 255
+            assert np.array_equal(new_material, expected), name
+            for model_name in info["models"]:
+                definition = json.loads((args.overlay / f"assets/lbc/items/{model_name}.json").read_bytes())
+                assert definition["model"]["tints"] == [tag], model_name
+                if (p := args.overlay / f"assets/lbc/models/item/{model_name}.json").exists():
+                    model = json.loads(p.read_bytes())
+                    assert any(face.get("tintindex") == 0 for element in model["elements"] for face in element["faces"].values()), model_name
+            rgb = next(rgb for rgb in palette if np.any(np.all(old_material == [*rgb, 254], axis=2)))
+            image = raw(rgb, 255)
+            image.filter = (gl.LINEAR, gl.LINEAR)
+            emission, final, _ = pipeline(image, new_item)
+            assert np.all(np.any(emission[72:88, 120:136, :3], axis=2)), name
+            assert np.any(final[69, 126:130, :3]), name
+            results.append({"case": "migrated-legacy-asset", "texture": name, "rgb": rgb, "passed": True})
+            image.release()
+
+        # Test a sub-texel UV under filtered texture lookup and reject emitted color outside the tagged face.
+        live_staff_path = args.pack / "assets/lbc/items/music_staff/staff.json"
+        assert json.loads(live_staff_path.read_bytes())["model"]["tints"] == [tag]
+        staff = np.array(Image.open(args.pack / "assets/minecraft/textures/item/wand_52.png").convert("RGBA"))
+        staff_model = json.loads((args.pack / "assets/lbc/models/item/music_staff/staff.json").read_bytes())
+        assert staff_model["textures"]["2"] == "minecraft:item/wand_52"
+        mapped = {}
+        for rgb in ((255, 0, 64), (29, 28, 32)):
+            count = 0
+            for element in staff_model["elements"]:
+                for face in element["faces"].values():
+                    if face["texture"] != "#2":
+                        continue
+                    u0, v0, u1, v1 = (round(n * 2) for n in face["uv"])
+                    face_pixels = staff[min(v0, v1):max(v0, v1), min(u0, u1):max(u0, u1)]
+                    matches = int(np.all(face_pixels == [*rgb, 255], axis=2).sum())
+                    if matches:
+                        assert face.get("tintindex") == 0, (rgb, face)
+                        count += matches
+            mapped[str(rgb)] = count
+        assert list(mapped.values()) == [102, 159], mapped
+        results.append({"case": "staff-emissive-texels-on-actual-tinted-faces", "texels": mapped, "passed": True})
+        for rgb, core in [((255, 0, 64), 255), ((29, 28, 32), 0)]:
+            assert np.any(np.all(staff == [*rgb, 255], axis=2))
+            # Sparse texel data intentionally makes every tagged sample straddle different colors.
+            source_pixels = np.full((height, width, 4), [120, 120, 120, 255], dtype="u1")
+            source_pixels[72:88:2, 120:136:2] = [*rgb, 255]
+            image = texture(source_pixels.tobytes())
+            image.filter = (gl.LINEAR, gl.LINEAR)
+            old_emission, _, _ = pipeline(image, old_staff)
+            emitted, result, measured = pipeline(image, new_item)
+            assert not np.any(old_emission), "Old filtered sprite accidentally survived the material lookup"
+            assert np.all(measured[72:88:2, 120:136:2, 3] == 254)
+            assert np.all(result[72:88:2, 120:136:2, :3] == core)
+            outside = result[70,128,:3]
+            assert outside[0] > 120 and ((outside[0] > outside[1]) if core == 255 else np.all(outside == outside[0]))
+            ordinary, _, _ = pipeline(image, programs["item"])
+            assert not np.any(ordinary), "Matching untagged staff RGB became emissive"
+            Image.fromarray(np.flipud(result)).save(args.output / f"staff-material-{core}.png")
+            results.append({"case": "filtered-staff-material", "source": rgb, "core": core,
+                            "haloRGB": outside.tolist(), "passed": True})
+            image.release()
+        for program in (old_item, old_staff, new_item): program.release()
     if args.music_staff:
         check_music_staff(args, ctx, source, screen_vertex, programs, sample, composite,
                           texture, render, raw, sample_source, results, hashes, width, height)
