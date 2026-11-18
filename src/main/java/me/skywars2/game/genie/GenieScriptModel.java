@@ -56,7 +56,9 @@ public final class GenieScriptModel implements AutoCloseable {
                 result.complete(GenieScriptReply.read(observation.reply, observation.executions, contract));
             } catch (Exception failure) {
                 if (!result.isCancelled() && !(failure instanceof InterruptedException)) {
-                    SkyWars2.LOGGER.warn("Genie {} failed ({})", stage, failure.getClass().getSimpleName());
+                    Object reason = failure instanceof GenieGeminiWebTransport.SessionFailure session
+                            ? session.issue : failure.getClass().getSimpleName();
+                    SkyWars2.LOGGER.warn("Genie {} failed ({})", stage, reason);
                 }
                 result.completeExceptionally(failure);
             }

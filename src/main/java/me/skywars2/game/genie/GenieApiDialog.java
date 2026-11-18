@@ -183,6 +183,7 @@ final class GenieApiDialog implements AutoCloseable {
         message(player, "gemini_checking", "Проверяю сессию Gemini…", false);
         writer.execute(() -> {
             GenieGeminiWebTransport ready = null;
+            GenieGeminiWebTransport.SessionIssue issue = null;
             try {
                 String json = file ? readCookieFile(input) : input;
                 var cookies = GenieGeminiWebTransport.Cookies.parse(json);
@@ -190,18 +191,24 @@ final class GenieApiDialog implements AutoCloseable {
                 transport.testConnection();
                 GenieConfig.saveGeminiWeb(GenieConfig.apiPath(), cookies);
                 ready = transport;
+            } catch (GenieGeminiWebTransport.SessionFailure failure) {
+                issue = failure.issue;
+                SkyWars2.LOGGER.info("Gemini web import unavailable ({})", issue);
             } catch (InterruptedException canceled) {
                 Thread.currentThread().interrupt();
             } catch (IOException | RuntimeException failure) {
                 SkyWars2.LOGGER.warn("Gemini web import failed ({})", failure.getClass().getSimpleName());
             }
             var saved = ready;
+            var sessionIssue = issue;
             server.execute(() -> {
                 saving = false;
                 if (closed) return;
                 if (saved != null) service.activateApi(saved);
                 if (!owner(player)) return;
                 if (saved != null) message(player, "gemini_saved", "Веб-чат Gemini подключён.", false);
+                else if (sessionIssue != null) message(player, "gemini_session_" + sessionIssue.name().toLowerCase(java.util.Locale.ROOT),
+                    sessionIssue.hint, true);
                 else message(player, "gemini_failed", "Gemini не подключился. Проверь cookies и наличие gemini-webapi на сервере.", true);
             });
         });

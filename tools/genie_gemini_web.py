@@ -4,8 +4,15 @@ import asyncio
 import json
 import os
 from pathlib import Path
+import secrets
 import sys
 import tempfile
+
+
+class SessionFailure(Exception):
+    def __init__(self, issue):
+        super().__init__(issue)
+        self.issue = issue
 
 
 def response_text(output):
@@ -15,12 +22,12 @@ def response_text(output):
     return raw
 
 
-async def wish(client):
+async def wish(client, model):
     from verify_genie_program import canonical, parse, verify
 
     contract = parse(Path("contract.json").read_text(encoding="utf-8"))
     prompt = Path("prompt.txt").read_text(encoding="utf-8")
-    chat = client.start_chat(model="gemini-pro")
+    chat = client.start_chat(model=model)
     proposal = await chat.send_message(
         prompt + """
 
@@ -65,20 +72,44 @@ After a verified grant, reply with only {"decision":"grant","receipt":<the exact
     raise ValueError("Gemini did not provide a valid program.")
 
 
+async def probe_attachment(client, model):
+    marker = "GENIE_" + secrets.token_hex(8)
+    document = Path("session_check.json")
+    document.write_text(json.dumps({"marker": marker}), encoding="utf-8")
+    try:
+        check = await client.generate_content(
+            "Read the attached JSON and reply with only the exact value of the marker field.",
+            files=[document], model=model, temporary=True,
+        )
+    except Exception as error:
+        raise SessionFailure("ATTACHMENT_FAILED") from error
+    if response_text(check).strip('"') != marker:
+        raise SessionFailure("ATTACHMENT_FAILED")
+    return {"connected": True}
+
+
 async def run(cookie):
     from loguru import logger
     logger.remove()
     from gemini_webapi import GeminiClient
+    from gemini_webapi.constants import AccountStatus
 
     client = GeminiClient(cookie["__Secure-1PSID"], cookie["__Secure-1PSIDTS"])
     try:
         await client.init(timeout=35, watchdog_timeout=35, auto_refresh=False)
+        if client.account_status == AccountStatus.UNAUTHENTICATED:
+            raise SessionFailure("UNAUTHENTICATED")
+        if client.account_status != AccountStatus.AVAILABLE:
+            raise SessionFailure("ACCESS_RESTRICTED")
+        try:
+            model = client.resolve_model("gemini-pro")
+        except ValueError as error:
+            raise SessionFailure("PRO_UNAVAILABLE") from error
+        if not model.is_available:
+            raise SessionFailure("PRO_UNAVAILABLE")
         if Path("prompt.txt").is_file():
-            return await wish(client)
-        check = await client.generate_content("Reply with exactly the letters OK.", model="gemini-pro", temporary=True)
-        if check.text.strip() != "OK":
-            raise ValueError("Gemini session check failed.")
-        return {"connected": True}
+            return await wish(client, model)
+        return await probe_attachment(client, model)
     finally:
         await client.close()
 
@@ -96,6 +127,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+    except SessionFailure as error:
+        print(json.dumps({"session_error": error.issue}))
     except Exception:
         # Neither local credentials nor remote error bodies should reach process output.
         raise SystemExit(1) from None

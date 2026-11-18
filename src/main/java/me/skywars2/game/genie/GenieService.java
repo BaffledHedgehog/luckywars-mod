@@ -158,6 +158,11 @@ public final class GenieService implements AutoCloseable {
 
     private void finishScript(Wish wish, GenieScriptReply reply, Throwable failure) {
         if (currentLamp(wish) == null) return;
+        if (failure instanceof GenieGeminiWebTransport.SessionFailure) {
+            finishReward(wish, ItemStack.EMPTY, null, false,
+                    Component.translatableWithFallback("genie.session_unavailable", "Веб-сессия джина сейчас недоступна. Лампа возвращена."));
+            return;
+        }
         if (failure != null || reply == null) { finishReward(wish, ItemStack.EMPTY, null, false); return; }
         if (reply instanceof GenieScriptReply.Rejected) { finishReward(wish, ItemStack.EMPTY, null, true); return; }
         var grant = (GenieScriptReply.Grant) reply;
@@ -178,6 +183,10 @@ public final class GenieService implements AutoCloseable {
     }
 
     private boolean finishReward(Wish wish, ItemStack reward, String answer, boolean rejected) {
+        return finishReward(wish, reward, answer, rejected, text("genie.failed"));
+    }
+
+    private boolean finishReward(Wish wish, ItemStack reward, String answer, boolean rejected, net.minecraft.network.chat.MutableComponent failureNotice) {
         var location = currentLamp(wish);
         if (location == null) return false;
         wishes.remove(wish.owner.getUUID());
@@ -185,7 +194,7 @@ public final class GenieService implements AutoCloseable {
             location.set(ItemStack.EMPTY);game.items().kfcFood().poopPockets(wish.owner,10);
             tell(wish.owner,"genie.rejected",ChatFormatting.GOLD);
         } else if (reward.isEmpty()) {
-            mark(location.get(),"");tell(wish.owner,"genie.failed",ChatFormatting.RED);
+            mark(location.get(),"");wish.owner.sendSystemMessage(failureNotice.withStyle(ChatFormatting.RED));
         } else {
             location.set(reward);
             wish.owner.sendSystemMessage(Component.translatable("genie.answer",answer).withStyle(ChatFormatting.GREEN));

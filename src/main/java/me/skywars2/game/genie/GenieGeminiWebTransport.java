@@ -19,6 +19,24 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
     private final Cookies cookies;
     private final Path directory;
 
+    enum SessionIssue {
+        UNAUTHENTICATED("Вход в Gemini не подтверждён. Войди в Gemini и импортируй свежий JSON cookies."),
+        ACCESS_RESTRICTED("Gemini ограничил доступ этой сессии к файлам. Проверь доступ в самом веб-чате."),
+        PRO_UNAVAILABLE("В текущей сессии Gemini недоступна модель Pro."),
+        ATTACHMENT_FAILED("Gemini не смог прочитать проверочный файл. Проверь загрузку файлов в веб-чате.");
+
+        final String hint;
+        SessionIssue(String hint) { this.hint = hint; }
+    }
+
+    static final class SessionFailure extends IOException {
+        final SessionIssue issue;
+        SessionFailure(SessionIssue issue) {
+            super(issue.name());
+            this.issue = issue;
+        }
+    }
+
     record Cookies(String psid, String psidts) {
         Cookies {
             if (!valid(psid) || !valid(psidts)) throw new IllegalArgumentException("Invalid Gemini cookie export");
@@ -115,7 +133,15 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
                 }
                 if (!process.waitFor(prompt == null ? 70 : 180, TimeUnit.SECONDS)) throw new IOException("Gemini web worker timed out");
                 if (process.exitValue() != 0 || Files.size(result) > MAX_REPLY) throw new IOException("Gemini web worker failed");
-                return ScriptJson.parse(Files.readString(result));
+                var reply = ScriptJson.parse(Files.readString(result));
+                if (reply.has("session_error")) {
+                    try {
+                        throw new SessionFailure(SessionIssue.valueOf(reply.get("session_error").getAsString()));
+                    } catch (IllegalArgumentException invalidStatus) {
+                        throw new IOException("Gemini web worker returned an unknown status");
+                    }
+                }
+                return reply;
             } finally {
                 if (process.isAlive()) {
                     process.destroyForcibly();
