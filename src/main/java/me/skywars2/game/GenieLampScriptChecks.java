@@ -43,12 +43,35 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(prompt.contains("LuckyWars script lamp witness"), "real player input reaches the scripted wish prompt");
             require(!game.server().isSameThread(), "model runs away from the tick thread");
             require(new String(verifier, StandardCharsets.UTF_8).contains(GenieScriptReply.VERIFIER_VERSION), "actual versioned checker is packaged");
-            JsonObject facts = ScriptJson.parse(knowledge);
+            // Game reference data includes every loaded table and locale. It is not a VM program.
+            JsonObject facts = com.google.gson.JsonParser.parseString(knowledge).getAsJsonObject();
             require(facts.getAsJsonArray("logical_luckywars_items").size() > 1000 && !facts.has("constructor_schema"),
                 "the new request carries the actual index without the old rule budget");
             require(facts.getAsJsonArray("script_grimoires").contains(new com.google.gson.JsonPrimitive("skywars2:tesla_instant_grimoire"))
                 && facts.getAsJsonArray("script_launchable_entity_types").contains(new com.google.gson.JsonPrimitive("minecraft:creeper")),
                 "the model receives the executable definitions of real factory types and spells");
+            var tables = facts.getAsJsonObject("loot_tables");
+            var registry = game.server().reloadableRegistries().lookup().lookupOrThrow(net.minecraft.core.registries.Registries.LOOT_TABLE);
+            var ids = registry.listElementIds().map(key -> key.identifier().toString()).collect(java.util.stream.Collectors.toSet());
+            require(tables.keySet().equals(ids), "the model sees all loaded loot table IDs");
+            require(tables.asMap().values().stream().noneMatch(table -> table.getAsJsonObject().has("contents_unavailable")),
+                "all loaded loot tables were decoded for the model");
+            String boots = tables.get("lbc:ported/moisei_boots").toString();
+            require(boots.contains("skywars2:moisei_boots") && boots.contains("\"translate\":\"moisei_boots\""),
+                "a named loot entry includes its carrier and original translation key");
+            var names = facts.getAsJsonObject("item_names");
+            require(names.size() == net.minecraft.core.registries.BuiltInRegistries.ITEM.keySet().size()
+                && names.get("minecraft:diamond_sword").getAsJsonObject().get("translate").getAsString().equals("item.minecraft.diamond_sword"),
+                "the model sees display names for all registered items, including vanilla");
+            var locales = facts.getAsJsonObject("item_name_translations");
+            require(locales.getAsJsonObject("en_us").get("item.minecraft.diamond_sword").getAsString().equals("Diamond Sword"),
+                "vanilla translations are human-readable without an external locale file");
+            if (Boolean.getBoolean("skywars2.check.genie.locales")) {
+                me.skywars2.SkyWars2.LOGGER.info("[check] Genie content reference: {} loot tables, {} names, {} locales, {} characters",
+                    tables.size(), names.size(), locales.size(), knowledge.length());
+                require(locales.getAsJsonObject("ru_ru").get("moisei_boots").getAsString().equals("Сапоги Моисея"),
+                    "the resource-pack translation is attached by its exact key");
+            }
             var response = new CompletableFuture<GenieScriptModel.Observation>();
             requests.add(new Call(ScriptJson.parse(contract), response));
             return response.get(8, TimeUnit.SECONDS);
