@@ -880,6 +880,7 @@ public final class GameChecks {
                                 }
                                 case "bot-fireball-cage" -> { BotCageChecks.fireball(game); return; }
                                 case "bot-potion-cage" -> { BotCageChecks.potions(game); return; }
+                                case "bot-water-cage-exits" -> { BotCageChecks.blockedWaterExits(game); return; }
                                 case "bot-defense" -> { BotRevisionChecks.defense(game); return; }
                                 case "feedback-nov9" -> { FeedbackNov9Checks.run(game); return; }
                                 case "death-body" -> { DeathBodyChecks.run(game); return; }

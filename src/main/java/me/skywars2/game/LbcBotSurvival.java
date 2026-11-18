@@ -5,6 +5,7 @@ import net.minecraft.core.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.phys.*;
@@ -13,6 +14,7 @@ import net.minecraft.world.phys.*;
 final class LbcBotSurvival {
     final ServerPlayer player;final LbcChefBrain.Driver driver;final LbcChefBrain brain;final Consumer<Vec3> destination;
     Vec3 safe,climbGoal,landing;BlockPos cage,water;Direction exit;int waterAt,cageAt;String decision="idle";boolean cageCovered,cageRain,escapeWater,cageSwimming,cageRoofAbandoned,hasSafe;
+    private boolean obsidianCage,returningToCage;
     private record EscapeWarning(Object source,Vec3 center,double radius){}
     int nextLandingSearch,nextWarning,surfaceWarnings,combatClimbUntil;EscapeWarning warning;Vec3 warningGoal;
     final LbcBotShelter blastShelter;boolean placementWaiting;
@@ -215,6 +217,41 @@ final class LbcBotSurvival {
     boolean tick(){
         return tick(false);
     }
+    private boolean swimExitClear(Direction side){
+        var level=player.level();
+        var window=cage.above().relative(side);
+        var outside=window.relative(side);
+        if(!level.hasChunkAt(outside))return false;
+        var state=level.getBlockState(window);
+        if(!state.is(Blocks.GLASS)&&!state.canBeReplaced())return false;
+        // Test the actual swimming body just beyond the glass, at the height
+        // of the opening. The trap only replaces blocks within one block of cage.
+        var body=player.getDimensions(Pose.SWIMMING).makeBoundingBox(Vec3.atBottomCenterOf(outside).add(0,.1,0));
+        return !level.getBlockCollisions(player,body).iterator().hasNext();
+    }
+    private boolean chooseSwimExit(){
+        if(!obsidianCage)return false;
+        var center=Vec3.atBottomCenterOf(cage);
+        var offset=player.position().subtract(center);
+        if(!swimExitClear(exit)){
+            for(var side:Direction.Plane.HORIZONTAL){
+                if(side==exit||!swimExitClear(side))continue;
+                exit=side;
+                returningToCage=offset.horizontalDistanceSqr()>.09;
+                break;
+            }
+        }
+        if(!returningToCage)return false;
+        if(offset.horizontalDistanceSqr()<=.09){returningToCage=false;return false;}
+        // The obsidian corners separate the four windows. Come back into
+        // the central column before crossing to a different opening.
+        decision="return to cage center";
+        boolean rise=player.getY()<cage.getY()+1.05;
+        var openingHeight=center.add(0,1.1,0);
+        player.setSprinting(true);
+        driver.steer(openingHeight,rise,openingHeight.add(0,rise?3:.3,0));
+        return true;
+    }
     boolean tick(boolean combat){
         var level=player.level();var feet=player.blockPosition();
         boolean web=level.getBlockState(feet).is(Blocks.COBWEB)||level.getBlockState(feet.above()).is(Blocks.COBWEB);
@@ -229,14 +266,16 @@ final class LbcBotSurvival {
             if(!level.getFluidState(water).is(FluidTags.WATER)){water=null;}
             else {var bucket=find(Items.BUCKET);if(!bucket.isEmpty()){driver.halt();if(aimUse(bucket,Vec3.atCenterOf(water))&&player.getMainHandItem().is(Items.WATER_BUCKET))water=null;return true;}}
         }
-        if(cage==null){int walls=0;for(var side:Direction.Plane.HORIZONTAL){var b=level.getBlockState(feet.relative(side));var h=level.getBlockState(feet.above().relative(side));if(b.is(Blocks.IRON_BARS)||h.is(Blocks.GLASS)&&b.is(Blocks.OBSIDIAN))walls++;}if(walls>=3){
+        if(cage==null){int bars=0,windows=0;for(var side:Direction.Plane.HORIZONTAL){var b=level.getBlockState(feet.relative(side));var h=level.getBlockState(feet.above().relative(side));if(b.is(Blocks.IRON_BARS))bars++;else if(h.is(Blocks.GLASS)&&b.is(Blocks.OBSIDIAN))windows++;}if(bars+windows>=3){
             cage=feet.immutable();cageAt=player.tickCount;cageCovered=false;escapeWater=false;cageSwimming=false;cageRoofAbandoned=false;exit=Direction.Plane.HORIZONTAL.getRandomDirection(level.getRandom());
+            obsidianCage=windows>=3;returningToCage=false;
             var above=new AABB(cage.getX()-1,cage.getY()+3,cage.getZ()-1,cage.getX()+2,cage.getY()+80,cage.getZ()+2);
             cageRain=!level.getEntitiesOfClass(net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion.class,above).isEmpty();
         }}
         if(cage!=null){
             if(player.position().subtract(Vec3.atBottomCenterOf(cage)).horizontalDistanceSqr()>2.5){cage=null;exit=null;brain.reset();}
             else {
+                if(chooseSwimExit())return true;
                 boolean wet=level.getBlockState(cage.relative(exit)).is(Blocks.OBSIDIAN)||escapeWater||player.isInWater();
                 if(wet)escapeWater=true;
                 var roof=cage.above(cageRain?3:2);

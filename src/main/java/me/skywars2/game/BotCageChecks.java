@@ -23,7 +23,7 @@ final class BotCageChecks {
         net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.AFTER.register((level,player,pos,state,entity)->{
             var test=running;
             if(test!=null&&player==test.bot&&test.trial>=0
-                    &&state.is(test.kind()==LbcCageDropItem.Kind.OBSIDIAN?Blocks.GLASS:Blocks.IRON_BARS))test.openings++;
+                    &&state.is(test.kind()==LbcCageDropItem.Kind.OBSIDIAN?Blocks.GLASS:Blocks.IRON_BARS))test.openings.add(pos.immutable());
         });
         net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DAMAGE.register((body,source,before,amount,blocked)->{
             var test=running;if(test!=null&&body==test.bot&&test.trial>=0)
@@ -32,18 +32,28 @@ final class BotCageChecks {
     }
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Bot cages: "+why);}
     private static final class Fixture extends BotStarterChecks.Fixture {
-        final List<String> results=new ArrayList<>();final int first,last;final String suite;int trial=-1,at,openings;BlockPos center;Vec3 previous;boolean roofSeen,directionSet;
+        final List<String> results=new ArrayList<>();final Set<BlockPos> openings=new HashSet<>();
+        final int first,last;final String suite;int trial=-1,at;BlockPos center;Vec3 previous;
+        boolean roofSeen,directionSet,blockedEast;
         Fixture(GameController game,int first,int last,String suite){super(game);this.first=first;this.last=last;this.suite=suite;}
         @Override void setup(){
             super.setup();at=game.server().getTickCount();
         }
         LbcCageDropItem.Kind kind(){return LbcCageDropItem.Kind.values()[trial/4];}
+        boolean blockedExitTrial(){return suite.equals("bot-water-cage-exits");}
+        BlockPos eastPassage(){return center.above().relative(Direction.EAST,2);}
         void begin(){
             game.items().cageDrops().stop();
             center=BlockPos.containing(origin.add(2,0,0));
             // Water from one independent case can flow seven blocks away. Clear its
             // whole possible source area before starting another selected trap.
             for(int x=-9;x<=9;x++)for(int z=-9;z<=9;z++)for(int y=-1;y<=5;y++)base.set(center.offset(x,y,z),y==-1?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
+            blockedEast=false;
+            if(blockedExitTrial()){
+                base.set(center.above().relative(Direction.NORTH,2),Blocks.STONE.defaultBlockState());
+                base.set(center.above().relative(Direction.SOUTH,2),Blocks.STONE.defaultBlockState());
+                if(trial==first){base.set(eastPassage(),Blocks.STONE.defaultBlockState());blockedEast=true;}
+            }
             resetStarterBody(Vec3.atBottomCenterOf(center));
             var token=new ItemEntity(base.level,bot.getX(),bot.getY(),bot.getZ(),new ItemStack(kind().item()));
             require(base.level.addFreshEntity(token),"real ordinary Lucky source token "+kind());base.owned.add(token.getUUID());
@@ -53,7 +63,7 @@ final class BotCageChecks {
                         "ordinary cage payload has no physical player controller "+kind());
             }
             token.discard();
-            openings=0;roofSeen=false;directionSet=false;previous=bot.position();at=game.server().getTickCount();
+            openings.clear();roofSeen=false;directionSet=false;previous=bot.position();at=game.server().getTickCount();
         }
         @Override boolean step(){
             base.client.acknowledge();base.audience.acknowledge();int now=game.server().getTickCount();
@@ -65,7 +75,16 @@ final class BotCageChecks {
             require(bot.position().distanceToSqr(previous)<4,"escape uses real movement without teleporting "+kind());previous=bot.position();
             if(!directionSet&&state()!=null){
                 var survival=(LbcBotSurvival)WoolBucketChecks.read(state(),"survival");
-                if(survival.cage!=null){survival.exit=List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST).get(trial%4);directionSet=true;}
+                if(survival.cage!=null){
+                    survival.exit=blockedExitTrial()?Direction.EAST:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST).get(trial%4);
+                    directionSet=true;
+                }
+            }
+            var eastWindow=center.above().east();
+            if(blockedExitTrial()&&!blockedEast&&openings.contains(eastWindow)&&bot.getX()>center.getX()+1.25){
+                require(!bot.getBoundingBox().intersects(new net.minecraft.world.phys.AABB(eastPassage())),
+                        "exterior obstruction appears once the bot enters the window and before it reaches the new wall");
+                base.set(eastPassage(),Blocks.STONE.defaultBlockState());blockedEast=true;
             }
             if(kind()==LbcCageDropItem.Kind.POTIONS&&now-at<=200&&(now-at)%10==0)
                 SkyWars2.LOGGER.info("[check] Potion escape age={} at={} velocity={} health={} pose={} water={} {}",now-at,bot.position(),bot.getDeltaMovement(),bot.getHealth(),bot.getPose(),bot.isInWater(),game.carpetBots().diagnostics(bot));
@@ -74,10 +93,17 @@ final class BotCageChecks {
             if(bot.position().subtract(Vec3.atBottomCenterOf(center)).horizontalDistanceSqr()<=16*16||!bot.onGround()||bot.isInWater()||bot.isOnFire())return false;
             // Vanilla does not award BLOCK_MINED for bars broken without a correct drop tool.
             // Observe the actual accepted break instead of mistaking a missing statistic for no mining.
-            require(openings>0,"native survival mining opens the cage "+kind());
+            require(!openings.isEmpty(),"native survival mining opens the cage "+kind());
             if(kind()!=LbcCageDropItem.Kind.OBSIDIAN)require(game.carpetBots().observation(bot).placements()>0&&roofSeen,"actual protective roof before the payload, which may consume it "+kind());
             require(directionSet,"controlled real exit direction is exercised");
-            results.add(kind()+"/"+List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST).get(trial%4)+":"+(now-at)+"ticks/"+bot.getHealth()+"HP");SkyWars2.LOGGER.info("[check] Cage escaped {}",results.getLast());
+            String route=List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST).get(trial%4).toString();
+            if(blockedExitTrial()){
+                require(blockedEast&&base.level.getBlockState(eastPassage()).is(Blocks.STONE),"the exterior wall remains intact");
+                require(openings.equals(trial==first?Set.of(center.above().west()):Set.of(eastWindow,center.above().west())),
+                        "native mining uses the open west route and avoids trying to mine through the exterior wall: "+openings);
+                route=trial==first?"west around blocked east":"east to west after obstruction";
+            }
+            results.add(kind()+"/"+route+":"+(now-at)+"ticks/"+bot.getHealth()+"HP");SkyWars2.LOGGER.info("[check] Cage escaped {}",results.getLast());
             if(++trial<=last){begin();return false;}return true;
         }
         @Override public void close(){
@@ -88,6 +114,7 @@ final class BotCageChecks {
     static void run(GameController game){start(game,0,LbcCageDropItem.Kind.values().length*4-1,"bot-cages");}
     static void fireball(GameController game){int index=LbcCageDropItem.Kind.FIREBALL.ordinal()*4;start(game,index,index+3,"bot-fireball-cage");}
     static void potions(GameController game){int index=LbcCageDropItem.Kind.POTIONS.ordinal()*4;start(game,index,index+3,"bot-potion-cage");}
+    static void blockedWaterExits(GameController game){int index=LbcCageDropItem.Kind.OBSIDIAN.ordinal()*4;start(game,index,index+1,"bot-water-cage-exits");}
     private static void start(GameController game,int first,int last,String suite){require(running==null,"exclusive fixture");observeBreaks();running=new Fixture(game,first,last,suite);try{running.setup();}catch(Throwable e){try{running.close();}catch(Throwable c){e.addSuppressed(c);}running=null;throw e;}}
     static void tick(GameController game){if(running==null)return;String suite=running.suite;try{if(!running.step())return;var results=List.copyOf(running.results);running.close();running=null;SkyWars2.LOGGER.info("[check] PASS {} (actual20HP Carpet/native starter tables/finite inventory/native roof and mining/water exit): {}",suite,results);}catch(Throwable e){try{running.close();}catch(Throwable c){e.addSuppressed(c);}running=null;SkyWars2.LOGGER.error("[check] FAIL "+suite,e);}}
 }
