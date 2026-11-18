@@ -1,7 +1,10 @@
 package me.skywars2.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import eu.pb4.sgui.api.SguiUtils;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.ContainerClickSync;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
@@ -12,6 +15,7 @@ import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -104,8 +108,26 @@ public abstract class LobbyInventoryPacketMixin {
     }
 
     /** Run the same native equipment pass after the slot mutation has actually committed. */
-    @Inject(method={"handleContainerClick","handleSetCreativeModeSlot"},at=@At("RETURN"))
-    private void skywars2$committedEquipment(CallbackInfo ci){
+    @Inject(method = "handleContainerClick", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;resumeRemoteUpdates()V"))
+    private void skywars2$commitClickedEquipment(CallbackInfo ci) {
+        skywars2$refreshEquipment();
+    }
+
+    @WrapOperation(method = "handleContainerClick", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;broadcastChanges()V"))
+    private void skywars2$publishClickedInventory(AbstractContainerMenu menu, Operation<Void> original,
+            ServerboundContainerClickPacket packet) {
+        ((ContainerClickSync)menu).skywars2$publishClick(player, packet, () -> original.call(menu));
+    }
+
+    @Inject(method = "handleSetCreativeModeSlot", at = @At("RETURN"))
+    private void skywars2$commitCreativeEquipment(CallbackInfo ci) {
+        skywars2$refreshEquipment();
+    }
+
+    @Unique
+    private void skywars2$refreshEquipment(){
         var game=SkyWars2.game();
         if(game!=null&&game.server().isSameThread()&&!game.balanceLegacy()&&!me.skywars2.game.MatchPlayerCheckpoint.restoring(player))
             ((ArmorReserveMixin.Equipment)player).skywars2$refreshArmorReserveEquipment();

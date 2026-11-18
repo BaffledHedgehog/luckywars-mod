@@ -148,6 +148,7 @@ public final class InventorySkillChecks {
         for(var gate:gates){var advancement=game.server().getAdvancements().get(Identifier.parse(gate));for(var criterion:advancement.value().criteria().keySet())owner.getAdvancements().award(advancement,criterion);}
         // Native hotbar right-click must work without inventing an inventory criterion event.
         try(var client=new RegenerationBeltChecks.ScheduledClient(game,owner)){
+            singleItemDrag(owner,client);
             menuPublication(game,owner,client);
             var remote=new RemoteInventory();owner.inventoryMenu.sendAllDataToRemote();remote.read(client);
             for(int selected:new int[]{4,8}){profile.lbcSkill=selected;
@@ -199,6 +200,54 @@ public final class InventorySkillChecks {
             require(slots.size()==owner.inventoryMenu.slots.size(),why+" received native menu baseline");
             for(int slot=0;slot<slots.size();slot++)require(ItemStack.matches(slots.get(slot),owner.inventoryMenu.getSlot(slot).getItem()),why+" slot "+slot+" client="+slots.get(slot).getComponents()+" server="+owner.inventoryMenu.getSlot(slot).getItem().getComponents());
         }
+    }
+    private static void singleItemDrag(ServerPlayer owner,RegenerationBeltChecks.ScheduledClient client) {
+        var menu = owner.inventoryMenu;
+        for (var item : List.of(Items.STICK, LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item)) {
+            menu.getSlot(9).set(ItemStack.EMPTY);
+            menu.setCarried(new ItemStack(item));
+            menu.sendAllDataToRemote();
+            client.acknowledge();
+            client.packets().clear();
+            for (int phase=0;phase<=2;phase++) {
+                owner.connection.handleContainerClick(new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(
+                        menu.containerId, menu.getStateId(), (short)(phase==1?9:-999),
+                        (byte)net.minecraft.world.inventory.AbstractContainerMenu.getQuickcraftMask(phase,0),
+                        net.minecraft.world.inventory.ContainerInput.QUICK_CRAFT,
+                        it.unimi.dsi.fastutil.ints.Int2ObjectMaps.emptyMap(), net.minecraft.network.HashedStack.EMPTY));
+            }
+            require(menu.getCarried().isEmpty() && menu.getSlot(9).getItem().is(item)
+                    && menu.getSlot(9).getItem().getCount()==1, "native left drag moves exactly one item");
+            var cursorClears = client.packets().stream()
+                    .filter(net.minecraft.network.protocol.game.ClientboundSetCursorItemPacket.class::isInstance)
+                    .map(net.minecraft.network.protocol.game.ClientboundSetCursorItemPacket.class::cast)
+                    .filter(packet -> packet.contents().isEmpty()).count();
+            require(cursorClears==1, "completed drag publishes one authoritative cursor clear");
+        }
+        menu.getSlot(9).set(new ItemStack(Items.STICK));
+        menu.getSlot(10).set(ItemStack.EMPTY);
+        menu.sendAllDataToRemote();
+        int state = menu.getStateId();
+        client.packets().clear();
+        var stick = net.minecraft.network.HashedStack.create(new ItemStack(Items.STICK), component -> 0);
+        var empty = net.minecraft.network.HashedStack.EMPTY;
+        for (int slot : new int[]{9, 10}) {
+            var changed = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<net.minecraft.network.HashedStack>();
+            changed.put(slot,slot==9?empty:stick);
+            owner.connection.handleContainerClick(new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(
+                    menu.containerId, state, (short)slot, (byte)0, net.minecraft.world.inventory.ContainerInput.PICKUP,
+                    changed, slot==9?stick:empty));
+        }
+        require(menu.getSlot(9).getItem().isEmpty() && menu.getSlot(10).getItem().is(Items.STICK) && menu.getCarried().isEmpty(),
+                "two pipelined clicks complete the actual item move");
+        var updates = client.packets().stream().filter(net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket.class::isInstance)
+                .map(net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket.class::cast).toList();
+        require(updates.size()==2 && updates.get(0).getSlot()==9 && updates.get(0).getItem().isEmpty()
+                        && updates.get(1).getSlot()==10 && updates.get(1).getItem().is(Items.STICK),
+                "correct predictions receive only the two authoritative slot images");
+        require(menu.getStateId()==state && client.packets().stream().noneMatch(net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket.class::isInstance),
+                "authoritative echoes of matching predictions preserve revision and never send the whole inventory");
+        menu.getSlot(10).set(ItemStack.EMPTY);
     }
     private static void menuPublication(GameController game,ServerPlayer owner,RegenerationBeltChecks.ScheduledClient client){
         var profile=game.players().get(owner.getUUID());profile.lbcSkill=0;owner.getInventory().clearContent();clearArmor(owner);equipment(owner);
