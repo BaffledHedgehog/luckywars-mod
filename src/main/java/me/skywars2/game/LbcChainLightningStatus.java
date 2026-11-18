@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.*;
+import java.util.function.Predicate;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -13,12 +14,19 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Raid Omen124: native arrow-damage chain, distinct from Thunder's repeating native bolts. */
 public final class LbcChainLightningStatus {
     private static final net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> MOBS=net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final String COUNTER="effect_chain_lightning";
+    private static final double HOP_RANGE = 100;
+    private static final int HOP_TARGETS = 10;
+    private static final Comparator<Neighbor> NEAREST_FIRST =
+            Comparator.comparingDouble(Neighbor::distanceSquared).thenComparingInt(Neighbor::rank);
+
+    private record Neighbor(LivingEntity target, double distanceSquared, int rank) {}
     private static final net.fabricmc.fabric.api.attachment.v1.AttachmentType<CompoundTag> DATA=
             net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(Identifier.parse("skywars2:chain_lightning_status"),b->b.persistent(CompoundTag.CODEC));
     private static final class Contribution {
@@ -78,10 +86,9 @@ public final class LbcChainLightningStatus {
     private void pulse(LivingEntity emitter,LbcIndirectKills.Owner cause){
         callbackDepth++;try{
         var level=(ServerLevel)emitter.level();var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
-        var candidates=game.items().lifetimes().loadedTargets().stream().filter(this::role).filter(target->target.getType().builtInRegistryHolder().is(MOBS))
-                .filter(target->!LbcGreed.active(target)&&!target.entityTags().contains("nomagic_active")
-                        &&!game.items().magic().suppressedAt(level,target.position())).toList();
-        propagate(level,emitter.position(),emitter,owner,cause,candidates,null);
+        propagate(level, emitter.position(), emitter, owner, cause,
+                target -> !LbcGreed.active(target) && !target.entityTags().contains("nomagic_active")
+                        && !game.items().magic().suppressedAt(level, target.position()), null);
 
         }finally{callbackDepth--;}
     }
@@ -89,19 +96,26 @@ public final class LbcChainLightningStatus {
     void arrowPulse(ServerPlayer owner,Entity projectile,Vec3 point,LbcIndirectKills.Owner accepted){
         callbackDepth++;try{
         var level=(ServerLevel)projectile.level();
-        var candidates=game.items().lifetimes().loadedTargets().stream().filter(this::role)
-                .filter(target->target.getType().builtInRegistryHolder().is(MOBS)&&(owner==null?!LbcGreed.active(target):game.items().wands().projectileTarget(owner,target))).toList();
-        propagate(level,point,owner,owner,accepted,candidates,projectile);
+        propagate(level, point, owner, owner, accepted,
+                target -> owner == null ? !LbcGreed.active(target) : game.items().wands().projectileTarget(owner, target),
+                projectile);
         }finally{callbackDepth--;}
     }
-    private void propagate(ServerLevel level,Vec3 start,LivingEntity emitter,ServerPlayer owner,LbcIndirectKills.Owner cause,List<LivingEntity> candidates,Entity projectile){
-        var visited=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());visited.add(emitter);
-        var frontier=new ArrayDeque<Vec3>();frontier.add(start);
-        while(!frontier.isEmpty()){
-            var from=frontier.removeFirst();
-            var next=candidates.stream().filter(target->!visited.contains(target)&&target.position().distanceToSqr(from)<=10000)
-                    .sorted(Comparator.comparingDouble(target->target.position().distanceToSqr(from))).limit(10).toList();
-            for(var target:next){
+    private void propagate(ServerLevel level, Vec3 start, LivingEntity emitter, ServerPlayer owner,
+                           LbcIndirectKills.Owner cause, Predicate<LivingEntity> policy, Entity projectile) {
+        if (level != game.maps().level()) return;
+        var ranks = game.items().lifetimes().loadedTargetRanks();
+        var admitted = new IdentityHashMap<LivingEntity, Boolean>();
+        Predicate<LivingEntity> eligible = target ->
+                target.getType().builtInRegistryHolder().is(MOBS) && role(target) && policy.test(target);
+        var visited = Collections.newSetFromMap(new IdentityHashMap<LivingEntity, Boolean>());
+        visited.add(emitter);
+        var frontier = new ArrayDeque<Vec3>();
+        frontier.add(start);
+        while (!frontier.isEmpty()) {
+            var from = frontier.removeFirst();
+            for (var neighbor : nearest(level, from, ranks, visited, admitted, eligible)) {
+                var target = neighbor.target;
                 if(!visited.add(target))continue;frontier.addLast(target.position());sparks(level,from,target.position());
                 if(game.items().fpvDrone().tryShortCircuit(target))continue;
                 var damage=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess()
@@ -112,6 +126,32 @@ public final class LbcChainLightningStatus {
             }
         }
     }
+    private static List<Neighbor> nearest(ServerLevel level, Vec3 from, Map<LivingEntity, Integer> ranks,
+                                          Set<LivingEntity> visited, Map<LivingEntity, Boolean> admitted,
+                                          Predicate<LivingEntity> eligible) {
+        // Section bounds are exclusive. The final distance check includes the exact 100-block edge.
+        var box = new AABB(from, from).inflate(HOP_RANGE + 1e-6);
+        var nearest = new PriorityQueue<Neighbor>(HOP_TARGETS, NEAREST_FIRST.reversed());
+        for (var target : level.getEntitiesOfClass(LivingEntity.class, box, e -> !visited.contains(e))) {
+            var order = ranks.get(target);
+            if (order == null) continue;
+            double squared = target.position().distanceToSqr(from);
+            if (!(squared <= HOP_RANGE * HOP_RANGE)) continue;
+            if (nearest.size() == HOP_TARGETS) {
+                var worst = nearest.peek();
+                int distanceOrder = Double.compare(squared, worst.distanceSquared);
+                if (distanceOrder > 0 || distanceOrder == 0 && order >= worst.rank) continue;
+            }
+            if (!admitted.computeIfAbsent(target, eligible::test)) continue;
+            if (nearest.size() == HOP_TARGETS) nearest.remove();
+            nearest.add(new Neighbor(target, squared, order));
+        }
+        if (nearest.isEmpty()) return List.of();
+        var result = new ArrayList<>(nearest);
+        result.sort(NEAREST_FIRST);
+        return result;
+    }
+
     private static void sparks(ServerLevel level,Vec3 from,Vec3 to){
         double length=from.distanceTo(to);if(length<1e-6)return;var direction=to.subtract(from).scale(1/length);
         try(var chainVisual=new LbcParticleBatch.Group(level,ParticleTypes.ELECTRIC_SPARK,0,0,false)){

@@ -86,10 +86,22 @@ public final class ChainLightningFixChecks {
         final boolean offhand;int phase,ticks,warmTicks;long last=Long.MIN_VALUE;
         Cow mob,technical;ProbeCow genericVictim;LbcBolts.Chain thunder;float ownerHp,allyHp;
         static final class ProbeCow extends Cow {
-            int arrowAttempts;boolean exactArrow;
+            int arrowAttempts, roleChecks;
+            boolean exactArrow;
+            List<ProbeCow> hitOrder;
+
             ProbeCow(net.minecraft.server.level.ServerLevel level){super(EntityTypes.COW,level);}
+
+            @Override public boolean isAlive() {
+                roleChecks++;
+                return super.isAlive();
+            }
             @Override public boolean hurtServer(net.minecraft.server.level.ServerLevel level,net.minecraft.world.damagesource.DamageSource source,float amount){
-                if(source.is(net.minecraft.world.damagesource.DamageTypes.ARROW)){arrowAttempts++;exactArrow|=amount==16;}
+                if (source.is(net.minecraft.world.damagesource.DamageTypes.ARROW)) {
+                    arrowAttempts++;
+                    exactArrow |= amount == 16;
+                    if (hitOrder != null) hitOrder.add(this);
+                }
                 return super.hurtServer(level,source,amount);
             }
         }
@@ -117,10 +129,22 @@ public final class ChainLightningFixChecks {
             }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
         }
         void init(){
-            for(int x=-17;x<=-14;x++)for(int z=-17;z<=-14;z++){long key=net.minecraft.world.level.ChunkPos.pack(x,z);if(!owner.level().getForceLoadedChunks().contains(key)){forced.add(key);owner.level().setChunkForced(x,z,true);}owner.level().getChunk(x,z);}
+            for (int x = -17; x <= -14; x++) for (int z = -17; z <= -14; z++) warmChunk(x, z);
+            for (var offset : List.of(new Vec3(100, 0, 0), new Vec3(199, 0, 0), new Vec3(0, 0, 104), new Vec3(-80, 0, 80))) {
+                var chunk = net.minecraft.world.level.ChunkPos.containing(net.minecraft.core.BlockPos.containing(at.add(offset)));
+                warmChunk(chunk.x(), chunk.z());
+            }
             for(var player:List.of(owner,ally)){player.closeContainer();player.getInventory().clearContent();player.removeAllEffects();player.setGameMode(GameType.SURVIVAL);player.setNoGravity(true);player.setDeltaMovement(Vec3.ZERO);player.entityTags().remove("sin_greed_active");player.entityTags().remove("time_stopped");player.setShiftKeyDown(false);player.getAbilities().invulnerable=false;player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);player.setHealth(1000);player.setAbsorptionAmount(0);game.items().mana().noMagic(player,0);game.items().mana().set(player,100000);game.server().getScoreboard().addPlayerToTeam(player.getScoreboardName(),team);}
             owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,true);ally.teleportTo(ally.level(),at.x+10,at.y,at.z+8,Set.of(),0,0,true);
             for(var player:List.of(owner,ally)){var profile=game.players().get(player.getUUID());profile.lbcSkill=0;profile.lbcTrinket=0;Arrays.fill(profile.trinkets,0);Arrays.fill(profile.levelups,0);game.items().magic().inventoryChanged(player);game.items().mana().inventoryChanged(player);}game.items().magic().flushCleansing();game.config().offhandWands=false;
+        }
+        private void warmChunk(int x, int z) {
+            long key = net.minecraft.world.level.ChunkPos.pack(x, z);
+            if (!owner.level().getForceLoadedChunks().contains(key)) {
+                forced.add(key);
+                owner.level().setChunkForced(x, z, true);
+            }
+            owner.level().getChunk(x, z);
         }
         boolean warm(){require(++warmTicks<300,"resident fixture ticking");for(long key:forced)if(!owner.level().areEntitiesLoaded(key))return false;return true;}
         Cow cow(Vec3 pos){var cow=new Cow(EntityTypes.COW,owner.level());cow.setPos(pos);cow.setNoAi(true);cow.setNoGravity(true);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);owner.level().addFreshEntity(cow);return cow;}
@@ -135,24 +159,74 @@ public final class ChainLightningFixChecks {
         }
         void managedCarrierBoundary(){
             require(game.items().bolts().count()==0,"isolated explicit pulse boundary has no unrelated bolt work to advance");
-            var prior=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());prior.addAll(game.items().creatureDrops().snapshot());
-            var pos=at.add(0,1,6);var token=new net.minecraft.world.entity.item.ItemEntity(owner.level(),pos.x,pos.y,pos.z,new ItemStack(LbcCreatureDropItem.Kind.OLD_VEX.item()));
-            token.setThrower(ally);token.setNoGravity(true);token.setDeltaMovement(Vec3.ZERO);token.setPickUpDelay(1000);owner.level().addFreshEntity(token);
-            require(game.items().specialDrops().spawn(token),"actual ally-thrown LowVex drop creates managed carriers");token.discard();
-            var actors=game.items().creatureDrops().snapshot().stream().filter(actor->!prior.contains(actor)&&!actor.isRemoved()).toList();
-            require(actors.size()==5&&actors.stream().allMatch(actor->actor instanceof net.minecraft.world.entity.monster.Vex&&game.items().creatureDrops().owner(actor)==ally),"actual five LowVex actors retain independent ally authorship");
-            var carrier=(net.minecraft.world.entity.monster.Vex)actors.getFirst();for(var extra:actors)if(extra!=carrier)extra.discard();
-            carrier.setNoAi(true);carrier.setNoGravity(true);carrier.setDeltaMovement(Vec3.ZERO);carrier.setPos(pos);
-            require(!game.items().creatureDrops().canAffect(carrier,owner),"carrier's own attack policy would reject the allied spellcaster");
+            var carrier = game.items().summons().spawnPreset(ally, "vex", at.add(0, 1, 6));
+            require(carrier instanceof net.minecraft.world.entity.monster.Vex &&
+                    game.items().summons().owner(carrier) == ally, "actual owned Vex carries allied authorship");
+            carrier.setNoAi(true);
+            carrier.setNoGravity(true);
+            carrier.setDeltaMovement(Vec3.ZERO);
+            require(!game.items().summons().canAttack(carrier, owner),
+                    "carrier's own attack policy rejects the allied spellcaster");
             for(var player:List.of(owner,ally)){player.setHealth(1000);player.setAbsorptionAmount(0);player.clearFire();player.setInvulnerableTime(0);player.damageCooldownTime=0;}
             float own=owner.getHealth(),other=ally.getHealth();
-            require(carrier.addEffect(new MobEffectInstance(MobEffects.RAID_OMEN,1,124),owner)&&game.items().bolts().statusCount(carrier)==1,"native Raid124 intake on actual managed LowVex");
+            require(carrier.addEffect(new MobEffectInstance(MobEffects.RAID_OMEN,1,124),owner)&&game.items().bolts().statusCount(carrier)==1,"native Raid124 intake on actual allied Vex summon");
             // One explicit service boundary supplements the earlier natural eighty-tick Thunder fixture.
             game.items().bolts().tick();
             require(owner.getHealth()<own&&ally.getHealth()<other,"managed carrier cannot impose its own friendship on WILD status: owner="+owner.getHealth()+"/"+own+",ally="+ally.getHealth()+"/"+other);
-            for(var player:List.of(owner,ally)){var source=player.getLastDamageSource();require(source!=null&&source.is(net.minecraft.world.damagesource.DamageTypes.ARROW)&&source.getDirectEntity()==owner&&source.getEntity()==owner,"status native ARROW direct/cause are spellcaster, never the LowVex carrier: "+source);}
+            for(var player:List.of(owner,ally)){var source=player.getLastDamageSource();require(source!=null&&source.is(net.minecraft.world.damagesource.DamageTypes.ARROW)&&source.getDirectEntity()==owner&&source.getEntity()==owner,"status native ARROW direct/cause are spellcaster, never the allied Vex carrier: "+source);}
             game.items().bolts().clearEffects(carrier);game.items().indirectKills().clear(carrier);carrier.discard();
         }
+        private ProbeCow spatialCow(Vec3 pos, List<ProbeCow> hitOrder, List<ProbeCow> owned) {
+            var probe = new ProbeCow(owner.level());
+            probe.setPos(pos);
+            probe.setNoAi(true);
+            probe.setNoGravity(true);
+            probe.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
+            probe.setHealth(1000);
+            probe.hitOrder = hitOrder;
+            require(owner.level().addFreshEntity(probe), "probe published in native section");
+            owned.add(probe);
+            require(game.items().lifetimes().loadedTargets().contains(probe), "probe admitted to active target index");
+            return probe;
+        }
+
+        private void spatialChains() {
+            var origin = at.add(0, 130, 0);
+            var order = new ArrayList<ProbeCow>();
+            var spawned = new ArrayList<ProbeCow>();
+            try {
+                var root = spatialCow(origin, order, spawned);
+                var bridge = spatialCow(origin.add(100, 0, 0), order, spawned);
+                var far = spatialCow(origin.add(199, 0, 0), order, spawned);
+                var outsideBox = spatialCow(origin.add(0, 0, 104), order, spawned);
+                var outsideSphere = spatialCow(origin.add(-80, 0, 80), order, spawned);
+                require(root.addEffect(new MobEffectInstance(MobEffects.RAID_OMEN, 1, 124), owner), "native spatial status admission");
+                outsideBox.roleChecks = outsideSphere.roleChecks = 0;
+                game.items().bolts().tick();
+                require(order.equals(List.of(bridge, far)) && bridge.exactArrow && far.exactArrow,
+                        "inclusive 100-block first jump, 99-block next hop, no return to the root or repeat: " + order);
+                require(outsideBox.roleChecks == 0 && outsideSphere.roleChecks == 0,
+                        "disconnected probes skip expensive role filtering: box=" + outsideBox.roleChecks +
+                                " sphere=" + outsideSphere.roleChecks);
+            } finally {
+                spawned.forEach(Entity::discard);
+                spawned.clear();
+                order.clear();
+            }
+            try {
+                var root = spatialCow(origin, order, spawned);
+                var publication = new ArrayList<ProbeCow>();
+                for (int i = 0; i < 12; i++) {
+                    publication.add(spatialCow(origin.add(i % 2 == 0 ? 8 : -8, 0, 0), order, spawned));
+                }
+                require(root.addEffect(new MobEffectInstance(MobEffects.RAID_OMEN, 1, 124), owner), "native tie test admission");
+                game.items().bolts().tick();
+                require(order.equals(publication), "stable ten-way cutoff and registration tie order across two native sections: " + order);
+            } finally {
+                spawned.forEach(Entity::discard);
+            }
+        }
+
         void cast(){
             mob=cow(at.add(0,1,8));game.server().getScoreboard().addPlayerToTeam(mob.getScoreboardName(),team);
             technical=cow(at.add(2,1,8));technical.entityTags().add("strict_map_object");
@@ -193,7 +267,7 @@ public final class ChainLightningFixChecks {
                 var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(owner.level(),owner,payload,null);arrow.setPos(mob.getX(),mob.getY()+.6,mob.getZ()-1.2);arrow.setDeltaMovement(0,0,2);arrow.setNoGravity(true);mob.setInvulnerableTime(0);mob.damageCooldownTime=0;owner.level().addFreshEntity(arrow);arrow.tick();
                 require(game.items().bolts().statusCount(mob)>0,"real tipped-arrow impact ingests Raid124 transport after native duration scaling");arrow.discard();game.items().bolts().clearEffects(mob);
                 require(owner.addEffect(new MobEffectInstance(MobEffects.RAID_OMEN,3,124),owner)&&game.items().mana().appendHudManaStatuses(owner,net.minecraft.network.chat.Component.empty()).getString().contains("\uE156"),"actual player pill/status intake and source HUD glyph");
-                game.items().bolts().clearEffects(owner);require(game.items().bolts().statusCount(owner)==0&&game.items().mana().hudValue(owner,"effect_chain_lightning")==0,"shared status cleanse clears native counter");managedCarrierBoundary();return true;
+                game.items().bolts().clearEffects(owner);require(game.items().bolts().statusCount(owner)==0&&game.items().mana().hudValue(owner,"effect_chain_lightning")==0,"shared status cleanse clears native counter");managedCarrierBoundary();spatialChains();return true;
             }
             return false;
         }

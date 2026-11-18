@@ -13,9 +13,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /** Общая очередь проверки дальних снарядов: ограничиваем CPU, а не дальность полёта. */
@@ -66,6 +68,7 @@ public final class ProjectileLifetimes {
     private final ArrayDeque<Review> queue = new ArrayDeque<>();
     private final IdentityHashMap<Projectile, Review> tracked = new IdentityHashMap<>();
     private List<LivingEntity> targetSnapshot = List.of();
+    private Map<LivingEntity, Integer> targetRanks;
     private int targetRevision;
     private int snapshotRevision = -1;
     private int serial;
@@ -102,9 +105,21 @@ public final class ProjectileLifetimes {
     List<LivingEntity> loadedTargets() {
         if(snapshotRevision!=targetRevision) {
             targetSnapshot=List.copyOf(targets);
+            targetRanks=null;
             snapshotRevision=targetRevision;
         }
         return targetSnapshot;
+    }
+
+    /** Native section iteration has its own order. Preserve publication order for equal-distance targets. */
+    Map<LivingEntity, Integer> loadedTargetRanks() {
+        var snapshot = loadedTargets();
+        if (targetRanks == null) {
+            var ranks = new IdentityHashMap<LivingEntity, Integer>(snapshot.size());
+            for (int i = 0; i < snapshot.size(); i++) ranks.put(snapshot.get(i), i);
+            targetRanks = Collections.unmodifiableMap(ranks);
+        }
+        return targetRanks;
     }
 
     /** Разрушительные заряды сохраняются также ради блоков; обычные Terra ищут только живые цели. */
@@ -126,10 +141,7 @@ public final class ProjectileLifetimes {
     /** Один бюджет проверок целей для всех зарегистрированных семейств снарядов. */
     public void tick() {
         if (stopped || queue.isEmpty() || game.items().wands().timeStopped()) return;
-        if (snapshotRevision != targetRevision) {
-            targetSnapshot = List.copyOf(targets);
-            snapshotRevision = targetRevision;
-        }
+        loadedTargets();
 
         reviewing=true;
         try {
@@ -304,7 +316,7 @@ public final class ProjectileLifetimes {
             var restoredTargets=liveTargets.stream().map(ref->(LivingEntity)links.get(ref)).toList();
             var restoredSnapshot=snapshot.stream().map(ref->(LivingEntity)links.get(ref)).toList();
             return ()->{tracked.clear();tracked.putAll(restored);queue.clear();queue.addAll(restoredQueue);
-                targets.clear();targets.addAll(restoredTargets);targetSnapshot=restoredSnapshot;
+                targets.clear();targets.addAll(restoredTargets);targetSnapshot=restoredSnapshot;targetRanks=null;
                 targetRevision=revision;snapshotRevision=snapshotVersion;serial=sequence;stopped=false;};
         }
     }
