@@ -18,7 +18,7 @@ public final class MusicStaffChecks {
     public static void run(GameController game){require(running==null,"exclusive fixture");var fixture=new Fixture(game);running=fixture;try{fixture.begin();}catch(Throwable error){running=null;fixture.close();throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{require(f.game==game,"same native game");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS music-staff (live source-config prices and aqua score lore, no cooldown including stale item tags, shared double-bow offsets/independent spread, fixed8/16 WILD allied hits, global music lifecycle, actual1040tick Academy trial)");}
+        try{require(f.game==game,"same native game");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS music-staff (bundled prices, aqua score lore and a local arrow sound, no cooldown including stale item tags, shared double-bow offsets/independent spread, fixed8/16 WILD allied hits, global music lifecycle, actual1040tick Academy trial)");}
         catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL music-staff",error);}
     }
     private static final class Fixture implements AutoCloseable {
@@ -40,10 +40,22 @@ public final class MusicStaffChecks {
             return SmokeVolumeChecks.flatten(client.packets()).stream().filter(packet -> packet instanceof ClientboundGameEventPacket event
                 && event.getEvent() == ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
         }
+        long shotSounds(RegenerationBeltChecks.ScheduledClient client, int start) {
+            var packets = client.packets();
+            return SmokeVolumeChecks.flatten(packets.subList(start, packets.size())).stream()
+                    .filter(packet -> packet instanceof ClientboundSoundPacket sound
+                            && sound.getSound().value() == net.minecraft.sounds.SoundEvents.ARROW_SHOOT)
+                    .count();
+        }
         List<LbcMusicStaff.Shot> shoot(ItemStack item){
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,item);game.items().mana().set(base.owner,5000);
             var prior=Collections.newSetFromMap(new IdentityHashMap<LbcMusicStaff.Shot,Boolean>());prior.addAll(service.arrows());
+            int casterBefore = base.client.packets().size(), audienceBefore = base.audience.packets().size();
             require(base.owner.gameMode.useItem(base.owner,base.level,item,InteractionHand.MAIN_HAND).consumesAction(),"real native staff use");
+            require(shotSounds(base.client, casterBefore) == 1, "one vanilla firing sound per cast, even for two arrows");
+            if (base.owner.distanceToSqr(base.other) < 100) {
+                require(shotSounds(base.audience, audienceBefore) == 1, "nearby players hear the local arrow shot");
+            }
             var fresh=service.arrows().stream().filter(s->!prior.contains(s)).toList();require(!fresh.isEmpty()&&fresh.size()<=2,"one or two arrows");
             var eye=base.owner.getEyePosition();var forward=base.owner.getLookAngle().scale(.3);var side=Vec3.directionFromRotation(0,base.owner.getYRot()-90).scale(.4);
             for(var shot:fresh){base.own(shot);require(shot.getOwner()==base.owner,"real physical controller");
@@ -53,31 +65,30 @@ public final class MusicStaffChecks {
             if(fresh.size()==2)require(fresh.get(0).position().distanceToSqr(fresh.get(1).position())>.63,"two distinct opposite muzzle positions");return fresh;
         }
         void manaConfiguration(){
-            var path=LbcSourceConfig.FILE;byte[] original;
-            try{original=java.nio.file.Files.readAllBytes(path);}catch(java.io.IOException error){throw new IllegalStateException(error);}
-            try{
-                var document=com.google.gson.JsonParser.parseString(new String(original,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();var values=document.getAsJsonObject("values");
-                values.remove(LbcMusicStaff.BASE_MANA);values.remove(LbcMusicStaff.ACADEMY_MANA);java.nio.file.Files.writeString(path,document.toString());game.items().mana().sourceConfig().reload();
-                var expanded=com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path)).getAsJsonObject().getAsJsonObject("values");
-                try(var input=MusicStaffChecks.class.getResourceAsStream("/skywars2/source_config_defaults.json")){
-                    require(input!=null,"packaged authored source defaults exist");
-                    var defaults=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8))
-                        .getAsJsonObject().getAsJsonObject("values");
-                    for(var key:List.of(LbcMusicStaff.BASE_MANA,LbcMusicStaff.ACADEMY_MANA))
-                        require(expanded.get(key).equals(defaults.get(key)),"new editable price persists its current authored default: "+key);
-                }
-                for(var previous:values.entrySet())require(previous.getValue().equals(expanded.get(previous.getKey())),"expansion preserves authored setting "+previous.getKey());
-                values.addProperty(LbcMusicStaff.BASE_MANA,37);values.addProperty(LbcMusicStaff.ACADEMY_MANA,73);java.nio.file.Files.writeString(path,document.toString());
-                require(game.server().getCommands().getDispatcher().execute("skywars reloadconfig",game.server().createCommandSourceStack())>0,"actual source-config reload");
-                for(var name:List.of("music_staff","academy_music_staff")){
-                    int price=name.startsWith("academy")?73:37;var item=base.leaf(name);var line=LbcTooltipScores.resolve(game,base.owner,item.get(DataComponents.LORE).lines().get(1));
-                    require(line.getString().startsWith(Integer.toString(price))&&line.getStyle().getColor()!=null&&line.getStyle().getColor().getValue()==0x55FFFF,"actual score-based aqua mana lore follows configured "+name);
+            try (var input = LbcSourceConfig.class.getResourceAsStream(LbcSourceConfig.RESOURCE)) {
+                require(input != null, "packaged authored source values exist");
+                var values = com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(
+                        input, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("values");
+                for (var name : List.of("music_staff", "academy_music_staff")) {
+                    var item = base.leaf(name);
+                    int price = values.get(name.startsWith("academy") ? LbcMusicStaff.ACADEMY_MANA : LbcMusicStaff.BASE_MANA).getAsInt();
+                    var line = LbcTooltipScores.resolve(game, base.owner, item.get(DataComponents.LORE).lines().get(1));
+                    require(line.getString().startsWith(Integer.toString(price)) && line.getStyle().getColor() != null
+                                    && line.getStyle().getColor().getValue() == 0x55FFFF,
+                            "actual score-based aqua mana lore uses the bundled price for " + name);
                     require(ItemData.intValue(item,"spellwithcooldown",0)==0&&item.get(DataComponents.USE_COOLDOWN)==null,"fresh staff has no cooldown declaration");
                     var stale=item.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();stale.putInt("mana_cost",1);stale.putInt("cast_cooldown_ticks",999);stale.putInt("spellwithcooldown",1);item.set(DataComponents.CUSTOM_DATA,CustomData.of(stale));
-                    for(int cast=0;cast<2;cast++){var arrows=shoot(item);require(game.items().mana().get(base.owner)==5000-price&&!base.owner.getCooldowns().isOnCooldown(item),"same-tick native casts use config and ignore obsolete stack tuning");arrows.forEach(base::discard);}
+                    for (int cast = 0; cast < 2; cast++) {
+                        var arrows = shoot(item);
+                        require(game.items().mana().get(base.owner) == 5000 - price
+                                        && !base.owner.getCooldowns().isOnCooldown(item),
+                                "same-tick native casts use the bundled price and ignore obsolete stack tuning");
+                        arrows.forEach(base::discard);
+                    }
                 }
-            }catch(Exception error){throw new IllegalStateException(error);}
-            finally{try{java.nio.file.Files.write(path,original);game.items().mana().sourceConfig().reload();}catch(java.io.IOException error){throw new IllegalStateException(error);}}
+            } catch (java.io.IOException error) {
+                throw new IllegalStateException(error);
+            }
         }
         void aim(){base.move(base.owner,base.home.add(0,12,0));base.move(base.other,base.owner.position().add(0,0,6));base.owner.setYRot(0);base.owner.setXRot(0);base.other.setInvulnerableTime(0);base.other.damageCooldownTime=0;base.other.setHealth(1000);health=base.other.getHealth();}
         void begin(){

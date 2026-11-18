@@ -54,7 +54,7 @@ public final class SkyWarsFeedbackCommands {
                 var game=SkyWars2.game();if(game==null)return 0;
                 try{int count=game.items().mana().sourceConfig().reload();game.items().nexusCompass().reload();game.items().nexusCombat().reload();
                     for(var player:game.server().getPlayerList().getPlayers()){player.getInventory().setChanged();player.inventoryMenu.sendAllDataToRemote();if(player.containerMenu!=player.inventoryMenu)player.containerMenu.sendAllDataToRemote();}
-                    ctx.getSource().sendSuccess(()->Component.literal("Reloaded "+count+" source values from "+LbcSourceConfig.FILE),true);return count;
+                    ctx.getSource().sendSuccess(()->Component.literal("Reloaded "+count+" source values from "+LbcSourceConfig.RESOURCE),true);return count;
                 }catch(RuntimeException e){ctx.getSource().sendFailure(Component.literal(e.getMessage()));return 0;}
             }))
             .then(Commands.literal("effect").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))

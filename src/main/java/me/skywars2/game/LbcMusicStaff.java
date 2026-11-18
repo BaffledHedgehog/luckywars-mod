@@ -111,6 +111,8 @@ public final class LbcMusicStaff {
             }
         }
         if(spawned==0){game.items().mana().add(player,cost);return false;}
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.ARROW_SHOOT, SoundSource.PLAYERS, 1.0f, 1.0f);
         game.items().wands().wandCasted(player);return true;
     }
     public static final class Shot extends Arrow implements PolymerEntity,FixedArrowDamage {

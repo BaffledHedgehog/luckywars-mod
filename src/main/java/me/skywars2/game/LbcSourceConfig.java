@@ -1,75 +1,64 @@
 package me.skywars2.game;
 
-import com.google.gson.*;
-import java.io.*;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
-/** Cached editable source constants. The same scoreboard operands drive mechanics and tooltips. */
+/** Bundled source constants. The same scoreboard operands drive mechanics and tooltips. */
 public final class LbcSourceConfig {
-    public static final Path FILE=Path.of("config","luckywars","source-values.json");
+    static final String RESOURCE = "/skywars2/source_config_defaults.json";
     private final MinecraftServer server;
-    private final JsonObject defaults;
-    private final Set<String> keys=new HashSet<>();
-    LbcSourceConfig(MinecraftServer server){
-        this.server=server;
-        try(var input=LbcSourceConfig.class.getResourceAsStream("/skywars2/source_config_defaults.json")){
-            if(input==null)throw new IOException("Missing source config defaults");
-            defaults=JsonParser.parseReader(new InputStreamReader(input,StandardCharsets.UTF_8)).getAsJsonObject();
-        }catch(IOException e){throw new IllegalStateException(e);}
-        keys.addAll(defaults.getAsJsonObject("values").keySet());
-        keys.addAll(defaults.getAsJsonObject("derived").keySet());
+    private final Map<String, Integer> values;
+
+    LbcSourceConfig(MinecraftServer server) {
+        this.server = server;
+        this.values = loadValues();
         reload();
     }
-    boolean owns(String objective,String holder){return objective.equals("lbc.math")&&keys.contains(holder);}
-    public int reload(){
-        try{
-            JsonObject document;
-            if(Files.exists(FILE)){
-                try(var reader=Files.newBufferedReader(FILE,StandardCharsets.UTF_8)){document=JsonParser.parseReader(reader).getAsJsonObject();}
-            }else{
-                document=new JsonObject();var migrated=defaults.getAsJsonObject("values").deepCopy();
-                var board=server.getScoreboard();var objective=board.getObjective("lbc.math");
-                if(objective!=null)for(String key:migrated.keySet()){
-                    var value=board.getPlayerScoreInfo(ScoreHolder.forNameOnly(key),objective);
-                    if(value!=null)migrated.addProperty(key,value.value());
-                }
-                document.add("values",migrated);
-                Files.createDirectories(FILE.getParent());
-                Files.writeString(FILE,new GsonBuilder().setPrettyPrinting().create().toJson(document)+"\n",StandardCharsets.UTF_8,StandardOpenOption.CREATE_NEW);
+
+    private static Map<String, Integer> loadValues() {
+        var values = new LinkedHashMap<String, Integer>();
+        try (var input = LbcSourceConfig.class.getResourceAsStream(RESOURCE)) {
+            if (input == null) throw new IOException("Missing bundled source config");
+            var document = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
+            for (var entry : document.getAsJsonObject("values").entrySet()) {
+                values.put(entry.getKey(), entry.getValue().getAsBigDecimal().intValueExact());
             }
-            // Validate the complete candidate before changing live mechanics.
-            var configured=document.has("values")?document.getAsJsonObject("values"):document;
-            var candidate=new LinkedHashMap<String,Integer>();
-            for(var entry:defaults.getAsJsonObject("values").entrySet())candidate.put(entry.getKey(),entry.getValue().getAsInt());
-            for(var entry:configured.entrySet()){
-                if(!keys.contains(entry.getKey()))throw new IllegalArgumentException("Unknown source setting: "+entry.getKey());
-                var number=entry.getValue().getAsBigDecimal();
-                candidate.put(entry.getKey(),number.intValueExact());
-            }
-            for(var entry:defaults.getAsJsonObject("derived").entrySet()){
-                var rule=entry.getValue().getAsJsonObject();
+            for (var entry : document.getAsJsonObject("derived").entrySet()) {
+                var rule = entry.getValue().getAsJsonObject();
                 // Derived display prices cannot diverge from their actual charge cadence.
-                candidate.put(entry.getKey(),Math.multiplyExact(candidate.get(rule.get("source").getAsString()),rule.get("multiplier").getAsInt()));
+                int source = values.get(rule.get("source").getAsString());
+                int multiplier = rule.get("multiplier").getAsBigDecimal().intValueExact();
+                values.put(entry.getKey(), Math.multiplyExact(source, multiplier));
             }
-            // New item prices must also be visible in an existing editable configuration.
-            boolean expanded=false;
-            for(var entry:defaults.getAsJsonObject("values").entrySet())if(!configured.has(entry.getKey())){configured.add(entry.getKey(),entry.getValue().deepCopy());expanded=true;}
-            if(expanded){
-                var temporary=FILE.resolveSibling(FILE.getFileName()+".writing");
-                Files.writeString(temporary,new GsonBuilder().setPrettyPrinting().create().toJson(document)+"\n",StandardCharsets.UTF_8);
-                try{Files.move(temporary,FILE,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}
-                catch(AtomicMoveNotSupportedException unsupported){Files.move(temporary,FILE,StandardCopyOption.REPLACE_EXISTING);}
-            }
-            var board=server.getScoreboard();var objective=board.getObjective("lbc.math");
-            if(objective==null)objective=board.addObjective("lbc.math",ObjectiveCriteria.DUMMY,Component.literal("lbc.math"),ObjectiveCriteria.RenderType.INTEGER,false,null);
-            for(var entry:candidate.entrySet())board.getOrCreatePlayerScore(ScoreHolder.forNameOnly(entry.getKey()),objective).set(entry.getValue());
-            return candidate.size();
-        }catch(IOException|RuntimeException e){throw new IllegalStateException("Cannot reload "+FILE+": "+e.getMessage(),e);}
+        } catch (IOException | RuntimeException error) {
+            throw new IllegalStateException("Cannot read " + RESOURCE + ": " + error.getMessage(), error);
+        }
+        return Collections.unmodifiableMap(values);
+    }
+
+    boolean owns(String objective, String holder) {
+        return objective.equals("lbc.math") && values.containsKey(holder);
+    }
+
+    public int reload() {
+        var board = server.getScoreboard();
+        var objective = board.getObjective("lbc.math");
+        if (objective == null) {
+            objective = board.addObjective("lbc.math", ObjectiveCriteria.DUMMY, Component.literal("lbc.math"),
+                    ObjectiveCriteria.RenderType.INTEGER, false, null);
+        }
+        for (var entry : values.entrySet()) {
+            board.getOrCreatePlayerScore(ScoreHolder.forNameOnly(entry.getKey()), objective).set(entry.getValue());
+        }
+        return values.size();
     }
 }

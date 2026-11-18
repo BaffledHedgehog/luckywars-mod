@@ -16,20 +16,43 @@ public final class FeedbackBatchChecks {
     public static void mana(GameController game){
         try(var fixture=new ElementalGrimoireChecks.Fixture(game)){
             ManaFeedbackChecks.run(game,fixture.owner);
-            var path=LbcSourceConfig.FILE;byte[] original;
-            try{original=Files.readAllBytes(path);}catch(java.io.IOException e){throw new IllegalStateException(e);}
-            try{
-                var document=com.google.gson.JsonParser.parseString(new String(original,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
-                document.getAsJsonObject("values").addProperty("wall_wand_mana_use",137);
-                Files.writeString(path,document.toString());
-                var dispatcher=game.server().getCommands().getDispatcher();var console=game.server().createCommandSourceStack();
-                require(dispatcher.execute("skywars reloadconfig",console)>0,"actual reload command publishes source values");
-                var holder=net.minecraft.world.scores.ScoreHolder.forNameOnly("wall_wand_mana_use");
-                require(game.items().mana().hudValue(holder,"lbc.math")==137,"actual mechanic operand receives configured value");
-                document.getAsJsonObject("values").addProperty("wall_wand_mana_use",1.5);Files.writeString(path,document.toString());
-                require(dispatcher.execute("skywars reloadconfig",console)==0&&game.items().mana().hudValue(holder,"lbc.math")==137,"invalid reload preserves live operands atomically");
-            }catch(Exception e){throw new IllegalStateException(e);}
-            finally{try{Files.write(path,original);game.items().mana().sourceConfig().reload();}catch(java.io.IOException e){throw new IllegalStateException(e);}}
+            var path = java.nio.file.Path.of("config", "luckywars", "source-values.json");
+            try {
+                byte[] original = Files.exists(path) ? Files.readAllBytes(path) : null;
+                try (var input = LbcSourceConfig.class.getResourceAsStream(LbcSourceConfig.RESOURCE)) {
+                    require(input != null, "bundled source config is present");
+                    var document = com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(
+                            input, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+                    var values = document.getAsJsonObject("values");
+                    var name = "wall_wand_mana_use";
+                    int price = values.get(name).getAsInt();
+                    var holder = net.minecraft.world.scores.ScoreHolder.forNameOnly(name);
+                    var mana = game.items().mana();
+                    var dispatcher = game.server().getCommands().getDispatcher();
+                    var console = game.server().createCommandSourceStack();
+                    require(mana.hudValue(holder, "lbc.math") == price, "startup uses bundled values");
+                    var stale = "{\"values\":{\"wall_wand_mana_use\":1.5}}";
+                    Files.createDirectories(path.getParent());
+                    Files.writeString(path, stale);
+                    mana.score(holder, "lbc.math").set(price - 1);
+                    require(dispatcher.execute("skywars reloadconfig", console) > 0
+                                    && mana.hudValue(holder, "lbc.math") == price,
+                            "reload republishes the bundled price despite stale external settings");
+                    require(Files.readString(path).equals(stale), "reload never overwrites a legacy settings file");
+                    Files.delete(path);
+                    require(dispatcher.execute("skywars reloadconfig", console) > 0 && !Files.exists(path),
+                            "reload does not regenerate a settings file");
+                    var derived = document.getAsJsonObject("derived").getAsJsonObject("void_arcanum_mana_tick_sec");
+                    int expected = values.get(derived.get("source").getAsString()).getAsInt() * derived.get("multiplier").getAsInt();
+                    require(mana.hudValue(net.minecraft.world.scores.ScoreHolder.forNameOnly("void_arcanum_mana_tick_sec"), "lbc.math")
+                                    == expected, "derived operands are computed from the bundled input");
+                } finally {
+                    if (original == null) Files.deleteIfExists(path);
+                    else Files.write(path, original);
+                }
+            } catch (Exception error) {
+                throw new IllegalStateException(error);
+            }
         }
         SkyWars2.LOGGER.info("[check] PASS feedback-mana");
     }
