@@ -65,7 +65,7 @@
                     "italic": false
                   },
                   {
-                    "translate": "magic_damage",
+                    "translate": "projectile_damage",
                     "color": "aqua",
                     "italic": false
                   }

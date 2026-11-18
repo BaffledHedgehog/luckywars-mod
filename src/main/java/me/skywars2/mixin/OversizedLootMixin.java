@@ -3,21 +3,23 @@ package me.skywars2.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.StreamSupport;
 import me.skywars2.game.LbcBulkLoot;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -59,54 +61,30 @@ public abstract class OversizedLootMixin {
             original.call(stack,packed?Math.max(maximum,stack.getCount()):maximum);
         }
     }
-    @Mixin(ItemContainerContents.class)
+    @Mixin(ItemStackTemplate.class)
     public abstract static class StoredContents {
-        @WrapOperation(method = {"createStackFromSlot", "addToTooltip"}, at = @At(value = "INVOKE",
-                target = "Lnet/minecraft/world/item/ItemStackTemplate;create()Lnet/minecraft/world/item/ItemStack;"))
-        private ItemStack skywars2$restoreStoredQuantity(ItemStackTemplate template, Operation<ItemStack> original) {
-            return LbcBulkLoot.isOversizedStoredStack(template)
-                    ? skywars2$createStoredStack(template) : original.call(template);
-        }
-
-        @ModifyArg(method = "lambda$itemCopies$0", at = @At(value = "INVOKE",
-                target = "Ljava/util/Optional;map(Ljava/util/function/Function;)Ljava/util/Optional;"))
-        private static Function<ItemStackTemplate, ItemStack> skywars2$restoreOptionalStack(
-                Function<ItemStackTemplate, ItemStack> original) {
-            return skywars2$storedStackFactory(original);
-        }
-
-        @ModifyArg(method = "asMutable", at = @At(value = "INVOKE",
-                target = "Ljava/util/Optional;map(Ljava/util/function/Function;)Ljava/util/Optional;"))
-        private Function<ItemStackTemplate, ItemStack> skywars2$restoreMutableStack(
-                Function<ItemStackTemplate, ItemStack> original) {
-            return skywars2$storedStackFactory(original);
-        }
-
-        @ModifyArg(method = "nonEmptyItemCopyStream", at = @At(value = "INVOKE",
-                target = "Ljava/util/stream/Stream;map(Ljava/util/function/Function;)Ljava/util/stream/Stream;"))
-        private Function<ItemStackTemplate, ItemStack> skywars2$restoreStreamStack(
-                Function<ItemStackTemplate, ItemStack> original) {
-            return skywars2$storedStackFactory(original);
-        }
-
-        @Unique
-        private static Function<ItemStackTemplate, ItemStack> skywars2$storedStackFactory(
-                Function<ItemStackTemplate, ItemStack> original) {
-            return template -> LbcBulkLoot.isOversizedStoredStack(template)
-                    ? skywars2$createStoredStack(template) : original.apply(template);
-        }
-
-        @Unique
-        private static ItemStack skywars2$createStoredStack(ItemStackTemplate template) {
-            // Validate the original components before materializing the stored quantity.
-            ItemStack stack = template.withCount(1).create();
-            if (!stack.isEmpty()) stack.setCount(template.count());
-            return stack;
+        @WrapOperation(method = "create", at = @At(value = "INVOKE",
+                target = "Lnet/minecraft/world/item/ItemStackTemplate;validate(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;"))
+        private ItemStack skywars2$materializeStoredQuantity(ItemStackTemplate template, ItemStack stack,
+                Operation<ItemStack> original) {
+            if (!LbcBulkLoot.isOversizedStoredStack(stack)) return original.call(template, stack);
+            int count = stack.getCount();
+            stack.setCount(1);
+            ItemStack validated = original.call(template, stack);
+            // Polymer also materializes raw templates directly from the packet codec.
+            if (!validated.isEmpty()) validated.setCount(count);
+            return validated;
         }
     }
 
     @Mixin(ItemStack.class)
     public abstract static class ContainerLimits {
+        @Inject(method="<init>(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/PatchedDataComponentMap;)V",at=@At("TAIL"))
+        private void skywars2$potionStackLimit(Holder<Item> item,int count,PatchedDataComponentMap components,CallbackInfo ci){
+            // Set an explicit component so an unmodified client sees the same limit as the server.
+            if(item.value() instanceof PotionItem)components.set(DataComponents.MAX_STACK_SIZE,64);
+        }
+
         // The first validation is for the slotted CONTAINER component.
         // Bundle and crossbow payloads keep vanilla's size checks.
         @ModifyArg(method = "validateComponents", at = @At(value = "INVOKE", ordinal = 0,

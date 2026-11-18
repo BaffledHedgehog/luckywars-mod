@@ -75,6 +75,7 @@ public final class BulkLootChecks {
                     var brokenItems=new ArrayList<ItemStack>();damaged.hurtAndBreak(damaged.getMaxDamage(),level,null,brokenItems::add);
                     require(damaged.getCount()==count-1&&damaged.getDamageValue()==0,"native break consumes only one sword from the bulk stack");
                     require(brokenItems.size()==1&&brokenItems.getFirst().getCount()==1&&brokenItems.getFirst().isBroken(),"native break callback receives exactly one broken item with its original components");
+                    if (block==Blocks.SHULKER_BOX) shulkerDropWire(owner,pos,(ShulkerBoxBlockEntity)entity);
                     if(block==Blocks.CHEST){
                         owner.getInventory().clearContent();owner.closeContainer();require(owner.openMenu((ChestBlockEntity)entity).isPresent(),"actual native chest menu opens");
                         client.acknowledge();var menu=owner.containerMenu;
@@ -106,6 +107,40 @@ public final class BulkLootChecks {
             saved.restore(game);saved.restoreAttributes();saved.restoreUse();game.players().save();
         }
     }
+    private static void shulkerDropWire(net.minecraft.server.level.ServerPlayer owner, net.minecraft.core.BlockPos pos,
+            ShulkerBoxBlockEntity box) {
+        var level = owner.level();
+        // Vanilla tools and beds reproduce the two oversized slots reported by the client.
+        box.clearContent();
+        var picks = new ItemStack(Items.IRON_PICKAXE,32);
+        var beds = new ItemStack(Items.BED.pick(DyeColor.RED),16);
+        box.setItem(0,picks);
+        box.setItem(9,beds);
+        var drops = net.minecraft.world.level.block.Block.getDrops(level.getBlockState(pos),level,pos,box,owner,new ItemStack(Items.IRON_PICKAXE));
+        require(drops.size()==1&&drops.getFirst().is(Items.SHULKER_BOX),"actual shulker drop table returns the packed block");
+        var stack = drops.getFirst();
+        var stored = stack.getOrDefault(DataComponents.CONTAINER,ItemContainerContents.EMPTY);
+        var slots = NonNullList.withSize(27,ItemStack.EMPTY);
+        stored.copyInto(slots);
+        require(slots.stream().filter(item->!item.isEmpty()).count()==2
+                &&ItemStack.matches(slots.get(0),picks)&&ItemStack.matches(slots.get(9),beds),
+                "drop keeps both oversized stacks, empty slots and original item components");
+        var item = new net.minecraft.world.entity.item.ItemEntity(level,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,stack);
+        var packet = new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(item.getId(),item.getEntityData().getNonDefaultValues());
+        net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(owner.connection,()->{
+            var raw = io.netty.buffer.Unpooled.buffer();
+            try {
+                var wire = new net.minecraft.network.RegistryFriendlyByteBuf(raw,owner.registryAccess());
+                net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.encode(wire,packet);
+                require(wire.readableBytes()>0&&wire.readableBytes()<65_536,"exact item entity metadata is valid and compact");
+                var decoded = net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.decode(wire);
+                require(decoded.id()==item.getId()&&!wire.isReadable(),"client can decode the entire drop packet");
+            } finally {
+                raw.release();
+            }
+        });
+    }
+
     private static void storedContents(net.minecraft.server.level.ServerPlayer owner, ItemStack original, int count) {
         ItemStack swords = original.copyWithCount(count);
         swords.setDamageValue(1);

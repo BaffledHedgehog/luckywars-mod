@@ -104,7 +104,37 @@ public final class FoodLifecycleChecks {
             var profile=game.players().get(owner.getUUID());profile.lbcSkill=0;profile.lbcTrinket=0;Arrays.fill(profile.trinkets,0);equipmentUpdate(owner);owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);owner.setHealth(500);owner.setAbsorptionAmount(0);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.clearFire();owner.getFoodData().setFoodLevel(1);
             owner.teleportTo(level,origin.x,origin.y,origin.z,Set.of(),0,0,true);client.ack();
         }
-        ItemStack consume(String key,InteractionHand hand){var item=food(key);owner.setItemInHand(hand,item);owner.startUsingItem(hand);var out=item.finishUsingItem(level,owner);owner.stopUsingItem();require(item.getCount()==1,"exact sole native debit "+key+"/"+hand);return out;}
+        void completeUse(){try{var method=ServerPlayer.class.getDeclaredMethod("completeUsingItem");method.setAccessible(true);method.invoke(owner);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
+        void consume(String key,InteractionHand hand){var item=food(key);owner.setItemInHand(hand,item);owner.startUsingItem(hand);completeUse();require(item.getCount()==1,"exact sole native debit "+key+"/"+hand);}
+        void infiniteSteakClient(InteractionHand hand){
+            var steak=game.lbc().rollTable(level,owner.position(),owner,"lbc:inf_steak").getFirst();
+            owner.setItemInHand(hand,steak);
+            owner.startUsingItem(hand);
+            int first=client.wire.packets.size();
+            completeUse();
+            var packets=client.wire.packets.subList(first,client.wire.packets.size());
+            int slot=hand==InteractionHand.MAIN_HAND?owner.getInventory().getSelectedSlot():net.minecraft.world.entity.player.Inventory.SLOT_OFFHAND;
+            final int event=java.util.stream.IntStream.range(0,packets.size()).filter(i->packets.get(i) instanceof ClientboundEntityEventPacket completed&&completed.getEventId()==9).findFirst().orElse(-1);
+            require(event>=0&&packets.subList(event+1,packets.size()).stream().anyMatch(packet->packet instanceof ClientboundSetPlayerInventoryPacket update
+                    && update.slot()==slot&&ItemStack.matches(update.contents(),owner.getItemInHand(hand))),
+                    "same-stack infinite steak forces actual inventory correction after predicted consumption in "+hand);
+            require(owner.getItemInHand(hand).getCount()==1&&ItemData.intValue(owner.getItemInHand(hand),"inf",0)==1,"actual loot steak is retained in place");
+        }
+        void potionStackLimits(){
+            for (var holder : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
+                if (!(holder instanceof PotionItem)) continue;
+                var stack=new ItemStack(holder,64);
+                require(stack.getMaxStackSize()==64 && !stack.isDamageableItem(), "native potion subclass has stack size 64 " + holder);
+                require(stack.getComponentsPatch().split().added().getOrDefault(DataComponents.MAX_STACK_SIZE,0)==64,
+                        "vanilla client receives explicit stack limit " + holder);
+            }
+            var water=net.minecraft.world.item.alchemy.PotionContents.createItemStack(Items.POTION,net.minecraft.world.item.alchemy.Potions.WATER);
+            var healing=net.minecraft.world.item.alchemy.PotionContents.createItemStack(Items.POTION,net.minecraft.world.item.alchemy.Potions.HEALING);
+            require(owner.getInventory().add(water.copyWithCount(24))&&owner.getInventory().add(water.copyWithCount(40))
+                    &&owner.getInventory().add(healing.copy()),"actual potion inventory insertion succeeds");
+            require(owner.getInventory().getItem(0).getCount()==64&&ItemStack.matches(owner.getInventory().getItem(1),healing),
+                    "equal potion components merge and different effects keep separate stacks");
+        }
         void aliases(){
             var random=read(owner,"random");int[] draws={0};
             try{set(owner,"random",java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{
@@ -126,6 +156,9 @@ public final class FoodLifecycleChecks {
             reset();owner.getInventory().setItem(9,food("inf"));var ordinary=new ItemStack(Items.APPLE,2);owner.setItemInHand(InteractionHand.MAIN_HAND,ordinary);ordinary.finishUsingItem(level,owner);require(owner.getMainHandItem()==ordinary&&ordinary.getCount()==1&&owner.getInventory().getItem(9).getCount()==2,"inventory-only infinite payload does not activate or debit");
             reset();consume("inf",InteractionHand.MAIN_HAND);require(ItemStack.isSameItemSameComponents(owner.getMainHandItem(),LbcFoodLifecycle.infiniteSteak())&&owner.getMainHandItem().getCount()==1,"immediate exact mainhand infinite replacement");
             reset();owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK,7));consume("inf",InteractionHand.OFF_HAND);require(owner.getMainHandItem().is(Items.STICK)&&owner.getMainHandItem().getCount()==7&&ItemStack.isSameItemSameComponents(owner.getOffhandItem(),LbcFoodLifecycle.infiniteSteak())&&owner.getOffhandItem().getCount()==1,"offhand infinite food preserves mainhand");
+            reset();infiniteSteakClient(InteractionHand.MAIN_HAND);
+            reset();infiniteSteakClient(InteractionHand.OFF_HAND);
+            reset();potionStackLimits();
             reset();consume("bad_apple",InteractionHand.MAIN_HAND);for(var effect:List.of(MobEffects.HASTE,MobEffects.CONDUIT_POWER,MobEffects.WATER_BREATHING)){var active=owner.getEffect(effect);require(active!=null&&active.getAmplifier()==0&&active.getDuration()==6000&&active.isVisible(),"actual bad apple ordinary layer "+effect);}
             reset();var advancement=game.server().getAdvancements().get(HALLOWEEN);require(advancement!=null&&advancement.value().criteria().size()==100,"actual100-criterion task is packaged");for(var key:advancement.value().criteria().keySet())owner.getAdvancements().revoke(advancement,key);game.items().mana().score(owner,"pumpkin_counter").set(0);
             consume("halloween_food",InteractionHand.MAIN_HAND);consume("halloween_food",InteractionHand.MAIN_HAND);require(score("pumpkin_counter")==1,"multiple actual consume callbacks same native tick count once");require(owner.getAdvancements().getOrStartProgress(advancement).getCompletedCriteria().iterator().next().equals("1")&&!owner.getAdvancements().getOrStartProgress(advancement).isDone(),"only real individual criterion1, no invented completion reward");
