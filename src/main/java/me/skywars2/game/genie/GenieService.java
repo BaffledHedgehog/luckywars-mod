@@ -255,10 +255,29 @@ public final class GenieService implements AutoCloseable {
         }
         refuse(p);return true;
     }
-    public void cancel(ServerPlayer p){
+    private void cancelWish(ServerPlayer p, boolean publish) {
         dialogs.remove(p.getUUID());var wish=wishes.remove(p.getUUID());
-        if(wish!=null){wish.cancel();var at=find(p,wish.token);if(at!=null)mark(at.get(),"");mark(wish.lamp,"");sync(p);}
-        warnings.remove(p.getUUID());runtime.forget(p);
+        if(wish!=null){wish.cancel();var at=find(p,wish.token);if(at!=null)mark(at.get(),"");mark(wish.lamp,"");if(publish)sync(p);}
+        warnings.remove(p.getUUID());
+    }
+
+    public void beforeDeath(ServerPlayer p) {
+        var wish = wishes.get(p.getUUID());
+        if (wish == null || wish.owner != p) return;
+        var location = find(p, wish.token);
+        cancelWish(p, false);
+        if (location == null) return;
+
+        // The cursor is not part of native inventory death drops. Release the
+        // reserved lamp exactly once from either location, already unmarked.
+        ItemStack lamp = location.get();
+        location.set(ItemStack.EMPTY);
+        if (p.drop(lamp, false, Prediction.SERVER_ONLY) == null) location.set(lamp);
+    }
+
+    public void cancel(ServerPlayer p){
+        cancelWish(p, true);
+        runtime.forget(p);
     }
     public void tick(){
         runtime.tick();

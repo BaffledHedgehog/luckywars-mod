@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.*;
 import net.minecraft.world.*;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -41,6 +42,12 @@ public abstract class GenieInteractionMixin {
     }
     @Mixin(ServerPlayer.class)
     public abstract static class Drop {
+        @Inject(method = "die", at = @At("HEAD"))
+        private void skywars2$releaseWishBeforeDeath(DamageSource damage, CallbackInfo ci) {
+            var game = SkyWars2.game();
+            if (game != null) game.items().genie().beforeDeath((ServerPlayer)(Object)this);
+        }
+
         @Inject(method="drop(Z)V",at=@At("HEAD"),cancellable=true)
         private void skywars2$noLampThrow(boolean all,CallbackInfo ci){
             var owner=(ServerPlayer)(Object)this;var game=SkyWars2.game();

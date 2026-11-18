@@ -19,6 +19,7 @@ public final class GenieScriptModel implements AutoCloseable {
     @FunctionalInterface
     public interface Transport {
         Observation run(String prompt, String knowledge, String contract, byte[] verifier) throws Exception;
+        default boolean independentConversations() { return false; }
     }
 
     public record Pending(CompletableFuture<GenieScriptReply> future, Runnable cancel) {
@@ -26,12 +27,16 @@ public final class GenieScriptModel implements AutoCloseable {
     }
 
     private Transport transport;
-    private final ThreadPoolExecutor worker;
+    private final ThreadPoolExecutor sharedConversationWorker = worker(1);
+    private final ThreadPoolExecutor independentConversationsWorker = worker(2);
     private final ConcurrentHashMap<FutureTask<Void>,CompletableFuture<GenieScriptReply>> pending = new ConcurrentHashMap<>();
 
     public GenieScriptModel(Transport transport) {
         this.transport = Objects.requireNonNull(transport);
-        worker = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(8), runnable -> {
+    }
+
+    private static ThreadPoolExecutor worker(int threads) {
+        return new ThreadPoolExecutor(threads, threads, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(8), runnable -> {
             Thread thread = new Thread(runnable, "skywars2-genie-chat");
             thread.setDaemon(true);
             thread.setPriority(Thread.MIN_PRIORITY);
@@ -45,6 +50,8 @@ public final class GenieScriptModel implements AutoCloseable {
 
     public Pending request(String wish, List<String> recent, HolderLookup.Provider lootLookup) {
         var provider = transport;
+        // Shared-browser transports must stay serialized even while the operator switches providers.
+        var worker = provider.independentConversations() ? independentConversationsWorker : sharedConversationWorker;
         var result = new CompletableFuture<GenieScriptReply>();
         var task = new FutureTask<Void>(() -> {
             String stage = "provider request";
@@ -102,7 +109,8 @@ public final class GenieScriptModel implements AutoCloseable {
     }
 
     @Override public void close() {
-        worker.shutdownNow();
+        sharedConversationWorker.shutdownNow();
+        independentConversationsWorker.shutdownNow();
         for (var entry : pending.entrySet()) {
             entry.getValue().cancel(false);
             entry.getKey().cancel(true);

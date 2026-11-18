@@ -21,18 +21,24 @@ import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.MultiActionDialog;
 import net.minecraft.server.dialog.body.PlainMessage;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.GameType;
 
 /** Native lamp packets and inventory publication. The model observation is injected at the browser boundary. */
 final class GenieLampScriptChecks implements AutoCloseable {
-    private record Call(JsonObject contract, CompletableFuture<GenieScriptModel.Observation> response) {}
+    private record Call(boolean second, JsonObject contract, CompletableFuture<GenieScriptModel.Observation> response) {}
     private final GameController game;
     private final WoolBucketChecks.Fixture base;
     private final GenieService service;
     private final GenieScriptModel model, previous;
     private final Field field;
     private final BlockingQueue<Call> requests = new LinkedBlockingQueue<>();
+    private ServerPlayer secondPlayer;
+    private Call firstWish, secondWish;
+    private ItemEntity returnedLamp;
     private int phase, when, sequence = 900;
 
     GenieLampScriptChecks(GameController game, WoolBucketChecks.Fixture base) throws ReflectiveOperationException {
@@ -42,7 +48,10 @@ final class GenieLampScriptChecks implements AutoCloseable {
         field = GenieService.class.getDeclaredField("scriptModel");
         field.setAccessible(true);
         previous = (GenieScriptModel) field.get(service);
-        model = new GenieScriptModel((prompt, knowledge, contract, verifier) -> {
+        model = new GenieScriptModel(new GenieScriptModel.Transport() {
+            @Override public boolean independentConversations() { return true; }
+            @Override public GenieScriptModel.Observation run(String prompt, String knowledge, String contract, byte[] verifier)
+                    throws Exception {
             require(prompt.contains("LuckyWars script lamp witness"), "real player input reaches the scripted wish prompt");
             require(!game.server().isSameThread(), "model runs away from the tick thread");
             require(new String(verifier, StandardCharsets.UTF_8).contains(GenieScriptReply.VERIFIER_VERSION), "actual versioned checker is packaged");
@@ -76,8 +85,9 @@ final class GenieLampScriptChecks implements AutoCloseable {
                     "the resource-pack translation is attached by its exact key");
             }
             var response = new CompletableFuture<GenieScriptModel.Observation>();
-            requests.add(new Call(ScriptJson.parse(contract), response));
+            requests.add(new Call(prompt.contains("second player"), ScriptJson.parse(contract), response));
             return response.get(8, TimeUnit.SECONDS);
+            }
         });
         field.set(service, model);
     }
@@ -139,6 +149,53 @@ final class GenieLampScriptChecks implements AutoCloseable {
         return new GenieScriptModel.Observation(reply.toString(), witnessed ? List.of(receipt) : List.of());
     }
 
+    private void startParallelWishes() {
+        try {
+            secondPlayer = CarpetBotChecks.connect(game, "TestDelta", base.owner.level(), base.owner.clientInformation());
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("Could not create a second native lamp user", failure);
+        }
+        require(game.returnFromGameModeCommand(secondPlayer, GameType.SURVIVAL), "second participant may play");
+        secondPlayer.setGameMode(GameType.SURVIVAL);
+        secondPlayer.hasChangedDimension();
+        secondPlayer.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
+        secondPlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(GenieItems.LAMP));
+        require(service.open(secondPlayer, InteractionHand.MAIN_HAND), "second player opens an independent dialog");
+        var dialog = ((Map<?,?>) WoolBucketChecks.read(service, "dialogs")).get(secondPlayer.getUUID());
+        var input = new CompoundTag();
+        input.putString("wish", "LuckyWars script lamp witness for the second player");
+        secondPlayer.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(
+                Identifier.parse("skywars2:genie/" + WoolBucketChecks.read(dialog, "token")), Optional.of(input)));
+        var lamp = secondPlayer.getMainHandItem();
+        require(service.locked(secondPlayer, lamp), "second player's request locks only their lamp");
+        secondPlayer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        secondPlayer.containerMenu.setCarried(lamp);
+        submit();
+    }
+
+    private void settleParallelWishes() {
+        var second = secondPlayer;
+        var bounds = second.getBoundingBox().inflate(4);
+        var existing = second.level().getEntitiesOfClass(ItemEntity.class, bounds);
+        second.removeAllEffects();
+        second.getAbilities().invulnerable = false;
+        second.setAbsorptionAmount(0);
+        second.setHealth(1);
+        second.setInvulnerableTime(0);
+        second.damageCooldownTime = 0;
+        require(second.hurtServer(second.level(), second.damageSources().fellOutOfWorld(), 100000),
+                "second player's actual native death occurs with an open wish on the cursor");
+        var lamps = second.level().getEntitiesOfClass(ItemEntity.class, bounds,
+                entity -> !existing.contains(entity) && GenieItems.lamp(entity.getItem()));
+        require(lamps.size() == 1 && lamps.getFirst().getItem().getCount() == 1
+                        && GenieItems.IDLE.equals(lamps.getFirst().getItem().get(DataComponents.ITEM_MODEL))
+                        && second.containerMenu.getCarried().isEmpty(),
+                "native death leaves one unactivated lamp and clears the old cursor");
+        returnedLamp = lamps.getFirst();
+        secondWish.response.complete(grant(secondWish.contract, true));
+        firstWish.response.complete(grant(firstWish.contract, true));
+    }
+
     boolean tick() {
         require(game.server().getTickCount() - when < 120, "model and code completion have a bounded fixture deadline");
         if (phase == 0 || phase == 2) {
@@ -162,11 +219,33 @@ final class GenieLampScriptChecks implements AutoCloseable {
             base.owner.setItemInHand(InteractionHand.MAIN_HAND, item);
             use();phase = 4;return false;
         }
-        return GenieScriptItem.state(base.owner.getMainHandItem()).get("counter").getAsInt() == 1;
+        if (phase == 4) {
+            if (GenieScriptItem.state(base.owner.getMainHandItem()).get("counter").getAsInt() != 1) return false;
+            startParallelWishes();
+            phase = 5;
+            return false;
+        }
+        if (phase == 5) {
+            for (Call call; (call = requests.poll()) != null;) {
+                if (call.second) secondWish = call;
+                else firstWish = call;
+            }
+            if (firstWish == null || secondWish == null) return false;
+            settleParallelWishes();
+            phase = 6;
+            return false;
+        }
+        if (service.locked(base.owner, item)) return false;
+        require(GenieScriptItem.matches(item) && returnedLamp.isAlive() && GenieItems.lamp(returnedLamp.getItem()),
+                "second player's cancelled reply cannot consume their ground lamp or affect the surviving player's reward");
+        me.skywars2.SkyWars2.LOGGER.info("[check] Two independent Genie wishes reached the provider; native cursor death returned one idle lamp");
+        return true;
     }
 
     @Override public void close() {
         service.cancel(base.owner);
+        if (secondPlayer != null) service.cancel(secondPlayer);
+        if (returnedLamp != null) returnedLamp.discard();
         model.close();
         try { field.set(service, previous); }
         catch (IllegalAccessException failure) { throw new IllegalStateException(failure); }

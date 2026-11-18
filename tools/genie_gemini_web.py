@@ -108,6 +108,11 @@ async def run(cookie):
         if not model.is_available:
             raise SessionFailure("PRO_UNAVAILABLE")
         if Path("prompt.txt").is_file():
+            # Keep the interactive turn alive while Gemini is working. The Java
+            # owner interrupts this dedicated process on logout/death/match reset.
+            client.client.timeout = 0
+            client.timeout = float("inf")
+            client.watchdog_timeout = float("inf")
             return await wish(client, model)
         return await probe_attachment(client, model)
     finally:
@@ -121,7 +126,10 @@ def main():
     sys.path.insert(1, sys.argv[1])
     with tempfile.TemporaryDirectory(prefix="gemini-session-", dir=".") as cache:
         os.environ["GEMINI_COOKIE_PATH"] = str(Path(cache).resolve())
-        print(json.dumps(asyncio.run(asyncio.wait_for(run(json.load(sys.stdin)), 165)), ensure_ascii=False))
+        request = run(json.load(sys.stdin))
+        if not Path("prompt.txt").is_file():
+            request = asyncio.wait_for(request, 65)
+        print(json.dumps(asyncio.run(request), ensure_ascii=False))
 
 
 if __name__ == "__main__":

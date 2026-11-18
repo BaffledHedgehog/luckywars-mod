@@ -99,6 +99,8 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
         if (!invoke(null, null, null, null).has("connected")) throw new IOException("Gemini web session unavailable");
     }
 
+    @Override public boolean independentConversations() { return true; }
+
     @Override public GenieScriptModel.Observation run(String prompt, String knowledge, String contract, byte[] verifier)
             throws IOException, InterruptedException {
         JsonObject result = invoke(prompt, knowledge, contract, verifier);
@@ -131,7 +133,8 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
                 try (var stdin = process.getOutputStream()) {
                     stdin.write(cookies.json().toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
                 }
-                if (!process.waitFor(prompt == null ? 70 : 180, TimeUnit.SECONDS)) throw new IOException("Gemini web worker timed out");
+                if (prompt != null) process.waitFor();
+                else if (!process.waitFor(70, TimeUnit.SECONDS)) throw new IOException("Gemini authentication check timed out");
                 if (process.exitValue() != 0 || Files.size(result) > MAX_REPLY) throw new IOException("Gemini web worker failed");
                 var reply = ScriptJson.parse(Files.readString(result));
                 if (reply.has("session_error")) {
