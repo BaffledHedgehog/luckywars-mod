@@ -1,7 +1,10 @@
 package me.skywars2.game;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -42,6 +45,11 @@ public final class LbcFamilyDrops {
     private static final CompoundTag CHILD=preset("""
             {Tags:["absurd_child","lucky_mob"],Glowing:1b,CustomNameVisible:1b,PersistenceRequired:1b,Health:100000f,CustomName:{bold:true,color:"gold",italic:false,translate:"absurd_child"},attributes:[{id:"minecraft:max_health",base:100000}],drop_chances:{mainhand:0f}}
             """);
+    private static final String[] ARC_SOUNDS = {
+            "icum", "yamai_desu", "yamai_desu_2", "yamai_desu_3", "ooh", "nyah"
+    };
+    private record ArcTarget(ServerLevel level, BlockPos block, ArmorStand mother) {}
+    private final Map<ArcTarget, Integer> arcEffects = new LinkedHashMap<>();
     private final GameController game;
     private final Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
     public LbcFamilyDrops(GameController game){this.game=game;}
@@ -99,7 +107,89 @@ public final class LbcFamilyDrops {
     private void broadcast(Component message){for(var p:game.server().getPlayerList().getPlayers())p.sendSystemMessage(message);}
     private static int clock(Entity e){for(var tag:e.entityTags())if(tag.startsWith(CLOCK))try{return Integer.parseInt(tag.substring(CLOCK.length()));}catch(NumberFormatException ignored){}return 0;}
     private static void clock(Entity e,int n){e.entityTags().removeIf(t->t.startsWith(CLOCK));e.entityTags().add(CLOCK+n);}
+    /**
+     * Only inspect the unobstructed segment supplied by the electrical attack.
+     * A loaded lucky block or the first Mother intercepts the arc and drops the source loot.
+     */
+    Vec3 reactToArc(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock, ServerPlayer author) {
+        if (!game.playing() || game.stage() == GameController.Stage.ENDING || !LbcDimensionItems.ordinary(level)) return null;
+        BlockPos loli = struckBlock != null && level.hasChunkAt(struckBlock)
+                && LbcLuckyBlocks.kind(level.getBlockState(struckBlock)) == LbcLuckyBlocks.Kind.LOLI ? struckBlock : null;
+        double closest = loli == null ? Double.POSITIVE_INFINITY : from.distanceToSqr(end);
+        Vec3 contact = end;
+        ArmorStand mother = null;
+        if (!actors.isEmpty()) {
+            var bounds = new AABB(from, end).inflate(.2);
+            for (var stand : level.getEntitiesOfClass(ArmorStand.class, bounds,
+                    e -> e.entityTags().contains("mom") && !e.isRemoved() && active(e))) {
+                var hitbox = stand.getBoundingBox().inflate(.12);
+                Vec3 hit = hitbox.contains(from) ? from : hitbox.clip(from, end).orElse(null);
+                if (hit != null && from.distanceToSqr(hit) < closest) {
+                    closest = from.distanceToSqr(hit);
+                    contact = hit;
+                    mother = stand;
+                }
+            }
+        }
+        if (mother == null && loli == null) return null;
+
+        var target = mother == null ? new ArcTarget(level, loli, null) : new ArcTarget(level, null, mother);
+        for (var stack : game.lbc().rollTable(level, contact, author, "lbc:yellow_lightning")) {
+            var item = new ItemEntity(level, contact.x, contact.y, contact.z, stack);
+            item.setDefaultPickUpDelay();
+            level.addFreshEntity(item);
+        }
+        arcEffects.put(target, mother == null ? 30 : 60);
+        if (author != null) game.items().mana().award(author, "lbc:true_advancements/staffs/tesla");
+        return contact;
+    }
+
+    private void tickArcEffects() {
+        var effects = arcEffects.entrySet().iterator();
+        while (effects.hasNext()) {
+            var effect = effects.next();
+            var target = effect.getKey();
+            var level = target.level();
+            var mother = target.mother();
+            if (mother != null && (mother.isRemoved() || !active(mother))) {
+                effects.remove();
+                continue;
+            }
+            if (paused(level)) continue;
+            Vec3 center = mother == null ? Vec3.atCenterOf(target.block()) : mother.position().add(0, 1, 0);
+            if (level.hasChunkAt(BlockPos.containing(center))) {
+                if (mother == null) {
+                    for (Direction face : Direction.values()) {
+                        Vec3 forward = Vec3.atLowerCornerOf(face.getUnitVec3i());
+                        sprayArc(level, center.add(forward.scale(.5)), forward,
+                                face.getAxis().isVertical() ? new Vec3(1, 0, 0) : forward.cross(new Vec3(0, 1, 0)));
+                    }
+                } else {
+                    sprayArc(level, center, Vec3.directionFromRotation(85, mother.getYRot()),
+                            Vec3.directionFromRotation(0, mother.getYRot() + 90));
+                }
+                if (level.getRandom().nextFloat() < .03f) {
+                    var sound = SoundEvent.createVariableRangeEvent(Identifier.parse(
+                            "minecraft:lbcsounds." + ARC_SOUNDS[level.getRandom().nextInt(ARC_SOUNDS.length)]));
+                    level.playSound(null, center.x, center.y, center.z, sound, SoundSource.MASTER, 2.5f, 1);
+                }
+            }
+            if (effect.getValue() == 1) effects.remove();
+            else effect.setValue(effect.getValue() - 1);
+        }
+    }
+
+    private static void sprayArc(ServerLevel level, Vec3 point, Vec3 forward, Vec3 side) {
+        var glass = new ItemParticleOption(ParticleTypes.ITEM, Blocks.STAINED_GLASS.pick(
+                net.minecraft.world.item.DyeColor.YELLOW).asItem());
+        var first = forward.scale(70000).add(side.scale(100));
+        var second = forward.scale(60000).subtract(side.scale(100));
+        level.sendParticles(glass, true, false, point.x, point.y, point.z, 0, first.x, first.y, first.z, .00001);
+        level.sendParticles(glass, true, false, point.x, point.y + .05, point.z, 0, second.x, second.y, second.z, .00001);
+    }
+
     public void tick(){
+        tickArcEffects();
         for(var e:List.copyOf(actors)){
             if(e.isRemoved()){actors.remove(e);continue;}if(!active(e)){actors.remove(e);e.discard();continue;}
             var level=(ServerLevel)e.level();if(paused(level))continue;
@@ -167,7 +257,7 @@ public final class LbcFamilyDrops {
     }
     private boolean paused(ServerLevel level){return !game.server().tickRateManager().runsNormally()||level.tickRateManager().isFrozen()||game.items().timeStop().stopped(level);}
     public void unloaded(Entity e){actors.remove(e);}
-    public void stop(){for(var e:List.copyOf(actors))if(!e.isRemoved())e.discard();actors.clear();}
+    public void stop(){for(var e:List.copyOf(actors))if(!e.isRemoved())e.discard();actors.clear();arcEffects.clear();}
     public List<Entity> snapshot(){return List.copyOf(actors);}
     LbcCloneSkills.ActorImage cloneImage(Entity source){if(!actors.contains(source))return null;
         return new LbcCloneSkills.ActorImage(){

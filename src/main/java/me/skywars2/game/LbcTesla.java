@@ -82,6 +82,7 @@ final class LbcTesla {
             game.items().stonekivi().beginNativeWork();try {
                 if(!game.items().currentEpoch(epoch)||!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner))return true;
                 Vec3 from=point,last=point,conductor=null;boolean terminal=false,emitted=false;
+                BlockPos struckBlock=null;
                 var white=new LbcParticleBatch.Group(level,WHITE,0,2,true);
                 var purple=new LbcParticleBatch.Group(level,PURPLE,0,1,true);
                 for(int i=0;i<8;i++){
@@ -92,7 +93,7 @@ final class LbcTesla {
                     if(state.is(CONDUCTIVE)){
                         if(conductor==null)conductor=point;
                     }else if(!state.is(AIRS)){
-                        terminal=true;break;
+                        struckBlock=pos;terminal=true;break;
                     }
                     if(++sample>400){terminal=true;break;}
                     boolean bend=owner.getRandom().nextFloat()<.05f;
@@ -103,6 +104,12 @@ final class LbcTesla {
                     if(bend)break;
                 }
                 white.flush();purple.flush();
+                var contact = game.items().familyDrops().reactToArc(level, from, last, struckBlock, owner);
+                if (contact != null) {
+                    last = contact;
+                    terminal = true;
+                    if (conductor != null && from.distanceToSqr(conductor) > from.distanceToSqr(last)) conductor = null;
+                }
                 // Groups have disjoint sample endpoints, so splitting work cannot duplicate bypass-cooldown hits.
                 if(emitted)LbcDamage.hurtSegment(level,damage,from,last,Vec3.ZERO,.25,.5f,1,
                         entity->entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,entity),false);

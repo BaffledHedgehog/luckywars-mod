@@ -1387,6 +1387,9 @@ for(double step=0;step<=distance;step+=.5) {
             end=shield.getLocation();
             LbcOverload.sound(owner,shield.getEntity().position(),"minecraft:item.shield.block",1,1,0);
         }
+        var contact = game.items().familyDrops().reactToArc(level, from, end,
+                wall != null && shield == null ? wall.getBlockPos() : null, owner);
+        if (contact != null) end = contact;
         double distance=from.distanceTo(end);
         try(var denseDust=new LbcParticleBatch.Group(level,ELECTRO_PARTICLE,.1,0,true);var denseSpark=new LbcParticleBatch.Group(level,ParticleTypes.ELECTRIC_SPARK,.1,1,false)){
 for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f) {
@@ -1507,7 +1510,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         var dust=new LbcParticleBatch.Group(level,ELECTRO_PARTICLE,.1,0,true);
         var sparksVisual=new LbcParticleBatch.Group(level,ParticleTypes.ELECTRIC_SPARK,.1,1,false);
         var rods=new LbcParticleBatch.Group(level,ParticleTypes.END_ROD,.1,.1,false);
-        BlockPos previousPos=null;net.minecraft.world.level.block.state.BlockState previousBlock=null;
+        BlockPos previousPos=null, struckBlock=null;net.minecraft.world.level.block.state.BlockState previousBlock=null;
         for(int i=0;i<=samples && i*.2<stopDistance-1e-7;i++) {
             Vec3 point=from.add(direction.scale(i*.2));
             var pos=BlockPos.containing(point);
@@ -1520,7 +1523,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
                 Vec3 sparks=point.subtract(direction.scale(.5));
                 rods.add(sparks,5);
             } else if(!block.is(AIRS)) {
-                end=new AABB(pos).clip(from,point).orElse(from); clear=false; break;
+                end=new AABB(pos).clip(from,point).orElse(from); struckBlock=pos; clear=false; break;
             }
         }
         dust.flush();sparksVisual.flush();rods.flush();
@@ -1531,6 +1534,12 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         } else if(clear && shield!=null) {
             end=shield.getLocation(); clear=false;
             electroSound(trace,shield.getEntity().position(),"minecraft:item.shield.block",1,1);
+        }
+        var contact = game.items().familyDrops().reactToArc(level, from, end, struckBlock, trace.owner);
+        if (contact != null) {
+            end = contact;
+            clear = false;
+            if (conductor != null && from.distanceToSqr(conductor) > from.distanceToSqr(end)) conductor = null;
         }
         if(from.distanceToSqr(end)>1e-12) electroHits(trace,from,end);
         if(conductor!=null)try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)){electroConduction(trace,conductor);}

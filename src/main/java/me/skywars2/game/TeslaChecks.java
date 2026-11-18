@@ -190,6 +190,68 @@ public final class TeslaChecks {
             game.items().wands().tick();require(trace.yaw< -80&&trace.yaw> -100,"chain seeks enemy ring and ignores closer allied player/friendly mob");
             ring.discard();friendly.discard();trace.age=149;game.items().wands().tick();require(!shots().contains(trace),"chain expires at150 actual ticks");clear();other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);
         }
+        void familyArcContacts() {
+            var level = owner.level();
+            BlockPos cell = BlockPos.containing(at).offset(2, 5, 24);
+            Vec3 from = Vec3.atCenterOf(cell).add(0, 0, -1.25);
+            var aim = new Vec3(0, 0, 1);
+            block(cell, LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI));
+            block(cell.north(), Blocks.STONE);
+            try {
+                game.items().wands().electroRayAt(owner, from, aim, null);
+                require(yellowDrops(from).isEmpty(), "a solid block prevents a reaction behind it");
+                block(cell.north(), Blocks.AIR);
+                var trace = new LbcWands.ElectroTrace(owner, from, game.items().epoch());
+                trace.yaw=0;trace.pitch=0;
+                game.items().wands().higherElectro(trace);
+                game.items().wands().tick();
+                var loot = yellowDrops(from);
+                require(!shots().contains(trace) && loot.size()==1 && loot.getFirst().getItem().getCount()==1,
+                        "moving electrical arc stops and drops exactly one source Yellow Lightning");
+                loot.forEach(Entity::discard);
+                require(LbcLuckyBlocks.kind(level.getBlockState(cell))==LbcLuckyBlocks.Kind.LOLI,
+                        "arc contact preserves the actual Lucky Block Loli");
+
+                block(cell, Blocks.MUSHROOM_STEM);
+                game.items().wands().electroRayAt(owner, from, aim, null);
+                require(yellowDrops(from).isEmpty(), "ordinary mushroom stem has no arc reaction");
+                block(cell, LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI));
+                var work = new LbcTesla.Instant(game, owner);
+                work.currentYaw=0;work.currentPitch=0;work.point = from;
+                for(int attempt=0;attempt<100&&work.beam==0;attempt++)work.step();
+                require(work.beam==1 && yellowDrops(from).size()==1,
+                        "Academy instant Tesla shares native block reaction");
+                yellowDrops(from).forEach(Entity::discard);
+
+                var mother = EntityTypes.ARMOR_STAND.create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+                require(mother != null, "native Mother actor");
+                mother.entityTags().addAll(Set.of("mom","skywars2.family"));
+                game.items().markCurrentItemEpoch(mother);
+                mother.setPos(from.add(0, -.5, .45));
+                require(level.addFreshEntity(mother) && game.items().familyDrops().snapshot().contains(mother),
+                        "resident native Mother uses the family actor index");
+                try {
+                    game.items().wands().electroRayAt(owner, from, aim, null);
+                    loot = yellowDrops(from);
+                    require(loot.size()==1 && loot.getFirst().getZ() < cell.getZ(),
+                            "first Mother intercepts instant Electro before the Loli block");
+                    loot.forEach(Entity::discard);
+                    require(mother.isAlive(), "arc preserves Mother");
+                } finally {
+                    mother.discard();
+                }
+            } finally {
+                yellowDrops(from).forEach(Entity::discard);
+                block(cell, Blocks.AIR);
+            }
+        }
+
+        private List<net.minecraft.world.entity.item.ItemEntity> yellowDrops(Vec3 point) {
+            return owner.level().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                    new net.minecraft.world.phys.AABB(point, point).inflate(3),
+                    e -> flag(e.getItem(), "yellow_lightning") == 1);
+        }
+
         void boundaries(){
             var mark=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,owner.level());mark.setPos(at);mark.entityTags().add("stopper_magic");owner.level().addFreshEntity(mark);game.items().magic().loaded(mark);
             try{int mana=game.items().mana().get(owner);require(!use(loot("tesla_wand"),InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==mana,"mana wand activation blocked by real antimagic");
@@ -214,7 +276,7 @@ public final class TeslaChecks {
             clear();cows.forEach(Entity::discard);technical.discard();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();chain();boundaries();beginInstant();phase++;return false;}
+            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();chain();familyArcContacts();boundaries();beginInstant();phase++;return false;}
             if(phase==1){require(game.items().stonekivi().count()>0&&instantVictim.direct==0,"actual Time Stop freezes queued instant work");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){if(game.items().stonekivi().count()>0){require(++waits<200,"queued five rays complete");return false;}require(instantVictim.getHealth()<1000&&instantVictim.direct>=5&&instantVictim.getKillCredit()==owner,"all five native instant beams hit and credit real caster");instantVictim.discard();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("tesla_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"actual Tesla Academy admission");phase++;return false;}

@@ -170,6 +170,7 @@ final class LbcErecto {
         double shieldDistance=shield==null?Double.POSITIVE_INFINITY:from.distanceTo(shield.getLocation());boolean emitted=false;
         double mechanismDistance=game.items().magic().mechanismSuppressionFraction(trace.level,from,from.add(direction.scale(samples*spacing)))*samples*spacing;
         boolean jammed=false;
+        BlockPos struckBlock=null;
         for(int i=0;i<=samples;i++){
             Vec3 point=from.add(direction.scale(i*spacing));if(i*spacing>=Math.min(mechanismDistance,shieldDistance)){
                 jammed=mechanismDistance<=shieldDistance;end=jammed?from.add(direction.scale(mechanismDistance)):shield.getLocation();clear=false;break;
@@ -177,7 +178,16 @@ final class LbcErecto {
             var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){clear=false;break;}
             emitted=true;end=point;
             if(p.kind!=PHANTOM||trace.level.getRandom().nextFloat()<.2f)particles(trace,point,p.kind==CENTRAL?.03f:.01f,false);
-            if(p.kind!=PHANTOM&&!trace.level.getBlockState(pos).is(AIRS)){clear=false;break;}
+            var state=trace.level.getBlockState(pos);
+            if (p.kind == PHANTOM ? LbcLuckyBlocks.kind(state) == LbcLuckyBlocks.Kind.LOLI : !state.is(AIRS)) {
+                struckBlock=pos;clear=false;break;
+            }
+        }
+        var contact = game.items().familyDrops().reactToArc(trace.level, from, end, struckBlock, trace.owner);
+        if (contact != null) {
+            hurt(trace, from, contact, spacing, p.kind==PHANTOM?.5f:1, 2);
+            trace.position=contact;
+            return false;
         }
         if(emitted)hurt(trace,from,end,spacing,p.kind==PHANTOM?.5f:1,2);
         trace.position=end;
