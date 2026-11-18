@@ -1,0 +1,11 @@
+{
+  "assets/lbc/items/hedgehog_sniper_ray.json": "87f0e5aac31bf40bdcb5f90c021ac6e8b5e41ccda21e7a602ec90d1873937cfa",
+  "assets/lbc/models/item/hedgehog_sniper_ray.json": "7e9e50b2dc590ee54b79518de01547b307022a09e8bbf7db5527310ef96e32e8",
+  "assets/lbc/textures/item/hedgehog_sniper_ray.png": "c0d60c9c213c7922530fc385aa53e544fdb05bfc737b0fb8ebbf6dc43cb321d2",
+  "assets/lbc/shaders/include/bloom_rules.glsl": "c7109bb2b1270b96d8b5af151e5c97ce5010d48b02dce3adec4921bf4adce146",
+  "assets/minecraft/shaders/core/item.fsh": "dfb407b8de6908b018c0129ff825305d68f001f84919467b84402593fd874e92",
+  "assets/minecraft/shaders/core/item.vsh": "54aeb0e450670b5bd701bab500df6ab047a4f85c3bc29f3e6d56b3218c906b26",
+  "assets/minecraft/shaders/post/bloom_sample.fsh": "53742b8deea10e612608caee415d4f966de9b5c007495f81a57fc6dd93b9220c",
+  "assets/minecraft/post_effect/end_of_frame.json": "d45e98ddf6218328ba1a8eb9f4126680520af09f853e4687211df91af0606b82",
+  "assets/lbc/shaders/post/material_bloom.fsh": "3b5289f3d01e1c0f487176de4b6b2daba2b4ec9a830a4af292be8fc6edbbc5f2"
+}

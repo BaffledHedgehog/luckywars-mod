@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "lbc:item/hedgehog_sniper_ray",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 16580089
+      }
+    ]
+  }
+}
