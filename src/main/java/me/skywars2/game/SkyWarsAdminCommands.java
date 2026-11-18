@@ -41,6 +41,21 @@ public final class SkyWarsAdminCommands {
                         .executes(ctx->unlock(ctx,give))));
         admin.then(Commands.literal("unlock").then(unlock));
         SkyWarsCommandTree.add(dispatcher,admin);
+        SkyWarsCommandTree.add(dispatcher,Commands.literal("migrate")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(SkyWarsAdminCommands::migrate));
+    }
+
+    private static int migrate(CommandContext<CommandSourceStack> ctx){
+        try{
+            var game=game();
+            var players=LegacyProgressImport.importScoreboard(game);
+            boolean perks=LbcPerkStatistics.importCurrentStorage(game.server());
+            ctx.getSource().sendSuccess(()->Component.translatableWithFallback("skywars2.migration.result",
+                    "Imported %s player profiles. %s names need an identifiable profile. %s",players.imported(),players.unresolved(),
+                    Component.translatableWithFallback(perks?"skywars2.migration.perks_imported":"skywars2.migration.perks_empty",
+                            perks?"Legacy perk statistics imported.":"No legacy perk statistics in storage.")),true);
+            return players.imported()+(perks?1:0);
+        }catch(IOException|RuntimeException error){return fail(ctx,error);}
     }
 
     private static com.mojang.brigadier.builder.RequiredArgumentBuilder<CommandSourceStack,String> playerArgument(){

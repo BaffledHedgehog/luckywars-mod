@@ -229,6 +229,7 @@ public final class PlayerStore {
         public int wins;
         public int kills;
         public int deaths;
+        public boolean legacyScoreboardImported;
         public int[] keys = new int[5];
         public int kit;
         public int skill;

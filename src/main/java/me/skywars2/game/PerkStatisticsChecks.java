@@ -22,7 +22,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class PerkStatisticsChecks {
     private PerkStatisticsChecks() {}
 
-    public static void run(GameController ignored) { run(); }
+    public static void run(GameController game) {
+        var commands=game.server().getCommands().getDispatcher().getRoot();
+        var skywars=commands.getChild("skywars");
+        require(skywars!=null&&skywars.getChild("migrate")!=null&&commands.getChild("sw").getRedirect()==skywars,
+                "native command tree publishes /skywars migrate and its /sw alias");
+        run();
+    }
 
     public static void run() {
         Path fixture = null;
@@ -34,6 +40,8 @@ public final class PerkStatisticsChecks {
             deferredPicks(fixture.resolve("deferred.json"));
             playerAutosave(fixture.resolve("players.json"));
             migration(fixture.resolve("migration.json"));
+            laterMigration(fixture.resolve("later-sources.json"));
+            scoreboardMigration(fixture.resolve("scoreboard-profiles.json"));
             rejectedImport(fixture.resolve("blocked.json"));
             malformedStore(fixture.resolve("malformed.json"));
             SkyWars2.LOGGER.info("[check] PASS perk-statistics (isolated durable files, zero/overflow-safe rates, native IDs, global/name counters, source retention, checked import failure/retry, reload and receipt idempotence)");
@@ -275,6 +283,49 @@ public final class PerkStatisticsChecks {
         store.migrateLegacy(storage.get(), () -> storage.set(new CompoundTag()));
         require(storage.get().isEmpty(), "same instance can retry after the atomic-write obstruction is removed");
         require(store.value("Offline_Name", "pick_count_kit[0]").equals("9"), "retry imports the source exactly once");
+    }
+
+    private static void laterMigration(Path file) throws IOException {
+        var store=new LbcPerkStatistics(file);
+        store.migrateLegacy(new CompoundTag(),()->{});
+        var first=new CompoundTag();first.putInt("Offline_Name_0_kit_pick",7);
+        var second=new CompoundTag();second.putInt("Other_Name_0_kit_pick",6);second.putString("extra","retained");
+        var cleanup=new AtomicInteger();
+        store.migrateLegacy(first,cleanup::incrementAndGet);
+        store.migrateLegacy(second,cleanup::incrementAndGet);
+        var saved=read(file);
+        require(cleanup.get()==2&&saved.get("legacySnapshot").getAsString().equals(first.toString())
+                &&saved.getAsJsonArray("archivedLegacySources").get(0).getAsString().equals(second.toString()),
+                "a late imported world never loses a source after an empty startup or an earlier migration");
+        var reloaded=new LbcPerkStatistics(file);
+        require(reloaded.value("Offline_Name","pick_count_kit[0]").equals("7")
+                &&reloaded.value("Other_Name","pick_count_kit[0]").equals("6"),"both imported sources reload");
+        var before=Files.readAllBytes(file);reloaded.migrateLegacy(second,cleanup::incrementAndGet);
+        require(cleanup.get()==3&&Arrays.equals(before,Files.readAllBytes(file)),"repeat cleanup leaves durable bytes untouched");
+    }
+
+    private static void scoreboardMigration(Path file) throws IOException {
+        var board=new net.minecraft.world.scores.Scoreboard();
+        var store=new PlayerStore(file,Runnable::run);
+        var alpha=UUID.randomUUID();var profile=store.get(alpha);profile.lbcKit=16;profile.games=15;
+        for(var entry:Map.of("swrg.coins",37,"swrg.stat_games",11,"swrg.stat_wins",3,"swrg.keys2",4,
+                "lbc.kit",19,"lbc.trinket1",5,"lbc.trinket2",5,"lbc.trinket3",100_000_000,"lbc.levelup1",9,"lbc.levelup2",9).entrySet()){
+            var objective=board.addObjective(entry.getKey(),net.minecraft.world.scores.criteria.ObjectiveCriteria.DUMMY,
+                    net.minecraft.network.chat.Component.literal(entry.getKey()),net.minecraft.world.scores.criteria.ObjectiveCriteria.RenderType.INTEGER,false,null);
+            board.getOrCreatePlayerScore(net.minecraft.world.scores.ScoreHolder.forNameOnly("AlphaLegacy"),objective).set(entry.getValue());
+            board.getOrCreatePlayerScore(net.minecraft.world.scores.ScoreHolder.forNameOnly("#config"),objective).set(100);
+            board.getOrCreatePlayerScore(net.minecraft.world.scores.ScoreHolder.forNameOnly("Unresolved"),objective).set(1);
+        }
+        java.util.function.Function<String,UUID> resolve=name->name.equals("AlphaLegacy")?alpha:null;
+        var imported=LegacyProgressImport.importScoreboard(board,store,resolve);
+        require(imported.imported()==1&&imported.unresolved()==1&&profile.coins==37&&profile.games==15&&profile.wins==3
+                &&profile.keys[2]==4&&profile.lbcKit==16&&profile.trinkets[0]==5&&profile.trinkets[1]==5&&profile.trinkets[2]==0
+                &&profile.levelups[0]==9&&profile.levelups[1]==0&&profile.legacyScoreboardImported,
+                "offline progress merges independently, keeps modern selections and preserves trinket duplicates");
+        profile.coins=1;store.saveAtomic();var before=Files.readAllBytes(file);
+        var repeated=LegacyProgressImport.importScoreboard(board,store,resolve);
+        require(repeated.imported()==0&&profile.coins==1&&Arrays.equals(before,Files.readAllBytes(file)),
+                "a second command cannot reissue already spent legacy currency");
     }
 
     private static void malformedStore(Path file) throws IOException {

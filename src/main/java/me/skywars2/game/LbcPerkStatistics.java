@@ -45,7 +45,7 @@ final class LbcPerkStatistics {
     });
     private final java.util.concurrent.Executor writer;
     private final Object diskLock=new Object();
-    private record Snapshot(boolean imported, String legacySnapshot, List<String> receipts,
+    private record Snapshot(boolean imported, String legacySnapshot, Set<String> archivedLegacySources, List<String> receipts,
                             Map<String, Long> counters, Map<String, BigInteger> trinketWins) {}
 
     private Snapshot queuedSnapshot;
@@ -57,6 +57,7 @@ final class LbcPerkStatistics {
     private boolean dirty;
     // Retain the entire source, including unfamiliar keys, before removing command storage.
     private String legacySnapshot = "";
+    private final Set<String> archivedLegacySources = new LinkedHashSet<>();
 
     /** Isolated fixture stores use the same persistence and migration code as production. */
     LbcPerkStatistics(Path file) throws IOException {this(file,WRITER);}
@@ -84,24 +85,37 @@ final class LbcPerkStatistics {
         }
     }
 
+    static boolean importCurrentStorage(MinecraftServer server) throws IOException {
+        if(server.getCommandStorage().get(LEGACY).isEmpty())return false;
+        var store=get(server);
+        store.migrateLegacy(server.getCommandStorage().get(LEGACY),
+                () -> server.getCommandStorage().set(LEGACY,new CompoundTag()));
+        return true;
+    }
+
     /** Cleanup is invoked only after the import marker and full source image are durable. */
     void migrateLegacy(CompoundTag legacy, Runnable cleanup) throws IOException {
-        if (!imported) {
+        String source=legacy.toString();
+        if (!imported || !legacy.isEmpty()&&!legacySnapshot.equals(source)&&!archivedLegacySources.contains(source)) {
             var before = new LinkedHashMap<>(counters);
             String previousSnapshot = legacySnapshot;
+            boolean alreadyImported=imported;
+            boolean archived=false;
             try {
                 for (String key : legacy.keySet()) {
                     if (RAW.matcher(key).matches() && legacy.get(key) instanceof NumericTag number)
                         counters.merge(key, Math.max(0L, number.longValue()), Math::max);
                 }
-                legacySnapshot = legacy.toString();
+                if(!imported||legacySnapshot.equals("{}"))legacySnapshot=source;
+                else archived=archivedLegacySources.add(source);
                 imported = true;
                 save();
             } catch (IOException | RuntimeException error) {
                 counters.clear();
                 counters.putAll(before);
                 legacySnapshot = previousSnapshot;
-                imported = false;
+                imported = alreadyImported;
+                if(archived)archivedLegacySources.remove(source);
                 throw error;
             }
         }
@@ -235,6 +249,8 @@ final class LbcPerkStatistics {
             if (root.get("version").getAsInt() != 1) throw new IOException("Unsupported perk-statistics version");
             imported = root.get("legacyImported").getAsBoolean();
             legacySnapshot = root.get("legacySnapshot").getAsString();
+            if(root.has("archivedLegacySources"))for(var source:root.getAsJsonArray("archivedLegacySources"))
+                archivedLegacySources.add(source.getAsString());
             if (root.has("receipts")) for (var receipt : root.getAsJsonArray("receipts")) receipts.add(receipt.getAsString());
             for (var entry : root.getAsJsonObject("counters").entrySet()) {
                 long value = entry.getValue().getAsBigDecimal().longValueExact();
@@ -252,7 +268,7 @@ final class LbcPerkStatistics {
     private void save() throws IOException {awaitWrites();write(payload(snapshot()));}
 
     private Snapshot snapshot() {
-        return new Snapshot(imported, legacySnapshot, List.copyOf(receipts),
+        return new Snapshot(imported, legacySnapshot, new LinkedHashSet<>(archivedLegacySources), List.copyOf(receipts),
                 new LinkedHashMap<>(counters), new LinkedHashMap<>(personalTrinketWins));
     }
 
@@ -261,6 +277,11 @@ final class LbcPerkStatistics {
         root.addProperty("version", 1);
         root.addProperty("legacyImported", snapshot.imported());
         root.addProperty("legacySnapshot", snapshot.legacySnapshot());
+        if(!snapshot.archivedLegacySources().isEmpty()){
+            var archived=new com.google.gson.JsonArray();
+            snapshot.archivedLegacySources().forEach(archived::add);
+            root.add("archivedLegacySources",archived);
+        }
         var accepted = new com.google.gson.JsonArray();
         snapshot.receipts().forEach(accepted::add);
         root.add("receipts", accepted);
