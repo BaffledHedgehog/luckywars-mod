@@ -109,6 +109,13 @@ public final class GenieRuntime {
     }
     public boolean admitted(ServerPlayer owner){return game.playing()&&!game.balanceLegacy()&&!game.isObserver(owner)&&owner.isAlive()
             &&game.canUseGameplayItems(owner)&&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner);}
+    public net.minecraft.world.InteractionResult replaceUse(ServerPlayer owner,InteractionHand hand) {
+        var stack=owner.getItemInHand(hand);
+        if (!GenieScriptItem.replacesUse(stack)) return net.minecraft.world.InteractionResult.PASS;
+        if (!admitted(owner)) return net.minecraft.world.InteractionResult.FAIL;
+        scripts.event(owner,GenieScriptItem.REPLACE_USE_EVENT,null,stack,hand);
+        return net.minecraft.world.InteractionResult.SUCCESS_SERVER;
+    }
     public void input(ServerPlayer owner,LbcTmtTriggers.Input input,Entity target){
         if (!scripts.hasPendingRestore() && !hasInputSource(owner, input)) return;
         scripts.input(owner,input,target);

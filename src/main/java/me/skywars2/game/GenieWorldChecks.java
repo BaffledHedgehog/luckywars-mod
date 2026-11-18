@@ -374,6 +374,9 @@ final class GenieWorldChecks {
                 var hits=new HashSet<String>();for(var value:ray.getAsJsonArray("entities"))hits.add(value.getAsJsonObject().get("entity").getAsString());
                 require(hits.contains(cow.getUUID().toString())&&hits.contains(snow.getUUID().toString()),
                     "one ray traverses multiple bodies and includes native projectiles: result="+ray+" cow="+cow.getBoundingBox()+" snow="+snow.getBoundingBox());
+                require(ray.get("entity").getAsString().equals(snow.getUUID().toString())
+                    &&ray.get("entity").equals(ray.getAsJsonArray("entities").get(0).getAsJsonObject().get("entity")),
+                    "saved programs can read the nearest entity directly without losing the ordered hit list");
                 var info=complete(host,queued(host,"entity.info",new JsonPrimitive(cow.getUUID().toString()))).getAsJsonObject();
                 require(info.get("type").getAsString().equals("minecraft:cow")&&info.has("eye_position")&&info.get("health").getAsFloat()==cow.getHealth(),"native entity information is actual world state");
             }finally{base.discard(cow);base.discard(snow);}
@@ -381,7 +384,7 @@ final class GenieWorldChecks {
             require(!base.level.hasChunkAt(absentPos),"remote witness starts unresident");
             var remote=complete(host,queued(host,"world.raycast",vector(absent),vector(absent.add(32,0,0)),new JsonPrimitive(0),new JsonPrimitive(true))).getAsJsonObject();
             require(!remote.getAsJsonObject("block").get("loaded").getAsBoolean()
-                &&remote.getAsJsonObject("block").get("id").isJsonNull()&&!base.level.hasChunkAt(absentPos)
+                &&remote.getAsJsonObject("block").get("id").isJsonNull()&&remote.get("entity").isJsonNull()&&!base.level.hasChunkAt(absentPos)
                 &&!base.level.hasChunkAt(absentPos.offset(32,0,0)),"ray and hit metadata do not load missing chunks");
 
             // The real VM resolves world calls through this host; a completed command resumes once.

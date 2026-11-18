@@ -252,6 +252,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
                 return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner){
+                var scripted=game.items().genie().runtime().replaceUse(owner,hand);
+                if(scripted!=InteractionResult.PASS)return scripted;
+            }
             if(game!=null){var utility=me.skywars2.game.LbcImbaTerrainUtilityItems.legacyAir(level,player,hand);if(utility!=InteractionResult.PASS)return utility;}
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useItem(owner, hand)) return InteractionResult.SUCCESS;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcWoolTrailItems.matches(player.getItemInHand(hand))

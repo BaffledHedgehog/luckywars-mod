@@ -33,8 +33,10 @@ final class GenieLaunchChecks {
     private Vec3 origin;
     private final CompletableFuture<ScriptRepository.Loaded> replacement;
     private final CompletableFuture<ScriptRepository.Loaded> shot;
+    private final CompletableFuture<ScriptRepository.Loaded> rifle;
     private Set<UUID> beforeReplacement;
     private ItemStack replacementBow;
+    private ItemStack ordinaryCrossbow;
     GenieLaunchChecks(GameController game,WoolBucketChecks.Fixture base){
         this.game=game;this.base=base;
         replacement=game.items().genie().runtime().scripts().prepare("""
@@ -55,6 +57,14 @@ final class GenieLaunchChecks {
             ["add"],["put"],["drop"],
             ["load","state"],["const","hand"],["load","event"],["const","hand"],["get"],["put"],["drop"],
             ["load","state"],["const","volley"],["load","event"],["const","projectiles"],["get"],["put"],["return"]]}}}
+            """);
+        rifle=game.items().genie().runtime().scripts().prepare("""
+            {"version":1,"state":{"shots":0},"handlers":{"USE_REPLACE":"fire"},"functions":{"fire":{
+            "parameters":["event"],"code":[
+            ["load","state"],["const","hit"],["load","event"],["const","eye_position"],["get"],
+            ["load","event"],["const","look"],["get"],["const",32],["const",8],["call","combat.hitscan",4],
+            ["put"],["drop"],["load","state"],["const","shots"],["load","state"],["const","shots"],["get"],["const",1],
+            ["add"],["put"],["return"]]}}}
             """);
         for(String type:List.of("player","fishing_bobber","item","not_a_native_entity"))reject(type,40,200);
         reject("warden",40,200);
@@ -158,9 +168,82 @@ final class GenieLaunchChecks {
             require(projectiles().equals(beforeReplacement),"replacement crossbow never publishes its multishot arrows");
             checkReplacement(replacementCrossbow,3,InteractionHand.MAIN_HAND);
             checkActualVolleys();
+            ordinaryCrossbow=shotItem(Items.CROSSBOW);
+            base.owner.setItemInHand(InteractionHand.MAIN_HAND,ordinaryCrossbow);
+            base.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            base.owner.getInventory().setItem(1,new ItemStack(Items.ARROW,3));
+            use(19002,InteractionHand.MAIN_HAND,0);
+            require(base.owner.isUsingItem(),"scripted SHOT crossbow uses native charging");
+            when=game.server().getTickCount();phase=5;return false;
+        }
+        if(phase==5){
+            if(age<27)return false;
+            base.owner.releaseUsingItem();base.owner.stopUsingItem();
+            require(CrossbowItem.isCharged(ordinaryCrossbow)&&base.owner.getInventory().getItem(1).getCount()==2
+                    &&GenieScriptItem.state(ordinaryCrossbow).get("count").getAsInt()==0,
+                    "real crossbow load consumes one arrow and does not fire its SHOT handler");
+            var original=projectiles();
+            use(19003,InteractionHand.MAIN_HAND,0);
+            var arrows=base.level.getEntitiesOfClass(Projectile.class,base.owner.getBoundingBox().inflate(8),
+                    p->p.getOwner()==base.owner&&!original.contains(p.getUUID()));
+            arrows.forEach(base::own);
+            try{
+                var state=drainItem(ordinaryCrossbow,1,"count");
+                require(arrows.size()==1&&!CrossbowItem.isCharged(ordinaryCrossbow)
+                        &&ordinaryCrossbow.getDamageValue()==1&&state.getAsJsonArray("volley").size()==1,
+                        "native crossbow discharge retains one real projectile, one wear and one SHOT");
+            }finally{arrows.forEach(base::discard);}
+            checkRifle();
             return true;
         }
         throw new IllegalStateException("unknown native launch phase");
+    }
+    private void use(int sequence, InteractionHand hand, float yaw) {
+        base.client.acknowledge();
+        base.owner.connection.handleClientTickEnd(new net.minecraft.network.protocol.game.ServerboundClientTickEndPacket());
+        base.owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(hand,sequence,yaw,0));
+    }
+
+    private com.google.gson.JsonObject drainItem(ItemStack item, int expected, String counter) {
+        var state=GenieScriptItem.state(item);
+        for(int i=0;i<24&&(!state.has(counter)||state.get(counter).getAsInt()!=expected);i++){
+            game.items().genie().runtime().scripts().tick();
+            state=GenieScriptItem.state(item);
+        }
+        require(state.get(counter).getAsInt()==expected,"exactly "+expected+" scripted actions in "+counter+": "+state);
+        return state;
+    }
+
+    private void checkRifle() {
+        var feet=base.resident(false);
+        base.move(base.owner,feet);
+        var foot=BlockPos.containing(feet);
+        for(var cell:BlockPos.betweenClosed(foot.offset(0,1,0),foot.offset(0,2,6)))
+            base.set(cell.immutable(),Blocks.AIR.defaultBlockState());
+        var target=Objects.requireNonNull(EntityTypes.COW.create(base.level,EntitySpawnReason.TRIGGERED));
+        target.setNoAi(true);target.setNoGravity(true);target.setPos(feet.add(0,.65,5));
+        require(base.level.addFreshEntity(target),"native rifle target added");
+        base.own(target);
+        try{
+            var item=GenieScriptItem.construct(rifle.join(),"crossbow","M24","Instant rifle witness.",1);
+            base.owner.setItemInHand(InteractionHand.MAIN_HAND,item);
+            var wall=foot.offset(0,1,3);
+            base.set(wall,Blocks.STONE.defaultBlockState());
+            float health=target.getHealth();
+            var original=projectiles();
+            use(19004,InteractionHand.MAIN_HAND,0);
+            require(!base.owner.isUsingItem(),"instant rifle click does not start vanilla charge even with arrows available");
+            require(!drainItem(item,1,"shots").get("hit").getAsBoolean()&&target.getHealth()==health,
+                    "solid block prevents rifle damage");
+            base.set(wall,Blocks.AIR.defaultBlockState());
+            use(19005,InteractionHand.MAIN_HAND,0);
+            base.owner.setYRot(180);
+            require(drainItem(item,2,"shots").get("hit").getAsBoolean()&&target.getHealth()==health-8,
+                    "native use packet delivers exactly eight damage along the click-time aim");
+            require(target.getLastHurtByMob()==base.owner&&projectiles().equals(original)
+                    &&base.owner.getInventory().getItem(1).getCount()==2&&!CrossbowItem.isCharged(item),
+                    "hitscan keeps physical player attribution and never fires or charges vanilla ammunition");
+        }finally{base.discard(target);}
     }
     private void checkActualVolleys() {
         base.move(base.owner, base.resident(false));

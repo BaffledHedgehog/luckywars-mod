@@ -28,6 +28,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         Map.entry("world.command",new ScriptProgram.Signature(1,1)),
         Map.entry("world.select",new ScriptProgram.Signature(1,1)),
         Map.entry("world.raycast",new ScriptProgram.Signature(4,4)),
+        Map.entry("combat.hitscan",new ScriptProgram.Signature(4,4)),
         Map.entry("structure.place",new ScriptProgram.Signature(2,2)),
         Map.entry("entity.info",new ScriptProgram.Signature(1,1)),
         Map.entry("entity.launch",new ScriptProgram.Signature(1,4)),
@@ -127,6 +128,8 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "world.command"->command(text(values.getFirst()));
             case "world.select"->select(text(values.getFirst()));
             case "world.raycast"->ray(vector(values.get(0)),vector(values.get(1)),number(values.get(2)),bool(values.get(3)));
+            case "combat.hitscan"->new JsonPrimitive(GenieNative.hitscan(game,owner,
+                vector(values.get(0)),vector(values.get(1)),number(values.get(2)),number(values.get(3))));
             case "structure.place"->GenieStructures.place(owner,text(values.get(0)),values.get(1));
             case "entity.info"->info(find(text(values.getFirst())));
             case "entity.launch"->launch(values);
@@ -250,6 +253,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             if(hits.size()>65536)throw new IllegalArgumentException("ray result exceeds item data storage");
         }
         hits.sort(Comparator.comparingDouble(e->e.get("distance").getAsDouble()));
+        result.add("entity",hits.isEmpty()?JsonNull.INSTANCE:hits.getFirst().get("entity"));
         var array=new JsonArray();hits.forEach(array::add);result.add("entities",array);return result;
     }
     private static double number(JsonElement value){

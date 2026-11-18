@@ -7,14 +7,20 @@ import java.util.Set;
 import me.skywars2.game.genie.GenieRuntime;
 import me.skywars2.game.genie.GenieScriptItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /** Narrow bridge to existing package-owned policies, keeping the new feature in game.genie. */
@@ -61,6 +67,35 @@ public final class GenieNative {
 
     public static Set<Identifier> casts() {
         return CASTS.keySet();
+    }
+
+    public static boolean hitscan(GameController game, ServerPlayer player, Vec3 from, Vec3 direction,
+                                  double range, double damage) {
+        double length = direction.length();
+        if (!(Double.isFinite(length) && length >= 1e-4 && range > 0 && range <= 1024
+                && damage > 0 && damage <= Float.MAX_VALUE))
+            throw new IllegalArgumentException("invalid hitscan direction, range or damage");
+        var level = player.level();
+        if (!(Math.abs(from.x) < 30_000_000 && Math.abs(from.z) < 30_000_000
+                && from.y >= level.getMinY() && from.y < level.getMaxY() + 1.0)) return false;
+        var origin = BlockPos.containing(from);
+        if (!game.items().genie().runtime().admitted(player) || game.stage() == GameController.Stage.ENDING
+                || !level.isInWorldBounds(origin) || !level.hasChunkAt(origin) || !level.getWorldBorder().isWithinBounds(origin)
+                || game.items().magic().mechanismSuppressed(player)) return false;
+
+        var end = from.add(direction.scale(range / length));
+        double suppression = game.items().magic().mechanismSuppressionFraction(level, from, end);
+        if (suppression <= 0) return false;
+        if (suppression <= 1) end = from.lerp(end, suppression);
+        level.playSound(null, from.x, from.y, from.z, SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1, 1);
+        if (!(game.items().wands().firstHit(level, player, from, end, entity -> true, false) instanceof EntityHitResult hit)
+                || !(hit.getEntity() instanceof LivingEntity target)) return false;
+        var type = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW);
+        var ledger = game.items().indirectKills();
+        var source = ledger.captureDamage(new DamageSource(type, player), ledger.coldCause(player, true));
+        boolean accepted = target.hurtServer(level, source, (float) damage);
+        if (accepted) LbcAcceptedHits.projectileFeedback(game, player);
+        return accepted;
     }
 
     /** Point-targeted abilities keep their own permissions, effects and native attribution. */

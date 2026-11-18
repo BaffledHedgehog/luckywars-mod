@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Cooperative item-local programs, with one shared game-thread budget and no blocking disk reads. */
 public final class GenieScriptRuntime implements AutoCloseable {
-    public static final Set<String> EVENTS=Set.of("USE","HIT","HURT","JUMP","SHOT","EAT","SPRINT","TICK","MINING","LEFT_CLICK","SNEAK","THROW","SNEAK_PRESS","BLOCK_USE",GenieScriptItem.REPLACE_SHOT_EVENT);
+    public static final Set<String> EVENTS=Set.of("USE","HIT","HURT","JUMP","SHOT","EAT","SPRINT","TICK","MINING","LEFT_CLICK","SNEAK","THROW","SNEAK_PRESS","BLOCK_USE",GenieScriptItem.REPLACE_SHOT_EVENT,GenieScriptItem.REPLACE_USE_EVENT);
     private record Event(String name,JsonObject data,ItemStack captured){}
     private record ItemLocation(int inventorySlot, EquipmentSlot equipmentSlot, boolean carried) {
         ItemStack get(ServerPlayer owner) {
@@ -317,6 +317,10 @@ public final class GenieScriptRuntime implements AutoCloseable {
                     var data=new JsonObject();data.addProperty("type",name);data.addProperty("owner",owner.getUUID().toString());data.addProperty("tick",context.clock);
                     data.addProperty("hand",hand==null?source==owner.getOffhandItem()?"offhand":"mainhand":hand==InteractionHand.MAIN_HAND?"mainhand":"offhand");
                     data.add("target",target==null?JsonNull.INSTANCE:new JsonPrimitive(target.getUUID().toString()));
+                    if (name.equals("USE") || name.equals(GenieScriptItem.REPLACE_USE_EVENT)) {
+                        data.add("eye_position",vector(owner.getEyePosition()));
+                        data.add("look",vector(owner.getLookAngle()));
+                    }
                     if(projectiles!=null)data.add("projectiles",projectiles);
                     memory.reserveValue(data);context.events.addLast(new Event(name,data,source.copy()));
                 }catch(RuntimeException error){if(context!=null)fail(context,error);else report(owner,error);}
