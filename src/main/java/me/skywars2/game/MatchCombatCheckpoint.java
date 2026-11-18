@@ -35,13 +35,16 @@ final class MatchCombatCheckpoint {
                          MatchDamageSources.Image damage,long damageStamp,long worldTime,List<History> entries,int last,int start,int end,
                          boolean combat,boolean taking,ItemStack spin,EquipmentSlot spinSlot,int spinInventorySlot,
                          GenieCombat.SpinImage genieSpin,boolean kineticPresent,
-                         long kineticDefault,List<Kinetic> kinetic,Optional<BlockPos> climb,BlockPos position) { }
+                         long kineticDefault,List<Kinetic> kinetic,Optional<BlockPos> climb,BlockPos position,
+                         List<LbcIndirectKills.LogoutAbsorptionImage> logoutAbsorption) { }
     private final Map<UUID,Image> images=new LinkedHashMap<>();
     private final MatchDamageSources sources;
+    private final LbcIndirectKills indirectKills;
     private final Map<UUID,Entity> registered=new LinkedHashMap<>();
 
     MatchCombatCheckpoint(GameController game,List<Entity> actors,MatchDamageSources sources) {
         this.sources=sources;
+        this.indirectKills=game.items().indirectKills();
         for(var actor:actors)registered.put(actor.getUUID(),actor);
         for(var player:game.server().getPlayerList().getPlayers())registered.put(player.getUUID(),player);
         for(var entity:registered.values())if(entity instanceof LivingEntity living) {
@@ -59,7 +62,8 @@ final class MatchCombatCheckpoint {
                     access.skywars2$damageTime(),living.level().getGameTime(),List.copyOf(history),tracker.skywars2$last(),tracker.skywars2$start(),tracker.skywars2$end(),
                     tracker.skywars2$combat(),tracker.skywars2$taking(),spin==null?null:spin.copy(),slot,inventorySlot,genieSpin,
                     recent!=null,recent==null?0:recent.defaultReturnValue(),
-                    List.copyOf(kinetic),access.skywars2$climb().map(BlockPos::immutable),access.skywars2$position()==null?null:access.skywars2$position().immutable()));
+                    List.copyOf(kinetic),access.skywars2$climb().map(BlockPos::immutable),access.skywars2$position()==null?null:access.skywars2$position().immutable(),
+                    living instanceof ServerPlayer player ? indirectKills.checkpointLogoutAbsorption(player, sources) : List.of()));
         }
     }
     private static UUID id(EntityReference<?> reference){return reference==null?null:reference.getUUID();}
@@ -120,7 +124,11 @@ final class MatchCombatCheckpoint {
             for(var saved:image.entries)tracker.skywars2$entries().add(new CombatEntry(value(saved.source),saved.damage,saved.location,saved.distance));
             tracker.skywars2$last(image.last);tracker.skywars2$start(image.start);tracker.skywars2$end(image.end);
             tracker.skywars2$combat(image.combat);tracker.skywars2$taking(image.taking);
-            if(living instanceof ServerPlayer p)p.connection.send(image.combat?ClientboundPlayerCombatEnterPacket.INSTANCE:new ClientboundPlayerCombatEndPacket(living.getCombatTracker()));
+            if (living instanceof ServerPlayer p) {
+                indirectKills.restoreLogoutAbsorption(p, image.logoutAbsorption);
+                p.connection.send(image.combat ? ClientboundPlayerCombatEnterPacket.INSTANCE
+                        : new ClientboundPlayerCombatEndPacket(living.getCombatTracker()));
+            }
         }
     }
 }

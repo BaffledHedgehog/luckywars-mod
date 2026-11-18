@@ -1,9 +1,12 @@
 package me.skywars2.game;
 
+import me.skywars2.mixin.CombatCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.CombatEntry;
+import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -19,7 +22,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -72,6 +77,7 @@ public final class LbcIndirectKills {
     private record Hazard(Owner owner, BlockState state) { }
     private record Arrival(Owner owner,ServerLevel level,Map<BlockPos,BlockState> cells) { }
     private final GameController game;
+    private final Map<ServerPlayer, List<AbsorptionHit>> logoutAbsorption = new WeakHashMap<>();
     private final Map<LivingEntity,Owner> lootOwners=new java.util.WeakHashMap<>();
     // Ссылки на выгруженных мобов не удерживают сущности/чанки в памяти.
     private final Map<LivingEntity,Fall> falls = new WeakHashMap<>();
@@ -1026,24 +1032,107 @@ public final class LbcIndirectKills {
     }
 
     record LogoutHit(DamageSource source,UUID player) { }
-    /** Inspect real accepted HP damage in the native, already-expiring combat history. */
-    LogoutHit logoutHit(ServerPlayer target){
+    private record LogoutDamage(DamageSource source, UUID player, Owner owner) {}
+    private record AbsorptionHit(LogoutDamage damage, CombatEntry preceding, int tick) {}
+    record LogoutAbsorptionImage(MatchDamageSources.Image source, UUID player, Owner owner, int after, int tick) {}
+
+    private static List<CombatEntry> combatEntries(ServerPlayer player) {
+        return ((CombatCheckpointAccess.Tracker) player.getCombatTracker()).skywars2$entries();
+    }
+
+    private LogoutDamage logoutDamage(ServerPlayer target, DamageSource source) {
+        if (unownedDamage(source)) return new LogoutDamage(source, null, null);
+        var cause = policyCause(target, source);
+        var author = playerSource(source.getEntity());
+        if (author == null && source.getEntity() == null) author = playerSource(source.getDirectEntity());
+        UUID id = cause != null ? cause.player() : author == null ? null : author.getUUID();
+        if (target.getUUID().equals(id)) return null;
+        if (id == null && !(source.getEntity() instanceof LivingEntity)) return null;
+        return new LogoutDamage(source, id, cause);
+    }
+
+    private Owner logoutOwner(LogoutDamage damage) {
+        return damage.owner == null
+                ? new Owner(damage.player, ++order, false, false, WeaponEnchantments.snapshot(damage.player))
+                : damage.owner;
+    }
+
+    void recordLogoutAbsorption(ServerPlayer target, DamageSource source) {
+        var damage = logoutDamage(target, source);
+        if (damage == null) return;
+        if (damage.player != null) damage = new LogoutDamage(source, damage.player, logoutOwner(damage));
+        var entries = combatEntries(target);
+        var hits = logoutAbsorption.computeIfAbsent(target, player -> new ArrayList<>(2));
+        boolean playerAttack = damage.player != null;
+        // Once a newer source of the same kind arrives, the earlier one cannot affect logout credit.
+        hits.removeIf(hit -> (hit.damage.player != null) == playerAttack);
+        hits.add(new AbsorptionHit(damage, entries.isEmpty() ? null : entries.getLast(), target.tickCount));
+    }
+
+    private static int after(List<CombatEntry> entries, CombatEntry preceding) {
+        if (preceding != null) {
+            for (int i = entries.size() - 1; i >= 0; i--) {
+                if (entries.get(i) == preceding) return i + 1;
+            }
+        }
+        // Vanilla cleared any HP hits that preceded this absorption.
+        return 0;
+    }
+
+    List<LogoutAbsorptionImage> checkpointLogoutAbsorption(ServerPlayer target, MatchDamageSources sources) {
+        var hits = logoutAbsorption.get(target);
+        if (hits == null) return List.of();
+        var entries = combatEntries(target);
+        return hits.stream().map(hit -> new LogoutAbsorptionImage(sources.capture(hit.damage.source),
+                hit.damage.player, hit.damage.owner, after(entries, hit.preceding), hit.tick)).toList();
+    }
+
+    void restoreLogoutAbsorption(ServerPlayer target, List<LogoutAbsorptionImage> saved) {
+        if (saved.isEmpty()) {
+            logoutAbsorption.remove(target);
+            return;
+        }
+        var entries = combatEntries(target);
+        var hits = new ArrayList<AbsorptionHit>(saved.size());
+        for (var hit : saved) {
+            var damage = new LogoutDamage(MatchDamageSources.value(hit.source), hit.player, hit.owner);
+            hits.add(new AbsorptionHit(damage, hit.after == 0 ? null : entries.get(hit.after - 1), hit.tick));
+        }
+        logoutAbsorption.put(target, hits);
+    }
+
+    /** Merge accepted absorption with the native HP history without changing vanilla combat tracking. */
+    LogoutHit logoutHit(ServerPlayer target) {
         target.getCombatTracker().recheckStatus();
-        var entries=((me.skywars2.mixin.CombatCheckpointAccess.Tracker)target.getCombatTracker()).skywars2$entries();
-        DamageSource newerMob=null;
-        for(int i=entries.size()-1;i>=0;i--){
-            var entry=entries.get(i);if(!(entry.damage()>0))continue;var source=entry.source();
-            if(unownedDamage(source)) {if(newerMob==null)newerMob=source;continue;}
-            var cause=policyCause(target,source);var author=playerSource(source.getEntity());
-            if(author==null&&source.getEntity()==null)author=playerSource(source.getDirectEntity());
-            UUID id=cause!=null?cause.player():author==null?null:author.getUUID();
-            if(id==null){if(newerMob==null&&source.getEntity() instanceof LivingEntity)newerMob=source;continue;}
-            if(id.equals(target.getUUID()))continue;
-            // A more recent hostile mob gets its own kill; an old player must not steal it.
-            if(newerMob!=null)return new LogoutHit(newerMob,null);
-            var accepted=new Owner(id,++order,cause!=null&&cause.friendlyFire(),cause!=null&&cause.projectile(),
-                    cause==null?WeaponEnchantments.snapshot(id):cause.enchantmentWeapon());
-            return new LogoutHit(captureDamage(target.damageSources().genericKill(),accepted,game.server().getPlayerList().getPlayer(id)),id);
+        var entries = combatEntries(target);
+        var hits = logoutAbsorption.getOrDefault(target, List.of());
+        int next = hits.size() - 1;
+        int absorptionAfter = next < 0 ? -1 : after(entries, hits.get(next).preceding);
+        DamageSource newerMob = null;
+        for (int i = entries.size(); i >= 0;) {
+            LogoutDamage damage;
+            if (i == absorptionAfter) {
+                var hit = hits.get(next--);
+                absorptionAfter = next < 0 ? -1 : after(entries, hits.get(next).preceding);
+                if (target.tickCount - hit.tick > CombatTracker.RESET_COMBAT_STATUS_TIME) continue;
+                damage = hit.damage;
+            } else if (i > 0) {
+                var entry = entries.get(--i);
+                if (!(entry.damage() > 0)) continue;
+                damage = logoutDamage(target, entry.source());
+                if (damage == null) continue;
+            } else {
+                break;
+            }
+            if (damage.player == null) {
+                if (newerMob == null) newerMob = damage.source;
+                continue;
+            }
+            // A more recent hostile mob gets credit once an eligible player hit made the leave a forfeit.
+            if (newerMob != null) return new LogoutHit(newerMob, null);
+            var author = game.server().getPlayerList().getPlayer(damage.player);
+            return new LogoutHit(captureDamage(target.damageSources().genericKill(), logoutOwner(damage), author),
+                    damage.player);
         }
         return null;
     }
@@ -1058,7 +1147,7 @@ public final class LbcIndirectKills {
         falls.remove(target); statuses.remove(target); removedSupports.remove(target); laterAttacks.remove(target);
         arrivals.remove(target);
         pendingMana.remove(target); manaDrains.remove(target); manaDebts.remove(target);
-        burning.remove(target); hungerDebts.remove(target);
+        burning.remove(target); hungerDebts.remove(target); logoutAbsorption.remove(target);
     }
     static boolean unownedDamage(DamageSource source){
         return npcSource(source)||LbcSpellSource.unownedHazard(source.getDirectEntity())||LbcSpellSource.unownedHazard(source.getEntity());
@@ -1079,7 +1168,7 @@ public final class LbcIndirectKills {
         lootOwners.clear();WeaponEnchantments.clear();
         falls.clear(); statuses.clear(); removedSupports.clear(); laterAttacks.clear(); stone.clear();
         pendingMana.clear(); manaDrains.clear(); manaDebts.clear();
-        hazards.clear(); burning.clear(); arrivals.clear(); hungerDebts.clear();
+        hazards.clear(); burning.clear(); arrivals.clear(); hungerDebts.clear(); logoutAbsorption.clear();
     }
     /** GLOBAL causal ledger image; native effects/bodies/terrain stay with their canonical owners. */
     Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
