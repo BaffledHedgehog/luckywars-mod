@@ -440,7 +440,8 @@ public final class LbcBlaze {
                 var owner=owner(mob);
                 if(owner!=null) {
                     if(mob.entityTags().contains(TRIAL_PROJECTILE)) shot.entityTags().add(TRIAL_PROJECTILE);
-                    game.items().wands().adoptFire(owner,shot);
+                    game.items().wands().adoptFire(mob,shot);
+                    game.items().summons().track(owner,shot);
                 }
             }
         }finally{checkpointCallbacks--;}

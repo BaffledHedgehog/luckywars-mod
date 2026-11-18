@@ -8980,9 +8980,26 @@ public final class GameChecks {
                                                 && game.items().blaze().canTarget(friend,enemyCow),
                                                 "The shared summon-hook Blaze retains enemy filtering and owner/team protection");
                                 var hookVictim=frostProbeCow(level,cows,x+2,260,z+3); hookVictim.setHealth(1);
-                                require(hookVictim.hurtServer(level,level.damageSources().mobAttack(friend),999)
-                                                && !hookVictim.isAlive() && hookVictim.getKillCredit()==owner,
-                                                "A native shared-hook Blaze kill credits the summoning player");
+                                var fire = new net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball(
+                                        net.minecraft.world.entity.EntityTypes.SMALL_FIREBALL, level);
+                                fire.setOwner(friend);
+                                fire.setPos(friend.getEyePosition());
+                                require(level.addFreshEntity(fire) && game.items().wands().isFireProjectile(fire)
+                                                && fire.getOwner()==friend && LbcIndirectKills.playerSource(fire)==owner
+                                                && game.items().spellSources().projectileController(fire)==friend,
+                                                "The native Blaze shot keeps its mob controller and separate kill attribution");
+                                try {
+                                        require(game.items().wands().canHit(fire,hookVictim) && !game.items().wands().canHit(fire,owner)
+                                                        && !game.items().wands().canHit(fire,other),
+                                                        "Adopted Blaze magic fire still hits enemies and skips allies");
+                                        var fireDamage = new net.minecraft.world.damagesource.DamageSource(
+                                                level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE)
+                                                        .getOrThrow(net.minecraft.world.damagesource.DamageTypes.FIREBALL), fire, friend);
+                                        require(hookVictim.hurtServer(level,fireDamage,999)
+                                                        && !hookVictim.isAlive() && hookVictim.getKillCredit()==owner
+                                                        && hookVictim.getLastDamageSource().getEntity()==friend,
+                                                        "The Blaze shot retains the mob shooter for damage and credits the summoner for the kill");
+                                } finally { fire.discard(); }
                         } finally {
                                 owner.getInventory().setItem(10,ItemStack.EMPTY); game.config().lbcTrinketLimit=oldTrinketLimit;
                                 for(var blaze:hookBlazes) blaze.discard();
@@ -9090,13 +9107,17 @@ public final class GameChecks {
                         net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball chaosFire=null;
                         for(var entity:level.getAllEntities()) if(!existingConsequences.contains(entity)
                                         && entity instanceof net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball fire) chaosFire=fire;
-                        require(chaosFire!=null && chaosFire.getOwner()==owner && chaosFire.getDeltaMovement().length()>1.9,
-                                        "Chaos fireball uses the shared native launcher and real player owner");
+                        require(chaosFire!=null && chaosFire.getOwner()==chaos && service.owner(chaosFire)==owner
+                                        && game.items().spellSources().projectileController(chaosFire)==chaos
+                                        && chaosFire.getDeltaMovement().length()>1.9 && game.items().wands().canHit(chaosFire,chaosVictim)
+                                        && !game.items().wands().canHit(chaosFire,owner),
+                                        "Chaos fireball keeps its physical caster, kill credit, motion and target protections");
                         chaosFire.discard();
                         float beforeChaosHp=chaosVictim.getHealth();
                         chaosVictim.setInvulnerableTime(0); service.chaosCast(owner,chaos,4);
-                        require(chaosVictim.getHealth()==beforeChaosHp-7 && chaosVictim.getLastDamageSource().getEntity()==owner,
-                                        "Chaos area strike deals native seven damage with player attribution");
+                        require(chaosVictim.getHealth()==beforeChaosHp-7 && chaosVictim.getLastDamageSource().getEntity()==chaos
+                                        && LbcIndirectKills.playerSource(chaosVictim.getLastDamageSource().getEntity())==owner,
+                                        "Chaos area strike deals native seven damage from the cultist with player attribution");
                         service.chaosCast(owner,chaos,5);
                         net.minecraft.world.entity.projectile.arrow.ThrownTrident chaosTrident=null;
                         for(var entity:level.getAllEntities()) if(!existingConsequences.contains(entity)
@@ -9115,7 +9136,7 @@ public final class GameChecks {
                         int actualFangs=0;
                         for(var entity:level.getAllEntities()) if(!existingConsequences.contains(entity)
                                         && entity instanceof net.minecraft.world.entity.projectile.EvokerFangs fangs) {
-                                require(fangs.getOwner()==owner && service.owner(fangs)==owner,"Chaos fangs retain real caster ownership");
+                                require(fangs.getOwner()==chaos && service.owner(fangs)==owner,"Chaos fangs retain the physical caster and player credit");
                                 actualFangs++;
                         }
                         require(actualFangs==9*Math.min(10,expectedFangs) && actualFangs>0,"Chaos creates nine native fangs per eligible enemy, up to ten enemies");
@@ -9130,10 +9151,51 @@ public final class GameChecks {
                                         && chaosVictim.getEffect(net.minecraft.world.effect.MobEffects.SLOWNESS)!=null
                                         && chaosVictim.getEffect(net.minecraft.world.effect.MobEffects.SLOWNESS).getAmplifier()==127,
                                         "Chaos traps nearest enemy in two stone blocks and applies source Slowness");
-                        int terraBefore=game.items().terra().count(); service.chaosCast(owner,chaos,8);
-                        require(game.items().terra().count()==terraBefore+1,"Chaos reuses common Terra projectile factory");
-                        int electroBefore=game.items().wands().electroCount(); service.chaosCast(owner,chaos,9);
-                        require(game.items().wands().electroCount()==electroBefore+6,"Chaos reuses six common Electro traces");
+                        var priorTerra = new java.util.HashSet<>(game.items().terra().transientSnapshot());
+                        service.chaosCast(owner,chaos,8);
+                        var terra = game.items().terra().transientSnapshot().stream().filter(shot -> !priorTerra.contains(shot)).toList();
+                        require(terra.size()==1 && terra.getFirst().getOwner()==chaos && service.owner(terra.getFirst())==owner
+                                        && game.items().spellSources().projectileController(terra.getFirst())==chaos,
+                                        "Chaos uses the normal Terra model and physical mob ownership");
+                        var shot = terra.getFirst();
+                        require(shot.position().equals(chaos.getEyePosition()), "Mob-owned Terra launches at the cultist's eyes");
+                        // The preceding trap probe leaves a stone shell in the original line of aim.
+                        var flight = chaos.getEyePosition().add(0,8,0);
+                        for (var pos : net.minecraft.core.BlockPos.betweenClosed(
+                                        net.minecraft.core.BlockPos.containing(flight).offset(-1,-1,-1),
+                                        net.minecraft.core.BlockPos.containing(flight).offset(3,1,1))) {
+                                var cell = pos.immutable();
+                                changedBlocks.putIfAbsent(cell,game.maps().snapshot(cell));
+                                level.setBlock(cell,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2|16|32);
+                        }
+                        shot.setPos(flight);
+                        shot.setDeltaMovement(new Vec3(1.8,0,0));
+                        var terraVictim = frostProbeCow(level,cows,flight.x+1.5,flight.y-.7,flight.z);
+                        terraVictim.setHealth(1);
+                        var thorny = frostProbeCow(level,cows,flight.x+.55,flight.y-.7,flight.z);
+                        var armor = new ItemStack(Items.DIAMOND_CHESTPLATE);
+                        armor.enchant(level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                                .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.THORNS),10);
+                        thorny.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,armor);
+                        chaos.setInvulnerableTime(0);
+                        var chaosBefore = chaos.getHealth();
+                        var ownerBefore = owner.getHealth();
+                        game.items().terra().tick();
+                        require(!shot.isRemoved() && shot.getX()>flight.x+1.7,
+                                        "Mob-owned Terra survives publication and travels its real tick segment");
+                        require(!terraVictim.isAlive() && terraVictim.getKillCredit()==owner
+                                        && terraVictim.getLastDamageSource().getEntity()==chaos,
+                                        "Mob-owned Terra kills with player credit and the actual attacker");
+                        require(chaos.getHealth()<chaosBefore && owner.getHealth()==ownerBefore,
+                                        "Native Thorns retaliates against the cultist that fired Terra: source="+thorny.getLastDamageSource()
+                                                +", targetHP="+thorny.getHealth()+", mobHP="+chaosBefore+"->"+chaos.getHealth()
+                                                +", casterHP="+ownerBefore+"->"+owner.getHealth());
+                        var priorElectro = new java.util.HashSet<>(game.items().wands().electroSnapshot());
+                        service.chaosCast(owner,chaos,9);
+                        var arcs = game.items().wands().electroSnapshot().stream().filter(trace -> !priorElectro.contains(trace)).toList();
+                        require(arcs.size()==6 && arcs.stream().allMatch(trace -> trace.damageEmitter()==chaos
+                                        && trace.owner==owner && trace.cause.player().equals(owner.getUUID())),
+                                        "Chaos reuses six Electro traces with the mob emitter and separate player credit");
                         game.items().terra().stop(); game.items().wands().stop();
                         chaosVictim.discard();
                         service.forget(owner);

@@ -31,6 +31,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -332,12 +333,17 @@ public final class LbcTerra {
     public int count() { return projectiles.size(); }
     int finishingModels() { return finishingModels.size(); }
 
+    private ServerPlayer flightAuthor(TerraProjectile projectile) {
+        var author = game.items().spellSources().author(projectile);
+        return author != null || boundSource(projectile) ? author : game.items().summons().owner(projectile);
+    }
+
     void loaded(Entity entity) {
-        if (entity.level() != game.maps().level()&&!boundSource(entity)) return;
-        if (entity instanceof TerraProjectile projectile) {
-            if (!game.items().currentEpoch(projectile) || !(projectile.getOwner() instanceof ServerPlayer)&&!boundSource(projectile)) projectile.discard();
-            else projectiles.add(projectile);
-        }
+        if (!(entity instanceof TerraProjectile projectile)) return;
+        boolean bound = boundSource(projectile);
+        if (projectile.level() != game.maps().level() && !bound) return;
+        if (!game.items().currentEpoch(projectile) || !bound && flightAuthor(projectile) == null) projectile.discard();
+        else projectiles.add(projectile);
     }
     void unloaded(Entity entity) {
         if (entity instanceof TerraProjectile projectile) {
@@ -360,15 +366,20 @@ public final class LbcTerra {
         castAt(owner,origin,direction,kind,0);
     }
     TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime) {
-        return castAt(owner,origin,direction,kind,lifetime,false);
+        return castAt(owner,origin,direction,kind,lifetime,false,nativeSourceOwner(owner));
     }
-    TerraProjectile sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){return castAt(owner,origin,direction,Kind.REGULAR,60,true);}
-    private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime,boolean emitterStyle) {
+    TerraProjectile sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){
+        return castAt(owner,origin,direction,Kind.REGULAR,60,true,nativeSourceOwner(owner));
+    }
+    void cultistCharge(ServerPlayer owner, Mob cultist, Vec3 origin, Vec3 direction) {
+        castAt(owner,origin,direction,Kind.REGULAR,0,false,cultist);
+    }
+    private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime,boolean emitterStyle,Entity shooter) {
         var level = sourceLevel(owner);
         if (!persistentSource()&&(level != game.maps().level() || !game.canUseGameplayItems(owner))) return null;
         var projectile = new TerraProjectile(TYPE, level);
         projectile.kind = kind; projectile.sourceLifetime=lifetime;projectile.emitterStyle=emitterStyle;
-        projectile.setOwner(nativeSourceOwner(owner));
+        projectile.setOwner(shooter);
         projectile.setPos(origin);
         projectile.setDeltaMovement(direction.normalize().scale(kind.speed));
         LbcShooters.orient(projectile);
@@ -380,7 +391,7 @@ public final class LbcTerra {
         }
         projectile.entityTags().add("magic");
         game.items().markCurrentItemEpoch(projectile);
-        if (level.addFreshEntity(projectile)) {
+        if (level.addFreshEntity(projectile) && !projectile.isRemoved()) {
             projectiles.add(projectile);
             if (kind.lifetime == 0 && lifetime==0) game.items().lifetimes().track(projectile);
             if(emitterStyle){game.items().spellSources().capture(projectile);return projectile;}
@@ -409,7 +420,7 @@ public final class LbcTerra {
                 try(var sourceScope=game.items().spellSources().scope(projectile)){
                 if (!projectiles.contains(projectile)) continue;
                 if (game.items().polymorph().suspended(projectile)) {projectile.destroyModel();continue;}
-                var owner=game.items().spellSources().author(projectile);
+                var owner = flightAuthor(projectile);
                 if(!liveSourceCharge(projectile,owner)) {
                     remove(projectile); continue;
                 }
@@ -451,10 +462,11 @@ public final class LbcTerra {
         var hits = projectile.kind == Kind.TRUE_BEAM ? beamHits(projectile, owner, from, end)
                 : LbcProjectileSweep.all(level, owner, from, end, entity -> target(owner, entity));
         var damage = new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(projectile.kind == Kind.TRUE_BEAM ? LbcDamage.TERRA_BEAM : DamageTypes.CACTUS), projectile, owner);
+                .getOrThrow(projectile.kind == Kind.TRUE_BEAM ? LbcDamage.TERRA_BEAM : DamageTypes.CACTUS), projectile, projectile.getOwner());
         for (var hit : hits) {
             // Дуга сохраняет отдельные попадания шагов и боковых полос; остальные заряды — одно на цель.
-            hit.getEntity().hurtServer(level, damage, projectile.kind.damage);
+            if (hit.getEntity().hurtServer(level, damage, projectile.kind.damage) && damage.getEntity() instanceof Mob)
+                net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffectsWithItemSource(level, hit.getEntity(), damage, null);
             if (!projectiles.contains(projectile) || projectile.isRemoved()) return false;
         }
         Vec3 visualFrom = projectile.display == null ? from : projectile.display.getCurrentPos();

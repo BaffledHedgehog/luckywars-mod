@@ -561,9 +561,12 @@ public final class LbcSummons {
             case 0 -> mob.addEffect(ItemEffectLevels.create(MobEffects.STRENGTH,160,3));
             case 1 -> mob.addEffect(ItemEffectLevels.create(MobEffects.SPEED,160,4));
             case 2 -> mob.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,160,3));
-            case 3 -> game.items().wands().launchFire(owner,new LargeFireball(owner.level(),owner,direction,2),origin.add(direction.scale(.5)),direction.scale(2));
+            case 3 -> game.items().wands().launchFire(mob, new LargeFireball(owner.level(),mob,direction,2),
+                    origin.add(direction.scale(.5)), direction.scale(2));
             case 4 -> {
-                var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),mob,owner);
+                var ledger = game.items().indirectKills();
+                var type = owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW);
+                var damage = ledger.captureDamage(new DamageSource(type, mob, mob), ledger.coldCause(owner, true));
                 for(var victim:enemies(owner,mob.position(),30)) victim.hurtServer(owner.level(),damage,7);
             }
             case 5 -> {
@@ -576,7 +579,7 @@ public final class LbcSummons {
                 int count=0;
                 for(var victim:enemies(owner,mob.position(),50)) if(victim.distanceToSqr(mob)>=2.25 && count++<10)
                     for(int x=-1;x<=1;x++) for(int z=-1;z<=1;z++) {
-                        var fangs=new EvokerFangs(owner.level(),victim.getX()+x,victim.getY(),victim.getZ()+z,0,0,owner);
+                        var fangs=new EvokerFangs(owner.level(),victim.getX()+x,victim.getY(),victim.getZ()+z,0,0,mob);
                         track(owner,fangs); owner.level().addFreshEntity(fangs);
                     }
             }
@@ -588,11 +591,11 @@ public final class LbcSummons {
                 });
                 enemy.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,100,127));
             }
-            case 8 -> game.items().terra().castAt(owner,origin,direction,LbcTerra.Kind.REGULAR);
+            case 8 -> game.items().terra().cultistCharge(owner, mob, origin, direction);
             case 9 -> {
                 float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
                 float pitch=(float)-Math.toDegrees(Math.asin(direction.y));
-                game.items().wands().cultistElectro(owner,origin,yaw,pitch);
+                game.items().wands().cultistElectro(owner,mob,origin,yaw,pitch);
             }
             default -> { }
         }

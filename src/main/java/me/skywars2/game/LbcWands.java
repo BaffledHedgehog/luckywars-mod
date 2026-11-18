@@ -30,6 +30,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -990,16 +991,24 @@ public final class LbcWands {
         }
     }
     void launchFire(ServerPlayer player,Projectile projectile,Vec3 position,Vec3 velocity) {
+        launchFire((LivingEntity)player,projectile,position,velocity);
+    }
+
+    void launchFire(LivingEntity shooter,Projectile projectile,Vec3 position,Vec3 velocity) {
         projectile.setPos(position);
         // Исходный marker в начале мира вычислял именно этот вектор, не мировую цель полёта.
         projectile.setDeltaMovement(velocity);
         LbcShooters.orient(projectile);
-        adoptFire(player,projectile);
+        adoptFire(shooter,projectile);
         game.items().trinkets().spawn(projectile);
     }
     /** Также подхватывает уже созданный native огненный шар призванного/подчинённого ифрита. */
     void adoptFire(ServerPlayer player,Projectile projectile) {
-        projectile.setOwner(player);
+        adoptFire((LivingEntity)player,projectile);
+    }
+
+    void adoptFire(LivingEntity shooter,Projectile projectile) {
+        projectile.setOwner(shooter);
         projectile.entityTags().add(FIRE_PROJECTILE);
         projectile.entityTags().add("stwandfireball");
         projectile.entityTags().add("can_deleted");
@@ -1334,8 +1343,19 @@ for(double step=0;step<=distance;step+=.5) {
         }
     }
     /** Культист использует те же разряды, срок и владельца, меняется только точка запуска. */
-    void cultistElectro(ServerPlayer owner,Vec3 origin,float yaw,float pitch) {
+    void cultistElectro(ServerPlayer owner, Vec3 origin, float yaw, float pitch) {
         electroVolley(owner,origin,yaw,pitch,20,6);
+    }
+    void cultistElectro(ServerPlayer owner, Mob cultist, Vec3 origin, float yaw, float pitch) {
+        var cause = game.items().indirectKills().coldCause(owner, true);
+        for (int i = 0; i < 6; i++) {
+            var trace = new ElectroTrace(owner, origin, game.items().epoch(), 20+i*5);
+            trace.explicitEmitter = cultist;
+            trace.cause = cause;
+            trace.yaw = yaw;
+            trace.pitch = pitch;
+            electroTraces.add(trace);
+        }
     }
     void racerLightning(ServerPlayer owner,Vec3 origin) {
         electroVolley(owner,origin,0,90,30,4);
@@ -1818,7 +1838,9 @@ for(int i=0;i<=100 && i<boundary;i++) {
             return owner==null || physicalProjectileTarget(projectile,target) || nativeSelfTarget(projectile,target)
                     || game.items().consuming().owner(projectile)==target || projectileTarget(owner,target);
         }
-        return projectile.getOwner() instanceof ServerPlayer owner && !game.isObserver(owner)
+        var owner = projectile.getOwner() instanceof ServerPlayer player ? player
+                : isFireProjectile(projectile) ? LbcIndirectKills.playerSource(projectile) : null;
+        return owner != null && !game.isObserver(owner)
                 && (projectile.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE)
                     ? target==owner || target(owner,target,true) : projectileTarget(owner,target));
     }
@@ -1888,7 +1910,9 @@ for(int i=0;i<=100 && i<boundary;i++) {
             return owner==null || physicalProjectileTarget(projectile,victim) || nativeSelfTarget(projectile,victim)
                     || game.items().consuming().owner(projectile)==victim || projectileTarget(owner,victim);
         }
-        return projectile.getOwner() instanceof ServerPlayer owner && !game.isObserver(owner)
+        var owner = projectile.getOwner() instanceof ServerPlayer player ? player
+                : isFireProjectile(projectile) ? LbcIndirectKills.playerSource(projectile) : null;
+        return owner != null && !game.isObserver(owner)
                 && (victim==owner || (projectile.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE)
                     ? target(owner,victim,true) : projectileTarget(owner,victim)));
     }
