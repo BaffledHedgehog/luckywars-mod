@@ -59,7 +59,8 @@ public final class CubeInteractionChecks {
                 require(f.level.getBlockState(at.above()).isAir()&&f.owner.getItemInHand(hand).is(bucket),"native bucket pickup also works without duplicate use");test.other(hand);
             }
             var mains=List.of(Items.DIAMOND_SWORD,LbcWands.FIRE_WAND,LbcWands.ACADEMY_FIRE,
-                    LbcChargedSwords.BLAZE,LbcMeleeItems.Kind.PISTON_SWORD.item,LbcMeleeItems.Kind.EPIC_SWORD.item);
+                    LbcChargedSwords.BLAZE,LbcMeleeItems.Kind.PISTON_SWORD.item,LbcMeleeItems.Kind.EPIC_SWORD.item,
+                    LbcPozdmanBot.ITEM);
             for(var support:supports)for(var main:mains)for(boolean crouch:new boolean[]{false,true}){
                 test.prepare(support,InteractionHand.OFF_HAND,new ItemStack(Items.COBBLESTONE,3),crouch);
                 f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(main));game.items().mana().set(f.owner,5000);
@@ -69,6 +70,7 @@ public final class CubeInteractionChecks {
                         "real vanilla packet sequence places one offhand block beside "+main+" on "+support+" crouch="+crouch);
                 require(f.owner.getOffhandItem().getCount()==2&&f.owner.getMainHandItem().is(main),"one offhand debit and preserved main hand");
                 require(game.items().mana().get(f.owner)==mana,"offhand placement never also casts the main-hand spell");
+                require(!f.owner.entityTags().contains("pozdman_wait"),"offhand placement does not also use the dating bot");
             }
             test.prepare(Blocks.STONE.defaultBlockState(),InteractionHand.OFF_HAND,new ItemStack(Items.COBBLESTONE,3),false);
             f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcWands.FIRE_WAND));
@@ -87,12 +89,21 @@ public final class CubeInteractionChecks {
                 f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(main));int mana=game.items().mana().get(f.owner);
                 f.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND,test.hit(),++test.sequence));
                 require(f.owner.containerMenu!=f.owner.inventoryMenu&&f.owner.getOffhandItem().getCount()==3
-                        &&f.level.getBlockState(at.above()).isAir()&&game.items().mana().get(f.owner)==mana,
+                        &&f.level.getBlockState(at.above()).isAir()&&game.items().mana().get(f.owner)==mana
+                        &&!f.owner.entityTags().contains("pozdman_wait"),
                         "native menu takes priority without offhand placement or cast: "+block+" held="+main);
                 f.owner.closeContainer();
             }
+            test.prepare(Blocks.STONE.defaultBlockState(),InteractionHand.MAIN_HAND,new ItemStack(LbcPozdmanBot.ITEM),false);
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            try {
+                test.send(InteractionHand.MAIN_HAND,true);
+                require(f.owner.entityTags().contains("pozdman_wait"),"native click still uses the dating bot after a passive block");
+            } finally {
+                game.items().pozdmanBot().forget(f.owner);
+            }
         }
-        SkyWars2.LOGGER.info("[check] PASS cube-interactions (all4 cubes; vanilla first-state projection, hidden transport/full native roundtrip;100 actual placement inputs with both hands/crouch/ordinary surface and exact self/observer audio;32 fluid pour/pickup inputs with duplicate-use suppression)");
+        SkyWars2.LOGGER.info("[check] PASS cube-interactions (all 4 cubes, native projection and roundtrip, both hands and crouch, fluids, native menus and Pozdman click priority)");
     }
     private static final class Input {
         final WoolBucketChecks.Fixture f;final BlockPos at;int sequence;

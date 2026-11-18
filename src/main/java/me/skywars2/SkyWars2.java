@@ -410,22 +410,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
             var bw=bedwarsUse(player,hand,hit);if(bw!=InteractionResult.PASS)return bw;
-            var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
-            var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
-            var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
-            if(game!=null&&player instanceof ServerPlayer owner){
-                if(me.skywars2.game.LbcCunnyItems.nahida(owner.getItemInHand(hand)))return game.vanity().blocked(owner)?InteractionResult.FAIL:InteractionResult.PASS;
-                if(me.skywars2.game.LbcCunnyItems.slab(owner.getItemInHand(hand))||me.skywars2.game.ItemData.intValue(owner.getItemInHand(hand),"cunny_slab",0)==1){
-                    if(game.vanity().blocked(owner))return InteractionResult.FAIL;
-                    return game.items().useCunny(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-                }
-            }
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.ItemData.intValue(owner.getItemInHand(hand),"mellstroy_mask",0)==1){
-                if(game.vanity().blocked(owner))return InteractionResult.FAIL;
-                return game.items().useMellstroy(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            }
-            if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
-                return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            // Air-use abilities run from UseItemCallback. Fabric invokes this callback
+            // before the clicked block can open its menu or handle its own interaction.
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useBlock(owner, hand, hit)) return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
