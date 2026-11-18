@@ -80,7 +80,10 @@ public final class LbcEnderWiki {
         p.level().sendParticles(ParticleTypes.PORTAL,true,false,origin.x,origin.y,origin.z+1,100,.2,.5,.2,.5);
         var destination=LbcSurfaceTeleport.destination(p.level(),game.config().noBorders?origin:Vec3.ZERO,100,
                 p.level().dimension()==Level.NETHER?125:p.level().getMaxY()+1,p.getRandom());
-        if(destination!=null)p.teleportTo(p.level(),destination.x,destination.y+.5,destination.z,Set.of(),p.getYRot(),p.getXRot(),true);
+        if(destination!=null){
+            boolean moved=p.teleportTo(p.level(),destination.x,destination.y+.5,destination.z,Set.of(),p.getYRot(),p.getXRot(),true);
+            if(academy&&moved)p.resetFallDistance();
+        }
         p.level().sendParticles(ParticleTypes.REVERSE_PORTAL,true,false,origin.x,origin.y,origin.z+1,100,.2,.5,.2,.5);
         LbcOverload.sound(p,origin,"minecraft:entity.enderman.teleport",2,1,16);
         if(p.level().players().stream().anyMatch(e->e!=p&&!e.isSpectator()&&e.distanceToSqr(p)>=.0001&&e.distanceToSqr(p)<=64))

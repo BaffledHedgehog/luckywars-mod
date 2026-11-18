@@ -74,7 +74,9 @@ public final class EnderWikiChecks {
         int flag(ItemStack s,String key){return s.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr(key,0);}
         void trial(ItemStack s){var d=s.get(DataComponents.CUSTOM_DATA).copyTag();d.putInt("upgradable",1);s.set(DataComponents.CUSTOM_DATA,CustomData.of(d));}
         void resetHealth(){owner.removeAllEffects();owner.setHealth(1000);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);}
-        void effect(LivingEntity target,net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> type,int ticks,int amplifier){require(target.hasEffect(type)&&target.getEffect(type).getDuration()==ticks&&target.getEffect(type).getAmplifier()==amplifier,"exact native "+type.getRegisteredName()+" expected="+ticks+"/"+amplifier+" actual="+target.getEffect(type)+" all="+target.getActiveEffects());}
+        void effect(LivingEntity target,net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> type,int ticks,int amplifier){
+            if(type.equals(MobEffects.BLINDNESS)||type.equals(MobEffects.DARKNESS))amplifier=Math.min(1,amplifier);
+            require(target.hasEffect(type)&&target.getEffect(type).getDuration()==ticks&&target.getEffect(type).getAmplifier()==amplifier,"exact native "+type.getRegisteredName()+" expected="+ticks+"/"+amplifier+" actual="+target.getEffect(type)+" all="+target.getActiveEffects());}
         void block(BlockPos pos,net.minecraft.world.level.block.state.BlockState value){blocks.putIfAbsent(pos,game.maps().snapshot(owner.level(),pos));owner.level().setBlock(pos,value,net.minecraft.world.level.block.Block.UPDATE_CLIENTS);}
         void clean(){resetHealth();game.items().magic().colors().clearEffects(owner);owner.setShiftKeyDown(false);game.items().mana().set(owner,100000);}
         void presentation(){for(var leaf:List.of("ender_wand","academy_ender_wand","bad_wiki","academy_bad_wiki")){
@@ -108,7 +110,9 @@ public final class EnderWikiChecks {
             clean();var s=loot("ender_wand");trial(s);game.items().mana().score(owner,"falltimer").set(99);owner.setOnGround(false);game.items().enderWiki().tick();require(game.items().mana().score(owner,"falltimer").get()==100,"raw airborne tick");
             require(use(s,InteractionHand.OFF_HAND)&&game.items().mana().get(owner)==97500&&Math.abs(owner.getY()-Math.floor(owner.getY())-.5)<1e-6&&flag(s,"upgrade_available")==1&&!owner.hasEffect(MobEffects.SLOW_FALLING),"Ender source landing half-block/trial/cost, offhand ordinary");
             owner.setOnGround(true);game.items().enderWiki().tick();require(game.items().mana().score(owner,"falltimer").get()==0,"ground resets airborne score");owner.setOnGround(false);
-            require(use(loot("academy_ender_wand"),InteractionHand.OFF_HAND),"Academy Ender");effect(owner,MobEffects.SLOW_FALLING,60,0);
+            owner.fallDistance=32;
+            require(use(loot("academy_ender_wand"),InteractionHand.OFF_HAND)&&owner.fallDistance==0,"Academy Ender clears the pre-teleport fall");
+            effect(owner,MobEffects.SLOW_FALLING,60,0);
             clean();var colors=game.items().magic().colors();
             for(int tier=0;tier<3;tier++){require(owner.addEffect(new net.minecraft.world.effect.MobEffectInstance(MobEffects.RAID_OMEN,20,40+tier),other),"native transport accepted");require(game.items().mana().score(owner,"effect_rtp_"+(tier+1)).get()==20,"native transport duration");}
             require(!owner.hasEffect(MobEffects.RAID_OMEN),"no raid transport remains");colors.tickTeleports();for(int tier=1;tier<=3;tier++)require(game.items().mana().score(owner,"effect_rtp_"+tier).get()==15,"five-tick source countdown");

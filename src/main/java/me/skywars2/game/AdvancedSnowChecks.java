@@ -89,7 +89,10 @@ public final class AdvancedSnowChecks {
         void rays(){
             reset();wall();var s=loot("advanced_ender_wand");trial(s);require(use(s,InteractionHand.OFF_HAND)&&game.items().mana().get(owner)==97000,"native offhand ordinary admission/cost");require(owner.position().equals(at),"ray result applies through queue");drain();
             require(Math.abs(owner.getZ()+231.5)<1e-6&&Math.abs(owner.getY()-241.5)<1e-6&&flag(s,"upgrade_available")==1,"source half-block landing and head-in-wall trial on actual used stack");effect(owner,MobEffects.INSTANT_DAMAGE,1,0);MobEffects.INSTANT_DAMAGE.value().applyEffectTick(owner.level(),owner,0);require(owner.getHealth()==994,"ordinary teleport native6 self damage");
-            reset();require(use(academy(1),InteractionHand.OFF_HAND),"Academy default");drain();require(!owner.hasEffect(MobEffects.INSTANT_DAMAGE),"Academy removes self damage");effect(owner,MobEffects.SLOW_FALLING,20,0);
+            reset();owner.fallDistance=32;
+            require(use(academy(1),InteractionHand.OFF_HAND),"Academy default");drain();
+            require(!owner.hasEffect(MobEffects.INSTANT_DAMAGE)&&owner.fallDistance==0,"Academy removes self damage and clears the pre-teleport fall");
+            effect(owner,MobEffects.SLOW_FALLING,20,0);
             reset();require(use(academy(2),InteractionHand.OFF_HAND),"topmost mode");drain();require(Math.abs(owner.getY()-245.5)<1e-6,"motion-blocking highest roof, not first wall step");
             reset();require(use(academy(3),InteractionHand.OFF_HAND),"clip mode");drain();require(owner.getZ()>-230&&owner.level().getBlockState(owner.blockPosition()).isAir()&&owner.level().getBlockState(owner.blockPosition().above()).isAir(),"first two-air opening after traversing solid wall");
             reset();for(int y=240;y<=244;y++)for(int z=-251;z<=-250;z++)block(new BlockPos(-241,y,z),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());owner.setYRot(180);require(use(academy(2),InteractionHand.OFF_HAND),"negative-direction topmost");drain();require(Math.abs(owner.getY()-245.5)<1e-6&&owner.blockPosition().getZ()==-250,"topmost uses actual negative-facing hit block, not boundary floor");
