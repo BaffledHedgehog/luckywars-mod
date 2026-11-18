@@ -131,7 +131,9 @@ public final class LbcCarpetBots {
             if(defense.retaliation!=null){aggressor=defense.retaliation.getUUID();aggressorUntil=now+1200;defense.retaliation=null;}
             var previousEnemy=enemy;enemy=nearestEnemy();
             if(enemy!=previousEnemy){brain.reset();abortMining();}
-            if(player.isUsingItem()&&(survival.urgent()||
+            boolean urgent=survival.urgent();
+            if((enemy!=null||urgent)&&player.containerMenu!=player.inventoryMenu)player.closeContainer();
+            if(player.isUsingItem()&&(urgent||
                     player.getUseItem().has(DataComponents.FOOD)&&defense.shelterUrgent()||
                     (player.getUseItem().getItem() instanceof BowItem||player.getUseItem().getItem() instanceof CrossbowItem
                     ||player.getUseItem().getItem() instanceof TridentItem)&&(preferMelee()||defense.interruptUse(enemy))))player.stopUsingItem();
@@ -167,7 +169,6 @@ public final class LbcCarpetBots {
             }
             if(enemy!=null){
                 stopCollecting();
-                if(player.containerMenu!=player.inventoryMenu)player.closeContainer();
                 goal=enemy.position();chest=null;
                 if(clearCrystal())return;
                 double distance=player.distanceToSqr(enemy);boolean shooting=rangedLoadout()&&!preferMelee();

@@ -861,7 +861,8 @@ public final class GameChecks {
                                 case "bot-counter" -> { BotRevisionChecks.counter(game); return; }
                                 case "bot-academy-trial" -> { BotRevisionChecks.academy(game); return; }
                                 case "bot-cages" -> { BotCageChecks.run(game); return; }
-                                case "bot-route-flat", "bot-route-noise", "bot-route-parkour", "bot-route-narrow", "bot-route-ledge" -> { BotRouteChecks.run(game,suite.substring("bot-route-".length()));return; }
+                                case "bot-route-flat", "bot-route-noise", "bot-route-parkour", "bot-route-narrow", "bot-route-ledge",
+                                     "bot-route-wading" -> { BotRouteChecks.run(game,suite.substring("bot-route-".length()));return; }
                                 case "chef-route-flat", "chef-route-noise", "chef-route-parkour" -> { ChefRouteChecks.run(game,suite.substring("chef-route-".length()));return; }
                                 case "bot-map-start" -> { BotMapChecks.run(game);return; }
                                 case "bot-lucky-preparation" -> { BotLuckyChecks.run(game);return; }

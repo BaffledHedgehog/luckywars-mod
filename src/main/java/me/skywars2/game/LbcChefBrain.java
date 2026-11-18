@@ -511,7 +511,7 @@ final class LbcChefBrain {
         while(path.peek()!=aimStep&&!path.isEmpty())path.remove();
         chef.setSprinting(openRun);
         boolean runningJump=false;
-        if(openRun&&chef.onGround()&&chef.tickCount>=nextJump
+        if(openRun&&chef.onGround()&&!chef.isInWater()&&chef.tickCount>=nextJump
                 &&step.action==Action.WALK&&flatRunway(chef.position(),aim)
                 &&chef.position().subtract(driver.destination()).horizontalDistanceSqr()>25){
             Vec3 forward=aim.subtract(chef.position()).multiply(1,0,1);
@@ -524,8 +524,10 @@ final class LbcChefBrain {
                 }
             }
         }
-        // Slabs/stairs within native step height stay walking; only explicit jump edges request a jump.
-        driver.steer(aim,runningJump||chef.isInWater()&&aim.y>=chef.getY()-.2);
+        // Level routes through water only need horizontal movement. Losing
+        // ground contact for one tick must not start repeated swim impulses.
+        boolean swimmingUp=chef.isInWater()&&aim.y>chef.getY()+.1;
+        driver.steer(aim,runningJump||swimmingUp);
     }
     private Vec3 runway(Spot from,Spot to){
         if(!driver.canSprint())return null;

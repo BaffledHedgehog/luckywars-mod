@@ -3,8 +3,13 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundAttackPacket;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
@@ -85,9 +90,32 @@ public final class BotMovementFeedbackChecks {
                 require(bot.getDeltaMovement().horizontalDistanceSqr()>.001,"the native damage really applies physical knockback");
                 phase=1;at=now;return false;
             }
-            if(elapsed<24)return false;
-            require(bot.onGround(),"ordinary native landing after the real knockback");
-            SkyWars2.LOGGER.info("[check] PASS bot-edge-feedback (native melee cooldown retreat gains inland support, bounded camera, real player attack/knockback and24tick ordinary survival)");return true;
+            if(phase==1){
+                if(elapsed<24)return false;
+                require(bot.onGround(),"ordinary native landing after the real knockback");
+                prepareThreatWhileLooting();
+                phase=2;at=now;return false;
+            }
+            if(elapsed>=2)require(bot.containerMenu==bot.inventoryMenu,
+                    "native chest closes before the ground-melee retreat can block block selection");
+            if(game.carpetBots().observation(bot).placements()==0)return false;
+            SkyWars2.LOGGER.info("[check] PASS bot-edge-feedback (bounded camera, real melee knockback, native survival, and actual defensive placement after closing chest)");return true;
+        }
+        void prepareThreatWhileLooting(){
+            base.move(base.other,origin.add(-12,0,0));
+            game.carpetBots().forget(bot);
+            bot.setLastHurtByMob(null);
+            bot.getInventory().setItem(1,new ItemStack(Items.STONE,8));
+            bot.openMenu(new SimpleMenuProvider((sync,inventory,player)->ChestMenu.oneRow(sync,inventory),
+                    Component.literal("Starter chest")));
+            require(bot.containerMenu instanceof ChestMenu,"real vanilla chest screen is open before the threat");
+            var zombie=EntityTypes.ZOMBIE.create(base.level,EntitySpawnReason.COMMAND);
+            require(zombie!=null,"native ground threat factory");
+            zombie.setPos(bot.position().add(-3,0,0));
+            zombie.setNoAi(true);
+            zombie.setTarget(bot);
+            require(base.level.addFreshEntity(zombie),"native zombie targets the looting bot");
+            base.own(zombie);
         }
         @Override public void close(){
             Throwable failure=null;try{super.close();}catch(Throwable error){failure=error;}

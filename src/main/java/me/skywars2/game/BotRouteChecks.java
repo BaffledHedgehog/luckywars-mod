@@ -5,12 +5,13 @@ import java.lang.reflect.Field;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 /** Long actual native movement: intent-only waypoints, existing surfaces and no motion injection. */
 final class BotRouteChecks {
-    enum Kind{FLAT,NOISE,PARKOUR,NARROW,LEDGE}
+    enum Kind{FLAT,NOISE,PARKOUR,NARROW,LEDGE,WADING}
     private static Fixture running;
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Bot route: "+why);}
     static Map<BlockPos,BlockState> surface(WoolBucketChecks.Fixture base,Vec3 origin,Kind kind){
@@ -26,28 +27,46 @@ final class BotRouteChecks {
                 state=y==4||y>=0&&wall?Blocks.BEDROCK.defaultBlockState():
                         y==-1&&island||kind==Kind.LEDGE&&y==-2&&x==-1&&z==0?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState();
             }
+            if(kind==Kind.WADING&&y==0&&Math.max(Math.abs(x),Math.abs(z))<=4)
+                state=Math.max(Math.abs(x),Math.abs(z))==4?Blocks.STONE.defaultBlockState():
+                        Blocks.STONE_SLAB.defaultBlockState().setValue(SlabBlock.WATERLOGGED,true);
             var pos=cell.offset(x,y,z);base.set(pos,state);terrain.put(pos,state);
         }
         return terrain;
     }
     static List<Vec3> points(Vec3 origin,Kind kind){
         if(kind==Kind.NARROW||kind==Kind.LEDGE)return List.of(origin.add(4,0,0));
+        if(kind==Kind.WADING)return List.of(origin.add(2.75,.5,0));
         int up=kind==Kind.NOISE?1:0;
         return kind==Kind.PARKOUR?List.of(origin.add(20,0,0)):
                 List.of(origin.add(20,up,-20),origin.add(20,up,20),origin.add(-20,up,20),origin.add(-20,up,-20));
     }
     private static final class Fixture extends BotStarterChecks.Fixture {
         final Kind kind;final Map<BlockPos,BlockState> terrain=new LinkedHashMap<>();final Map<String,Field> access=new HashMap<>();
-        List<Vec3> points;Vec3 previous;int at,waypoint,fastTicks,airTicks;double distance;float lastPitch;boolean started;
+        List<Vec3> points;Vec3 previous;int at,waypoint,fastTicks,airTicks,wetGroundTicks,initialPlacements;double distance;float lastPitch;boolean started;
         Fixture(GameController game,Kind kind){super(game);this.kind=kind;}
         @Override void setup(){super.setup();at=game.server().getTickCount();}
         void begin(){
             terrain.putAll(surface(base,origin,kind));
             int up=kind==Kind.NOISE?1:0;
-            var start=kind==Kind.NARROW||kind==Kind.LEDGE?origin:origin.add(-20,up,kind==Kind.PARKOUR?0:-20);resetStarterBody(start);
+            var start=switch(kind){
+                case NARROW,LEDGE -> origin;
+                case WADING -> origin.add(-2,.5,0);
+                default -> origin.add(-20,up,kind==Kind.PARKOUR?0:-20);
+            };
+            points=points(origin,kind);
+            if(kind==Kind.WADING){
+                // Install the straight route before the first movement tick in the pool.
+                // Recreating the controller here would first send it toward the arena center.
+                bot.closeContainer();
+                bot.stopUsingItem();
+                move(bot,start,-90);
+                ((LbcChefBrain)WoolBucketChecks.read(state(),"brain")).reset();
+                intent();
+            }else resetStarterBody(start);
             if(kind==Kind.NARROW||kind==Kind.LEDGE)for(int slot=0;slot<36;slot++)if(bot.getInventory().getItem(slot).getItem() instanceof net.minecraft.world.item.BlockItem)
                 bot.getInventory().setItem(slot,net.minecraft.world.item.ItemStack.EMPTY);
-            points=points(origin,kind);
+            initialPlacements=game.carpetBots().observation(bot).placements();
             previous=bot.position();lastYaw=bot.getYRot();lastPitch=bot.getXRot();at=game.server().getTickCount();started=true;
         }
         void set(Object state,String name,Object value){
@@ -68,15 +87,21 @@ final class BotRouteChecks {
             require(Math.abs(net.minecraft.util.Mth.wrapDegrees(bot.getYRot()-lastYaw))<=12.01&&Math.abs(bot.getXRot()-lastPitch)<=8.01,"actual camera turns stay bounded each native tick");
             lastYaw=bot.getYRot();lastPitch=bot.getXRot();require(!bot.isNoGravity(),"native gravity stays enabled on the whole route");
             require(bot.getY()>=origin.y-.5,"route never falls through a gap "+kind+" "+game.carpetBots().diagnostics(bot));
+            if(kind==Kind.WADING){
+                if(bot.onGround()&&bot.isInWater())wetGroundTicks++;
+                require(bot.getY()<=origin.y+.80&&bot.getDeltaMovement().y<.25,
+                        "a level wading route never triggers a full native jump: "+game.carpetBots().diagnostics(bot));
+            }
             double travelled=bot.position().subtract(previous).horizontalDistance();
             require(bot.position().distanceToSqr(previous)<2.25,"native movement contains no teleport "+kind);
             previous=bot.position();distance+=travelled;if(travelled>=.31)fastTicks++;if(!bot.onGround())airTicks++;
             if(elapsed%40==0)SkyWars2.LOGGER.info("[check] Native route {} ticks={} waypoint={} distance={} fastTicks={} airTicks={} {}",kind,elapsed,waypoint,distance,fastTicks,airTicks,game.carpetBots().diagnostics(bot));
             if(bot.position().subtract(points.get(waypoint)).horizontalDistanceSqr()<1.8*1.8&&(!(kind==Kind.NARROW||kind==Kind.LEDGE)||bot.onGround())){
                 if(++waypoint==points.size()){
-                    require(game.carpetBots().observation(bot).placements()==0,"existing walkable/parkour terrain needs no constructed bypass "+kind);
+                    require(game.carpetBots().observation(bot).placements()==initialPlacements,"existing walkable/parkour terrain needs no constructed bypass "+kind);
                     for(var entry:terrain.entrySet())require(base.level.getBlockState(entry.getKey()).equals(entry.getValue()),"native route preserves the existing surface "+kind);
                     if(kind==Kind.FLAT)require(distance>=145&&fastTicks>=200&&airTicks>=120,"long flat route sustains native sprint-jump movement");
+                    if(kind==Kind.WADING)require(wetGroundTicks>=6&&distance>=2.5,"same native body actually walks the water-covered floor");
                     SkyWars2.LOGGER.info("[check] Native route completed {} ticks={} distance={} fastTicks={} airTicks={}",kind,elapsed,distance,fastTicks,airTicks);return true;
                 }
                 var state=state();if(state!=null)((LbcChefBrain)WoolBucketChecks.read(state,"brain")).reset();
