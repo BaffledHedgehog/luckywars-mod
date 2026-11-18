@@ -41,9 +41,11 @@ final class LbcNexusClone {
             TicketType.FLAG_LOADING | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private static final int FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
     private static final int CELLS_PER_STEP = 256;
+    private static final int LOAD_WAIT_TICKS = 600;
     private final GameController game;
     private final Completion completion;
     private final BiFunction<ServerLevel, ChunkPos, CompletableFuture<?>> chunkLoader;
+    private final int loadWaitTicks;
     private final Map<Source, Job> jobs = new HashMap<>();
     private final Map<Source, Load> loads = new HashMap<>();
     private record Source(ServerLevel level, ChunkPos chunk) { }
@@ -78,13 +80,16 @@ final class LbcNexusClone {
     }
 
     LbcNexusClone(GameController game, Completion completion) {
-        this(game, completion, (level, chunk) -> level.getChunkSource().addTicketAndLoadWithRadius(TICKET, chunk, 0));
+        this(game, completion, (level, chunk) -> level.getChunkSource().addTicketAndLoadWithRadius(TICKET, chunk, 0),
+                LOAD_WAIT_TICKS);
     }
 
-    LbcNexusClone(GameController game, Completion completion, BiFunction<ServerLevel, ChunkPos, CompletableFuture<?>> chunkLoader) {
+    LbcNexusClone(GameController game, Completion completion, BiFunction<ServerLevel, ChunkPos, CompletableFuture<?>> chunkLoader,
+                  int loadWaitTicks) {
         this.game = game;
         this.completion = completion;
         this.chunkLoader = chunkLoader;
+        this.loadWaitTicks = loadWaitTicks;
     }
 
     static boolean loadFailed(CompletableFuture<?> future) {
@@ -104,21 +109,25 @@ final class LbcNexusClone {
         var position = BlockPos.containing(origin);
         var key = new Source(source, new ChunkPos(position.getX() >> 4, position.getZ() >> 4));
         if (jobs.containsKey(key)) return false;
-        var random = source.getRandom();
-        int tx, tz;
-        do {
-            tx = (random.nextInt(625) - 312) * 16 + 8;
-            tz = (random.nextInt(625) - 312) * 16 + 8;
-        } while (source == destination && key.chunk.x() == tx >> 4 && key.chunk.z() == tz >> 4);
         if (destination.getHeight() < source.getHeight()) return false;
-        int sampledY = source.getMinY() + random.nextInt(source.getHeight());
+        var target = pickTarget(key, destination);
+        int sampledY = source.getMinY() + source.getRandom().nextInt(source.getHeight());
         // Preserve the source draw, then fit the entire logical volume before accepting writes.
         int ty = Math.max(destination.getMinY() + 8, Math.min(sampledY,
                 destination.getMinY() + destination.getHeight() - source.getHeight() + 8));
-        var job = new Job(key, destination, tx, ty, tz, cause);
+        var job = new Job(key, destination, target, ty, cause);
         jobs.put(key, job);
         game.items().stonekivi().queuedWork(job);
         return true;
+    }
+
+    private ChunkPos pickTarget(Source source, ServerLevel destination) {
+        var random = source.level.getRandom();
+        Source target;
+        do {
+            target = new Source(destination, new ChunkPos(random.nextInt(625) - 312, random.nextInt(625) - 312));
+        } while (target.equals(source) || loads.containsKey(target));
+        return target.chunk;
     }
 
     int pending() { return jobs.size(); }
@@ -129,7 +138,7 @@ final class LbcNexusClone {
     }
     List<View> snapshot() {
         return jobs.values().stream().map(job -> new View(job.source.level, job.source.chunk,
-                job.destination, job.targetChunk, new BlockPos(job.tx - 8, job.ty - 8, job.tz - 8),
+                job.destination, job.targetChunk, job.targetCell(0),
                 job.count, job.copied)).toList();
     }
     boolean sourceInFlight(ServerLevel level, ChunkPos chunk) { return jobs.containsKey(new Source(level, chunk)); }
@@ -141,34 +150,62 @@ final class LbcNexusClone {
     private final class Job implements LbcStonekivi.Work {
         final Source source;
         final ServerLevel destination;
-        final ChunkPos targetChunk;
-        final int tx, ty, tz, count;
+        ChunkPos targetChunk;
+        final int ty, count;
         final LbcIndirectKills.Owner cause;
-        final CompletableFuture<?> sourceLoad, destinationLoad;
-        int copied;
-        boolean started, finished;
+        final CompletableFuture<?> sourceLoad;
+        CompletableFuture<?> destinationLoad;
+        int copied, loadStartedAt;
+        boolean started, finished, retriedDestination;
 
-        Job(Source source, ServerLevel destination, int tx, int ty, int tz, LbcIndirectKills.Owner cause) {
+        Job(Source source, ServerLevel destination, ChunkPos targetChunk, int ty, LbcIndirectKills.Owner cause) {
             this.source = source;
             this.destination = destination;
-            this.tx = tx;
             this.ty = ty;
-            this.tz = tz;
             this.cause = cause;
-            this.targetChunk = new ChunkPos(tx >> 4, tz >> 4);
+            this.targetChunk = targetChunk;
             count = Math.multiplyExact(256, source.level.getHeight());
             sourceLoad = prepareChunk(source.level, source.chunk);
             destinationLoad = prepareChunk(destination, targetChunk);
+            loadStartedAt = game.server().getTickCount();
         }
 
         @Override public boolean ready() {
             if (finished) return true;
             if (loadFailed(sourceLoad) || loadFailed(destinationLoad)) return true;
-            if (!sourceLoad.isDone() || !destinationLoad.isDone()) return false;
-            return source.level.getChunkSource().getChunkNow(source.chunk.x(), source.chunk.z()) != null
-                    && destination.getChunkSource().getChunkNow(targetChunk.x(), targetChunk.z()) != null
-                    && !game.items().timeStop().stopped(source.level)
-                    && !game.items().timeStop().stopped(destination);
+            if (game.items().timeStop().stopped(source.level) || game.items().timeStop().stopped(destination)) return false;
+            return chunksReady() || !started && game.server().getTickCount() - loadStartedAt >= loadWaitTicks;
+        }
+
+        private boolean sourceReady() {
+            return sourceLoad.isDone() && source.level.getChunkSource().getChunkNow(source.chunk.x(), source.chunk.z()) != null;
+        }
+
+        private boolean chunksReady() {
+            return destinationLoad.isDone() && sourceReady()
+                    && destination.getChunkSource().getChunkNow(targetChunk.x(), targetChunk.z()) != null;
+        }
+
+        /** The first target is still reserved while choosing a different column. */
+        private boolean retryDestination() {
+            if (retriedDestination || !sourceReady()) return abandon("load deadline exceeded");
+            var next = pickTarget(source, destination);
+            var nextLoad = prepareChunk(destination, next);
+            SkyWars2.LOGGER.warn("Nexus transfer source {}: destination {} ({}) reached the load deadline; retrying at {}",
+                    source.chunk, targetChunk, loadStatus(destinationLoad), next);
+            releaseChunk(destination, targetChunk);
+            targetChunk = next;
+            destinationLoad = nextLoad;
+            loadStartedAt = game.server().getTickCount();
+            retriedDestination = true;
+            return false;
+        }
+
+        private boolean abandon(String reason) {
+            SkyWars2.LOGGER.warn("Nexus transfer cancelled before terrain writes ({}): source {} ({}), destination {} ({})",
+                    reason, source.chunk, loadStatus(sourceLoad), targetChunk, loadStatus(destinationLoad));
+            release();
+            return true;
         }
 
         BlockPos sourceCell(int index) {
@@ -177,16 +214,15 @@ final class LbcNexusClone {
         }
 
         BlockPos targetCell(int index) {
-            return new BlockPos(tx - 8 + (index & 15), ty - 8 + (index >> 8), tz - 8 + ((index >> 4) & 15));
+            return new BlockPos(targetChunk.getMinBlockX() + (index & 15), ty - 8 + (index >> 8),
+                    targetChunk.getMinBlockZ() + ((index >> 4) & 15));
         }
 
         @Override public boolean step() {
             if (finished) return true;
-            if (!started && (loadFailed(sourceLoad) || loadFailed(destinationLoad))) {
-                SkyWars2.LOGGER.warn("Nexus transfer cancelled before terrain writes: source {} ({}), destination {} ({})",
-                        source.chunk, loadStatus(sourceLoad), targetChunk, loadStatus(destinationLoad));
-                release();
-                return true;
+            if (!started) {
+                if (loadFailed(sourceLoad) || loadFailed(destinationLoad)) return abandon("native load failed");
+                if (!chunksReady()) return retryDestination();
             }
             started = true;
             if (copied < count) {
@@ -222,6 +258,8 @@ final class LbcNexusClone {
         }
 
         private void complete() {
+            int tx = targetChunk.getMinBlockX() + 8;
+            int tz = targetChunk.getMinBlockZ() + 8;
             var delta = new Vec3(tx - 8 - source.chunk.getMinBlockX(),
                     ty - 8 - source.level.getMinY(), tz - 8 - source.chunk.getMinBlockZ());
             var box = new AABB(source.chunk.getMinBlockX(), source.level.getMinY(), source.chunk.getMinBlockZ(),

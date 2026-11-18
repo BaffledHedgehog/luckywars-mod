@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
@@ -31,7 +32,7 @@ public final class NexusCloneChecks {
     }
     public static void tick(GameController game){
         if(game==null||running==null)return;
-        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native async/full-height Stonekivi MOVE, failed load releases the capture barrier without writes, two-world TimeStop, source deduplication, exact chest stack and AIR replacement, UUID/entity/passenger delta, player/marker exclusions, callback3centers/16trees and scoped restoration)");}
+        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native async/full-height Stonekivi MOVE, failed and timed-out destination loads release the capture barrier without writes, one alternate destination and independent late completion, two-world TimeStop, source deduplication, exact chest stack and AIR replacement, UUID/entity/passenger delta, player/marker exclusions, callback3centers/16trees and scoped restoration)");}
         catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL nexus-clone",error);}
     }
 
@@ -51,7 +52,11 @@ public final class NexusCloneChecks {
         final Set<UUID> owned=new LinkedHashSet<>(),destinationBefore=new HashSet<>();
         final LbcNexusClone clone;
         final LbcNexusClone failedClone;
+        final LbcNexusClone stalledClone;
         final CompletableFuture<?> pendingSource=new CompletableFuture<>();
+        final CompletableFuture<ChunkResult<?>> stalledFirstDestination=new CompletableFuture<>();
+        final CompletableFuture<ChunkResult<?>> stalledSecondDestination=new CompletableFuture<>();
+        final List<ChunkPos> attemptedDestinations=new ArrayList<>();
         RegenerationBeltChecks.ScheduledClient client,audience;
         CompletableFuture<?> sourceLoad,destinationLoad;
         LbcNexusClone.View view;
@@ -62,7 +67,7 @@ public final class NexusCloneChecks {
         BlockPos chest,airProbe;
         Vec3 playerPosition,delta;
         List<Vec3> centers=List.of(),trees=List.of();
-        int stage,when,callbacks,lastCompleted;
+        int stage,when,callbacks,lastCompleted,retryTick;
         int sourceContainerItems;
         boolean closed,sourceCaptured,destinationCaptured,sourceStopped,destinationStopped,sawProgress;
 
@@ -76,7 +81,14 @@ public final class NexusCloneChecks {
             failedClone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
                 throw new IllegalStateException("Failed destination must never receive terrain or a completion callback");
             },(level,chunk)->level==source?pendingSource:CompletableFuture.completedFuture(
-                    net.minecraft.server.level.ChunkResult.error("controlled destination load failure")));
+                    ChunkResult.error("controlled destination load failure")),20);
+            stalledClone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
+                throw new IllegalStateException("Stalled destinations must never receive terrain or a completion callback");
+            },(level,chunk)->{
+                if(level==source)return sourceLoad;
+                attemptedDestinations.add(chunk);
+                return attemptedDestinations.size()==1?stalledFirstDestination:stalledSecondDestination;
+            },5);
             clone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
                 require(level==destination&&owner==cause,"completion retains native dimension and exact causal owner");
                 require(view!=null&&tx-8==view.targetMin().getX()&&ty-8==view.targetMin().getY()&&tz-8==view.targetMin().getZ(),"callback source target geometry");
@@ -164,7 +176,31 @@ public final class NexusCloneChecks {
                 if(elapsed==0)return false;
                 require(!pendingSource.isDone()&&failedClone.captureReady()&&!failedClone.sourceInFlight(source,sourceChunk),
                         "a completed native failure releases the transfer while the other load remains pending");
-                if(ready(sourceLoad,source,sourceChunk))seed();
+                if(ready(sourceLoad,source,sourceChunk)){
+                    require(stalledClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null),
+                            "stalled destination request enters the actual shared scheduler");
+                    begin(6);
+                }
+                return false;
+            }
+            if(stage==6){
+                if(!stalledClone.captureReady()){
+                    var current=stalledClone.snapshot().getFirst();
+                    require(current.completed()==0&&stalledClone.sourceInFlight(source,sourceChunk),
+                            "waiting or retrying still reserves the source without writing");
+                    if(attemptedDestinations.size()==2&&!stalledFirstDestination.isDone()){
+                        require(!attemptedDestinations.getFirst().equals(current.destinationChunk())
+                                        &&attemptedDestinations.getLast().equals(current.destinationChunk()),
+                                "retry uses a different Nexus chunk");
+                        stalledFirstDestination.complete(ChunkResult.error("late result from discarded destination"));
+                        retryTick=game.server().getTickCount();
+                    }
+                    return false;
+                }
+                require(attemptedDestinations.size()==2&&stalledFirstDestination.isDone()&&!stalledSecondDestination.isDone()
+                                &&game.server().getTickCount()-retryTick>=5&&!stalledClone.sourceInFlight(source,sourceChunk),
+                        "one alternate attempt then release, independently of a late old result or still-pending current result");
+                seed();
                 return false;
             }
             if(stage==1){
@@ -231,6 +267,7 @@ public final class NexusCloneChecks {
             for(Runnable action:List.<Runnable>of(
                     clone::stop,
                     failedClone::stop,
+                    stalledClone::stop,
                     ()->{for(var level:List.of(source,destination))for(var id:owned){var entity=level.getEntity(id);if(entity!=null){if(entity instanceof LivingEntity living)game.items().indirectKills().clear(living);entity.discard();}}},
                     ()->{if(sourceCaptured)restoreColumn(source,sourceChunk,sourceOriginal);},
                     ()->{if(destinationCaptured)restoreColumn(destination,view.destinationChunk(),destinationOriginal);},
