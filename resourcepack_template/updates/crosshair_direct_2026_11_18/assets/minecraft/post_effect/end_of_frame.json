@@ -1,0 +1,414 @@
+{
+  "targets": {
+    "bloomh": {},
+    "bloomv": {},
+    "black_hole_scene": {},
+    "black_hole_trace": {},
+    "nuclear_volume": {},
+    "nuclear_scene": {},
+    "effect_state": {
+      "width": 171,
+      "height": 68
+    },
+    "effect_history": {
+      "width": 171,
+      "height": 68,
+      "persistent": true,
+      "clear_color": 0
+    },
+    "time_frame": {
+      "width": 3840,
+      "height": 2160,
+      "persistent": true,
+      "clear_color": 0
+    },
+    "time_gate": {
+      "width": 1,
+      "height": 1
+    },
+    "time_previous": {
+      "width": 1,
+      "height": 1,
+      "persistent": true,
+      "clear_color": 0
+    }
+  },
+  "passes": [
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "lbc:post/time_gate",
+      "inputs": [
+        {
+          "sampler_name": "Scene",
+          "target": "minecraft:main"
+        },
+        {
+          "sampler_name": "History",
+          "target": "time_previous"
+        }
+      ],
+      "output": "time_gate"
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "minecraft:post/blit",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "time_gate"
+        }
+      ],
+      "output": "time_previous",
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "ColorModulate",
+            "type": "vec4",
+            "value": [
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "lbc:post/effect_state",
+      "inputs": [
+        {
+          "sampler_name": "Current",
+          "target": "minecraft:main"
+        },
+        {
+          "sampler_name": "History",
+          "target": "effect_history"
+        }
+      ],
+      "output": "effect_state"
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "minecraft:post/blit",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "effect_state"
+        }
+      ],
+      "output": "effect_history",
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "ColorModulate",
+            "type": "vec4",
+            "value": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "minecraft:post/bloom_sample",
+      "inputs": [
+        {
+          "sampler_name": "Diffuse",
+          "target": "minecraft:main"
+        }
+      ],
+      "output": "bloomh",
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "ColorModulate",
+            "type": "vec4",
+            "value": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "lbc:post/material_bloom",
+      "inputs": [
+        {
+          "sampler_name": "Diffuse",
+          "target": "bloomh",
+          "bilinear": true
+        },
+        {
+          "sampler_name": "Bloom",
+          "target": "bloomh",
+          "bilinear": true
+        }
+      ],
+      "output": "bloomv",
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "ColorModulate",
+            "type": "vec4",
+            "value": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "BlurDir",
+            "type": "vec2",
+            "value": [
+              1.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "lbc:post/material_bloom",
+      "inputs": [
+        {
+          "sampler_name": "Diffuse",
+          "target": "minecraft:main"
+        },
+        {
+          "sampler_name": "Bloom",
+          "target": "bloomv",
+          "bilinear": true
+        }
+      ],
+      "output": "black_hole_scene",
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "ColorModulate",
+            "type": "vec4",
+            "value": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "BlurDir",
+            "type": "vec2",
+            "value": [
+              0.0,
+              1.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "vertex_shader": "lbc:post/nuclear",
+      "fragment_shader": "lbc:post/nuclear",
+      "inputs": [
+        {
+          "sampler_name": "NuclearData",
+          "target": "effect_state"
+        },
+        {
+          "sampler_name": "SceneDepth",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        }
+      ],
+      "output": "nuclear_volume"
+    },
+    {
+      "vertex_shader": "lbc:post/nuclear_many",
+      "fragment_shader": "lbc:post/nuclear_many",
+      "inputs": [
+        {
+          "sampler_name": "NuclearData",
+          "target": "effect_state"
+        },
+        {
+          "sampler_name": "SceneDepth",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        }
+      ],
+      "output": "nuclear_volume"
+    },
+    {
+      "vertex_shader": "lbc:post/nuclear_full",
+      "fragment_shader": "lbc:post/nuclear_resolve",
+      "inputs": [
+        {
+          "sampler_name": "NuclearData",
+          "target": "effect_state"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "black_hole_scene"
+        },
+        {
+          "sampler_name": "SceneDepth",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        },
+        {
+          "sampler_name": "Volume",
+          "target": "nuclear_volume"
+        }
+      ],
+      "output": "nuclear_scene"
+    },
+    {
+      "vertex_shader": "lbc:post/nuclear_many_full",
+      "fragment_shader": "lbc:post/nuclear_resolve_many",
+      "inputs": [
+        {
+          "sampler_name": "NuclearData",
+          "target": "effect_state"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "black_hole_scene"
+        },
+        {
+          "sampler_name": "SceneDepth",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        },
+        {
+          "sampler_name": "Volume",
+          "target": "nuclear_volume"
+        }
+      ],
+      "output": "nuclear_scene"
+    },
+    {
+      "vertex_shader": "lbc:post/black_hole_image_fast",
+      "fragment_shader": "lbc:post/black_hole_image_fast",
+      "inputs": [
+        {
+          "sampler_name": "HoleData",
+          "target": "effect_state"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "nuclear_scene",
+          "bilinear": true
+        },
+        {
+          "sampler_name": "SceneDepth",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        }
+      ],
+      "output": "black_hole_trace"
+    },
+    {
+      "vertex_shader": "lbc:post/black_hole_image_many",
+      "fragment_shader": "lbc:post/black_hole_image",
+      "inputs": [
+        {
+          "sampler_name": "HoleData",
+          "target": "effect_state"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "nuclear_scene",
+          "bilinear": true
+        },
+        {
+          "sampler_name": "SceneDepth",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        }
+      ],
+      "output": "black_hole_trace"
+    },
+    {
+      "vertex_shader": "lbc:post/nuclear_heat",
+      "fragment_shader": "lbc:post/nuclear_heat",
+      "inputs": [
+        {
+          "sampler_name": "NuclearData",
+          "target": "effect_state"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "black_hole_trace",
+          "bilinear": true
+        },
+        {
+          "sampler_name": "SceneDepth",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        }
+      ],
+      "output": "minecraft:main"
+    },
+    {
+      "vertex_shader": "lbc:post/nuclear_heat_many",
+      "fragment_shader": "lbc:post/nuclear_heat_many",
+      "inputs": [
+        {
+          "sampler_name": "NuclearData",
+          "target": "effect_state"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "black_hole_trace",
+          "bilinear": true
+        },
+        {
+          "sampler_name": "SceneDepth",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        }
+      ],
+      "output": "minecraft:main"
+    },
+    {
+      "vertex_shader": "lbc:post/time_capture",
+      "fragment_shader": "lbc:post/time_capture",
+      "inputs": [
+        {
+          "sampler_name": "Gate",
+          "target": "time_gate"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "minecraft:main"
+        }
+      ],
+      "output": "time_frame"
+    },
+    {
+      "vertex_shader": "lbc:post/time_present",
+      "fragment_shader": "lbc:post/time_present",
+      "inputs": [
+        {
+          "sampler_name": "Gate",
+          "target": "time_gate"
+        },
+        {
+          "sampler_name": "Frame",
+          "target": "time_frame"
+        }
+      ],
+      "output": "minecraft:main"
+    }
+  ]
+}

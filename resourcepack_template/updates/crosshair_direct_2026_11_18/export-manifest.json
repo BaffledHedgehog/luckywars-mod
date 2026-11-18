@@ -1,0 +1,14 @@
+{
+  "minecraft_version": "26.3",
+  "assets": {
+    "assets/lbc/shaders/post/weapon_spread.fsh": "e72bf8d909fbea5a947c2e5faf828417f453d128968eab22703011513902ba1e",
+    "assets/lbc/shaders/post/weapon_spread.vsh": "dcd05d37034693d42ef38ab6ea568385a7f0b4555debb37b77579fe313929297",
+    "assets/minecraft/post_effect/end_of_frame.json": "d45e98ddf6218328ba1a8eb9f4126680520af09f853e4687211df91af0606b82"
+  },
+  "gpu_renderer": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "gpu_cases": 60,
+  "shaderc_stages": 40,
+  "shaderc_variants_per_stage": 2,
+  "old_alpha_loss_reproduced": true,
+  "live_gameplay_verified": false
+}
