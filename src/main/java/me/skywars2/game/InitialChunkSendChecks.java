@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.game.ClientboundChunkBatchFinishedPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ServerboundChunkBatchReceivedPacket;
 import net.minecraft.server.level.ChunkTrackingView;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 
@@ -35,8 +36,37 @@ public final class InitialChunkSendChecks {
             if(packet instanceof ClientboundLevelChunkWithLightPacket chunk&&chunk.x()==target.x()&&chunk.z()==target.z())targetPackets++;
         }}
         void enterView(){var access=(ArenaChunkAccess)f.level.getChunkSource().chunkMap;access.skywars2$applyChunkTrackingView(f.owner,ChunkTrackingView.EMPTY);access.skywars2$applyChunkTrackingView(f.owner,initialView);}
-        boolean step(){collect();require(game.server().getTickCount()-started<160,"bounded real native scene phase="+phase);var map=f.level.getChunkSource().chunkMap;int elapsed=game.server().getTickCount()-when;
+        void sendToCarpet() throws ReflectiveOperationException {
+            ServerPlayer actor = CarpetBotChecks.connect(game, "ChunkSendProbe", f.level, f.owner.clientInformation());
+            try {
+                require(actor.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),
+                    "actual fake listener, no recording replacement");
+                var chunk = f.level.getChunk(target.x(), target.z());
+                f.set(probe, Blocks.CHEST.defaultBlockState());
+                require(chunk.getBlockEntity(probe) != null, "native chunk packet would collect a block entity");
+                var alert = Class.forName("eu.pb4.polymer.core.impl.PolymerImplUtils")
+                        .getDeclaredField("alreadySentMissingChunkPacketContextWarning");
+                alert.setAccessible(true);
+                long oldAlert = alert.getLong(null);
+                try {
+                    alert.setLong(null, 0);
+                    var sender = actor.connection.chunkSender;
+                    // Match the first, unthrottled batch of a fresh fake joining beside the ready chunk.
+                    sender.onChunkBatchReceivedByClient(64);
+                    sender.markChunkPendingToSend(chunk);
+                    sender.sendNextChunks(actor);
+                    require(!sender.isPending(target.pack()), "native sender removes the fake's pending position");
+                    require(alert.getLong(null) == 0, "Carpet's discarded chunk must not run Polymer packet construction");
+                } finally {
+                    alert.setLong(null, oldAlert);
+                }
+            } finally {
+                game.server().getPlayerList().remove(actor);
+            }
+        }
+        boolean step() throws ReflectiveOperationException {collect();require(game.server().getTickCount()-started<160,"bounded real native scene phase="+phase);var map=f.level.getChunkSource().chunkMap;int elapsed=game.server().getTickCount()-when;
             if(phase==0){if(map.getChunkToSend(target.pack())==null)return false;
+                if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("carpet")) sendToCarpet();
                 update=new MapLighting.Update(f.level);update.changed(probe);f.set(probe,Blocks.GLOWSTONE.defaultBlockState());before=targetPackets;enterView();
                 require(map.getChunkToSend(target.pack())==null,"actual send dependency blocks central chunk data");
                 require(f.client.listener.chunkSender.isPending(target.pack()),"initial native view must retain a request when the ready chunk is temporarily gated");when=game.server().getTickCount();phase=1;return false;}

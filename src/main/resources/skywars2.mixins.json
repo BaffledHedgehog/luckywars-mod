@@ -65,6 +65,7 @@
     "LegacyVanillaStateMixin$Visibility",
     "FireballPresentationMixin",
     "InitialChunkQueueMixin",
+    "CarpetChunkPacketMixin",
     "GalleryTrackingMixin",
     "TmtItemPredicateMixin",
     "TmtTypedPredicateMixin",
