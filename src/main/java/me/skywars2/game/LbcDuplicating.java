@@ -203,7 +203,8 @@ public final class LbcDuplicating {
             if(resident(source,pos)) return 1;
             var pending=loading.computeIfAbsent(source,ignored->new java.util.HashMap<>())
                     .computeIfAbsent(new ChunkPos(pos.getX()>>4,pos.getZ()>>4),chunk->game.maps().prepareChunk(source,chunk));
-            return pending.isCompletedExceptionally()?-1:0;
+            if(!pending.isDone()) return 0;
+            return !NativeChunkLoad.failed(pending)&&resident(source,pos)?1:-1;
         }
     }
     /** Одна случайная фигура: сперва полный снимок, затем удаление/перенос/преобразование без потери содержимого. */
@@ -350,10 +351,11 @@ public final class LbcDuplicating {
             if(captured==null) captured=new MapManager.BlockSnapshot[volume];
             while(read<volume && budget[0]>0 && System.nanoTime()<deadline) {
                 BlockPos pos=cell(min,read);
-                if(!resident(source,pos)) {
-                    if(source==job.level) return job instanceof LiveShuffle;
-                    if(job.sourceReady(source,pos)<0) return true;
-                    return false;
+                if(source==job.level) {
+                    if(!resident(source,pos)) return job instanceof LiveShuffle;
+                } else {
+                    int status=job.sourceReady(source,pos);
+                    if(status<=0) return status<0;
                 }
                 captured[read++]=capture(source,pos); budget[0]--;
             }

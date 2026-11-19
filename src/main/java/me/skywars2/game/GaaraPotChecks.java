@@ -53,12 +53,33 @@ public final class GaaraPotChecks {
             }finally{remove(tech);clean();}
             owner.inventoryMenu.getCraftSlots().setItem(0,source.copy());hit();require(service.count()==0,"craft-only pot does not open whole-inventory incoming predicate");owner.inventoryMenu.getCraftSlots().clearContent();
         }
+        void failedVolume(){
+            var at=owner.blockPosition().offset(3,4,0);
+            base.level.setBlock(at,Blocks.STONE.defaultBlockState(),2);
+            var stack=pot(9,2);
+            hit();
+            require(stack.getCount()==1&&service.count()==1,"failed terrain still starts from a native admitted pot reaction");
+            var work=game.items().stonekivi().queuedSnapshot().stream()
+                    .filter(job->job.getClass().getEnclosingClass()==LbcGaaraPot.class).findFirst().orElseThrow();
+            var peer=new java.util.concurrent.CompletableFuture<>();
+            var failure=java.util.concurrent.CompletableFuture.completedFuture(
+                    net.minecraft.server.level.ChunkResult.error("Gaara volume member not available"));
+            try {
+                var field=work.getClass().getDeclaredField("loading");
+                field.setAccessible(true);
+                field.set(work,List.of(failure,peer));
+            } catch(ReflectiveOperationException problem){throw new IllegalStateException(problem);}
+            require(work.ready() && work.step() && service.count()==0 && !peer.isDone()
+                            && base.level.getBlockState(at).is(Blocks.STONE),
+                    "one unsuccessful native result settles the whole fill without writing or waiting for peers");
+            clean();
+        }
         void begin(){
             var loot=game.lbc().rollTable(base.level,owner.position(),owner,"lbc:ported/gaara_pot");
             require(loot.size()==1,"one isolated source leaf");source=loot.getFirst();
             require(source.is(LbcClownItems.POT)&&source.getCount()==1&&LbcGaaraPot.matches(source)
                     &&Identifier.parse("lbc:sand_pot").equals(source.get(DataComponents.ITEM_MODEL)),"native source pot identity/flag/model");
-            policies();clean();
+            policies();clean();failedVolume();
             var center=owner.blockPosition();stone=center.offset(3,4,0);web=center.offset(4,4,0);water=center.offset(5,4,0);
             edge=center.offset(10,10,10);outside=center.offset(11,0,0);air=center.offset(6,4,0);
             base.level.setBlock(stone,Blocks.STONE.defaultBlockState(),2);base.level.setBlock(web,Blocks.COBWEB.defaultBlockState(),2);

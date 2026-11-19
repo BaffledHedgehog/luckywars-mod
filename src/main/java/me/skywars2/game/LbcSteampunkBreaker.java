@@ -44,7 +44,7 @@ public final class LbcSteampunkBreaker {
     private final class BreakWork implements LbcStonekivi.Work {
         final ServerPlayer owner;final ServerLevel level;final String epoch;final List<BlockPos> cells;
         final LbcIndirectKills.Owner cause;
-        int cursor;boolean finished;CompletableFuture<?> loading;
+        int cursor;boolean finished;ChunkPos waiting;CompletableFuture<?> loading;
         BreakWork(ServerPlayer owner,List<BlockPos> cells){this.owner=owner;level=owner.level();epoch=game.items().epoch();this.cells=cells;
             cause=game.items().indirectKills().coldCause(owner,false);}
         boolean valid(){return epoch.equals(game.items().epoch())&&game.playing()&&game.stage()!=GameController.Stage.ENDING
@@ -57,7 +57,11 @@ public final class LbcSteampunkBreaker {
                 if(!valid()){cancel();return true;}
                 if(game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(level)
                         ||game.items().wands().inputTimeStopped(owner)||game.items().actionsBlocked(owner))return false;
-                if(loading!=null&&loading.isCompletedExceptionally()){cancel();return true;}
+                if(loading!=null){
+                    if(!loading.isDone())return false;
+                    if(NativeChunkLoad.failed(loading)||!resident(waiting)){cancel();return true;}
+                    loading=null;waiting=null;
+                }
                 long deadline=EffectTerrain.deadlineNanos();
                 game.items().indirectKills().trapChanges(level,cause,()->{
                     int visits=0;
@@ -65,11 +69,12 @@ public final class LbcSteampunkBreaker {
                         if((visits&15)==0&&System.nanoTime()>=deadline)return;
                         var pos=cells.get(cursor);
                         if(!level.isInsideBuildHeight(pos.getY())){cursor++;visits++;continue;}
-                        if(!level.hasChunkAt(pos)){
-                            if(loading==null)loading=game.maps().prepareChunk(level,new ChunkPos(pos.getX()>>4,pos.getZ()>>4));
+                        waiting=missingChunk(pos);
+                        if(waiting!=null){
+                            loading=game.maps().prepareChunk(level,waiting);
                             return;
                         }
-                        loading=null;cursor++;visits++;
+                        cursor++;visits++;
                         // No held-tool loot context: /fill destroy, including bedrock and containers.
                         level.destroyBlock(pos,true);
                         if(!level.getBlockState(pos).isAir())level.setBlock(pos,Blocks.AIR.defaultBlockState(),3);
@@ -78,7 +83,17 @@ public final class LbcSteampunkBreaker {
                 if(cursor==cells.size()){cancel();return true;}return false;
             }finally{shared.endNativeWork();}
         }
-        public void cancel(){if(!finished){finished=true;pending--;}}
+        private boolean resident(ChunkPos chunk){
+            return level.getChunkSource().getChunkNow(chunk.x(),chunk.z())!=null;
+        }
+        private ChunkPos missingChunk(BlockPos pos){
+            // Native destroyBlock updates neighbors after removing each block.
+            for(int x=(pos.getX()-1)>>4;x<=((pos.getX()+1)>>4);x++)
+                for(int z=(pos.getZ()-1)>>4;z<=((pos.getZ()+1)>>4);z++)
+                    if(level.getChunkSource().getChunkNow(x,z)==null)return new ChunkPos(x,z);
+            return null;
+        }
+        public void cancel(){if(!finished){finished=true;loading=null;waiting=null;pending--;}}
         // Default snapshotIdle=false keeps partial accepted writes outside Vanity capture.
     }
 }

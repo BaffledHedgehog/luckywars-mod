@@ -62,6 +62,25 @@ public final class SteampunkBreakerChecks {
             require(game.items().mana().get(p)==beforeMana,"no mana cost at actual action boundary");}
         void zone(boolean tech){clearZone();field=new Marker(EntityTypes.MARKER,p.level());field.setPos(p.position());field.entityTags().add(tech?"stopper":"stopper_magic");require(p.level().addFreshEntity(field),"native field");game.items().magic().loaded(field);}
         void clearZone(){if(field!=null){game.items().magic().unloaded(field);field.discard();field=null;}}
+        void failedChunk(){
+            var service=game.items().steampunkBreaker();
+            p.level().setBlock(chest,Blocks.GOLD_BLOCK.defaultBlockState(),3);
+            roll=0;action();
+            require(service.count()==1,"failed load is tested on actual accepted breaker work");
+            var work=game.items().stonekivi().queuedSnapshot().stream()
+                    .filter(job->job.getClass().getEnclosingClass()==LbcSteampunkBreaker.class).findFirst().orElseThrow();
+            try{
+                var field=work.getClass().getDeclaredField("loading");
+                field.setAccessible(true);
+                field.set(work,java.util.concurrent.CompletableFuture.completedFuture(
+                        net.minecraft.server.level.ChunkResult.error("breaker chunk unavailable")));
+            }catch(ReflectiveOperationException problem){throw new IllegalStateException(problem);}
+            require(work.ready()&&work.step()&&service.count()==0
+                            &&(Integer)WoolBucketChecks.read(work,"cursor")==0
+                            &&p.level().getBlockState(chest).is(Blocks.GOLD_BLOCK),
+                    "a normally failed native load cancels before any further block or item effects");
+            game.items().stonekivi().stop();
+        }
         void negatives(){var service=game.items().steampunkBreaker();
             roll=.25f;action();require(service.count()==0,"25percent boundary rejects");
             int attempts=draws;p.gameMode.destroyBlock(BlockPos.containing(base.at.add(0,1,-4)));
@@ -85,7 +104,7 @@ public final class SteampunkBreakerChecks {
             p.setGameMode(GameType.SPECTATOR);try{service.used(p,pickaxe);require(draws==n&&service.count()==0,"spectator role rejects");}finally{p.setGameMode(GameType.SURVIVAL);}
         }
         boolean tick(){require(game.server().getTickCount()-at<100,"finite source work completes");var service=game.items().steampunkBreaker();
-            if(phase==0){negatives();for(var pos:cells)p.level().setBlock(pos,Blocks.COBBLESTONE.defaultBlockState(),3);
+            if(phase==0){negatives();failedChunk();for(var pos:cells)p.level().setBlock(pos,Blocks.COBBLESTONE.defaultBlockState(),3);
                 p.level().setBlock(chest,Blocks.CHEST.defaultBlockState(),3);((ChestBlockEntity)p.level().getBlockEntity(chest)).setItem(0,new ItemStack(Items.DIAMOND,7));
                 p.level().setBlock(miss,Blocks.GOLD_BLOCK.defaultBlockState(),3);zone(false);require(game.items().magic().suppressed(p),"MAG live field");
                 roll=Math.nextDown(.25f);action();require(service.count()==1,"MAG permits exact one accepted native work");
@@ -106,7 +125,15 @@ public final class SteampunkBreakerChecks {
             if(phase==2){if(service.count()!=0)return false;
                 require(p.level().getBlockState(chest).is(Blocks.GOLD_BLOCK),"TECH cancels pending breaker before native writes");
                 require(game.items().stonekivi().captureSettled(),"TECH cancellation settles accepted work");
-                clearZone();action();require(service.count()==1,"new proc after TECH removal");game.items().stonekivi().stop();require(service.count()==0,"shared match cancellation retires owner");return true;}
+                clearZone();
+                require(!game.items().magic().mechanismSuppressed(p),"removed TECH field is no longer indexed");
+                phase++;return false;}
+            if(phase==3){
+                roll=0;action();
+                require(service.count()==1,"new proc after TECH removal, remaining="+service.count()
+                        +", blocked="+game.items().actionsBlocked(p)+", alive="+p.isAlive()+", tool="+p.getMainHandItem());
+                game.items().stonekivi().stop();
+                require(service.count()==0,"shared match cancellation retires owner");return true;}
             throw new IllegalStateException("unknown phase");
         }
         public void close(){if(closed)return;closed=true;try{clearZone();game.items().stonekivi().stop();randomField.set(p,nativeRandom);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}finally{base.close();}}

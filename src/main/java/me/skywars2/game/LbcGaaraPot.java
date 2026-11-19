@@ -1,9 +1,11 @@
 package me.skywars2.game;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -17,6 +19,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -58,23 +61,33 @@ public final class LbcGaaraPot {
     /** Accepted construction settles through the common queue before Vanity captures terrain. */
     private final class Terrain implements LbcStonekivi.Work {
         final ServerLevel level;final LbcIndirectKills.Owner cause;final String epoch;final BlockPos from,to;boolean cancelled;
-        java.util.concurrent.CompletableFuture<?> loading;
-        Terrain(ServerPlayer owner){level=owner.level();cause=game.items().indirectKills().coldCause(owner,false);epoch=game.items().epoch();
-            var center=owner.blockPosition();from=center.offset(-10,-10,-10);to=center.offset(10,10,10);}
+        final List<ChunkPos> footprint=new ArrayList<>();
+        List<CompletableFuture<?>> loading;
+
+        Terrain(ServerPlayer owner){
+            level=owner.level();cause=game.items().indirectKills().coldCause(owner,false);epoch=game.items().epoch();
+            var center=owner.blockPosition();from=center.offset(-10,-10,-10);to=center.offset(10,10,10);
+            // The native fill also updates immediate neighbors of the volume.
+            for(int x=(from.getX()-1)>>4;x<=((to.getX()+1)>>4);x++)
+                for(int z=(from.getZ()-1)>>4;z<=((to.getZ()+1)>>4);z++)
+                    footprint.add(new ChunkPos(x,z));
+        }
         boolean live(){return !cancelled&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch);}
+        private boolean resident(ChunkPos chunk){
+            return level.getChunkSource().getChunkNow(chunk.x(),chunk.z())!=null;
+        }
         @Override public boolean ready(){
             if(!live())return true;
             if(game.items().timeStop().stopped(level))return false;
-            if(loading!=null)return loading.isDone();
-            var requests=new java.util.ArrayList<java.util.concurrent.CompletableFuture<?>>();
-            for(int x=from.getX()>>4;x<=to.getX()>>4;x++)for(int z=from.getZ()>>4;z<=to.getZ()>>4;z++)
-                if(level.getChunkSource().getChunkNow(x,z)==null)requests.add(game.maps().prepareChunk(level,new net.minecraft.world.level.ChunkPos(x,z)));
-            if(requests.isEmpty())return true;
-            loading=java.util.concurrent.CompletableFuture.allOf(requests.toArray(java.util.concurrent.CompletableFuture[]::new));
-            return loading.isDone();
+            if(loading==null) {
+                loading=new ArrayList<>();
+                for(var chunk:footprint) if(!resident(chunk)) loading.add(game.maps().prepareChunk(level,chunk));
+            }
+            return loading.stream().anyMatch(NativeChunkLoad::failed) || loading.stream().allMatch(CompletableFuture::isDone);
         }
         @Override public boolean step(){
-            if(live()&&(loading==null||!loading.isCompletedExceptionally()))
+            if(!ready())return false;
+            if(live()&&loading.stream().noneMatch(NativeChunkLoad::failed)&&footprint.stream().allMatch(this::resident))
                 game.items().indirectKills().trapChanges(level,cause,
                         ()->LbcDropBlocks.fill(level,from,to,Blocks.SAND,false,state->state.is(REPLACE)));
             cancel();return true;

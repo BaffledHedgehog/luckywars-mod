@@ -38,6 +38,7 @@ public final class NexusCloneChecks {
 
     /** Replace only the service's view of a request. The native future is never mutated. */
     private static final class ResidentRecovery implements AutoCloseable {
+        final GameController game;
         final ServerLevel level;
         final ChunkPos chunk;
         final BlockPos pos;
@@ -57,7 +58,7 @@ public final class NexusCloneChecks {
         private static final Class<?>[] WORLD_CELL={ServerLevel.class,BlockPos.class};
 
         ResidentRecovery(GameController game,ServerLevel level,ChunkPos chunk){
-            this.level=level;this.chunk=chunk;this.pos=chunk.getBlockAt(8,64,8);
+            this.game=game;this.level=level;this.chunk=chunk;this.pos=chunk.getBlockAt(8,64,8);
             acquisition=new LbcNexusAcquisition(game);
             ecology=acquisition.ecology();
             pulsar=new LbcNexusPulsar(game,(world,cell)->true);
@@ -132,6 +133,35 @@ public final class NexusCloneChecks {
             }
             require(ticketCount()==3,"one native ticket per Nexus service after replacement");
             terrainRetries(author,failed);
+            duplicatingFailure(author,failed);
+        }
+
+        @SuppressWarnings("unchecked")
+        private void duplicatingFailure(net.minecraft.server.level.ServerPlayer author,CompletableFuture<?> failed)
+                throws ReflectiveOperationException {
+            var foreign=game.server().getLevel(LbcHedgehogDimensions.NEXUS);
+            require(foreign!=null && foreign.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null,
+                    "Duplicating's foreign source has no resident data");
+            var duplicate=new LbcDuplicating(game);
+            var job=construct(LbcDuplicating.class,"Job",
+                    new Class<?>[]{LbcDuplicating.class,net.minecraft.server.level.ServerPlayer.class},duplicate,author);
+            var origin=Vec3.atCenterOf(pos);
+            var target=author.blockPosition();
+            var old=level.getBlockState(target);
+            var clone=construct(LbcDuplicating.class,"Clone",
+                    new Class<?>[]{LbcDuplicating.class,ServerLevel.class,Vec3.class,Vec3.class,ServerLevel.class,Vec3.class},
+                    duplicate,foreign,origin,origin,level,Vec3.atCenterOf(target));
+            var loads=(Map<ServerLevel,Map<ChunkPos,CompletableFuture<?>>>)WoolBucketChecks.read(job,"loading");
+            var requests=new HashMap<ChunkPos,CompletableFuture<?>>();
+            loads.put(foreign,requests);
+            var signature=new Class<?>[]{job.getClass(),long.class,int[].class};
+            requests.put(chunk,new CompletableFuture<>());
+            require(!(boolean)invoke(clone,"step",signature,job,Long.MAX_VALUE,new int[]{1}),
+                    "cross-world clone waits while its source request is undecided");
+            requests.put(chunk,failed);
+            require((boolean)invoke(clone,"step",signature,job,Long.MAX_VALUE,new int[]{1})
+                            && (Integer)WoolBucketChecks.read(clone,"write")==0 && level.getBlockState(target).equals(old),
+                    "failed source ends the clone before writing a partial snapshot");
         }
 
         @SuppressWarnings("unchecked")
