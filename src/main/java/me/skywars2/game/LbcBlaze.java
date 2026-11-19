@@ -48,6 +48,8 @@ public final class LbcBlaze {
     // Entity ticking for this column and its nearest neighbors until the fireball moves its ticket.
     private static final int TRIAL_TICKET_RADIUS = 3;
     private static final int MAX_TRIAL_FLIGHT_TICKS = 200;
+    private static final int MAX_HIGH_TRIAL_FLIGHT_TICKS = 1200;
+    private static final Vec3 DOWN = new Vec3(0, -1, 0);
     private static final TicketType TRIAL_TICKET = new TicketType(TicketType.NO_TIMEOUT,
             TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
 
@@ -80,12 +82,14 @@ public final class LbcBlaze {
         final LargeFireball shot;
         final Vec3 destination;
         final Vec3 direction;
+        final boolean highAltitude;
         TrialChunk chunk;
 
-        TrialFlight(LargeFireball shot, Vec3 destination, Vec3 direction) {
+        TrialFlight(LargeFireball shot, Vec3 destination, Vec3 direction, boolean highAltitude) {
             this.shot = shot;
             this.destination = destination;
             this.direction = direction;
+            this.highAltitude = highAltitude;
         }
     }
 
@@ -187,10 +191,23 @@ public final class LbcBlaze {
             var shot = new LargeFireball(level, owner, velocity, power);
             shot.entityTags().add(TRIAL_PROJECTILE);
 
-            var flight = new TrialFlight(shot, destination, velocity);
-            moveTrialTicket(flight, new TrialChunk(level, ChunkPos.containing(BlockPos.containing(position))));
-            trialFlights.add(flight);
-            game.items().wands().launchFire(owner, shot, position, velocity);
+            publishTrial(owner, new TrialFlight(shot, destination, velocity, false), position, velocity);
+        }
+    }
+
+    boolean publishHighTrial(ServerPlayer owner, LargeFireball shot, Vec3 position, Vec3 velocity) {
+        return publishTrial(owner, new TrialFlight(shot, owner.position(), DOWN, true), position, velocity);
+    }
+
+    private boolean publishTrial(ServerPlayer owner, TrialFlight flight, Vec3 position, Vec3 velocity) {
+        moveTrialTicket(flight, new TrialChunk(owner.level(), ChunkPos.containing(BlockPos.containing(position))));
+        boolean accepted = false;
+        try {
+            accepted = game.items().wands().publishFire(owner, flight.shot, position, velocity);
+            if (accepted) trialFlights.add(flight);
+            return accepted;
+        } finally {
+            if (!accepted) moveTrialTicket(flight, null);
         }
     }
 
@@ -212,12 +229,13 @@ public final class LbcBlaze {
         for (var it = trialFlights.iterator(); it.hasNext();) {
             var flight = it.next();
             var shot = flight.shot;
+            int maxTicks = flight.highAltitude ? MAX_HIGH_TRIAL_FLIGHT_TICKS : MAX_TRIAL_FLIGHT_TICKS;
             if (shot.isRemoved() || !game.items().currentEpoch(shot)
-                    || shot.tickCount >= MAX_TRIAL_FLIGHT_TICKS
+                    || shot.tickCount >= maxTicks
                     || shot.position().subtract(flight.destination).dot(flight.direction) >= 0) {
                 moveTrialTicket(flight, null);
                 it.remove();
-                if (shot.tickCount >= MAX_TRIAL_FLIGHT_TICKS && !shot.isRemoved()) shot.discard();
+                if (!flight.highAltitude && shot.tickCount >= maxTicks && !shot.isRemoved()) shot.discard();
             } else if (game.items().polymorph().suspended(shot)) {
                 moveTrialTicket(flight, null);
             } else {
@@ -540,7 +558,7 @@ public final class LbcBlaze {
     final class Checkpoint {
         private record TurretImage(Turret source,UUID owner,ServerLevel ownerLevel) { }
         private record HeadImage(UUID key,UUID owner,ServerLevel level) { }
-        private record TrialImage(MatchDamageSources.Ref body, Vec3 destination, Vec3 direction) {}
+        private record TrialImage(MatchDamageSources.Ref body, Vec3 destination, Vec3 direction, boolean highAltitude) {}
         private final List<TurretImage> saved;
         private final List<HeadImage> headOwners;
         private final List<TrialImage> trials;
@@ -552,7 +570,7 @@ public final class LbcBlaze {
             headOwners=heads.entrySet().stream().map(e->new HeadImage(e.getKey(),e.getValue().getUUID(),e.getValue().level())).toList();
             blazes.forEach((body,owner)->nativeOwners.put(links.key(body),owner));
             trials = trialFlights.stream().filter(flight -> !flight.shot.isRemoved() && !links.omitted(flight.shot))
-                    .map(flight -> new TrialImage(links.key(flight.shot), flight.destination, flight.direction)).toList();
+                    .map(flight -> new TrialImage(links.key(flight.shot), flight.destination, flight.direction, flight.highAltitude)).toList();
             saved.forEach(image->installed.add(image.owner));headOwners.forEach(image->installed.add(image.owner));baseInstalled=true;
         }
         private Checkpoint(Checkpoint current,Checkpoint previous){
@@ -572,7 +590,7 @@ public final class LbcBlaze {
             for(var image:headOwners){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.level);if(current!=null){nextHeads.put(image.key,current);admitted.add(image.owner);}}
             if(!baseInstalled)nativeOwners.forEach((ref,id)->nextBlazes.put((Blaze)links.get(ref),id));
             var nextTrials = baseInstalled ? List.<TrialFlight>of() : trials.stream()
-                    .map(image -> new TrialFlight((LargeFireball) links.get(image.body), image.destination, image.direction))
+                    .map(image -> new TrialFlight((LargeFireball) links.get(image.body), image.destination, image.direction, image.highAltitude))
                     .toList();
             return () -> {
                 checkpointRestoring = true;

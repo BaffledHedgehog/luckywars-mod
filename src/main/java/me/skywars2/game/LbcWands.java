@@ -995,12 +995,16 @@ public final class LbcWands {
     }
 
     void launchFire(LivingEntity shooter,Projectile projectile,Vec3 position,Vec3 velocity) {
+        publishFire(shooter, projectile, position, velocity);
+    }
+
+    boolean publishFire(LivingEntity shooter, Projectile projectile, Vec3 position, Vec3 velocity) {
         projectile.setPos(position);
         // Исходный marker в начале мира вычислял именно этот вектор, не мировую цель полёта.
         projectile.setDeltaMovement(velocity);
         LbcShooters.orient(projectile);
         adoptFire(shooter,projectile);
-        game.items().trinkets().spawn(projectile);
+        return game.items().trinkets().publishProjectile(projectile);
     }
     /** Также подхватывает уже созданный native огненный шар призванного/подчинённого ифрита. */
     void adoptFire(ServerPlayer player,Projectile projectile) {

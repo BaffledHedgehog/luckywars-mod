@@ -57,7 +57,8 @@ final class FireblazeFlightChecks {
             flags.putInt("upgradable", 1);
             wand.set(DataComponents.CUSTOM_DATA, CustomData.of(flags));
             owner.setItemInHand(InteractionHand.MAIN_HAND, wand);
-            fixture.mana.set(owner, 50);
+            int cost = fixture.mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("fireblaze_wand_mana_use"), "lbc.math").get();
+            fixture.mana.set(owner, cost);
             require(fixture.input(InteractionHand.MAIN_HAND) && fixture.mana.get(owner) == 0 &&
                     LbcFartus.data(wand).getIntOr("upgrade_available", 0) == 1,
                     "real paid shift cast completes the original academy trial");

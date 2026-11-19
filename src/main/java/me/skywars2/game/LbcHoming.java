@@ -303,12 +303,20 @@ public final class LbcHoming {
     }
     private LargeFireball fire(ServerPlayer owner,Vec3 point,int power,Vec3 velocity,boolean guided,boolean slow,boolean trial) {
         ++inProgress;try {
-            if(!owner.level().hasChunkAt(BlockPos.containing(point)) || game.items().magic().suppressedAt(owner.level(),point)) return null;
+            if ((!trial && !owner.level().hasChunkAt(BlockPos.containing(point)))
+                    || game.items().magic().suppressedAt(owner.level(), point)) return null;
             var fireball=new LargeFireball(owner.level(),owner,velocity,power);
             fireball.entityTags().add(guided?TAG:DONOR_TAG);
             if(slow) fireball.entityTags().add(SLOW_TAG);
-            if(trial) fireball.entityTags().add(LbcBlaze.TRIAL_PROJECTILE);
-            game.items().wands().launchFire(owner,fireball,point,velocity);
+            if (trial) {
+                fireball.entityTags().add(LbcBlaze.TRIAL_PROJECTILE);
+                if (!game.items().blaze().publishHighTrial(owner, fireball, point, velocity)) return null;
+                // An accepted body in a cold chunk may enter entity tracking only after the ticket is processed.
+                fireballs.add(fireball);
+                ages.putIfAbsent(fireball, 0);
+            } else {
+                game.items().wands().launchFire(owner, fireball, point, velocity);
+            }
             return fireball;
 
         }finally{--inProgress;}

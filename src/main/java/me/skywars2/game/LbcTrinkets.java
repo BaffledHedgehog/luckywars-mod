@@ -208,8 +208,12 @@ public final class LbcTrinkets {
     }
 
     void spawn(Projectile projectile) {
+        publishProjectile(projectile);
+    }
+
+    boolean publishProjectile(Projectile projectile) {
         projectile.entityTags().add(PROJECTILE_TAG);
-        game.maps().level().addFreshEntity(projectile);
+        return game.maps().level().addFreshEntity(projectile) && !projectile.isRemoved();
     }
 
     /** Общий on_summon: 50% для первой копии Nether Plug, затем +10% за каждую. */

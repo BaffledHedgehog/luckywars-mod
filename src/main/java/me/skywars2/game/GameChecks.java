@@ -1479,6 +1479,7 @@ public final class GameChecks {
                                 case "boltbolt-stop-probe" -> checkBoltboltStopProbe(game);
                                 case "boltbolt-cleanup" -> checkBoltboltCleanup(game);
                                 case "exahoming" -> checkExahoming(game);
+                                case "exahoming-cold" -> { HomingColdChecks.run(game); return; }
                                 case "exahoming-stop-probe" -> checkExahomingStopProbe(game);
                                 case "exahoming-cleanup" -> checkExahomingCleanup(game);
                                 case "exahoming-menu" -> checkExahomingMenu(game);
@@ -1896,6 +1897,7 @@ public final class GameChecks {
             HomingTurnChecks.tick(game);
             CombatLogoutChecks.tick(game);
             FireblazeFlightChecks.tick(game);
+            HomingColdChecks.tick();
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
             PendingSwordChecks.tick(game);
