@@ -117,9 +117,9 @@ public final class GenieNative {
                 "Expanding red damaging sphere, equivalent to 300 Gohei charge."),
         GOHEI_SPELLCARD_FULL("gohei_spellcard_full", "Fully charged Spirit Sign: Fantasy Seal", "Знак духа: Печать фантазии, полный заряд",
                 "Expanding red damaging sphere, equivalent to 1500 Gohei charge."),
-        ICE_WAND_DETONATE("ice_wand_detonate", "Permafrost: Detonate Crystals", "?????? ????????: ????? ??????????",
+        ICE_WAND_DETONATE("ice_wand_detonate", "Permafrost: Detonate Crystals", "Вечная Мерзлота: Подрыв кристаллов",
                 "Detonates your Permafrost crystals within 50 blocks of the target."),
-        ACADEMY_ICE_WAND_SHATTER("academy_ice_wand_shatter", "Academy Permafrost: Shatter", "?????????? ?????? ????????: ????????????",
+        ACADEMY_ICE_WAND_SHATTER("academy_ice_wand_shatter", "Academy Permafrost: Shatter", "Вечная Мерзлота (Академия): Раскалывание",
                 "Detonates your crystals and shatters frozen entities within 50 blocks. Shatter can hurt allies."),
         HAKUREI_BOMB("hakurei_bomb", "Hakurei Shrine: Fantasy Seal bomb", "Храм Хакурей: бомба Печать фантазии",
                 "Original faster yellow Fantasy Seal bomb with its normal 300 charge and lingering shell.");
