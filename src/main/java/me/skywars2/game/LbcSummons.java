@@ -76,7 +76,7 @@ public final class LbcSummons {
         return LbcSummonerItems.kind(stack)!=null||stack.is(LbcWands.SUMMONER_VEXES)||stack.is(LbcWands.PSYCHOVEX)
                 ||data.getIntOr("summonervexes",0)==1||data.getIntOr("psychovex_wand",0)==1||LbcKfcRewards.isCultus(stack);
     }
-    public enum SummonFamily { ORDINARY, VEX, PSYCHOVEX, CUNNY }
+    public enum SummonFamily { ORDINARY, VEX, PSYCHOVEX, CUNNY, DOLPHIN, SAD_GHOST }
 
     public record SummonOption(Identifier id, Identifier sourceItem, SummonFamily family, String variant, int roots) {}
 
@@ -103,6 +103,12 @@ public final class LbcSummons {
                 recipes.put(psycho, new Recipe(new SummonOption(psycho, psychoItem, SummonFamily.PSYCHOVEX, variant, 1), null, i+1));
                 recipes.put(cunny, new Recipe(new SummonOption(cunny, cunnyItem, SummonFamily.CUNNY, variant, 1), null, i+1));
             }
+            var dolphin = Identifier.parse("skywars2:david_dolphin");
+            var ghost = Identifier.parse("skywars2:sad_ghost");
+            recipes.put(dolphin, new Recipe(new SummonOption(dolphin, Identifier.parse("skywars2:pozdman_bot"),
+                    SummonFamily.DOLPHIN, "akyla_devid", 1), null, 0));
+            recipes.put(ghost, new Recipe(new SummonOption(ghost, Identifier.parse("skywars2:psychowand"),
+                    SummonFamily.SAD_GHOST, "evil_vex", 1), null, 0));
             return java.util.Collections.unmodifiableMap(recipes);
         }
     }
@@ -275,18 +281,26 @@ public final class LbcSummons {
         return level.isInWorldBounds(cell) && level.hasChunkAt(cell) && level.getWorldBorder().isWithinBounds(cell);
     }
 
+    private static List<Mob> singleBody(Mob body) {
+        return body == null ? List.of() : List.of(body);
+    }
+
     private boolean scriptCell(ServerLevel level, Vec3 position) {
         return scriptPosition(level, position) && !game.items().magic().suppressedAt(level, position);
     }
 
-    List<UUID> scriptSummon(ServerPlayer owner, Identifier id, Vec3 center) {
+    List<UUID> scriptSummon(ServerPlayer owner, ItemStack weapon, Identifier id, Vec3 center) {
         var recipe = ScriptRecipes.RECIPES.get(id);
         if (recipe == null) throw new IllegalArgumentException("unknown native LuckyWars summon");
         var level = owner.level();
-        if (!LbcLibrarySpells.admitted(game, owner, InteractionHand.MAIN_HAND) || !LbcDimensionItems.ordinary(level)
-                || game.isObserver(owner) || !valid(owner) || paused(owner) || !scriptCell(level, center) || !ready()) return List.of();
-
         var family = recipe.option().family();
+        if (!game.items().genie().runtime().admitted(owner) || owner.isRemoved() || level != game.maps().level()
+                || !LbcDimensionItems.ordinary(level) || game.stage() == GameController.Stage.ENDING
+                || !scriptPosition(level, center)) return List.of();
+        if (family != SummonFamily.DOLPHIN && (!LbcLibrarySpells.admitted(game, owner, InteractionHand.MAIN_HAND)
+                || !valid(owner) || paused(owner) || !scriptCell(level, center))) return List.of();
+        if (family != SummonFamily.DOLPHIN && family != SummonFamily.SAD_GHOST && !ready()) return List.of();
+
         List<Mob> published = switch (family) {
             case ORDINARY -> ordinaryFormation(owner, recipe.ordinary(), center, true);
             case VEX -> vexFormation(owner, center, true);
@@ -294,14 +308,22 @@ public final class LbcSummons {
                 var body = spawnPreset(owner, recipe.option().variant(), center);
                 yield body == null ? List.of() : List.of(body);
             }
-            case CUNNY -> {
-                var body = game.items().cunny().summonAt(owner, center, recipe.cultist());
-                yield body == null ? List.of() : List.of(body);
+            case CUNNY -> singleBody(game.items().cunny().summonAt(owner, center, recipe.cultist()));
+            case DOLPHIN -> singleBody(game.items().pozdmanBot().scriptDolphin(owner, center, weapon));
+            case SAD_GHOST -> {
+                var body = game.items().psycho().spawnSadGhost(owner, center);
+                if (body != null) {
+                    var cause = game.items().indirectKills().itemCause(owner, true, false, weapon);
+                    game.items().spellSources().bind(body, new LbcSpellSource.Source(body.getUUID(), owner.getUUID(),
+                            game.items().epoch(), cause, java.util.Set.of()));
+                }
+                yield singleBody(body);
             }
         };
         var ids = published.stream().filter(mob -> !mob.isRemoved() && level.getEntity(mob.getUUID()) == mob)
                 .map(Entity::getUUID).toList();
-        if (!ids.isEmpty() && family != SummonFamily.CUNNY) {
+        if (!ids.isEmpty() && (family == SummonFamily.ORDINARY || family == SummonFamily.VEX
+                || family == SummonFamily.PSYCHOVEX)) {
             effects(owner, family == SummonFamily.PSYCHOVEX);
             game.items().trinkets().summoned(owner);
         }

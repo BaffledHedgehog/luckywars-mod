@@ -356,8 +356,15 @@ public final class LbcPsycho {
         owner.level().sendParticles(ParticleTypes.SOUL,center.x,center.y+1,center.z,30,.5,1,.5,0);
         return trial;
     }
-    private void execute(ServerPlayer owner,LivingEntity target) {
-        var vex=new PsychoVex(owner); vex.setPos(target.position());
+    private void execute(ServerPlayer owner, LivingEntity target) {
+        spawnSadGhost(owner, target.position());
+        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC_KILL),owner);
+        target.hurtServer(owner.level(),source,Float.MAX_VALUE);
+        game.items().mana().award(owner,"lbc:true_advancements/staffs/psycho");
+    }
+
+    Mob spawnSadGhost(ServerPlayer owner, Vec3 position) {
+        var vex=new PsychoVex(owner); vex.setPos(position);
         vex.finalizeSpawn(owner.level(),owner.level().getCurrentDifficultyAt(vex.blockPosition()),
                 net.minecraft.world.entity.EntitySpawnReason.COMMAND,null);
         // Finalization adds a vanilla iron sword; this ghost is deliberately unarmed.
@@ -372,10 +379,12 @@ public final class LbcPsycho {
         if(vex.getAttribute(Attributes.ATTACK_KNOCKBACK)!=null) vex.getAttribute(Attributes.ATTACK_KNOCKBACK).setBaseValue(0);
         vex.setCustomName(Component.translatable("evil_vex").withStyle(net.minecraft.ChatFormatting.GRAY));
         vex.setPersistenceRequired(); vex.setLimitedLife(2_000_000); game.items().markCurrentItemEpoch(vex);
-        if(owner.level().addFreshEntity(vex)) vexes.add(vex);
-        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC_KILL),owner);
-        target.hurtServer(owner.level(),source,Float.MAX_VALUE);
-        game.items().mana().award(owner,"lbc:true_advancements/staffs/psycho");
+        if (!owner.level().addFreshEntity(vex)) {
+            vex.discard();
+            return null;
+        }
+        vexes.add(vex);
+        return vex;
     }
     private void spread(ServerPlayer owner,int count,boolean invisible) {
         for(int i=0;i<count;i++) {
@@ -735,8 +744,10 @@ public final class LbcPsycho {
                 Double previousFollowRange,MatchItemStackLinks.Ref forcedItem,InteractionHand forcedHand,
                 int forcedTicks,int lastUseTicks){}
         private final List<Status> statuses=new ArrayList<>();
+        private final List<MatchDamageSources.Ref> ghosts;
         private final int phase=ticks;
         Checkpoint(MatchSpellCheckpoint.Links links){
+            ghosts = vexes.stream().filter(vex -> !vex.isRemoved() && !links.omitted(vex)).map(links::key).toList();
             for(var entry:effects.entrySet()){
                 var target=entry.getKey();var effect=entry.getValue();
                 if(links.omitted(target))continue;
@@ -759,7 +770,15 @@ public final class LbcPsycho {
                 effect.forcedTicks=saved.forcedTicks;effect.lastUseTicks=saved.lastUseTicks;
                 if(next.put(target,effect)!=null)throw new IllegalStateException("Duplicate restored Psycho status body");
             }
-            return ()->{statusRestoring=true;effects.clear();effects.putAll(next);ticks=phase;};
+            var restoredGhosts = ghosts.stream().map(ref -> (PsychoVex) links.get(ref)).toList();
+            return () -> {
+                statusRestoring=true;
+                effects.clear();
+                effects.putAll(next);
+                vexes.clear();
+                vexes.addAll(restoredGhosts);
+                ticks=phase;
+            };
         }
     }
 

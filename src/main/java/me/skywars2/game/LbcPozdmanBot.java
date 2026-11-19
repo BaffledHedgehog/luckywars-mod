@@ -102,13 +102,25 @@ public final class LbcPozdmanBot {
         if(roll<100)player.sendSystemMessage(Component.translatable("pozdman_girl_"+roll));else spawnDolphin(player);
         return true;
     }
-    Entity spawnDolphin(ServerPlayer player){
-        var level=player.level();var at=player.getEyePosition();if(!level.hasChunkAt(BlockPos.containing(at)))return null;
+    Entity spawnDolphin(ServerPlayer player) {
+        return spawnDolphinAt(player, player.getEyePosition(), null);
+    }
+
+    net.minecraft.world.entity.Mob scriptDolphin(ServerPlayer player, Vec3 at, ItemStack weapon) {
+        var level = player.level();
+        var magic = game.items().magic();
+        if (restoring || !allowed.test(player) || magic.mechanismSuppressedAt(level, at)
+                || magic.artifactSuppressedAt(level, at)) return null;
+        return spawnDolphinAt(player, at, game.items().indirectKills().itemCause(player, false, false, weapon));
+    }
+
+    private net.minecraft.world.entity.Mob spawnDolphinAt(ServerPlayer player, Vec3 at, LbcIndirectKills.Owner cause) {
+        var level=player.level();if(!level.hasChunkAt(BlockPos.containing(at)))return null;
         var dolphin=EntityTypes.DOLPHIN.create(level,EntitySpawnReason.COMMAND);if(dolphin==null)return null;
         dolphin.snapTo(at.x,at.y,at.z,player.getYRot(),player.getXRot());dolphin.setNoGravity(true);
         dolphin.getAttribute(Attributes.SCALE).setBaseValue(2);dolphin.getAttribute(Attributes.MAX_HEALTH).setBaseValue(50);dolphin.setHealth(50);
         dolphin.setCustomName(Component.translatable("akyla_devid"));dolphin.entityTags().add("akyla_devid");dolphin.entityTags().add("lucky_mob");
-        game.items().markCurrentItemEpoch(dolphin);actors.put(dolphin,new Actor(player.getUUID(),game.items().epoch(),0,player.getYRot(),null,null));
+        game.items().markCurrentItemEpoch(dolphin);actors.put(dolphin,new Actor(player.getUUID(),game.items().epoch(),0,player.getYRot(),null,cause));
         game.items().summons().track(player,dolphin);game.items().communism().subjugate(player,dolphin,true,true);game.items().timeStop().prepareFrozen(dolphin);
         if(!level.addFreshEntity(dolphin)){remove(dolphin);return null;}
         player.sendSystemMessage(Component.translatable("akyla_privet"));return dolphin;
@@ -145,7 +157,14 @@ public final class LbcPozdmanBot {
             if(heading.lengthSqr()>0){float yaw=(float)Math.toDegrees(Math.atan2(-heading.x,heading.z));dolphin.snapTo(dolphin.getX()+heading.x,dolphin.getY(),dolphin.getZ()+heading.z,yaw,0);}
         }
         var level=(ServerLevel)dolphin.level();
-        if(level.getBlockState(BlockPos.containing(origin)).is(SOLID))game.items().tntDrops().spawnActor(level,origin,owner,Vec3.ZERO,2);
+        if (level.getBlockState(BlockPos.containing(origin)).is(SOLID)) {
+            var tnt = game.items().tntDrops().spawnActor(level, origin, owner, Vec3.ZERO, 2);
+            var cause = borrowedAttack(owner, actor);
+            if (tnt != null && cause != null) {
+                game.items().spellSources().bind(tnt, new LbcSpellSource.Source(dolphin.getUUID(),
+                        owner.getUUID(), actor.epoch, cause, Set.of()));
+            }
+        }
         if(owner.getRandom().nextInt(10)<3)spawnCoin(dolphin,origin);
     }
     Coin spawnCoin(Entity dolphin){return spawnCoin(dolphin,dolphin.position());}
@@ -158,13 +177,20 @@ public final class LbcPozdmanBot {
         for(var tag:List.of("bitcoin","mecha","slowraycast","player","physical_object"))coin.entityTags().add(tag);
         game.items().markCurrentItemEpoch(coin);
         var display = display(level);
-        var cause = game.items().indirectKills().coldCause(owner, false);
+        var cause = borrowedAttack(owner, parent);
+        if (cause == null) cause = game.items().indirectKills().coldCause(owner, false);
         var state = new Actor(owner.getUUID(), game.items().epoch(), 0, yaw, display, cause);
         actors.put(coin, state);
         orient(coin, state);
         game.items().timeStop().prepareFrozen(coin);game.items().timeStop().prepareFrozen(display);
         if(!level.addFreshEntity(coin)||!level.addFreshEntity(display)){remove(coin);return null;}return coin;
     }
+    private LbcIndirectKills.Owner borrowedAttack(ServerPlayer owner, Actor dolphin) {
+        var source = dolphin.cause;
+        return source != null && source.player().equals(owner.getUUID())
+                ? game.items().indirectKills().itemCause(owner, false, false, source.enchantmentWeapon()) : null;
+    }
+
     void ownerChanged(Entity entity, ServerPlayer reflector) {
         if (!(entity instanceof Coin coin)) return;
         var state = actors.get(coin);

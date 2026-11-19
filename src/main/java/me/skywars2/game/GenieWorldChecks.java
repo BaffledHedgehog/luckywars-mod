@@ -911,6 +911,8 @@ final class GenieWorldChecks {
             base.removeFields();
 
             for (var option : LbcSummons.scriptSummons()) {
+                if (option.family() == LbcSummons.SummonFamily.DOLPHIN
+                        || option.family() == LbcSummons.SummonFamily.SAD_GHOST) continue;
                 var id = new JsonPrimitive(option.id().toString());
                 var ids = complete(host, queued(host, "lbc.summon", id, vector(center))).getAsJsonArray();
                 int expected = switch (option.variant()) {
@@ -941,6 +943,103 @@ final class GenieWorldChecks {
         } finally {
             base.removeFields();
             service.snapshot().stream().filter(mob -> !initial.contains(mob)).forEach(base::discard);
+        }
+    }
+
+    private static void distinctNativeSummons(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var center = base.resident(false).add(0, 4, 0);
+        var gift = new ItemStack(Items.GOLDEN_SWORD);
+        var dolphinId = new JsonPrimitive("skywars2:david_dolphin");
+        var ghostId = new JsonPrimitive("skywars2:sad_ghost");
+        var dolphins = game.items().pozdmanBot();
+        var psycho = game.items().psycho();
+        int balance = game.items().mana().get(owner);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var witness = new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW, base.level);
+        witness.setPos(center.add(0, 0, 2));
+        witness.setNoAi(true);
+        witness.setHealth(.5f);
+        require(base.level.addFreshEntity(witness), "a living witness for the two native summon paths");
+        base.own(witness);
+        var point = BlockPos.containing(center);
+        base.set(point, Blocks.AIR.defaultBlockState());
+        try (var host = new GenieWorldHost(game, owner, gift, () -> true, () -> 0)) {
+            var absent = new Vec3(1_048_576.25, center.y, 1_048_576.25);
+            for (var id : List.of(dolphinId, ghostId)) {
+                require(complete(host, queued(host, "lbc.summon", id, vector(absent))).getAsJsonArray().isEmpty()
+                        && !base.level.hasChunkAt(BlockPos.containing(absent)), "native summon does not load absent destination");
+            }
+            base.field(true, center);
+            require(game.items().magic().mechanismSuppressedAt(base.level, center)
+                    && complete(host, queued(host, "lbc.summon", dolphinId, vector(center))).getAsJsonArray().isEmpty(),
+                    "Shark David is blocked by a real TECH field");
+            base.removeFields();
+            base.field(false, center);
+            require(game.items().magic().suppressedAt(base.level, center)
+                    && complete(host, queued(host, "lbc.summon", ghostId, vector(center))).getAsJsonArray().isEmpty(),
+                    "Sad Ghost is blocked by a real MAG field");
+            var ids = complete(host, queued(host, "lbc.summon", dolphinId, vector(center))).getAsJsonArray();
+            require(ids.size()==1, "native non-magical dolphin summon still works under MAG");
+            var dolphin = base.level.getEntity(UUID.fromString(ids.get(0).getAsString()));
+            require(dolphin instanceof Mob && dolphin.getType()==EntityTypes.DOLPHIN && dolphin.position().equals(center)
+                    && dolphin.isNoGravity() && ((Mob)dolphin).getMaxHealth()==50
+                    && game.items().communism().owner(dolphin)==owner && LbcTeams.allied(game, dolphin, owner)
+                    && !dolphins.waiting(owner), "actual controlled David is created at the requested position with native attributes");
+            try {
+                var coin = dolphins.spawnCoin(dolphin);
+                require(coin != null && coin.getOwner()==dolphin
+                        && ItemStack.matches(dolphins.state(coin).cause().enchantmentWeapon(), gift),
+                        "native coin keeps its dolphin and the exact borrowed item");
+                dolphins.removed(coin);
+                base.set(point, Blocks.STONE.defaultBlockState());
+                var oldBoxes = Set.copyOf(base.level.getEntitiesOfClass(net.minecraft.world.entity.item.PrimedTnt.class,
+                        new AABB(center, center).inflate(3)));
+                dolphins.dolphinTick(dolphin);
+                var tnt = base.level.getEntitiesOfClass(net.minecraft.world.entity.item.PrimedTnt.class,
+                        new AABB(center, center).inflate(3)).stream().filter(body -> !oldBoxes.contains(body)).findFirst().orElseThrow();
+                base.own(tnt);
+                var charge = game.items().spellSources().source(tnt);
+                require(tnt.position().equals(center) && tnt.getFuse()==2 && charge != null
+                        && ItemStack.matches(charge.cause().enchantmentWeapon(), gift),
+                        "David's native terrain-contact fuse and gift attribution are preserved");
+                base.discard(tnt);
+            } finally {
+                for (var body : dolphins.snapshot()) dolphins.removed(body);
+                base.set(point, Blocks.AIR.defaultBlockState());
+            }
+            base.removeFields();
+
+            ids = complete(host, queued(host, "lbc.summon", ghostId, vector(center))).getAsJsonArray();
+            require(ids.size()==1 && witness.isAlive(), "a standalone Sad Ghost does not run the Psycho execution");
+            var actor = base.level.getEntity(UUID.fromString(ids.get(0).getAsString()));
+            require(actor instanceof Mob, "actual hostile Vex body published");
+            var ghost = (Mob)actor;
+            base.own(ghost);
+            require(ghost.getType()==EntityTypes.VEX && ghost.position().equals(center) && ghost.getMainHandItem().isEmpty()
+                    && ghost.getHealth()==2_000_000_000f && ghost.getMaxHealth()==2_000_000_000f
+                    && ghost.canAttack(owner) && psycho.owner(ghost)==owner,
+                    "same unarmed Sad Ghost, legacy health and hostility to its caster");
+            var graph = MatchActorCheckpoint.currentBodies(game);
+            var links = new MatchSpellCheckpoint.Links(new MatchDamageSources(game, graph.values()));
+            var checkpoint = psycho.checkpoint(links);
+            psycho.unloaded(ghost);
+            require(psycho.owner(ghost)==null && links.resolve(graph::get).isEmpty(),
+                    "the restored private registry needs canonical ghost membership");
+            checkpoint.prepare(links).run();
+            psycho.publishFrozen();
+            require(psycho.owner(ghost)==owner && ghost.doHurtTarget(base.level,witness)
+                    && !witness.isAlive() && witness.getKillCredit()==owner && witness.getLastDamageSource().getEntity()==ghost,
+                    "restored hostile ghost hits as itself, and lethal credit remains with the item user");
+            var cause = game.items().indirectKills().babylonCause(witness.getLastDamageSource());
+            require(cause != null && cause.friendlyFire() && ItemStack.matches(cause.enchantmentWeapon(),gift)
+                    && game.items().mana().get(owner)==balance && owner.getMainHandItem()==main && owner.getOffhandItem()==off,
+                    "both reusable summons retain their gift and avoid the native item costs and input effects");
+            base.discard(ghost);
+        } finally {
+            base.removeFields();
+            base.discard(witness);
         }
     }
 
@@ -1526,6 +1625,7 @@ final class GenieWorldChecks {
             danmakuVolleys(game, base);
             sauvojenCasts(game, base, launchSpot.add(0, .65, 0));
             nativeSummons(game, base, launchSpot);
+            distinctNativeSummons(game, base);
 
             require(GenieNative.grimoires().containsKey(net.minecraft.resources.Identifier.parse("skywars2:tesla_instant_grimoire")),"real Tesla grimoire is indexed by the engine");
             var oldSpeed=base.owner.getEffect(MobEffects.SPEED);

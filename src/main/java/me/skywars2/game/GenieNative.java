@@ -188,9 +188,9 @@ public final class GenieNative {
         return accepted;
     }
 
-    public static List<java.util.UUID> summon(GameController game, ServerPlayer player, Identifier id, Vec3 center) {
+    public static List<java.util.UUID> summon(GameController game, ServerPlayer player, ItemStack weapon, Identifier id, Vec3 center) {
         try (var scope = WandCastOrigin.scope(player, true)) {
-            return game.items().summons().scriptSummon(player, id, center);
+            return game.items().summons().scriptSummon(player, weapon, id, center);
         }
     }
 

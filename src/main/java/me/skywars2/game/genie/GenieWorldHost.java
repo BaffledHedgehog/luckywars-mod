@@ -175,7 +175,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
     }
 
     private JsonElement summon(List<JsonElement> values) {
-        var ids = GenieNative.summon(game, owner, Identifier.parse(text(values.get(0))), vector(values.get(1)));
+        var ids = GenieNative.summon(game, owner, captured, Identifier.parse(text(values.get(0))), vector(values.get(1)));
         var bodies = new JsonArray();
         for (var id : ids) bodies.add(id.toString());
         return bodies;

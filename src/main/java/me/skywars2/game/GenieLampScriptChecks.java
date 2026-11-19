@@ -169,7 +169,10 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(payloadCount == 89 && contract.contains("\"lbc.cast\""),
                     "model receives all 9 base and 80 Academy mode identifiers and their host operation");
             var summons = facts.getAsJsonObject("script_summons");
-            require(summons.size() == 20 && contract.contains("\"lbc.summon\"") && prompt.contains("UUIDs for all live entities"),
+            require(summons.size() == 22 && contract.contains("\"lbc.summon\"") && prompt.contains("UUIDs for all live entities")
+                    && summons.getAsJsonObject("skywars2:david_dolphin").get("family").getAsString().equals("dolphin")
+                    && summons.getAsJsonObject("skywars2:sad_ghost").get("family").getAsString().equals("sad_ghost")
+                    && prompt.contains("It can attack its summoner."),
                     "model receives the native formations and the applicable script operation");
             for (var entry : LbcSummons.scriptSummons()) {
                 var row = summons.getAsJsonObject(entry.id().toString());
