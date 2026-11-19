@@ -36,7 +36,7 @@ final class MatchCombatCheckpoint {
                          boolean combat,boolean taking,ItemStack spin,EquipmentSlot spinSlot,int spinInventorySlot,
                          GenieCombat.SpinImage genieSpin,boolean kineticPresent,
                          long kineticDefault,List<Kinetic> kinetic,Optional<BlockPos> climb,BlockPos position,
-                         List<LbcIndirectKills.LogoutAbsorptionImage> logoutAbsorption) { }
+                         List<LbcIndirectKills.LogoutAbsorptionImage> logoutAbsorption, Integer logoutAttack) { }
     private final Map<UUID,Image> images=new LinkedHashMap<>();
     private final MatchDamageSources sources;
     private final LbcIndirectKills indirectKills;
@@ -63,7 +63,8 @@ final class MatchCombatCheckpoint {
                     tracker.skywars2$combat(),tracker.skywars2$taking(),spin==null?null:spin.copy(),slot,inventorySlot,genieSpin,
                     recent!=null,recent==null?0:recent.defaultReturnValue(),
                     List.copyOf(kinetic),access.skywars2$climb().map(BlockPos::immutable),access.skywars2$position()==null?null:access.skywars2$position().immutable(),
-                    living instanceof ServerPlayer player ? indirectKills.checkpointLogoutAbsorption(player, sources) : List.of()));
+                    living instanceof ServerPlayer player ? indirectKills.checkpointLogoutAbsorption(player, sources) : List.of(),
+                    living instanceof ServerPlayer player ? indirectKills.checkpointLogoutAttack(player) : null));
         }
     }
     private static UUID id(EntityReference<?> reference){return reference==null?null:reference.getUUID();}
@@ -126,6 +127,7 @@ final class MatchCombatCheckpoint {
             tracker.skywars2$combat(image.combat);tracker.skywars2$taking(image.taking);
             if (living instanceof ServerPlayer p) {
                 indirectKills.restoreLogoutAbsorption(p, image.logoutAbsorption);
+                indirectKills.restoreLogoutAttack(p, image.logoutAttack);
                 p.connection.send(image.combat ? ClientboundPlayerCombatEnterPacket.INSTANCE
                         : new ClientboundPlayerCombatEndPacket(living.getCombatTracker()));
             }

@@ -27,7 +27,7 @@ final class CombatLogoutChecks {
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Combat logout: "+why);}
     private static final class Scene extends CarpetBotChecks.Fixture {
         final Map<UUID,MatchValueSnapshot> profiles;final boolean keep;
-        final String marker="logout_qa_"+UUID.randomUUID();int serial,expiryAt,started;ServerPlayer expiry, absorbedExpiry;
+        final String marker="logout_qa_"+UUID.randomUUID();int serial,expiryAt,started;ServerPlayer expiry, absorbedExpiry, attackingExpiry;
         Scene(GameController game){super(game);profiles=game.players().checkpointProfiles();keep=base.level.getGameRules().get(GameRules.KEEP_INVENTORY);
             var stat=net.minecraft.stats.Stats.ENTITY_KILLED.get(EntityTypes.PLAYER);
             for(var snapshot:List.of(base.saved,base.otherSaved))snapshot.stats.put(stat,snapshot.player.getStats().getValue(stat));
@@ -74,12 +74,85 @@ final class CombatLogoutChecks {
             for(var wanted:expected){int found=-1;for(int i=0;i<actual.size();i++)if(ItemStack.matches(wanted,actual.get(i))){found=i;break;}require(found>=0,"exact full components/count for "+wanted);actual.remove(found);}
             require(actual.isEmpty(),"no duplicate native armor or leftover stack");clearDrops();
         }
+        private void verifyForfeitWithoutIncomingDamage(ServerPlayer attacker, ServerPlayer opponent, String name) {
+            var expected = item(Items.GOLD_INGOT, 4, name);
+            attacker.getInventory().setItem(9, expected.copy());
+            int deaths = game.players().get(attacker.getUUID()).deaths;
+            int kills = game.players().get(opponent.getUUID()).kills;
+            var hit = game.items().indirectKills().logoutHit(attacker);
+            require(hit != null && hit.player() == null, name + " activates combat without granting an opponent kill");
+            quit(attacker);
+            require(game.players().get(attacker.getUUID()).deaths == deaths + 1
+                    && game.players().get(opponent.getUUID()).kills == kills && attacker.getKillCredit() == null
+                    && game.lives(attacker.getUUID()) == 0 && !game.awaitingRespawn(attacker.getUUID()),
+                    name + " forfeits exactly once with no invented killer");
+            loot(List.of(expected));
+            saved(attacker, true);
+        }
+        private void outgoingCombat() {
+            var opponent = participant();
+            var aggressor = participant();
+            hit(opponent, aggressor);
+            verifyForfeitWithoutIncomingDamage(aggressor, opponent, "outgoing-only melee");
+
+            var absorbedAttacker = participant();
+            absorbedHit(opponent, opponent.damageSources().playerAttack(absorbedAttacker));
+            verifyForfeitWithoutIncomingDamage(absorbedAttacker, opponent, "outgoing-only absorption damage");
+
+            var rewoundAttacker = participant();
+            opponent.setAbsorptionAmount(0);
+            var cause = game.items().indirectKills().coldCause(rewoundAttacker, true);
+            var spell = game.items().indirectKills().captureDamage(opponent.damageSources().magic(), cause, null);
+            opponent.setInvulnerableTime(0);
+            opponent.damageCooldownTime = 0;
+            require(opponent.hurtServer(base.level, spell, 1), "real outgoing captured spell damage");
+            var checkpoint = new MatchCombatCheckpoint(game, List.of(), new MatchDamageSources(game, List.of()));
+            game.items().indirectKills().clear(rewoundAttacker);
+            require(game.items().indirectKills().logoutHit(rewoundAttacker) == null, "outgoing record was cleared");
+            var pending = new HashSet<UUID>();
+            checkpoint.restore(id -> game.server().getPlayerList().getPlayer(id), pending);
+            require(pending.isEmpty(), "actual checkpoint restores current combat bodies");
+            verifyForfeitWithoutIncomingDamage(rewoundAttacker, opponent, "rewound outgoing spell damage");
+
+            var blockedAttacker = participant();
+            opponent.getAbilities().invulnerable = true;
+            try {
+                require(!opponent.hurtServer(base.level, opponent.damageSources().playerAttack(blockedAttacker), 1),
+                        "native outgoing attempt was rejected");
+            } finally {
+                opponent.getAbilities().invulnerable = false;
+            }
+            blockedAttacker.getInventory().setItem(9, item(Items.DIAMOND, 2, "rejected outgoing attempt"));
+            int deaths = game.players().get(blockedAttacker.getUUID()).deaths;
+            quit(blockedAttacker);
+            require(game.players().get(blockedAttacker.getUUID()).deaths == deaths && drops().isEmpty(),
+                    "rejected outgoing attempt does not start combat");
+            saved(blockedAttacker, false);
+
+            var trapAuthor = participant();
+            var trap = new Skeleton(EntityTypes.SKELETON, base.level);
+            trap.setPos(base.home.add(6, 8, 0));
+            trap.setNoAi(true);
+            trap.setNoGravity(true);
+            trap.entityTags().add(LbcSpellSource.WILD_LOOT);
+            require(base.level.addFreshEntity(trap), "native WILD trap body");
+            base.owned.add(trap.getUUID());
+            var trapDamage = game.items().indirectKills().captureDamage(opponent.damageSources().mobAttack(trap),
+                    game.items().indirectKills().wildCause(trapAuthor), trap);
+            opponent.setInvulnerableTime(0);
+            opponent.damageCooldownTime = 0;
+            require(opponent.hurtServer(base.level, trapDamage, 1), "native WILD trap can retain statistical credit");
+            require(game.items().indirectKills().logoutHit(trapAuthor) == null,
+                    "retained trap credit does not count as outgoing PvP by its triggerer");
+            trap.discard();
+        }
         @Override void setup(){
             base.prepareParticipants();require(!game.developerMode(),"ordinary match statistics");started=game.server().getTickCount();
             game.players().get(base.owner.getUUID()).lbcSkill=0;game.players().get(base.other.getUUID()).lbcSkill=0;
             var quiet=participant();var kept=item(Items.DIAMOND,7,"quiet leave");quiet.getInventory().setItem(9,kept);int deaths=game.players().get(quiet.getUUID()).deaths;quit(quiet);
             require(game.players().get(quiet.getUUID()).deaths==deaths&&ItemStack.matches(quiet.getInventory().getItem(9),kept)&&drops().isEmpty(),"noncombat leave preserves items and statistics");saved(quiet,false);
 
+            outgoingCombat();
             var direct=participant();hit(direct,base.owner);hit(direct,base.other);game.addRuneLives(direct,2);require(game.lives(direct.getUUID())>1,"actual extra lives before forfeit");
             var expected=richLoot(direct);int alpha=game.players().get(base.owner.getUUID()).kills,beta=game.players().get(base.other.getUUID()).kills;deaths=game.players().get(direct.getUUID()).deaths;
             base.level.getGameRules().set(GameRules.KEEP_INVENTORY,true,game.server());quit(direct);
@@ -159,6 +232,9 @@ final class CombatLogoutChecks {
             absorbedHit(absorbedExpiry, absorbedExpiry.damageSources().playerAttack(base.owner));
             require(absorbedExpiry.tickCount == expiryAt, "native and absorbed expiry start at the same body tick");
             absorbedExpiry.getInventory().setItem(9, item(Items.DIAMOND, 7, "expired absorbed leave"));
+            attackingExpiry = participant();
+            hit(expiry, attackingExpiry);
+            attackingExpiry.getInventory().setItem(9, item(Items.DIAMOND, 7, "expired outgoing leave"));
         }
         @Override boolean step(){
             base.client.acknowledge();base.audience.acknowledge();require(game.server().getTickCount()-started<400,"bounded natural combat expiry");
@@ -172,6 +248,13 @@ final class CombatLogoutChecks {
                     !absorbedExpiry.getInventory().getItem(9).isEmpty() && drops().isEmpty(),
                     "naturally expired absorption-only combat preserves normal leave");
             saved(absorbedExpiry, false);
+
+            deaths = game.players().get(attackingExpiry.getUUID()).deaths;
+            quit(attackingExpiry);
+            require(game.players().get(attackingExpiry.getUUID()).deaths == deaths
+                    && !attackingExpiry.getInventory().getItem(9).isEmpty() && drops().isEmpty(),
+                    "naturally expired outgoing combat preserves normal leave");
+            saved(attackingExpiry, false);
             return true;
         }
         @Override public void close(){

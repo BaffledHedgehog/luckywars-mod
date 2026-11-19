@@ -78,6 +78,7 @@ public final class LbcIndirectKills {
     private record Arrival(Owner owner,ServerLevel level,Map<BlockPos,BlockState> cells) { }
     private final GameController game;
     private final Map<ServerPlayer, List<AbsorptionHit>> logoutAbsorption = new WeakHashMap<>();
+    private final Map<ServerPlayer, Integer> logoutAttacks = new WeakHashMap<>();
     private final Map<LivingEntity,Owner> lootOwners=new java.util.WeakHashMap<>();
     // Ссылки на выгруженных мобов не удерживают сущности/чанки в памяти.
     private final Map<LivingEntity,Fall> falls = new WeakHashMap<>();
@@ -1057,9 +1058,31 @@ public final class LbcIndirectKills {
                 : damage.owner;
     }
 
+    private void recordLogoutAttack(ServerPlayer target, LogoutDamage damage) {
+        if (damage == null || damage.player == null) return;
+        var author = game.server().getPlayerList().getPlayer(damage.player);
+        if (author == null || !author.isAlive() || author.isRemoved() || !game.allowDamage(author)
+                || author.level() != target.level()) return;
+        var sources = game.items().spellSources();
+        var active = sources.current();
+        if ((active != null && active.unownedMobs()) || sources.lootProjectile(damage.source.getDirectEntity())
+                || sources.lootProjectile(damage.source.getEntity())) return;
+        logoutAttacks.put(author, author.tickCount);
+    }
+
+    Integer checkpointLogoutAttack(ServerPlayer player) {
+        return logoutAttacks.get(player);
+    }
+
+    void restoreLogoutAttack(ServerPlayer player, Integer tick) {
+        if (tick == null) logoutAttacks.remove(player);
+        else logoutAttacks.put(player, tick);
+    }
+
     void recordLogoutAbsorption(ServerPlayer target, DamageSource source) {
         var damage = logoutDamage(target, source);
         if (damage == null) return;
+        recordLogoutAttack(target, damage);
         if (damage.player != null) damage = new LogoutDamage(source, damage.player, logoutOwner(damage));
         var entries = combatEntries(target);
         var hits = logoutAbsorption.computeIfAbsent(target, player -> new ArrayList<>(2));
@@ -1134,7 +1157,10 @@ public final class LbcIndirectKills {
             return new LogoutHit(captureDamage(target.damageSources().genericKill(), logoutOwner(damage), author),
                     damage.player);
         }
-        return null;
+        var outgoing = logoutAttacks.get(target);
+        if (outgoing == null || target.tickCount - outgoing > CombatTracker.RESET_COMBAT_STATUS_TIME) return null;
+        // Taking part in combat is sufficient for a forfeit. Kill credit still requires incoming damage.
+        return new LogoutHit(newerMob == null ? target.damageSources().genericKill() : newerMob, null);
     }
     void settleLogoutHit(ServerPlayer target,LogoutHit hit){
         if(hit.player()==null)mobImpact(target,hit.source());
@@ -1147,14 +1173,19 @@ public final class LbcIndirectKills {
         falls.remove(target); statuses.remove(target); removedSupports.remove(target); laterAttacks.remove(target);
         arrivals.remove(target);
         pendingMana.remove(target); manaDrains.remove(target); manaDebts.remove(target);
-        burning.remove(target); hungerDebts.remove(target); logoutAbsorption.remove(target);
+        burning.remove(target); hungerDebts.remove(target); logoutAbsorption.remove(target); logoutAttacks.remove(target);
     }
     static boolean unownedDamage(DamageSource source){
         return npcSource(source)||LbcSpellSource.unownedHazard(source.getDirectEntity())||LbcSpellSource.unownedHazard(source.getEntity());
     }
     /** Settle accepted NPC attribution before native death and VIP receipts. */
     public void acceptedDamage(LivingEntity target,DamageSource source,float amount){
-        if(amount>0&&unownedDamage(source))mobImpact(target,source);
+        if (!(amount > 0)) return;
+        if (unownedDamage(source)) {
+            mobImpact(target, source);
+        } else if (target instanceof ServerPlayer player && game.allowDamage(player)) {
+            recordLogoutAttack(player, logoutDamage(player, source));
+        }
     }
     private void mobImpact(LivingEntity target,DamageSource source){
         // A hostile Mob supersedes an old player's push, while independent
@@ -1168,7 +1199,7 @@ public final class LbcIndirectKills {
         lootOwners.clear();WeaponEnchantments.clear();
         falls.clear(); statuses.clear(); removedSupports.clear(); laterAttacks.clear(); stone.clear();
         pendingMana.clear(); manaDrains.clear(); manaDebts.clear();
-        hazards.clear(); burning.clear(); arrivals.clear(); hungerDebts.clear(); logoutAbsorption.clear();
+        hazards.clear(); burning.clear(); arrivals.clear(); hungerDebts.clear(); logoutAbsorption.clear(); logoutAttacks.clear();
     }
     /** GLOBAL causal ledger image; native effects/bodies/terrain stay with their canonical owners. */
     Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
