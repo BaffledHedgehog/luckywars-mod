@@ -160,12 +160,22 @@ final class GenieLampScriptChecks implements AutoCloseable {
             }
             var targeted = facts.getAsJsonArray("script_targeted_casts").asList().stream()
                     .map(JsonElement::getAsJsonObject).toList();
-            for (String id : List.of("fireblaze_wand", "academy_fireblaze_world", "academy_fireblaze_mega",
-                    "academy_fireblaze_pillars", "academy_fireblaze_kiuas")) {
+            var fireblazeNames = java.util.Map.of(
+                    "fireblaze_wand", "Акфер Уасан Сахриатан Била'умен Фи Лалами",
+                    "academy_fireblaze_world", "Акфер Уасан Сахриатан: Бесконечная дальность",
+                    "academy_fireblaze_mega", "Акфер Уасан Сахриатан: Мощные взрывы",
+                    "academy_fireblaze_pillars", "Акфер Уасан Сахриатан: Лавовые колонны",
+                    "academy_fireblaze_kiuas", "Акфер Уасан Сахриатан: Всемирный Холокост");
+            fireblazeNames.forEach((id, name) -> {
                 String spell = "skywars2:" + id;
                 require(prompt.contains(spell) && targeted.stream().anyMatch(row -> row.get("id").getAsString().equals(spell)
-                                && row.getAsJsonArray("names").get(1).getAsString().startsWith("????? ????? ?????????")),
-                        "the actual provider receives the exact Fireblaze mode " + spell);
+                                && row.getAsJsonArray("names").get(1).getAsString().equals(name)),
+                        "the actual provider receives the Fireblaze mode with its intact Russian name " + spell);
+            });
+            require(prompt.contains(fireblazeNames.get("fireblaze_wand")), "Fireblaze prompt name is intact");
+            for (String spell : List.of("skywars2:music_staff", "skywars2:academy_music_staff")) {
+                require(directed.contains(new JsonPrimitive(spell)) && prompt.contains(spell) && prompt.contains("Посох 52"),
+                        "the actual provider can name and call a native Staff 52 shot " + spell);
             }
             int payloadCount = 0;
             require(payloads.size() == 9, "all native Sauvojen families appear in the request");

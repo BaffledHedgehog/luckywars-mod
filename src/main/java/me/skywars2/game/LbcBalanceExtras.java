@@ -76,7 +76,14 @@ final class LbcBalanceExtras {
             return true;
         }catch(Exception error){throw new IllegalStateException("Invalid fixed lucky spawner",error);}
     }
-    static Vec3 doubleArrowOrigin(ServerPlayer owner,int side,boolean current){return owner.getEyePosition().add(Vec3.directionFromRotation(0,owner.getYRot()-90).scale(side*(current?.4:1))).add(owner.getLookAngle().scale(.3));}
+    static Vec3 doubleArrowOrigin(ServerPlayer owner, int side, boolean current) {
+        return doubleArrowOrigin(owner.getEyePosition(), owner.getLookAngle(),
+                Vec3.directionFromRotation(0, owner.getYRot() - 90), side, current);
+    }
+
+    static Vec3 doubleArrowOrigin(Vec3 origin, Vec3 aim, Vec3 lateral, int side, boolean current) {
+        return origin.add(lateral.scale(side * (current ? .4 : 1))).add(aim.scale(.3));
+    }
     List<Projectile> augment(ServerPlayer owner,ItemStack weapon,List<Projectile> family){
         boolean currentDouble=LbcBalanceItems.flag(weapon,"double");
         boolean doubled=currentDouble||LbcBalanceItems.flag(weapon,"double_old"),shulker=LbcBalanceItems.flag(weapon,"shulker")&&!game.items().magic().suppressed(owner);

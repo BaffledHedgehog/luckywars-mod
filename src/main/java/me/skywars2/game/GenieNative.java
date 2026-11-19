@@ -63,6 +63,7 @@ public final class GenieNative {
         WALL, ACADEMY_WALL, WALL_HORIZONTAL, WALL_DISMANTLE, WALL_STAIRS,
         ADVANCED_ENDER, ACADEMY_ADVANCED_ENDER, ADVANCED_ENDER_TOP, ADVANCED_ENDER_CLIP,
         SNOW_WAND, ACADEMY_SNOW_WAND, ICE_WAND, ACADEMY_ICE_WAND,
+        MUSIC_STAFF, ACADEMY_MUSIC_STAFF,
         FARTUS_WAND, FARTUS_BANANA_VOLLEY, FARTUS_LABEL_VOLLEY, ACADEMY_FARTUS_WAND,
         AWAKENED_ACID_WAND(1,false), AWAKENED_ACID_WAND_IGNITED(1,true),
         AWAKENED_ACID_CAUSTIC(2,false), AWAKENED_ACID_CAUSTIC_IGNITED(2,true),
@@ -121,15 +122,15 @@ public final class GenieNative {
                 "Detonates your Permafrost crystals within 50 blocks of the target."),
         ACADEMY_ICE_WAND_SHATTER("academy_ice_wand_shatter", "Academy Permafrost: Shatter", "Вечная Мерзлота (Академия): Раскалывание",
                 "Detonates your crystals and shatters frozen entities within 50 blocks. Shatter can hurt allies."),
-        FIREBLAZE_WAND("fireblaze_wand", "Fireblaze Staff", "????? ????? ????????? ????'???? ?? ??????",
+        FIREBLAZE_WAND("fireblaze_wand", "Fireblaze Staff", "Акфер Уасан Сахриатан Била'умен Фи Лалами",
                 "Sends a native small fireball toward each enemy within 30 blocks of the target position."),
-        ACADEMY_FIREBLAZE_WORLD("academy_fireblaze_world", "Fireblaze: Infinite Range", "????? ????? ?????????: ??????????? ?????????",
+        ACADEMY_FIREBLAZE_WORLD("academy_fireblaze_world", "Fireblaze: Infinite Range", "Акфер Уасан Сахриатан: Бесконечная дальность",
                 "Sends a small fireball toward each eligible enemy in the arena."),
-        ACADEMY_FIREBLAZE_MEGA("academy_fireblaze_mega", "Fireblaze: Powerful Explosions", "????? ????? ?????????: ?????? ??????",
+        ACADEMY_FIREBLAZE_MEGA("academy_fireblaze_mega", "Fireblaze: Powerful Explosions", "Акфер Уасан Сахриатан: Мощные взрывы",
                 "Sends an explosive fireball of power five toward each enemy within 100 blocks of the target position."),
-        ACADEMY_FIREBLAZE_PILLARS("academy_fireblaze_pillars", "Fireblaze: Lava Pillars", "????? ????? ?????????: ??????? ???????",
+        ACADEMY_FIREBLAZE_PILLARS("academy_fireblaze_pillars", "Fireblaze: Lava Pillars", "Акфер Уасан Сахриатан: Лавовые колонны",
                 "Creates the original lava columns near enemies in the arena and gives the caster fire resistance."),
-        ACADEMY_FIREBLAZE_KIUAS("academy_fireblaze_kiuas", "Fireblaze: World Inferno", "????? ????? ?????????: ????????? ????????",
+        ACADEMY_FIREBLAZE_KIUAS("academy_fireblaze_kiuas", "Fireblaze: World Inferno", "Акфер Уасан Сахриатан: Всемирный Холокост",
                 "Ignites the original regions around enemies and places lava. Gives the caster fire resistance."),
         HAKUREI_BOMB("hakurei_bomb", "Hakurei Shrine: Fantasy Seal bomb", "Храм Хакурей: бомба Печать фантазии",
                 "Original faster yellow Fantasy Seal bomb with its normal 300 charge and lingering shell.");
@@ -299,6 +300,8 @@ public final class GenieNative {
                             default -> null;
                         });
                 case ICE_WAND, ACADEMY_ICE_WAND -> game.items().iceWand().scriptShot(player, hand, weapon, origin, aim);
+                case MUSIC_STAFF, ACADEMY_MUSIC_STAFF ->
+                        game.items().musicStaff().scriptShot(player, weapon, origin, aim, spell == Cast.ACADEMY_MUSIC_STAFF);
                 case DANMAKU_CARD, DANMAKU_HOMING_CARD -> game.items().danmaku()
                         .scriptCard(player, origin, aim, spell == Cast.DANMAKU_HOMING_CARD);
                 case DANMAKU_VOLLEY, DANMAKU_OFFHAND_VOLLEY, ACADEMY_DANMAKU_VOLLEY, ACADEMY_DANMAKU_OFFHAND_VOLLEY ->

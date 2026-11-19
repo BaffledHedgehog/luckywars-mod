@@ -1442,6 +1442,76 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void musicStaffCasts(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var staff = game.items().musicStaff();
+        require(staff.arrows().isEmpty(), "exclusive Staff 52 projectile fixture");
+        var origin = new Vec3(owner.chunkPosition().getMinBlockX() + 8.5, 240,
+                owner.chunkPosition().getMinBlockZ() + 8.5);
+        var east = new Vec3(1, 0, 0);
+        var target = stationaryCow(base, origin.add(2.5, -.65, 0));
+        var gift = new ItemStack(Items.AMETHYST_SHARD);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var mana = game.items().mana().get(owner);
+        var playing = staff.playing();
+        require(owner.getEyePosition().distanceToSqr(origin) > 900, "Staff 52 fires from a remote origin");
+        try (var host = new GenieWorldHost(game, owner, gift, () -> true, () -> 0)) {
+            base.field(false, origin);
+            require(!directed(host, "music_staff", origin, east) && staff.arrows().isEmpty(),
+                    "MAG rejects a Staff 52 shot at the supplied origin");
+            base.removeFields();
+            require(directed(host, "music_staff", origin, east) && staff.arrows().size() == 1,
+                    "ordinary Staff 52 emits one native arrow");
+            var arrow = staff.arrows().getFirst();
+            base.own(arrow);
+            var source = game.items().spellSources().source(arrow);
+            require(arrow.position().equals(origin) && arrow.getOwner() == owner && arrow.fixedArrowDamage() == 8
+                            && arrow.getDeltaMovement().normalize().dot(east) > .999
+                            && arrow.model != null && arrow.model.display() != null
+                            && ItemStack.matches(arrow.getWeaponItem(), gift)
+                            && source != null && source.cause().friendlyFire()
+                            && source.cause().player().equals(owner.getUUID()),
+                    "native origin, aim, visual, gift snapshot and WILD attribution");
+            float health = target.getHealth();
+            for (int tick = 0; tick < 3 && !arrow.isRemoved() && target.getHealth() == health; tick++) arrow.tick();
+            require(target.getHealth() == health - 8, "remote arrow applies fixed eight native damage");
+            base.discard(arrow);
+            base.discard(target);
+
+            boolean single = false, doubleShot = false;
+            for (int cast = 0; cast < 40 && !(single && doubleShot); cast++) {
+                require(directed(host, "academy_music_staff", origin, east), "Academy Staff 52 cast accepted");
+                var arrows = staff.arrows();
+                arrows.forEach(base::own);
+                require(arrows.size() == 1 || arrows.size() == 2, "one or two Academy arrows");
+                require(arrows.stream().allMatch(shot -> shot.fixedArrowDamage() == 16
+                                && shot.getDeltaMovement().normalize().dot(east) > .999),
+                        "Academy shots keep sixteen damage and the directed native spread");
+                if (arrows.size() == 1) {
+                    single = true;
+                    require(arrows.getFirst().position().equals(origin), "single shot uses the supplied camera origin");
+                } else {
+                    doubleShot = true;
+                    var first = arrows.get(0);
+                    var second = arrows.get(1);
+                    require(first.position().add(second.position()).scale(.5).distanceToSqr(origin.add(.3, 0, 0)) < 1e-10
+                                    && Math.abs(Math.abs(first.getZ() - second.getZ()) - .8) < 1e-8,
+                            "Academy double uses opposite native muzzle offsets");
+                    require(first.getDeltaMovement().distanceToSqr(second.getDeltaMovement()) > 1e-12,
+                            "Academy arrows sample independent spread");
+                }
+                arrows.forEach(base::discard);
+            }
+            require(single && doubleShot && game.items().mana().get(owner) == mana && staff.playing() == playing
+                            && owner.getMainHandItem() == main && owner.getOffhandItem() == off,
+                    "both Academy branches leave real hands, music and mana untouched");
+        } finally {
+            base.removeFields();
+            staff.arrows().forEach(base::discard);
+        }
+    }
+
     private static void fireblazeCasts(GameController game, WoolBucketChecks.Fixture base) {
         var owner = base.owner;
         var level = base.level;
@@ -1715,6 +1785,7 @@ final class GenieWorldChecks {
             permafrostCasts(game, base);
             fartusCasts(game, base);
             awakenedAcidCasts(game, base);
+            musicStaffCasts(game, base);
             fireblazeCasts(game, base);
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);

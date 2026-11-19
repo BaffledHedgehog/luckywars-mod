@@ -96,24 +96,54 @@ public final class LbcMusicStaff {
         boolean improved=upgraded(stack);
         int cost=Math.max(0,game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly(improved?ACADEMY_MANA:BASE_MANA),"lbc.math").get());
         if(!game.items().mana().trySpendWand(player,cost))return false;
-        int count=improved&&player.getRandom().nextInt(100)<52?2:1;
-        int spawned=0;
-        try(var use=WeaponEnchantments.using(player,stack)){
-            var wild=game.items().indirectKills().wildCause(player);
-            var cause=new LbcIndirectKills.Owner(wild.player(),wild.order(),true,true,wild.enchantmentWeapon(),true);
-            for(int i=0;i<count;i++){
-                var shot=new Shot(TYPE,player.level());shot.damage=improved?16:8;shot.weapon=stack.copyWithCount(1);
-                shot.setOwner(player);shot.setPos(count==2?LbcBalanceExtras.doubleArrowOrigin(player,i==0?-1:1,true):player.getEyePosition());shot.getSlot(0).set(new ItemStack(Items.ARROW));shot.pickup=Shot.Pickup.DISALLOWED;
-                var direction=player.getLookAngle();shot.shoot(direction.x,direction.y,direction.z,3,1);shot.setCritArrow(false);
-                game.items().markCurrentItemEpoch(shot);game.items().spellSources().bind(shot,new LbcSpellSource.Source(player.getUUID(),player.getUUID(),game.items().epoch(),cause,Set.of()));
+        Vec3 lateral = Vec3.directionFromRotation(0, player.getYRot() - 90);
+        if (!fire(player, stack, player.getEyePosition(), player.getLookAngle(), lateral, improved)) {
+            game.items().mana().add(player, cost);
+            return false;
+        }
+        playShot(player.level(), player.position());
+        game.items().wands().wandCasted(player);
+        return true;
+    }
+
+    boolean scriptShot(ServerPlayer player, ItemStack weapon, Vec3 origin, Vec3 aim, boolean improved) {
+        if (!NativeChunkLoad.resident(player.level(), BlockPos.containing(origin))) return false;
+        Vec3 lateral = new Vec3(aim.z, 0, -aim.x);
+        if (lateral.lengthSqr() < 1e-8) lateral = Vec3.directionFromRotation(0, player.getYRot() - 90);
+        if (!fire(player, weapon, origin, aim, lateral.normalize(), improved)) return false;
+        playShot(player.level(), origin);
+        return true;
+    }
+
+    private boolean fire(ServerPlayer player, ItemStack weapon, Vec3 origin, Vec3 aim, Vec3 lateral, boolean improved) {
+        int count = improved && player.getRandom().nextInt(100) < 52 ? 2 : 1;
+        boolean spawned = false;
+        try (var use = WeaponEnchantments.using(player, weapon)) {
+            var wild = game.items().indirectKills().wildCause(player);
+            var cause = new LbcIndirectKills.Owner(wild.player(), wild.order(), true, true, wild.enchantmentWeapon(), true);
+            for (int i = 0; i < count; i++) {
+                var shot = new Shot(TYPE, player.level());
+                shot.damage = improved ? 16 : 8;
+                shot.weapon = weapon.copyWithCount(1);
+                shot.setOwner(player);
+                shot.setPos(count == 2 ? LbcBalanceExtras.doubleArrowOrigin(origin, aim, lateral, i == 0 ? -1 : 1, true) : origin);
+                shot.getSlot(0).set(new ItemStack(Items.ARROW));
+                shot.pickup = Shot.Pickup.DISALLOWED;
+                shot.shoot(aim.x, aim.y, aim.z, 3, 1);
+                shot.setCritArrow(false);
+                game.items().markCurrentItemEpoch(shot);
+                game.items().spellSources().bind(shot, new LbcSpellSource.Source(
+                        player.getUUID(), player.getUUID(), game.items().epoch(), cause, Set.of()));
                 game.items().timeStop().prepareFrozen(shot);
-                if(player.level().addFreshEntity(shot)&&!shot.isRemoved())spawned++;else shot.discard();
+                if (player.level().addFreshEntity(shot) && !shot.isRemoved()) spawned = true;
+                else shot.discard();
             }
         }
-        if(spawned==0){game.items().mana().add(player,cost);return false;}
-        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.ARROW_SHOOT, SoundSource.PLAYERS, 1.0f, 1.0f);
-        game.items().wands().wandCasted(player);return true;
+        return spawned;
+    }
+
+    private static void playShot(ServerLevel level, Vec3 position) {
+        level.playSound(null, position.x, position.y, position.z, SoundEvents.ARROW_SHOOT, SoundSource.PLAYERS, 1.0f, 1.0f);
     }
     public static final class Shot extends Arrow implements PolymerEntity,FixedArrowDamage {
         int damage=8;ItemStack weapon=ItemStack.EMPTY;ProjectileModel model;
