@@ -1164,6 +1164,94 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void fartusCasts(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var service = game.items().fartus();
+        require(service.count() == 0, "exclusive Fartus fixture");
+        var chunk = owner.chunkPosition();
+        int y = Math.min(owner.getBlockY() + 31, base.level.getMaxY() - 8);
+        var pos = new BlockPos(chunk.getMinBlockX() + 4, y, chunk.getMinBlockZ() + 7);
+        for (var cell : BlockPos.betweenClosed(pos.offset(-1,-1,-2),pos.offset(7,2,2)))
+            base.set(cell.immutable(), Blocks.AIR.defaultBlockState());
+        var origin = Vec3.atCenterOf(pos);
+        var east = new Vec3(1,0,0);
+        var gift = new ItemStack(Items.AMETHYST_SHARD);
+        var mana = game.items().mana();
+        var counter = mana.score(owner,"fartus_sword");
+        int former = counter.get();
+        counter.set(9);
+        int beforeMana = mana.get(owner);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var victim = stationaryCow(base, origin.add(2,-.5,0));
+        try (var host = new GenieWorldHost(game, owner, gift, () -> true, () -> 0)) {
+            require(directed(host, "fartus_wand", origin, east), "random Fartus cast");
+            var random = service.snapshot();
+            require(random.size() == 5 && random.getFirst().kind != LbcFartus.Kind.HOMING
+                            && random.stream().allMatch(shot -> shot.kind == random.getFirst().kind),
+                    "one ordinary random branch applies to the full five-shot volley");
+            random.forEach(base::discard);
+
+            require(directed(host, "fartus_banana_volley", origin, east), "explicit banana volley");
+            var bananas = service.snapshot();
+            require(bananas.size() == 5 && bananas.stream().allMatch(shot ->
+                            shot.kind == LbcFartus.Kind.BANANA && shot.getOwner() == owner
+                            && shot.position().equals(origin) && shot.display.position().equals(origin)
+                            && shot.launchYaw == -90 && shot.launchPitch == 0
+                            && shot.getDeltaMovement().x >= 1 && shot.getDeltaMovement().x <= 2
+                            && Math.abs(shot.getDeltaMovement().y) <= .5 && Math.abs(shot.getDeltaMovement().z) <= .5),
+                    "native physical bananas preserve the remote origin, supplied aim and original component spread");
+            bananas.forEach(base::discard);
+
+            require(directed(host, "fartus_label_volley", origin, east), "explicit flying label volley");
+            var labels = service.snapshot();
+            require(labels.size() == 5, "exactly five native labels");
+            for (int i=0;i<labels.size();i++) {
+                var label = labels.get(i);
+                require(label.kind == LbcFartus.Kind.LABEL && label.position().equals(origin)
+                                && label.getDeltaMovement().distanceTo(Vec3.directionFromRotation(0,-60-i*15).scale(.4)) < 1e-6,
+                        "native label fan preserves its exact angular spacing");
+            }
+            var central = labels.get(2);
+            for (var label : labels) if (label != central) base.discard(label);
+            for (int i=0;i<10&&!central.isRemoved();i++) service.flight(central);
+            require(central.isRemoved() && central.display.isRemoved()
+                            && victim.getEffect(MobEffects.WITHER).getDuration() == 300
+                            && victim.getEffect(MobEffects.POISON).getAmplifier() == 2
+                            && victim.getEffect(MobEffects.SLOWNESS).getAmplifier() == 0,
+                    "real label collision applies the original three effects and retires its display");
+            require(central.borrowedCause.enchantmentWeapon().is(Items.AMETHYST_SHARD),
+                    "the delayed label retains the accepted Genie weapon");
+
+            base.field(false, origin);
+            try {
+                require(!directed(host,"academy_fartus_wand",origin,east) && service.count()==0,
+                        "origin antimagic suppresses the native borrowed palm cast");
+            } finally { base.removeFields(); }
+            require(directed(host,"academy_fartus_wand",origin,east), "Academy palm sword volley");
+            require(service.count() == 5 && service.snapshot().stream().allMatch(shot -> {
+                        var motion = shot.getDeltaMovement();
+                        // Native Mth sine/cosine table lookup can differ by one 65536th of a turn.
+                        return shot.kind == LbcFartus.Kind.HOMING && shot.position().equals(origin) && shot.getOwner()==owner
+                                && Math.abs(motion.length()-.4) < 4e-5
+                                && Math.abs(Math.toDegrees(Math.atan2(motion.z,motion.x))) <= 50.02
+                                && Math.abs(Math.toDegrees(Math.atan2(motion.y,motion.horizontalDistance()))) <= 50.02;
+                    }),
+                    "all five native homing projectiles preserve speed and the requested aim: " + service.snapshot().stream()
+                            .map(shot -> shot.kind + " origin=" + shot.position() + " owner=" + (shot.getOwner()==owner)
+                                    + " speed=" + shot.getDeltaMovement().length()
+                                    + " aim=" + shot.getDeltaMovement().normalize().dot(east)).toList());
+            require(counter.get() == 9 && mana.get(owner) == beforeMana
+                            && owner.getMainHandItem() == main && owner.getOffhandItem() == off,
+                    "the four borrowed casts leave sword charges, mana and actual equipment alone");
+        } finally {
+            service.snapshot().forEach(base::discard);
+            counter.set(former);
+            game.items().indirectKills().clear(victim);
+            base.discard(victim);
+        }
+    }
+
     private static void drainAdvancedRay(LbcExasperato rays) {
         for (int tick = 0; tick < 100 && rays.pendingSearches() > 0; tick++) rays.tick();
         require(rays.pendingSearches() == 0, "native snow or Ender ray resolves");
@@ -1235,6 +1323,7 @@ final class GenieWorldChecks {
             starsAndWall(game, base);
             advancedSnowCasts(game, base);
             permafrostCasts(game, base);
+            fartusCasts(game, base);
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);

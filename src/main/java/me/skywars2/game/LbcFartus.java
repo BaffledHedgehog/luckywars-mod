@@ -102,6 +102,7 @@ public final class LbcFartus {
     public static boolean magic(Entity entity){return entity instanceof Shot shot&&shot.kind!=Kind.BANANA;}
     public static final class Shot extends Projectile implements PolymerEntity {
         Kind kind=Kind.BANANA;int age;float launchYaw,launchPitch;Display.ItemDisplay display;LbcFartus service;
+        LbcIndirectKills.Owner borrowedCause;
         Shot(EntityType<? extends Shot> type,Level level){super(type,level);}
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder){}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
@@ -118,11 +119,7 @@ public final class LbcFartus {
         if(academy(stack)){
             int charges=charges(owner);if(charges<3)return false;
             game.items().mana().score(owner,"fartus_sword").set(charges-3);
-            for(int i=0;i<5;i++){
-                float yaw=owner.getYRot()+(owner.getRandom().nextInt(10001)-5000)*.01f;
-                float pitch=owner.getXRot()+(owner.getRandom().nextInt(10001)-5000)*.01f;
-                spawn(owner,Kind.HOMING,owner.getEyePosition(),Vec3.directionFromRotation(pitch,yaw).scale(.4));
-            }
+            volley(owner, Kind.HOMING, owner.getEyePosition(), owner.getLookAngle(), owner.getYRot(), owner.getXRot(), null);
             return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("fartus_nadristailo_mana_use"),"lbc.math").get();
@@ -135,17 +132,48 @@ public final class LbcFartus {
     /** A deterministic choice still follows the exact production five-shot geometry. */
     void cast(ServerPlayer owner,int branch){
         if(branch!=1&&branch!=2)throw new IllegalArgumentException("Fartus branch must be1 or2");
-        for(int i=0;i<5;i++){
-            Vec3 motion;
-            if(branch==1){var r=owner.getRandom();var v=owner.getLookAngle();motion=new Vec3(
-                    (Math.floor(v.x*15000)+r.nextInt(10001)-5000)*.0001,
-                    (Math.floor(v.y*15000)+r.nextInt(10001)-5000)*.0001,
-                    (Math.floor(v.z*15000)+r.nextInt(10001)-5000)*.0001);}
-            else motion=Vec3.directionFromRotation(owner.getXRot(),owner.getYRot()+30-i*15).scale(.4);
-            spawn(owner,branch==1?Kind.BANANA:Kind.LABEL,owner.getEyePosition(),motion);
-            if(branch==2)LbcOverload.sound(owner,owner.position(),"minecraft:ui.cartography_table.take_result",.5f,2,0);
-        }
+        volley(owner, branch==1?Kind.BANANA:Kind.LABEL, owner.getEyePosition(), owner.getLookAngle(),
+                owner.getYRot(), owner.getXRot(), null);
     }
+
+    boolean scriptVolley(ServerPlayer owner, ItemStack gift, Vec3 origin, Vec3 aim, Kind choice) {
+        if (!validOwner(owner)) return false;
+        var kind = choice != null ? choice : owner.getRandom().nextInt(2)==0 ? Kind.BANANA : Kind.LABEL;
+        float yaw = aim.horizontalDistanceSqr() < 1e-12 ? owner.getYRot() : (float)-Math.toDegrees(Math.atan2(aim.x,aim.z));
+        float pitch = (float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
+        var cause = game.items().indirectKills().itemCause(owner, false, true, gift);
+        boolean released = volley(owner, kind, origin, aim, yaw, pitch, cause);
+        if (released && kind != Kind.HOMING)
+            LbcOverload.sound(owner, origin, "minecraft:entity.snowball.throw", 1, 1, 0);
+        return released;
+    }
+
+    private boolean volley(ServerPlayer owner, Kind kind, Vec3 origin, Vec3 aim, float yaw, float pitch,
+                           LbcIndirectKills.Owner borrowedCause) {
+        var random = owner.getRandom();
+        var soundPosition = borrowedCause == null ? owner.position() : origin;
+        boolean released = false;
+        for (int i=0;i<5;i++) {
+            Vec3 motion = switch (kind) {
+                case BANANA -> new Vec3(
+                        (Math.floor(aim.x*15000)+random.nextInt(10001)-5000)*.0001,
+                        (Math.floor(aim.y*15000)+random.nextInt(10001)-5000)*.0001,
+                        (Math.floor(aim.z*15000)+random.nextInt(10001)-5000)*.0001);
+                case LABEL -> Vec3.directionFromRotation(pitch,yaw+30-i*15).scale(.4);
+                case HOMING -> {
+                    float spreadYaw = yaw + (random.nextInt(10001)-5000)*.01f;
+                    float spreadPitch = pitch + (random.nextInt(10001)-5000)*.01f;
+                    yield Vec3.directionFromRotation(spreadPitch,spreadYaw).scale(.4);
+                }
+            };
+            var shot = spawn(owner, kind, origin, motion, yaw, pitch, borrowedCause);
+            released |= shot != null && !shot.isRemoved();
+            if (kind == Kind.LABEL)
+                LbcOverload.sound(owner,soundPosition,"minecraft:ui.cartography_table.take_result",.5f,2,0);
+        }
+        return released;
+    }
+
     void trial(ServerPlayer owner,InteractionHand hand,ItemStack stack,int branch){
         if(!LbcAcademy.trial(stack)||owner.getItemInHand(hand)!=stack)return;
         var tag=data(stack);int score=tag.getIntOr("score",0),prev=tag.getIntOr("prev",0);
@@ -155,8 +183,14 @@ public final class LbcFartus {
         if(score>=4)game.items().academy().ready(owner,hand,stack);
     }
     Shot spawn(ServerPlayer owner,Kind kind,Vec3 origin,Vec3 motion){
+        return spawn(owner, kind, origin, motion, owner.getYRot(), owner.getXRot(), null);
+    }
+
+    private Shot spawn(ServerPlayer owner, Kind kind, Vec3 origin, Vec3 motion, float yaw, float pitch,
+                       LbcIndirectKills.Owner borrowedCause) {
         if(!owner.level().hasChunkAt(BlockPos.containing(origin)))return null;
-        var shot=new Shot(TYPE,owner.level());shot.service=this;shot.kind=kind;shot.launchYaw=owner.getYRot();shot.launchPitch=owner.getXRot();shot.setOwner(owner);shot.setPos(origin);shot.setNoGravity(true);shot.setDeltaMovement(motion);
+        var shot=new Shot(TYPE,owner.level());shot.service=this;shot.kind=kind;shot.launchYaw=yaw;shot.launchPitch=pitch;shot.setOwner(owner);shot.setPos(origin);shot.setNoGravity(true);shot.setDeltaMovement(motion);
+        shot.borrowedCause=borrowedCause;
         shot.entityTags().add(kind==Kind.BANANA?"physical_object":"magic");shot.entityTags().add("skywars2.fartus_shot");game.items().markCurrentItemEpoch(shot);
         var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());shot.display=display;
         try{
@@ -251,7 +285,10 @@ public final class LbcFartus {
     void impact(Shot shot,LivingEntity target){
         if(!valid(shot)||!(shot.getOwner() instanceof ServerPlayer owner)||!game.items().wands().projectileTarget(owner,target))return;
         if(shot.kind!=Kind.BANANA&&game.items().magic().suppressedAt((ServerLevel)target.level(),target.position())){remove(shot);return;}
-        var level=(ServerLevel)shot.level();var cause=game.items().indirectKills().coldCause(owner,true);
+        var level=(ServerLevel)shot.level();
+        var cause=shot.borrowedCause;
+        if(cause==null || !cause.player().equals(owner.getUUID()))
+            cause=game.items().indirectKills().coldCause(owner,true);
         var victims=new ArrayList<LivingEntity>();victims.add(target);
         if(shot.kind==Kind.BANANA)for(var other:level.getEntitiesOfClass(LivingEntity.class,new AABB(shot.position(),shot.position()).inflate(.500001),
                 e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e)))if(other!=target)victims.add(other);
@@ -319,10 +356,11 @@ public final class LbcFartus {
 
     LbcCloneSkills.ActorImage cloneImage(Shot source) {
         var kind=source.kind;int age=source.age;float yaw=source.launchYaw,pitch=source.launchPitch;
+        var cause=source.borrowedCause;
         return new LbcCloneSkills.ActorImage() {
             public void install(Entity original,Entity clone,Map<Entity,Entity> family) {
                 var target=(Shot)clone;target.service=LbcFartus.this;target.kind=kind;target.age=age;
-                target.launchYaw=yaw;target.launchPitch=pitch;
+                target.launchYaw=yaw;target.launchPitch=pitch;target.borrowedCause=cause;
                 var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,target.level());target.display=display;
                 try{
                     var preset=TagParser.parseCompoundFully("{teleport_duration:1,interpolation_duration:1,shadow_radius:0f,shadow_strength:0f,item_display:'fixed',view_range:10f,transformation:{translation:[0f,0f,0f],left_rotation:"+(target.kind==Kind.LABEL?"[1f,0f,0f,1f]":"[0f,0f,0f,1f]")+",right_rotation:[0f,0f,0f,1f],scale:"+(target.kind==Kind.LABEL?"[.5f,.5f,.5f]":"[1f,1f,1f]")+"},item:{id:'"+(target.kind==Kind.LABEL?"minecraft:repeating_command_block":"minecraft:carrot_on_a_stick")+"',count:1,components:{'minecraft:item_model':'"+(target.kind==Kind.LABEL?"lbc:banan":"lbc:banana")+"'}}}");

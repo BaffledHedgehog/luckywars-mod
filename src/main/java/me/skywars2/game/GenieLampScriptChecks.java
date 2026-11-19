@@ -128,7 +128,8 @@ final class GenieLampScriptChecks implements AutoCloseable {
             for (String id : List.of("falling_stars", "academy_falling_stars", "falling_stars_big", "falling_stars_fire_rain",
                     "wall", "academy_wall", "wall_horizontal", "wall_dismantle", "wall_stairs",
                     "advanced_ender", "academy_advanced_ender", "advanced_ender_top", "advanced_ender_clip",
-                    "snow_wand", "academy_snow_wand", "ice_wand", "academy_ice_wand")) {
+                    "snow_wand", "academy_snow_wand", "ice_wand", "academy_ice_wand",
+                    "fartus_wand", "fartus_banana_volley", "fartus_label_volley", "academy_fartus_wand")) {
                 String spell = "skywars2:" + id;
                 require(directed.contains(new com.google.gson.JsonPrimitive(spell)) && prompt.contains(spell),
                         "actual model request describes the native directed spell " + spell);

@@ -62,6 +62,7 @@ public final class GenieNative {
         WALL, ACADEMY_WALL, WALL_HORIZONTAL, WALL_DISMANTLE, WALL_STAIRS,
         ADVANCED_ENDER, ACADEMY_ADVANCED_ENDER, ADVANCED_ENDER_TOP, ADVANCED_ENDER_CLIP,
         SNOW_WAND, ACADEMY_SNOW_WAND, ICE_WAND, ACADEMY_ICE_WAND,
+        FARTUS_WAND, FARTUS_BANANA_VOLLEY, FARTUS_LABEL_VOLLEY, ACADEMY_FARTUS_WAND,
         TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
         TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
         TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
@@ -257,6 +258,13 @@ public final class GenieNative {
                     else wands.directedElectro(player, origin, aim, spell == Cast.ELECTRO_ARC ? 1 : 3, cause);
                     yield true;
                 }
+                case FARTUS_WAND, FARTUS_BANANA_VOLLEY, FARTUS_LABEL_VOLLEY, ACADEMY_FARTUS_WAND ->
+                        game.items().fartus().scriptVolley(player, weapon, origin, aim, switch (spell) {
+                            case FARTUS_BANANA_VOLLEY -> LbcFartus.Kind.BANANA;
+                            case FARTUS_LABEL_VOLLEY -> LbcFartus.Kind.LABEL;
+                            case ACADEMY_FARTUS_WAND -> LbcFartus.Kind.HOMING;
+                            default -> null;
+                        });
                 case ICE_WAND, ACADEMY_ICE_WAND -> game.items().iceWand().scriptShot(player, hand, weapon, origin, aim);
                 case DANMAKU_CARD, DANMAKU_HOMING_CARD -> game.items().danmaku()
                         .scriptCard(player, origin, aim, spell == Cast.DANMAKU_HOMING_CARD);
