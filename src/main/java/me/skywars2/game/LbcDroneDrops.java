@@ -205,6 +205,9 @@ public final class LbcDroneDrops {
         checkpointDepth++;try{
         if(!managed(actor))return;
         if(!active(actor)){actor.discard();return;}
+        if(actor instanceof PrimedTnt bomb) bindBomb(bomb);
+        if(actor instanceof Pig && actor.getVehicle() instanceof PrimedTnt bomb && detachedBomb(bomb))
+            game.items().spellSources().unowned(actor);
         if(!slots.containsKey(actor)){tracked.put(actor,actor);slots.put(actor,actor);}game.items().timeStop().prepareFrozen(actor);
         if(actor instanceof MinecartSpawner cart){
             if(deadHosts.contains(hostKey(cart)))cart.entityTags().add(CLOSED);
@@ -229,6 +232,40 @@ public final class LbcDroneDrops {
 
         }finally{checkpointDepth--;}
     }
+    public boolean publishBomb(BaseSpawner spawner, Entity actor, java.util.function.BooleanSupplier publish) {
+        var cart=producers.get(spawner);
+        if(cart==null || !(actor instanceof PrimedTnt) || !managed(actor)) return publish.getAsBoolean();
+        var sources=game.items().spellSources();
+        try(var scope=sources.scope(bombPolicy(cart,sources.source(cart)),(ServerLevel)cart.level())) {
+            return publish.getAsBoolean();
+        }
+    }
+
+    private void bindBomb(PrimedTnt bomb) {
+        if(bomb.entityTags().contains("skywars2.electro.reflected")
+                || bomb.entityTags().contains(LbcGreed.REFLECTED)) return;
+        var sources=game.items().spellSources();
+        var policy=sources.source(bomb);
+        if(policy==null || !policy.unownedMobs()) sources.bind(bomb,bombPolicy(bomb,policy));
+    }
+
+    private LbcSpellSource.Source bombPolicy(Entity emitter,LbcSpellSource.Source previous) {
+        if(previous!=null && previous.author()!=null)
+            return new LbcSpellSource.Source(emitter.getUUID(),previous.author(),previous.epoch(),previous.cause(),
+                    previous.excluded(),previous.persistent(),true,null,previous.helmetCredit());
+        // A cart is mounted on a hostile mob; its separately recorded drop author
+        // still gets credit for TNT emitted by the cart's actual spawner.
+        var author=LbcIndirectKills.playerSource(retainedOwner(emitter));
+        var credit=author==null?null:game.items().indirectKills().wildCause(author);
+        return new LbcSpellSource.Source(emitter.getUUID(),credit==null?null:credit.player(),
+                game.items().epoch(),credit,previous==null?Set.of():previous.excluded(),
+                previous!=null&&previous.persistent(),true);
+    }
+
+    public boolean detachedBomb(Entity actor) {
+        return actor instanceof PrimedTnt && managed(actor) && game.items().spellSources().lootProjectile(actor);
+    }
+
     public boolean canSpawnAt(BaseSpawner spawner,ServerLevel level,AABB bounds){
         return !producers.containsKey(spawner) || resident(level,bounds.inflate(1));
     }
