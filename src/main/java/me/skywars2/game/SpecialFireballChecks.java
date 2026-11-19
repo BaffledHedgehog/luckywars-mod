@@ -109,6 +109,69 @@ public final class SpecialFireballChecks {
             }finally{board.removePlayerFromTeam(owner.getScoreboardName());board.removePlayerFromTeam(other.getScoreboardName());if(oldOwner!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldOwner);if(oldOther!=null)board.addPlayerToTeam(other.getScoreboardName(),oldOther);board.removePlayerTeam(team);}
             clear();
         }
+        private SmallFireball thrownAt(Vec3 point, Vec3 velocity) {
+            var carrier = new Snowball(owner.level(), owner, token(0, 1));
+            carrier.setPos(at);
+            carrier.setDeltaMovement(velocity);
+            game.items().markCurrentItemEpoch(carrier);
+            var fire = (SmallFireball) service.convert(carrier).getFirst();
+            fire.setPos(point);
+            fire.setDeltaMovement(velocity);
+            return fire;
+        }
+        private void reviewAtNativeTick(SmallFireball fire) {
+            fire.tickCount = Math.floorMod(-fire.getId(), 16);
+            fire.tick();
+        }
+        void escapedFlight() {
+            var level = owner.level();
+            var upper = new Vec3(at.x, level.getMaxY() + 12.0, at.z);
+            var lower = new Vec3(at.x, level.getMinY() - 12.0, at.z);
+            var upward = new Vec3(0, .5, 0);
+            var downward = new Vec3(0, -.5, 0);
+            var escapedUp = thrownAt(upper, upward);
+            reviewAtNativeTick(escapedUp);
+            require(escapedUp.isRemoved(), "a targetless thrown fireball climbing out of the world retires");
+            var escapedDown = thrownAt(lower, downward);
+            reviewAtNativeTick(escapedDown);
+            require(escapedDown.isRemoved(), "a targetless thrown fireball leaving below the floor retires");
+
+            var returning = thrownAt(upper, downward);
+            reviewAtNativeTick(returning);
+            require(!returning.isRemoved() && returning.getY() < upper.y, "incoming flight above the world keeps native movement");
+            returning.discard();
+
+            var target = cow();
+            target.setPos(upper.add(0, 5, 0));
+            var viable = thrownAt(upper, upward);
+            reviewAtNativeTick(viable);
+            require(!viable.isRemoved(), "an airborne native target keeps outward flight active");
+            target.discard();
+            reviewAtNativeTick(viable);
+            require(viable.isRemoved(), "a retired airborne target no longer keeps the shot alive");
+
+            var wand = new SmallFireball(EntityTypes.SMALL_FIREBALL, level);
+            game.items().wands().launchFire(owner, wand, upper, upward);
+            require(level.getEntity(wand.getUUID()) == wand, "the native wand actually publishes its projectile");
+            game.items().timeStop().begin(level, 20);
+            try {
+                reviewAtNativeTick(wand);
+                require(!wand.isRemoved(), "Time Stop suspends escaped-fireball retirement");
+            } finally {
+                game.items().timeStop().end(level);
+            }
+            reviewAtNativeTick(wand);
+            require(wand.isRemoved(), "the escaped wand fireball retires when time resumes");
+
+            var vanilla = new SmallFireball(EntityTypes.SMALL_FIREBALL, level);
+            vanilla.setOwner(owner);
+            vanilla.setPos(upper);
+            vanilla.setDeltaMovement(upward);
+            require(level.addFreshEntity(vanilla), "native unmarked fireball is published");
+            reviewAtNativeTick(vanilla);
+            require(!vanilla.isRemoved(), "an unrelated vanilla fireball keeps vanilla physics");
+            clear();
+        }
         void releasedLifetime(){
             var ball=source(0,at,new Vec3(0,0,.1));var shot=service.convert(ball).getFirst();service.forget(owner);require(!shot.isRemoved()&&service.snapshot().contains(shot),"released actor survives author forget/logout callback");clear();
         }
@@ -129,5 +192,5 @@ public final class SpecialFireballChecks {
             require(service.snapshot().stream().filter(e->e instanceof net.minecraft.world.entity.projectile.EvokerFangs).allMatch(e->((net.minecraft.world.entity.projectile.EvokerFangs)e).getOwner()==null),"causal attribution never adds native fang owner/team immunity");
         }finally{service.stop();}
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.initialize();f.rawUses();f.geometry();f.nativeHits();f.releasedLifetime();}landing(game);SkyWars2.LOGGER.info("[check] PASS special-fireballs (six raw aliases, both native hands/stat/debit, source geometry/power/spread, native hits/WILD allied cloud/protected role, native TNT landing/retained fuse and released-actor logout lifetime)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.initialize();f.rawUses();f.geometry();f.nativeHits();f.escapedFlight();f.releasedLifetime();}landing(game);SkyWars2.LOGGER.info("[check] PASS special-fireballs (six raw aliases, both native hands/stat/debit, source geometry/power/spread, native hits/WILD allied cloud/protected role, native TNT landing/retained fuse released-actor logout lifetime and outgoing build-height cleanup)");}
 }

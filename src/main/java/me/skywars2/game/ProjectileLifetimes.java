@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -340,6 +341,34 @@ public final class ProjectileLifetimes {
         double reach = forward + TARGET_BUFFER + target.getSize() * 2;
         return expanded.clip(from, from.add(direction.scale(reach))).isPresent();
     }
+    public boolean retireEscapedFireball(AbstractHurtingProjectile projectile) {
+        // Spread checks over time even when a single throw published several fireballs.
+        if (((projectile.tickCount + projectile.getId()) & 15) != 0 || !game.playing()
+                || projectile.level() != game.maps().level() || !game.items().currentEpoch(projectile)) return false;
+        var level = (ServerLevel) projectile.level();
+        var bounds = projectile.getBoundingBox();
+        double verticalSpeed = projectile.getDeltaMovement().y;
+        boolean above = bounds.minY >= level.getMaxY() + 1.0 && verticalSpeed >= 0;
+        boolean below = bounds.maxY <= level.getMinY() && verticalSpeed <= 0;
+        if (!above && !below) return false;
+        // Guided, falling-star and trial actors have their own native flight decisions. Delta payloads
+        // can be stationary attackable traps. Only review the ordinary straight spell and throw families.
+        var tags = projectile.entityTags();
+        if (tags.contains(LbcHoming.TAG) || tags.contains(LbcHoming.DONOR_TAG) || tags.contains(LbcBlaze.TRIAL_PROJECTILE)
+                || (!LbcSpecialFireballs.escapingFlightCanExpire(projectile) && !game.items().wands().isFireProjectile(projectile))
+                || game.items().timeStop().frozen(projectile) || tags.contains("time_stopped")) return false;
+        // Native fireballs accelerate along their velocity. With no terrain ahead, retain one
+        // if the existing live target index still has a plausible collision along that half-line.
+        for (var candidate : loadedTargets()) {
+            if (candidate.level() != level || !candidate.isAlive() || candidate.isRemoved() || candidate.isSpectator()) continue;
+            var target = candidate.getBoundingBox();
+            if (above && target.maxY < bounds.minY - 1 || below && target.minY > bounds.maxY + 1) continue;
+            if (mayReach(projectile, target)) return false;
+        }
+        projectile.discard();
+        return true;
+    }
+
     void checkpointBoundary(){if(reviewing)throw new IllegalStateException("Finish shared lifetime review before checkpointing");}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     private record ReviewImage(MatchDamageSources.Ref body,MatchDamageSources.Ref owner,boolean terrain,

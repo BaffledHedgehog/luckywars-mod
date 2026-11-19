@@ -83,8 +83,10 @@ public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownU
         @Inject(method="tick",at=@At("HEAD"),cancellable=true)
         private void skywars2$homingTick(CallbackInfo ci) {
             var game=SkyWars2.game();
-            if(game!=null && !game.items().homing().beforeFireTick(
-                    (net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile)(Object)this)) ci.cancel();
+            if (game == null) return;
+            var projectile = (net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile)(Object)this;
+            if (!game.items().homing().beforeFireTick(projectile)
+                    || game.items().lifetimes().retireEscapedFireball(projectile)) ci.cancel();
         }
     }
     /** Событие выбора цели вместо постоянного опроса AI подчинённых ифритов. */

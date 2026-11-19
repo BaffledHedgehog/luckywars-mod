@@ -21275,8 +21275,9 @@ public final class GameChecks {
                         fixture.level.setBlockAndUpdate(fixture.wall,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
                         fixture.level.setBlockAndUpdate(fixture.wall.offset(0,-1,-1),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
                         owner.setShiftKeyDown(true); int manaBefore=mana.get(owner);
-                        require(wands.use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==manaBefore-100,
-                                        "Ordinary fire wand spends the configured 100 mana on Shift+cast");
+                        int fireCost = mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("stfire_wand_mana_use"), "lbc.math").get();
+                        require(wands.use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==manaBefore-fireCost,
+                                        "Ordinary fire wand spends the bundled mana cost on Shift+cast");
                         owner.setShiftKeyDown(false);
                         for(var pos:net.minecraft.core.BlockPos.betweenClosed(fixture.center.offset(-1,0,-1),fixture.center.offset(1,0,1)))
                                 require(fixture.level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.LAVA),

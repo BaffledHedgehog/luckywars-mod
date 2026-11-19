@@ -45,6 +45,9 @@ public final class LbcSpecialFireballs {
         return 0;
     }
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(TAG);}
+    static boolean escapingFlightCanExpire(Entity entity) {
+        return managed(entity) && !entity.entityTags().contains(DELTA);
+    }
 
     /** Custom fireballs already publish real positions every tick. Disable only the client's extra
      * extrapolation; their server velocity, native collision and damage remain authoritative. */
