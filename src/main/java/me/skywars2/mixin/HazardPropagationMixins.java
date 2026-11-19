@@ -64,7 +64,6 @@ public final class HazardPropagationMixins {
                 if(authority==null) authority=game.items().moiseiBoots().owner(source);
                 if(authority==null) authority=game.items().quiver().owner(source);
                 if(authority==null) authority=game.items().babylonEffects().owner(source);
-                if(authority==null) authority=game.items().cageDrops().owner(source);
                 if(authority==null) authority=game.items().zombieTntDrops().owner(source);
                 if(authority==null) authority=game.items().droneDrops().owner(source);
                 if(authority==null) authority=game.items().transformator().owner(source);
@@ -74,7 +73,8 @@ public final class HazardPropagationMixins {
                 if(authority==null) authority=game.items().oreshek().owner(source);
                 if(authority==null) authority=game.items().foodLifecycle().owner(source);
                 if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
-                if(authority!=null&&!me.skywars2.game.LbcNukeEvent.managed(source)&&!game.items().droneDrops().detachedBomb(source))
+                if(authority!=null&&!me.skywars2.game.LbcNukeEvent.managed(source)&&!game.items().droneDrops().detachedBomb(source)
+                        &&!game.items().cageDrops().detached(source))
                     damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
                 var godCause=game.items().godHedgehog().cause(source);
@@ -181,7 +181,8 @@ public final class HazardPropagationMixins {
             var game=SkyWars2.game();
             if(game==null) return nativeSource;
             var blast=(ServerExplosion)(Object)this;
-            if(game.items().droneDrops().detachedBomb(blast.getDirectSourceEntity())) return nativeSource;
+            if(game.items().droneDrops().detachedBomb(blast.getDirectSourceEntity())
+                    ||game.items().cageDrops().detached(blast.getDirectSourceEntity())) return nativeSource;
             var hedgehogOwner=game.items().hedgehog().owner(blast.getDirectSourceEntity());
             if(hedgehogOwner!=null)return hedgehogOwner;
             var sneezeDamage=blast.getDamageSource();
@@ -209,8 +210,6 @@ public final class HazardPropagationMixins {
             if(zombieOwner!=null) return zombieOwner;
             var droneOwner=game.items().droneDrops().owner(blast.getDirectSourceEntity());
             if(droneOwner!=null) return droneOwner;
-            var cageOwner=game.items().cageDrops().owner(blast.getDirectSourceEntity());
-            if(cageOwner!=null) return cageOwner;
             var authority=game.items().mobgun().owner(blast.getDirectSourceEntity());
             if(authority==null) return nativeSource;
             // The constructor calls this while its DamageSource field is still null.

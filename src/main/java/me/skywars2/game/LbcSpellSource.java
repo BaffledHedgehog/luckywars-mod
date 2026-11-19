@@ -161,7 +161,7 @@ public final class LbcSpellSource {
         var source=sources.get(entity);if(source==null||!game.items().currentEpoch(source.epoch()))return null;
         if(entity.entityTags().contains(LbcGreed.REFLECTED)||entity.entityTags().contains("skywars2.electro.reflected")){reflected(entity);return null;}
         // Native reflection transfers the projectile to its new author and restores ordinary targeting.
-        if(entity instanceof Projectile projectile&&projectile.getOwner() instanceof ServerPlayer owner&&!owner.getUUID().equals(source.author())){reflected(entity);return null;}
+        if(entity instanceof Projectile projectile&&projectile.getOwner() instanceof ServerPlayer owner&&(LbcCageDrops.managed(entity)||!owner.getUUID().equals(source.author()))){reflected(entity);return null;}
         return source;
     }
     public void reflected(Entity entity){entity.entityTags().removeAll(Set.of("skywars2.unowned_hazard",WILD_LOOT,HELMET_CREDIT,"skywars2.players_only_trap"));sources.remove(entity);unloaded.remove(entity.getUUID());}
@@ -196,6 +196,7 @@ public final class LbcSpellSource {
     public DamageSource damage(DamageSource damage){
         if(LbcIndirectKills.npcSource(damage))return damage;
         var authority=source(damage.getDirectEntity());
+        if(authority==null)authority=game.items().cageDrops().source(damage.getDirectEntity());
         if(authority==null)authority=current;
         if(authority!=null&&authority.unownedMobs()&&authority.author()==null
                 &&!(damage.getEntity() instanceof ServerPlayer&&!unownedHazard(damage.getDirectEntity()))){

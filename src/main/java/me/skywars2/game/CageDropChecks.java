@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion;
@@ -126,6 +127,15 @@ public final class CageDropChecks {
                 for(var d:net.minecraft.core.Direction.Plane.HORIZONTAL)require(level.getBlockState(center.above().relative(d)).is(Blocks.GLASS),"four cardinal glass cells");
             }else require(bricks==9 && bars==32 && (kind==LbcCageDropItem.Kind.LAVA?lava==1 && air==3:air==4),"source solid-filled cage and center carve "+kind+" bricks="+bricks+" bars="+bars+" air="+air);
         }
+        void detachedHit(ServerPlayer victim, Entity actor, String variant) {
+            var damage=victim.getLastDamageSource();
+            var credit=damage==null?null:game.items().indirectKills().babylonCause(damage);
+            require(victim.getHealth()<1000 && damage!=null && damage.getDirectEntity()==actor
+                    && damage.getEntity()==null && credit!=null && credit.player().equals(alpha.getUUID()),
+                    variant+" harms with the native actor and separate thrower credit: hp="+victim.getHealth()
+                    +" direct="+(damage==null?null:damage.getDirectEntity())
+                    +" attacker="+(damage==null?null:damage.getEntity())+" credit="+credit);
+        }
         void payloads(){
             for(var kind:LbcCageDropItem.Kind.values()){
                 var actors=batch(kind);geometry(kind);
@@ -136,6 +146,12 @@ public final class CageDropChecks {
                     require(Math.abs(e.getX()-(center.getX()+.5))<1e-8 && Math.abs(e.getZ()-(center.getZ()+.5))<1e-8,"align xz centered payload");
                     int offset=(int)Math.round(e.getY()-origin.y);require(Math.abs(e.getY()-origin.y-offset)<1e-8 && offsets.add(offset),"exact fractional Y distinct offsets");
                     var tag=saved(e,level);
+                    if(e instanceof net.minecraft.world.entity.projectile.Projectile shot) {
+                        require(shot.getOwner()==null && !tag.contains("Owner") && !tag.contains("owner")
+                                && game.items().spellSources().projectileController(shot)==null
+                                && LbcIndirectKills.playerSource(shot)==null,
+                                "native projectile has no creator authority: "+kind+" owner="+shot.getOwner());
+                    }
                     if(kind==LbcCageDropItem.Kind.ANVIL){
                         require(e instanceof FallingBlockEntity falling && falling.getBlockState().is(Blocks.ANVIL) && (offset==40||offset==42),"two native +40/+42 anvils");
                         require(tag.getIntOr("Time",-1)==1 && tag.getBooleanOr("DropItem",false) && tag.getBooleanOr("HurtEntities",false) && tag.getIntOr("FallHurtMax",-1)==35 && tag.getFloatOr("FallHurtAmount",-1)==2,"source anvil damage/age/drop configuration");
@@ -243,13 +259,13 @@ public final class CageDropChecks {
             var board=game.server().getScoreboard();var team=board.addPlayerTeam("codex_cage_damage");
             try{
                 board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
-                nativeDamage();potionDamage();
+                nativeDamage();potionDamage();reflectedFireball();
             }finally{board.removePlayerTeam(team);}
             var actors=batch(LbcCageDropItem.Kind.POTIONS);var potion=(ThrownSplashPotion)actors.getFirst();
             for(var e:actors)if(e!=potion)e.discard();potion.setPos(alpha.position());alpha.setHealth(1000);alpha.setInvulnerableTime(0);alpha.damageCooldownTime=0;
             try{
                 potion.onHitAsPotion(level,potion.getItem(),new net.minecraft.world.phys.EntityHitResult(alpha));
-                require(alpha.getHealth()<1000 && alpha.getLastDamageSource()!=null && alpha.getLastDamageSource().getEntity()==alpha,"WILD native cage splash also harms and attributes self");
+                detachedHit(alpha,potion,"WILD splash hitting the thrower");
             }finally{clear();}
         }
         void nativeDamage(){
@@ -259,23 +275,44 @@ public final class CageDropChecks {
             for(var e:anvils)if(e!=anvil)e.discard();anvil.setPos(beta.position());
             beta.setHealth(1000);beta.setInvulnerableTime(0);beta.damageCooldownTime=0;
             anvil.causeFallDamage(40,1,anvil.damageSources().fall());
-            require(beta.getHealth()<1000 && beta.getLastDamageSource()!=null && beta.getLastDamageSource().getEntity()==alpha,"real native falling-anvil damage retains actual thrower");clear();
+            detachedHit(beta,anvil,"WILD falling anvil hitting an ally");clear();
             var fire=(LargeFireball)batch(LbcCageDropItem.Kind.FIREBALL).getFirst();
             beta.setHealth(1000);beta.setInvulnerableTime(0);beta.damageCooldownTime=0;
             // Start outside the target box and clear a short corridor through the cage bars.
             for(var pos:BlockPos.betweenClosed(center,center.offset(3,2,0)))level.setBlock(pos,Blocks.AIR.defaultBlockState(),3);
+            level.setBlock(center.south(), Blocks.TNT.defaultBlockState(), 3);
             fire.setPos(beta.position().add(2,.9,0));fire.setDeltaMovement(new Vec3(-1,0,0));
             for(int i=0;i<4 && !fire.isRemoved();i++)fire.tick();
-            require(fire.isRemoved() && beta.getHealth()<1000 && beta.getLastDamageSource()!=null && beta.getLastDamageSource().getEntity()==alpha,
-                    "native fireball collision/explosion damages with actual cause; removed="+fire.isRemoved()+" firePos="+fire.position()+" betaPos="+beta.position()
-                    +" hp="+beta.getHealth()+" noPhysics="+beta.noPhysics+" mode="+beta.gameMode.getGameModeForPlayer()+" source="+beta.getLastDamageSource()+" cause="+(beta.getLastDamageSource()==null?null:beta.getLastDamageSource().getEntity()));clear();
+            require(fire.isRemoved(),"native fireball collision removes the shot");
+            detachedHit(beta,fire,"WILD fireball hitting an ally");
+            var chain = live().stream().filter(PrimedTnt.class::isInstance).map(PrimedTnt.class::cast)
+                    .findFirst().orElseThrow(() -> new IllegalStateException("Native fireball must ignite the nearby TNT block"));
+            require(chain.getOwner()==null && !saved(chain,level).contains("owner")
+                    && game.items().spellSources().projectileController(chain)==null,
+                    "native chain TNT has no creator in gameplay or saved NBT");
+            beta.setHealth(1000);beta.setInvulnerableTime(0);beta.damageCooldownTime=0;
             beta.setRemainingFireTicks(0);
+            chain.setPos(beta.position().add(1,.8,0));chain.setDeltaMovement(Vec3.ZERO);chain.setFuse(1);
+            chain.tick();
+            require(chain.isRemoved(),"natural TNT fuse removes the chained charge");
+            detachedHit(beta,chain,"WILD chain TNT hitting an ally");
+            clear();
+            beta.setRemainingFireTicks(0);
+        }
+        void reflectedFireball() {
+            var fire=(LargeFireball)batch(LbcCageDropItem.Kind.FIREBALL).getFirst();
+            game.items().electro().assignOwner(fire,beta);
+            require(fire.getOwner()==beta && game.items().spellSources().projectileController(fire)==beta
+                    && game.items().cageDrops().source(fire)==null
+                    && !game.items().cageDrops().canAffect(fire,alpha),
+                    "reflection transfers native owner and ordinary targeting to the reflector");
+            clear();
         }
         void potionDamage(){
             var actors=batch(LbcCageDropItem.Kind.POTIONS);var p=(ThrownSplashPotion)actors.getFirst();
             for(var e:actors)if(e!=p)e.discard();p.setPos(beta.position());beta.setHealth(1000);beta.setInvulnerableTime(0);beta.damageCooldownTime=0;
             p.onHitAsPotion(level,p.getItem(),new net.minecraft.world.phys.EntityHitResult(beta));
-            require(beta.getHealth()<1000 && beta.getLastDamageSource()!=null && beta.getLastDamageSource().getEntity()==alpha,"real native splash instant harm retains causal player");clear();
+            detachedHit(beta,p,"WILD splash hitting an ally");clear();
         }
         boolean step(){
             require(game.playing(),"fixture keeps actual match active");int now=game.server().getTickCount();if(now==lastTick)return false;lastTick=now;

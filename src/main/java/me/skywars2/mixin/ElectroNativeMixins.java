@@ -126,7 +126,6 @@ public final class ElectroNativeMixins {
                 }
                 if(owner==null) owner=game.items().tntDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().creeperDrops().owner((Entity)(Object)this);
-                if(owner==null) owner=game.items().cageDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().zombieTntDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().droneDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().transformator().owner((Entity)(Object)this);
@@ -147,7 +146,6 @@ public final class ElectroNativeMixins {
                 return burn==source?game.items().spellSources().damage(source):burn;
             }
             LivingEntity owner=game.items().electro().reflectedOwner(source.getDirectEntity());
-            if(owner==null) owner=game.items().cageDrops().owner(source.getDirectEntity());
             if(owner!=null) source=source.getEntity()==owner ? source : new DamageSource(source.typeHolder(),source.getDirectEntity(),owner);
             else source=game.items().inventoryHazards().inheritSource(source);
             return game.items().spellSources().damage(source);

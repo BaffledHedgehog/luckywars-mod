@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.Vec3;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +36,8 @@ public final class LbcCageDrops {
     private static final CompoundTag[] POTIONS = {potion(0), potion(1)};
     private final GameController game;
     private final Set<Entity> tracked = Collections.newSetFromMap(new IdentityHashMap<>());
-    private final Map<Entity, LivingEntity> causes = new IdentityHashMap<>();
-    private final Map<UUID, LivingEntity> unloadedCauses = new HashMap<>();
+    // Native removal can precede synchronous collisions, splash and chained TNT callbacks.
+    private final Map<Entity, LbcSpellSource.Source> acceptedSources = new IdentityHashMap<>();
 
     public LbcCageDrops(GameController game) { this.game = game; }
 
@@ -93,8 +92,9 @@ public final class LbcCageDrops {
         if (!ready(token, kind, target)) return false;
         if (target == null) return true;
         var level = (ServerLevel) token.level();
-        var owner = game.items().specialDrops().owner(token);
-        return spawnAt(level,target.position(),kind,owner,null,target,false,ANVIL);
+        try (var scope = game.items().spellSources().lootScope(token)) {
+            return spawnAt(level, target.position(), kind, target, ANVIL);
+        }
     }
 
     /** Accepted source contexts choose their exact position; this method owns no token or debit. */
@@ -125,28 +125,26 @@ public final class LbcCageDrops {
                 :new LbcSpellSource.Source(inherited.emitter(),inherited.author(),inherited.epoch(),cause,inherited.excluded(),true,inherited.unownedMobs(),inherited.nativeEmitter(),inherited.helmetCredit());
         try(var scope=game.items().spellSources().scope(source.hostileLoot(),level)){
             if(!LbcBedwarsRoleGuards.publication(level))return false;
-            return spawnAt(level,at,kind,causalAuthor,cause,null,true,anvilPreset);
+            return spawnAt(level, at, kind, null, anvilPreset);
         }
     }
 
-    private boolean spawnAt(ServerLevel level,Vec3 at,LbcCageDropItem.Kind kind,LivingEntity owner,
-                            LbcIndirectKills.Owner capturedCause,ServerPlayer presentation,boolean sourceContext,CompoundTag anvilPreset){
-        var center=BlockPos.containing(at);
-        Runnable writes = () -> geometry(level, center, kind);
-        if(capturedCause!=null)game.items().indirectKills().trapChanges(level,capturedCause,writes);
-        else if (!sourceContext&&owner instanceof ServerPlayer player) game.items().indirectKills().trapChanges(level, player, true, writes);
-        else writes.run();
+    private boolean spawnAt(ServerLevel level, Vec3 at, LbcCageDropItem.Kind kind,
+                            ServerPlayer presentation, CompoundTag anvilPreset) {
+        var source = game.items().spellSources().current();
+        var center = BlockPos.containing(at);
+        game.items().indirectKills().trapChanges(level, source.cause(), () -> geometry(level, center, kind));
         double x = center.getX() + .5, y = at.y, z = center.getZ() + .5;
         switch (kind) {
             case ANVIL -> {
-                insert(level, EntityTypes.FALLING_BLOCK.create(level, EntitySpawnReason.COMMAND), anvilPreset, x, y + 40, z, owner);
-                insert(level, EntityTypes.FALLING_BLOCK.create(level, EntitySpawnReason.COMMAND), anvilPreset, x, y + 42, z, owner);
+                insert(level, EntityTypes.FALLING_BLOCK.create(level, EntitySpawnReason.COMMAND), anvilPreset, x, y + 40, z, source);
+                insert(level, EntityTypes.FALLING_BLOCK.create(level, EntitySpawnReason.COMMAND), anvilPreset, x, y + 42, z, source);
             }
-            case FIREBALL -> insert(level, EntityTypes.FIREBALL.create(level, EntitySpawnReason.COMMAND), FIREBALL, x, y + 70, z, owner);
+            case FIREBALL -> insert(level, EntityTypes.FIREBALL.create(level, EntitySpawnReason.COMMAND), FIREBALL, x, y + 70, z, source);
             case POTIONS -> {
                 for (int i = 1; i <= 40; i++) {
                     int amplifier = i >= 10 && i <= 20 || i >= 30 ? 1 : 0;
-                    insert(level, EntityTypes.SPLASH_POTION.create(level, EntitySpawnReason.COMMAND), POTIONS[amplifier], x, y + i * 50, z, owner);
+                    insert(level, EntityTypes.SPLASH_POTION.create(level, EntitySpawnReason.COMMAND), POTIONS[amplifier], x, y + i * 50, z, source);
                 }
             }
             default -> { }
@@ -181,19 +179,16 @@ public final class LbcCageDrops {
         }
     }
 
-    private void insert(ServerLevel level, Entity actor, CompoundTag preset, double x, double y, double z, LivingEntity owner) {
+    private void insert(ServerLevel level, Entity actor, CompoundTag preset, double x, double y, double z, LbcSpellSource.Source source) {
         if (actor == null) return;
         actor.load(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), preset.copy()));
         if(actor instanceof FallingBlockEntity falling&&(preset==ANVIL||preset==EMPTY_ANVIL))
             falling.setHurtsEntities(preset==EMPTY_ANVIL?1.0f:2.0f,preset==EMPTY_ANVIL?1:35);
         actor.setPos(x,y,z);
-        if (actor instanceof Projectile projectile) projectile.setOwner(owner);
-        actor.entityTags().add(ACTOR);
-        game.items().markCurrentItemEpoch(actor);
-        causes.put(actor,owner);
+        attach(actor, source);
         tracked.add(actor);
         game.items().timeStop().prepareFrozen(actor);
-        if (!level.addFreshEntity(actor)) { tracked.remove(actor); causes.remove(actor); }
+        if (!level.addFreshEntity(actor)) { tracked.remove(actor); acceptedSources.remove(actor); }
     }
 
     public static boolean managed(Entity entity) {
@@ -201,46 +196,61 @@ public final class LbcCageDrops {
                 && entity.entityTags().contains(ACTOR);
     }
 
+    /** A native deflection or Electric Shield can turn a trap shot into a player's shot. */
+    public boolean detached(Entity actor) {
+        return managed(actor)
+                && !(actor instanceof Projectile shot && shot.getOwner() != null)
+                && !actor.entityTags().contains("skywars2.electro.reflected")
+                && !actor.entityTags().contains(LbcGreed.REFLECTED);
+    }
+
+    public LbcSpellSource.Source source(Entity actor) {
+        if (!detached(actor)) return null;
+        var current = game.items().spellSources().source(actor);
+        return current != null ? current : acceptedSources.get(actor);
+    }
+
+    /** The player who receives credit, independent of the actor's native controller. */
     public LivingEntity owner(Entity actor) {
         if (actor instanceof ItemEntity token && LbcCageDropItem.kind(token.getItem()) != null)
             return game.items().specialDrops().owner(token);
-        if (!managed(actor)) return null;
-        if (actor instanceof Projectile projectile && projectile.getOwner() instanceof LivingEntity current) return current;
-        var reflected = game.items().electro().reflectedOwner(actor);
-        if (reflected != null) return reflected;
-        if (actor instanceof PrimedTnt tnt && tnt.getOwner() != null) return tnt.getOwner();
-        var retained=causes.get(actor);
-        return retained!=null?retained:game.items().spellSources().owner(actor);
+        return game.items().spellSources().authorPlayer(source(actor));
     }
 
-    /** Native TNT getOwner/save hooks use this non-recursive fallback. */
-    public LivingEntity retainedOwner(Entity actor) {
-        if (!managed(actor)) return null;
-        var reflected = game.items().electro().reflectedOwner(actor);
-        if(reflected!=null)return reflected;
-        var retained=causes.get(actor);
-        return retained!=null?retained:game.items().spellSources().owner(actor);
+    private void attach(Entity actor, LbcSpellSource.Source source) {
+        actor.entityTags().add(ACTOR);
+        game.items().spellSources().bind(actor, source);
+        game.items().markCurrentItemEpoch(actor);
+        acceptedSources.put(actor, source);
     }
 
     public void inheritChild(Entity parent, Entity child) {
-        if (!managed(parent) || !active(parent) || !(child instanceof PrimedTnt)) return;
-        child.entityTags().add(ACTOR);
-        game.items().spellSources().inherit(parent,child);
-        game.items().markCurrentItemEpoch(child);
-        causes.put(child, owner(parent));
+        if (!(child instanceof PrimedTnt) || !detached(parent) || !active(parent)) return;
+        var source = source(parent);
+        if (source == null) source = uncredited(parent);
+        attach(child, source);
         tracked.add(child);
         game.items().timeStop().prepareFrozen(child);
     }
 
+    private LbcSpellSource.Source uncredited(Entity actor) {
+        return new LbcSpellSource.Source(actor.getUUID(), null, game.items().epoch(), null, Set.of()).hostileLoot();
+    }
+
     public boolean wild(Entity source) {
-        return managed(source) || source instanceof ItemEntity token && LbcCageDropItem.kind(token.getItem()) != null;
+        return detached(source) || source instanceof ItemEntity token && LbcCageDropItem.kind(token.getItem()) != null;
     }
 
     public boolean canAffect(Entity source, Entity target) {
         if (!managed(source)) return true;
         if (!active(source) || !game.items().wands().validTarget(target)) return false;
-        return wild(source) || !(owner(source) instanceof ServerPlayer player)
-                || target == player || game.items().wands().projectileTarget(player, target);
+        if (detached(source)) {
+            var authority = source(source);
+            return authority == null || game.items().spellSources().target(authority, target);
+        }
+        var reflected = game.items().electro().reflectedOwner(source);
+        var controller = source instanceof Projectile shot ? shot.getOwner() : reflected;
+        return !(controller instanceof ServerPlayer player) || game.items().wands().projectileTarget(player, target);
     }
 
     private boolean active(Entity actor) {
@@ -250,18 +260,17 @@ public final class LbcCageDrops {
 
     public void loaded(Entity actor) {
         if (!managed(actor)) return;
-        if (!active(actor)) { unloadedCauses.remove(actor.getUUID()); actor.discard(); return; }
-        if (!causes.containsKey(actor)) causes.put(actor,unloadedCauses.remove(actor.getUUID()));
+        if (!active(actor)) { actor.discard(); return; }
+        if (detached(actor)) {
+            var source = source(actor);
+            attach(actor, source == null ? uncredited(actor) : source);
+        }
         tracked.add(actor);
         game.items().timeStop().prepareFrozen(actor);
     }
 
     public void unloaded(Entity actor) {
-        if (!managed(actor)) return;
-        tracked.remove(actor);
-        if (active(actor) && actor.getRemovalReason() == Entity.RemovalReason.UNLOADED_TO_CHUNK)
-            unloadedCauses.put(actor.getUUID(), owner(actor));
-        // Retain the instance cause through synchronous native explosion/landing callbacks.
+        if (managed(actor)) tracked.remove(actor);
     }
 
     public void tick() {
@@ -269,16 +278,14 @@ public final class LbcCageDrops {
             if (actor.isRemoved()) tracked.remove(actor);
             else if (!active(actor)) { tracked.remove(actor); actor.discard(); }
         }
-        causes.keySet().removeIf(actor -> actor.isRemoved() || !active(actor) || !tracked.contains(actor));
-        if (!game.playing() || game.stage() == GameController.Stage.ENDING) unloadedCauses.clear();
+        acceptedSources.keySet().removeIf(actor -> actor.isRemoved() || !tracked.contains(actor) || !detached(actor));
     }
 
     public void stop() {
-        unloadedCauses.clear();
         var detached = List.copyOf(tracked);
         tracked.clear();
         for (var actor : detached) if (!actor.isRemoved()) actor.discard();
-        causes.clear();
+        acceptedSources.clear();
     }
 
     public int trackedCount() { return tracked.size(); }
