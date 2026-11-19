@@ -114,9 +114,11 @@ public final class LbcSummons {
     private record Summon(UUID owner,String epoch,String kind) { }
     private static final class StrangeRay {
         final UUID owner; final String epoch; final ServerLevel level; final Vec3 origin; final int due; final Mob actor;
+        final LbcIndirectKills.Owner cause;
         Vec3 direction; int step;
-        StrangeRay(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,Mob actor) {
+        StrangeRay(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,Mob actor,LbcIndirectKills.Owner cause) {
             this.owner=owner; this.epoch=epoch; this.level=level; this.origin=origin; this.due=due; this.actor=actor;
+            this.cause=cause;
         }
     }
     private final ArrayDeque<StrangeRay> activeRays=new ArrayDeque<>();
@@ -473,7 +475,8 @@ public final class LbcSummons {
                 case "chaos" -> { if(ticks%40==0 && nearest(owner,mob.position(),50)!=null) chaos(owner,mob); }
                 case "strangeness" -> {
                     if(ticks%60==0 && nearest(owner,mob.position(),20)!=null) {
-                        rays.add(new StrangeRay(state.owner,state.epoch,owner.level(),mob.position().add(0,2.5,0),ticks+20,mob));
+                        var cause = game.items().indirectKills().coldCause(owner, false);
+                        rays.add(new StrangeRay(state.owner,state.epoch,owner.level(),mob.position().add(0,2.5,0),ticks+20,mob,cause));
                         owner.level().sendParticles(ParticleTypes.SOUL,mob.getX(),mob.getY()+2.5,mob.getZ(),50,.2,.2,.2,0);
                         LbcOverload.sound(owner,mob.position(),"minecraft:block.beacon.activate",1.5f,2,0);
                     }
@@ -533,12 +536,14 @@ public final class LbcSummons {
     private boolean strangeStep(ServerPlayer owner,StrangeRay ray) {
         Vec3 point=ray.origin.add(ray.direction.scale(ray.step++)); var center=BlockPos.containing(point);
         if(!ray.level.hasChunkAt(center) || game.items().magic().suppressedAt(ray.level,point)) return false;
-        var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.STRANGENESS),owner);
+        var type = ray.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.STRANGENESS);
+        var damage = game.items().indirectKills().captureDamage(new DamageSource(type, ray.actor), ray.cause);
         // Каждая из 21 исходных позиций отдельно наносит 1 урона и стирает свой куб 3×3×3.
         ray.level.sendParticles(new DustParticleOptions(0x1f1030,3),point.x,point.y,point.z,3,1.5,1.5,1.5,0);
         ray.level.sendParticles(new DustParticleOptions(0x4c8596,3),true,false,point.x,point.y,point.z,1,0,0,0,0);
         for(var victim:enemies(owner,point,2.5))
-            if(game.items().mana().score(victim,"void_resistance").get()<=0) victim.hurtServer(ray.level,damage,1);
+            if (game.items().mana().score(victim,"void_resistance").get()<=0 && victim.hurtServer(ray.level, damage, 1))
+                LbcDamage.mobContactEnchantments(ray.level, victim, damage);
         game.items().indirectKills().worldChanges(ray.level,owner,()-> {
             for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
                 if(ray.level.hasChunkAt(pos) && !ray.level.getBlockState(pos).isAir()) ray.level.setBlock(pos,Blocks.AIR.defaultBlockState(),
@@ -567,7 +572,9 @@ public final class LbcSummons {
                 var ledger = game.items().indirectKills();
                 var type = owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW);
                 var damage = ledger.captureDamage(new DamageSource(type, mob, mob), ledger.coldCause(owner, true));
-                for(var victim:enemies(owner,mob.position(),30)) victim.hurtServer(owner.level(),damage,7);
+                for (var victim : enemies(owner,mob.position(),30))
+                    if (victim.hurtServer(owner.level(), damage, 7))
+                        LbcDamage.mobContactEnchantments(owner.level(), victim, damage);
             }
             case 5 -> {
                 var trident=new ThrownTrident(owner.level(),mob,new ItemStack(Items.TRIDENT));
@@ -722,7 +729,8 @@ public final class LbcSummons {
     void checkpointBoundary(){if(advancing||preparation!=null&&!preparation.isDone())throw new IllegalStateException("Finish summon advance/bootstrap before checkpointing");}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
     final class Checkpoint {
-        private record Ray(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,MatchDamageSources.Ref actor,Vec3 direction,int step) { }
+        private record Ray(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,MatchDamageSources.Ref actor,
+                           Vec3 direction,int step,LbcIndirectKills.Owner cause) { }
         private final MatchSpellCheckpoint.IdentityImage<Mob,Summon> actors;
         private final MatchSpellCheckpoint.IdentityImage<Entity,UUID> children;
         private final LbcSummonOrders.Checkpoint commands;
@@ -730,10 +738,10 @@ public final class LbcSummons {
         Checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();actors=new MatchSpellCheckpoint.IdentityImage<>(mobs,links);children=new MatchSpellCheckpoint.IdentityImage<>(consequences,links);
             commands=orders.checkpoint(links);var aliases=new IdentityHashMap<StrangeRay,Ray>();
             waiting=rays.stream().map(ray->image(ray,links,aliases)).toList();active=activeRays.stream().map(ray->image(ray,links,aliases)).toList();}
-        private Ray image(StrangeRay ray,MatchSpellCheckpoint.Links links,IdentityHashMap<StrangeRay,Ray> aliases){return aliases.computeIfAbsent(ray,r->new Ray(r.owner,r.epoch,r.level,r.origin,r.due,links.key(r.actor),r.direction,r.step));}
+        private Ray image(StrangeRay ray,MatchSpellCheckpoint.Links links,IdentityHashMap<StrangeRay,Ray> aliases){return aliases.computeIfAbsent(ray,r->new Ray(r.owner,r.epoch,r.level,r.origin,r.due,links.key(r.actor),r.direction,r.step,r.cause));}
         private StrangeRay ray(Ray image,MatchSpellCheckpoint.Links links,IdentityHashMap<Ray,StrangeRay> aliases){return aliases.computeIfAbsent(image,r->{
             if(game.server().getLevel(r.level.dimension())!=r.level||!(links.get(r.actor) instanceof Mob actor))throw new IllegalStateException("Reconcile native ray world/actor before spell replay");
-            var result=new StrangeRay(r.owner,r.epoch,r.level,r.origin,r.due,actor);result.direction=r.direction;result.step=r.step;return result;});}
+            var result=new StrangeRay(r.owner,r.epoch,r.level,r.origin,r.due,actor,r.cause);result.direction=r.direction;result.step=r.step;return result;});}
         Runnable prepare(MatchSpellCheckpoint.Links links){var restoredActors=actors.restore(links);var restoredChildren=children.restore(links);var command=commands.prepare(links);
             var aliases=new IdentityHashMap<Ray,StrangeRay>();var queued=new ArrayList<StrangeRay>();var running=new ArrayDeque<StrangeRay>();
             for(var image:waiting)queued.add(ray(image,links,aliases));for(var image:active)running.addLast(ray(image,links,aliases));
@@ -771,9 +779,9 @@ public final class LbcSummons {
             public void rollback(Entity clone){mobs.remove(clone);consequences.remove(clone);if(clone instanceof Mob m)orders.removed(m);rays.removeIf(r->r.actor==clone);activeRays.removeIf(r->r.actor==clone);}
         };
     }
-    private record CloneRay(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,Vec3 direction,int step){
-        CloneRay(StrangeRay r){this(r.owner,r.epoch,r.level,r.origin,r.due,r.direction,r.step);}
-        StrangeRay make(Mob actor){var r=new StrangeRay(owner,epoch,level,origin,due,actor);r.direction=direction;r.step=step;return r;}
+    private record CloneRay(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,Vec3 direction,int step,LbcIndirectKills.Owner cause){
+        CloneRay(StrangeRay r){this(r.owner,r.epoch,r.level,r.origin,r.due,r.direction,r.step,r.cause);}
+        StrangeRay make(Mob actor){var r=new StrangeRay(owner,epoch,level,origin,due,actor,cause);r.direction=direction;r.step=step;return r;}
     }
 
 }

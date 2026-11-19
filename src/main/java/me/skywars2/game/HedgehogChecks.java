@@ -181,6 +181,24 @@ public final class HedgehogChecks {
                 require(second.isDeadOrDying()&&second.getKillCredit()==owner,"same native piercing collision awards player credit beyond a thorns target: hp="+second.getHealth()+",killer="+second.getKillCredit()+",arrowRemoved="+actual.isRemoved()+",source="+second.getLastDamageSource()+",receipt="+service.cause(actual));
             }finally{owner.getAbilities().invulnerable=immune;owner.setPermanentlyInvulnerable(entityImmune);owner.setInvulnerableTime(immunityTicks);clear();}
         }
+        void beamRetaliation(){
+            var armor=new ItemStack(net.minecraft.world.item.Items.DIAMOND_CHESTPLATE);
+            armor.enchant(owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                    .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.THORNS),10);
+            float casterHealth=owner.getHealth();
+            for(var kind:List.of(LbcHedgehog.Kind.DEFAULT,LbcHedgehog.Kind.SNIPER,LbcHedgehog.Kind.LASER)){
+                var shooter=helper(kind,at.add(0,1,0));
+                var target=cow(at.add(0,1,4));
+                target.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,armor.copy());
+                float shooterHealth=shooter.getHealth();
+                service.fireBeam(shooter,target);
+                require(target.getHealth()<100 && target.getLastDamageSource().getEntity()==shooter,
+                        "Hedgehog beam damages the target with its actual emitter: "+kind);
+                require(shooter.getHealth()<shooterHealth && owner.getHealth()==casterHealth,
+                        "Hedgehog beam triggers Thorns on its emitter: "+kind);
+                clear();
+            }
+        }
         void beams(){
             var minion=game.items().summons().spawnPreset(owner,"vex",at.add(0,1,4));
             require(minion!=null,"native player-owned summon");
@@ -245,11 +263,23 @@ public final class HedgehogChecks {
             move(owner,wall.position().add(6,0,6));move(other,wall.position().add(0,0,-4));other.damageCooldownTime=0;other.setInvulnerableTime(0);
             float beamDamage=switch(owner.level().getDifficulty()){case EASY->3;case HARD->6;case PEACEFUL->0;default->4;};
             service.fireBeam(wall,other);require(other.getHealth()==20-beamDamage&&other.getLastDamageSource().getEntity()==wall,"actual unobstructed native NPC wall beam captures WILD cause with native difficulty scaling: hp="+other.getHealth()+",owner="+owner.position()+",wall="+wall.position()+",target="+other.position());
+            var armor=new ItemStack(net.minecraft.world.item.Items.DIAMOND_CHESTPLATE);
+            armor.enchant(owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                    .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.THORNS),10);
+            other.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,armor);
+            other.damageCooldownTime=0;
+            other.setInvulnerableTime(0);
+            float wallHealth=wall.getHealth();
+            float casterHealth=owner.getHealth();
+            service.fireBeam(wall,other);
+            require(wall.getHealth()<wallHealth && owner.getHealth()==casterHealth,
+                    "WILD wall beam triggers Thorns on the wall rather than its caster");
+            other.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,ItemStack.EMPTY);
             var playerHedgehog=helper(LbcHedgehog.Kind.ORDINARY,wall.position().add(0,0,-3));
             float helperHealth=playerHedgehog.getHealth();
             service.fireBeam(wall,playerHedgehog);
             require(playerHedgehog.getHealth()<helperHealth,"a wall's beam can damage a regular hedgehog summoned by the same player");
-            require(walls.stream().allMatch(e->e.getHealth()==30),"wall beam passes through all65 live own tower bodies without self damage");
+            require(walls.stream().filter(e->e!=wall).allMatch(e->e.getHealth()==30),"wall beam passes through all other live tower bodies without self damage");
             service.forget(owner);require(!wall.isRemoved(),"hostile wall persists after author-departure callback");move(other,at.add(10,0,-10));other.setHealth(20);
             clear();require(service.trackedCount()==0,"explicit owned wall retirement removes all native tower riders");
         }
@@ -352,7 +382,7 @@ public final class HedgehogChecks {
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.initialize();}catch(RuntimeException|Error e){try{f.close();}finally{running=null;}throw e;}}
     public static void runLaser(GameController game){require(running==null,"exclusive laser fixture");var f=new Fixture(game);running=f;try{f.initialize();f.beginLaser();}catch(RuntimeException|Error e){try{f.close();}finally{running=null;}throw e;}}
-    public static void runSource(GameController game){require(running==null,"exclusive source fixture");try(var f=new Fixture(game)){f.initialize();f.surfaces();f.timerAndArrow();f.beams();f.wallTrial();}SkyWars2.LOGGER.info("[check] PASS hedgehog-source (native surface faces/slab/body rejection/single spawn; own/team beam immunity and healing; native NPC arrow/beam attacker, thorns and lethal player credit; Tank and WILD wall)");}
+    public static void runSource(GameController game){require(running==null,"exclusive source fixture");try(var f=new Fixture(game)){f.initialize();f.surfaces();f.timerAndArrow();f.beams();f.beamRetaliation();f.wallTrial();}SkyWars2.LOGGER.info("[check] PASS hedgehog-source (native surface faces/slab/body rejection/single spawn; own/team beam immunity and healing; native NPC arrow/beam attacker, thorns and lethal player credit; Tank and WILD wall)");}
     public static void tick(GameController game){if(running==null)return;var f=running;String suite=f.laserOnly?"hedgehog-laser":"hedgehog";try{if(f.step()){f.close();running=null;SkyWars2.LOGGER.info("[check] PASS {}",suite);}}catch(Throwable error){try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL {}",suite,error);}}
     private static List<Entity> retained;private static String stopEpoch;
     public static void stopProbe(GameController game){require(retained==null&&running==null&&game.items().hedgehog().trackedCount()==0&&game.items().hedgehog().pendingBlasts()==0,"exclusive retained probe");var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(owner!=null&&game.canUseGameplayItems(owner),"actual stop owner");

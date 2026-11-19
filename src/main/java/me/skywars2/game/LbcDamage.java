@@ -14,8 +14,10 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -101,6 +103,12 @@ public final class LbcDamage {
         hurtSegment(level,damage,from,to,padding,spacing,amount,targetLimit,target,includeOwner,isElectric(damage),sampledHit,acceptedHit);
     }
     private enum Sweep { LINE, ARROW, PHANTOM_ARROW }
+
+    /** A virtual mob attack supplies the defensive enchantment callback normally run by native contact. */
+    static void mobContactEnchantments(ServerLevel level, Entity target, DamageSource damage) {
+        if (damage.getEntity() instanceof Mob attacker && attacker.isAlive())
+            EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, damage, null);
+    }
 
     static void hurtArc(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to,
             double spacing, float amount, int targetLimit, Predicate<Entity> target, boolean includeOwner,

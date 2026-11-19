@@ -465,8 +465,8 @@ public final class LbcTerra {
                 .getOrThrow(projectile.kind == Kind.TRUE_BEAM ? LbcDamage.TERRA_BEAM : DamageTypes.CACTUS), projectile, projectile.getOwner());
         for (var hit : hits) {
             // Дуга сохраняет отдельные попадания шагов и боковых полос; остальные заряды — одно на цель.
-            if (hit.getEntity().hurtServer(level, damage, projectile.kind.damage) && damage.getEntity() instanceof Mob)
-                net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffectsWithItemSource(level, hit.getEntity(), damage, null);
+            if (hit.getEntity().hurtServer(level, damage, projectile.kind.damage))
+                LbcDamage.mobContactEnchantments(level, hit.getEntity(), damage);
             if (!projectiles.contains(projectile) || projectile.isRemoved()) return false;
         }
         Vec3 visualFrom = projectile.display == null ? from : projectile.display.getCurrentPos();

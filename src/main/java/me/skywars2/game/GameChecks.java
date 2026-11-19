@@ -9190,12 +9190,40 @@ public final class GameChecks {
                                         "Native Thorns retaliates against the cultist that fired Terra: source="+thorny.getLastDamageSource()
                                                 +", targetHP="+thorny.getHealth()+", mobHP="+chaosBefore+"->"+chaos.getHealth()
                                                 +", casterHP="+ownerBefore+"->"+owner.getHealth());
+                        chaosVictim.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,armor.copy());
+                        chaosVictim.setInvulnerableTime(0);
+                        chaos.setInvulnerableTime(0);
+                        chaosBefore=chaos.getHealth();
+                        service.chaosCast(owner,chaos,4);
+                        require(chaos.getHealth()<chaosBefore && owner.getHealth()==ownerBefore,
+                                        "Chaos area damage triggers Thorns on the physical cultist");
+                        chaosVictim.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,ItemStack.EMPTY);
                         var priorElectro = new java.util.HashSet<>(game.items().wands().electroSnapshot());
                         service.chaosCast(owner,chaos,9);
                         var arcs = game.items().wands().electroSnapshot().stream().filter(trace -> !priorElectro.contains(trace)).toList();
                         require(arcs.size()==6 && arcs.stream().allMatch(trace -> trace.damageEmitter()==chaos
                                         && trace.owner==owner && trace.cause.player().equals(owner.getUUID())),
                                         "Chaos reuses six Electro traces with the mob emitter and separate player credit");
+                        var arc=arcs.getFirst();
+                        for(var otherArc:arcs.subList(1,arcs.size())) otherArc.age=otherArc.lifetime;
+                        arc.position=flight;
+                        arc.yaw=-90;
+                        arc.pitch=0;
+                        thorny.discard();
+                        var electroVictim=frostProbeCow(level,cows,flight.x+1,flight.y-.7,flight.z);
+                        electroVictim.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,armor.copy());
+                        chaos.setInvulnerableTime(0);
+                        chaosBefore=chaos.getHealth();
+                        game.items().wands().tick();
+                        var arcDamage=electroVictim.getLastDamageSource();
+                        require(arc.position.x>flight.x+1.5 && electroVictim.getHealth()<electroVictim.getMaxHealth()
+                                        && arcDamage!=null && arcDamage.is(LbcDamage.ELECTRO_BOLT)
+                                        && arcDamage.getEntity()==chaos,
+                                        "Chaos Electro travels its real segment and hits with the cultist as attacker: "
+                                                +"from="+flight+", to="+arc.position+", age="+arc.age+", health="+electroVictim.getHealth()
+                                                +", source="+arcDamage+", actor="+(arcDamage==null?null:arcDamage.getEntity()));
+                        require(chaos.getHealth()<chaosBefore && owner.getHealth()==ownerBefore,
+                                        "Chaos Electro triggers Thorns on the physical cultist");
                         game.items().terra().stop(); game.items().wands().stop();
                         chaosVictim.discard();
                         service.forget(owner);
@@ -9207,6 +9235,10 @@ public final class GameChecks {
                         var rayVictim=frostProbeCow(level,cows,x,260,z+8);
                         rayVictim.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);
                         rayVictim.setHealth(1000);
+                        rayVictim.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,armor.copy());
+                        var lethalRayVictim=frostProbeCow(level,cows,x,260,z+10);
+                        lethalRayVictim.setHealth(1);
+                        var strangeHealth=strange.getHealth();
                         var origin=strange.position().add(0,2.5,0);
                         var direction=rayVictim.getEyePosition().subtract(origin).normalize();
                         for(int step=0;step<21;step++) {
@@ -9223,14 +9255,25 @@ public final class GameChecks {
                         ((net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(chest)).setItem(0,new ItemStack(Items.DIAMOND,17));
                         var initialDrops=new java.util.HashSet<java.util.UUID>();
                         for(var entity:level.getAllEntities()) if(entity instanceof net.minecraft.world.entity.item.ItemEntity) initialDrops.add(entity.getUUID());
-                        for(int tick=0;tick<80;tick++) service.tick();
+                        for(int tick=0;tick<100;tick++) service.tick();
                         require(level.getBlockState(erased).isAir() && level.getBlockState(chest).isAir(),
                                         "Strangeness erases all native block types, including bedrock and block entities");
-                        for(var entity:level.getAllEntities()) if(entity instanceof net.minecraft.world.entity.item.ItemEntity)
-                                require(initialDrops.contains(entity.getUUID()),"Strangeness erases filled containers without spilling or duplicating contents");
+                        for(var entity:level.getAllEntities()) if(entity instanceof net.minecraft.world.entity.item.ItemEntity drop
+                                        && !initialDrops.contains(entity.getUUID())) {
+                                var stack=drop.getItem();
+                                require(!stack.is(Items.DIAMOND) && !stack.is(Items.CHEST) && !stack.is(Items.BEDROCK),
+                                                "Strangeness erases filled containers without spilling or duplicating contents");
+                        }
                         require(rayVictim.getHealth()<1000 && rayVictim.getLastDamageSource()!=null
-                                        && rayVictim.getLastDamageSource().getEntity()==owner,
-                                        "Strangeness ray applies native one-point step damage attributed to the caster");
+                                        && rayVictim.getLastDamageSource().is(LbcDamage.STRANGENESS)
+                                        && rayVictim.getLastDamageSource().getEntity()==strange
+                                        && !rayVictim.getLastDamageSource().scalesWithDifficulty(),
+                                        "Strangeness deals unscaled damage with its cultist as the physical attacker");
+                        require(strange.getHealth()<strangeHealth && owner.getHealth()==ownerBefore,
+                                        "Strangeness triggers Thorns on the physical cultist");
+                        require(!lethalRayVictim.isAlive() && lethalRayVictim.getKillCredit()==owner
+                                        && lethalRayVictim.getLastDamageSource().getEntity()==strange,
+                                        "A lethal Strangeness ray hit credits the summoner while retaining the cultist");
                         service.forget(owner);
                         var deathProbe=service.spawnPreset(owner,"vex",owner.position().add(0,1,0));
                         float previousHealth=owner.getHealth();

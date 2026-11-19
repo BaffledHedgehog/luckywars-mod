@@ -239,7 +239,8 @@ public final class LbcHedgehog {
     private void damage(Fish f,LivingEntity target,float amount,boolean laser){var p=player(f.author);if(p==null&&f.kind!=Kind.WALL||!impact(f,target))return;
         var level=(ServerLevel)f.level();var type=laser?DamageTypes.GENERIC:DamageTypes.ARROW;
         var source=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),f,f);
-        target.hurtServer(level,game.items().indirectKills().captureDamage(source,f.cause),amount);}
+        var damage=game.items().indirectKills().captureDamage(source,f.cause);
+        if(target.hurtServer(level,damage,amount)) LbcDamage.mobContactEnchantments(level,target,damage);}
     private void beam(Fish f,LivingEntity target,Kind kind){
         var p=player(f.author);if(p==null&&f.kind!=Kind.WALL)return;var level=(ServerLevel)f.level();var from=f.getEyePosition();var direction=target.getEyePosition().subtract(from).normalize();
         LbcOverload.sound(level,from,"minecraft:entity.silverfish.hurt",1,1,0,0);

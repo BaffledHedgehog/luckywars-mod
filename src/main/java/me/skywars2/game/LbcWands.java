@@ -1612,10 +1612,13 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
     private void electroHits(ElectroTrace trace,Vec3 from,Vec3 to,double spacing,float amount,int targetLimit) {
         var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(trace.hostileSauvojen ? LbcDamage.ELECTRIC : trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.statusWild?trace.owner:trace.damageEmitter());
-        LbcDamage.hurtArc(trace.level,game.items().indirectKills().captureDamage(damage,traceCause(trace)),from,to,spacing,amount,targetLimit,
+        var captured = game.items().indirectKills().captureDamage(damage, traceCause(trace));
+        java.util.function.Consumer<Entity> retaliation = trace.explicitEmitter instanceof Mob && trace.sourcePolicy == null
+                && !trace.statusWild ? target -> LbcDamage.mobContactEnchantments(trace.level, target, captured) : null;
+        LbcDamage.hurtArc(trace.level,captured,from,to,spacing,amount,targetLimit,
                 entity->entity.getType().builtInRegistryHolder().is(MOBS)
                         && (trace.statusWild?validTarget(entity):electroTarget(trace.source(),entity,trace.meditation)),
-                trace.meditation||trace.statusWild||trace.sourcePolicy!=null,false,null);
+                trace.meditation||trace.statusWild||trace.sourcePolicy!=null,false,retaliation);
     }
     private LbcIndirectKills.Owner traceCause(ElectroTrace trace){
         if(trace.statusWild&&trace.owner!=null&&(trace.cause==null||!trace.cause.player().equals(trace.owner.getUUID())))
