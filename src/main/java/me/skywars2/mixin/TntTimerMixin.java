@@ -21,6 +21,9 @@ public abstract class TntTimerMixin implements LbcSpellSource.TntOwnerAccess {
     @Unique private int skywars2$timerBucket=Integer.MIN_VALUE+1;
     @Unique private Component skywars2$timerText;
     @Unique private boolean skywars2$countingFuse;
+    @Override public boolean skywars2$detonating() {
+        return skywars2$countingFuse && ((PrimedTnt)(Object)this).getFuse() <= 0;
+    }
     @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="tick")
     private void skywars2$nativeCountdown(com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original){
         boolean previous=skywars2$countingFuse;skywars2$countingFuse=true;

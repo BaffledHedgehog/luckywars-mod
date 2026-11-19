@@ -25,7 +25,6 @@ public final class LbcTntDrops {
     private final GameController game;
     private final Set<PrimedTnt> tracked = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<PrimedTnt, LivingEntity> causes = new IdentityHashMap<>();
-    private final Map<Entity, LbcSpellSource.Source> trapSources = new IdentityHashMap<>();
 
     public LbcTntDrops(GameController game) { this.game = game; }
 
@@ -76,10 +75,9 @@ public final class LbcTntDrops {
         }
         if (trapSource != null) game.items().spellSources().bind(tnt, trapSource);
         tnt.entityTags().add(TNT);game.items().markCurrentItemEpoch(tnt);causes.put(tnt,owner);tracked.add(tnt);
-        rememberTrap(tnt);
         game.items().timeStop().prepareFrozen(tnt);
         if(level.addFreshEntity(tnt))return tnt;
-        tracked.remove(tnt);causes.remove(tnt);trapSources.remove(tnt);tnt.discard();return null;
+        tracked.remove(tnt);causes.remove(tnt);tnt.discard();return null;
     }
 
     public static boolean managed(Entity entity) {
@@ -90,26 +88,12 @@ public final class LbcTntDrops {
         return managed(entity) && entity.entityTags().contains(LbcSpellSource.WILD_LOOT);
     }
 
-    private void rememberTrap(PrimedTnt tnt) {
-        if (!wild(tnt)) return;
-        var source = game.items().spellSources().source(tnt);
-        if (source != null) trapSources.put(tnt, source);
-    }
-
-    /** Native TNT discards before its synchronous explosion and chain callbacks. */
-    LbcSpellSource.Source retiredTrapSource(Entity entity) {
-        return wild(entity) && entity.isRemoved() ? trapSources.get(entity) : null;
-    }
-
     /** Called before native insertion; preserve chain physics and its native randomized fuse. */
     public void inheritChain(Entity source, Entity spawned) {
         if (!managed(source) || !active((PrimedTnt) source) || !(spawned instanceof PrimedTnt child)) return;
         child.entityTags().add(TNT);
         game.items().markCurrentItemEpoch(child);
-        if (wild(source)) {
-            game.items().spellSources().inherit(source, child);
-            rememberTrap(child);
-        } else causes.put(child, ((PrimedTnt) source).getOwner());
+        if (!wild(source)) causes.put(child, ((PrimedTnt) source).getOwner());
     }
 
     /** The native owner hook checks reflection first, then this nonrecursive causal fallback. */
@@ -130,7 +114,6 @@ public final class LbcTntDrops {
         else {
             if (!causes.containsKey(tnt)) causes.put(tnt, tnt.getOwner());
             tracked.add(tnt);
-            rememberTrap(tnt);
             game.items().timeStop().prepareFrozen(tnt);
         }
     }
@@ -150,7 +133,6 @@ public final class LbcTntDrops {
             }
         }
         causes.keySet().removeIf(tnt -> !tracked.contains(tnt) || tnt.isRemoved() || !active(tnt));
-        trapSources.keySet().removeIf(tnt -> !tracked.contains(tnt) || tnt.isRemoved() || !wild(tnt));
     }
 
     /** Applied before native exposure, damage and knockback; damage scaling remains shared. */
@@ -171,7 +153,6 @@ public final class LbcTntDrops {
         tracked.clear();
         for (var tnt : detached) if (!tnt.isRemoved()) tnt.discard();
         causes.clear();
-        trapSources.clear();
     }
 
     public int trackedCount() { return tracked.size(); }

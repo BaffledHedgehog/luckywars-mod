@@ -56,7 +56,7 @@ public final class LbcZombieTntDrops {
     public boolean spawn(ItemEntity token) {
         if (!ready(token)) return false;
         var level = (ServerLevel) token.level();
-        var cause = game.items().specialDrops().owner(token);
+        var sources = game.items().spellSources();
         var offsets = offsets(token);
         var payload = new ArrayList<Zombie>(offsets.length);
         for (var offset : offsets) {
@@ -75,7 +75,8 @@ public final class LbcZombieTntDrops {
             var tnt = new PrimedTnt(EntityTypes.TNT, level);
             tnt.setPos(zombie.position());
             tnt.setFuse(200);
-            prepare(zombie, ZOMBIE, cause);
+            prepare(zombie, ZOMBIE, zombie);
+            sources.inherit(zombie, tnt);
             prepare(tnt, TNT, zombie);
             if (!tnt.startRiding(zombie, true, true)) {
                 forget(zombie);
@@ -161,8 +162,20 @@ public final class LbcZombieTntDrops {
 
     /** Drowning conversion keeps native converted attributes, gear and passenger transfer. */
     public void inheritConversion(Entity parent, Entity child) {
-        if (!managed(parent) || !active(parent) || !(child instanceof Zombie)) return;
-        prepare(child, ZOMBIE, owner(parent));
+        if (!managed(parent) || !active(parent) || !(child instanceof Zombie converted)) return;
+        var sources = game.items().spellSources();
+        sources.inherit(parent, converted);
+        prepare(converted, ZOMBIE, converted);
+        for (var rider : converted.getPassengers()) {
+            if (!(rider instanceof PrimedTnt charge) || !detached(charge)) continue;
+            ((LbcSpellSource.TntOwnerAccess) charge).skywars2$clearLootOwner();
+            sources.inherit(converted, charge);
+            causes.put(charge, converted);
+        }
+    }
+
+    public boolean detached(Entity source) {
+        return managed(source) && source.entityTags().contains(LbcSpellSource.WILD_LOOT);
     }
 
     public boolean wild(Entity source) {

@@ -84,7 +84,9 @@ public abstract class ZombieTntDropMixin {
             game.items().droneDrops().inheritConversion((Entity)(Object)this,converted);
             game.items().antDrops().inheritConversion((Entity)(Object)this,converted);
             game.items().chaosTrapActors().inheritConversion((Entity)(Object)this,converted);
-            game.items().spellSources().inherit((Entity)(Object)this,converted);
+            if (!me.skywars2.game.LbcZombieTntDrops.managed((Entity)(Object)this)
+                    || !me.skywars2.game.LbcZombieTntDrops.managed(converted))
+                game.items().spellSources().inherit((Entity)(Object)this,converted);
             game.items().nukeEvent().inherit((Entity)(Object)this,converted);
             game.items().oreshek().inherit((Entity)(Object)this,converted);
             game.items().foodLifecycle().inheritConversion((Entity)(Object)this,converted);

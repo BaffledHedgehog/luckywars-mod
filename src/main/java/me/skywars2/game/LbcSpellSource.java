@@ -12,7 +12,11 @@ import net.minecraft.world.entity.projectile.Projectile;
 public final class LbcSpellSource {
     public static final String WILD_LOOT="skywars2.wild_loot";
     public static final String HELMET_CREDIT="skywars2.helmet_trap_credit";
-    public interface TntOwnerAccess { void skywars2$clearLootOwner(); LivingEntity skywars2$nativeLootOwner(); }
+    public interface TntOwnerAccess {
+        void skywars2$clearLootOwner();
+        LivingEntity skywars2$nativeLootOwner();
+        boolean skywars2$detonating();
+    }
     public record Source(UUID emitter,UUID author,String epoch,LbcIndirectKills.Owner cause,Set<String> excluded,boolean persistent,boolean unownedMobs,LivingEntity nativeEmitter,boolean helmetCredit){
         public Source{excluded=Set.copyOf(excluded);}
         public Source(UUID emitter,UUID author,String epoch,LbcIndirectKills.Owner cause,Set<String> excluded,boolean persistent,boolean unownedMobs,LivingEntity nativeEmitter){this(emitter,author,epoch,cause,excluded,persistent,unownedMobs,nativeEmitter,false);}
@@ -158,9 +162,7 @@ public final class LbcSpellSource {
         sources.put(emitter,new Source(emitter.getUUID(),controller.getUUID(),previous.epoch(),cause,previous.excluded(),previous.persistent()));
     }
     public Source source(Entity entity){
-        var source=sources.get(entity);
-        if(source==null)source=game.items().tntDrops().retiredTrapSource(entity);
-        if(source==null||!game.items().currentEpoch(source.epoch()))return null;
+        var source=sources.get(entity);if(source==null||!game.items().currentEpoch(source.epoch()))return null;
         if(entity.entityTags().contains(LbcGreed.REFLECTED)||entity.entityTags().contains("skywars2.electro.reflected")){reflected(entity);return null;}
         // Native reflection transfers the projectile to its new author and restores ordinary targeting.
         if(entity instanceof Projectile projectile&&projectile.getOwner() instanceof ServerPlayer owner&&(LbcCageDrops.managed(entity)||!owner.getUUID().equals(source.author()))){reflected(entity);return null;}
@@ -229,7 +231,15 @@ public final class LbcSpellSource {
         if(entity instanceof Projectile projectile&&!sources.containsKey(entity))inherit(projectile.getOwner(),entity);
         if(sources.containsKey(entity))game.items().timeStop().prepareFrozen(entity);
     }
-    public void unloaded(Entity entity){var source=sources.remove(entity);if(source!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),source);}
+    public void unloaded(Entity entity) {
+        // Native TNT discards itself before the synchronous blast and chain callbacks.
+        // The normal service tick prunes removed sources after their last native use.
+        if (entity.getRemovalReason() == Entity.RemovalReason.DISCARDED
+                && entity instanceof TntOwnerAccess tnt && tnt.skywars2$detonating()) return;
+        var source=sources.remove(entity);
+        if(source!=null && entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)
+            unloaded.put(entity.getUUID(),source);
+    }
     public void tick(){
         for(var entity:List.copyOf(sources.keySet())){
             var source=sources.get(entity);

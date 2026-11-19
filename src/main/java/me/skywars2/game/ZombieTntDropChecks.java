@@ -172,6 +172,58 @@ public final class ZombieTntDropChecks {
                         "author requires fully disabled melee: no native hit, knockback or damage-source side effects");
             }finally{game.items().indirectKills().clear(victim);victim.discard();clear();}
         }
+        void carrierCredit(boolean helmet) {
+            clear();away();
+            var sources=game.items().spellSources();
+            var token=drop(1,alpha);
+            if(helmet) sources.bind(token,new LbcSpellSource.Source(token.getUUID(),alpha.getUUID(),
+                    game.items().epoch(),game.items().indirectKills().wildCause(alpha),Set.of()).helmetLoot());
+            require(game.items().specialDrops().spawn(token) && token.isRemoved(),"real dropped token admits zombie TNT");
+            var carriers=live();
+            require(carriers.size()==4,"four actual emitted carriers");
+            var original=carriers.getFirst();
+            var charge=mounted(original);
+            for(var actor:carriers) if(actor!=original){mounted(actor).discard();actor.discard();}
+            var expected=helmet?alpha.getUUID():null;
+            var receipt=sources.source(charge);
+            require(receipt!=null && java.util.Objects.equals(receipt.author(),expected)
+                    && charge.getOwner()==original && sources.projectileController(charge)==null,
+                    "mounted charge has carrier physics and helmet-only credit: helmet="+helmet+" receipt="+receipt);
+            var drowned=original.convertTo(net.minecraft.world.entity.EntityTypes.DROWNED,
+                    net.minecraft.world.entity.ConversionParams.single(original,true,true),
+                    net.minecraft.world.entity.EntitySpawnReason.CONVERSION,converted->{});
+            require(drowned!=null && charge.getVehicle()==drowned,"native conversion transfers the charge");
+            charge.stopRiding();
+            drowned.discard();
+            require(charge.getOwner()==drowned,"released charge still cites the converted physical carrier");
+            charge.setPos(origin);charge.setNoGravity(true);charge.setDeltaMovement(Vec3.ZERO);
+            var block=BlockPos.containing(origin).east();
+            level.setBlock(block,Blocks.TNT.defaultBlockState(),3);
+            charge.setFuse(1);charge.tick();
+            var chain=explosives();
+            require(charge.isRemoved() && level.getBlockState(block).isAir() && chain.size()==1,
+                    "first detonation primes a real nearby TNT block");
+            var child=chain.getFirst();
+            var childReceipt=sources.source(child);
+            require(child.getOwner()==drowned && childReceipt!=null
+                    && java.util.Objects.equals(childReceipt.author(),expected)
+                    && sources.projectileController(child)==null,
+                    "chained charge retains the converted carrier and only optional helmet credit: receipt="+childReceipt);
+            var victim=cow(origin.add(1,0,0));
+            try {
+                int before=kills(alpha);
+                victim.setHealth(1);
+                child.setPos(origin);child.setNoGravity(true);child.setDeltaMovement(Vec3.ZERO);
+                child.setFuse(1);child.tick();
+                var damage=victim.getLastDamageSource();
+                require(child.isRemoved() && victim.isDeadOrDying() && damage!=null
+                        && damage.getDirectEntity()==child && damage.getEntity()==drowned
+                        && victim.getKillCredit()==(helmet?alpha:drowned) && kills(alpha)==before+(helmet?1:0),
+                        "actual chained death retains physical Drowned and helmet-only stat: helmet="+helmet
+                        +" source="+(damage==null?null:damage.getEntity())+" credit="+victim.getKillCredit()
+                        +" kills="+before+"->"+kills(alpha));
+            } finally {game.items().indirectKills().clear(victim);victim.discard();clear();}
+        }
         void carrierLifecycle(){
             away();var actors=batch(alpha);var source=actors.getFirst();var tnt=mounted(source);
             for(var other:actors)if(other!=source){mounted(other).discard();other.discard();}
@@ -239,7 +291,7 @@ public final class ZombieTntDropChecks {
                     if(++wait>=3){game.items().timeStop().end(level);require(carrier.getDeltaMovement().distanceTo(frozenMotion)<1e-8,"time stop restores carrier native motion");paused.discard();clear();unloaded=drop(1,alpha);game.items().specialDrops().unloaded(unloaded);phase++;}
                 }
                 case 7->{
-                    require(!unloaded.isRemoved() && live().isEmpty(),"unloaded pending token cannot activate");unloaded.discard();melee();rolesAndProtection();lethal(false);lethal(true);roundTrip();chain();carrierLifecycle();phase++;
+                    require(!unloaded.isRemoved() && live().isEmpty(),"unloaded pending token cannot activate");unloaded.discard();melee();rolesAndProtection();lethal(false);lethal(true);roundTrip();chain();carrierLifecycle();carrierCredit(false);carrierCredit(true);phase++;
                 }
                 case 8->{
                     var author=cow(origin.add(0,25,0));try{var t=drop(1,author);t.setTarget(beta.getUUID());author.discard();
