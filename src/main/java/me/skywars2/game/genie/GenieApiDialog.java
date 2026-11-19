@@ -87,8 +87,8 @@ final class GenieApiDialog implements AutoCloseable {
     }
 
     private static boolean privateConnection(ServerPlayer player) {
-        // The backend cannot establish whether an offline proxy encrypted the client connection.
-        // Only direct secret entry needs this check. A file path carries no credentials.
+        // API key entry requires a direct authenticated or local connection.
+        // Gemini imports also support an offline backend behind a proxy.
         return player.level().getServer().usesAuthentication()
                 || player.connection.getRemoteAddress() instanceof InetSocketAddress remote
                 && remote.getAddress() != null && remote.getAddress().isLoopbackAddress();
@@ -96,12 +96,9 @@ final class GenieApiDialog implements AutoCloseable {
 
     private boolean openForm(ServerPlayer player, Form form) {
         if (closed || !owner(player)) return false;
-        if (!privateConnection(player)) {
-            if (form == Form.API) {
-                message(player, "private_connection", "Для ввода ключа подключись локально или через сервер с online-mode=true.", true);
-                return false;
-            }
-            form = Form.GEMINI_FILE;
+        if (form == Form.API && !privateConnection(player)) {
+            message(player, "private_connection", "Для ввода ключа подключись локально или через сервер с online-mode=true.", true);
+            return false;
         }
         var id = Identifier.fromNamespaceAndPath("skywars2", PREFIX + UUID.randomUUID());
         pending.put(player, new Pending(id, player.level().getServer().getTickCount(), form));
@@ -150,7 +147,7 @@ final class GenieApiDialog implements AutoCloseable {
         pending.remove(player);
         var server = player.level().getServer();
         if (closed || server.getTickCount() - form.opened >= EXPIRY_TICKS || !owner(player)
-                || (form.form != Form.GEMINI_FILE && !privateConnection(player))) return;
+                || (form.form == Form.API && !privateConnection(player))) return;
         if (form.form != Form.API) {
             String input = payload.orElse(null) instanceof CompoundTag tag ? tag.getStringOr("cookies", "") : "";
             importGemini(service, server, form.form == Form.GEMINI_FILE, input, response -> {

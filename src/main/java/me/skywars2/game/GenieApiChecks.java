@@ -66,6 +66,11 @@ final class GenieApiChecks {
                 require(inputs.stream().map(net.minecraft.server.dialog.Input::key).toList().equals(keys),
                         "wire form includes the expected credential inputs");
                 require(inputs.getLast().control() instanceof TextInput key && key.initial().isEmpty(), "key is blank on the wire");
+                if (command.endsWith(" gemini import") || command.endsWith(" gemini importfile")) {
+                    var field = (TextInput) inputs.getLast().control();
+                    require(field.maxLength() == (command.endsWith(" importfile") ? 2048 : 20000),
+                            "Gemini opens the selected file or cookie JSON form");
+                }
                 return ((CustomAll) dialog.actions().getFirst().action().orElseThrow()).id();
             } finally {
                 buffer.release();
@@ -87,9 +92,11 @@ final class GenieApiChecks {
             var node = commands.getRoot().getChild("skywars").getChild("genie");
             require(node != null && !node.canUse(owner.withPermission(PermissionSet.NO_PERMISSIONS)),
                     "command tree denies non-operators");
-            game.server().setUsesAuthentication(true);
+            game.server().setUsesAuthentication(false);
+            require(commands.execute("skywars genie api", owner) == 0, "fixture uses an offline non-loopback connection");
             require(!open("sw genie gemini import").equals(open("skywars genie gemini importfile")),
                     "cookie paste and server file forms have distinct nonces");
+            game.server().setUsesAuthentication(true);
             var invalid = open("skywars genie api");
             participants.client.listener.handleCustomClickAction(reply(invalid, "http://example.invalid/v1", "", "synthetic-key"));
             require(!Files.exists(settings), "plaintext API address rejected");
