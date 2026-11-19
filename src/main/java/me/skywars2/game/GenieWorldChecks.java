@@ -1978,6 +1978,80 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void sharedNativeAbilities(GameController game, WoolBucketChecks.Fixture base) {
+        var runtime = game.items().tmt();
+        var nativeAbilities = runtime.genieAbilities();
+        var index = JsonParser.parseString(nativeAbilities.index()).getAsJsonArray();
+        var catalog = runtime.catalog();
+        var icon = net.minecraft.resources.Identifier.parse("minecraft:blaze_rod");
+        var keys = new HashSet<String>();
+        String stoneVariant = null;
+        for (var entry : index) {
+            var row = entry.getAsJsonObject();
+            String family = row.get("id").getAsString();
+            var events = row.getAsJsonObject("default_bindings");
+            var carrier = events.has("SHOT") ? Items.BOW : events.has("CONSUME") ? Items.GOLDEN_APPLE
+                    : row.getAsJsonArray("locations").contains(new JsonPrimitive("EQUIPPED")) ? Items.IRON_CHESTPLATE
+                    : Items.CARROT_ON_A_STICK;
+            for (var choice : row.getAsJsonArray("variants")) {
+                var variant = choice.getAsJsonObject();
+                String key = variant.get("variant").getAsString();
+                require(keys.add(key), "one published ID per TMT variant");
+                var gift = new ItemStack(carrier);
+                var data = new CompoundTag();
+                data.putString("genie_code", "check");
+                gift.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                        net.minecraft.world.item.component.CustomData.of(data));
+                var attached = nativeAbilities.attach(gift, icon, List.of(new GenieScriptReply.NativeAbility(key, Map.of())));
+                var properties = LbcTmtAbilities.read(attached);
+                require(properties.size() == 1 && properties.getFirst().id().equals(family)
+                                && LbcTmtTriggers.modern(attached) && ItemData.contains(attached, "genie_code")
+                                && icon.equals(attached.get(net.minecraft.core.component.DataComponents.ITEM_MODEL)),
+                        "shared catalog variant becomes a native property on the original gift: " + family);
+                if (variant.has("source_item") && variant.get("source_item").getAsString().equals("skywars2:stone_wand")
+                        && family.equals("wand/ststone")) stoneVariant = key;
+            }
+        }
+        require(index.size() == catalog.families().size() && keys.size() == catalog.domains().variants(),
+                "the bridge includes every live TMT family and variant");
+        require(stoneVariant != null, "native ordinary Stone wand present");
+        String selected = stoneVariant;
+        rejected(() -> nativeAbilities.attach(new ItemStack(Items.STICK), icon,
+                List.of(new GenieScriptReply.NativeAbility("unknown", Map.of()))), "unknown variants must fail");
+        rejected(() -> nativeAbilities.attach(new ItemStack(Items.STICK), icon,
+                List.of(new GenieScriptReply.NativeAbility(selected, Map.of("USE", "SHOT")))), "incompatible carrier must fail");
+        var gift = nativeAbilities.attach(new ItemStack(Items.STICK), icon,
+                List.of(new GenieScriptReply.NativeAbility(selected, Map.of("USE", "LEFT_CLICK"))));
+        var owner = base.owner;
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var mana = game.items().mana();
+        int before = mana.get(owner);
+        int price = mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("ststone_wand_mana_use"), "lbc.math").get();
+        var stone = game.items().stone();
+        require(stone.count() == 0 && price > 0, "isolated native paid Stone test");
+        try {
+            mana.set(owner, price + 10);
+            owner.setItemInHand(InteractionHand.MAIN_HAND, gift);
+            owner.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+            LbcTmtTriggers.input(owner, LbcTmtTriggers.Input.RIGHT_CLICK);
+            require(stone.count() == 0 && mana.get(owner) == price + 10,
+                    "original trigger does not replay a rebound native property");
+            LbcTmtTriggers.input(owner, LbcTmtTriggers.Input.LEFT_CLICK);
+            require(stone.count() == 1 && stone.snapshot().getFirst().getOwner() == owner && mana.get(owner) == 10
+                            && owner.getMainHandItem() == gift,
+                    "the shared handler makes one real rock, pays once, and uses the physical gift");
+            LbcTmtTriggers.input(owner, LbcTmtTriggers.Input.LEFT_CLICK);
+            require(stone.count() == 1 && mana.get(owner) == 10, "same-tick duplicated input never replays the shared ability");
+        } finally {
+            stone.stop();
+            owner.setItemInHand(InteractionHand.MAIN_HAND, main);
+            owner.setItemInHand(InteractionHand.OFF_HAND, off);
+            mana.set(owner, before);
+        }
+        me.skywars2.SkyWars2.LOGGER.info("[check] Genie shared native abilities families={} variants={}", index.size(), keys.size());
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -2020,6 +2094,7 @@ final class GenieWorldChecks {
             host.validateCommand("summon minecraft:pig");
             authorityScope(game,base,host,start);
             playerParameters(game,base,host);
+            sharedNativeAbilities(game,base);
 
             Vec3 launchSpot=Vec3.atBottomCenterOf(start.offset(6,0,0));
             var motion=new Vec3(.1,.2,.9);

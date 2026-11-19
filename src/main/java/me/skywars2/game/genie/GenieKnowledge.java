@@ -22,14 +22,15 @@ public final class GenieKnowledge {
 
     /** Called by the model worker, not by the server tick. Full compact index plus relevant prototype details. */
     public static String forWish(String wish,Collection<GenieBlueprint.TwistKind> recent){
-        return forWish(wish,recent.stream().map(Enum::name).toList(),null,null);
+        return forWish(wish,recent.stream().map(Enum::name).toList(),null,null,null);
     }
 
-    static String forScriptWish(String wish, Collection<String> recent, HolderLookup.Provider lookup, String playerContext) {
-        return forWish(wish, recent, lookup, playerContext);
+    static String forScriptWish(String wish, Collection<String> recent, HolderLookup.Provider lookup,
+                                String playerContext, String nativeAbilities) {
+        return forWish(wish, recent, lookup, playerContext, nativeAbilities);
     }
 
-    private static String forWish(String wish,Collection<String> recent,HolderLookup.Provider lookup,String playerContext){
+    private static String forWish(String wish,Collection<String> recent,HolderLookup.Provider lookup,String playerContext,String nativeAbilities){
         var snapshot=snapshot();
         var words=new LinkedHashSet<String>();
         for(var word:wish.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{N}_]+"))if(word.length()>2)words.add(word);
@@ -41,7 +42,8 @@ public final class GenieKnowledge {
         var related=new JsonArray();for(int i=0;i<Math.min(24,ranked.size());i++)related.add(ranked.get(i).getKey().value.deepCopy());
         // Keep the full factual prefix byte-identical between wishes, before all variable context.
         String index = lookup == null ? snapshot.prefix : snapshot.scriptPrefix + GenieContentIndex.fields(lookup);
-        return index+",\"related_source_prototypes\":"+related
+        return index+(nativeAbilities==null?"":",\"native_abilities\":"+nativeAbilities)
+                +",\"related_source_prototypes\":"+related
                 +",\"recent_drawback_kinds\":"+strings(recent)
                 +(playerContext==null?"":",\"requesting_player\":"+playerContext)+"}";
     }

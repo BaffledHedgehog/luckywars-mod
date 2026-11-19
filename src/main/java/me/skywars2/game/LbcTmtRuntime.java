@@ -21,6 +21,7 @@ public final class LbcTmtRuntime {
     private LbcTmtProperties generator;
     private LbcTmtUseProfiles useProfiles;
     private LbcTmtCatalog catalog;
+    private GenieNativeAbilities genieAbilities;
     LbcTmtRuntime(GameController game){this.game=game;}
 
     public boolean admitted(ServerPlayer player){
@@ -152,6 +153,10 @@ public final class LbcTmtRuntime {
         if(!level.addFreshEntity(result)){result.discard();return false;}return true;
     }
     LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(game,useProfiles());return catalog;}
+    public GenieNativeAbilities genieAbilities() {
+        if (genieAbilities == null) genieAbilities = new GenieNativeAbilities(game, catalog());
+        return genieAbilities;
+    }
     static void visual(ItemStack stack){
         int seed=ItemData.intValue(stack,"tmt_texture_seed",0);
         var current=stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA,CustomModelData.EMPTY);
@@ -164,7 +169,7 @@ public final class LbcTmtRuntime {
         if(useProfiles==null)useProfiles=new LbcTmtUseProfiles(game,game.items().wands()::tmtNativeUseCandidate);
         return useProfiles;
     }
-    public void reload(){generator=null;useProfiles=null;catalog=null;}
+    public void reload(){generator=null;useProfiles=null;catalog=null;genieAbilities=null;}
     void forget(ServerPlayer player){triggered.remove(player);LbcTmtTriggers.forget(player);}
     void stop(){triggered.clear();epoch=null;tick=Integer.MIN_VALUE;LbcTmtTriggers.stop();}
 }

@@ -3,6 +3,10 @@ package me.skywars2.game.genie.script;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /** The model decides whether to grant a wish. The server checks the format and verifier witness. */
@@ -11,8 +15,14 @@ public sealed interface GenieScriptReply {
 
     record Rejected() implements GenieScriptReply {}
 
-    record Grant(String icon, String name, String description, String answer, String twist, String program)
-            implements GenieScriptReply {}
+    record NativeAbility(String variant, Map<String, String> bindings) {
+        public NativeAbility { bindings = Map.copyOf(bindings); }
+    }
+
+    record Grant(String icon, String carrier, String name, String description, String answer, String twist,
+                 String program, List<NativeAbility> nativeAbilities) implements GenieScriptReply {
+        public Grant { nativeAbilities = List.copyOf(nativeAbilities); }
+    }
 
     static GenieScriptReply read(String reply, Collection<JsonObject> executions, JsonObject contract) {
         JsonObject result = ScriptJson.parse(reply);
@@ -29,7 +39,9 @@ public sealed interface GenieScriptReply {
     private static Grant readGrant(JsonObject result, Collection<JsonObject> executions, JsonObject contract) {
         requireKeys(result, Set.of("decision", "item", "answer", "twist", "program", "receipt"));
         JsonObject item = object(result.get("item"));
-        requireKeys(item, Set.of("icon", "name", "description"));
+        if (!item.keySet().containsAll(Set.of("icon", "name", "description"))
+                || !Set.of("icon", "name", "description", "carrier", "native_abilities").containsAll(item.keySet()))
+            throw new IllegalArgumentException("unexpected wish item fields");
         JsonObject program = object(result.get("program"));
         JsonObject receipt = object(result.get("receipt"));
         requireKeys(receipt, Set.of("ok", "verifier", "program_sha256", "contract_sha256", "functions", "instructions"));
@@ -50,8 +62,35 @@ public sealed interface GenieScriptReply {
                 || !executions.contains(receipt)) {
             throw new IllegalArgumentException("program lacks a matching cloud verifier result");
         }
-        return new Grant(text(item.get("icon"), 256), text(item.get("name"), 128), text(item.get("description"), 512),
-            text(result.get("answer"), 512), text(result.get("twist"), 96), canonical);
+        String icon = text(item.get("icon"), 256);
+        var abilities = item.has("native_abilities") ? nativeAbilities(item.get("native_abilities")) : List.<NativeAbility>of();
+        if (item.has("carrier") && abilities.isEmpty()) throw new IllegalArgumentException("carrier requires a native ability");
+        return new Grant(icon, item.has("carrier") ? text(item.get("carrier"), 256) : icon,
+            text(item.get("name"), 128), text(item.get("description"), 512),
+            text(result.get("answer"), 512), text(result.get("twist"), 96), canonical, abilities);
+    }
+
+    private static List<NativeAbility> nativeAbilities(JsonElement value) {
+        if (!value.isJsonArray() || value.getAsJsonArray().size() > 7)
+            throw new IllegalArgumentException("expected up to seven native abilities");
+        var result = new ArrayList<NativeAbility>();
+        for (var entry : value.getAsJsonArray()) {
+            var ability = object(entry);
+            boolean custom = ability.has("bindings");
+            requireKeys(ability, custom ? Set.of("variant", "bindings") : Set.of("variant"));
+            var bindings = new HashMap<String, String>();
+            if (custom) {
+                var configured = object(ability.get("bindings"));
+                if (configured.size() > 9) throw new IllegalArgumentException("too many native ability bindings");
+                configured.entrySet().forEach(binding -> {
+                    String key = binding.getKey();
+                    if (key.isBlank() || key.length() > 16) throw new IllegalArgumentException("invalid native ability action");
+                    bindings.put(key, text(binding.getValue(), 16));
+                });
+            }
+            result.add(new NativeAbility(text(ability.get("variant"), 64), bindings));
+        }
+        return List.copyOf(result);
     }
 
     private static JsonObject object(JsonElement value) {

@@ -99,7 +99,8 @@ public final class GenieService implements AutoCloseable {
         try {
             if (scriptModel != null) {
                 var request = scriptModel.request(wish, List.copyOf(recentScriptTwists),
-                        game.server().reloadableRegistries().lookup(), GeniePlayerParameters.wishContext(game, p));
+                        game.server().reloadableRegistries().lookup(), GeniePlayerParameters.wishContext(game, p),
+                        game.items().tmt().genieAbilities().index());
                 pending.cancelRequest = request::close;
                 request.future().whenComplete((reply,error) -> game.server().execute(() -> finishScript(pending,reply,error)));
             } else {
@@ -175,7 +176,11 @@ public final class GenieService implements AutoCloseable {
             if (currentLamp(wish) == null) return;
             if (error != null) { finishReward(wish, ItemStack.EMPTY, null, false); return; }
             ItemStack reward;
-            try { reward = GenieScriptItem.construct(code, grant.icon(), grant.name(), grant.description(), 1); }
+            try {
+                reward = GenieScriptItem.construct(code, grant.carrier(), grant.name(), grant.description(), 1);
+                if (!grant.nativeAbilities().isEmpty())
+                    reward = game.items().tmt().genieAbilities().attach(reward, Identifier.parse(grant.icon()), grant.nativeAbilities());
+            }
             catch (RuntimeException invalid) { finishReward(wish, ItemStack.EMPTY, null, false); return; }
             if (finishReward(wish, reward, grant.answer(), false)) remember(recentScriptTwists, grant.twist());
         }));

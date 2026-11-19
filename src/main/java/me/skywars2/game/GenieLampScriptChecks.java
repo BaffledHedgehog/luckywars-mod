@@ -32,7 +32,8 @@ import net.minecraft.world.level.GameType;
 
 /** Native lamp packets and inventory publication. The model observation is injected at the browser boundary. */
 final class GenieLampScriptChecks implements AutoCloseable {
-    private record Call(boolean second, JsonObject contract, CompletableFuture<GenieScriptModel.Observation> response) {}
+    private record Call(boolean second, JsonObject contract, String nativeVariant,
+                        CompletableFuture<GenieScriptModel.Observation> response) {}
     private final GameController game;
     private final WoolBucketChecks.Fixture base;
     private final GenieService service;
@@ -60,6 +61,12 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(new String(verifier, StandardCharsets.UTF_8).contains(GenieScriptReply.VERIFIER_VERSION), "actual versioned checker is packaged");
             // Game reference data includes every loaded table and locale. It is not a VM program.
             JsonObject facts = com.google.gson.JsonParser.parseString(knowledge).getAsJsonObject();
+            var nativeAbilities = facts.getAsJsonArray("native_abilities");
+            require(nativeAbilities.size() > 100 && prompt.contains("item.native_abilities"),
+                    "the provider sees the shared live native property catalog and how to attach a variant");
+            String nativeVariant = nativeAbilities.asList().stream().map(JsonElement::getAsJsonObject)
+                    .filter(row -> row.get("id").getAsString().equals("native/component/unbreakable"))
+                    .findFirst().orElseThrow().getAsJsonArray("variants").get(0).getAsJsonObject().get("variant").getAsString();
             var player = facts.getAsJsonObject("requesting_player");
             var mana = player.getAsJsonObject("mana");
             require(mana.get("current").getAsInt() == (prompt.contains("second player") ? -222 : 1337)
@@ -239,7 +246,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
                     "the resource-pack translation is attached by its exact key");
             }
             var response = new CompletableFuture<GenieScriptModel.Observation>();
-            requests.add(new Call(prompt.contains("second player"), ScriptJson.parse(contract), response));
+            requests.add(new Call(prompt.contains("second player"), ScriptJson.parse(contract), nativeVariant, response));
             return response.get(8, TimeUnit.SECONDS);
             }
         });
@@ -297,7 +304,8 @@ final class GenieLampScriptChecks implements AutoCloseable {
         }
     }
 
-    private static GenieScriptModel.Observation grant(JsonObject contract, boolean witnessed) {
+    private static GenieScriptModel.Observation grant(Call request, boolean witnessed) {
+        var contract = request.contract;
         var program = ScriptJson.parse("""
             {"version":1,"state":{"counter":0},"handlers":{"USE":"main"},"functions":{
             "main":{"parameters":["event"],"code":[["load","state"],["const","counter"],["const",1],["put"],["return"]]}}}
@@ -308,6 +316,11 @@ final class GenieLampScriptChecks implements AutoCloseable {
         receipt.addProperty("functions", 1);receipt.addProperty("instructions", 5);
         var item = new JsonObject();item.addProperty("icon", "minecraft:stick");
         item.addProperty("name", "One-count stick");item.addProperty("description", "It counts up to one.");
+        var ability = new JsonObject();
+        ability.addProperty("variant", request.nativeVariant);
+        var abilities = new com.google.gson.JsonArray();
+        abilities.add(ability);
+        item.add("native_abilities", abilities);
         var reply = new JsonObject();reply.addProperty("decision", "grant");reply.add("item", item);
         reply.addProperty("answer", "A simple count! It might fit on one finger.");reply.addProperty("twist", "one-count ceiling");
         reply.add("program", program);reply.add("receipt", receipt);
@@ -356,8 +369,8 @@ final class GenieLampScriptChecks implements AutoCloseable {
                         && second.containerMenu.getCarried().isEmpty(),
                 "native death leaves one unactivated lamp and clears the old cursor");
         returnedLamp = lamps.getFirst();
-        secondWish.response.complete(grant(secondWish.contract, true));
-        firstWish.response.complete(grant(firstWish.contract, true));
+        secondWish.response.complete(grant(secondWish, true));
+        firstWish.response.complete(grant(firstWish, true));
     }
 
     boolean tick() {
@@ -365,7 +378,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
         if (phase == 0 || phase == 2) {
             Call request = requests.poll();
             if (request == null) return false;
-            request.response.complete(grant(request.contract, phase == 2));phase++;return false;
+            request.response.complete(grant(request, phase == 2));phase++;return false;
         }
         var item = base.owner.getInventory().getItem(10);
         if (phase == 1) {
@@ -377,7 +390,8 @@ final class GenieLampScriptChecks implements AutoCloseable {
         }
         if (phase == 3) {
             if (service.locked(base.owner, item)) return false;
-            require(item.is(Items.STICK) && GenieScriptItem.matches(item) && base.owner.getMainHandItem().getCount() == 3,
+            require(item.is(Items.STICK) && GenieScriptItem.matches(item) && item.has(DataComponents.UNBREAKABLE)
+                            && base.owner.getMainHandItem().getCount() == 3,
                 "verified code replaces the exact moved lamp with a native scripted item");
             base.owner.getInventory().setItem(10, ItemStack.EMPTY);
             base.owner.setItemInHand(InteractionHand.MAIN_HAND, item);

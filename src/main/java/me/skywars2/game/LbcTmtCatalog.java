@@ -451,7 +451,7 @@ final class LbcTmtCatalog {
     }
     private static String normal(String flag){return flag.endsWith("_old")?flag.substring(0,flag.length()-4):flag;}
     /** Preserve tag types and list order while removing compound insertion order from variant weights. */
-    private static String canonical(Tag value){
+    static String canonical(Tag value){
         if(value instanceof CompoundTag compound)return compound.keySet().stream().sorted()
                 .map(key->key.length()+":"+key+"="+canonical(compound.get(key))).collect(java.util.stream.Collectors.joining(",","{","}"));
         if(value instanceof ListTag list){var values=new ArrayList<String>();for(int i=0;i<list.size();i++)values.add(canonical(list.get(i)));return "["+String.join(",",values)+"]";}

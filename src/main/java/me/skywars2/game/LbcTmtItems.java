@@ -37,6 +37,11 @@ public final class LbcTmtItems {
     static boolean token(ItemStack stack){return !matches(stack)&&(stack.is(TOKEN)||ItemData.intValue(stack,"tmt",0)==1);}
     public static boolean output(Item item){return OUTPUTS.contains(item);}
     static ItemStack prototype(int index){return new ItemStack(OUTPUTS.get(index));}
+    static Item carrierFor(ItemStack stack) {
+        for (var carrier : OUTPUTS)
+            if (stack.is(vanillaCarrier(carrier))) return carrier;
+        return stack.getItem();
+    }
     public static boolean matches(ItemStack stack){return ItemData.intValue(stack,"tmt_item",0)==1;}
     public static boolean active(ItemStack stack){return LbcTmtAbilities.active(stack);}
     private static Item.Properties properties(String name){
@@ -65,7 +70,9 @@ public final class LbcTmtItems {
     }
     private static LbcTmtRuntime runtime(){var game=SkyWars2.game();return game==null?null:game.items().tmt();}
     static Item vanillaCarrier(ItemStack stack){
-        var item=stack.getItem();
+        return vanillaCarrier(stack.getItem());
+    }
+    private static Item vanillaCarrier(Item item){
         if(item instanceof NativeApple)return Items.GOLDEN_APPLE;
         if(item instanceof NativeCarrot)return Items.CARROT_ON_A_STICK;
         if(item instanceof NativeBow)return Items.BOW;

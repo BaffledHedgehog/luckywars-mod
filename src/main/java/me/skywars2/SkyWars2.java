@@ -232,8 +232,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTmtItems.matches(owner.getItemInHand(hand))&&!me.skywars2.game.LbcTmtItems.active(owner.getItemInHand(hand)))
-                return game.vanity().blocked(owner)||!game.items().tmt().admitted(owner)?InteractionResult.FAIL:InteractionResult.PASS;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTmtItems.matches(owner.getItemInHand(hand))&&!me.skywars2.game.LbcTmtItems.active(owner.getItemInHand(hand))){
+                if(game.vanity().blocked(owner)||!game.items().tmt().admitted(owner))return InteractionResult.FAIL;
+                return game.items().genie().runtime().replaceUse(owner,hand);
+            }
             var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
             var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
