@@ -90,8 +90,8 @@ public final class LbcImbaTerrainUtilities {
         public boolean snapshotIdle(){return true;}
         public boolean postgame(){return true;} // Admission was already charged; finite terrain must drain.
         boolean resident(BlockPos at){
-            if(level.hasChunkAt(at))return true;var key=new ChunkPos(at.getX()>>4,at.getZ()>>4);var future=tickets.get(key);
-            if(future!=null&&(future.isCancelled()||future.isCompletedExceptionally())){level.getChunkSource().removeTicketWithRadius(TICKET,key,0);tickets.remove(key);}
+            if(NativeChunkLoad.resident(level,at))return true;var key=new ChunkPos(at.getX()>>4,at.getZ()>>4);var future=tickets.get(key);
+            if(future!=null&&NativeChunkLoad.failed(future)){level.getChunkSource().removeTicketWithRadius(TICKET,key,0);tickets.remove(key);}
             if(!tickets.containsKey(key)&&tickets.size()<8)tickets.put(key,level.getChunkSource().addTicketAndLoadWithRadius(TICKET,key,0));waiting=true;return false;
         }
         void release(){for(var key:tickets.keySet())level.getChunkSource().removeTicketWithRadius(TICKET,key,0);tickets.clear();}

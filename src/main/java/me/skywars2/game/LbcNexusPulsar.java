@@ -182,7 +182,7 @@ public final class LbcNexusPulsar {
         var loading = chunks.get(key);
         // Existing resident terrain can be used immediately while the retaining ticket settles.
         if (level.getChunkSource().getChunkNow(key.pos().x(), key.pos().z()) != null) return true;
-        if (LbcNexusClone.loadFailed(loading.future)) {
+        if (NativeChunkLoad.failed(loading.future)) {
             // Preserve other probe/frontier references while replacing a failed request.
             level.getChunkSource().removeTicketWithRadius(TICKET, key.pos(), 0);
             loading.future = level.getChunkSource().addTicketAndLoadWithRadius(TICKET, key.pos(), 0);

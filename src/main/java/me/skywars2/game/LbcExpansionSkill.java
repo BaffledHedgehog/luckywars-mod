@@ -131,10 +131,10 @@ public final class LbcExpansionSkill {
     }
     private boolean inside(ServerLevel level,BlockPos p){return p.getY()>=level.getMinY()&&p.getY()<level.getMaxY();}
     private boolean resident(ServerLevel level,BlockPos p){
-        if(!inside(level,p)||level.hasChunkAt(p))return true;
+        if(!inside(level,p)||NativeChunkLoad.resident(level,p))return true;
         var key=new Chunk(level,new ChunkPos(p.getX()>>4,p.getZ()>>4));var old=loading.get(key);
         int tick=game.server().getTickCount();
-        if(old!=null&&(old.future.isCancelled()||old.future.isCompletedExceptionally())){
+        if(old!=null&&NativeChunkLoad.failed(old.future)){
             level.getChunkSource().removeTicketWithRadius(TICKET,key.pos,0);loading.remove(key);old=null;
         }
         if(old!=null)old.touched=tick;

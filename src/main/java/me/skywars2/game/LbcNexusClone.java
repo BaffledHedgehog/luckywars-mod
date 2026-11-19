@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.entity.Entity;
@@ -92,14 +91,8 @@ final class LbcNexusClone {
         this.loadWaitTicks = loadWaitTicks;
     }
 
-    static boolean loadFailed(CompletableFuture<?> future) {
-        if (!future.isDone()) return false;
-        return future.isCompletedExceptionally()
-                || future.getNow(null) instanceof ChunkResult<?> result && !result.isSuccess();
-    }
-
     private static String loadStatus(CompletableFuture<?> future) {
-        return !future.isDone() ? "pending" : loadFailed(future) ? "failed" : "loaded";
+        return !future.isDone() ? "pending" : NativeChunkLoad.failed(future) ? "failed" : "loaded";
     }
 
     /** Server thread only. Deduplication lasts until this source chunk's operation completes. */
@@ -172,7 +165,7 @@ final class LbcNexusClone {
 
         @Override public boolean ready() {
             if (finished) return true;
-            if (loadFailed(sourceLoad) || loadFailed(destinationLoad)) return true;
+            if (NativeChunkLoad.failed(sourceLoad) || NativeChunkLoad.failed(destinationLoad)) return true;
             if (game.items().timeStop().stopped(source.level) || game.items().timeStop().stopped(destination)) return false;
             return chunksReady() || !started && game.server().getTickCount() - loadStartedAt >= loadWaitTicks;
         }
@@ -221,7 +214,7 @@ final class LbcNexusClone {
         @Override public boolean step() {
             if (finished) return true;
             if (!started) {
-                if (loadFailed(sourceLoad) || loadFailed(destinationLoad)) return abandon("native load failed");
+                if (NativeChunkLoad.failed(sourceLoad) || NativeChunkLoad.failed(destinationLoad)) return abandon("native load failed");
                 if (!chunksReady()) return retryDestination();
             }
             started = true;

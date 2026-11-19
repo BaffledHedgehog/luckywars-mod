@@ -45,13 +45,27 @@ public final class NexusCloneChecks {
         final LbcNexusEcology ecology;
         final LbcNexusPulsar pulsar;
         final LbcNexusEcology.Actor one,two;
-        Object clear,wave;
+        final LbcChargedBows bows;
+        final LbcCunnyTerrain cunny;
+        final LbcExpansionSkill expansion;
+        final LbcGodClawSkill claw;
+        final LbcImbaTerrainUtilities imba;
+        Object clear,wave,cunnyJob,imbaJob;
+        LbcStonekivi.Work beam;
+
+        private static final Class<?>[] CELL={BlockPos.class};
+        private static final Class<?>[] WORLD_CELL={ServerLevel.class,BlockPos.class};
 
         ResidentRecovery(GameController game,ServerLevel level,ChunkPos chunk){
             this.level=level;this.chunk=chunk;this.pos=chunk.getBlockAt(8,64,8);
             acquisition=new LbcNexusAcquisition(game);
             ecology=acquisition.ecology();
             pulsar=new LbcNexusPulsar(game,(world,cell)->true);
+            bows=new LbcChargedBows(game,(owner,weapon,family)->null);
+            cunny=new LbcCunnyTerrain(game);
+            expansion=new LbcExpansionSkill(game,(owner,world,cell)->true);
+            claw=new LbcGodClawSkill(game,(LbcGodClawSkill.Policy)WoolBucketChecks.read(game.items().godClaw(),"policy"));
+            imba=new LbcImbaTerrainUtilities(game,(owner,kind,origin)->true);
             one=actor();
             two=actor();
         }
@@ -76,7 +90,7 @@ public final class NexusCloneChecks {
         }
 
         @SuppressWarnings("unchecked")
-        void exercise() throws ReflectiveOperationException {
+        void exercise(net.minecraft.server.level.ServerPlayer author) throws ReflectiveOperationException {
             require(level.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null,"recovery starts in a cold native chunk");
             var failed=CompletableFuture.completedFuture(ChunkResult.error("native unsuccessful chunk result"));
             require(!failed.isCompletedExceptionally() && !failed.isCancelled(),"native failure is a normal future completion");
@@ -116,27 +130,90 @@ public final class NexusCloneChecks {
                                 && ((Integer)WoolBucketChecks.read(load,"users"))==1,
                         "Pulsar replaces errors and cancellations while retaining its lone probe");
             }
-            require(ticketCount()==3,"one native ticket per service after replacement");
+            require(ticketCount()==3,"one native ticket per Nexus service after replacement");
+            terrainRetries(author,failed);
+        }
+
+        @SuppressWarnings("unchecked")
+        private void terrainRetries(net.minecraft.server.level.ServerPlayer author,CompletableFuture<?> failed)
+                throws ReflectiveOperationException {
+            var point=Vec3.atCenterOf(pos);
+            beam=(LbcStonekivi.Work)construct(LbcChargedBows.class,"BeamWork",
+                    new Class<?>[]{LbcChargedBows.class,ServerLevel.class,Vec3.class,LbcIndirectKills.Owner.class,int.class,int.class},
+                    bows,level,point,null,0,2);
+            require(!requestBeam() && !beam.ready(),"cold railgun work parks in the shared queue");
+            var bowLoads=(Map<?,?>)WoolBucketChecks.read(bows,"loading");
+            var bowLoad=bowLoads.values().iterator().next();
+            var future=bowLoad.getClass().getDeclaredField("future");
+            future.setAccessible(true);
+            future.set(bowLoad,failed);
+            require(beam.ready() && !requestBeam() && future.get(bowLoad)!=failed,
+                    "a native error wakes the charged bow scheduler and rearms its retained request");
+
+            cunnyJob=construct(LbcCunnyTerrain.class,"Job",
+                    new Class<?>[]{LbcCunnyTerrain.class,net.minecraft.server.level.ServerPlayer.class},cunny,author);
+            expectRetry(cunnyJob,"tickets",CELL,new Object[]{pos},failed,"Cunny terrain");
+            expectRetry(claw,"loading",WORLD_CELL,new Object[]{level,pos},failed,"God Claw");
+
+            require(!(boolean)invoke(expansion,"resident",WORLD_CELL,level,pos),"Expansion waits for cold terrain");
+            var expansionLoads=(Map<Object,Object>)WoolBucketChecks.read(expansion,"loading");
+            var expansionKey=expansionLoads.keySet().iterator().next();
+            var failedExpansion=construct(LbcExpansionSkill.class,"Load",
+                    new Class<?>[]{CompletableFuture.class,int.class},failed,0);
+            expansionLoads.put(expansionKey,failedExpansion);
+            require(!(boolean)invoke(expansion,"resident",WORLD_CELL,level,pos)
+                            && expansionLoads.get(expansionKey)!=failedExpansion,
+                    "Expansion replaces a normally failed chunk result");
+
+            imbaJob=construct(LbcImbaTerrainUtilities.class,"Job",
+                    new Class<?>[]{LbcImbaTerrainUtilities.class,long.class,net.minecraft.server.level.ServerPlayer.class,
+                            LbcImbaTerrainUtilities.Kind.class,Vec3.class,LbcIndirectKills.Owner.class},
+                    imba,1L,author,LbcImbaTerrainUtilities.Kind.DIRTER,point,null);
+            expectRetry(imbaJob,"tickets",CELL,new Object[]{pos},failed,"terrain utility");
+            require(ticketCount()==8,"every construction reuses exactly one native ticket");
+        }
+
+        @SuppressWarnings("unchecked")
+        private void expectRetry(Object receiver,String field,Class<?>[] signature,Object[] arguments,
+                                 CompletableFuture<?> failed,String description) throws ReflectiveOperationException {
+            require(!(boolean)invoke(receiver,"resident",signature,arguments),description+" waits for cold terrain");
+            var requests=(Map<Object,CompletableFuture<?>>)WoolBucketChecks.read(receiver,field);
+            var key=requests.keySet().iterator().next();
+            requests.put(key,failed);
+            require(!(boolean)invoke(receiver,"resident",signature,arguments) && requests.get(key)!=failed,
+                    description+" replaces a normally failed chunk result");
+        }
+
+        private boolean requestBeam() throws ReflectiveOperationException {
+            return (boolean)invoke(bows,"resident",new Class<?>[]{beam.getClass(),BlockPos.class},beam,pos);
         }
 
         boolean complete() throws ReflectiveOperationException {
             if(level.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null)return false;
             require(requestClear() && requestTree(one) && requestTree(two) && requestWave(),
-                    "all three retained requests can use the now resident chunk");
+                    "all three Nexus requests can use the now resident chunk");
+            require(beam.ready() && requestBeam()
+                            && (boolean)invoke(cunnyJob,"resident",CELL,pos)
+                            && (boolean)invoke(imbaJob,"resident",CELL,pos)
+                            && (boolean)invoke(expansion,"resident",WORLD_CELL,level,pos)
+                            && (boolean)invoke(claw,"resident",WORLD_CELL,level,pos),
+                    "all five recovered construction requests can resume on real resident terrain");
             invoke(ecology,"release",new Class<?>[]{UUID.class},one.id);
-            require(ecology.loadingChunks()==1 && ticketCount()==3,"one ecology waiter cannot release another's lease");
+            require(ecology.loadingChunks()==1 && ticketCount()==8,"one ecology waiter cannot release another's lease");
             invoke(ecology,"release",new Class<?>[]{UUID.class},two.id);
             invoke(pulsar,"release",new Class<?>[]{wave.getClass()},wave);
-            acquisition.stop();
+            close();
             require(acquisition.loadingChunks()==0 && ecology.loadingChunks()==0 && pulsar.loadingChunks()==0
-                            && ticketCount()==0,"finishing the recovered work releases every native service ticket");
-            SkyWars2.LOGGER.info("[check] Nexus native chunk error recovery: acquisition, two tree waiters, Pulsar probe and cancellation");
+                            && ticketCount()==0,"finishing the recovered work releases all eight native service tickets");
+            SkyWars2.LOGGER.info("[check] Native chunk error recovery: eight requests including a parked bow job and two shared ecology waiters");
             return true;
         }
 
         private long ticketCount(){
             var storage=(net.minecraft.world.level.TicketStorage)WoolBucketChecks.read(level.getChunkSource(),"ticketStorage");
-            var types=Set.of("skywars2:nexus_acquisition","skywars2:nexus_ecology","skywars2:nexus_pulsar");
+            var types=Set.of("skywars2:nexus_acquisition","skywars2:nexus_ecology","skywars2:nexus_pulsar",
+                    "skywars2:charged_bow","skywars2:cunny_terrain","skywars2:expansion","skywars2:god_claw",
+                    "skywars2:imba_terrain_utilities");
             return storage.getTickets(chunk.pack()).stream().filter(ticket->types.contains(String.valueOf(
                     net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE.getKey(ticket.getType())))).count();
         }
@@ -154,6 +231,11 @@ public final class NexusCloneChecks {
         @Override public void close(){
             acquisition.stop();
             pulsar.stop();
+            if(beam!=null)beam.cancel();
+            if(cunnyJob instanceof LbcStonekivi.Work work)work.cancel();
+            if(imbaJob instanceof LbcStonekivi.Work work)work.cancel();
+            expansion.stop();
+            claw.stop();
         }
     }
 
@@ -228,7 +310,7 @@ public final class NexusCloneChecks {
             game.config().noBorders=true;base.owner.getAbilities().invulnerable=true;
             require(failedClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null)
                     &&!failedClone.captureReady(),"failed transfer enters the actual shared scheduler");
-            recovery.exercise();
+            recovery.exercise(base.owner);
             sourceLoad=game.maps().prepareChunk(source,sourceChunk);begin(0);
             SkyWars2.LOGGER.info("[check] START nexus-clone (real ticks; reserved source {},{})",sourceChunk.x(),sourceChunk.z());
         }

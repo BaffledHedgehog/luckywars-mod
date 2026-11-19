@@ -103,7 +103,7 @@ public final class LbcCunnyTerrain {
         void push(Op... values){for(int i=values.length-1;i>=0;i--){ops.addFirst(values[i]);track(values[i]);}}
         void claim(BlockPos at){claim(at,new Mark(this));}
         void claim(BlockPos at,Mark mark){if(level.isInValidBounds(at)&&claims.add(at.immutable()))add(new Grass(at.immutable(),logicalTick+1,mark));}
-        boolean resident(BlockPos at){if(level.hasChunkAt(at))return true;var chunk=new ChunkPos(at.getX()>>4,at.getZ()>>4);var pending=tickets.get(chunk);if(pending!=null&&(pending.isCancelled()||pending.isCompletedExceptionally())){level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);tickets.remove(chunk);}if(!tickets.containsKey(chunk)&&tickets.size()<32)tickets.put(chunk,level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0));blocked=waitingChunk=true;return false;}
+        boolean resident(BlockPos at){if(NativeChunkLoad.resident(level,at))return true;var chunk=new ChunkPos(at.getX()>>4,at.getZ()>>4);var pending=tickets.get(chunk);if(pending!=null&&NativeChunkLoad.failed(pending)){level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);tickets.remove(chunk);}if(!tickets.containsKey(chunk)&&tickets.size()<32)tickets.put(chunk,level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0));blocked=waitingChunk=true;return false;}
         void release(){for(var chunk:tickets.keySet())level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);tickets.clear();}
         public boolean ready(){
             if(closed)return true;

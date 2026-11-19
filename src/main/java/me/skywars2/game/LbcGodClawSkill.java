@@ -144,7 +144,7 @@ public final class LbcGodClawSkill {
             }
             // Loading one frontier must not spin until the entire shared deadline is spent.
             if(++rounds>=active.size()&&active.stream().allMatch(a->a.current.isEmpty()
-                    ||!a.level.hasChunkAt(BlockPos.of(a.current.peek().position))))break;
+                    ||!NativeChunkLoad.resident(a.level,BlockPos.of(a.current.peek().position))))break;
         }
         releaseUnusedTickets();
     }
@@ -154,10 +154,10 @@ public final class LbcGodClawSkill {
         if(index(s.level).putIfAbsent(p.asLong(),s)==null)queue.add(new Cell(p.asLong()));
     }
     private boolean resident(ServerLevel level,BlockPos p){
-        if(level.hasChunkAt(p))return true;
+        if(NativeChunkLoad.resident(level,p))return true;
         var key=new Chunk(level,new ChunkPos(p.getX()>>4,p.getZ()>>4));var old=loading.get(key);
         neededLoading.add(key);
-        if(old!=null&&(old.isCancelled()||old.isCompletedExceptionally())){
+        if(old!=null&&NativeChunkLoad.failed(old)){
             level.getChunkSource().removeTicketWithRadius(TICKET,key.pos,0);loading.remove(key);
         }
         if(loading.size()<8)loading.computeIfAbsent(key,k->level.getChunkSource().addTicketAndLoadWithRadius(TICKET,k.pos,0));

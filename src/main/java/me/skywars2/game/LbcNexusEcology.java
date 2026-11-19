@@ -116,7 +116,7 @@ public final class LbcNexusEcology {
                 // A resident chunk needs neither a ticket nor an asynchronous completion round trip.
                 if(actor.level.getChunkSource().getChunkNow(x,z)!=null)continue;
                 loading=new Loading(key.level().getChunkSource().addTicketAndLoadWithRadius(TICKET,key.pos(),0));chunks.put(key,loading);
-            }else if(LbcNexusClone.loadFailed(loading.future)){
+            }else if(NativeChunkLoad.failed(loading.future)){
                 // Failed requests are retriable construction work, not a permanent gameplay stall.
                 key.level().getChunkSource().removeTicketWithRadius(TICKET,key.pos(),0);
                 var replacement=new Loading(key.level().getChunkSource().addTicketAndLoadWithRadius(TICKET,key.pos(),0));

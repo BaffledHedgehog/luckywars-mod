@@ -234,7 +234,7 @@ public final class LbcSupernova {
     }
     private boolean loadFailed(ChunkPos position){
         var future=loading.get(position);
-        return future!=null&&LbcNexusClone.loadFailed(future);
+        return future!=null&&NativeChunkLoad.failed(future);
     }
     private static int top(LevelChunk chunk,int x,int z){
         return chunk.getHeight(Heightmap.Types.WORLD_SURFACE,x&15,z&15);

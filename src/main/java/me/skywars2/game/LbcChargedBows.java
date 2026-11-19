@@ -258,7 +258,7 @@ public final class LbcChargedBows {
             epoch=game.items().epoch();createdTick=game.server().getTickCount();
         }
         public boolean ready(){return cancelled||!game.items().currentEpoch(epoch)||delay<=0&&!game.items().timeStop().stopped(level)
-                &&(waiting==null||level.getChunkSource().getChunkNow(waiting.pos.x(),waiting.pos.z())!=null||loading.get(waiting).future.isCompletedExceptionally());}
+                &&(waiting==null||level.getChunkSource().getChunkNow(waiting.pos.x(),waiting.pos.z())!=null||NativeChunkLoad.failed(loading.get(waiting).future));}
         public boolean step(){
             if(cancelled||!game.items().currentEpoch(epoch)||!game.playing()){cancel();return true;}
             if(kind==2){if(!resident(this,center))return false;blast(level,point,cause,4,true);cancel();return true;}
@@ -296,7 +296,7 @@ public final class LbcChargedBows {
         if(job.waiting==null){var request=loading.computeIfAbsent(key,k->new Loading(k.level.getChunkSource().addTicketAndLoadWithRadius(TICKET,k.pos,0)));request.users++;job.waiting=key;}
         if(job.level.getChunkSource().getChunkNow(key.pos.x(),key.pos.z())!=null)return true;
         var request=loading.get(key);
-        if(request.future.isCompletedExceptionally()||request.future.isCancelled()){
+        if(NativeChunkLoad.failed(request.future)){
             key.level.getChunkSource().removeTicketWithRadius(TICKET,key.pos,0);
             request.future=key.level.getChunkSource().addTicketAndLoadWithRadius(TICKET,key.pos,0);
         }
