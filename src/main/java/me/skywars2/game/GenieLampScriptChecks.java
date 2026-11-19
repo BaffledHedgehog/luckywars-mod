@@ -112,6 +112,12 @@ final class GenieLampScriptChecks implements AutoCloseable {
                     "the prompt and callable index both expose the original Exoperso rituals");
             var payloads = facts.getAsJsonObject("script_sauvojen_payloads");
             var directed = facts.getAsJsonArray("script_directed_casts");
+            for (String id : List.of("danmaku_volley", "danmaku_offhand_volley",
+                    "academy_danmaku_volley", "academy_danmaku_offhand_volley")) {
+                String spell = "skywars2:" + id;
+                require(directed.contains(new com.google.gson.JsonPrimitive(spell)) && prompt.contains(spell),
+                        "the actual model receives the complete native Gohei pattern: " + spell);
+            }
             require(directed.contains(new com.google.gson.JsonPrimitive("skywars2:polymorph_ray"))
                     && directed.contains(new com.google.gson.JsonPrimitive("skywars2:academy_polymorph_ray"))
                     && facts.getAsJsonArray("script_targeted_casts").asList().stream().anyMatch(value ->

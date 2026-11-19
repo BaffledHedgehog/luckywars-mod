@@ -58,6 +58,23 @@ public final class LbcDanmaku {
     private final Map<ServerPlayer,List<LivingEntity>> targets=new IdentityHashMap<>();
     private final Map<UUID,EnumMap<InteractionHand,External>> external=new HashMap<>();
     private record External(boolean academy,InteractionHand hand,int ticks) {}
+
+    enum Volley {
+        STANDARD(InteractionHand.MAIN_HAND, false), STANDARD_OFFHAND(InteractionHand.OFF_HAND, false),
+        ACADEMY(InteractionHand.MAIN_HAND, true), ACADEMY_OFFHAND(InteractionHand.OFF_HAND, true);
+
+        final InteractionHand patternHand;
+        final boolean academy;
+
+        Volley(InteractionHand patternHand, boolean academy) {
+            this.patternHand = patternHand;
+            this.academy = academy;
+        }
+    }
+
+    private record Aim(Vec3 eye, Vec3 look, float pitch, float yaw) {}
+    private record DirectedVolley(ServerLevel level, Volley variant, Aim aim, LbcIndirectKills.Owner cause, int ticks) {}
+    private final Map<UUID, EnumMap<InteractionHand, DirectedVolley>> directed = new HashMap<>();
     LbcDanmaku(GameController game,LbcMana mana){this.game=game;this.mana=mana;var holder=ScoreHolder.forNameOnly("danmaku_staff_mana_use");var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");if(objective==null||board.getPlayerScoreInfo(holder,objective)==null)mana.score(holder,"lbc.math").set(1000);}
     public static void register(){}
     private static Item item(boolean academy){
@@ -207,12 +224,50 @@ public final class LbcDanmaku {
         var hands=external.computeIfAbsent(p.getUUID(),key->new EnumMap<>(InteractionHand.class));
         var prior=hands.get(hand);hands.put(hand,new External(academy,hand,prior==null?20:(int)Math.min(Integer.MAX_VALUE,(long)prior.ticks+20)));
     }
+    /** Schedule one authored pattern with a fixed origin, independent of the physical wand slots. */
+    boolean scriptVolley(ServerPlayer player, Vec3 origin, Vec3 direction, Volley variant) {
+        if (!validOwner(player)) return false;
+        var patterns = directed.computeIfAbsent(player.getUUID(), ignored -> new EnumMap<>(InteractionHand.class));
+        if (patterns.containsKey(variant.patternHand)) return false;
+        float yaw = direction.horizontalDistanceSqr() < 1e-12 ? player.getYRot()
+                : (float) -Math.toDegrees(Math.atan2(direction.x, direction.z));
+        float pitch = (float) -Math.toDegrees(Math.atan2(direction.y, direction.horizontalDistance()));
+        var aim = new Aim(origin, direction, pitch, yaw);
+        var cause = game.items().indirectKills().coldCause(player, true);
+        patterns.put(variant.patternHand, new DirectedVolley(player.level(), variant, aim, cause, 20));
+        return true;
+    }
+
+    private void tickDirected(ServerPlayer player) {
+        var patterns = directed.get(player.getUUID());
+        if (patterns == null) return;
+        var magic = game.items().magic();
+        for (var iterator = patterns.entrySet().iterator(); iterator.hasNext();) {
+            var entry = iterator.next();
+            var shot = entry.getValue();
+            var origin = shot.aim.eye;
+            if (player.level() != shot.level) {
+                iterator.remove();
+                continue;
+            }
+            if (game.items().timeStop().stopped(shot.level) || !shot.level.hasChunkAt(BlockPos.containing(origin))
+                    || magic.suppressedAt(shot.level, origin)) continue;
+            var hand = entry.getKey();
+            if (((shot.ticks & 1) == 0) == (hand == InteractionHand.MAIN_HAND)) {
+                emitPattern(player, hand, shot.variant.academy, phase(shot.ticks, hand), shot.aim, shot.cause, origin);
+            }
+            if (shot.ticks <= 1) iterator.remove();
+            else entry.setValue(new DirectedVolley(shot.level, shot.variant, shot.aim, shot.cause, shot.ticks - 1));
+        }
+        if (patterns.isEmpty()) directed.remove(player.getUUID());
+    }
+
     int externalRemaining(ServerPlayer p){var hands=external.get(p.getUUID());if(hands==null)return 0;return (int)Math.min(Integer.MAX_VALUE,hands.values().stream().mapToLong(External::ticks).sum());}
     public void redirectCursedCards(){for(var c:List.copyOf(cards))game.items().homing().redirect(c);}
     public void tick(){
         targets.clear();
         for(var p:game.server().getPlayerList().getPlayers()){
-            if(!validOwner(p)){if(remaining(p)>0||external.containsKey(p.getUUID()))forget(p);continue;}
+            if(!validOwner(p)){if(remaining(p)>0||external.containsKey(p.getUUID())||directed.containsKey(p.getUUID()))forget(p);continue;}
             int n=remaining(p);if(game.items().wands().inputTimeStopped(p)||game.items().magic().suppressed(p)||game.items().magic().suppressedAt(p.level(),p.getEyePosition()))continue;
             var hand=(n&1)==0?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND;var stack=p.getItemInHand(hand);
             if(n>0){if(isItem(stack))emit(p,hand,isAcademy(stack),phase(n,hand));mana.score(p,"danmaku").set(n-1);}
@@ -223,6 +278,7 @@ public final class LbcDanmaku {
                 }
                 if(extras.isEmpty())external.remove(p.getUUID());
             }
+            tickDirected(p);
         }
         if(!cards.isEmpty()||!bombs.isEmpty())game.items().cloneSkills().beforeOwnedStep(java.util.stream.Stream.concat(
                 cards.stream().map(c->(Entity)c.display),bombs.stream().map(b->(Entity)b.display)).toList());
@@ -443,8 +499,8 @@ public final class LbcDanmaku {
     }
     public void loaded(Entity e){if(managed(e)&&!spawning.contains(e)&&owner(e)==null)e.discard();}
     public void unloaded(Entity e){for(var c:List.copyOf(cards))if(c.display==e)remove(c);for(var b:List.copyOf(bombs))if(b.display==e)remove(b);}
-    public void forget(ServerPlayer p){for(var c:List.copyOf(cards))if(c.owner==p)remove(c);for(var b:List.copyOf(bombs))if(b.owner==p)remove(b);mana.score(p,"danmaku").set(0);mana.score(p,"danmaku_score").set(0);external.remove(p.getUUID());}
-    public void stop(){for(var c:List.copyOf(cards))remove(c);for(var b:List.copyOf(bombs))remove(b);for(var p:game.server().getPlayerList().getPlayers())forget(p);external.clear();targets.clear();}
+    public void forget(ServerPlayer p){for(var c:List.copyOf(cards))if(c.owner==p)remove(c);for(var b:List.copyOf(bombs))if(b.owner==p)remove(b);mana.score(p,"danmaku").set(0);mana.score(p,"danmaku_score").set(0);external.remove(p.getUUID());directed.remove(p.getUUID());}
+    public void stop(){for(var c:List.copyOf(cards))remove(c);for(var b:List.copyOf(bombs))remove(b);for(var p:game.server().getPlayerList().getPlayers())forget(p);external.clear();directed.clear();targets.clear();}
     public MutableComponent hud(ServerPlayer p){
         var text=Component.empty();int ticks=mana.hudValue(p,"danmaku"),score=mana.hudValue(p,"danmaku_score");
         if(mana.visible(p)){var hands=external.get(p.getUUID());if(hands!=null)for(var extra:hands.values())ticks=Math.max(ticks,extra.ticks);}
@@ -454,12 +510,26 @@ public final class LbcDanmaku {
     }
     private record Pattern(double x,double y,double z,boolean local,float yaw,float pitch,boolean homing) {}
     private void emit(ServerPlayer p,InteractionHand hand,boolean academy,int phase){
-        var base=p.getEyePosition().add(0,academy&&hand==InteractionHand.OFF_HAND?0:-.5,0);var look=p.getLookAngle();var left=Vec3.directionFromRotation(0,p.getYRot()-90);var up=look.cross(left);
-        for(var s:PATTERNS[(academy?2:0)+(hand==InteractionHand.OFF_HAND?1:0)][phase]){
-            var pos=s.local?base.add(left.scale(s.x)).add(up.scale(s.y)).add(look.scale(s.z)):base.add(s.x,s.y,s.z);
-            card(p,pos,Vec3.directionFromRotation(p.getXRot()+s.pitch,p.getYRot()+s.yaw),s.homing);
+        var aim = new Aim(p.getEyePosition(), p.getLookAngle(), p.getXRot(), p.getYRot());
+        emitPattern(p, hand, academy, phase, aim, null, p.position());
+    }
+
+    private void emitPattern(ServerPlayer player, InteractionHand hand, boolean academy, int phase,
+                             Aim aim, LbcIndirectKills.Owner cause, Vec3 soundOrigin) {
+        boolean offhand = hand == InteractionHand.OFF_HAND;
+        var base = aim.eye.add(0, academy && offhand ? 0 : -.5, 0);
+        var left = Vec3.directionFromRotation(0, aim.yaw - 90);
+        var up = aim.look.cross(left);
+        for (var sample : PATTERNS[(academy ? 2 : 0) + (offhand ? 1 : 0)][phase]) {
+            var pos = sample.local
+                    ? base.add(left.scale(sample.x)).add(up.scale(sample.y)).add(aim.look.scale(sample.z))
+                    : base.add(sample.x, sample.y, sample.z);
+            var direction = Vec3.directionFromRotation(aim.pitch + sample.pitch, aim.yaw + sample.yaw);
+            if (cause == null || !game.items().magic().suppressedAt(player.level(), pos)) {
+                publishCard(player, pos, direction, sample.homing, cause);
+            }
         }
-        LbcOverload.sound(p,p.position(),"minecraft:ui.cartography_table.take_result",.5f,2,0);
+        LbcOverload.sound(player, soundOrigin, "minecraft:ui.cartography_table.take_result", .5f, 2, 0);
     }
     private static final Pattern[][][] PATTERNS={{{new Pattern(0.0,0.0,0.0,false,30.0f,0.0f,false),new Pattern(0.0,0.0,0.0,false,15.0f,0.0f,false),new Pattern(0.0,0.0,0.0,false,0.0f,0.0f,false),new Pattern(0.0,0.0,0.0,false,-15.0f,0.0f,false),new Pattern(0.0,0.0,0.0,false,-30.0f,0.0f,false),new Pattern(0.0,0.0,0.0,false,70.0f,-20.0f,true),new Pattern(0.0,0.0,0.0,false,-70.0f,-20.0f,true),new Pattern(0.0,0.0,0.0,false,60.0f,-20.0f,true),new Pattern(0.0,0.0,0.0,false,-60.0f,-20.0f,true)},
 {new Pattern(0.0,0.35,0.0,false,-20.0f,0.0f,false),new Pattern(0.0,0.35,0.0,false,-15.0f,0.0f,false)},
@@ -544,15 +614,22 @@ public final class LbcDanmaku {
         private final List<CardImage> savedCards;
         private final List<BombImage> savedBombs;
         private final Map<UUID,Map<InteractionHand,External>> savedExternal=new HashMap<>();
+        private final Map<UUID,Map<InteractionHand,DirectedVolley>> savedDirected=new HashMap<>();
         Checkpoint(MatchSpellCheckpoint.Links links){
             savedCards=cards.stream().map(c->new CardImage(links.key(c.owner),links.key(c.display),c.direction,c.homing,c.age,c.cause)).toList();
             savedBombs=bombs.stream().map(b->new BombImage(links.key(b.owner),links.key(b.display),b.charge,b.fast,b.age,b.empty,b.pulseTicks,b.cause)).toList();
             external.forEach((id,hands)->savedExternal.put(id,Map.copyOf(hands)));
+            directed.forEach((id,hands)->savedDirected.put(id,Map.copyOf(hands)));
         }
         Runnable prepare(MatchSpellCheckpoint.Links links){
             var restoredCards=new ArrayList<Card>();for(var image:savedCards){var card=new Card((ServerPlayer)links.get(image.owner),(Display.ItemDisplay)links.get(image.display),image.direction,image.homing,image.cause);card.age=image.age;restoredCards.add(card);}
             var restoredBombs=new ArrayList<Bomb>();for(var image:savedBombs){var bomb=new Bomb((ServerPlayer)links.get(image.owner),(Display.ItemDisplay)links.get(image.display),image.charge,image.fast,image.cause);bomb.age=image.age;bomb.empty=image.empty;bomb.pulseTicks=image.pulseTicks;restoredBombs.add(bomb);}
-            return ()->{cards.clear();cards.addAll(restoredCards);bombs.clear();bombs.addAll(restoredBombs);external.clear();savedExternal.forEach((id,hands)->{var copy=new EnumMap<InteractionHand,External>(InteractionHand.class);copy.putAll(hands);external.put(id,copy);});targets.clear();};
+            return ()->{
+                cards.clear();cards.addAll(restoredCards);bombs.clear();bombs.addAll(restoredBombs);
+                external.clear();savedExternal.forEach((id,hands)->external.put(id,new EnumMap<>(hands)));
+                directed.clear();savedDirected.forEach((id,hands)->directed.put(id,new EnumMap<>(hands)));
+                targets.clear();
+            };
         }
     }
 

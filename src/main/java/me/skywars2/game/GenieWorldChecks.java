@@ -757,6 +757,92 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void danmakuVolleys(GameController game, WoolBucketChecks.Fixture base) {
+        var danmaku = game.items().danmaku();
+        var owner = base.owner;
+        var origin = base.resident(false).add(0, 5, 0);
+        var aim = new Vec3(1, 0, 0);
+        var gift = new ItemStack(Items.GOLDEN_SWORD);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var mana = game.items().mana().score(owner, "mana");
+        int initialMana = mana.get(), initialTicks = danmaku.remaining(owner);
+        var charge = game.items().mana().score(owner, "danmaku_score");
+        int initialCharge = charge.get();
+        var ids = List.of("danmaku_volley", "danmaku_offhand_volley",
+                "academy_danmaku_volley", "academy_danmaku_offhand_volley");
+        int[][] rows = {{9,2,2,2,2,2,9,4,4,4}, {2,2,2,2,2,2,2,2,2,17},
+                {8,8,8,8,8,8,8,8,8,17}, {6,6,6,6,6,6,6,6,6,6}};
+        require(danmaku.count() == 0, "independent Gohei pattern fixture");
+        var links = new MatchSpellCheckpoint.Links(new MatchDamageSources(game, List.of(owner)));
+        var empty = danmaku.checkpoint(links);
+        try (var host = new GenieWorldHost(game, owner, gift, () -> true, () -> 0)) {
+            for (int mode = 0; mode < ids.size(); mode++) {
+                var id = new JsonPrimitive("skywars2:" + ids.get(mode));
+                boolean offhandPattern = (mode & 1) == 1;
+                require(complete(host, queued(host, "lbc.cast", id, vector(origin), vector(aim))).getAsBoolean()
+                        && danmaku.cards().isEmpty(), "full Gohei sequence is queued: " + id);
+                require(!complete(host, queued(host, "lbc.cast", id, vector(origin), vector(aim))).getAsBoolean(),
+                        "one in-flight sequence per player and pattern hand");
+                if (mode == 0) {
+                    var pending = danmaku.checkpoint(links);
+                    empty.prepare(links).run();
+                    danmaku.tick();
+                    require(danmaku.cards().isEmpty(), "rewind before cast clears the pending sequence");
+                    pending.prepare(links).run();
+                    base.pause();
+                    try {
+                        danmaku.tick();
+                        require(danmaku.cards().isEmpty(), "a saved Gohei pattern waits during Time Stop");
+                    } finally {
+                        base.thaw();
+                    }
+                }
+                for (int tick = 0; tick < 20; tick++) {
+                    danmaku.tick();
+                    var emitted = danmaku.cards().stream().filter(card -> card.age == 1).toList();
+                    int expected = ((tick & 1) == 1) == offhandPattern ? rows[mode][tick / 2] : 0;
+                    require(emitted.size() == expected, id + " native cadence, tick " + tick
+                            + ": " + emitted.size() + "/" + expected);
+                    for (var card : emitted) {
+                        require(card.owner == owner && card.cause.player().equals(owner.getUUID())
+                                && ItemStack.matches(card.cause.enchantmentWeapon(), gift)
+                                && card.display.position().distanceTo(origin) < 1.8,
+                                "each card retains the captured item, owner and remote cast origin");
+                    }
+                    if (mode == 0 && tick == 0) {
+                        var card = emitted.get(2);
+                        require(!card.homing && card.direction.distanceTo(aim) < 1e-5
+                                && card.display.position().distanceTo(origin.add(1.2, -.5, 0)) < 1e-5
+                                && emitted.stream().filter(c -> c.homing).count() == 4,
+                                "ordinary first wave preserves the central shot, muzzle height and four homing cards");
+                    }
+                    if (mode == 2 && tick == 0)
+                        require(emitted.stream().allMatch(card -> card.homing), "Academy first wave uses eight guided cards");
+                    if (mode == 3 && tick == 1)
+                        require(emitted.stream().allMatch(card -> card.direction.distanceTo(aim) < 1e-5),
+                                "offhand Academy first wave fires the six parallel shots");
+                }
+                danmaku.tick();
+                require(danmaku.cards().stream().noneMatch(card -> card.age == 1),
+                        "each Gohei request stops after ten emission phases");
+                for (var card : danmaku.cards()) base.discard(card.display);
+            }
+            var id = new JsonPrimitive("skywars2:danmaku_volley");
+            base.field(false, origin);
+            require(!complete(host, queued(host, "lbc.cast", id, vector(origin), vector(aim))).getAsBoolean(),
+                    "full Gohei sequence respects suppression at the script origin");
+            require(initialTicks == danmaku.remaining(owner) && mana.get() == initialMana
+                    && owner.getMainHandItem() == main && owner.getOffhandItem() == off,
+                    "borrowed casts retain physical hands, mana and paid Gohei cast ticks");
+        } finally {
+            base.removeFields();
+            for (var card : danmaku.cards()) base.discard(card.display);
+            empty.prepare(links).run();
+            charge.set(initialCharge);
+        }
+    }
+
     private static void sauvojenCasts(GameController game, WoolBucketChecks.Fixture base, Vec3 origin) {
         var owner = base.owner;
         var main = owner.getMainHandItem();
@@ -1437,6 +1523,7 @@ final class GenieWorldChecks {
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);
+            danmakuVolleys(game, base);
             sauvojenCasts(game, base, launchSpot.add(0, .65, 0));
             nativeSummons(game, base, launchSpot);
 

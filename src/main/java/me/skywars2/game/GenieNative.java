@@ -57,6 +57,7 @@ public final class GenieNative {
     }
     private enum Cast {
         ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY, DANMAKU_CARD, DANMAKU_HOMING_CARD,
+        DANMAKU_VOLLEY, DANMAKU_OFFHAND_VOLLEY, ACADEMY_DANMAKU_VOLLEY, ACADEMY_DANMAKU_OFFHAND_VOLLEY,
         POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY, UNSTABLE_PRISM_CHARGE, ACADEMY_PRISM_RAY,
         FALLING_STARS, ACADEMY_FALLING_STARS, FALLING_STARS_BIG, FALLING_STARS_FIRE_RAIN,
         WALL, ACADEMY_WALL, WALL_HORIZONTAL, WALL_DISMANTLE, WALL_STAIRS,
@@ -281,6 +282,13 @@ public final class GenieNative {
                 case ICE_WAND, ACADEMY_ICE_WAND -> game.items().iceWand().scriptShot(player, hand, weapon, origin, aim);
                 case DANMAKU_CARD, DANMAKU_HOMING_CARD -> game.items().danmaku()
                         .scriptCard(player, origin, aim, spell == Cast.DANMAKU_HOMING_CARD);
+                case DANMAKU_VOLLEY, DANMAKU_OFFHAND_VOLLEY, ACADEMY_DANMAKU_VOLLEY, ACADEMY_DANMAKU_OFFHAND_VOLLEY ->
+                        game.items().danmaku().scriptVolley(player, origin, aim, switch (spell) {
+                            case DANMAKU_VOLLEY -> LbcDanmaku.Volley.STANDARD;
+                            case DANMAKU_OFFHAND_VOLLEY -> LbcDanmaku.Volley.STANDARD_OFFHAND;
+                            case ACADEMY_DANMAKU_VOLLEY -> LbcDanmaku.Volley.ACADEMY;
+                            default -> LbcDanmaku.Volley.ACADEMY_OFFHAND;
+                        });
                 case POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY -> game.items().sheep()
                         .scriptRay(player, hand, spell == Cast.ACADEMY_POLYMORPH_RAY, origin, aim);
                 case UNSTABLE_PRISM_CHARGE, ACADEMY_PRISM_RAY -> game.items().prism()
