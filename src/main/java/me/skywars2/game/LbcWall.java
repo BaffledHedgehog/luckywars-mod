@@ -55,8 +55,25 @@ final class LbcWall {
         cast(game,owner,hand,stack,upgraded,mode);
     }
     static void cast(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean upgraded,int mode){
-        Vec3 from=owner.getEyePosition();
-        Vec3 direction=Vec3.directionFromRotation(owner.getXRot(),owner.getYRot());
+        Vec3 from = owner.getEyePosition();
+        Vec3 direction = Vec3.directionFromRotation(owner.getXRot(), owner.getYRot());
+        Vec3 end = castAt(game, owner, from, direction, owner.getYRot(), upgraded, mode, true);
+        // Meditation inspects the geometry after the accepted cast has placed its blocks.
+        if (!upgraded) game.items().academy().wallTrial(owner, hand, stack);
+        if (end != null && !owner.level().getEntitiesOfClass(ServerPlayer.class, new AABB(end, end).inflate(3),
+                target -> game.items().wands().target(owner, target) && target.position().distanceToSqr(end) <= 9).isEmpty())
+            game.items().mana().award(owner, "lbc:true_advancements/staffs/wall");
+    }
+
+    static void scriptCast(GameController game, ServerPlayer owner, Vec3 origin, Vec3 direction,
+                           boolean upgraded, int mode) {
+        float yaw = direction.horizontalDistanceSqr() < 1e-12 ? owner.getYRot()
+                : (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
+        castAt(game, owner, origin, direction, yaw, upgraded, mode, false);
+    }
+
+    private static Vec3 castAt(GameController game, ServerPlayer owner, Vec3 from, Vec3 direction, float yaw,
+                               boolean upgraded, int mode, boolean refundMana) {
         Vec3 fullEnd=from.add(direction.scale(upgraded?180:100));
         double suppression=game.items().magic().suppressionFraction(owner.level(),from,fullEnd);
         Vec3 limit=Double.isFinite(suppression)?from.lerp(fullEnd,suppression):fullEnd;
@@ -69,28 +86,19 @@ final class LbcWall {
         }
         boolean impact=hit!=null && (!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos()))
                 && (!Double.isFinite(suppression) || end.distanceToSqr(from)<limit.distanceToSqr(from)-1e-6);
-        if(impact) {
-            // Точка native clip лежит на грани: небольшое смещение внутрь исключает соседнюю клетку и дрожание floor.
-            Vec3 placement=hit instanceof BlockHitResult?end.add(direction.scale(1e-4)):end;
-            BlockPos center=hit instanceof BlockHitResult wall?wall.getBlockPos():BlockPos.containing(end);
-            switch(mode) {
-                case 1 -> vertical(game,owner,placement);
-                case 2 -> horizontal(game,owner,end.add(direction.scale(.5)));
-                case 3 -> dismantle(game,owner,center);
-                case 4 -> stairs(game,owner,center);
-            }
+        if (!impact) return null;
+        // Native clip lies on the face. Nudge inward so the wall uses the hit block's plane.
+        Vec3 placement = hit instanceof BlockHitResult ? end.add(direction.scale(1e-4)) : end;
+        BlockPos center = hit instanceof BlockHitResult wall ? wall.getBlockPos() : BlockPos.containing(end);
+        switch (mode) {
+            case 1 -> vertical(game, owner, placement, yaw);
+            case 2 -> horizontal(game, owner, end.add(direction.scale(.5)));
+            case 3 -> dismantle(game, owner, center, refundMana);
+            case 4 -> stairs(game, owner, center, yaw);
         }
-        // Проверка окружения относится к принятому касту. Если он достроил
-        // четвёртую стену, проверяем уже новую геометрию.
-        if(!upgraded) game.items().academy().wallTrial(owner,hand,stack);
-        if(impact && !owner.level().getEntitiesOfClass(ServerPlayer.class,new AABB(end,end).inflate(3),
-                target->game.items().wands().target(owner,target) && target.position().distanceToSqr(end)<=9).isEmpty())
-            game.items().mana().award(owner,"lbc:true_advancements/staffs/wall");
+        return end;
     }
 
-    private static void vertical(GameController game,ServerPlayer owner,Vec3 point) {
-        vertical(game,owner,point,owner.getYRot());
-    }
     private static void vertical(GameController game,ServerPlayer owner,Vec3 point,float yaw) {
         Vec3 left=Vec3.directionFromRotation(0,yaw-90);
         var cells=new LinkedHashSet<BlockPos>();
@@ -118,7 +126,7 @@ final class LbcWall {
         LbcOverload.sound(owner,"minecraft:block.stone.place",1,1,0);
     }
 
-    private static void dismantle(GameController game,ServerPlayer owner,BlockPos center) {
+    private static void dismantle(GameController game, ServerPlayer owner, BlockPos center, boolean refundMana) {
         int[] removed={0};
         game.items().indirectKills().worldChanges(owner.level(),owner,()-> {
             for(var pos:BlockPos.betweenClosed(center.offset(-2,-2,-2),center.offset(2,2,2)))
@@ -132,13 +140,10 @@ final class LbcWall {
             Block.popResource(owner.level(),center,new ItemStack(Blocks.BRICKS,count));
             remaining-=count;
         }
-        if(removed[0]>=15) game.items().mana().add(owner,500); // (user) Возврат ограничен ценой каста.
+        if (refundMana && removed[0] >= 15) game.items().mana().add(owner, 500);
         LbcOverload.sound(owner,"minecraft:block.stone.break",1,2,0);
     }
 
-    private static void stairs(GameController game,ServerPlayer owner,BlockPos center) {
-        stairs(game,owner,center,owner.getYRot());
-    }
     private static void stairs(GameController game,ServerPlayer owner,BlockPos center,float yaw) {
         Direction facing=Direction.fromYRot(yaw);
         Rotation rotation;
@@ -158,7 +163,7 @@ final class LbcWall {
         Vec3 point=hit.getLocation().add(direction.scale(1e-4));
         switch(mode) {
             case 2 -> horizontal(game,owner,point.add(direction.scale(.5)));
-            case 3 -> dismantle(game,owner,hit.getBlockPos());
+            case 3 -> dismantle(game,owner,hit.getBlockPos(),true);
             case 4 -> stairs(game,owner,hit.getBlockPos(),yaw);
             default -> vertical(game,owner,point,yaw);
         }

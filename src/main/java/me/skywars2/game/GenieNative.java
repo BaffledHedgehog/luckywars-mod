@@ -58,6 +58,8 @@ public final class GenieNative {
     private enum Cast {
         ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY, DANMAKU_CARD, DANMAKU_HOMING_CARD,
         POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY, UNSTABLE_PRISM_CHARGE, ACADEMY_PRISM_RAY,
+        FALLING_STARS, ACADEMY_FALLING_STARS, FALLING_STARS_BIG, FALLING_STARS_FIRE_RAIN,
+        WALL, ACADEMY_WALL, WALL_HORIZONTAL, WALL_DISMANTLE, WALL_STAIRS,
         TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
         TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
         TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
@@ -253,6 +255,25 @@ public final class GenieNative {
                         .scriptRay(player, hand, spell == Cast.ACADEMY_POLYMORPH_RAY, origin, aim);
                 case UNSTABLE_PRISM_CHARGE, ACADEMY_PRISM_RAY -> game.items().prism()
                         .scriptCast(player, hand, weapon, origin, aim, spell == Cast.ACADEMY_PRISM_RAY);
+                case FALLING_STARS, ACADEMY_FALLING_STARS, FALLING_STARS_BIG, FALLING_STARS_FIRE_RAIN -> {
+                    int mode = switch (spell) {
+                        case FALLING_STARS_BIG -> 2;
+                        case FALLING_STARS_FIRE_RAIN -> 3;
+                        default -> 1;
+                    };
+                    game.items().homing().scriptStars(player, origin, aim, spell != Cast.FALLING_STARS, mode);
+                    yield true;
+                }
+                case WALL, ACADEMY_WALL, WALL_HORIZONTAL, WALL_DISMANTLE, WALL_STAIRS -> {
+                    int mode = switch (spell) {
+                        case WALL_HORIZONTAL -> 2;
+                        case WALL_DISMANTLE -> 3;
+                        case WALL_STAIRS -> 4;
+                        default -> 1;
+                    };
+                    LbcWall.scriptCast(game, player, origin, aim, spell != Cast.WALL, mode);
+                    yield true;
+                }
                 default -> {
                     var body = game.items().terra().castAt(player, origin, aim, spell.terra, 0);
                     if (body == null || body.getOwner() != player || level.getEntity(body.getUUID()) != body) yield false;

@@ -858,6 +858,112 @@ final class GenieWorldChecks {
         }
     }
 
+    private static boolean directed(GenieWorldHost host, String spell, Vec3 from, Vec3 direction) {
+        return complete(host, queued(host, "lbc.cast", new JsonPrimitive("skywars2:" + spell),
+                vector(from), vector(direction))).getAsBoolean();
+    }
+
+    private static void starsAndWall(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var originChunk = owner.chunkPosition();
+        int y = Math.min(owner.getBlockY() + 24, base.level.getMaxY() - 10);
+        var target = new BlockPos(originChunk.getMinBlockX() + 8, y, originChunk.getMinBlockZ() + 8);
+        var origin = Vec3.atCenterOf(target.west(5));
+        var east = new Vec3(1, 0, 0);
+        var homing = game.items().homing();
+        require(homing.count() == 0 && homing.pendingRayCount() == 0, "exclusive Falling Stars fixture");
+
+        var volume = BlockPos.betweenClosedStream(target.offset(-7, -3, -7), target.offset(7, 8, 7))
+                .map(BlockPos::immutable).toList();
+        for (var at : volume) base.set(at, Blocks.AIR.defaultBlockState());
+        base.set(target, Blocks.STONE.defaultBlockState());
+
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        int mana = game.items().mana().get(owner);
+        float yaw = owner.getYRot();
+        owner.setYRot(0);
+        try (var host = new GenieWorldHost(game, owner, new ItemStack(Items.BLAZE_ROD), () -> true, () -> 123L)) {
+            for (String spell : List.of("falling_stars", "academy_falling_stars", "falling_stars_big")) {
+                require(directed(host, spell, origin, east), "native directed " + spell + " accepted");
+                drainHoming(game);
+                var shots = homing.snapshot();
+                boolean large = spell.equals("falling_stars_big");
+                require(shots.size() == (large ? 1 : 14) && shots.stream().allMatch(shot -> shot.getOwner() == owner
+                                && base.level.getEntity(shot.getUUID()) == shot && game.items().currentEpoch(shot)
+                                && shot.getDeltaMovement().equals(new Vec3(0, -.2, 0))),
+                        "directed " + spell + " uses the authored native bodies and descent, got " + shots.size());
+                double minHeight = shots.stream().mapToDouble(Entity::getY).min().orElseThrow();
+                require(minHeight == origin.y + (large ? 400 : 50) && (large
+                                ? GameChecks.fireballPower(shots.getFirst()) == 15
+                                : shots.stream().map(GameChecks::fireballPower).filter(power -> power == 2).count() == 13),
+                        "native Falling Stars placement and power refer to the hit, not the held item's aim");
+                homing.stop();
+            }
+            require(directed(host, "falling_stars_fire_rain", origin, east), "native Fire Rain accepted");
+            drainHoming(game);
+            require(homing.rainCount() == 1 && homing.snapshot().isEmpty(), "rain enters the real sustained effect");
+            homing.tick();
+            require(homing.snapshot().size() == 3 && homing.snapshot().stream().allMatch(shot -> shot.getOwner() == owner
+                            && GameChecks.fireballPower(shot) == 1 && shot.getY() == origin.y + 80),
+                    "one native Fire Rain tick makes three power-one fireballs at hit Y plus 80");
+            homing.stop();
+
+            for (String spell : List.of("wall", "academy_wall")) {
+                require(directed(host, spell, origin, east)
+                                && base.level.getBlockState(target.north(3).above(3)).is(Blocks.BRICKS)
+                                && base.level.getBlockState(target.west(3).above(3)).isAir()
+                                && base.level.getBlockState(target).is(Blocks.STONE),
+                        "vertical " + spell + " faces the explicit eastward ray and preserves the solid hit");
+                for (var at : volume) if (base.level.getBlockState(at).is(Blocks.BRICKS))
+                    base.set(at, Blocks.AIR.defaultBlockState());
+            }
+            require(directed(host, "wall_horizontal", origin, east)
+                            && base.level.getBlockState(target.west(3).north(3)).is(Blocks.BRICKS)
+                            && base.level.getBlockState(target.above()).isAir(), "native seven-by-seven horizontal wall");
+            var beforeDrops = new HashSet<UUID>();
+            base.level.getAllEntities().forEach(e -> beforeDrops.add(e.getUUID()));
+            require(directed(host, "wall_dismantle", Vec3.atCenterOf(target.above(5)), new Vec3(0, -1, 0))
+                            && base.level.getBlockState(target.north(2)).isAir()
+                            && base.level.getBlockState(target.north(3)).is(Blocks.BRICKS)
+                            && base.level.getBlockState(target).is(Blocks.STONE),
+                    "dismantling removes only bricks in the native five-by-five-by-five region");
+            int recovered = 0;
+            for (var e : base.level.getAllEntities()) if (e instanceof net.minecraft.world.entity.item.ItemEntity drop
+                    && !beforeDrops.contains(drop.getUUID()) && drop.getItem().is(Items.BRICKS)) {
+                base.own(drop);
+                recovered += drop.getItem().getCount();
+            }
+            require(recovered == 24, "real brick recovery gives one brick block per removal, got " + recovered);
+            for (var at : volume) if (base.level.getBlockState(at).is(Blocks.BRICKS))
+                base.set(at, Blocks.AIR.defaultBlockState());
+            require(directed(host, "wall_stairs", origin, east)
+                            && volume.stream().filter(at -> base.level.getBlockState(at).is(Blocks.BRICK_STAIRS)).count() == 45,
+                    "stair mode publishes the original 45-stair native template");
+
+            base.field(false, origin);
+            try {
+                require(!directed(host, "wall_horizontal", origin, east)
+                                && !directed(host, "falling_stars_big", origin, east) && homing.pendingRayCount() == 0,
+                        "a real MAG field rejects both families at the scripted origin");
+            } finally {
+                base.removeFields();
+            }
+            require(game.items().mana().get(owner) == mana && owner.getMainHandItem() == main
+                            && owner.getOffhandItem() == off,
+                    "borrowed casts neither pay mana nor claim a paid refund or alter held items");
+        } finally {
+            owner.setYRot(yaw);
+            homing.stop();
+        }
+    }
+
+    private static void drainHoming(GameController game) {
+        var homing = game.items().homing();
+        for (int i = 0; i < 100 && homing.pendingRayCount() > 0; i++) game.items().exasperato().tick();
+        require(homing.pendingRayCount() == 0, "loaded Falling Stars ray reaches one native terminal hit");
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -921,6 +1027,7 @@ final class GenieWorldChecks {
             targetedExoperso(game, base, launchSpot);
             polymorphCasts(game, base, launchSpot);
             prismCasts(game, base, launchSpot.add(0, .65, 0));
+            starsAndWall(game, base);
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);

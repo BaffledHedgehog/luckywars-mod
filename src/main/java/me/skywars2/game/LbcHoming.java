@@ -192,6 +192,9 @@ public final class LbcHoming {
         launch(owner,false,mode,mode!=1,false);
     }
     void libraryStars(ServerPlayer owner,int mode){launch(owner,true,mode,mode!=1,false);}
+    void scriptStars(ServerPlayer owner, Vec3 origin, Vec3 direction, boolean academy, int mode) {
+        launchAt(owner, true, mode, academy, false, origin, direction);
+    }
     private void launch(ServerPlayer owner,boolean donor,int mode,boolean upgraded,boolean achievement) {
         launchAt(owner,donor,mode,upgraded,achievement,owner.getEyePosition(),owner.getLookAngle());
     }
