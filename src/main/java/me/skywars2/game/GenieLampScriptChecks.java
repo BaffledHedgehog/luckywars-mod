@@ -128,10 +128,15 @@ final class GenieLampScriptChecks implements AutoCloseable {
             for (String id : List.of("falling_stars", "academy_falling_stars", "falling_stars_big", "falling_stars_fire_rain",
                     "wall", "academy_wall", "wall_horizontal", "wall_dismantle", "wall_stairs",
                     "advanced_ender", "academy_advanced_ender", "advanced_ender_top", "advanced_ender_clip",
-                    "snow_wand", "academy_snow_wand")) {
+                    "snow_wand", "academy_snow_wand", "ice_wand", "academy_ice_wand")) {
                 String spell = "skywars2:" + id;
                 require(directed.contains(new com.google.gson.JsonPrimitive(spell)) && prompt.contains(spell),
                         "actual model request describes the native directed spell " + spell);
+            }
+            for (var ice : List.of(GenieNative.TargetedCast.ICE_WAND_DETONATE, GenieNative.TargetedCast.ACADEMY_ICE_WAND_SHATTER)) {
+                require(facts.getAsJsonArray("script_targeted_casts").asList().stream().anyMatch(value ->
+                                value.getAsJsonObject().get("id").getAsString().equals(ice.id.toString()))
+                                && prompt.contains(ice.id.toString()), "Permafrost targeted id is documented and callable " + ice.id);
             }
             int payloadCount = 0;
             require(payloads.size() == 9, "all native Sauvojen families appear in the request");

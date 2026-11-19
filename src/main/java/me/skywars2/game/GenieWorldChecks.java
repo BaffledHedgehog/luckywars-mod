@@ -1076,6 +1076,94 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void permafrostCasts(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var ice = game.items().iceWand();
+        var frost = game.items().frost();
+        var ledger = game.items().indirectKills();
+        require(ice.count() == 0, "exclusive Permafrost fixture");
+        var chunk = owner.chunkPosition();
+        int y = Math.min(owner.getBlockY() + 28, base.level.getMaxY() - 12);
+        var wall = new BlockPos(chunk.getMinBlockX() + 8, y, chunk.getMinBlockZ() + 6);
+        for (var cell : BlockPos.betweenClosed(wall.offset(-6, -1, -2), wall.offset(1, 2, 7)))
+            base.set(cell.immutable(), Blocks.AIR.defaultBlockState());
+        for (int z : List.of(0, 5)) {
+            base.set(wall.south(z), Blocks.STONE.defaultBlockState());
+            base.set(wall.south(z).above(), Blocks.STONE.defaultBlockState());
+        }
+        var origin = Vec3.atCenterOf(wall.west(5));
+        var witness = stationaryCow(base, Vec3.atBottomCenterOf(wall.west(1).south()));
+        var frozen = stationaryCow(base, Vec3.atBottomCenterOf(wall.north(5)));
+        for (var cow : List.of(witness, frozen)) {
+            cow.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
+            cow.setHealth(100);
+        }
+        // Frost temporarily writes an ice shell, including cells outside the shot corridor.
+        for (var cell : BlockPos.betweenClosed(frozen.blockPosition().offset(-2,-2,-2),frozen.blockPosition().offset(2,3,2)))
+            base.remember(cell.immutable());
+        var gift = new ItemStack(Items.AMETHYST_SHARD);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        int mana = game.items().mana().get(owner);
+        var east = new Vec3(1,0,0);
+        try (var host = new GenieWorldHost(game, owner, gift, () -> true, () -> 123L)) {
+            for (var name : List.of("ice_wand", "academy_ice_wand")) {
+                var point = name.equals("ice_wand") ? origin : origin.add(0,0,5);
+                require(directed(host, name, point, east), "script launches " + name);
+                var shot = ice.shotSnapshot().getFirst();
+                require(shot.position().equals(point) && shot.getDeltaMovement().equals(east.scale(1.5))
+                                && shot.getOwner() == owner && shot.display.position().equals(point),
+                        "native ice shot and display use the supplied origin and velocity");
+                for (int i = 0; i < 10 && !shot.isRemoved(); i++) shot.tick();
+                require(shot.isRemoved() && shot.display.isRemoved() && ice.shotSnapshot().isEmpty(),
+                        "native block impact retires the flying crystal and its display");
+            }
+            require(ice.snapshot().size() == 2 && base.level.getBlockState(wall.west()).is(Blocks.BARRIER)
+                            && base.level.getBlockState(wall.west().south(5)).is(Blocks.BARRIER)
+                            && witness.getHealth() == 95 && frost.cold(witness) == 10
+                            && ledger.enchantmentWeapon(witness.getLastDamageSource()).is(Items.AMETHYST_SHARD),
+                    "real ice impact leaves two attached crystals and gives native damage and cold with the original item");
+            frozen.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS, 100, 9), owner);
+            frost.add(frozen, owner);
+            require(frost.isFrozen(frozen), "actual native frozen witness");
+            frozen.removeEffect(MobEffects.RESISTANCE);
+            frozen.setInvulnerableTime(0);
+            frozen.damageCooldownTime = 0;
+            witness.setInvulnerableTime(0);
+            witness.damageCooldownTime = 0;
+
+            var detonate = new JsonPrimitive(GenieNative.TargetedCast.ICE_WAND_DETONATE.id.toString());
+            var shatter = new JsonPrimitive(GenieNative.TargetedCast.ACADEMY_ICE_WAND_SHATTER.id.toString());
+            var center = Vec3.atCenterOf(wall.west(1));
+            base.field(false, origin);
+            try {
+                require(!directed(host,"ice_wand",origin,east)
+                                && !complete(host,queued(host,"lbc.cast_at",detonate,vector(origin))).getAsBoolean()
+                                && ice.snapshot().size() == 2,
+                        "MAG suppresses both the supplied launch origin and detonation point");
+            } finally { base.removeFields(); }
+            require(complete(host,queued(host,"lbc.cast_at",detonate,vector(center))).getAsBoolean()
+                            && ice.count() == 0 && base.level.getBlockState(wall.west()).isAir()
+                            && base.level.getBlockState(wall.west().south(5)).isAir()
+                            && witness.getHealth() == 90 && frost.cold(witness) == 20
+                            && ledger.enchantmentWeapon(witness.getLastDamageSource()).is(Items.AMETHYST_SHARD)
+                            && frost.isFrozen(frozen),
+                    "ordinary detonation handles owned crystal damage and restoration without shattering frozen mobs");
+            require(complete(host,queued(host,"lbc.cast_at",shatter,vector(frozen.position()))).getAsBoolean()
+                            && !frost.isFrozen(frozen) && frozen.getHealth() < 100,
+                    "native Academy shatter thaws and damages the frozen mob at the supplied point");
+            require(game.items().mana().get(owner) == mana && owner.getMainHandItem() == main && owner.getOffhandItem() == off,
+                    "all four Permafrost calls leave mana and physical hands unchanged");
+        } finally {
+            ice.forget(owner);
+            for (var cow : List.of(witness, frozen)) {
+                frost.clear(cow);
+                ledger.clear(cow);
+                base.discard(cow);
+            }
+        }
+    }
+
     private static void drainAdvancedRay(LbcExasperato rays) {
         for (int tick = 0; tick < 100 && rays.pendingSearches() > 0; tick++) rays.tick();
         require(rays.pendingSearches() == 0, "native snow or Ender ray resolves");
@@ -1146,6 +1234,7 @@ final class GenieWorldChecks {
             prismCasts(game, base, launchSpot.add(0, .65, 0));
             starsAndWall(game, base);
             advancedSnowCasts(game, base);
+            permafrostCasts(game, base);
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);

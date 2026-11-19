@@ -61,7 +61,7 @@ public final class GenieNative {
         FALLING_STARS, ACADEMY_FALLING_STARS, FALLING_STARS_BIG, FALLING_STARS_FIRE_RAIN,
         WALL, ACADEMY_WALL, WALL_HORIZONTAL, WALL_DISMANTLE, WALL_STAIRS,
         ADVANCED_ENDER, ACADEMY_ADVANCED_ENDER, ADVANCED_ENDER_TOP, ADVANCED_ENDER_CLIP,
-        SNOW_WAND, ACADEMY_SNOW_WAND,
+        SNOW_WAND, ACADEMY_SNOW_WAND, ICE_WAND, ACADEMY_ICE_WAND,
         TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
         TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
         TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
@@ -105,6 +105,10 @@ public final class GenieNative {
                 "Expanding red damaging sphere, equivalent to 300 Gohei charge."),
         GOHEI_SPELLCARD_FULL("gohei_spellcard_full", "Fully charged Spirit Sign: Fantasy Seal", "Знак духа: Печать фантазии, полный заряд",
                 "Expanding red damaging sphere, equivalent to 1500 Gohei charge."),
+        ICE_WAND_DETONATE("ice_wand_detonate", "Permafrost: Detonate Crystals", "?????? ????????: ????? ??????????",
+                "Detonates your Permafrost crystals within 50 blocks of the target."),
+        ACADEMY_ICE_WAND_SHATTER("academy_ice_wand_shatter", "Academy Permafrost: Shatter", "?????????? ?????? ????????: ????????????",
+                "Detonates your crystals and shatters frozen entities within 50 blocks. Shatter can hurt allies."),
         HAKUREI_BOMB("hakurei_bomb", "Hakurei Shrine: Fantasy Seal bomb", "Храм Хакурей: бомба Печать фантазии",
                 "Original faster yellow Fantasy Seal bomb with its normal 300 charge and lingering shell.");
 
@@ -179,7 +183,7 @@ public final class GenieNative {
     }
 
     /** Point-targeted abilities keep their own permissions, effects and native attribution. */
-    public static boolean castAt(GameController game, ServerPlayer player, Identifier id, Vec3 target) {
+    public static boolean castAt(GameController game, ServerPlayer player, ItemStack weapon, Identifier id, Vec3 target) {
         var spell = TARGETED_CASTS.get(id);
         if (spell == null) throw new IllegalArgumentException("unknown targeted LuckyWars ability");
         var level = player.level();
@@ -194,6 +198,8 @@ public final class GenieNative {
             case ORESHNIK -> game.items().cinema().rockets().launch(player, target);
             case EXOPERSO, ACADEMY_EXOPERSO ->
                     game.items().exoperso().scriptRitual(player, target, spell == TargetedCast.ACADEMY_EXOPERSO);
+            case ICE_WAND_DETONATE, ACADEMY_ICE_WAND_SHATTER ->
+                    game.items().iceWand().scriptDetonate(player, weapon, target, spell == TargetedCast.ACADEMY_ICE_WAND_SHATTER);
             case GOHEI_SPELLCARD -> game.items().danmaku().scriptBomb(player, target, 300, false);
             case GOHEI_SPELLCARD_FULL -> game.items().danmaku().scriptBomb(player, target, 1500, false);
             case HAKUREI_BOMB -> game.items().danmaku().scriptBomb(player, target, 300, true);
@@ -251,6 +257,7 @@ public final class GenieNative {
                     else wands.directedElectro(player, origin, aim, spell == Cast.ELECTRO_ARC ? 1 : 3, cause);
                     yield true;
                 }
+                case ICE_WAND, ACADEMY_ICE_WAND -> game.items().iceWand().scriptShot(player, hand, weapon, origin, aim);
                 case DANMAKU_CARD, DANMAKU_HOMING_CARD -> game.items().danmaku()
                         .scriptCard(player, origin, aim, spell == Cast.DANMAKU_HOMING_CARD);
                 case POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY -> game.items().sheep()

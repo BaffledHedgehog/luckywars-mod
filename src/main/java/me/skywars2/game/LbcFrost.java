@@ -93,14 +93,14 @@ public final class LbcFrost {
     }
 
     /** Первый приём cold учитывает прежний Slowness; повторные добавляют базовые десять. */
-    public void add(LivingEntity entity, ServerPlayer source) { add(entity,source,false); }
-    private void add(LivingEntity entity,ServerPlayer source,boolean projectile) {
+    public void add(LivingEntity entity, ServerPlayer source) { add(entity,source,false,null); }
+    private void add(LivingEntity entity,ServerPlayer source,boolean projectile,LbcIndirectKills.Owner accepted) {
         statusCallbacks++;try {if(statusRestoring)return;
             if (!eligible(entity) || source != null && !game.canUseGameplayItems(source)) return;
             State state = affected.computeIfAbsent(entity, State::new);
             var slow = entity.getEffect(MobEffects.SLOWNESS);
             int multiplier = state.cold > 0 || slow == null ? 1 : slow.getAmplifier() + 1;
-            state.source=source==null?null:game.items().indirectKills().coldCause(source,projectile);
+            state.source=accepted!=null?accepted:source==null?null:game.items().indirectKills().coldCause(source,projectile);
             state.cold += 10 * multiplier;
             state.cooldown = 5;
             check(state, source);
@@ -111,9 +111,9 @@ public final class LbcFrost {
     }
 
     /** Ice Wand adds cold only while thawed; another hit never refreshes an existing freeze. */
-    boolean iceHit(LivingEntity entity,ServerPlayer source){
+    boolean iceHit(LivingEntity entity,ServerPlayer source,LbcIndirectKills.Owner accepted){
         if(!eligible(entity))return false;
-        if(!isFrozen(entity))add(entity,source,true);
+        if(!isFrozen(entity))add(entity,source,true,accepted);
         return isFrozen(entity);
     }
 

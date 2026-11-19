@@ -137,7 +137,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "lbc.grimoire"->grimoire(values);
             case "lbc.summon"->summon(values);
             case "lbc.cast"->cast(values);
-            case "lbc.cast_at"->new JsonPrimitive(GenieNative.castAt(game,owner,
+            case "lbc.cast_at"->new JsonPrimitive(GenieNative.castAt(game,owner,captured,
                 Identifier.parse(text(values.getFirst())),vector(values.get(1))));
             default->throw new IllegalArgumentException("unknown queued world API");
         };

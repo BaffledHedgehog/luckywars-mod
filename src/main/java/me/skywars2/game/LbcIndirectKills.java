@@ -307,6 +307,9 @@ public final class LbcIndirectKills {
     boolean inheritedKill(LivingEntity target,Owner cause){return target.hurtServer((ServerLevel)target.level(),new InheritedKill(target,cause),Float.MAX_VALUE);}
     void manaLost(LivingEntity target,Owner cause){if(cause!=null)manaDebts.put(target,newer(manaDebts.get(target),cause));}
     Owner coldCause(ServerPlayer player,boolean projectile){return fresh(player,false,projectile);}
+    Owner itemCause(ServerPlayer player, boolean friendlyFire, boolean projectile, net.minecraft.world.item.ItemStack weapon) {
+        return new Owner(player.getUUID(), ++order, friendlyFire, projectile, weapon, true);
+    }
     Owner restoreColdCause(UUID player,long stamp,boolean projectile){
         if(stamp<=0)return new Owner(player,++order,false,projectile,WeaponEnchantments.snapshot(player));
         order=Math.max(order,stamp);
