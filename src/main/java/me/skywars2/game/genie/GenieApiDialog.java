@@ -1,5 +1,6 @@
 package me.skywars2.game.genie;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -12,11 +13,13 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.SkyWarsCommandTree;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -24,6 +27,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dialog.ActionButton;
 import net.minecraft.server.dialog.CommonButtonData;
 import net.minecraft.server.dialog.CommonDialogData;
@@ -59,12 +63,22 @@ final class GenieApiDialog implements AutoCloseable {
                         .then(Commands.literal("api").executes(context -> open(context.getSource().getPlayerOrException(), Form.API)))
                         .then(Commands.literal("gemini")
                                 .then(Commands.literal("import").executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_COOKIES)))
-                                .then(Commands.literal("importfile").executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_FILE))))));
+                                .then(Commands.literal("importfile")
+                                        .executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_FILE))
+                                        .then(Commands.argument("path", StringArgumentType.greedyString()).executes(context ->
+                                                importFile(context.getSource(), StringArgumentType.getString(context, "path"))))))));
     }
 
     private static int open(ServerPlayer player, Form form) {
         var game = SkyWars2.game();
         return game != null && game.items().genie().api.openForm(player, form) ? 1 : 0;
+    }
+
+    private static int importFile(CommandSourceStack source, String path) {
+        var game = SkyWars2.game();
+        if (game == null) return 0;
+        var service = game.items().genie();
+        return service.api.importGemini(service, source.getServer(), true, path, source::sendSystemMessage) ? 1 : 0;
     }
 
     private static boolean owner(ServerPlayer player) {
@@ -73,8 +87,8 @@ final class GenieApiDialog implements AutoCloseable {
     }
 
     private static boolean privateConnection(ServerPlayer player) {
-        // Offline mode sends vanilla PLAY packets unencrypted and accepts unauthenticated names.
-        // Keep its credential form to local connections (including local SSH tunnel endpoints).
+        // The backend cannot establish whether an offline proxy encrypted the client connection.
+        // Only direct secret entry needs this check. A file path carries no credentials.
         return player.level().getServer().usesAuthentication()
                 || player.connection.getRemoteAddress() instanceof InetSocketAddress remote
                 && remote.getAddress() != null && remote.getAddress().isLoopbackAddress();
@@ -83,8 +97,11 @@ final class GenieApiDialog implements AutoCloseable {
     private boolean openForm(ServerPlayer player, Form form) {
         if (closed || !owner(player)) return false;
         if (!privateConnection(player)) {
-            message(player, "private_connection", "Для ввода ключа подключись локально или через сервер с online-mode=true.", true);
-            return false;
+            if (form == Form.API) {
+                message(player, "private_connection", "Для ввода ключа подключись локально или через сервер с online-mode=true.", true);
+                return false;
+            }
+            form = Form.GEMINI_FILE;
         }
         var id = Identifier.fromNamespaceAndPath("skywars2", PREFIX + UUID.randomUUID());
         pending.put(player, new Pending(id, player.level().getServer().getTickCount(), form));
@@ -133,14 +150,16 @@ final class GenieApiDialog implements AutoCloseable {
         pending.remove(player);
         var server = player.level().getServer();
         if (closed || server.getTickCount() - form.opened >= EXPIRY_TICKS || !owner(player)
-                || !privateConnection(player)) return;
-        if (saving) {
-            message(player, "busy", "Предыдущее изменение API ещё сохраняется. Открой окно заново.", true);
-            return;
-        }
+                || (form.form != Form.GEMINI_FILE && !privateConnection(player))) return;
         if (form.form != Form.API) {
             String input = payload.orElse(null) instanceof CompoundTag tag ? tag.getStringOr("cookies", "") : "";
-            importGemini(service, player, form.form == Form.GEMINI_FILE, input);
+            importGemini(service, server, form.form == Form.GEMINI_FILE, input, response -> {
+                if (owner(player)) player.sendSystemMessage(response);
+            });
+            return;
+        }
+        if (saving) {
+            message(player, "busy", "Предыдущее изменение API ещё сохраняется. Открой окно заново.", true);
             return;
         }
         GenieConfig.Api settings;
@@ -177,10 +196,15 @@ final class GenieApiDialog implements AutoCloseable {
         });
     }
 
-    private void importGemini(GenieService service, ServerPlayer player, boolean file, String input) {
-        var server = player.level().getServer();
+    private boolean importGemini(GenieService service, MinecraftServer server, boolean file, String input,
+                                 Consumer<Component> report) {
+        if (closed) return false;
+        if (saving) {
+            report.accept(status("busy", "Предыдущее изменение API ещё сохраняется. Повтори импорт после завершения.", true));
+            return false;
+        }
         saving = true;
-        message(player, "gemini_checking", "Проверяю сессию Gemini…", false);
+        report.accept(status("gemini_checking", "Проверяю сессию Gemini…", false));
         writer.execute(() -> {
             GenieGeminiWebTransport ready = null;
             GenieGeminiWebTransport.SessionIssue issue = null;
@@ -205,14 +229,18 @@ final class GenieApiDialog implements AutoCloseable {
             server.execute(() -> {
                 saving = false;
                 if (closed) return;
-                if (saved != null) service.activateApi(saved);
-                if (!owner(player)) return;
-                if (saved != null) message(player, "gemini_saved", "Веб-чат Gemini подключён.", false);
-                else if (sessionIssue != null) message(player, "gemini_session_" + sessionIssue.name().toLowerCase(java.util.Locale.ROOT),
-                    sessionIssue.hint, true);
-                else message(player, "gemini_failed", "Gemini не подключился. Проверь cookies и наличие gemini-webapi на сервере.", true);
+                if (saved != null) {
+                    service.activateApi(saved);
+                    report.accept(status("gemini_saved", "Веб-чат Gemini подключён.", false));
+                } else if (sessionIssue != null) {
+                    report.accept(status("gemini_session_" + sessionIssue.name().toLowerCase(java.util.Locale.ROOT),
+                            sessionIssue.hint, true));
+                } else {
+                    report.accept(status("gemini_failed", "Gemini не подключился. Проверь cookies и наличие gemini-webapi на сервере.", true));
+                }
             });
         });
+        return true;
     }
 
     private static String readCookieFile(String input) throws IOException {
@@ -231,7 +259,11 @@ final class GenieApiDialog implements AutoCloseable {
     }
 
     private static void message(ServerPlayer player, String id, String fallback, boolean error) {
-        player.sendSystemMessage(text(id, fallback).withStyle(error ? ChatFormatting.RED : ChatFormatting.GREEN));
+        player.sendSystemMessage(status(id, fallback, error));
+    }
+
+    private static Component status(String id, String fallback, boolean error) {
+        return text(id, fallback).withStyle(error ? ChatFormatting.RED : ChatFormatting.GREEN);
     }
 
     @Override public void close() {
