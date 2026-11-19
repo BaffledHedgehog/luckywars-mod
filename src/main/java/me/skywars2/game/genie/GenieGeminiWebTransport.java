@@ -29,7 +29,11 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
 
     enum SessionIssue {
         UNAUTHENTICATED("Вход в Gemini не подтверждён. Войди в Gemini и импортируй свежий JSON cookies."),
-        ACCESS_RESTRICTED("Gemini ограничил доступ этой сессии к файлам. Проверь доступ в самом веб-чате."),
+        LOCATION_REJECTED("Gemini недоступен из региона сервера."),
+        TERMS_REQUIRED("Открой Gemini в браузере и прими актуальные условия использования."),
+        ACCOUNT_UNTRUSTED("Gemini ограничил возможности этой сессии после проверки аккаунта."),
+        ACCESS_TEMPORARILY_UNAVAILABLE("Gemini временно ограничил доступ для этой сессии."),
+        ACCESS_RESTRICTED("Gemini отклонил доступ для этой сессии. Проверь доступ в веб-чате."),
         PRO_UNAVAILABLE("В текущей сессии Gemini недоступна модель Pro."),
         ATTACHMENT_FAILED("Gemini не смог прочитать проверочный файл. Проверь загрузку файлов в веб-чате.");
 

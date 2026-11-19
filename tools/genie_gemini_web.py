@@ -83,7 +83,8 @@ async def probe_attachment(client, model):
         )
     except Exception as error:
         raise SessionFailure("ATTACHMENT_FAILED") from error
-    if response_text(check).strip('"') != marker:
+    # Gemini may format the answer. The unpredictable marker proves it read the attachment.
+    if marker not in response_text(check):
         raise SessionFailure("ATTACHMENT_FAILED")
     return {"connected": True}
 
@@ -104,6 +105,17 @@ async def refresh(cookie):
     return {"timestamp": timestamp}
 
 
+def select_pro_model(client):
+    for name in ("gemini-carbon", "gemini-pro"):
+        try:
+            model = client.resolve_model(name)
+        except ValueError:
+            continue
+        if model.is_available:
+            return model
+    raise SessionFailure("PRO_UNAVAILABLE")
+
+
 async def run(cookie):
     from loguru import logger
     logger.remove()
@@ -115,14 +127,17 @@ async def run(cookie):
         await client.init(timeout=35, watchdog_timeout=35, auto_refresh=False)
         if client.account_status == AccountStatus.UNAUTHENTICATED:
             raise SessionFailure("UNAUTHENTICATED")
+        if client.account_status == AccountStatus.LOCATION_REJECTED:
+            raise SessionFailure("LOCATION_REJECTED")
+        if client.account_status in (AccountStatus.TOS_PENDING, AccountStatus.TOS_OUT_OF_DATE):
+            raise SessionFailure("TERMS_REQUIRED")
+        if client.account_status == AccountStatus.ACCOUNT_UNTRUSTED:
+            raise SessionFailure("ACCOUNT_UNTRUSTED")
+        if client.account_status == AccountStatus.ACCESS_TEMPORARILY_UNAVAILABLE:
+            raise SessionFailure("ACCESS_TEMPORARILY_UNAVAILABLE")
         if client.account_status != AccountStatus.AVAILABLE:
             raise SessionFailure("ACCESS_RESTRICTED")
-        try:
-            model = client.resolve_model("gemini-pro")
-        except ValueError as error:
-            raise SessionFailure("PRO_UNAVAILABLE") from error
-        if not model.is_available:
-            raise SessionFailure("PRO_UNAVAILABLE")
+        model = select_pro_model(client)
         if Path("prompt.txt").is_file():
             # Keep the interactive turn alive while Gemini is working. The Java
             # owner interrupts this dedicated process on logout/death/match reset.
