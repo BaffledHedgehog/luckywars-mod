@@ -98,10 +98,14 @@ public final class LbcStonekivi {
                     :(mode==3||mode==5)?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.LAVA.defaultBlockState()):mode==4?BEDROCK:STONE;
             var secondary=mode==2?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState())
                     :(mode==3||mode==5)?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.MAGMA_BLOCK.defaultBlockState()):BEDROCK;
-            for(double d=0;d<=distance;d+=.5) {
-                Vec3 p=from.add(direction.scale(d));
-                owner.level().sendParticles(primary,true,false,p.x,p.y,p.z,2,.1,.1,.1,0);
-                owner.level().sendParticles(secondary,true,false,p.x,p.y,p.z,1,.1,.1,.1,0);
+            int samplesPerPacket = game.balanceLegacy() ? 1 : 3;
+            try (var primaryTrail = new LbcParticleBatch.Group(owner.level(), primary, .1, 0, true, .51, samplesPerPacket);
+                 var secondaryTrail = new LbcParticleBatch.Group(owner.level(), secondary, .1, 0, true, .51, samplesPerPacket)) {
+                for (double d = 0; d <= distance; d += .5) {
+                    Vec3 sample = from.add(direction.scale(d));
+                    primaryTrail.add(sample, 2);
+                    secondaryTrail.add(sample);
+                }
             }
             LbcOverload.sound(owner,from,"minecraft:block.deepslate.place",1,1,0);
             if(hit==null || hit instanceof BlockHitResult block && !owner.level().hasChunkAt(block.getBlockPos())

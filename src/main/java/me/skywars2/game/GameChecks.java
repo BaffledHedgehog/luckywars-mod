@@ -1271,6 +1271,7 @@ public final class GameChecks {
                                 case "caustic-omega-stop-probe" -> { CausticOmegaChecks.stopProbe(game); return; }
                                 case "caustic-omega-cleanup" -> { CausticOmegaChecks.cleanup(game); return; }
                                 case "advanced-snow" -> { AdvancedSnowChecks.run(game); return; }
+                                case "ray-trails" -> { RayTrailChecks.run(game); return; }
                                 case "advanced-snow-stop-probe" -> { AdvancedSnowChecks.stopProbe(game); return; }
                                 case "advanced-snow-cleanup" -> { AdvancedSnowChecks.cleanup(game); return; }
                                 case "ender-wiki" -> { EnderWikiChecks.run(game); return; }

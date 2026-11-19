@@ -175,13 +175,16 @@ public final class LbcSheep {
         if(greed!=null&&greed.getEntity()!=p)end=greed.getLocation();
         double length=from.distanceTo(end);Vec3 lastValid=null;
         var dust=new DustParticleOptions(academy?0x813681:0xff00ff,2);
-        for(double d=0;d<=length;d+=.75){
-            Vec3 at=from.add(direction.scale(d));
-            if(!resident(p.level(),at)||suppressed(p.level(),at)){end=lastValid;break;}
-            lastValid=at;
-            p.level().sendParticles(dust,at.x,at.y,at.z,academy?1:2,0,0,0,.1);
-            // Original inventory/dropped-potion proximity checks run at each source ray sample.
-            if(consumePotion(p,hand,stack,at))return;
+        try (var trail = new LbcParticleBatch.Group(p.level(), dust, 0, .1, false, .76,
+                game.balanceLegacy() ? 1 : 2)) {
+            for (double d = 0; d <= length; d += .75) {
+                Vec3 at = from.add(direction.scale(d));
+                if (!resident(p.level(), at) || suppressed(p.level(), at)) { end = lastValid; break; }
+                lastValid = at;
+                trail.add(at, academy ? 1 : 2);
+                // Original inventory/dropped-potion proximity checks run at each source ray sample.
+                if (consumePotion(p, hand, stack, at)) return;
+            }
         }
         if(lastValid==null)return;
         // The DDA can end exactly at the first unloaded cell, between two particle samples.

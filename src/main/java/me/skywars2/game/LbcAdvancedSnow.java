@@ -81,10 +81,12 @@ public final class LbcAdvancedSnow {
         }
         public boolean target(Entity e){return !e.getUUID().equals(author)&&e instanceof LivingEntity&&game.items().wands().validTarget(e);}
         public void trail(Vec3 start,Vec3 end){
-            double length=start.distanceTo(end),step=snow?.5:clip?1:academy?.7:.5;
-            for(double t=0;t<length;t+=step){var at=start.lerp(end,t/length);
-                if(snow)level.sendParticles(ParticleTypes.SNOWFLAKE,at.x,at.y,at.z,1,0,0,0,.1);
-                else level.sendParticles(ParticleTypes.PORTAL,at.x,at.y,at.z,5,.1,.1,.1,1);
+            double length = start.distanceTo(end), step = snow ? .5 : clip ? 1 : academy ? .7 : .5;
+            int samplesPerPacket = game.balanceLegacy() ? 1 : step <= .6 ? 3 : 2;
+            try (var trail = new LbcParticleBatch.Group(level,
+                    snow ? ParticleTypes.SNOWFLAKE : ParticleTypes.PORTAL, snow ? 0 : .1, snow ? .1 : 1,
+                    false, step + .01, samplesPerPacket)) {
+                for (double t = 0; t < length; t += step) trail.add(start.lerp(end, t / length), snow ? 1 : 5);
             }
         }
         public void complete(HitResult hit){

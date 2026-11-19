@@ -80,9 +80,11 @@ final class LbcWall {
         var hit=game.items().wands().firstHit(owner,from,limit);
         Vec3 end=hit==null?limit:hit.getLocation();
         double distance=from.distanceTo(end),spacing=upgraded?.6:1;
-        for(double d=0;d<=distance;d+=spacing) {
-            Vec3 point=from.add(direction.scale(d));
-            owner.level().sendParticles(PARTICLES,point.x,point.y,point.z,2,.5,.5,.5,.1);
+        int samplesPerPacket = game.balanceLegacy() ? 1 : upgraded ? 3 : 2;
+        try (var trail = new LbcParticleBatch.Group(owner.level(), PARTICLES, .5, .1, false,
+                spacing + .01, samplesPerPacket)) {
+            for (double d = 0; d <= distance; d += spacing)
+                trail.add(from.add(direction.scale(d)), 2);
         }
         boolean impact=hit!=null && (!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos()))
                 && (!Double.isFinite(suppression) || end.distanceToSqr(from)<limit.distanceToSqr(from)-1e-6);
