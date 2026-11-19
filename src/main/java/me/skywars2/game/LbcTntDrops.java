@@ -25,6 +25,7 @@ public final class LbcTntDrops {
     private final GameController game;
     private final Set<PrimedTnt> tracked = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<PrimedTnt, LivingEntity> causes = new IdentityHashMap<>();
+    private final Map<Entity, LbcSpellSource.Source> trapSources = new IdentityHashMap<>();
 
     public LbcTntDrops(GameController game) { this.game = game; }
 
@@ -40,10 +41,11 @@ public final class LbcTntDrops {
         var at = token.position().add(0, .1, 0);
         var pos = BlockPos.containing(at);
         if (level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null) return false;
-        // getOwner is ItemEntity's thrower, independently of its pickup-target UUID.
-        var owner = game.items().specialDrops().owner(token);
-        for (var velocity : VELOCITIES) {
-            spawnActor(level,at,owner,new net.minecraft.world.phys.Vec3(velocity[0],1,velocity[1]),70);
+        try (var scope = game.items().spellSources().lootScope(token)) {
+            var source = game.items().spellSources().current();
+            for (var velocity : VELOCITIES) {
+                emit(level, at, null, null, new net.minecraft.world.phys.Vec3(velocity[0],1,velocity[1]), 70, source);
+            }
         }
         return true;
     }
@@ -51,17 +53,17 @@ public final class LbcTntDrops {
     /** Native TNT emission shared by drop formations and Malevich overflow; one lifecycle and explosion policy. */
     PrimedTnt spawnActor(ServerLevel level,net.minecraft.world.phys.Vec3 at,LivingEntity owner,
             net.minecraft.world.phys.Vec3 velocity,int fuse){
-        return emit(level,at,owner,null,velocity,fuse);
+        return emit(level,at,owner,null,velocity,fuse,null);
     }
     /** Keep an offline creator's native UUID, rather than transferring ownership to the current holder. */
     PrimedTnt spawnRecordedActor(ServerLevel level,net.minecraft.world.phys.Vec3 at,java.util.UUID creator,
             net.minecraft.world.phys.Vec3 velocity,int fuse){
         LivingEntity owner=creator==null?null:game.server().getPlayerList().getPlayer(creator);
         if(owner==null&&creator!=null&&level.getEntity(creator) instanceof LivingEntity living)owner=living;
-        return emit(level,at,owner,creator,velocity,fuse);
+        return emit(level,at,owner,creator,velocity,fuse,null);
     }
     private PrimedTnt emit(ServerLevel level,net.minecraft.world.phys.Vec3 at,LivingEntity owner,java.util.UUID creator,
-            net.minecraft.world.phys.Vec3 velocity,int fuse){
+            net.minecraft.world.phys.Vec3 velocity,int fuse,LbcSpellSource.Source trapSource){
         if(!game.playing()||game.stage()==GameController.Stage.ENDING||level!=game.maps().level()
                 ||level.getChunkSource().getChunkNow(net.minecraft.util.Mth.floor(at.x)>>4,net.minecraft.util.Mth.floor(at.z)>>4)==null)return null;
         // Exact native class keeps the existing TNT discovery cache, reflection and chain propagation.
@@ -72,14 +74,31 @@ public final class LbcTntDrops {
             data.put("owner",net.minecraft.core.UUIDUtil.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,creator).getOrThrow());
             tnt.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),data));
         }
+        if (trapSource != null) game.items().spellSources().bind(tnt, trapSource);
         tnt.entityTags().add(TNT);game.items().markCurrentItemEpoch(tnt);causes.put(tnt,owner);tracked.add(tnt);
+        rememberTrap(tnt);
         game.items().timeStop().prepareFrozen(tnt);
         if(level.addFreshEntity(tnt))return tnt;
-        tracked.remove(tnt);causes.remove(tnt);tnt.discard();return null;
+        tracked.remove(tnt);causes.remove(tnt);trapSources.remove(tnt);tnt.discard();return null;
     }
 
     public static boolean managed(Entity entity) {
         return entity instanceof PrimedTnt && entity.entityTags().contains(TNT);
+    }
+
+    public static boolean wild(Entity entity) {
+        return managed(entity) && entity.entityTags().contains(LbcSpellSource.WILD_LOOT);
+    }
+
+    private void rememberTrap(PrimedTnt tnt) {
+        if (!wild(tnt)) return;
+        var source = game.items().spellSources().source(tnt);
+        if (source != null) trapSources.put(tnt, source);
+    }
+
+    /** Native TNT discards before its synchronous explosion and chain callbacks. */
+    LbcSpellSource.Source retiredTrapSource(Entity entity) {
+        return wild(entity) && entity.isRemoved() ? trapSources.get(entity) : null;
     }
 
     /** Called before native insertion; preserve chain physics and its native randomized fuse. */
@@ -87,7 +106,10 @@ public final class LbcTntDrops {
         if (!managed(source) || !active((PrimedTnt) source) || !(spawned instanceof PrimedTnt child)) return;
         child.entityTags().add(TNT);
         game.items().markCurrentItemEpoch(child);
-        causes.put(child, ((PrimedTnt) source).getOwner());
+        if (wild(source)) {
+            game.items().spellSources().inherit(source, child);
+            rememberTrap(child);
+        } else causes.put(child, ((PrimedTnt) source).getOwner());
     }
 
     /** The native owner hook checks reflection first, then this nonrecursive causal fallback. */
@@ -108,6 +130,7 @@ public final class LbcTntDrops {
         else {
             if (!causes.containsKey(tnt)) causes.put(tnt, tnt.getOwner());
             tracked.add(tnt);
+            rememberTrap(tnt);
             game.items().timeStop().prepareFrozen(tnt);
         }
     }
@@ -127,6 +150,7 @@ public final class LbcTntDrops {
             }
         }
         causes.keySet().removeIf(tnt -> !tracked.contains(tnt) || tnt.isRemoved() || !active(tnt));
+        trapSources.keySet().removeIf(tnt -> !tracked.contains(tnt) || tnt.isRemoved() || !wild(tnt));
     }
 
     /** Applied before native exposure, damage and knockback; damage scaling remains shared. */
@@ -147,6 +171,7 @@ public final class LbcTntDrops {
         tracked.clear();
         for (var tnt : detached) if (!tnt.isRemoved()) tnt.discard();
         causes.clear();
+        trapSources.clear();
     }
 
     public int trackedCount() { return tracked.size(); }

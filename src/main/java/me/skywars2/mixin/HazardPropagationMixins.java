@@ -74,7 +74,7 @@ public final class HazardPropagationMixins {
                 if(authority==null) authority=game.items().foodLifecycle().owner(source);
                 if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
                 if(authority!=null&&!me.skywars2.game.LbcNukeEvent.managed(source)&&!game.items().droneDrops().detachedBomb(source)
-                        &&!game.items().cageDrops().detached(source))
+                        &&!game.items().cageDrops().detached(source)&&!me.skywars2.game.LbcTntDrops.wild(source))
                     damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
                 var godCause=game.items().godHedgehog().cause(source);
@@ -182,7 +182,8 @@ public final class HazardPropagationMixins {
             if(game==null) return nativeSource;
             var blast=(ServerExplosion)(Object)this;
             if(game.items().droneDrops().detachedBomb(blast.getDirectSourceEntity())
-                    ||game.items().cageDrops().detached(blast.getDirectSourceEntity())) return nativeSource;
+                    ||game.items().cageDrops().detached(blast.getDirectSourceEntity())
+                    ||me.skywars2.game.LbcTntDrops.wild(blast.getDirectSourceEntity())) return nativeSource;
             var hedgehogOwner=game.items().hedgehog().owner(blast.getDirectSourceEntity());
             if(hedgehogOwner!=null)return hedgehogOwner;
             var sneezeDamage=blast.getDamageSource();

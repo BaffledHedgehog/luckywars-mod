@@ -158,7 +158,9 @@ public final class LbcSpellSource {
         sources.put(emitter,new Source(emitter.getUUID(),controller.getUUID(),previous.epoch(),cause,previous.excluded(),previous.persistent()));
     }
     public Source source(Entity entity){
-        var source=sources.get(entity);if(source==null||!game.items().currentEpoch(source.epoch()))return null;
+        var source=sources.get(entity);
+        if(source==null)source=game.items().tntDrops().retiredTrapSource(entity);
+        if(source==null||!game.items().currentEpoch(source.epoch()))return null;
         if(entity.entityTags().contains(LbcGreed.REFLECTED)||entity.entityTags().contains("skywars2.electro.reflected")){reflected(entity);return null;}
         // Native reflection transfers the projectile to its new author and restores ordinary targeting.
         if(entity instanceof Projectile projectile&&projectile.getOwner() instanceof ServerPlayer owner&&(LbcCageDrops.managed(entity)||!owner.getUUID().equals(source.author()))){reflected(entity);return null;}

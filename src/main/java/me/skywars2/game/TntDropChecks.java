@@ -93,7 +93,13 @@ public final class TntDropChecks {
                 var t=list.get(i);require(t.getFuse()==70 && !t.isNoGravity(),"native fuse70 and gravity before first tick");
                 require(t.position().distanceTo(origin.add(0,.1,0))<1e-8,"actual fractional token position plus .1Y");
                 require(expectedMotion.remove(t.getDeltaMovement()),"exact source velocity multiset "+i);
-                require(t.getOwner()==thrower,"causal thrower; pickup recipient and nearest player never substitute");
+                var source=game.items().spellSources().source(t);
+                require(t.getOwner()==null && !saved(t).contains("owner")
+                        && game.items().spellSources().projectileController(t)==null
+                        && LbcIndirectKills.playerSource(t)==null,
+                        "native TNT remains detached from thrower: actual owner="+t.getOwner());
+                require(source!=null && java.util.Objects.equals(source.author(),thrower==null?null:thrower.getUUID()),
+                        "separate statistical cause ignores pickup recipient and nearest player");
             }
             for(int i=1;i<list.size();i++)list.get(i).discard();return list.getFirst();
         }
@@ -104,9 +110,16 @@ public final class TntDropChecks {
             t.setDeltaMovement(Vec3.ZERO);t.setNoGravity(true);t.setFuse(1);t.tick();
             require(t.isRemoved(),"native final fuse tick detonates and removes entity");
             float loss=1000-beta.getHealth();
-            if(loss>0)require(beta.getLastDamageSource()!=null && beta.getLastDamageSource().getDirectEntity()==t
-                    && beta.getLastDamageSource().getEntity()==cause,"real native explosion source retains causal owner");
+            if(loss>0) assertDetachedDamage(beta,t,cause);
             return loss;
+        }
+        void assertDetachedDamage(net.minecraft.world.entity.LivingEntity victim,PrimedTnt actor,ServerPlayer author) {
+            var damage=victim.getLastDamageSource();
+            var credit=damage==null?null:game.items().indirectKills().babylonCause(damage);
+            require(damage!=null && damage.getDirectEntity()==actor && damage.getEntity()==null
+                    && java.util.Objects.equals(credit==null?null:credit.player(),author==null?null:author.getUUID()),
+                    "real native explosion has the TNT as direct actor and separate credit: target="+victim
+                    +" source="+damage+" physical="+(damage==null?null:damage.getEntity())+" credit="+credit);
         }
         net.minecraft.nbt.CompoundTag saved(Entity entity) {
             var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess());
@@ -137,7 +150,8 @@ public final class TntDropChecks {
                 require(level.addFreshEntity(input),"thrower assigned before native ENTITY_LOAD capture");
                 departed.discard();
                 require(game.items().tntDrops().spawn(input),"deferred activation survives departed actual thrower");input.discard();
-                require(live().size()==13 && live().stream().allMatch(t->t.getOwner()==departed),"captured actual departed author retained for all thirteen native TNT");
+                require(live().size()==13 && live().stream().allMatch(t->t.getOwner()==null
+                        && game.items().spellSources().source(t).cause()==null),"no player or native ownership fabrications after a non-player thrower leaves");
             } finally {input.discard();departed.discard();clear();}
             var afterLaunch=batch(alpha,beta);
             try {
@@ -145,8 +159,8 @@ public final class TntDropChecks {
                 beta.teleportTo(level,origin.x+1,origin.y,origin.z,Set.of(),0,0,true);
                 beta.setHealth(1000);beta.setInvulnerableTime(0);beta.damageCooldownTime=0;game.config().tntProtection=0;
                 afterLaunch.setNoGravity(true);afterLaunch.setDeltaMovement(Vec3.ZERO);afterLaunch.setFuse(1);afterLaunch.tick();
-                require(afterLaunch.isRemoved() && beta.getHealth()<1000 && beta.getLastDamageSource()!=null
-                        && beta.getLastDamageSource().getEntity()==alpha,"already launched native TNT still damages and credits author after observer transition");
+                require(afterLaunch.isRemoved() && beta.getHealth()<1000,"already launched native TNT still harms after observer transition");
+                assertDetachedDamage(beta,afterLaunch,alpha);
             } finally {
                 game.spectators().remove(alpha);alpha.setGameMode(GameType.SURVIVAL);alpha.setNoGravity(true);
                 alpha.teleportTo(level,origin.x,origin.y+25,origin.z,Set.of(),0,0,true);clear();
@@ -158,10 +172,41 @@ public final class TntDropChecks {
             var children=live();
             require(parent.isRemoved() && level.getBlockState(chainPos).isAir() && children.size()==1,"actual native blast primes exactly one adjacent TNT block");
             var child=children.getFirst();
-            require(child.getOwner()==alpha && LbcTntDrops.managed(child) && game.items().currentEpoch(child)
-                    && child.getFuse()>0 && child.getFuse()<80 && !child.isNoGravity(),"native chain inherits real owner, managed marker and epoch while retaining native delayed fuse/gravity");
+            var receipt=game.items().spellSources().source(child);
+            require(child.getOwner()==null && !saved(child).contains("owner")
+                    && receipt!=null && receipt.cause()!=null && receipt.cause().player().equals(alpha.getUUID())
+                    && LbcTntDrops.managed(child) && game.items().currentEpoch(child)
+                    && child.getFuse()>0 && child.getFuse()<80 && !child.isNoGravity(),
+                    "native chain inherits statistical credit alongside its native delayed fuse and gravity");
             game.items().electro().assignOwner(child,beta);roundTrip(child,beta);
             clear();require(child.isRemoved() && live().isEmpty(),"quiet stop removes native chain child before its delayed blast");
+        }
+        void dispatchedKillCredit() {
+            clear();
+            var cow=new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW,level);
+            var input=drop(1);
+            input.setThrower(alpha);
+            try {
+                cow.setPos(origin.add(1,0,0));cow.setNoAi(true);cow.setNoGravity(true);
+                require(level.addFreshEntity(cow),"native disposable blast victim admitted");
+                cow.setHealth(1);
+                var kills=net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS);
+                int before=alpha.getStats().getValue(kills);
+                require(game.items().specialDrops().spawn(input) && input.isRemoved(),
+                        "actual shared loot dispatcher activates and debits the trap");
+                var charges=live();
+                require(charges.size()==13, "shared loot dispatcher emits all thirteen native charges");
+                var tnt=charges.getFirst();
+                for(int i=1;i<charges.size();i++)charges.get(i).discard();
+                tnt.setNoGravity(true);tnt.setDeltaMovement(Vec3.ZERO);tnt.setFuse(1);tnt.tick();
+                require(tnt.isRemoved() && cow.isDeadOrDying() && cow.getKillCredit()==alpha
+                        && alpha.getStats().getValue(kills)==before+1,
+                        "native lethal blast after the charge is discarded awards the original thrower exactly one kill");
+            } finally {
+                input.discard();
+                cow.discard();
+                clear();
+            }
         }
         void causalMerges() {
             var a=drop(2);var b=drop(2);a.setThrower(alpha);b.setThrower(beta);
@@ -217,7 +262,7 @@ public final class TntDropChecks {
                     var team=board.addPlayerTeam("codex_tnt_drop_probe");
                     try {
                         board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
-                        require(blast(0,alpha)==0,"actual native explosion respects allied participant guard");
+                        require(blast(0,alpha)>0,"WILD native trap damages a participating teammate");
                     } finally {board.removePlayerTeam(team);}
                     clear();var t=batch(alpha,beta);
                     beta.teleportTo(level,origin.x+1,origin.y,origin.z,Set.of(),0,0,true);
@@ -228,7 +273,7 @@ public final class TntDropChecks {
                 }
                 case 9 -> {
                     causalMerges();
-                    causalRegressions();
+                    causalRegressions();dispatchedKillCredit();
                     var stale=drop(1);stale.entityTags().add("skywars2.items.stale-fixture");
                     require(!game.items().tntDrops().spawn(stale),"old epoch rejected before native TNT creation");stale.discard();
                     game.items().specialDrops().stop();clear();phase++;
