@@ -23103,6 +23103,10 @@ public final class GameChecks {
                 var probeTeam=createdProbeTeam?board.addPlayerTeam("codex_ruby_wand_probe"):oldProbeTeam;
                 double x=Math.floor(owner.getX()/16)*16+8,z=Math.floor(owner.getZ()/16)*16+8;
                 int y=260; var center=net.minecraft.core.BlockPos.containing(x,y,z);
+                // The far end of the Academy ray can exceed the fixture player's loaded view.
+                for (int dz = 16; dz <= 64; dz += 16) {
+                        level.getChunk(center.getX() >> 4, (center.getZ() + dz) >> 4);
+                }
                 var savedBlocks=new java.util.LinkedHashMap<net.minecraft.core.BlockPos,
                                 net.minecraft.world.level.block.state.BlockState>();
                 var savedBlockEntities=new java.util.LinkedHashMap<net.minecraft.core.BlockPos,net.minecraft.nbt.CompoundTag>();

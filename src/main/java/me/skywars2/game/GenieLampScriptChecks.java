@@ -142,11 +142,15 @@ final class GenieLampScriptChecks implements AutoCloseable {
                     "wall", "academy_wall", "wall_horizontal", "wall_dismantle", "wall_stairs",
                     "advanced_ender", "academy_advanced_ender", "advanced_ender_top", "advanced_ender_clip",
                     "snow_wand", "academy_snow_wand", "ice_wand", "academy_ice_wand",
-                    "fartus_wand", "fartus_banana_volley", "fartus_label_volley", "academy_fartus_wand")) {
+                    "fartus_wand", "fartus_banana_volley", "fartus_label_volley", "academy_fartus_wand",
+                    "ruby_wand", "academy_ruby_wand", "ruby_compression", "ruby_cutting_ray",
+                    "stone_wand", "academy_stone_wand", "stone_shield", "stone_bridge", "stone_spikes")) {
                 String spell = "skywars2:" + id;
                 require(directed.contains(new com.google.gson.JsonPrimitive(spell)) && prompt.contains(spell),
                         "actual model request describes the native directed spell " + spell);
             }
+            require(prompt.contains("Сваргия Маника") && prompt.contains("Анантакала"),
+                    "provider receives the in-game Russian names of both terrain staffs");
             for (var pattern : List.of("wand", "caustic", "gatling", "rifle")) {
                 String id="skywars2:awakened_acid_"+pattern;
                 require(prompt.contains(id) && prompt.contains("_ignited")

@@ -1054,6 +1054,110 @@ final class GenieWorldChecks {
                 vector(from), vector(direction))).getAsBoolean();
     }
 
+    private static void terrainStaffCasts(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var ruby = game.items().ruby();
+        var stone = game.items().stone();
+        var center = new BlockPos(owner.chunkPosition().getMinBlockX() + 8, 240,
+                owner.chunkPosition().getMinBlockZ() + 8);
+        var origin = Vec3.atCenterOf(center.west(5));
+        var east = new Vec3(1, 0, 0);
+        var resistance = net.minecraft.world.effect.MobEffects.RESISTANCE;
+        var previousResistance = owner.getEffect(resistance);
+        var main = owner.getMainHandItem();
+        var offhand = owner.getOffhandItem();
+        var mana = game.items().mana().get(owner);
+        require(ruby.count() == 0 && stone.count() == 0 && origin.distanceToSqr(owner.getEyePosition()) > 900,
+                "exclusive terrain-staff fixture uses an origin remote from the caster");
+        for (var p : BlockPos.betweenClosed(center.offset(-6, -5, -5), center.offset(5, 5, 5))) {
+            base.set(p, Blocks.AIR.defaultBlockState());
+        }
+        for (var p : BlockPos.betweenClosed(center.east(6), center.east(56))) {
+            if (base.level.hasChunkAt(p)) base.remember(p);
+        }
+        try (var host = new GenieWorldHost(game, owner, new ItemStack(Items.AMETHYST_SHARD), () -> true, () -> 0)) {
+            base.field(false, origin);
+            require(!directed(host, "ruby_wand", origin, east) && !directed(host, "stone_wand", origin, east)
+                            && ruby.count() == 0 && stone.count() == 0,
+                    "MAG prevents both native charges at the supplied origin");
+            base.removeFields();
+            for (var id : List.of("ruby_wand", "academy_ruby_wand")) {
+                var obstacle = center.west(4);
+                base.set(obstacle, Blocks.STONE.defaultBlockState());
+                require(directed(host, id, origin, east) && ruby.count() == 1, "native drill launched with " + id);
+                var drill = ruby.snapshot().getFirst();
+                base.own(drill);
+                require(drill.position().equals(origin) && drill.getOwner() == owner
+                                && drill.getDeltaMovement().normalize().equals(east),
+                        "native drill carries the supplied aim and origin");
+                ruby.tick();
+                require(base.level.getBlockState(obstacle).isAir(), "travelling drill removes its first obstruction");
+                base.discard(drill);
+            }
+            base.set(center, Blocks.BEDROCK.defaultBlockState());
+            base.set(center.east(), Blocks.STONE.defaultBlockState());
+            require(directed(host, "ruby_cutting_ray", origin, east)
+                            && base.level.getBlockState(center).isAir() && base.level.getBlockState(center.east()).isAir(),
+                    "cutting ray crosses and clears successive blocks including bedrock");
+
+            base.set(center, Blocks.STONE.defaultBlockState());
+            require(directed(host, "ruby_compression", origin, east)
+                            && base.level.getBlockState(center).is(Blocks.BEDROCK),
+                    "compression places its bedrock center inside the first block hit");
+            for (var p : BlockPos.betweenClosed(center.offset(-5, -3, -3), center.offset(3, 3, 3))) {
+                base.set(p, Blocks.AIR.defaultBlockState());
+            }
+
+            require(directed(host, "stone_wand", origin, east) && stone.count() == 1, "native moving rock charge");
+            var rock = stone.snapshot().getFirst();
+            base.own(rock);
+            require(rock.position().equals(origin) && rock.getOwner() == owner && rock.getDeltaMovement().equals(east),
+                    "rock charge uses the supplied origin and velocity");
+            base.discard(rock);
+
+            base.set(center, Blocks.STONE.defaultBlockState());
+            require(directed(host, "academy_stone_wand", origin, east) && stone.count() == 0
+                            && BlockPos.betweenClosedStream(center.offset(-4, -4, -4), center.offset(4, 4, 4))
+                            .anyMatch(p -> !p.equals(center) && !base.level.getBlockState(p).isAir()),
+                    "Academy rock ray places native terrain on impact without a flying charge");
+            for (var p : BlockPos.betweenClosed(center.offset(-5, -5, -5), center.offset(5, 5, 5))) {
+                base.set(p, Blocks.AIR.defaultBlockState());
+            }
+            base.set(center, Blocks.STONE.defaultBlockState());
+            var target = stationaryCow(base, Vec3.atCenterOf(center.south(2)));
+            try {
+                float health = target.getHealth();
+                require(directed(host, "stone_spikes", origin, east) && target.getHealth() < health,
+                        "spiked ray does native area damage around its impact");
+            } finally {
+                base.discard(target);
+            }
+
+            var bridgeStart = center.above(8).west();
+            for (var p : BlockPos.betweenClosed(bridgeStart.north(1), bridgeStart.south(1).east(30))) {
+                base.set(p, Blocks.AIR.defaultBlockState());
+            }
+            require(directed(host, "stone_bridge", Vec3.atCenterOf(bridgeStart), east)
+                            && base.level.getBlockState(bridgeStart).is(Blocks.CRYING_OBSIDIAN)
+                            && !base.level.getBlockState(bridgeStart.east(6)).isAir(),
+                    "bridge is oriented along the supplied horizontal aim from the explicit origin");
+            owner.removeEffect(resistance);
+            require(directed(host, "stone_shield", origin, east)
+                            && owner.getEffect(resistance).getAmplifier() == 4
+                            && owner.getEffect(resistance).getDuration() == 100,
+                    "stone shield grants native Resistance V for 100 ticks to its caster");
+            require(game.items().mana().get(owner) == mana && owner.getMainHandItem() == main
+                            && owner.getOffhandItem() == offhand,
+                    "terrain spells spend no staff mana and do not switch physical hands");
+        } finally {
+            base.removeFields();
+            ruby.stop();
+            stone.stop();
+            owner.removeEffect(resistance);
+            if (previousResistance != null) owner.addEffect(previousResistance);
+        }
+    }
+
     private static void starsAndWall(GameController game, WoolBucketChecks.Fixture base) {
         var owner = base.owner;
         var originChunk = owner.chunkPosition();
@@ -1880,6 +1984,7 @@ final class GenieWorldChecks {
             fartusCasts(game, base);
             awakenedAcidCasts(game, base);
             musicStaffCasts(game, base);
+            terrainStaffCasts(game, base);
             voidArcanumCasts(game, base);
             fireblazeCasts(game, base);
             psychoAreaCasts(game, base, launchSpot);

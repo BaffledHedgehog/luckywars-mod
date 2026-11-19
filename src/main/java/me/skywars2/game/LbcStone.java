@@ -106,6 +106,21 @@ public final class LbcStone {
             default -> ray(owner,mode==4);
         }
     }
+    boolean scriptCast(ServerPlayer owner, Vec3 origin, Vec3 aim, int mode) {
+        var level = sourceLevel(owner);
+        if (!game.canUseGameplayItems(owner) || level != game.maps().level()) return false;
+        if (mode == 2 && game.items().magic().suppressedAt(level, owner.getEyePosition())) return false;
+        sourceSound(owner, origin, "minecraft:block.amethyst_cluster.break", 1, 1, 0);
+        switch (mode) {
+            case 0 -> { return charges.contains(castAt(owner, origin, aim, false, 200)); }
+            case 1 -> rayAt(owner, origin, aim, false);
+            case 2 -> shield(owner);
+            case 3 -> bridgeAt(owner, origin, aim);
+            case 4 -> rayAt(owner, origin, aim, true);
+            default -> throw new IllegalArgumentException("Stone script mode " + mode);
+        }
+        return true;
+    }
     void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
         switch(mode){
             case 0->castAt(owner,origin,direction,false,200);

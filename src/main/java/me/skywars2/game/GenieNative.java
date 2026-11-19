@@ -64,6 +64,8 @@ public final class GenieNative {
         ADVANCED_ENDER, ACADEMY_ADVANCED_ENDER, ADVANCED_ENDER_TOP, ADVANCED_ENDER_CLIP,
         SNOW_WAND, ACADEMY_SNOW_WAND, ICE_WAND, ACADEMY_ICE_WAND,
         MUSIC_STAFF, ACADEMY_MUSIC_STAFF,
+        RUBY_WAND, ACADEMY_RUBY_WAND, RUBY_COMPRESSION, RUBY_CUTTING_RAY,
+        STONE_WAND, ACADEMY_STONE_WAND, STONE_SHIELD, STONE_BRIDGE, STONE_SPIKES,
         FARTUS_WAND, FARTUS_BANANA_VOLLEY, FARTUS_LABEL_VOLLEY, ACADEMY_FARTUS_WAND,
         AWAKENED_ACID_WAND(1,false), AWAKENED_ACID_WAND_IGNITED(1,true),
         AWAKENED_ACID_CAUSTIC(2,false), AWAKENED_ACID_CAUSTIC_IGNITED(2,true),
@@ -322,6 +324,24 @@ public final class GenieNative {
                 case ICE_WAND, ACADEMY_ICE_WAND -> game.items().iceWand().scriptShot(player, hand, weapon, origin, aim);
                 case MUSIC_STAFF, ACADEMY_MUSIC_STAFF ->
                         game.items().musicStaff().scriptShot(player, weapon, origin, aim, spell == Cast.ACADEMY_MUSIC_STAFF);
+                case RUBY_WAND, ACADEMY_RUBY_WAND -> game.items().ruby().scriptDrill(player, origin, aim);
+                case RUBY_COMPRESSION, RUBY_CUTTING_RAY -> {
+                    try (var enchanted = WeaponEnchantments.using(player, weapon)) {
+                        yield game.items().ruby().scriptRay(player, origin, aim, spell == Cast.RUBY_COMPRESSION);
+                    }
+                }
+                case STONE_WAND, ACADEMY_STONE_WAND, STONE_SHIELD, STONE_BRIDGE, STONE_SPIKES -> {
+                    int mode = switch (spell) {
+                        case ACADEMY_STONE_WAND -> 1;
+                        case STONE_SHIELD -> 2;
+                        case STONE_BRIDGE -> 3;
+                        case STONE_SPIKES -> 4;
+                        default -> 0;
+                    };
+                    try (var enchanted = WeaponEnchantments.using(player, weapon)) {
+                        yield game.items().stone().scriptCast(player, origin, aim, mode);
+                    }
+                }
                 case DANMAKU_CARD, DANMAKU_HOMING_CARD -> game.items().danmaku()
                         .scriptCard(player, origin, aim, spell == Cast.DANMAKU_HOMING_CARD);
                 case DANMAKU_VOLLEY, DANMAKU_OFFHAND_VOLLEY, ACADEMY_DANMAKU_VOLLEY, ACADEMY_DANMAKU_OFFHAND_VOLLEY ->

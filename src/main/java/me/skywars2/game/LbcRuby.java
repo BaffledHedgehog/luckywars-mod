@@ -111,6 +111,19 @@ public final class LbcRuby {
             default->throw new IllegalArgumentException("Ruby producer mode "+mode);
         }
     }
+    boolean scriptDrill(ServerPlayer owner, Vec3 origin, Vec3 aim) {
+        if (!validOwner(owner)) return false;
+        var charge = castAt(owner, origin, aim, false, 0);
+        return charge != null && !charge.isRemoved();
+    }
+
+    boolean scriptRay(ServerPlayer owner, Vec3 origin, Vec3 aim, boolean compression) {
+        if (!validOwner(owner)) return false;
+        if (compression) holeRay(owner, origin, aim);
+        else cuttingRay(owner, origin, aim);
+        return true;
+    }
+
     private void castDrill(ServerPlayer owner) { castAt(owner,owner.getEyePosition(),owner.getLookAngle(),true); }
     void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction){castAt(owner,origin,direction,false);}
     Charge flying(ServerPlayer owner,Vec3 origin,Vec3 direction) {
