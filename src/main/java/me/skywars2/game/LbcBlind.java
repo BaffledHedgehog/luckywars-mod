@@ -204,10 +204,14 @@ public final class LbcBlind {
         HitResult hit=game.items().wands().firstHit(owner,origin,end);
         // Source rain preloop draws ink every .4 blocks, including an aim with no terminal hit.
         double distance=origin.distanceTo(hit==null?end:hit.getLocation());
-        for(double step=0;step<=distance+1e-7;step+=.4) {
-            var trail=origin.add(direction.scale(Math.min(step,distance)));
-            if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(trail)))break;
-            sourceLevel(owner).sendParticles(ParticleTypes.SQUID_INK,true,false,trail.x,trail.y,trail.z,1,0,0,0,0);
+        var level=sourceLevel(owner);
+        try(var particles=new LbcParticleBatch.Group(level,ParticleTypes.SQUID_INK,0,0,true,.41,
+                game.balanceLegacy()?1:3)) {
+            for(double step=0;step<=distance+1e-7;step+=.4) {
+                var trail=origin.add(direction.scale(Math.min(step,distance)));
+                if(!level.hasChunkAt(BlockPos.containing(trail)))break;
+                particles.add(trail);
+            }
         }
         if(hit==null) return;
         if(hit instanceof BlockHitResult wall && !sourceLevel(owner).hasChunkAt(wall.getBlockPos())) return;
@@ -326,15 +330,19 @@ public final class LbcBlind {
     private boolean emitterStep(Charge charge,ServerPlayer owner){
         var from=charge.position();var direction=charge.getDeltaMovement().normalize();
         var shield=game.items().wands().shieldHit(owner,from,from.add(direction.scale(.99)));
-        for(int i=0;i<4;i++){
-            var at=from.add(direction.scale(i*.33));var cell=BlockPos.containing(at);
-            if(!sourceLevel(owner).hasChunkAt(cell)||game.items().magic().suppressedAt(sourceLevel(owner),at))return false;
-            if(shield!=null&&from.distanceToSqr(shield.getLocation())<=from.distanceToSqr(at))return false;
-            sourceLevel(owner).sendParticles(ParticleTypes.SQUID_INK,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
-            for(var target:sourceLevel(owner).getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),e->e.position().distanceToSqr(at)<=225&&game.items().wands().target(owner,e))){
-                target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,80,0),owner);target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,80,1),owner);
+        var level=sourceLevel(owner);
+        try(var particles=new LbcParticleBatch.Group(level,ParticleTypes.SQUID_INK,.1,0,true,.34,
+                game.balanceLegacy()?1:3)) {
+            for(int i=0;i<4;i++){
+                var at=from.add(direction.scale(i*.33));var cell=BlockPos.containing(at);
+                if(!level.hasChunkAt(cell)||game.items().magic().suppressedAt(level,at))return false;
+                if(shield!=null&&from.distanceToSqr(shield.getLocation())<=from.distanceToSqr(at))return false;
+                particles.add(at);
+                for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),e->e.position().distanceToSqr(at)<=225&&game.items().wands().target(owner,e))){
+                    target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,80,0),owner);target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,80,1),owner);
+                }
+                if(!level.getBlockState(cell).isAir())return false;
             }
-            if(!sourceLevel(owner).getBlockState(cell).isAir())return false;
         }
         charge.setPos(from.add(direction.scale(.99)));return true;
     }

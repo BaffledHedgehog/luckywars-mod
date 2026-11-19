@@ -31,6 +31,7 @@ final class RayTrailChecks {
             double eyes = owner.getEyeY() - owner.getY();
             fixture.move(owner, from.add(0, -eyes, 0));
             require(owner.getEyePosition().distanceToSqr(from) < 1e-10, "exact resident ray origin");
+            movingTrails(game, fixture, from, aim);
 
             fixture.client.packets().clear();
             LbcWall.scriptCast(game, owner, from, aim, true, 1);
@@ -76,6 +77,75 @@ final class RayTrailChecks {
         SkyWars2.LOGGER.info("[check] PASS ray-trails");
     }
 
+    private static void movingTrails(GameController game, WoolBucketChecks.Fixture fixture, Vec3 from, Vec3 aim) {
+        var owner = fixture.owner;
+        var blind = game.items().blind();
+        var teleport = game.items().teleport();
+        var ink = ParticleTypes.SQUID_INK;
+        require(blind.count() == 0 && blind.cloudCount(owner) == 0 && teleport.count() == 0,
+                "exclusive Blind and Teleport trail fixture");
+        try {
+            fixture.client.packets().clear();
+            blind.emitAt(owner, InteractionHand.MAIN_HAND, 2, from, aim);
+            verifyMoving(fixture, "Blind Rain", p -> p.particle().getType() == ink, 29, 10, 29, true, 0);
+            require(blind.cloudCount(owner) == 1, "Blind Rain still creates a cloud at the terminal terrain");
+            blind.stop();
+
+            blind.sourceEmitter(owner, from, aim);
+            fixture.client.packets().clear();
+            blind.tick();
+            verifyMoving(fixture, "Blind emitter", p -> p.particle().getType() == ink, 4, 2, 4, true, 0);
+            require(blind.snapshot().size() == 1
+                            && blind.snapshot().getFirst().position().distanceTo(from.add(aim.scale(.99))) < 1e-6,
+                    "Blind emitter retains its physical step");
+            blind.stop();
+
+            var cow = new net.minecraft.world.entity.animal.cow.Cow(
+                    net.minecraft.world.entity.EntityTypes.COW, fixture.level);
+            cow.setPos(from.add(.6, .1, 1.1));
+            cow.setNoAi(true);
+            cow.setNoGravity(true);
+            require(fixture.level.addFreshEntity(cow), "loaded flying Teleport witness");
+            fixture.own(cow);
+            try {
+                var charge = teleport.flying(owner, InteractionHand.MAIN_HAND, ItemStack.EMPTY, from, aim);
+                fixture.client.packets().clear();
+                teleport.tick();
+                verifyMoving(fixture, "Flying Teleport", p -> p.particle().getType() == ParticleTypes.ANGRY_VILLAGER,
+                        5, 2, 10, true, 0);
+                var lifted = cow.getEffect(net.minecraft.world.effect.MobEffects.LEVITATION);
+                require(lifted != null && lifted.getAmplifier() == 40 && lifted.getDuration() == 20
+                                && charge.position().distanceTo(from.add(aim.scale(1.2))) < 1e-6,
+                        "flying charge retains actual levitation and its physical step");
+            } finally {
+                fixture.discard(cow);
+                teleport.stop();
+            }
+
+            teleport.castAt(owner, InteractionHand.MAIN_HAND, 2, ItemStack.EMPTY, from, aim);
+            fixture.client.packets().clear();
+            teleport.tick();
+            verifyMoving(fixture, "Inverted Teleport clouds", p -> p.particle().getType() == ParticleTypes.CLOUD,
+                    11, 4, 11, true, .05f);
+            var sculk = fixture.client.packets().stream()
+                    .filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast)
+                    .filter(p -> p.particle().getType() == ParticleTypes.SCULK_CHARGE_POP).toList();
+            require(sculk.size() == 11, "inverted charge retains all directed sculk bursts");
+            for (int i = 0; i < sculk.size(); i++) {
+                var packet = sculk.get(i);
+                var at = from.add(aim.scale(i * .3));
+                require(packet.count() == 0 && packet.overrideLimiter() && !packet.alwaysShow()
+                                && packet.yDist() * packet.yMaxSpeed() == -.5f
+                                && at.distanceTo(new Vec3(packet.x(), packet.y(), packet.z())) < 1e-6,
+                        "inverted sculk keeps each authored sample and its downward velocity");
+            }
+        } finally {
+            blind.stop();
+            teleport.stop();
+        }
+    }
+
     private static Predicate<ClientboundLevelParticlesPacket> block(Block block) {
         return packet -> packet.particle() instanceof BlockParticleOption particle && particle.getState().is(block);
     }
@@ -86,15 +156,28 @@ final class RayTrailChecks {
         require(rays.pendingSearches() == 0, "bounded loaded ray completion");
     }
 
+    private static void verifyMoving(WoolBucketChecks.Fixture fixture, String name,
+                                     Predicate<ClientboundLevelParticlesPacket> type, int original, int grouped,
+                                     int total, boolean forced, float speed) {
+        verify(fixture, name, type, Boolean.getBoolean("skywars2.checkUnbatchedMovingTrails") ? original : grouped,
+                total, forced, speed);
+    }
+
     private static void verify(WoolBucketChecks.Fixture fixture, String name,
                                Predicate<ClientboundLevelParticlesPacket> type, int original, int grouped,
+                               int total, boolean forced, float speed) {
+        verify(fixture, name, type, Boolean.getBoolean("skywars2.checkUnbatchedRays") ? original : grouped,
+                total, forced, speed);
+    }
+
+    private static void verify(WoolBucketChecks.Fixture fixture, String name,
+                               Predicate<ClientboundLevelParticlesPacket> type, int expected,
                                int total, boolean forced, float speed) {
         List<ClientboundLevelParticlesPacket> packets = fixture.client.packets().stream()
                 .filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast)
                 .filter(type).toList();
         int particles = packets.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
         SkyWars2.LOGGER.info("[check] {} trail: {} packets for {} particles", name, packets.size(), particles);
-        int expected = Boolean.getBoolean("skywars2.checkUnbatchedRays") ? original : grouped;
         require(packets.size() == expected && particles == total && packets.stream().allMatch(packet ->
                         packet.overrideLimiter() == forced && !packet.alwaysShow()
                                 && packet.xMaxSpeed() == speed && packet.yMaxSpeed() == speed && packet.zMaxSpeed() == speed),

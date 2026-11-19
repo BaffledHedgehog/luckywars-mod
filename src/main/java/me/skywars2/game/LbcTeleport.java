@@ -195,26 +195,36 @@ public final class LbcTeleport {
 
     private void flyingTrail(ServerPlayer owner,Vec3 from,Vec3 end,boolean shieldBlocked) {
         double distance=from.distanceTo(end);Vec3 direction=end.subtract(from).normalize();
-        for(double step=0;step<=distance+1e-7;step+=.3) {
-            Vec3 point=from.add(direction.scale(Math.min(step,distance)));
-            sourceLevel(owner).sendParticles(ParticleTypes.ANGRY_VILLAGER,true,false,point.x,point.y,point.z,2,.1,.1,.1,0);
-            if(shieldBlocked&&step>=distance-1e-7)break;
-            var area=new AABB(point,point.add(1,1,1));
-            for(var target:sourceLevel(owner).getEntitiesOfClass(LivingEntity.class,area,
-                    candidate->candidate.position().distanceToSqr(point)<=225&&game.items().lifetimes().target(owner,candidate))) {
-                if(target.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,40),owner))
-                    game.items().indirectKills().levitated(target,owner);
+        var level=sourceLevel(owner);
+        try(var particles=new LbcParticleBatch.Group(level,ParticleTypes.ANGRY_VILLAGER,.1,0,true,.31,
+                game.balanceLegacy()?1:3)) {
+            for(double step=0;step<=distance+1e-7;step+=.3) {
+                Vec3 point=from.add(direction.scale(Math.min(step,distance)));
+                particles.add(point,2);
+                if(shieldBlocked&&step>=distance-1e-7)break;
+                var area=new AABB(point,point.add(1,1,1));
+                for(var target:level.getEntitiesOfClass(LivingEntity.class,area,
+                        candidate->candidate.position().distanceToSqr(point)<=225&&game.items().lifetimes().target(owner,candidate))) {
+                    if(target.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,40),owner))
+                        game.items().indirectKills().levitated(target,owner);
+                }
             }
         }
     }
 
     private void emitTrail(ServerPlayer owner,Charge charge,Vec3 from,Vec3 end) {
         double distance=from.distanceTo(end);
-        for(double step=0;step<=distance+1e-7;step+=.3) {
-            Vec3 point=distance<1e-9?from:from.add(end.subtract(from).scale(Math.min(1,step/distance)));
-            sourceLevel(owner).sendParticles(ParticleTypes.SCULK_CHARGE_POP,true,false,point.x,point.y,point.z,
-                    0,0,charge.mode==2?-1:1,0,charge.mode==1?1:.5);
-            sourceLevel(owner).sendParticles(ParticleTypes.CLOUD,true,false,point.x,point.y,point.z,1,.1,.1,.1,.05);
+        var level=sourceLevel(owner);
+        Vec3 span=end.subtract(from);
+        try(var clouds=new LbcParticleBatch.Group(level,ParticleTypes.CLOUD,.1,.05,true,.31,
+                game.balanceLegacy()?1:3)) {
+            for(double step=0;step<=distance+1e-7;step+=.3) {
+                Vec3 point=distance<1e-9?from:from.add(span.scale(Math.min(1,step/distance)));
+                // A native zero-count packet supplies one exact, signed velocity.
+                level.sendParticles(ParticleTypes.SCULK_CHARGE_POP,true,false,point.x,point.y,point.z,
+                        0,0,charge.mode==2?-1:1,0,charge.mode==1?1:.5);
+                clouds.add(point);
+            }
         }
     }
 
