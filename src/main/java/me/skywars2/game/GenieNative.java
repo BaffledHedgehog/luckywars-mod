@@ -57,7 +57,7 @@ public final class GenieNative {
     }
     private enum Cast {
         ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY, DANMAKU_CARD, DANMAKU_HOMING_CARD,
-        POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY,
+        POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY, UNSTABLE_PRISM_CHARGE, ACADEMY_PRISM_RAY,
         TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
         TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
         TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
@@ -233,6 +233,8 @@ public final class GenieNative {
                         .scriptCard(player, origin, aim, spell == Cast.DANMAKU_HOMING_CARD);
                 case POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY -> game.items().sheep()
                         .scriptRay(player, hand, spell == Cast.ACADEMY_POLYMORPH_RAY, origin, aim);
+                case UNSTABLE_PRISM_CHARGE, ACADEMY_PRISM_RAY -> game.items().prism()
+                        .scriptCast(player, hand, weapon, origin, aim, spell == Cast.ACADEMY_PRISM_RAY);
                 default -> {
                     var body = game.items().terra().castAt(player, origin, aim, spell.terra, 0);
                     if (body == null || body.getOwner() != player || level.getEntity(body.getUUID()) != body) yield false;

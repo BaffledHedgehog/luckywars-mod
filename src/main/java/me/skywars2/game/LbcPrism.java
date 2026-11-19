@@ -96,17 +96,43 @@ public final class LbcPrism {
     }
     boolean cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){return cast(owner,hand,stack,academy,false);}
     private boolean cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,boolean wandBonus){
-        var charge=new Charge(TYPE,owner.level());charge.setOwner(owner);charge.hand=hand;charge.stack=stack;charge.caster=owner.getUUID();WandCastOrigin.stamp(charge,owner);
-        charge.origin=owner.getEyePosition().add(owner.getLookAngle().scale(hand==InteractionHand.OFF_HAND?.5:0));charge.setPos(charge.origin);charge.setDeltaMovement(owner.getLookAngle());
+        var aim = owner.getLookAngle();
+        var origin = owner.getEyePosition().add(aim.scale(hand == InteractionHand.OFF_HAND ? .5 : 0));
+        return publish(owner, charge(owner, hand, stack, origin, aim, academy), wandBonus);
+    }
+    boolean scriptCast(ServerPlayer owner, InteractionHand hand, ItemStack weapon, Vec3 origin, Vec3 aim, boolean academy) {
+        var charge = charge(owner, hand, ItemStack.EMPTY, origin, aim, academy);
+        GenieCombat.castProjectile(game, owner, charge, weapon);
+        return publish(owner, charge, false);
+    }
+    private Charge charge(ServerPlayer owner, InteractionHand hand, ItemStack stack, Vec3 origin, Vec3 aim, boolean academy) {
+        var charge = new Charge(TYPE, owner.level());
+        charge.setOwner(owner);
+        charge.hand = hand;
+        charge.stack = stack;
+        charge.caster = owner.getUUID();
+        WandCastOrigin.stamp(charge, owner);
+        charge.origin = origin;
+        charge.setPos(origin);
+        charge.setDeltaMovement(aim);
         charge.entityTags().addAll(List.of("prism","player","slowraycast","magic",game.items().epoch()));
         if(academy){
             charge.phase=Charge.Phase.ACADEMY;var mana=game.items().mana();int h=Math.floorMod(mana.score(owner,"h").get()+20,360);
             mana.score(owner,"h").set(h);mana.score(owner,"s").set(80);mana.score(owner,"v").set(100);
             charge.particle=new DustColorTransitionOptions(Mth.hsvToRgb(h/360f,.8f,1),0xffffff,2);
         }else charge.entityTags().add("shield_blockable");
+        return charge;
+    }
+    private boolean publish(ServerPlayer owner, Charge charge, boolean wandBonus) {
         game.items().timeStop().prepareFrozen(charge);
-        if(owner.level().addFreshEntity(charge)&&academy)immediate.addLast(charge);
-        if(wandBonus)game.items().wands().wandCasted(owner);pump();return true;
+        if (!owner.level().addFreshEntity(charge) || charge.isRemoved()) {
+            charge.discard();
+            return false;
+        }
+        if (charge.phase == Charge.Phase.ACADEMY) immediate.addLast(charge);
+        if (wandBonus) game.items().wands().wandCasted(owner);
+        pump();
+        return true;
     }
     /** Source Solar Prism producer: no mana debit, wand bonus or Academy trial mutation. */
     public boolean trinket(ServerPlayer owner){

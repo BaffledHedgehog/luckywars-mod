@@ -281,6 +281,79 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void prismCasts(GameController game, WoolBucketChecks.Fixture base, Vec3 origin) {
+        var prism = game.items().prism();
+        var existing = prism.snapshot();
+        var standard = new JsonPrimitive("skywars2:unstable_prism_charge");
+        var academy = new JsonPrimitive("skywars2:academy_prism_ray");
+        var aim = new Vec3(3, 0, 0);
+        var main = base.owner.getMainHandItem();
+        var off = base.owner.getOffhandItem();
+        int mana = game.items().mana().get(base.owner);
+        var gift = new ItemStack(Items.IRON_SWORD);
+        gift.enchant(base.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING), 3);
+        var glass = BlockPos.containing(origin);
+        var prior = base.level.getBlockState(glass);
+        var rayOrigin = origin.add(0, 0, .25);
+        try (var host = new GenieWorldHost(game, base.owner, gift, () -> true, () -> 0)) {
+            var budgetTick = LbcPrism.class.getDeclaredField("budgetTick");
+            var spent = LbcPrism.class.getDeclaredField("spent");
+            budgetTick.setAccessible(true);
+            spent.setAccessible(true);
+            int beforeTick = budgetTick.getInt(prism);
+            long beforeSpent = spent.getLong(prism);
+            // Stand in for a tick where earlier Prism casts exhausted the shared work budget.
+            budgetTick.setInt(prism, game.server().getTickCount());
+            spent.setLong(prism, 3_000_000);
+            try {
+                var pending = queued(host, "lbc.cast", standard, vector(origin), vector(aim));
+                require(prism.snapshot().equals(existing), "Prism input is deferred until the item host drains");
+                require(complete(host, pending).getAsBoolean(), "native unstable Prism is accepted");
+                var charge = prism.snapshot().stream().filter(body -> !existing.contains(body)).findFirst().orElseThrow();
+                require(charge.getOwner() == base.owner && charge.position().equals(origin)
+                        && charge.getDeltaMovement().equals(new Vec3(1, 0, 0))
+                        && charge.phase == LbcPrism.Charge.Phase.UNSTABLE && charge.entityTags().contains("shield_blockable")
+                        && WandCastOrigin.borrowed(charge), "moving Prism keeps actual ownership, position, aim and defense policy");
+                var source = new net.minecraft.world.damagesource.DamageSource(base.level.registryAccess()
+                        .lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE)
+                        .getOrThrow(net.minecraft.world.damagesource.DamageTypes.CACTUS), charge, base.owner);
+                require(ItemStack.matches(game.items().indirectKills().enchantmentWeapon(source), gift),
+                        "native delayed damage retains the Genie item's enchantments");
+                base.set(glass, Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.BLUE).defaultBlockState());
+                charge.tick();
+                require(charge.phase == LbcPrism.Charge.Phase.STABLE, "native flight stabilizes on glass");
+                charge.discard();
+                base.set(glass, prior);
+
+                require(complete(host, queued(host, "lbc.cast", academy, vector(rayOrigin), vector(aim))).getAsBoolean(),
+                        "native Academy Prism is accepted");
+                var ray = prism.snapshot().stream().filter(body -> !existing.contains(body) && !body.isRemoved())
+                        .findFirst().orElseThrow();
+                require(ray.phase == LbcPrism.Charge.Phase.ACADEMY && ray.position().equals(rayOrigin)
+                        && ray.getDeltaMovement().equals(new Vec3(1, 0, 0)) && ray.getOwner() == base.owner
+                        && !ray.entityTags().contains("shield_blockable") && WandCastOrigin.borrowed(ray),
+                        "Academy Prism joins the native immediate queue with its original phase and aim: "
+                                + ray.phase + " at " + ray.position() + " with " + ray.getDeltaMovement());
+                ray.discard();
+                base.field(false, origin);
+                require(!complete(host, queued(host, "lbc.cast", academy, vector(origin), vector(aim))).getAsBoolean()
+                        && prism.snapshot().stream().noneMatch(body -> !existing.contains(body) && !body.isRemoved()),
+                        "native antimagic denies the spell before publication");
+                require(game.items().mana().get(base.owner) == mana && base.owner.getMainHandItem() == main
+                        && base.owner.getOffhandItem() == off, "Prism casts neither spend mana nor modify physical hands");
+            } finally {
+                prism.snapshot().stream().filter(body -> !existing.contains(body)).forEach(body -> body.discard());
+                budgetTick.setInt(prism, beforeTick);
+                spent.setLong(prism, beforeSpent);
+                base.set(glass, prior);
+                base.removeFields();
+            }
+        } catch (ReflectiveOperationException error) {
+            throw new IllegalStateException(error);
+        }
+    }
+
     private static net.minecraft.world.entity.animal.cow.Cow polymorphCow(WoolBucketChecks.Fixture base, Vec3 at) {
         var cow = Objects.requireNonNull(EntityTypes.COW.create(base.level, EntitySpawnReason.TRIGGERED));
         cow.setPos(at);
@@ -784,6 +857,7 @@ final class GenieWorldChecks {
             targetedOreshnik(game, base, launchSpot);
             targetedExoperso(game, base, launchSpot);
             polymorphCasts(game, base, launchSpot);
+            prismCasts(game, base, launchSpot.add(0, .65, 0));
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);
             sauvojenCasts(game, base, launchSpot.add(0, .65, 0));

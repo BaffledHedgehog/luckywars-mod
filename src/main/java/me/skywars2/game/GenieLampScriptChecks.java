@@ -117,6 +117,9 @@ final class GenieLampScriptChecks implements AutoCloseable {
                         value.getAsJsonObject().get("id").getAsString().equals("skywars2:succubus_black_hole"))
                     && prompt.contains("60 seconds"),
                     "the model receives the real Polymorph and Succubus bindings");
+            require(directed.contains(new com.google.gson.JsonPrimitive("skywars2:unstable_prism_charge"))
+                    && directed.contains(new com.google.gson.JsonPrimitive("skywars2:academy_prism_ray"))
+                    && prompt.contains("stabilizes on contact with glass"), "both native Prism casts are discoverable");
             int payloadCount = 0;
             require(payloads.size() == 9, "all native Sauvojen families appear in the request");
             for (var branch : LbcSauvojen.Kind.values()) {
