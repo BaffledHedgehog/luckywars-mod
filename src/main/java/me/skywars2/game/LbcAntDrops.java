@@ -143,10 +143,32 @@ public final class LbcAntDrops {
         var random=((ServerLevel)ant.level()).getRandom();
         yaw=(Mth.floor(yaw*100)+random.nextInt(6001)-3000)*.01f;
         pitch=(Mth.floor(pitch*100)+random.nextInt(4001)-2000)*.01f;
-        var acid=game.items().clouds().sourceAcid((ServerLevel)ant.level(),origin,yaw,pitch,300,true,LbcIndirectKills.playerSource(owner(ant)));
+        var level=(ServerLevel)ant.level();
+        var author=LbcIndirectKills.playerSource(owner(ant));
+        var policy=acidTrapSource(ant,author);
+        LbcClouds.AcidProjectile acid;
+        if(policy==null) {
+            acid=game.items().clouds().sourceAcid(level,origin,yaw,pitch,300,true,author);
+        } else try(var scope=game.items().spellSources().scope(policy,level)) {
+            // The published acid has no native owner. Its trap policy carries the
+            // actual ant and, for helmet traps, the separate player kill receipt.
+            acid=game.items().clouds().sourceAcid(level,origin,yaw,pitch,300,true,null);
+        }
         acid.entityTags().add("skywars2.ant_acid");
-        game.items().clouds().sourceSound((ServerLevel)ant.level(),ant.position(),SoundEvents.ZOMBIE_VILLAGER_CURE,1,2);
+        game.items().clouds().sourceSound(level,ant.position(),SoundEvents.ZOMBIE_VILLAGER_CURE,1,2);
         return acid;
+    }
+
+    private LbcSpellSource.Source acidTrapSource(Zombie ant,ServerPlayer author){
+        var policy=game.items().spellSources().source(ant);
+        if(policy!=null&&policy.unownedMobs())
+            return new LbcSpellSource.Source(ant.getUUID(),policy.author(),policy.epoch(),policy.cause(),
+                    policy.excluded(),policy.persistent(),true,ant,policy.helmetCredit());
+        if(!ant.entityTags().contains(LbcSpellSource.WILD_LOOT))return null;
+        boolean helmet=ant.entityTags().contains(LbcSpellSource.HELMET_CREDIT)&&author!=null;
+        var cause=helmet?game.items().indirectKills().wildCause(author):null;
+        return new LbcSpellSource.Source(ant.getUUID(),helmet?author.getUUID():null,game.items().epoch(),
+                cause,Set.of(),false,true,ant,helmet);
     }
     public void loaded(Entity actor){if(!managed(actor))return;if(!active(actor)){actor.discard();return;}tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
     public void unloaded(Entity actor){tracked.remove(actor);}

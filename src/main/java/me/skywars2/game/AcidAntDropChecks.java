@@ -303,6 +303,50 @@ public final class AcidAntDropChecks {
             }
         }
 
+        void antProjectileAttribution(boolean helmet) {
+            clear();
+            var sources = game.items().spellSources();
+            var helmetSource = helmet ? new LbcSpellSource.Source(alpha.getUUID(), alpha.getUUID(),
+                    game.items().epoch(), game.items().indirectKills().wildCause(alpha), Set.of()).helmetLoot() : null;
+            try (var scope = sources.scope(helmetSource, level)) {
+                activate(LbcAntDropItem.Kind.ANTS);
+            }
+            var ant = ants().getFirst();
+            var victim = cow(origin.add(0, 3, 5));
+            var acid = game.items().antDrops().shoot(ant, victim);
+            require(acid != null && acid.getOwner() == null, "released trap acid has no native projectile owner");
+            acid.setPos(victim.position());
+            acid.setNoGravity(true);
+            acid.setDeltaMovement(Vec3.ZERO);
+            ant.discard();
+
+            var poisoned = cow(victim.position().add(1, 0, 0));
+            game.items().clouds().tick();
+            require(poisoned.hasEffect(MobEffects.POISON), "released ant acid applies native poison");
+            float priorHealth = poisoned.getHealth();
+            MobEffects.POISON.value().applyEffectTick(level, poisoned, 0);
+            boolean poisonCredit = poisoned.getKillCredit() == alpha;
+            require(poisoned.getHealth() < priorHealth, "released ant acid poison actually damages its target");
+
+            victim.setHealth(2);
+            int oldKills = kills(alpha);
+            acid.entityTags().add("on_fire");
+            game.items().clouds().tick();
+            var damage = victim.getLastDamageSource();
+            boolean physicalAnt = damage != null && damage.getDirectEntity() == acid && damage.getEntity() == ant;
+            boolean killCredit = victim.getKillCredit() == alpha;
+            SkyWars2.LOGGER.info("[check] ant acid helmet={} physicalAnt={} poisonCredit={} killCredit={} kills={}",
+                    helmet, physicalAnt, poisonCredit, killCredit, kills(alpha) - oldKills);
+            require(victim.isDeadOrDying() && physicalAnt && poisonCredit == helmet
+                            && (helmet ? killCredit : victim.getKillCredit() == ant)
+                            && kills(alpha) == oldKills + (helmet ? 1 : 0),
+                    "released acid keeps the ant as physical shooter and only the helmet supplies player credit");
+            require(sources.projectileController(acid) == null && sources.nativeMobSource(acid) == ant
+                            && game.items().clouds().sourceAcidCanAffect(acid, alpha),
+                    "released acid can hurt the trap creator and retains the removed ant");
+            clear();
+        }
+
         void antShot() {
             clear();
             activate(LbcAntDropItem.Kind.ANTS);
@@ -318,7 +362,8 @@ public final class AcidAntDropChecks {
                     "actual nearest source target excludes observer and other ants");
             var p = game.items().antDrops().shoot(source, target);
             require(p != null && p.position().distanceTo(source.getEyePosition()) < 1e-8 && p.getOwner() == null
-                    && game.items().clouds().sourceAcidOwner(p) == alpha && game.items().clouds().acidLifetime(p) == 300
+                    && game.items().spellSources().nativeMobSource(p) == source
+                    && LbcSpellSource.unownedHazard(p) && game.items().clouds().acidLifetime(p) == 300
                     && game.items().clouds().acidAge(p) == 0 && p.entityTags().contains("shield_blockable2"),
                     "actual source eye shot/native owner/budget/shield/cause");
             var aim = target.getEyePosition().subtract(source.getEyePosition());
@@ -909,8 +954,9 @@ public final class AcidAntDropChecks {
             }
             for (var p : list)
                 require(game.items().clouds().acidLifetime(p) == 300 && p.entityTags().contains("shield_blockable2")
-                        && game.items().clouds().sourceAcidOwner(p) == alpha,
-                        "real recurring ant shot uses300/shield/separate author");
+                        && p.getOwner() == null && LbcSpellSource.unownedHazard(p)
+                        && game.items().spellSources().nativeMobSource(p) instanceof Zombie,
+                        "real recurring ant shot retains a native shooter without player ownership");
             return true;
         }
 
@@ -931,6 +977,8 @@ public final class AcidAntDropChecks {
                         return false;
                     presentation();
                     payload();
+                    antProjectileAttribution(false);
+                    antProjectileAttribution(true);
                     antShot();
                     burst();
                     admissions();
