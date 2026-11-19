@@ -319,11 +319,25 @@ public final class LbcPsycho {
     boolean doppelTarget(ServerPlayer owner,Entity entity){
         return projectileTarget(owner,entity)&&game.items().lifetimes().target(owner,entity);
     }
-    void psycho(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
-        int roll=mode==0?owner.getRandom().nextInt(6)+1:mode==1?1:mode+2;
-        boolean trial=false;
-        for(var entity:owner.level().getEntities(owner,owner.getBoundingBox().inflate(30),e->target(owner,e)
-                && e.position().distanceToSqr(owner.position())<=900 && e.position().distanceToSqr(owner.position())>=.0001)) {
+    void psycho(ServerPlayer owner, InteractionHand hand, ItemStack stack, int mode) {
+        boolean trial = psychoAt(owner, owner.position(), mode);
+        if (mode == 0 && trial && LbcAcademy.trial(stack)) game.items().academy().ready(owner, hand, stack);
+    }
+    boolean scriptArea(ServerPlayer owner, Vec3 center, int mode) {
+        if (!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(), owner.getEyePosition())
+                || game.items().magic().suppressedAt(owner.level(), center)) return false;
+        try (var borrowed = WandCastOrigin.scope(owner, true)) {
+            psychoAt(owner, center, mode);
+            return true;
+        }
+    }
+    private boolean psychoAt(ServerPlayer owner, Vec3 center, int mode) {
+        int roll = mode == 0 ? owner.getRandom().nextInt(6) + 1 : mode == 1 ? 1 : mode + 2;
+        boolean trial = false;
+        var casterPosition = owner.position();
+        var area = owner.getBoundingBox().move(center.subtract(casterPosition)).inflate(30);
+        for (var entity : owner.level().getEntities(owner, area, e -> e.position().distanceToSqr(center) <= 900
+                && e.position().distanceToSqr(casterPosition) >= .0001 && target(owner, e))) {
             if(roll<=3 && entity instanceof ServerPlayer player) phantomSound(player);
             else if(roll==4 && entity instanceof LivingEntity living) game.items().screamer(living,owner);
             else if(entity instanceof LivingEntity living && game.items().lifetimes().target(owner,living)) {
@@ -338,9 +352,9 @@ public final class LbcPsycho {
                     && effectValue(living,"lookback")>0 && living.hasEffect(MobEffects.BLINDNESS)) trial=true;
             if(entity instanceof LivingEntity living && game.items().lifetimes().target(owner,living) && living.getHealth()<2) execute(owner,living);
         }
-        if(mode==0 && LbcAcademy.trial(stack) && trial) game.items().academy().ready(owner,hand,stack);
-        owner.level().sendParticles(ParticleTypes.SOUL,owner.getX(),owner.getY()+1,owner.getZ(),100,40,40,40,0);
-        owner.level().sendParticles(ParticleTypes.SOUL,owner.getX(),owner.getY()+1,owner.getZ(),30,.5,1,.5,0);
+        owner.level().sendParticles(ParticleTypes.SOUL,center.x,center.y+1,center.z,100,40,40,40,0);
+        owner.level().sendParticles(ParticleTypes.SOUL,center.x,center.y+1,center.z,30,.5,1,.5,0);
+        return trial;
     }
     private void execute(ServerPlayer owner,LivingEntity target) {
         var vex=new PsychoVex(owner); vex.setPos(target.position());

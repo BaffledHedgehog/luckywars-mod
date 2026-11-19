@@ -120,6 +120,11 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(directed.contains(new com.google.gson.JsonPrimitive("skywars2:unstable_prism_charge"))
                     && directed.contains(new com.google.gson.JsonPrimitive("skywars2:academy_prism_ray"))
                     && prompt.contains("stabilizes on contact with glass"), "both native Prism casts are discoverable");
+            require(facts.getAsJsonArray("script_targeted_casts").asList().stream()
+                    .map(JsonElement::getAsJsonObject).map(row -> row.get("id").getAsString())
+                    .collect(java.util.stream.Collectors.toSet()).containsAll(Set.of("skywars2:psycho_area",
+                            "skywars2:psycho_sound", "skywars2:psycho_screamer", "skywars2:psycho_look_back", "skywars2:psycho_scare"))
+                    && prompt.contains("native unarmed ghost"), "the model knows all five callable Psycho Wand area effects");
             int payloadCount = 0;
             require(payloads.size() == 9, "all native Sauvojen families appear in the request");
             for (var branch : LbcSauvojen.Kind.values()) {

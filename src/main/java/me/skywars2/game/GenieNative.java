@@ -79,6 +79,16 @@ public final class GenieNative {
                 "Locks the target for the faster Academy Exoperso ritual and a crater after 180 ticks."),
         SUCCUBUS_BLACK_HOLE("succubus_black_hole", "Polymorph: Succubus Black Hole", "Полиморф: Чёрная дыра суккуба",
                 "Creates the original traveling Polymorph black hole at the target."),
+        PSYCHO_AREA("psycho_area", "Psycho Wand", "Психожезл",
+                "Runs the original random Psycho Wand effect within 30 blocks."),
+        PSYCHO_SOUND("psycho_sound", "Psycho Wand: Sound", "Психожезл: Звук",
+                "Plays the native phantom sounds to nearby enemy players."),
+        PSYCHO_SCREAMER("psycho_screamer", "Psycho Wand: Screamer", "Психожезл: Скример",
+                "Applies the native screamer to nearby enemies."),
+        PSYCHO_LOOK_BACK("psycho_look_back", "Psycho Wand: Look Back", "Психожезл: Обернись",
+                "Applies the native nine-tick compulsive turn to nearby enemies."),
+        PSYCHO_SCARE("psycho_scare", "Psycho Wand: Scare", "Психожезл: Испуг",
+                "Applies the original five-second fear to nearby enemies."),
         HEDGEHOG("hedgehog", "Ordinary Hedgehog", "Обычный ёж", LbcHedgehog.Kind.ORDINARY),
         HEDGEHOG_STANDARD("hedgehog_standard", "Standard Hedgehog", "Стандартный ёж", LbcHedgehog.Kind.DEFAULT),
         HEDGEHOG_HEALER("hedgehog_healer", "Healing Hedgehog", "Исцеляющий ёж", LbcHedgehog.Kind.HEALER),
@@ -183,6 +193,14 @@ public final class GenieNative {
             case GOHEI_SPELLCARD -> game.items().danmaku().scriptBomb(player, target, 300, false);
             case GOHEI_SPELLCARD_FULL -> game.items().danmaku().scriptBomb(player, target, 1500, false);
             case HAKUREI_BOMB -> game.items().danmaku().scriptBomb(player, target, 300, true);
+            case PSYCHO_AREA, PSYCHO_SOUND, PSYCHO_SCREAMER, PSYCHO_LOOK_BACK, PSYCHO_SCARE ->
+                    game.items().psycho().scriptArea(player, target, switch (spell) {
+                        case PSYCHO_SOUND -> 1;
+                        case PSYCHO_SCREAMER -> 2;
+                        case PSYCHO_LOOK_BACK -> 3;
+                        case PSYCHO_SCARE -> 4;
+                        default -> 0;
+                    });
             default -> {
                 var magic = game.items().magic();
                 if (magic.suppressed(player) || magic.suppressedAt(level, player.getEyePosition())) yield false;

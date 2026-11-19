@@ -354,12 +354,12 @@ final class GenieWorldChecks {
         }
     }
 
-    private static net.minecraft.world.entity.animal.cow.Cow polymorphCow(WoolBucketChecks.Fixture base, Vec3 at) {
+    private static net.minecraft.world.entity.animal.cow.Cow stationaryCow(WoolBucketChecks.Fixture base, Vec3 at) {
         var cow = Objects.requireNonNull(EntityTypes.COW.create(base.level, EntitySpawnReason.TRIGGERED));
         cow.setPos(at);
         cow.setNoAi(true);
         cow.setNoGravity(true);
-        require(base.level.addFreshEntity(cow), "native Polymorph target");
+        require(base.level.addFreshEntity(cow), "native stationary cow");
         base.own(cow);
         return cow;
     }
@@ -374,9 +374,9 @@ final class GenieWorldChecks {
         for (var pos : BlockPos.betweenClosed(cell.offset(-1,-1,-3),cell.offset(12,1,3)))
             base.set(pos.immutable(), Blocks.AIR.defaultBlockState());
         base.set(cell.east(9), Blocks.STONE.defaultBlockState());
-        var near = polymorphCow(base, origin.add(3,-.6,2.2));
-        var outside = polymorphCow(base, origin.add(6,-.6,2.7));
-        var behind = polymorphCow(base, origin.add(11,-.6,0));
+        var near = stationaryCow(base, origin.add(3,-.6,2.2));
+        var outside = stationaryCow(base, origin.add(6,-.6,2.7));
+        var behind = stationaryCow(base, origin.add(11,-.6,0));
         var owner = base.owner;
         var pearl = new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(
                 base.level, owner, new ItemStack(Items.ENDER_PEARL));
@@ -432,7 +432,7 @@ final class GenieWorldChecks {
             base.discard(pearl);
             base.discard(near);
 
-            var academyTarget = polymorphCow(base,origin.add(4,-.6,0));
+            var academyTarget = stationaryCow(base,origin.add(4,-.6,0));
             academyTarget.entityTags().add("male");
             require(complete(host, queued(host, "lbc.cast", new JsonPrimitive("skywars2:academy_polymorph_ray"),
                     vector(origin),vector(aim))).getAsBoolean(), "native Academy ray accepted");
@@ -454,6 +454,69 @@ final class GenieWorldChecks {
             base.removeFields();
             polymorph.stop();
             sheep.stop();
+        }
+    }
+
+    private static void psychoAreaCasts(GameController game, WoolBucketChecks.Fixture base, Vec3 point) {
+        var psycho = game.items().psycho();
+        var center = point.y + 48 <= base.level.getMaxY() ? point.add(0, 48, 0) : point.add(0, -60, 0);
+        var main = base.owner.getMainHandItem();
+        var off = base.owner.getOffhandItem();
+        int mana = game.items().mana().get(base.owner);
+        var near = stationaryCow(base, center);
+        var outside = stationaryCow(base, center.add(.5, 30.25, 0));
+        var direct = new JsonPrimitive("skywars2:psycho_look_back");
+        var scare = new JsonPrimitive("skywars2:psycho_scare");
+        var sound = new JsonPrimitive("skywars2:psycho_sound");
+        var screamer = new JsonPrimitive("skywars2:psycho_screamer");
+        var random = new JsonPrimitive("skywars2:psycho_area");
+        var advancement = Objects.requireNonNull(game.server().getAdvancements().get(
+                net.minecraft.resources.Identifier.parse("lbc:true_advancements/staffs/psycho")));
+        var progress = base.owner.getAdvancements().getOrStartProgress(advancement);
+        var before = new HashSet<String>();
+        progress.getCompletedCriteria().forEach(before::add);
+        try (var host = new GenieWorldHost(game, base.owner, new ItemStack(Items.STICK), () -> true, () -> 0)) {
+            require(near.position().distanceToSqr(base.owner.position()) > 900, "test uses a remote center");
+            var pending = queued(host, "lbc.cast_at", direct, vector(center));
+            require(psycho.effectValue(near, "lookback") == 0, "queued effect waits for the item host drain");
+            require(complete(host, pending).getAsBoolean() && psycho.effectValue(near, "lookback") == 9
+                    && psycho.effectValue(outside, "lookback") == 0, "real nine-tick look-back uses the supplied 30-block sphere");
+            require(complete(host, queued(host, "lbc.cast_at", scare, vector(center))).getAsBoolean()
+                    && psycho.effectValue(near, "scared") == 100 && psycho.effectValue(outside, "scared") == 0,
+                    "native fixed scare mode applies five-second fear");
+            require(complete(host, queued(host, "lbc.cast_at", screamer, vector(center))).getAsBoolean()
+                    && near.hasEffect(MobEffects.BLINDNESS) && near.getEffect(MobEffects.BLINDNESS).getDuration() == 120
+                    && !outside.hasEffect(MobEffects.BLINDNESS), "native screamer applies the original blindness");
+            require(complete(host, queued(host, "lbc.cast_at", sound, vector(center))).getAsBoolean()
+                    && complete(host, queued(host, "lbc.cast_at", random, vector(center))).getAsBoolean(),
+                    "both sound and random native effects are accepted");
+            near.setHealth(1);
+            require(complete(host, queued(host, "lbc.cast_at", sound, vector(center))).getAsBoolean()
+                    && near.isDeadOrDying(), "the normal low-health execution still works");
+            var ghost = base.level.getEntitiesOfClass(net.minecraft.world.entity.monster.Vex.class,
+                    new AABB(near.position(), near.position()).inflate(2), entity -> psycho.owner(entity) == base.owner)
+                    .stream().findFirst().orElseThrow();
+            base.own(ghost);
+            try {
+                require(ghost.getMainHandItem().isEmpty() && ghost.getHealth() == 2_000_000_000f,
+                        "execution publishes the original unarmed Sad Ghost with full health");
+                var after = new HashSet<String>();
+                progress.getCompletedCriteria().forEach(after::add);
+                require(after.equals(before) && game.items().mana().get(base.owner) == mana
+                        && base.owner.getMainHandItem() == main && base.owner.getOffhandItem() == off,
+                        "scripted execution does not claim a real staff achievement, modify either hand or spend mana");
+            } finally {
+                base.discard(ghost);
+            }
+            base.field(false, center);
+            require(!complete(host, queued(host, "lbc.cast_at", screamer, vector(center))).getAsBoolean(),
+                    "an antimagic field at the target rejects the area cast");
+        } finally {
+            base.removeFields();
+            psycho.clearEffects(near);
+            psycho.clearEffects(outside);
+            base.discard(near);
+            base.discard(outside);
         }
     }
 
@@ -858,6 +921,7 @@ final class GenieWorldChecks {
             targetedExoperso(game, base, launchSpot);
             polymorphCasts(game, base, launchSpot);
             prismCasts(game, base, launchSpot.add(0, .65, 0));
+            psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);
             sauvojenCasts(game, base, launchSpot.add(0, .65, 0));
