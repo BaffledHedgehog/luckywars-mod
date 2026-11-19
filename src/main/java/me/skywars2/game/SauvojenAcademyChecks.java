@@ -647,7 +647,13 @@ public final class SauvojenAcademyChecks {
                         require(mode==5?children.size()==5:mode==7?children.size()==1:!children.isEmpty(),"actual layered/Earth/comet source work structure, without donor trial task "+mode);
                     }
                     var particles=base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast).toList();
-                    require(!particles.isEmpty(),"actual Stonekivi native ray particles "+mode);near(new Vec3(particles.getFirst().x(),particles.getFirst().y(),particles.getFirst().z()),origin,"Stonekivi ray starts exactly at drone "+mode);
+                    require(!particles.isEmpty(),"actual Stonekivi native ray particles "+mode);
+                    var first=particles.getFirst();
+                    int samples=game.balanceLegacy()?1:3;
+                    require(first.count()==2*samples,"the first primary ray packet retains two particles per sample "+mode);
+                    // Three half-block-spaced samples beginning at the drone are sent as one centered packet.
+                    near(new Vec3(first.x(),first.y(),first.z()),origin.add(direction.scale((samples-1)*.25)),
+                            "Stonekivi ray packet is centered over the first source samples "+mode);
                     clear();
                 }
             } finally{clear();game.maps().restoreSnapshot(owner.level(),wall,saved);}

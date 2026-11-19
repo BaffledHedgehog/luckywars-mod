@@ -63,14 +63,24 @@ public final class GenieNative {
         ADVANCED_ENDER, ACADEMY_ADVANCED_ENDER, ADVANCED_ENDER_TOP, ADVANCED_ENDER_CLIP,
         SNOW_WAND, ACADEMY_SNOW_WAND, ICE_WAND, ACADEMY_ICE_WAND,
         FARTUS_WAND, FARTUS_BANANA_VOLLEY, FARTUS_LABEL_VOLLEY, ACADEMY_FARTUS_WAND,
+        AWAKENED_ACID_WAND(1,false), AWAKENED_ACID_WAND_IGNITED(1,true),
+        AWAKENED_ACID_CAUSTIC(2,false), AWAKENED_ACID_CAUSTIC_IGNITED(2,true),
+        AWAKENED_ACID_GATLING(3,false), AWAKENED_ACID_GATLING_IGNITED(3,true),
+        AWAKENED_ACID_RIFLE(4,false), AWAKENED_ACID_RIFLE_IGNITED(4,true),
         TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
         TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
         TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
 
         final LbcTerra.Kind terra;
+        final int acidMode;
+        final boolean ignited;
 
         Cast() { this(null); }
-        Cast(LbcTerra.Kind terra) { this.terra = terra; }
+        Cast(LbcTerra.Kind terra) { this(terra,0,false); }
+        Cast(int acidMode,boolean ignited) { this(null,acidMode,ignited); }
+        Cast(LbcTerra.Kind terra,int acidMode,boolean ignited) {
+            this.terra=terra;this.acidMode=acidMode;this.ignited=ignited;
+        }
     }
     private static final Map<Identifier, Cast> CASTS = java.util.Arrays.stream(Cast.values())
             .collect(java.util.stream.Collectors.toUnmodifiableMap(
@@ -258,6 +268,9 @@ public final class GenieNative {
                     else wands.directedElectro(player, origin, aim, spell == Cast.ELECTRO_ARC ? 1 : 3, cause);
                     yield true;
                 }
+                case AWAKENED_ACID_WAND, AWAKENED_ACID_WAND_IGNITED, AWAKENED_ACID_CAUSTIC, AWAKENED_ACID_CAUSTIC_IGNITED,
+                        AWAKENED_ACID_GATLING, AWAKENED_ACID_GATLING_IGNITED, AWAKENED_ACID_RIFLE, AWAKENED_ACID_RIFLE_IGNITED ->
+                        game.items().awakenedAcid().scriptCast(player,weapon,origin,aim,spell.acidMode,spell.ignited);
                 case FARTUS_WAND, FARTUS_BANANA_VOLLEY, FARTUS_LABEL_VOLLEY, ACADEMY_FARTUS_WAND ->
                         game.items().fartus().scriptVolley(player, weapon, origin, aim, switch (spell) {
                             case FARTUS_BANANA_VOLLEY -> LbcFartus.Kind.BANANA;

@@ -113,7 +113,7 @@ final class MatchSpellCheckpoint {
         game.items().teleportGadgets().cancelChargesForRewind();
         // These stop methods touch only short moving electrical traces and detached star
         // actors (40/100/25 ticks), never the restored Sphere/Drone/Hammer producers.
-        if(rewind){game.items().wands().stop();game.items().sauvojen().stars().stop();}
+        if(rewind){game.items().wands().stop();game.items().sauvojen().stars().stop();game.items().awakenedAcid().cancelDirectedRifles();}
         game.items().cloneSkills().clearPending();
         game.items().psycho().silenceBeamAudio();
         // Frozen canonical body replay suppresses ENTITY_LOAD. Rebuild this derived

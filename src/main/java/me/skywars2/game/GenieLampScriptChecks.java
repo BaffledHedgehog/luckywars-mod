@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -133,6 +134,12 @@ final class GenieLampScriptChecks implements AutoCloseable {
                 String spell = "skywars2:" + id;
                 require(directed.contains(new com.google.gson.JsonPrimitive(spell)) && prompt.contains(spell),
                         "actual model request describes the native directed spell " + spell);
+            }
+            for (var pattern : List.of("wand", "caustic", "gatling", "rifle")) {
+                String id="skywars2:awakened_acid_"+pattern;
+                require(prompt.contains(id) && prompt.contains("_ignited")
+                                && directed.contains(new JsonPrimitive(id)) && directed.contains(new JsonPrimitive(id+"_ignited")),
+                        "the model receives the original acid pattern and its burning variant " + id);
             }
             for (var ice : List.of(GenieNative.TargetedCast.ICE_WAND_DETONATE, GenieNative.TargetedCast.ACADEMY_ICE_WAND_SHATTER)) {
                 require(facts.getAsJsonArray("script_targeted_casts").asList().stream().anyMatch(value ->

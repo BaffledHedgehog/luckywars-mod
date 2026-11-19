@@ -1252,6 +1252,115 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void awakenedAcidCasts(GameController game, WoolBucketChecks.Fixture base) {
+        var owner=base.owner;
+        var service=game.items().awakenedAcid();
+        var clouds=game.items().clouds();
+        var ledger=game.items().indirectKills();
+        require(clouds.acidSnapshot().isEmpty(),"exclusive Awakened Acid fixture");
+        var chunk=owner.chunkPosition();
+        var cell=new BlockPos(chunk.getMinBlockX()+5,Math.min(owner.getBlockY()+35,base.level.getMaxY()-6),chunk.getMinBlockZ()+7);
+        for(var p:BlockPos.betweenClosed(cell.offset(-1,-1,-2),cell.offset(5,2,3)))
+            base.set(p.immutable(),Blocks.AIR.defaultBlockState());
+        var origin=Vec3.atCenterOf(cell);
+        var east=new Vec3(1,0,0);
+        var gift=new ItemStack(Items.AMETHYST_SHARD);
+        int mana=game.items().mana().get(owner);
+        int paid=service.pending(owner);
+        var main=owner.getMainHandItem();
+        var off=owner.getOffhandItem();
+        var victim=stationaryCow(base,origin.add(0,-.5,2));
+        victim.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
+        victim.setHealth(100);
+        try(var host=new GenieWorldHost(game,owner,gift,()->true,()->0)) {
+            for(var mode:List.of("wand","caustic","gatling")) for(boolean ignited:List.of(false,true)) {
+                require(directed(host,"awakened_acid_"+mode+(ignited?"_ignited":""),origin,east),
+                        "native directed " + mode + " " + (ignited?"burning":"normal"));
+                var shots=clouds.acidSnapshot();
+                int variant=mode.equals("wand")?0:mode.equals("caustic")?1:2;
+                require(shots.size()==(variant==2?8:1) && shots.stream().allMatch(shot ->
+                                shot.getOwner()==owner && shot.position().equals(origin)
+                                        && LbcClouds.awakenedVariant(shot)==variant
+                                        && shot.entityTags().contains("on_fire")==ignited
+                                        && GenieCombat.spellWeapon(shot,owner).is(Items.AMETHYST_SHARD)
+                                        && Math.abs(shot.getDeltaMovement().length()-(variant==2?3:.2))<1e-6),
+                        "each native pattern has its original variant, speed, actor count and ignition");
+                if(variant==2) require(shots.stream().allMatch(shot -> {
+                    Vec3 aim=shot.getDeltaMovement();
+                    return Math.abs(Math.toDegrees(Math.atan2(aim.z,aim.x)))<=30.02
+                            && Math.abs(Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance())))<=20.02;
+                }),"Gatling spreads around the requested aim on both axes");
+                if(variant==1) {
+                    clouds.tick();
+                    if(ignited) require(victim.getHealth()==85
+                                    && ledger.enchantmentWeapon(victim.getLastDamageSource()).is(Items.AMETHYST_SHARD),
+                            "native burning caustic cloud hits using the captured Genie item");
+                    else {
+                        var poison=victim.getEffect(MobEffects.POISON);
+                        var cause=ledger.effectCauses(victim).get(MobEffects.POISON);
+                        require(poison!=null && poison.getDuration()==2400 && poison.getAmplifier()==4
+                                        && cause!=null && cause.enchantmentWeapon().is(Items.AMETHYST_SHARD),
+                                "native caustic cloud preserves the delayed poison's original weapon");
+                    }
+                    victim.removeEffect(MobEffects.POISON);
+                    victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
+                }
+                shots.forEach(base::discard);
+            }
+
+            base.set(cell.east(2),Blocks.STONE.defaultBlockState());
+            require(directed(host,"awakened_acid_wand",origin,east),"directed reactive cloud shot");
+            var great=clouds.acidSnapshot().getFirst();
+            for(int i=0;i<16&&!great.isRemoved();i++) great.tick();
+            var children=clouds.acidSnapshot().stream().filter(child->!child.isRemoved()).toList();
+            require(great.isRemoved() && children.size()==40
+                            && children.stream().allMatch(child ->
+                                    GenieCombat.spellWeapon(child,owner).is(Items.AMETHYST_SHARD)),
+                    "the real wall impact releases forty live acid children with the input weapon");
+            clouds.acidSnapshot().forEach(base::discard);
+            base.set(cell.east(2),Blocks.AIR.defaultBlockState());
+
+            require(directed(host,"awakened_acid_rifle",origin,east)
+                            && directed(host,"awakened_acid_rifle_ignited",origin,east)
+                            && clouds.acidSnapshot().isEmpty(),
+                    "two directed triggers queue finite native rifle bursts");
+            base.pause();
+            try {
+                for(int i=0;i<10;i++) service.tick();
+                require(clouds.acidSnapshot().isEmpty(),"time stop pauses queued acid rifle");
+            } finally {base.thaw();}
+            base.field(false,origin);
+            try {
+                for(int i=0;i<10;i++) service.tick();
+                require(clouds.acidSnapshot().isEmpty(),"antimagic at the retained origin pauses queued releases");
+            } finally {base.removeFields();}
+            for(int tick=1;tick<=110;tick++) {
+                service.tick();
+                var emitted=clouds.acidSnapshot();
+                if(tick%5==0 && tick<=100) require(emitted.size()==tick/5,
+                        "borrowed native rifle releases exactly one projectile per five ticks");
+                if(tick%5==0 && tick<=100) {
+                    boolean ignited=tick>50;
+                    require(emitted.stream().filter(shot->shot.entityTags().contains("on_fire")).count()
+                                    ==(ignited?(tick-50)/5:0),
+                            "queued casts retain independent ignition in FIFO order");
+                }
+            }
+            require(clouds.acidSnapshot().size()==20 && clouds.acidSnapshot().stream().allMatch(shot ->
+                            shot.position().equals(origin) && shot.getDeltaMovement().equals(east.scale(3))
+                                    && GenieCombat.spellWeapon(shot,owner).is(Items.AMETHYST_SHARD)),
+                    "the two finite bursts retain the supplied pose and captured weapon");
+            require(service.pending(owner)==paid && game.items().mana().get(owner)==mana
+                            && owner.getMainHandItem()==main && owner.getOffhandItem()==off,
+                    "borrowed acid modes leave paid charges, mana and equipped items untouched");
+        } finally {
+            service.cancelDirectedRifles();
+            clouds.acidSnapshot().forEach(base::discard);
+            ledger.clear(victim);
+            base.discard(victim);
+        }
+    }
+
     private static void drainAdvancedRay(LbcExasperato rays) {
         for (int tick = 0; tick < 100 && rays.pendingSearches() > 0; tick++) rays.tick();
         require(rays.pendingSearches() == 0, "native snow or Ender ray resolves");
@@ -1324,6 +1433,7 @@ final class GenieWorldChecks {
             advancedSnowCasts(game, base);
             permafrostCasts(game, base);
             fartusCasts(game, base);
+            awakenedAcidCasts(game, base);
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);

@@ -116,11 +116,24 @@ public final class GenieCombat {
     static ItemStack spellWeapon(DamageSource source) {
         if (!(source.getEntity() instanceof ServerPlayer owner)
                 || !(source.getDirectEntity() instanceof Projectile shot) || shot.getOwner() != owner) return ItemStack.EMPTY;
+        return spellWeapon(shot, owner);
+    }
+
+    static ItemStack spellWeapon(Projectile shot, ServerPlayer owner) {
+        var weapon = acceptedSpellWeapon(shot,owner);
+        return weapon == null ? ItemStack.EMPTY : weapon.snapshot().copy();
+    }
+
+    private static Weapon acceptedSpellWeapon(Projectile shot, ServerPlayer owner) {
         var weapon = shot.getAttached(SPELL);
-        if (weapon == null || !weapon.owner().equals(owner.getUUID())) return ItemStack.EMPTY;
+        if (weapon == null || !weapon.owner().equals(owner.getUUID())) return null;
         var game = SkyWars2.game();
-        return game != null && weapon.epoch().equals(game.items().epoch())
-            ? weapon.snapshot().copy() : ItemStack.EMPTY;
+        return game != null && weapon.epoch().equals(game.items().epoch()) ? weapon : null;
+    }
+
+    static void inheritSpellWeapon(Projectile parent, Projectile child, ServerPlayer owner) {
+        var weapon=acceptedSpellWeapon(parent,owner);
+        if (weapon!=null) child.setAttached(SPELL,weapon);
     }
 
     static void accepted(GameController game, LivingEntity victim, DamageSource actual) {

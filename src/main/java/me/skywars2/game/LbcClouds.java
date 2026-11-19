@@ -26,6 +26,7 @@ import net.minecraft.world.Clearable;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
@@ -439,6 +440,10 @@ public final class LbcClouds {
         return awakenedAcid(owner,origin,direction,variant,ignited,true);
     }
     AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited,boolean audible){
+        return awakenedAcid(owner,origin,direction,variant,ignited,audible,ItemStack.EMPTY);
+    }
+
+    AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited,boolean audible,ItemStack weapon){
         Vec3 aim=direction.normalize();float yaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
         var shot=new AcidProjectile(ACID_PROJECTILE,owner.level());shot.setOwner(owner);shot.setPos(origin);
@@ -448,7 +453,9 @@ public final class LbcClouds {
         else shot.entityTags().add(variant==1?CAUST_ACID:BURST_ACID);
         if(variant==1)shot.entityTags().add(ACID_500);
         if(ignited)shot.entityTags().add("on_fire");
-        shot.setAttached(ACID_AGE,0);owner.level().addFreshEntity(shot);
+        shot.setAttached(ACID_AGE,0);
+        GenieCombat.castProjectile(game,owner,shot,weapon);
+        if (!owner.level().addFreshEntity(shot)) shot.discard();
         if(audible)sound(owner.level(),origin,SoundEvents.ZOMBIE_VILLAGER_CURE,1,2,Double.POSITIVE_INFINITY,0);return shot;
     }
     static int awakenedVariant(Entity entity){return entity.entityTags().contains(CAUST_ACID)?1:entity.entityTags().contains(BURST_ACID)?2:0;}
@@ -457,6 +464,7 @@ public final class LbcClouds {
         if(shot.getOwner() instanceof ServerPlayer owner)for(int i=0;i<40;i++){
             var child=aimedWandAcid(owner,at,owner.getRandom().nextInt(361)-180,owner.getRandom().nextInt(181)-90,false);
             child.entityTags().remove("shield_blockable2");child.entityTags().addAll(List.of(ACID_500,GREAT_CHILD));
+            GenieCombat.inheritSpellWeapon(shot,child,owner);
         }
         sound((ServerLevel)shot.level(),at,SoundEvents.SHIELD_BREAK.value(),2,0,Double.POSITIVE_INFINITY,0);shot.discard();
     }
@@ -607,6 +615,7 @@ public final class LbcClouds {
         if (projectile.isRemoved()) return;
         if(projectile.entityTags().contains(GREAT_ACID)&&projectile.getOwner() instanceof ServerPlayer owner&&owner.getRandom().nextFloat()<.4f){
             var child=aimedWandAcid(owner,projectile.position(),0,90,false);child.entityTags().remove("shield_blockable2");child.entityTags().add(GREAT_CHILD);
+            GenieCombat.inheritSpellWeapon(projectile,child,owner);
         }
         if (projectile.entityTags().contains("on_fire")&&awakenedVariant(projectile)==0) state.lifetime += 3;
         projectile.setAttached(ACID_AGE, state.lifetime);
@@ -668,7 +677,9 @@ public final class LbcClouds {
             } else level.sendParticles(ParticleTypes.FLAME, origin.x, origin.y, origin.z, 5, .3, .3, .3, .15);
         }
         var damage=burning ? ownedDamage(level,DamageTypes.ON_FIRE,projectile,sourceAcidManaged(projectile)?sourceAcidOwner(projectile):projectile.getOwner()) : null;
-        for (var entity : targets(level, origin, ordinary||great ? 5 : 2.5)) {
+        var victims=targets(level, origin, ordinary||great ? 5 : 2.5);
+        var itemCause=burning||victims.isEmpty()?null:genieAcidCause(projectile);
+        for (var entity : victims) {
             if(wand && !wandAcidTarget(projectile,entity)) continue;
             if(sourceAcidManaged(projectile) && !sourceAcidCanAffect(projectile,entity))continue;
             if (burning) {
@@ -677,7 +688,8 @@ public final class LbcClouds {
             } else if (ordinary || great || !entity.entityTags().contains("muravei")) {
                 var poison=ItemEffectLevels.create(MobEffects.POISON,great ? 1200 : ordinary ? 600 : 300,0);
                 if(wand) {
-                    if(entity.addEffect(poison,projectile.getOwner()) && projectile.getOwner() instanceof ServerPlayer owner)
+                    if (itemCause!=null) game.items().indirectKills().inheritedEffect(entity,poison,itemCause);
+                    else if(entity.addEffect(poison,projectile.getOwner()) && projectile.getOwner() instanceof ServerPlayer owner)
                         game.items().indirectKills().poisoned(entity,owner);
                 } else entity.addEffect(poison,projectile);
             }
@@ -698,6 +710,7 @@ public final class LbcClouds {
         Vec3 path=to.subtract(from);double length=path.length();int samples=variant==2?Math.min(7,1+Mth.ceil(length*2-1e-6)):1;
         if(!shot.entityTags().contains("on_fire")&&ordinaryAcidIgnited(shot))shot.entityTags().add("on_fire");
         boolean burning=shot.entityTags().contains("on_fire");
+        var itemCause=burning||nearby.isEmpty()?null:genieAcidCause(shot);
         boolean batch = variant == 2 && samples > 1 && !game.balanceLegacy();
         try (var dust = batch ? new LbcParticleBatch.Group(level,
                     burning ? AWAKENED_ACID_FIRE : ORDINARY_ACID_DUST,1,burning ? .4 : .1,true) : null;
@@ -721,13 +734,24 @@ public final class LbcClouds {
                 for (var e:nearby) if(e.position().distanceToSqr(at)<=radius*radius&&hit.add(e)) {
                     if (burning) e.hurtServer(level,ownedDamage(level,DamageTypes.ON_FIRE,shot,shot.getOwner()),variant==1?15:25);
                     else {
-                        e.addEffect(ItemEffectLevels.create(MobEffects.POISON,variant==1?2400:1000,10),shot.getOwner());
-                        if (variant==2) e.addEffect(ItemEffectLevels.create(MobEffects.WITHER,200,10),shot.getOwner());
+                        acidStatus(shot,e,ItemEffectLevels.create(MobEffects.POISON,variant==1?2400:1000,10),itemCause);
+                        if (variant==2) acidStatus(shot,e,ItemEffectLevels.create(MobEffects.WITHER,200,10),itemCause);
                     }
                 }
                 if (level.getRandom().nextFloat()<(variant==1?.2f:.7f)) sound(level,at,SoundEvents.FIRE_EXTINGUISH,variant==1?2:.5f,2,Double.POSITIVE_INFINITY,0);
             }
         }
+    }
+
+    private LbcIndirectKills.Owner genieAcidCause(AcidProjectile shot) {
+        if (!(shot.getOwner() instanceof ServerPlayer owner)) return null;
+        var weapon=GenieCombat.spellWeapon(shot,owner);
+        return weapon.isEmpty()?null:game.items().indirectKills().itemCause(owner,false,true,weapon);
+    }
+
+    private void acidStatus(AcidProjectile shot, LivingEntity target, MobEffectInstance effect, LbcIndirectKills.Owner cause) {
+        if (cause==null) target.addEffect(effect,shot.getOwner());
+        else game.items().indirectKills().inheritedEffect(target,effect,cause);
     }
 
     private boolean ordinaryAcidIgnited(AcidProjectile projectile) {
