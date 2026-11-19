@@ -355,7 +355,8 @@ public final class AcidAntDropChecks {
                         && game.items().clouds().acidLifetime(p) == 500 && game.items().clouds().acidAge(p) == 0
                         && !p.isNoGravity() && !p.entityTags().contains("shield_blockable2")
                         && p.entityTags()
-                                .containsAll(List.of("raycastacid", "player", "slowraycast", "magic", "actived")),
+                                .containsAll(List.of("raycastacid", "player", "slowraycast", "actived"))
+                        && !p.entityTags().contains("magic") && !p.entityTags().contains("mecha"),
                         "source exact burst offsets500budget/gravity/no invented shield flag");
                 require(Math.abs(p.getDeltaMovement().length() - .5) < 1e-6
                         && game.items().clouds().sourceAcidOwner(p) == alpha
@@ -472,6 +473,18 @@ public final class AcidAntDropChecks {
             }
         }
 
+        void requireWildAntKill(Zombie attacker, Cow victim, String kind) {
+            int oldKills = kills(alpha);
+            boolean accepted = attacker.doHurtTarget(level, victim);
+            var damage = victim.getLastDamageSource();
+            require(accepted && victim.isDeadOrDying() && LbcSpellSource.unownedHazard(attacker)
+                            && damage != null && damage.getEntity() == attacker
+                            && victim.getKillCredit() == attacker && kills(alpha) == oldKills,
+                    kind + " keeps physical attacker and no player kill credit: accepted=" + accepted
+                            + " credit=" + victim.getKillCredit() + " source=" + damage
+                            + " kills=" + oldKills + "/" + kills(alpha));
+        }
+
         void meleeAndConversion() {
             clear();
             activate(LbcAntDropItem.Kind.ANTS);
@@ -482,8 +495,7 @@ public final class AcidAntDropChecks {
             }
             var c = cow(origin.add(2, 0, 0));
             c.setHealth(1);
-            require(source.doHurtTarget(level, c) && c.isDeadOrDying() && c.getKillCredit() == alpha,
-                    "actual native ant melee kill source");
+            requireWildAntKill(source, c, "direct ant");
             for (String role : List.of("spectator", "strict_map_object", "magic_academy")) {
                 var victim = cow(origin.add(2, 0, 0));
                 victim.entityTags().add(role);
@@ -529,8 +541,38 @@ public final class AcidAntDropChecks {
                     "native conversion preserves copied equipment/author/epoch and tracking");
             var victim = cow(origin.add(2, 0, 0));
             victim.setHealth(1);
-            require(converted.doHurtTarget(level, victim) && victim.isDeadOrDying() && victim.getKillCredit() == alpha,
-                    "converted native ant retains kill attribution");
+            requireWildAntKill(converted, victim, "drowned ant");
+        }
+
+        void helmetReinforcementCredit() {
+            clear();
+            var source = new LbcSpellSource.Source(alpha.getUUID(), alpha.getUUID(), game.items().epoch(),
+                    game.items().indirectKills().wildCause(alpha), Set.of()).helmetLoot();
+            try (var scope = game.items().spellSources().scope(source, level)) {
+                activate(LbcAntDropItem.Kind.ANTS);
+            }
+            var parent = ants().getFirst();
+            var child = EntityTypes.ZOMBIE.create(level, EntitySpawnReason.REINFORCEMENT);
+            require(child != null, "native helmet reinforcement body");
+            child.setPos(parent.position());
+            child.setNoAi(true);
+            child.setNoGravity(true);
+            game.items().antDrops().inheritReinforcement(parent, child);
+            require(level.addFreshEntity(child), "native helmet reinforcement admission");
+            mine.add(child);
+            var inherited = game.items().spellSources().source(child);
+            require(inherited != null && inherited.helmetCredit() && inherited.unownedMobs()
+                            && inherited.author().equals(alpha.getUUID())
+                            && game.items().antDrops().canAffect(child, alpha),
+                    "helmet reinforcement retains statistical credit and can still hurt the wearer");
+            var victim = cow(origin.add(2, 0, 0));
+            victim.setHealth(1);
+            int oldKills = kills(alpha);
+            require(child.doHurtTarget(level, victim) && victim.isDeadOrDying()
+                            && victim.getLastDamageSource() != null && victim.getLastDamageSource().getEntity() == child
+                            && victim.getKillCredit() == alpha && kills(alpha) == oldKills + 1,
+                    "helmet reinforcement melee keeps the physical body and wearer credit");
+            clear();
         }
 
         void rewards() {
@@ -746,8 +788,9 @@ public final class AcidAntDropChecks {
             var chicken = child.getVehicle();
             require(chicken != null && chicken.getType() == EntityTypes.CHICKEN && LbcAntDrops.managed(chicken)
                     && game.items().antDrops().snapshot().contains(chicken)
-                    && game.items().antDrops().owner(chicken) == alpha && game.items().currentEpoch(chicken),
-                    "actual native finalizer creates and admits causal jockey chicken");
+                    && game.items().antDrops().owner(chicken) == alpha && game.items().currentEpoch(chicken)
+                    && LbcSpellSource.unownedHazard(chicken) == LbcSpellSource.unownedHazard(child),
+                    "actual native finalizer admits the jockey with its parent's trap authority");
             require(!chicken.entityTags().contains("muravei") && !saved(chicken, level).contains("DeathLootTable"),
                     "native new mount receives only cause/lifecycle lineage");
             mine.add(chicken);
@@ -832,8 +875,7 @@ public final class AcidAntDropChecks {
             child.setNoGravity(true);
             var victim = cow(child.position().add(2, 0, 0));
             victim.setHealth(1);
-            require(child.doHurtTarget(level, victim) && victim.isDeadOrDying() && victim.getKillCredit() == alpha,
-                    "ordinary native reinforcement melee retains author");
+            requireWildAntKill(child, victim, "reinforcement ant");
             jockeyChild = child;
             wait = 0;
             if (child.getVehicle() != null) {
@@ -895,6 +937,7 @@ public final class AcidAntDropChecks {
                     sharedMotion();
                     effects();
                     meleeAndConversion();
+                    helmetReinforcementCredit();
                     rewards();
                     armShield();
                     phase++;

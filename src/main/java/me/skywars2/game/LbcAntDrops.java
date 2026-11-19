@@ -100,13 +100,18 @@ public final class LbcAntDrops {
     public void inheritReinforcement(Entity parent,Entity child){
         if(!managed(parent) || !active(parent) || !(child instanceof Zombie))return;
         // The native factory/finalizeSpawn owns all gear, AI and loot. Only causal lifecycle tags cross.
-        tag(child,LbcIndirectKills.playerSource(owner(parent)));game.items().timeStop().prepareFrozen(child);
+        inheritAnt(parent,child);
         var zombie=(Zombie)child;if(zombie.getTarget()!=null && !canTarget(child,zombie.getTarget()))zombie.setTarget(null);
     }
     /** Native finalizeSpawn's newly allocated mount only; never called for a preexisting chicken. */
     public void inheritJockey(Entity parent,Entity child){
         if(!managed(parent) || !active(parent) || !(child instanceof Chicken))return;
-        tag(child,LbcIndirectKills.playerSource(owner(parent)));game.items().timeStop().prepareFrozen(child);
+        inheritAnt(parent,child);
+    }
+    private void inheritAnt(Entity parent,Entity child){
+        tag(child,LbcIndirectKills.playerSource(owner(parent)));
+        game.items().spellSources().inherit(parent,child);
+        game.items().timeStop().prepareFrozen(child);
     }
     public void inheritConversion(Entity parent,Entity child){
         if(!managed(parent) || !active(parent) || !(child instanceof Zombie))return;
