@@ -89,7 +89,7 @@ async def probe_attachment(client, model):
     return {"connected": True}
 
 
-async def refresh(cookie):
+async def refresh(cookie, proxy):
     from curl_cffi.requests import AsyncSession, Cookies
     from gemini_webapi.exceptions import AuthError
     from gemini_webapi.utils import rotate_1psidts
@@ -98,7 +98,7 @@ async def refresh(cookie):
     for name in ("__Secure-1PSID", "__Secure-1PSIDTS"):
         jar.set(name, cookie[name], domain=".google.com", secure=True)
     try:
-        async with AsyncSession(cookies=jar, timeout=35) as session:
+        async with AsyncSession(cookies=jar, proxy=proxy, timeout=35) as session:
             timestamp = await rotate_1psidts(session)
     except AuthError as error:
         raise SessionFailure("UNAUTHENTICATED") from error
@@ -116,13 +116,13 @@ def select_pro_model(client):
     raise SessionFailure("PRO_UNAVAILABLE")
 
 
-async def run(cookie):
+async def run(cookie, proxy):
     from loguru import logger
     logger.remove()
     from gemini_webapi import GeminiClient
     from gemini_webapi.constants import AccountStatus
 
-    client = GeminiClient(cookie["__Secure-1PSID"], cookie["__Secure-1PSIDTS"])
+    client = GeminiClient(cookie["__Secure-1PSID"], cookie["__Secure-1PSIDTS"], proxy=proxy)
     try:
         await client.init(timeout=35, watchdog_timeout=35, auto_refresh=False)
         if client.account_status == AccountStatus.UNAUTHENTICATED:
@@ -158,11 +158,12 @@ def main():
     with tempfile.TemporaryDirectory(prefix="gemini-session-", dir=".") as cache:
         os.environ["GEMINI_COOKIE_PATH"] = str(Path(cache).resolve())
         cookie = json.load(sys.stdin)
+        proxy = os.environ.get("SKYWARS2_GENIE_GEMINI_WEB_PROXY") or None
         refresh_only = sys.argv[2:] == ["refresh"]
         if refresh_only:
             from loguru import logger
             logger.remove()
-        request = refresh(cookie) if refresh_only else run(cookie)
+        request = refresh(cookie, proxy) if refresh_only else run(cookie, proxy)
         if refresh_only or not Path("prompt.txt").is_file():
             request = asyncio.wait_for(request, 65)
         print(json.dumps(asyncio.run(request), ensure_ascii=False))

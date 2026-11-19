@@ -118,7 +118,7 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
             return thread;
         });
         maintenance = worker;
-        worker.scheduleWithFixedDelay(() -> renew(worker), 1, 10, TimeUnit.MINUTES);
+        worker.scheduleWithFixedDelay(() -> renew(worker), 1, 1, TimeUnit.MINUTES);
     }
 
     void stopMaintenance() {
