@@ -11,6 +11,9 @@ import net.minecraft.nbt.*;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
+import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
@@ -1439,6 +1442,97 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void fireblazeCasts(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var level = base.level;
+        var service = game.items().blaze();
+        require(service.terrainCount() == 0, "exclusive Fireblaze terrain fixture");
+        var center = new Vec3(owner.chunkPosition().getMinBlockX() + 8.5, 240, owner.chunkPosition().getMinBlockZ() + 8.5);
+        var ignored = new ArrayList<LivingEntity>();
+        for (var body : level.getAllEntities()) {
+            if (body instanceof LivingEntity living && living != owner && living.entityTags().add("strict_map_object"))
+                ignored.add(living);
+        }
+        var near = stationaryCow(base, center);
+        var far = stationaryCow(base, center.add(0, 40, 0));
+        var gift = new ItemStack(Items.AMETHYST_SHARD);
+        var oldResistance = owner.getEffect(MobEffects.FIRE_RESISTANCE);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var mana = game.items().mana().get(owner);
+        var before = new HashSet<UUID>();
+        for (var body : level.getAllEntities()) before.add(body.getUUID());
+        var shots = new ArrayList<Projectile>();
+        try (var host = new GenieWorldHost(game, owner, gift, () -> true, () -> 0)) {
+            java.util.function.Function<String, Boolean> cast = mode ->
+                    complete(host, queued(host, "lbc.cast_at", new JsonPrimitive("skywars2:" + mode), vector(center))).getAsBoolean();
+            require(owner.position().distanceToSqr(center) > 900, "remote Fireblaze origin");
+            base.field(false, center);
+            require(!cast.apply("fireblaze_wand"), "native MAG blocks Fireblaze at its selected origin");
+            base.removeFields();
+            for (String mode : List.of("fireblaze_wand", "academy_fireblaze_world", "academy_fireblaze_mega")) {
+                require(cast.apply(mode), "scripted Fireblaze accepts " + mode);
+                for (var body : level.getAllEntities()) {
+                    if (body instanceof Projectile shot && !before.contains(body.getUUID())) {
+                        shots.add(shot);
+                        base.own(shot);
+                        before.add(shot.getUUID());
+                    }
+                }
+                boolean ordinary = mode.equals("fireblaze_wand");
+                boolean mega = mode.equals("academy_fireblaze_mega");
+                require(shots.size() == (ordinary ? 1 : 2), "original Fireblaze target radius " + mode);
+                for (var shot : shots) {
+                    var enemy = shot.getY() < center.y + 20 ? near : far;
+                    var towards = enemy.position().add(0, 1, 0).subtract(shot.position());
+                    require((mega ? shot instanceof LargeFireball big && GameChecks.fireballPower(big) == 5
+                                    : shot instanceof SmallFireball)
+                            && towards.lengthSqr() <= 36 && towards.normalize().dot(shot.getDeltaMovement().normalize()) > .9999
+                            && shot.getOwner() == owner && GenieCombat.spellWeapon(shot, owner).is(Items.AMETHYST_SHARD),
+                            "native ball, exact motion and captured gift for " + mode);
+                }
+                shots.forEach(base::discard);
+                shots.clear();
+            }
+
+            // Predict a column in this already resident chunk so the full native write can be restored.
+            base.discard(far);
+            long seed = 0;
+            BlockPos column;
+            do {
+                var random = net.minecraft.util.RandomSource.create(++seed);
+                column = near.blockPosition().offset(random.nextInt(61) - 30, 0, random.nextInt(61) - 30);
+            } while (!owner.chunkPosition().equals(net.minecraft.world.level.ChunkPos.containing(column)));
+            owner.getRandom().setSeed(seed);
+            for (int y = 0; y <= 319; y++) {
+                var pos = column.atY(y);
+                base.set(pos, level.getBlockState(pos));
+            }
+            owner.removeEffect(MobEffects.FIRE_RESISTANCE);
+            require(cast.apply("academy_fireblaze_pillars") && service.terrainCount() == 1
+                            && owner.getEffect(MobEffects.FIRE_RESISTANCE).isInfiniteDuration(),
+                    "actual Pillars queue and native infinite resistance");
+            for (int i = 0; i < 100 && service.terrainCount() != 0; i++) service.tick();
+            require(service.terrainCount() == 0 && level.getBlockState(column.atY(0)).is(Blocks.LAVA)
+                            && level.getBlockState(column.atY(159)).is(Blocks.LAVA)
+                            && level.getBlockState(column.atY(319)).is(Blocks.LAVA), "native Pillars runs from Y=0 to Y=319");
+            owner.removeEffect(MobEffects.FIRE_RESISTANCE);
+            require(cast.apply("academy_fireblaze_kiuas") && service.terrainCount() == 1
+                            && owner.getEffect(MobEffects.FIRE_RESISTANCE).isInfiniteDuration(),
+                    "Kiuas queues the original large fire-area work and applies resistance");
+            require(game.items().mana().get(owner) == mana && owner.getMainHandItem() == main && owner.getOffhandItem() == off,
+                    "all five Fireblaze calls preserve wand mana and physical hands");
+        } finally {
+            service.clearFutureTerrain();
+            shots.forEach(base::discard);
+            owner.removeEffect(MobEffects.FIRE_RESISTANCE);
+            if (oldResistance != null) owner.addEffect(oldResistance);
+            base.discard(near);
+            base.discard(far);
+            ignored.forEach(body -> body.entityTags().remove("strict_map_object"));
+        }
+    }
+
     private static void awakenedAcidCasts(GameController game, WoolBucketChecks.Fixture base) {
         var owner=base.owner;
         var service=game.items().awakenedAcid();
@@ -1621,6 +1715,7 @@ final class GenieWorldChecks {
             permafrostCasts(game, base);
             fartusCasts(game, base);
             awakenedAcidCasts(game, base);
+            fireblazeCasts(game, base);
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);

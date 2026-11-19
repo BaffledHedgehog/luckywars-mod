@@ -74,7 +74,8 @@ public final class LbcBlaze {
     private int checkpointCallbacks;
     private boolean checkpointRestoring;
     private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust,boolean wild) { }
-    private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas) { }
+    private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas,
+                           LbcIndirectKills.Owner cause) { }
 
     private record TrialChunk(ServerLevel level, ChunkPos pos) {}
 
@@ -255,16 +256,32 @@ public final class LbcBlaze {
     /** Mode zero is the single at_random_fireball helper, rather than the paid nearby volley. */
     void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
         checkpointCallbacks++;try {
-            if(mode==0)randomFire(owner,origin,false);
-            else if(mode==2)volleyAt(owner,origin,100,true);
-            else global(owner,mode,false,origin);
+            if(mode==0)randomFire(owner,origin,false,ItemStack.EMPTY);
+            else if(mode==2)volleyAt(owner,origin,100,true,ItemStack.EMPTY);
+            else global(owner,mode,false,origin,ItemStack.EMPTY);
         }finally{checkpointCallbacks--;}
     }
 
     void fireblaze(ServerPlayer owner,int mode) {
-            if(mode==0) volley(owner,30,false);
-            else if(mode==2) volley(owner,100,true);
-            else global(owner,mode);
+        fireblazeAt(owner,owner.position(),mode,ItemStack.EMPTY);
+    }
+
+    boolean scriptFireblaze(ServerPlayer owner,Vec3 center,int mode,ItemStack weapon) {
+        if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())
+                || game.items().magic().suppressedAt(owner.level(),center)) return false;
+        checkpointCallbacks++;
+        try {
+            fireblazeAt(owner,center,mode,weapon);
+            return true;
+        } finally {
+            checkpointCallbacks--;
+        }
+    }
+
+    private void fireblazeAt(ServerPlayer owner,Vec3 center,int mode,ItemStack weapon) {
+        if(mode==0) volleyAt(owner,center,30,false,weapon);
+        else if(mode==2) volleyAt(owner,center,100,true,weapon);
+        else global(owner,mode,true,center,weapon);
     }
 
     /** Первое пересечение блок/хитбокс заменяет старую рекурсию из 200 отдельных команд. */
@@ -330,16 +347,13 @@ public final class LbcBlaze {
         }
         return nearest;
     }
-    private void volley(ServerPlayer owner,int radius,boolean mega) {
-        volleyAt(owner,owner.position(),radius,mega);
-    }
-    private void volleyAt(ServerPlayer owner,Vec3 origin,int radius,boolean mega){
+    private void volleyAt(ServerPlayer owner,Vec3 origin,int radius,boolean mega,ItemStack weapon){
         for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(origin,origin).inflate(radius),
                 e->target(owner,e) && e.position().distanceToSqr(origin)<=radius*(double)radius))
-            randomFire(owner,target.position().add(0,1,0),mega);
+            randomFire(owner,target.position().add(0,1,0),mega,weapon);
         LbcOverload.sound(owner,origin,"minecraft:item.firecharge.use",1,1,0);
     }
-    private void randomFire(ServerPlayer owner,Vec3 point,boolean mega) {
+    private void randomFire(ServerPlayer owner,Vec3 point,boolean mega,ItemStack weapon) {
         int direction=owner.getRandom().nextInt(9);
         Vec3 offset=switch(direction) {
             case 0->new Vec3(6,0,0); case 1->new Vec3(-6,0,0);
@@ -349,21 +363,24 @@ public final class LbcBlaze {
         };
         Vec3 velocity=offset.scale(direction>=4 && direction<=7?-.5:-.25);
         Projectile projectile=mega?new LargeFireball(owner.level(),owner,velocity,5):new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level());
-        game.items().wands().launchFire(owner,projectile,point.add(offset),velocity);
-        LbcOverload.sound(owner,point.add(offset),"minecraft:item.firecharge.use",1,1,0);
+        var spawn=point.add(offset);
+        if(!weapon.isEmpty()) {
+            var pos=BlockPos.containing(spawn);
+            if(!owner.level().isInWorldBounds(pos) || !owner.level().hasChunkAt(pos)) return;
+            GenieCombat.castProjectile(game,owner,projectile,weapon);
+        }
+        game.items().wands().launchFire(owner,projectile,spawn,velocity);
+        LbcOverload.sound(owner,spawn,"minecraft:item.firecharge.use",1,1,0);
     }
 
     /** Глобальные режимы выбирают живые цели один раз на каст; отдельного тикового обхода мира нет. */
-    private void global(ServerPlayer owner,int mode) {
-        global(owner,mode,true,owner.position());
-    }
-    private void global(ServerPlayer owner,int mode,boolean ownerEffects,Vec3 origin) {
+    private void global(ServerPlayer owner,int mode,boolean ownerEffects,Vec3 origin,ItemStack weapon) {
         checkpointCallbacks++;try {
             var areas=new ArrayDeque<BlockAreaWork>();
             var targets=new ArrayList<LivingEntity>();
             for(var entity:owner.level().getAllEntities()) if(entity instanceof LivingEntity living && target(owner,living)) targets.add(living);
             for(var living:targets) {
-                if(mode==1) randomFire(owner,living.position().add(0,1,0),false);
+                if(mode==1) randomFire(owner,living.position().add(0,1,0),false,weapon);
                 else if(mode==3) {
                     var center=BlockPos.containing(living.position().add(0,1,0));
                     center=center.offset(owner.getRandom().nextInt(61)-30,0,owner.getRandom().nextInt(61)-30);
@@ -388,7 +405,10 @@ public final class LbcBlaze {
                             center.getX()+1,center.getY()+1,center.getZ()+1),true);
                 }
             }
-            if(!areas.isEmpty()) terrain.add(new Terrain(owner,owner.level(),areas));
+            if(!areas.isEmpty()) {
+                var cause=weapon.isEmpty()?null:game.items().indirectKills().itemCause(owner,false,false,weapon);
+                terrain.add(new Terrain(owner,owner.level(),areas,cause));
+            }
             if(ownerEffects && (mode==3 || mode==4)) owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,-1,0));
             if(mode!=4) LbcOverload.sound(owner,origin,mode==3?"minecraft:block.lava.ambient":"minecraft:item.firecharge.use",1,1,0);
         }finally{checkpointCallbacks--;}
@@ -400,7 +420,7 @@ public final class LbcBlaze {
         var areas=new ArrayDeque<BlockAreaWork>();
         enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-1,center.getY()-1,center.getZ()-1,
                 center.getX()+1,center.getY()+1,center.getZ()+1),false);
-        terrain.add(new Terrain(owner,owner.level(),areas));
+        terrain.add(new Terrain(owner,owner.level(),areas,null));
     }
 
     private void enqueue(ServerPlayer owner,ArrayDeque<BlockAreaWork> areas,BlockAreaWork.Bounds bounds,boolean lava) {
@@ -521,7 +541,10 @@ public final class LbcBlaze {
                 var area=job.areas.getFirst();
                 int[] processed={0};
                 int allowance=Math.min(256,left);
-                game.items().indirectKills().trapChanges(job.owner,()->processed[0]=area.step(game,job.owner,allowance,deadline));
+                var ledger=game.items().indirectKills();
+                Runnable write=()->processed[0]=area.step(game,job.owner,allowance,deadline);
+                if(job.cause==null) ledger.trapChanges(job.owner,write);
+                else ledger.trapChanges(job.level,job.cause,write);
                 int used=processed[0]; left-=Math.max(1,used);
                 if(!area.hasWork()) job.areas.removeFirst();
                 if(!job.areas.isEmpty()) terrain.addLast(job);

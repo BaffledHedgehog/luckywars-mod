@@ -121,6 +121,16 @@ public final class GenieNative {
                 "Detonates your Permafrost crystals within 50 blocks of the target."),
         ACADEMY_ICE_WAND_SHATTER("academy_ice_wand_shatter", "Academy Permafrost: Shatter", "Вечная Мерзлота (Академия): Раскалывание",
                 "Detonates your crystals and shatters frozen entities within 50 blocks. Shatter can hurt allies."),
+        FIREBLAZE_WAND("fireblaze_wand", "Fireblaze Staff", "????? ????? ????????? ????'???? ?? ??????",
+                "Sends a native small fireball toward each enemy within 30 blocks of the target position."),
+        ACADEMY_FIREBLAZE_WORLD("academy_fireblaze_world", "Fireblaze: Infinite Range", "????? ????? ?????????: ??????????? ?????????",
+                "Sends a small fireball toward each eligible enemy in the arena."),
+        ACADEMY_FIREBLAZE_MEGA("academy_fireblaze_mega", "Fireblaze: Powerful Explosions", "????? ????? ?????????: ?????? ??????",
+                "Sends an explosive fireball of power five toward each enemy within 100 blocks of the target position."),
+        ACADEMY_FIREBLAZE_PILLARS("academy_fireblaze_pillars", "Fireblaze: Lava Pillars", "????? ????? ?????????: ??????? ???????",
+                "Creates the original lava columns near enemies in the arena and gives the caster fire resistance."),
+        ACADEMY_FIREBLAZE_KIUAS("academy_fireblaze_kiuas", "Fireblaze: World Inferno", "????? ????? ?????????: ????????? ????????",
+                "Ignites the original regions around enemies and places lava. Gives the caster fire resistance."),
         HAKUREI_BOMB("hakurei_bomb", "Hakurei Shrine: Fantasy Seal bomb", "Храм Хакурей: бомба Печать фантазии",
                 "Original faster yellow Fantasy Seal bomb with its normal 300 charge and lingering shell.");
 
@@ -215,6 +225,15 @@ public final class GenieNative {
             case GOHEI_SPELLCARD -> game.items().danmaku().scriptBomb(player, target, 300, false);
             case GOHEI_SPELLCARD_FULL -> game.items().danmaku().scriptBomb(player, target, 1500, false);
             case HAKUREI_BOMB -> game.items().danmaku().scriptBomb(player, target, 300, true);
+            case FIREBLAZE_WAND, ACADEMY_FIREBLAZE_WORLD, ACADEMY_FIREBLAZE_MEGA,
+                    ACADEMY_FIREBLAZE_PILLARS, ACADEMY_FIREBLAZE_KIUAS ->
+                    game.items().blaze().scriptFireblaze(player, target, switch (spell) {
+                        case ACADEMY_FIREBLAZE_WORLD -> 1;
+                        case ACADEMY_FIREBLAZE_MEGA -> 2;
+                        case ACADEMY_FIREBLAZE_PILLARS -> 3;
+                        case ACADEMY_FIREBLAZE_KIUAS -> 4;
+                        default -> 0;
+                    }, weapon);
             case PSYCHO_AREA, PSYCHO_SOUND, PSYCHO_SCREAMER, PSYCHO_LOOK_BACK, PSYCHO_SCARE ->
                     game.items().psycho().scriptArea(player, target, switch (spell) {
                         case PSYCHO_SOUND -> 1;

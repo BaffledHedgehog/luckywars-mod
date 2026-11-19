@@ -158,6 +158,15 @@ final class GenieLampScriptChecks implements AutoCloseable {
                                 value.getAsJsonObject().get("id").getAsString().equals(ice.id.toString()))
                                 && prompt.contains(ice.id.toString()), "Permafrost targeted id is documented and callable " + ice.id);
             }
+            var targeted = facts.getAsJsonArray("script_targeted_casts").asList().stream()
+                    .map(JsonElement::getAsJsonObject).toList();
+            for (String id : List.of("fireblaze_wand", "academy_fireblaze_world", "academy_fireblaze_mega",
+                    "academy_fireblaze_pillars", "academy_fireblaze_kiuas")) {
+                String spell = "skywars2:" + id;
+                require(prompt.contains(spell) && targeted.stream().anyMatch(row -> row.get("id").getAsString().equals(spell)
+                                && row.getAsJsonArray("names").get(1).getAsString().startsWith("????? ????? ?????????")),
+                        "the actual provider receives the exact Fireblaze mode " + spell);
+            }
             int payloadCount = 0;
             require(payloads.size() == 9, "all native Sauvojen families appear in the request");
             for (var branch : LbcSauvojen.Kind.values()) {

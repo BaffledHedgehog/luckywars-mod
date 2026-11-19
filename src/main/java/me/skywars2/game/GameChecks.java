@@ -13450,6 +13450,7 @@ public final class GameChecks {
                 var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
                 require(owner!=null && game.allowDamage(owner),"Blaze owner is an active participant");
                 var mana=game.items().mana(); var service=game.items().blaze(); var level=game.maps().level();
+                int fireblazeCost=mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("fireblaze_wand_mana_use"),"lbc.math").get();
                 var originalLoot=fixtureLootBefore(level);
                 var state=new WandThirdPlayerState(owner,mana);
                 var cows=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
@@ -13489,12 +13490,12 @@ public final class GameChecks {
                         var npc=frostProbeCow(level,cows,x+.5,260,z-4.5); npc.entityTags().add("magic_academy");
                         board.addPlayerToTeam(ally.getScoreboardName(),team);
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(LbcWands.FIREBLAZE));
-                        mana.set(owner,49);
+                        mana.set(owner,fireblazeCost-1);
                         require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && fresh.get().isEmpty(),
-                                        "Fireblaze rejects a cast below 50 mana without spawning");
-                        mana.set(owner,100);
+                                        "Fireblaze rejects a cast below its configured mana cost without spawning");
+                        mana.set(owner,fireblazeCost+50);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==50,
-                                        "Fireblaze spends 50 once for its whole volley");
+                                        "Fireblaze spends the configured cost once for its whole volley");
                         var volley=fresh.get();
                         require(volley.size()==1,"One nearby enemy creates one Fireblaze shot; ally and academy NPC are excluded");
                         var shot=volley.getFirst(); spawned.addAll(volley);
@@ -13547,7 +13548,7 @@ public final class GameChecks {
                                 level.getChunk((x+distance)>>4,z>>4); level.getChunk((x-distance)>>4,z>>4);
                                 level.getChunk(x>>4,(z+distance)>>4); level.getChunk(x>>4,(z-distance)>>4);
                         }
-                        owner.setShiftKeyDown(true); mana.set(owner,50);
+                        owner.setShiftKeyDown(true); mana.set(owner,fireblazeCost);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,
                                         "Fireblaze Academy trial is a paid native cast");
                         var trialShots = new java.util.LinkedHashSet<>(fresh.get());
@@ -13604,7 +13605,7 @@ public final class GameChecks {
                         var distant=frostProbeCow(level,cows,x+.5,300,z+.5);
                         academyFireData=academyFire.get(DataComponents.CUSTOM_DATA).copyTag(); academyFireData.putInt("mode",1);
                         academyFire.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(academyFireData));
-                        mana.set(owner,50);
+                        mana.set(owner,fireblazeCost);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,
                                         "Academy world mode charges once for its global target pass");
                         var worldShots=fresh.get(); spawned.addAll(worldShots);
@@ -13618,7 +13619,7 @@ public final class GameChecks {
                         var megaVictim=frostProbeCow(level,cows,x+4.5,260,z+.5);
                         academyFireData=academyFire.get(DataComponents.CUSTOM_DATA).copyTag(); academyFireData.putInt("mode",2);
                         academyFire.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(academyFireData));
-                        mana.set(owner,50);
+                        mana.set(owner,fireblazeCost);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Academy Fireblaze Mega mode dispatches");
                         var megaShots=fresh.get(); spawned.addAll(megaShots);
                         var megaFireballs=megaShots.stream().filter(p->p instanceof net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball)
@@ -13649,7 +13650,7 @@ public final class GameChecks {
                                 var pos=pillarBase.atY(y).immutable();
                                 changedBlocks.putIfAbsent(pos,game.maps().snapshot(pos));
                         }
-                        mana.set(owner,50);
+                        mana.set(owner,fireblazeCost);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND)
                                         && service.terrainCount()==1,"Academy Pillars queues one native terrain column");
                         int pillarTicks=0;
@@ -13683,7 +13684,7 @@ public final class GameChecks {
                         level.setBlockAndUpdate(campfire,net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState());
                         academyFireData=academyFire.get(DataComponents.CUSTOM_DATA).copyTag(); academyFireData.putInt("mode",4);
                         academyFire.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(academyFireData));
-                        mana.set(owner,50);
+                        mana.set(owner,fireblazeCost);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND)
                                         && service.terrainCount()==1,"Academy Kiuas queues its grouped native terrain batch");
                         int kiuasTicks=0;
@@ -13740,11 +13741,12 @@ public final class GameChecks {
                         nativeShot.setOwner(hostileBlaze); nativeShot.setPos(hostileBlaze.position());
                         require(level.addFreshEntity(nativeShot),"Native Blaze SmallFireball enters the entity-load adoption fixture");
                         service.loaded(nativeShot); spawned.add(nativeShot);
-                        require(nativeShot.getOwner()==owner && game.items().wands().isFireProjectile(nativeShot)
+                        require(nativeShot.getOwner()==hostileBlaze && LbcIndirectKills.playerSource(nativeShot)==owner
+                                        && game.items().wands().isFireProjectile(nativeShot)
                                         && game.items().currentEpoch(nativeShot) && !game.items().wands().canHit(nativeShot,owner)
                                         && game.items().wands().canHit(nativeShot,hostileBlaze)
                                         && service.canTarget(hostileBlaze,blazeEnemy) && !service.canTarget(hostileBlaze,owner),
-                                        "Loaded Blaze projectile adopts player credit and epoch, protects its player and can hit friendly mobs");
+                                        "Loaded fireball retains its native Blaze shooter, separate player credit, epoch and original targeting");
                         for(var mob:hostileTrialMobs) { mob.discard(); testBlazes.remove(mob); }
                         hostileBlaze.discard(); testBlazes.remove(hostileBlaze); service.stop();
                         require(service.count()==0,"Blaze trial mobs and services are fully removed between fixtures");
