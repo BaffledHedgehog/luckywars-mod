@@ -75,7 +75,9 @@ public final class LbcVoidArcanum {
     private final List<Hole> restoreVisuals=new ArrayList<>();
     private final Map<Hole,UUID> restoreVisualOwners=new HashMap<>();
     private static final class Hands {boolean main,off;}
-    record Contribution(UUID owner,LbcIndirectKills.Owner cause){}
+    record Contribution(UUID owner, LbcIndirectKills.Owner cause, int remainingTicks, int strength) {
+        boolean temporary() { return remainingTicks >= 0; }
+    }
     static final class Hole {
         final ServerLevel world;Marker marker;final String epoch;
         final List<Contribution> members=new ArrayList<>();
@@ -110,6 +112,18 @@ public final class LbcVoidArcanum {
     private boolean suppressed(ServerPlayer owner){return game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.position());}
     private static boolean resident(ServerLevel world,Vec3 point){var p=BlockPos.containing(point);return world.getChunkSource().getChunkNow(p.getX()>>4,p.getZ()>>4)!=null;}
     Hole spawn(ServerPlayer owner,Vec3 point){
+        return spawn(owner, point, 1, -1);
+    }
+
+    boolean scriptSpawn(ServerPlayer owner, ItemStack weapon, Vec3 point, int level, int duration) {
+        if (paused(owner) || suppressed(owner) || game.items().magic().suppressedAt(owner.level(), owner.getEyePosition()))
+            return false;
+        try (var use = WeaponEnchantments.using(owner, weapon)) {
+            return spawn(owner, point, level, duration) != null;
+        }
+    }
+
+    private Hole spawn(ServerPlayer owner, Vec3 point, int level, int duration) {
         if(rewinding)return null;
         callbackDepth++;try{
         if(!valid(owner)||!resident(owner.level(),point)||game.items().magic().suppressedAt(owner.level(),point))return null;
@@ -117,7 +131,8 @@ public final class LbcVoidArcanum {
         body.entityTags().addAll(List.of(BODY_TAG,"void_curse","magic","player"));
         game.items().markCurrentItemEpoch(body);game.items().timeStop().prepareFrozen(body);
         var hole=new Hole(owner.level(),body,point,game.items().epoch());
-        hole.members.add(new Contribution(owner.getUUID(),game.items().indirectKills().coldCause(owner,false)));
+        hole.members.add(new Contribution(owner.getUUID(), game.items().indirectKills().coldCause(owner, false), duration, level));
+        hole.level = level;
         holes.add(hole); // Publication invokes load callbacks synchronously.
         if(!hole.world.addFreshEntity(body)||body.isRemoved()||!holes.contains(hole)){remove(hole);return null;}
         return hole;
@@ -150,7 +165,7 @@ public final class LbcVoidArcanum {
             present.add(owner.getUUID());var state=hands.computeIfAbsent(owner.getUUID(),ignored->new Hands());
             boolean main=isArcanum(owner.getMainHandItem()),off=isArcanum(owner.getOffhandItem());
             if(!main)state.main=false;if(!off)state.off=false;
-            if(!main&&!off||suppressed(owner)){state.main=false;state.off=false;removeOwner(owner.getUUID());continue;}
+            if(!main&&!off||suppressed(owner)){state.main=false;state.off=false;removeOwner(owner.getUUID(),true);continue;}
             if(paused(owner))continue;
             if(main&&!state.main)state.main=activate(owner);
             if(off&&!state.off)state.off=activate(owner);
@@ -158,7 +173,11 @@ public final class LbcVoidArcanum {
         hands.keySet().removeIf(id->!present.contains(id));
         if(!holes.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         for(var hole:List.copyOf(holes)){
-            hole.members.removeIf(member->{var owner=owner(member);return !valid(owner)||!held(owner)||suppressed(owner);});
+            hole.members.removeIf(member -> {
+                var owner = owner(member);
+                return !valid(owner) || suppressed(owner)
+                        || (member.temporary() ? member.remainingTicks == 0 : !held(owner));
+            });
             if(hole.members.isEmpty()||!game.items().currentEpoch(hole.epoch)||hole.marker.isRemoved()
                     ||hole.world!=game.maps().level()||!resident(hole.world,hole.point)
                     ||game.items().magic().suppressedAt(hole.world,hole.point)){remove(hole);continue;}
@@ -175,7 +194,7 @@ public final class LbcVoidArcanum {
             if(player==null||paused(player))continue;
             if(!game.items().mana().trySpend(player,entry.getValue())){
                 var state=hands.get(entry.getKey());if(state!=null){state.main=false;state.off=false;}
-                removeOwner(entry.getKey());
+                removeOwner(entry.getKey(),true);
             }else game.items().armorSets().phantom().activity(player);
         }
         // Rotate the first body each frame so a large hole cannot starve later bodies.
@@ -188,6 +207,9 @@ public final class LbcVoidArcanum {
             physics(hole,author,cause);
             if(!holes.contains(hole))continue;
             updateVisual(hole,author);active.add(hole);
+            hole.members.replaceAll(contribution -> contribution.temporary()
+                    ? new Contribution(contribution.owner, contribution.cause, contribution.remainingTicks - 1,
+                            contribution.strength) : contribution);
 
         }
         // Entity search/physics cannot consume the terrain allowance before it starts.
@@ -207,11 +229,16 @@ public final class LbcVoidArcanum {
     }
     private Map<UUID,Integer> costShares(Hole hole){
         var counts=new LinkedHashMap<UUID,Integer>();
-        for(var member:hole.members)counts.merge(member.owner,1,Integer::sum);
-        var shares=new LinkedHashMap<UUID,Integer>();if(counts.isEmpty())return shares;
-        int total=config("void_arcanum_mana_tick")<<(Math.min(5,hole.members.size())-1),allocated=0;
+        int paid = 0;
+        for (var member : hole.members) {
+            if (member.temporary()) continue;
+            counts.merge(member.owner, 1, Integer::sum);
+            paid++;
+        }
+        var shares=new LinkedHashMap<UUID,Integer>();if(paid==0)return shares;
+        int total=config("void_arcanum_mana_tick")<<(Math.min(5,paid)-1),allocated=0;
         for(var entry:counts.entrySet()){
-            int share=(int)((long)total*entry.getValue()/hole.members.size());shares.put(entry.getKey(),share);allocated+=share;
+            int share=(int)((long)total*entry.getValue()/paid);shares.put(entry.getKey(),share);allocated+=share;
         }
         // Floor each proportional share, then rotate indivisible mana points across the owners.
         var owners=new ArrayList<>(shares.keySet());
@@ -224,7 +251,7 @@ public final class LbcVoidArcanum {
         callbackDepth++;try{
         if(hole.members.isEmpty())return null;
         var counts=new LinkedHashMap<UUID,Integer>();
-        for(var member:hole.members)counts.merge(member.owner,1,Integer::sum);
+        for(var member:hole.members)counts.merge(member.owner,member.strength,Integer::sum);
         int most=counts.values().stream().mapToInt(Integer::intValue).max().orElse(0);
         var tied=counts.entrySet().stream().filter(entry->entry.getValue()==most).map(Map.Entry::getKey).toList();
         UUID selected=tied.get(hole.world.getRandom().nextInt(tied.size()));
@@ -238,11 +265,21 @@ public final class LbcVoidArcanum {
         return hole.wild?new LbcIndirectKills.Owner(cause.player(),cause.order(),true,false):cause;
     }
     private void updateLevel(Hole hole){
-        hole.level=Math.min(5,hole.members.size());
+        int strength = 0;
+        for (var member : hole.members) strength += member.strength;
+        hole.level = Math.min(5, strength);
         // WILD is sticky even if the hostile contribution later expires.
-        for(int i=0;i<hole.members.size()&&!hole.wild;i++)for(int j=i+1;j<hole.members.size();j++){
-            var first=owner(hole.members.get(i));var second=owner(hole.members.get(j));
-            if(first!=null&&second!=null&&first!=second&&!first.isAlliedTo(second)){hole.wild=true;break;}
+        if (!hole.wild && hole.members.size() > 1) {
+            ServerPlayer first = null;
+            for (var member : hole.members) {
+                var player = owner(member);
+                if (player == null) continue;
+                if (first == null) first = player;
+                else if (first != player && !first.isAlliedTo(player)) {
+                    hole.wild = true;
+                    break;
+                }
+            }
         }
         hole.frontier=Math.min(hole.frontier,(int)RADII[hole.level]);
     }
@@ -256,7 +293,7 @@ public final class LbcVoidArcanum {
                         ||into.marker.entityTags().contains("time_stopped")||other.marker.entityTags().contains("time_stopped")){j++;continue;}
                 into.members.addAll(other.members);into.wild|=other.wild;into.cloneMask|=other.cloneMask;
                 remove(other);updateLevel(into);
-                for(var member:into.members){var player=owner(member);if(player!=null){
+                for(var member:into.members){var player=owner(member);if(player!=null&&!member.temporary()){
                     if(into.level>=2)game.items().mana().award(player,"lbc:true_advancements/arcanums/black_hole_2");
                     if(into.level==5)game.items().mana().award(player,"lbc:true_advancements/arcanums/black_hole_max");
                 }}
@@ -279,7 +316,9 @@ public final class LbcVoidArcanum {
         callbackDepth++;try{
         LbcOverload.sound(hole.world,hole.point,"minecraft:entity.creeper.primed",SOUND_VOLUME[hole.level],2,0,0);
         double influence=PULL[hole.level],hurt=HURT[hole.level];
-        var source=hole.wild?new WildDamage(author):new DamageSource(author.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),author);
+        DamageSource source=hole.wild?new WildDamage(author):new DamageSource(author.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),author);
+        if (cause != null && cause.weaponAction())
+            source = game.items().indirectKills().captureDamage(source, cause, author);
         for(var target:hole.world.getEntities((Entity)null,new AABB(hole.point,hole.point).inflate(influence),entity->physicalTarget(hole,author,entity))){
             Vec3 offset=hole.point.subtract(target.position());double distance=offset.length();
             if(target instanceof LivingEntity living&&BlackHoleDamage.distanceSquared(target,hole.point)<=hurt*hurt)
@@ -392,9 +431,9 @@ public final class LbcVoidArcanum {
         if(hole.visual!=null){game.items().blackHoleVisuals().remove(hole.visual);hole.visual=null;}
         if(!hole.marker.isRemoved())hole.marker.discard();
     }
-    private void removeOwner(UUID owner){
+    private void removeOwner(UUID owner, boolean heldOnly){
         for(var hole:List.copyOf(holes)){
-            hole.members.removeIf(member->member.owner.equals(owner));
+            if (!hole.members.removeIf(member -> member.owner.equals(owner) && (!heldOnly || !member.temporary()))) continue;
             if(hole.members.isEmpty())remove(hole);else{
                 updateLevel(hole);var next=owner(hole.members.getFirst());
                 if(hole.visual!=null&&next!=null)game.items().blackHoleVisuals().rebind(hole.visual,next);
@@ -403,7 +442,7 @@ public final class LbcVoidArcanum {
     }
     public void forget(ServerPlayer owner){
         if(rewinding)return;
-        callbackDepth++;try{hands.remove(owner.getUUID());removeOwner(owner.getUUID());
+        callbackDepth++;try{hands.remove(owner.getUUID());removeOwner(owner.getUUID(),false);
         }finally{callbackDepth--;}
     }
     public void stop(){

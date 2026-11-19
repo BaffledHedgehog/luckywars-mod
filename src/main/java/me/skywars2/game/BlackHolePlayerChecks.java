@@ -143,10 +143,13 @@ final class BlackHolePlayerChecks {
             }finally{cow.discard();}
             // A player's temporary sheep mirrors HP; it needs the same no-stun publication.
             var body=game.items().polymorph().transform(player,game.items().indirectKills().wildCause(other));
-            require(body!=null&&player.getHealth()==8,"native sheep body");base.recording.packets.clear();
+            float sheepHealth = game.balanceLegacy() ? 8 : 100;
+            require(body!=null&&body.getHealth()==sheepHealth&&player.getHealth()==sheepHealth,"native sheep body");
+            base.recording.packets.clear();
             try{
-                require(BlackHoleDamage.apply(game,body,source,.5f)&&body.getHealth()==7.5f&&player.getHealth()==7.5f
-                        &&healthPacket(base.recording,player,7.5f),"polymorph body mirrors and publishes direct HP without a hurt packet");
+                float drained = sheepHealth - .5f;
+                require(BlackHoleDamage.apply(game,body,source,.5f)&&body.getHealth()==drained&&player.getHealth()==drained
+                        &&healthPacket(base.recording,player,drained),"polymorph body mirrors and publishes direct HP without a hurt packet");
             }finally{game.items().polymorph().forget(player);}
             }finally{
                 other.connection=otherConnection;otherConnection.resetPosition();

@@ -160,6 +160,13 @@ final class GenieLampScriptChecks implements AutoCloseable {
             }
             var targeted = facts.getAsJsonArray("script_targeted_casts").asList().stream()
                     .map(JsonElement::getAsJsonObject).toList();
+            for (int level = 1; level <= 5; level++) {
+                String id = level == 1 ? "skywars2:void_arcanum" : "skywars2:void_arcanum_level_" + level;
+                String name = "Око вечной тьмы, уровень " + level;
+                require(prompt.contains(id) && targeted.stream().anyMatch(row -> row.get("id").getAsString().equals(id)
+                                && row.getAsJsonArray("names").get(1).getAsString().equals(name)),
+                        "the actual provider knows the exact native Void Arcanum tier " + id);
+            }
             var fireblazeNames = java.util.Map.of(
                     "fireblaze_wand", "Акфер Уасан Сахриатан Била'умен Фи Лалами",
                     "academy_fireblaze_world", "Акфер Уасан Сахриатан: Бесконечная дальность",

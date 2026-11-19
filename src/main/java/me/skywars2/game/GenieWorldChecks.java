@@ -8,6 +8,7 @@ import me.skywars2.game.genie.script.*;
 import net.minecraft.commands.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.Creeper;
@@ -1512,6 +1513,99 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void voidArcanumCasts(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var service = game.items().voidArcanum();
+        var mana = game.items().mana();
+        int beforeMana = mana.get(owner);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        var center = new Vec3(owner.chunkPosition().getMinBlockX() + 8.5, 240,
+                owner.chunkPosition().getMinBlockZ() + 8.5);
+        var gift = new ItemStack(Items.AMETHYST_SHARD);
+        var primary = new JsonPrimitive("skywars2:void_arcanum");
+        require(service.count() == 0 && !LbcVoidArcanum.isArcanum(main) && !LbcVoidArcanum.isArcanum(off),
+                "exclusive native Void Arcanum fixture with no Arcanum held");
+        try (var host = new GenieWorldHost(game, owner, gift, () -> true, () -> 0)) {
+            base.field(false, center);
+            require(!complete(host, queued(host, "lbc.cast_at", primary, vector(center))).getAsBoolean()
+                    && service.count() == 0, "MAG in the remote chunk prevents casting a black hole");
+            base.removeFields();
+            require(complete(host, queued(host, "lbc.cast_at", primary, vector(center))).getAsBoolean(),
+                    "ordinary default lifetime cast accepted");
+            var defaultHole = service.snapshot().getFirst();
+            require(defaultHole.members.getFirst().remainingTicks() == 200, "default active lifetime is 200 ticks");
+            base.own(defaultHole.marker);
+            base.discard(defaultHole.marker);
+
+            var cow = stationaryCow(base, center);
+            for (int tier = 1; tier <= 5; tier++) {
+                var id = tier == 1 ? primary : new JsonPrimitive("skywars2:void_arcanum_level_" + tier);
+                require(complete(host, queued(host, "lbc.cast_at", id, vector(center), new JsonPrimitive(1))).getAsBoolean(),
+                        "script emits real Void Arcanum level " + tier);
+                var hole = service.snapshot().getFirst();
+                base.own(hole.marker);
+                require(service.count() == 1 && hole.level == tier && hole.point.equals(center)
+                                && !hole.marker.shouldBeSaved() && service.upkeep(owner.getUUID()) == 0,
+                        "native body starts at exact requested center and tier without paid upkeep");
+                if (tier == 5) {
+                    game.items().timeStop().begin(base.level, 40);
+                    try {
+                        service.tick();
+                        require(service.count() == 1 && hole.members.getFirst().remainingTicks() == 1
+                                        && hole.visual == null && hole.point.equals(center),
+                                "actual Time Stop suspends the scripted arcanum's creation frame and expiry");
+                    } finally {
+                        game.items().timeStop().end(base.level);
+                    }
+                }
+                float health = cow.getHealth();
+                service.tick();
+                double radius = new double[] {0, 2, 3, 5, 9, 24}[tier] / 14;
+                require(hole.visual != null && hole.visual.disc == (tier == 5)
+                                && Math.abs(hole.visual.radius - radius) < 1e-6 && cow.getHealth() < health
+                                && ItemStack.matches(game.items().indirectKills().enchantmentWeapon(cow.getLastDamageSource()), gift),
+                        "native shader handle, damage and captured gift attribution for level " + tier);
+                service.tick();
+                require(service.count() == 0 && hole.marker.isRemoved() && hole.visual == null,
+                        "one active tick expires the native body and visual");
+            }
+            base.discard(cow);
+            require(mana.get(owner) == beforeMana && owner.getMainHandItem() == main && owner.getOffhandItem() == off,
+                    "five script tiers require no held Arcanum and spend no mana");
+
+            var activation = mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("void_arcanum_mana_activate"), "lbc.math");
+            int formerActivation = activation.get();
+            int upkeep = mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("void_arcanum_mana_tick"), "lbc.math").get();
+            try {
+                activation.set(Integer.MAX_VALUE);
+                mana.set(owner, 5000);
+                owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(LbcVoidArcanum.ITEM));
+                var paid = service.spawn(owner, center);
+                require(paid != null, "ordinary native hole remains an eligible merging body");
+                base.own(paid.marker);
+                var third = new JsonPrimitive("skywars2:void_arcanum_level_3");
+                require(complete(host, queued(host, "lbc.cast_at", third, vector(center), new JsonPrimitive(1))).getAsBoolean(),
+                        "one temporary level-three contribution next to the held-item hole");
+                service.snapshot().forEach(hole -> base.own(hole.marker));
+                service.tick();
+                require(service.count() == 1 && paid.level == 4 && mana.get(owner) == 5000 - upkeep,
+                        "real merge adds the temporary strength and charges only the held contribution");
+                service.tick();
+                require(service.count() == 1 && paid.level == 1 && mana.get(owner) == 5000 - 2 * upkeep,
+                        "the merged body loses the expired strength while the paid contribution survives");
+            } finally {
+                activation.set(formerActivation);
+            }
+        } finally {
+            base.removeFields();
+            service.stop();
+            owner.setItemInHand(InteractionHand.MAIN_HAND, main);
+            owner.setItemInHand(InteractionHand.OFF_HAND, off);
+            mana.set(owner, beforeMana);
+        }
+    }
+
     private static void fireblazeCasts(GameController game, WoolBucketChecks.Fixture base) {
         var owner = base.owner;
         var level = base.level;
@@ -1786,6 +1880,7 @@ final class GenieWorldChecks {
             fartusCasts(game, base);
             awakenedAcidCasts(game, base);
             musicStaffCasts(game, base);
+            voidArcanumCasts(game, base);
             fireblazeCasts(game, base);
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);

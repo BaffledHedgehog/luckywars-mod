@@ -34,7 +34,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         Map.entry("entity.launch",new ScriptProgram.Signature(1,4)),
         Map.entry("lbc.grimoire",new ScriptProgram.Signature(1,2)),
         Map.entry("lbc.cast",new ScriptProgram.Signature(1,4)),
-        Map.entry("lbc.cast_at",new ScriptProgram.Signature(2,2)),
+        Map.entry("lbc.cast_at",new ScriptProgram.Signature(2,3)),
         Map.entry("lbc.summon",new ScriptProgram.Signature(2,2)),
         Map.entry("math.random",new ScriptProgram.Signature(0,2)),
         Map.entry("time.tick",new ScriptProgram.Signature(0,0)));
@@ -137,8 +137,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "lbc.grimoire"->grimoire(values);
             case "lbc.summon"->summon(values);
             case "lbc.cast"->cast(values);
-            case "lbc.cast_at"->new JsonPrimitive(GenieNative.castAt(game,owner,captured,
-                Identifier.parse(text(values.getFirst())),vector(values.get(1))));
+            case "lbc.cast_at"->castAt(values);
             default->throw new IllegalArgumentException("unknown queued world API");
         };
     }
@@ -188,6 +187,22 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         InteractionHand hand = values.size() == 4 && !values.get(3).isJsonNull()
                 ? castHand(values.get(3)) : InteractionHand.MAIN_HAND;
         return new JsonPrimitive(GenieNative.cast(game, owner, hand, captured, id, origin, direction));
+    }
+
+    private JsonElement castAt(List<JsonElement> values) {
+        Integer lifetime = null;
+        if (values.size() == 3) {
+            var value = values.get(2);
+            if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber())
+                throw new IllegalArgumentException("integer lifetime expected");
+            try {
+                lifetime = value.getAsBigDecimal().intValueExact();
+            } catch (ArithmeticException invalid) {
+                throw new IllegalArgumentException("integer lifetime expected", invalid);
+            }
+        }
+        return new JsonPrimitive(GenieNative.castAt(game, owner, captured,
+                Identifier.parse(text(values.getFirst())), vector(values.get(1)), lifetime));
     }
 
     private static InteractionHand castHand(JsonElement value) {

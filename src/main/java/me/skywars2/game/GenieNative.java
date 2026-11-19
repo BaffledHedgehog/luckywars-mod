@@ -96,6 +96,11 @@ public final class GenieNative {
                 "Locks the target for the faster Academy Exoperso ritual and a crater after 180 ticks."),
         SUCCUBUS_BLACK_HOLE("succubus_black_hole", "Polymorph: Succubus Black Hole", "Полиморф: Чёрная дыра суккуба",
                 "Creates the original traveling Polymorph black hole at the target."),
+        VOID_ARCANUM("void_arcanum", 1),
+        VOID_ARCANUM_LEVEL_2("void_arcanum_level_2", 2),
+        VOID_ARCANUM_LEVEL_3("void_arcanum_level_3", 3),
+        VOID_ARCANUM_LEVEL_4("void_arcanum_level_4", 4),
+        VOID_ARCANUM_LEVEL_5("void_arcanum_level_5", 5),
         PSYCHO_AREA("psycho_area", "Psycho Wand", "Психожезл",
                 "Runs the original random Psycho Wand effect within 30 blocks."),
         PSYCHO_SOUND("psycho_sound", "Psycho Wand: Sound", "Психожезл: Звук",
@@ -139,20 +144,29 @@ public final class GenieNative {
         public final List<String> names;
         public final String effect;
         private final LbcHedgehog.Kind helper;
+        private final int arcanumLevel;
 
         TargetedCast(String path, String english, String russian, String effect) {
-            this(path, english, russian, effect, null);
+            this(path, english, russian, effect, null, 0);
+        }
+
+        TargetedCast(String path, int level) {
+            this(path, "Eye of Eternal Darkness, level " + level, "Око вечной тьмы, уровень " + level,
+                    "Creates a native Void Arcanum black hole of level " + level
+                            + ". The optional third argument is a positive lifetime in active ticks (default 200).",
+                    null, level);
         }
 
         TargetedCast(String path, String english, String russian, LbcHedgehog.Kind helper) {
-            this(path, english, russian, "Summons one native allied hedgehog. Target is its unobstructed feet position.", helper);
+            this(path, english, russian, "Summons one native allied hedgehog. Target is its unobstructed feet position.", helper, 0);
         }
 
-        TargetedCast(String path, String english, String russian, String effect, LbcHedgehog.Kind helper) {
+        TargetedCast(String path, String english, String russian, String effect, LbcHedgehog.Kind helper, int arcanumLevel) {
             this.id = Identifier.parse("skywars2:" + path);
             this.names = List.of(english, russian);
             this.effect = effect;
             this.helper = helper;
+            this.arcanumLevel = arcanumLevel;
         }
     }
 
@@ -206,9 +220,12 @@ public final class GenieNative {
     }
 
     /** Point-targeted abilities keep their own permissions, effects and native attribution. */
-    public static boolean castAt(GameController game, ServerPlayer player, ItemStack weapon, Identifier id, Vec3 target) {
+    public static boolean castAt(GameController game, ServerPlayer player, ItemStack weapon, Identifier id, Vec3 target,
+                                 Integer duration) {
         var spell = TARGETED_CASTS.get(id);
         if (spell == null) throw new IllegalArgumentException("unknown targeted LuckyWars ability");
+        if (duration != null && (spell.arcanumLevel == 0 || duration < 1))
+            throw new IllegalArgumentException("Only Void Arcanum accepts a positive lifetime");
         var level = player.level();
         if (!(Math.abs(target.x) < 30_000_000 && Math.abs(target.z) < 30_000_000
                 && target.y >= level.getMinY() && target.y < level.getMaxY() + 1.0)) return false;
@@ -217,6 +234,9 @@ public final class GenieNative {
                 || !game.canUseGameplayItems(player) || game.items().actionsBlocked(player) || stopped(game, player)
                 || !level.isInWorldBounds(position) || !level.hasChunkAt(position)
                 || !level.getWorldBorder().isWithinBounds(position)) return false;
+        if (spell.arcanumLevel > 0)
+            return game.items().voidArcanum().scriptSpawn(player, weapon, target, spell.arcanumLevel,
+                    duration == null ? 200 : duration);
         return switch (spell) {
             case ORESHNIK -> game.items().cinema().rockets().launch(player, target);
             case EXOPERSO, ACADEMY_EXOPERSO ->
