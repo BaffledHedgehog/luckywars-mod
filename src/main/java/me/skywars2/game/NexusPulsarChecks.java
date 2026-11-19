@@ -65,11 +65,11 @@ public final class NexusPulsarChecks {
             base.owner.setYRot(0);base.owner.setXRot(0);base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcNexusToolItems.PULSAR));
         }
         void item(InteractionHand hand){base.owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(hand,++sequence,base.owner.getYRot(),base.owner.getXRot()));base.owner.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);}
-        void block(InteractionHand hand){
-            var hit=new BlockHitResult(new Vec3(seed.getX()+.5,seed.getY()+.5,seed.getZ()),Direction.NORTH,seed,false);
+        void block(InteractionHand hand,BlockPos position){
+            var hit=new BlockHitResult(new Vec3(position.getX()+.5,position.getY()+.5,position.getZ()),Direction.NORTH,position,false);
             require(client.ready(),"native UseBlock ready: "+client.diagnostics());
-            require(home.mayInteract(base.owner,seed),"native UseBlock mayInteract: border="+home.getWorldBorder().isWithinBounds(seed)+" spawnProtected="+game.server().isUnderSpawnProtection(home,seed,base.owner)+" seed="+seed+" borderCenter="+home.getWorldBorder().getCenterX()+","+home.getWorldBorder().getCenterZ()+" size="+home.getWorldBorder().getSize());
-            require(base.owner.isWithinBlockInteractionRange(seed,1),"native UseBlock range: seed="+seed+" eye="+base.owner.getEyePosition()+" range="+base.owner.blockInteractionRange());
+            require(home.mayInteract(base.owner,position),"native UseBlock mayInteract: "+position);
+            require(base.owner.isWithinBlockInteractionRange(position,1),"native UseBlock range: "+position);
             base.owner.connection.handleUseItemOn(new net.minecraft.network.protocol.game.ServerboundUseItemOnPacket(hand,hit,++sequence));
             base.owner.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
         }
@@ -104,10 +104,22 @@ public final class NexusPulsarChecks {
                 case 2->{colors();if(pulse.count()==0){
                     require(client.updates()>updates,"native registered connection scheduler advanced");for(int i=0;i<4;i++)require(home.getBlockState(seed.east(i)).isAir(),"connected stone/bedrock/water/chest removed "+i);require(pulse.loadingChunks()==0&&pulse.pendingChunks()==0,"finished wave releases all loading/frontier tickets");
                     component();aim();score("pulsar_cd",0);score("nexus_tools_phase",0);base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcNexusToolItems.PULSAR));game.config().offhandWands=false;
-                    require(!combat.use(base.owner,InteractionHand.OFF_HAND)&&score("pulsar_cd")==0,"disabled offhand rejected before cooldown");game.config().offhandWands=true;block(InteractionHand.OFF_HAND);require(score("pulsar_cd")==15,"enabled offhand actual UseBlock accepted under positive jammers; blocked="+game.items().actionsBlocked(base.owner)+", inputStop="+game.items().wands().inputTimeStopped(base.owner)+", worldStop="+game.items().timeStop().stopped(home)+", allowed="+game.canUseGameplayItems(base.owner)+", casting="+combat.pending()+", enabled="+base.owner.getOffhandItem().isItemEnabled(home.enabledFeatures())+", cooled="+base.owner.getCooldowns().isOnCooldown(base.owner.getOffhandItem())+", client="+client.diagnostics());begin(3);
+                    require(!combat.use(base.owner,InteractionHand.OFF_HAND)&&score("pulsar_cd")==0,
+                            "disabled offhand rejected before cooldown");
+                    game.config().offhandWands=true;
+                    block(InteractionHand.MAIN_HAND,seed.east(3));
+                    require(base.owner.containerMenu!=base.owner.inventoryMenu && score("pulsar_cd")==0,
+                            "a consumed chest interaction opens its native menu with no Pulsar cast");
+                    base.owner.closeContainer();
+                    block(InteractionHand.OFF_HAND,seed);
+                    require(score("pulsar_cd")==0 && combat.pending()==0,"plain block check leaves air-use unconsumed");
+                    // The client follows the unconsumed UseItemOn with UseItem in that same hand.
+                    item(InteractionHand.OFF_HAND);
+                    require(score("pulsar_cd")==15,"enabled offhand casts on vanilla fallback under positive jammers");
+                    begin(3);
                 }}
                 case 3->{if(elapsed==0)return false;if(pulse.count()>0){colors();return false;}if(combat.pending()>0)return false;
-                    require(home.getBlockState(seed).isAir(),"offhand UseBlock performed real hit wave");score("pulsar_cd",0);score("nexus_tools_phase",0);base.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcNexusToolItems.PULSAR));base.owner.teleportTo(home,base.owner.getX(),home.getMaxY()-4,base.owner.getZ(),Set.of(),0,-90,true);client.acknowledge();item(InteractionHand.MAIN_HAND);require(score("pulsar_cd")==15,"actual upward UseItem miss charges15seconds");require(!combat.use(base.owner,InteractionHand.MAIN_HAND),"cooldown rejects repeat input");begin(4);
+                    require(home.getBlockState(seed).isAir(),"offhand vanilla fallback performed real hit wave");score("pulsar_cd",0);score("nexus_tools_phase",0);base.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcNexusToolItems.PULSAR));base.owner.teleportTo(home,base.owner.getX(),home.getMaxY()-4,base.owner.getZ(),Set.of(),0,-90,true);client.acknowledge();item(InteractionHand.MAIN_HAND);require(score("pulsar_cd")==15,"actual upward UseItem miss charges15seconds");require(!combat.use(base.owner,InteractionHand.MAIN_HAND),"cooldown rejects repeat input");begin(4);
                 }
                 case 4->{require(pulse.count()==0,"upward miss never creates terrain wave");require(score("pulsar_cd")==Math.max(0,15-elapsed/20),"native cooldown exact15seconds elapsed="+elapsed+" cd="+score("pulsar_cd"));if(elapsed>=300&&combat.pending()==0){worldAdmission();begin(5);}}
                 case 5->{if(combat.pending()==0){require(pulse.count()==0,"Nexus upward ray misses without terrain changes");return true;}}

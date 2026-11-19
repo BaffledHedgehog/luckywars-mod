@@ -182,14 +182,12 @@ public final class LbcNexusPulsar {
         var loading = chunks.get(key);
         // Existing resident terrain can be used immediately while the retaining ticket settles.
         if (level.getChunkSource().getChunkNow(key.pos().x(), key.pos().z()) != null) return true;
-        if (loading.future.isCompletedExceptionally() || loading.future.isCancelled()) {
+        if (LbcNexusClone.loadFailed(loading.future)) {
             // Preserve other probe/frontier references while replacing a failed request.
             level.getChunkSource().removeTicketWithRadius(TICKET, key.pos(), 0);
             loading.future = level.getChunkSource().addTicketAndLoadWithRadius(TICKET, key.pos(), 0);
-            release(wave);
-            return false;
         }
-        return loading.future.isDone() && level.getChunkSource().getChunkNow(key.pos().x(), key.pos().z()) != null;
+        return false;
     }
 
     /** At most one admitted node; a blocked neighbor resumes at its exact source-order cursor. */

@@ -36,6 +36,127 @@ public final class NexusCloneChecks {
         catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL nexus-clone",error);}
     }
 
+    /** Replace only the service's view of a request. The native future is never mutated. */
+    private static final class ResidentRecovery implements AutoCloseable {
+        final ServerLevel level;
+        final ChunkPos chunk;
+        final BlockPos pos;
+        final LbcNexusAcquisition acquisition;
+        final LbcNexusEcology ecology;
+        final LbcNexusPulsar pulsar;
+        final LbcNexusEcology.Actor one,two;
+        Object clear,wave;
+
+        ResidentRecovery(GameController game,ServerLevel level,ChunkPos chunk){
+            this.level=level;this.chunk=chunk;this.pos=chunk.getBlockAt(8,64,8);
+            acquisition=new LbcNexusAcquisition(game);
+            ecology=acquisition.ecology();
+            pulsar=new LbcNexusPulsar(game,(world,cell)->true);
+            one=actor();
+            two=actor();
+        }
+
+        private LbcNexusEcology.Actor actor(){
+            return new LbcNexusEcology.Actor(UUID.randomUUID(),level,LbcNexusEcology.Kind.TREE,null,null,Vec3.atCenterOf(pos),0,0,null);
+        }
+
+        private static Object construct(Class<?> owner,String type,Class<?>[] parameterTypes,Object... arguments)
+                throws ReflectiveOperationException {
+            var nested=Arrays.stream(owner.getDeclaredClasses()).filter(c->c.getSimpleName().equals(type)).findFirst().orElseThrow();
+            var constructor=nested.getDeclaredConstructor(parameterTypes);
+            constructor.setAccessible(true);
+            return constructor.newInstance(arguments);
+        }
+
+        private static Object invoke(Object receiver,String name,Class<?>[] parameterTypes,Object... arguments)
+                throws ReflectiveOperationException {
+            var method=receiver.getClass().getDeclaredMethod(name,parameterTypes);
+            method.setAccessible(true);
+            return method.invoke(receiver,arguments);
+        }
+
+        @SuppressWarnings("unchecked")
+        void exercise() throws ReflectiveOperationException {
+            require(level.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null,"recovery starts in a cold native chunk");
+            var failed=CompletableFuture.completedFuture(ChunkResult.error("native unsuccessful chunk result"));
+            require(!failed.isCompletedExceptionally() && !failed.isCancelled(),"native failure is a normal future completion");
+            clear=construct(LbcNexusAcquisition.class,"Clear",
+                    new Class<?>[]{ServerLevel.class,BlockPos.class,LbcIndirectKills.Owner.class},level,pos,null);
+            var acquisitions=(Map<Object,CompletableFuture<?>>)WoolBucketChecks.read(acquisition,"loading");
+            require(!requestClear(),"acquisition waits for cold terrain");
+            var acquisitionKey=acquisitions.keySet().iterator().next();
+            acquisitions.put(acquisitionKey,failed);
+            require(!requestClear() && acquisitions.get(acquisitionKey)!=failed,
+                    "acquisition replaces a normally failed request without losing its cleanup");
+
+            var ecologyLoads=(Map<Object,Object>)WoolBucketChecks.read(ecology,"chunks");
+            require(!requestTree(one) && !requestTree(two),"two ecology actors share the same cold lease");
+            var ecologyKey=ecologyLoads.keySet().iterator().next();
+            var failedView=construct(LbcNexusEcology.class,"Loading",new Class<?>[]{CompletableFuture.class},failed);
+            var failedUsers=(Set<UUID>)WoolBucketChecks.read(failedView,"actors");
+            failedUsers.add(one.id);failedUsers.add(two.id);
+            ecologyLoads.put(ecologyKey,failedView);
+            require(!requestTree(one),"ecology waits without moving either actor");
+            var retried=ecologyLoads.get(ecologyKey);
+            require(retried!=failedView && ((Set<?>)WoolBucketChecks.read(retried,"actors")).equals(Set.of(one.id,two.id)),
+                    "ecology retries native errors without dropping either waiter");
+
+            wave=construct(LbcNexusPulsar.class,"Wave",new Class<?>[]{int.class,int.class,BlockPos.class},
+                    0,0,pos.west());
+            var pulsarLoads=(Map<?,?>)WoolBucketChecks.read(pulsar,"chunks");
+            require(!requestWave() && pulsar.pendingChunks()==0 && pulsar.loadingChunks()==1,
+                    "Pulsar's neighbor probe is the only holder of its cold chunk");
+            var load=pulsarLoads.values().iterator().next();
+            var futureField=load.getClass().getDeclaredField("future");
+            futureField.setAccessible(true);
+            for(var failure:List.of(failed,new CompletableFuture<>())){
+                if(failure!=failed)failure.cancel(false);
+                futureField.set(load,failure);
+                require(!requestWave() && pulsarLoads.containsValue(load) && futureField.get(load)!=failure
+                                && ((Integer)WoolBucketChecks.read(load,"users"))==1,
+                        "Pulsar replaces errors and cancellations while retaining its lone probe");
+            }
+            require(ticketCount()==3,"one native ticket per service after replacement");
+        }
+
+        boolean complete() throws ReflectiveOperationException {
+            if(level.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null)return false;
+            require(requestClear() && requestTree(one) && requestTree(two) && requestWave(),
+                    "all three retained requests can use the now resident chunk");
+            invoke(ecology,"release",new Class<?>[]{UUID.class},one.id);
+            require(ecology.loadingChunks()==1 && ticketCount()==3,"one ecology waiter cannot release another's lease");
+            invoke(ecology,"release",new Class<?>[]{UUID.class},two.id);
+            invoke(pulsar,"release",new Class<?>[]{wave.getClass()},wave);
+            acquisition.stop();
+            require(acquisition.loadingChunks()==0 && ecology.loadingChunks()==0 && pulsar.loadingChunks()==0
+                            && ticketCount()==0,"finishing the recovered work releases every native service ticket");
+            SkyWars2.LOGGER.info("[check] Nexus native chunk error recovery: acquisition, two tree waiters, Pulsar probe and cancellation");
+            return true;
+        }
+
+        private long ticketCount(){
+            var storage=(net.minecraft.world.level.TicketStorage)WoolBucketChecks.read(level.getChunkSource(),"ticketStorage");
+            var types=Set.of("skywars2:nexus_acquisition","skywars2:nexus_ecology","skywars2:nexus_pulsar");
+            return storage.getTickets(chunk.pack()).stream().filter(ticket->types.contains(String.valueOf(
+                    net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE.getKey(ticket.getType())))).count();
+        }
+
+        private boolean requestClear() throws ReflectiveOperationException {
+            return (boolean)invoke(acquisition,"resident",new Class<?>[]{clear.getClass()},clear);
+        }
+        private boolean requestTree(LbcNexusEcology.Actor actor) throws ReflectiveOperationException {
+            return (boolean)invoke(ecology,"resident",new Class<?>[]{LbcNexusEcology.Actor.class,double.class},actor,0.0);
+        }
+        private boolean requestWave() throws ReflectiveOperationException {
+            return (boolean)invoke(pulsar,"resident",new Class<?>[]{ServerLevel.class,BlockPos.class,wave.getClass()},level,pos,wave);
+        }
+
+        @Override public void close(){
+            acquisition.stop();
+            pulsar.stop();
+        }
+    }
+
     private static final class Fixture implements AutoCloseable {
         final GameController game;
         final ChefChecks.Fixture base;
@@ -44,6 +165,7 @@ public final class NexusCloneChecks {
         final LbcIndirectKills.Checkpoint originalLedger;
         final ServerLevel source,destination;
         final ChunkPos sourceChunk=new ChunkPos(2048,2048);
+        final ResidentRecovery recovery;
         final Map<BlockPos,MapManager.BlockSnapshot> sourceOriginal=new LinkedHashMap<>(),destinationOriginal=new LinkedHashMap<>();
         final Map<BlockPos,MapManager.BlockSnapshot> sample=new LinkedHashMap<>();
         final Map<UUID,Vec3> positions=new LinkedHashMap<>();
@@ -77,6 +199,7 @@ public final class NexusCloneChecks {
             originalLedger=game.items().indirectKills().checkpoint(new MatchDamageSources(game,List.of()));
             base=new ChefChecks.Fixture(game);source=base.owner.level();destination=game.server().getLevel(LbcHedgehogDimensions.NEXUS);
             require(destination!=null&&source!=destination,"ordinary source and native Nexus");
+            recovery=new ResidentRecovery(game,source,sourceChunk);
             require(!game.items().timeStop().stopped(destination),"no borrowed Nexus TimeStop");
             failedClone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
                 throw new IllegalStateException("Failed destination must never receive terrain or a completion callback");
@@ -100,11 +223,12 @@ public final class NexusCloneChecks {
             });
         }
         void begin(int next){stage=next;when=game.server().getTickCount();}
-        void init(){
+        void init() throws ReflectiveOperationException {
             base.init();client=new RegenerationBeltChecks.ScheduledClient(game,base.owner);audience=new RegenerationBeltChecks.ScheduledClient(game,base.other);
             game.config().noBorders=true;base.owner.getAbilities().invulnerable=true;
             require(failedClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null)
                     &&!failedClone.captureReady(),"failed transfer enters the actual shared scheduler");
+            recovery.exercise();
             sourceLoad=game.maps().prepareChunk(source,sourceChunk);begin(0);
             SkyWars2.LOGGER.info("[check] START nexus-clone (real ticks; reserved source {},{})",sourceChunk.x(),sourceChunk.z());
         }
@@ -170,13 +294,13 @@ public final class NexusCloneChecks {
         BlockPos target(BlockPos pos){return pos.offset((int)delta.x,(int)delta.y,(int)delta.z);}
         void hold(){require(clone.pending()==1&&!clone.captureReady()&&clone.snapshot().getFirst().completed()==0&&callbacks==0,"native scheduler does not write through either TimeStop");}
 
-        boolean observe(){
+        boolean observe() throws ReflectiveOperationException {
             int elapsed=game.server().getTickCount()-when;require(game.playing()&&elapsed<1200,"bounded real-tick phase "+stage+" completed="+lastCompleted);
             if(stage==0){
                 if(elapsed==0)return false;
                 require(!pendingSource.isDone()&&failedClone.captureReady()&&!failedClone.sourceInFlight(source,sourceChunk),
                         "a completed native failure releases the transfer while the other load remains pending");
-                if(ready(sourceLoad,source,sourceChunk)){
+                if(ready(sourceLoad,source,sourceChunk)&&recovery.complete()){
                     require(stalledClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null),
                             "stalled destination request enters the actual shared scheduler");
                     begin(6);
@@ -268,6 +392,7 @@ public final class NexusCloneChecks {
                     clone::stop,
                     failedClone::stop,
                     stalledClone::stop,
+                    recovery::close,
                     ()->{for(var level:List.of(source,destination))for(var id:owned){var entity=level.getEntity(id);if(entity!=null){if(entity instanceof LivingEntity living)game.items().indirectKills().clear(living);entity.discard();}}},
                     ()->{if(sourceCaptured)restoreColumn(source,sourceChunk,sourceOriginal);},
                     ()->{if(destinationCaptured)restoreColumn(destination,view.destinationChunk(),destinationOriginal);},

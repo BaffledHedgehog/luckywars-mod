@@ -66,7 +66,7 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
     private Set<Chunk> chunks(Clear clear){var result=new HashSet<Chunk>();var p=clear.position();for(int x=(p.getX()-1)>>4;x<=((p.getX()+1)>>4);x++)for(int z=(p.getZ()-1)>>4;z<=((p.getZ()+1)>>4);z++)result.add(new Chunk(clear.level(),new ChunkPos(x,z)));return result;}
     private boolean resident(Clear clear){boolean ready=true;for(var key:chunks(clear)){
         if(key.level().getChunkSource().getChunkNow(key.position().x(),key.position().z())!=null)continue;
-        var future=loading.get(key);if(future!=null&&(future.isCompletedExceptionally()||future.isCancelled())){key.level().getChunkSource().removeTicketWithRadius(TICKET,key.position(),0);loading.remove(key);}
+        var future=loading.get(key);if(future!=null&&LbcNexusClone.loadFailed(future)){key.level().getChunkSource().removeTicketWithRadius(TICKET,key.position(),0);loading.remove(key);}
         if(loading.size()<8)loading.computeIfAbsent(key,k->k.level().getChunkSource().addTicketAndLoadWithRadius(TICKET,k.position(),0));ready=false;
     }return ready;}
     private static boolean nexus(ServerLevel level){return level.dimension().equals(LbcHedgehogDimensions.NEXUS);}
