@@ -75,6 +75,9 @@ public final class LbcIndirectKills {
     private record Status(Owner owner, MobEffectInstance effect) { }
     private record Support(Owner owner, ServerLevel level) { }
     private record Hazard(Owner owner, BlockState state) { }
+    private record Burn(Owner owner, DamageSource mobSource, long order) {
+        Burn(Owner owner) { this(owner,null,owner.order()); }
+    }
     private record Arrival(Owner owner,ServerLevel level,Map<BlockPos,BlockState> cells) { }
     private final GameController game;
     private final Map<ServerPlayer, List<AbsorptionHit>> logoutAbsorption = new WeakHashMap<>();
@@ -91,7 +94,7 @@ public final class LbcIndirectKills {
     private final Map<LivingEntity,Owner> laterAttacks = new WeakHashMap<>();
     private final Map<ServerLevel,Map<BlockPos,Owner>> stone = new HashMap<>();
     private final Map<ServerLevel,Map<BlockPos,Hazard>> hazards = new HashMap<>();
-    private final Map<LivingEntity,Owner> burning = new WeakHashMap<>();
+    private final Map<LivingEntity,Burn> burning = new WeakHashMap<>();
     private final Map<LivingEntity,Arrival> arrivals = new WeakHashMap<>();
     private long order;
     private LivingEntity causeTarget;
@@ -730,7 +733,10 @@ public final class LbcIndirectKills {
         boolean floor=source.is(DamageTypes.HOT_FLOOR);
         if(!fire && !floor && !source.is(DamageTypes.DROWN) && !source.is(DamageTypes.ON_FIRE)) return null;
         Owner cause=null;
-        if(source.is(DamageTypes.ON_FIRE)) cause=burning.get(target);
+        if(source.is(DamageTypes.ON_FIRE)) {
+            var burn=burning.get(target);
+            if(burn!=null) cause=burn.owner;
+        }
         else if(target.level() instanceof ServerLevel level) {
             var blocks=hazards.get(level);
             if(blocks!=null) {
@@ -748,7 +754,7 @@ public final class LbcIndirectKills {
                 }
             }
             cause=newer(cause,arrival);
-            if(fire) { if(cause!=null) burning.put(target,cause); else burning.remove(target); }
+            if(fire) rememberPlayerBurn(target,cause);
         }
         return cause;
     }
@@ -829,17 +835,48 @@ public final class LbcIndirectKills {
         ignited(target,player,false);
     }
     public void ignited(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
-        if(target.isAlive() && target.isOnFire()) burning.put(target,owner(player,friendlyFire));
+        if(target.isAlive() && target.isOnFire()) rememberPlayerBurn(target,owner(player,friendlyFire));
     }
     public void projectileIgnited(LivingEntity target,ServerPlayer player) {
         projectileIgnited(target,player,false);
     }
     public void inheritedIgnited(LivingEntity target,Owner cause) {
-        if(cause!=null && target.isAlive() && target.isOnFire()) burning.put(target,newer(burning.get(target),cause));
+        var current=burning.get(target);
+        if(cause!=null && target.isAlive() && target.isOnFire() && (current==null || cause.order()>current.order()))
+            rememberPlayerBurn(target,cause);
     }
     public void projectileIgnited(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
-        if(target.isAlive() && target.isOnFire()) burning.put(target,fresh(player,friendlyFire,true));
+        if(target.isAlive() && target.isOnFire()) rememberPlayerBurn(target,fresh(player,friendlyFire,true));
     }
+    private void rememberPlayerBurn(LivingEntity target,Owner owner) {
+        if(owner==null) burning.remove(target);
+        else burning.put(target,new Burn(owner));
+    }
+    public void extinguished(LivingEntity target) { burning.remove(target); }
+
+    /** Native Fire Aspect credit lasts as long as the accepted fire, including after the mob is gone. */
+    public void creatureIgnited(LivingEntity target,LivingEntity mob,boolean friendlyFire) {
+        if(!target.isAlive() || !target.isOnFire()) return;
+        var player=playerSource(mob);
+        if(!game.items().spellSources().lootProjectile(mob)) {
+            if(player!=null) ignited(target,player,friendlyFire);
+            return;
+        }
+        long accepted=++order;
+        var credit=player==null || player==target ? null : new Owner(player.getUUID(),accepted,true,false,
+                net.minecraft.world.item.ItemStack.EMPTY,false);
+        burning.put(target,new Burn(credit,nativeMobDamage(target.damageSources().onFire(),mob),accepted));
+    }
+
+    public DamageSource creatureFireDamage(LivingEntity target,DamageSource source) {
+        if(source.getEntity()!=null || source.getDirectEntity()!=null || !source.is(DamageTypes.ON_FIRE)) return source;
+        var burn=burning.get(target);
+        if(burn==null || burn.mobSource==null || !target.isOnFire()) return source;
+        var later=laterAttacks.get(target);
+        if(later!=null && later.order()>burn.order) return captureDamage(source,later);
+        return burn.owner==null ? burn.mobSource : captureDamage(source,burn.owner,burn.mobSource.getEntity());
+    }
+
     public void poisoned(LivingEntity target, ServerPlayer player) {
         var effect=target.getEffect(MobEffects.POISON);
         if(effect!=null) effectChanged(target,effect,player);
@@ -1226,6 +1263,9 @@ public final class LbcIndirectKills {
         private record Falling(Owner owner,boolean levitation,int grace) { }
         private record Effect(Holder<MobEffect> type,boolean active,MobEffectInstance detached) { }
         private record Applied(Owner owner,Effect effect) { }
+        private record BurnImage(Owner owner,MatchDamageSources.Image mobSource,long order) {
+            Burn install() { return new Burn(owner,MatchDamageSources.value(mobSource),order); }
+        }
         private final MatchDamageSources sources;
         private final String epoch=game.items().epoch();
         private final long sequence=order;
@@ -1234,7 +1274,8 @@ public final class LbcIndirectKills {
         private final Map<MatchDamageSources.Ref,Falling> fallImage;
         private final Map<MatchDamageSources.Ref,Map<Holder<MobEffect>,Applied>> statusImage;
         private final Map<MatchDamageSources.Ref,Applied> pendingImage;
-        private final Map<MatchDamageSources.Ref,Owner> drainsImage,debtsImage,hungerImage,laterImage,burnImage;
+        private final Map<MatchDamageSources.Ref,Owner> drainsImage,debtsImage,hungerImage,laterImage;
+        private final Map<MatchDamageSources.Ref,BurnImage> burnImage;
         private final Map<MatchDamageSources.Ref,Support> supportImage;
         private final Map<MatchDamageSources.Ref,Arrival> arrivalImage;
         private final Map<ServerLevel,Map<BlockPos,Owner>> stoneImage=new HashMap<>();
@@ -1244,7 +1285,7 @@ public final class LbcIndirectKills {
             fallImage=copy(falls,(target,v)->v==null?null:new Falling(v.owner,v.levitation,v.grace));
             statusImage=copy(statuses,(target,v)->{var map=new HashMap<Holder<MobEffect>,Applied>();v.forEach((key,status)->map.put(key,applied(target,status)));return map;});
             pendingImage=copy(pendingMana,this::applied);drainsImage=copy(manaDrains,(target,v)->v);debtsImage=copy(manaDebts,(target,v)->v);hungerImage=copy(hungerDebts,(target,v)->v);
-            supportImage=copy(removedSupports,(target,v)->v);laterImage=copy(laterAttacks,(target,v)->v);burnImage=copy(burning,(target,v)->v);
+            supportImage=copy(removedSupports,(target,v)->v);laterImage=copy(laterAttacks,(target,v)->v);burnImage=copy(burning,(target,v)->new BurnImage(v.owner,sources.capture(v.mobSource),v.order));
             arrivalImage=copy(arrivals,(target,v)->new Arrival(v.owner,v.level,cells(v.cells)));
             stone.forEach((world,v)->stoneImage.put(world,cells(v)));hazards.forEach((world,v)->hazardImage.put(world,cells(v)));
         }
@@ -1275,7 +1316,8 @@ public final class LbcIndirectKills {
             for(var ref:hungerImage.keySet())if(!(victims.get(ref) instanceof ServerPlayer))throw new IllegalStateException("Captured hunger debt requires its player body");
             falls.clear();fallImage.forEach((ref,v)->{if(v==null)falls.put(victims.get(ref),null);else{var fall=new Fall(v.owner,v.levitation);fall.grace=v.grace;falls.put(victims.get(ref),fall);}});
             statuses.clear();statuses.putAll(liveStatuses);pendingMana.clear();pendingMana.putAll(livePending);
-            restore(manaDrains,drainsImage,victims);restore(manaDebts,debtsImage,victims);restore(laterAttacks,laterImage,victims);restore(burning,burnImage,victims);restore(removedSupports,supportImage,victims);
+            restore(manaDrains,drainsImage,victims);restore(manaDebts,debtsImage,victims);restore(laterAttacks,laterImage,victims);restore(removedSupports,supportImage,victims);
+            burning.clear();burnImage.forEach((ref,v)->burning.put(victims.get(ref),v.install()));
             hungerDebts.clear();hungerImage.forEach((ref,v)->hungerDebts.put((ServerPlayer)victims.get(ref),v));
             arrivals.clear();arrivalImage.forEach((ref,v)->arrivals.put(victims.get(ref),new Arrival(v.owner,v.level,cells(v.cells))));
             stone.clear();stoneImage.forEach((world,map)->stone.put(world,cells(map)));hazards.clear();hazardImage.forEach((world,map)->hazards.put(world,cells(map)));
@@ -1310,7 +1352,8 @@ public final class LbcIndirectKills {
             statuses.remove(realCurrent);if(currentStatuses!=null)statuses.put(realCurrent,currentStatuses);
             pendingMana.remove(realCurrent);if(pendingImage.containsKey(ref))pendingMana.put(realCurrent,pendingStatus);
             restoreVictim(manaDrains,drainsImage,ref,realCurrent);restoreVictim(manaDebts,debtsImage,ref,realCurrent);
-            restoreVictim(laterAttacks,laterImage,ref,realCurrent);restoreVictim(burning,burnImage,ref,realCurrent);
+            restoreVictim(laterAttacks,laterImage,ref,realCurrent);
+            burning.remove(realCurrent);var burn=burnImage.get(ref);if(burn!=null) burning.put(realCurrent,burn.install());
             restoreVictim(removedSupports,supportImage,ref,realCurrent);restoreVictim(hungerDebts,hungerImage,ref,realCurrent);
             arrivals.remove(realCurrent);if(arrivalImage.containsKey(ref))arrivals.put(realCurrent,currentArrival);
             // Other live victims and global terrain hazards have advanced since this save point.
@@ -1348,7 +1391,12 @@ public final class LbcIndirectKills {
                 if(!effects.isEmpty()){var installed=new HashMap<Holder<MobEffect>,Status>();effects.forEach((type,image)->installed.put(type,cloneStatusInstall(living,image,current)));statuses.put(living,installed);}
                 if(pending!=null)pendingMana.put(living,cloneStatusInstall(living,pending,current));
                 if(drain!=null)manaDrains.put(living,drain);if(debt!=null)manaDebts.put(living,debt);if(support!=null)removedSupports.put(living,support);
-                if(attack!=null)laterAttacks.put(living,attack);if(fire!=null)burning.put(living,fire);
+                if(attack!=null)laterAttacks.put(living,attack);
+                if(fire!=null) {
+                    var replacement=fire.mobSource==null?null:family.get(fire.mobSource.getEntity());
+                    burning.put(living,replacement instanceof LivingEntity mob
+                            ?new Burn(fire.owner,nativeMobDamage(living.damageSources().onFire(),mob),fire.order):fire);
+                }
                 if(arrivalImage!=null)arrivals.put(living,new Arrival(arrivalImage.owner,arrivalImage.level,new HashMap<>(arrivalImage.cells)));
             }
             public void rollback(Entity clone){falls.remove(clone);statuses.remove(clone);pendingMana.remove(clone);manaDrains.remove(clone);manaDebts.remove(clone);removedSupports.remove(clone);laterAttacks.remove(clone);burning.remove(clone);arrivals.remove(clone);}

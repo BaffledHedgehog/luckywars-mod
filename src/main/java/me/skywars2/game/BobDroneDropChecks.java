@@ -71,8 +71,109 @@ public final class BobDroneDropChecks {
         void gear(Zombie z){require(z.getClass()==Zombie.class&&z.position().distanceTo(origin)<1e-8&&!z.isBaby()&&z.isPersistenceRequired()&&!z.isNoAi()&&z.isCustomNameVisible()&&z.getHealth()==20&&z.getMaxHealth()==20,"native adult/default health/AI/persistence");var name=z.getCustomName();require(name!=null&&name.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents tr&&tr.getKey().equals("bob")&&!name.getStyle().isItalic()&&name.getStyle().getColor().getValue()==0x55ff55,"source green Bob name");require(z.getAttribute(Attributes.FOLLOW_RANGE).getBaseValue()==400&&z.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue()==3&&!saved(z,level).contains("DeathLootTable"),"only source follow range changed; ordinary native zombie loot");
             var slots=List.of(EquipmentSlot.MAINHAND,EquipmentSlot.OFFHAND,EquipmentSlot.FEET,EquipmentSlot.LEGS,EquipmentSlot.CHEST,EquipmentSlot.HEAD);var items=List.of(Items.NETHERITE_SWORD,Items.ENCHANTED_GOLDEN_APPLE,Items.NETHERITE_BOOTS,Items.NETHERITE_LEGGINGS,Items.NETHERITE_CHESTPLATE,Items.NETHERITE_HELMET);var names=List.of("sword","apple","boots","leggings","chestplate","helmet");var common=map("protection:4","fire_protection:4","blast_protection:4","projectile_protection:4","thorns:3","unbreaking:3");for(int i=0;i<slots.size();i++){var s=z.getItemBySlot(slots.get(i));require(s.is(items.get(i))&&s.getCount()==(i==1?6:1)&&z.getDropChances().byEquipment(slots.get(i))==.5f,"source equipment/count/independent chance "+slots.get(i));var n=s.get(DataComponents.CUSTOM_NAME);require(n!=null&&n.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents tr&&tr.getKey().equals("bob_"+names.get(i))&&!n.getStyle().isItalic()&&n.getStyle().getColor()==null&&!s.has(DataComponents.TOOLTIP_STYLE)&&!s.has(DataComponents.CUSTOM_DATA)&&s.getOrDefault(DataComponents.LORE,net.minecraft.world.item.component.ItemLore.EMPTY).lines().isEmpty(),"exact native gear presentation "+slots.get(i));var expected=new TreeMap<>(common);if(i==0)expected=new TreeMap<>(map("sharpness:5","smite:5","bane_of_arthropods:5","knockback:2","fire_aspect:2","looting:3","sweeping_edge:3","unbreaking:3"));if(i==1)expected.clear();if(i==2){expected.put("feather_falling",4);expected.put("depth_strider",3);expected.put("frost_walker",2);expected.put("soul_speed",3);}if(i==5){expected.put("respiration",3);expected.put("aqua_affinity",1);expected.put("thorns",1);expected.put("unbreaking",1);}require(ench(s).equals(expected),"exact authored enchantments "+slots.get(i)+" actual="+ench(s));}}
         Cow cow(Vec3 at){var c=new Cow(EntityTypes.COW,level);c.setPos(at);c.setNoAi(true);c.setNoGravity(true);require(level.addFreshEntity(c),"native disposable victim");mine.add(c);return c;}
-        void lethal(Cow c,net.minecraft.world.damagesource.DamageSource source,ServerPlayer owner){int before=kills(owner);c.setHealth(1);reset(c);require(c.hurtServer(level,source,10000)&&c.isDeadOrDying()&&c.getKillCredit()==owner&&kills(owner)==before+1,"actual native death and author/stat credit "+source);}
-        void bobCombat(){var z=bob();gear(z);z.setNoAi(true);z.setNoGravity(true);for(boolean newer:List.of(false,true)){var c=cow(origin.add(2,0,0));c.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);c.setHealth(1000);require(z.doHurtTarget(level,c)&&c.getHealth()<1000&&c.getRemainingFireTicks()>0&&c.getDeltaMovement().lengthSqr()>0,"actual enchanted sword damage/fire aspect/knockback");if(newer){reset(c);c.hurtServer(level,c.damageSources().playerAttack(beta),1);c.setLastHurtByMob(null);c.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0);}c.setLastHurtByMob(null);c.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0);lethal(c,c.damageSources().onFire(),newer?beta:alpha);}for(String role:List.of("spectator","strict_map_object","magic_academy","sauvojen_tuntija","rcdenyalways","transformator")){var c=cow(origin.add(2,0,0));c.entityTags().add(role);float beforeHealth=c.getHealth();require(!game.items().creatureDrops().canAffect(z,c)&&!z.doHurtTarget(level,c)&&c.getHealth()==beforeHealth&&c.getRemainingFireTicks()<=0,"actual role melee guard "+role);}var board=game.server().getScoreboard();var oldA=alpha.getTeam();var oldB=beta.getTeam();var team=board.addPlayerTeam("codex_bob_drone_probe");team.setAllowFriendlyFire(false);try{board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);float hp=beta.getHealth();require(!game.items().creatureDrops().canAffect(z,beta)&&!z.doHurtTarget(level,beta)&&beta.getHealth()==hp,"actual native ally melee guard");require(game.items().creatureDrops().canAffect(z,alpha),"source author remains native retaliation eligible");}finally{board.removePlayerTeam(team);if(oldA!=null)board.addPlayerToTeam(alpha.getScoreboardName(),oldA);if(oldB!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldB);}var source=bob();var weapon=source.getMainHandItem().copy();var converted=source.convertTo(EntityTypes.DROWNED,ConversionParams.single(source,true,true),e->{});require(converted!=null&&source.isRemoved()&&LbcCreatureDrops.managed(converted)&&game.items().creatureDrops().owner(converted)==alpha&&game.items().currentEpoch(converted)&&game.items().creatureDrops().snapshot().contains(converted),"native drowned conversion retains copied author/epoch");require(ItemStack.isSameItemSameComponents(weapon,converted.getMainHandItem())&&converted.getDropChances().byEquipment(EquipmentSlot.MAINHAND)==.5f,"native conversion copies equipment/chance");var c=cow(origin.add(2,0,0));c.setHealth(1);require(converted.doHurtTarget(level,c)&&c.isDeadOrDying()&&c.getKillCredit()==alpha,"converted native melee credits source author");}
+        private enum BurnCase { WILD, HELMET, LATER_PLAYER_HIT, EXTINGUISHED }
+
+        void bobFire(BurnCase test) {
+            boolean helmet = test == BurnCase.HELMET;
+            var sources = game.items().spellSources();
+            var policy = helmet ? new LbcSpellSource.Source(alpha.getUUID(), alpha.getUUID(), game.items().epoch(),
+                    game.items().indirectKills().wildCause(alpha), Set.of()).helmetLoot() : null;
+            Zombie attacker;
+            try (var scope = sources.scope(policy, level)) {
+                attacker = bob();
+            }
+            gear(attacker);
+            attacker.setNoAi(true);
+            attacker.setNoGravity(true);
+            var victim = cow(origin.add(2, 0, 0));
+            victim.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
+            victim.setHealth(1000);
+            require(attacker.doHurtTarget(level,victim) && victim.getHealth() < 1000
+                            && victim.getRemainingFireTicks() > 0 && victim.getDeltaMovement().lengthSqr() > 0,
+                    "native Bob sword hits, ignites and knocks back");
+            if (test == BurnCase.LATER_PLAYER_HIT) {
+                reset(victim);
+                require(victim.hurtServer(level, victim.damageSources().playerAttack(beta), 1),
+                        "actual newer player hit");
+            }
+            if (test == BurnCase.EXTINGUISHED) victim.clearFire();
+            attacker.discard();
+            victim.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0);
+            victim.setLastHurtByMob(null);
+            victim.setHealth(1);
+            reset(victim);
+            int beforeAlpha = kills(alpha), beforeBeta = kills(beta);
+            boolean accepted = victim.hurtServer(level, victim.damageSources().onFire(), 10000);
+            var source = victim.getLastDamageSource();
+            var credit = victim.getKillCredit();
+            boolean physical = source != null && source.getEntity() == attacker;
+            SkyWars2.LOGGER.info("[check] Bob burn {}: mobSource={} mobCredit={} wearerKills={} laterPlayerKills={}",
+                    test, physical, credit == attacker, kills(alpha) - beforeAlpha, kills(beta) - beforeBeta);
+            require(accepted && victim.isDeadOrDying() && source != null
+                            && source.is(net.minecraft.world.damagesource.DamageTypes.ON_FIRE),
+                    "native fire remains the accepted damage type");
+            require(switch (test) {
+                case WILD -> physical && credit == attacker && kills(alpha) == beforeAlpha && kills(beta) == beforeBeta;
+                case HELMET -> physical && credit == alpha && kills(alpha) == beforeAlpha + 1 && kills(beta) == beforeBeta;
+                case LATER_PLAYER_HIT -> credit == beta && kills(alpha) == beforeAlpha && kills(beta) == beforeBeta + 1;
+                case EXTINGUISHED -> credit == null && !physical && kills(alpha) == beforeAlpha && kills(beta) == beforeBeta;
+            }, "delayed Fire Aspect attribution " + test);
+        }
+
+        void bobCombat() {
+            for (var test : BurnCase.values()) bobFire(test);
+            var bob = bob();
+            bob.setNoAi(true);
+            bob.setNoGravity(true);
+            for (String role : List.of("spectator","strict_map_object","magic_academy","sauvojen_tuntija","rcdenyalways","transformator")) {
+                var cow = cow(origin.add(2, 0, 0));
+                cow.entityTags().add(role);
+                float health = cow.getHealth();
+                require(!game.items().creatureDrops().canAffect(bob,cow) && !bob.doHurtTarget(level,cow)
+                                && cow.getHealth()==health && cow.getRemainingFireTicks()<=0,
+                        "native melee protects role " + role);
+            }
+            var board = game.server().getScoreboard();
+            var oldA = alpha.getTeam();
+            var oldB = beta.getTeam();
+            var team = board.addPlayerTeam("codex_bob_drone_probe");
+            team.setAllowFriendlyFire(false);
+            try {
+                board.addPlayerToTeam(alpha.getScoreboardName(),team);
+                board.addPlayerToTeam(beta.getScoreboardName(),team);
+                for (var player : List.of(alpha,beta)) {
+                    reset(player);
+                    var health = player.getHealth();
+                    require(game.items().creatureDrops().canAffect(bob,player) && bob.doHurtTarget(level,player)
+                                    && player.getHealth()<health,
+                            "WILD Bob can hurt its creator and allies even with friendly fire off");
+                    player.clearFire();
+                    game.items().indirectKills().clear(player);
+                    player.setHealth(1000);
+                }
+            } finally {
+                board.removePlayerTeam(team);
+                if (oldA!=null) board.addPlayerToTeam(alpha.getScoreboardName(),oldA);
+                if (oldB!=null) board.addPlayerToTeam(beta.getScoreboardName(),oldB);
+            }
+            var old = bob();
+            var weapon = old.getMainHandItem().copy();
+            var converted = old.convertTo(EntityTypes.DROWNED,ConversionParams.single(old,true,true),e->{});
+            require(converted!=null && old.isRemoved() && LbcCreatureDrops.managed(converted)
+                            && LbcSpellSource.unownedHazard(converted) && game.items().currentEpoch(converted)
+                            && game.items().creatureDrops().snapshot().contains(converted),
+                    "native drowned conversion retains WILD policy and lifecycle");
+            require(ItemStack.isSameItemSameComponents(weapon,converted.getMainHandItem())
+                            && converted.getDropChances().byEquipment(EquipmentSlot.MAINHAND)==.5f,
+                    "native conversion copies equipment and chance");
+            var victim = cow(origin.add(2,0,0));
+            victim.setHealth(1);
+            int before = kills(alpha);
+            require(converted.doHurtTarget(level,victim) && victim.isDeadOrDying()
+                            && victim.getKillCredit()==converted && kills(alpha)==before,
+                    "converted WILD Bob remains the melee killer");
+        }
+
         void bobDeaths(){var found=new HashSet<Item>();boolean ordinary=false;for(int i=0;i<16;i++){var z=bob();z.getRandom().setSeed(93401+i);var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(before::add);require(z.hurtServer(level,z.damageSources().playerAttack(beta),100000)&&z.isDeadOrDying(),"native geared Bob dies");var drops=new ArrayList<Entity>();for(var e:level.getAllEntities())if(!before.contains(e)&&e instanceof ItemEntity item){drops.add(e);if(item.getItem().has(DataComponents.CUSTOM_NAME))found.add(item.getItem().getItem());if(item.getItem().is(Items.ROTTEN_FLESH))ordinary=true;}drops.forEach(Entity::discard);}require(found.containsAll(List.of(Items.NETHERITE_SWORD,Items.ENCHANTED_GOLDEN_APPLE,Items.NETHERITE_BOOTS,Items.NETHERITE_LEGGINGS,Items.NETHERITE_CHESTPLATE,Items.NETHERITE_HELMET))&&ordinary,"seeded native deaths exercise all six source gear chances and ordinary zombie loot");}
         void loadSpawner(MinecartSpawner cart,CompoundTag tag){cart.getSpawner().load(level,cart.blockPosition(),TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),tag));}
         void delay(MinecartSpawner cart,int n){var tag=saved(cart,level);tag.putShort("Delay",(short)n);loadSpawner(cart,tag);}

@@ -66,6 +66,12 @@ public final class ElectroNativeMixins {
     }
     @Mixin(Entity.class)
     public abstract static class Impact {
+        @Inject(method="clearFire",at=@At("TAIL"))
+        private void skywars2$clearBurnCredit(CallbackInfo ci) {
+            var game=SkyWars2.game();
+            if(game!=null && (Object)this instanceof LivingEntity living) game.items().indirectKills().extinguished(living);
+        }
+
         @WrapOperation(method="thunderHit",at=@At(value="INVOKE",target=
                 "Lnet/minecraft/world/entity/Entity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
         private boolean skywars2$lightningDamage(Entity target,ServerLevel level,DamageSource source,float amount,
@@ -131,7 +137,10 @@ public final class ElectroNativeMixins {
         private DamageSource skywars2$reflectedDamageSource(DamageSource source) {
             var game=SkyWars2.game();
             if(game==null) return source;
-            if(source.getDirectEntity()==null)return game.items().spellSources().damage(source);
+            if(source.getDirectEntity()==null) {
+                var burn=game.items().indirectKills().creatureFireDamage((LivingEntity)(Object)this,source);
+                return burn==source?game.items().spellSources().damage(source):burn;
+            }
             LivingEntity owner=game.items().electro().reflectedOwner(source.getDirectEntity());
             if(owner==null) owner=game.items().cageDrops().owner(source.getDirectEntity());
             if(owner!=null) source=source.getEntity()==owner ? source : new DamageSource(source.typeHolder(),source.getDirectEntity(),owner);
