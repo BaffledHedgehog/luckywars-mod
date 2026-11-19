@@ -5,9 +5,13 @@ import java.util.function.Predicate;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -32,6 +36,7 @@ final class RayTrailChecks {
             fixture.move(owner, from.add(0, -eyes, 0));
             require(owner.getEyePosition().distanceToSqr(from) < 1e-10, "exact resident ray origin");
             movingTrails(game, fixture, from, aim);
+            secondaryTrails(game, fixture, from.add(0, 6, 0));
 
             fixture.client.packets().clear();
             LbcWall.scriptCast(game, owner, from, aim, true, 1);
@@ -143,6 +148,95 @@ final class RayTrailChecks {
         } finally {
             blind.stop();
             teleport.stop();
+        }
+    }
+
+    private static void secondaryTrails(GameController game, WoolBucketChecks.Fixture fixture, Vec3 origin) {
+        var owner = fixture.owner;
+        var other = fixture.other;
+        var start = BlockPos.containing(origin);
+        for (var cell : BlockPos.betweenClosed(start.offset(-1, -3, -1), start.offset(1, 1, 21))) {
+            require(fixture.level.hasChunkAt(cell), "resident fixture corridor for Zeus and Strangeness");
+            fixture.set(cell.immutable(), Blocks.AIR.defaultBlockState());
+        }
+        var oldOwner = owner.position();
+        var oldOther = other.position();
+        fixture.move(owner, origin.add(0, -1, 0));
+        fixture.move(other, origin.add(0, -30, 0));
+        var cow = new Cow(EntityTypes.COW, fixture.level);
+        cow.setNoAi(true);
+        cow.setNoGravity(true);
+        cow.setPos(origin.add(0, -cow.getEyeHeight(), 5.5));
+        require(fixture.level.addFreshEntity(cow), "resident Zeus and Strangeness target");
+        fixture.own(cow);
+        var summons = game.items().summons();
+        boolean ungrouped = Boolean.getBoolean("skywars2.checkUnbatchedSecondaryTrails");
+        try {
+            var log = fixture.client.packets();
+            float health = cow.getHealth();
+            log.clear();
+            game.items().zeusSkill().fire(owner);
+            var sounds = log.stream().filter(ClientboundSoundPacket.class::isInstance).map(ClientboundSoundPacket.class::cast)
+                    .filter(p -> p.getSound().value().location().getPath().equals("entity.firework_rocket.twinkle")).toList();
+            require(sounds.size() == 22 && cow.getHealth() == health - 4 && cow.getLastHurtByMob() == owner,
+                    "Zeus traverses 22 quarter-block samples, then does its original damage and attribution: sounds="
+                            + sounds.size() + ", health=" + cow.getHealth());
+            verify(fixture, "Zeus spark", p -> p.particle().getType() == ParticleTypes.ELECTRIC_SPARK,
+                    ungrouped ? 22 : 8, 22, false, 1);
+
+            require(summons.ready() && summons.count() == 0, "exclusive native Strangeness caster");
+            var caster = summons.spawnPreset(owner, "strangeness", origin.add(0, -2.5, 0));
+            require(caster != null, "actual Strangeness summon");
+            fixture.own(caster);
+            caster.setNoGravity(true);
+            caster.setNoAi(true);
+            cow.setPos(origin.add(0, -cow.getEyeHeight(), 8));
+            cow.setHealth(health);
+            cow.setInvulnerableTime(0);
+            cow.damageCooldownTime = 0;
+            var wall = start.south(10);
+            fixture.set(wall, Blocks.BEDROCK.defaultBlockState());
+
+            var coreColor = new DustParticleOptions(0x4c8596, 3).getColor();
+            var hazeColor = new DustParticleOptions(0x1f1030, 3).getColor();
+            int steps = 0, hazePackets = 0, hazeParticles = 0;
+            for (int tick = 0; tick < 100 && steps < 21; tick++) {
+                log.clear();
+                summons.tick();
+                int wave = 0;
+                int haze = 0;
+                for (var packet : log) {
+                    if (!(packet instanceof ClientboundLevelParticlesPacket particle)
+                            || !(particle.particle() instanceof DustParticleOptions dust)) continue;
+                    if (dust.getColor().equals(coreColor)) {
+                        require(particle.overrideLimiter() && particle.count() == 1
+                                && particle.xDist() == 0 && particle.yDist() == 0 && particle.zDist() == 0
+                                && new Vec3(particle.x(),particle.y(),particle.z()).distanceToSqr(origin.add(0,0,steps + wave)) < 1e-8,
+                                "each Strangeness core stays at its original point");
+                        wave++;
+                    } else if (dust.getColor().equals(hazeColor)) {
+                        require(!particle.overrideLimiter() && particle.count() % 3 == 0,
+                                "Strangeness haze retains normal viewer range and three particles per sample");
+                        haze++;
+                        hazeParticles += particle.count();
+                    }
+                }
+                require(haze == (ungrouped ? wave : (wave + 2) / 3),
+                        "haze groups do not cross native tick boundaries: " + haze + " packets, " + wave + " core points");
+                hazePackets += haze;
+                steps += wave;
+            }
+            require(steps == 21 && hazeParticles == 63 && (ungrouped || hazePackets < 21)
+                    && fixture.level.getBlockState(wall).isAir() && cow.getHealth() < health
+                    && cow.getLastDamageSource().getEntity() == caster,
+                    "Strangeness keeps its whole visible ray, terrain effect and physical attacker: steps="
+                            + steps + ", haze=" + hazePackets + ", health=" + cow.getHealth());
+            SkyWars2.LOGGER.info("[check] Strangeness trail: {} packets for 84 particles ({} haze and 21 core)", hazePackets + 21, hazePackets);
+        } finally {
+            summons.stop();
+            fixture.discard(cow);
+            fixture.move(owner, oldOwner);
+            fixture.move(other, oldOther);
         }
     }
 

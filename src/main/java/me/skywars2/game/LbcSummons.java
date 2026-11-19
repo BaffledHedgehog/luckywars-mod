@@ -121,6 +121,8 @@ public final class LbcSummons {
             this.cause=cause;
         }
     }
+    private static final DustParticleOptions STRANGE_HAZE = new DustParticleOptions(0x1f1030, 3);
+    private static final DustParticleOptions STRANGE_CORE = new DustParticleOptions(0x4c8596, 3);
     private final ArrayDeque<StrangeRay> activeRays=new ArrayDeque<>();
 
     LbcSummons(GameController game,LbcMana mana) {
@@ -492,16 +494,26 @@ public final class LbcSummons {
             var enemy=attackTarget(ray.actor,owner,ray.origin,20);
             if(enemy!=null) { ray.direction=enemy.getEyePosition().subtract(ray.origin).normalize(); activeRays.addLast(ray); }
         }
-        // Принятые лучи выполняются порциями; число призывов и ожидающих лучей не ограничивается.
-        long deadline=System.nanoTime()+3_000_000L; int pausedRays=0;
-        while(!activeRays.isEmpty() && System.nanoTime()<deadline) {
-            var ray=activeRays.removeFirst(); var owner=game.server().getPlayerList().getPlayer(ray.owner);
-            if(!valid(owner) || owner.level()!=ray.level || !game.items().currentEpoch(ray.epoch)) continue;
-            if(game.items().wands().timeStopped()) { activeRays.addLast(ray); if(++pausedRays>=activeRays.size()) break; continue; }
-            pausedRays=0;
-            if(strangeStep(owner,ray)) activeRays.addLast(ray);
-        }
+        advanceStrangeRays();
         }finally{advancing=false;}
+    }
+
+    private void advanceStrangeRays() {
+        if (activeRays.isEmpty()) return;
+        // Keep separate particle groups per ray even while mechanics advance in round-robin order.
+        Map<StrangeRay, LbcParticleBatch.Group> trails = game.balanceLegacy() ? null : new LinkedHashMap<>();
+        long deadline=System.nanoTime()+3_000_000L; int pausedRays=0;
+        try {
+            while(!activeRays.isEmpty() && System.nanoTime()<deadline) {
+                var ray=activeRays.removeFirst(); var owner=game.server().getPlayerList().getPlayer(ray.owner);
+                if(!valid(owner) || owner.level()!=ray.level || !game.items().currentEpoch(ray.epoch)) continue;
+                if(game.items().wands().timeStopped()) { activeRays.addLast(ray); if(++pausedRays>=activeRays.size()) break; continue; }
+                pausedRays=0;
+                if(strangeStep(owner,ray,trails)) activeRays.addLast(ray);
+            }
+        } finally {
+            if (trails != null) trails.values().forEach(LbcParticleBatch.Group::close);
+        }
     }
     /** AFTER_DAMAGE даёт ровно одну реакцию на настоящее попадание, без NBT/HurtTime polling. */
     public void damaged(LivingEntity victim,DamageSource source) {
@@ -533,14 +545,19 @@ public final class LbcSummons {
         LbcShooters.orient(arrow); track(owner,arrow); owner.level().addFreshEntity(arrow);
         LbcOverload.sound(owner,origin,"minecraft:entity.arrow.shoot",1,1,0);
     }
-    private boolean strangeStep(ServerPlayer owner,StrangeRay ray) {
+    private boolean strangeStep(ServerPlayer owner, StrangeRay ray, Map<StrangeRay, LbcParticleBatch.Group> trails) {
         Vec3 point=ray.origin.add(ray.direction.scale(ray.step++)); var center=BlockPos.containing(point);
         if(!ray.level.hasChunkAt(center) || game.items().magic().suppressedAt(ray.level,point)) return false;
         var type = ray.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.STRANGENESS);
         var damage = game.items().indirectKills().captureDamage(new DamageSource(type, ray.actor), ray.cause);
         // Каждая из 21 исходных позиций отдельно наносит 1 урона и стирает свой куб 3×3×3.
-        ray.level.sendParticles(new DustParticleOptions(0x1f1030,3),point.x,point.y,point.z,3,1.5,1.5,1.5,0);
-        ray.level.sendParticles(new DustParticleOptions(0x4c8596,3),true,false,point.x,point.y,point.z,1,0,0,0,0);
+        if (trails == null) {
+            ray.level.sendParticles(STRANGE_HAZE,point.x,point.y,point.z,3,1.5,1.5,1.5,0);
+        } else {
+            trails.computeIfAbsent(ray, path -> new LbcParticleBatch.Group(path.level, STRANGE_HAZE, 1.5, 0, false,
+                    1.00001, 3)).add(point, 3);
+        }
+        ray.level.sendParticles(STRANGE_CORE,true,false,point.x,point.y,point.z,1,0,0,0,0);
         for(var victim:enemies(owner,point,2.5))
             if (game.items().mana().score(victim,"void_resistance").get()<=0 && victim.hurtServer(ray.level, damage, 1))
                 LbcDamage.mobContactEnchantments(ray.level, victim, damage);

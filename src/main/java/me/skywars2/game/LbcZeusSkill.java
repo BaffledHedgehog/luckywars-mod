@@ -129,29 +129,33 @@ public final class LbcZeusSkill {
             double distance=entry.distanceToSqr(origin);
             if(distance<best){best=distance;first=target;firstEntry=entry;}
         }
-        Vec3 previous=origin;
-        // Source starts at0 and takes25 further quarter-block steps, including endpoint6.25.
-        for(int sample=0;sample<=25;sample++){
-            Vec3 point=origin.add(direction.scale(sample*STEP));
-            double boundary=game.items().magic().mechanismSuppressionFraction(level,previous,point);
-            boolean blocked=Double.isFinite(boundary);
-            if(blocked){
-                if(boundary<=0)return null;
-                point=previous.lerp(point,boundary);
+        try (var trail = game.balanceLegacy() ? null
+                : new LbcParticleBatch.Group(level, ParticleTypes.ELECTRIC_SPARK, .1, 1, false)) {
+            Vec3 previous=origin;
+            // Source starts at0 and takes25 further quarter-block steps, including endpoint6.25.
+            for(int sample=0;sample<=25;sample++){
+                Vec3 point=origin.add(direction.scale(sample*STEP));
+                double boundary=game.items().magic().mechanismSuppressionFraction(level,previous,point);
+                boolean blocked=Double.isFinite(boundary);
+                if(blocked){
+                    if(boundary<=0)return null;
+                    point=previous.lerp(point,boundary);
+                }
+                var block=BlockPos.containing(point);
+                // getChunkNow is resident-only; hasChunkAt may admit a not-yet-ready chunk.
+                if(level.getChunkSource().getChunkNow(block.getX()>>4,block.getZ()>>4)==null)return null;
+                if(sample!=0&&!level.getBlockState(block).is(AIRS))return null;
+                if (trail == null) level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,.1,.1,.1,1);
+                else trail.add(point);
+                LbcOverload.sound(level,point,"minecraft:entity.firework_rocket.twinkle",.03f,2,0,0);
+                double reached=point.distanceToSqr(origin);
+                // A body exactly at the TECH boundary cannot receive damage through that field.
+                if(first!=null&&(blocked?best<reached:best<=reached))
+                    return new Hit(first,blocked?firstEntry:point);
+                if(blocked)return null;
+                previous=point;
             }
-            var block=BlockPos.containing(point);
-            // getChunkNow is resident-only; hasChunkAt may admit a not-yet-ready chunk.
-            if(level.getChunkSource().getChunkNow(block.getX()>>4,block.getZ()>>4)==null)return null;
-            if(sample!=0&&!level.getBlockState(block).is(AIRS))return null;
-            level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,.1,.1,.1,1);
-            LbcOverload.sound(level,point,"minecraft:entity.firework_rocket.twinkle",.03f,2,0,0);
-            double reached=point.distanceToSqr(origin);
-            // A body exactly at the TECH boundary cannot receive damage through that field.
-            if(first!=null&&(blocked?best<reached:best<=reached))
-                return new Hit(first,blocked?firstEntry:point);
-            if(blocked)return null;
-            previous=point;
+            return null;
         }
-        return null;
     }
 }
