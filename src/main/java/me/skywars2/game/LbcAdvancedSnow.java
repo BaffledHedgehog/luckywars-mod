@@ -63,17 +63,27 @@ public final class LbcAdvancedSnow {
         else aim(p,InteractionHand.MAIN_HAND,ItemStack.EMPTY,snow,academy,mode,0);
     }
     private void aim(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean snow,boolean academy,int mode,int cost){
-        Vec3 from=p.getEyePosition().add(p.getLookAngle().scale(hand==InteractionHand.OFF_HAND?.5:0)),direction=p.getLookAngle();
-        game.items().exasperato().replayableTool(p,from,direction,Double.POSITIVE_INFINITY,snow||!snow&&academy&&mode==3,
+        Vec3 direction=p.getLookAngle();
+        Vec3 from=p.getEyePosition().add(direction.scale(hand==InteractionHand.OFF_HAND?.5:0));
+        aim(p,from,direction,hand,stack,snow,academy,mode,cost);
+    }
+    void scriptCast(ServerPlayer p,InteractionHand hand,Vec3 from,Vec3 direction,boolean snow,boolean academy,int mode){
+        if(snow&&!academy)spawn(p,from,hand,ItemStack.EMPTY);
+        else aim(p,from,direction,hand,ItemStack.EMPTY,snow,academy,mode,0);
+    }
+    private void aim(ServerPlayer p,Vec3 from,Vec3 direction,InteractionHand hand,ItemStack stack,
+                     boolean snow,boolean academy,int mode,int cost){
+        game.items().exasperato().replayableTool(p,from,direction,Double.POSITIVE_INFINITY,snow||academy&&mode==3,
                 new Aim(p,from,direction,hand,stack,snow,academy,mode,cost),false);
     }
     private final class Aim implements LbcExasperato.ReplayableRay {
         final java.util.UUID author;final net.minecraft.server.level.ServerLevel level;final String epoch;
-        final Vec3 from,direction;final InteractionHand hand;final boolean snow,academy,clip;final int mode,cost;
+        final Vec3 from,direction;final InteractionHand hand;final boolean snow,academy,clip,borrowed;final int mode,cost;
         ItemStack stack;boolean entered;
         Aim(ServerPlayer p,Vec3 from,Vec3 direction,InteractionHand hand,ItemStack stack,boolean snow,boolean academy,int mode,int cost){
             author=p.getUUID();level=p.level();epoch=game.items().epoch();this.from=from;this.direction=direction;this.hand=hand;this.stack=stack;
             this.snow=snow;this.academy=academy;this.mode=mode;this.cost=cost;clip=!snow&&academy&&mode==3;
+            borrowed=WandCastOrigin.borrowed(p);
         }
         public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){
             boolean air=state.is(AIRS);if(!clip)return !air;if(!air){entered=true;return false;}
@@ -91,7 +101,7 @@ public final class LbcAdvancedSnow {
         }
         public void complete(HitResult hit){
             var p=game.server().getPlayerList().getPlayer(author);if(p==null||p.level()!=level)return;
-            inProgress++;try {
+            inProgress++;try(var origin=WandCastOrigin.scope(p,borrowed)) {
             if(hit==null||!game.items().currentEpoch(epoch)||!p.isAlive()||p.isRemoved())return;
             Vec3 point=hit.getLocation();
             // Upgraded/check positions +1 above impact; summon adds another +2.
@@ -100,7 +110,7 @@ public final class LbcAdvancedSnow {
             if(academy&&mode==2){
                 var pos=hit instanceof net.minecraft.world.phys.BlockHitResult block?block.getBlockPos():BlockPos.containing(point);
                 int y=p.level().getHeight(Heightmap.Types.MOTION_BLOCKING,pos.getX(),pos.getZ());
-                if(y<=0){game.items().mana().add(p,cost);p.sendSystemMessage(Component.literal("X").withStyle(net.minecraft.ChatFormatting.DARK_RED,net.minecraft.ChatFormatting.BOLD));return;}
+                if(y<=0){if(cost>0)game.items().mana().add(p,cost);p.sendSystemMessage(Component.literal("X").withStyle(net.minecraft.ChatFormatting.DARK_RED,net.minecraft.ChatFormatting.BOLD));return;}
                 destination=new Vec3(net.minecraft.util.Mth.clamp(point.x,pos.getX()+.0001,pos.getX()+.9999),y+.5,
                         net.minecraft.util.Mth.clamp(point.z,pos.getZ()+.0001,pos.getZ()+.9999));
             }else{

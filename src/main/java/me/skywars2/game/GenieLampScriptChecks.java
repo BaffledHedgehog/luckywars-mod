@@ -126,7 +126,9 @@ final class GenieLampScriptChecks implements AutoCloseable {
                             "skywars2:psycho_sound", "skywars2:psycho_screamer", "skywars2:psycho_look_back", "skywars2:psycho_scare"))
                     && prompt.contains("native unarmed ghost"), "the model knows all five callable Psycho Wand area effects");
             for (String id : List.of("falling_stars", "academy_falling_stars", "falling_stars_big", "falling_stars_fire_rain",
-                    "wall", "academy_wall", "wall_horizontal", "wall_dismantle", "wall_stairs")) {
+                    "wall", "academy_wall", "wall_horizontal", "wall_dismantle", "wall_stairs",
+                    "advanced_ender", "academy_advanced_ender", "advanced_ender_top", "advanced_ender_clip",
+                    "snow_wand", "academy_snow_wand")) {
                 String spell = "skywars2:" + id;
                 require(directed.contains(new com.google.gson.JsonPrimitive(spell)) && prompt.contains(spell),
                         "actual model request describes the native directed spell " + spell);

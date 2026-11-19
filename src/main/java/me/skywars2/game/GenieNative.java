@@ -60,6 +60,8 @@ public final class GenieNative {
         POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY, UNSTABLE_PRISM_CHARGE, ACADEMY_PRISM_RAY,
         FALLING_STARS, ACADEMY_FALLING_STARS, FALLING_STARS_BIG, FALLING_STARS_FIRE_RAIN,
         WALL, ACADEMY_WALL, WALL_HORIZONTAL, WALL_DISMANTLE, WALL_STAIRS,
+        ADVANCED_ENDER, ACADEMY_ADVANCED_ENDER, ADVANCED_ENDER_TOP, ADVANCED_ENDER_CLIP,
+        SNOW_WAND, ACADEMY_SNOW_WAND,
         TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
         TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
         TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
@@ -272,6 +274,18 @@ public final class GenieNative {
                         default -> 1;
                     };
                     LbcWall.scriptCast(game, player, origin, aim, spell != Cast.WALL, mode);
+                    yield true;
+                }
+                case ADVANCED_ENDER, ACADEMY_ADVANCED_ENDER, ADVANCED_ENDER_TOP, ADVANCED_ENDER_CLIP,
+                        SNOW_WAND, ACADEMY_SNOW_WAND -> {
+                    boolean snow = spell == Cast.SNOW_WAND || spell == Cast.ACADEMY_SNOW_WAND;
+                    boolean academy = spell != Cast.ADVANCED_ENDER && spell != Cast.SNOW_WAND;
+                    int mode = switch (spell) {
+                        case ADVANCED_ENDER_TOP -> 2;
+                        case ADVANCED_ENDER_CLIP -> 3;
+                        default -> 1;
+                    };
+                    game.items().advancedSnow().scriptCast(player, hand, origin, aim, snow, academy, mode);
                     yield true;
                 }
                 default -> {

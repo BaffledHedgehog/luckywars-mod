@@ -964,6 +964,123 @@ final class GenieWorldChecks {
         require(homing.pendingRayCount() == 0, "loaded Falling Stars ray reaches one native terminal hit");
     }
 
+    private static void advancedSnowCasts(GameController game, WoolBucketChecks.Fixture base) {
+        var owner = base.owner;
+        var service = game.items().advancedSnow();
+        var rays = game.items().exasperato();
+        require(service.snapshot().isEmpty() && rays.pendingSearches() == 0, "exclusive snow and teleport fixture");
+
+        var chunk = owner.chunkPosition();
+        int y = Math.min(owner.getBlockY() + 18, base.level.getMaxY() - 102);
+        var target = new BlockPos(chunk.getMinBlockX() + 8, y, chunk.getMinBlockZ() + 8);
+        var origin = Vec3.atCenterOf(target.west(5));
+        var east = new Vec3(1, 0, 0);
+        for (var cell : BlockPos.betweenClosed(target.offset(-5, -1, -1), target.offset(4, 4, 1)))
+            base.set(cell.immutable(), Blocks.AIR.defaultBlockState());
+        for (int height = y + 5; height <= base.level.getMaxY(); height++)
+            base.set(new BlockPos(target.getX(), height, target.getZ()), Blocks.AIR.defaultBlockState());
+        for (int dy = 0; dy <= 3; dy++) {
+            base.set(target.above(dy), Blocks.STONE.defaultBlockState());
+            base.set(target.east().above(dy), Blocks.STONE.defaultBlockState());
+        }
+
+        var position = owner.position();
+        var movement = owner.getDeltaMovement();
+        var fallDistance = owner.fallDistance;
+        float yaw = owner.getYRot(), pitch = owner.getXRot();
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        int mana = game.items().mana().get(owner);
+        var formerDamage = owner.getEffect(MobEffects.INSTANT_DAMAGE);
+        var formerFalling = owner.getEffect(MobEffects.SLOW_FALLING);
+        owner.removeEffect(MobEffects.INSTANT_DAMAGE);
+        owner.removeEffect(MobEffects.SLOW_FALLING);
+        owner.setYRot(0);
+        owner.setXRot(0);
+        try (var host = new GenieWorldHost(game, owner, new ItemStack(Items.STICK), () -> true, () -> 123L)) {
+            var advancement = Objects.requireNonNull(game.server().getAdvancements().get(
+                    net.minecraft.resources.Identifier.parse("lbc:true_advancements/staffs/teleport")));
+            var progress = owner.getAdvancements().getOrStartProgress(advancement);
+            var criteria = new HashSet<String>();
+            progress.getCompletedCriteria().forEach(criteria::add);
+            var high = Vec3.atCenterOf(target.above(98));
+            require(directed(host, "advanced_ender", high, new Vec3(0, -1, 0)) && owner.position().equals(position),
+                    "directed Ender ray uses native deferred search");
+            drainAdvancedRay(rays);
+            require(owner.position().distanceTo(Vec3.atCenterOf(target.above(4))) < .001
+                            && owner.hasEffect(MobEffects.INSTANT_DAMAGE),
+                    "ordinary Ender teleports below the remote origin with its native self-damage");
+            for (var criterion : progress.getCompletedCriteria())
+                require(criteria.contains(criterion), "queued borrowed Ender must not award the original staff achievement");
+            owner.removeEffect(MobEffects.INSTANT_DAMAGE);
+            owner.fallDistance = 32;
+
+            require(directed(host, "academy_advanced_ender", origin, east), "safe Ender accepted");
+            drainAdvancedRay(rays);
+            var slow = owner.getEffect(MobEffects.SLOW_FALLING);
+            require(owner.position().equals(Vec3.atCenterOf(target.west())) && slow != null && slow.getDuration() == 20
+                            && !owner.hasEffect(MobEffects.INSTANT_DAMAGE) && owner.fallDistance == 0,
+                    "safe Ender arrives before the wall and protects against falling");
+            require(directed(host, "advanced_ender_top", origin, east), "topmost Ender accepted");
+            drainAdvancedRay(rays);
+            require(owner.getY() == y + 4.5 && owner.blockPosition().getX() == target.getX(),
+                    "topmost Ender lands on the roof above the first terrain hit");
+            require(directed(host, "advanced_ender_clip", origin, east), "wall clip Ender accepted");
+            drainAdvancedRay(rays);
+            require(owner.position().equals(Vec3.atCenterOf(target.east(2))),
+                    "wall clip exits after crossing both solid blocks");
+
+            require(directed(host, "snow_wand", origin, east) && service.snapshot().size() == 1
+                            && service.snapshot().getFirst().entity().position().equals(origin.add(0, 2, 0)),
+                    "ordinary Snow creates a native cloud at the explicit origin");
+            service.forget(owner);
+            require(directed(host, "academy_snow_wand", origin, east) && service.snapshot().isEmpty(),
+                    "Academy Snow waits for the terrain hit");
+            drainAdvancedRay(rays);
+            require(service.snapshot().size() == 1, "Academy Snow creates exactly one cloud");
+            var state = service.snapshot().getFirst();
+            var cloud = state.entity();
+            require(cloud.getOwner() == owner && cloud.getRadius() == 4 && cloud.getDuration() == 250
+                            && cloud.position().distanceTo(new Vec3(target.getX(), origin.y + 3, origin.z)) < .001,
+                    "Academy Snow retains ownership, radius, duration and position above the wall hit");
+            var cow = stationaryCow(base, cloud.position().add(0, 0, 1));
+            try {
+                service.pulse(state);
+                require(game.items().frost().cold(cow) == 2, "borrowed cloud runs the actual freezing effect");
+            } finally {
+                game.items().frost().clear(cow);
+                base.discard(cow);
+            }
+
+            base.field(false, origin);
+            try {
+                require(!directed(host, "advanced_ender_clip", origin, east)
+                                && !directed(host, "snow_wand", origin, east)
+                                && rays.pendingSearches() == 0 && service.snapshot().size() == 1,
+                        "antimagic at the explicit origin suppresses both direct abilities");
+            } finally {
+                base.removeFields();
+            }
+            require(game.items().mana().get(owner) == mana && owner.getMainHandItem() == main
+                            && owner.getOffhandItem() == off,
+                    "directed snow and teleport leave mana and the actual held items alone");
+        } finally {
+            service.forget(owner);
+            owner.removeEffect(MobEffects.INSTANT_DAMAGE);
+            owner.removeEffect(MobEffects.SLOW_FALLING);
+            if (formerDamage != null) owner.addEffect(formerDamage);
+            if (formerFalling != null) owner.addEffect(formerFalling);
+            owner.teleportTo(base.level, position.x, position.y, position.z, Set.of(), yaw, pitch, true);
+            owner.fallDistance = fallDistance;
+            owner.setDeltaMovement(movement);
+        }
+    }
+
+    private static void drainAdvancedRay(LbcExasperato rays) {
+        for (int tick = 0; tick < 100 && rays.pendingSearches() > 0; tick++) rays.tick();
+        require(rays.pendingSearches() == 0, "native snow or Ender ray resolves");
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -1028,6 +1145,7 @@ final class GenieWorldChecks {
             polymorphCasts(game, base, launchSpot);
             prismCasts(game, base, launchSpot.add(0, .65, 0));
             starsAndWall(game, base);
+            advancedSnowCasts(game, base);
             psychoAreaCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);
