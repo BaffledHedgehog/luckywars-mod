@@ -214,6 +214,7 @@ public final class LbcLuckyBlocks {
             var display=new ItemDisplayElement(head);
             display.setItemDisplayContext(ItemDisplayContext.FIXED);
             display.setScale(new Vector3f(.85f));
+            display.setBrightness(new net.minecraft.util.Brightness(15,15));
             var holder=new ElementHolder();
             holder.addElement(display);
             return holder;
