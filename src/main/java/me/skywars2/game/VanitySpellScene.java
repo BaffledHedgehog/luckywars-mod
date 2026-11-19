@@ -63,7 +63,17 @@ final class VanitySpellScene {
         require(summons.orders().assigned(first)==gamma&&summons.orders().assigned(second)==gamma,"restored orders work once time resumes");
         for(int i=0;i<10&&!VanitySpellScene.<ArrayDeque<Object>>get(summons,"activeRays").isEmpty();i++)summons.tick();
         require(VanitySpellScene.<ArrayDeque<Object>>get(summons,"activeRays").isEmpty()&&VanitySpellScene.<List<Object>>get(summons,"rays").size()==1,"actual native partial ray completes, waiting warning has not fired early");
-        require(base.owner.level().getBlockState(untouched).is(Blocks.BEDROCK)&&base.owner.level().getBlockState(erased).isAir()&&victim.getHealth()<1000&&victim.getLastHurtByPlayer()==base.owner,"native ray resumes at saved cursor, erases terrain and damages/credits the real victim");
+        require(base.owner.level().getBlockState(untouched).is(Blocks.BEDROCK)
+                && base.owner.level().getBlockState(erased).isAir(),
+                "native ray resumes from the saved cursor and only erases terrain ahead");
+        var damage = victim.getLastDamageSource();
+        var cause = damage == null ? null : game.items().indirectKills().babylonCause(damage);
+        require(victim.getHealth() < 1000 && damage != null && damage.is(LbcDamage.STRANGENESS)
+                && damage.getEntity() == VanitySpellScene.<Mob>get(active, "actor"),
+                "restored ray damages the real victim with its physical cultist as attacker");
+        require(cause != null && cause == VanitySpellScene.<LbcIndirectKills.Owner>get(active, "cause")
+                && cause.player().equals(base.owner.getUUID()),
+                "restored ray separately preserves its original player kill credit");
         summons.stop();child.discard();authorShot.discard();emitter.discard();victim.discard();
     }
     void pending(){require(summons.count()==0&&VanitySpellScene.<Map<?,?>>get(game.items().spellSources(),"sources").size()==90,"missing target never partially installs captured source/control/summon tables");}
