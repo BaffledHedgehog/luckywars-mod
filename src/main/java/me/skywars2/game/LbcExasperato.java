@@ -629,7 +629,7 @@ public final class LbcExasperato {
                     var at=burst.origin.add(burst.offsets[burst.next]);var cell=BlockPos.containing(at);
                     if(burst.level.getChunkSource().getChunkNow(cell.getX()>>4,cell.getZ()>>4)==null)break;
                     burst.next++;
-                    nativeBlast(burst.owner,burst.level,at,burst.radius,burst.epoch,burst.protectedDamage,burst.sourceInit,false,false,true);
+                    nativeBlast(burst.owner,burst.level,at,burst.radius,burst.epoch,burst.protectedDamage,burst.sourceInit,false,false,true,null);
                     if(!game.items().currentEpoch(burst.epoch)||game.stage()==GameController.Stage.ENDING)break;
                 }
             }
@@ -755,21 +755,23 @@ public final class LbcExasperato {
         nuclearBurst(owner,origin,sourceInit,true);
     }
     /** The ritual prepares geometry during its countdown; block application and native waves share one deadline. */
-    void exopersoPrepared(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit,NuclearTerrain.Geometry geometry){
+    void exopersoPrepared(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit,
+            NuclearTerrain.Geometry geometry,LbcIndirectKills.Owner cause){
         var level=owner.level();var epoch=game.items().epoch();
         if(LbcExplosionSuppression.suppressed(game,level,origin)||!level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES))return;
         game.items().nuclearVisuals().show(level,origin,12,true,200);
         for(var sound:new String[]{"minecraft:entity.dragon_fireball.explode","minecraft:entity.generic.explode","minecraft:item.firecharge.use",
                 "minecraft:entity.firework_rocket.large_blast","minecraft:entity.firework_rocket.large_blast_far"})LbcOverload.sound(owner,origin,sound,100,0,0);
         var batch=new BlastBatch(owner,origin,epoch);batch.sourceInit=sourceInit;batch.nuclear=true;
-        batch.terrain=NuclearTerrain.wand(origin);batch.walls=batch.terrain.walls;batch.terrainCause=game.items().indirectKills().wildCause(owner);
+        batch.terrain=NuclearTerrain.wand(origin);batch.walls=batch.terrain.walls;
+        batch.terrainCause=cause==null?game.items().indirectKills().wildCause(owner):cause;
         // First damage is immediate and still sees the original walls.
-        nativeBlast(owner,level,origin,20,epoch,false,sourceInit,false,true);
+        nativeBlast(owner,level,origin,20,epoch,false,sourceInit,false,true,false,cause);
         var positions=batch.terrain.preparedPositions(game,level,geometry);
         batch.terrain.applyPrepared(game,level,batch.terrainCause,positions,()->nuclearTerrainApplication(batch),writes->withNuclearTerrainSource(batch,writes));
         for(int i=1;i<NUKE_OFFSETS.length;i++){
             var at=origin.add(NUKE_OFFSETS[i]);
-            NuclearTerrain.withOcclusion(batch.walls,()->nativeBlast(owner,level,at,20,epoch,false,sourceInit,false,true));
+            NuclearTerrain.withOcclusion(batch.walls,()->nativeBlast(owner,level,at,20,epoch,false,sourceInit,false,true,false,cause));
         }
     }
     private void nuclearBurst(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit,boolean exoperso) {
@@ -978,10 +980,11 @@ public final class LbcExasperato {
     }
     private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
             boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension,boolean nuclear) {
-        nativeBlast(owner,level,at,radius,epoch,protectedDamage,sourceInit,encounterDimension,nuclear,false);
+        nativeBlast(owner,level,at,radius,epoch,protectedDamage,sourceInit,encounterDimension,nuclear,false,null);
     }
     private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
-            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension,boolean nuclear,boolean cachedBlocks) {nativeBlasts++;try{
+            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension,boolean nuclear,boolean cachedBlocks,
+            LbcIndirectKills.Owner nuclearCause) {nativeBlasts++;try{
         if(!encounterDimension && level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
                 || !level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
                 || !game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
@@ -993,7 +996,8 @@ public final class LbcExasperato {
         game.items().markCurrentItemEpoch(source);
         try { if(sourceInit!=null) sourceInit.accept(source);
             if(nuclear){
-                var cause=owner instanceof ServerPlayer player?game.items().indirectKills().wildCause(player):null;
+                var cause=nuclearCause!=null?nuclearCause:
+                        owner instanceof ServerPlayer player?game.items().indirectKills().wildCause(player):null;
                 var damage=game.items().indirectKills().captureDamage(net.minecraft.world.level.Explosion.getDefaultDamageSource(level,source),cause);
                 NuclearTerrain.damageWave(source,()->level.explode(source,damage,null,at.x,at.y,at.z,radius,false,Level.ExplosionInteraction.TNT));
             }

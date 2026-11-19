@@ -317,6 +317,89 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void targetedExoperso(GameController game, WoolBucketChecks.Fixture base, Vec3 point) {
+        var exoperso = game.items().exoperso();
+        require(exoperso.count() == 0 && !game.items().exasperato().pendingNuclearTerrain(), "exclusive native ritual fixture");
+        var center = new Vec3(point.x, base.level.getMaxY() - 60, point.z);
+        var caster = base.owner;
+        var gift = new ItemStack(Items.BLAZE_ROD);
+        var regular = new JsonPrimitive("skywars2:exoperso");
+        var academy = new JsonPrimitive("skywars2:academy_exoperso");
+        var wandBefore = caster.getMainHandItem();
+        var offBefore = caster.getOffhandItem();
+        int manaBefore = game.items().mana().get(caster);
+
+        try (var host = new GenieWorldHost(game, caster, gift, () -> true, () -> 0)) {
+            var absent = new Vec3(1048576.25, center.y, 1048576.25);
+            require(!complete(host, queued(host, "lbc.cast_at", academy, vector(absent))).getAsBoolean()
+                    && !base.level.hasChunkAt(BlockPos.containing(absent)), "borrowed ritual will not load an absent chunk");
+            base.field(false, center);
+            require(game.items().magic().suppressedAt(base.level, center)
+                    && !complete(host, queued(host, "lbc.cast_at", regular, vector(center))).getAsBoolean()
+                    && exoperso.count() == 0, "borrowed ritual respects magic suppression at the target");
+            base.removeFields();
+
+            for (var id : List.of(regular, academy))
+                require(complete(host, queued(host, "lbc.cast_at", id, vector(center))).getAsBoolean(), "native ritual accepted: " + id);
+            var states = exoperso.rituals.snapshot();
+            require(states.size() == 2 && states.getFirst().duration() == 340 && states.getLast().duration() == 180,
+                    "both constructor entries start the actual normal and Academy countdowns");
+            for (var state : states) {
+                require(state.target.equals(center) && state.anchor.position().equals(center)
+                        && state.rings.size() == 30 && state.rings.stream().allMatch(ring -> base.level.getEntity(ring.getUUID()) == ring),
+                        "borrowed ritual fixes the target and publishes all thirty native displays");
+                require(WandCastOrigin.borrowed(state.anchor) && state.cause.friendlyFire()
+                        && state.cause.player().equals(caster.getUUID()) && ItemStack.matches(state.cause.enchantmentWeapon(),gift),
+                        "borrowed native ritual stores the gift and keeps the original WILD policy");
+            }
+            require(caster.getMainHandItem() == wandBefore && caster.getOffhandItem() == offBefore
+                    && game.items().mana().get(caster) == manaBefore, "no real staff replacement or mana debit");
+
+            var actors = new ArrayList<Entity>();
+            for (var state : states) {
+                actors.add(state.anchor);
+                actors.add(state.timer);
+                actors.addAll(state.rings);
+            }
+            var graph = new MatchBlastCheckpoint.Graph(new MatchDamageSources(game, actors));
+            var image = exoperso.checkpoint(graph);
+            require(graph.links.resolve(base.level::getEntity).isEmpty(), "saved ritual binds every native display");
+            exoperso.prepareCheckpoint();
+            graph.prepare().run();
+            image.prepare(graph.links).run();
+            var restored = exoperso.rituals.snapshot().getLast();
+            require(restored.cause == states.getLast().cause && WandCastOrigin.borrowed(restored.anchor),
+                    "checkpoint retains the accepted attribution and achievement policy");
+
+            var block = BlockPos.containing(center).below(2);
+            base.set(block, Blocks.STONE.defaultBlockState());
+            var victim = Objects.requireNonNull(EntityTypes.COW.create(base.level, EntitySpawnReason.TRIGGERED));
+            victim.setPos(center.add(1.5, 0, 0));
+            victim.setHealth(1);
+            victim.setNoAi(true);
+            victim.setNoGravity(true);
+            require(base.level.addFreshEntity(victim), "native ritual damage witness");
+            base.own(victim);
+            restored.age = restored.duration() - 2;
+            exoperso.tick();
+            require(!restored.anchor.isRemoved() && victim.isAlive() && base.level.getBlockState(block).is(Blocks.STONE),
+                    "no damage or terrain clearing on the last rune frame");
+            exoperso.tick();
+            var damage = victim.getLastDamageSource();
+            require(restored.anchor.isRemoved() && restored.rings.stream().allMatch(Entity::isRemoved)
+                    && base.level.getBlockState(block).isAir() && exoperso.count() == 1,
+                    "Academy terminal uses the actual prepared blast and retires only its own runes");
+            require(!victim.isAlive() && victim.getKillCredit() == caster && damage != null
+                    && LbcIndirectKills.isWildCaptured(damage)
+                    && ItemStack.matches(game.items().indirectKills().enchantmentWeapon(damage),gift),
+                    "real lethal explosion retains WILD behavior, the player and the original gift: " + damage);
+        } finally {
+            base.removeFields();
+            exoperso.stop();
+            game.items().exasperato().stop();
+        }
+    }
+
     private static void targetedHedgehogs(GameController game, WoolBucketChecks.Fixture base, Vec3 target) {
         var service = game.items().hedgehog();
         var initial = service.views().stream().map(LbcHedgehog.View::entity).collect(java.util.stream.Collectors.toSet());
@@ -596,6 +679,7 @@ final class GenieWorldChecks {
 
             directedCasts(game, base, launchSpot.add(0, .65, 0));
             targetedOreshnik(game, base, launchSpot);
+            targetedExoperso(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);
             sauvojenCasts(game, base, launchSpot.add(0, .65, 0));

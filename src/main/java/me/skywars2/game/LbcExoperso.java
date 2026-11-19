@@ -117,6 +117,15 @@ public final class LbcExoperso {
         return rituals.cast(owner,upgraded);
     }
 
+    boolean scriptRitual(ServerPlayer owner, Vec3 target, boolean upgraded) {
+        if (!validOwner(owner) || paused(owner)) return false;
+        var magic = game.items().magic();
+        if (magic.suppressed(owner) || magic.suppressedAt(owner.level(), owner.getEyePosition())) return false;
+        try (var origin = WandCastOrigin.scope(owner, true)) {
+            return rituals.begin(owner, target, upgraded, game.items().indirectKills().wildCause(owner));
+        }
+    }
+
     /** Delta enters the same native charge owner directly at source Lifetime321. */
     public boolean releaseAt(LbcSpellSource.Source source,net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction){
         if(source==null||!game.items().currentEpoch(source.epoch())||rewinding)return false;
@@ -252,11 +261,11 @@ public final class LbcExoperso {
         game.items().exasperato().exopersoBurst(owner, point, series);
     }
 
-    void ritualImpact(ServerPlayer owner,Vec3 point,NuclearTerrain.Geometry geometry){
+    void ritualImpact(ServerPlayer owner,Vec3 point,NuclearTerrain.Geometry geometry,LbcIndirectKills.Owner cause){
         if(!validOwner(owner))return;
         var series=new Series(owner,game.items().epoch());
         for(var player:game.alivePlayers())if(!player.getUUID().equals(series.owner))series.requiredPlayers.add(player.getUUID());
-        game.items().exasperato().exopersoPrepared(owner,point,series,geometry);
+        game.items().exasperato().exopersoPrepared(owner,point,series,geometry,cause);
     }
 
     /** Used by the queue's blast callback so source attribution survives the synchronous explosion. */

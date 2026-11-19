@@ -1,7 +1,6 @@
 package me.skywars2.game;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -33,13 +32,14 @@ final class LbcExopersoRitual {
         final boolean upgraded;final Marker anchor;final Display.TextDisplay timer;
         final List<Display.ItemDisplay> rings;
         final float[] scales,angles,speeds;
-        CompletableFuture<NuclearTerrain.Geometry> preparation;
+        final LbcIndirectKills.Owner cause;
         NuclearTerrain.WandPreparation terrain;
         int age;
         State(UUID owner,String epoch,ServerLevel level,Vec3 target,boolean upgraded,Marker anchor,Display.TextDisplay timer,
-                List<Display.ItemDisplay> rings,float[] scales,float[] angles,float[] speeds){
+                List<Display.ItemDisplay> rings,float[] scales,float[] angles,float[] speeds,LbcIndirectKills.Owner cause){
             this.owner=owner;this.epoch=epoch;this.level=level;this.target=target;this.upgraded=upgraded;
             this.anchor=anchor;this.timer=timer;this.rings=List.copyOf(rings);this.scales=scales;this.angles=angles;this.speeds=speeds;
+            this.cause=cause;
         }
         int duration(){return upgraded?180:340;}
         int collapse(){return 1;}
@@ -58,7 +58,12 @@ final class LbcExopersoRitual {
         var hit=LbcTerra.wallHit(level,from,end);var target=hit==null?end:hit.getLocation();
         // The ray's first missing chunk is a boundary, not a reason to reject an otherwise valid cast.
         if(!level.hasChunkAt(BlockPos.containing(target)))target=target.subtract(owner.getLookAngle().scale(.5));
-        if(!level.hasChunkAt(BlockPos.containing(target))||game.items().magic().suppressedAt(level,target))return false;
+        return begin(owner,target,upgraded,null);
+    }
+
+    boolean begin(ServerPlayer owner,Vec3 target,boolean upgraded,LbcIndirectKills.Owner cause){
+        var level=owner.level();
+        if(restoring||!level.hasChunkAt(BlockPos.containing(target))||game.items().magic().suppressedAt(level,target))return false;
         var anchor=EntityTypes.MARKER.create(level,net.minecraft.world.entity.EntitySpawnReason.COMMAND);
         if(anchor==null)return false;anchor.setPos(target);WandCastOrigin.stamp(anchor,owner);
         var timer=new Display.TextDisplay(EntityTypes.TEXT_DISPLAY,level);timer.setPos(target.add(0,1,0));
@@ -76,7 +81,7 @@ final class LbcExopersoRitual {
             speeds[i]=(random.nextBoolean()?1:-1)*(3.6f+random.nextFloat()*32.4f);
             rings.add(ring);
         }
-        var state=new State(owner.getUUID(),game.items().epoch(),level,target,upgraded,anchor,timer,rings,scales,angles,speeds);
+        var state=new State(owner.getUUID(),game.items().epoch(),level,target,upgraded,anchor,timer,rings,scales,angles,speeds,cause);
         paint(state);var all=new ArrayList<Entity>();all.add(anchor);all.add(timer);all.addAll(rings);
         states.add(state);for(var actor:all)bodies.put(actor,state);
         for(var actor:all){
@@ -89,8 +94,9 @@ final class LbcExopersoRitual {
         return true;
     }
     private void prepare(State state){
-        var shape=NuclearTerrain.wand(state.target);
-        state.preparation=game.maps().preparePure(()->NuclearTerrain.Geometry.prepare(shape));
+        var id=state.anchor.getUUID();
+        state.terrain=new NuclearTerrain.WandPreparation(state.level,state.target,id.getLeastSignificantBits()^id.getMostSignificantBits());
+        state.terrain.tick(game,state.level);
     }
     private void paint(State state){
         state.timer.setText(LbcTntTimer.label(Math.max(0,state.duration()-state.age)));
@@ -110,16 +116,10 @@ final class LbcExopersoRitual {
                     ||game.items().magic().suppressedAt(state.level,state.target)){remove(state);continue;}
             if(game.items().timeStop().stopped(state.level)||game.items().wands().inputTimeStopped(owner))continue;
             ++state.age;
-            if(state.age>=1){
-                if(state.terrain==null)state.terrain=new NuclearTerrain.WandPreparation(state.level,state.target,state.anchor.getUUID().getLeastSignificantBits()^state.anchor.getUUID().getMostSignificantBits());
-                state.terrain.tick(game,state.level);
-            }
             if(state.age<state.duration()){paint(state);continue;}
-            NuclearTerrain.Geometry geometry=null;
-            if(state.terrain!=null)geometry=state.terrain.finish(state.level);
-            // No join/world access on the worker. A busy decoder cannot postpone the accepted deadline.
-            if(geometry==null)geometry=NuclearTerrain.Geometry.prepare(NuclearTerrain.wand(state.target));
-            remove(state);try(var castOrigin=WandCastOrigin.scope(owner,state.anchor)){spell.ritualImpact(owner,state.target,geometry);}
+            // finish uses the prepared result or calculates it without waiting for the worker.
+            var geometry=state.terrain.finish(state.level);
+            remove(state);try(var castOrigin=WandCastOrigin.scope(owner,state.anchor)){spell.ritualImpact(owner,state.target,geometry,state.cause);}
         }
     }
     void loaded(Entity actor){
@@ -128,7 +128,7 @@ final class LbcExopersoRitual {
     }
     void unloaded(Entity actor){if(restoring||MatchActorCheckpoint.restoring(actor))return;var state=bodies.get(actor);if(state!=null)remove(state);}
     private void remove(State state){
-        if(!states.remove(state))return;if(state.preparation!=null)state.preparation.cancel(false);if(state.terrain!=null)state.terrain.cancel();
+        if(!states.remove(state))return;if(state.terrain!=null)state.terrain.cancel();
         bodies.remove(state.anchor);bodies.remove(state.timer);state.rings.forEach(bodies::remove);
         state.anchor.discard();state.timer.discard();state.rings.forEach(Entity::discard);
     }
@@ -137,20 +137,20 @@ final class LbcExopersoRitual {
     void cancelFrozen(){restoring=false;}
     private record Image(UUID owner,String epoch,ServerLevel level,Vec3 target,boolean upgraded,int age,
             MatchDamageSources.Ref anchor,MatchDamageSources.Ref timer,List<MatchDamageSources.Ref> rings,
-            float[] scales,float[] angles,float[] speeds){}
+            float[] scales,float[] angles,float[] speeds,LbcIndirectKills.Owner cause){}
     final class Checkpoint {
         private final List<Image> images;
         Checkpoint(MatchSpellCheckpoint.Links links){images=states.stream().map(s->new Image(s.owner,s.epoch,s.level,s.target,s.upgraded,s.age,
-                links.key(s.anchor),links.key(s.timer),s.rings.stream().map(links::key).toList(),s.scales.clone(),s.angles.clone(),s.speeds.clone())).toList();}
+                links.key(s.anchor),links.key(s.timer),s.rings.stream().map(links::key).toList(),s.scales.clone(),s.angles.clone(),s.speeds.clone(),s.cause)).toList();}
         Runnable prepare(MatchSpellCheckpoint.Links links){
             var restored=new ArrayList<State>();
             for(var image:images){MatchAuthorityCheckpoint.world(game,image.level);
                 if(!(links.get(image.anchor) instanceof Marker anchor)||!(links.get(image.timer) instanceof Display.TextDisplay timer))
                     throw new IllegalStateException("Restore native Exoperso ritual bodies first");
                 var rings=new ArrayList<Display.ItemDisplay>();for(var ref:image.rings){if(!(links.get(ref) instanceof Display.ItemDisplay ring))throw new IllegalStateException("Restore native rune first");rings.add(ring);}
-                var state=new State(image.owner,image.epoch,image.level,image.target,image.upgraded,anchor,timer,rings,image.scales.clone(),image.angles.clone(),image.speeds.clone());state.age=image.age;restored.add(state);
+                var state=new State(image.owner,image.epoch,image.level,image.target,image.upgraded,anchor,timer,rings,image.scales.clone(),image.angles.clone(),image.speeds.clone(),image.cause);state.age=image.age;restored.add(state);
             }
-            return ()->{for(var state:states){if(state.preparation!=null)state.preparation.cancel(false);if(state.terrain!=null)state.terrain.cancel();}states.clear();bodies.clear();
+            return ()->{for(var state:states)state.terrain.cancel();states.clear();bodies.clear();
                 for(var state:restored){states.add(state);bodies.put(state.anchor,state);bodies.put(state.timer,state);state.rings.forEach(actor->bodies.put(actor,state));LbcExopersoRitual.this.prepare(state);paint(state);}restoring=false;};
         }
     }

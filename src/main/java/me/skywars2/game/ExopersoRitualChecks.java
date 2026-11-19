@@ -38,6 +38,7 @@ public final class ExopersoRitualChecks {
             require(target.equals(academy.target)&&target.distanceTo(owner.getEyePosition())<5,"gaze intersects the actual first block");
             for(var state:states){var models=new HashSet<Object>();double previous=0;
                 require(state.age==0&&state.anchor.position().equals(target)&&state.rings.size()==30,"one native anchor and thirty rune bodies");
+                require(state.terrain!=null&&state.terrain.future!=null,"cast starts the same seeded geometry task that will be used at detonation");
                 for(var ring:state.rings){double height=ring.getY()-target.y;require(height>=10&&height<=50&&height>previous,"strict bottom-up heights10..50");previous=height;
                     models.add(ring.getItemStack().get(DataComponents.ITEM_MODEL));var scale=transformation(ring).scale();require(scale.x()==0&&scale.z()==0,"native initial scale is zero");}
                 for(int i=0;i<state.scales.length;i++)require(state.scales[i]>=6&&state.scales[i]<=100f/1.5f&&Math.abs(state.speeds[i])>=3.6f&&Math.abs(state.speeds[i])<=36.00001f,"fixed6..66.67 scale and signed0.2..2 rotations/second");
@@ -79,15 +80,17 @@ public final class ExopersoRitualChecks {
             if(!rewound&&ordinary.age>=60){
                 var actors=new ArrayList<Entity>();base.owner.level().getAllEntities().forEach(actors::add);
                 var graph=new MatchBlastCheckpoint.Graph(new MatchDamageSources(game,actors));var image=game.items().exoperso().checkpoint(graph);int age=ordinary.age;
-                var speeds=ordinary.speeds.clone();ordinary.age=299;academy.age=159;
+                var speeds=ordinary.speeds.clone();var previousPreparation=academy.terrain;ordinary.age=299;academy.age=159;
                 require(graph.links.resolve(id->base.owner.level().getEntity(id)).isEmpty(),"typed checkpoint resolves every native anchor/rune link");
                 game.items().exoperso().prepareCheckpoint();graph.prepare().run();image.prepare(graph.links).run();
                 var restored=game.items().exoperso().rituals.snapshot();ordinary=restored.get(0);academy=restored.get(1);
                 for(var state:restored)for(var ring:state.rings)require(ring.isCurrentlyGlowing()&&ring.getTeamColor()==0xE75313,"native replay retains private bloom mask");
-                require(ordinary.age==age&&academy.age==age&&Arrays.equals(ordinary.speeds,speeds),"checkpoint restores independent age and fixed random rotation parameters");rewound=true;
+                require(ordinary.age==age&&academy.age==age&&Arrays.equals(ordinary.speeds,speeds),"checkpoint restores independent age and fixed random rotation parameters");
+                require(previousPreparation.cancelled&&academy.terrain!=previousPreparation&&academy.terrain.seed==previousPreparation.seed,
+                        "checkpoint retires the old task and starts one replacement using the same seed");rewound=true;
             }
             if(!academyDone&&academy.age==100){
-                require(academy.preparation.isDone()&&!academy.preparation.isCompletedExceptionally(),"pure geometry ready during countdown");refill();
+                require(academy.terrain.ready()&&!academy.terrain.future.isCompletedExceptionally(),"actual detonation geometry ready during countdown");refill();
                 var first=transformation(ordinary.rings.getFirst()).scale();var last=transformation(ordinary.rings.getLast()).scale();
                 require(first.x()>0&&first.x()==first.z()&&last.x()==ordinary.scales[29],"all thirty rings finish their two-tick growth before tick60");
             }

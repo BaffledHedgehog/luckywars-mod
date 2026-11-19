@@ -72,6 +72,10 @@ public final class GenieNative {
     public enum TargetedCast {
         ORESHNIK("oreshnik", "Absolute Cinema: Putin / Oreshnik", "Абсолютное кино: Путин / Орешник",
                 "Launches the original rocket and its cluster at target."),
+        EXOPERSO("exoperso", "Crimson Demon Clan Staff", "Жезл клана Алых Мазоку",
+                "Locks the target for the original Exoperso ritual, thirty runes and a crater after 340 ticks."),
+        ACADEMY_EXOPERSO("academy_exoperso", "Academy Crimson Demon Clan Staff", "Улучшенный жезл клана Алых Мазоку",
+                "Locks the target for the faster Academy Exoperso ritual and a crater after 180 ticks."),
         HEDGEHOG("hedgehog", "Ordinary Hedgehog", "Обычный ёж", LbcHedgehog.Kind.ORDINARY),
         HEDGEHOG_STANDARD("hedgehog_standard", "Standard Hedgehog", "Стандартный ёж", LbcHedgehog.Kind.DEFAULT),
         HEDGEHOG_HEALER("hedgehog_healer", "Healing Hedgehog", "Исцеляющий ёж", LbcHedgehog.Kind.HEALER),
@@ -171,6 +175,8 @@ public final class GenieNative {
                 || !level.getWorldBorder().isWithinBounds(position)) return false;
         return switch (spell) {
             case ORESHNIK -> game.items().cinema().rockets().launch(player, target);
+            case EXOPERSO, ACADEMY_EXOPERSO ->
+                    game.items().exoperso().scriptRitual(player, target, spell == TargetedCast.ACADEMY_EXOPERSO);
             case GOHEI_SPELLCARD -> game.items().danmaku().scriptBomb(player, target, 300, false);
             case GOHEI_SPELLCARD_FULL -> game.items().danmaku().scriptBomb(player, target, 1500, false);
             case HAKUREI_BOMB -> game.items().danmaku().scriptBomb(player, target, 300, true);
