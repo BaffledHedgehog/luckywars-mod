@@ -11,6 +11,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.entity.Marker;
@@ -256,6 +257,67 @@ public final class DanmakuChecks {
             shot=card(origin,new Vec3(0,0,1),false);var display=shot.display;danmaku.unloaded(display);require(danmaku.cards().isEmpty()&&display.isRemoved(),"native unload retires owned card");
             shot=card(origin,new Vec3(0,0,1),false);display=shot.display;danmaku.forget(owner);require(danmaku.cards().isEmpty()&&display.isRemoved(),"owner retirement clears own card");
         }
+        /** Exercise a tie that breaks after the first substep, then a dense search with a distant winner. */
+        void homingSearch() {
+            var origin = at.add(0, 11, 0);
+            var left = cow(origin.add(-3, 0, 6));
+            var right = cow(origin.add(3, 0, 6));
+            LivingEntity first = null;
+            for (var entity : owner.level().getAllEntities()) {
+                if (entity == left || entity == right) {
+                    first = (LivingEntity)entity;
+                    break;
+                }
+            }
+            require(first != null, "native tied targets were published");
+            var second = first == left ? right : left;
+            var initial = new Vec3(first == left ? .15 : -.15, 0, 1).normalize();
+            var aim = ProjectileSteering.turn(initial, first.getEyePosition().subtract(origin), Math.atan(.06));
+            var end = origin.add(aim.scale(.4));
+            require(second.distanceToSqr(end) < first.distanceToSqr(end), "first substep crosses target bisector");
+            for (int i = 0; i < 2; i++) {
+                aim = ProjectileSteering.turn(aim, second.getEyePosition().subtract(end), Math.atan(.06));
+                end = end.add(aim.scale(.4));
+            }
+            var tied = card(origin, initial, true);
+            danmaku.tick();
+            require(tied.age == 1 && tied.display.position().distanceToSqr(end) < 1e-14
+                    && tied.direction.distanceToSqr(aim) < 1e-14,
+                    "homing retains native order at an exact tie and reselects at the bisector");
+            clear();
+            left.discard();
+            right.discard();
+
+            var distant = cow(origin.add(-4, 40, 2));
+            var decoys = new ArrayList<Cow>();
+            for (int i = 0; i < 64; i++) {
+                decoys.add(cow(origin.add(i % 9 - 4, 52 + i % 5, i / 9 - 3)));
+            }
+            var protectedMob = cow(origin.add(3, 2, 4));
+            protectedMob.entityTags().add("strict_map_object");
+            end = origin;
+            aim = new Vec3(0, 0, 1);
+            for (int i = 0; i < 3; i++) {
+                aim = ProjectileSteering.turn(aim, distant.getEyePosition().subtract(end), Math.atan(.06));
+                end = end.add(aim.scale(.4));
+            }
+            var cards = new ArrayList<LbcDanmaku.Card>();
+            for (int i = 0; i < 72; i++) cards.add(card(origin, new Vec3(0, 0, 1), true));
+            danmaku.tick();
+            for (var shot : cards) {
+                require(shot.age == 1 && shot.display.position().distanceToSqr(end) < 1e-14
+                        && shot.direction.distanceToSqr(aim) < 1e-14,
+                        "dense homing keeps the exact three-step trajectory to an eligible target beyond 32 blocks");
+            }
+            distant.discard();
+            danmaku.tick();
+            require(cards.stream().allMatch(shot -> shot.age == 2 && shot.display.position().y > origin.y),
+                    "removing the target reselects from the next tick's live recipients");
+            clear();
+            protectedMob.discard();
+            decoys.forEach(Entity::discard);
+        }
+
         void bombs(){
             clear();held(loot("danmaku_staff"),InteractionHand.MAIN_HAND);owner.setShiftKeyDown(true);mana.set(owner,0);mana.score(owner,"danmaku_score").set(49);
             require(!input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&mana.score(owner,"danmaku_score").get()==49&&danmaku.bombs().isEmpty(),"free bomb still requires charge50");
@@ -390,7 +452,7 @@ public final class DanmakuChecks {
         }
         boolean step(){
             require(game.playing()&&game.items().currentEpoch(epoch),"active fixture match and epoch");long now=owner.level().getGameTime();if(now==last)return false;last=now;
-            if(phase==0){projectiles();bridges();bombs();counters();phase=1;pattern=0;startPattern();return false;}
+            if(phase==0){projectiles();homingSearch();bridges();bombs();counters();phase=1;pattern=0;startPattern();return false;}
             if(phase==1){if(!patternTick())return false;if(++pattern<6){startPattern();return false;}phase=2;move(owner,at);held(loot("danmaku_staff"),InteractionHand.MAIN_HAND);trial=owner.getMainHandItem();require(academy.interact(owner,InteractionHand.MAIN_HAND,normal)&&LbcAcademy.trial(trial),"real Academy assigns ordinary Danmaku trial");return false;}
             if(phase==2){trials();phase=3;return false;}
             require(phase==3&&academy.interact(owner,InteractionHand.MAIN_HAND,school),"native token-school promotion callback");var stack=owner.getMainHandItem();var expected=loot("academy_danmaku_staff");

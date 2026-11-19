@@ -367,16 +367,17 @@ public final class LbcDanmaku {
     private void tick(Card c){
         if(!valid(c.owner,c.display)){remove(c);return;}if(game.items().timeStop().frozen(c.display)||c.display.entityTags().contains("time_stopped"))return;
         if(++c.age>60){remove(c);return;}
-        c.direction=game.items().homing().skillDirection(c.owner,(ServerLevel)c.display.level(),c.display.position(),c.direction);orient(c);
+        var level = (ServerLevel)c.display.level();
+        c.direction=game.items().homing().skillDirection(c.owner,level,c.display.position(),c.direction);orient(c);
+        HomingTarget guide = null;
         for(int i=0;i<3;i++){
+            var from = c.display.position();
             if(c.homing){
-                var candidates=targets.computeIfAbsent(c.owner,p->{var out=new ArrayList<LivingEntity>();for(var e:((ServerLevel)p.level()).getAllEntities())if(e instanceof LivingEntity living&&game.items().wands().target(p,e))out.add(living);return out;});
-                LivingEntity nearest=null;double ds=Double.POSITIVE_INFINITY;
-                for(var e:candidates)if(e.isAlive()&&!e.isRemoved()&&game.items().wands().target(c.owner,e)){double d=e.distanceToSqr(c.display);if(d<ds){ds=d;nearest=e;}}
-                if(nearest==null){if(c.age>=60)remove(c);return;}
-                c.direction=ProjectileSteering.turn(c.direction,nearest.getEyePosition().subtract(c.display.position()),Math.atan(.06));orient(c);
+                if (guide == null || !guide.reusableAt(from)) guide = nearestHomingTarget(c.owner, level, from);
+                if (guide == null) { if(c.age>=60)remove(c); return; }
+                c.direction=ProjectileSteering.turn(c.direction,guide.entity.getEyePosition().subtract(from),Math.atan(.06));orient(c);
             }
-            var from=c.display.position();var to=from.add(c.direction.scale(.4));var level=(ServerLevel)c.display.level();
+            var to=from.add(c.direction.scale(.4));
             if(!residentSegment(level,from,to)){remove(c);return;}
             var block=net.minecraft.world.level.BlockGetter.traverseBlocks(from,to,c.display,
                     (ignored,pos)->level.getBlockState(pos).isAir()?null:net.minecraft.world.phys.shapes.Shapes.block().clip(from,to,pos),
@@ -393,6 +394,44 @@ public final class LbcDanmaku {
             c.display.setPos(to);
         }
         if(c.age>=60)remove(c);
+    }
+
+    private record HomingTarget(LivingEntity entity, Vec3 origin, double safeDistanceSquared) {
+        boolean reusableAt(Vec3 position) {
+            return origin.distanceToSqr(position) < safeDistanceSquared;
+        }
+    }
+
+    private HomingTarget nearestHomingTarget(ServerPlayer owner, ServerLevel level, Vec3 origin) {
+        var candidates = targets.computeIfAbsent(owner, player -> {
+            var eligible = new ArrayList<LivingEntity>();
+            for (var candidate : game.items().lifetimes().loadedTargets()) {
+                if (candidate.level() == level && game.items().wands().target(player, candidate)) eligible.add(candidate);
+            }
+            return eligible;
+        });
+        LivingEntity nearest = null;
+        double best = Double.POSITIVE_INFINITY;
+        double runnerUp = Double.POSITIVE_INFINITY;
+        for (var candidate : candidates) {
+            double squared = candidate.distanceToSqr(origin);
+            if (!(squared < runnerUp) || candidate.level() != level || !candidate.isAlive() || candidate.isRemoved()
+                    || !game.items().wands().target(owner, candidate)) continue;
+            if (squared < best) {
+                runnerUp = best;
+                best = squared;
+                nearest = candidate;
+            } else {
+                runnerUp = squared;
+            }
+        }
+        if (nearest == null) return null;
+
+        // Targets cannot independently move during one card's collision-free substeps.
+        // Each distance can change by at most the card's displacement. A strict
+        // half-gap therefore preserves the nearest target, including exact ties.
+        double safeDistance = (Math.sqrt(runnerUp) - Math.sqrt(best)) * .5;
+        return new HomingTarget(nearest, origin, safeDistance * safeDistance);
     }
 
     private static boolean residentSegment(ServerLevel level,Vec3 from,Vec3 to){
