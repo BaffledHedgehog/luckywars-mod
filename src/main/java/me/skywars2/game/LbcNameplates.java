@@ -48,10 +48,17 @@ public final class LbcNameplates {
     }
 
     private void finishBatch() {
-        if (--batchDepth == 0 && batchChanged) {
-            batchChanged = false;
-            publish(image);
+        if (batchDepth != 1 || !batchChanged) {
+            batchDepth--;
+            return;
         }
+        try {
+            capture(null);
+        } finally {
+            batchChanged = false;
+            batchDepth--;
+        }
+        publish(image);
     }
 
     private static LbcNameplates forScoreboard(Scoreboard board) {
@@ -61,11 +68,17 @@ public final class LbcNameplates {
     }
 
     /** Called once at the canonical mutation boundary, before ServerScoreboard broadcasts. */
-    public static void changed(Scoreboard board){
+    public static void changed(Scoreboard board, PlayerTeam team) {
         var service = forScoreboard(board);
         if (service == null) return;
         TabPresentation.namesChanged();
-        service.refresh(List.of());
+        if (service.batchDepth == 0) {
+            service.refresh(List.of());
+        } else {
+            // Native team packets still need the current members and parameters while a batch is open.
+            service.capture(team);
+            service.batchChanged = true;
+        }
     }
     static Component frozen(Component component){
         var copy=component.plainCopy();
@@ -79,10 +92,18 @@ public final class LbcNameplates {
     private static ClientboundSetPlayerTeamPacket.Parameters freeze(PlayerTeam team){
         return new ClientboundSetPlayerTeamPacket.Parameters(frozen(team.getDisplayName()),frozen(team.getPlayerPrefix()),frozen(team.getPlayerSuffix()),team.getNameTagVisibility(),team.getCollisionRule(),team.getColor(),team.packOptions());
     }
-    private void capture(){
+    private void capture(PlayerTeam changedTeam) {
         if(!game.server().isSameThread())throw new IllegalStateException("Publish nameplate images on the native server thread");
-        var teams=new TreeMap<String,TeamImage>();
-        for(var team:game.server().getScoreboard().getPlayerTeams())teams.put(team.getName(),new TeamImage(team.getName(),freeze(team),Set.copyOf(team.getPlayers())));
+        var board = game.server().getScoreboard();
+        var teams = new TreeMap<String, TeamImage>();
+        if (changedTeam == null || !batchChanged) {
+            for (var team : board.getPlayerTeams()) teams.put(team.getName(), teamImage(team));
+        } else {
+            teams.putAll(image.teams);
+            String name = changedTeam.getName();
+            if (board.getPlayerTeam(name) == changedTeam) teams.put(name, teamImage(changedTeam));
+            else teams.remove(name);
+        }
         var ranks=new HashMap<String,Integer>();int rank=1;for(var name:teams.keySet())ranks.put(name,rank++);
         var online=new ArrayList<>(game.server().getPlayerList().getPlayers());online.sort(Comparator.comparing(ServerPlayer::getScoreboardName));
         var present=new HashSet<UUID>();for(var player:online)present.add(player.getUUID());departing.retainAll(present);
@@ -90,12 +111,16 @@ public final class LbcNameplates {
         for(var p:online){if(departing.contains(p.getUUID()))continue;var team=p.getTeam();String name=p.getScoreboardName();people.put(name,new Person(p.getUUID(),name,team==null?null:team.getName(),game.items().cosmetics().choice(p,LbcCosmetics.Kind.SUFFIX),team==null?0:ranks.getOrDefault(team.getName(),0),ordinal++));}
         image=new Image(++generation,Map.copyOf(teams),Map.copyOf(people),game.balanceLegacy());
     }
+    private static TeamImage teamImage(PlayerTeam team) {
+        return new TeamImage(team.getName(), freeze(team), Set.copyOf(team.getPlayers()));
+    }
+
     /** Every viewer may depend on the changed owner's real relation, so deltas go to all viewers.
      * Packets are sent individually through the ordinary FPV and nameplate presentation hooks. */
     public void refresh(Collection<ServerPlayer> changed){
         if(!game.server().isSameThread())throw new IllegalStateException("Refresh nameplates on the native server thread");
         for(var player:changed)departing.remove(player.getUUID());
-        capture();
+        capture(null);
         if (batchDepth > 0) {
             // Rewrite native team packets against current membership throughout the batch.
             // Publish individual nameplates only once, after the final assignment.

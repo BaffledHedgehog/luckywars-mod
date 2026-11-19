@@ -21,13 +21,13 @@ public final class IndividualNameplateMixin {
     @Mixin(ServerScoreboard.class)
     public abstract static class Teams {
         @Inject(method={"onTeamAdded","onTeamChanged","onTeamRemoved"},at=@At("HEAD"))
-        private void skywars2$teamImage(PlayerTeam team,CallbackInfo ci){LbcNameplates.changed((Scoreboard)(Object)this);}
+        private void skywars2$teamImage(PlayerTeam team,CallbackInfo ci){LbcNameplates.changed((Scoreboard)(Object)this,team);}
     }
     @Mixin(Scoreboard.class)
     public abstract static class Membership {
         @Inject(method="addPlayerToTeam",at=@At("RETURN"))
-        private void skywars2$joined(String name,PlayerTeam team,CallbackInfoReturnable<Boolean> ci){LbcNameplates.changed((Scoreboard)(Object)this);}
+        private void skywars2$joined(String name,PlayerTeam team,CallbackInfoReturnable<Boolean> ci){LbcNameplates.changed((Scoreboard)(Object)this,team);}
         @Inject(method="removePlayerFromTeam(Ljava/lang/String;Lnet/minecraft/world/scores/PlayerTeam;)V",at=@At("RETURN"))
-        private void skywars2$left(String name,PlayerTeam team,CallbackInfo ci){LbcNameplates.changed((Scoreboard)(Object)this);}
+        private void skywars2$left(String name,PlayerTeam team,CallbackInfo ci){LbcNameplates.changed((Scoreboard)(Object)this,team);}
     }
 }
