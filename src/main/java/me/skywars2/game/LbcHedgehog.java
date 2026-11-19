@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import me.skywars2.mixin.WandProjectileMixin.ArrowAccess;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -34,7 +35,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.ScoreHolder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** The actual silverfish family: cast helpers, native melee tanks and passenger wall trial. */
@@ -42,6 +46,7 @@ public final class LbcHedgehog {
     private static final String TAG="skywars2.hedgehog", ARROW="skywars2.hedgehog_arrow", CHILD="skywars2.hedgehog_sneeze_child";
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     public enum Kind { ORDINARY, DEFAULT, HEALER, TANK, SNIPER, LASER, WALL }
+    private static final int WALL_TARGET_RANGE = 200;
     private static final String[] MODES={"mode_default","mode_healer","mode_tank","mode_far","mode_laser"};
     private final GameController game;
     private final LbcFadingBeams beamVisuals;
@@ -215,10 +220,38 @@ public final class LbcHedgehog {
     public int wallCount(ServerLevel level){int n=0;for(var e:level.getAllEntities())if(e instanceof Silverfish&&e.isAlive()&&e.entityTags().contains("baffled_wall"))n++;return n;}
     private List<LivingEntity> nearby(Fish f,double r){return ((ServerLevel)f.level()).getEntitiesOfClass(LivingEntity.class,f.getBoundingBox().inflate(r),e->e!=f&&e.position().distanceToSqr(f.position())<=r*r&&eligible(e));}
     private LivingEntity nearest(Fish f,List<LivingEntity> candidates,boolean friendly){return candidates.stream().filter(e->friendly?allied(f,e):enemy(f,e)).min(java.util.Comparator.comparingDouble(e->e.distanceToSqr(f))).orElse(null);}
-    private void active(Fish f){
+    private final class WallTargetSearch {
+        private final Map<ServerLevel, Map<SectionPos, List<LivingEntity>>> candidates = new IdentityHashMap<>();
+
+        LivingEntity nearest(Fish wall) {
+            var level = (ServerLevel) wall.level();
+            var section = SectionPos.of(wall.blockPosition());
+            var inRange = candidates.computeIfAbsent(level, ignored -> new HashMap<>())
+                    .computeIfAbsent(section, area -> gather(level, area));
+            LivingEntity nearest = null;
+            double limit = WALL_TARGET_RANGE * WALL_TARGET_RANGE;
+            for (var candidate : inRange) {
+                double distance = candidate.distanceToSqr(wall);
+                if (distance > limit || (nearest != null && distance == limit) || !enemy(wall, candidate)) continue;
+                nearest = candidate;
+                limit = distance;
+            }
+            return nearest;
+        }
+
+        private List<LivingEntity> gather(ServerLevel level, SectionPos section) {
+            var min = section.origin();
+            var bounds = new AABB(min.getX(), min.getY(), min.getZ(),
+                    min.getX() + 16, min.getY() + 16, min.getZ() + 16).inflate(WALL_TARGET_RANGE);
+            return level.getEntitiesOfClass(LivingEntity.class, bounds,
+                    entity -> !(entity instanceof Fish fish && fish.kind == Kind.WALL));
+        }
+    }
+
+    private void active(Fish f, WallTargetSearch wallTargets){
         if(f.kind==Kind.WALL||f.kind==Kind.TANK){
             var target=f.getTarget();if(target!=null&&!enemy(f,target))f.setTarget(null);
-            if(f.getTarget()==null)f.setTarget(nearest(f,nearby(f,f.kind==Kind.WALL?200:16),false));
+            if(f.getTarget()==null)f.setTarget(f.kind==Kind.WALL?wallTargets.nearest(f):nearest(f,nearby(f,16),false));
         }
         if(f.kind==Kind.TANK)return;
         if(f.kind==Kind.WALL){if(f.getRandom().nextFloat()<.005f){var target=nearest(f,nearby(f,10),false);if(target!=null)beam(f,target,Kind.WALL);}return;}
@@ -307,7 +340,18 @@ public final class LbcHedgehog {
                 if(s.isRemoved()||!s.isAlive()){silverfish.remove(s);continue;}
                 if(game.playing()&&!frozen(s)&&resident((ServerLevel)s.level(),s.position())&&s.getRandom().nextDouble()<1e-13)sneeze(s);
             }
-            for(var f:List.copyOf(fish)){if(f.retainedOwner&&player(f.author)==null)continue;if(!valid(f)){retire(f);continue;}if(!f.isAlive())continue;if(!frozen(f))active(f);}
+            if (!fish.isEmpty()) {
+                // Reuse the section's broad-phase scan for this tick. Distance and eligibility stay per body.
+                var wallTargets = new WallTargetSearch();
+                for (var body : List.copyOf(fish)) {
+                    if (body.retainedOwner && player(body.author) == null) continue;
+                    if (!valid(body)) {
+                        retire(body);
+                        continue;
+                    }
+                    if (body.isAlive() && !frozen(body)) active(body, wallTargets);
+                }
+            }
             arrows.removeIf(Entity::isRemoved);
             for(var e:List.copyOf(children.keySet())){
                 var child=children.get(e);if(e.isRemoved()){children.remove(e);continue;}

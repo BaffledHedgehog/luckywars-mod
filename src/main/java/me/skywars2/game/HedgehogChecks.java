@@ -250,12 +250,57 @@ public final class HedgehogChecks {
             target.setHealth(1);target.damageCooldownTime=0;target.setInvulnerableTime(0);require(tank.doHurtTarget(owner.level(),target)&&target.isDeadOrDying()&&target.getKillCredit()==owner,"actual native Tank lethal melee inherits caster credit");
             float hp=other.getHealth();require(!tank.doHurtTarget(owner.level(),other)&&other.getHealth()==hp,"cast Tank protects allied player at impact");clear();
         }
+        void wallAcquisition(List<Silverfish> walls) {
+            var first = walls.getFirst();
+            var last = walls.getLast();
+            var lateral = first.position().subtract(last.position()).normalize().scale(5);
+            var front = cow(last.position().add(lateral).add(0, 15, 0));
+            var back = cow(last.position().subtract(lateral).add(0, 15, 0));
+            var decoy = cow(first.position().add(0, 1, 0));
+            decoy.entityTags().add("strict_map_object");
+            // Other suites leave actors elsewhere in the arena. Isolate only this acquisition check.
+            var hidden = owner.level().getEntitiesOfClass(LivingEntity.class, first.getBoundingBox().inflate(205),
+                    entity -> entity != front && entity != back && !walls.contains(entity)).stream()
+                    .filter(entity -> entity.entityTags().add("strict_map_object")).toList();
+            try {
+                walls.forEach(wall -> wall.setTarget(null));
+                service.tick();
+                require(walls.stream().allMatch(wall -> {
+                    double firstDistance = wall.distanceToSqr(front);
+                    double secondDistance = wall.distanceToSqr(back);
+                    var target = wall.getTarget();
+                    return (target == front && firstDistance <= secondDistance)
+                            || (target == back && secondDistance <= firstDistance);
+                }), "the 65 bodies select their nearest enemies, excluding the decoy: "
+                        + walls.stream().limit(4).map(wall -> wall.position() + " -> " + wall.getTarget()).toList());
+                front.discard();
+                back.discard();
+                var boundary = cow(first.position().add(0, 200, 0));
+                try {
+                    service.tick();
+                    require(first.getTarget() == boundary, "a living enemy exactly 200 blocks away is eligible");
+                    first.setTarget(null);
+                    boundary.setPos(boundary.position().add(0, .25, 0));
+                    service.tick();
+                    require(first.getTarget() == null, "a fresh search excludes targets just outside the 200-block sphere");
+                } finally {
+                    boundary.discard();
+                }
+            } finally {
+                front.discard();
+                back.discard();
+                decoy.discard();
+                hidden.forEach(entity -> entity.entityTags().remove("strict_map_object"));
+                walls.forEach(wall -> wall.setTarget(null));
+            }
+        }
         void wallTrial(){
             var stack=new ItemStack(LbcHedgehogItems.WAND);flag(stack,"upgradable",1);flag(stack,"upgrade_available",0);held(stack,InteractionHand.OFF_HAND);owner.setShiftKeyDown(true);game.items().mana().set(owner,2500);
             require(input(InteractionHand.OFF_HAND)&&game.items().mana().get(owner)==0&&flag(stack,"upgrade_available")==1,"actual offhand sneak2500 trial immediately readies used stack");
             var walls=service.helpers().stream().filter(e->e.entityTags().contains("baffled_wall")).toList();require(walls.size()==65&&walls.stream().filter(Entity::isPassenger).count()==60,"five native13-high passenger towers");
             require(walls.stream().allMatch(e->e.getHealth()==30&&e.getMaxHealth()==30&&e.getAttributeValue(Attributes.ATTACK_DAMAGE)==10&&e.getAttributeValue(Attributes.ARMOR)==10&&e.getAttributeValue(Attributes.ARMOR_TOUGHNESS)==10),"all65 authored wall attributes");
             require(walls.stream().filter(e->e.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)).count()==5,"only5 tower bases have source slow-falling");
+            wallAcquisition(walls);
             var wall=walls.getFirst();float expected=switch(owner.level().getDifficulty()){case EASY->6;case HARD->15;case PEACEFUL->0;default->10;};require(expected>0,"combat fixture requires nonpeaceful difficulty");
             float hp=other.getHealth();other.damageCooldownTime=0;other.setInvulnerableTime(0);boolean allyHit=wall.doHurtTarget(owner.level(),other);require(allyHit&&Math.abs(other.getHealth()-(hp-expected))<1e-5,"source wall trap WILD against allied player: accepted="+allyHit+", before="+hp+", after="+other.getHealth()+", expected="+expected+", armor="+other.getArmorValue()+", difficulty="+owner.level().getDifficulty());
             owner.damageCooldownTime=0;owner.setInvulnerableTime(0);hp=owner.getHealth();boolean selfHit=wall.doHurtTarget(owner.level(),owner);require(selfHit&&Math.abs(owner.getHealth()-(hp-expected))<1e-5,"source wall trap WILD against caster: accepted="+selfHit+", before="+hp+", after="+owner.getHealth()+", expected="+expected);
