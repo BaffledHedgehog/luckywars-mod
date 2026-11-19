@@ -251,9 +251,28 @@ public final class LbcIndirectKills {
         if(source instanceof TransferredDamage transferred)return damageWeapon(transferred.original);
         return GenieCombat.spellWeapon(source);
     }
-    public net.minecraft.world.item.ItemStack lootWeapon(LivingEntity victim){
-        var cause=lootOwners.get(victim);var marker=victim.getLastHurtByPlayer();
-        return cause!=null&&marker!=null&&cause.player.equals(marker.getUUID())?cause.enchantmentWeapon():net.minecraft.world.item.ItemStack.EMPTY;
+    private Owner lootOwner(LivingEntity victim) {
+        var cause = lootOwners.get(victim);
+        var marker = victim.getLastHurtByPlayer();
+        return cause != null && marker != null && cause.player.equals(marker.getUUID()) ? cause : null;
+    }
+
+    public net.minecraft.world.item.ItemStack lootWeapon(LivingEntity victim) {
+        var cause = lootOwner(victim);
+        return cause == null ? net.minecraft.world.item.ItemStack.EMPTY : cause.enchantmentWeapon();
+    }
+
+    /** A confirmed weapon use owns the loot enchantments, including an explicitly unenchanted source. */
+    net.minecraft.world.item.ItemStack boundLootWeapon(LivingEntity victim, DamageSource source) {
+        var credited = lootOwner(victim);
+        if (credited != null && credited.weaponAction()) return credited.enchantmentWeapon();
+
+        while (source instanceof TransferredDamage transferred) source = transferred.original;
+        var cause = source instanceof CapturedDamage captured ? captured.cause
+                : source instanceof InheritedKill inherited ? inherited.cause : null;
+        if (cause != null && cause.weaponAction()) return cause.enchantmentWeapon();
+        var scripted = GenieCombat.spellWeapon(source);
+        return scripted.isEmpty() ? null : scripted;
     }
 
     /** WILD totem Wither keeps its author and allegiance policy through real effect ticks. */

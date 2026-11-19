@@ -102,6 +102,23 @@ final class WeaponEnchantmentChecks {
             require(expected.size()==actual.size(),"captured-looting deterministic stack count");
             for(int i=0;i<expected.size();i++)require(ItemStack.matches(expected.get(i),actual.get(i)),"full deterministic native loot matches original held Looting100 after switch: "+i+" expected="+expected.get(i)+" actual="+actual.get(i));
             require(actual.stream().mapToInt(ItemStack::getCount).sum()>8,"deterministic Looting100 witness exceeds ordinary native loot");
+            var plain = new ArrayList<ItemStack>();
+            var switched = new ArrayList<ItemStack>();
+            var unenchanted = new ItemStack(Items.STICK);
+            LbcIndirectKills.Owner plainCause;
+            try (var use = WeaponEnchantments.using(player, unenchanted)) {
+                plainCause = game.items().indirectKills().coldCause(player, true);
+            }
+            var plainSource = game.items().indirectKills().captureDamage(
+                    new DamageSource(raw.typeHolder(), player, player), plainCause);
+            target.dropFromLootTable(player.level(), new DamageSource(raw.typeHolder(), player, player),
+                    true, lootTable, plain::add);
+            player.setItemInHand(InteractionHand.MAIN_HAND, lootWeapon);
+            target.dropFromLootTable(player.level(), plainSource, true, lootTable, switched::add);
+            require(plain.size() == switched.size(), "post-launch Looting must not invent new loot stacks");
+            for (int i = 0; i < plain.size(); i++) require(ItemStack.matches(plain.get(i), switched.get(i)),
+                    "delayed plain source cannot borrow Looting from the new held item: expected="
+                            + plain.get(i) + " actual=" + switched.get(i));
             require(source.getEntity()==player&&source.getDirectEntity()==player,"enchantment plumbing preserves native source identities");
             chaos(game,player,target,center);
             SkyWars2.LOGGER.info("[check] custom weapon enchantments: all {} registry entries on five TMT types, actual table/anvil, offhand launch, exact damage, zero damage and deterministic Looting100",all.size());

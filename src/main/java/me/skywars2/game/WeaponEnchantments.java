@@ -27,7 +27,7 @@ public final class WeaponEnchantments {
     public interface Scope extends AutoCloseable {@Override void close();}
     private record Use(UUID player,ItemStack item){}
     record Capture(ItemStack item,boolean action){}
-    private record Loot(LivingEntity killer,List<ItemStack> weapons){}
+    private record Loot(LivingEntity killer, ItemStack boundWeapon, List<ItemStack> weapons) {}
     private static final ThreadLocal<Use> USING=new ThreadLocal<>();
     private static final ThreadLocal<Loot> LOOT=new ThreadLocal<>();
     private static final Map<DamageSource,Map<Entity,Receipt>> HITS=new WeakHashMap<>();
@@ -127,16 +127,24 @@ public final class WeaponEnchantments {
     }
     static void clear(){CAUSES.clear();HITS.clear();drain();}
     public static Scope loot(LivingEntity victim,DamageSource source){
-        var previous=LOOT.get();var weapons=new ArrayList<ItemStack>(3);
-        var direct=source.getWeaponItem();if(direct!=null&&!direct.isEmpty())weapons.add(direct.copy());
-        var game=SkyWars2.game();
-        if(game!=null){
-            var captured=game.items().indirectKills().enchantmentWeapon(source);if(!captured.isEmpty())weapons.add(captured);
-            var credited=game.items().indirectKills().lootWeapon(victim);if(!credited.isEmpty())weapons.add(credited);
+        var previous = LOOT.get();
+        var game = SkyWars2.game();
+        var kills = game == null ? null : game.items().indirectKills();
+        var boundWeapon = kills == null ? null : kills.boundLootWeapon(victim, source);
+        var weapons = new ArrayList<ItemStack>(3);
+        if (boundWeapon == null) {
+            var direct = source.getWeaponItem();
+            if (direct != null && !direct.isEmpty()) weapons.add(direct.copy());
+            if (kills != null) {
+                var captured = kills.enchantmentWeapon(source);
+                if (!captured.isEmpty()) weapons.add(captured);
+                var credited = kills.lootWeapon(victim);
+                if (!credited.isEmpty()) weapons.add(credited);
+            }
         }
         LivingEntity killer=victim.getLastHurtByPlayer();
         if(killer==null&&source.getEntity() instanceof LivingEntity living)killer=living;
-        LOOT.set(new Loot(killer,List.copyOf(weapons)));
+        LOOT.set(new Loot(killer, boundWeapon, List.copyOf(weapons)));
         return ()->{if(previous==null)LOOT.remove();else LOOT.set(previous);};
     }
     /** Restricted to enchantment functions: ordinary loot predicates retain the native attacker. */
@@ -147,6 +155,7 @@ public final class WeaponEnchantments {
     public static int lootLevel(Holder<Enchantment> enchantment,LivingEntity attacker,int nativeLevel){
         var loot=LOOT.get();
         if(!VanillaExpansionRules.enabled()||loot==null||loot.killer!=attacker||!enchantment.value().matchingSlot(EquipmentSlot.MAINHAND))return nativeLevel;
+        if (loot.boundWeapon != null) return EnchantmentHelper.getItemEnchantmentLevel(enchantment, loot.boundWeapon);
         int result=nativeLevel;
         for(var stack:loot.weapons)result=Math.max(result,EnchantmentHelper.getItemEnchantmentLevel(enchantment,stack));
         return result;
