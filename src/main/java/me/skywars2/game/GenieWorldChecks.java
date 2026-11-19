@@ -281,6 +281,109 @@ final class GenieWorldChecks {
         }
     }
 
+    private static net.minecraft.world.entity.animal.cow.Cow polymorphCow(WoolBucketChecks.Fixture base, Vec3 at) {
+        var cow = Objects.requireNonNull(EntityTypes.COW.create(base.level, EntitySpawnReason.TRIGGERED));
+        cow.setPos(at);
+        cow.setNoAi(true);
+        cow.setNoGravity(true);
+        require(base.level.addFreshEntity(cow), "native Polymorph target");
+        base.own(cow);
+        return cow;
+    }
+
+    private static void polymorphCasts(GameController game, WoolBucketChecks.Fixture base, Vec3 point) {
+        var polymorph = game.items().polymorph();
+        var sheep = game.items().sheep();
+        require(sheep.sheepViews().isEmpty() && sheep.holes().isEmpty(), "exclusive native Polymorph fixture");
+        var origin = point.add(0, 3, 0);
+        var aim = new Vec3(1, 0, 0);
+        var cell = BlockPos.containing(origin);
+        for (var pos : BlockPos.betweenClosed(cell.offset(-1,-1,-3),cell.offset(12,1,3)))
+            base.set(pos.immutable(), Blocks.AIR.defaultBlockState());
+        base.set(cell.east(9), Blocks.STONE.defaultBlockState());
+        var near = polymorphCow(base, origin.add(3,-.6,2.2));
+        var outside = polymorphCow(base, origin.add(6,-.6,2.7));
+        var behind = polymorphCow(base, origin.add(11,-.6,0));
+        var owner = base.owner;
+        var pearl = new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(
+                base.level, owner, new ItemStack(Items.ENDER_PEARL));
+        pearl.setPos(origin.add(6,0,0));
+        pearl.setNoGravity(true);
+        var motion = new Vec3(.08,.16,-.04);
+        pearl.setDeltaMovement(motion);
+        require(base.level.addFreshEntity(pearl), "native unpickable pearl enters the beam lane");
+        base.own(pearl);
+        var gift = new ItemStack(Items.BONE);
+        var main = owner.getMainHandItem();
+        var off = owner.getOffhandItem();
+        int mana = game.items().mana().get(owner);
+        var regular = new JsonPrimitive("skywars2:polymorph_ray");
+        var directHole = new JsonPrimitive("skywars2:succubus_black_hole");
+        try (var host = new GenieWorldHost(game, owner, gift, () -> true, () -> 0)) {
+            base.field(false, origin);
+            require(game.items().magic().suppressedAt(base.level, origin)
+                    && !complete(host, queued(host, "lbc.cast", regular, vector(origin), vector(aim))).getAsBoolean()
+                    && !complete(host, queued(host, "lbc.cast_at", directHole, vector(origin))).getAsBoolean(),
+                    "both Polymorph abilities respect the native magic field");
+            base.removeFields();
+
+            var code = ScriptJson.parse("""
+                {"version":1,"state":{},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
+                ["const","skywars2:polymorph_ray"],["const",%s],["const",%s],["call","lbc.cast",3],["return"]]}}}
+                """.formatted(vector(origin), vector(aim)));
+            var program = ScriptProgram.compile(code, GenieWorldHost.api(), Set.of("USE"));
+            var fiber = new ScriptMachine(program,"main",List.of(new JsonObject()),program.initialState(),host);
+            require(fiber.advance(0,100)==ScriptMachine.Status.WAITING && !polymorph.active(pearl),
+                    "compiled gift cannot advance the beam before the host admits the action");
+            require(host.drain(1,Long.MAX_VALUE)==1 && fiber.advance(1,100)==ScriptMachine.Status.DONE
+                    && fiber.result().getAsBoolean(), "compiled gift casts from its explicit origin and direction");
+            for (var original : List.of(near,pearl)) {
+                require(polymorph.remaining(original)==1200, "beam pierces its near-hit target and its pearl");
+                PolymorphWandChecks.absent(original);
+                var form = ((Map<?,?>)WoolBucketChecks.read(polymorph,"forms")).get(original);
+                var cause = (LbcIndirectKills.Owner)WoolBucketChecks.read(form,"cause");
+                require(cause.player().equals(owner.getUUID()) && ItemStack.matches(cause.enchantmentWeapon(),gift),
+                        "native temporary form retains the actual gift attribution");
+            }
+            require(!polymorph.active(outside) && !polymorph.active(behind),
+                    "native fixed hit margin and solid wall stop the appropriate hits");
+            var pearlForm = sheep.sheepViews().stream().filter(view -> view.point().equals(pearl.position())).findFirst().orElseThrow();
+            var body = base.level.getEntity(pearlForm.entity());
+            require(body instanceof net.minecraft.world.entity.animal.sheep.Sheep actual && actual.getHealth()==100
+                    && actual.isPushable() && actual.getDeltaMovement().equals(motion),
+                    "borrowed beam uses the actual mobile sheep and preserves projectile motion");
+            polymorph.stop();
+            require(base.level.getEntity(pearl.getUUID())==pearl && base.level.getEntity(pearl.getId())==pearl
+                    && !pearl.isRemoved() && pearl.getDeltaMovement().equals(motion) && pearl.getOwner()==owner,
+                    "reversible form restores the same native projectile, owner and velocity");
+            base.discard(pearl);
+            base.discard(near);
+
+            var academyTarget = polymorphCow(base,origin.add(4,-.6,0));
+            academyTarget.entityTags().add("male");
+            require(complete(host, queued(host, "lbc.cast", new JsonPrimitive("skywars2:academy_polymorph_ray"),
+                    vector(origin),vector(aim))).getAsBoolean(), "native Academy ray accepted");
+            require(academyTarget.isRemoved() && !polymorph.active(academyTarget) && sheep.sheepViews().size()==1
+                    && sheep.holes().size()==1 && sheep.holes().getFirst().point.equals(academyTarget.position()),
+                    "Academy uses its actual permanent form and gender-triggered black hole");
+            var fixed = origin.add(-.5,0,1);
+            require(complete(host,queued(host,"lbc.cast_at",directHole,vector(fixed))).getAsBoolean()
+                    && sheep.holes().size()==2 && sheep.holes().getLast().point.equals(fixed),
+                    "targeted call starts the same native hole at the exact request position");
+            for (var hole : sheep.holes())
+                require(hole.owner.equals(owner.getUUID()) && hole.cause.friendlyFire()
+                        && ItemStack.matches(hole.cause.enchantmentWeapon(),gift)
+                        && base.level.getEntity(hole.entity.getUUID())==hole.entity,
+                        "both black-hole sources retain native WILD admission and accepted gift");
+            require(owner.getMainHandItem()==main && owner.getOffhandItem()==off
+                    && game.items().mana().get(owner)==mana, "borrowed ray and hole do not charge the native staff or touch either hand");
+        } finally {
+            base.removeFields();
+            polymorph.stop();
+            sheep.stop();
+        }
+    }
+
     private static void targetedOreshnik(GameController game, WoolBucketChecks.Fixture base, Vec3 target) {
         var rockets = game.items().cinema().rockets();
         require(rockets.flightCount() == 0 && rockets.blastCount() == 0, "Oreshnik fixture starts empty");
@@ -680,6 +783,7 @@ final class GenieWorldChecks {
             directedCasts(game, base, launchSpot.add(0, .65, 0));
             targetedOreshnik(game, base, launchSpot);
             targetedExoperso(game, base, launchSpot);
+            polymorphCasts(game, base, launchSpot);
             targetedHedgehogs(game, base, launchSpot);
             danmakuCasts(game, base, launchSpot);
             sauvojenCasts(game, base, launchSpot.add(0, .65, 0));

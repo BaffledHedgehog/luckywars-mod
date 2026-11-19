@@ -57,6 +57,7 @@ public final class GenieNative {
     }
     private enum Cast {
         ELECTRO_ARC, ELECTRO_VOLLEY, ELECTRO_RAY, DANMAKU_CARD, DANMAKU_HOMING_CARD,
+        POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY,
         TERRA_CHARGE(LbcTerra.Kind.REGULAR), ACADEMY_TERRA_CHARGE(LbcTerra.Kind.ACADEMY),
         TERRA_SWORD_CHARGE(LbcTerra.Kind.SWORD), TRUE_TERRA_CHARGE(LbcTerra.Kind.TRUE_CHARGE),
         TRUE_TERRA_BEAM(LbcTerra.Kind.TRUE_BEAM), TERRA_RAZOR(LbcTerra.Kind.RAZOR);
@@ -76,6 +77,8 @@ public final class GenieNative {
                 "Locks the target for the original Exoperso ritual, thirty runes and a crater after 340 ticks."),
         ACADEMY_EXOPERSO("academy_exoperso", "Academy Crimson Demon Clan Staff", "Улучшенный жезл клана Алых Мазоку",
                 "Locks the target for the faster Academy Exoperso ritual and a crater after 180 ticks."),
+        SUCCUBUS_BLACK_HOLE("succubus_black_hole", "Polymorph: Succubus Black Hole", "Полиморф: Чёрная дыра суккуба",
+                "Creates the original traveling Polymorph black hole at the target."),
         HEDGEHOG("hedgehog", "Ordinary Hedgehog", "Обычный ёж", LbcHedgehog.Kind.ORDINARY),
         HEDGEHOG_STANDARD("hedgehog_standard", "Standard Hedgehog", "Стандартный ёж", LbcHedgehog.Kind.DEFAULT),
         HEDGEHOG_HEALER("hedgehog_healer", "Healing Hedgehog", "Исцеляющий ёж", LbcHedgehog.Kind.HEALER),
@@ -183,6 +186,8 @@ public final class GenieNative {
             default -> {
                 var magic = game.items().magic();
                 if (magic.suppressed(player) || magic.suppressedAt(level, player.getEyePosition())) yield false;
+                if (spell == TargetedCast.SUCCUBUS_BLACK_HOLE)
+                    yield game.items().sheep().spawnHole(player, target) != null;
                 var hedgehog = game.items().hedgehog();
                 yield spell == TargetedCast.HEDGEHOG_WALL
                         ? hedgehog.spawnWall(level, target, player) > 0
@@ -226,6 +231,8 @@ public final class GenieNative {
                 }
                 case DANMAKU_CARD, DANMAKU_HOMING_CARD -> game.items().danmaku()
                         .scriptCard(player, origin, aim, spell == Cast.DANMAKU_HOMING_CARD);
+                case POLYMORPH_RAY, ACADEMY_POLYMORPH_RAY -> game.items().sheep()
+                        .scriptRay(player, hand, spell == Cast.ACADEMY_POLYMORPH_RAY, origin, aim);
                 default -> {
                     var body = game.items().terra().castAt(player, origin, aim, spell.terra, 0);
                     if (body == null || body.getOwner() != player || level.getEntity(body.getUUID()) != body) yield false;

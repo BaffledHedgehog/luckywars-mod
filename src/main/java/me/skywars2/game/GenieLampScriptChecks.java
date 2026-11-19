@@ -111,6 +111,12 @@ final class GenieLampScriptChecks implements AutoCloseable {
                     "the prompt and callable index both expose the original Exoperso rituals");
             var payloads = facts.getAsJsonObject("script_sauvojen_payloads");
             var directed = facts.getAsJsonArray("script_directed_casts");
+            require(directed.contains(new com.google.gson.JsonPrimitive("skywars2:polymorph_ray"))
+                    && directed.contains(new com.google.gson.JsonPrimitive("skywars2:academy_polymorph_ray"))
+                    && facts.getAsJsonArray("script_targeted_casts").asList().stream().anyMatch(value ->
+                        value.getAsJsonObject().get("id").getAsString().equals("skywars2:succubus_black_hole"))
+                    && prompt.contains("60 seconds"),
+                    "the model receives the real Polymorph and Succubus bindings");
             int payloadCount = 0;
             require(payloads.size() == 9, "all native Sauvojen families appear in the request");
             for (var branch : LbcSauvojen.Kind.values()) {

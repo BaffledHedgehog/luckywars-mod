@@ -181,13 +181,23 @@ public final class SheepChecks {
             int remaining=game.items().polymorph().remaining(first);for(int i=0;i<240;i++)sheep.tick();require(!replacement.isRemoved()&&second.isAlive()&&game.items().polymorph().remaining(first)==remaining,"reentrant non-clock calls cannot expire temporary polymorph");
             clear();first.discard();second.discard();sentinel.discard();move(other,at.add(8,0,0));
         }
-        void potionTrial(){
+        void openPotionTrial(){
             move(owner,holeAt.add(0,0,-10));move(other,holeAt.add(12,0,0));owner.setYRot(0);owner.setXRot(0);
             held(loot("sheep_wand"),InteractionHand.MAIN_HAND);trial=owner.getMainHandItem();require(academy.interact(owner,InteractionHand.MAIN_HAND,normal)&&LbcAcademy.trial(trial),"real normal Academy assigns Sheep trial");held(trial,InteractionHand.OFF_HAND);
+            mana.set(owner,500);
+            require(input(InteractionHand.OFF_HAND)&&mana.get(owner)==500,"same-tick trailing use belongs to the Academy click");
+        }
+        void potionTrial(){
             var p=holeAt.add(0,1.5,-5);var malformed=potion();flag(malformed,"succubus",0);var wrong=new ItemEntity(owner.level(),p.x,p.y,p.z,malformed);wrong.setNoGravity(true);add(wrong);
             mana.set(owner,500);require(input(InteractionHand.OFF_HAND)&&wrong.isAlive()&&sheep.holeViews().isEmpty()&&flag(trial,"upgrade_available")==0,"exact potion flags required and items are not sheep targets");wrong.discard();
             var drop=new ItemEntity(owner.level(),p.x,p.y,p.z,potion());drop.setNoGravity(true);add(drop);var debris=new ItemEntity(owner.level(),p.x+3,p.y,p.z,new ItemStack(Items.DIAMOND));debris.setNoGravity(true);add(debris);
-            mana.set(owner,500);require(input(InteractionHand.OFF_HAND)&&drop.isRemoved()&&debris.isRemoved()&&sheep.holeViews().size()==1&&flag(trial,"upgrade_available")==1&&flag(trial,"upgradable")==0,"native dropped-potion hole clears all R5 items and readies actual used offhand stack");
+            mana.set(owner,500);
+            boolean cast=input(InteractionHand.OFF_HAND);
+            require(cast&&mana.get(owner)==0&&drop.isRemoved()&&debris.isRemoved()&&sheep.holeViews().size()==1
+                    &&flag(trial,"upgrade_available")==1&&flag(trial,"upgradable")==0,
+                    "native dropped-potion hole clears all R5 items and readies actual used offhand stack: cast="+cast
+                    +" mana="+mana.get(owner)+" dropRemoved="+drop.isRemoved()+" debrisRemoved="+debris.isRemoved()
+                    +" holes="+sheep.holeViews().size()+" ready="+flag(trial,"upgrade_available"));
             clear();
             held(loot("sheep_wand"),InteractionHand.MAIN_HAND);move(other,holeAt.add(0,0,-5));other.getInventory().setItem(5,potion());owner.getInventory().setItem(5,potion());mana.set(owner,500);
             other.entityTags().add("sin_greed_active");
@@ -270,7 +280,7 @@ public final class SheepChecks {
         }
         boolean step(){
             require(game.playing()&&game.items().currentEpoch(epoch),"active match epoch");long now=owner.level().getGameTime();if(now==last)return false;last=now;
-            switch(phase++){case 0->{guardsAndRay();chefPolymorph();}case 1->potionTrial();case 2->promote();case 3->academySex();case 4->{physics();return true;}default->throw new IllegalStateException("unexpected phase");}return false;
+            switch(phase++){case 0->{guardsAndRay();chefPolymorph();}case 1->openPotionTrial();case 2->potionTrial();case 3->promote();case 4->academySex();case 5->{physics();return true;}default->throw new IllegalStateException("unexpected phase");}return false;
         }
         @Override public void close(){
             if(closed)return;closed=true;try{owner.stopUsingItem();game.items().timeStop().end(owner.level());clear();academy.stop();

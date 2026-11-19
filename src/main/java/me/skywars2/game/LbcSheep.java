@@ -154,14 +154,26 @@ public final class LbcSheep {
         cast(p,hand,stack,isAcademy(stack));
     }
     void cast(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
-        Vec3 from=p.getEyePosition(),direction=p.getLookAngle().normalize();
+        castRay(p,hand,stack,academy,p.getEyePosition(),p.getLookAngle().normalize());
+    }
+
+    boolean scriptRay(ServerPlayer p,InteractionHand hand,boolean academy,Vec3 from,Vec3 direction){
+        if(rewinding||!validOwner(p))return false;
+        callbackDepth++;
+        try {
+            castRay(p,hand,ItemStack.EMPTY,academy,from,direction);
+            return true;
+        }finally{callbackDepth--;}
+    }
+
+    private void castRay(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy,Vec3 from,Vec3 direction){
         Vec3 to=from.add(direction.scale(RANGE));
         // One block clip and one broad phase; native ProjectileUtil ignores unpickable pearls.
         var wall=LbcTerra.wallHit(p.level(),from,to);
         Vec3 end=wall==null?to:wall.getLocation();
         var greed=LbcGreed.firstHit(p.level(),from,end,0);
         if(greed!=null&&greed.getEntity()!=p)end=greed.getLocation();
-        double length=from.distanceTo(end);Vec3 lastValid=from;
+        double length=from.distanceTo(end);Vec3 lastValid=null;
         var dust=new DustParticleOptions(academy?0x813681:0xff00ff,2);
         for(double d=0;d<=length;d+=.75){
             Vec3 at=from.add(direction.scale(d));
@@ -171,16 +183,17 @@ public final class LbcSheep {
             // Original inventory/dropped-potion proximity checks run at each source ray sample.
             if(consumePotion(p,hand,stack,at))return;
         }
-        if(!resident(p.level(),end)||suppressed(p.level(),end))return;
-        final Vec3 clipped=end;
+        if(lastValid==null)return;
+        // The DDA can end exactly at the first unloaded cell, between two particle samples.
+        final Vec3 clipped=!resident(p.level(),end)||suppressed(p.level(),end)?lastValid:end;
         // Fixed world-space margin, independent of target size; snapshot before publishing sheep.
-        var targets=List.copyOf(p.level().getEntities(p,new AABB(from,end).inflate(2),e->
+        var targets=List.copyOf(p.level().getEntities(p,new AABB(from,clipped).inflate(2),e->
                 rayTarget(p,e,academy)&&!LbcGreed.active(e)&&!(e instanceof ItemEntity)
                 &&(e.getBoundingBox().inflate(2).contains(from)||e.getBoundingBox().inflate(2).clip(from,clipped).isPresent())
                 &&e.getBoundingBox().getCenter().subtract(from).dot(direction)>=0
                 &&e.getBoundingBox().getCenter().subtract(clipped).dot(direction)<=0));
         for(var target:targets)transform(p,target,academy);
-        consumePotion(p,hand,stack,end);
+        consumePotion(p,hand,stack,clipped);
     }
     static boolean potion(ItemStack stack){var d=LbcFartus.data(stack);return !stack.isEmpty()&&d.getIntOr("transformable",0)==1&&d.getIntOr("potion",0)==1&&d.getIntOr("succubus",0)==1;}
     private static boolean hasPotion(ServerPlayer p){for(int i=0;i<p.getInventory().getContainerSize();i++)if(potion(p.getInventory().getItem(i)))return true;return false;}
