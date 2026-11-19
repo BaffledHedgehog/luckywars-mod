@@ -42,6 +42,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockRotProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -59,6 +60,8 @@ import java.util.Set;
 /** Учтённые химические облака BrBad и их кислотный helper; ванильный бросок и жизнь облака остаются в Minecraft. */
 public final class LbcClouds {
     static final EntityType<AcidProjectile> ACID_PROJECTILE = registerAcidProjectile();
+    private static final EntityTypeTest<Entity, Entity> ENTITY_LOOKUP = EntityTypeTest.forClass(Entity.class);
+    private static final EntityTypeTest<Entity, ServerPlayer> PLAYER_LOOKUP = EntityTypeTest.forClass(ServerPlayer.class);
     private static final AttachmentType<Integer> ACID_AGE = AttachmentRegistry.create(
             Identifier.parse("skywars2:acid_age"), builder -> builder.persistent(Codec.INT).initializer(() -> 1));
 
@@ -628,11 +631,11 @@ public final class LbcClouds {
         boolean air = level.getBlockState(projectile.blockPosition()).is(AIRS);
         // shield_block_2 выполняется на блок впереди защищающегося игрока, без углового сектора.
         if (air && !great && !projectile.entityTags().contains(GREAT_CHILD) && !projectile.entityTags().contains(FLYING_WAND_ACID) && (!sourceAcidManaged(projectile) || projectile.entityTags().contains("shield_blockable2"))
-                && !level.getEntitiesOfClass(ServerPlayer.class, projectile.getBoundingBox().inflate(3), player ->
+                && level.hasEntities(PLAYER_LOOKUP, projectile.getBoundingBox().inflate(3), player ->
                 game.allowDamage(player) && player.isBlocking()
                         && (!wand || wandAcidTarget(projectile,player))
                         && (!sourceAcidManaged(projectile) || sourceAcidCanAffect(projectile,player))
-                        && player.position().add(player.getLookAngle()).distanceToSqr(projectile.position()) <= 4).isEmpty()) {
+                        && player.position().add(player.getLookAngle()).distanceToSqr(origin) <= 4)) {
             sound(level, projectile.position(), SoundEvents.SHIELD_BLOCK.value(), 1, 1, Double.POSITIVE_INFINITY, 0);
             projectile.discard(); return;
         }
@@ -647,10 +650,7 @@ public final class LbcClouds {
             } else level.sendParticles(ParticleTypes.SNEEZE, true, true, projectile.getX(), projectile.getY(), projectile.getZ(), 1, .1, .1, .1, .1);
             burning = ordinary||great ? ordinaryAcidIgnited(projectile) : level.getBlockState(projectile.blockPosition()).is(FIRE_LAVA)
                     || level.getBlockState(projectile.blockPosition().below()).is(FIRE_LAVA)
-                    || !level.getEntities(projectile, projectile.getBoundingBox().inflate(3.5), entity ->
-                        (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
-                            && (entity.isOnFire() && entity.distanceToSqr(projectile) <= 6.25
-                                || (entity instanceof Marker || entity instanceof AcidProjectile) && entity.entityTags().contains("on_fire") && entity.distanceToSqr(projectile) <= 12.25)).isEmpty();
+                    || nearbyFire(projectile, 2.5, 3.5, true);
             if (burning) projectile.entityTags().add("on_fire");
         }
         if (burning) {
@@ -736,11 +736,24 @@ public final class LbcClouds {
         for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
             if(level.hasChunkAt(pos) && level.getBlockState(pos).is(FIRE_LAVA)) return true;
         boolean great=projectile.entityTags().contains(GREAT_ACID)||awakenedVariant(projectile)>0;
-        return !level.getEntities(projectile,projectile.getBoundingBox().inflate(great?10:7),entity ->
-                (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
-                        && (entity.isOnFire() && entity.distanceToSqr(projectile)<=(great?56.25:25)
-                            || (entity instanceof AcidProjectile || entity.getType().builtInRegistryHolder().is(RAYCASTERS))
-                                && entity.entityTags().contains("on_fire") && entity.distanceToSqr(projectile)<=(great?100:49))).isEmpty();
+        return nearbyFire(projectile, great ? 7.5 : 5, great ? 10 : 7, false);
+    }
+
+    private boolean nearbyFire(AcidProjectile projectile, double fireRadius, double chargeRadius, boolean small) {
+        var level = (ServerLevel) projectile.level();
+        var bounds = projectile.getBoundingBox().inflate(chargeRadius);
+        double fireSq = fireRadius * fireRadius, chargeSq = chargeRadius * chargeRadius;
+        java.util.function.Predicate<Entity> ignites = entity -> {
+            if (entity == projectile || entity instanceof ServerPlayer player && !game.allowDamage(player)) return false;
+            double distanceSq = entity.distanceToSqr(projectile);
+            if (distanceSq <= fireSq && entity.isOnFire()) return true;
+            return distanceSq <= chargeSq && entity.entityTags().contains("on_fire")
+                    && (entity instanceof AcidProjectile || (small ? entity instanceof Marker
+                            : entity.getType().builtInRegistryHolder().is(RAYCASTERS)));
+        };
+        // Vanilla's untyped lookup also checks dragon parts whose parent can be outside these bounds.
+        if (!level.dragonParts().isEmpty()) return !level.getEntities(projectile, bounds, ignites).isEmpty();
+        return level.hasEntities(ENTITY_LOOKUP, bounds, ignites);
     }
 
     private void sound(ServerLevel level, Vec3 origin, net.minecraft.sounds.SoundEvent event, float volume, float pitch, double radius, float minimumVolume) {

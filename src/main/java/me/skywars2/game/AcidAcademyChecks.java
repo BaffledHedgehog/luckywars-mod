@@ -73,6 +73,16 @@ public final class AcidAcademyChecks {
             game.items().magic().inventoryChanged(player);
         }
     }
+    private static final class FireProbe extends net.minecraft.world.entity.Marker {
+        int fireChecks;
+        FireProbe(net.minecraft.server.level.ServerLevel level) { super(EntityTypes.MARKER, level); }
+        @Override
+        public boolean isOnFire() {
+            fireChecks++;
+            return super.isOnFire();
+        }
+    }
+
     private static final class Fixture implements AutoCloseable {
         final GameController game;final LbcClouds clouds;final LbcAcademy academy;final LbcMana mana;
         final ServerPlayer owner,other;final Saved saved,otherSaved;final Map<Field,Object> config;
@@ -121,7 +131,7 @@ public final class AcidAcademyChecks {
             for(int i=0;i<20&&academy.pendingCount()>0;i++)academy.tick();require(academy.pendingCount()==0,"native school completed");
             for(var e:owner.level().getAllEntities())if(!before.contains(e)&&e!=normal){owned.add(e);if(e instanceof Interaction interaction&&e.entityTags().contains("magic_academy"))school=interaction;}
             require(school!=null&&academy.ownedCount()>0,"real token school Interaction");
-            presentation();inputModes();shots();guards();
+            presentation();inputModes();shots();guards();ignitionSearch();
         }
         void add(Entity e){require(owner.level().addFreshEntity(e),"native fixture entity admission");owned.add(e);}
         void move(ServerPlayer player,Vec3 pos){player.teleportTo(player.level(),pos.x,pos.y,pos.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);}
@@ -206,6 +216,65 @@ public final class AcidAcademyChecks {
             int age=clouds.acidAge(shot);game.items().timeStop().begin(owner.level(),40);try{clouds.tick();require(!shot.isRemoved()&&clouds.acidAge(shot)==age,"existing acid age freezes with dimension Time Stop");}finally{game.items().timeStop().end(owner.level());}
             clearAcids();friend.discard();role.discard();
         }
+        void ignitionSearch() {
+            var level = owner.level();
+            var center = at.add(0, 18, 0);
+            var cell = BlockPos.containing(center);
+            for (var pos : BlockPos.betweenClosed(cell.offset(-1, -1, -1), cell.offset(1, 1, 1))) {
+                require(level.getBlockState(pos).isAir(), "isolated ignition fixture has no fire blocks");
+            }
+            var witnesses = new ArrayList<FireProbe>();
+            for (int i = 0; i < 48; i++) {
+                var actor = new FireProbe(level);
+                actor.setPos(center.add(2.1, 0, i * .008));
+                add(actor);
+                witnesses.add(actor);
+            }
+            try {
+                for (boolean small : List.of(true, false)) {
+                    for (boolean lit : List.of(false, true)) {
+                        witnesses.forEach(e -> e.setRemainingFireTicks(lit ? 40 : 0));
+                        var shot = ignitionShot(center, small);
+                        witnesses.forEach(e -> e.fireChecks = 0);
+                        clouds.tick();
+                        int inspected = witnesses.stream().mapToInt(e -> e.fireChecks).sum();
+                        SkyWars2.LOGGER.info("[check] acid ignition small={} fire={} candidates={}", small, lit, inspected);
+                        int expected = !lit || Boolean.getBoolean("skywars2.checkExhaustiveAcidFire") ? witnesses.size() : 1;
+                        require(inspected == expected && shot.entityTags().contains("on_fire") == lit,
+                                "actual spatial ignition detects fire without unnecessary candidate visits");
+                        clearAcids();
+                    }
+                }
+                var actor = witnesses.getFirst();
+                for (var unused : witnesses.subList(1, witnesses.size())) unused.discard();
+                actor.setPos(center.add(3.25, 0, 0));
+                var shot = ignitionShot(center, true);
+                clouds.tick();
+                require(!shot.entityTags().contains("on_fire"), "ordinary flame beyond 2.5 does not ignite small acid");
+                clearAcids();
+                shot = ignitionShot(center, false);
+                clouds.tick();
+                require(shot.entityTags().contains("on_fire"), "ordinary large acid still accepts the same flame within five blocks");
+                clearAcids();
+                actor.setRemainingFireTicks(0);
+                actor.entityTags().add("on_fire");
+                shot = ignitionShot(center, true);
+                clouds.tick();
+                require(shot.entityTags().contains("on_fire"), "small acid still accepts a burning marker within 3.5 blocks");
+            } finally {
+                clearAcids();
+                witnesses.forEach(Entity::discard);
+            }
+        }
+
+        private LbcClouds.AcidProjectile ignitionShot(Vec3 center, boolean small) {
+            var shot = small ? clouds.flyingWandAcid(owner,center,new Vec3(0,0,1))
+                    : clouds.academyWandAcid(owner,false);
+            shot.setPos(center);
+            owned.add(shot);
+            return shot;
+        }
+
         boolean step(){
             require(game.playing()&&game.items().currentEpoch(epoch),"match and fixture epoch active");long now=owner.level().getGameTime();if(now==last)return false;last=now;
             switch(phase++){
