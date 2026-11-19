@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.LbcDamage;
 import me.skywars2.game.LbcElectro;
+import me.skywars2.game.LbcFallingNetheriteDrops;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,7 +46,7 @@ public final class ElectroNativeMixins {
         private void skywars2$lightningFireOwner(Operation<Void> original) {
             var bolt=(LightningBolt)(Object)this; var game=SkyWars2.game();
             if(game!=null) game.items().lightningAcquisition().beforeLightningTick(bolt);
-            if(game==null || bolt.getCause()==null
+            if(game==null || bolt.getCause()==null && !LbcFallingNetheriteDrops.managed(bolt)
                     || !(bolt.level() instanceof ServerLevel level)) original.call();
             else game.items().indirectKills().worldChanges(level,bolt,()->original.call());
         }
@@ -88,6 +89,10 @@ public final class ElectroNativeMixins {
             var game=SkyWars2.game();
             if(game!=null && target instanceof LivingEntity living) {
                 var carried=game.items().inventoryHazards().cause(bolt);
+                if(LbcFallingNetheriteDrops.managed(bolt)) {
+                    var trap=game.items().spellSources().source(bolt);
+                    if(trap!=null) carried=trap.cause();
+                }
                 if(carried!=null) game.items().indirectKills().inheritedIgnited(living,carried);
             }
             if(game!=null && bolt.getCause()!=null && target instanceof LivingEntity living)

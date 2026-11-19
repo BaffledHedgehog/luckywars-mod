@@ -106,7 +106,9 @@ public final class FallingNetheriteDropChecks {
             require(f.position().distanceTo(new Vec3(x,origin.y+14,z))<1e-8 && f.getDeltaMovement().equals(Vec3.ZERO),"source position +14Y and zero motion "+kind);
             var tag=saved(f,level);
             require(tag.getIntOr("Time",-1)==1 && tag.getBooleanOr("DropItem",false) && !tag.getBooleanOr("HurtEntities",true),"native Time1/default drop/no falling damage");
-            require(!f.isNoGravity() && game.items().fallingNetheriteDrops().owner(f)==alpha && game.items().currentEpoch(f),"gravity, actual thrower and epoch");return f;
+            require(!f.isNoGravity() && game.items().fallingNetheriteDrops().owner(f)==alpha && game.items().currentEpoch(f)
+                            && game.items().spellSources().projectileController(f)==null,
+                    "native falling gravity, ownerless physics and retained thrower statistics");return f;
         }
         void guards(){
             var fake=new ItemStack(Items.PAPER);fake.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:drop_trap"));
@@ -143,26 +145,43 @@ public final class FallingNetheriteDropChecks {
             foreign.setPos(origin.add(2,14,0));foreign.setDeltaMovement(Vec3.ZERO);require(level.addFreshEntity(foreign),"foreign native falling block admitted");wait=0;
         }
         void lightning(LightningBolt bolt){
-            require(bolt.getCause()==alpha && game.items().fallingNetheriteDrops().owner(bolt)==alpha,"landing lightning retains actual author");
+            var controller=game.items().spellSources().projectileController(bolt);
+            SkyWars2.LOGGER.info("[check] landing bolt cause={} controller={} credited={}",
+                    bolt.getCause()==alpha,controller==alpha,LbcIndirectKills.playerSource(bolt)==alpha);
+            require(bolt.getCause()==null && controller==null && LbcIndirectKills.playerSource(bolt)==alpha,
+                    "landing lightning separates native cause and statistical credit");
             var expected=new BlockPos(center.getX(),center.getY()-34,center.getZ());
             require(level.getBlockState(expected).is(Blocks.NETHERITE_BLOCK) && Math.abs(bolt.getX()-falling.getX())<1e-6 && Math.abs(bolt.getZ()-falling.getZ())<1e-6
                     && Math.abs(bolt.getY()-falling.getY())<.1,"one lightning at physical native placement, never launch point");
             var cow=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);cow.setPos(bolt.position());cow.setNoAi(true);cow.setNoGravity(true);
             var npc=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);npc.setPos(bolt.position().add(0,0,1));npc.setNoAi(true);npc.setNoGravity(true);npc.entityTags().add("magic_academy");
-            require(level.addFreshEntity(cow) && level.addFreshEntity(npc),"disposable lightning victims");int kills=kills(alpha);
+            var afterburn=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);
+            afterburn.setPos(bolt.position().add(0,0,-1));afterburn.setNoAi(true);afterburn.setNoGravity(true);
+            require(level.addFreshEntity(cow) && level.addFreshEntity(npc) && level.addFreshEntity(afterburn),
+                    "disposable lightning victims");int kills=kills(alpha);
             var board=game.server().getScoreboard();var oldAlpha=alpha.getTeam();var oldBeta=beta.getTeam();
             require(board.getPlayerTeam("codex_falling_probe")==null,"fixture team available");var team=board.addPlayerTeam("codex_falling_probe");team.setAllowFriendlyFire(false);
             try{
                 board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
                 for(var p:List.of(alpha,beta)){p.teleportTo(level,bolt.getX()+1,bolt.getY(),bolt.getZ(),Set.of(),0,0,true);p.setHealth(1000);p.setInvulnerableTime(0);p.damageCooldownTime=0;p.setRemainingFireTicks(0);}
                 cow.setHealth(1);bolt.tick();require(cow.isDeadOrDying() && cow.getKillCredit()==alpha && kills(alpha)==kills+1,"native lightning fatal credit on disposable mob");
-                require(alpha.getHealth()<1000 && beta.getHealth()<1000 && beta.getLastDamageSource()!=null && beta.getLastDamageSource().getEntity()==alpha
-                        && beta.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.LIGHTNING_BOLT),"WILD native lightning damages self and allied participant with author and native type");
+                require(alpha.getHealth()<1000 && beta.getHealth()<1000 && beta.getLastDamageSource()!=null
+                        && beta.getLastDamageSource().getEntity()==null && beta.getLastDamageSource().getDirectEntity()==bolt
+                        && beta.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.LIGHTNING_BOLT),
+                        "WILD native lightning hits self and allies with detached ownership and its original damage type");
                 require(npc.getHealth()==npc.getMaxHealth() && !npc.isOnFire(),"native lightning excludes protected role");
                 float a=alpha.getHealth(),b=beta.getHealth();bolt.tick();require(alpha.getHealth()==a && beta.getHealth()==b,"native lightning retains ordinary hurt cooldown");
+                require(afterburn.isOnFire()&&afterburn.isAlive(),"native lightning ignites a surviving victim");
+                afterburn.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0);
+                afterburn.setLastHurtByMob(null);afterburn.setHealth(1);
+                afterburn.setInvulnerableTime(0);afterburn.damageCooldownTime=0;bolt.discard();
+                require(afterburn.hurtServer(level,afterburn.damageSources().onFire(),10)
+                                && afterburn.isDeadOrDying() && afterburn.getKillCredit()==alpha && kills(alpha)==kills+2,
+                        "fatal native afterburn retains credit after the ownerless lightning disappears");
             }finally{
                 board.removePlayerTeam(team);if(oldAlpha!=null)board.addPlayerToTeam(alpha.getScoreboardName(),oldAlpha);if(oldBeta!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBeta);
-                for(var p:List.of(alpha,beta))p.setRemainingFireTicks(0);away();game.items().indirectKills().clear(cow);cow.discard();npc.discard();
+                for(var p:List.of(alpha,beta))p.setRemainingFireTicks(0);away();game.items().indirectKills().clear(cow);game.items().indirectKills().clear(afterburn);
+                cow.discard();npc.discard();afterburn.discard();
             }
         }
         boolean step(){

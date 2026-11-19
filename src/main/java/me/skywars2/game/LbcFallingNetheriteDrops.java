@@ -87,6 +87,7 @@ public final class LbcFallingNetheriteDrops {
                 token.getY() + 14,
                 kind == LbcFallingNetheriteDropItem.Kind.NORMAL ? center.getZ() + .5 : token.getZ());
         prepare(actor, ACTOR, cause);
+        bindTrap(actor, cause, game.items().spellSources().current());
         if (!level.addFreshEntity(actor)) forget(actor);
         return true;
     }
@@ -98,6 +99,16 @@ public final class LbcFallingNetheriteDrops {
         if (actor instanceof FallingBlockEntity falling) actors.add(falling);
         else bolts.add((LightningBolt) actor);
         game.items().timeStop().prepareFrozen(actor);
+    }
+
+    private void bindTrap(Entity actor, LivingEntity cause, LbcSpellSource.Source policy) {
+        if (policy == null) {
+            var author = LbcIndirectKills.playerSource(cause);
+            var credit = author == null ? null : game.items().indirectKills().wildCause(author);
+            policy = new LbcSpellSource.Source(actor.getUUID(), credit == null ? null : credit.player(),
+                    game.items().epoch(), credit, java.util.Set.of());
+        }
+        game.items().spellSources().bind(actor, policy.hostileLoot());
     }
 
     private void forget(Entity actor) {
@@ -128,17 +139,20 @@ public final class LbcFallingNetheriteDrops {
                 || LbcFallingNetheriteDropItem.matches(token.getItem(), LbcFallingNetheriteDropItem.Kind.OLD));
     }
 
-    /** Wrap native ticking so its placement/support writes retain the consumed token's cause. */
+    /** Native placement may discard the falling block before its tick returns. */
     public void withTick(FallingBlockEntity actor, Runnable nativeTick) {
-        if (managed(actor) && active(actor) && actor.level() instanceof ServerLevel level) {
-            if (owner(actor) instanceof ServerPlayer player)
-                game.items().indirectKills().trapChanges(level, player, true, nativeTick);
-            else game.items().indirectKills().worldChanges(level, actor, true, nativeTick);
-        } else nativeTick.run();
+        if (!managed(actor) || !active(actor) || !(actor.level() instanceof ServerLevel level)) {
+            nativeTick.run();
+            return;
+        }
+        var policy = game.items().spellSources().source(actor);
+        if (owner(actor) instanceof ServerPlayer player)
+            game.items().indirectKills().trapChanges(level, player, true, nativeTick);
+        else game.items().indirectKills().worldChanges(level, actor, true, nativeTick);
+        afterTick(actor, policy);
     }
 
-    /** Called at native tick RETURN, including the ordinary placement/discard branch. */
-    public void afterTick(FallingBlockEntity actor) {
+    private void afterTick(FallingBlockEntity actor, LbcSpellSource.Source policy) {
         if (!managed(actor) || !active(actor) || !causes.containsKey(actor) || !actor.onGround()
                 || actor.getBlockState().isAir() || game.items().timeStop().stopped((ServerLevel) actor.level())
                 || !actor.entityTags().add(LANDED)) return;
@@ -149,8 +163,8 @@ public final class LbcFallingNetheriteDrops {
         bolt.setPos(actor.position());
         bolt.setYRot(0);
         bolt.setXRot(0);
-        if (cause instanceof ServerPlayer player) bolt.setCause(player);
         prepare(bolt, BOLT, cause);
+        bindTrap(bolt, cause, policy);
         if (level.addFreshEntity(bolt)) totalBoltsSpawned++;
         else forget(bolt);
     }
@@ -164,13 +178,9 @@ public final class LbcFallingNetheriteDrops {
         if (!managed(actor)) return;
         if (!active(actor)) { unloadedCauses.remove(actor.getUUID()); actor.discard(); return; }
         if (!causes.containsKey(actor)) causes.put(actor, unloadedCauses.remove(actor.getUUID()));
+        if (game.items().spellSources().source(actor) == null) bindTrap(actor, owner(actor), null);
         if (actor instanceof FallingBlockEntity falling) actors.add(falling);
-        else {
-            var bolt = (LightningBolt) actor;
-            // Native lightning does not serialize its cause; restore the retained same-match author.
-            if (bolt.getCause() == null && causes.get(actor) instanceof ServerPlayer player) bolt.setCause(player);
-            bolts.add(bolt);
-        }
+        else bolts.add((LightningBolt) actor);
         game.items().timeStop().prepareFrozen(actor);
     }
 

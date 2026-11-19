@@ -26,7 +26,5 @@ public abstract class FallingNetheriteDropMixin {
         }
         var service=game.items().fallingNetheriteDrops();
         service.withTick(actor,()->original.call());
-        // Successful native placement discards the entity synchronously, before this callback.
-        service.afterTick(actor);
     }
 }
