@@ -99,10 +99,10 @@ public final class LbcTimeStop {
         var cooldown=cooldowns.get(player.getUUID()); return cooldown==null?0:cooldown.ticks;
     }
     void reduceSourceCooldown(ServerPlayer player,int seconds) {
-        var cooldown=cooldowns.get(player.getUUID());if(cooldown==null)return;
-        int current=(int)(((long)cooldown.ticks+19)/20);
-        cooldown.ticks=(int)Math.max(0,(long)cooldown.ticks-((long)current-seconds)*20);
-        if(cooldown.ticks==0)cooldowns.remove(player.getUUID());
+        int ticks=cooldownTicks(player), current=(int)(((long)ticks+19)/20);
+        int remaining=(int)Math.clamp((long)ticks-((long)current-seconds)*20,0,Integer.MAX_VALUE);
+        if(remaining==0)cooldowns.remove(player.getUUID());
+        else cooldowns.computeIfAbsent(player.getUUID(), id->new Cooldown(player.level())).ticks=remaining;
     }
     int pendingDamageCount() { return hits.values().stream().mapToInt(ArrayDeque::size).sum(); }
     void addPlayerCounters(ServerPlayer player) {

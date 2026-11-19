@@ -31,7 +31,12 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         Map.entry("combat.hitscan",new ScriptProgram.Signature(4,4)),
         Map.entry("structure.place",new ScriptProgram.Signature(2,2)),
         Map.entry("entity.info",new ScriptProgram.Signature(1,1)),
+        Map.entry("entity.attribute",new ScriptProgram.Signature(2,2)),
+        Map.entry("entity.change_attribute",new ScriptProgram.Signature(4,4)),
         Map.entry("entity.launch",new ScriptProgram.Signature(1,4)),
+        Map.entry("lbc.mana",new ScriptProgram.Signature(1,1)),
+        Map.entry("lbc.counter",new ScriptProgram.Signature(2,2)),
+        Map.entry("lbc.change_counter",new ScriptProgram.Signature(4,4)),
         Map.entry("lbc.grimoire",new ScriptProgram.Signature(1,2)),
         Map.entry("lbc.cast",new ScriptProgram.Signature(1,4)),
         Map.entry("lbc.cast_at",new ScriptProgram.Signature(2,3)),
@@ -133,7 +138,11 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
                 vector(values.get(0)),vector(values.get(1)),number(values.get(2)),number(values.get(3))));
             case "structure.place"->GenieStructures.place(owner,text(values.get(0)),values.get(1));
             case "entity.info"->info(find(text(values.getFirst())));
+            case "entity.attribute","entity.change_attribute"->attribute(values);
             case "entity.launch"->launch(values);
+            case "lbc.mana"->find(text(values.getFirst())) instanceof ServerPlayer player
+                    ? GeniePlayerParameters.mana(game, player) : JsonNull.INSTANCE;
+            case "lbc.counter","lbc.change_counter"->counter(values);
             case "lbc.grimoire"->grimoire(values);
             case "lbc.summon"->summon(values);
             case "lbc.cast"->cast(values);
@@ -245,6 +254,46 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
     }
     private Entity find(String id){
         return owner.level().getEntity(UUID.fromString(id));
+    }
+    private JsonElement counter(List<JsonElement> values) {
+        if (!(find(text(values.getFirst())) instanceof ServerPlayer player)) return JsonNull.INSTANCE;
+        String key = text(values.get(1));
+        Integer result;
+        if (values.size() == 2) result = GeniePlayerParameters.read(game, player, key);
+        else {
+            double amount = number(values.get(3));
+            if (amount != Math.rint(amount) || amount < Integer.MIN_VALUE || amount > Integer.MAX_VALUE)
+                throw new IllegalArgumentException("counter change requires a signed 32-bit integer");
+            result = GeniePlayerParameters.change(game, owner, player, key, additive(values.get(2)), (int) amount);
+        }
+        return result == null ? JsonNull.INSTANCE : new JsonPrimitive(result);
+    }
+
+    private JsonElement attribute(List<JsonElement> values) {
+        if (!(find(text(values.getFirst())) instanceof LivingEntity target)) return JsonNull.INSTANCE;
+        var type = BuiltInRegistries.ATTRIBUTE.get(Identifier.parse(text(values.get(1)))).orElse(null);
+        if (type == null) return JsonNull.INSTANCE;
+        // Read through the attribute map without creating an instance just for a query.
+        var attributes = target.getAttributes();
+        if (!attributes.hasAttribute(type)) return JsonNull.INSTANCE;
+        if (values.size() == 4) {
+            double amount = number(values.get(3));
+            double requested = additive(values.get(2)) ? attributes.getBaseValue(type) + amount : amount;
+            if (!Double.isFinite(requested)) throw new IllegalArgumentException("attribute result must be finite");
+            attributes.getInstance(type).setBaseValue(type.value().sanitizeValue(requested));
+        }
+        var result = new JsonObject();
+        result.addProperty("base", attributes.getBaseValue(type));
+        result.addProperty("value", attributes.getValue(type));
+        return result;
+    }
+
+    private static boolean additive(JsonElement operation) {
+        return switch (text(operation)) {
+            case "add" -> true;
+            case "set" -> false;
+            default -> throw new IllegalArgumentException("expected set or add");
+        };
     }
     private JsonElement info(Entity entity){
         if(entity==null)return JsonNull.INSTANCE;

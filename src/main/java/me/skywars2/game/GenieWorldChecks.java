@@ -1915,6 +1915,69 @@ final class GenieWorldChecks {
         require(rays.pendingSearches() == 0, "native snow or Ender ray resolves");
     }
 
+    private static void playerParameters(GameController game, WoolBucketChecks.Fixture base, GenieWorldHost host) {
+        var player = base.owner;
+        var mana = game.items().mana();
+        var playerId = new JsonPrimitive(player.getUUID().toString());
+        var get = new JsonPrimitive("mana");
+        var set = new JsonPrimitive("set");
+        var add = new JsonPrimitive("add");
+        var power = new JsonPrimitive("minecraft:movement_speed");
+        var movement = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+        int oldMana = mana.get(player), oldMax = mana.maximum(player), oldRegen = mana.baseRegen(player);
+        int oldCharges = game.items().terra().charges(player), oldLives = game.lives(player.getUUID());
+        int oldTimer = mana.hudValue(player, "effect_add_mana");
+        double oldMovement = movement.getBaseValue();
+        var charges = new JsonPrimitive("swordcharged2");
+        var lives = new JsonPrimitive("lives");
+        var timer = new JsonPrimitive("effect_add_mana");
+        var unknown = new JsonPrimitive("genie_no_such_counter");
+        try {
+            require(complete(host, queued(host, "lbc.change_counter", playerId, get, set, new JsonPrimitive(-180))).getAsInt() == -180,
+                    "signed mana uses the native resource");
+            require(complete(host, queued(host, "lbc.change_counter", playerId, get, add, new JsonPrimitive(75))).getAsInt() == -105,
+                    "native mana addition preserves overdraft");
+            complete(host, queued(host, "lbc.change_counter", playerId, new JsonPrimitive("manamax"), set, new JsonPrimitive(7200)));
+            complete(host, queued(host, "lbc.change_counter", playerId, new JsonPrimitive("manaregen"), set, new JsonPrimitive(21)));
+            var reading = complete(host, queued(host, "lbc.mana", playerId)).getAsJsonObject();
+            require(reading.get("current").getAsInt() == -105 && reading.get("maximum").getAsInt() == 7200
+                            && reading.get("base_regen_per_tick").getAsInt() == 21
+                            && reading.has("effective_regen_per_tick") && reading.has("wand_overdraft"),
+                    "runtime mana read returns live current, max, base regeneration and Overload");
+            require(complete(host, queued(host, "lbc.change_counter", playerId, charges, set, new JsonPrimitive(4))).getAsInt() == 4
+                            && game.items().terra().charges(player) == 4
+                            && complete(host, queued(host, "lbc.counter", playerId, charges)).getAsInt() == 4,
+                    "an emulated legacy score writes to the real Terra sword state");
+            require(complete(host, queued(host, "lbc.change_counter", playerId, lives, add, new JsonPrimitive(1))).getAsInt() == oldLives + 1
+                            && game.lives(player.getUUID()) == oldLives + 1,
+                    "lives use the match participant instead of a parallel score");
+            require(complete(host, queued(host, "lbc.change_counter", playerId, timer, set, new JsonPrimitive(1))).getAsInt() == 1,
+                    "a dormant mana potion counter can be started");
+            mana.tickPotions(player);
+            require(mana.get(player) == 9895 && mana.hudValue(player, "effect_add_mana") == 0,
+                    "native potion scheduler consumes the registered timer");
+            require(complete(host, queued(host, "lbc.change_counter", playerId, unknown, set, new JsonPrimitive(1))).isJsonNull()
+                            && game.server().getScoreboard().getObjective(unknown.getAsString()) == null,
+                    "a typo does not generate a silent dummy objective");
+            require(complete(host, queued(host, "lbc.change_counter", playerId, new JsonPrimitive("manaregen_visual"), set, new JsonPrimitive(1))).isJsonNull(),
+                    "computed regeneration remains owned by the mana engine");
+            var changed = complete(host, queued(host, "entity.change_attribute", playerId, power, add, new JsonPrimitive(.05))).getAsJsonObject();
+            require(changed.get("base").getAsDouble() == oldMovement + .05 && movement.getBaseValue() == oldMovement + .05
+                            && changed.get("value").getAsDouble() == movement.getValue(),
+                    "another attribute registry entry shares native base and effective values");
+            require(complete(host, queued(host, "entity.attribute", playerId, power)).equals(changed),
+                    "attribute read reports the same live result");
+        } finally {
+            mana.set(player, oldMana);
+            mana.maximum(player, oldMax);
+            mana.baseRegen(player, oldRegen);
+            mana.setPotionCounter(player, timer.getAsString(), oldTimer);
+            new LbcSourceCounters(game).write(player, charges.getAsString(), oldCharges);
+            game.changeRemainingLives(player, oldLives);
+            movement.setBaseValue(oldMovement);
+        }
+    }
+
     static void run(GameController game,WoolBucketChecks.Fixture base){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
@@ -1956,6 +2019,7 @@ final class GenieWorldChecks {
             host.validateCommand("execute if entity @s run give @s minecraft:stick");
             host.validateCommand("summon minecraft:pig");
             authorityScope(game,base,host,start);
+            playerParameters(game,base,host);
 
             Vec3 launchSpot=Vec3.atBottomCenterOf(start.offset(6,0,0));
             var motion=new Vec3(.1,.2,.9);

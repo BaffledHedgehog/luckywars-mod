@@ -41,7 +41,7 @@ public final class LbcMana {
     public static final Item MANA_POTION=registerPotion("skywars2:mana_potion",Items.POTION);
     public static final Item MANA_SPLASH_POTION=registerPotion("skywars2:mana_splash_potion",Items.SPLASH_POTION);
     public static final Item MANA_LINGERING_POTION=registerPotion("skywars2:mana_lingering_potion",Items.LINGERING_POTION);
-    private static final List<String> POTION_TIMERS=List.of("effect_boost_mana","effect_add_manamax","effect_add_manaregen","effect_add_mana","effect_remove_mana");
+    static final List<String> POTION_TIMERS=List.of("effect_boost_mana","effect_add_manamax","effect_add_manaregen","effect_add_mana","effect_remove_mana");
     private static final int[] STAT_EFFECT_ORDER={3,1,2,4};
     private static final class Drink extends PotionItem implements PolymerItem {
         Drink(Properties p) { super(p); }
@@ -161,6 +161,13 @@ public final class LbcMana {
         if(game.items().magic().rejectCustomDebuff(p)) return;
         noMagic(p,noMagic(p)+seconds);
         set(p,0);
+    }
+
+    void setPotionCounter(ServerPlayer player, String name, int ticks) {
+        if (ticks > 0 && (game.items().magic().rejectCustomEffect(player)
+                || name.equals("effect_remove_mana") && LbcParasite.active(player))) return;
+        write(player, name, Math.max(0, ticks));
+        if (ticks > 0) statEffects.add(player);
     }
     /** Active potion timers are native player counters, separate from mana resources. */
     void addPlayerCounters(ServerPlayer player) {
@@ -341,14 +348,15 @@ public final class LbcMana {
         }
         if(game.balanceLegacy())return;
         overload.beforeRegen(p);
-        var equipment=equipment(p); int base=baseRegen(p), visual=base+equipment.regeneration()+equipment.belts()*2;
+        var equipment=equipment(p); int base=baseRegen(p);
+        int visual=(int)Math.clamp((long)base+equipment.regeneration()+equipment.belts()*2L,Integer.MIN_VALUE,Integer.MAX_VALUE);
         if(equipment.belts()*2>base) award(p,"lbc:true_advancements/accesories/mana_belt");
         if(equipment.mageMask()!=0)visual=game.items().armorSets().nyauwu().beforeRegeneration(p,visual);
         int duration=boost(p);
         if(duration>0) {
-            int before=visual; visual=Math.floorDiv(visual*3,2); boost(p,duration-1);
+            int before=visual; visual=(int)Math.clamp(Math.floorDiv(visual*3L,2),Integer.MIN_VALUE,Integer.MAX_VALUE); boost(p,duration-1);
             award(p,"lbc:true_advancements/potions/effect_magic_buff");
-            if(visual-before>=15) award(p,"lbc:true_advancements/potions/mana_temp");
+            if((long)visual-before>=15) award(p,"lbc:true_advancements/potions/mana_temp");
         }
         write(p,"manaregen_visual",visual);
         regenerate(p,effectiveRegeneration(p));
@@ -413,6 +421,11 @@ public final class LbcMana {
     int effectiveRegeneration(ServerPlayer p) {
         int value=hudValue(p,"manaregen_visual");
         return reverse(p)>0?(int)Math.max(Integer.MIN_VALUE,Math.min(Integer.MAX_VALUE,-(long)value)):value;
+    }
+
+    int activeRegeneration(ServerPlayer player) {
+        return !game.balanceLegacy() && active(player) && noMagic(player) == 0
+                ? effectiveRegeneration(player) : 0;
     }
     public MutableComponent hud(ServerPlayer p) {
         int mana=hudValue(p,"mana");

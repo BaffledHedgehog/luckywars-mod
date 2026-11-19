@@ -639,6 +639,14 @@ public final class GameController {
     }
     public ZoneBarrier zoneBarrier() { return zoneBarrier; }
     public int lives(UUID id) { Participant p = participants.get(id); return p == null ? 0 : p.lives; }
+    boolean changeRemainingLives(ServerPlayer player, int lives) {
+        if (!canUseGameplayItems(player)) return false;
+        var participant = participants.get(player.getUUID());
+        if (participant == null || participant.lives <= 0) return false;
+        // Changing the resource and eliminating a participant are separate gameplay operations.
+        participant.lives = Math.max(1, lives);
+        return true;
+    }
     public boolean awaitingRespawn(UUID id) { Participant p = participants.get(id); return p != null && p.awaitingRespawn; }
     public MapManager maps() { return maps; }
     public GameConfig config() { return config; }

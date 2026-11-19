@@ -98,7 +98,8 @@ public final class GenieService implements AutoCloseable {
         tell(p,"genie.thinking",ChatFormatting.GOLD);sync(p);
         try {
             if (scriptModel != null) {
-                var request = scriptModel.request(wish, List.copyOf(recentScriptTwists), game.server().reloadableRegistries().lookup());
+                var request = scriptModel.request(wish, List.copyOf(recentScriptTwists),
+                        game.server().reloadableRegistries().lookup(), GeniePlayerParameters.wishContext(game, p));
                 pending.cancelRequest = request::close;
                 request.future().whenComplete((reply,error) -> game.server().execute(() -> finishScript(pending,reply,error)));
             } else {

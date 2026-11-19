@@ -22,14 +22,14 @@ public final class GenieKnowledge {
 
     /** Called by the model worker, not by the server tick. Full compact index plus relevant prototype details. */
     public static String forWish(String wish,Collection<GenieBlueprint.TwistKind> recent){
-        return forWish(wish,recent.stream().map(Enum::name).toList(),null);
+        return forWish(wish,recent.stream().map(Enum::name).toList(),null,null);
     }
 
-    static String forScriptWish(String wish, Collection<String> recent, HolderLookup.Provider lookup) {
-        return forWish(wish, recent, lookup);
+    static String forScriptWish(String wish, Collection<String> recent, HolderLookup.Provider lookup, String playerContext) {
+        return forWish(wish, recent, lookup, playerContext);
     }
 
-    private static String forWish(String wish,Collection<String> recent,HolderLookup.Provider lookup){
+    private static String forWish(String wish,Collection<String> recent,HolderLookup.Provider lookup,String playerContext){
         var snapshot=snapshot();
         var words=new LinkedHashSet<String>();
         for(var word:wish.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{N}_]+"))if(word.length()>2)words.add(word);
@@ -42,7 +42,8 @@ public final class GenieKnowledge {
         // Keep the full factual prefix byte-identical between wishes, before all variable context.
         String index = lookup == null ? snapshot.prefix : snapshot.scriptPrefix + GenieContentIndex.fields(lookup);
         return index+",\"related_source_prototypes\":"+related
-                +",\"recent_drawback_kinds\":"+strings(recent)+"}";
+                +",\"recent_drawback_kinds\":"+strings(recent)
+                +(playerContext==null?"":",\"requesting_player\":"+playerContext)+"}";
     }
     private static Snapshot snapshot(){
         var value=cached;if(value!=null)return value;

@@ -36,7 +36,7 @@ public final class LbcReactive {
     void setShishCounter(ServerPlayer player,int value){cooldowns.put(player,Math.max(0,value)*5);mana.score(player,"coldownshish").set(value);}
     void reduceSourceCooldown(ServerPlayer player,int value) {
         int ticks=cooldownTicks(player),current=(int)(((long)ticks+4)/5);
-        int remaining=(int)Math.max(0,(long)ticks-((long)current-value)*5);
+        int remaining=(int)Math.clamp((long)ticks-((long)current-value)*5,0,Integer.MAX_VALUE);
         if(remaining==0)cooldowns.remove(player);else cooldowns.put(player,remaining);
         mana.score(player,"coldownshish").set(value);
     }

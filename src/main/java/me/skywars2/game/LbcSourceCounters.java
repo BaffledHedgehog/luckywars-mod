@@ -1,9 +1,14 @@
 package me.skywars2.game;
 
+import java.util.Set;
 import net.minecraft.server.level.ServerPlayer;
 
 /** Legacy score comparisons over the current native owners. No independent timers or charge ledger. */
 final class LbcSourceCounters {
+    static final Set<String> NATIVE = Set.of("swordcharged1", "swordcharging1", "swordcharged2",
+            "swordcharged5", "swordcharging5", "scared", "lookback", "twitching", "shock",
+            "coldown1", "coldown16", "coldownshish", "coldown13", "coldown17", "coldown18",
+            "coldown18b", "coldown25", "coldownMagnum");
     private final GameController game;
     LbcSourceCounters(GameController game){this.game=game;}
     Integer read(ServerPlayer p,String name){var items=game.items();return switch(name){
@@ -32,7 +37,7 @@ final class LbcSourceCounters {
     void addSwordCharges(ServerPlayer target,int amount){
         for(int i=1;i<=7;i++){String name="swordcharged"+i;Integer before=read(target,name);write(target,name,(before==null?0:before)+amount);}
     }
-    private void write(ServerPlayer target,String name,int next){
+    void write(ServerPlayer target,String name,int next){
         var items=game.items();switch(name){
             case "swordcharged1","swordcharging1","swordcharged5","swordcharging5"->
                 items.electro().sourceCharge(target,name.endsWith("5"),name.startsWith("swordcharging"),next);

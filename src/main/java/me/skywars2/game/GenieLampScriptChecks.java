@@ -60,6 +60,17 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(new String(verifier, StandardCharsets.UTF_8).contains(GenieScriptReply.VERIFIER_VERSION), "actual versioned checker is packaged");
             // Game reference data includes every loaded table and locale. It is not a VM program.
             JsonObject facts = com.google.gson.JsonParser.parseString(knowledge).getAsJsonObject();
+            var player = facts.getAsJsonObject("requesting_player");
+            var mana = player.getAsJsonObject("mana");
+            require(mana.get("current").getAsInt() == (prompt.contains("second player") ? -222 : 1337)
+                            && mana.has("maximum") && mana.has("base_regen_per_tick")
+                            && mana.has("effective_regen_per_tick") && mana.has("wand_overdraft"),
+                    "the asynchronous provider receives only the requesting player's mana snapshot");
+            require(player.getAsJsonArray("mutable_player_counter_ids").contains(new JsonPrimitive("swordcharged2"))
+                            && player.getAsJsonArray("player_counter_ids").contains(new JsonPrimitive("manaregen_visual"))
+                            && !player.getAsJsonArray("mutable_player_counter_ids").contains(new JsonPrimitive("manaregen_visual"))
+                            && contract.contains("\"lbc.change_counter\"") && contract.contains("\"entity.change_attribute\""),
+                    "provider contract and live catalog advertise executable resource and attribute mutations");
             require(facts.getAsJsonArray("logical_luckywars_items").size() > 1000 && !facts.has("constructor_schema"),
                 "the new request carries the actual index without the old rule budget");
             require(facts.getAsJsonArray("script_grimoires").contains(new com.google.gson.JsonPrimitive("skywars2:tesla_instant_grimoire"))
@@ -262,8 +273,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
                 && warning.contents().getString().lines().count() == 2, "warning is two red lines of plain text");
         String token = (String) WoolBucketChecks.read(dialog, "token");
         var input = new CompoundTag();input.putString("wish", "LuckyWars script lamp witness");
-        base.owner.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(
-            Identifier.parse("skywars2:genie/" + token), Optional.of(input)));
+        submitWithMana(base.owner, token, input, 1337);
         var lamp = base.owner.getMainHandItem();
         require(service.locked(base.owner, lamp), "a scripted request reserves the specific lamp");
         require(lamp.getHoverName().getContents() instanceof TranslatableContents translated
@@ -273,6 +283,18 @@ final class GenieLampScriptChecks implements AutoCloseable {
         base.owner.getInventory().setItem(10, lamp);
         base.owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.APPLE, 3));
         when = game.server().getTickCount();
+    }
+
+    private void submitWithMana(ServerPlayer player, String token, CompoundTag input, int value) {
+        var mana = game.items().mana();
+        int previous = mana.get(player);
+        try {
+            mana.set(player, value);
+            player.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(
+                    Identifier.parse("skywars2:genie/" + token), Optional.of(input)));
+        } finally {
+            mana.set(player, previous);
+        }
     }
 
     private static GenieScriptModel.Observation grant(JsonObject contract, boolean witnessed) {
@@ -307,8 +329,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
         var dialog = ((Map<?,?>) WoolBucketChecks.read(service, "dialogs")).get(secondPlayer.getUUID());
         var input = new CompoundTag();
         input.putString("wish", "LuckyWars script lamp witness for the second player");
-        secondPlayer.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(
-                Identifier.parse("skywars2:genie/" + WoolBucketChecks.read(dialog, "token")), Optional.of(input)));
+        submitWithMana(secondPlayer, (String) WoolBucketChecks.read(dialog, "token"), input, -222);
         var lamp = secondPlayer.getMainHandItem();
         require(service.locked(secondPlayer, lamp), "second player's request locks only their lamp");
         secondPlayer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
