@@ -216,6 +216,22 @@ public final class SheepChecks {
             game.config().lbcSkills=false;game.players().get(owner.getUUID()).lbcSkill=0;other.getInventory().setItem(5,potion());move(owner,holeAt.add(0,0,-10));
             mana.set(owner,500);
             require(input(InteractionHand.MAIN_HAND)&&sheep.holeViews().size()==1&&other.getInventory().getItem(5).isEmpty()&&owner.getInventory().getItem(5).isEmpty()&&other.isAlive(),"inventory potion creates one hole and clears matching potions from nearby players without transformation");
+            clear();
+            var from = owner.getEyePosition();
+            Vec3 potionPosition = from.add(0, 0, 14.1);
+            move(other, potionPosition);
+            other.getInventory().setItem(5, potion());
+            var secondSpanDrop = new ItemEntity(owner.level(), potionPosition.x, potionPosition.y,
+                    potionPosition.z, potion());
+            secondSpanDrop.setNoGravity(true);
+            add(secondSpanDrop);
+            mana.set(owner, 500);
+            require(input(InteractionHand.MAIN_HAND), "native potion encounter across the search boundary");
+            var holes = sheep.holeViews();
+            Vec3 firstSample = from.add(0, 0, 12.75);
+            require(holes.size() == 2 && holes.stream().allMatch(hole -> hole.point().distanceToSqr(firstSample) < 1e-10)
+                    && secondSpanDrop.isRemoved() && other.getInventory().getItem(5).isEmpty() && other.isAlive(),
+                    "dropped and carried potions each react at the same first eligible original sample: " + holes);
             clear();move(owner,at);move(other,at.add(8,0,0));
         }
         void chefPolymorph(){

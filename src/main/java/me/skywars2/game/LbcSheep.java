@@ -64,6 +64,8 @@ public final class LbcSheep {
     private static final String TAG="skywars2.sheep", BODY="skywars2.sheep_hole";
     // Distance is a sample counter: samples 0..150 inclusive, separated by .75 blocks.
     static final double RANGE=112.5, RADIUS=Math.sqrt(552), INFLUENCE=48;
+    private static final double RAY_STEP = .75;
+    private static final int POTION_SEARCH_SAMPLES = 16;
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
@@ -177,13 +179,19 @@ public final class LbcSheep {
         var dust=new DustParticleOptions(academy?0x813681:0xff00ff,2);
         try (var trail = new LbcParticleBatch.Group(p.level(), dust, 0, .1, false, .76,
                 game.balanceLegacy() ? 1 : 2)) {
-            for (double d = 0; d <= length; d += .75) {
-                Vec3 at = from.add(direction.scale(d));
+            PotionCandidates potions = null;
+            for (int sample = 0; sample * RAY_STEP <= length; sample++) {
+                double distance = sample * RAY_STEP;
+                Vec3 at = from.add(direction.scale(distance));
                 if (!resident(p.level(), at) || suppressed(p.level(), at)) { end = lastValid; break; }
                 lastValid = at;
                 trail.add(at, academy ? 1 : 2);
-                // Original inventory/dropped-potion proximity checks run at each source ray sample.
-                if (consumePotion(p, hand, stack, at)) return;
+                if (sample % POTION_SEARCH_SAMPLES == 0) {
+                    double spanEnd = Math.min(length, distance + (POTION_SEARCH_SAMPLES - 1) * RAY_STEP);
+                    potions = potionsBetween(p, at, from.add(direction.scale(spanEnd)));
+                }
+                // Retain the first eligible original sample, including the two independent potion sources.
+                if (consumePotion(p, hand, stack, at, potions)) return;
             }
         }
         if(lastValid==null)return;
@@ -198,15 +206,37 @@ public final class LbcSheep {
         for(var target:targets)transform(p,target,academy);
         consumePotion(p,hand,stack,clipped);
     }
-    static boolean potion(ItemStack stack){var d=LbcFartus.data(stack);return !stack.isEmpty()&&d.getIntOr("transformable",0)==1&&d.getIntOr("potion",0)==1&&d.getIntOr("succubus",0)==1;}
+    static boolean potion(ItemStack stack) {
+        if (stack.isEmpty() || !stack.has(DataComponents.CUSTOM_DATA)) return false;
+        var data = LbcFartus.data(stack);
+        return data.getIntOr("transformable", 0) == 1 && data.getIntOr("potion", 0) == 1
+                && data.getIntOr("succubus", 0) == 1;
+    }
     private static boolean hasPotion(ServerPlayer p){for(int i=0;i<p.getInventory().getContainerSize();i++)if(potion(p.getInventory().getItem(i)))return true;return false;}
     private boolean potionHolder(ServerPlayer player){return !game.items().inventoryHazards().protectedInventory(player)&&LbcDimensionItems.ordinary(player)&&game.canUseGameplayItems(player)&&game.items().wands().validTarget(player)&&!frozen(player)&&!suppressed(player.level(),player.position());}
-    /** Two independently authored resources: nearby dropped potion, or nearby player's matching inventory. */
-    boolean consumePotion(ServerPlayer p,InteractionHand hand,ItemStack used,Vec3 at){
-        boolean dropped=!p.level().getEntitiesOfClass(ItemEntity.class,new AABB(at,at).inflate(2),e->game.items().wands().validTarget(e)&&e.position().distanceToSqr(at)<=4&&potion(e.getItem())).isEmpty();
-        boolean inventory=false;
-        for(var other:p.level().getEntitiesOfClass(ServerPlayer.class,new AABB(at,at).inflate(2),e->e!=p&&potionHolder(e)&&e.position().distanceToSqr(at)<=4))if(hasPotion(other)){inventory=true;break;}
-        if(!dropped&&!inventory)return false;
+    private record PotionCandidates(List<ItemEntity> drops, List<ServerPlayer> holders) {}
+
+    private PotionCandidates potionsBetween(ServerPlayer caster, Vec3 from, Vec3 to) {
+        var bounds = new AABB(from, to).inflate(2);
+        return new PotionCandidates(
+                caster.level().getEntitiesOfClass(ItemEntity.class, bounds, item -> potion(item.getItem())),
+                caster.level().getEntitiesOfClass(ServerPlayer.class, bounds, player -> player != caster && hasPotion(player)));
+    }
+
+    /** Two independently authored resources: nearby dropped potion, or a nearby player's matching inventory. */
+    boolean consumePotion(ServerPlayer p, InteractionHand hand, ItemStack used, Vec3 at) {
+        return consumePotion(p, hand, used, at, potionsBetween(p, at, at));
+    }
+
+    private boolean consumePotion(ServerPlayer p, InteractionHand hand, ItemStack used, Vec3 at,
+                                  PotionCandidates potions) {
+        if (potions.drops().isEmpty() && potions.holders().isEmpty()) return false;
+        var bounds = new AABB(at, at).inflate(2);
+        boolean dropped = potions.drops().stream().anyMatch(item -> item.position().distanceToSqr(at) <= 4
+                && item.getBoundingBox().intersects(bounds) && game.items().wands().validTarget(item) && potion(item.getItem()));
+        boolean inventory = potions.holders().stream().anyMatch(player -> player.position().distanceToSqr(at) <= 4
+                && player.getBoundingBox().intersects(bounds) && potionHolder(player) && hasPotion(player));
+        if (!dropped && !inventory) return false;
         boolean created=false;
         if(dropped&&spawnHole(p,at)!=null){clearItems(p.level(),at);created=true;}
         if(inventory&&spawnHole(p,at)!=null){
