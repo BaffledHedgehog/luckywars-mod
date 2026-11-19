@@ -6,6 +6,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,6 +20,10 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.*;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /** Bounded native nut consumption and actual shared47 producer; no ticking dangerous counters. */
@@ -93,6 +98,8 @@ public final class OreshekChecks {
         final ElementalGrimoireChecks.Fixture base;final GameController game;final ServerPlayer p;final State state;final Services services;
         final ServerLevel level;final Vec3 high;final Integer priorFake;final net.minecraft.world.scores.Objective math;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final ItemStack nut;
+        BlockPos clickedBlock;
+        BlockState oldClickedBlock;
         Fixture(GameController game){this.game=game;base=new ElementalGrimoireChecks.Fixture(game);p=base.owner;state=new State(game,p);level=p.level();
             high=new Vec3(p.getX(),level.getMaxY()+256,p.getZ());
             require(level.hasChunkAt(BlockPos.containing(high)),"already resident high launch column");
@@ -106,6 +113,16 @@ public final class OreshekChecks {
             game.players().get(p.getUUID()).lbcSkill=0;reset();
             var pool=game.lbc().rollTable(level,high,p,"lbc:oreshki_10");nut=pool.stream().filter(LbcOreshek::matches).findFirst().orElseThrow(()->new IllegalStateException("actual source nut leaf missing"));
             require(nut.is(LbcOreshek.ITEM)&&nut.getCount()==1&&nut.has(DataComponents.CONSUMABLE)&&nut.has(DataComponents.FOOD),"actual registered public nut identity/rawflag/food/consumable/single count");
+        }
+        BlockHitResult placeUseProbe() {
+            var point = new Vec3(p.getX(), Math.min(240, level.getMaxY() - 40), p.getZ());
+            p.teleportTo(level, point.x, point.y, point.z, Set.of(), 0, 0, true);
+            acknowledge();
+            clickedBlock = BlockPos.containing(p.getEyePosition()).offset(0, 0, 2);
+            oldClickedBlock = level.getBlockState(clickedBlock);
+            require(oldClickedBlock.isAir() && level.setBlock(clickedBlock, Blocks.STONE.defaultBlockState(), Block.UPDATE_CLIENTS),
+                    "actual solid face in the existing resident column");
+            return new BlockHitResult(Vec3.atCenterOf(clickedBlock).add(0, 0, -.5), Direction.NORTH, clickedBlock, false);
         }
         void acknowledge(){p.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());if(read(p.connection,"awaitingPositionFromClient")!=null){ClientboundPlayerPositionPacket last=null;for(var packet:base.recording.packets)if(packet instanceof ClientboundPlayerPositionPacket update)last=update;require(last!=null,"native dimension position packet");p.connection.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(last.id(),p.getX(),p.getY(),p.getZ(),p.getYRot(),p.getXRot()));}require(!p.isChangingDimension(),"native client acknowledges dimension");}
         void reset(){game.items().clear(p);for(var key:COUNTERS)game.items().mana().score(p,key).set(0);p.removeAllEffects();p.entityTags().remove("skywars2.oreshek.returned");p.setHealth(1000);p.setInvulnerableTime(0);p.damageCooldownTime=0;p.setPos(high);}
@@ -151,6 +168,9 @@ public final class OreshekChecks {
         }}
         private static void cleanup(Throwable[] failure,Runnable action){try{action.run();}catch(Throwable error){if(failure[0]==null)failure[0]=error;else failure[0].addSuppressed(error);}}
         public void close(){var failure=new Throwable[1];
+            if (clickedBlock != null) cleanup(failure, () -> {
+                if (oldClickedBlock.isAir()) level.setBlock(clickedBlock, oldClickedBlock, Block.UPDATE_CLIENTS);
+            });
             cleanup(failure,()->{if(p.level()!=level){p.teleportTo(level,high.x,high.y,high.z,Set.of(),0,0,true);acknowledge();}});
             cleanup(failure,()->game.items().clear(p));
             cleanup(failure,()->{var created=new ArrayList<Entity>();for(var entity:level.getAllEntities())if(!before.contains(entity))created.add(entity);
@@ -172,6 +192,7 @@ public final class OreshekChecks {
     private static Choices heldChoices;
     private static int heldPhase,heldAt,heldSequence;
     private static long heldConsumed;
+    private static int heldUseStat;
     public static void runInput(GameController game){
         require(held==null,"exclusive actual held-use fixture");held=new Fixture(game);heldPhase=0;heldSequence=0;
         try{beginHeld(game);}catch(Throwable error){closeHeld(error);throw error;}
@@ -219,11 +240,19 @@ public final class OreshekChecks {
         require(LbcOreshek.matches(nut), "client-selected hotbar slot contains the collected nut");
         heldConsumed = game.items().oreshek().consumedCount();
         heldChoices = new Choices(f.level, .5f, .5f, .5f);
-        player.connection.handleUseItem(new ServerboundUseItemPacket(
-                InteractionHand.MAIN_HAND, ++heldSequence, player.getYRot(), player.getXRot()));
+        heldUseStat = player.getStats().getValue(Stats.ITEM_USED.get(LbcOreshek.ITEM));
+        if (heldPhase == 3) {
+            var hit = f.placeUseProbe();
+            player.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND, hit, ++heldSequence));
+            require(player.getStats().getValue(Stats.ITEM_USED.get(LbcOreshek.ITEM)) == heldUseStat,
+                    "starting to eat against stone is not a completed item use");
+        } else {
+            player.connection.handleUseItem(new ServerboundUseItemPacket(
+                    InteractionHand.MAIN_HAND, ++heldSequence, player.getYRot(), player.getXRot()));
+        }
         player.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
         require(player.isUsingItem() && player.getUseItem() == nut,
-                "real UseItem begins after pickup, phase=" + heldPhase + " slot=" + selected);
+                "real use begins after pickup, phase=" + heldPhase + " slot=" + selected);
         heldAt = game.server().getTickCount();
     }
 
@@ -291,11 +320,14 @@ public final class OreshekChecks {
             }
             require(game.items().oreshek().consumedCount()==heldConsumed+1&&held.p.getMainHandItem().isEmpty()
                     &&elapsed>=held.nut.get(DataComponents.CONSUMABLE).consumeTicks()-1,"real server ticks finish exactly one nut at native duration");
+            if(heldPhase==3)require(held.p.getStats().getValue(Stats.ITEM_USED.get(LbcOreshek.ITEM))==heldUseStat+1
+                            &&held.level.getBlockState(held.clickedBlock).is(Blocks.STONE),
+                    "UseItemOn consumes and counts one nut, without replacing the clicked block");
             if(heldPhase==1)require(game.items().curseTicks(held.p)>0,"Skill Issue stayed active for the entire real native eating interval");
             SkyWars2.LOGGER.info("[check] Oreshek pickup phase {} finished exactly once in {} ticks", heldPhase, elapsed);
             heldChoices.close();heldChoices=null;
-            if(++heldPhase<3){beginHeld(game);return;}
-            closeHeld(null);SkyWars2.LOGGER.info("[check] PASS oreshek-input (actual ground pickup of singleton and Big Bob drop, first vanilla inventory slot codec, no inventory move and explicit move control, selected slot and native held-use ticks, full hunger and Skill Issue)");
+            if(++heldPhase<4){beginHeld(game);return;}
+            closeHeld(null);SkyWars2.LOGGER.info("[check] PASS oreshek-input (actual ground pickup, first inventory slot codec, air and solid-block input, explicit inventory-move control, native held-use ticks, full hunger and Skill Issue)");
         }catch(Throwable error){closeHeld(error);SkyWars2.LOGGER.error("[check] FAIL oreshek-input",error);}
     }
     private static void closeHeld(Throwable error){

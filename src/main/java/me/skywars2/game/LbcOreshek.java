@@ -8,12 +8,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.Vec3;
 
@@ -60,7 +62,23 @@ public final class LbcOreshek {
             }
         }catch(java.io.IOException error){throw new IllegalStateException("Cannot read canonical nut definition",error);}
         return net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.ITEM,key,
-                new eu.pb4.polymer.core.api.item.SimplePolymerItem(props,net.minecraft.world.item.Items.REPEATING_COMMAND_BLOCK,true));
+                new eu.pb4.polymer.core.api.item.SimplePolymerItem(props,net.minecraft.world.item.Items.REPEATING_COMMAND_BLOCK,true) {
+                    @Override public InteractionResult useOn(UseOnContext context) {
+                        var player = context.getPlayer();
+                        if (player == null || !context.getItemInHand().has(net.minecraft.core.component.DataComponents.CONSUMABLE))
+                            return InteractionResult.PASS;
+                        // The client carrier's BlockItem.useOn falls through to food use.
+                        // Block interaction has already been offered by ServerPlayerGameMode.
+                        var result = context.getItemInHand().use(context.getLevel(), player, context.getHand());
+                        if (result instanceof InteractionResult.Success success) {
+                            // Consume handles the food statistic and remainders. Do not run the
+                            // placement statistic and item component transforms a second time.
+                            return new InteractionResult.Success(success.swingSource(),
+                                    new InteractionResult.ItemContext(false, success.heldItemTransformedTo()));
+                        }
+                        return result;
+                    }
+                });
     }
     public static boolean matches(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("eat_oreshek",0)==1;}
     private boolean admitted(ServerPlayer p){return p!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING
