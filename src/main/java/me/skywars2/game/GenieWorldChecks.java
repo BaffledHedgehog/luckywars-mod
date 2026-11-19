@@ -1001,7 +1001,9 @@ final class GenieWorldChecks {
                         new AABB(center, center).inflate(3)).stream().filter(body -> !oldBoxes.contains(body)).findFirst().orElseThrow();
                 base.own(tnt);
                 var charge = game.items().spellSources().source(tnt);
-                require(tnt.position().equals(center) && tnt.getFuse()==2 && charge != null
+                require(tnt.position().equals(center) && tnt.getFuse()==2 && tnt.getOwner()==null
+                        && game.items().spellSources().projectileController(tnt)==null
+                        && charge != null && charge.unownedMobs() && charge.cause().friendlyFire()
                         && ItemStack.matches(charge.cause().enchantmentWeapon(), gift),
                         "David's native terrain-contact fuse and gift attribution are preserved");
                 base.discard(tnt);

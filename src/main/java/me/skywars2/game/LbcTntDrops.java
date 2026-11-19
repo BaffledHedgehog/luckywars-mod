@@ -54,6 +54,11 @@ public final class LbcTntDrops {
             net.minecraft.world.phys.Vec3 velocity,int fuse){
         return emit(level,at,owner,null,velocity,fuse,null);
     }
+    PrimedTnt spawnWildActor(ServerLevel level, net.minecraft.world.phys.Vec3 at,
+            net.minecraft.world.phys.Vec3 velocity, int fuse, LbcSpellSource.Source source) {
+        return emit(level, at, null, null, velocity, fuse, source.hostileLoot());
+    }
+
     /** Keep an offline creator's native UUID, rather than transferring ownership to the current holder. */
     PrimedTnt spawnRecordedActor(ServerLevel level,net.minecraft.world.phys.Vec3 at,java.util.UUID creator,
             net.minecraft.world.phys.Vec3 velocity,int fuse){

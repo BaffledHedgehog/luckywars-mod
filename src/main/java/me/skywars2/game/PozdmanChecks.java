@@ -151,7 +151,11 @@ public final class PozdmanChecks {
         RegenerationBeltChecks.ScheduledClient client,audience;Marker mag;BlockPos techPos,actorTechPos;
         final Map<BlockPos,MapManager.BlockSnapshot> actorTechSnapshots=new LinkedHashMap<>();
         Entity dolphin,pursuitWitness;LbcPozdmanBot.Coin coin;PrimedTnt bomb;
-        LbcIndirectKills.Owner savedCoinCause;
+        LbcIndirectKills.Owner savedCoinCause, blastCause;
+        Cow blastVictim;
+        BlockPos chainBlock;
+        PrimedTnt chainCharge;
+        int killsBefore;
         UUID dolphinId,coinId,displayId;Vec3 dolphinAt,coinAt,tntContact;int coinAge,dolphinActions,stage,when,start,sequence,updates;boolean closed;
         Fixture(GameController game){this.game=game;service=game.items().pozdmanBot();require(service.count()==0&&!game.vanity().busy()&&!game.vanity().hasSnapshot(),"exclusive native actors and full coordinator");base=new ChefChecks.Fixture(game);for(var p:List.of(base.owner,base.other))teams.put(p,game.items().mana().score(p,"team_number").get());}
         void begin(int next){stage=next;when=game.server().getTickCount();}
@@ -225,6 +229,70 @@ public final class PozdmanChecks {
             }
         }
 
+        void prepareBlastWitness() {
+            var owner = base.owner;
+            var other = base.other;
+            var level = owner.level();
+            var policy = game.items().spellSources().source(bomb);
+            require(bomb.getOwner()==null && game.items().spellSources().projectileController(bomb)==null
+                    && LbcTntDrops.wild(bomb) && policy!=null && policy.emitter().equals(dolphin.getUUID())
+                    && policy.cause().friendlyFire() && policy.cause().player().equals(owner.getUUID()),
+                    "real dolphin burst has no native controller and retains the summoner in the WILD receipt");
+            var nbt = net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                    net.minecraft.util.ProblemReporter.DISCARDING, level.registryAccess());
+            bomb.saveWithoutId(nbt);
+            require(!nbt.buildResult().contains("owner"), "native TNT save does not synthesize player ownership");
+            blastCause = policy.cause();
+            var board = game.server().getScoreboard();
+            for (var p : List.of(owner, other)) {
+                board.addPlayerToTeam(p.getScoreboardName(), base.team);
+                p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
+                p.setHealth(1000);
+                p.setAbsorptionAmount(0);
+                p.getAbilities().invulnerable=false;
+                p.setInvulnerableTime(0);
+                p.damageCooldownTime=0;
+            }
+            base.move(owner, tntContact.add(1.5, 0, 0));
+            base.move(other, tntContact.add(-1.5, 0, 0));
+            require(owner.isAlliedTo(other) && !base.team.isAllowFriendlyFire()
+                    && game.canUseGameplayItems(owner) && game.canUseGameplayItems(other),
+                    "both real blast witnesses are on a shared non-friendly-fire team");
+            blastVictim = base.cow(tntContact.add(0, 0, 1.5));
+            blastVictim.setHealth(1);
+            killsBefore=owner.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS));
+            chainBlock=BlockPos.containing(tntContact).above(2);
+            base.block(chainBlock, Blocks.TNT);
+            game.config().tntProtection=0;
+            bomb.setNoGravity(true);
+            bomb.setDeltaMovement(Vec3.ZERO);
+            service.removed(dolphin);
+        }
+
+        void verifyWildBlast() {
+            var owner = base.owner;
+            var level = owner.level();
+            require(bomb.isRemoved(), "native fuse2 actor completes its scheduled explosion");
+            for (var p : List.of(owner, base.other)) {
+                var hit = p.getLastDamageSource();
+                require(p.getHealth() < 1000 && hit!=null && hit.getDirectEntity()==bomb && hit.getEntity()==null
+                                && game.items().indirectKills().babylonCause(hit)==blastCause,
+                        "native WILD blast reaches " + p.getGameProfile().name() + " with detached source and preserved credit: "
+                                + p.getHealth() + ", " + hit);
+            }
+            require(!blastVictim.isAlive() && blastVictim.getKillCredit()==owner
+                    && owner.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS))==killsBefore+1,
+                    "native blast settles as one kill for the summoner after the dolphin is removed");
+            var charges=level.getEntitiesOfClass(PrimedTnt.class,new net.minecraft.world.phys.AABB(chainBlock).inflate(2),
+                    tnt -> tnt != bomb && LbcTntDrops.wild(tnt));
+            require(level.getBlockState(chainBlock).isAir() && charges.size()==1, "native fuse2 blast primes one neighboring TNT block");
+            chainCharge=charges.getFirst();
+            var source=game.items().spellSources().source(chainCharge);
+            require(chainCharge.getOwner()==null && game.items().spellSources().projectileController(chainCharge)==null
+                    && source!=null && source.cause()==blastCause,
+                    "actual chain TNT carries the same receipt while remaining ownerless");
+        }
+
         boolean step(){
             int elapsed=game.server().getTickCount()-when;require(game.server().getTickCount()-start<1800,"bounded actual scheduler "+stage+" "+game.vanity().status());
             if(game.vanity().busy())for(var player:game.server().getPlayerList().getPlayers())if(player.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
@@ -263,15 +331,15 @@ public final class PozdmanChecks {
                     var pursuit=base.cow(base.at.add(.5,6.5,6.5));game.items().mana().score(pursuit,"team_number").set(1);dolphin.setYRot(0);dolphin.setXRot(0);dolphinActions=service.state(dolphin).age();
                     require(service.nearest(dolphin)==pursuit&&base.owner.level().getBlockState(solid).is(LbcPozdmanBot.SOLID),"native source starts inside actual solid tag with eligible pursuit out of contact cell");begin(6);}
                 case 6->{
-                    var bombs=base.owner.level().getEntitiesOfClass(PrimedTnt.class,new net.minecraft.world.phys.AABB(tntContact,tntContact).inflate(3),e->e.getOwner()==base.owner);
+                    var bombs=base.owner.level().getEntitiesOfClass(PrimedTnt.class,new net.minecraft.world.phys.AABB(tntContact,tntContact).inflate(3),LbcTntDrops::managed);
                     if(bombs.isEmpty()){
                         var state=service.state(dolphin);String diagnostic="elapsed="+elapsed+", entry="+tntContact+", actual="+dolphin.position()+", velocity="+dolphin.getDeltaMovement()+", tickCount="+dolphin.tickCount+", actionBefore="+dolphinActions+", actionNow="+(state==null?"missing":state.age())+", contactBlock="+base.owner.level().getBlockState(BlockPos.containing(tntContact))+", solid="+base.owner.level().getBlockState(BlockPos.containing(tntContact)).is(LbcPozdmanBot.SOLID)+", stopped="+game.items().timeStop().stopped(base.owner.level())+", frozen="+game.items().timeStop().frozen(dolphin)+", TECH="+game.items().magic().mechanismSuppressedAt(base.owner.level(),dolphin.position())+", epoch="+(state!=null&&game.items().currentEpoch(state.epoch()))+", removed="+dolphin.isRemoved();
                         if(elapsed==1)SkyWars2.LOGGER.info("[check] Pozdman native contact pending: {}",diagnostic);
                         require(elapsed<5,"native dolphin HEAD contact emits TNT before pursuit/travel: "+diagnostic);return false;
                     }
                     bomb=bombs.getFirst();require(bomb.getFuse()>0&&bomb.getFuse()+bomb.tickCount==2,"actual native fuse starts at2 and only registered native ticks decrement it; fuse="+bomb.getFuse()+", age="+bomb.tickCount);
-                    require(service.state(dolphin).age()==dolphinActions+1&&bomb.position().distanceToSqr(tntContact)<.05,"exactly one native source action emits at pre-pursuit command origin");base.block(base.center.offset(0,6,0),Blocks.AIR);begin(7);}
-                case 7->{if(elapsed<3)return false;require(bomb.isRemoved(),"native fuse2 actor actually completes scheduled explosion");require(client.updates()>updates,"registered real network scheduler advanced");return true;}
+                    require(service.state(dolphin).age()==dolphinActions+1&&bomb.position().distanceToSqr(tntContact)<.05,"exactly one native source action emits at pre-pursuit command origin");base.block(base.center.offset(0,6,0),Blocks.AIR);prepareBlastWitness();begin(7);}
+                case 7->{if(elapsed<3)return false;verifyWildBlast();require(client.updates()>updates,"registered real network scheduler advanced");return true;}
                 default->throw new IllegalStateException("Unknown Pozdman fixture state "+stage);
             }
             return false;
@@ -279,7 +347,7 @@ public final class PozdmanChecks {
         @Override public void close(){
             if(closed)return;closed=true;Throwable failure=null;
             for(Runnable action:List.<Runnable>of(()->game.vanity().stop(),()->game.items().timeStop().end(base.owner.level()),service::stop,
-                    ()->{removeMarker(mag);removeActorTech();if(techPos!=null)base.block(techPos,Blocks.AIR);for(var saved:actorTechSnapshots.entrySet())game.maps().restoreSnapshot(base.owner.level(),saved.getKey(),saved.getValue());if(bomb!=null)bomb.discard();},
+                    ()->{removeMarker(mag);removeActorTech();if(techPos!=null)base.block(techPos,Blocks.AIR);for(var saved:actorTechSnapshots.entrySet())game.maps().restoreSnapshot(base.owner.level(),saved.getKey(),saved.getValue());if(bomb!=null)bomb.discard();if(chainCharge!=null)chainCharge.discard();},
                     ()->{if(client!=null)client.close();if(audience!=null)audience.close();},base::close,
                     ()->teams.forEach((p,value)->game.items().mana().score(p,"team_number").set(value))))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             if(failure!=null)throw new IllegalStateException("Pozdman scheduled scoped restoration",failure);

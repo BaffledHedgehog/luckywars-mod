@@ -158,12 +158,10 @@ public final class LbcPozdmanBot {
         }
         var level=(ServerLevel)dolphin.level();
         if (level.getBlockState(BlockPos.containing(origin)).is(SOLID)) {
-            var tnt = game.items().tntDrops().spawnActor(level, origin, owner, Vec3.ZERO, 2);
-            var cause = borrowedAttack(owner, actor);
-            if (tnt != null && cause != null) {
-                game.items().spellSources().bind(tnt, new LbcSpellSource.Source(dolphin.getUUID(),
-                        owner.getUUID(), actor.epoch, cause, Set.of()));
-            }
+            var cause = borrowedAttack(owner, actor, true);
+            if (cause == null) cause = game.items().indirectKills().wildCause(owner);
+            var source = new LbcSpellSource.Source(dolphin.getUUID(), owner.getUUID(), actor.epoch, cause, Set.of());
+            game.items().tntDrops().spawnWildActor(level, origin, Vec3.ZERO, 2, source);
         }
         if(owner.getRandom().nextInt(10)<3)spawnCoin(dolphin,origin);
     }
@@ -177,7 +175,7 @@ public final class LbcPozdmanBot {
         for(var tag:List.of("bitcoin","mecha","slowraycast","player","physical_object"))coin.entityTags().add(tag);
         game.items().markCurrentItemEpoch(coin);
         var display = display(level);
-        var cause = borrowedAttack(owner, parent);
+        var cause = borrowedAttack(owner, parent, false);
         if (cause == null) cause = game.items().indirectKills().coldCause(owner, false);
         var state = new Actor(owner.getUUID(), game.items().epoch(), 0, yaw, display, cause);
         actors.put(coin, state);
@@ -185,10 +183,10 @@ public final class LbcPozdmanBot {
         game.items().timeStop().prepareFrozen(coin);game.items().timeStop().prepareFrozen(display);
         if(!level.addFreshEntity(coin)||!level.addFreshEntity(display)){remove(coin);return null;}return coin;
     }
-    private LbcIndirectKills.Owner borrowedAttack(ServerPlayer owner, Actor dolphin) {
+    private LbcIndirectKills.Owner borrowedAttack(ServerPlayer owner, Actor dolphin, boolean wild) {
         var source = dolphin.cause;
         return source != null && source.player().equals(owner.getUUID())
-                ? game.items().indirectKills().itemCause(owner, false, false, source.enchantmentWeapon()) : null;
+                ? game.items().indirectKills().itemCause(owner, wild, false, source.enchantmentWeapon()) : null;
     }
 
     void ownerChanged(Entity entity, ServerPlayer reflector) {
