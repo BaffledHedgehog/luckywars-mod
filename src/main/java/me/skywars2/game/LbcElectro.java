@@ -568,6 +568,7 @@ for(int i=0;i<=2;i++) {
         game.items().summons().ownerChanged(entity,owner);
         game.items().trinketArrows().ownerChanged(entity,owner);
         game.items().madokaBow().ownerChanged(entity,owner);
+        game.items().pozdmanBot().ownerChanged(entity,owner);
         game.items().shulkerBow().ownerChanged(entity,owner);
     }
 

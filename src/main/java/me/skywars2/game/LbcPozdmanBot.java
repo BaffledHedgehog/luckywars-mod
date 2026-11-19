@@ -57,8 +57,10 @@ public final class LbcPozdmanBot {
     private final Map<UUID,Actor> dormant=new HashMap<>();
     private final Set<UUID> retiredDormant=new HashSet<>();
     private final Map<ServerLevel,Integer> phases=new IdentityHashMap<>();
-    record Actor(UUID owner,String epoch,int age,float yaw,Display.ItemDisplay display) {
-        Actor frame(int age,float yaw){return new Actor(owner,epoch,age,yaw,display);}
+    record Actor(UUID owner, String epoch, int age, float yaw, Display.ItemDisplay display,
+                 LbcIndirectKills.Owner cause) {
+        Actor frame(int age, float yaw) { return new Actor(owner, epoch, age, yaw, display, cause); }
+        Actor visual(Display.ItemDisplay display) { return new Actor(owner, epoch, age, yaw, display, cause); }
     }
     public LbcPozdmanBot(GameController game,Predicate<ServerPlayer> allowed){this.game=game;this.allowed=Objects.requireNonNull(allowed);}
     public static void register(){}
@@ -106,21 +108,19 @@ public final class LbcPozdmanBot {
         dolphin.snapTo(at.x,at.y,at.z,player.getYRot(),player.getXRot());dolphin.setNoGravity(true);
         dolphin.getAttribute(Attributes.SCALE).setBaseValue(2);dolphin.getAttribute(Attributes.MAX_HEALTH).setBaseValue(50);dolphin.setHealth(50);
         dolphin.setCustomName(Component.translatable("akyla_devid"));dolphin.entityTags().add("akyla_devid");dolphin.entityTags().add("lucky_mob");
-        game.items().markCurrentItemEpoch(dolphin);actors.put(dolphin,new Actor(player.getUUID(),game.items().epoch(),0,player.getYRot(),null));
+        game.items().markCurrentItemEpoch(dolphin);actors.put(dolphin,new Actor(player.getUUID(),game.items().epoch(),0,player.getYRot(),null,null));
         game.items().summons().track(player,dolphin);game.items().communism().subjugate(player,dolphin,true,true);game.items().timeStop().prepareFrozen(dolphin);
         if(!level.addFreshEntity(dolphin)){remove(dolphin);return null;}
         player.sendSystemMessage(Component.translatable("akyla_privet"));return dolphin;
     }
     private ServerPlayer controller(Entity dolphin,Actor actor){var owner=game.items().communism().owner(dolphin);return owner!=null?owner:game.server().getPlayerList().getPlayer(actor.owner);}
-    private boolean eligible(Entity source,LivingEntity target){
-        if(target.level()!=source.level()||!target.getType().builtInRegistryHolder().is(MOBS)||!game.items().wands().validTarget(target))return false;
-        // Match teams and summon ownership replace legacy team_number. Uninitialized legacy
-        // scores are all zero in the new game and must not turn every enemy into an ally.
-        return !LbcTeams.allied(game,source,target);
+    private boolean eligible(ServerLevel level, Entity teamSource, LivingEntity target) {
+        return target.level() == level && target.getType().builtInRegistryHolder().is(MOBS)
+                && game.items().wands().validTarget(target) && !LbcTeams.allied(game, teamSource, target);
     }
     LivingEntity nearest(Entity dolphin){
         LivingEntity result=null;double distance=40000;
-        for(var target:((ServerLevel)dolphin.level()).getEntitiesOfClass(LivingEntity.class,dolphin.getBoundingBox().inflate(200),e->eligible(dolphin,e))){double d=dolphin.distanceToSqr(target);if(d>=1&&d<=distance){result=target;distance=d;}}
+        for(var target:((ServerLevel)dolphin.level()).getEntitiesOfClass(LivingEntity.class,dolphin.getBoundingBox().inflate(200),e->eligible((ServerLevel)dolphin.level(),dolphin,e))){double d=dolphin.distanceToSqr(target);if(d>=1&&d<=distance){result=target;distance=d;}}
         return result;
     }
     /** Source mob actions run before the native dolphin's own travel/flop tick. */
@@ -152,18 +152,25 @@ public final class LbcPozdmanBot {
     Coin spawnCoin(Entity dolphin,Vec3 origin){
         var parent=actors.get(dolphin);if(parent==null)return null;var owner=controller(dolphin,parent);if(owner==null)return null;
         var level=(ServerLevel)dolphin.level();if(!level.hasChunkAt(BlockPos.containing(origin)))return null;
-        var coin=new Coin(TYPE,level);coin.setOwner(owner);coin.setPos(origin);coin.setNoGravity(true);
+        var coin=new Coin(TYPE,level);coin.setOwner(dolphin);coin.setPos(origin);coin.setNoGravity(true);
         coin.setDeltaMovement(new Vec3((owner.getRandom().nextInt(101)-50)*.01,0,(owner.getRandom().nextInt(101)-50)*.01));
         float yaw=(owner.getRandom().nextInt(3601)-1800)*.1f;
         for(var tag:List.of("bitcoin","mecha","slowraycast","player","physical_object"))coin.entityTags().add(tag);
-        game.items().markCurrentItemEpoch(coin);copyTeam(dolphin,coin);
-        var display=display(level);actors.put(coin,new Actor(owner.getUUID(),game.items().epoch(),0,yaw,display));orient(coin,actors.get(coin));
+        game.items().markCurrentItemEpoch(coin);
+        var display = display(level);
+        var cause = game.items().indirectKills().coldCause(owner, false);
+        var state = new Actor(owner.getUUID(), game.items().epoch(), 0, yaw, display, cause);
+        actors.put(coin, state);
+        orient(coin, state);
         game.items().timeStop().prepareFrozen(coin);game.items().timeStop().prepareFrozen(display);
         if(!level.addFreshEntity(coin)||!level.addFreshEntity(display)){remove(coin);return null;}return coin;
     }
-    private void copyTeam(Entity from,Entity to){
-        var board=game.server().getScoreboard();var objective=board.getObjective("team_number");
-        var value=objective==null?null:board.getPlayerScoreInfo(from,objective);if(value!=null)board.getOrCreatePlayerScore(to,objective,true).set(value.value());
+    void ownerChanged(Entity entity, ServerPlayer reflector) {
+        if (!(entity instanceof Coin coin)) return;
+        var state = actors.get(coin);
+        if (state == null) return;
+        var cause = game.items().indirectKills().coldCause(reflector, false);
+        actors.put(coin, new Actor(reflector.getUUID(), state.epoch, state.age, state.yaw, state.display, cause));
     }
     private Display.ItemDisplay display(ServerLevel level){
         var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);
@@ -185,15 +192,30 @@ public final class LbcPozdmanBot {
                     new Vector3f(2),new Quaternionf()));
         }
     }
-    boolean coinContact(Coin coin){
-        var state=actors.get(coin);if(state==null)return false;var owner=coin.getOwner() instanceof ServerPlayer player?player:game.server().getPlayerList().getPlayer(state.owner);
-        boolean success=false;var level=(ServerLevel)coin.level();
-        for(var target:level.getEntitiesOfClass(LivingEntity.class,coin.getBoundingBox().inflate(2),e->!e.entityTags().contains("akyla_devid")&&coin.distanceToSqr(e)<=4&&eligible(coin,e))){
-            var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.FALLING_BLOCK),coin,owner==null?coin:owner);
-            var cause=game.items().indirectKills().restoreColdCause(owner==null?state.owner:owner.getUUID(),0,false);
-            success|=target.hurtServer(level,game.items().indirectKills().captureDamage(damage,cause),15);
+    boolean coinContact(Coin coin) {
+        var state = actors.get(coin);
+        if (state == null) return false;
+        var level = (ServerLevel)coin.level();
+        var shooter = coin.getOwner();
+        var author = game.server().getPlayerList().getPlayer(state.owner);
+        Entity teamSource = author == null ? coin : author;
+        var victims = level.getEntitiesOfClass(LivingEntity.class, coin.getBoundingBox().inflate(2),
+                target -> !target.entityTags().contains("akyla_devid") && coin.distanceToSqr(target) <= 4
+                        && eligible(level, teamSource, target));
+        if (victims.isEmpty()) return false;
+
+        var type = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.FALLING_BLOCK);
+        var source = new DamageSource(type, coin, shooter == null ? coin : shooter);
+        var damage = game.items().indirectKills().captureDamage(source, state.cause);
+        boolean success = false;
+        for (var target : victims) {
+            if (target.hurtServer(level, damage, 15)) {
+                success = true;
+                LbcDamage.mobContactEnchantments(level, target, damage);
+            }
         }
-        if(success)remove(coin);return success;
+        if (success) remove(coin);
+        return success;
     }
     void coinTick(Coin coin){
         var state=actors.get(coin);if(state==null)return;
@@ -234,8 +256,8 @@ public final class LbcPozdmanBot {
         if(retiredDormant.remove(entity.getUUID())){entity.discard();return;}
         var state=dormant.remove(entity.getUUID());if(state!=null&&game.items().currentEpoch(state.epoch))actors.put(entity,state);
         if(entity instanceof Display.ItemDisplay display){
-            for(var key:List.copyOf(actors.keySet())){var a=actors.get(key);if(a.display!=null&&a.display.getUUID().equals(display.getUUID()))actors.put(key,new Actor(a.owner,a.epoch,a.age,a.yaw,display));}
-            dormant.replaceAll((id,a)->a.display!=null&&a.display.getUUID().equals(display.getUUID())?new Actor(a.owner,a.epoch,a.age,a.yaw,display):a);
+            for(var key:List.copyOf(actors.keySet())){var a=actors.get(key);if(a.display!=null&&a.display.getUUID().equals(display.getUUID()))actors.put(key,a.visual(display));}
+            dormant.replaceAll((id,a)->a.display!=null&&a.display.getUUID().equals(display.getUUID())?a.visual(display):a);
         }
     }
     public void unloaded(Entity entity){
@@ -262,16 +284,16 @@ public final class LbcPozdmanBot {
     void cancelFrozen(){checkpointBoundary();restoring=false;}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     final class Checkpoint {
-        record Image(MatchDamageSources.Ref actor,UUID owner,String epoch,int age,float yaw,MatchDamageSources.Ref display){}
+        record Image(MatchDamageSources.Ref actor,UUID owner,String epoch,int age,float yaw,MatchDamageSources.Ref display,LbcIndirectKills.Owner cause){}
         private final List<Image> images=new ArrayList<>();
         private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Boolean> savedWait;
         private final Map<ServerLevel,Integer> clocks=new IdentityHashMap<>(phases);
         private final Map<UUID,Actor> asleep=new HashMap<>(dormant);
         private final Set<UUID> retired=new HashSet<>(retiredDormant);
         Checkpoint(MatchSpellCheckpoint.Links links){savedWait=new MatchSpellCheckpoint.IdentityImage<>(waiting,links);
-            for(var entry:actors.entrySet()){var a=entry.getValue();images.add(new Image(links.key(entry.getKey()),a.owner,a.epoch,a.age,a.yaw,a.display==null?null:links.key(a.display)));}}
+            for(var entry:actors.entrySet()){var a=entry.getValue();images.add(new Image(links.key(entry.getKey()),a.owner,a.epoch,a.age,a.yaw,a.display==null?null:links.key(a.display),a.cause));}}
         Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=new IdentityHashMap<Entity,Actor>();
-            for(var image:images){var entity=links.get(image.actor);var display=image.display==null?null:(Display.ItemDisplay)links.get(image.display);restored.put(entity,new Actor(image.owner,image.epoch,image.age,image.yaw,display));}
+            for(var image:images){var entity=links.get(image.actor);var display=image.display==null?null:(Display.ItemDisplay)links.get(image.display);restored.put(entity,new Actor(image.owner,image.epoch,image.age,image.yaw,display,image.cause));}
             var w=savedWait.restore(links);
             return ()->{actors=restored;waiting=w;phases.clear();phases.putAll(clocks);dormant.clear();dormant.putAll(asleep);retiredDormant.clear();retiredDormant.addAll(retired);};}
     }
@@ -281,7 +303,7 @@ public final class LbcPozdmanBot {
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){
                 var visual=clone instanceof Coin?display((ServerLevel)clone.level()):null;
-                var next=new Actor(state.owner,state.epoch,state.age,state.yaw,visual);actors.put(clone,next);
+                var next=state.visual(visual);actors.put(clone,next);
                 if(clone instanceof Coin coin){
                     orient(coin,next);
                     if(state.display!=null){
