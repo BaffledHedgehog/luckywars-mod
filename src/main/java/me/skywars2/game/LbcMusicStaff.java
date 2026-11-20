@@ -63,7 +63,7 @@ public final class LbcMusicStaff {
         for(var listener:game.server().getPlayerList().getPlayers())listener.connection.send(packet);
         audience.clear();playing=false;
     }
-    /** Held music is independent of casting, mana and the arena's Time Stop. */
+    /** Holding keeps the session alive. A frozen listener can join when sound delivery resumes. */
     public void tick(){
         var online=game.server().getPlayerList().getPlayers();boolean any=false;
         var active=Collections.newSetFromMap(new IdentityHashMap<ServerPlayer,Boolean>());
@@ -81,7 +81,7 @@ public final class LbcMusicStaff {
         if(!any){if(playing)stopMusic();return;}
         if(!playing){playing=true;audience.clear();}
         audience.removeIf(listener->!online.contains(listener));
-        for(var listener:online)if(audience.add(listener))start(listener);
+        for(var listener:online)if(!TimeStopView.frozen(listener)&&audience.add(listener))start(listener);
     }
     int studyTicks(ServerPlayer player){var state=students.get(player);return state==null?0:state.ticks;}
     boolean playing(){return playing;}

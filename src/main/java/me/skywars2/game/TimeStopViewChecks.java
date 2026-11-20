@@ -17,6 +17,54 @@ public final class TimeStopViewChecks {
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Time Stop view: "+why);}
     private static List<Packet<?>> flat(RegenerationBeltChecks.ScheduledClient c){return SmokeVolumeChecks.flatten(c.packets());}
     private static long sounds(RegenerationBeltChecks.ScheduledClient c){return flat(c).stream().filter(p->p instanceof ClientboundSoundPacket||p instanceof ClientboundSoundEntityPacket).count();}
+    private static long staffMusic(RegenerationBeltChecks.ScheduledClient client){
+        return flat(client).stream().filter(packet -> packet instanceof ClientboundSoundPacket sound
+                && LbcMusicStaff.MUSIC.equals(sound.getSound().value().location())).count();
+    }
+
+    private static void checkHeldStaff(GameController game,WoolBucketChecks.Fixture f){
+        var stop=game.items().timeStop();
+        var music=game.items().musicStaff();
+        require(!music.playing(),"exclusive held staff scene");
+        f.client.packets().clear();
+        f.audience.packets().clear();
+        try {
+            stop.begin(f.level,20);
+            require(!TimeStopView.frozen(f.owner)&&TimeStopView.frozen(f.other),"clock holder can equip a staff while a listener is frozen");
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,f.leaf("music_staff"));
+            music.tick();
+            music.tick();
+            require(music.playing()&&staffMusic(f.client)==1&&staffMusic(f.audience)==0,
+                    "held music starts immediately for active listeners and remains silent for the frozen one");
+            stop.end(f.level);
+            music.tick();
+            music.tick();
+            require(staffMusic(f.client)==1&&staffMusic(f.audience)==1,
+                    "the still-held staff starts exactly once for the newly thawed listener");
+
+            stop.begin(f.level,20);
+            music.tick();
+            stop.end(f.level);
+            music.tick();
+            require(staffMusic(f.audience)==1,"a listener that already received the track does not restart it on thaw");
+
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            music.tick();
+            stop.begin(f.level,20);
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,f.leaf("music_staff"));
+            music.tick();
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            music.tick();
+            stop.end(f.level);
+            music.tick();
+            require(!music.playing()&&staffMusic(f.client)==2&&staffMusic(f.audience)==1,
+                    "a musical session that ended during the stop is not replayed on thaw");
+        } finally {
+            stop.end(f.level);
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            music.stop();
+        }
+    }
     public static void run(GameController game){
         var stop=game.items().timeStop();require(!stop.stopped(game.maps().level()),"unpaused native fixture");
         try(var f=new WoolBucketChecks.Fixture(game,false)){
@@ -46,8 +94,9 @@ public final class TimeStopViewChecks {
             f.other.setItemInHand(InteractionHand.OFF_HAND,clocks.copy());stop.tick();SignedEffectVisuals.synchronize(f.other);require(!TimeStopView.frozen(f.other)&&!f.other.getPostEffects().contains(TimeStopView.EFFECT),"gaining native clock immunity resumes frame and audio");
             f.other.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);stop.tick();SignedEffectVisuals.synchronize(f.other);require(TimeStopView.frozen(f.other),"losing immunity captures a fresh stopped view");
             stop.end(f.level);f.audience.packets().clear();f.other.connection.send(point);require(!TimeStopView.frozen(f.other)&&!f.other.getPostEffects().contains(TimeStopView.EFFECT)&&sounds(f.audience)==1,"native resume removes shader and restores future sound without replay queue");
+            checkHeldStaff(game,f);
             stop.begin(f.level,20);stop.forget(f.other);require(!TimeStopView.frozen(f.other),"disconnect/forget withdraws sound gate");stop.stop();
         }finally{stop.stop();}
-        SkyWars2.LOGGER.info("[check] PASS time-stop-view (actual clocks/Za Warudo, post-effects/frozen recipients, positioned/attached/bundled/native-event audio, immunity transitions, extension/resume/forget cleanup)");
+        SkyWars2.LOGGER.info("[check] PASS time-stop-view (actual clocks/Za Warudo, post-effects/frozen recipients, positioned/attached/bundled/native-event audio, immunity transitions, held staff on thaw, extension/resume/forget cleanup)");
     }
 }
