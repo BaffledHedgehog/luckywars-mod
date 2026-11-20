@@ -47,6 +47,7 @@ public final class LbcExpansionSkill {
     private static final class State {
         final UUID owner;final ServerLevel level;
         int score;boolean active,cooling,initial;
+        int chunkWaitTick=Integer.MIN_VALUE;
         long random;
         ArrayDeque<Cell> current=new ArrayDeque<>(),next=new ArrayDeque<>();
         State(ServerPlayer p){owner=p.getUUID();level=p.level();random=p.getRandom().nextLong();}
@@ -104,23 +105,34 @@ public final class LbcExpansionSkill {
     }
     private final class Dispatcher implements LbcStonekivi.Work {
         boolean cancelled;
-        @Override public boolean ready(){return !restoring&&(cancelled||snapshotIdle()||owners.values().stream().anyMatch(s->{
-            var p=game.server().getPlayerList().getPlayer(s.owner);return s.active&&!s.current.isEmpty()&&p!=null&&!paused(p);}));}
+        private ServerPlayer worker(State s,int tick){
+            if(!s.active||s.current.isEmpty()||s.chunkWaitTick==tick)return null;
+            var p=game.server().getPlayerList().getPlayer(s.owner);
+            return p!=null&&!paused(p)?p:null;
+        }
+        @Override public boolean ready(){
+            if(restoring)return false;
+            int tick=game.server().getTickCount();
+            return cancelled||snapshotIdle()||owners.values().stream().anyMatch(s->worker(s,tick)!=null);
+        }
         @Override public boolean snapshotIdle(){return owners.values().stream().noneMatch(s->s.active&&!s.current.isEmpty());}
         @Override public boolean step(){
             if(cancelled)return true;
+            int tick=game.server().getTickCount();
             var states=new ArrayList<>(owners.values());
             for(int i=0;i<states.size();i++){
-                var s=states.get(Math.floorMod(turn++,states.size()));var p=game.server().getPlayerList().getPlayer(s.owner);
-                if(!s.active||s.current.isEmpty()||p==null||paused(p))continue;
+                var s=states.get(Math.floorMod(turn++,states.size()));var p=worker(s,tick);
+                if(p==null)continue;
                 var cell=s.current.peek();boolean complete;
                 try(var scope=game.items().spellSources().scope(game.items().spellSources().hostile(p,p,Set.of()),s.level)){
                     complete=s.initial?start(p,s,cell):propagate(p,s,cell);
                 }
                 if(complete){s.current.remove();removeIndex(s.level,cell.position);}
+                // This owner can retry after the chunk system has had another server tick.
+                else s.chunkWaitTick=tick;
                 break;
             }
-            if(owners.values().stream().noneMatch(s->s.active&&!s.current.isEmpty())){if(queued==this)queued=null;return true;}
+            if(snapshotIdle()){if(queued==this)queued=null;return true;}
             return false;
         }
         @Override public void cancel(){cancelled=true;if(queued==this)queued=null;}

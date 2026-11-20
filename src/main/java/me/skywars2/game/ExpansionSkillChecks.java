@@ -5,6 +5,7 @@ import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
@@ -23,7 +24,7 @@ public final class ExpansionSkillChecks {
     }
     public static void tick(GameController game){
         if(running==null)return;var r=running;
-        try{if(r.step()){running=null;r.close();SkyWars2.LOGGER.info("[check] PASS expansion-skill (real60tick charge/release; source80+20percent end; directional/downward air-only copies; cleared container metadata; source1106 slots/current vanilla palette; three native Lucky Block normalizations; MAG charge/frontier suppression, artifact frontier suppression and TECH control; TimeStop and nonempty whole-coordinator replay; cooldown and skill cleanup)");}}
+        try{if(r.step()){running=null;r.close();SkyWars2.LOGGER.info("[check] PASS expansion-skill (source charge, cooldown, copying, MAG, TimeStop, rewind, native build ceiling and cold chunk scheduling)");}}
         catch(RuntimeException|Error failure){running=null;try{r.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL expansion-skill",failure);}
     }
     private static final class Run implements AutoCloseable {
@@ -35,6 +36,7 @@ public final class ExpansionSkillChecks {
         final Set<Long> savedChunks=new HashSet<>();
         int stage,at,pausedScore,pausedFrontier,cooldown,kind;boolean closed;
         BlockPos origin,beacon;
+        ColdFrontier coldFrontier;
         Run(GameController game){this.game=game;f=new ChefChecks.Fixture(game);skill=game.items().expansionSkill();}
         void init(){
             f.init();client=new RegenerationBeltChecks.ScheduledClient(game,f.owner);audience=new RegenerationBeltChecks.ScheduledClient(game,f.other);
@@ -138,10 +140,11 @@ public final class ExpansionSkillChecks {
             }
             if(stage==9){
                 if(!skill.active(f.owner)){require(elapsed<=61,"native lucky case real60tick charge");return false;}
+                if(waitingForInitial(elapsed))return false;
                 var expected=switch(kind){case 0->Blocks.RED_MUSHROOM_BLOCK;case 1->Blocks.BROWN_MUSHROOM_BLOCK;default->Blocks.MUSHROOM_STEM;};
                 for(var pos:List.of(origin,origin.east(),origin.west(),origin.north(),origin.south())){
                     var state=f.owner.level().getBlockState(pos);
-                    require(state.is(expected),"native lucky family normalized before initial clones: "+kind+" at "+pos);
+                    require(state.is(expected),"native lucky family normalized before initial clones: "+kind+" at "+pos+" got "+state);
                     require(LbcLuckyBlocks.kind(state)==null,"no native lucky family duplication");
                 }
                 if(kind==0)f.block(beacon,LbcMagic.MAGIC_BEACON_BLOCK);
@@ -171,6 +174,7 @@ public final class ExpansionSkillChecks {
             }
             if(stage==12){
                 if(elapsed<61&&!skill.active(f.owner))return false;
+                if(skill.active(f.owner)&&waitingForInitial(elapsed))return false;
                 require(skill.active(f.owner)&&skill.frontier(f.owner)==4
                                 &&initialCells().stream().allMatch(p->f.owner.level().getBlockState(p).is(Blocks.GOLD_BLOCK)),
                         "held sneak writes all four native expansion seeds on the inclusive highest block layer");
@@ -178,11 +182,23 @@ public final class ExpansionSkillChecks {
                 chargeAt(origin.above());
                 stage=13;return false;
             }
-            if(elapsed<62)return false;
-            require(!skill.active(f.owner)&&skill.frontier(f.owner)==0
-                            &&initialCells().stream().allMatch(p->f.owner.level().getBlockState(p).is(Blocks.GOLD_BLOCK)),
-                    "a seed one layer above the world retires without changing the legal top layer");
-            return true;
+            if(stage==13){
+                if(elapsed<62)return false;
+                require(!skill.active(f.owner)&&skill.frontier(f.owner)==0
+                                &&initialCells().stream().allMatch(p->f.owner.level().getBlockState(p).is(Blocks.GOLD_BLOCK)),
+                        "a seed one layer above the world retires without changing the legal top layer");
+                coldFrontier=new ColdFrontier(this);
+                coldFrontier.start();
+                stage=14;at=game.server().getTickCount();return false;
+            }
+            return coldFrontier.resume();
+        }
+        boolean waitingForInitial(int elapsed){
+            var owners=(Map<?,?>)WoolBucketChecks.read(skill,"owners");
+            var state=owners.get(f.owner.getUUID());
+            boolean waiting=Boolean.TRUE.equals(WoolBucketChecks.read(state,"initial"));
+            if(waiting)require(elapsed<100&&skill.score(f.owner)==60,"the accepted initial write is still queued at the 60-tick threshold");
+            return waiting;
         }
         List<BlockPos> initialCells(){
             return List.of(origin,origin.east(),origin.west(),origin.north(),origin.south());
@@ -201,6 +217,7 @@ public final class ExpansionSkillChecks {
         }
         @Override public void close(){
             if(closed)return;closed=true;game.vanity().stop();skill.clear(f.owner);game.items().timeStop().end(f.owner.level());
+            if(coldFrontier!=null)coldFrontier.close();
             if(!extra.isEmpty()){
                 clearExtraTicks();
                 for(var e:extra.entrySet())game.maps().restoreSnapshot(f.owner.level(),e.getKey(),e.getValue());
@@ -215,6 +232,113 @@ public final class ExpansionSkillChecks {
                 var box=new BoundingBox(chunk.getMinBlockX(),f.owner.level().getMinY(),chunk.getMinBlockZ(),chunk.getMaxBlockX(),f.owner.level().getMaxY(),chunk.getMaxBlockZ());
                 f.owner.level().getBlockTicks().clearArea(box);f.owner.level().getFluidTicks().clearArea(box);
             }
+        }
+    }
+
+    /** Drives two real frontier jobs without waiting for a player at their chunk border to warm both chunks. */
+    private static final class ColdFrontier implements AutoCloseable {
+        final Run fixture;
+        final LbcStonekivi terrain;
+        final LbcExpansionSkill probe;
+        final BlockPos cold,warm;
+        LbcStonekivi.Work dispatcher;
+        int attempts;
+
+        ColdFrontier(Run fixture){
+            this.fixture=fixture;
+            terrain=fixture.game.items().stonekivi();
+            cold=new BlockPos(8199,fixture.origin.getY()-8,8199);
+            warm=fixture.origin.offset(4,0,0);
+            probe=new LbcExpansionSkill(fixture.game,(owner,level,position)->{
+                if(position.equals(cold))attempts++;
+                return true;
+            });
+        }
+
+        void start(){
+            var level=fixture.f.owner.level();
+            require(!NativeChunkLoad.resident(level,cold),"cold Expansion head starts without a resident FULL chunk");
+            var coldState=arm(fixture.f.owner,cold,false);
+            long random=(long)WoolBucketChecks.read(coldState,"random");
+            invoke("ensureQueued",new Class<?>[0]);
+            dispatcher=(LbcStonekivi.Work)WoolBucketChecks.read(probe,"queued");
+            terrain.tick();
+            terrain.tick();
+            SkyWars2.LOGGER.info("[check] expansion cold attempts in one server tick={}",attempts);
+            require(attempts==1&&!dispatcher.ready()&&probe.frontier(fixture.f.owner)==1
+                            &&(long)WoolBucketChecks.read(coldState,"random")==random,
+                    "a waiting real head is attempted once per server tick without spending RNG or consuming the cell");
+
+            var neighborhood=List.of(warm,warm.east(),warm.west(),warm.north(),warm.south());
+            prepare(neighborhood,warm);
+            arm(fixture.f.other,warm,true);
+            terrain.tick();
+            require(attempts==1&&neighborhood.stream().allMatch(p->level.getBlockState(p).is(Blocks.GOLD_BLOCK)),
+                    "another owner with resident terrain advances in the very same tick");
+            // The native loader keeps its ticket. Take the fixture terrain snapshots before the next write.
+            require(work().remove(dispatcher),"waiting dispatcher remains queued before loading completes");
+        }
+
+        boolean resume(){
+            var level=fixture.f.owner.level();
+            if(!NativeChunkLoad.resident(level,cold))return false;
+            var neighborhood=List.of(cold,cold.east(),cold.north(),cold.south(),cold.below());
+            prepare(neighborhood,cold);
+            terrain.queuedWork(dispatcher);
+            terrain.tick();
+            require(attempts==2&&probe.frontier(fixture.f.owner)>1
+                            &&neighborhood.stream().allMatch(p->!level.getBlockState(p).isAir()
+                                    &&level.getBlockState(p).equals(level.getBlockState(cold))),
+                    "native FULL residency resumes the retained direction and publishes its four copies");
+            return true;
+        }
+
+        void prepare(List<BlockPos> cells,BlockPos center){
+            var level=fixture.f.owner.level();
+            for(var pos:cells){
+                fixture.rememberExtra(pos);
+                level.setBlock(pos,(pos.equals(center)?Blocks.GOLD_BLOCK:Blocks.AIR).defaultBlockState(),
+                        Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+            }
+        }
+
+        @SuppressWarnings("unchecked") Object arm(ServerPlayer owner,BlockPos pos,boolean initial){
+            try{
+                var state=create("State",new Class<?>[]{ServerPlayer.class},owner);
+                for(var name:List.of("active","initial")){
+                    var field=state.getClass().getDeclaredField(name);field.setAccessible(true);
+                    field.setBoolean(state,name.equals("active")||initial);
+                }
+                var random=state.getClass().getDeclaredField("random");random.setAccessible(true);random.setLong(state,0);
+                var cell=create("Cell",new Class<?>[]{long.class,int.class,boolean.class},pos.asLong(),0,true);
+                ((Deque<Object>)WoolBucketChecks.read(state,"current")).add(cell);
+                ((Map<UUID,Object>)WoolBucketChecks.read(probe,"owners")).put(owner.getUUID(),state);
+                invoke("addIndex",new Class<?>[]{net.minecraft.server.level.ServerLevel.class,long.class},owner.level(),pos.asLong());
+                return state;
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("prepare native expansion head",error);}
+        }
+
+        static Object create(String name,Class<?>[] types,Object... args) throws ReflectiveOperationException{
+            var type=Arrays.stream(LbcExpansionSkill.class.getDeclaredClasses())
+                    .filter(c->c.getSimpleName().equals(name)).findFirst().orElseThrow();
+            var constructor=type.getDeclaredConstructor(types);constructor.setAccessible(true);
+            return constructor.newInstance(args);
+        }
+
+        void invoke(String name,Class<?>[] types,Object... args){
+            try{
+                var method=LbcExpansionSkill.class.getDeclaredMethod(name,types);method.setAccessible(true);
+                method.invoke(probe,args);
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("prepare native expansion dispatcher",error);}
+        }
+
+        @SuppressWarnings("unchecked") Deque<LbcStonekivi.Work> work(){
+            return (Deque<LbcStonekivi.Work>)WoolBucketChecks.read(terrain,"work");
+        }
+
+        @Override public void close(){
+            probe.stop();
+            if(dispatcher!=null)work().remove(dispatcher);
         }
     }
 }
