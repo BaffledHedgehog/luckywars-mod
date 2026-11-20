@@ -96,7 +96,10 @@ public final class LbcBouncingPoop {
         var level=(ServerLevel)actor.level();if(game.items().timeStop().stopped(level)||actor.entityTags().contains("time_stopped")||!level.hasChunkAt(actor.blockPosition()))continue;
         var before=actor.position();var velocity=actor.getDeltaMovement();
         if(!actor.isNoGravity())velocity=velocity.add(0,-.03,0);
-        if(!level.hasChunkAt(BlockPos.containing(before.add(velocity))))continue;
+        if (!level.hasChunkAt(BlockPos.containing(before.add(velocity)))) {
+            advanceAge(actor, d);
+            continue;
+        }
         // Display entities have zero native dimensions: give the collision engine the
         // physical half-block projectile body for this move, without moving its render origin.
         actor.noPhysics=false;actor.setBoundingBox(new AABB(before.x-.25,before.y,before.z-.25,before.x+.25,before.y+.5,before.z+.25));
@@ -119,8 +122,15 @@ public final class LbcBouncingPoop {
             soil(level,next,cause(d));if(d.getBooleanOr("mega",false))mega(actor,d,before);
         }
         if(actor.isRemoved()||!actors.contains(actor))continue;
-        var updated=d.copy();int age=d.getIntOr("age",0)+1;updated.putInt("age",age);actor.setAttached(DATA,updated);if(age>=600)retire(actor);
+        advanceAge(actor, d);
     }}
+    private void advanceAge(Display.ItemDisplay actor, CompoundTag data) {
+        int age = data.getIntOr("age", 0) + 1;
+        var updated = data.copy();
+        updated.putInt("age", age);
+        actor.setAttached(DATA, updated);
+        if (age >= 600) retire(actor);
+    }
     private void soil(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){game.items().indirectKills().trapChanges(level,cause,()->{
         for(var pos:BlockPos.betweenClosed(BlockPos.containing(at.add(-1.5,-1.5,-1.5)),BlockPos.containing(at.add(1.5,1.5,1.5)))){
             if(!level.hasChunkAt(pos))continue;var old=level.getBlockState(pos);

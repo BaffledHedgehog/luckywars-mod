@@ -24,6 +24,7 @@ public final class BouncingPoopChecks {
         final RegenerationBeltChecks.Snapshot saved,betaSaved;final RegenerationBeltChecks.ScheduledClient client,audience;
         final List<net.minecraft.world.entity.Marker> fields=new ArrayList<>();final Map<net.minecraft.world.entity.Marker,MapManager.BlockSnapshot> fieldBlocks=new IdentityHashMap<>();
         final LbcBouncingPoop service;Display.ItemDisplay flight;Vec3 start;int phase,started;boolean closed;
+        BlockPos coldDestination;
         final Map<net.minecraft.world.item.Item,Integer> stats=new IdentityHashMap<>();final boolean skills;
         State(GameController game){this.game=game;f=new AllGrimoireChecks.Fixture(game);p=f.base.owner;beta=f.beta;
             saved=new RegenerationBeltChecks.Snapshot(game,p);betaSaved=new RegenerationBeltChecks.Snapshot(game,beta);
@@ -75,12 +76,41 @@ public final class BouncingPoopChecks {
                 var rubble=new ArrayList<net.minecraft.world.entity.item.FallingBlockEntity>();for(var entity:f.level.getAllEntities())if(entity instanceof net.minecraft.world.entity.item.FallingBlockEntity block&&block.entityTags().contains("skywars2.bouncing_poop.dirt"))rubble.add(block);
                 require(rubble.size()==10&&rubble.stream().allMatch(b->b.getBlockState().is(Blocks.DIRT)),"ten shared native dirt children, one terminal mega impact");
                 clear();held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"lifetime launch");flight=service.snapshot().getFirst();var d=LbcBouncingPoop.state(flight).copy();d.putInt("age",599);setState(flight,d);phase=5;started=game.server().getTickCount();return false;}
-            if(!flight.isRemoved())return false;require(service.count()==0,"exact attached600 active ticks retire actor");return true;
+            if (phase == 5) {
+                if (!flight.isRemoved()) return false;
+                require(service.count() == 0, "exact attached600 active ticks retire actor");
+                clear();
+                held(InteractionHand.MAIN_HAND, false);
+                require(input(InteractionHand.MAIN_HAND, false), "cold destination lifetime launch");
+                flight = service.snapshot().getFirst();
+                start = flight.position();
+                var velocity = new Vec3(8192, 0, 0);
+                flight.setDeltaMovement(velocity);
+                coldDestination = BlockPos.containing(start.add(velocity));
+                require(f.level.hasChunkAt(flight.blockPosition()) && !f.level.hasChunkAt(coldDestination),
+                        "flight source loaded and destination cold before waiting");
+                var data = LbcBouncingPoop.state(flight).copy();
+                data.putInt("age", 598);
+                setState(flight, data);
+                phase = 6;
+                started = game.server().getTickCount();
+                return false;
+            }
+            if (elapsed < 1) return false;
+            require(!f.level.hasChunkAt(coldDestination), "waiting and expiry leave destination cold");
+            if (elapsed == 1) {
+                require(!flight.isRemoved() && flight.position().equals(start)
+                                && LbcBouncingPoop.state(flight).getIntOr("age", -1) == 599,
+                        "waiting in a loaded source advances age without moving on the 599th active tick");
+                return false;
+            }
+            require(flight.isRemoved() && service.count() == 0, "waiting flight expires on the 600th active tick");
+            return true;
         }
         void removeFields(){for(var m:fields){game.items().magic().unloaded(m);m.discard();var old=fieldBlocks.remove(m);if(old!=null&&f.level.getBlockState(m.blockPosition()).is(LbcMagic.MECHANISM_BEACON_BLOCK))game.maps().restoreSnapshot(f.level,m.blockPosition(),old);game.items().magic().blockChanged(m.blockPosition(),f.level.getBlockState(m.blockPosition()));}fields.clear();}
         void setState(Display.ItemDisplay actor,net.minecraft.nbt.CompoundTag d){try{var field=LbcBouncingPoop.class.getDeclaredField("DATA");field.setAccessible(true);@SuppressWarnings("unchecked") var type=(net.fabricmc.fabric.api.attachment.v1.AttachmentType<net.minecraft.nbt.CompoundTag>)field.get(null);actor.setAttached(type,d);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
         public void close(){if(closed)return;closed=true;try{removeFields();game.items().timeStop().end(f.level);p.entityTags().remove("time_stopped");service.stop();client.close();audience.close();f.close();}finally{game.config().lbcSkills=skills;saved.restore(game);saved.restoreAttributes();saved.restoreUse();betaSaved.restore(game);betaSaved.restoreAttributes();betaSaved.restoreUse();game.items().magic().inventoryChanged(p);game.items().magic().flushCleansing();stats.forEach((item,n)->p.getStats().setValue(p,net.minecraft.stats.Stats.ITEM_USED.get(item),n));}}
     }
     public static void start(GameController game){require(running==null,"exclusive fixture");var s=new State(game);try{s.begin();running=s;SkyWars2.LOGGER.info("[check] START bouncing-poop");}catch(Throwable e){s.close();throw e;}}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS bouncing-poop (native/raw actual hands, source visual, attachment unload/reload, scheduler TimeStop/curve/wall/strict soil/body/cap/lifetime)");}catch(Throwable e){try{running.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL bouncing-poop",e);}}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS bouncing-poop (native/raw actual hands, source visual, attachment unload/reload, scheduler TimeStop/curve/wall/strict soil/body/cap/loaded and cold-destination lifetime)");}catch(Throwable e){try{running.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL bouncing-poop",e);}}
 }
