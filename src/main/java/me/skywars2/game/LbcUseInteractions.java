@@ -14,6 +14,8 @@ import net.minecraft.world.level.Level;
 
 /** A server-only one-shot on a passive client carrier still permits the vanilla offhand shield. */
 public final class LbcUseInteractions {
+    private static final ScopedValue<ServerPlayer> FORCED_ITEM_USE = ScopedValue.newInstance();
+    private static final ScopedValue<ServerPlayer> SHIELD_HANDOFF = ScopedValue.newInstance();
     private LbcUseInteractions(){}
     public interface BlockInput { void skywars2$finishBlockInput(); }
     public static void endClientInput(ServerPlayer player){
@@ -62,14 +64,30 @@ public final class LbcUseInteractions {
         // An interaction entity already consumed the client click; do not ask Polymer to replay it.
         return InteractionResult.SUCCESS;
     }
-    public static void shieldAfter(ServerPlayerGameMode mode,ServerPlayer player,Level level,ItemStack before,
+    public static boolean holdingOffhandShield(ServerPlayer player){
+        return player.isUsingItem()
+                &&player.getUsedItemHand()==InteractionHand.OFF_HAND
+                &&player.getUseItem().has(DataComponents.BLOCKS_ATTACKS);
+    }
+    public static boolean shieldHandoff(ServerPlayer player,InteractionHand hand){
+        return hand==InteractionHand.OFF_HAND&&SHIELD_HANDOFF.isBound()&&SHIELD_HANDOFF.get()==player;
+    }
+    public static boolean forcedUse(ServerPlayer player){
+        return FORCED_ITEM_USE.isBound()&&FORCED_ITEM_USE.get()==player;
+    }
+    static InteractionResult forceItem(ServerPlayer player,InteractionHand hand){
+        var stack=player.getItemInHand(hand);
+        if(stack.isEmpty()||stack.has(DataComponents.BLOCKS_ATTACKS))return InteractionResult.PASS;
+        return ScopedValue.where(FORCED_ITEM_USE,player)
+                .call(()->player.gameMode.useItem(player,player.level(),stack,hand));
+    }
+    public static void shieldAfter(ServerPlayerGameMode mode,ServerPlayer player,Level level,
             InteractionHand hand,InteractionResult result){
         if(hand!=InteractionHand.MAIN_HAND||!(result instanceof InteractionResult.Success)
-                ||player.isUsingItem()||player.isPassenger()||before.has(DataComponents.CONSUMABLE)
-                ||before.has(DataComponents.EQUIPPABLE)||!player.getOffhandItem().has(DataComponents.BLOCKS_ATTACKS))return;
-        Item carrier=before.getItem();
-        if(carrier instanceof PolymerItem polymer)carrier=polymer.getPolymerItem(before,player.connection.getPacketContext());
-        if(carrier.getClass()!=Item.class&&!(carrier instanceof FoodOnAStickItem))return;
-        mode.useItem(player,level,player.getOffhandItem(),InteractionHand.OFF_HAND);
+                ||player.isUsingItem()||player.isPassenger()
+                ||forcedUse(player)
+                ||!player.getOffhandItem().has(DataComponents.BLOCKS_ATTACKS))return;
+        ScopedValue.where(SHIELD_HANDOFF,player)
+                .run(()->mode.useItem(player,level,player.getOffhandItem(),InteractionHand.OFF_HAND));
     }
 }

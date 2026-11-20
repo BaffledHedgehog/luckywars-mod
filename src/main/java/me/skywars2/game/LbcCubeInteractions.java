@@ -35,7 +35,7 @@ public final class LbcCubeInteractions {
             InteractionHand hand,BlockHitResult hit,Operation<InteractionResult> original){
         // The client's note block consumed this click before it could send an
         // offhand packet. Place its real offhand block before a server-only cast.
-        if(hand==InteractionHand.MAIN_HAND&&LbcUseInteractions.canPlaceOffhand(player,hit)){
+        if(LbcUseInteractions.deferAirToOffhand(player,player.getItemInHand(hand),hand,hit)){
             var placed=original==null?mode.useItemOn(player,level,player.getOffhandItem(),InteractionHand.OFF_HAND,hit)
                     :original.call(player,level,player.getOffhandItem(),InteractionHand.OFF_HAND,hit);
             if(placed instanceof InteractionResult.Success success){

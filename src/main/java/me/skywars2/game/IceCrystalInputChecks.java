@@ -154,7 +154,24 @@ public final class IceCrystalInputChecks {
                         require(f.owner.level().getBlockState(dest).isAir(),"main air use precedes offhand block "+input);}
                     case ARMOR_STAND->require(primary.isEmpty()&&f.owner.level().getEntities((Entity)null,crystal.hitbox.getBoundingBox().inflate(4),entity->!before.contains(entity)&&entity.getType()==EntityTypes.ARMOR_STAND).size()==1,"native entity-placement item useOn "+input);
                     case WAND,WAND_SHIELD->{require(f.service.shotSnapshot().size()==1&&game.items().mana().get(f.owner)==99600,"custom wand executes once through original dispatcher "+input);
-                        if(input.use==Use.WAND_SHIELD)require(f.owner.isUsingItem()&&f.owner.getUsedItemHand()==InteractionHand.OFF_HAND,"one wand cast then native offhand shield");}
+                        if(input.use==Use.WAND_SHIELD){
+                            require(f.owner.isUsingItem()&&f.owner.getUsedItemHand()==InteractionHand.OFF_HAND,"one wand cast then native offhand shield");
+                            int mana=game.items().mana().get(f.owner);
+                            var blockHit=new BlockHitResult(Vec3.atCenterOf(cell),Direction.NORTH,cell,false);
+                            require(f.owner.gameMode.useItem(f.owner,f.owner.level(),primary,InteractionHand.MAIN_HAND)==InteractionResult.FAIL
+                                    &&f.owner.gameMode.useItemOn(f.owner,f.owner.level(),primary,InteractionHand.MAIN_HAND,blockHit)==InteractionResult.FAIL,
+                                    "held shield rejects both repeated main-hand use paths");
+                            require(game.items().mana().get(f.owner)==mana&&f.service.shotSnapshot().size()==1&&f.owner.isUsingItem(),
+                                    "holding the shield preserves the block and never repeats the wand");
+                            f.owner.stopUsingItem();
+                            var thrown=hand(InteractionHand.MAIN_HAND,Items.SNOWBALL,2);
+                            game.items().twitchItemAction(f.owner,InteractionHand.MAIN_HAND);
+                            game.items().twitchItemAction(f.owner,InteractionHand.OFF_HAND);
+                            require(thrown.getCount()==1&&!f.owner.isUsingItem(),"forced item use throws once and cannot involve the shield");
+                            require(f.owner.gameMode.useItem(f.owner,f.owner.level(),thrown,InteractionHand.MAIN_HAND).consumesAction()
+                                    &&thrown.isEmpty()&&f.owner.isUsingItem()&&f.owner.getUsedItemHand()==InteractionHand.OFF_HAND,
+                                    "ordinary instant consumable spends one and hands off to the shield");
+                        }}
                     case SHIFT_WAND->require(crystal.removed&&f.service.shotSnapshot().isEmpty()&&game.items().mana().get(f.owner)==99800,"native crouching wand action shatters managed crystal once");
                 }
             }finally{f.owner.stopUsingItem();f.clear();fresh(before);f.block(dest,Blocks.AIR);f.block(dest.below(),Blocks.AIR);}

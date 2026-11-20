@@ -41,6 +41,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         Map.entry("lbc.cast",new ScriptProgram.Signature(1,4)),
         Map.entry("lbc.cast_at",new ScriptProgram.Signature(2,3)),
         Map.entry("lbc.summon",new ScriptProgram.Signature(2,2)),
+        Map.entry("item.use_charge",new ScriptProgram.Signature(1,1)),
         Map.entry("math.random",new ScriptProgram.Signature(0,2)),
         Map.entry("time.tick",new ScriptProgram.Signature(0,0)));
     private final GameController game;
@@ -48,6 +49,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
     private final ItemStack captured;
     private final BooleanSupplier admitted;
     private final LongSupplier clock;
+    private final IntPredicate charge;
     private final ScriptMemory memory;
     private final ArrayDeque<Work> queue=new ArrayDeque<>();
     private Work active;
@@ -57,8 +59,13 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         this(game,owner,captured,admitted,clock,new ScriptMemory());
     }
     public GenieWorldHost(GameController game,ServerPlayer owner,ItemStack captured,BooleanSupplier admitted,LongSupplier clock,ScriptMemory memory){
+        this(game,owner,captured,admitted,clock,memory,limit->false);
+    }
+    GenieWorldHost(GameController game,ServerPlayer owner,ItemStack captured,BooleanSupplier admitted,LongSupplier clock,
+                   ScriptMemory memory,IntPredicate charge){
         this.game=Objects.requireNonNull(game);this.owner=Objects.requireNonNull(owner);
         this.captured=Objects.requireNonNull(captured);this.admitted=Objects.requireNonNull(admitted);this.clock=Objects.requireNonNull(clock);
+        this.charge=Objects.requireNonNull(charge);
         this.memory=Objects.requireNonNull(memory);memory.track(this,this::memoryRoots,()->16+8L*queue.size());
     }
     public static Map<String,ScriptProgram.Signature> api(){return API;}
@@ -147,6 +154,13 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "lbc.summon"->summon(values);
             case "lbc.cast"->cast(values);
             case "lbc.cast_at"->castAt(values);
+            case "item.use_charge"->{
+                double requested=number(values.getFirst());
+                int limit=(int)requested;
+                if(limit!=requested||limit<1||limit>4096)
+                    throw new IllegalArgumentException("item charge limit must be an integer between 1 and 4096");
+                yield new JsonPrimitive(charge.test(limit));
+            }
             default->throw new IllegalArgumentException("unknown queued world API");
         };
     }

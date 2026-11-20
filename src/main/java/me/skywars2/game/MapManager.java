@@ -37,6 +37,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
@@ -81,6 +83,7 @@ import java.util.function.Consumer;
 
 /** Native, tick-budgeted placement of the imported SkyWars structure manifests. */
 public final class MapManager {
+    static final int OUTER_ARENA_LIMIT = 500;
     private static final String MAP_RESOURCE_ROOT = "/skywars2/maps/";
     private static final int TILE_XZ = 8;
     private static final int TILE_Y = 8;
@@ -293,6 +296,9 @@ public final class MapManager {
         } catch (IOException error) { LOGGER.error("Could not read local map catalog", error); }
     }
     private final Queue<Work> work = new ArrayDeque<>();
+    private ArenaSweep arenaSweep;
+    private int sweptMode, requestedSweepMode, pendingSweepMode;
+    private boolean clearingArena;
     private final Queue<Entity> lobbyEntityCandidates = new ArrayDeque<>();
     private int lobbyEntityAuditTicks;
     private final List<BoundingBox> activeBoxes = new ArrayList<>();
@@ -484,9 +490,17 @@ public final class MapManager {
         workTicks++;
         try {
             drainMapLighting();
-            if(work.isEmpty()) { finishPlacement();return; }
-            // Apply backpressure to native light work without blocking any futures.
             if(pendingMapLighting.size()>=MAX_PENDING_LIGHTING_BATCHES)return;
+            if(arenaSweep!=null) {
+                applyingMapWork=true;
+                try {
+                    var sweep=arenaSweep;
+                    applyNativeMapWork(new Work(sweep.bounds,world->sweep.tick(deadline)));
+                    if(!sweep.done())return;
+                    arenaSweep=null;
+                } finally { applyingMapWork=false; }
+            }
+            if(work.isEmpty()) { finishPlacement();return; }
             // Warm a bounded window; requests never wait on chunk-generation futures.
             int ahead = 0;
             for (Work next : work) {
@@ -601,6 +615,45 @@ public final class MapManager {
                 () -> loadPrepared(id, broken), completion);
     }
 
+    void sweepAfterModeChange(int mode) { requestedSweepMode=mode; }
+
+    void clearArena(Consumer<Result> callback) {
+        if(busy||level==null||closed){
+            callback.accept(new Result(false,Component.translatable("skywars2.map.error.busy")));
+            return;
+        }
+        if(!boundsJournalValid){
+            callback.accept(new Result(false,Component.translatable("skywars2.map.error.journal_unreadable")));
+            return;
+        }
+        begin(callback);
+        clearingArena=true;
+        preparationStarted=System.nanoTime();
+        preparationMillis=maxWorkTickNanos=0;
+        workTicks=completedSlices=0;
+        clearArenaPrepared();
+    }
+
+    private void clearArenaPrepared() {
+        flushChangedBlockBounds();
+        if(blockBoundsDirty){fail(Component.translatable("skywars2.map.error.persist_changes"));return;}
+        awaitJournal(writeBoundsJournal(activeBoxes),()->{
+            if(blockBoundsDirty){clearArenaPrepared();return;}
+            placementExternalBounds=List.of();
+            prepareArenaClear(true,List.of());
+            var mirror=server.getLevel(LbcHedgehogDimensions.IMPRINTED);
+            if(mirror!=null){
+                var game=SkyWars2.game();
+                if(game!=null&&game.maps()==this)game.itemQueue().terrainReplaced(mirror,imprintedBounds);
+                var removed=new ArrayList<Entity>();
+                for(var entity:mirror.getAllEntities())
+                    if(!(entity instanceof Player)&&insideAny(entity.blockPosition(),imprintedBounds))removed.add(entity);
+                removed.forEach(Entity::discard);
+                addClearWork(imprintedBounds,false,mirror);
+            }
+        },Component.translatable("skywars2.map.error.save_bounds"));
+    }
+
     private volatile long preparationGeneration;
     private boolean selectingMap;
     private List<BoundingBox> imprintedBounds;
@@ -638,7 +691,7 @@ public final class MapManager {
         if(preparation!=null)preparation.cancel(false);
         completion=null;afterPreparation=null;preparation=null;reading=false;busy=false;selectingMap=false;
         journalWait=null;
-        work.clear();preparedTemplates=Map.of();pendingMap=null;
+        work.clear();arenaSweep=null;preparedTemplates=Map.of();pendingMap=null;
         cancelMapLighting();releaseChunkTickets();
         return true;
     }
@@ -712,13 +765,10 @@ public final class MapManager {
         residentMapIds.add(id);
         pendingBounds = targetBounds;
         placementExternalBounds = List.of();
-        removeMapEntitiesWithin(mapBounds);
-        restoreCages();
-        clearForcedChunksOutsideLobby();
-        mapUnderLobby.clear();
-        for (LobbyCell cell : lobbyCells) if (insideAny(cell.pos, mapBounds) || insideAny(cell.pos, targetBounds))
-            mapUnderLobby.put(cell.pos, BlockSnapshot.air());
-        addClearWork(mapBounds, lobbyOverlayActive);
+        int mode=chestGameMode.getAsInt();
+        boolean fullSweep=mode!=sweptMode||mode==requestedSweepMode;
+        if(fullSweep)pendingSweepMode=mode;
+        prepareArenaClear(fullSweep,targetBounds);
         mapBounds = combineBounds(mapBounds, targetBounds);
         replaceActiveBounds(recoveryBounds);
         try {
@@ -728,7 +778,7 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.prepare_map", id, error.getMessage()));
             return;
         }
-        if (work.isEmpty()) finishPlacement();
+        if (work.isEmpty() && arenaSweep==null) finishPlacement();
         }, Component.translatable("skywars2.map.error.save_bounds"));
     }
 
@@ -786,7 +836,12 @@ public final class MapManager {
                 mapUnderLobby.put(cell.pos, snapshot(cell.pos));
             }
         }
-        addClearWork(preserveMap ? List.of() : activeBoxes, false);
+        if(!preserveMap&&sweptMode==0){
+            pendingSweepMode=chestGameMode.getAsInt();
+            arenaSweep=new ArenaSweep(targetBounds);
+        }
+        if(!preserveMap)
+            addClearWork(arenaSweep==null?activeBoxes:activeBoxes.stream().filter(box->!arenaSweep.contains(box)).toList(),false);
         lobbyBounds = targetBounds;
         if (!preserveMap) mapBounds = List.of();
         replaceActiveBounds(recoveryBounds);
@@ -1263,6 +1318,7 @@ public final class MapManager {
         }
         if (!journalWriter.shutdown()) LOGGER.error("Arena journal worker did not drain before shutdown.");
         work.clear();
+        arenaSweep = null;
         preparedTemplates = Map.of();
         pristineTemplates=Map.of();pristinePlacements=List.of();pristineRotations.clear();
         cancelMapLighting();
@@ -1302,9 +1358,6 @@ public final class MapManager {
         changedBlockBounds.put(chunkKey, previous == null ? point : union(previous, point));
         blockBoundsDirty = true;
     }
-
-    // Cleanup uses journaled map writes and native mutations only. Scanning all
-    // loaded fluid sections would claim unrelated legacy overworld terrain.
 
     private void flushChangedBlockBounds() {
         ticksSinceBoundsFlush = 0;
@@ -1363,6 +1416,9 @@ public final class MapManager {
         completedLightingBatches=0;
         completion = callback == null ? ignored -> { } : callback;
         work.clear();
+        clearingArena=false;
+        arenaSweep=null;
+        pendingSweepMode=0;
         journalWait = null;
         pendingImprintedBounds=List.of();
     }
@@ -1552,6 +1608,18 @@ public final class MapManager {
 
     private void addClearWork(List<BoundingBox> boxes) { addClearWork(boxes, false); }
 
+    private void prepareArenaClear(boolean fullSweep,List<BoundingBox> target) {
+        if(fullSweep)arenaSweep=new ArenaSweep(List.of());
+        var retired=fullSweep?combineBounds(mapBounds,List.of(arenaSweep.bounds)):mapBounds;
+        removeMapEntitiesWithin(retired);
+        restoreCages();
+        clearForcedChunksOutsideLobby();
+        mapUnderLobby.clear();
+        for(var cell:lobbyCells)if(insideAny(cell.pos,retired)||insideAny(cell.pos,target))
+            mapUnderLobby.put(cell.pos,BlockSnapshot.air());
+        addClearWork(fullSweep?mapBounds.stream().filter(box->!arenaSweep.contains(box)).toList():mapBounds,lobbyOverlayActive);
+    }
+
     private void addClearWork(List<BoundingBox> boxes, boolean protectLobby) {
         addClearWork(boxes,protectLobby,null);
     }
@@ -1585,6 +1653,119 @@ public final class MapManager {
                 }
             }
         }
+    }
+
+    /** Scan saved columns on Minecraft's IO worker and clear occupied sections on the level thread. */
+    private final class ArenaSweep {
+        private final BoundingBox bounds=new BoundingBox(-OUTER_ARENA_LIMIT,level.getMinY(),-OUTER_ARENA_LIMIT,
+                OUTER_ARENA_LIMIT,level.getMaxY()-1,OUTER_ARENA_LIMIT);
+        private final int minChunk=bounds.minX()>>4,maxChunk=bounds.maxX()>>4,width=maxChunk-minChunk+1;
+        private final ArrayDeque<Column> pending=new ArrayDeque<>();
+        private final BlockPos.MutableBlockPos cursor=new BlockPos.MutableBlockPos();
+        private final List<BoundingBox> protectedBounds;
+        private int nextColumn;
+
+        ArenaSweep(List<BoundingBox> protectedBounds) {
+            this.protectedBounds=protectedBounds;
+        }
+
+        private final class Column {
+            final ChunkPos pos;
+            final CompletableFuture<Boolean> stored;
+            CompletableFuture<?> loading;
+            boolean checked;
+            LevelChunk chunk;
+            int section,block;
+
+            Column(ChunkPos pos) {
+                this.pos=pos;
+                var current=level.getChunkSource().getChunkNow(pos.x(),pos.z());
+                stored=current==null?level.getChunkSource().chunkMap.read(pos)
+                        .thenApply(tag->tag.map(MapManager::storedTerrain).orElse(false))
+                        :CompletableFuture.completedFuture(hasTerrain(current));
+            }
+        }
+
+        boolean contains(BoundingBox box) {
+            return bounds.isInside(new BlockPos(box.minX(),box.minY(),box.minZ()))
+                    && bounds.isInside(new BlockPos(box.maxX(),box.maxY(),box.maxZ()));
+        }
+
+        boolean done() { return nextColumn==width*width&&pending.isEmpty(); }
+
+        void tick(long deadline) {
+            var source=level.getChunkSource();
+            for (int slices=0;slices<MAX_SLICES_PER_TICK&&System.nanoTime()<deadline;slices++) {
+                while(pending.size()<WARM_AHEAD_SLICES&&nextColumn<width*width&&System.nanoTime()<deadline) {
+                    int index=nextColumn++;
+                    pending.addLast(new Column(new ChunkPos(minChunk+index%width,minChunk+index/width)));
+                }
+                var column=pending.peekFirst();
+                if(column==null)return;
+                // Warm the next occupied columns while the current one is being cleared.
+                for(var candidate:pending) {
+                    if(System.nanoTime()>=deadline)return;
+                    if(!candidate.checked&&candidate.stored.isDone()) {
+                        candidate.checked=true;
+                        var current=source.getChunkNow(candidate.pos.x(),candidate.pos.z());
+                        var holder=source.chunkMap.getUpdatingChunkIfPresent(ChunkPos.pack(candidate.pos.x(),candidate.pos.z()));
+                        if(current!=null?hasTerrain(current):candidate.stored.join()||holder!=null&&hasTerrain(holder.getLatestChunk()))
+                            candidate.loading=prepareChunk(candidate.pos);
+                    }
+                }
+                if(!column.stored.isDone())return;
+                if(column.loading==null){pending.removeFirst();continue;}
+                if(!column.loading.isDone())return;
+                if(column.chunk==null) {
+                    var result=column.loading.join();
+                    if(result instanceof ChunkResult<?> loaded&&loaded.orElse(null) instanceof LevelChunk chunk)
+                        column.chunk=chunk;
+                    else column.chunk=source.getChunkNow(column.pos.x(),column.pos.z());
+                    if(column.chunk==null)throw new IllegalStateException("Could not load arena cleanup chunk "+column.pos);
+                }
+                if(clearSlice(column))pending.removeFirst();
+            }
+        }
+
+        private boolean clearSlice(Column column) {
+            var sections=column.chunk.getSections();
+            while(column.section<sections.length&&sections[column.section].hasOnlyAir()) {
+                column.section++;
+                column.block=0;
+            }
+            if(column.section==sections.length)return true;
+            var section=sections[column.section];
+            int originY=level.getMinY()+column.section*16;
+            int end=Math.min(4096,column.block+512);
+            for(;column.block<end;column.block++) {
+                int x=column.block&15,y=column.block>>8,z=(column.block>>4)&15;
+                if(section.getBlockState(x,y,z).isAir())continue;
+                cursor.set((column.pos.x()<<4)+x,originY+y,(column.pos.z()<<4)+z);
+                if(bounds.isInside(cursor)&&!insideAny(cursor,protectedBounds)&&(!lobbyOverlayActive||!insideLobby(cursor)))
+                    level.setBlock(cursor,Blocks.AIR.defaultBlockState(),MAP_WRITE_FLAGS);
+            }
+            if(column.block==4096){column.section++;column.block=0;}
+            return column.section==sections.length;
+        }
+    }
+
+    private static boolean hasTerrain(ChunkAccess chunk) {
+        if(chunk==null)return false;
+        for(var section:chunk.getSections())if(!section.hasOnlyAir())return true;
+        return false;
+    }
+
+    private static boolean storedTerrain(CompoundTag chunk) {
+        var sections=chunk.getList("sections");
+        if(sections.isEmpty())return true; // Unknown/old formats must be checked by the native loader.
+        for(var value:sections.get())if(value instanceof CompoundTag section) {
+            var states=section.getCompound("block_states");
+            if(states.isEmpty())continue; // Light-only sections have no block data.
+            var palette=states.get().getListOrEmpty("palette");
+            if(palette.size()!=1||!(palette.getFirst() instanceof CompoundTag state)
+                    ||!state.getStringOr("Name","").equals("minecraft:air"))return true;
+        }
+        return false;
     }
 
     private List<BoundingBox> boundsFor(List<Placement> placements) {
@@ -1817,6 +1998,20 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.dimension_missing"));
             return;
         }
+        if(clearingArena){
+            mapBounds=placementExternalBounds;
+            imprintedBounds=List.of();
+            residentMapIds.clear();
+            pristinePlacements=List.of();
+            pristineTemplates=Map.of();
+            pristineRotations.clear();
+            respawnIslands.clear();
+            spawns=List.of();
+            look=lobbyPosition();
+            replaceActiveBounds(combineBounds(lobbyBounds,mapBounds));
+            commitPlacementBounds(List.of());
+            return;
+        }
         List<Entity> entities = entitiesWithin(pendingBounds);
         forceMarkerChunks(entities);
         List<Spawn> foundSpawns = new ArrayList<>();
@@ -1878,11 +2073,11 @@ public final class MapManager {
         flushChangedBlockBounds();
         if (blockBoundsDirty) { fail(Component.translatable("skywars2.map.error.persist_changes")); return; }
         var saved = writeBoundsJournal(activeBoxes);
-        if (pendingMap != null) saved = saved.thenCombine(
+        if (pendingMap != null || clearingArena) saved = saved.thenCombine(
                 writeBoundsJournal(imprintedBounds, imprintedJournal(), LbcHedgehogDimensions.IMPRINTED), (a,b) -> a && b);
         awaitJournal(saved, () -> {
         if (blockBoundsDirty) { commitPlacementBounds(entities); return; }
-        if (pendingMap != null) {
+        if (pendingMap != null || clearingArena) {
             // Native structures can contain loose authoring items, and chest contents can
             // drop while the parts are pasted. Retire them after ALL placement work, before
             // publishing readiness; clearing only at match start leaves a dirty lobby map.
@@ -1898,7 +2093,9 @@ public final class MapManager {
         }
         if(pendingMap!=null&&bedwars(pendingMap)){var game=me.skywars2.SkyWars2.game();if(game!=null&&game.maps()==this)game.bedwars().mapReady(entities);}
         pendingBounds = List.of();
-        complete(new Result(true, pendingMap == null
+        complete(new Result(true, clearingArena
+                ? Component.translatableWithFallback("skywars2.map.ready.cleared", "Карта очищена. Лобби сохранено.")
+                : pendingMap == null
                 ? Component.translatable("skywars2.map.ready.lobby")
                 : Component.translatable("skywars2.map.ready.map", pendingMap)));
         }, Component.translatable("skywars2.map.error.save_bounds"));
@@ -2160,19 +2357,26 @@ public final class MapManager {
     private void complete(Result result) {
         Consumer<Result> callback = completion;
         completion = null;
+        if(result.success()&&pendingSweepMode!=0){
+            sweptMode=pendingSweepMode;
+            if(requestedSweepMode==sweptMode)requestedSweepMode=0;
+        }
         journalWait = null;
         selectingMap=false;
         cancelMapLighting();
         busy = false;
         reading = false;
         work.clear();
+        arenaSweep = null;
         preparedTemplates = Map.of();
         preparation = null;
         afterPreparation = null;
         LOGGER.info("Map operation {} success={} prepareMs={} workTicks={} slices={} maxWorkTickMs={}",
-                pendingMap == null ? "lobby" : pendingMap, result.success(), preparationMillis,
-                workTicks, completedSlices, maxWorkTickNanos / 1_000_000.0);
+                clearingArena ? "clearmap" : pendingMap == null ? "lobby" : pendingMap, result.success(),
+                preparationMillis,workTicks,completedSlices,maxWorkTickNanos / 1_000_000.0);
         pendingMap = null;
+        clearingArena=false;
+        pendingSweepMode=0;
         releaseChunkTickets();
         if (callback != null) callback.accept(result);
     }

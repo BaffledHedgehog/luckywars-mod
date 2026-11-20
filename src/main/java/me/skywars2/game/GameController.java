@@ -865,12 +865,42 @@ public final class GameController {
             if (!configureSelectedMap(player, config.mapId, brokenVariant)) throw new GameConfig.SettingError(text("settings.map_failed"));
             return text("settings.broken", text(brokenVariant ? "common.enabled" : "common.disabled"));
         }
+        int previousMode=config.gameMode;
         var result = config.setSetting(parameter, value);
+        gameModeSettingChanged(previousMode);
         luckyModifiers.syncConfig();
         lbc.syncRanked();
         lbc.refreshArtifactViews();
         if (key.equals("ranked")) menus.refreshOpen();
         return result;
+    }
+
+    void gameModeSettingChanged(int previousMode) {
+        if(previousMode==config.gameMode)return;
+        maps.sweepAfterModeChange(config.gameMode);
+        readyMap=null;
+        selectionVersion++;
+        if(inLobby()&&preparingSelection&&maps.cancelSelectionLoad())preparingSelection=false;
+        startAfterSelection=false;
+        pendingStarter=null;
+    }
+
+    public int clearArena(net.minecraft.commands.CommandSourceStack source) {
+        if(stopped||!inLobby()||maps.busy()||developerTools.authoring().busy()){
+            source.sendFailure(Component.translatableWithFallback("skywars2.map.error.clear_unavailable",
+                    "Очистка карты доступна в лобби после завершения загрузки."));
+            return 0;
+        }
+        readyMap=null;
+        selectionVersion++;
+        startAfterSelection=false;
+        pendingStarter=null;
+        developerTools.gallery().clearForMatchStart();
+        maps.clearArena(result->{
+            if(result.success())source.sendSuccess(result::message,false);
+            else source.sendFailure(result.message());
+        });
+        return 1;
     }
 
     /** During a match, changing selection must not paste over the active arena. */
@@ -1148,9 +1178,10 @@ public final class GameController {
                 updateTrackers();
                 for (ServerPlayer player : alivePlayers()) {
                     // Void deaths use the real damage/death event and life accounting.
-                    if (!config.noBorders && (Math.abs(player.getX()) > 500 || Math.abs(player.getZ()) > 500)) {
-                        int x = Math.max(0, ((int) Math.floor(Math.abs(player.getX())) - 500) / 10);
-                        int z = Math.max(0, ((int) Math.floor(Math.abs(player.getZ())) - 500) / 10);
+                    int limit=MapManager.OUTER_ARENA_LIMIT;
+                    if (!config.noBorders && (Math.abs(player.getX()) > limit || Math.abs(player.getZ()) > limit)) {
+                        int x = Math.max(0, ((int) Math.floor(Math.abs(player.getX())) - limit) / 10);
+                        int z = Math.max(0, ((int) Math.floor(Math.abs(player.getZ())) - limit) / 10);
                         float amount = (float) Math.floor(config.health * .1) + x + z;
                         player.hurtServer(player.level(), player.damageSources().generic(), Math.max(1, amount));
                     }

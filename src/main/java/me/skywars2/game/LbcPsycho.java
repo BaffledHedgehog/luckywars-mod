@@ -172,7 +172,8 @@ public final class LbcPsycho {
         if(game.items().magic().rejectCustomDebuff(player)){clearDebuffs(player);return;}
         if(effect==null || effect.twitching<=0) return;
         boolean wasUsing=player.isUsingItem();
-        game.items().mouseAction(player,attack);
+        if(attack)game.items().mouseAction(player,true);
+        else game.items().twitchItemAction(player,InteractionHand.MAIN_HAND);
         if(!wasUsing && player.isUsingItem() && effects.get(player)==effect) {
             effect.forcedItem=player.getUseItem(); effect.forcedHand=player.getUsedItemHand();
             effect.forcedTicks=player.getRandom().nextInt(19)+2;
@@ -196,7 +197,7 @@ public final class LbcPsycho {
             boolean selected=kind==2&&(stack.getItem() instanceof net.minecraft.world.item.PotionItem
                     ||stack.getItem() instanceof net.minecraft.world.item.ThrowablePotionItem)
                     ||kind==5&&stack.is(Items.SNOWBALL)||kind==6&&stack.is(Items.ENDER_PEARL);
-            if(selected&&!player.isUsingItem())player.gameMode.useItem(player,player.level(),stack,hand);
+            if(selected)game.items().twitchItemAction(player,hand);
         }
     }
     int effectValue(LivingEntity entity,String name) { return hudValue(entity,name); }

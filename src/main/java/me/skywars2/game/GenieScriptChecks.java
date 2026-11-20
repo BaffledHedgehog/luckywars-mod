@@ -21,6 +21,7 @@ final class GenieScriptChecks implements AutoCloseable {
     private final CompletableFuture<ScriptRepository.Loaded> prepared;
     private final CompletableFuture<ScriptRepository.Loaded> preparedFairness;
     private final CompletableFuture<ScriptRepository.Loaded> preparedPassive;
+    private final CompletableFuture<ScriptRepository.Loaded> preparedCharged;
     private final GenieScriptRuntime fairness;
     private final BlockPos marker;
     private ItemStack original,clone;
@@ -38,6 +39,11 @@ final class GenieScriptChecks implements AutoCloseable {
             ["const",8],["wait"],["const",%s],["call","world.command",1],["return"]]}}}
             """.formatted(new com.google.gson.JsonPrimitive(command));
         prepared=runtime.prepare(source);when=game.server().getTickCount();
+        preparedCharged=runtime.prepare("""
+            {"version":1,"state":{},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
+            ["const",2],["call","item.use_charge",1],["jump_if_false","done"],
+            ["const",%s],["call","world.command",1],["return"],["label","done"],["const",false],["return"]]}}}
+            """.formatted(new com.google.gson.JsonPrimitive(command)));
         preparedPassive = runtime.prepare("""
             {"version":1,"state":{"counter":0},"handlers":{"TICK":"main"},"functions":{"main":{"parameters":["event"],"code":[
             ["load","state"],["const","counter"],["load","state"],["const","counter"],["get"],["const",1],["add"],["put"],["return"]]}}}
@@ -136,12 +142,32 @@ final class GenieScriptChecks implements AutoCloseable {
             next(8);return false;
         }
         if(phase==8){
-            if (game.server().getTickCount() - when < 5 || !preparedPassive.isDone()) return false;
+            if (game.server().getTickCount() - when < 5 || !preparedPassive.isDone() || !preparedCharged.isDone()) return false;
             require(count(original)==6&&count(clone)==4,"native use-on-block invokes the generic USE handler once even though the block event is also emitted");
             checkPassiveInput();
+            checkCharges();
             runtime.forget(base.owner);return true;
         }
         throw new IllegalStateException("unknown script check phase");
+    }
+    private void checkCharges(){
+        var owner=base.owner;
+        var limited=GenieScriptItem.construct(preparedCharged.join(),"stick","Limited script","Two actual uses.",1);
+        var copy=limited.copy();
+        owner.setItemInHand(InteractionHand.MAIN_HAND,limited);
+        owner.getInventory().setItem(10,copy);
+        for(int use=1;use<=2;use++){
+            base.set(marker,Blocks.AIR.defaultBlockState());
+            click();
+            for(int step=0;step<8;step++)runtime.tick();
+            require(base.level.getBlockState(marker).is(Blocks.GOLD_BLOCK),"each paid use runs the effect, including the final use");
+            require(limited.isEmpty()==(use==2)&&copy.getCount()==1
+                    &&!ItemData.contains(copy,"genie_uses_remaining"),"only the exact gift spends charges and disappears at zero");
+        }
+        base.set(marker,Blocks.AIR.defaultBlockState());
+        click();
+        runtime.tick();
+        require(base.level.getBlockState(marker).isAir(),"empty hand cannot use the expired script again");
     }
     private void checkPassiveInput() {
         var owner = base.owner;

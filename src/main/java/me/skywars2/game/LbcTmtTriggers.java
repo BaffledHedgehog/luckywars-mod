@@ -128,16 +128,28 @@ public final class LbcTmtTriggers {
         return ability.inputs().get(action)==input;
     }
     public static void input(ServerPlayer owner,Input input){input(owner,input,null,null,null);}
+    public static void useItemInput(ServerPlayer owner,InteractionHand hand){
+        input(owner,Input.RIGHT_CLICK,null,null,null,hand);
+    }
     public static void input(ServerPlayer owner,Input input,Entity target,net.minecraft.core.BlockPos block,
                              net.minecraft.world.level.block.state.BlockState before){
+        input(owner,input,target,block,before,null);
+    }
+    private static void input(ServerPlayer owner,Input input,Entity target,net.minecraft.core.BlockPos block,
+                              net.minecraft.world.level.block.state.BlockState before,InteractionHand itemHand){
         var game=me.skywars2.SkyWars2.game();
-        if(game!=null)game.items().genie().runtime().input(owner,input,target);
+        if(game!=null){
+            var genie=game.items().genie().runtime();
+            if(itemHand==null)genie.input(owner,input,target);
+            else genie.event(owner,me.skywars2.game.genie.GenieBlueprint.Trigger.USE,null,owner.getItemInHand(itemHand),itemHand);
+        }
         if(game==null||game.balanceLegacy()||dispatchDepth.get()>0||LbcModeScroll.scrolling()||!game.items().tmt().admitted(owner))return;
         int now=game.server().getTickCount();if(tick!=now){dispatched.clear();tick=now;}
         dispatchDepth.set(dispatchDepth.get()+1);
         inputOwner.set(owner);origin.set(input);
         try{
             for(var hand:InteractionHand.values()){
+                if(itemHand!=null&&hand!=itemHand)continue;
                 var stack=owner.getItemInHand(hand);if(!modern(stack)||LbcTmtAbilities.active(stack)||!LbcDimensionItems.allowed(owner,stack))continue;
                 hideDescriptions(stack);
                 var all=LbcTmtAbilities.read(stack);

@@ -231,7 +231,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
-            if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
+            if(game!=null&&player instanceof ServerPlayer owner
+                    &&!me.skywars2.game.LbcUseInteractions.forcedUse(owner)
+                    &&!me.skywars2.game.LbcUseInteractions.shieldHandoff(owner,hand)
+                    &&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTmtItems.matches(owner.getItemInHand(hand))&&!me.skywars2.game.LbcTmtItems.active(owner.getItemInHand(hand))){
                 if(game.vanity().blocked(owner)||!game.items().tmt().admitted(owner))return InteractionResult.FAIL;
                 return game.items().genie().runtime().replaceUse(owner,hand);
@@ -501,6 +504,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             root.then(Commands.literal("map").then(Commands.argument("id", StringArgumentType.word())
                     .executes(ctx -> game != null && game.selectMap(ctx.getSource().getPlayer(), StringArgumentType.getString(ctx, "id"), false) ? 1 : 0)
                     .then(Commands.literal("broken").executes(ctx -> game != null && game.selectMap(ctx.getSource().getPlayer(), StringArgumentType.getString(ctx, "id"), true) ? 1 : 0))));
+            root.then(Commands.literal("clearmap").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                    .executes(ctx->game==null?0:game.clearArena(ctx.getSource())));
             root.then(Commands.literal("stop").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(ctx -> {
                 if (game != null) game.stopMatch(); return 1;
             }));

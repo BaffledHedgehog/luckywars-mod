@@ -17,6 +17,7 @@ public final class GenieScriptItem {
     private static final String REPLACE_SHOT="genie_replace_shot";
     static final String REPLACE_USE_EVENT="USE_REPLACE";
     private static final String REPLACE_USE="genie_replace_use";
+    private static final String USES_REMAINING="genie_uses_remaining";
     private GenieScriptItem(){}
     public static boolean matches(ItemStack stack){return ItemData.contains(stack,CODE);}
     public static boolean replacesShot(ItemStack stack){return matches(stack)&&ItemData.intValue(stack,REPLACE_SHOT,0)==1;}
@@ -25,6 +26,15 @@ public final class GenieScriptItem {
     public static String serial(ItemStack stack){return ItemData.stringValue(stack,GenieRuntime.SERIAL,"");}
     public static String encodedState(ItemStack stack){return ItemData.stringValue(stack,STATE,"{}");}
     public static JsonObject state(ItemStack stack){return ScriptJson.parse(encodedState(stack));}
+    static void spendCharge(ItemStack stack,int limit){
+        var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        int remaining=Math.min(limit,data.getIntOr(USES_REMAINING,limit));
+        if(remaining<=1){
+            data.remove(USES_REMAINING);
+            stack.shrink(1);
+        }else data.putInt(USES_REMAINING,remaining-1);
+        if(!stack.isEmpty())stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+    }
     public static void state(ItemStack stack,String encoded){
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();tag.putString(STATE,encoded);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
     }

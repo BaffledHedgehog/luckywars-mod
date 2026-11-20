@@ -2182,13 +2182,24 @@ public final class LbcItems {
                 player.getX(), player.getY(), player.getZ(), volume, pitch, player.getRandom().nextLong()));
     }
 
-    /** Twitching имитирует обычный одиночный клик, сохраняя Fabric hooks и расход предметов.
-     * Пакеты с выдуманным sequence отправлять нельзя: они сдвигают ACK реального клиента. */
-    public void mouseAction(ServerPlayer player, boolean attack) {
+    private boolean acceptsMouseAction(ServerPlayer player) {
         if(!game.server().isSameThread()) throw new IllegalStateException("Mouse actions require the server thread");
-        if (!game.canUseGameplayItems(player) || !player.isAlive() || game.isObserver(player)
-                || frost.isFrozen(player) || player.entityTags().contains("time_stopped")
-                || wands.timeStopped() || player.isUsingItem()) return;
+        return game.canUseGameplayItems(player)&&player.isAlive()&&!game.isObserver(player)
+                &&!frost.isFrozen(player)&&!player.entityTags().contains("time_stopped")
+                &&!wands.timeStopped()&&!player.isUsingItem();
+    }
+
+    void twitchItemAction(ServerPlayer player,InteractionHand hand) {
+        if(!acceptsMouseAction(player))return;
+        var stack=player.getItemInHand(hand);
+        if(!stack.isItemEnabled(player.level().enabledFeatures()))return;
+        mouseSwing(player,hand,stack,LbcUseInteractions.forceItem(player,hand));
+        player.containerMenu.broadcastChanges();
+    }
+
+    /** Simulate one ordinary click through native interactions without injecting a dummy sequence number. */
+    public void mouseAction(ServerPlayer player, boolean attack) {
+        if(!acceptsMouseAction(player))return;
         var level=player.level();
         var held=player.getMainHandItem();
         if(attack && held.has(DataComponents.PIERCING_WEAPON)) {

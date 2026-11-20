@@ -4,6 +4,8 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 /** Real lobby requests supersede both decoding and partially applied native map work. */
@@ -14,11 +16,28 @@ public final class MapReplacementChecks {
     public static void run(GameController game){require(active==null&&game.inLobby()&&!game.maps().busy(),"exclusive ready lobby");active=new Scene(game);active.start();}
     private static final class Scene {
         final GameController game;final ServerPlayer owner;final String oldMap;final boolean oldBroken;final int started;
+        final int oldMode;
+        final BlockPos untracked, outside, lobby;
+        final MapManager.BlockSnapshot previousOutside,lobbyBlock;
         int phase;final List<net.minecraft.world.entity.item.ItemEntity> debris=new ArrayList<>();
-        Scene(GameController game){this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));oldMap=game.config().mapId;oldBroken=game.config().broken;started=game.server().getTickCount();}
+        Scene(GameController game){
+            this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
+            oldMap=game.config().mapId;oldBroken=game.config().broken;oldMode=game.config().gameMode;started=game.server().getTickCount();
+            require((int)field(game.maps(),"sweptMode")==oldMode,"the first startup map applied a full sweep");
+            var level=game.maps().level();int edge=MapManager.OUTER_ARENA_LIMIT;
+            untracked=new BlockPos(edge,level.getMaxY()-2,edge);outside=untracked.east();
+            var cells=(Map<?,?>)field(game.maps(),"lobbyVisible");
+            lobby=cells.entrySet().stream().filter(entry->entry.getValue() instanceof MapManager.BlockSnapshot snapshot&&!snapshot.state().isAir())
+                    .map(entry->(BlockPos)entry.getKey()).findFirst().orElseThrow();
+            lobbyBlock=game.maps().snapshot(lobby);previousOutside=game.maps().snapshot(outside);
+            var chunk=level.getChunk(untracked.getX()>>4,untracked.getZ()>>4);
+            chunk.setBlockState(untracked,Blocks.DIAMOND_BLOCK.defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+            chunk.setBlockState(outside,Blocks.EMERALD_BLOCK.defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+            require(!game.maps().arenaTerrainAt(untracked),"direct-written witness is outside the tracked map bounds");
+        }
         void select(String id){require(game.selectMap(owner,id,false),"actual native selection accepted "+id);}
         void start(){select("60");var first=field(game.maps(),"preparation");select("61");require(first!=field(game.maps(),"preparation"),"second click replaces the in-flight preparation immediately");select("1");require(game.maps().busy()&&!game.selectedMapReady(),"latest request is the sole active operation");}
-        boolean tick(){
+        boolean tick() throws com.mojang.brigadier.exceptions.CommandSyntaxException {
             require(game.inLobby()&&game.server().getTickCount()-started<3600,"bounded lobby scene");
             if(phase==0){
                 if(game.maps().streamingChangedChunks().isEmpty())return false;
@@ -37,18 +56,44 @@ public final class MapReplacementChecks {
                     item.setNoGravity(true);item.setPickUpDelay(100);require(world.addFreshEntity(item),"real debris after the last native paste, before map readiness");debris.add(item);
                 }
             }
+            if(phase==3){
+                if(game.maps().busy())return false;
+                require(!game.selectedMapReady()&&game.maps().spawns().isEmpty(),"manual clear keeps the arena empty until a new selection");
+                checkSweep();
+                restoreOutside();
+                game.configureLobbySetting(null,"gameMode",Integer.toString(oldMode));
+                require(game.selectMap(owner,oldMap,oldBroken),"restore actual original selection");phase=4;return false;
+            }
             if(!game.selectedMapReady())return false;
-            if(phase==1){require(game.config().mapId.equals("61"),"last requested map is the only ready selection");imprinted(game);select("8");phase=2;return false;}
+            if(phase==1){
+                require(game.config().mapId.equals("61"),"last requested map is the only ready selection");
+                require(game.maps().level().getBlockState(untracked).is(Blocks.DIAMOND_BLOCK),"same-mode selections do not run the full sweep");
+                imprinted(game);
+                game.configureLobbySetting(null,"gameMode",oldMode==1?"2":"1");
+                select("8");phase=2;return false;
+            }
             if(phase==2){
                 require(game.config().mapId.equals("8")&&debris.size()==2&&debris.stream().allMatch(net.minecraft.world.entity.Entity::isRemoved),"Cubes8 readiness follows removal of actual overworld and Imprinted debris");
                 for(var world:List.of(game.maps().level(),Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED)))){
                     for(var entity:world.getAllEntities())require(!(entity instanceof net.minecraft.world.entity.item.ItemEntity),"no loose items after map loading");
                     require(game.itemQueue().active(world)==0&&game.itemQueue().dormant(world)==0,"no archived debris can revive after readiness");
                 }
-                require(game.selectMap(owner,oldMap,oldBroken),"restore actual original selection");phase=3;return false;
+                checkSweep();
+                var level=game.maps().level();
+                level.getChunk(untracked.getX()>>4,untracked.getZ()>>4)
+                        .setBlockState(untracked,Blocks.DIAMOND_BLOCK.defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+                require(game.server().getCommands().getDispatcher().execute("skywars clearmap",game.server().createCommandSourceStack())==1
+                        &&game.maps().busy(),"operator command starts a manual full sweep");
+                phase=3;return false;
             }
             require(game.config().mapId.equals(oldMap)&&game.config().broken==oldBroken,"original selection restored through the public loader");return true;
         }
+        void checkSweep(){
+            require(game.maps().level().getBlockState(untracked).isAir(),"full rectangle clears an untracked block on the outer boundary");
+            require(game.maps().level().getBlockState(outside).is(Blocks.EMERALD_BLOCK),"the neighboring cell outside the boundary survives");
+            require(game.maps().snapshot(lobby).equals(lobbyBlock),"visible lobby block and data survive the sweep");
+        }
+        void restoreOutside(){game.maps().restoreSnapshot(game.maps().level(),outside,previousOutside,Block.UPDATE_SKIP_ALL_SIDEEFFECTS);}
     }
     public static void tick(GameController game){if(active==null)return;try{if(!active.tick())return;active=null;SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; Cubes8 loose-item cleanup before readiness in both worlds, Imprinted mirror and original selection restored)");}catch(Throwable error){if(active!=null)for(var item:active.debris)if(!item.isRemoved())item.discard();active=null;SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);}}
     @SuppressWarnings("unchecked") public static void imprinted(GameController game){

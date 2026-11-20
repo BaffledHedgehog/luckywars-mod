@@ -227,7 +227,14 @@ public final class GenieScriptRuntime implements AutoCloseable {
 
     private GenieWorldHost host(ServerPlayer owner, Context context, ItemStack captured) {
         return new GenieWorldHost(game, owner, captured,
-            () -> admitted(owner) && context.epoch.equals(game.items().epoch()), () -> context.clock, memory);
+            () -> admitted(owner) && context.epoch.equals(game.items().epoch()), () -> context.clock, memory,
+            limit -> {
+                if(context.detached||!owned(owner,context.item))return false;
+                GenieScriptItem.spendCharge(context.item,limit);
+                owner.getInventory().setChanged();
+                owner.containerMenu.broadcastChanges();
+                return true;
+            });
     }
     public void input(ServerPlayer owner,LbcTmtTriggers.Input input,Entity target){
         // Native continuations supply the exact source of these actions.
