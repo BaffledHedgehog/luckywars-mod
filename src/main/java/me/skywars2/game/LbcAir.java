@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import me.skywars2.SkyWars2;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
@@ -108,6 +109,15 @@ public final class LbcAir {
         return spawn(owner,hand,0,ItemStack.EMPTY,origin,direction,120);
     }
     Charge sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){var charge=spawn(owner,InteractionHand.MAIN_HAND,0,ItemStack.EMPTY,origin,direction,120);if(charge!=null)charge.emitterStyle=true;return charge;}
+    static HitResult forecastContact(Charge charge,Vec3 end,Entity ignored){
+        var game=SkyWars2.game();
+        if(game==null)return null;
+        var sources=game.items().spellSources();
+        try(var scope=sources.scope(charge)){
+            var hit=game.items().wands().firstHit(sources.author(charge),charge.position(),end,target->target!=ignored);
+            return hit instanceof BlockHitResult block&&!charge.level().hasChunkAt(block.getBlockPos())?null:hit;
+        }
+    }
     void spawn(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction) {
         spawn(owner,hand,mode,stack,origin,direction,0);
     }
@@ -210,10 +220,12 @@ for(double d=0;d<=distance+1e-7;d+=step) {
         if(nearest!=null) charge.setDeltaMovement(nearest.getEyePosition().subtract(at).normalize().scale(1.6));
     }
 
+    static final int EMITTER_TNT_COUNT = 3;
+
     private void detonate(Charge charge,ServerPlayer owner,Vec3 point) {
         if(!validOwner(owner) || !game.items().currentEpoch(charge) || !sourceLevel(owner).hasChunkAt(BlockPos.containing(point))) return;
         if(charge.emitterStyle){
-            for(int i=0;i<3;i++){
+            for(int i=0;i<EMITTER_TNT_COUNT;i++){
                 var tnt=new net.minecraft.world.entity.item.PrimedTnt(sourceLevel(owner),point.x,point.y,point.z,owner);
                 tnt.setFuse(1);tnt.setDeltaMovement(Vec3.ZERO);
                 if(game.items().spellSources().current()!=null){game.items().markCurrentItemEpoch(tnt);game.items().spellSources().capture(tnt);game.items().timeStop().prepareFrozen(tnt);sourceLevel(owner).addFreshEntity(tnt);}

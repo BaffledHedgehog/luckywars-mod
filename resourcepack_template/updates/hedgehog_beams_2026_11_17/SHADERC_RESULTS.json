@@ -1,8 +1,0 @@
-{
-  "passed": true,
-  "positiveStages": 54,
-  "variantsPerStage": 2,
-  "checks": 110,
-  "sourceReportSha256": "3ebd9dc38e324cffde11c2f4beef730a5a6512b989e4a929ff9298749bd1fbb5",
-  "physicalClientReloadObserved": false
-}

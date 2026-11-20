@@ -150,7 +150,7 @@ public final class LbcBedwarsShop {
     }
     private static List<Component> priceLore(Offer offer){
         var lines=new ArrayList<Component>();boolean bare=offer.kind!=Kind.ITEM&&offer.kind!=Kind.TEAM_CHEST;
-        for(int n=0;n<5;n++)if(offer.price.at(n)>0){String key=bare?BARE_CURRENCY_KEYS[n]:CURRENCY_KEYS[n];lines.add(Component.literal(offer.price.at(n)+"\u00d7 ").withStyle(ChatFormatting.WHITE,ChatFormatting.BOLD).append(Component.translatable(key).withStyle(COLORS[n])));}
+        for(int n=0;n<5;n++)if(offer.price.at(n)>0){String key=bare?BARE_CURRENCY_KEYS[n]:CURRENCY_KEYS[n];lines.add(Component.literal(offer.price.at(n)+"x ").withStyle(ChatFormatting.WHITE,ChatFormatting.BOLD).append(Component.translatable(key).withStyle(COLORS[n])));}
         return lines;
     }
     private boolean buy(Menu menu,Offer offer,boolean shift){

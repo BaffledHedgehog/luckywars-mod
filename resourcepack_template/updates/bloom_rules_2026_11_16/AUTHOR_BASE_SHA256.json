@@ -1,8 +1,0 @@
-{
-  "assets/minecraft/shaders/core/item.fsh": "f9fcb86522720effc43fec6514ed4d4e0e12436cafc67d4f625055d4fe041626",
-  "assets/minecraft/shaders/core/entity.fsh": "da25a0515685f65c526d24ad090c41a8a89bf3572e34714432e4baf70ec77833",
-  "assets/minecraft/shaders/core/terrain.fsh": "cf7f56d4de0c0ce9a5f902d649f77852d7b16d07ef17541f96cdc27fad9bfba7",
-  "assets/minecraft/shaders/core/particle.fsh": "8a0e08e8e2256478272e6cd7b1ea878abf33243128e2e2f82464bf3c6c11333b",
-  "assets/minecraft/post_effect/end_of_frame.json": "d237bd72359b582e83f891a1adc4025ea05e4e8232e73f8d2e24a864078069a0",
-  "assets/minecraft/shaders/post/bloom_sample.fsh": "6e13add61f3b99d11335e7dbc16d84a8afb05b7a604ecc48b826feea7c87e3f0"
-}

@@ -166,7 +166,7 @@ final class LbcChefBrain {
             if(hazard(cell))return false;
         return level.noCollision(chef,b);
     }
-    private boolean safe(Spot p){return clear(p.point())&&floorSupported(p.point());}
+    private boolean safe(Spot p){return safeFooting(p.point());}
     private boolean floorSupported(Vec3 p){
         // A tiny downward native collision probe checks real shape, including partial blocks.
         probes++;
@@ -181,6 +181,18 @@ final class LbcChefBrain {
         var target=step.to.point();return Math.abs(target.y-chef.getY())<.65&&target.subtract(chef.position()).horizontalDistanceSqr()<2.25;
     }
     boolean supported(Vec3 point){return floorSupported(point);}
+    boolean safeFooting(Vec3 point){return clear(point)&&floorSupported(point);}
+    boolean stepSupported(Vec3 point){
+        var body=chef.getBoundingBox().move(point.subtract(chef.position()));
+        var sole=new AABB(body.minX,body.minY-1.125,body.minZ,body.maxX,body.minY-.02,body.maxZ);
+        return level.getBlockCollisions(chef,sole).iterator().hasNext();
+    }
+    boolean plannedAirMovement(){
+        var step=path.peek();
+        return airborneJump||flightAim!=null||pillarLaunched
+                ||step!=null&&(step.action==Action.DROP||step.action==Action.MINE_DOWN);
+    }
+    Vec3 nearbyLanding(Vec3 center,double maxY){return nearestSurface(center,3,maxY);}
     Vec3 landingSurface(Vec3 center){return nearestSurface(center,4);}
     Vec3 landingSurface(Vec3 center,double maxY){return nearestSurface(center,12,maxY);}
     boolean safeWalk(Vec3 point){return walkClear(chef.position(),point,true);}
@@ -193,6 +205,21 @@ final class LbcChefBrain {
         var start=actualStart();if(start==null)return null;var target=BlockPos.containing(point);
         var route=directSurface(start,target);
         return route!=null&&heuristic(route.spot,target)<.75?route.spot.point():null;
+    }
+    private Node exactSurface(BlockPos target){
+        var start=actualStart();
+        if(start==null)return null;
+        return directSurface(start,target,true);
+    }
+    Vec3 startSurfaceRoute(Vec3 destination){
+        beginTick(level.getServer().getTickCount());
+        var target=BlockPos.containing(destination);
+        var route=exactSurface(target);
+        if(route==null)return null;
+        reset("safer footing");
+        goal=target;
+        commit(route);
+        return route.spot.point();
     }
     int retreatMargin(Vec3 point){
         int sides=0;
@@ -315,7 +342,14 @@ final class LbcChefBrain {
                 ||!walkClear(chef.position(),destination,true))return false;
         chef.setSprinting(true);driver.steer(destination,false,driver.lookPoint());return true;
     }
-    void tick(){
+    void tick(){tick(false);}
+    void tickOnExistingGround(){
+        if(!BlockPos.containing(driver.destination()).equals(goal)||search!=null
+                ||path.stream().anyMatch(step->step.action!=Action.WALK&&step.action!=Action.JUMP&&step.action!=Action.DROP))
+            reset("safer footing");
+        tick(true);
+    }
+    private void tick(boolean surfaceOnly){
         driver.crouch(false);
         beginTick(level.getServer().getTickCount());
         if(driver.nativeActions()){var available=driver.nativeTools();tools=available==null||available.isEmpty()?List.of(ItemStack.EMPTY):available;}
@@ -345,7 +379,13 @@ final class LbcChefBrain {
         // two-second progress watchdog with an already-consumed launch latch.
         if(airborneJump&&chef.onGround()&&chef.tickCount>=nextJump-4)airborneJump=false;
         boolean extend=!path.isEmpty()&&path.size()<=3&&heuristic(path.getLast().to,target)>2;
-        if(search!=null||replan==0&&(path.isEmpty()||extend)){plan(target);if(search==null)replan=8;}
+        if(surfaceOnly){
+            if(path.isEmpty()&&replan==0){
+                var route=exactSurface(target);
+                if(route!=null)commit(route);
+                replan=8;
+            }
+        }else if(search!=null||replan==0&&(path.isEmpty()||extend)){plan(target);if(search==null)replan=8;}
         if(path.isEmpty()){
             if(chef.onGround()){
                 Spot footing=actualStart();
@@ -729,11 +769,14 @@ final class LbcChefBrain {
         return column;
     }
     private Node directSurface(Spot start,BlockPos destination){
+        return directSurface(start,destination,false);
+    }
+    private Node directSurface(Spot start,BlockPos destination,boolean exact){
         Node current=new Node(start,0,0,null,Action.WALK);
         int started=probes;
         for(int i=0;i<24&&probes-started<720&&probes<GLOBAL_PROBES;i++){
             Spot from=current.spot;
-            if(heuristic(from,destination)<.75)return current==null||current.parent==null?null:current;
+            if(exact?from.cell().equals(destination):heuristic(from,destination)<.75)return current.parent==null?null:current;
             int dx=Integer.signum(destination.getX()-from.x),dz=Integer.signum(destination.getZ()-from.z);
             if(dx==0&&dz==0)return null;
             Node next=null;
@@ -756,6 +799,7 @@ final class LbcChefBrain {
             if(next==null)return null;
             current=next;
         }
+        if(exact)return current.parent!=null&&current.spot.cell().equals(destination)?current:null;
         return heuristic(start,destination)-heuristic(current.spot,destination)>12?current:null;
     }
     private void plan(BlockPos destination){

@@ -1,8 +1,0 @@
-{
-  "assets/lbc/shaders/post/weapon_spread.vsh": "6c5c369cb156b1973e093be6742c8f231e47f8d2cdf1d1c076a4e346150c6310",
-  "assets/lbc/shaders/post/weapon_spread.fsh": "7809761c80b06cbfc1def2062a02c889bb8e1132052893adb4a478354770bb0d",
-  "assets/minecraft/post_effect/end_of_frame.json": "a02c1bc64e230b78b785e35072bcb9a6e91ff931bd8b53e4c3f4d4e73a97b5a9",
-  "assets/minecraft/post_effect/entity_outline.json": "cade0e066eaad2577a0e9400fcdf923d8b3f297ecb07c815cf61978696feb7b4",
-  "assets/lbc/shaders/include/reticle_native.glsl": "0b4a4dceb24a6a037a5134f6dfae94bd43354340789510db9e51c6daf430cefe",
-  "assets/lbc/shaders/include/reticle_gui_settings.glsl": "54a75fea0f1f6f245f07f6ff5f6d99d1cd46cc55bfce9516ad6d009c11f1be8f"
-}

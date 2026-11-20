@@ -1,3 +1,13 @@
 {
-  "pools": [{"rolls": 1, "entries": [{"type": "minecraft:loot_table", "value": "lbc:mellstroy_mask"}]}]
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:mellstroy_mask"
+        }
+      ]
+    }
+  ]
 }

@@ -1,7 +1,0 @@
-{
-  "assets/minecraft/shaders/core/position_tex_color.vsh": "4048e4109e2cf9cd4bcf35c51ea737dd4b1d8d332b41e840b7bdefdbae7f9eb7",
-  "assets/lbc/shaders/post/weapon_spread_resolve.vsh": "39a8f0d80ee188809493c6f41c7b7b89f545ec0b161dbbaa1d4b99ba8b8c1f15",
-  "assets/lbc/shaders/post/weapon_spread_resolve.fsh": "15b0a1b743dcb3697bdbd805caa221f55b34fa955b318532c839dc8206dd3860",
-  "assets/lbc/shaders/include/reticle_native.glsl": "cbaa37f5e1c007db9d6b96ca59ed8cf57236b188e6930132fca742bf03c60aba",
-  "assets/lbc/shaders/include/reticle_gui_settings.glsl": null
-}

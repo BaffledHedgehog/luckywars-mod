@@ -1,7 +1,10 @@
 package me.skywars2.game;
 
+import me.skywars2.mixin.LargeFireballAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.*;
 
@@ -89,13 +92,26 @@ final class LbcBotActions {
         }
         return closest;
     }
+    static AABB projectileTarget(Projectile shot,AABB body){
+        // Hostile Terra samples occupy the positive unit cube from each point on the ray.
+        // Move the cube onto the target in the opposite direction for the line test.
+        if(shot instanceof LbcTerra.TerraProjectile terra&&terra.emitterStyle)
+            return body.expandTowards(-1,-1,-1);
+        if(shot instanceof LbcAir.Charge)return body;
+        return body.inflate(.35);
+    }
     /** Recheck one retained threat without rescanning nearby entities every camera frame. */
     static double impactTime(LivingEntity actor,net.minecraft.world.entity.projectile.Projectile shot){
         if(!shot.isAlive()||shot.getOwner()==actor||shot.level()!=actor.level())return Double.POSITIVE_INFINITY;
+        if(shot instanceof LargeFireball fireball&&((LargeFireballAccess)fireball).skywars2$explosionPower()>0
+                ||shot instanceof LbcAir.Charge air&&air.emitterStyle){
+            var blast=blastImpact(actor,shot);
+            return blast==null?Double.POSITIVE_INFINITY:blast.ticks();
+        }
         var motion=shot.getDeltaMovement();double speed=motion.length();if(speed<.05)return Double.POSITIVE_INFINITY;
         var from=shot.position();var end=from.add(motion.scale(Math.min(20,16/speed)));
-        var hit=actor.getBoundingBox().inflate(.35).clip(from,end);
-        if(hit.isEmpty()){
+        var hit=LbcProjectileSweep.entry(projectileTarget(shot,actor.getBoundingBox()),from,end);
+        if(hit==null){
             // A nearby visible homing bullet need not point along its eventual approach yet.
             if(shot instanceof net.minecraft.world.entity.projectile.ShulkerBullet&&actor.distanceToSqr(shot)<=64){
                 var sight=actor.level().clip(new ClipContext(from,actor.getBoundingBox().getCenter(),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,shot));
@@ -103,7 +119,35 @@ final class LbcBotActions {
             }
             return Double.POSITIVE_INFINITY;
         }
-        var wall=actor.level().clip(new ClipContext(from,hit.get(),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,shot));
-        return wall.getType()==HitResult.Type.MISS?from.distanceTo(hit.get())/speed:Double.POSITIVE_INFINITY;
+        var wall=actor.level().clip(new ClipContext(from,hit,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,shot));
+        return wall.getType()==HitResult.Type.MISS?from.distanceTo(hit)/speed:Double.POSITIVE_INFINITY;
+    }
+    static final double AIR_BLAST_RADIUS=8;
+    record BlastImpact(Vec3 point,double radius,double ticks,boolean hitsActor,int explosions){}
+    static BlastImpact blastImpact(LivingEntity actor,Projectile shot){
+        if(!shot.isAlive()||shot.getOwner()==actor||shot.level()!=actor.level())return null;
+        var motion=shot.getDeltaMovement();
+        double speed=motion.length();
+        if(speed<.05)return null;
+        var from=shot.position();
+        var end=from.add(motion.scale(Math.min(20,16/speed)));
+        var body=actor.getBoundingBox();
+        if(shot instanceof LbcAir.Charge air&&air.emitterStyle){
+            var hit=LbcAir.forecastContact(air,end,null);
+            if(hit==null||body.distanceToSqr(hit.getLocation())>AIR_BLAST_RADIUS*AIR_BLAST_RADIUS)return null;
+            // The unchanged legacy payload creates TNT with fuse one at this contact.
+            boolean hitsActor=hit instanceof EntityHitResult entity&&entity.getEntity()==actor;
+            return new BlastImpact(hit.getLocation(),AIR_BLAST_RADIUS,from.distanceTo(hit.getLocation())/speed+1,
+                    hitsActor,LbcAir.EMITTER_TNT_COUNT);
+        }
+        if(!(shot instanceof LargeFireball fireball))return null;
+        double radius=2.0*((LargeFireballAccess)fireball).skywars2$explosionPower();
+        if(radius<=0)return null;
+        var contact=body.inflate(.35).clip(from,end);
+        var wall=actor.level().clip(new ClipContext(from,contact.orElse(end),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,shot));
+        var point=wall.getType()==HitResult.Type.MISS?contact.orElse(null):wall.getLocation();
+        if(point==null||body.distanceToSqr(point)>radius*radius)return null;
+        return new BlastImpact(point,radius,from.distanceTo(point)/speed,
+                wall.getType()==HitResult.Type.MISS&&contact.isPresent(),1);
     }
 }

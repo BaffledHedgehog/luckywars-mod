@@ -76,7 +76,12 @@ public final class LbcWhiteArrows {
             if(!resident(shot.level,shot.point)){shots.remove(shot.id);continue;}
             shot.lastStepTick=tick;
             try(var scope=game.items().spellSources().scope(shot.source,shot.level)){
-                shot.point=traceStep(shot.level,shot.point,shot.direction,e->target(shot,e),living->{if(game.items().indirectKills().inheritedExecution(living,shot.source.cause()))kills++;},p->resident(shot.level,p));
+                shot.point = traceStep(shot.level, shot.point, shot.direction, e -> target(shot, e), living -> {
+                    if (game.items().indirectKills().inheritedExecution(living, shot.source.cause())) {
+                        kills++;
+                        LbcAcceptedHits.projectileFeedback(game, shot.author);
+                    }
+                }, p -> resident(shot.level, p));
             }
             steps++;if(++shot.age>=20)shots.remove(shot.id);
         }}finally{callbacks--;}

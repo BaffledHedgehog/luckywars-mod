@@ -206,11 +206,57 @@ public final class LbcShishEncounter {
         write(player,"speed",0);write(player,"speedy",0);
     }
     public void sampleMovement(ServerPlayer player){
-        int x=Mth.floor(player.getX()*100),y=Mth.floor(player.getY()*100),z=Mth.floor(player.getZ()*100);int dx=x-read(player,"x"),dy=y-read(player,"y"),dz=z-read(player,"z");write(player,"speedy",dy);int squared=dx*dx+dy*dy+dz*dz,speed=Math.floorDiv(squared,2);
-        for(int n=0;n<17;n++){int value=squared;if(speed!=0)value=Math.floorDiv(value,speed);value+=speed;speed=Math.floorDiv(value,2);}write(player,"speed",speed);if(read(player,"sleep_time")>0)write(player,"sleep_time",read(player,"sleep_time")-15);if(speed==0)write(player,"sleep_time",read(player,"sleep_time")+16);
+        int x=Mth.floor(player.getX()*100),y=Mth.floor(player.getY()*100),z=Mth.floor(player.getZ()*100);
+        int dx=x-read(player,"x"),dy=y-read(player,"y"),dz=z-read(player,"z");
+        int speed=movementSpeed(dx,dy,dz);
+        write(player,"speedy",dy);
+        write(player,"speed",speed);
+        if(read(player,"sleep_time")>0)write(player,"sleep_time",read(player,"sleep_time")-15);
+        if(speed==0)write(player,"sleep_time",read(player,"sleep_time")+16);
         if(!player.entityTags().contains("time_stopped_lol")){write(player,"x",x);write(player,"y",y);write(player,"z",z);}
     }
-    private void katana(ServerPlayer player){var attr=player.getAttribute(Attributes.ATTACK_DAMAGE);if(matches(player.getMainHandItem())){int speed=Math.floorDiv(read(player,"speed"),18);int amount=Math.floorDiv(speed*speed+1,2);var old=attr.getModifier(KATANA_SPEED);if(old==null||old.amount()!=amount){attr.removeModifier(KATANA_SPEED);attr.addPermanentModifier(new AttributeModifier(KATANA_SPEED,amount,AttributeModifier.Operation.ADD_VALUE));}katanaOwners.add(player);}else{attr.removeModifier(KATANA_SPEED);katanaOwners.remove(player);}}
+
+    private static int movementSpeed(int dx,int dy,int dz){
+        int squared=dx*dx+dy*dy+dz*dz;
+        int speed=Math.floorDiv(squared,2);
+        for(int n=0;n<17;n++){
+            int value=speed==0?squared:Math.floorDiv(squared,speed);
+            speed=Math.floorDiv(value+speed,2);
+        }
+        return speed;
+    }
+
+    private void katana(ServerPlayer player){
+        if(matches(player.getMainHandItem()))updateKatanaDamage(player,read(player,"speed"));
+        else forget(player);
+    }
+
+    /** An attack packet can arrive after a teleport and before the next position sample. */
+    public void refreshKatanaAttack(ServerPlayer player){
+        if(checkpointFrozen)return;
+        if(!matches(player.getMainHandItem())){
+            forget(player);
+            return;
+        }
+        if(!player(player))return;
+        int dx=Mth.floor(player.getX()*100)-read(player,"x");
+        int dy=Mth.floor(player.getY()*100)-read(player,"y");
+        int dz=Mth.floor(player.getZ()*100)-read(player,"z");
+        int speed=dx==0&&dy==0&&dz==0?read(player,"speed"):movementSpeed(dx,dy,dz);
+        updateKatanaDamage(player,speed);
+    }
+
+    private void updateKatanaDamage(ServerPlayer player,int speed){
+        int scaled=Math.floorDiv(speed,18);
+        int amount=Math.floorDiv(scaled*scaled+1,2);
+        var attr=player.getAttribute(Attributes.ATTACK_DAMAGE);
+        var old=attr.getModifier(KATANA_SPEED);
+        if(old==null||old.amount()!=amount){
+            attr.removeModifier(KATANA_SPEED);
+            attr.addPermanentModifier(new AttributeModifier(KATANA_SPEED,amount,AttributeModifier.Operation.ADD_VALUE));
+        }
+        katanaOwners.add(player);
+    }
     public net.minecraft.network.chat.Component hud(ServerPlayer player){if(!matches(player.getMainHandItem())&&!matches(player.getOffhandItem()))return net.minecraft.network.chat.Component.empty();return net.minecraft.network.chat.Component.literal("    \uE103 \u00a7fx").append(net.minecraft.network.chat.Component.literal(Integer.toString(read(player,"swordcharged6"))).withColor(0xffffff)).append(net.minecraft.network.chat.Component.literal(" [")).append(net.minecraft.network.chat.Component.literal(Integer.toString(read(player,"swordcharging6"))).withColor(0x41bbe0)).append(net.minecraft.network.chat.Component.literal("/3\u00a7f]").withColor(0x41bbe0));}
     private static boolean yellow(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("yellow_lightning",0)==1;}
     public void inventoryChanged(ServerPlayer player){boolean hotbar=false,inventory=false;for(int slot=0;slot<36;slot++){boolean found=yellow(player.getInventory().getItem(slot));inventory|=found;if(slot<9)hotbar|=found;}boolean held=yellow(player.getMainHandItem())||yellow(player.getOffhandItem());if(hotbar||held)player.entityTags().addAll(List.of("yellow_lightning","yellow_lightning_active"));if(!hotbar&&!held)player.entityTags().remove("yellow_lightning");if(!inventory&&!held)player.entityTags().remove("yellow_lightning_active");}

@@ -40,7 +40,7 @@ public final class LbcCarpetBots {
                 &&source.getDirectEntity() instanceof net.minecraft.world.entity.LivingEntity attacker&&attacker!=player&&!player.isAlliedTo(attacker))state.defense.meleeDamage(attacker);
         if(source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile shot
                 &&shot.getOwner() instanceof net.minecraft.world.entity.LivingEntity attacker&&attacker!=player&&!player.isAlliedTo(attacker))
-            state.defense.rangedDamage(attacker);
+            state.defense.rangedDamage(attacker,shot);
     }
     static boolean bot(ServerPlayer player){return player.getGameProfile().name().regionMatches(true,0,"bot",0,3)
             &&player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake");}
@@ -131,14 +131,22 @@ public final class LbcCarpetBots {
             if(defense.retaliation!=null){aggressor=defense.retaliation.getUUID();aggressorUntil=now+1200;defense.retaliation=null;}
             var previousEnemy=enemy;enemy=nearestEnemy();
             if(enemy!=previousEnemy){brain.reset();abortMining();}
-            boolean urgent=survival.urgent();
+            boolean escapeUrgent=survival.escapeUrgent();
+            boolean urgent=escapeUrgent||player.isOnFire();
             if((enemy!=null||urgent)&&player.containerMenu!=player.inventoryMenu)player.closeContainer();
-            if(player.isUsingItem()&&(urgent||
-                    player.getUseItem().has(DataComponents.FOOD)&&defense.shelterUrgent()||
+            boolean eating=player.getUseItem().has(DataComponents.FOOD);
+            if(player.isUsingItem()&&((eating?escapeUrgent:urgent)||
+                    eating&&defense.shelterUrgent()||
                     (player.getUseItem().getItem() instanceof BowItem||player.getUseItem().getItem() instanceof CrossbowItem
                     ||player.getUseItem().getItem() instanceof TridentItem)&&(preferMelee()||defense.interruptUse(enemy))))player.stopUsingItem();
-            if(survival.tick(enemy!=null)){crafting.cancel();academy.cancel();return;}
+            if((!escapeUrgent&&defense.dodgeProjectile())||(!urgent&&defense.moveFromMeleeEdge(enemy))){
+                crafting.cancel();academy.cancel();return;
+            }
+            boolean underPressure=enemy!=null&&player.distanceToSqr(enemy)<36
+                    ||survival.water!=null&&defense.incoming!=null&&LbcBotActions.impactTime(player,defense.incoming)<=10;
+            if(survival.tick(underPressure)){crafting.cancel();academy.cancel();return;}
             if(brain.freeBody()){crafting.cancel();academy.cancel();return;}
+            if(defense.recoverRangedGround(enemy,flyerOutOfReach())){crafting.cancel();academy.cancel();return;}
             if(player.isUsingItem()){
                 if(defense.holdingShield())return;
                 var used=player.getUseItem();
@@ -169,10 +177,18 @@ public final class LbcCarpetBots {
             }
             if(enemy!=null){
                 stopCollecting();
-                goal=enemy.position();chest=null;
+                boolean standoff=flyerOutOfReach();
+                if(!standoff)goal=enemy.position();
+                chest=null;
                 if(clearCrystal())return;
                 double distance=player.distanceToSqr(enemy);boolean shooting=rangedLoadout()&&!preferMelee();
                 if(defense.sheltered(enemy)){turn(enemy.getEyePosition());return;}
+                if(standoff){
+                    // Bridging toward a flying target won't put its hitbox in melee reach.
+                    if(shooting&&distance<=32*32&&player.hasLineOfSight(enemy)&&(ranged()||ability()))return;
+                    if(!defense.retreat(enemy.position(),8,true))turn(enemy.getEyePosition());
+                    return;
+                }
                 if(defense.holdsHighGround(enemy)){
                     if(!defense.thorns(enemy)&&player.hasLineOfSight(enemy)){
                         if(shooting&&(ranged()||ability()))return;
@@ -252,7 +268,7 @@ public final class LbcCarpetBots {
                 if(distance>(otherBot?64:196))continue;double rank=distance*(otherBot?1.6:1);
                 if(rank<closest){closest=rank;best=candidate;}
             }
-            return best;
+            return best!=null?best:game.items().sauvojenBoss().nearbyThreat(player,enemy);
         }
         private boolean hostile(net.minecraft.world.entity.LivingEntity target){
             if(target==player||!target.isAlive()||target.isRemoved()||target.isSpectator()||player.isAlliedTo(target))return false;
@@ -324,10 +340,16 @@ public final class LbcCarpetBots {
             return false;
         }
         int nextAbility,abilitySlot;
+        private boolean flyerOutOfReach(){
+            if(enemy==null||enemy.getType()!=net.minecraft.world.entity.EntityTypes.GHAST)return false;
+            double reach=player.entityInteractionRange();
+            return enemy.getBoundingBox().distanceToSqr(player.getEyePosition())>reach*reach
+                    ||!player.hasLineOfSight(enemy);
+        }
         private boolean pursueUsing(Vec3 aim,boolean melee){
             if(enemy==null||player.distanceToSqr(enemy)>32*32||!player.hasLineOfSight(enemy)){player.stopUsingItem();return false;}
             double wanted=melee?player.entityInteractionRange()+enemy.getBbWidth()*.5-.25:12;
-            if(player.distanceToSqr(enemy)>wanted*wanted&&!defense.holdsHighGround(enemy)){
+            if(player.distanceToSqr(enemy)>wanted*wanted&&!flyerOutOfReach()&&!defense.holdsHighGround(enemy)){
                 if(!brain.preciseAction())turn(aim);
                 if(!brain.closeGround(enemy.position()))brain.tick();
                 if(brain.preciseAction()){player.stopUsingItem();return false;}

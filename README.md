@@ -1,3 +1,16 @@
+## Джин на хостинге
+
+Включите API-кредиты Pro в настройках биллинга ChatGPT и привяжите
+их к своей API-организации. Чтобы расходы ограничивались включёнными
+кредитами, используйте организацию без купленных кредитов и отключите
+автопополнение. [Документация OpenAI](https://developers.openai.com/api/docs/guides/chatgpt-api-credits)
+
+Создайте проектный API-ключ и задайте его в окружении процесса сервера
+как `SKYWARS2_GENIE_OPENAI_API_KEY`. При следующем запуске джин использует
+Responses API с `gpt-5.6-sol` и усилием `medium`. Зависимости от Firefox
+и Node.js для этого режима нет. Python-проверка выполняется в отдельном
+контейнере OpenAI для каждого желания.
+
 ## Native IMBA territory and egg variants - QUALIFIED, INSTALLED (5 November 2026)
 
 [Author rules, shared owners and native proof](agent_notes/IMBA_TERRITORY_EGGS_2026_11_05.md).

@@ -1,1 +1,13 @@
-{"pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"skywars2:muravei_spawn_egg"}]}]}
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "skywars2:muravei_spawn_egg"
+                }
+            ]
+        }
+    ]
+}

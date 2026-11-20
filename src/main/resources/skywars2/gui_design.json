@@ -3,7 +3,7 @@
   "container": {
     "size": 27,
     "title": {
-      "translate": "container.enderchest"
+      "translate": "swrg.menu"
     },
     "slots": [
       0,

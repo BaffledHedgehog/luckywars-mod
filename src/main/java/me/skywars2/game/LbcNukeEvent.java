@@ -176,7 +176,7 @@ public final class LbcNukeEvent {
     private void warning(Marker marker,State state){
         var at=new Site((ServerLevel)marker.level(),marker.position(),marker.getYRot(),state.cause);
         Component name;
-        if(marker.entityTags().contains("zelensky"))name=Component.literal("\u0412\u043e\u043b\u043e\u0434\u0438\u043c\u0438\u0440 \u0417\u0435\u043b\u0435\u043d\u0441\u044c\u043a\u0438\u0439 ");
+        if(marker.entityTags().contains("zelensky"))name=Component.literal("Володимир Зеленський ");
         else {var players=select(NEAREST,at);name=players.isEmpty()?Component.empty():players.getFirst().getDisplayName().copy();}
         var subtitle=name.copy().withStyle(ChatFormatting.RED).withStyle(s->s.withItalic(false))
                 .append(Component.translatable("nuke_lol_activated").withStyle(ChatFormatting.DARK_RED));

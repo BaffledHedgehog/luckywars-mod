@@ -79,6 +79,24 @@ public final class LbcSauvojenBoss {
         if(authority==null)return false;var author=authority.author()==null?null:game.server().getPlayerList().getPlayer(authority.author());
         try(var scope=game.items().spellSources().scope(authority)){return Boolean.TRUE.equals(game.items().spellSources().target(author,target));}
     }
+    LivingEntity nearbyThreat(ServerPlayer target,LivingEntity known){
+        LivingEntity nearest=null;
+        double best=Double.POSITIVE_INFINITY;
+        // A ghast can threaten a platform from well above the usual melee scan.
+        // The active encounter registry avoids searching tall columns for every bot.
+        for(var entry:actors.entrySet()){
+            if(!(entry.getKey() instanceof LivingEntity boss)||!boss.isAlive()||boss.level()!=target.level()
+                    ||!game.items().currentEpoch(entry.getValue().epoch()))continue;
+            var offset=boss.position().subtract(target.position());
+            double distance=offset.lengthSqr();
+            double radius=boss==known?48:18;
+            if(distance>=best||offset.horizontalDistanceSqr()>radius*radius||Math.abs(offset.y)>64
+                    ||!canAffect(boss,target))continue;
+            nearest=boss;
+            best=distance;
+        }
+        return nearest;
+    }
     public void targetChanged(Mob actor,LivingEntity target){if(managed(actor)&&target!=null&&!canAffect(actor,target))actor.setTarget(null);}
     public int count(){return actors.size();}
     public int cloudCount(){return clouds.size();}

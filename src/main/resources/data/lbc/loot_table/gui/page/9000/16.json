@@ -12,6 +12,11 @@
               "components": {
                 "minecraft:potion_contents": {
                   "custom_color": 2688004
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
                 }
               },
               "type": "minecraft:set_components"

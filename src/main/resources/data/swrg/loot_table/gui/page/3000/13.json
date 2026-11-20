@@ -39,6 +39,17 @@
                 "type": "nbt"
               },
               "type": "minecraft:set_name"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:firework_explosion",
+                    "minecraft:fireworks"
+                  ]
+                }
+              }
             }
           ]
         }

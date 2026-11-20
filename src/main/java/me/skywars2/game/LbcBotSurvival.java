@@ -5,8 +5,10 @@ import net.minecraft.core.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.phys.*;
 
@@ -17,9 +19,16 @@ final class LbcBotSurvival {
     private boolean obsidianCage,returningToCage;
     private record EscapeWarning(Object source,Vec3 center,double radius){}
     int nextLandingSearch,nextWarning,surfaceWarnings,combatClimbUntil;EscapeWarning warning;Vec3 warningGoal;
+    private int lastGroundTick=-10;
+    private Vec3 extinguishAt;
+    private int nextWetSearch;
+    private Vec3 waterfallBank;
+    private boolean climbingWater;
+    private Vec3 poolLanding;
+    private int poolLandingUntil;
     final LbcBotShelter blastShelter;boolean placementWaiting;
     String diagnostics(){
-        if(cage==null||exit==null)return "cage=none water="+water+" climb="+climbGoal+" landing="+landing+" warning="+warningGoal+" surfaceWarnings="+surfaceWarnings+" blastCover="+blastShelter.diagnostics()+" wet="+player.isInWater()+" burning="+player.isOnFire();
+        if(cage==null||exit==null)return "cage=none water="+water+" poolLanding="+poolLanding+" climb="+climbGoal+" landing="+landing+" warning="+warningGoal+" surfaceWarnings="+surfaceWarnings+" blastCover="+blastShelter.diagnostics()+" wet="+player.isInWater()+" burning="+player.isOnFire();
         var upper=cage.above().relative(exit);var lower=cage.relative(exit);
         var ray=player.level().clip(new net.minecraft.world.level.ClipContext(player.getEyePosition(),Vec3.atCenterOf(upper),net.minecraft.world.level.ClipContext.Block.OUTLINE,net.minecraft.world.level.ClipContext.Fluid.NONE,player));
         var actual=LbcBotActions.ray(player,player.blockInteractionRange());
@@ -87,13 +96,88 @@ final class LbcBotSurvival {
             if(fluid.is(FluidTags.WATER)&&fluid.isSource()){water=pos.immutable();waterAt=player.tickCount;break;}
         }
     }
+    boolean braceWithWater(){
+        if(player.isInWater())return true;
+        if(water!=null&&water.getY()>=player.blockPosition().getY()
+                &&player.position().distanceToSqr(Vec3.atBottomCenterOf(water))<=2.25
+                &&player.level().getFluidState(water).is(FluidTags.WATER)){
+            waterAt=player.tickCount;
+            return true;
+        }
+        if(!brain.grounded())return false;
+        var bucket=find(Items.WATER_BUCKET);
+        if(bucket.isEmpty())return false;
+        var level=player.level();
+        var floor=BlockPos.containing(player.getX(),player.getY()-.01,player.getZ());
+        var target=floor.above();
+        if(!level.mayInteract(player,floor)||!player.mayUseItemAt(target,Direction.UP,bucket)
+                ||level.environmentAttributes().getValue(EnvironmentAttributes.WATER_EVAPORATES,target))return false;
+        var eye=player.getEyePosition();
+        var look=player.getLookAngle();
+        Vec3 aim=null;double alignment=-1;
+        var samples=new double[]{.06,.5,.94};
+        for(var shape:level.getBlockState(floor).getShape(level,floor).toAabbs()){
+            for(double x:samples)for(double z:samples){
+                var at=new Vec3(floor.getX()+net.minecraft.util.Mth.lerp(x,shape.minX,shape.maxX),
+                        floor.getY()+shape.maxY,floor.getZ()+net.minecraft.util.Mth.lerp(z,shape.minZ,shape.maxZ));
+                double rank=look.dot(at.subtract(eye).normalize());
+                if(rank<=alignment)continue;
+                var hit=level.clip(new net.minecraft.world.level.ClipContext(eye,at.add(0,-.01,0),
+                        net.minecraft.world.level.ClipContext.Block.OUTLINE,net.minecraft.world.level.ClipContext.Fluid.NONE,player));
+                if(hit.getType()==HitResult.Type.BLOCK&&hit.getBlockPos().equals(floor)&&hit.getDirection()==Direction.UP){
+                    aim=at;alignment=rank;
+                }
+            }
+        }
+        if(aim==null)return false;
+        if(level.getBlockState(floor).getBlock() instanceof LiquidBlockContainer){
+            // Sneak-use places water beside this face instead of inside the support.
+            driver.crouch(true);
+            if(!player.isShiftKeyDown())return true;
+        }
+        if(player.isUsingItem())player.stopUsingItem();
+        if(!driver.equip(bucket))return true;
+        driver.aimAction(aim);
+        var hit=LbcBotActions.placement(player,target,player.blockInteractionRange());
+        if(hit==null)return true;
+        var result=player.gameMode.useItem(player,level,player.getMainHandItem(),InteractionHand.MAIN_HAND);
+        if(!result.consumesAction())return false;
+        rememberWater(hit);
+        return water!=null;
+    }
+    private boolean extinguish(){
+        var level=player.level();
+        if(player.isInWater())return false;
+        if(extinguishAt!=null&&(!level.getFluidState(BlockPos.containing(extinguishAt)).is(FluidTags.WATER)
+                ||!safeStep(extinguishAt)))extinguishAt=null;
+        if(extinguishAt==null&&player.tickCount>=nextWetSearch){
+            nextWetSearch=player.tickCount+5;
+            var feet=player.blockPosition();
+            double nearest=12;
+            for(var pos:BlockPos.betweenClosed(feet.offset(-3,-1,-3),feet.offset(3,0,3))){
+                var point=Vec3.atBottomCenterOf(pos);
+                double distance=point.distanceToSqr(player.position());
+                if(distance>=nearest||!level.hasChunkAt(pos)||!level.getFluidState(pos).is(FluidTags.WATER)
+                        ||!safeStep(point))continue;
+                nearest=distance;extinguishAt=point;
+            }
+        }
+        if(extinguishAt!=null){
+            driver.steer(extinguishAt,false,extinguishAt.add(0,.9,0));
+            return true;
+        }
+        return braceWithWater();
+    }
     boolean safeStep(Vec3 point){
         // The shared shape/support check already rejects lava. Shallow water is a usable escape.
         return brain.safeWalk(point);
     }
     boolean urgent(){
+        return player.isOnFire()||escapeUrgent();
+    }
+    boolean escapeUrgent(){
         var at=player.blockPosition();
-        return cage!=null||player.isOnFire()||player.isInLava()||player.fallDistance>5||player.getY()<safe.y-5
+        return cage!=null||player.isInLava()||player.fallDistance>5||player.getY()<safe.y-5
                 ||player.level().getBlockState(at).is(Blocks.COBWEB)||player.level().getBlockState(at.above()).is(Blocks.COBWEB);
     }
     /** The ordinary shared pillar route, using the actor's finite block supply. */
@@ -113,27 +197,138 @@ final class LbcBotSurvival {
         climbGoal=center.add(0,5,0);combatClimbUntil=player.tickCount+160;
         brain.reset();destination.accept(climbGoal);brain.tick();return true;
     }
+    void cancelCombatClimb(){
+        if(combatClimbUntil==0)return;
+        climbGoal=null;combatClimbUntil=0;brain.reset();
+    }
     /** Keep native air control available while preparing a real bucket click. */
     private boolean landing(){
         if(cage!=null||!hasSafe)return false;
-        if(brain.grounded()){landing=null;return false;}
+        boolean grounded=brain.grounded();
+        if(grounded)lastGroundTick=player.tickCount;
         var motion=player.getDeltaMovement();var source=player.getLastDamageSource();
-        boolean knocked=source!=null&&(source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION)
+        boolean impact=source!=null&&(source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION)
                 ||source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile
-                ||source.getEntity() instanceof net.minecraft.world.entity.LivingEntity)
-                &&(motion.y>.5||motion.horizontalDistanceSqr()>.25);
+                ||source.getEntity() instanceof net.minecraft.world.entity.LivingEntity);
+        boolean knocked=impact&&(motion.y>.5||motion.horizontalDistanceSqr()>.25);
+        var position=player.position();
+        boolean pushedOff=impact&&player.hurtTime>0&&motion.horizontalDistanceSqr()>.01
+                &&!brain.supported(position.add(motion.x*3,0,motion.z*3));
+        boolean lostFloor=!grounded&&!brain.plannedAirMovement()&&(player.onGround()
+                ||player.tickCount-lastGroundTick<=2&&motion.y<-.09);
+        if(grounded&&!pushedOff){landing=null;return false;}
         boolean lifted=player.hasEffect(net.minecraft.world.effect.MobEffects.LEVITATION)&&player.getY()>safe.y+1.2;
         if(landing!=null&&(!brain.supported(landing)||landing.y>player.getY()+.1&&motion.y<0))landing=null;
-        if(landing==null&&player.tickCount>=nextLandingSearch&&(lifted||knocked||player.fallDistance>3)){
+        if(landing==null&&(lostFloor||player.tickCount>=nextLandingSearch&&(pushedOff||lifted||knocked||player.fallDistance>3))){
             nextLandingSearch=player.tickCount+10;
-            landing=brain.supported(safe)&&safe.y<=player.getY()+.1?safe:brain.landingSurface(safe,player.getY()+.1);
-            if(landing==null)landing=brain.landingSurface(player.position(),player.getY()+.1);
+            double maxY=player.getY()+.1;
+            // The last remembered safe spot can be far away or on a destroyed column.
+            // Use nearby reachable height while the body still has time to get there.
+            if(lostFloor||pushedOff)landing=brain.nearbyLanding(position,maxY);
+            if(landing==null)landing=brain.supported(safe)&&safe.y<=maxY?safe:brain.landingSurface(safe,maxY);
+            if(landing==null)landing=brain.landingSurface(position,maxY);
         }
         if(landing==null)return false;
         if(player.position().subtract(landing).horizontalDistanceSqr()<=.16&&motion.horizontalDistanceSqr()<=.0016)return false;
         player.setSprinting(false);
         // Counter current drift with ordinary directional input; no motion/position correction.
         driver.steer(new Vec3(landing.x-motion.x*4,player.getY(),landing.z-motion.z*4),false,landing);
+        return true;
+    }
+    private boolean climbWaterfall(){
+        if(cage!=null||!hasSafe||player.onGround()){
+            climbingWater=false;waterfallBank=null;
+            return false;
+        }
+        if(waterfallBank!=null){
+            if((player.isInWater()||player.position().distanceToSqr(waterfallBank)<4)
+                    &&waterfallBank.y<=player.getY()+1.05&&brain.supported(waterfallBank)){
+                driver.steer(waterfallBank,player.isInWater(),waterfallBank.add(0,player.getEyeHeight()+.5,0));
+                return true;
+            }
+            waterfallBank=null;
+        }
+        if(!player.isInWater()||!climbingWater&&(player.getY()>safe.y-.9||brain.stepSupported(player.position()))){
+            climbingWater=false;return false;
+        }
+        var level=player.level();
+        var feet=player.blockPosition();
+        BlockPos stream=null;
+        double high=Double.NEGATIVE_INFINITY,nearest=Double.POSITIVE_INFINITY;
+        for(var pos:BlockPos.betweenClosed(feet.offset(-1,0,-1),feet.offset(1,0,1))){
+            var center=Vec3.atBottomCenterOf(pos);
+            var step=new Vec3(center.x-player.getX(),0,center.z-player.getZ());
+            double distance=step.lengthSqr();
+            if(distance>.81||!level.hasChunkAt(pos)||!level.getFluidState(pos).is(FluidTags.WATER)
+                    ||!level.noCollision(player,player.getBoundingBox().move(step).deflate(.005)))continue;
+            var top=pos.immutable();
+            for(int rise=0;rise<12&&level.getFluidState(top.above()).is(FluidTags.WATER);rise++)top=top.above();
+            double height=top.getY()+level.getFluidState(top).getHeight(level,top);
+            if(height>high||height==high&&distance<nearest){stream=pos.immutable();high=height;nearest=distance;}
+        }
+        if(stream==null||!climbingWater&&high-player.getY()<1.25){climbingWater=false;return false;}
+        climbingWater=true;
+        var center=Vec3.atBottomCenterOf(stream);
+        if(high-player.getY()<1.25){
+            for(int distance=1;distance<=2&&waterfallBank==null;distance++)for(var side:Direction.Plane.HORIZONTAL){
+                var bank=brain.surfaceAt(Vec3.atBottomCenterOf(stream.relative(side,distance)).add(0,high-stream.getY(),0));
+                if(bank!=null&&bank.y>=player.getY()-.15&&bank.y<=player.getY()+.75
+                        &&!level.getFluidState(BlockPos.containing(bank)).is(FluidTags.WATER)){
+                    waterfallBank=bank;break;
+                }
+            }
+        }
+        player.setSprinting(false);
+        if(waterfallBank!=null)driver.steer(waterfallBank,true,waterfallBank.add(0,player.getEyeHeight()+.5,0));
+        else driver.steer(center,true,new Vec3(center.x,player.getEyeY()+4,center.z));
+        return true;
+    }
+    private Vec3 climbPoolFloor(){
+        if(water==null||cage!=null||!hasSafe||!player.isInWater()||!driver.hasBlocks()
+                ||water.getY()>safe.y-5||player.getDeltaMovement().horizontalDistanceSqr()>.0025)return null;
+        // A shallow pool at the bottom of a pit can keep the body bobbing above
+        // its pillar takeoff. Remove our source only when it can settle on safe footing.
+        var level=player.level();
+        var feet=player.position();
+        var floor=level.clip(new ClipContext(feet,feet.add(0,-3,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,player));
+        if(floor.getType()!=HitResult.Type.BLOCK||floor.getDirection()!=Direction.UP
+                ||water.getY()-floor.getLocation().y>3||brain.hazard(floor.getBlockPos()))return null;
+        var center=Vec3.atBottomCenterOf(floor.getBlockPos());
+        var footing=new Vec3(center.x,floor.getLocation().y,center.z);
+        return brain.safeFooting(footing)?footing:null;
+    }
+    private boolean settleDrainedPool(boolean underPressure){
+        if(poolLanding==null)return false;
+        if(underPressure||player.tickCount>=poolLandingUntil||!brain.safeFooting(poolLanding)){
+            poolLanding=null;
+            return false;
+        }
+        if(brain.grounded()&&Math.abs(player.getY()-poolLanding.y)<.3
+                &&player.position().subtract(poolLanding).horizontalDistanceSqr()<.09){
+            climbGoal=new Vec3(poolLanding.x,safe.y+1,poolLanding.z);
+            poolLanding=null;
+            return false;
+        }
+        // Residual flow may lead off the pit floor while it drains. Hold above
+        // the same solid column until gravity provides a real pillar takeoff.
+        var motion=player.getDeltaMovement();
+        player.setSprinting(false);
+        driver.steer(poolLanding.add(-motion.x*4,0,-motion.z*4),false,poolLanding);
+        return true;
+    }
+    private boolean collectWater(){
+        var level=player.level();
+        var fluid=level.getFluidState(water);
+        if(!fluid.is(FluidTags.WATER)||!fluid.isSource()){water=null;return false;}
+        var bucket=find(Items.BUCKET);
+        var aim=Vec3.atCenterOf(water);
+        var eye=player.getEyePosition();
+        double reach=player.blockInteractionRange();
+        if(bucket.isEmpty()||eye.distanceToSqr(aim)>reach*reach)return false;
+        var ray=level.clip(new ClipContext(eye,aim,ClipContext.Block.OUTLINE,ClipContext.Fluid.SOURCE_ONLY,player));
+        if(ray.getType()!=HitResult.Type.BLOCK||!ray.getBlockPos().equals(water))return false;
+        driver.halt();
+        if(aimUse(bucket,aim)&&player.getMainHandItem().is(Items.WATER_BUCKET))water=null;
         return true;
     }
     private boolean fleeWarning(){
@@ -252,20 +447,32 @@ final class LbcBotSurvival {
         driver.steer(openingHeight,rise,openingHeight.add(0,rise?3:.3,0));
         return true;
     }
-    boolean tick(boolean combat){
+    boolean tick(boolean underPressure){
         var level=player.level();var feet=player.blockPosition();
         boolean web=level.getBlockState(feet).is(Blocks.COBWEB)||level.getBlockState(feet.above()).is(Blocks.COBWEB);
         if(climbGoal==null&&brain.grounded()&&!player.isInWater()&&!player.isOnFire()&&!web
                 &&(!hasSafe||player.getY()>safe.y-3||brain.plannedGround())){safe=player.position();hasSafe=true;}
-        boolean flying=landing();
-        boolean watering=(player.isOnFire()||web||player.isInLava()||player.fallDistance>5)&&water();
-        if(flying||watering)return true;
         if(water!=null&&(player.tickCount-waterAt>120||player.position().distanceToSqr(Vec3.atCenterOf(water))>25))water=null;
-        if(water!=null&&cage==null&&warning==null&&!combat&&!player.isUsingItem()&&!player.isOnFire()&&!web&&player.tickCount-waterAt>8
-                &&(!escapeWater||player.position().distanceToSqr(Vec3.atCenterOf(water))>16)){
-            if(!level.getFluidState(water).is(FluidTags.WATER)){water=null;}
-            else {var bucket=find(Items.BUCKET);if(!bucket.isEmpty()){driver.halt();if(aimUse(bucket,Vec3.atCenterOf(water))&&player.getMainHandItem().is(Items.WATER_BUCKET))water=null;return true;}}
+        boolean recoverWater=water!=null&&cage==null&&warning==null&&!underPressure
+                &&!player.isUsingItem()&&!player.isOnFire()&&!web&&player.tickCount-waterAt>8
+                &&(!escapeWater||player.position().distanceToSqr(Vec3.atCenterOf(water))>16);
+        var poolFloor=recoverWater?climbPoolFloor():null;
+        if(poolFloor!=null&&collectWater()){
+            if(water==null){
+                poolLanding=poolFloor;
+                poolLandingUntil=player.tickCount+80;
+                climbingWater=false;waterfallBank=null;brain.reset();
+            }
+            return true;
         }
+        if(settleDrainedPool(underPressure))return true;
+        if(!web&&climbWaterfall())return true;
+        boolean flying=landing();
+        boolean watering=(web||player.isInLava()||player.fallDistance>5)&&water();
+        if(flying||watering)return true;
+        if(player.isOnFire()){if(extinguish())return true;}
+        else extinguishAt=null;
+        if(recoverWater&&water!=null&&brain.grounded()&&collectWater())return true;
         if(cage==null){int bars=0,windows=0;for(var side:Direction.Plane.HORIZONTAL){var b=level.getBlockState(feet.relative(side));var h=level.getBlockState(feet.above().relative(side));if(b.is(Blocks.IRON_BARS))bars++;else if(h.is(Blocks.GLASS)&&b.is(Blocks.OBSIDIAN))windows++;}if(bars+windows>=3){
             cage=feet.immutable();cageAt=player.tickCount;cageCovered=false;escapeWater=false;cageSwimming=false;cageRoofAbandoned=false;exit=Direction.Plane.HORIZONTAL.getRandomDirection(level.getRandom());
             obsidianCage=windows>=3;returningToCage=false;
