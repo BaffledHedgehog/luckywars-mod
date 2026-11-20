@@ -45,7 +45,7 @@ public final class NexusCloneChecks {
     }
     public static void tick(GameController game){
         if(game==null||running==null)return;
-        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native uniform biomes, full save and packet height, async/full-height Stonekivi MOVE, failed and timed-out destination loads release the capture barrier without writes, one alternate destination and independent late completion, two-world TimeStop, source deduplication, exact chest stack and AIR replacement, UUID/entity/passenger delta, player/marker exclusions, callback3centers/16trees and scoped restoration)");}
+        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native uniform biomes, full save and packet height, async/full-height Stonekivi MOVE, failed and timed-out destination loads release the capture barrier without writes, one alternate destination and independent late completion, two-world TimeStop, source deduplication, exact chest stack and AIR replacement, UUID/entity/passenger delta, whole-family player/marker/shop/footprint exclusions, callback3centers/16trees and scoped restoration)");}
         catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL nexus-clone",error);}
     }
 
@@ -373,6 +373,14 @@ public final class NexusCloneChecks {
         }
     }
 
+    private static final class BoundarySeat extends Cow {
+        BoundarySeat(ServerLevel level) { super(EntityTypes.COW, level); }
+        @Override protected void positionRider(Entity passenger, Entity.MoveFunction move) {
+            move.accept(passenger, getX(), level().getMaxY() + 1.5, getZ());
+        }
+    }
+    private record RetainedRide(Entity mount, Entity passenger, String exclusion) {}
+
     private static final class Fixture implements AutoCloseable {
         final GameController game;
         final ChefChecks.Fixture base;
@@ -388,6 +396,7 @@ public final class NexusCloneChecks {
         final Map<UUID,Vec3> positions=new LinkedHashMap<>();
         final Map<UUID,Entity> originalBodies=new LinkedHashMap<>();
         final Map<UUID,Vec3> lastSourcePositions=new LinkedHashMap<>();
+        final List<RetainedRide> retainedRides = new ArrayList<>();
         final Set<UUID> owned=new LinkedHashSet<>(),destinationBefore=new HashSet<>();
         final LbcNexusClone clone;
         final LbcNexusClone failedClone;
@@ -491,11 +500,33 @@ public final class NexusCloneChecks {
             require(sourceContainerItems==7,"native pre-MOVE container count is seven");
             sample.putAll(column(source,sourceChunk));
             playerPosition=new Vec3(x+12.5,chest.getY()+4,z+12.5);base.move(base.owner,playerPosition);client.acknowledge();
+            var riderPosition = new Vec3(x + 11.5, chest.getY() + 4, z + 4.5);
+            require(base.other.level() == source && !base.other.isPassenger(), "independent native rider starts in the source world");
+            base.move(base.other, riderPosition);
+            audience.acknowledge();
             game.items().timeStop().begin(source,2000);sourceStopped=true;
             game.items().timeStop().begin(destination,2000);destinationStopped=true;
             marker=new Marker(EntityTypes.MARKER,source);marker.setPos(x+10.5,chest.getY()+4,z+10.5);publish(marker);
             vehicle=cow(new Vec3(x+3.5,chest.getY()+4,z+3.5));passenger=cow(vehicle.position());
             require(passenger.startRiding(vehicle,true,true),"native passenger family mounted");
+            retainRide(cow(riderPosition.add(0, -1, 0)), base.other, "player passenger");
+            var markerMount = cow(new Vec3(x + 6.5, chest.getY() + 4, z + 12.5));
+            var markerPassenger = new Marker(EntityTypes.MARKER, source);
+            markerPassenger.setPos(markerMount.position());
+            publish(markerPassenger);
+            retainRide(markerMount, markerPassenger, "marker passenger");
+            var shop = cow(new Vec3(x + 13.5, chest.getY() + 4, z + 8.5));
+            LbcBedwarsRoleGuards.markShop(shop);
+            retainRide(shop, cow(shop.position()), "shop riding root");
+            var edge = new BoundarySeat(source);
+            edge.setNoAi(true);
+            edge.setNoGravity(true);
+            edge.setPos(x + 4.5, chest.getY() + 4, z + 10.5);
+            publish(edge);
+            var outside = cow(edge.position());
+            retainRide(edge, outside, "passenger above the source footprint");
+            require(box(source, sourceChunk).contains(edge.position()) && outside.getY() > source.getMaxY() + 1,
+                    "boundary control is a native passenger outside the copied footprint");
             var item=new ItemEntity(source,x+7.5,chest.getY()+4,z+7.5,new ItemStack(Items.EMERALD,13));
             item.setNoGravity(true);item.setDeltaMovement(Vec3.ZERO);item.setPickUpDelay(32767);publish(item);itemId=item.getUUID();
             for(var entity:List.of(vehicle,passenger,item)){positions.put(entity.getUUID(),entity.position());originalBodies.put(entity.getUUID(),entity);}
@@ -512,6 +543,11 @@ public final class NexusCloneChecks {
         }
         void publish(Entity entity){require(source.addFreshEntity(entity),"owned native actor published");owned.add(entity.getUUID());}
         Cow cow(Vec3 pos){var cow=new Cow(EntityTypes.COW,source);cow.setPos(pos);cow.setNoAi(true);cow.setNoGravity(true);cow.setDeltaMovement(Vec3.ZERO);publish(cow);return cow;}
+        void retainRide(Entity mount, Entity rider, String exclusion) {
+            require(rider.startRiding(mount, true, true), "native riding family created for " + exclusion);
+            mount.positionRider(rider);
+            retainedRides.add(new RetainedRide(mount, rider, exclusion));
+        }
         BlockPos target(BlockPos pos){return pos.offset((int)delta.x,(int)delta.y,(int)delta.z);}
         void hold(){require(clone.pending()==1&&!clone.captureReady()&&clone.snapshot().getFirst().completed()==0&&callbacks==0,"native scheduler does not write through either TimeStop");}
 
@@ -573,6 +609,12 @@ public final class NexusCloneChecks {
             }
             if(stage==4){
                 hold();if(elapsed<3)return false;
+                for (var ride : retainedRides) {
+                    require(source.getEntity(ride.mount().getUUID()) == ride.mount()
+                                    && source.getEntity(ride.passenger().getUUID()) == ride.passenger()
+                                    && ride.passenger().getVehicle() == ride.mount(),
+                            "native source family reached residency before MOVE: " + ride.exclusion());
+                }
                 for(var id:positions.keySet())positions.put(id,Objects.requireNonNull(source.getEntity(id)).position());
                 game.items().timeStop().end(source);sourceStopped=false;begin(5);return false;
             }
@@ -590,6 +632,14 @@ public final class NexusCloneChecks {
             game.items().timeStop().begin(destination,2000);destinationStopped=true;
             require(sawProgress&&clone.captureReady()&&!clone.sourceInFlight(source,sourceChunk)&&clone.snapshot().isEmpty()&&callbacks==1,"one fully completed native operation releases its construction barrier");
             require(column(source,sourceChunk).isEmpty(),"entire full-height source becomes AIR without container drops");
+            for (var ride : retainedRides) {
+                var mount = ride.mount();
+                var rider = ride.passenger();
+                require(source.getEntity(mount.getUUID()) == mount && source.getEntity(rider.getUUID()) == rider
+                                && destination.getEntity(mount.getUUID()) == null && destination.getEntity(rider.getUUID()) == null
+                                && rider.getVehicle() == mount && mount.getPassengers().contains(rider),
+                        "both original native bodies stay mounted in the source for " + ride.exclusion());
+            }
             require(destination.getBlockState(airProbe).isAir(),"source AIR overwrites pre-existing destination blocks");
             for(var entry:sample.entrySet())require(destination.getBlockState(target(entry.getKey())).equals(entry.getValue().state()),"full-height translated distinct native block "+entry.getKey());
             require(destination.getBlockEntity(target(chest)) instanceof Container,"container moves as an actual native block entity");
@@ -620,6 +670,15 @@ public final class NexusCloneChecks {
                     stalledClone::stop,
                     recovery::close,
                     freshNexus::close,
+                     () -> {
+                         if (retainedRides.isEmpty()) return;
+                         base.other.stopRiding();
+                         if (base.other.level() != source) {
+                             var at = base.at.add(12, 0, -12);
+                             base.other.teleportTo(source, at.x, at.y, at.z, Set.of(), 0, 0, true);
+                             audience.acknowledge();
+                         }
+                     },
                     ()->{for(var level:List.of(source,destination))for(var id:owned){var entity=level.getEntity(id);if(entity!=null){if(entity instanceof LivingEntity living)game.items().indirectKills().clear(living);entity.discard();}}},
                     ()->{if(sourceCaptured)restoreColumn(source,sourceChunk,sourceOriginal);},
                     ()->{if(destinationCaptured)restoreColumn(destination,view.destinationChunk(),destinationOriginal);},

@@ -1,7 +1,9 @@
 package me.skywars2.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -258,14 +260,20 @@ final class LbcNexusClone {
             var box = new AABB(source.chunk.getMinBlockX(), source.level.getMinY(), source.chunk.getMinBlockZ(),
                     source.chunk.getMinBlockX() + 16, source.level.getMinY() + source.level.getHeight(), source.chunk.getMinBlockZ() + 16);
             // Position membership matches a source chunk; a large bounding box crossing its edge does not.
-            var entities = List.copyOf(source.level.getEntities((Entity) null, box,
-                    e -> !(e instanceof Player) && !(e instanceof Marker) && !LbcBedwars.shopRole(e) && box.contains(e.position())));
+            var candidates = source.level.getEntities((Entity) null, box,
+                    e -> !(e instanceof Player) && !(e instanceof Marker) && !LbcBedwars.shopRole(e) && box.contains(e.position()));
+            var eligible = Collections.newSetFromMap(new IdentityHashMap<Entity, Boolean>());
+            eligible.addAll(candidates);
+            var families = new IdentityHashMap<Entity, Boolean>();
+            // Native cross-dimension teleport carries every descendant, including players.
+            // Keep a mixed or straddling riding family intact in the source dimension.
+            var entities = candidates.stream().filter(entity -> families.computeIfAbsent(entity.getRootVehicle(),
+                    root -> root.getSelfAndPassengers().allMatch(eligible::contains))).toList();
             record Transit(UUID id,Vec3 position,Vec3 motion,float yaw,float pitch){}
             var transits=entities.stream().map(e->new Transit(e.getUUID(),e.position(),e.getDeltaMovement(),e.getYRot(),e.getXRot())).toList();
             for (var entity : entities) {
-                if (entity.isRemoved() || entity.level() != source.level
-                        || entity.isPassenger() && entities.contains(entity.getVehicle())) continue;
-                var moved = entity.teleport(new TeleportTransition(destination, entity.position().add(delta),
+                if (entity.isRemoved() || entity.level() != source.level || entity.isPassenger()) continue;
+                entity.teleport(new TeleportTransition(destination, entity.position().add(delta),
                         entity.getDeltaMovement(), entity.getYRot(), entity.getXRot(), TeleportTransition.DO_NOTHING));
             }
             // Vanilla computes passenger offsets after dismount relocation. Restore the captured
