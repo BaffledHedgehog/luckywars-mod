@@ -116,8 +116,86 @@ public final class ShulkerArmorChecks {
             beta.teleportTo(owner.level(),at.x+4,at.y,at.z,Set.of(),180,0,true);beta.noPhysics=false;beta.removeAllEffects();beta.setInvulnerableTime(0);beta.damageCooldownTime=0;service.shoot(owner);shell=bullets().getFirst();shell.setPos(beta.position().add(-1.5,1,0));shell.setDeltaMovement(2,0,0);float hp=beta.getHealth();shell.tick();require(shell.isRemoved()&&beta.getHealth()==hp-4&&beta.hasEffect(MobEffects.LEVITATION)&&beta.getEffect(MobEffects.LEVITATION).getDuration()==200&&beta.getLastHurtByMob()==owner,"actual swept native bullet collision damage4/Levitation200/current-owner credit");created.add(shell);beta.removeAllEffects();service.shoot(owner);shell=bullets().getFirst();wear(0);shell.setOwner(beta);set(shell,"finalTarget",EntityReference.of(owner));require(game.items().creatureDrops().owner(shell)==beta&&game.items().creatureDrops().canAffect(shell,owner)&&game.items().creatureDrops().canAffect(shell,beta)&&!game.items().creatureDrops().canTarget(shell,beta),"reflected shell retains WILD impacts and current-owner acquisition guards");for(var tag:List.of("sin_greed_active","strict_map_object","spectator")){owner.entityTags().add(tag);try{require(!game.items().creatureDrops().canAffect(shell,owner),"native reflected-shell role guard "+tag);}finally{owner.entityTags().remove(tag);}}owner.setInvulnerableTime(0);owner.damageCooldownTime=0;shell.setPos(owner.position().add(-1.5,1,0));shell.setDeltaMovement(2,0,0);hp=owner.getHealth();shell.tick();require(shell.isRemoved()&&owner.getHealth()==hp-4&&owner.hasEffect(MobEffects.LEVITATION)&&owner.getLastHurtByMob()==beta,"actual reflected native collision credits current owner removed="+shell.isRemoved()+" hp="+hp+" after="+owner.getHealth()+" absorption="+owner.getAbsorptionAmount()+" armor="+owner.getAttributeValue(Attributes.ARMOR)+" toughness="+owner.getAttributeValue(Attributes.ARMOR_TOUGHNESS)+" levitation="+owner.hasEffect(MobEffects.LEVITATION)+" credited="+(owner.getLastHurtByMob()==beta)+" loaded="+owner.connection.hasClientLoaded()+" changing="+owner.isChangingDimension()+" noPhysics="+owner.noPhysics);created.add(shell);owner.removeAllEffects();beta.teleportTo(owner.level(),at.x+80,at.y,at.z,Set.of(),180,0,true);wear(0);
         }
         void removeMarker(){if(marker!=null){game.items().magic().unloaded(marker);marker.discard();marker=null;}}
-        void guards(){wear(4);phase(0);service.tick();marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(at);marker.entityTags().add("stopper_magic");require(owner.level().addFreshEntity(marker),"native beacon marker");game.items().magic().loaded(marker);require(game.items().magic().beaconSuppressed(at),"native beacon20 positive control");owner.removeAllEffects();owner.addEffect(new MobEffectInstance(MobEffects.LEVITATION,200));phase(199);service.tick();require(!owner.hasEffect(MobEffects.RESISTANCE)&&owner.hasEffect(MobEffects.LEVITATION)&&bullets().isEmpty()&&owner.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(LbcShulkerArmor.SPEED),"author correction: beacon suppresses helmet and leggings too, retaining preexisting speed until inventory changes");service.shoot(owner);require(bullets().isEmpty(),"beacon also rejects direct helmet producer");var pos=owner.position();owner.jumpFromGround();service.chestTeleport(owner);require(owner.position().equals(pos),"beacon blocks actual jump and chest");game.items().magic().inventoryChanged(owner);require(!owner.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(LbcShulkerArmor.SPEED),"actual shared inventory-change hook removes speed even with full outfit inside stopper");phase(0);service.tick();require(!owner.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(LbcShulkerArmor.SPEED)&&!owner.hasEffect(MobEffects.RESISTANCE),"suppressed full tick does not re-add removed speed");removeMarker();service.tick();require(owner.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(LbcShulkerArmor.SPEED)&&owner.hasEffect(MobEffects.RESISTANCE),"leaving beacon restores full-set speed and bonus on next active tick");clearBullets();wear(4);for(var tag:List.of("time_stopped","spectator","strict_map_object")){owner.entityTags().add(tag);try{phase(199);service.tick();service.shoot(owner);service.chestTeleport(owner);owner.jumpFromGround();require(!owner.hasEffect(MobEffects.RESISTANCE)&&bullets().isEmpty()&&owner.position().equals(pos),"native source role/time guard "+tag);}finally{owner.entityTags().remove(tag);}}game.items().timeStop().begin(owner.level(),20);try{int p=(Integer)read(service,"phase");service.tick();require((Integer)read(service,"phase")==p&&!owner.hasEffect(MobEffects.RESISTANCE),"dimension stop pauses shared phase");}finally{game.items().timeStop().end(owner.level());}wear(4);owner.entityTags().add("nomagic_active");game.items().mana().noMagic(owner,100);try{service.tick();require(owner.hasEffect(MobEffects.RESISTANCE),"only actual beacon20 gates full bonus, personal no-magic does not");}finally{owner.entityTags().remove("nomagic_active");game.items().mana().noMagic(owner,0);}owner.removeAllEffects();var originalStage=game.stage();try{set(game,"stage",GameController.Stage.ENDING);service.tick();service.shoot(owner);owner.jumpFromGround();require(!owner.hasEffect(MobEffects.RESISTANCE)&&bullets().isEmpty()&&owner.position().equals(pos),"actual ENDING rejects passive and inputs");}finally{set(game,"stage",originalStage);}var level=owner.level();var elsewhere=java.util.stream.StreamSupport.stream(game.server().getAllLevels().spliterator(),false).filter(l->l!=level).findFirst().orElseThrow();try{owner.teleportTo(elsewhere,at.x,at.y,at.z,Set.of(),0,0,true);service.tick();service.shoot(owner);service.chestTeleport(owner);owner.jumpFromGround();require(!owner.hasEffect(MobEffects.RESISTANCE)&&bullets().isEmpty()&&owner.position().equals(pos),"native wrong dimension rejects armor callbacks");}finally{owner.teleportTo(level,at.x,at.y,at.z,Set.of(),0,0,true);}wear(0);}
+        void guards(){wear(4);phase(0);service.tick();marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(at);marker.entityTags().add("stopper_magic");require(owner.level().addFreshEntity(marker),"native beacon marker");game.items().magic().loaded(marker);require(game.items().magic().beaconSuppressed(at),"native beacon20 positive control");owner.removeAllEffects();owner.addEffect(new MobEffectInstance(MobEffects.LEVITATION,200));phase(199);service.tick();require(!owner.hasEffect(MobEffects.RESISTANCE)&&owner.hasEffect(MobEffects.LEVITATION)&&bullets().isEmpty()&&owner.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(LbcShulkerArmor.SPEED),"author correction: beacon suppresses helmet and leggings too, retaining preexisting speed until inventory changes");service.shoot(owner);require(bullets().isEmpty(),"beacon also rejects direct helmet producer");var pos=owner.position();owner.jumpFromGround();service.chestTeleport(owner);require(owner.position().equals(pos),"beacon blocks actual jump and chest");game.items().magic().inventoryChanged(owner);require(!owner.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(LbcShulkerArmor.SPEED),"actual shared inventory-change hook removes speed even with full outfit inside stopper");phase(0);service.tick();require(!owner.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(LbcShulkerArmor.SPEED)&&!owner.hasEffect(MobEffects.RESISTANCE),"suppressed full tick does not re-add removed speed");jumpBoost();removeMarker();service.tick();require(owner.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(LbcShulkerArmor.SPEED)&&owner.hasEffect(MobEffects.RESISTANCE),"leaving beacon restores full-set speed and bonus on next active tick");clearBullets();wear(4);for(var tag:List.of("time_stopped","spectator","strict_map_object")){owner.entityTags().add(tag);try{phase(199);service.tick();service.shoot(owner);service.chestTeleport(owner);owner.jumpFromGround();require(!owner.hasEffect(MobEffects.RESISTANCE)&&bullets().isEmpty()&&owner.position().equals(pos),"native source role/time guard "+tag);}finally{owner.entityTags().remove(tag);}}game.items().timeStop().begin(owner.level(),20);try{int p=(Integer)read(service,"phase");service.tick();require((Integer)read(service,"phase")==p&&!owner.hasEffect(MobEffects.RESISTANCE),"dimension stop pauses shared phase");}finally{game.items().timeStop().end(owner.level());}wear(4);owner.entityTags().add("nomagic_active");game.items().mana().noMagic(owner,100);try{service.tick();require(owner.hasEffect(MobEffects.RESISTANCE),"only actual beacon20 gates full bonus, personal no-magic does not");}finally{owner.entityTags().remove("nomagic_active");game.items().mana().noMagic(owner,0);}owner.removeAllEffects();var originalStage=game.stage();try{set(game,"stage",GameController.Stage.ENDING);service.tick();service.shoot(owner);owner.jumpFromGround();require(!owner.hasEffect(MobEffects.RESISTANCE)&&bullets().isEmpty()&&owner.position().equals(pos),"actual ENDING rejects passive and inputs");}finally{set(game,"stage",originalStage);}var level=owner.level();var elsewhere=java.util.stream.StreamSupport.stream(game.server().getAllLevels().spliterator(),false).filter(l->l!=level).findFirst().orElseThrow();try{owner.teleportTo(elsewhere,at.x,at.y,at.z,Set.of(),0,0,true);service.tick();service.shoot(owner);service.chestTeleport(owner);owner.jumpFromGround();require(!owner.hasEffect(MobEffects.RESISTANCE)&&bullets().isEmpty()&&owner.position().equals(pos),"native wrong dimension rejects armor callbacks");}finally{owner.teleportTo(level,at.x,at.y,at.z,Set.of(),0,0,true);}wear(0);}
         void landing(Vec3 center,int radius){require(owner.getX()>=Math.floor(center.x-radius)+.5&&owner.getX()<Math.ceil(center.x+radius)+.5&&owner.getZ()>=Math.floor(center.z-radius)+.5&&owner.getZ()<Math.ceil(center.z+radius)+.5,"finite spread stays source square radius"+radius);require(owner.getY()==at.y&&owner.level().getBlockState(owner.blockPosition().below()).is(Blocks.STONE),"native spread lands above resident floor");}
+        void jumpBoost(){
+            var position=owner.position();
+            var motion=owner.getDeltaMovement();
+            var helmet=owner.getItemBySlot(EquipmentSlot.HEAD);
+            var packets=client.wire.packets;
+            boolean motionDirty=owner.needsSync;
+            require(game.items().magic().beaconSuppressed(position)&&LbcShulkerArmor.full(owner)
+                            &&owner.getAttributeValue(Attributes.JUMP_STRENGTH)==0,
+                    "real beacon separates physical jump from the active full-set teleport");
+            try{
+                int before=packets.size();
+                require(owner.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST,60,1)),
+                        "native Jump Boost II is active on the full set");
+                var boost=owner.getEffect(MobEffects.JUMP_BOOST);
+                require(boost!=null&&boost.getAmplifier()==1&&boost.getDuration()==60,
+                        "the owner-only packet projection retains the complete real Jump Boost");
+                requireHiddenJumpBoost(before,"initial native effect application on the full set");
+
+                before=packets.size();
+                service.inventoryChanged(owner);
+                require(jumpBoostPackets(before).stream().noneMatch(ClientboundUpdateMobEffectPacket.class::isInstance),
+                        "refreshing the full equipment never briefly sends a restored Jump Boost");
+
+                var foreign=new ClientboundUpdateMobEffectPacket(beta.getId(),boost,false);
+                before=packets.size();
+                owner.connection.send(foreign);
+                require(packets.subList(before,packets.size()).contains(foreign),
+                        "the locked viewer still receives the exact foreign entity's Jump Boost packet");
+
+                owner.setDeltaMovement(Vec3.ZERO);
+                owner.jumpFromGround();
+                require(owner.position().equals(position)&&owner.getDeltaMovement().y==0,
+                        "full set also blocks the additive native Jump Boost impulse, velocity="+owner.getDeltaMovement());
+
+                before=packets.size();
+                owner.setItemSlot(EquipmentSlot.HEAD,ItemStack.EMPTY);
+                service.inventoryChanged(owner);
+                var basePower=owner.getAttributeValue(Attributes.JUMP_STRENGTH);
+                require(basePower>0&&owner.getEffect(MobEffects.JUMP_BOOST)==boost,
+                        "removing one piece restores the native jump attribute with the same potion still active");
+                var restored=jumpBoostPackets(before);
+                require(restored.size()==1&&restored.getFirst() instanceof ClientboundUpdateMobEffectPacket update
+                                &&update.getEffectAmplifier()==1&&update.getEffectDurationTicks()==boost.getDuration(),
+                        "removing the helmet sends the exact active Jump Boost II and remaining duration to the client");
+                owner.setDeltaMovement(Vec3.ZERO);
+                owner.jumpFromGround();
+                require(owner.position().equals(position)&&Math.abs(owner.getDeltaMovement().y-(basePower+.2))<1e-5,
+                        "partial set gets actual vanilla launch plus Jump Boost II, velocity="+owner.getDeltaMovement());
+
+                before=packets.size();
+                owner.setItemSlot(EquipmentSlot.HEAD,helmet);
+                service.inventoryChanged(owner);
+                require(owner.getEffect(MobEffects.JUMP_BOOST)==boost,
+                        "re-equipping the complete set still preserves the authoritative Jump Boost");
+                requireHiddenJumpBoost(before,"re-equipping the full set with the potion still active");
+            }finally{
+                owner.setItemSlot(EquipmentSlot.HEAD,helmet);
+                service.inventoryChanged(owner);
+                owner.removeEffect(MobEffects.JUMP_BOOST);
+                owner.setDeltaMovement(motion);
+                owner.needsSync=motionDirty;
+            }
+        }
+        List<net.minecraft.network.protocol.Packet<?>> jumpBoostPackets(int before){
+            var packets=client.wire.packets;
+            return packets.subList(before,packets.size()).stream()
+                    .filter(packet->packet instanceof ClientboundUpdateMobEffectPacket update
+                            &&update.getEntityId()==owner.getId()&&update.getEffect().is(MobEffects.JUMP_BOOST)
+                            ||packet instanceof ClientboundRemoveMobEffectPacket remove
+                            &&remove.entityId()==owner.getId()&&remove.effect().is(MobEffects.JUMP_BOOST))
+                    .toList();
+        }
+        void requireHiddenJumpBoost(int before,String action){
+            var effectPackets=jumpBoostPackets(before);
+            require(effectPackets.stream().anyMatch(ClientboundRemoveMobEffectPacket.class::isInstance)
+                            &&effectPackets.stream().noneMatch(ClientboundUpdateMobEffectPacket.class::isInstance),
+                    action+" removes only the affected player's client-side effect");
+        }
         void input(boolean pressed){owner.connection.handlePlayerInput(new ServerboundPlayerInputPacket(new net.minecraft.world.entity.player.Input(false,false,false,false,pressed,false,false)));}
         void teleports(){wear(4);home();
             var jump=owner.getAttribute(Attributes.JUMP_STRENGTH);double base=jump.getBaseValue();

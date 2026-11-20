@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -101,12 +103,24 @@ public final class LbcShulkerArmor {
         teleport(p,p.position().add(p.getLookAngle().scale(5)),3);
         return true;
     }
+    public static boolean blocksPhysicalJump(ServerPlayer p){
+        var jump=p.getAttribute(Attributes.JUMP_STRENGTH);
+        return jump!=null&&jump.hasModifier(JUMP);
+    }
     private void syncJump(ServerPlayer p){
-        var jump=p.getAttribute(Attributes.JUMP_STRENGTH);if(jump==null)return;
-        if(full(p)&&p.isAlive()&&p.level()==game.maps().level()&&game.canUseGameplayItems(p)){
-            if(!jump.hasModifier(JUMP))jump.addTransientModifier(new AttributeModifier(JUMP,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-            slowed.add(p.getUUID());
-        }else jump.removeModifier(JUMP);
+        boolean locked=full(p)&&p.isAlive()&&p.level()==game.maps().level()&&game.canUseGameplayItems(p);
+        setPhysicalJumpLock(p,locked);
+        if(locked)slowed.add(p.getUUID());
+    }
+    private static void setPhysicalJumpLock(ServerPlayer p,boolean locked){
+        var jump=p.getAttribute(Attributes.JUMP_STRENGTH);
+        if(jump==null||jump.hasModifier(JUMP)==locked)return;
+        if(locked)jump.addTransientModifier(new AttributeModifier(JUMP,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        else jump.removeModifier(JUMP);
+        var boost=p.getEffect(MobEffects.JUMP_BOOST);
+        if(boost!=null&&p.connection!=null)
+            p.connection.send(locked?new ClientboundRemoveMobEffectPacket(p.getId(),MobEffects.JUMP_BOOST)
+                    :new ClientboundUpdateMobEffectPacket(p.getId(),boost,false));
     }
     private static void teleport(ServerPlayer p,Vec3 center,int radius){
         int ceiling=p.level().dimension().equals(Level.NETHER)?120:p.level().getMaxY()+1;
@@ -117,11 +131,11 @@ public final class LbcShulkerArmor {
     private void validate(ServerPlayer p){
         if(!full(p)||!p.isAlive()||p.level()!=game.maps().level()||!game.canUseGameplayItems(p)||!LbcDimensionItems.ordinary(p))forget(p);
     }
-    public void inventoryChanged(ServerPlayer p){forget(p);syncJump(p);}
-    public void forget(ServerPlayer p){
+    private void clearSpeed(ServerPlayer p){
         var speed=p.getAttribute(Attributes.MOVEMENT_SPEED);if(speed!=null)speed.removeModifier(SPEED);
-        var jump=p.getAttribute(Attributes.JUMP_STRENGTH);if(jump!=null)jump.removeModifier(JUMP);
         slowed.remove(p.getUUID());
     }
+    public void inventoryChanged(ServerPlayer p){clearSpeed(p);syncJump(p);}
+    public void forget(ServerPlayer p){clearSpeed(p);setPhysicalJumpLock(p,false);}
     public void stop(){for(var id:Set.copyOf(slowed)){var p=game.server().getPlayerList().getPlayer(id);if(p!=null)forget(p);}slowed.clear();phase=0;}
 }

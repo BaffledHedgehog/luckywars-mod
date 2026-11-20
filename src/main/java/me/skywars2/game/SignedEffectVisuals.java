@@ -140,18 +140,27 @@ public final class SignedEffectVisuals {
     private static ClientboundUpdateMobEffectPacket movieNightVisionPacket(int entity){
         return new ClientboundUpdateMobEffectPacket(entity,new MobEffectInstance(MobEffects.NIGHT_VISION,-1,0,false,false,false),false);
     }
-    /** Keep real effect updates/removals from overwriting the temporary self presentation. */
+    /** Apply temporary effects and movement projection only to the wearer's own packets. */
     @SuppressWarnings("unchecked")
     public static Packet<?> projectPacket(ServerPlayer player,Packet<?> packet){
-        var entity=MOVIE_NIGHT_VISION.get(player.getUUID());if(entity==null)return packet;
-        if(packet instanceof ClientboundUpdateMobEffectPacket effect&&effect.getEntityId()==entity&&effect.getEffect().is(MobEffects.NIGHT_VISION)
-                ||packet instanceof ClientboundRemoveMobEffectPacket remove&&remove.entityId()==entity&&remove.effect().is(MobEffects.NIGHT_VISION))return movieNightVisionPacket(entity);
-        if(packet instanceof ClientboundBundlePacket bundle){
+        var entity=MOVIE_NIGHT_VISION.get(player.getUUID());
+        if(packet instanceof ClientboundUpdateMobEffectPacket effect){
+            if(entity!=null&&effect.getEntityId()==entity&&effect.getEffect().is(MobEffects.NIGHT_VISION))
+                return movieNightVisionPacket(entity);
+            if(effect.getEntityId()==player.getId()&&effect.getEffect().is(MobEffects.JUMP_BOOST)&&shulkerJumpLocked(player))
+                return new ClientboundRemoveMobEffectPacket(player.getId(),MobEffects.JUMP_BOOST);
+        }
+        if(entity!=null&&packet instanceof ClientboundRemoveMobEffectPacket remove&&remove.entityId()==entity
+                &&remove.effect().is(MobEffects.NIGHT_VISION))return movieNightVisionPacket(entity);
+        if(packet instanceof ClientboundBundlePacket bundle&&(entity!=null||shulkerJumpLocked(player))){
             var children=new ArrayList<Packet<? super ClientGamePacketListener>>();boolean changed=false;
             for(var child:bundle.subPackets()){var projected=projectPacket(player,child);changed|=projected!=child;children.add((Packet<? super ClientGamePacketListener>)projected);}
             if(changed)return new ClientboundBundlePacket(children);
         }
         return packet;
+    }
+    private static boolean shulkerJumpLocked(ServerPlayer player){
+        return player.level().getServer().isSameThread()&&LbcShulkerArmor.blocksPhysicalJump(player);
     }
     /** Visual response saturates at display limits; signed values never saturate server-side. */
     public static int visualTier(long level) {

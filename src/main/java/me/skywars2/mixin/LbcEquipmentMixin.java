@@ -1,6 +1,7 @@
 package me.skywars2.mixin;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.LbcShulkerArmor;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,9 +12,17 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LbcEquipmentMixin {
+    /** Vanilla adds Jump Boost after the attribute has already been multiplied by zero. */
+    @Inject(method = "getJumpPower(F)F", at = @At("HEAD"), cancellable = true)
+    private void skywars2$shulkerJumpPower(float reduction, CallbackInfoReturnable<Float> cir) {
+        if ((Object)this instanceof ServerPlayer player && LbcShulkerArmor.blocksPhysicalJump(player))
+            cir.setReturnValue(0f);
+    }
+
     /** Нативный прыжок живёт в LivingEntity; броня реагирует без опроса статистики jump каждый тик. */
     @Inject(method = "jumpFromGround", at = @At("TAIL"))
     private void skywars2$overloadJump(CallbackInfo ci) {
