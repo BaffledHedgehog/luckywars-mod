@@ -101,7 +101,7 @@ final class CombatLogoutChecks {
                     "actual helper-arrow death keeps original physical hitter and native player credit: hp="+victim.getHealth()
                     +", awaiting="+game.awaitingRespawn(victim.getUUID())+", profile deaths="+victimProfile.deaths+" (before="+victimDeaths+")"
                     +", native killer="+nativeKiller+", mark="+victim.getLastHurtByPlayer()
-                    +", accepted killer="+game.items().indirectKills().creditedKiller(victim)+", damage="+physical
+                    +", damage="+physical
                     +", causing="+(physical==null?null:physical.getEntity())+", direct="+(physical==null?null:physical.getDirectEntity())
                     +", shot owner="+arrow.getOwner()+", shot cause="+hedgehogs.cause(arrow)+", profile="+profile.kills+"/"+profile.coins
                     +", vanilla PLAYER_KILLS="+author.getStats().getValue(net.minecraft.stats.Stats.CUSTOM,net.minecraft.stats.Stats.PLAYER_KILLS));
