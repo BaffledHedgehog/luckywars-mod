@@ -4,6 +4,7 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -63,7 +64,8 @@ public final class FpvDroneChecks {
                 for(int n=0;n<seen.size();n++){var p=seen.get(n);if(p instanceof ClientboundAddEntityPacket add&&add.getId()==drone.getId())spawn=n;if(p instanceof ClientboundSetCameraPacket c&&c.getEntity(level)==owner)camera=n;}
                 require(spawn>=0&&camera>spawn,"actual native pairing precedes camera attachment");
                 attachedPresentation();operatorPresentation();audioViewpoint();quietInvisibility();
-                require(level.sendParticles(owner,net.minecraft.core.particles.ParticleTypes.END_ROD,false,false,drone.getX(),drone.getY(),drone.getZ(),1,0,0,0,0),"native particle range uses camera instead of distant body");
+                require(level.sendParticles(owner,ParticleTypes.END_ROD,false,false,drone.getX(),drone.getY(),drone.getZ(),1,0,0,0,0),"native particle range uses camera instead of distant body");
+                particleViewpoint();
                 long sounds=packets().stream().filter(ClientboundSoundPacket.class::isInstance).count();
                 var sound=net.minecraft.sounds.SoundEvent.createVariableRangeEvent(net.minecraft.resources.Identifier.parse("minecraft:block.note_block.pling"));
                 level.playSound(null,drone.getX(),drone.getY(),drone.getZ(),sound,net.minecraft.sounds.SoundSource.MASTER,1,1);
@@ -126,6 +128,48 @@ public final class FpvDroneChecks {
             require(other.stream().noneMatch(p->p instanceof ClientboundGameEventPacket e&&e.getEvent()==ClientboundGameEventPacket.CHANGE_GAME_MODE&&e.getParam()==3),"hand/HUD presentation mode packet is owner-only");
             require(other.stream().noneMatch(p->p instanceof ClientboundAddEntityPacket e&&e.getId()==attachedSeat),"transient seat is never sent to another player");
         }
+        void particleViewpoint() {
+            var camera = BlockPos.containing(drone.getEyePosition());
+            var body = owner.blockPosition();
+            var cameraCenter = Vec3.atCenterOf(camera);
+            var away = cameraCenter.subtract(Vec3.atCenterOf(body)).normalize();
+            var first = Vec3.atCenterOf(BlockPos.containing(cameraCenter.add(away.scale(29.5))));
+            var second = first.add(.0625, 0, 0);
+            require(camera.closerToCenterThan(first, 32) && camera.closerToCenterThan(second, 32)
+                            && !body.closerToCenterThan(first, 32) && !body.closerToCenterThan(second, 32),
+                    "real FPV audience is inside the native normal particle radius while the body is outside");
+
+            verifyParticleBatch("adjacent samples", () -> {
+                try (var trail = new LbcParticleBatch.Group(level, ParticleTypes.END_ROD, 0, 0, false)) {
+                    trail.add(first);
+                    trail.add(second);
+                }
+            });
+            verifyParticleBatch("axis trail", () -> {
+                try (var trail = new LbcParticleBatch.AxisLine(level, ParticleTypes.END_ROD)) {
+                    trail.add(first);
+                    trail.add(second);
+                }
+            });
+            verifyParticleBatch("nearby runs", () -> {
+                try (var trail = new LbcParticleBatch.NearbyRuns(level, ParticleTypes.END_ROD, 0, false, .125)) {
+                    trail.add(new Vec3[]{first}, 1);
+                    trail.add(new Vec3[]{second}, 1);
+                }
+            });
+        }
+
+        private void verifyParticleBatch(String label, Runnable emit) {
+            int before = packets().size();
+            emit.run();
+            var particles = packets().stream().skip(before).filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast).filter(p -> p.particle().getType() == ParticleTypes.END_ROD)
+                    .toList();
+            require(particles.size() == 1 && particles.getFirst().count() == 2
+                            && !particles.getFirst().overrideLimiter(),
+                    "remote FPV camera receives one " + label + " packet with both normal particles");
+        }
+
         void audioViewpoint(){
             var eye=drone.getEyePosition();require(eye.equals(LbcFpvDrone.viewpoint(owner))&&owner.getCamera()==owner,"shared sound audience follows actual private FPV camera eye, independent of native body camera");
             // Audio audience follows the remote eye; gains and source coordinates remain authored.

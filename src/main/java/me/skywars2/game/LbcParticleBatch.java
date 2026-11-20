@@ -9,11 +9,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
 /** Batch nearby trail samples, preserving particle counts and their spatial variance. */
 final class LbcParticleBatch {
     private LbcParticleBatch() { }
+
+    private static BlockPos viewerPosition(ServerPlayer player) {
+        // Match the same private FPV seat used by native ServerLevel particle transmission.
+        var camera = LbcFpvDrone.audioViewpoint(player);
+        return camera == null ? player.blockPosition() : BlockPos.containing(camera);
+    }
+
     /** Keep native particles along short axis-aligned runs, rather than a Gaussian cloud.
      * Client sampling fills the original run uniformly; its bounds, count and
      * particle providers stay unchanged. A turn always starts a separate packet.
@@ -45,7 +53,8 @@ final class LbcParticleBatch {
             for(var player:level.players()){
                 // Preserve the native32-block admission at a range boundary:
                 // only full runs batch; mixed visibility keeps individual points.
-                int visible=0;for(int i=0;i<count;i++)if(player.blockPosition().closerToCenterThan(points[i],32))visible++;
+                var viewer=viewerPosition(player);
+                int visible=0;for(int i=0;i<count;i++)if(viewer.closerToCenterThan(points[i],32))visible++;
                 if(visible==count){for(var packet:packets)level.sendParticles(player,false,from.x,from.y,from.z,packet);}
                 else if(visible>0)for(int i=0;i<count;i++)for(var particle:particles)
                     level.sendParticles(player,particle,false,false,points[i].x,points[i].y,points[i].z,1,0,0,0,0);
@@ -109,7 +118,7 @@ final class LbcParticleBatch {
 
         private boolean sameVisibility(Cluster cluster){
             for(var player:level.players()){
-                var viewer=player.blockPosition();
+                var viewer=viewerPosition(player);
                 boolean visible=viewer.closerToCenterThan(cluster.first[0],radius);
                 for(var run:cluster.runs)for(var point:run)
                     if(viewer.closerToCenterThan(point,radius)!=visible)return false;
@@ -169,7 +178,7 @@ final class LbcParticleBatch {
                 double radius=force?512:32;
                 for(var player:level.players()){
                     int visible=0;
-                    var viewer=player.blockPosition();
+                    var viewer=viewerPosition(player);
                     for(int i=0;i<samples;i++)if(viewer.closerToCenterThan(points[i],radius))visible++;
                     if(visible==samples){
                         level.sendParticles(player,force,cx,cy,cz,packet);
