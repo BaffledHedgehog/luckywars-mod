@@ -22,6 +22,61 @@ public final class TimeStopViewChecks {
                 && LbcMusicStaff.MUSIC.equals(sound.getSound().value().location())).count();
     }
 
+    private static boolean useClock(WoolBucketChecks.Fixture f,InteractionHand hand){
+        return f.owner.gameMode.useItem(f.owner,f.level,f.owner.getItemInHand(hand),hand).consumesAction();
+    }
+
+    private static ItemStack checkOrdinaryWatch(WoolBucketChecks.Fixture f){
+        var stop=f.game.items().timeStop();
+        // This is the existing weighted result referenced by the Loli pool, rolled deterministically in isolation.
+        var expected=f.loot("lbc:item_defs/lbc/time_clock__6b7715f03a34");
+        require(expected.getCount()==1,"one actual Loli watch in its canonical loot result");
+        f.owner.setItemInHand(InteractionHand.MAIN_HAND,expected.copy());
+        require(useClock(f,InteractionHand.MAIN_HAND),"ordinary Loli watch activates through native main-hand use");
+        require(ItemStack.matches(f.owner.getMainHandItem(),expected),"ordinary Loli watch keeps its count, damage and components on actual activation");
+        try {
+            require(stop.remaining(f.level)==200 && stop.ordinaryCooldownTicks(f.owner)==1200 && stop.cooldownTicks(f.owner)==0,
+                    "ordinary cast starts ten seconds of stopped time and its separate sixty-second recharge");
+            require(!stop.frozen(f.owner)&&stop.frozen(f.other),"only the participant carrying the watch stays active");
+            stop.tick();
+            require(stop.remaining(f.level)==199&&stop.ordinaryCooldownTicks(f.owner)==1200,
+                    "ordinary watch recharge pauses during its active stop");
+            require(!useClock(f,InteractionHand.MAIN_HAND)&&stop.remaining(f.level)==199
+                            &&ItemStack.matches(f.owner.getMainHandItem(),expected),
+                    "recharge blocks a same-hand second activation without changing the item");
+            f.other.getInventory().setItem(9,expected.copy());
+            stop.tick();
+            require(!stop.frozen(f.other)&&!TimeStopView.frozen(f.other),"ordinary stop respects a carried watch outside the hands");
+            stop.end(f.level);
+            stop.tick();
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,f.owner.getMainHandItem());
+            f.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+            require(stop.ordinaryCooldownTicks(f.owner)==1199&&!useClock(f,InteractionHand.OFF_HAND),
+                    "recharge resumes after thaw and follows the player across both hands");
+            stop.reduceSourceCooldown(f.owner,0);
+            require(useClock(f,InteractionHand.OFF_HAND)&&ItemStack.matches(f.owner.getOffhandItem(),expected)
+                            &&stop.remaining(f.level)==200&&stop.ordinaryCooldownTicks(f.owner)==1200,
+                    "after recharge the same ordinary watch casts again from the offhand with its full original data");
+        }finally{
+            stop.end(f.level);
+            stop.reduceSourceCooldown(f.owner,0);
+            f.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            f.other.getInventory().setItem(9,ItemStack.EMPTY);
+        }
+        var touhou=f.loot("lbc:time_stopper");
+        f.owner.setItemInHand(InteractionHand.MAIN_HAND,touhou.copyWithCount(2));
+        try {
+            require(useClock(f,InteractionHand.MAIN_HAND)&&ItemStack.matches(f.owner.getMainHandItem(),touhou)
+                            &&stop.remaining(f.level)==220&&stop.ordinaryCooldownTicks(f.owner)==0,
+                    "actual Touhou clock still debits exactly one and grants its separate eleven-second stop");
+        }finally{
+            stop.end(f.level);
+            f.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+        }
+        return expected;
+    }
+
     private static void checkHeldStaff(GameController game,WoolBucketChecks.Fixture f){
         var stop=game.items().timeStop();
         var music=game.items().musicStaff();
@@ -68,11 +123,17 @@ public final class TimeStopViewChecks {
     public static void run(GameController game){
         var stop=game.items().timeStop();require(!stop.stopped(game.maps().level()),"unpaused native fixture");
         try(var f=new WoolBucketChecks.Fixture(game,false)){
-            f.prepareParticipants();f.other.entityTags().remove("have_stand");
+            f.prepareParticipants();
+            f.owner.entityTags().remove("have_stand");f.other.entityTags().remove("have_stand");
+            var ordinary=checkOrdinaryWatch(f);
             var clocks=f.leaf("stand_clocks");f.owner.setItemInHand(InteractionHand.MAIN_HAND,clocks);
+            f.other.getInventory().setItem(9,ordinary);
             f.client.packets().clear();f.audience.packets().clear();
             require(stop.useClocks(f.owner,InteractionHand.MAIN_HAND),"actual native clock activation");
             require(!stop.frozen(f.owner)&&stop.frozen(f.other)&&!TimeStopView.frozen(f.owner)&&TimeStopView.frozen(f.other),"only affected player loses view/audio; native clock immunity preserved");
+            require(stop.remaining(f.level)==400&&stop.cooldownTicks(f.owner)==800&&stop.ordinaryCooldownTicks(f.owner)==0,
+                    "powerful Stand Clock has its own duration and recharge");
+            f.other.getInventory().setItem(9,ItemStack.EMPTY);
             require(f.other.getPostEffects().contains(TimeStopView.EFFECT)&&!f.owner.getPostEffects().contains(TimeStopView.EFFECT),"server activates actual player post-effect only for victim");
             f.other.connection.send(new ClientboundStopSoundPacket(Identifier.parse("minecraft:entity.experience_orb.pickup"),SoundSource.PLAYERS));
             require(flat(f.audience).stream().anyMatch(ClientboundStopSoundPacket.class::isInstance),"sound-stop controls remain deliverable while new sounds are suppressed");
@@ -97,6 +158,6 @@ public final class TimeStopViewChecks {
             checkHeldStaff(game,f);
             stop.begin(f.level,20);stop.forget(f.other);require(!TimeStopView.frozen(f.other),"disconnect/forget withdraws sound gate");stop.stop();
         }finally{stop.stop();}
-        SkyWars2.LOGGER.info("[check] PASS time-stop-view (actual clocks/Za Warudo, post-effects/frozen recipients, positioned/attached/bundled/native-event audio, immunity transitions, held staff on thaw, extension/resume/forget cleanup)");
+        SkyWars2.LOGGER.info("[check] PASS time-stop-view (reusable ordinary Loli clock both hands, native recharge, distinct Stand and Touhou clocks, Za Warudo/post-effects/audio, immunity transitions, held staff on thaw, extension/resume/forget cleanup)");
     }
 }

@@ -802,6 +802,8 @@ public final class LbcItems {
         hudCooldown(component,bossHelicopterHudValue(source));
         if(LbcHohlopitek.isItem(source.getMainHandItem()) || LbcHohlopitek.isItem(source.getOffhandItem()))
             hudCooldown(component,hohlopitek.hudValue(source));
+        if(LbcTimeStop.isOrdinaryClock(source.getMainHandItem()) || LbcTimeStop.isOrdinaryClock(source.getOffhandItem()))
+            hudCooldown(component,hudSeconds(timeStop.ordinaryCooldownTicks(source)));
         if(LbcStand.isClocks(source.getMainHandItem()) || LbcStand.isClocks(source.getOffhandItem()))
             hudCooldown(component,hudSeconds(timeStop.cooldownTicks(source)));
         hudPositive(component,"  \uE110 ",blaze.headCharges(source),ChatFormatting.GREEN);

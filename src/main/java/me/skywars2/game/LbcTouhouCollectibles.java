@@ -99,6 +99,7 @@ public final class LbcTouhouCollectibles {
         var stack=player.getItemInHand(hand);if(!consumable(stack)||!admission.test(player)||game.items().timeStop().frozen(player)||game.items().wands().inputTimeStopped(player)||game.items().actionsBlocked(player))return false;
         if(hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
         if(game.items().magic().suppressed(player))return false;
+        if(LbcTimeStop.isOrdinaryClock(stack))return game.items().timeStop().useOrdinaryClock(player,hand);
         boolean bomb=ItemData.intValue(stack,"bomb_item",0)==1;
         boolean accepted=bomb?game.items().danmaku().useTouhouBomb(player):game.items().timeStop().useTouhouClock(player);
         if(accepted){stack.shrink(1);player.getInventory().setChanged();player.containerMenu.broadcastChanges();}

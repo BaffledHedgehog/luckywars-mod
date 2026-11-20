@@ -17,6 +17,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Input;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayDeque;
@@ -30,11 +31,17 @@ import java.util.UUID;
 
 /** Локальная остановка измерения: native tick gates, сохранённая физика и принятые отложенные удары. */
 public final class LbcTimeStop {
-    private static final int STOP_TICKS=400, COOLDOWN_TICKS=800;
+    private enum Clock {
+        ORDINARY(200,1200), STAND(400,800);
+        final int stopTicks,cooldownTicks;
+        Clock(int stopTicks,int cooldownTicks){this.stopTicks=stopTicks;this.cooldownTicks=cooldownTicks;}
+    }
+    private record ClockHolder(UUID player,Clock clock) { }
     private final GameController game;
     private final Map<ServerLevel,Integer> stops=new IdentityHashMap<>();
+    private final Set<ServerLevel> ordinaryStops=java.util.Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<Entity,Frozen> frozen=new IdentityHashMap<>();
-    private final Map<UUID,Cooldown> cooldowns=new HashMap<>();
+    private final Map<ClockHolder,Cooldown> cooldowns=new HashMap<>();
     private final Map<ServerPlayer,Exemption> exemptions=new IdentityHashMap<>();
     private final Map<ServerLevel,Set<UUID>> touhouCasters=new IdentityHashMap<>();
     private final Map<ServerLevel,ArrayDeque<Hit>> hits=new IdentityHashMap<>();
@@ -71,8 +78,8 @@ public final class LbcTimeStop {
     private record Exemption(int tick,boolean immune) { }
     private static final class Cooldown {
         final ServerLevel level;
-        int ticks=COOLDOWN_TICKS;
-        Cooldown(ServerLevel level) { this.level=level; }
+        int ticks;
+        Cooldown(ServerLevel level,int ticks) { this.level=level;this.ticks=ticks; }
     }
     private static final class Frozen {
         final ServerLevel level;
@@ -96,34 +103,71 @@ public final class LbcTimeStop {
     public boolean stopped(ServerLevel level) { return stops.containsKey(level); }
     int remaining(ServerLevel level) { return stops.getOrDefault(level,0); }
     int cooldownTicks(ServerPlayer player) {
-        var cooldown=cooldowns.get(player.getUUID()); return cooldown==null?0:cooldown.ticks;
+        return cooldownTicks(new ClockHolder(player.getUUID(),Clock.STAND));
+    }
+    int ordinaryCooldownTicks(ServerPlayer player) {
+        return cooldownTicks(new ClockHolder(player.getUUID(),Clock.ORDINARY));
+    }
+    private int cooldownTicks(ClockHolder holder) {
+        var cooldown=cooldowns.get(holder);return cooldown==null?0:cooldown.ticks;
     }
     void reduceSourceCooldown(ServerPlayer player,int seconds) {
-        int ticks=cooldownTicks(player), current=(int)(((long)ticks+19)/20);
+        var holder=new ClockHolder(player.getUUID(),Clock.ORDINARY);
+        int ticks=cooldownTicks(holder), current=(int)(((long)ticks+19)/20);
         int remaining=(int)Math.clamp((long)ticks-((long)current-seconds)*20,0,Integer.MAX_VALUE);
-        if(remaining==0)cooldowns.remove(player.getUUID());
-        else cooldowns.computeIfAbsent(player.getUUID(), id->new Cooldown(player.level())).ticks=remaining;
+        if(remaining==0)cooldowns.remove(holder);
+        else cooldowns.computeIfAbsent(holder, key->new Cooldown(player.level(),0)).ticks=remaining;
     }
     int pendingDamageCount() { return hits.values().stream().mapToInt(ArrayDeque::size).sum(); }
     void addPlayerCounters(ServerPlayer player) {
-        var cooldown=cooldowns.get(player.getUUID());
-        if(cooldown==null) {
-            cooldown=new Cooldown(player.level()); cooldown.ticks=1;
-            cooldowns.put(player.getUUID(),cooldown);
-        } else cooldown.ticks++;
+        addPlayerCooldown(player,Clock.ORDINARY,20);
+        addPlayerCooldown(player,Clock.STAND,1);
+    }
+    private void addPlayerCooldown(ServerPlayer player,Clock clock,int ticks) {
+        var cooldown=cooldowns.computeIfAbsent(new ClockHolder(player.getUUID(),clock), key->new Cooldown(player.level(),0));
+        cooldown.ticks=(int)Math.min(Integer.MAX_VALUE,(long)cooldown.ticks+ticks);
+    }
+
+    static boolean isOrdinaryClock(ItemStack stack) {
+        return ItemData.intValue(stack,"time_stopper",0)==1 && ItemData.intValue(stack,"magicwand",0)==1
+                && ItemData.intValue(stack,"spellwithcooldown",0)==1;
+    }
+    private static boolean hasTimeStopper(ServerPlayer player) {
+        if(ItemData.intValue(player.getOffhandItem(),"time_stopper",0)==1)return true;
+        for(int slot=0;slot<36;slot++)
+            if(ItemData.intValue(player.getInventory().getItem(slot),"time_stopper",0)==1)return true;
+        return false;
     }
 
     public boolean useClocks(ServerPlayer player,InteractionHand hand) {
+        return useClock(player,hand,Clock.STAND);
+    }
+
+    boolean useOrdinaryClock(ServerPlayer player,InteractionHand hand) {
+        return useClock(player,hand,Clock.ORDINARY);
+    }
+
+    private boolean useClock(ServerPlayer player,InteractionHand hand,Clock clock) {
         if(rewinding!=null)return false;
         exemptions.remove(player);
-        if(!LbcStand.isClocks(player.getItemInHand(hand))
+        var stack=player.getItemInHand(hand);
+        var holder=new ClockHolder(player.getUUID(),clock);
+        boolean ordinary=clock==Clock.ORDINARY;
+        if(!(ordinary?isOrdinaryClock(stack):LbcStand.isClocks(stack))
                 || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
                 || !game.canUseGameplayItems(player) || !player.isAlive() || player.isRemoved()
-                || game.stage()==GameController.Stage.ENDING || cooldownTicks(player)>0
+                || game.stage()==GameController.Stage.ENDING || cooldownTicks(holder)>0
                 || game.items().actionsBlocked(player)
                 || game.items().magic().suppressedAt(player.level(),player.getEyePosition())) return false;
-        cooldowns.put(player.getUUID(),new Cooldown(player.level()));
-        begin(player.level(),(int)Math.min(Integer.MAX_VALUE,(long)remaining(player.level())+STOP_TICKS));
+        var level=player.level();
+        cooldowns.put(holder,new Cooldown(level,clock.cooldownTicks));
+        if(ordinary) {
+            if(!stopped(level))ordinaryStops.add(level);
+            begin(level,Math.max(remaining(level),clock.stopTicks));
+        } else {
+            ordinaryStops.remove(level);
+            begin(level,(int)Math.min(Integer.MAX_VALUE,(long)remaining(level)+clock.stopTicks));
+        }
         TimeStopView.activation(()->LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",1,1,0,.5f));
         return true;
     }
@@ -157,7 +201,9 @@ public final class LbcTimeStop {
         if(rewinding!=null)return false;
         if(!(entity.level() instanceof ServerLevel level) || !stopped(level) || entity.isRemoved()) return false;
         var casters=touhouCasters.get(level);
-        if(casters!=null&&(casters.contains(entity.getUUID())||entity instanceof net.minecraft.world.entity.Mob mob&&mob.isNoAi()))return false;
+        if(casters!=null&&casters.contains(entity.getUUID()))return false;
+        boolean ordinary=ordinaryStops.contains(level);
+        if((ordinary||casters!=null)&&entity instanceof net.minecraft.world.entity.Mob mob&&mob.isNoAi())return false;
         if(entity.entityTags().contains("have_stand")) return false;
         if(game.items().stand().movesDuringTimeStop(entity)) return false;
         if(entity instanceof ServerPlayer player) {
@@ -165,7 +211,7 @@ public final class LbcTimeStop {
             int tick=game.server().getTickCount();
             var cached=exemptions.get(player);
             if(cached==null || cached.tick()!=tick) {
-                cached=new Exemption(tick,LbcStand.hasClocks(player)); exemptions.put(player,cached);
+                cached=new Exemption(tick,LbcStand.hasClocks(player)||ordinary&&hasTimeStopper(player)); exemptions.put(player,cached);
             }
             return !cached.immune();
         }
@@ -324,6 +370,7 @@ public final class LbcTimeStop {
     }
     void end(ServerLevel level) {
         if(stops.remove(level)==null) return;
+        ordinaryStops.remove(level);
         // Presentation may precede the body's first frozen physics tick (join/immunity loss).
         for(var player:level.players())TimeStopView.clear(player);
         touhouCasters.remove(level);
@@ -398,7 +445,9 @@ public final class LbcTimeStop {
     void forget(ServerPlayer player) {
         TimeStopView.clear(player);
         var state=frozen.remove(player); if(state!=null) restore(player,state);
-        exemptions.remove(player); cooldowns.remove(player.getUUID());
+        exemptions.remove(player);
+        cooldowns.remove(new ClockHolder(player.getUUID(),Clock.ORDINARY));
+        cooldowns.remove(new ClockHolder(player.getUUID(),Clock.STAND));
         for(var casters:touhouCasters.values())casters.remove(player.getUUID());
     }
     void stop() {
@@ -406,7 +455,7 @@ public final class LbcTimeStop {
         // Match/epoch cancellation restores physics but must not replay an old stop's presentation.
         trails.clear();
         for(var level:List.copyOf(stops.keySet())) end(level);
-        cooldowns.clear(); exemptions.clear(); touhouCasters.clear(); hits.clear(); replaying=null;
+        cooldowns.clear(); exemptions.clear(); ordinaryStops.clear(); touhouCasters.clear(); hits.clear(); replaying=null;
         LbcTimeStopSchedules.clear();
     }
 
@@ -425,7 +474,8 @@ public final class LbcTimeStop {
         private final MatchDamageSources sources;
         private final LbcTimeStopSchedules.Checkpoint clocks;
         private final Map<ServerLevel,Integer> stopped=new IdentityHashMap<>();
-        private final Map<UUID,Cool> cool=new HashMap<>();
+        private final Set<ServerLevel> ordinary=Set.copyOf(ordinaryStops);
+        private final Map<ClockHolder,Cool> cool=new HashMap<>();
         private final List<Lease> leases;
         private final List<Cell> cells;
         private final List<Body> bodies;
@@ -457,7 +507,7 @@ public final class LbcTimeStop {
             for(var lease:leases)chunk(lease); // Entire loaded-contact preflight precedes writes.
             rewinding=this;
             for(var state:List.copyOf(frozen.values()))releaseContact(state);
-            stops.clear();frozen.clear();cooldowns.clear();exemptions.clear();touhouCasters.clear();hits.clear();trails.clear();contacts.clear();contactLeases.clear();
+            stops.clear();ordinaryStops.clear();frozen.clear();cooldowns.clear();exemptions.clear();touhouCasters.clear();hits.clear();trails.clear();contacts.clear();contactLeases.clear();
             clocks.restoreFrozen();
         }
         private net.minecraft.world.level.chunk.LevelChunk chunk(Lease lease){
@@ -480,7 +530,8 @@ public final class LbcTimeStop {
                 restored.add(contact);contactLeases.add(contact);}
             for(var cell:cells)contacts.computeIfAbsent(cell.level,key->new HashMap<>()).put(cell.pos,restored.get(cell.lease));
             for(var body:bodies){var state=new Frozen(body.level,body.position,body.velocity,body.yaw,body.pitch,body.noGravity);state.correctedAt=stamp(body.corrected);state.presentedAt=stamp(body.presented);if(body.lease>=0)state.contact=restored.get(body.lease);frozen.put(resolved.get(body.ref),state);}
-            stopped.forEach(stops::put);cool.forEach((id,value)->{var current=new Cooldown(value.level);current.ticks=value.ticks;cooldowns.put(id,current);});
+            stopped.forEach(stops::put);ordinaryStops.addAll(ordinary);
+            cool.forEach((holder,value)->cooldowns.put(holder,new Cooldown(value.level,value.ticks)));
             casterLeases.forEach((level,ids)->touhouCasters.put(level,new HashSet<>(ids)));
             for(var cache:immune)exemptions.put((ServerPlayer)resolved.get(cache.ref),new Exemption(stamp(cache.tick),cache.immune));
             damage.forEach((level,queue)->{var current=new ArrayDeque<Hit>();for(var hit:queue)current.add(new Hit((LivingEntity)resolved.get(hit.ref),hit.level,MatchDamageSources.value(hit.source),hit.amount,hit.epoch));hits.put(level,current);});

@@ -19,7 +19,7 @@ final class LbcSourceCounters {
         case "swordcharging5"->items.electro().yellowCharging(p);
         case "scared","lookback","twitching"->items.psycho().hudValue(p,name);
         case "shock"->items.electro().shocks(p);
-        case "coldown1"->(int)(((long)items.timeStop().cooldownTicks(p)+19)/20);
+        case "coldown1"->(int)(((long)items.timeStop().ordinaryCooldownTicks(p)+19)/20);
         case "coldown16"->items.mobgun().cooldown(p);
         case "coldownshish"->(int)(((long)items.reactive().cooldownTicks(p)+4)/5);
         case "coldown13","coldown17","coldown18","coldown18b","coldown25","coldownMagnum"->items.shooters().sourceCounter(p,name);
