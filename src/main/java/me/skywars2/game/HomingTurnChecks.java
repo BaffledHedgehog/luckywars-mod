@@ -98,10 +98,14 @@ final class HomingTurnChecks {
 
     private static final class ProbeCow extends Cow {
         int roleChecks;
+        private final boolean alwaysTicking;
 
-        ProbeCow(net.minecraft.server.level.ServerLevel level) {
+        ProbeCow(net.minecraft.server.level.ServerLevel level, boolean alwaysTicking) {
             super(EntityTypes.COW, level);
+            this.alwaysTicking = alwaysTicking;
         }
+
+        @Override public boolean isAlwaysTicking() { return alwaysTicking; }
 
         @Override public boolean isAlive() {
             roleChecks++;
@@ -131,7 +135,11 @@ final class HomingTurnChecks {
         }
 
         ProbeCow probe(Vec3 point) {
-            var cow = new ProbeCow(f.level);
+            return probe(point, false);
+        }
+
+        ProbeCow probe(Vec3 point, boolean alwaysTicking) {
+            var cow = new ProbeCow(f.level, alwaysTicking);
             cow.setPos(point);
             cow.setNoGravity(true);
             cow.setNoAi(true);
@@ -148,6 +156,7 @@ final class HomingTurnChecks {
             var last = probe(from.add(4, 0, 0));
             var out = probe(from.add(0, 120, 0));
             var edge = probe(from.add(0, -100, 0));
+            var tracked = probe(from, true);
             try {
                 var lifetimes = game.items().lifetimes();
                 require(lifetimes.loadedTargets().size() <= 64, "sparse scene stays within the fast-path limit");
@@ -174,9 +183,20 @@ final class HomingTurnChecks {
                     edge.setPos(from.add(0, -100, 0));
                     require(lifetimes.nearestTarget(f.level, from, 100, true, candidate -> candidate == edge) == edge,
                             "same-tick reappearance is eligible without a warmup or cache refresh");
+                    tracked.setPos(cold);
+                    require(f.level.getEntity(tracked.getUUID()) == tracked && lifetimes.loadedTargets().contains(tracked)
+                                    && f.level.getEntitiesOfClass(LivingEntity.class, new AABB(cold, cold).inflate(2),
+                                            candidate -> candidate == tracked).isEmpty(),
+                            "always-ticking body remains discoverable by UUID but outside native section queries");
+                    require(lifetimes.nearestTarget(f.level, cold, 100, true, candidate -> candidate == tracked) == null,
+                            "bounded homing follows native section accessibility for always-ticking bodies");
+                    tracked.setPos(from);
+                    require(lifetimes.nearestTarget(f.level, from, 100, true, candidate -> candidate == tracked) == tracked,
+                            "the same always-ticking body becomes targetable as soon as its section is accessible");
                     sparseQueries = queries.homingWideQueries;
                 }
                 edge.discard();
+                tracked.discard();
                 int[] remoteRoleChecks = {0};
                 var beam = lifetimes.nearestBeamTarget(f.level, from, candidate -> {
                     if (candidate == out) remoteRoleChecks[0]++;
@@ -206,6 +226,7 @@ final class HomingTurnChecks {
                 last.discard();
                 out.discard();
                 edge.discard();
+                tracked.discard();
             }
         }
 

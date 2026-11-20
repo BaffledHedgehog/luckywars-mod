@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
+import net.minecraft.world.level.entity.EntitySectionStorage;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -393,18 +394,14 @@ public final class ProjectileLifetimes {
         var snapshot = loadedTargets();
         double best = radius * radius;
         if (snapshot.size() <= SPARSE_TARGET_LIMIT) {
-            var manager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
-            var sections = ((ActorCheckpointAccess.Sections) manager).skywars2$sections();
+            var sections = nativeSections(level);
             LivingEntity nearest = null;
             boolean tied = false;
             for (var target : snapshot) {
                 if (target.level() != level || target.isRemoved()) continue;
                 double distance = target.position().distanceToSqr(at);
                 if (!(distance <= best) || !target.getBoundingBox().intersects(bounds)
-                        || level.getEntity(target.getUUID()) != target) continue;
-                var section = sections.getSection(SectionPos.asLong(target.blockPosition()));
-                // Always-ticking players may be tracked even while their section is inaccessible.
-                if (section == null || !section.getStatus().isAccessible() || !selection.test(target)) continue;
+                        || !visibleInSections(level, sections, target) || !selection.test(target)) continue;
                 if (nearest != null && distance == best) {
                     tied = true;
                     continue;
@@ -443,18 +440,31 @@ public final class ProjectileLifetimes {
         double extent = radius + 1e-6;
         double minX = at.x - extent, minY = at.y - extent, minZ = at.z - extent;
         double maxX = at.x + extent, maxY = at.y + extent, maxZ = at.z + extent;
+        var sections = nativeSections(level);
         LivingEntity nearest = null;
         for (var candidate : snapshot) {
             if (candidate.level() != level || candidate.isRemoved()) continue;
             double distance = candidate.position().distanceToSqr(at);
             if (!(distance <= best) || nearest != null && distance == best && !preferLastOnTie) continue;
             if (!candidate.getBoundingBox().intersects(minX, minY, minZ, maxX, maxY, maxZ)
-                    || level.getEntity(candidate.getUUID()) != candidate
+                    || !visibleInSections(level, sections, candidate)
                     || !selection.test(candidate)) continue;
             nearest = candidate;
             best = distance;
         }
         return nearest;
+    }
+
+    private static EntitySectionStorage<Entity> nativeSections(ServerLevel level) {
+        var manager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
+        return ((ActorCheckpointAccess.Sections) manager).skywars2$sections();
+    }
+
+    private static boolean visibleInSections(ServerLevel level, EntitySectionStorage<Entity> sections, LivingEntity target) {
+        if (level.getEntity(target.getUUID()) != target) return false;
+        // Always-ticking players stay registered and tracked in inaccessible sections.
+        var section = sections.getSection(SectionPos.asLong(target.blockPosition()));
+        return section != null && section.getStatus().isAccessible();
     }
 
     private static LivingEntity nearestEligible(ServerLevel level, Vec3 at, List<LivingEntity> candidates,
