@@ -1550,6 +1550,7 @@ public final class GameChecks {
                                 case "uniform-item-pools" -> {UniformItemPoolChecks.run(game);return;}
                                 case "genie" -> { GenieChecks.run(game); return; }
                                 case "genie-lobby" -> { GenieLobbyChecks.run(game); return; }
+                                case "genie-vanity-lifetime" -> { GenieVanityChecks.run(game); return; }
                                 case "genie-api" -> { GenieApiChecks.run(game); return; }
                                 case "bulk-loot" -> {BulkLootChecks.run(game);return;}
                                 case "bucks-trader" -> {BucksTraderChecks.run(game);return;}
@@ -1975,6 +1976,7 @@ public final class GameChecks {
         MusicStaffChecks.tick(game);
         GenieChecks.tick(game);
         GenieLobbyChecks.tick(game);
+        GenieVanityChecks.tick(game);
         GenieApiChecks.tick();
         GuardianBeamChecks.tick(game);
         CastAchievementChecks.tick(game);

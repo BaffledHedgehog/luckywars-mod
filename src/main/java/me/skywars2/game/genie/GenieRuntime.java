@@ -352,9 +352,24 @@ public final class GenieRuntime {
 
     public void loaded(Entity entity) {
         if (!lifetimeActor(entity)) return;
+        trackLifetimeActor(entity);
+    }
+
+    /** Replay bypasses native tracking callbacks, including for registered hidden bodies. */
+    public void reindexRestored(Iterable<Entity> bodies) {
+        projectiles.clear();
+        for (var body : bodies) {
+            if (!lifetimeActor(body) || !game.items().currentEpoch(body) || !(body.level() instanceof ServerLevel level)) continue;
+            var manager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
+            if (manager.isLoaded(body.getUUID())) trackLifetimeActor(body);
+        }
+    }
+
+    private void trackLifetimeActor(Entity entity) {
         if (game.items().currentEpoch(entity)) roundHadLifetimeActors = true;
         var age = entity.getAttached(SHOT_AGE);
         if (age == null || age.body() != entity) {
+            // The decoded age survives independently of the separately restored native tick count.
             int previous = age == null ? Math.max(0, entity.tickCount) : age.elapsed();
             entity.setAttached(SHOT_AGE, new ShotAge(previous, entity, entity.tickCount));
         }
