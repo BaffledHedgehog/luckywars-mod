@@ -19,6 +19,27 @@ public final class LbcUseInteractions {
     private static final ScopedValue<ServerPlayer> SHIELD_HANDOFF = ScopedValue.newInstance();
     private LbcUseInteractions(){}
     public interface BlockInput { void skywars2$finishBlockInput(); }
+    public record BlockClick(Level level, net.minecraft.world.phys.BlockHitResult hit, InteractionHand hand,
+                             ItemStack stack, boolean awaitingAir) {
+        public boolean pairsAir(Level level, InteractionHand hand, ItemStack stack) {
+            return awaitingAir && this.level==level && this.hand==hand && this.stack==stack;
+        }
+
+        public boolean pairsOffhand(Level level, net.minecraft.world.phys.BlockHitResult hit, ItemStack main) {
+            return hand==InteractionHand.MAIN_HAND && this.level==level && stack==main
+                    && this.hit.getBlockPos().equals(hit.getBlockPos()) && this.hit.getDirection()==hit.getDirection()
+                    && this.hit.getLocation().equals(hit.getLocation());
+        }
+
+        public BlockClick afterAir() { return new BlockClick(level,hit,hand,stack,false); }
+    }
+
+    public record AirClick(Level level, ItemStack main, ItemStack offhand) {
+        public boolean pairsOffhand(Level level, ItemStack main, ItemStack offhand) {
+            return this.level==level && this.main==main && this.offhand==offhand;
+        }
+    }
+
     public static void endClientInput(ServerPlayer player){
         if(player.gameMode instanceof BlockInput input)input.skywars2$finishBlockInput();
     }

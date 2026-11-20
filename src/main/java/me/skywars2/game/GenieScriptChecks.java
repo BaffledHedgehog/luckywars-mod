@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
@@ -40,10 +41,12 @@ final class GenieScriptChecks implements AutoCloseable {
             """.formatted(new com.google.gson.JsonPrimitive(command));
         prepared=runtime.prepare(source);when=game.server().getTickCount();
         preparedCharged=runtime.prepare("""
-            {"version":1,"state":{"activated":0},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
+            {"version":1,"state":{"activated":0,"block_presses":0},"handlers":{"USE":"main","BLOCK_USE":"block"},"functions":{"main":{"parameters":["event"],"code":[
             ["const",2],["call","item.use_charge",1],["jump_if_false","done"],
             ["load","state"],["const","activated"],["load","state"],["const","activated"],["get"],["const",1],["add"],["put"],["drop"],
-            ["const",%s],["call","world.command",1],["return"],["label","done"],["const",false],["return"]]}}}
+            ["const",%s],["call","world.command",1],["return"],["label","done"],["const",false],["return"]]},
+            "block":{"parameters":["event"],"code":[["load","state"],["const","block_presses"],
+            ["load","state"],["const","block_presses"],["get"],["const",1],["add"],["put"],["return"]]}}}
             """.formatted(new com.google.gson.JsonPrimitive(command)));
         preparedPassive = runtime.prepare("""
             {"version":1,"state":{"counter":0},"handlers":{"TICK":"main"},"functions":{"main":{"parameters":["event"],"code":[
@@ -58,7 +61,10 @@ final class GenieScriptChecks implements AutoCloseable {
     private int count(ItemStack item){return GenieScriptItem.state(item).get("counter").getAsInt();}
     private void click(){
         base.client.acknowledge();base.owner.connection.handleClientTickEnd(new ServerboundClientTickEndPacket());
-        base.owner.connection.handleUseItem(new ServerboundUseItemPacket(InteractionHand.MAIN_HAND,sequence++,base.owner.getYRot(),base.owner.getXRot()));
+        sendAirUse(InteractionHand.MAIN_HAND);
+    }
+    private void sendAirUse(InteractionHand hand){
+        base.owner.connection.handleUseItem(new ServerboundUseItemPacket(hand,sequence++,base.owner.getYRot(),base.owner.getXRot()));
     }
     private void next(int value){phase=value;when=game.server().getTickCount();}
     boolean tick(){
@@ -146,26 +152,54 @@ final class GenieScriptChecks implements AutoCloseable {
             if (game.server().getTickCount() - when < 5 || !preparedPassive.isDone() || !preparedCharged.isDone()) return false;
             require(count(original)==6&&count(clone)==4,"native use-on-block invokes the generic USE handler once even though the block event is also emitted");
             checkPassiveInput();
-            checkCharges();
+            var support=base.owner.blockPosition().below();
+            base.set(support,Blocks.STONE.defaultBlockState());
+            checkCharges(new BlockHitResult(Vec3.atCenterOf(support).add(0,.5,0),Direction.UP,support,false));
+            checkCharges(null);
             runtime.forget(base.owner);return true;
         }
         throw new IllegalStateException("unknown script check phase");
     }
-    private void checkCharges(){
+    private void checkCharges(BlockHitResult hit){
         var owner=base.owner;
         var limited=GenieScriptItem.construct(preparedCharged.join(),"stick","Limited script","Two actual uses.",1);
         owner.setItemInHand(InteractionHand.MAIN_HAND,limited);
+        owner.setItemInHand(InteractionHand.OFF_HAND,hit!=null?ItemStack.EMPTY:new ItemStack(Items.SNOWBALL,3));
         for(int use=1;use<=2;use++){
             var copy=limited.copy();
             var copyState=copy.copy();
             owner.getInventory().setItem(10,copy);
             base.set(marker,Blocks.AIR.defaultBlockState());
-            click();
+            if(use==1){
+                base.client.acknowledge();owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
+                if(hit!=null){
+                    owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND,hit,sequence++));
+                    sendAirUse(InteractionHand.MAIN_HAND);
+                    owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.OFF_HAND,hit,sequence++));
+                }else{
+                    owner.setXRot(-90);
+                    var nearby=owner.getBoundingBox().inflate(3);
+                    var prior=base.level.getEntitiesOfClass(Snowball.class,nearby,shot->shot.getOwner()==owner);
+                    sendAirUse(InteractionHand.MAIN_HAND);
+                    sendAirUse(InteractionHand.OFF_HAND);
+                    var thrown=base.level.getEntitiesOfClass(Snowball.class,nearby,shot->shot.getOwner()==owner&&!prior.contains(shot));
+                    thrown.forEach(base::discard);
+                    require(thrown.size()==1 && owner.getOffhandItem().getCount()==2,
+                            "an air fallback still throws the actual offhand snowball exactly once");
+                }
+            }else{
+                owner.setXRot(-90);
+                sendAirUse(InteractionHand.MAIN_HAND); // An independent click in the same client frame still spends a use.
+            }
             for(int step=0;step<8;step++)runtime.tick();
             require(base.level.getBlockState(marker).is(Blocks.GOLD_BLOCK),"each paid use runs the effect, including the final use");
             require(limited.isEmpty()==(use==2)&&ItemStack.matches(copy,copyState),
                     "only the exact gift spends charges, including state written after the last charge");
+            if(use==1)require(GenieScriptItem.state(limited).get("activated").getAsInt()==1
+                            && GenieScriptItem.state(limited).get("block_presses").getAsInt()==(hit==null?0:1),
+                    "the vanilla hand sequence queues one USE charge and only block clicks queue one BLOCK_USE");
         }
+        owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         base.set(marker,Blocks.AIR.defaultBlockState());
         click();
         runtime.tick();
