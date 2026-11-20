@@ -113,6 +113,14 @@ public final class LbcMagnum {
         for(int mode=0;mode<MODES.length;mode++)if(ItemData.intValue(stack,MODES[mode]+"_round",0)==1)return mode;
         return -1;
     }
+    private static boolean matchesRound(ItemStack stack,CompoundTag marker){
+        if(LbcTmtInventory.matches(stack,marker))return true;
+        if(!LbcTmtItems.matches(stack))return false;
+        // The ammunition slot remains a physical round even inside the gun's USE scope.
+        for(var ability:LbcTmtAbilities.read(stack))
+            if(ability.id().equals("native/magnum/ammunition")&&ability.data().matchedBy(marker))return true;
+        return false;
+    }
     private boolean valid(ServerPlayer owner) {
         return owner!=null && owner.isAlive() && !owner.isRemoved() && !game.isObserver(owner)
                 && owner.level()==game.maps().level() && game.canUseGameplayItems(owner)
@@ -137,7 +145,7 @@ public final class LbcMagnum {
         }
         if(game.items().shooters().cooldownRemaining(owner)>0 || bursts.containsKey(owner.getUUID())) return false;
         var marker=flag(MODES[mode]+"_round");
-        if(owner.getInventory().clearOrCountMatchingItems(stack->LbcTmtInventory.matches(stack,marker),
+        if(owner.getInventory().clearOrCountMatchingItems(stack->matchesRound(stack,marker),
                 false,1,owner.inventoryMenu.getCraftSlots())!=1) return false;
         var burst=new Burst(owner,hand,gun,mode,game.items().epoch(),4);
         bursts.put(owner.getUUID(),burst);
@@ -205,6 +213,7 @@ public final class LbcMagnum {
             var type=mode==0?DamageTypes.ARROW:mode==1?DamageTypes.GENERIC:DamageTypes.OUTSIDE_BORDER;
             boolean accepted=target.hurtServer(owner.level(),new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner),
                     mode==0?16:mode==1?12:4);
+            if(accepted)LbcAcceptedHits.projectileFeedback(game,owner);
             if(!valid(owner) || !game.items().currentEpoch(burst.epoch)) return;
             if(mode==1 && accepted) {
                 target.setRemainingFireTicks(401); game.items().indirectKills().ignited(target,owner);
@@ -230,8 +239,8 @@ public final class LbcMagnum {
                 if(++count==10) break;
             }
         } else {
-            if(target!=null) target.hurtServer(owner.level(),new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                    .getOrThrow(DamageTypes.GENERIC),owner),6);
+            if(target!=null&&target.hurtServer(owner.level(),new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                    .getOrThrow(DamageTypes.GENERIC),owner),6))LbcAcceptedHits.projectileFeedback(game,owner);
             if(!valid(owner) || !game.items().currentEpoch(burst.epoch)) return;
             game.items().clouds().magnumAcid(owner,target==null?point.subtract(direction.scale(.5)):point,new Vec3(0,target==null?-1:1,0),target==null);
         }

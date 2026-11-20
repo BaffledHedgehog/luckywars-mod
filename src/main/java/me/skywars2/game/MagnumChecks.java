@@ -3,6 +3,7 @@ package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
@@ -32,6 +33,17 @@ public final class MagnumChecks {
     private static UUID stopOwner;
     private static void require(boolean value,String message) {
         if(!value) throw new IllegalStateException("Magnum: "+message);
+    }
+    private static long hitCues(RegenerationBeltChecks.ScheduledClient client,int from) {
+        var packets=client.packets();
+        return SmokeVolumeChecks.flatten(packets.subList(from,packets.size())).stream()
+                .filter(packet->packet instanceof ClientboundGameEventPacket event
+                        &&event.getEvent()==ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
+    }
+    private static void requireHitCues(RegenerationBeltChecks.ScheduledClient shooter,int shooterStart,
+            RegenerationBeltChecks.ScheduledClient audience,int audienceStart,int expected,String shot) {
+        long own=hitCues(shooter,shooterStart),other=hitCues(audience,audienceStart);
+        require(own==expected&&other==0,shot+" sends "+expected+" private hit cues (shooter="+own+", nearby listener="+other+")");
     }
     private static ServerPlayer player(GameController game,String name) {
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(name));
@@ -85,12 +97,14 @@ public final class MagnumChecks {
         var board=game.server().getScoreboard(); var ownerTeam=owner.getTeam(); var otherTeam=other.getTeam();
         var team=board.addPlayerTeam("codex_magnum"); team.setAllowFriendlyFire(false);
         var priorEntities=new java.util.HashSet<UUID>(); level.getAllEntities().forEach(e->priorEntities.add(e.getUUID()));
-        try {
+        try(var shooter=new RegenerationBeltChecks.ScheduledClient(game,owner);
+                var audience=new RegenerationBeltChecks.ScheduledClient(game,other)) {
             owner.closeContainer(); owner.getInventory().clearContent(); owner.removeAllEffects();
             owner.setGameMode(GameType.SURVIVAL); owner.setNoGravity(true); owner.setHealth(owner.getMaxHealth());
             owner.entityTags().removeAll(Set.of("time_stopped","nomagic_active")); game.items().mana().noMagic(owner,0);
             game.config().offhandWands=true; game.items().mana().set(owner,0); aim(owner,game);
-            other.teleportTo(level,BASE.getX()+40,260,BASE.getZ()+40,Set.of(),0,0,true);
+            other.teleportTo(level,BASE.getX()+10.5,260,BASE.getZ()+.5,Set.of(),0,0,true);
+            audience.acknowledge();
             for(var cell:BlockPos.betweenClosed(BASE.offset(-6,-5,-5),BASE.offset(6,7,26))) {
                 var pos=cell.immutable(); level.getChunk(pos.getX()>>4,pos.getZ()>>4);
                 cells.put(pos,game.maps().snapshot(pos)); level.setBlock(pos,Blocks.AIR.defaultBlockState(),2);
@@ -104,6 +118,7 @@ public final class MagnumChecks {
                 var stack=gun(game,owner,mode); ready(game,owner,stack,ammo[mode],InteractionHand.MAIN_HAND);
                 var first=cow(game,cows,5.5); var second=cow(game,cows,9.5);
                 int arcs=game.items().wands().electroCount(),acid=game.items().clouds().acidCount();
+                int shooterStart=shooter.packets().size(),audienceStart=audience.packets().size();
                 require(service.use(owner,InteractionHand.MAIN_HAND),"mode"+mode+" accepts correct round at zero mana");
                 require(owner.getInventory().getItem(9).isEmpty() && service.queued(owner)==4,"one round buys initial shot plus four queued");
                 if(mode==0 || mode==1 || mode==4) {
@@ -121,10 +136,20 @@ public final class MagnumChecks {
                 else require(first.getHealth()<100 && level.getEntitiesOfClass(PrimedTnt.class,new AABB(Vec3.atLowerCornerOf(BASE),Vec3.atLowerCornerOf(BASE.offset(15,15,25)))).isEmpty(),"explosive native damage creates no live TNT");
                 if(mode!=2) require(first.getLastDamageSource()!=null && first.getLastDamageSource().getEntity()==owner,"mode"+mode+" direct damage carries owner");
                 if(mode==1) require(first.isOnFire() && second.isOnFire(),"incendiary ignites pierced native targets");
+                int expectedCues=switch(mode){case 0,1,4->2;case 3->1;default->0;};
+                requireHitCues(shooter,shooterStart,audience,audienceStart,expectedCues,"initial "+ROUNDS[mode]+" round");
                 owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY); service.tick();
                 require(service.queued(owner)==0,"unequipping cancels mode"+mode+" immediately");
                 cows.forEach(Entity::discard); cows.clear(); game.items().wands().stop(); game.items().clouds().stop();
             }
+            ready(game,owner,gun(game,owner,0),ammo[0],InteractionHand.MAIN_HAND);
+            var invulnerable=cow(game,cows,5.5);invulnerable.setPermanentlyInvulnerable(true);
+            var lethal=cow(game,cows,9.5);lethal.setHealth(1);
+            int shooterStart=shooter.packets().size(),audienceStart=audience.packets().size();
+            require(service.use(owner,InteractionHand.MAIN_HAND)&&invulnerable.getHealth()==100&&lethal.isDeadOrDying(),
+                    "standard ray pierces an actually rejected damage target and kills the next one");
+            requireHitCues(shooter,shooterStart,audience,audienceStart,1,"rejected contact followed by lethal hit");
+            cows.forEach(Entity::discard);cows.clear();
             board.addPlayerToTeam(owner.getScoreboardName(),team); board.addPlayerToTeam(other.getScoreboardName(),team);
             ready(game,owner,gun(game,owner,0),ammo[0],InteractionHand.MAIN_HAND);
             other.setNoGravity(true); other.removeAllEffects(); other.setHealth(other.getMaxHealth());

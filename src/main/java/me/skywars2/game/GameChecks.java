@@ -18363,9 +18363,13 @@ public final class GameChecks {
                 var savedOther=new WandThirdPlayerState(other,game.items().mana());
                 var board=game.server().getScoreboard(); var ownerTeam=owner.getTeam(); var otherTeam=other.getTeam();
                 var team=board.addPlayerTeam("minigun_guard");
-                try {
+                try (var caster=new RegenerationBeltChecks.ScheduledClient(game,owner);
+                     var observer=new RegenerationBeltChecks.ScheduledClient(game,other)) {
                         owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY);
                         owner.setXRot(0); owner.setYRot(0);
+                        shooterPairPrepare(game,other);
+                        other.teleportTo(level,owner.getX(),owner.getY(),owner.getZ()-5,java.util.Set.of(),0,0,true);
+                        observer.acknowledge();
                         float ownerHealth=owner.getHealth();
                         var origin=LbcLaserMinigun.muzzle(owner);
                         var first=indirectCow(level,mobs,origin.x,origin.y-.5,origin.z+5);
@@ -18375,8 +18379,9 @@ public final class GameChecks {
                         require(Math.abs(first.getHealth()-7.5)<.0001 && second.getHealth()==10,
                                 "Native closest hit damages only the first hitbox for exactly2.5");
                         require(owner.getHealth()==ownerHealth && first.getLastHurtByMob()==owner,"Laser native damage retains the actual shooter and excludes its owner");
-                        shooterPairPrepare(game,other);
-                        other.teleportTo(level,owner.getX(),owner.getY(),owner.getZ()-5,java.util.Set.of(),0,0,true);
+                        require(gun.shots(owner)==1 && game.items().mana().get(owner)==0
+                                && minigunHitCues(caster)==1 && minigunHitCues(observer)==0,
+                                "One paid native hit sends one vanilla hit cue only to the shooter");
                         other.setYRot(0); other.setXRot(0);
                         slrReady(game,other,4);
                         require(slrUse(other,net.minecraft.world.InteractionHand.MAIN_HAND) && game.items().shooters().stunned(owner),"Native SLR stun reaches active minigun owner");
@@ -18384,6 +18389,7 @@ public final class GameChecks {
                         require(gun.shots(owner)==shots && game.items().mana().get(owner)==1000,"Native stun blocks minigun refresh and firing without resource debit");
                         game.items().shooters().clearStun(owner);
                         other.teleportTo(level,origin.x,owner.getY(),origin.z+2,java.util.Set.of(),0,0,true);
+                        observer.acknowledge();
                         board.addPlayerToTeam(owner.getScoreboardName(),team); board.addPlayerToTeam(other.getScoreboardName(),team);
                         float protectedHealth=other.getHealth();
                         first.damageCooldownTime=0; first.setHealth(10); game.items().mana().set(owner,100); minigunRefresh(game,owner,1);
@@ -18394,12 +18400,27 @@ public final class GameChecks {
                         other.entityTags().remove("magic_academy"); other.entityTags().add("spectator");
                         first.damageCooldownTime=0; first.setHealth(10); game.items().mana().set(owner,100); minigunRefresh(game,owner,1);
                         require(other.getHealth()==protectedHealth && Math.abs(first.getHealth()-7.5)<.0001,"Native observer guard protects the player without swallowing the laser");
+                        require(minigunHitCues(caster)==4 && minigunHitCues(observer)==0,
+                                "Passing three protected roles signals only the accepted cow hits, never those roles or the observer");
                         other.teleportTo(level,owner.getX()+10,owner.getY(),owner.getZ(),java.util.Set.of(),0,0,true);
+                        observer.acknowledge();
                         first.damageCooldownTime=0; first.setHealth(10);
                         level.setBlock(wall,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),3);
+                        shots=gun.shots(owner);
                         game.items().mana().set(owner,100); minigunRefresh(game,owner,1);
                         require(first.getHealth()==10 && second.getHealth()==10 && gun.beamSnapshot().getLast().length()<5
                                 && level.getBlockState(wall).is(net.minecraft.world.level.block.Blocks.STONE),"Native wall clips laser and protects targets without destroying terrain");
+                        require(gun.shots(owner)==shots+1 && game.items().mana().get(owner)==0
+                                && minigunHitCues(caster)==4 && minigunHitCues(observer)==0,
+                                "A paid wall impact produces no vanilla hit cue");
+
+                        game.maps().restoreSnapshot(wall,old);
+                        first.setPermanentlyInvulnerable(true);
+                        game.items().mana().set(owner,100); minigunRefresh(game,owner,1);
+                        require(gun.shots(owner)==shots+2 && first.getHealth()==10 && second.getHealth()==10
+                                && gun.beamSnapshot().getLast().length()<6
+                                && minigunHitCues(caster)==4 && minigunHitCues(observer)==0,
+                                "Real entity contact rejected by native damage produces no vanilla hit cue");
                 } finally {
                         game.items().shooters().clearStun(owner); game.items().shooters().forget(other);
                         board.removePlayerFromTeam(owner.getScoreboardName()); board.removePlayerFromTeam(other.getScoreboardName()); board.removePlayerTeam(team);
@@ -18407,6 +18428,11 @@ public final class GameChecks {
                         if(otherTeam!=null) board.addPlayerToTeam(other.getScoreboardName(),otherTeam);
                         savedOther.restore(game); mobs.forEach(net.minecraft.world.entity.Entity::discard); game.maps().restoreSnapshot(wall,old); gun.forget(owner);
                 }
+        }
+        private static long minigunHitCues(RegenerationBeltChecks.ScheduledClient client) {
+                return client.packets().stream().filter(packet ->
+                        packet instanceof net.minecraft.network.protocol.game.ClientboundGameEventPacket event
+                                && event.getEvent()==net.minecraft.network.protocol.game.ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
         }
         // Mechanism beacon: independent native placement, suppression and two-tick cleanup fixture.
         private static void checkMechanismBeacon(GameController game) {

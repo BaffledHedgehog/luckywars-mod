@@ -210,7 +210,8 @@ public final class LbcLaserMinigun {
             var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                     .getOrThrow(DamageTypes.GENERIC),owner);
             // Accepted native damage already feeds the common indirect-kill attribution hook.
-            entityHit.getEntity().hurtServer(owner.level(),source,2.5f);
+            if(entityHit.getEntity().hurtServer(owner.level(),source,2.5f))
+                LbcAcceptedHits.projectileFeedback(game,owner);
             if(current(spool)) sparks(owner,end,10,false);
         } else if(hit instanceof BlockHitResult wall && owner.level().hasChunkAt(wall.getBlockPos()))
             sparks(owner,end,20,true);
