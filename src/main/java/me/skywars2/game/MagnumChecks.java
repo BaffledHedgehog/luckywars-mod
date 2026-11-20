@@ -3,16 +3,24 @@ package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -86,6 +94,106 @@ public final class MagnumChecks {
         game.items().rifleZoom().forget(owner);
         game.items().rifleZoom().punch(owner);
     }
+    private static DamageSource requireWeapon(GameController game,Cow target,ServerPlayer owner,ItemStack expected,String label) {
+        var source=target.getLastDamageSource();
+        require(source!=null&&source.getEntity()==owner,label+" preserves the physical attacker");
+        var kills=game.items().indirectKills();
+        var captured=kills.enchantmentWeapon(source);
+        var loot=kills.boundLootWeapon(target,source);
+        require(ItemStack.matches(captured,expected)&&loot!=null&&ItemStack.matches(loot,expected),
+                label+" retains exact accepted weapon in damage and loot: captured="+captured+" loot="+loot+" expected="+expected);
+        return source;
+    }
+    private static void weaponModes(GameController game,ServerPlayer owner,ItemStack[] ammo,List<Cow> cows) {
+        var service=game.items().magnum();
+        var enchantments=owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        var sharpness=enchantments.getOrThrow(Enchantments.SHARPNESS);
+        var looting=enchantments.getOrThrow(Enchantments.LOOTING);
+        for(int mode=0;mode<6;mode++) {
+            var weapon=gun(game,owner,mode);
+            weapon.set(DataComponents.CUSTOM_NAME,Component.literal("Magnum exact accepted source "+ROUNDS[mode]));
+            weapon.enchant(sharpness,4);
+            weapon.enchant(looting,100);
+            var expected=weapon.copyWithCount(1);
+            ready(game,owner,weapon,ammo[mode],InteractionHand.MAIN_HAND);
+            var target=cow(game,cows,5.5);
+            require(service.use(owner,InteractionHand.MAIN_HAND),"native enchanted "+ROUNDS[mode]+" shot");
+            if(mode==2) {
+                require(target.getHealth()==100&&!game.items().wands().electroSnapshot().isEmpty(),
+                        "electric ammunition defers its damage to the emitted arcs");
+                owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));
+                game.items().wands().tick();
+            }
+            var source=requireWeapon(game,target,owner,expected,ROUNDS[mode]);
+            if(mode==5) {
+                require(target.getHealth()<100&&source.getDirectEntity() instanceof PrimedTnt,
+                        "explosive receipt belongs to the real native TNT damage");
+            } else if(mode==2) {
+                require(target.getHealth()<100&&source.is(LbcDamage.ELECTRO_BOLT),
+                        "electric receipt belongs to the real delayed arc after a hand swap");
+            } else {
+                float base=switch(mode){case 0->16;case 1->12;case 3->6;case 4->4;default->throw new IllegalStateException("Magnum mode "+mode);};
+                require(Math.abs(target.getHealth()-(100-base-2.5))<.001,
+                        ROUNDS[mode]+" applies Sharpness IV exactly once: hp="+target.getHealth());
+            }
+            game.items().indirectKills().clear(target);
+            target.discard();
+            cows.clear();
+            service.forget(owner);
+            game.items().wands().stop();
+            game.items().clouds().stop();
+        }
+        var ordinary=gun(game,owner,0);
+        require(EnchantmentRules.weapon(ordinary)&&sharpness.value().isSupportedItem(ordinary)
+                        &&looting.value().isSupportedItem(ordinary),
+                "canonical loot Magnum is admitted as a real Sharpness and Looting weapon");
+    }
+    private static void delayedAcid(GameController game,ServerPlayer owner,ItemStack ammo,List<Cow> cows,BlockPos wall) {
+        var level=game.maps().level();
+        var service=game.items().magnum();
+        var clouds=game.items().clouds();
+        var looting=owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.LOOTING);
+        var lootTable=ResourceKey.create(Registries.LOOT_TABLE,Identifier.withDefaultNamespace("entities/cow"));
+        for(boolean enchanted:new boolean[]{true,false}) {
+            var gun=gun(game,owner,3);
+            if(enchanted)gun.enchant(looting,100);
+            var expected=gun.copyWithCount(1);
+            level.setBlock(wall,Blocks.STONE.defaultBlockState(),2);
+            ready(game,owner,gun,ammo,InteractionHand.MAIN_HAND);
+            require(service.use(owner,InteractionHand.MAIN_HAND),"native Magnum wall round emits delayed acid");
+            var charges=clouds.acidSnapshot();
+            require(charges.size()==1&&charges.getFirst().getOwner()==owner,"actual owned big wall charge");
+            var charge=charges.getFirst();
+            var unrelated=new ItemStack(Items.IRON_SWORD);
+            if(!enchanted)unrelated.enchant(looting,100);
+            owner.setItemInHand(InteractionHand.MAIN_HAND,unrelated);
+            service.tick();
+            require(service.queued(owner)==0,"swapping guns cancels the remaining burst, leaving already emitted acid");
+            var target=new Cow(EntityTypes.COW,level){@Override public long getLootTableSeed(){return 61983;}};
+            var at=charge.position().add(.45,-.8,0);
+            target.setPos(at);
+            target.setNoAi(true);
+            target.setNoGravity(true);
+            target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
+            target.setHealth(100);
+            cows.add(target);
+            require(level.addFreshEntity(target),"actual new victim beside the accepted acid after swapping");
+            clouds.igniteAcid(level,charge.position(),1);
+            clouds.tick();
+            require(target.getHealth()==96,"real ignited acid retains its authored four damage");
+            var source=requireWeapon(game,target,owner,expected,"delayed acid, launch enchanted="+enchanted);
+            require(source.getDirectEntity()==charge,"delayed hit keeps the real acid body as direct source");
+            target.setLastHurtByPlayer(owner.getUUID(),100);
+            var loot=new ArrayList<ItemStack>();
+            target.dropFromLootTable(level,source,true,lootTable,loot::add);
+            int count=loot.stream().mapToInt(ItemStack::getCount).sum();
+            require(enchanted?count>8:count<=5,"fixed native cow loot uses only the launched Magnum: enchanted="+enchanted+" count="+count);
+            game.items().indirectKills().clear(target);
+            target.discard();
+            cows.clear();
+            clouds.stop();
+        }
+    }
     public static void run(GameController game) {
         var owner=player(game,"TestAlpha"); var other=player(game,"TestBeta");
         require(game.playing() && game.allowDamage(owner) && game.allowDamage(other),"requires active match");
@@ -142,6 +250,7 @@ public final class MagnumChecks {
                 require(service.queued(owner)==0,"unequipping cancels mode"+mode+" immediately");
                 cows.forEach(Entity::discard); cows.clear(); game.items().wands().stop(); game.items().clouds().stop();
             }
+            weaponModes(game,owner,ammo,cows);
             ready(game,owner,gun(game,owner,0),ammo[0],InteractionHand.MAIN_HAND);
             var invulnerable=cow(game,cows,5.5);invulnerable.setPermanentlyInvulnerable(true);
             var lethal=cow(game,cows,9.5);lethal.setHealth(1);
@@ -161,12 +270,17 @@ public final class MagnumChecks {
             cows.forEach(Entity::discard); cows.clear();
             other.teleportTo(level,BASE.getX()+40,260,BASE.getZ()+40,Set.of(),0,0,true);
             var main=gun(game,owner,0); ready(game,owner,main,ammo[0],InteractionHand.MAIN_HAND);
+            var sharpness=owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SHARPNESS);
+            main.enchant(sharpness,4);
+            var burstWeapon=main.copyWithCount(1);
             var spare=gun(game,owner,3); owner.setItemInHand(InteractionHand.OFF_HAND,spare);
             require(service.use(owner,InteractionHand.MAIN_HAND),"starts five-shot batch"); int shots=service.shots(owner);
             require(!service.use(owner,InteractionHand.OFF_HAND),"offhand Magnum is rejected even with offhand setting enabled");
             mode(main,1); // Queued shots retain the original standard profile even if the held stack changes mode.
+            main.enchant(sharpness,10);
             var target=cow(game,cows,5.5); aim(owner,game); service.tick();
-            require(target.getHealth()==84 && !target.isOnFire(),"queued mode snapshot survives mode mutation");
+            require(target.getHealth()==81.5f && !target.isOnFire(),"queued mode and Sharpness IV survive same-body mutation");
+            requireWeapon(game,target,owner,burstWeapon,"queued standard shot after held stack mutation");
             for(int i=0;i<3;i++) { aim(owner,game); service.tick(); }
             require(service.queued(owner)==0 && service.shots(owner)==shots+4 && owner.getInventory().getItem(9).isEmpty(),"exactly five shots consume one round");
             owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcShooters.SLR));
@@ -235,6 +349,8 @@ public final class MagnumChecks {
             for(var acid:level.getEntitiesOfClass(LbcClouds.AcidProjectile.class,new AABB(origin,origin).inflate(2))) acid.entityTags().add("on_fire");
             acidVictim.setInvulnerableTime(0); acidVictim.damageCooldownTime=0; game.items().clouds().tick();
             require(acidVictim.getHealth()==96 && acidVictim.getLastDamageSource().getEntity()==owner,"burning big acid applies four owned native fire damage");
+            cows.forEach(Entity::discard);cows.clear();game.items().clouds().stop();
+            delayedAcid(game,owner,ammo[3],cows,wall);
             SkyWars2.LOGGER.info("[check] PASS magnum");
         } finally {
             game.items().rifleZoom().forget(owner);

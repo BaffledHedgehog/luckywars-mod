@@ -2,16 +2,22 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.*;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 
@@ -99,7 +105,48 @@ public final class TmtMagnumAmmoChecks {
             f.field(true,f.owner.position());require(!magnum.use(f.owner,InteractionHand.MAIN_HAND)&&magnum.shots(f.owner)==shotsBefore&&magnum.queued(f.owner)==0,"actual TECH blocks source before ammo intake");intact(ammo,before,"TECH rejects without debit");f.removeFields();
             f.pause();require(!magnum.use(f.owner,InteractionHand.MAIN_HAND)&&magnum.shots(f.owner)==shotsBefore&&magnum.queued(f.owner)==0,"canonical TimeStop rejects native input");intact(ammo,before,"TimeStop input preserves ammo");f.thaw();
             phase=2;fire();ammoCount=2;remainder();f.pause();}
-        void sameCarrier(boolean snow){ready(0);int carrier=snow?2:0,count=snow?3:1;ammo=combined(carrier,count,gunProperty,rounds.get(0),sibling);before=ammo.copy();f.owner.setItemInHand(InteractionHand.MAIN_HAND,ammo);gun=ammo;
+        Cow sameCarrierVictim(){
+            require(f.owner.teleportTo(f.level,f.home.x,f.level.getMaxY()-8,f.home.z,Set.of(),0,-90,true),
+                    "actual native aiming position inside the resident build height");
+            f.client.acknowledge();
+            aim();
+            var eye=f.owner.getEyePosition();
+            var at=eye.add(0,2,0);
+            for(var pos:BlockPos.betweenClosed(BlockPos.containing(eye),BlockPos.containing(at.add(0,1.5,0))))
+                require(f.level.getBlockState(pos).isAir(),"clear real vertical Magnum path at "+pos);
+            var target=new Cow(EntityTypes.COW,f.level);
+            target.setPos(at);
+            target.setNoAi(true);
+            target.setNoGravity(true);
+            target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);
+            target.setHealth(100);
+            f.own(target);
+            require(f.level.addFreshEntity(target),"real victim for the exhausted physical carrier");
+            return target;
+        }
+        void verifyExhaustedWeapon(Cow target){
+            var source=target.getLastDamageSource();
+            require(target.getHealth()==81.5f&&source!=null&&source.getEntity()==f.owner,
+                    "the consumed one-count carrier applies Sharpness IV exactly once: hp="+target.getHealth());
+            var kills=game.items().indirectKills();
+            var captured=kills.enchantmentWeapon(source);
+            var loot=kills.boundLootWeapon(target,source);
+            intact(captured,before,"damage retains full pre-debit native weapon, all siblings and enchants");
+            require(loot!=null&&ItemStack.matches(loot,before),"bound loot owns the same pre-debit physical weapon");
+            game.items().indirectKills().clear(target);
+            target.discard();
+            require(f.owner.teleportTo(f.level,f.home.x,f.level.getMaxY()+16,f.home.z,Set.of(),0,-90,true),
+                    "subsequent same-carrier native throw returns to the original empty-sky scene");
+            f.client.acknowledge();
+        }
+        void sameCarrier(boolean snow){ready(0);int carrier=snow?2:0,count=snow?3:1;ammo=combined(carrier,count,gunProperty,rounds.get(0),sibling);
+            var target=snow?null:sameCarrierVictim();
+            if(target!=null) {
+                var registry=f.owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+                ammo.enchant(registry.getOrThrow(Enchantments.SHARPNESS),4);
+                ammo.enchant(registry.getOrThrow(Enchantments.LOOTING),100);
+            }
+            before=ammo.copy();f.owner.setItemInHand(InteractionHand.MAIN_HAND,ammo);gun=ammo;
             var ids=new HashSet<UUID>();f.level.getAllEntities().forEach(entity->ids.add(entity.getUUID()));
             require(f.owner.gameMode.useItem(f.owner,f.level,ammo,InteractionHand.MAIN_HAND).consumesAction(),"actual same-carrier Magnum+round native input "+carrier);
             require(magnum.shots(f.owner)==shotsBefore+1&&magnum.queued(f.owner)==4,"same held physical source buys exactly one native initial burst");
@@ -107,7 +154,7 @@ public final class TmtMagnumAmmoChecks {
             if(snow){require(throwsNow==1,"literal NativeSnowball.use falls through to exactly one real native snowball after the non-sustained Magnum action");nativeThrows=throwsNow;
                 int retained=count-1-throwsNow;require(retained>0&&f.owner.getMainHandItem()==ammo,"legal physical remainder retains original native gun identity");
                 intact(ammo,before.copyWithCount(retained),"same-carrier source debits one ammo unit plus each actual native carrier throw, without refunds");phase=5;
-            }else{require(throwsNow==0&&f.owner.getMainHandItem().isEmpty(),"count1 carrot source is genuinely exhausted by its own ammo debit");phase=4;}
+            }else{require(throwsNow==0&&f.owner.getMainHandItem().isEmpty(),"count1 carrot source is genuinely exhausted by its own ammo debit");verifyExhaustedWeapon(target);phase=4;}
             when=game.server().getTickCount();}
         boolean step(){f.client.acknowledge();f.audience.acknowledge();aim();require(game.server().getTickCount()-started<280,"bounded actual Magnum ammo scene phase="+phase+" case="+index);
             if(phase==0){if(!burst())return false;remainder();require(shooters.cooldownRemaining(f.owner)>0,"last native shot owns real shared cooldown");

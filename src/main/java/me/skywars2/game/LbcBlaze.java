@@ -416,11 +416,14 @@ public final class LbcBlaze {
 
     /** Magnum's exact 3x3x3 incendiary fill, using the shared queued fire conversion. */
     void incendiaryCube(ServerPlayer owner,Vec3 impact) {
+        incendiaryCube(owner,impact,null);
+    }
+    void incendiaryCube(ServerPlayer owner,Vec3 impact,LbcIndirectKills.Owner cause) {
         var center=BlockPos.containing(impact);
         var areas=new ArrayDeque<BlockAreaWork>();
         enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-1,center.getY()-1,center.getZ()-1,
                 center.getX()+1,center.getY()+1,center.getZ()+1),false);
-        terrain.add(new Terrain(owner,owner.level(),areas,null));
+        terrain.add(new Terrain(owner,owner.level(),areas,cause));
     }
 
     private void enqueue(ServerPlayer owner,ArrayDeque<BlockAreaWork> areas,BlockAreaWork.Bounds bounds,boolean lava) {

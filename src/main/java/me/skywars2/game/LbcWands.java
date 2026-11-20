@@ -1366,11 +1366,14 @@ for(double step=0;step<=distance;step+=.5) {
         electroVolley(owner,origin,0,90,30,4);
     }
     /** Magnum uses the same arcs, with its short lifetimes and mechanism-beacon policy. */
-    void magnumElectro(ServerPlayer owner,Vec3 origin,Vec3 target) {
-        shortElectro(owner,origin,target,true);
+    void magnumElectro(ServerPlayer owner,Vec3 origin,Vec3 target,LbcIndirectKills.Owner cause) {
+        shortElectro(owner,origin,target,cause);
     }
     /** Released electricity is nonmagical; all producers share mechanism-beacon interception. */
     void shortElectro(ServerPlayer owner,Vec3 origin,Vec3 target,boolean mechanism) {
+        shortElectro(owner,origin,target,null);
+    }
+    private void shortElectro(ServerPlayer owner,Vec3 origin,Vec3 target,LbcIndirectKills.Owner cause) {
         Vec3 direction=target.subtract(origin);
         float yaw=direction.horizontalDistanceSqr()<1e-12 ? owner.getYRot()
                 : (float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
@@ -1379,6 +1382,7 @@ for(double step=0;step<=distance;step+=.5) {
         for(int i=0;i<4;i++) {
             var trace=new ElectroTrace(owner,origin,game.items().epoch(),5+i*2);
             trace.yaw=yaw; trace.pitch=pitch; trace.mechanism=true;
+            trace.cause=cause;
             electroTraces.add(trace);
         }
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);

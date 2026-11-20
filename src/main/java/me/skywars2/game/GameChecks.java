@@ -10908,8 +10908,15 @@ public final class GameChecks {
                         owner.getInventory().setItem(8,ItemStack.EMPTY);
                         require(!slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Infinite arrow flag still requires ordinary arrow");
                         owner.getInventory().setItem(8,new ItemStack(Items.ARROW)); target.setInvulnerableTime(0); target.damageCooldownTime=0;
-                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && owner.getInventory().getItem(8).getCount()==1,"Infinite arrow flag preserves the required arrow");
+                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && owner.getInventory().getItem(8).isEmpty(),
+                                "An unrelated inventory flag cannot conserve the selected plain arrow");
                         owner.getInventory().setItem(7,ItemStack.EMPTY);
+                        slrReady(game,owner,1); target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        var selectedInfinite=game.lbc().rollTable(level,owner.position(),owner,"lbc:imba/infinite_arrow").getFirst().copyWithCount(1);
+                        require(selectedInfinite.is(LbcImbaNativeItems.INFINITE_ARROW),"actual authored infinite arrow loot");
+                        owner.getInventory().setItem(8,selectedInfinite);
+                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND)&&owner.getInventory().getItem(8)==selectedInfinite
+                                        &&selectedInfinite.getCount()==1,"The selected native infinite arrow itself is conserved");
                         slrReady(game,owner,1); target.setPos(.5,owner.getEyeY()-.2-target.getEyeHeight(),5.5); target.setHealth(100); target.setInvulnerableTime(0); target.damageCooldownTime=0;
                         // Native cactus cooldown prevents forcing the second10 through after the head hit.
                         target.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,new ItemStack(Items.LEATHER_HELMET));
@@ -10950,6 +10957,7 @@ public final class GameChecks {
                         target.entityTags().remove("magic_academy"); target.entityTags().add("spectator");
                         slrReady(game,owner,1); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Observer target is protected"); target.entityTags().remove("spectator");
                         target.discard();
+                        checkSlrWeaponEnchantments(game,owner,mobs);
                         // Exercise the player's real packet paths, including a genuine outstanding teleport ID.
                         other.getInventory().clearContent(); other.removeAllEffects(); other.setGameMode(GameType.SURVIVAL);
                         other.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100); other.setHealth(100); other.setInvulnerableTime(0); other.damageCooldownTime=0;
@@ -11042,6 +11050,77 @@ public final class GameChecks {
                         for(var player:java.util.List.of(owner,other))require(java.util.Set.copyOf(slrAttributionFields(game,player)).equals(priorAttribution.get(player)),"SLR restores original participant attribution without fixture residue");
                 }
                 SkyWars2.LOGGER.info("[check] PASS slr");
+        }
+
+        private static void checkSlrWeaponEnchantments(GameController game,ServerPlayer owner,
+                        java.util.List<net.minecraft.world.entity.animal.cow.Cow> mobs) {
+                var level=owner.level();var main=net.minecraft.world.InteractionHand.MAIN_HAND;
+                var off=net.minecraft.world.InteractionHand.OFF_HAND;var oldOffhand=owner.getItemInHand(off);
+                var target=frostProbeCow(level,mobs,.5,271,5.5);
+                var splash=frostProbeCow(level,mobs,2.5,271,5.5);
+                target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
+                splash.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
+                int oldProtection=game.config().tntProtection;
+                float oldOwnerHealth=owner.getHealth();
+                try {
+                        for(boolean enchanted:new boolean[]{true,false}){
+                                var rifle=slrEnchantFixtureWeapon(game,owner,1,enchanted);
+                                target.setHealth(100);target.setInvulnerableTime(0);target.damageCooldownTime=0;
+                                require(slrUse(owner,main)&&owner.getInventory().getItem(8).getCount()==7
+                                                &&target.getHealth()==(enchanted?87.5f:90),
+                                        "Paid main-hand SLR applies only its own Sharpness once: enchanted="+enchanted+", HP="+target.getHealth());
+                                var hit=target.getLastDamageSource();
+                                require(hit!=null&&hit.getDirectEntity()==owner&&hit.is(net.minecraft.world.damagesource.DamageTypes.CACTUS),
+                                        "Enchanted standard hit retains original cactus damage and physical shooter");
+                                checkSlrWeaponReceipt(game,owner,rifle,hit);
+                        }
+
+                        target.setPermanentlyInvulnerable(true);
+                        game.config().tntProtection=5;
+                        float baselineLoss=0;
+                        for(boolean enchanted:new boolean[]{false,true}){
+                                var rifle=slrEnchantFixtureWeapon(game,owner,3,enchanted);
+                                splash.setHealth(100);splash.setInvulnerableTime(0);splash.damageCooldownTime=0;
+                                splash.setPos(2.5,271,5.5);splash.setDeltaMovement(Vec3.ZERO);
+                                require(slrUse(owner,main)&&owner.getInventory().getItem(8).getCount()==7,
+                                        "Native mode3 uses one arrow to trigger its protected blasts");
+                                float loss=100-splash.getHealth();
+                                require(loss>0&&splash.isAlive()&&owner.getHealth()==oldOwnerHealth,
+                                        "Protected native blast damages the side cow but still honors maximum TNT protection for the shooter");
+                                var hit=splash.getLastDamageSource();
+                                require(hit!=null&&hit.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION)
+                                                &&hit.getDirectEntity() instanceof net.minecraft.world.entity.item.PrimedTnt tnt
+                                                &&tnt.getFuse()==1&&!tnt.entityTags().contains(LbcDamage.UNPROTECTED_TNT),
+                                        "Blast contact retains the original protected, fuse-one native TNT source");
+                                checkSlrWeaponReceipt(game,owner,rifle,hit);
+                                if(enchanted) require(Math.abs(loss-baselineLoss-2.5f)<.0001,
+                                        "Protected SLR blast applies Sharpness IV once: base="+baselineLoss+", enchanted="+loss);
+                                else baselineLoss=loss;
+                        }
+                } finally {
+                        game.config().tntProtection=oldProtection;
+                        owner.setItemInHand(off,oldOffhand);
+                        target.discard();splash.discard();
+                }
+        }
+
+        private static ItemStack slrEnchantFixtureWeapon(GameController game,ServerPlayer owner,int mode,boolean enchanted){
+                slrReady(game,owner,mode);
+                var rifle=owner.getMainHandItem();var offhand=new ItemStack(Items.IRON_SWORD);
+                rifle.set(DataComponents.CUSTOM_NAME,Component.literal("Firing SLR witness"));
+                var registry=owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+                var enhanced=enchanted?rifle:offhand;
+                enhanced.enchant(registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS),4);
+                enhanced.enchant(registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING),7);
+                owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,offhand);
+                return rifle;
+        }
+
+        private static void checkSlrWeaponReceipt(GameController game,ServerPlayer owner,ItemStack rifle,
+                        net.minecraft.world.damagesource.DamageSource hit){
+                var weapon=game.items().indirectKills().enchantmentWeapon(hit);
+                require(hit.getEntity()==owner&&ItemStack.matches(weapon,rifle),
+                        "Native SLR contact captures the exact firing rifle, including Looting and no unrelated offhand enchants");
         }
 
         private static final java.util.Set<UUID> slrStopTnt=new java.util.HashSet<>();

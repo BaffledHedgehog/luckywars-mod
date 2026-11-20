@@ -644,6 +644,7 @@ public final class LbcShooters {
         }
         if(cooldownRemaining(player)>0)return false;
         var selectedAmmo=LbcInfiniteAmmo.selectedPlainArrow(player);if(selectedAmmo.isEmpty())return false;
+        var cause=game.items().indirectKills().itemCause(player,false,false,LbcTmtAbilities.physicalDrop(stack));
         if(!LbcInfiniteAmmo.conserves(selectedAmmo)){
             selectedAmmo.shrink(1);if(selectedAmmo.isEmpty())player.getInventory().removeItem(selectedAmmo);
         }
@@ -654,15 +655,16 @@ public final class LbcShooters {
         var up=forward.cross(left);
         var origin=player.getEyePosition().subtract(left.scale(.2)).subtract(up.scale(.2));
         var direction=LbcGunAccuracy.rifle(game,player);
-        game.items().indirectKills().trapChanges(player,()->slrRay(player,origin,direction,mode(stack)));
+        game.items().indirectKills().trapChanges(player,()->slrRay(player,origin,direction,mode(stack),cause));
         LbcOverload.sound(player,origin.add(forward.scale(.5)),"minecraft:lbcsounds.karich",2,2,120,.5f);
         float yaw=player.getYRot()+(player.getRandom().nextInt(1201)-600)*.01f;
         float pitch=player.getXRot()+(player.getRandom().nextInt(1001)-1500)*.01f;
         player.forceSetRotation(yaw,false,pitch,false);
         return true;
     }
-    private void slrRay(ServerPlayer owner,Vec3 origin,Vec3 direction,int mode) {
+    private void slrRay(ServerPlayer owner,Vec3 origin,Vec3 direction,int mode,LbcIndirectKills.Owner cause) {
         var level=owner.level();
+        var epoch=game.items().epoch();
         var tracer=game.items().rifleZoom().tracer(owner);
         var seen=new java.util.HashSet<UUID>();
         // At most 19 narrow spatial queries, with DDA checking every crossed block before reads.
@@ -689,8 +691,8 @@ public final class LbcShooters {
             hits.sort(java.util.Comparator.comparingDouble(hit->from.distanceToSqr(hit.getLocation())));
             for(var hit:hits) {
                 var entity=hit.getEntity(); seen.add(entity.getUUID());
-                slrHit(owner,(LivingEntity)entity,hit.getLocation(),mode);
-                if(mode==3) { slrExplode(owner,hit.getLocation()); end=hit.getLocation(); break; }
+                slrHit(owner,(LivingEntity)entity,hit.getLocation(),mode,cause);
+                if(mode==3) { slrExplode(owner,level,hit.getLocation(),epoch,cause); end=hit.getLocation(); break; }
             }
             var particle=switch(mode) { case 2->ParticleTypes.SNEEZE; case 3->ParticleTypes.CRIT; case 4->ParticleTypes.ELECTRIC_SPARK; default->ParticleTypes.ASH; };
             double length=from.distanceTo(end);
@@ -700,13 +702,14 @@ public final class LbcShooters {
             }
             if(mode==3 && !hits.isEmpty()) return;
             if(wall!=null) {
-                if(mode==3 && level.hasChunkAt(wall.getBlockPos())) slrExplode(owner,end);
+                if(mode==3 && level.hasChunkAt(wall.getBlockPos())) slrExplode(owner,level,end,epoch,cause);
                 return;
             }
         }
     }
-    private void slrHit(ServerPlayer owner,LivingEntity target,Vec3 point,int mode) {
-        var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),owner);
+    private void slrHit(ServerPlayer owner,LivingEntity target,Vec3 point,int mode,LbcIndirectKills.Owner cause) {
+        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),owner);
+        var damage=game.items().indirectKills().captureDamage(source,cause);
         if(mode==1) {
             if(target.getEyePosition().distanceToSqr(point)<=.25) {
                 target.hurtServer(owner.level(),damage,20);
@@ -868,9 +871,9 @@ public final class LbcShooters {
         return left==null&&right==null;
     }
 
-    private void slrExplode(ServerPlayer owner,Vec3 point) {
+    private void slrExplode(ServerPlayer owner,ServerLevel level,Vec3 point,String epoch,LbcIndirectKills.Owner cause) {
         for(int i=0;i<2;i++) {
-            game.items().exasperato().protectedBlast(owner,owner.level(),point,4,null);
+            game.items().exasperato().itemBlast(owner,level,point,4,epoch,true,cause);
         }
     }
     public static boolean isPine(ItemStack stack) {

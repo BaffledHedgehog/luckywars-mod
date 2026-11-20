@@ -1007,6 +1007,11 @@ public final class LbcExasperato {
         nativeBlast(owner,level,at,radius,epoch,false,sourceInit);
     }
 
+    void itemBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch,boolean protectedDamage,
+            LbcIndirectKills.Owner cause) {
+        nativeBlast(owner,level,at,radius,epoch,protectedDamage,null,false,false,false,cause);
+    }
+
     /** Короткие fuse=1/2 были способом выдать защиту, не игровой задержкой. Сущность миру не нужна. */
     void protectedBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,
             java.util.function.Consumer<PrimedTnt> sourceInit) {
@@ -1033,7 +1038,7 @@ public final class LbcExasperato {
     }
     private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
             boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension,boolean nuclear,boolean cachedBlocks,
-            LbcIndirectKills.Owner nuclearCause) {nativeBlasts++;try{
+            LbcIndirectKills.Owner cause) {nativeBlasts++;try{
         if(!encounterDimension && level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
                 || !level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
                 || !game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
@@ -1045,12 +1050,14 @@ public final class LbcExasperato {
         game.items().markCurrentItemEpoch(source);
         try { if(sourceInit!=null) sourceInit.accept(source);
             if(nuclear){
-                var cause=nuclearCause!=null?nuclearCause:
+                var nuclearCause=cause!=null?cause:
                         owner instanceof ServerPlayer player?game.items().indirectKills().wildCause(player):null;
-                var damage=game.items().indirectKills().captureDamage(net.minecraft.world.level.Explosion.getDefaultDamageSource(level,source),cause);
+                var damage=game.items().indirectKills().captureDamage(net.minecraft.world.level.Explosion.getDefaultDamageSource(level,source),nuclearCause);
                 NuclearTerrain.damageWave(source,()->level.explode(source,damage,null,at.x,at.y,at.z,radius,false,Level.ExplosionInteraction.TNT));
-            }
-            else level.explode(source,at.x,at.y,at.z,radius,Level.ExplosionInteraction.TNT);
+            } else if(cause!=null) {
+                var damage=game.items().indirectKills().captureDamage(net.minecraft.world.level.Explosion.getDefaultDamageSource(level,source),cause);
+                level.explode(source,damage,null,at.x,at.y,at.z,radius,false,Level.ExplosionInteraction.TNT);
+            } else level.explode(source,at.x,at.y,at.z,radius,Level.ExplosionInteraction.TNT);
         }
         finally {
             game.items().academy().blastFinished(source);

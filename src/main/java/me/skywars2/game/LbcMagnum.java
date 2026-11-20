@@ -62,11 +62,13 @@ public final class LbcMagnum {
         final ServerPlayer owner;
         final InteractionHand hand;
         final ItemStack gun;
+        final ItemStack weapon;
         final int mode;
         final String epoch;
         int remaining;
-        Burst(ServerPlayer owner,InteractionHand hand,ItemStack gun,int mode,String epoch,int remaining) {
+        Burst(ServerPlayer owner,InteractionHand hand,ItemStack gun,ItemStack weapon,int mode,String epoch,int remaining) {
             this.owner=owner; this.hand=hand; this.gun=gun; this.mode=mode; this.epoch=epoch; this.remaining=remaining;
+            this.weapon=weapon;
         }
     }
     LbcMagnum(GameController game) { this.game=game; }
@@ -145,12 +147,19 @@ public final class LbcMagnum {
         }
         if(game.items().shooters().cooldownRemaining(owner)>0 || bursts.containsKey(owner.getUUID())) return false;
         var marker=flag(MODES[mode]+"_round");
+        // A TMT carrier can itself supply the round and be emptied by the ammo debit.
+        var weapon=firingStack(gun);
         if(owner.getInventory().clearOrCountMatchingItems(stack->matchesRound(stack,marker),
                 false,1,owner.inventoryMenu.getCraftSlots())!=1) return false;
-        var burst=new Burst(owner,hand,gun,mode,game.items().epoch(),4);
+        var burst=new Burst(owner,hand,gun,weapon,mode,game.items().epoch(),4);
         bursts.put(owner.getUUID(),burst);
         shoot(burst);
         return true;
+    }
+    private static ItemStack firingStack(ItemStack gun) {
+        var weapon=LbcTmtAbilities.outerCopy(gun);
+        weapon.setCount(1);
+        return weapon;
     }
     private boolean retained(Burst burst) {
         return valid(burst.owner) && game.items().currentEpoch(burst.epoch)
@@ -190,12 +199,14 @@ public final class LbcMagnum {
         double suppression=game.items().magic().mechanismSuppressionFraction(owner.level(),origin,end);
         if(suppression<=1) end=origin.lerp(end,Math.max(0,suppression));
         int mode=burst.mode;
+        var kills=game.items().indirectKills();
+        var cause=kills.itemCause(owner,false,mode==2,burst.weapon);
         if(mode==2 || mode==3 || mode==5) {
             var hit=game.items().wands().firstHit(owner,origin,end);
             trail(owner,origin,hit==null?end:hit.getLocation(),mode);
-            if(hit instanceof EntityHitResult entity) terminal(burst,entity.getLocation(),(LivingEntity)entity.getEntity(),direction);
+            if(hit instanceof EntityHitResult entity) terminal(burst,entity.getLocation(),(LivingEntity)entity.getEntity(),direction,cause);
             else if(hit instanceof BlockHitResult wall && owner.level().hasChunkAt(wall.getBlockPos()))
-                terminal(burst,wall.getLocation(),null,direction);
+                terminal(burst,wall.getLocation(),null,direction,cause);
             return;
         }
         // Void stops only at an unloaded chunk; every other block is erased after native entity tracing.
@@ -205,48 +216,53 @@ public final class LbcMagnum {
                 target->game.items().lifetimes().target(owner,target),0,ClipContext.Block.COLLIDER,true,false));
         hits.sort(java.util.Comparator.comparingDouble(hit->origin.distanceToSqr(hit.getLocation())));
         var seen=new java.util.HashSet<UUID>();
+        var type=mode==0?DamageTypes.ARROW:mode==1?DamageTypes.GENERIC:DamageTypes.OUTSIDE_BORDER;
+        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner);
+        var damage=kills.captureDamage(source,cause);
         for(var hit:hits) {
             if(!seen.add(hit.getEntity().getUUID())) continue;
             var target=(LivingEntity)hit.getEntity();
             if(mode==4 && (game.items().mana().hudValue(target,"void_resistance")>0
                     || target.entityTags().contains("sin_greed_active"))) continue;
-            var type=mode==0?DamageTypes.ARROW:mode==1?DamageTypes.GENERIC:DamageTypes.OUTSIDE_BORDER;
-            boolean accepted=target.hurtServer(owner.level(),new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner),
-                    mode==0?16:mode==1?12:4);
+            boolean accepted=target.hurtServer(owner.level(),damage,mode==0?16:mode==1?12:4);
             if(accepted)LbcAcceptedHits.projectileFeedback(game,owner);
             if(!valid(owner) || !game.items().currentEpoch(burst.epoch)) return;
             if(mode==1 && accepted) {
-                target.setRemainingFireTicks(401); game.items().indirectKills().ignited(target,owner);
+                target.setRemainingFireTicks(401); kills.inheritedIgnited(target,cause);
             }
         }
         trail(owner,origin,end,mode);
-        if(mode==4) erase(owner,origin,end,direction);
+        if(mode==4) erase(owner,origin,end,direction,cause);
         else if(wall!=null && owner.level().hasChunkAt(wall.getBlockPos())) {
-            if(mode==1) game.items().blaze().incendiaryCube(owner,Vec3.atCenterOf(wall.getBlockPos()));
+            if(mode==1) game.items().blaze().incendiaryCube(owner,Vec3.atCenterOf(wall.getBlockPos()),cause);
             else owner.level().sendParticles(ParticleTypes.WHITE_ASH,end.x,end.y,end.z,100,.2,.2,.2,.01);
         }
     }
-    private void terminal(Burst burst,Vec3 point,LivingEntity target,Vec3 direction) {
+    private void terminal(Burst burst,Vec3 point,LivingEntity target,Vec3 direction,LbcIndirectKills.Owner cause) {
         var owner=burst.owner;
-        if(burst.mode==5) game.items().exasperato().instantBlast(owner,owner.level(),point,4,burst.epoch);
+        if(burst.mode==5) game.items().exasperato().itemBlast(owner,owner.level(),point,4,burst.epoch,false,cause);
         else if(burst.mode==2) {
             Vec3 impact=target==null?point.subtract(direction.scale(.5)):point;
             double radius=target==null?10:6; int count=0;
             for(var candidate:owner.level().getEntities(owner,new AABB(impact,impact).inflate(radius),
                     entity->game.items().lifetimes().target(owner,entity) && game.items().wands().target(owner,entity)
                             && entity.position().distanceToSqr(impact)<=radius*radius)) {
-                game.items().wands().magnumElectro(owner,impact,candidate.getEyePosition());
+                game.items().wands().magnumElectro(owner,impact,candidate.getEyePosition(),cause);
                 if(++count==10) break;
             }
         } else {
-            if(target!=null&&target.hurtServer(owner.level(),new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                    .getOrThrow(DamageTypes.GENERIC),owner),6))LbcAcceptedHits.projectileFeedback(game,owner);
+            if(target!=null) {
+                var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                        .getOrThrow(DamageTypes.GENERIC),owner);
+                if(target.hurtServer(owner.level(),game.items().indirectKills().captureDamage(source,cause),6))
+                    LbcAcceptedHits.projectileFeedback(game,owner);
+            }
             if(!valid(owner) || !game.items().currentEpoch(burst.epoch)) return;
-            game.items().clouds().magnumAcid(owner,target==null?point.subtract(direction.scale(.5)):point,new Vec3(0,target==null?-1:1,0),target==null);
+            game.items().clouds().magnumAcid(owner,target==null?point.subtract(direction.scale(.5)):point,new Vec3(0,target==null?-1:1,0),target==null,burst.weapon);
         }
     }
-    private void erase(ServerPlayer owner,Vec3 from,Vec3 end,Vec3 direction) {
-        game.items().indirectKills().trapChanges(owner,()->{
+    private void erase(ServerPlayer owner,Vec3 from,Vec3 end,Vec3 direction,LbcIndirectKills.Owner cause) {
+        game.items().indirectKills().trapChanges(owner.level(),cause,()->{
             var visited=new java.util.HashSet<BlockPos>();
             for(double distance=0;distance<=from.distanceTo(end)+.0001;distance+=.5) {
                 var point=from.add(direction.scale(distance));
@@ -287,7 +303,7 @@ public final class LbcMagnum {
         InteractionHand hand=isMagnum(owner.getMainHandItem())?InteractionHand.MAIN_HAND:null;
         if(hand!=null) {
             var gun=owner.getItemInHand(hand);
-            bursts.put(owner.getUUID(),new Burst(owner,hand,gun,mode(gun),game.items().epoch(),1));
+            bursts.put(owner.getUUID(),new Burst(owner,hand,gun,firingStack(gun),mode(gun),game.items().epoch(),1));
         }
     }
     public void purify(ServerPlayer owner) { game.items().shooters().resetCooldown(owner); }

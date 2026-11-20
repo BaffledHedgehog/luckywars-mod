@@ -24,7 +24,8 @@ public final class EnchantmentRules {
     /** Gameplay identity, not the client's carrot/stick representation, decides weapon eligibility. */
     public static boolean weapon(ItemStack stack){
         if(stack.isEmpty())return false;
-        if(LbcSwordTools.sword(stack)||stack.getItem() instanceof LbcWands.NativeTool||ItemData.intValue(stack,"magicwand",0)==1)return true;
+        if(LbcSwordTools.sword(stack)||stack.getItem() instanceof LbcWands.NativeTool
+                ||ItemData.intValue(stack,"magicwand",0)==1||ItemData.intValue(stack,"magnum",0)==1)return true;
         var attributes=stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
         return attributes!=null&&attributes.modifiers().stream().anyMatch(entry->entry.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
                 &&entry.modifier().amount()>0);
