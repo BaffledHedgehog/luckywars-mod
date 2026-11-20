@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.MobGoalCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -31,7 +32,6 @@ public final class VanityGoalChecks {
             SkyWars2.LOGGER.info("[check] PASS vanity-goals (actual native melee hit; selector/lock/flag/wrapper identity; no start/stop replay; saved melee cooldown/path/world age; repeated delayed attacks; native target search, sight-memory expiry, hurt deduplication; actual repeated breeding/birth timing/future removal and absent partner)");
         }catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL vanity-goals",error);}
     }
-    private static int count(Object goal,String name){return (Integer)WoolBucketChecks.read(goal,name);}
     private static final class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;
         Zombie zombie;Cow cow;GoalSelector selector,targets;MeleeAttackGoal melee;
@@ -47,6 +47,9 @@ public final class VanityGoalChecks {
         VanityPoiStorageChecks poiStorage;
         VanityPoiCoordinatorChecks poiCoordinator;
         float health;boolean closed;
+        MobGoalCheckpointAccess.MobAccess selectors(){return (MobGoalCheckpointAccess.MobAccess)zombie;}
+        MobGoalCheckpointAccess.GoalSelectorAccess goalState(){return (MobGoalCheckpointAccess.GoalSelectorAccess)selector;}
+        MobGoalCheckpointAccess.MeleeAttackGoalAccess meleeState(){return (MobGoalCheckpointAccess.MeleeAttackGoalAccess)melee;}
         Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);}
         void begin(){
             f.prepareParticipants();BlockPos floor=BlockPos.containing(f.home).above(3);
@@ -61,7 +64,7 @@ public final class VanityGoalChecks {
             zombie=new Zombie(EntityTypes.ZOMBIE,f.level);zombie.setPos(at);zombie.setOnGround(true);zombie.setBaby(false);
             zombie.setItemSlot(EquipmentSlot.HEAD,new ItemStack(Items.LEATHER_HELMET));
             zombie.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(1);
-            selector=(GoalSelector)WoolBucketChecks.read(zombie,"goalSelector");targets=(GoalSelector)WoolBucketChecks.read(zombie,"targetSelector");
+            selector=selectors().skywars2$goalGoalSelector();targets=selectors().skywars2$goalTargetSelector();
             selector.removeAllGoals(goal->true);targets.removeAllGoals(goal->true);
             selector.addGoal(1,new FloatGoal(zombie));melee=new MeleeAttackGoal(zombie,1,true);selector.addGoal(2,melee);
             zombie.setTarget(cow);
@@ -84,16 +87,16 @@ public final class VanityGoalChecks {
                 available=selector.getAvailableGoals();order=List.copyOf(available);
                 original=available.stream().filter(g->g.getGoal()==melee).findFirst().orElseThrow();
                 require(original.isRunning(),"native selector started melee before actual health loss");
-                cooldown=count(melee,"ticksUntilNextAttack");require(cooldown>8,"capture a pending native attack cooldown");
-                flags=melee.getFlags().clone();locks=(Map<?,?>)WoolBucketChecks.read(selector,"lockedFlags");
-                disabled=(EnumSet<?>)WoolBucketChecks.read(selector,"disabledFlags");
-                goalPath=(Path)WoolBucketChecks.read(melee,"path");lastCheck=(Long)WoolBucketChecks.read(melee,"lastCanUseCheck");
+                cooldown=meleeState().skywars2$goalTicksUntilNextAttack();require(cooldown>8,"capture a pending native attack cooldown");
+                flags=melee.getFlags().clone();locks=goalState().skywars2$goalLockedFlags();
+                disabled=goalState().skywars2$goalDisabledFlags();
+                goalPath=meleeState().skywars2$goalPath();lastCheck=meleeState().skywars2$goalLastCanUseCheck();
                 capturedAt=f.level.getGameTime();image=new MatchEntityState(game,zombie);victim=new MatchEntityState(game,cow);
                 phase=1;when=game.server().getTickCount();return false;
             }
             if(phase==1){
                 if(elapsed<5)return false;
-                require(count(melee,"ticksUntilNextAttack")<cooldown,"native running task advanced its future timer");
+                require(meleeState().skywars2$goalTicksUntilNextAttack()<cooldown,"native running task advanced its future timer");
                 selector.removeAllGoals(goal->true);selector.addGoal(0,new MeleeAttackGoal(zombie,2,true));selector.tick();
                 future=selector.getAvailableGoals().iterator().next();require(future.isRunning(),"future native task really started");
                 selector.disableControlFlag(Goal.Flag.MOVE);targets.disableControlFlag(Goal.Flag.TARGET);
@@ -117,14 +120,14 @@ public final class VanityGoalChecks {
         void verify(){
             require(selector.getAvailableGoals()==available&&List.copyOf(available).equals(order),"original ordered native wrappers restored in the same selector set");
             require(original.isRunning()&&!future.isRunning(),"captured task runs and future task is retired without callbacks");
-            require(WoolBucketChecks.read(selector,"lockedFlags")==locks&&locks.get(Goal.Flag.MOVE)==original&&locks.get(Goal.Flag.LOOK)==original,
+            require(goalState().skywars2$goalLockedFlags()==locks&&locks.get(Goal.Flag.MOVE)==original&&locks.get(Goal.Flag.LOOK)==original,
                     "same native flag-lock map points to original wrapper");
-            require(WoolBucketChecks.read(selector,"disabledFlags")==disabled&&!disabled.contains(Goal.Flag.MOVE)&&
-                    !((Set<?>)WoolBucketChecks.read(targets,"disabledFlags")).contains(Goal.Flag.TARGET),"both selectors recover enabled controls");
+            require(goalState().skywars2$goalDisabledFlags()==disabled&&!disabled.contains(Goal.Flag.MOVE)&&
+                    !((MobGoalCheckpointAccess.GoalSelectorAccess)targets).skywars2$goalDisabledFlags().contains(Goal.Flag.TARGET),"both selectors recover enabled controls");
             require(melee.getFlags().equals(flags),"original goal flags restored");
-            require(count(melee,"ticksUntilNextAttack")==cooldown,"native melee cooldown restored without start replay");
-            require(WoolBucketChecks.read(melee,"path")==goalPath,"original goal-owned path reference restored");
-            require((Long)WoolBucketChecks.read(melee,"lastCanUseCheck")==lastCheck+f.level.getGameTime()-capturedAt,"native can-use timestamp retains world-clock age");
+            require(meleeState().skywars2$goalTicksUntilNextAttack()==cooldown,"native melee cooldown restored without start replay");
+            require(meleeState().skywars2$goalPath()==goalPath,"original goal-owned path reference restored");
+            require(meleeState().skywars2$goalLastCanUseCheck()==lastCheck+f.level.getGameTime()-capturedAt,"native can-use timestamp retains world-clock age");
         }
         @Override public void close(){if(closed)return;closed=true;try{if(poiCoordinator!=null)poiCoordinator.close();}finally{try{if(poiStorage!=null)poiStorage.close();}finally{try{if(species!=null)species.close();}finally{try{if(doors!=null)doors.close();}finally{f.close();}}}}}
     }

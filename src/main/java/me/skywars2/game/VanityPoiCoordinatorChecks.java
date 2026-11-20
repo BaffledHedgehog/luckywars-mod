@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.*;
 import java.util.concurrent.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.PoiCheckpointAccess;
 import net.minecraft.core.*;
 import net.minecraft.nbt.*;
 import net.minecraft.server.level.ServerLevel;
@@ -34,7 +35,7 @@ final class VanityPoiCoordinatorChecks implements AutoCloseable {
         Optional<CompoundTag> original;
         World(ServerLevel level,BlockPos pos){
             this.level=level;source=pos;extra=pos.east(2);chunk=ChunkPos.containing(pos);poi=level.getPoiManager();
-            storage=(SimpleRegionStorage)WoolBucketChecks.read(poi,"simpleRegionStorage");
+            storage=((PoiCheckpointAccess.Storage)poi).skywars2$poiRegionStorage();
             require(ChunkPos.containing(extra).equals(chunk),"both native discovery cells in one owned chunk");
         }
         void set(BlockPos pos,boolean composter){

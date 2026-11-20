@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.*;
+import me.skywars2.mixin.MobGoalCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
@@ -26,7 +27,8 @@ final class VanityBreedingGoalChecks {
     private int phase,when,savedLove,remaining;
 
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Vanity breeding goals: "+why);}
-    private int love(){return (Integer)WoolBucketChecks.read(goal,"loveTime");}
+    private MobGoalCheckpointAccess.BreedGoalAccess breeding(){return (MobGoalCheckpointAccess.BreedGoalAccess)goal;}
+    private int love(){return breeding().skywars2$goalLoveTime();}
     VanityBreedingGoalChecks(GameController game,WoolBucketChecks.Fixture f){
         this.game=game;this.f=f;
         BlockPos floor=BlockPos.containing(f.home).above(3);
@@ -37,8 +39,9 @@ final class VanityBreedingGoalChecks {
         Vec3 at=Vec3.atCenterOf(floor.offset(12,0,0)).add(0,.5,0);
         mother=new Cow(EntityTypes.COW,f.level);mother.setPos(at);mother.setOnGround(true);
         father=new Cow(EntityTypes.COW,f.level);father.setPos(at.add(1.5,0,0));father.setOnGround(true);father.setNoAi(true);
-        selector=(GoalSelector)WoolBucketChecks.read(mother,"goalSelector");selector.removeAllGoals(g->true);
-        ((GoalSelector)WoolBucketChecks.read(mother,"targetSelector")).removeAllGoals(g->true);
+        var selectors=(MobGoalCheckpointAccess.MobAccess)mother;
+        selector=selectors.skywars2$goalGoalSelector();selector.removeAllGoals(g->true);
+        selectors.skywars2$goalTargetSelector().removeAllGoals(g->true);
         goal=new BreedGoal(mother,1);selector.addGoal(1,goal);wrapper=selector.getAvailableGoals().iterator().next();
         mother.setInLove(null);father.setInLove(null);
         require(f.level.addFreshEntity(mother)&&f.level.addFreshEntity(father),"ordinary native parents registered");f.own(mother);f.own(father);
@@ -49,7 +52,7 @@ final class VanityBreedingGoalChecks {
         require(now-when<100,"bounded actual server-tick birth phase="+phase);
         if(phase==0){
             if(!wrapper.isRunning()||love()<8)return false;
-            require(love()<20&&WoolBucketChecks.read(goal,"partner")==father,"native goal actually chose its partner before birth");
+            require(love()<20&&breeding().skywars2$goalPartner()==father,"native goal actually chose its partner before birth");
             savedLove=love();for(var actor:f.level.getAllEntities())captured.add(actor.getUUID());
             image=MatchActorCheckpoint.captureRegistered(game);phase=1;when=now;return false;
         }
@@ -65,12 +68,12 @@ final class VanityBreedingGoalChecks {
         if(phase==1){remaining=now-when;require(remaining>8,"saved native birth is delayed");}
         else require(now-when==remaining,"birth timing is identical after restoring the saved native phase");
         selector.removeAllGoals(g->true);
-        require(WoolBucketChecks.read(goal,"partner")==null&&love()==0,"native stop actually erased partner and countdown");
+        require(breeding().skywars2$goalPartner()==null&&love()==0,"native stop actually erased partner and countdown");
         restore(Set.of());verify();
         if(phase++<3){when=now;return false;}
 
         restore(Set.of(father.getUUID()));
-        require(father.isRemoved()&&WoolBucketChecks.read(goal,"partner")==null&&love()==0&&!wrapper.isRunning(),
+        require(father.isRemoved()&&breeding().skywars2$goalPartner()==null&&love()==0&&!wrapper.isRunning(),
                 "an explicitly omitted native partner retires the task before any continuation can dereference null");
         selector.tick();require(!wrapper.isRunning(),"ordinary native admission remains safe with no partner");
         restore(Set.of());verify();require(goal.canContinueToUse(),"the same image remains reusable after explicit partner absence");
@@ -84,7 +87,7 @@ final class VanityBreedingGoalChecks {
         }finally{game.server().tickRateManager().setFrozen(frozen);}
     }
     private void verify(){
-        require(wrapper.isRunning()&&WoolBucketChecks.read(goal,"partner")==father&&love()==savedLove,
+        require(wrapper.isRunning()&&breeding().skywars2$goalPartner()==father&&love()==savedLove,
                 "restore original running task, exact partner body and elapsed courtship before any AI step");
         require(!mother.isBaby()&&mother.getAge()==0&&father.getAge()==0&&mother.isInLove()&&father.isInLove(),
                 "restored native parents are ready without spawning a child during image load");
