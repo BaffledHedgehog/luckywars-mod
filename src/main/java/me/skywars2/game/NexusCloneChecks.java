@@ -292,7 +292,7 @@ public final class NexusCloneChecks {
         final CompletableFuture<ChunkResult<?>> stalledSecondDestination=new CompletableFuture<>();
         final List<ChunkPos> attemptedDestinations=new ArrayList<>();
         RegenerationBeltChecks.ScheduledClient client,audience;
-        CompletableFuture<?> sourceLoad,destinationLoad;
+        CompletableFuture<?> sourceLoad;
         LbcNexusClone.View view;
         LbcIndirectKills.Owner cause;
         Marker marker;
@@ -399,7 +399,9 @@ public final class NexusCloneChecks {
             view=clone.snapshot().getFirst();
             require(view.sourceLevel()==source&&view.sourceChunk().equals(sourceChunk)&&view.destination()==destination&&view.count()==256*source.getHeight()&&view.completed()==0,"native full-height source footprint");
             delta=new Vec3(view.targetMin().getX()-x,view.targetMin().getY()-source.getMinY(),view.targetMin().getZ()-z);
-            destinationLoad=game.maps().prepareChunk(destination,view.destinationChunk());begin(1);
+            require(destination.getChunkSource().getChunkNow(view.destinationChunk().x(),view.destinationChunk().z())==null,
+                    "random native destination starts cold with only the transfer's ticket");
+            begin(1);
         }
         void publish(Entity entity){require(source.addFreshEntity(entity),"owned native actor published");owned.add(entity.getUUID());}
         Cow cow(Vec3 pos){var cow=new Cow(EntityTypes.COW,source);cow.setPos(pos);cow.setNoAi(true);cow.setNoGravity(true);cow.setDeltaMovement(Vec3.ZERO);publish(cow);return cow;}
@@ -407,7 +409,7 @@ public final class NexusCloneChecks {
         void hold(){require(clone.pending()==1&&!clone.captureReady()&&clone.snapshot().getFirst().completed()==0&&callbacks==0,"native scheduler does not write through either TimeStop");}
 
         boolean observe() throws ReflectiveOperationException {
-            int elapsed=game.server().getTickCount()-when;require(game.playing()&&elapsed<1200,"bounded real-tick phase "+stage+" completed="+lastCompleted);
+            int elapsed=game.server().getTickCount()-when;require(game.playing()&&elapsed<1200,"bounded real-tick phase "+stage+" completed="+lastCompleted+" loads="+clone.pendingStatus());
             if(stage==0){
                 if(elapsed==0)return false;
                 require(!pendingSource.isDone()&&failedClone.captureReady()&&!failedClone.sourceInFlight(source,sourceChunk),
@@ -440,7 +442,11 @@ public final class NexusCloneChecks {
                 return false;
             }
             if(stage==1){
-                hold();if(!ready(destinationLoad,destination,view.destinationChunk()))return false;
+                hold();
+                var target=view.destinationChunk();
+                if(destination.getChunkSource().getChunkNow(target.x(),target.z())==null)return false;
+                // Retain the already-loaded column for inspection after the production transfer releases its own ticket.
+                game.maps().prepareChunk(destination,target);
                 destinationOriginal.putAll(column(destination,view.destinationChunk()));destinationCaptured=true;
                 for(var entity:entities(destination,view.destinationChunk()))destinationBefore.add(entity.getUUID());
                 require(destinationBefore.isEmpty(),"random destination has no foreign actors");

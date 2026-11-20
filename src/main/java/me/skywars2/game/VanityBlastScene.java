@@ -17,11 +17,14 @@ import net.minecraft.world.phys.Vec3;
 
 /** Source factories and actual native payloads; bounded seeded schedule, not a full-power blast geometry claim. */
 final class VanityBlastScene {
+    private static final int RELEASE_AGE=321, RELEASE_TICKS=379, INITIAL_FLIGHT_TICKS=3;
+    private static final Vec3 RELEASE_DIRECTION=new Vec3(0,1,0);
     final GameController game;final ChefChecks.Fixture base;final LbcExasperato first;final LbcExoperso second;
     final LbcExasperato.Charge charge;final LbcExoperso.Charge rocket;final PrimedTnt anchor,chain;
     final List<Object> payloads;List<Object> bursts;final List<Object> rays;final List<Object> rainbow;
     final Probe cohortProbe,trialProbe;final Object cohort;final LbcAcademy.BlastTrial trial;
     final UUID progress;final Vec3 far=new Vec3(1_000_000,100,1_000_000);
+    final Vec3 rocketOrigin;
     MatchDamageSources capturedSources;
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Vanity blasts: "+why);}
     static <T>T get(Object o,String name){return VanitySpellScene.get(o,name);}static void set(Object o,String name,Object value){VanitySpellScene.set(o,name,value);}
@@ -32,10 +35,16 @@ final class VanityBlastScene {
         Probe(Consumer<PrimedTnt> delegate,boolean academy,Object burst){this.delegate=delegate;this.academy=academy;this.burst=burst;}
         public void accept(PrimedTnt source){
             delegate.accept(source);calls++;
-            if(get(burst,"terrain")!=null){terrainBindings++;if(terrainSource==null)terrainSource=source;else require(terrainSource==source,"one native application source is reused across terrain binding scopes");}
+            boolean terrain=get(burst,"terrain")!=null;
+            if(terrain){terrainBindings++;if(terrainSource==null)terrainSource=source;else require(terrainSource==source,"one native application source is reused across terrain binding scopes");}
             else{waves++;require(waveSources.add(source),"each remaining damage wave has exactly one distinct native initializer");}
             boolean rejected=false;try{new MatchBlastCheckpoint(game,capturedSources);}catch(IllegalStateException expected){rejected=expected.getMessage().contains("Finish explosive callbacks");}require(rejected,"native initializer cannot capture/reenter its advancing queue");
-            var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));require(source.getOwner()==owner,"actual queued native source uses CURRENT Gamma");
+            var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));
+            var cause=VanityBlastScene.<LbcIndirectKills.Owner>get(burst,"terrainCause");
+            require(owner!=null&&get(burst,"owner")==owner&&cause.player().equals(owner.getUUID()),
+                    "native queued work rebinds current Gamma and retains the original author receipt");
+            require(terrain?source.getOwner()==owner:source.getOwner()==null,
+                    "terrain keeps the rebound application carrier and native nuclear damage waves stay WILD");
             var ledger=VanityBlastScene.<Map<Entity,Object>>get(academy?game.items().academy():second,"blastSources");require(ledger.get(source)==(academy?trial:cohort),"every native wave and terrain binding joins the original saved trial/cohort");
         }
         public void checkpoint(MatchBlastCheckpoint.Graph graph){
@@ -52,7 +61,15 @@ final class VanityBlastScene {
     @SuppressWarnings("unchecked") VanityBlastScene(GameController game,ChefChecks.Fixture base,ServerPlayer gamma){
         this.game=game;this.base=base;progress=base.other.getUUID();first=game.items().exasperato();second=game.items().exoperso();require(first.count()==0&&second.count()==0&&first.pendingBlasts()==0,"exclusive explosive source state");
         first.cast(gamma,true);charge=first.snapshot().getFirst();charge.setPos(base.at.add(-12,7,10));charge.setDeltaMovement(0,.3,0);charge.entityTags().add("sin_gluttony");
-        require(second.cast(gamma,true),"real upgraded Exoperso factory");rocket=second.snapshot().getFirst();rocket.entityTags().add("sin_gluttony");
+        anchor=tnt(gamma,base.at.add(-13,8,13));chain=tnt(gamma,base.at.add(-12,8,13));
+        var source=new LbcSpellSource.Source(anchor.getUUID(),gamma.getUUID(),game.items().epoch(),
+                game.items().indirectKills().wildCause(gamma),Set.of(),true);
+        rocketOrigin=base.at.add(-12,180,10);
+        require(second.releaseAt(source,gamma.level(),rocketOrigin,RELEASE_DIRECTION),"actual Delta Exoperso release factory");
+        rocket=second.snapshot().getFirst();rocket.entityTags().add("sin_gluttony");
+        verifyRocket(gamma,0);
+        for(int i=0;i<INITIAL_FLIGHT_TICKS;i++)second.tick();
+        verifyRocket(gamma,INITIAL_FLIGHT_TICKS);
         var old=gamma.getMainHandItem().copy();gamma.setYRot(180);gamma.setXRot(0);
         var wall=base.center.offset(5,2,-2);require(base.blocks.containsKey(wall),"bounded rainbow/aim wall");gamma.level().setBlock(wall,Blocks.BEDROCK.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
         LbcGaycaster.cast(game,gamma);game.items().gaycasterAcademy().cast(gamma,3);first.cast(gamma,4);gamma.setItemInHand(InteractionHand.MAIN_HAND,old);
@@ -64,7 +81,7 @@ final class VanityBlastScene {
         cohortProbe=new Probe((Consumer<PrimedTnt>)cohort,false,series);trialProbe=new Probe((Consumer<PrimedTnt>)get(academic,"sourceInit"),true,academic);set(series,"sourceInit",cohortProbe);set(academic,"sourceInit",trialProbe);
         for(var b:List.of(series,academic)){set(b,"offsets",new Vec3[]{Vec3.ZERO,new Vec3(.2,0,0),new Vec3(.4,0,0)});set(b,"radius",.2f);set(b,"next",1);}
         var nether=game.server().getLevel(net.minecraft.world.level.Level.NETHER);require(nether.getChunkSource().getChunkNow(62500,62500)==null,"cosmos point deliberately nonresident");first.queueCosmos(nether,far,null,game.items().epoch());payloads=List.of(series,academic);bursts=List.copyOf(queue);
-        anchor=tnt(gamma,base.at.add(-13,8,13));chain=tnt(gamma,base.at.add(-12,8,13));((Consumer<PrimedTnt>)cohort).accept(anchor);second.inheritBlast(anchor,chain);game.items().academy().blastSource(anchor,trial);game.items().academy().inheritBlast(anchor,chain);
+        ((Consumer<PrimedTnt>)cohort).accept(anchor);second.inheritBlast(anchor,chain);game.items().academy().blastSource(anchor,trial);game.items().academy().inheritBlast(anchor,chain);
         require(get(VanityBlastScene.<Map<Entity,Object>>get(second,"blastSources").get(chain),"kills")!=null,"real chain blast inherits cohort");
         VanityBlastScene.<Set<UUID>>get(cohort,"kills").add(progress);
     }
@@ -73,7 +90,14 @@ final class VanityBlastScene {
         var result=new ArrayList<Object>();VanityBlastScene.<Iterable<Object>>get(first,"searches").forEach(result::add);return List.copyOf(result);
     }
     int extraRays(){return rays.size();}
-    void arm(){bursts=List.copyOf(VanityBlastScene.<ArrayDeque<Object>>get(first,"blasts"));charge.age=17;charge.mode=0;charge.lifetime=200;charge.academyTrial=true;rocket.age=100;rocket.flightAge=3;rocket.upgraded=true;rocket.aim=new Vec3(.1,.2,.3);rainbow.forEach(r->set(r,"next",1d));}
+    void arm(){bursts=List.copyOf(VanityBlastScene.<ArrayDeque<Object>>get(first,"blasts"));charge.age=17;charge.mode=0;charge.lifetime=200;charge.academyTrial=true;verifyRocket((ServerPlayer)rocket.getOwner(),INITIAL_FLIGHT_TICKS);rainbow.forEach(r->set(r,"next",1d));}
+    private void verifyRocket(ServerPlayer owner,int activeFlightTicks){
+        require(owner!=null&&!rocket.isRemoved()&&rocket.getOwner()==owner&&rocket.age==RELEASE_AGE+activeFlightTicks
+                        &&rocket.flightAge==activeFlightTicks&&rocket.releasedRemaining==RELEASE_TICKS-activeFlightTicks
+                        &&!rocket.upgraded&&rocket.aim.equals(RELEASE_DIRECTION)
+                        &&rocket.position().equals(rocketOrigin.add(RELEASE_DIRECTION.scale(2*activeFlightTicks))),
+                "same native Delta rocket retains owner, exact active age, remaining flight budget, aim and position");
+    }
     void preflight(MatchDamageSources sources){capturedSources=sources;var b=payloads.getFirst();var init=get(b,"sourceInit");set(b,"sourceInit",(Consumer<PrimedTnt>)t->{});boolean rejected=false;try{new MatchBlastCheckpoint(game,sources);}catch(IllegalStateException expected){rejected=expected.getMessage().contains("Missing typed blast initializer");}finally{set(b,"sourceInit",init);}require(rejected&&first.pendingBlasts()==5&&cohortProbe.calls==0,"opaque initializer rejects without draining/replaying the queue");
 }
     void instantPreflight(){
@@ -85,7 +109,9 @@ final class VanityBlastScene {
     void verify(ServerPlayer gamma){verify(gamma,0);}
     void verify(ServerPlayer gamma,int extra){
         require(first.snapshot().equals(List.of(charge))&&charge.getOwner()==gamma&&charge.age==17&&charge.mode==0&&charge.lifetime==200&&charge.academyTrial,"native charge membership, owner and unsaved private parameters restored");
-        require(second.snapshot().equals(List.of(rocket))&&rocket.getOwner()==gamma&&rocket.age==100&&rocket.flightAge==3&&rocket.upgraded&&rocket.aim.equals(new Vec3(.1,.2,.3)),"Exoperso private windup/flight/aim state restored");
+        require(second.snapshot().equals(List.of(rocket))&&gamma.level().getEntity(rocket.getUUID())==rocket,
+                "the original released Exoperso body and membership are restored");
+        verifyRocket(gamma,INITIAL_FLIGHT_TICKS);
         require(List.copyOf(VanityBlastScene.<ArrayDeque<Object>>get(first,"blasts")).equals(bursts)&&first.pendingBlasts()==5&&first.pendingCosmos()==1,"same FIFO series and nonresident cross-world cosmos request restore");
         for(var b:payloads)require(VanityBlastScene.<ServerPlayer>get(b,"owner")==gamma&&VanityBlastScene.<Integer>get(b,"next")==1&&VanityBlastScene.<Float>get(b,"radius")==.2f&&Arrays.equals(VanityBlastScene.<Vec3[]>get(b,"offsets"),new Vec3[]{Vec3.ZERO,new Vec3(.2,0,0),new Vec3(.4,0,0)}),"independent geometry/configuration/cursor and current burst author restored");
         require(VanityBlastScene.<Set<UUID>>get(cohort,"kills").equals(Set.of(progress))&&VanityBlastScene.<Set<UUID>>get(cohort,"requiredPlayers").equals(Set.of(base.owner.getUUID(),base.other.getUUID())),"accepted cohort and partial progress are independent of future mutations");
@@ -94,10 +120,12 @@ final class VanityBlastScene {
         var all=searches(first);require(all.subList(1,all.size()-extra).equals(rays),"both rainbow requests and nuclear aim preserve queue order");for(var r:rainbow)require(VanityBlastScene.<Double>get(r,"next")==1,"per-cast sample state rewinds independently of finished terminal");for(var r:rays)require(VanityBlastScene.<ServerPlayer>get(r,"owner")==gamma&&!VanityBlastScene.<Boolean>get(r,"finished"),"replayable request follows current author and reopens exactly its saved terminal");
     }
     boolean ready(){return cohortProbe.complete()&&trialProbe.complete()&&rays.stream().allMatch(r->VanityBlastScene.<Boolean>get(r,"finished"));}
-    void thawed(){require(ready()&&first.pendingBlasts()==1&&first.pendingCosmos()==1,"actual resumed native blast queue runs each saved offset exactly once; nonresident request remains queued");require(first.snapshot().stream().filter(c->c.mode==4).count()==1,"native nuclear aim creates exactly one falling500-block rocket after each replay");require(rocket.age>=102&&rocket.aim!=null&&charge.age>=19,"native windup/charge advance resumes from saved private ages");
+    void thawed(){require(ready()&&first.pendingBlasts()==1&&first.pendingCosmos()==1,"actual resumed native blast queue runs each saved offset exactly once; nonresident request remains queued");require(first.snapshot().stream().filter(c->c.mode==4).count()==1,"native nuclear aim creates exactly one falling500-block rocket after each replay");
+        require(rocket.age>=RELEASE_AGE+INITIAL_FLIGHT_TICKS+2&&charge.age>=19,"native charge and released flight both advance from their saved active ages");
+        verifyRocket((ServerPlayer)rocket.getOwner(),rocket.age-RELEASE_AGE);
         for(var r:rainbow)require(VanityBlastScene.<Double>get(r,"next")>1&&VanityBlastScene.<Double>get(r,"next")<10,"real resumed rainbow sampling continues from its saved sample");
         first.stop();second.stop();game.items().academy().blastFinished(anchor);game.items().academy().blastFinished(chain);
     }
-    void mutate(){for(var b:payloads){VanityBlastScene.<Vec3[]>get(b,"offsets")[1]=new Vec3(900,900,900);set(b,"next",99);set(b,"radius",88f);}charge.age=900;charge.mode=8;charge.lifetime=1;charge.academyTrial=false;rocket.age=900;rocket.flightAge=900;rocket.upgraded=false;rocket.aim=Vec3.ZERO;VanityBlastScene.<Set<UUID>>get(cohort,"kills").clear();VanityBlastScene.<Set<UUID>>get(cohort,"requiredPlayers").clear();trial.targets.clear();trial.completed=true;cohortProbe.abandon();trialProbe.abandon();rainbow.forEach(r->set(r,"next",999d));}
+    void mutate(){for(var b:payloads){VanityBlastScene.<Vec3[]>get(b,"offsets")[1]=new Vec3(900,900,900);set(b,"next",99);set(b,"radius",88f);}charge.age=900;charge.mode=8;charge.lifetime=1;charge.academyTrial=false;rocket.age=900;rocket.flightAge=900;rocket.releasedRemaining=1;rocket.upgraded=true;rocket.aim=Vec3.ZERO;VanityBlastScene.<Set<UUID>>get(cohort,"kills").clear();VanityBlastScene.<Set<UUID>>get(cohort,"requiredPlayers").clear();trial.targets.clear();trial.completed=true;cohortProbe.abandon();trialProbe.abandon();rainbow.forEach(r->set(r,"next",999d));}
     void pending(){require(first.count()==0&&second.count()==0&&first.pendingBlasts()==0&&trial.completed&&cohortProbe.calls==99,"offline burst owner defers ALL private installation, including shared initializer state");}
 }
