@@ -100,7 +100,13 @@ public final class LbcShooters {
     private static final class HelicopterArrow extends Arrow {
         boolean retired;
         HelicopterArrow(ServerLevel level) { super(EntityTypes.ARROW,level); }
+        HelicopterArrow(ServerPlayer owner,ItemStack weapon) {
+            super(owner.level(),owner,new ItemStack(Items.ARROW),weapon.isEmpty()?null:weapon.copyWithCount(1));
+        }
         @Override public boolean shouldBeSaved() { return false; }
+    }
+    static ItemStack helicopterLootWeapon(Entity direct){
+        return direct instanceof HelicopterArrow arrow?arrow.getWeaponItem():null;
     }
     static boolean cloneRecognizes(Entity entity){return entity instanceof HelicopterArrow;}
     LbcCloneSkills.ActorImage cloneImage(Entity entity){
@@ -357,7 +363,7 @@ public final class LbcShooters {
             // Jammed volleys are skipped while the original recharge timer continues.
             if(burst.remaining>=400 && canFireHelicopter(owner)) {
                 if(isBossHelicopter(owner.getMainHandItem())) helicopterVolley(owner,.75,true);
-                if(game.config().offhandWands && isBossHelicopter(owner.getOffhandItem())) helicopterVolley(owner,1.45,true);
+                if(game.config().offhandWands && isBossHelicopter(owner.getOffhandItem())) helicopterVolley(owner,owner.getOffhandItem(),1.45,true);
             }
             if(--burst.remaining<=0) bossHelicopterBursts.remove(owner.getUUID());
         }
@@ -394,22 +400,21 @@ public final class LbcShooters {
             if(burst.remaining<600 || !canFireHelicopter(owner)) continue;
             boolean main=isHelicopter(owner.getMainHandItem());
             boolean off=game.config().offhandWands && isHelicopter(owner.getOffhandItem());
-            if(main) helicopterVolley(owner,.2);
-            if(off) helicopterVolley(owner,.6);
+            if(main) helicopterVolley(owner,.2,false);
+            if(off) helicopterVolley(owner,owner.getOffhandItem(),.6,false);
             if(main && off) game.items().mana().award(owner,"lbc:true_advancements/shooter/attack_helicopter");
         }
     }
-    private void helicopterVolley(ServerPlayer owner,double width) {
-        helicopterVolley(owner,width,false);
-    }
     private void helicopterVolley(ServerPlayer owner,double width,boolean boss) {
+        helicopterVolley(owner,owner.getMainHandItem(),width,boss);
+    }
+    private void helicopterVolley(ServerPlayer owner,ItemStack weapon,double width,boolean boss) {
         // Attack Helicopter flattens pitch; Boss uses full local facing. Native gravity/drag follow.
         var forward=Vec3.directionFromRotation(boss?owner.getXRot():0,owner.getYRot());
         var left=new Vec3(Math.cos(Math.toRadians(owner.getYRot())),0,Math.sin(Math.toRadians(owner.getYRot())));
         for(int side:new int[]{-1,1}) {
-            var arrow=new HelicopterArrow(owner.level());
-            // Native Owner replaces the legacy malformed UUID assignment, retaining kill attribution.
-            arrow.setOwner(owner); arrow.pickup=AbstractArrow.Pickup.CREATIVE_ONLY; arrow.setBaseDamage(boss?.2:.1);
+            var arrow=new HelicopterArrow(owner,weapon);
+            arrow.pickup=AbstractArrow.Pickup.CREATIVE_ONLY; arrow.setBaseDamage(boss?.2:.1);
             ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$setPierceLevel((byte)10);
             arrow.setPos(owner.getEyePosition().add(forward.scale(.5)).add(left.scale(width*side)));
             arrow.setDeltaMovement(new Vec3(Math.floor(forward.x*6000)*.001,Math.floor(forward.y*6000)*.001,Math.floor(forward.z*6000)*.001));

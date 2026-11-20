@@ -3,18 +3,25 @@ package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -109,9 +116,13 @@ public final class NextShooterChecks {
         owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(hand,0,owner.getYRot(),owner.getXRot()));
     }
     private static List<Arrow> arrows(ServerPlayer owner) {
+        return helicopterArrows(owner,true);
+    }
+    private static List<Arrow> helicopterArrows(ServerPlayer owner,boolean boss) {
         var list=new ArrayList<Arrow>();
         for(var entity:owner.level().getAllEntities()) if(entity instanceof Arrow a && a.getOwner()==owner
-                && !a.isRemoved() && a.entityTags().contains(LbcShooters.BOSS_HELICOPTER_PROJECTILE_TAG)) list.add(a);
+                && !a.isRemoved() && a.entityTags().contains(LbcShooters.HELICOPTER_PROJECTILE_TAG)
+                && a.entityTags().contains(LbcShooters.BOSS_HELICOPTER_PROJECTILE_TAG)==boss) list.add(a);
         return list;
     }
     private static void bossTicks(LbcShooters shooters,int count) { for(int i=0;i<count;i++) shooters.tickBossHelicopters(); }
@@ -169,6 +180,7 @@ public final class NextShooterChecks {
             shooters.forget(owner); shooters.forget(other); owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
             bossCollision(game,owner,boss,cows);
             bossSuppression(game,owner,boss);
+            helicopterEnchantments(game,owner,cows);
             govnoFlight(game,owner,other,cows);
             SkyWars2.LOGGER.info("[check] PASS next-shooters");
         } finally {
@@ -195,6 +207,80 @@ public final class NextShooterChecks {
         require(arrow.isRemoved() && game.maps().level().getBlockState(wall).isAir()
                 && game.maps().level().getBlockState(wall.above()).is(Blocks.STONE),"native block collision drills tiny contact cell and removes Boss arrow");
         game.maps().level().setBlock(wall.above(),Blocks.AIR.defaultBlockState(),2); shooters.forget(owner);
+    }
+    private static void helicopterEnchantments(GameController game,ServerPlayer owner,List<Cow> cows) {
+        var shooters=game.items().shooters();
+        var enchantments=owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        for(boolean boss:new boolean[]{false,true}) {
+            shooters.forget(owner);aim(game,owner);
+            var plain=source(game,owner,boss?"helicopter_boss":"attack_helicopter");
+            plain.set(DataComponents.ENCHANTMENTS,ItemEnchantments.EMPTY);
+            var enchanted=plain.copy();
+            enchanted.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS),4);
+            enchanted.enchant(enchantments.getOrThrow(Enchantments.LOOTING),100);
+            owner.setItemInHand(InteractionHand.MAIN_HAND,plain);
+            owner.setItemInHand(InteractionHand.OFF_HAND,enchanted);
+            use(owner,InteractionHand.OFF_HAND);
+            if(boss)bossTicks(shooters,1);
+            else {shooters.tickHelicopters();shooters.tickHelicopters();}
+            var shots=helicopterArrows(owner,boss);
+            require(shots.size()==4 && plain.getCount()==1 && enchanted.getCount()==1,
+                    "both armed hands emit two arrows on the original cadence without consuming the weapon, boss="+boss);
+            double mainMuzzle=boss?.75:.2,offMuzzle=boss?1.45:.6;
+            Arrow mainShot=null,offShot=null;
+            for(var shot:shots) {
+                require(shot.getPierceLevel()==10 && shot.getWeaponItem()!=null,"both hands retain native piercing and weapon");
+                double muzzle=Math.abs(shot.getX()-owner.getX());
+                if(Math.abs(muzzle-mainMuzzle)<.0001) {
+                    require(ItemStack.matches(plain,shot.getWeaponItem()),"main muzzle retains exact unenchanted weapon");
+                    mainShot=shot;
+                }else{
+                    require(Math.abs(muzzle-offMuzzle)<.0001 && ItemStack.matches(enchanted,shot.getWeaponItem()),
+                            "offhand muzzle retains exact enchanted weapon");
+                    offShot=shot;
+                }
+            }
+            require(mainShot!=null&&offShot!=null,"both native projectile hands are represented");
+
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIRT));
+            owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            var enchantedVictim=helicopterLootVictim(game,cows,2.5);
+            var enchantedHit=helicopterHit(owner,offShot,enchantedVictim,2.5,boss?17:16);
+            require(helicopterLoot(enchantedVictim,enchantedHit)>8,"real offhand arrow retains Looting after replacing both held items");
+
+            owner.setItemInHand(InteractionHand.MAIN_HAND,enchanted);
+            var plainVictim=helicopterLootVictim(game,cows,.5);
+            var plainHit=helicopterHit(owner,mainShot,plainVictim,.5,boss?2:1);
+            require(helicopterLoot(plainVictim,plainHit)<=5,"real unenchanted arrow cannot borrow Looting from subsequently held item");
+            enchantedVictim.discard();plainVictim.discard();
+        }
+        shooters.forget(owner);
+    }
+    private static Cow helicopterLootVictim(GameController game,List<Cow> cows,double x) {
+        var level=game.maps().level();
+        var victim=new Cow(EntityTypes.COW,level) {
+            @Override public long getLootTableSeed(){return 1L;}
+        };
+        victim.setPos(BASE.getX()+x,BASE.getY()+.5,BASE.getZ()+5.5);
+        victim.setNoAi(true);victim.setNoGravity(true);
+        victim.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
+        victim.setHealth(100);
+        require(level.addFreshEntity(victim),"real native cow with a fixed loot seed");cows.add(victim);
+        return victim;
+    }
+    private static DamageSource helicopterHit(ServerPlayer owner,Arrow shot,Cow victim,double x,int expectedDamage) {
+        shot.setPos(BASE.getX()+x,BASE.getY()+1,BASE.getZ()+2);
+        shot.setDeltaMovement(0,0,6);LbcShooters.orient(shot);shot.tick();
+        var hit=victim.getLastDamageSource();
+        require(hit!=null&&hit.getEntity()==owner&&hit.getDirectEntity()==shot&&victim.getHealth()==100-expectedDamage,
+                "native arrow applies Sharpness once and preserves physical shooter; expected damage="+expectedDamage+", remaining health="+victim.getHealth());
+        return hit;
+    }
+    private static int helicopterLoot(Cow victim,DamageSource hit) {
+        var table=ResourceKey.create(Registries.LOOT_TABLE,Identifier.withDefaultNamespace("entities/cow"));
+        var drops=new ArrayList<ItemStack>();
+        victim.dropFromLootTable((net.minecraft.server.level.ServerLevel)victim.level(),hit,true,table,drops::add);
+        return drops.stream().mapToInt(ItemStack::getCount).sum();
     }
     private static void govnoFlight(GameController game,ServerPlayer owner,ServerPlayer other,List<Cow> cows) {
         var service=game.items().govnomet(); var gun=source(game,owner,"govnomet"); aim(game,owner);
