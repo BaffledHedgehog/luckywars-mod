@@ -15,6 +15,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.clock.ClockState;
 import net.minecraft.world.clock.ServerClockManager;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.border.WorldBorder;
@@ -38,10 +39,31 @@ public final class VanityWorldChecks {
             originalCore=new MatchCoreCheckpoint(game);original=new MatchWorldCheckpoint(game);originalRandom=new MatchWorldRandomCheckpoint(game);base=new ChefChecks.Fixture(game);otherLevel=base.other.level();}
         void init(){base.init();for(var p:List.of(base.owner,base.other)){connections.put(p,p.connection);var recording=new ElementalGrimoireChecks.Recording(p);recordings.put(p,recording);
             p.connection=new ServerGamePacketListenerImpl(game.server(),recording,p,new CommonListenerCookie(p.getGameProfile(),0,p.clientInformation(),false));p.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());}
-            var nether=game.server().getLevel(Level.NETHER);require(nether!=null,"native second dimension available");base.other.teleportTo(nether,base.at.x,base.at.y,base.at.z,java.util.Set.of(),0,0,true);base.other.setNoGravity(true);ack(base.other);SkyWars2.LOGGER.info("[check] START vanity-world");}
-        void ack(ServerPlayer player){player.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
-            var teleports=recordings.get(player).packets.stream().filter(ClientboundPlayerPositionPacket.class::isInstance).map(ClientboundPlayerPositionPacket.class::cast).toList();require(!teleports.isEmpty(),"native dimension transfer emitted a real teleport ID");
-            player.connection.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(teleports.getLast().id(),player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));require(!player.isChangingDimension()&&player.connection.hasClientLoaded(),"native teleport/load acknowledgements end dimension-transfer immunity");}
+            var nether=game.server().getLevel(Level.NETHER);
+            require(nether!=null,"native second dimension available");
+            // Arena height can coincide with native Nether lava. Sample metadata above terrain.
+            base.other.clearFire();
+            require(base.other.teleportTo(nether,base.at.x,nether.getMaxY()+8,base.at.z,java.util.Set.of(),0,0,true),
+                    "native participant arrives above Nether terrain for second-dimension metadata");
+            base.other.setNoGravity(true);
+            ack(base.other);
+            // The arena also applies fire damage to participants in clear Nether air.
+            require(base.other.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE, 160, 0)),
+                    "the metadata witness can survive the normal Nether fire ticks");
+            SkyWars2.LOGGER.info("[check] START vanity-world");
+        }
+        void ack(ServerPlayer player){
+            var teleports=recordings.get(player).packets.stream().filter(ClientboundPlayerPositionPacket.class::isInstance)
+                    .map(ClientboundPlayerPositionPacket.class::cast).toList();
+            require(!teleports.isEmpty(),"native dimension transfer emitted a real teleport ID");
+            player.connection.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(teleports.getLast().id(),
+                    player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));
+            player.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
+            require(!player.isChangingDimension()&&player.connection.hasClientLoaded(),
+                    "native teleport/load acknowledgements end dimension-transfer immunity: player="+player.getScoreboardName()
+                            +" dimension="+player.level().dimension()+" health="+player.getHealth()
+                            +" changing="+player.isChangingDimension()+" loaded="+player.connection.hasClientLoaded());
+        }
         PrimaryLevelData primary(){return (PrimaryLevelData)game.server().getWorldData().overworldData();}
         WorldCheckpointAccess.Clocks clocks(){return (WorldCheckpointAccess.Clocks)game.server().clockManager();}
         List<Object> trajectory(){var out=new ArrayList<Object>();for(var c:clocks().skywars2$clocks().values())out.add(c.packState());for(var b:borders){out.add(new WorldBorder.Settings(b));out.add(b.getLerpSpeed());out.add(b.getMinX(0));out.add(b.getMaxX(.37f));out.add(b.getMinZ(.85f));out.add(b.getStatus());}return List.copyOf(out);}
@@ -81,7 +103,7 @@ public final class VanityWorldChecks {
                 var clocks=packets.stream().filter(x->x instanceof ClientboundSetTimePacket).map(x->(ClientboundSetTimePacket)x).reduce((a,b)->b).orElseThrow();require(clocks.gameTime()==time&&clocks.clockUpdates().equals(game.server().clockManager().createFullSyncPacket().clockUpdates()),"full fractional clock packet and game time");
                 require(packets.stream().anyMatch(x->x instanceof ClientboundChangeDifficultyPacket)&&packets.stream().anyMatch(x->x instanceof ClientboundSetDefaultSpawnPositionPacket)&&packets.stream().filter(x->x instanceof ClientboundGameEventPacket).count()>=5,"native weather, spawn, difficulty and rule packets sent");}
         }
-        boolean step(){require(++tick<120,"bounded native metadata fixture");if(phase==-1){setup();return false;}if(game.matchTicks()-start<4)return false;
+        boolean step(){require(++tick<120,"bounded native metadata fixture");require(base.other.isAlive(),"Nether metadata witness stays alive through both replays");if(phase==-1){setup();return false;}if(game.matchTicks()-start<4)return false;
             game.server().tickRateManager().setFrozen(true);require(primary().getGameTime()==time+4&&trajectory().equals(afterFour),"native clock/border continuation matches the original four-tick trajectory, including paused clocks and previous border size");
             mutate();image.restoreFrozen();verify();if(phase++==0){start=game.matchTicks();game.server().tickRateManager().setFrozen(false);return false;}
             var c=borrowed.getFirst();c.loadFrom(new ClockState(731,.875f,2.25f,true));var paused=new MatchWorldCheckpoint(game);var state=c.packState();c.loadFrom(new ClockState(999,0,3,false));paused.restoreFrozen();game.server().clockManager().tick();require(c.packState().equals(state),"paused native clock retains fractional state and rate through restore and actual manager tick");image.restoreFrozen();verify();return true;

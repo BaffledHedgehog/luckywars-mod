@@ -41,6 +41,7 @@ public final class ShishEncounterChecks {
         void ack(){listener.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());if(read(listener,"awaitingPositionFromClient")!=null){require(wire.position!=null,"actual teleport packet");listener.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(wire.position.id(),player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));}require(listener.hasClientLoaded()&&!player.isChangingDimension()&&read(listener,"awaitingPositionFromClient")==null,"loaded native listener");}
         int updates(){return (Integer)read(listener,"tickCount");}
         ClientboundPlayerPositionPacket lastPosition(){return wire.position;}
+        List<net.minecraft.network.protocol.Packet<?>> packets(){return List.copyOf(wire.packets);}
         public void close(){game.server().getConnection().getConnections().remove(wire);player.connection=previous;previous.resetPosition();}
     }
     /** Capture mutable author state touched by real damage, jumping, equipment and scheduled player ticks. */

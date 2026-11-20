@@ -15,7 +15,6 @@ import net.minecraft.world.effect.MobEffects;
 public final class AtlasGlitchChecks {
     private AtlasGlitchChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Atlas glitch: "+why);}
-    private static List<?> packets(ShishEncounterChecks.Client client){return (List<?>)WoolBucketChecks.read(WoolBucketChecks.read(client,"wire"),"packets");}
     private static int command(GameController game,ServerPlayer player,String command,boolean op){
         try{return game.server().getCommands().getDispatcher().execute(command,player.createCommandSourceStack()
                 .withPermission(op?PermissionSet.ALL_PERMISSIONS:PermissionSet.NO_PERMISSIONS).withSuppressedOutput());}
@@ -44,7 +43,7 @@ public final class AtlasGlitchChecks {
             require(command(game,owner,"skywars atlasglitch",false)==-1,"nonoperator cannot toggle shader");
             require(command(game,owner,"skywars atlasglitch",true)==1&&owner.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"actual operator toggle enables preview outside Supernova");
             require(!other.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"manual preview is recipient-only");
-            require(packets(client).stream().anyMatch(p->p instanceof ClientboundSetTimePacket clock&&clock.clockUpdates().size()==1),"command sends independent visual clock immediately");
+            require(client.packets().stream().anyMatch(p->p instanceof ClientboundSetTimePacket clock&&clock.clockUpdates().size()==1),"command sends independent visual clock immediately");
             var clockRegistry=owner.registryAccess().lookupOrThrow(Registries.WORLD_CLOCK);
             var key=net.minecraft.resources.ResourceKey.create(Registries.WORLD_CLOCK,AtlasGlitchSignal.EFFECT);
             var clock=clockRegistry.getOrThrow(key);owner.setCamera(owner);
@@ -71,7 +70,7 @@ public final class AtlasGlitchChecks {
             AtlasGlitchSignal.synchronize(other,true);AtlasGlitchSignal.leaving(other);
             require(!other.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"logout repairs automatic-only effect before save");
             require(command(game,owner,"skywars atlasglitch off",true)==1&&!owner.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"explicit off disables preview");
-            var packets=packets(client);require(packets.stream().filter(ClientboundSetTimePacket.class::isInstance).map(ClientboundSetTimePacket.class::cast)
+            var packets=client.packets();require(packets.stream().filter(ClientboundSetTimePacket.class::isInstance).map(ClientboundSetTimePacket.class::cast)
                     .anyMatch(p->p.clockUpdates().containsKey(clock)&&p.clockUpdates().get(clock).totalTicks()==0),"off publishes zero, not merely a removed empty post chain");
             require(command(game,owner,"skywars atlasglitch on TestBeta",true)==1&&other.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"native targeted command updates the selected player");
             require(command(game,owner,"skywars atlasglitch toggle TestBeta",true)==1&&!other.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"targeted toggle disables the selected preview");
