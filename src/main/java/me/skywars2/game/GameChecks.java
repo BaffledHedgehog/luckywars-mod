@@ -26466,12 +26466,25 @@ public final class GameChecks {
                         var sword = game.lbc().rollTable(level, player.position(), player,
                                         "lbc:ported/terra_sword").getFirst();
                         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, sword.copy());
-                        var hit = regularTerraCow(level, mobs, ally.getX(), ally.getY() + 1, ally.getZ());
-                        player.resetAttackStrengthTicker(); hit.damageCooldownTime = 0;
-                        require(hit.hurtServer(level, hit.damageSources().playerAttack(player), 1),
-                                        "Native player attack reaches the regular Terra sword damage hook");
-                        require(terra.charges(player) == 1,
-                                        "One native non-arrow melee hit grants one Terra charge");
+                        var hit = regularTerraCow(level, mobs, player.getX() + 2, player.getY(), player.getZ());
+                        float initialHealth = hit.getHealth();
+                        player.resetAttackStrengthTicker();
+                        player.attack(hit);
+                        require(hit.isAlive() && hit.getHealth() < initialHealth
+                                        && hit.getLastDamageSource().getDirectEntity() == player
+                                        && terra.charges(player) == 1,
+                                        "One actual nonlethal melee swing grants one Terra charge, actual=" + terra.charges(player));
+                        hit.setPermanentlyInvulnerable(true);
+                        try {
+                                float blockedHealth = hit.getHealth();
+                                hit.damageCooldownTime = 0; hit.setInvulnerableTime(0);
+                                player.resetAttackStrengthTicker();
+                                player.attack(hit);
+                                require(hit.getHealth() == blockedHealth && terra.charges(player) == 1,
+                                                "A rejected native melee swing grants no Terra charge");
+                        } finally {
+                                hit.setPermanentlyInvulnerable(false);
+                        }
                         String mainHandHud = net.minecraft.ChatFormatting.stripFormatting(
                                         game.items().hud(player).getString());
                         require(mainHandHud.contains("\uE103") && mainHandHud.contains("x1 [0/1]"),
@@ -26542,18 +26555,20 @@ public final class GameChecks {
                         terra.sourceCharges(player, 0);
                         var swordKill = regularTerraCow(level, mobs, player.getX() + 5, 300.4, 54.5);
                         swordKill.setHealth(1);
-                        require(swordKill.hurtServer(level, new net.minecraft.world.damagesource.DamageSource(
-                                        level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE)
-                                                .getOrThrow(net.minecraft.world.damagesource.DamageTypes.CACTUS), regular, player), 100)
-                                        && !swordKill.isAlive() && terra.charges(player) == 2,
-                                        "A lethal sword projectile contact grants both its hit charge and its kill charge");
+                        regular.setPos(player.getX() + 5, 300.5, 53.5);
+                        regular.setDeltaMovement(0, 0, 1.8);
+                        terra.tick();
+                        require(swordKill.isDeadOrDying() && terra.charges(player) == 1,
+                                        "One lethal contact from the actual sword projectile grants one charge, actual="
+                                                        + terra.charges(player));
                         terra.sourceCharges(player, 0);
                         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, sword.copy());
-                        var meleeKill = regularTerraCow(level, mobs, player.getX() + 6, 300.4, 54.5);
-                        meleeKill.setHealth(1);
-                        require(meleeKill.hurtServer(level, meleeKill.damageSources().playerAttack(player), 100)
-                                        && !meleeKill.isAlive() && terra.charges(player) == 2,
-                                        "A lethal real melee sword contact also grants hit and kill charges exactly once");
+                        var meleeKill = regularTerraCow(level, mobs, player.getX(), player.getY(), player.getZ() + 2);
+                        meleeKill.setHealth(.1f);
+                        player.resetAttackStrengthTicker();
+                        player.attack(meleeKill);
+                        require(meleeKill.isDeadOrDying() && terra.charges(player) == 1,
+                                        "One actual lethal melee swing grants one Terra charge, actual=" + terra.charges(player));
                         terra.sourceCharges(player, beforeCactusCharge + 1);
                         var wandCharge = castTerraFixture(game, player, LbcTerra.Kind.REGULAR,
                                         new Vec3(player.getX(), 300.5, 60.5));

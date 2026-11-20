@@ -202,15 +202,6 @@ public final class LbcTerra {
                 && game.canUseGameplayItems(owner) && !game.items().magic().suppressed(owner);
     }
 
-    /** The shared native death owner calls this once; hit and kill are separate charge rewards. */
-    void killed(ServerPlayer owner, DamageSource source) {
-        if (!admitted(owner)) return;
-        boolean melee = LbcDamage.isMeleeAttack(source, owner)
-                && matches(owner.getMainHandItem(), SWORD, SWORD_FLAG);
-        boolean shot = source.getDirectEntity() instanceof TerraProjectile projectile
-                && projectile.getOwner() == owner && projectile.kind == Kind.SWORD;
-        if (melee || shot) swordCharges.put(owner.getUUID(), Math.min(4, charges(owner) + 1));
-    }
     int hudCharges(ServerPlayer player) {
         return matches(player.getMainHandItem(), SWORD, SWORD_FLAG)
                 || matches(player.getOffhandItem(), SWORD, SWORD_FLAG) ? charges(player) : -1;
