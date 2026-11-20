@@ -48,6 +48,7 @@ public final class RawRaycastSpellChecks {
         State(GameController game,ServerPlayer p){player=p;require(!p.isUsingItem(),"fixture starts with idle hands");state=new GameChecks.WandThirdPlayerState(p,game.items().mana());ground=p.onGround();sprint=p.isSprinting();shift=p.isShiftKeyDown();known=p.getKnownMovement();pose=p.getPose();
             for(var h:net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.listElements().toList()){var a=p.getAttribute(h);if(a!=null)attributes.getInstance(h).replaceFrom(a);}
             for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var s=Stats.CUSTOM.get(id);stats.put(s,p.getStats().getValue(s));}for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN))for(var item:List.of(Items.SHIELD,Items.LEATHER_BOOTS,Items.LEATHER_LEGGINGS,Items.LEATHER_CHESTPLATE,Items.LEATHER_HELMET)){var s=type.get(item);stats.put(s,p.getStats().getValue(s));}
+            var huskKills=Stats.ENTITY_KILLED.get(EntityTypes.HUSK);stats.put(huskKills,p.getStats().getValue(huskKills));
             for(var objective:game.server().getScoreboard().getObjectives()){var score=game.server().getScoreboard().getPlayerScoreInfo(p,objective);if(score!=null)scores.put(objective,score.value());}
             for(var a:game.server().getAdvancements().getAllAdvancements()){var done=new HashSet<String>();p.getAdvancements().getOrStartProgress(a).getCompletedCriteria().forEach(done::add);advancements.put(a,done);}
             for(var name:List.of("attackStrengthTicker","itemSwapTicker","xxa","yya","zza","jumping","yHeadRot","yHeadRotO","hurtTime","hurtDuration","lastHurt","lastDamageStamp","lastDamageSource","lastRecordedFoodLevel","lastSentFood","lastFoodSaturationZero","lastSentHealth","lastRecordedHealthAndAbsorption"))values.put(field(p,name),read(p,name));
@@ -66,7 +67,8 @@ public final class RawRaycastSpellChecks {
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();
         final Map<String,ItemStack> sourceItems=new LinkedHashMap<>();
         net.minecraft.server.level.ServerLevel level;Vec3 origin;BlockPos terminal,impact;LivingEntity witness,areaEdge,areaOutside;Entity marker;
-        int start,stepStart,stage;boolean launched,closed,oldOffhand,configured;int paidMana;
+        Mob undead,spectatorUndead;
+        int start,stepStart,stage;boolean launched,closed,oldOffhand,configured;int paidMana,healImpactTick,undeadTickAtImpact;
         Fixture(GameController game){this.game=game;}
         void initialize(){
             owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
@@ -103,13 +105,39 @@ public final class RawRaycastSpellChecks {
         void clean(){if(owner==null||level==null)return;game.items().libraryRandom().forget(owner);game.items().vexSword().forget(owner);game.items().stonekivi().stop();for(var e:created()){game.items().entityUnloaded(e);if(e instanceof LivingEntity living)game.items().indirectKills().clear(living);e.discard();}witness=null;marker=null;owner.removeAllEffects();owner.getInventory().clearContent();owner.setPos(origin);owner.setYRot(0);owner.setXRot(0);owner.setDeltaMovement(Vec3.ZERO);client.ack();}
         void launch(String flag,InteractionHand hand,boolean wall){preparePlayer();owner.setPos(origin);owner.setYRot(0);owner.setXRot(0);level.setBlock(terminal,wall?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState(),2|16|32);owner.setItemInHand(hand,raw(flag));paidMana=game.items().mana().get(owner);require(LbcLibrarySpells.matchesRawRaycast(owner.getItemInHand(hand)),"real raw source metadata recognized "+flag);require(callback(hand),"actual Fabric UseItemCallback consumes source action "+flag);require(owner.getItemInHand(hand).getCount()==2,"raw ammo not charged before actual terminal "+flag);require(game.items().mana().get(owner)==paidMana,"no source mana launch price "+flag);stepStart=game.server().getTickCount();launched=true;}
         void cow(){witness=cowAt(3);}
-        LivingEntity cowAt(double x){var c=EntityTypes.COW.create(level,EntitySpawnReason.COMMAND);require(c!=null,"native source effect witness");c.setPos(origin.add(x,0,7));c.setNoGravity(true);c.setNoAi(true);c.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);c.setHealth(100);require(level.addFreshEntity(c),"actual living native effect witness");return c;}
+        LivingEntity cowAt(double x){return mobAt(EntityTypes.COW,x,100);}
+        Mob mobAt(EntityType<? extends Mob> type,double x,int health){
+            var mob=Objects.requireNonNull(type.create(level,EntitySpawnReason.COMMAND));
+            mob.setPos(origin.add(x,0,7));mob.setNoGravity(true);mob.setNoAi(true);
+            mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);mob.setHealth(health);mob.setPersistenceRequired();
+            require(level.addFreshEntity(mob),"actual native effect witness "+type);
+            return mob;
+        }
+        void healingTargets(){
+            cow();undead=mobAt(EntityTypes.HUSK,0,20);spectatorUndead=mobAt(EntityTypes.HUSK,-3,20);
+            spectatorUndead.entityTags().add("spectator");
+            require(undead.isInvertedHealAndHarm()&&spectatorUndead.isInvertedHealAndHarm()&&!witness.isInvertedHealAndHarm(),
+                    "native heal-or-harm classification splits regular and undead targets");
+        }
+        boolean healingVerified(){
+            int tick=game.server().getTickCount();
+            if(healImpactTick==0){healImpactTick=tick;undeadTickAtImpact=undead.tickCount;}
+            if(!undead.isDeadOrDying()&&undead.tickCount==undeadTickAtImpact&&tick-healImpactTick<5)return false;
+            require(undead.isDeadOrDying()&&undead.getHealth()==0&&undead.getKillCredit()==owner,
+                    "raw healing scroll kills a directly hit native undead on the first eligible tick, retaining caster credit; hp="
+                            +undead.getHealth()+" effect="+undead.getEffect(MobEffects.INSTANT_HEALTH)+" native ticks="+(undead.tickCount-undeadTickAtImpact));
+            if(witness.getHealth()==100&&tick-healImpactTick<5)return false;
+            require(witness.getHealth()==164&&witness.hasEffect(MobEffects.INSTANT_HEALTH)
+                    &&witness.getEffect(MobEffects.INSTANT_HEALTH).getAmplifier()==4,"same real scroll heals an ordinary living target by 64 HP");
+            require(spectatorUndead.getHealth()==20&&!spectatorUndead.hasEffect(MobEffects.INSTANT_HEALTH),"spectator-tagged undead is untouched");
+            return true;
+        }
         boolean step(){require(game.server().getTickCount()-start<1200,"bounded actual native tick timeout");int elapsed=game.server().getTickCount()-stepStart;
-            if(stage<7){if(!launched){launch(FLAGS[stage],InteractionHand.MAIN_HAND,true);if(stage==2||stage==3)cow();return false;}var stack=owner.getMainHandItem();if(stack.getCount()==2){require(elapsed<80,"actual ray terminal completed "+FLAGS[stage]);return false;}require(stack.getCount()==1,"exactly one native terminal debit "+FLAGS[stage]);require(game.items().mana().get(owner)==paidMana,"no source mana terminal price "+FLAGS[stage]);
+            if(stage<7){if(!launched){launch(FLAGS[stage],InteractionHand.MAIN_HAND,stage!=3);if(stage==2)cow();if(stage==3)healingTargets();return false;}var stack=owner.getMainHandItem();if(stack.getCount()==2){require(elapsed<80,"actual ray terminal completed "+FLAGS[stage]);return false;}require(stack.getCount()==1,"exactly one native terminal debit "+FLAGS[stage]);require(game.items().mana().get(owner)==paidMana,"no source mana terminal price "+FLAGS[stage]);
                 if(stage==0){var tnt=created().stream().filter(PrimedTnt.class::isInstance).map(PrimedTnt.class::cast).toList();require(tnt.size()==26&&tnt.stream().allMatch(e->e.getOwner()==owner&&e.getFuse()<=56),"actual original26 fuse56 attributed native TNT");}
                 if(stage==1)require(game.items().libraryRandom().count()>=1,"actual1600tick phantom emitter admitted");
                 if(stage==2)require(witness.hasEffect(MobEffects.WITHER)&&witness.getEffect(MobEffects.WITHER).getAmplifier()==0&&witness.getEffect(MobEffects.WITHER).getDuration()<=1200,"actual source Wither60s amp0");
-                if(stage==3)require(witness.hasEffect(MobEffects.INSTANT_HEALTH)||witness.getHealth()>100,"actual native source instant healing");
+                if(stage==3&&!healingVerified())return false;
                 if(stage==4){if(elapsed<6)return false;require(created().stream().anyMatch(net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball.class::isInstance),"actual scheduled native firestorm children");}
                 if(stage==5){require(created().stream().filter(e->e.getType()==EntityTypes.GHAST).count()==4,"actual four source lava ghasts");if(game.items().stonekivi().count()>0){require(elapsed<150,"source terrain work drains on actual scheduler");return false;}require(level.getBlockState(new BlockPos(impact.getX(),100,impact.getZ())).is(Blocks.LAVA),"actual source native Y1..126 lava column");}
                 if(stage==6){if(elapsed<3)return false;require(created().stream().anyMatch(net.minecraft.world.entity.item.FallingBlockEntity.class::isInstance),"actual scheduled source falling stone bricks");}
@@ -131,5 +159,5 @@ public final class RawRaycastSpellChecks {
     }
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive native async fixture");running=new Fixture(game);try{running.initialize();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}throw error;}}
-    public static void tick(GameController game){if(running==null)return;try{if(running.step()){running.close();running=null;SkyWars2.LOGGER.info("[check] PASS raw-raycast-spells (actual Fabric callback all8 raw aliases; real native scheduler terminals/one item/no mana/miss; MAG TECH roles TimeStop configured offhand; full scoped player/terrain restoration; long descendant lifetime suites remain separate)");}}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL raw-raycast-spells",error);}}
+    public static void tick(GameController game){if(running==null)return;try{if(running.step()){running.close();running=null;SkyWars2.LOGGER.info("[check] PASS raw-raycast-spells (actual Fabric callback all8 raw aliases; real native scheduler terminals/one item/no mana/miss; Healing Scroll kills undead with caster credit and heals ordinary living targets; MAG TECH roles TimeStop configured offhand; full scoped player/terrain restoration; long descendant lifetime suites remain separate)");}}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL raw-raycast-spells",error);}}
 }
