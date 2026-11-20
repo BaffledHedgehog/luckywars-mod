@@ -1,18 +1,31 @@
 package me.skywars2.game;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.storage.LevelResource;
 
 /** Real lobby requests supersede both decoding and partially applied native map work. */
 public final class MapReplacementChecks {
@@ -59,6 +72,9 @@ public final class MapReplacementChecks {
         ChunkPos outsideTicket;
         boolean addedOutsideTicket;
         net.minecraft.world.entity.item.ItemEntity outsideItem;
+        final List<String> heightMaps=new ArrayList<>();
+        final BlockPos topBlock;
+        Path heightFixture;
         int phase;final List<net.minecraft.world.entity.item.ItemEntity> debris=new ArrayList<>();
         Scene(GameController game){
             checkStoredTerrain();
@@ -67,6 +83,7 @@ public final class MapReplacementChecks {
             require((int)field(game.maps(),"sweptMode")==oldMode,"the first startup map applied a full sweep");
             var level=game.maps().level();int edge=MapManager.OUTER_ARENA_LIMIT;
             untracked=new BlockPos(edge,level.getMaxY(),edge);outside=untracked.east();
+            topBlock=new BlockPos(1,level.getMaxY(),0);
             var cells=(Map<?,?>)field(game.maps(),"lobbyVisible");
             lobby=cells.entrySet().stream().filter(entry->entry.getValue() instanceof MapManager.BlockSnapshot snapshot&&!snapshot.state().isAir())
                     .map(entry->(BlockPos)entry.getKey()).findFirst().orElseThrow();
@@ -78,7 +95,60 @@ public final class MapReplacementChecks {
         }
         void select(String id){require(game.selectMap(owner,id,false),"actual native selection accepted "+id);}
         void start(){select("60");var first=field(game.maps(),"preparation");select("61");require(first!=field(game.maps(),"preparation"),"second click replaces the in-flight preparation immediately");select("1");require(game.maps().busy()&&!game.selectedMapReady(),"latest request is the sole active operation");}
-        boolean tick() throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        void prepareHeightFixture() throws IOException {
+            heightFixture=Files.createTempDirectory(game.server().getWorldPath(LevelResource.ROOT),".map-height-check-");
+            var template=new CompoundTag();
+            template.put("size",tags(IntTag.valueOf(2),IntTag.valueOf(2),IntTag.valueOf(1)));
+            template.put("palette",tags(NbtUtils.writeBlockState(Blocks.DIAMOND_BLOCK.defaultBlockState())));
+            var block=new CompoundTag();
+            block.put("pos",tags(IntTag.valueOf(1),IntTag.valueOf(1),IntTag.valueOf(0)));
+            block.putInt("state",0);
+            template.put("blocks",tags(block));
+            var marker=new CompoundTag();
+            marker.putString("id","minecraft:marker");
+            marker.put("Tags",tags(StringTag.valueOf("swrg.spawn")));
+            var entity=new CompoundTag();
+            entity.put("pos",tags(DoubleTag.valueOf(.5),DoubleTag.valueOf(.5),DoubleTag.valueOf(.5)));
+            entity.put("blockPos",tags(IntTag.valueOf(0),IntTag.valueOf(0),IntTag.valueOf(0)));
+            entity.put("nbt",marker);
+            template.put("entities",tags(entity));
+            NbtIo.writeCompressed(NbtUtils.addCurrentDataVersion(template),heightFixture.resolve("map.nbt"));
+            registerHeightMap(topBlock.getY()-1);
+            registerHeightMap(topBlock.getY());
+        }
+        void registerHeightMap(int originY) {
+            String id=game.maps().nextLocalId(false);
+            var manifest=new JsonObject();
+            manifest.addProperty("id",id);
+            manifest.addProperty("name","Map height check "+originY);
+            manifest.addProperty("mode","skywars");
+            manifest.addProperty("playerCapacity",1);
+            manifest.addProperty("available",true);
+            manifest.addProperty("reason","");
+            var placement=new JsonObject();
+            placement.addProperty("template","luckywars:local/"+id);
+            placement.addProperty("integrity",1);
+            placement.addProperty("seed",0);
+            var origin=new JsonArray();origin.add(0);origin.add(originY);origin.add(0);
+            placement.add("origin",origin);
+            var placements=new JsonArray();placements.add(placement);manifest.add("placements",placements);
+            game.maps().registerLocalMap(manifest,heightFixture);
+            heightMaps.add(id);
+        }
+        private static ListTag tags(Tag... entries) {
+            var list=new ListTag();
+            for(var entry:entries)list.add(entry);
+            return list;
+        }
+        void cleanupHeightFixture() throws IOException {
+            for(var id:heightMaps)game.maps().unregisterMap(id);
+            if(heightFixture!=null){
+                Files.deleteIfExists(heightFixture.resolve("map.nbt"));
+                Files.deleteIfExists(heightFixture);
+                heightFixture=null;
+            }
+        }
+        boolean tick() throws com.mojang.brigadier.exceptions.CommandSyntaxException, IOException {
             require(game.inLobby()&&game.server().getTickCount()-started<3600,"bounded lobby scene");
             if(phase==0){
                 if(game.maps().streamingChangedChunks().isEmpty())return false;
@@ -106,8 +176,27 @@ public final class MapReplacementChecks {
                 restoreOutsideEntity();
                 checkSweep();
                 restoreOutside();
+                prepareHeightFixture();
+                select(heightMaps.getFirst());phase=4;return false;
+            }
+            if(phase==4){
+                if(game.maps().busy())return false;
+                require(game.selectedMapReady()&&game.config().mapId.equals(heightMaps.getFirst())
+                                &&game.maps().level().getBlockState(topBlock).is(Blocks.DIAMOND_BLOCK)&&game.maps().spawns().size()==1,
+                        "a real saved map pastes its highest legal layer and becomes ready: "+field(game,"mapFailure"));
+                select(heightMaps.getLast());phase=5;return false;
+            }
+            if(phase==5){
+                if(game.maps().busy())return false;
+                var failure=(Component)field(game,"mapFailure");
+                require(!game.selectedMapReady()&&failure.getContents() instanceof TranslatableContents reason
+                                &&reason.getKey().equals("skywars2.map.error.height")
+                                &&((Number)reason.getArgs()[2]).intValue()==topBlock.getY()+1
+                                &&((Number)reason.getArgs()[4]).intValue()==topBlock.getY(),
+                        "the actual loader rejects maxY+1 with the correct inclusive limit: "+failure);
+                require(game.maps().level().getBlockState(topBlock).is(Blocks.DIAMOND_BLOCK),"height rejection leaves the previous map intact");
                 game.configureLobbySetting(null,"gameMode",Integer.toString(oldMode));
-                require(game.selectMap(owner,oldMap,oldBroken),"restore actual original selection");phase=4;return false;
+                require(game.selectMap(owner,oldMap,oldBroken),"restore actual original selection");phase=6;return false;
             }
             if(!game.selectedMapReady())return false;
             if(phase==1){
@@ -142,7 +231,10 @@ public final class MapReplacementChecks {
                         &&game.maps().busy(),"operator command starts a manual full sweep");
                 phase=3;return false;
             }
-            require(game.config().mapId.equals(oldMap)&&game.config().broken==oldBroken,"original selection restored through the public loader");return true;
+            require(game.config().mapId.equals(oldMap)&&game.config().broken==oldBroken,"original selection restored through the public loader");
+            cleanupHeightFixture();
+            require(heightMaps.stream().noneMatch(game.maps()::isLocal),"temporary height maps are removed from the catalog");
+            return true;
         }
         void checkSweep(){
             require(game.maps().level().getBlockState(untracked).isAir(),"full rectangle clears an untracked block on the outer boundary");
@@ -156,7 +248,7 @@ public final class MapReplacementChecks {
             addedOutsideTicket=false;
         }
     }
-    public static void tick(GameController game){if(active==null)return;try{if(!active.tick())return;active=null;SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; startup and mode sweeps, manual cleanup boundaries, Cubes8 loose-item cleanup in both worlds, Imprinted mirror and original selection restored)");}catch(Throwable error){if(active!=null){active.restoreOutsideEntity();for(var item:active.debris)if(!item.isRemoved())item.discard();}active=null;SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);}}
+    public static void tick(GameController game){if(active==null)return;try{if(!active.tick())return;active=null;SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; startup and mode sweeps, manual cleanup boundaries, Cubes8 loose-item cleanup in both worlds, Imprinted mirror, native maxY acceptance/maxY+1 rejection, and original selection restored)");}catch(Throwable error){if(active!=null){active.restoreOutsideEntity();for(var item:active.debris)if(!item.isRemoved())item.discard();try{active.cleanupHeightFixture();}catch(IOException cleanup){error.addSuppressed(cleanup);}}active=null;SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);}}
     @SuppressWarnings("unchecked") public static void imprinted(GameController game){
         var level=game.maps().level();var target=Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED));
         require(!game.maps().busy(),"copy completes before ready callback");

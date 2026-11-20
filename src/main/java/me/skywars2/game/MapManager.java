@@ -2426,9 +2426,9 @@ public final class MapManager {
             if (template.materialMinY > template.materialMaxY) continue;
             long minY = (long) placement.origin.getY() + template.materialMinY;
             long maxY = (long) placement.origin.getY() + template.materialMaxY;
-            if (minY < level.getMinY() || maxY >= level.getMaxY()) {
+            if (minY < level.getMinY() || maxY > level.getMaxY()) {
                 return Component.translatable("skywars2.map.error.height", placement.template,
-                        minY, maxY, level.getMinY(), level.getMaxY() - 1);
+                        minY, maxY, level.getMinY(), level.getMaxY());
             }
         }
         return null;

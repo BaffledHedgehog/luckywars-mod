@@ -101,7 +101,7 @@ public final class MapAuthoring implements MapEditing {
                 depth = (long) max.getZ() - min.getZ() + 1;
         if (width > 1024 || depth > 1024 || height > 1024 || width * height * depth > MAX_VOLUME
                 || min.getX() < -8192 || max.getX() > 8192 || min.getZ() < -8192 || max.getZ() > 8192
-                || min.getY() < selection.world.getMinY() || max.getY() >= selection.world.getMaxY()) {
+                || selection.world.isOutsideBuildHeight(min) || selection.world.isOutsideBuildHeight(max)) {
             tell(player, "Selection exceeds the save limits (1024 per axis, 32M blocks, X/Z within -8192..8192 and within world height)."); return;
         }
         List<ChunkPos> chunks = new ArrayList<>();

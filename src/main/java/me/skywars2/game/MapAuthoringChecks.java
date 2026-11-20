@@ -32,15 +32,19 @@ public final class MapAuthoringChecks {
         final List<Entity> actors=new ArrayList<>();final Set<Entity> originalEntities=Collections.newSetFromMap(new IdentityHashMap<>());
         final boolean enabled;final String prefix="_check_native_"+UUID.randomUUID();final List<String> published=new ArrayList<>();
         int phase,ticks;String pending;net.minecraft.world.scores.PlayerTeam team;boolean createdTeam;
-        Fixture(GameController game){this.game=game;owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(owner!=null&&GameController.operator(owner),"actual fixture operator");require(!game.maps().busy()&&!game.developerTools().authoring().busy(),"no competing map operation");state=new GameChecks.WandThirdPlayerState(owner,game.items().mana());authoring=new MapAuthoring(game);enabled=game.developerMode();source=owner.blockPosition().above(10);destination=source.offset(0,0,6);owner.level().getAllEntities().forEach(originalEntities::add);}
+        Fixture(GameController game){this.game=game;owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(owner!=null&&GameController.operator(owner),"actual fixture operator");require(!game.maps().busy()&&!game.developerTools().authoring().busy(),"no competing map operation");state=new GameChecks.WandThirdPlayerState(owner,game.items().mana());authoring=new MapAuthoring(game);enabled=game.developerMode();var feet=owner.blockPosition();source=new BlockPos(feet.getX(),owner.level().getMaxY()-1,feet.getZ());destination=source.offset(0,0,6);owner.level().getAllEntities().forEach(originalEntities::add);}
         void start(){
             game.config().developerMode=true;
             for(var origin:List.of(source,destination))for(var pos:BlockPos.betweenClosed(origin,origin.offset(2,1,2))){require(owner.level().hasChunkAt(pos),"fixture uses already loaded chunks");blocks.put(pos.immutable(),game.maps().snapshot(owner.level(),pos));owner.level().setBlockAndUpdate(pos,Blocks.AIR.defaultBlockState());}
             owner.level().setBlockAndUpdate(source,Blocks.STONE.defaultBlockState());owner.level().setBlockAndUpdate(source.east(),Blocks.CHEST.defaultBlockState());
+            require(owner.level().setBlockAndUpdate(source.east().above(),Blocks.GOLD_BLOCK.defaultBlockState()),"place a native block at the inclusive build ceiling");
             ((ChestBlockEntity)owner.level().getBlockEntity(source.east())).setItem(0,new ItemStack(Items.DIAMOND,2));
             var board=game.server().getScoreboard();team=board.getPlayerTeam("1");if(team==null){team=board.addPlayerTeam("1");createdTeam=true;}
             for(var tag:List.of("swrg.spawn","swrg.look")){var actor=new Marker(EntityTypes.MARKER,owner.level());actor.setPos(Vec3.atCenterOf(source.offset(tag.equals("swrg.look")?2:0,1,1)));actor.setYRot(67);actor.entityTags().add(tag);require(owner.level().addFreshEntity(actor),"native map marker fixture");board.addPlayerToTeam(actor.getScoreboardName(),team);actors.add(actor);}
-            move(source);authoring.select(owner,0);move(source.offset(2,1,2));authoring.select(owner,1);require(authoring.selectedBounds(owner).getXsize()==3,"inclusive selection bounds");
+            move(source);authoring.select(owner,0);
+            move(source.offset(2,2,2));authoring.select(owner,1);authoring.save(owner,"skywars",prefix+" above world");
+            require(!authoring.busy(),"selection one block above the build ceiling is rejected");
+            move(source.offset(2,1,2));authoring.select(owner,1);require(authoring.selectedBounds(owner).getXsize()==3,"inclusive selection bounds");
             save(false);
         }
         void move(BlockPos pos){owner.teleportTo(owner.level(),pos.getX()+.5,pos.getY(),pos.getZ()+.5,Set.of(),0,0,false);}
@@ -63,19 +67,37 @@ public final class MapAuthoringChecks {
                 var origin=manifest.getAsJsonArray("placements").get(0).getAsJsonObject().getAsJsonArray("origin");
                 require(origin.get(0).getAsInt()==-1&&origin.get(2).getAsInt()==-1&&origin.get(1).getAsInt()==source.getY(),"centered X/Z and original authored Y");
                 var nbt=NbtIo.readCompressed(directory.resolve("map.nbt"),NbtAccounter.create(8*1024*1024));
-                require(nbt.getListOrEmpty("blocks").size()==2,"air excluded from native snapshot");require(nbt.getListOrEmpty("entities").size()==2,"both actual marker entities saved");
+                require(nbt.getListOrEmpty("blocks").size()==3,"air excluded and the ceiling block included in native snapshot");require(nbt.getListOrEmpty("entities").size()==2,"both actual marker entities saved");
                 boolean chest=false;for(var tag:nbt.getListOrEmpty("blocks"))if(tag instanceof CompoundTag block&&block.getCompoundOrEmpty("nbt").getListOrEmpty("Items").size()==1)chest=true;require(chest,"native chest inventory NBT retained");
                 for(var tag:nbt.getListOrEmpty("entities")){var actor=((CompoundTag)tag).getCompoundOrEmpty("nbt");require(actor.getStringOr("Team","").equals("1"),"actual numeric BedWars team survives capture");}
                 if(!bedwars){
                     var template=new StructureTemplate();template.load(owner.registryAccess().lookupOrThrow(Registries.BLOCK),nbt);
                     require(template.placeInWorld(owner.level(),destination,destination,new StructurePlaceSettings(),owner.getRandom(),2),"actual native StructureTemplate placement");
                     require(owner.level().getBlockState(destination).is(Blocks.STONE),"native block round trip");
+                    require(owner.level().getBlockState(destination.east().above()).is(Blocks.GOLD_BLOCK),"native block at the build ceiling round trips");
                     require(owner.level().getBlockEntity(destination.east()) instanceof ChestBlockEntity restored&&restored.getItem(0).is(Items.DIAMOND)&&restored.getItem(0).getCount()==2,"native container inventory round trip");
                     int count=0;for(var entity:owner.level().getAllEntities())if(!originalEntities.contains(entity)&&!actors.contains(entity)&&entity instanceof Marker&&entity.position().distanceToSqr(Vec3.atCenterOf(destination))<25){actors.add(entity);count++;}require(count==2,"native map-marker entity round trip");
                 }
                 require(game.maps().catalog(bedwars).stream().anyMatch(info->info.id().equals(pending)&&info.custom()),"published map immediately enters correct native catalog");
             }catch(java.io.IOException e){throw new IllegalStateException(e);}
         }
-        void close(){authoring.close();for(var actor:actors){if(actor.getTeam()!=null)game.server().getScoreboard().removePlayerFromTeam(actor.getScoreboardName(),actor.getTeam());actor.discard();}if(createdTeam&&team.getPlayers().isEmpty())game.server().getScoreboard().removePlayerTeam(team);for(var entry:blocks.entrySet()){if(owner.level().getBlockEntity(entry.getKey()) instanceof net.minecraft.world.Container container)container.clearContent();game.maps().restoreSnapshot(owner.level(),entry.getKey(),entry.getValue());}game.config().developerMode=enabled;state.restore(game);}
+        void close(){authoring.close();for(var actor:actors){if(actor.getTeam()!=null)game.server().getScoreboard().removePlayerFromTeam(actor.getScoreboardName(),actor.getTeam());actor.discard();}if(createdTeam&&team.getPlayers().isEmpty())game.server().getScoreboard().removePlayerTeam(team);for(var entry:blocks.entrySet()){if(owner.level().getBlockEntity(entry.getKey()) instanceof net.minecraft.world.Container container)container.clearContent();game.maps().restoreSnapshot(owner.level(),entry.getKey(),entry.getValue());}game.config().developerMode=enabled;state.restore(game);removeFixtureMaps();}
+        void removeFixtureMaps(){
+            var ids=new LinkedHashSet<>(published);
+            if(pending!=null)ids.add(pending);
+            for(var id:ids){
+                var directory=game.maps().localMapRoot().resolve(id);
+                var manifest=directory.resolve("manifest.json");
+                if(!Files.isRegularFile(manifest))continue;
+                try{
+                    var name=JsonParser.parseString(Files.readString(manifest)).getAsJsonObject().get("name").getAsString();
+                    if(!name.startsWith(prefix))continue;
+                    if(game.maps().isLocal(id))require(game.maps().unregisterMap(id),"remove owned fixture catalog entry");
+                    Files.delete(directory.resolve("map.nbt"));
+                    Files.delete(manifest);
+                    Files.delete(directory);
+                }catch(java.io.IOException error){throw new IllegalStateException("Could not remove authoring fixture "+id,error);}
+            }
+        }
     }
 }
