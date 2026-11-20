@@ -10,12 +10,14 @@ public final class MapEditingPolicyChecks {
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Map editing policy: "+why);}
     public static void run(GameController game){
         var dispatcher=game.server().getCommands().getDispatcher();
-        var save=dispatcher.getRoot().getChild("mapsave");
+        var command=dispatcher.getRoot().getChild("skywars");
+        require(command!=null,"SkyWars command tree registered");
+        var save=command.getChild("mapsave");
         require(save!=null&&save.getChild("tools")!=null,"shared developer tool command retained");
         boolean enabled=MapEditing.allowedServer(game.server());
         for(String child:new String[]{"pos","saveskywars","savebedwars","delete"})
             require((save.getChild(child)!=null)==enabled,"editing command flavor "+child);
-        require((dispatcher.getRoot().getChild("mapdelete")!=null)==enabled,"delete alias flavor");
+        require((command.getChild("mapdelete")!=null)==enabled,"delete alias flavor");
         require(!MapEditing.allowedDirectory(Path.of("E:/servers_mew/cringe1_21_4_skywars")),"legacy server directory cannot enable map editing");
         if(!MapEditing.testBuildAvailable()){
             require(!enabled&&!game.developerTools().authoring().busy(),"production disabled implementation initializes normally");

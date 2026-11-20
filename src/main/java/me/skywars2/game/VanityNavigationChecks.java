@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.ArrayList;
 import java.util.List;
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.NavigationCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
@@ -35,6 +36,9 @@ public final class VanityNavigationChecks {
         Cow cow;Path path,alias;MatchEntityState image,idleImage;List<Node> nodes;
         Vec3 start,saved,restored;int phase,when,index;float malus;double wantedX,lookZ;
         long worldTime,lastTimeout,recompute;boolean closed;
+        NavigationCheckpointAccess.LookControlAccess look(){return (NavigationCheckpointAccess.LookControlAccess)cow.getLookControl();}
+        NavigationCheckpointAccess.JumpControlAccess jump(){return (NavigationCheckpointAccess.JumpControlAccess)cow.getJumpControl();}
+        NavigationCheckpointAccess.PathNavigationAccess navigation(){return (NavigationCheckpointAccess.PathNavigationAccess)cow.getNavigation();}
         Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);}
         void begin(){
             f.prepareParticipants();var floor=BlockPos.containing(f.home).above(3);
@@ -65,10 +69,10 @@ public final class VanityNavigationChecks {
                 cow.getMoveControl().setWantedPosition(cow.getX()+2,cow.getY(),cow.getZ(),.65);
                 cow.getJumpControl().jump();cow.getNavigation().setCanFloat(true);
                 cow.setPathfindingMalus(PathType.WATER,3.25F);
-                lookZ=(Double)WoolBucketChecks.read(cow.getLookControl(),"wantedZ");
+                lookZ=look().skywars2$navigationWantedZ();
                 worldTime=f.level.getGameTime();
-                lastTimeout=(Long)WoolBucketChecks.read(cow.getNavigation(),"lastTimeoutCheck");
-                recompute=(Long)WoolBucketChecks.read(cow.getNavigation(),"timeLastRecompute");
+                lastTimeout=navigation().skywars2$navigationLastTimeoutCheck();
+                recompute=navigation().skywars2$navigationTimeLastRecompute();
                 wantedX=cow.getMoveControl().getWantedX();index=path.getNextNodeIndex();saved=cow.position();
                 nodes=new ArrayList<>();for(int i=0;i<path.getNodeCount();i++)nodes.add(path.getNode(i));
                 malus=nodes.getFirst().costMalus;alias=path.copy();image=new MatchEntityState(game,cow);
@@ -107,13 +111,13 @@ public final class VanityNavigationChecks {
             for(int i=0;i<nodes.size();i++)require(path.getNode(i)==nodes.get(i),"retain original node identity "+i);
             require(nodes.getFirst().costMalus==malus,"future mutation cannot alter the saved node values");
             require(cow.getMoveControl().hasWanted()&&cow.getMoveControl().getWantedX()==wantedX,"restore pending movement control");
-            require((Double)WoolBucketChecks.read(cow.getLookControl(),"wantedZ")==lookZ&&
-                    (Float)WoolBucketChecks.read(cow.getLookControl(),"yMaxRotSpeed")==17F,"restore pending look target and turn rate");
-            require((Boolean)WoolBucketChecks.read(cow.getJumpControl(),"jump"),"restore queued native jump");
+            require(look().skywars2$navigationWantedZ()==lookZ&&
+                    look().skywars2$navigationYMaxRotSpeed()==17F,"restore pending look target and turn rate");
+            require(jump().skywars2$navigationJump(),"restore queued native jump");
             require(cow.getNavigation().canFloat()&&cow.getPathfindingMalus(PathType.WATER)==3.25F,"restore evaluator flags and native costs");
             long delta=f.level.getGameTime()-worldTime;
-            require((Long)WoolBucketChecks.read(cow.getNavigation(),"lastTimeoutCheck")==lastTimeout+delta&&
-                    (Long)WoolBucketChecks.read(cow.getNavigation(),"timeLastRecompute")==recompute+delta,
+            require(navigation().skywars2$navigationLastTimeoutCheck()==lastTimeout+delta&&
+                    navigation().skywars2$navigationTimeLastRecompute()==recompute+delta,
                     "navigation timestamps keep their relative ages on the current world clock");
             require(cow.position().equals(saved),"native value image restores exact feet");
         }

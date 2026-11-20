@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.EntityRuntimeCheckpointAccess;
+import me.skywars2.mixin.MobGoalCheckpointAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -27,7 +30,9 @@ import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -44,6 +49,9 @@ public final class VanityActorChecks {
         UnsavedCow(net.minecraft.server.level.ServerLevel level){super(EntityTypes.COW,level);}
         @Override public boolean shouldBeSaved(){return false;}
     }
+    private static MobGoalCheckpointAccess.MobAccess selectors(Mob mob){return (MobGoalCheckpointAccess.MobAccess)mob;}
+    private static EntityRuntimeCheckpointAccess.ThrownEnderpearlAccess enderpearl(ThrownEnderpearl pearl){return (EntityRuntimeCheckpointAccess.ThrownEnderpearlAccess)pearl;}
+    private static EntityRuntimeCheckpointAccess.FishingHookAccess fishing(FishingHook hook){return (EntityRuntimeCheckpointAccess.FishingHookAccess)hook;}
     private static final class Fixture implements AutoCloseable {
         final GameController game;
         final MatchCoreCheckpoint originalCore;
@@ -73,9 +81,9 @@ public final class VanityActorChecks {
         int rangedDelay,rangedVisibility;
         Snowball shot;
         Snowball unowned;
-        net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl pearl;
-        net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl distantPearl;
-        net.minecraft.world.entity.projectile.FishingHook hook;
+        ThrownEnderpearl pearl;
+        ThrownEnderpearl distantPearl;
+        FishingHook hook;
         ServerPlayer retiredPlayer;
         Entity loginVehicle,loginPearl;
         net.minecraft.world.damagesource.DamageSource combatSource,positionSource,historicSource,npcSource;
@@ -92,6 +100,9 @@ public final class VanityActorChecks {
         final Vec3 motion=new Vec3(11.25,12.5,-13.75);
         int phase=-1,ticks,clock;
         boolean owned,closed;
+        MobGoalCheckpointAccess.RangedAttackGoalAccess rangedState(){return (MobGoalCheckpointAccess.RangedAttackGoalAccess)rangedGoal;}
+        MobGoalCheckpointAccess.NearestAttackableTargetGoalAccess targetState(){return (MobGoalCheckpointAccess.NearestAttackableTargetGoalAccess)playerTarget;}
+        MobGoalCheckpointAccess.TemptGoalAccess temptationState(){return (MobGoalCheckpointAccess.TemptGoalAccess)cachedTempt;}
         Fixture(GameController game) {
             this.game=game;frozen=game.server().tickRateManager().isFrozen();
             require(!frozen&&game.playing()&&!game.maps().busy()&&game.server().getPlayerList().getPlayer(id)==null,"exclusive real match and owned Gamma");
@@ -137,16 +148,16 @@ public final class VanityActorChecks {
             skeleton=add(new Skeleton(EntityTypes.SKELETON,base.owner.level()),at.add(0,0,5));skeleton.setTarget(gamma);
             if(MatchMobGoals.enabled()) {
                 rangedMob=add(new net.minecraft.world.entity.animal.golem.SnowGolem(EntityTypes.SNOW_GOLEM,base.owner.level()),at.add(0,0,7));
-                var selector=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"goalSelector");
+                var selector=selectors(rangedMob).skywars2$goalGoalSelector();
                 selector.removeAllGoals(goal->true);
-                var targets=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"targetSelector");targets.removeAllGoals(goal->true);
+                var targets=selectors(rangedMob).skywars2$goalTargetSelector();targets.removeAllGoals(goal->true);
                 playerTarget=new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<>(rangedMob,ServerPlayer.class,0,false,false,(entity,level)->entity.getUUID().equals(id));
                 targets.addGoal(1,playerTarget);targets.tick();
-                require(WoolBucketChecks.read(playerTarget,"target")==gamma,"native target search really caches the current player");
+                require(targetState().skywars2$goalTarget()==gamma,"native target search really caches the current player");
                 rangedGoal=new net.minecraft.world.entity.ai.goal.RangedAttackGoal(rangedMob,1,20,20,10);
                 selector.addGoal(1,rangedGoal);rangedMob.setTarget(gamma);selector.tick();
-                require(WoolBucketChecks.read(rangedGoal,"target")==gamma&&selector.getAvailableGoals().iterator().next().isRunning(),"actual native ranged goal caches the real captured player body");
-                rangedDelay=(Integer)WoolBucketChecks.read(rangedGoal,"attackTime");rangedVisibility=(Integer)WoolBucketChecks.read(rangedGoal,"seeTime");
+                require(rangedState().skywars2$goalTarget()==gamma&&selector.getAvailableGoals().iterator().next().isRunning(),"actual native ranged goal caches the real captured player body");
+                rangedDelay=rangedState().skywars2$goalAttackTime();rangedVisibility=rangedState().skywars2$goalSeeTime();
             }
             shot=add(new Snowball(EntityTypes.SNOWBALL,base.owner.level()),at.add(0,1,2));shot.setOwner(gamma);shot.setDeltaMovement(motion);
             unowned=add(new Snowball(EntityTypes.SNOWBALL,base.owner.level()),at.add(1,2,2));unowned.setDeltaMovement(Vec3.ZERO);
@@ -154,16 +165,16 @@ public final class VanityActorChecks {
             if(rangedMob!=null){
                 var tempted=add(new Cow(EntityTypes.COW,base.owner.level()),at.add(0,0,6));
                 cachedTempt=new net.minecraft.world.entity.ai.goal.TemptGoal(tempted,1,stack->stack.is(Items.FISHING_ROD),false);
-                var selector=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(tempted,"goalSelector");selector.removeAllGoals(goal->true);selector.addGoal(1,cachedTempt);
-                require(cachedTempt.canUse()&&WoolBucketChecks.read(cachedTempt,"player")==gamma,"actual native temptation caches only the player holding the qualifying rod");
+                var selector=selectors(tempted).skywars2$goalGoalSelector();selector.removeAllGoals(goal->true);selector.addGoal(1,cachedTempt);
+                require(cachedTempt.canUse()&&temptationState().skywars2$goalPlayer()==gamma,"actual native temptation caches only the player holding the qualifying rod");
             }
-            pearl=add(new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(EntityTypes.ENDER_PEARL,base.owner.level()),at.add(0,2,2));
-            pearl.setOwner(gamma);pearl.setDeltaMovement(Vec3.ZERO);field(pearl,"ticketTimer",37L);
-            distantPearl=add(new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(EntityTypes.ENDER_PEARL,game.server().getLevel(Level.NETHER)),new Vec3(.5,200,.5));
-            distantPearl.setOwner(gamma);distantPearl.setDeltaMovement(Vec3.ZERO);field(distantPearl,"ticketTimer",41L);
-            hook=add(new net.minecraft.world.entity.projectile.FishingHook(gamma,base.owner.level(),2,3),at.add(0,2,-2));hook.setDeltaMovement(Vec3.ZERO);
+            pearl=add(new ThrownEnderpearl(EntityTypes.ENDER_PEARL,base.owner.level()),at.add(0,2,2));
+            pearl.setOwner(gamma);pearl.setDeltaMovement(Vec3.ZERO);enderpearl(pearl).skywars2$runtimeTicketTimer(37L);
+            distantPearl=add(new ThrownEnderpearl(EntityTypes.ENDER_PEARL,game.server().getLevel(Level.NETHER)),new Vec3(.5,200,.5));
+            distantPearl.setOwner(gamma);distantPearl.setDeltaMovement(Vec3.ZERO);enderpearl(distantPearl).skywars2$runtimeTicketTimer(41L);
+            hook=add(new FishingHook(gamma,base.owner.level(),2,3),at.add(0,2,-2));hook.setDeltaMovement(Vec3.ZERO);
             ((me.skywars2.mixin.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(gamma);
-            field(hook,"life",123);field(hook,"nibble",17);field(hook,"timeUntilLured",67);field(hook,"timeUntilHooked",29);field(hook,"fishAngle",.75F);
+            fishing(hook).skywars2$runtimeLife(123);fishing(hook).skywars2$runtimeNibble(17);fishing(hook).skywars2$runtimeTimeUntilLured(67);fishing(hook).skywars2$runtimeTimeUntilHooked(29);fishing(hook).skywars2$runtimeFishAngle(.75F);
             tnt=add(new PrimedTnt(base.owner.level(),at.x+6,at.y,at.z,null),at.add(6,0,0));tnt.setFuse(120);tnt.setDeltaMovement(Vec3.ZERO);
             var stack=new ItemStack(Items.EMERALD,23);stack.set(DataComponents.CUSTOM_NAME,Component.literal("Saved actor item"));
             item=add(new ItemEntity(base.owner.level(),at.x-6,at.y,at.z,stack),at.add(-6,0,0));item.setDeltaMovement(Vec3.ZERO);
@@ -200,9 +211,9 @@ public final class VanityActorChecks {
             if(combat.skywars2$kinetic()!=null)combat.skywars2$kinetic().clear();
             cow.getCombatTracker().recordDamage(cow.damageSources().generic(),99);gamma.getCombatTracker().recordDamage(gamma.damageSources().generic(),99);
             hook.setOwner(base.other);((me.skywars2.mixin.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(base.other);
-            field(hook,"life",900);field(hook,"nibble",1);field(hook,"timeUntilLured",2);field(hook,"timeUntilHooked",3);field(hook,"fishAngle",2F);
-            pearl.setOwner(base.other);field(pearl,"ticketTimer",1L);
-            distantPearl.setOwner(base.other);field(distantPearl,"ticketTimer",2L);unowned.setOwner(gamma);
+            fishing(hook).skywars2$runtimeLife(900);fishing(hook).skywars2$runtimeNibble(1);fishing(hook).skywars2$runtimeTimeUntilLured(2);fishing(hook).skywars2$runtimeTimeUntilHooked(3);fishing(hook).skywars2$runtimeFishAngle(2F);
+            pearl.setOwner(base.other);enderpearl(pearl).skywars2$runtimeTicketTimer(1L);
+            distantPearl.setOwner(base.other);enderpearl(distantPearl).skywars2$runtimeTicketTimer(2L);unowned.setOwner(gamma);
             gamma.stopRiding();rider.stopRiding();cow.removeLeash();knot.discard();
             cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
             require(cow.hurtServer(base.owner.level(),cow.damageSources().genericKill(),10000)&&cow.isDeadOrDying(),"actual lethal native cow damage");cow.remove(Entity.RemovalReason.KILLED);
@@ -250,13 +261,13 @@ public final class VanityActorChecks {
                     "kinetic target identities/relative ages/default and native weapon stack alias restored");
             for(var e:List.of(cow,tethered,knot,rider,vehicle,skeleton,shot,unowned,pearl,hook,tnt,item))require(!e.isRemoved()&&level.getEntity(e.getUUID())==e&&level.getEntity(e.getId())==e,"same original instance in native UUID and ID registries: "+e.getType());
             require(!distantPearl.isRemoved()&&distantPearl.level()==game.server().getLevel(Level.NETHER)&&distantPearl.getOwner()==gamma
-                    &&field(distantPearl,"ticketTimer").equals(41L)&&unowned.getOwner()==null,"cross-dimension native pearl and originally ownerless projectile restored");
+                    &&enderpearl(distantPearl).skywars2$runtimeTicketTimer()==41L&&unowned.getOwner()==null,"cross-dimension native pearl and originally ownerless projectile restored");
             require(gamma.getEnderPearls().equals(Set.of(pearl,distantPearl))&&pearl.getOwner()==gamma&&gamma.fishing==hook&&hook.getPlayerOwner()==gamma&&hook.getHookedIn()==gamma,
                     "native player pearl/fishing ledgers and hooked target bind actual respawned player");
             require(retiredPlayer.getEnderPearls().isEmpty()&&retiredPlayer.fishing==null&&!base.other.getEnderPearls().contains(pearl)&&base.other.fishing!=hook,
                     "retired player and future owner retain no stale native ledgers");
-            require(field(pearl,"ticketTimer").equals(37L)&&field(hook,"life").equals(123)&&field(hook,"nibble").equals(17)
-                    &&field(hook,"timeUntilLured").equals(67)&&field(hook,"timeUntilHooked").equals(29)&&field(hook,"fishAngle").equals(.75F),"unsaved native fishing counters and pearl ticket countdown restored");
+            require(enderpearl(pearl).skywars2$runtimeTicketTimer()==37L&&fishing(hook).skywars2$runtimeLife()==123&&fishing(hook).skywars2$runtimeNibble()==17
+                    &&fishing(hook).skywars2$runtimeTimeUntilLured()==67&&fishing(hook).skywars2$runtimeTimeUntilHooked()==29&&fishing(hook).skywars2$runtimeFishAngle()==.75F,"unsaved native fishing counters and pearl ticket countdown restored");
             require(packets().stream().filter(ClientboundAddEntityPacket.class::isInstance).map(ClientboundAddEntityPacket.class::cast)
                     .anyMatch(p->p.getId()==hook.getId()&&p.getData()==gamma.getId()),"hook re-pair packet embeds CURRENT native owner ID");
             require(cow.isAlive()&&cow.getHealth()==55&&cow.getAttributeValue(Attributes.MAX_HEALTH)==60&&cow.getItemBySlot(EquipmentSlot.MAINHAND).getCount()==13
@@ -267,14 +278,14 @@ public final class VanityActorChecks {
             require(vehicle.getPassengers().stream().map(Entity::getUUID).toList().equals(passengerOrder)&&vehicle.getPassengers().contains(gamma)
                     &&rider.getVehicle()==vehicle&&gamma.getVehicle()==vehicle,"ordered native passenger graph uses current player body: "+vehicle.getPassengers());
             require(skeleton.getTargetUnchecked()==gamma&&shot.getOwner()==gamma&&cow.getLeashHolder()==gamma&&cow.getLeashData().angularMomentum==.37,"mob target/projectile owner/leash resolve current UUID session");
-            if(rangedMob!=null)require(rangedMob.getTargetUnchecked()==gamma&&WoolBucketChecks.read(rangedGoal,"target")==gamma,
+            if(rangedMob!=null)require(rangedMob.getTargetUnchecked()==gamma&&rangedState().skywars2$goalTarget()==gamma,
                     "ranged private cache follows the genuine replacement player body, not the removed captured body");
-            if(playerTarget!=null)require(WoolBucketChecks.read(playerTarget,"target")==gamma,
+            if(playerTarget!=null)require(targetState().skywars2$goalTarget()==gamma,
                     "native target-search cache follows the genuine replacement and login body");
-            if(cachedTempt!=null)require(WoolBucketChecks.read(cachedTempt,"player")==gamma,
+            if(cachedTempt!=null)require(temptationState().skywars2$goalPlayer()==gamma,
                     "shared task-field reference binding follows the genuine player replacement and login body");
-            if(rangedMob!=null)require((Integer)WoolBucketChecks.read(rangedGoal,"attackTime")==rangedDelay&&
-                    (Integer)WoolBucketChecks.read(rangedGoal,"seeTime")==rangedVisibility,"canonical target binding does not restart native ranged counters");
+            if(rangedMob!=null)require(rangedState().skywars2$goalAttackTime()==rangedDelay&&
+                    rangedState().skywars2$goalSeeTime()==rangedVisibility,"canonical target binding does not restart native ranged counters");
             require(tethered.getLeashHolder()==knot&&tethered.getLeashData().angularMomentum==.19,"native fence-pos leash codec rebinds original knot immediately, without manufacturing another knot");
             require(shot.position().equals(at.add(0,1,2))&&shot.getDeltaMovement().equals(motion)&&shot.level()==level&&alias.isRemoved()
                     &&game.server().getLevel(Level.NETHER).getEntity(shot.getUUID())==null,"native dimension alias removed, original projectile and raw motion restored: phase="+phase+", pos="+shot.position()+", motion="+shot.getDeltaMovement()+", aliasRemoved="+alias.isRemoved());
@@ -300,16 +311,16 @@ public final class VanityActorChecks {
                         "offline native target/owner/leash/rider remains explicit pending UUID, old logout-body ledgers cleared");
                 if(rangedMob!=null) {
                     require(actors.restoreLinksFrozen(Set.of(id)).isEmpty(),"explicit native absent-player policy resolves offline goal dependency");
-                    var selector=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"goalSelector");
-                    require(rangedMob.getTargetUnchecked()==null&&WoolBucketChecks.read(rangedGoal,"target")==null&&
+                    var selector=selectors(rangedMob).skywars2$goalGoalSelector();
+                    require(rangedMob.getTargetUnchecked()==null&&rangedState().skywars2$goalTarget()==null&&
                             selector.getAvailableGoals().stream().noneMatch(goal->goal.getGoal()==rangedGoal&&goal.isRunning()),
                             "absent target cache is cleared only with its running task retired");
-                    var targets=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"targetSelector");
-                    require(WoolBucketChecks.read(playerTarget,"target")==null&&targets.getAvailableGoals().stream().noneMatch(goal->goal.getGoal()==playerTarget&&goal.isRunning()),
+                    var targets=selectors(rangedMob).skywars2$goalTargetSelector();
+                    require(targetState().skywars2$goalTarget()==null&&targets.getAvailableGoals().stream().noneMatch(goal->goal.getGoal()==playerTarget&&goal.isRunning()),
                             "intentional player absence also retires native target selection and its cached player");
-                    require(WoolBucketChecks.read(cachedTempt,"player")==null&&!cachedTempt.isRunning(),"intentional player absence clears the common task's cached player safely");
+                    require(temptationState().skywars2$goalPlayer()==null&&!cachedTempt.isRunning(),"intentional player absence clears the common task's cached player safely");
                     selector.tickRunningGoals(false);
-                    require((Integer)WoolBucketChecks.read(rangedGoal,"attackTime")==-1,"absent task cannot shoot on the native half-step");
+                    require(rangedState().skywars2$goalAttackTime()==-1,"absent task cannot shoot on the native half-step");
                 }
                 // Configuration's native loaders deserialize the actual logout file. Do this
                 // before actor replay, with disconnected actors absent, so UUID aliases really spawn.
@@ -340,8 +351,6 @@ public final class VanityActorChecks {
             }finally{game.server().getLevel(Level.NETHER).getChunkSource().removeTicketWithRadius(resident,new net.minecraft.world.level.ChunkPos(0,0),0);game.server().tickRateManager().setFrozen(frozen);}
         }
     }
-    private static Object field(Entity entity,String name){try{var f=entity.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(entity);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
-    private static void field(Entity entity,String name,Object value){try{var f=entity.getClass().getDeclaredField(name);f.setAccessible(true);f.set(entity,value);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
     public static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.init();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
     public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS vanity-actors (same native body identities after real death/dimension replacement, raw motion/transient attributes/hidden effects/owned leases, current-player owner/target/leash and ordered riders, item/TNT state, future removal without death-effect spawning, native registry/tracker packets, repeated restoration across real ticks; private AI/service/world coordinator remains gated)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL vanity-actors",error);}}
 }
