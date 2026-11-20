@@ -139,7 +139,24 @@ public final class MetalPipeChecks {
                 attributedMobHits(before+1);
                 var fatal=cow(landing.add(0,0,2));fatal.setHealth(1);var deathBefore=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getEntitiesOfClass(Entity.class,fatal.getBoundingBox().inflate(3)).forEach(deathBefore::add);require(fatal.hurtServer(level,level.damageSources().playerAttack(owner),1)&&!fatal.isAlive()&&sounds(2,2).size()==before+2,"fatal native damage retains the melee sound");for(var drop:level.getEntitiesOfClass(Entity.class,fatal.getBoundingBox().inflate(3),actor->!deathBefore.contains(actor)&&(actor instanceof ItemEntity||actor instanceof net.minecraft.world.entity.ExperienceOrb)))actors.add(drop);var ordinary=cow(landing.add(0,0,2));owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);require(ordinary.hurtServer(level,level.damageSources().playerAttack(owner),1)&&sounds(2,2).size()==before+2,"independent ordinary accepted hit emits no pipe sound");clearActors();owner.getInventory().clearContent();source=item(pipe.copyWithCount(2),landing.add(0,3,0),false);far=item(raw("greed_greed").copyWithCount(3),landing.add(.5,3,0),false);write(service,"phase",0);boundary=now;stage=40;return false;
             }
-            if(stage==40){int elapsed=now-boundary;if(elapsed<5){require(!source.isRemoved()&&!far.isRemoved(),"ground craft waits for real five-tick pulse");return false;}require(elapsed==5&&source.isRemoved()&&far.isRemoved(),"source ground craft consumes both entire stacked entities");gatherNewItems();var outputs=actors.stream().filter(ItemEntity.class::isInstance).map(ItemEntity.class::cast).filter(item->!item.isRemoved()).toList();require(outputs.size()==1&&LbcMetalPipe.divider(outputs.getFirst().getItem())&&outputs.getFirst().getItem().getCount()==1,"ground recipe emits one actual native Metal Divider");clearActors();stage=5;boundary=now;return false;}
+            if(stage==40){
+                int elapsed=now-boundary;
+                if(elapsed<20){
+                    require(!source.isRemoved()&&!far.isRemoved(),"ground craft waits for the source one-second pulse");
+                    return false;
+                }
+                require(elapsed==20&&source.isRemoved()&&far.isRemoved(),
+                        "source ground craft consumes both entire stacked entities on the twentieth tick");
+                gatherNewItems();
+                var outputs=actors.stream().filter(ItemEntity.class::isInstance).map(ItemEntity.class::cast)
+                        .filter(item->!item.isRemoved()).toList();
+                require(outputs.size()==1&&LbcMetalPipe.divider(outputs.getFirst().getItem())
+                        &&outputs.getFirst().getItem().getCount()==1,"ground recipe emits one actual native Metal Divider");
+                clearActors();
+                stage=5;
+                boundary=now;
+                return false;
+            }
             if(stage==5){
                 falling=item(pipe,landing.add(0,4,0),true);game.items().timeStop().begin(level,20);stopped=true;boundary=now;landingSounds=sounds(4,1).size();next();return false;
             }

@@ -180,7 +180,7 @@ public final class LbcMetalPipe {
             if(game.items().wands().inputTimeStopped(player))continue;
             int ticks=timers.get(player)+1;if(ticks==20){game.items().mana().score(player,"metal_divider_cd").add(-1);ticks=0;}timers.put(player,ticks);
         }
-        phase=(phase+1)%5;if(phase==0)groundCraft();
+        phase=(phase+1)%20;if(phase==0)groundCraft();
     }
     public void forget(ServerPlayer player){timers.remove(player);game.items().mana().score(player,"metal_divider_cd").set(0);}
     public void stop(){for(var item:List.copyOf(pipes.keySet()))item.discard();pipes.clear();craftPipes.removeIf(Entity::isRemoved);items.removeIf(Entity::isRemoved);for(var player:List.copyOf(timers.keySet()))forget(player);phase=0;}
