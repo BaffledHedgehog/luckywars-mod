@@ -21,12 +21,15 @@ import net.minecraft.world.phys.Vec3;
 public final class LbcTechnoFlight {
     static final Identifier GRAVITY_ONE=Identifier.parse("minecraft:gravity_mk2armor_fix1");
     static final Identifier GRAVITY_TWO=Identifier.parse("minecraft:gravity_mk2armor_fix2");
+    static final Identifier HOVER_AIR_BRAKE=Identifier.parse("skywars2:techno_mk2_hover_air_brake");
     static final String FLIGHT_OWNER="technomk2-flight", LANDING_OWNER="technomk2-landing";
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final class Flight {
         final ServerLevel level;
         int delay=2;
         int fuelHalf;
+        int airBrakeTicks;
+        boolean verticalThrust;
         Flight(ServerLevel level){this.level=level;}
     }
     private final GameController game;
@@ -53,7 +56,17 @@ public final class LbcTechnoFlight {
     }
     private void removeFlightPhysics(ServerPlayer player){
         gravity(player,GRAVITY_ONE,null);gravity(player,GRAVITY_TWO,null);
+        hoverAirBrake(player,false);
         game.items().ownedEffects().withdraw(player,FLIGHT_OWNER);
+    }
+    private static void hoverAirBrake(ServerPlayer player,boolean enabled){
+        var attribute=player.getAttribute(Attributes.AIR_DRAG_MODIFIER);
+        if(attribute==null)return;
+        var previous=attribute.getModifier(HOVER_AIR_BRAKE);
+        if(enabled&&previous==null){
+            // The unmodified client uses this synced attribute when damping vertical motion.
+            attribute.addTransientModifier(new AttributeModifier(HOVER_AIR_BRAKE,64,AttributeModifier.Operation.ADD_VALUE));
+        }else if(!enabled&&previous!=null)attribute.removeModifier(HOVER_AIR_BRAKE);
     }
     private static void sound(ServerPlayer player,String name,float volume,float pitch){
         LbcOverload.sound(player,"minecraft:lbcsounds."+name,volume,pitch,0);
@@ -98,10 +111,19 @@ public final class LbcTechnoFlight {
     }
     private void run(ServerPlayer player,Flight flight){
         int pitch=(int)Math.floor(player.getXRot());
+        boolean ascending=pitch>=-90&&pitch<=-75;
+        boolean descending=pitch>=75&&pitch<=90;
+        boolean verticalThrust=ascending||descending;
+        if(verticalThrust)flight.airBrakeTicks=0;
+        else if(flight.verticalThrust)flight.airBrakeTicks=2;
+        flight.verticalThrust=verticalThrust;
+        hoverAirBrake(player,flight.airBrakeTicks>0);
+        if(flight.airBrakeTicks>0)flight.airBrakeTicks--;
+
         int cost=0;
-        if(pitch>=-90&&pitch<=-75){up(player);cost=10;}
+        if(ascending){up(player);cost=10;}
         else if(pitch>=-74&&pitch<=74){hover(player);cost=1;}
-        else if(pitch>=75&&pitch<=90)down(player);
+        else if(descending)down(player);
         boolean boost=player.isSprinting()&&piece(player,EquipmentSlot.CHEST,"technomk2");
         if(boost){
             var motion=player.getDeltaMovement();var heading=Vec3.directionFromRotation(0,player.getYRot()).scale(.02);
@@ -203,12 +225,18 @@ public final class LbcTechnoFlight {
     ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
     void prepareResidentFrozen(){flights.clear();}
     final class ResidentCheckpoint {
-        private record Image(MatchDamageSources.Ref owner,ServerLevel level,int delay,int fuelHalf){}
+        private record Image(MatchDamageSources.Ref owner,ServerLevel level,int delay,int fuelHalf,
+                             int airBrakeTicks,boolean verticalThrust){}
         private final java.util.List<Image> saved;
-        ResidentCheckpoint(MatchSpellCheckpoint.Links links){saved=flights.entrySet().stream().map(e->new Image(links.key(e.getKey()),e.getValue().level,e.getValue().delay,e.getValue().fuelHalf)).toList();}
+        ResidentCheckpoint(MatchSpellCheckpoint.Links links){saved=flights.entrySet().stream().map(e->{
+            var flight=e.getValue();
+            return new Image(links.key(e.getKey()),flight.level,flight.delay,flight.fuelHalf,flight.airBrakeTicks,flight.verticalThrust);
+        }).toList();}
         Runnable prepare(MatchSpellCheckpoint.Links links){
             var next=new IdentityHashMap<ServerPlayer,Flight>();for(var image:saved){MatchAuthorityCheckpoint.world(game,image.level);
-                var flight=new Flight(image.level);flight.delay=image.delay;flight.fuelHalf=image.fuelHalf;next.put((ServerPlayer)links.get(image.owner),flight);}
+                var flight=new Flight(image.level);flight.delay=image.delay;flight.fuelHalf=image.fuelHalf;
+                flight.airBrakeTicks=image.airBrakeTicks;flight.verticalThrust=image.verticalThrust;
+                next.put((ServerPlayer)links.get(image.owner),flight);}
             return ()->{flights.clear();flights.putAll(next);};
         }
     }
