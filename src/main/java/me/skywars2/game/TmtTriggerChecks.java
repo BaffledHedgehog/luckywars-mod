@@ -179,6 +179,45 @@ public final class TmtTriggerChecks {
             remaining.setInt(f.owner,source.getUseDuration(f.owner)-20);
         }catch(ReflectiveOperationException failure){throw new IllegalStateException("native weapon windup fixture",failure);}
     }
+    private static void miningOwnership(WoolBucketChecks.Fixture f,BlockPos pos){
+        var mana=f.game.items().mana();
+        var ordinary=new ItemStack(Items.IRON_PICKAXE);
+        rememberUseStat(f,ordinary);
+        var broken=Stats.ITEM_BROKEN.get(Items.IRON_PICKAXE);
+        f.usedStats.putIfAbsent(broken,f.owner.getStats().getValue(broken));
+        var offhand=fire(4,LbcTmtTriggers.Input.MINING);
+
+        for(var tool:List.of(ordinary,fire(new ItemStack(Items.IRON_PICKAXE),LbcTmtTriggers.Input.JUMP))){
+            f.owner.setItemInHand(InteractionHand.MAIN_HAND,tool);
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,offhand);
+            mana.set(f.owner,1000);
+            var mined=mine(f,pos);
+            require(tool.getDamageValue()==1&&f.owner.getMainHandItem()==tool&&f.owner.getOffhandItem()==offhand
+                    &&mined.stream().noneMatch(SmallFireball.class::isInstance)&&mana.get(f.owner)==1000,
+                    "successful native mining with "+(tool==ordinary?"ordinary main hand":"TMT main hand")+" cannot execute the unused offhand property");
+            mined.forEach(f::discard);
+        }
+
+        for(boolean last:List.of(false,true)){
+            var tool=fire(new ItemStack(Items.IRON_PICKAXE),LbcTmtTriggers.Input.MINING);
+            if(last)tool.setDamageValue(tool.getMaxDamage()-1);
+            f.owner.setItemInHand(InteractionHand.MAIN_HAND,tool);
+            f.owner.setItemInHand(InteractionHand.OFF_HAND,offhand);
+            mana.set(f.owner,1000);
+            var mined=mine(f,pos);
+            require(mined.stream().filter(SmallFireball.class::isInstance).count()==3&&mana.get(f.owner)==900
+                    &&f.owner.getOffhandItem()==offhand&&(last?tool.isEmpty()&&f.owner.getMainHandItem().isEmpty()
+                    :tool.getDamageValue()==1&&f.owner.getMainHandItem()==tool),
+                    "the physical main-hand mining property runs once with exact native wear, last="+last);
+            mined.forEach(f::discard);
+        }
+    }
+    private static List<Entity> mine(WoolBucketChecks.Fixture f,BlockPos pos){
+        f.set(pos,Blocks.STONE.defaultBlockState());
+        var before=bodies(f);
+        require(f.owner.gameMode.destroyBlock(pos)&&f.level.getBlockState(pos).isAir(),"actual native stone destruction");
+        return fresh(f,before);
+    }
     @SuppressWarnings("unchecked")
     private static void rejectNextRegistration(WoolBucketChecks.Fixture f,Runnable launch){
         try{
@@ -272,7 +311,8 @@ public final class TmtTriggerChecks {
                 before=bodies(f);var rawSource=f.owner.damageSources().playerAttack(f.owner);
                 rawTarget.getCombatTracker().recordDamage(rawSource,rawTarget.getHealth());rawTarget.setHealth(0);rawTarget.die(rawSource);
                 require(mana.get(f.owner)==1000&&fresh(f,before).stream().noneMatch(SmallFireball.class::isInstance),"raw HP death does not fabricate a HIT missing from the same nonlethal source");
-                var pos=BlockPos.containing(f.owner.position().add(1,-1,0));f.set(pos,Blocks.STONE.defaultBlockState());
+                var pos=BlockPos.containing(f.owner.position().add(1,-1,0));
+                miningOwnership(f,pos);f.set(pos,Blocks.STONE.defaultBlockState());
                 cast(f,fire(0,LbcTmtTriggers.Input.MINING),()->require(f.owner.gameMode.destroyBlock(pos),"actual successful native block destruction"));
                 f.set(pos,Blocks.STONE.defaultBlockState());var blockItem=fire(0,LbcTmtTriggers.Input.BLOCK_USE);
                 cast(f,blockItem,()->f.owner.gameMode.useItemOn(f.owner,f.level,blockItem,InteractionHand.MAIN_HAND,new BlockHitResult(Vec3.atCenterOf(pos),Direction.UP,pos,false)));

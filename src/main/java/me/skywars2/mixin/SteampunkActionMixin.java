@@ -35,7 +35,7 @@ public abstract class SteampunkActionMixin {
             if(game==null||!LbcTmtTools.blockCandidate(held)||player.level().getBlockState(pos).isAir())return original.call(pos);
             // The last legitimate use can consume the tool; retain the accepted source stack.
             var tool=held.copy();var before=player.level().getBlockState(pos);boolean broken=original.call(pos);
-            if(broken&&player.level().getBlockState(pos)!=before)LbcTmtTools.broken(game,player,tool,pos,before);
+            if(broken&&player.level().getBlockState(pos)!=before)LbcTmtTools.broken(game,player,held,tool,pos,before);
             return broken;
         }
     }

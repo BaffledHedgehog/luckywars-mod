@@ -32,9 +32,9 @@ public final class LbcTmtTools {
         }
     }
     /** Called only after the real destroyBlock succeeds; source was captured before final durability debit. */
-    public static void broken(GameController game,ServerPlayer owner,ItemStack source,BlockPos pos,BlockState before){
+    public static void broken(GameController game,ServerPlayer owner,ItemStack physical,ItemStack source,BlockPos pos,BlockState before){
         game.items().genie().runtime().event(owner,me.skywars2.game.genie.GenieBlueprint.Trigger.MINING,null,source,net.minecraft.world.InteractionHand.MAIN_HAND);
-        LbcTmtTriggers.captured(owner,LbcTmtTriggers.Input.MINING,source,net.minecraft.world.InteractionHand.MAIN_HAND,null,pos,before);
+        LbcTmtTriggers.acceptedMining(owner,physical,source,pos,before);
         if(!LbcTmtItems.matches(source)){brokenOwners(game,owner,source,pos,before);return;}
         for(var property:LbcTmtTriggers.effective(source))LbcTmtAbilities.invoke(source,property.id(),()->{
             brokenOwners(game,owner,source,pos,before);return true;

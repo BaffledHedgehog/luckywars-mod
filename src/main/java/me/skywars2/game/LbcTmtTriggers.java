@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 
 /** Input routing only. All costs, suppression, payloads and output factories remain native. */
@@ -37,15 +39,6 @@ public final class LbcTmtTriggers {
         var view=heldView.get();if(view==null||view.owner!=owner)return null;
         var expected=view.hand==InteractionHand.MAIN_HAND?net.minecraft.world.entity.EquipmentSlot.MAINHAND:net.minecraft.world.entity.EquipmentSlot.OFFHAND;
         return slot==expected?view.source:null;
-    }
-    /** A final accepted shot/break can retire its physical carrier before continuation.
-     * Expose its captured source to native readers only; never swap inventory slots.
-     */
-    static void captured(ServerPlayer owner,Input input,ItemStack source,InteractionHand hand,Entity target,
-                         net.minecraft.core.BlockPos block,net.minecraft.world.level.block.state.BlockState before){
-        if(!modern(source)||!owner.getItemInHand(hand).isEmpty()){input(owner,input,target,block,before);return;}
-        var previous=heldView.get();heldView.set(new HeldView(owner,hand,source));
-        try{input(owner,input,target,block,before);}finally{if(previous==null)heldView.remove();else heldView.set(previous);}
     }
     public static boolean suppressUseModifier(Entity entity){var selected=selection.get();return selected!=null&&selected.action==Action.USE&&inputOwner.get()==entity&&origin.get()!=Input.RIGHT_CLICK&&origin.get()!=Input.BLOCK_USE;}
     private record Stamp(UUID player,ItemStack stack,String property,Action action){}
@@ -144,26 +137,30 @@ public final class LbcTmtTriggers {
     public static void acceptedThrow(LivingEntity thrower,InteractionHand hand,ItemStack physical,ItemStack source,Projectile projectile){
         if(!(thrower instanceof ServerPlayer owner)||!modern(source)||!throwable(LbcTmtItems.vanillaCarrier(source))
                 ||projectile.isRemoved()||projectile.getOwner()!=owner||owner.level().getEntity(projectile.getUUID())!=projectile)return;
-        acceptedCarrier(owner,Input.THROW,hand,physical,source);
+        acceptedCarrier(owner,Input.THROW,hand,physical,source,null,null);
     }
     static void consumed(ServerPlayer owner,ItemStack source){
         if(!modern(source))return;
         var used=owner.getUsedItemHand();
         // Native instant consumption does not set the active hand. Check the actual stack identity.
         if(owner.getItemInHand(used)!=source)used=used==InteractionHand.MAIN_HAND?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND;
-        acceptedCarrier(owner,Input.EAT,used,source,source);
+        acceptedCarrier(owner,Input.EAT,used,source,source,null,null);
     }
     static void acceptedShot(ServerPlayer owner,InteractionHand hand,ItemStack physical,ItemStack fired){
-        acceptedCarrier(owner,Input.SHOT,hand,physical,fired);
+        acceptedCarrier(owner,Input.SHOT,hand,physical,fired,null,null);
     }
-    private static void acceptedCarrier(ServerPlayer owner,Input event,InteractionHand hand,ItemStack physical,ItemStack source){
+    static void acceptedMining(ServerPlayer owner,ItemStack physical,ItemStack source,BlockPos block,BlockState before){
+        if(modern(source))acceptedCarrier(owner,Input.MINING,InteractionHand.MAIN_HAND,physical,source,block,before);
+    }
+    private static void acceptedCarrier(ServerPlayer owner,Input event,InteractionHand hand,ItemStack physical,
+                                        ItemStack source,BlockPos block,BlockState before){
         var held=owner.getItemInHand(hand);
         if(held==physical&&!physical.isEmpty()){
-            input(owner,event,null,null,null,hand);
+            input(owner,event,null,block,before,hand);
         }else if(source!=physical&&physical.isEmpty()&&held.isEmpty()){
-            // A broken weapon or thrown trident can leave the hand before its accepted continuation.
+            // A broken item or thrown trident can leave the hand before its accepted continuation.
             var previous=heldView.get();heldView.set(new HeldView(owner,hand,source));
-            try{input(owner,event,null,null,null,hand);}
+            try{input(owner,event,null,block,before,hand);}
             finally{if(previous==null)heldView.remove();else heldView.set(previous);}
         }
     }
