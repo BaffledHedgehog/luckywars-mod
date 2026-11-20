@@ -271,7 +271,9 @@ public final class ScriptMachine {
     private static JsonElement get(JsonElement target,JsonElement key){
         if(target.isJsonObject()){var value=target.getAsJsonObject().get(text(key));return value==null?JsonNull.INSTANCE:value;}
         if(target.isJsonArray()){
-            int index=ScriptValues.number(key).intValueExact();var array=target.getAsJsonArray();
+            var array=target.getAsJsonArray();
+            if(isText(key)&&key.getAsString().equals("length"))return new JsonPrimitive(array.size());
+            int index=ScriptValues.number(key).intValueExact();
             return index>=0&&index<array.size()?array.get(index):JsonNull.INSTANCE;
         }
         if(target.isJsonNull())return JsonNull.INSTANCE;

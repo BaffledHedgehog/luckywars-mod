@@ -127,7 +127,9 @@ final class TikTokCache implements AutoCloseable {
                 }
             } catch(Exception failure){
                 Throwable cause=failure instanceof ExecutionException&&failure.getCause()!=null?failure.getCause():failure;
-                error=safeCode(cause.getMessage());retryAfter=wallNow+TimeUnit.SECONDS.toNanos(60);
+                String nextError=safeCode(cause.getMessage());
+                if(!nextError.equals(error))me.skywars2.SkyWars2.LOGGER.warn("TikTok media preparation failed ({})",nextError);
+                error=nextError;retryAfter=wallNow+TimeUnit.SECONDS.toNanos(60);
             }
             pending=null;pendingAudioId="";
             // A worker never publishes partial output; every failed/obsolete staging directory is disposable.
@@ -162,9 +164,14 @@ final class TikTokCache implements AutoCloseable {
             command.addAll(List.of("--palette",root.resolve("palette.json").toString(),"--cookies",cookies.toString(),"--exclude",exclude.toString()));
         }
         var builder=new ProcessBuilder(command);
+        String dependencies=System.getenv("SKYWARS_TIKTOK_PYTHONPATH");
+        if(dependencies!=null&&!dependencies.isBlank())builder.environment().put("PYTHONPATH",dependencies);
         builder.redirectError(ProcessBuilder.Redirect.DISCARD);
         // Only fixed status codes are read; subprocess/library diagnostics never reach server logs.
-        Process owned=builder.start();process=owned;
+        Process owned;
+        try{owned=builder.start();}
+        catch(IOException failure){throw new IOException("python_unavailable",failure);}
+        process=owned;
         try {
             if(!owned.waitFor(8,TimeUnit.MINUTES)){throw new IOException("worker_timeout");}
             byte[] status=owned.getInputStream().readNBytes(2048);
@@ -214,7 +221,9 @@ final class TikTokCache implements AutoCloseable {
         if(owned.isAlive())owned.destroyForcibly();
     }
     private static String safeCode(String code){
-        return code!=null&&Set.of("browser_missing","feed_unavailable","cache_full").contains(code)?code:"prepare_failed";
+        return code!=null&&Set.of("python_unavailable","dependencies_missing","browser_missing","feed_unavailable",
+                "download_failed","download_size","transcode_failed","cookies_invalid","cache_full","worker_timeout").contains(code)
+                ?code:"prepare_failed";
     }
     private void cancel(){
         var owned=process;if(owned!=null)destroy(owned);

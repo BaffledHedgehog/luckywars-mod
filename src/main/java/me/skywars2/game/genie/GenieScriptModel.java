@@ -15,6 +15,7 @@ import net.minecraft.core.HolderLookup;
 /** Builds each scripted wish on a worker, then verifies the model's observed tool result. */
 public final class GenieScriptModel implements AutoCloseable {
     public record Observation(String reply, List<JsonObject> executions) {}
+    static final class QuotaExceeded extends IOException {}
 
     @FunctionalInterface
     public interface Transport {
@@ -57,17 +58,41 @@ public final class GenieScriptModel implements AutoCloseable {
         var result = new CompletableFuture<GenieScriptReply>();
         var task = new FutureTask<Void>(() -> {
             String stage = "provider request";
+            Transport activeProvider = provider;
+            String rawReply = null;
             try {
                 var contract = contract();
-                var observation = provider.run(prompt(wish), GenieKnowledge.forScriptWish(wish, recent, lootLookup, context, nativeAbilities),
-                    ScriptJson.canonical(contract), verifier());
+                String prompt = prompt(wish);
+                String knowledge = GenieKnowledge.forScriptWish(wish, recent, lootLookup, context, nativeAbilities);
+                String schema = ScriptJson.canonical(contract);
+                byte[] verifier = verifier();
+                Observation observation;
+                try {
+                    observation = provider.run(prompt, knowledge, schema, verifier);
+                } catch (QuotaExceeded | GenieGeminiWebTransport.SessionFailure limited) {
+                    if (limited instanceof GenieGeminiWebTransport.SessionFailure session
+                            && session.issue != GenieGeminiWebTransport.SessionIssue.QUOTA_EXHAUSTED) throw limited;
+                    if (result.isCancelled() || Thread.currentThread().isInterrupted()) throw new InterruptedException();
+                    var fallback = GenieConfig.openAiFallback();
+                    if (fallback == null) throw limited;
+                    GenieWishAudit.record(wish, provider.getClass().getSimpleName(), null, "quota_fallback");
+                    activeProvider = fallback;
+                    observation = fallback.run(prompt, knowledge, schema, verifier);
+                }
+                rawReply = observation.reply;
                 stage = "response and verifier receipt";
-                result.complete(GenieScriptReply.read(observation.reply, observation.executions, contract));
+                var reply = GenieScriptReply.read(rawReply, observation.executions, contract);
+                if (!result.isCancelled()) {
+                    GenieWishAudit.record(wish, activeProvider.getClass().getSimpleName(), rawReply,
+                            reply instanceof GenieScriptReply.Grant ? "grant" : "reject");
+                    result.complete(reply);
+                }
             } catch (Exception failure) {
                 if (!result.isCancelled() && !(failure instanceof InterruptedException)) {
                     Object reason = failure instanceof GenieGeminiWebTransport.SessionFailure session
                             ? session.issue : failure.getClass().getSimpleName();
                     SkyWars2.LOGGER.warn("Genie {} failed ({})", stage, reason);
+                    GenieWishAudit.record(wish, activeProvider.getClass().getSimpleName(), rawReply, "failed:" + reason);
                 }
                 result.completeExceptionally(failure);
             }
@@ -129,7 +154,7 @@ public final class GenieScriptModel implements AutoCloseable {
             lbc.cast_at takes a script_targeted_casts ID and an absolute [x,y,z] target. It returns whether the ability was accepted. For an item that calls down the Oreshnik from Absolute Cinema, use skywars2:oreshnik here. A point chosen by the player's aim can come from world.raycast's end; use its loaded block result when the wish requires a surface. The native rocket flies to that point and releases its cluster itself. For the Exoperso ritual use skywars2:exoperso (340 ticks) or skywars2:academy_exoperso (180 ticks). The target stays fixed while thirty runes grow above it and the server prepares the native crater. These calls do not spend staff mana or grant staff achievements. For a hedgehog summon, choose the relevant variant and use an unobstructed feet position on the surface. These are the game's native mobs with their original attacks, allegiance and visuals. Use skywars2:gohei_spellcard for the red Fantasy Seal sphere (300 charge), skywars2:gohei_spellcard_full for 1500 charge, or skywars2:hakurei_bomb for the shrine's faster yellow bomb. The position is the center of the original damage, projectile clearing and visual; these calls do not require or spend staff charge. Use skywars2:danmaku_card or skywars2:danmaku_homing_card with lbc.cast for individual cards. For the Gohei of Reimu (Гохэй Рейму), use skywars2:danmaku_volley or skywars2:danmaku_offhand_volley for the original hand patterns, or skywars2:academy_danmaku_volley or skywars2:academy_danmaku_offhand_volley for the Academy patterns. A call schedules the full 20-tick sequence aimed from the supplied origin. Main and offhand patterns can play together and refer to the pattern shape, so neither requires holding a Gohei.
             Use lbc.cast_at with skywars2:psycho_area for the original random Psycho Wand effect within 30 blocks of the target. The fixed Academy options are skywars2:psycho_sound, skywars2:psycho_screamer, skywars2:psycho_look_back and skywars2:psycho_scare. The original targeting and low-health execution apply to all five, including the native unarmed ghost. These casts spend no staff mana and do not progress the Academy trial.
             For Void Arcanum (Око вечной тьмы), use lbc.cast_at with skywars2:void_arcanum for level 1, or skywars2:void_arcanum_level_2, skywars2:void_arcanum_level_3, skywars2:void_arcanum_level_4 and skywars2:void_arcanum_level_5. The optional third argument is a positive integer lifetime in active ticks (default 200). The native hole chases targets, pulls entities, hurts and erodes terrain, and can merge with other Void Arcanum holes. The temporary contribution is independent of the real Arcanum item and has no mana upkeep.
-            A real bow or crossbow can bind SHOT to act alongside its actual volley. Its projectiles array lists physical bodies in publication order after weapon conversions, with id (entity UUID), type, position and velocity. Pure beam shots have an empty projectiles array. Bind SHOT_REPLACE to shoot something else instead. This event supplies unpublished vanilla templates with type, position and velocity. The native draw, ammunition and wear still apply. For a bow that fires creepers, use SHOT_REPLACE and pass a volley's position and velocity to entity.launch with minecraft:creeper.
+            A real bow or crossbow can bind SHOT to act alongside its actual volley. Its projectiles array lists physical bodies in publication order after weapon conversions, with id (entity UUID), type, position and velocity. Pure beam shots have an empty projectiles array. Read an array's length with GET and the key "length"; use GET with a zero-based integer for an element. Bind SHOT_REPLACE to shoot something else instead. This event supplies unpublished vanilla templates with type, position and velocity. The native draw, ammunition and wear still apply. For a bow that fires creepers, use SHOT_REPLACE and pass each template's position and velocity to entity.launch with minecraft:creeper.
             For an instant-fire rifle, such as a requested M24, use a crossbow icon and bind USE_REPLACE. This replaces the item-in-air use in its actual hand, including vanilla loading and firing. The script owns any reload, ammunition or cooldown. Use combat.hitscan(event.eye_position,event.look,range,damage) for an instant shot. Range is in blocks (up to 1024); damage is in health points before armor. It respects solid geometry, mechanism jammers and normal combat targeting, plays the shot sound and returns whether damage was accepted. Read eye_position and look from the USE_REPLACE or USE event. A conventional crossbow that needs actual ammunition should bind SHOT or SHOT_REPLACE instead.
             THROW runs once on the exact used item after an accepted throw. It covers snowballs, eggs, ender pearls, wind charges, experience bottles, splash and lingering potions, thrown tridents, LuckyWars throwable fireballs, impulse darts and thrown utilities. It carries the real hand and one projectiles entry per spawned body, with id (entity UUID), type, position and velocity. A single throw can create a family of fireballs, pearls or TNT, or a thrown metal pipe item. It works on the last expendable item. Dropping on Q and riptide without a projectile are not THROW.
             HIT runs for the weapon that actually dealt an accepted native hit, including a lethal one. The event carries the victim UUID as target and the hand used to attack or launch. Native shots and throws that later hit also carry the real projectile in projectiles. Holding a second item or switching weapons during flight does not make that other item the attack source.

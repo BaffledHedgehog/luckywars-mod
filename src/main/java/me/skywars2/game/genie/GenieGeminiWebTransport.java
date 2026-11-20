@@ -34,6 +34,7 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
         ACCOUNT_UNTRUSTED("Gemini ограничил возможности этой сессии после проверки аккаунта."),
         ACCESS_TEMPORARILY_UNAVAILABLE("Gemini временно ограничил доступ для этой сессии."),
         ACCESS_RESTRICTED("Gemini отклонил доступ для этой сессии. Проверь доступ в веб-чате."),
+        QUOTA_EXHAUSTED("Лимит Gemini исчерпан."),
         PRO_UNAVAILABLE("В текущей сессии Gemini недоступна модель Pro."),
         ATTACHMENT_FAILED("Gemini не смог прочитать проверочный файл. Проверь загрузку файлов в веб-чате.");
 

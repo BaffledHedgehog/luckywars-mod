@@ -73,6 +73,18 @@ final class GenieConfig {
     }
 
     static Path apiPath() { return folder().resolve("api.json"); }
+    static Path fallbackPath() { return folder().resolve("openai-fallback.json"); }
+
+    static GenieScriptModel.Transport openAiFallback() {
+        try {
+            var settings = readApi(fallbackPath());
+            if (settings != null && settings.provider() == Provider.OPENAI) return settings.transport();
+        } catch (IOException | RuntimeException unreadable) {
+            SkyWars2.LOGGER.warn("Genie OpenAI fallback configuration could not be loaded");
+        }
+        String key = System.getenv(OPENAI_KEY);
+        return key == null || key.isBlank() ? null : new GenieOpenAiTransport(key.strip());
+    }
 
     static Api readApi(Path path) throws IOException {
         var data = readConfiguration(path);

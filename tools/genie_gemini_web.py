@@ -121,6 +121,7 @@ async def run(cookie, proxy):
     logger.remove()
     from gemini_webapi import GeminiClient
     from gemini_webapi.constants import AccountStatus
+    from gemini_webapi.exceptions import UsageLimitExceededError
 
     client = GeminiClient(cookie["__Secure-1PSID"], cookie["__Secure-1PSIDTS"], proxy=proxy)
     try:
@@ -146,6 +147,8 @@ async def run(cookie, proxy):
             client.watchdog_timeout = float("inf")
             return await wish(client, model)
         return await probe_attachment(client, model)
+    except UsageLimitExceededError as error:
+        raise SessionFailure("QUOTA_EXHAUSTED") from error
     finally:
         await client.close()
 

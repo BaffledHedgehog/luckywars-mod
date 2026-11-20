@@ -67,6 +67,7 @@ final class GenieGeminiTransport implements GenieScriptModel.Transport {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody(prompt, knowledge, contract, verifier).toString()))
                 .build();
         var response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        if (response.statusCode() == 429) throw new GenieScriptModel.QuotaExceeded();
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
             SkyWars2.LOGGER.warn("Genie Gemini returned HTTP {}", response.statusCode());
             throw new IOException("Gemini returned HTTP " + response.statusCode());
@@ -110,7 +111,9 @@ final class GenieGeminiTransport implements GenieScriptModel.Transport {
         var candidates = response.getAsJsonArray("candidates");
         if (candidates == null || candidates.isEmpty()) throw new IOException("Gemini did not return a candidate");
         var candidate = candidates.get(0).getAsJsonObject();
-        if (!candidate.has("finishReason") || !"STOP".equals(candidate.get("finishReason").getAsString())) {
+        String reason = candidate.has("finishReason") ? candidate.get("finishReason").getAsString() : "";
+        if ("MAX_TOKENS".equals(reason)) throw new GenieScriptModel.QuotaExceeded();
+        if (!"STOP".equals(reason)) {
             throw new IOException("Gemini response is incomplete");
         }
         var content = candidate.getAsJsonObject("content");

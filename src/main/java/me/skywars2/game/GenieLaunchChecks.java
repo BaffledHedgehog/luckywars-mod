@@ -45,6 +45,7 @@ final class GenieLaunchChecks {
             ["load","state"],["const","hand"],["load","event"],["const","hand"],["get"],["put"],["drop"],
             ["load","event"],["const","projectiles"],["get"],["store","volley"],
             ["load","state"],["const","volley"],["load","volley"],["put"],["drop"],
+            ["load","state"],["const","volley_length"],["load","volley"],["const","length"],["get"],["put"],["drop"],
             ["load","volley"],["const",0],["get"],["store","shot"],
             ["load","state"],["const","body"],["const","minecraft:creeper"],
             ["load","shot"],["const","position"],["get"],["load","shot"],["const","velocity"],["get"],
@@ -362,7 +363,8 @@ final class GenieLaunchChecks {
         base.own(body);
         require(state.get("hand").getAsString().equals(hand==InteractionHand.OFF_HAND?"offhand":"mainhand"),"replacement captures exact firing hand");
         var volley=state.getAsJsonArray("volley");
-        require(volley.size()==count,"one replacement event carries all native projectile samples");
+        require(volley.size()==count&&state.get("volley_length").getAsInt()==count,
+                "numeric indexing and the length property work for a native replacement volley");
         var first=volley.get(0).getAsJsonObject();
         require(first.get("type").getAsString().equals(count==1?"minecraft:arrow":"minecraft:spectral_arrow"),
             "replacement event identifies original projectile type");

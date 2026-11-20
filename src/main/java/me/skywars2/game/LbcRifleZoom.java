@@ -47,7 +47,7 @@ public final class LbcRifleZoom {
     // Outbound packets may originate outside the simulation thread. Publish only immutable FOV inputs.
     private final Map<UUID,Float> scopedMovement=new ConcurrentHashMap<>();
     private record MovementView(float speed,float base,float withoutSprint) {
-        float forProjection(boolean scoped){return speed;}
+        float forProjection(boolean scoped){return scoped?speed:withoutSprint;}
     }
     private final Map<UUID,MovementView> movementViews=new ConcurrentHashMap<>();
     private final Map<UUID,ClientboundPlayerAbilitiesPacket> abilityViews=new ConcurrentHashMap<>();
@@ -296,7 +296,8 @@ public final class LbcRifleZoom {
             var source=game.server().isSameThread()?new ClientboundPlayerAbilitiesPacket(player.getAbilities()):abilityViews.get(player.getUUID());
             if(source==null)return packet;
             abilityViews.put(player.getUUID(),source);
-            // Publish the acknowledged sprint attribute and its personal FOV denominator atomically.
+            // The client already predicts sprint. Changing the denominator on acknowledgment
+            // would move the camera a second time in the opposite direction.
             return new ClientboundBundlePacket(java.util.List.of(attributes,project(player.getUUID(),source,view.forProjection(scopeView(player)),scopeView(player))));
         }
         return packet;

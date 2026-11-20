@@ -65,7 +65,8 @@ public final class TikTokAccounts {
                 .then(Commands.literal("status").executes(ctx->{
                     ctx.getSource().sendSuccess(()->Component.translatable("tiktok.status",cache==null?0:cache.sizeReady(),TikTokCache.CAPACITY,
                             Component.translatable(cache!=null&&cache.configured()?"tiktok.configured":"tiktok.not_configured"),
-                            Component.translatable(cache==null?"tiktok.unavailable":cache.stateKey())),false);return 1;
+                            Component.translatable(cache==null?"tiktok.unavailable":cache.stateKey()))
+                            .append(cache!=null&&!cache.error().isEmpty()?" ("+cache.error()+")":""),false);return 1;
                 })));
     }
 

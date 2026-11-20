@@ -413,6 +413,12 @@ def main():
     stage.mkdir(parents=True, exist_ok=False)
     diagnostics = {}
     try:
+        import importlib.util
+        required = ("numpy", "PIL") if args.spectral_source or args.local else ("numpy", "PIL", "playwright", "requests", "yt_dlp")
+        if any(importlib.util.find_spec(name) is None for name in required):
+            raise MediaError("dependencies_missing")
+        if not args.spectral_source and (not shutil.which("ffmpeg") or not shutil.which("ffprobe")):
+            raise MediaError("dependencies_missing")
         if args.spectral_source:
             result = spectral_module().migrate(args.spectral_source, stage)
             atomic_json(stage / "manifest.json", result)
