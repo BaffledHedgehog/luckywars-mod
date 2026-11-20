@@ -8,6 +8,7 @@ import me.skywars2.game.AttributePolicy;
 import me.skywars2.game.GenieNative;
 import me.skywars2.game.LbcSauvojen;
 import me.skywars2.game.LbcSummons;
+import me.skywars2.game.SkyWarsFeedbackCommands;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -130,6 +131,15 @@ public final class GenieKnowledge {
         root.add("script_launchable_entity_types",standaloneTypes);
         root.add("script_grimoires",strings(GenieNative.grimoires().keySet().stream().sorted().map(Object::toString).toList()));
         root.add("script_directed_casts",strings(GenieNative.casts().stream().sorted().map(Object::toString).toList()));
+        var customStatuses = new JsonObject();
+        SkyWarsFeedbackCommands.effects().forEach((id, status) -> {
+            var row = new JsonObject();
+            row.addProperty("ticks_per_unit", status.ticksPerUnit());
+            row.addProperty("harmful", status.harmful());
+            row.addProperty("arena_only", status.arenaOnly());
+            customStatuses.add(id, row);
+        });
+        root.add("script_custom_statuses", customStatuses);
         var sauvojen = new JsonObject();
         for (var branch : LbcSauvojen.Kind.values()) {
             var ids = LbcSauvojen.payloads().stream().filter(payload -> payload.branch() == branch)

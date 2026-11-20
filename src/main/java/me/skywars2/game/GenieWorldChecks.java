@@ -40,7 +40,7 @@ final class GenieWorldChecks {
     private static void authorityScope(GameController game,WoolBucketChecks.Fixture base,
                                        GenieWorldHost host,BlockPos start){
         var foreign=java.util.stream.StreamSupport.stream(game.server().getAllLevels().spliterator(),false)
-            .filter(level->level!=base.level).findFirst().orElseThrow();
+            .filter(level->level!=base.level && LbcDimensionItems.ordinary(level)).findFirst().orElseThrow();
         var witness=base.other;
         var before=witness.position();var original=witness.level();
         float yaw=witness.getYRot(),pitch=witness.getXRot();var movement=witness.getDeltaMovement();
@@ -59,6 +59,9 @@ final class GenieWorldChecks {
                 require(tagged.get("successes").getAsInt()==0&&!witness.entityTags().contains(marker),"raw named or UUID target remains untouched");
             }
             require(complete(host,queued(host,"entity.info",new JsonPrimitive(uuid))).isJsonNull(),"foreign UUID is outside item world info");
+            require(!applyStatus(host,witness,"personal_stasis",40)
+                            && !game.items().legacyEffects().personalStasis().active(witness),
+                    "foreign-dimension UUID cannot apply or strand native stasis");
             var nested=complete(host,queued(host,"world.command",new JsonPrimitive("execute as @a run tag @s add "+marker))).getAsJsonObject();
             require(nested.get("successes").getAsInt()>0&&base.owner.entityTags().contains(marker)&&!witness.entityTags().contains(marker),
                 "execute child keeps its source dimension");
@@ -69,6 +72,29 @@ final class GenieWorldChecks {
             }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
             rejected(()->host.validateCommand("clone from "+foreign.dimension().identifier()+" ~ ~ ~ ~ ~ ~ ~ ~1 ~"),
                 "cross-dimension clone argument accepted");
+            var author = base.owner;
+            var authorPosition = author.position();
+            var authorMovement = author.getDeltaMovement();
+            float authorYaw = author.getYRot(), authorPitch = author.getXRot();
+            var mana = game.items().mana();
+            int originalReverse = mana.reverse(witness);
+            try {
+                require(author.teleportTo(foreign, authorPosition.x, authorPosition.y, authorPosition.z,
+                        Set.of(), authorYaw, authorPitch, true), "item owner enters the same alternate ordinary world");
+                base.client.acknowledge();
+                require(!applyStatus(host, witness, "cold", 21) && mana.hudValue(witness, "cold") == 0
+                                && !applyStatus(host, witness, "personal_stasis", 31)
+                                && !game.items().legacyEffects().personalStasis().active(witness),
+                        "arena-owned Frost and Stasis cannot leave orphan state in another ordinary world");
+                require(applyStatus(host, witness, "reverse_mana", 21) && mana.reverse(witness) == originalReverse + 2,
+                        "same-world, non-arena native mana drain remains available in an ordinary dimension");
+            } finally {
+                mana.reverse(witness, originalReverse);
+                require(author.teleportTo(base.level, authorPosition.x, authorPosition.y, authorPosition.z,
+                        Set.of(), authorYaw, authorPitch, true), "alternate-world item owner restored");
+                base.client.acknowledge();
+                author.setDeltaMovement(authorMovement);
+            }
         }finally{
             base.owner.entityTags().remove(marker);witness.entityTags().remove(marker);
             require(witness.teleportTo(original,before.x,before.y,before.z,Set.of(),yaw,pitch,true),"foreign-dimension witness restored");
@@ -2072,6 +2098,84 @@ final class GenieWorldChecks {
         }
     }
 
+    private static boolean applyStatus(GenieWorldHost host, Entity entity, String id, int ticks) {
+        return complete(host, queued(host, "lbc.apply_status", new JsonPrimitive(entity.getUUID().toString()),
+                new JsonPrimitive(id), new JsonPrimitive(ticks))).getAsBoolean();
+    }
+
+    private static void customStatuses(GameController game, WoolBucketChecks.Fixture base, GenieWorldHost host) {
+        var items = game.items();
+        var target = base.other;
+        var stasis = items.legacyEffects().personalStasis();
+        var originalSlot = target.getInventory().getItem(9);
+        int manaTimer = items.mana().hudValue(target, "effect_add_mana");
+        var cow = stationaryCow(base, base.home);
+        try {
+            require(!applyStatus(host, cow, "stun", 37) && items.shooters().stunTicks(cow) == 0,
+                    "player status rejects a local mob without creating native state");
+            require(!applyStatus(host, target, "test_unknown_genie_status", 40)
+                            && game.server().getScoreboard().getObjective("test_unknown_genie_status") == null,
+                    "unknown status cannot create a score objective");
+            require(applyStatus(host, target, "stun", 37)
+                            && items.shooters().stunTicks(target) == 37 && items.actionsBlocked(target),
+                    "native stun installs the real input lock on a second player for exactly 37 ticks");
+            items.shooters().clearStun(target);
+            require(!items.actionsBlocked(target), "clearing the native stun removes the real input lock");
+
+            require(applyStatus(host, target, "cold", 21) && items.frost().cold(target) == 2
+                            && items.mana().hudValue(target, "cold") == 2,
+                    "command status cadence rounds 21 ticks to two native Frost units and adopts the status");
+            items.frost().clear(target);
+
+            require(applyStatus(host, target, "shock", 41) && items.electro().shocks(target) == 2
+                            && items.mana().hudValue(target, "shock") == 2,
+                    "41 ticks install two real delayed pulses through the authored Shock controller");
+            items.electro().clearEffects(target);
+
+            require(applyStatus(host, target, "polymorph", 29) && items.polymorph().remaining(target) == 29,
+                    "polymorph installs the real finite form on a second player");
+            var sheep = items.polymorph().sheepViews().stream()
+                    .filter(view -> base.owner.getUUID().equals(view.owner()))
+                    .map(view -> base.level.getEntity(view.entity())).filter(Objects::nonNull).toList();
+            require(sheep.size() == 1 && items.polymorph().body(sheep.getFirst()),
+                    "native sheep is actually visible and retains the item player's source");
+            items.polymorph().clearDebuffs(target);
+            require(sheep.getFirst().isRemoved() && !items.polymorph().masked(target),
+                    "native polymorph cleanup restores the actual player and removes his body");
+
+            base.pause();
+            try {
+                require(!applyStatus(host, target, "personal_stasis", 31) && !stasis.active(target),
+                        "world Time Stop rejects application before a stasis attachment can be installed");
+            } finally {
+                base.thaw();
+            }
+            require(applyStatus(host, target, "personal_stasis", 31) && stasis.remaining(target) == 31
+                            && target.entityTags().contains(LbcPersonalStasis.TAG),
+                    "positive stasis enters the real persisted timeline and motion owner");
+            stasis.clear(target);
+
+            target.getInventory().setItem(9, base.leaf("mystical_artifact_clear"));
+            items.magic().inventoryChanged(target);
+            require(items.magic().rejectCustomEffect(target), "real cleansing artifact establishes immunity");
+            require(!applyStatus(host, target, "personal_stasis", 31) && !stasis.active(target)
+                            && !applyStatus(host, target, "cold", 21) && items.frost().cold(target) == 0
+                            && items.mana().hudValue(target, "cold") == 0
+                            && !applyStatus(host, target, "effect_add_mana", 21)
+                            && items.mana().hudValue(target, "effect_add_mana") == manaTimer,
+                    "harmful and useful grants respect actual immunity without adding orphan native scores");
+        } finally {
+            target.getInventory().setItem(9, originalSlot);
+            items.magic().inventoryChanged(target);
+            items.polymorph().clearDebuffs(target);
+            stasis.clear(target);
+            items.frost().clear(target);
+            items.shooters().clearStun(target);
+            items.electro().clearEffects(target);
+            base.discard(cow);
+        }
+    }
+
     static final class RocketCounterProbe implements AutoCloseable {
         private static final JsonPrimitive JUMPS = new JsonPrimitive("rocket_jumps");
         private static final JsonPrimitive COOLDOWN = new JsonPrimitive("rocket_cooldown_ticks");
@@ -2261,6 +2365,7 @@ final class GenieWorldChecks {
             authorityScope(game,base,host,start);
             playerParameters(game,base,host);
             shockCounter(game,base,host);
+            customStatuses(game,base,host);
             sharedNativeAbilities(game,base);
 
             Vec3 launchSpot=Vec3.atBottomCenterOf(start.offset(6,0,0));

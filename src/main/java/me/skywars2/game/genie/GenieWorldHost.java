@@ -37,6 +37,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
         Map.entry("lbc.mana",new ScriptProgram.Signature(1,1)),
         Map.entry("lbc.counter",new ScriptProgram.Signature(2,2)),
         Map.entry("lbc.change_counter",new ScriptProgram.Signature(4,4)),
+        Map.entry("lbc.apply_status",new ScriptProgram.Signature(3,3)),
         Map.entry("lbc.grimoire",new ScriptProgram.Signature(1,2)),
         Map.entry("lbc.cast",new ScriptProgram.Signature(1,4)),
         Map.entry("lbc.cast_at",new ScriptProgram.Signature(2,3)),
@@ -150,6 +151,7 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
             case "lbc.mana"->find(text(values.getFirst())) instanceof ServerPlayer player
                     ? GeniePlayerParameters.mana(game, player) : JsonNull.INSTANCE;
             case "lbc.counter","lbc.change_counter"->counter(values);
+            case "lbc.apply_status"->applyStatus(values);
             case "lbc.grimoire"->grimoire(values);
             case "lbc.summon"->summon(values);
             case "lbc.cast"->cast(values);
@@ -268,6 +270,15 @@ public final class GenieWorldHost implements ScriptMachine.Host,AutoCloseable {
     }
     private Entity find(String id){
         return owner.level().getEntity(UUID.fromString(id));
+    }
+    private JsonElement applyStatus(List<JsonElement> values) {
+        String target = text(values.get(0));
+        String status = text(values.get(1));
+        double ticks = number(values.get(2));
+        if (ticks < 1 || ticks > Integer.MAX_VALUE || ticks != Math.rint(ticks))
+            throw new IllegalArgumentException("status duration requires a positive integer in ticks");
+        return new JsonPrimitive(find(target) instanceof ServerPlayer player
+                && SkyWarsFeedbackCommands.applyFromItem(game, owner, player, status, (int) ticks));
     }
     private JsonElement counter(List<JsonElement> values) {
         if (!(find(text(values.getFirst())) instanceof ServerPlayer player)) return JsonNull.INSTANCE;

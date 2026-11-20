@@ -11,25 +11,38 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
 
 /** Public parent for custom operator commands and native status consumers. */
 public final class SkyWarsFeedbackCommands {
-    private record Status(int ticksPerUnit,boolean harmful){}
+    public record Status(int ticksPerUnit, boolean harmful, boolean arenaOnly) {}
     private static final Map<String,Status> STATUSES=statuses();
     private static Map<String,Status> statuses(){
         var values=new TreeMap<String,Status>();
-        add(values,1,false,"effect_boost_mana","effect_add_manamax","effect_add_manaregen","effect_add_mana","all_seeing_eye","living_legend","ray","screamray");
-        add(values,1,true,"effect_chain_lightning","effect_shock_potion","effect_dimshifting","effect_rtp_4","effect_kiuaskivi");
-        add(values,1,true,"personal_stasis","polymorph");
-        add(values,1,true,"effect_remove_mana","effect_big_explosion","effect_explosion","effect_nuking","effect_traps","effect_snus","effect_stand_arrow_hit","effect_witch_gens_reset","effect_hedgehog_boom","effect_vacuum","effect_timestop","effect_small_explosion","effect_lightning_bolt","effect_firebreak","effect_evoker","effect_shock","effect_lightarrow","effect_evokerarrow","effect_rtp_1","effect_rtp_2","effect_rtp_3","piss","scared","gigaponos","skill_issue","stun");
-        add(values,20,true,"nomagic","reverse_mana","delayed_death","target","cold","frozen","effect_gravity_curse","effect_ghosting");
+        add(values,1,false,"effect_boost_mana","all_seeing_eye","living_legend","ray","screamray");
+        add(values,1,true,"effect_shock_potion","effect_dimshifting","effect_rtp_4","polymorph");
+        add(values,1,true,"effect_big_explosion","effect_explosion","effect_nuking","effect_traps","effect_snus","effect_stand_arrow_hit","effect_witch_gens_reset","effect_hedgehog_boom","effect_vacuum","piss","scared","gigaponos","skill_issue");
+        add(values,20,true,"nomagic","reverse_mana","delayed_death","target");
         add(values,20,false,"void_resistance","dimensional_shifting");
-        add(values,5,false,"acid_rifle");add(values,10,false,"blaze");add(values,2,false,"gatling_fovos");
+        add(values,5,false,"acid_rifle");add(values,10,false,"blaze");
         add(values,5,true,"lookback");add(values,2,true,"twitching");add(values,40,true,"shock");
+        // These native owners cannot start or advance outside the current arena.
+        arena(values,1,false,"effect_add_manamax","effect_add_manaregen","effect_add_mana");
+        arena(values,1,true,"effect_chain_lightning","effect_kiuaskivi","personal_stasis","effect_remove_mana","effect_timestop",
+                "effect_small_explosion","effect_lightning_bolt","effect_firebreak","effect_evoker","effect_shock","effect_lightarrow",
+                "effect_evokerarrow","effect_rtp_1","effect_rtp_2","effect_rtp_3","stun");
+        arena(values,20,true,"cold","frozen","effect_gravity_curse","effect_ghosting");
+        arena(values,2,false,"gatling_fovos");
         return Collections.unmodifiableMap(values);
     }
-    private static void add(Map<String,Status> map,int cadence,boolean harmful,String... ids){for(String id:ids)map.put(id,new Status(cadence,harmful));}
+    private static void add(Map<String,Status> map,int cadence,boolean harmful,String... ids){
+        for(String id:ids)map.put(id,new Status(cadence,harmful,false));
+    }
+    private static void arena(Map<String,Status> map,int cadence,boolean harmful,String... ids){
+        for(String id:ids)map.put(id,new Status(cadence,harmful,true));
+    }
     public static Set<String> effectIds(){return STATUSES.keySet();}
+    public static Map<String,Status> effects(){return STATUSES;}
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
         LbcDropRequests.register(dispatcher);
         SkyWarsAdminCommands.register(dispatcher);
@@ -87,21 +100,73 @@ public final class SkyWarsFeedbackCommands {
             if(value<=0||value>Integer.MAX_VALUE)throw new ArithmeticException();return (int)value;
         }catch(ArithmeticException|NumberFormatException error){throw new IllegalArgumentException("Time must be positive and fit in 2147483647 ticks");}
     }
-    static void apply(GameController game,ServerPlayer player,String id,int ticks){
-        var status=STATUSES.get(id);if(status==null)throw new IllegalArgumentException("Unknown custom effect: "+id);
-        if(!game.canUseGameplayItems(player)||!game.playing()||game.isObserver(player))throw new IllegalArgumentException("Custom effects require an active gameplay player");
-        var items=game.items();
-        if(status.harmful()?items.magic().rejectCustomDebuff(player):items.magic().rejectCustomEffect(player))throw new IllegalArgumentException("This effect is currently blocked for the player");
-        if(id.equals("stun")){if(!items.shooters().selfStun(player,ticks))throw new IllegalArgumentException("Stun was rejected");return;}
-        if(id.equals("personal_stasis")){items.legacyEffects().personalStasis().start(player,ticks);return;}
-        if(id.equals("polymorph")){if(!items.polymorph().applyTimed(player,items.indirectKills().wildCause(player),ticks))throw new IllegalArgumentException("Polymorph was rejected");return;}
-        int units=(int)(((long)ticks+status.ticksPerUnit()-1)/status.ticksPerUnit());
-        if(id.equals("effect_ghosting")){if(!items.soulless().setGhosting(player,units))throw new IllegalArgumentException("Ghosting was rejected");return;}
-        if(id.equals("effect_gravity_curse")){if(!items.pendingCombat().applyGravityCurse(player,player,units))throw new IllegalArgumentException("Gravity curse was rejected");return;}
-        if(id.equals("nomagic"))items.mana().applyNoMagic(player,units);
-        else if(id.equals("reverse_mana"))items.mana().applyReverse(player,player,units);
-        else items.mana().score(player,id).set(units);
-        player.entityTags().addAll(List.of("have_lucky_effects","have_lucky_effects_1s","have_lucky_effects_5t"));
-        items.adoptRawFoodStatuses(player);items.magic().colors().loaded(player);
+    static void apply(GameController game, ServerPlayer player, String id, int ticks) {
+        var status = STATUSES.get(id);
+        if (status == null) throw new IllegalArgumentException("Unknown custom effect: " + id);
+        if (!game.canUseGameplayItems(player) || !game.playing() || game.isObserver(player))
+            throw new IllegalArgumentException("Custom effects require an active gameplay player");
+        String rejected = grant(game, player, player, id, status, ticks);
+        if (rejected != null) throw new IllegalArgumentException(rejected);
+    }
+
+    /** Item authority can only grant native player statuses within its current active world. */
+    public static boolean applyFromItem(GameController game, ServerPlayer author, ServerPlayer target, String id, int ticks) {
+        var status = STATUSES.get(id);
+        var items = game.items();
+        if (status == null || ticks <= 0 || !game.playing()
+                || author.level() != target.level() || status.arenaOnly() && target.level() != game.maps().level()
+                || !items.mana().visible(author) || !items.mana().visible(target)
+                || !items.wands().validRoleTarget(author, false) || !items.wands().validRoleTarget(target, false)
+                || items.polymorph().masked(author) || !id.equals("polymorph") && items.polymorph().masked(target)
+                || items.wands().inputTimeStopped(author) || items.wands().inputTimeStopped(target)
+                || items.timeStop().stopped(author.level())) return false;
+        // The native score consumers for these effects have an additional admission rule.
+        if (id.equals("shock") && items.magic().rejectEffect(target, MobEffects.WITHER)
+                || id.equals("gigaponos") && items.magic().rejectEffect(target, MobEffects.HUNGER)
+                || id.equals("dimensional_shifting") && LbcParasite.active(target)) return false;
+        return grant(game, author, target, id, status, ticks) == null;
+    }
+
+    private static String grant(GameController game, ServerPlayer author, ServerPlayer target,
+                                String id, Status status, int ticks) {
+        var items = game.items();
+        if (status.harmful() ? items.magic().rejectCustomDebuff(target) : items.magic().rejectCustomEffect(target))
+            return "This effect is currently blocked for the player";
+        int units = (int) (((long) ticks + status.ticksPerUnit() - 1) / status.ticksPerUnit());
+        if (id.equals("shock") && author != target) {
+            items.electro().setScriptShock(target, author, units);
+            return null;
+        }
+        switch (id) {
+            case "stun" -> {
+                boolean applied = author == target ? items.shooters().selfStun(target, ticks)
+                        : items.shooters().stun(author, target, ticks);
+                if (!applied) return "Stun was rejected";
+            }
+            case "personal_stasis" -> items.legacyEffects().personalStasis().start(target, ticks);
+            case "polymorph" -> {
+                if (!items.polymorph().applyTimed(target, items.indirectKills().wildCause(author), ticks))
+                    return "Polymorph was rejected";
+            }
+            case "effect_ghosting" -> {
+                if (!items.soulless().setGhosting(target, units)) return "Ghosting was rejected";
+            }
+            case "effect_gravity_curse" -> {
+                if (!items.pendingCombat().applyGravityCurse(author, target, units)) return "Gravity curse was rejected";
+            }
+            default -> {
+                if (id.equals("nomagic")) items.mana().applyNoMagic(target, units);
+                else if (id.equals("reverse_mana")) items.mana().applyReverse(author, target, units);
+                else items.mana().score(target, id).set(units);
+                adoptCounters(game, target);
+            }
+        }
+        return null;
+    }
+
+    private static void adoptCounters(GameController game, ServerPlayer target) {
+        target.entityTags().addAll(List.of("have_lucky_effects", "have_lucky_effects_1s", "have_lucky_effects_5t"));
+        game.items().adoptRawFoodStatuses(target);
+        game.items().magic().colors().loaded(target);
     }
 }

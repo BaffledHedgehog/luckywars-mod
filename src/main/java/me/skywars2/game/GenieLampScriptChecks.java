@@ -133,6 +133,16 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(facts.getAsJsonArray("script_targeted_casts").size() == GenieNative.TargetedCast.values().length
                     && facts.getAsJsonArray("script_directed_casts").contains(new com.google.gson.JsonPrimitive("skywars2:terra_razor")),
                     "the prompt exposes all additional native script bindings");
+            var statuses = facts.getAsJsonObject("script_custom_statuses");
+            require(statuses.keySet().equals(SkyWarsFeedbackCommands.effectIds()) && prompt.contains("lbc.apply_status"),
+                    "model receives exactly the live native custom-status catalog and its callable operation");
+            SkyWarsFeedbackCommands.effects().forEach((id, status) -> {
+                var row = statuses.getAsJsonObject(id);
+                require(row.get("ticks_per_unit").getAsInt() == status.ticksPerUnit()
+                                && row.get("harmful").getAsBoolean() == status.harmful()
+                                && row.get("arena_only").getAsBoolean() == status.arenaOnly(),
+                        "model uses the native cadence, role and immunity category for " + id);
+            });
             require(facts.getAsJsonArray("script_targeted_casts").asList().stream()
                     .map(JsonElement::getAsJsonObject).map(row -> row.get("id").getAsString())
                     .collect(java.util.stream.Collectors.toSet())
