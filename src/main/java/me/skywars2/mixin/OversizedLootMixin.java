@@ -2,25 +2,32 @@ package me.skywars2.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 import me.skywars2.game.LbcBulkLoot;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -82,11 +89,48 @@ public abstract class OversizedLootMixin {
     @Mixin(ItemStack.class)
     public abstract static class ContainerLimits {
         private static final int POTION_STACK_SIZE = 64;
+        @Unique private static final CompoundTag skywars2$PURIFICATION_FLAGS = skywars2$purificationFlags();
+        @Unique private static final Component skywars2$PURIFICATION_NAME =
+                Component.translatable("purification_potion").withStyle(style -> style.withItalic(false));
+        @Unique private static final List<Component> skywars2$SPLIT_PURIFICATION_LORE = List.of(
+                Component.translatable("type").withStyle(style -> style.withColor(ChatFormatting.AQUA).withItalic(false)),
+                Component.translatable("potion.lbc").withStyle(style -> style.withColor(ChatFormatting.AQUA).withItalic(false)),
+                Component.translatable("purification_potion.lore").withStyle(style -> style.withColor(ChatFormatting.WHITE).withItalic(false))
+        );
 
         @Inject(method="<init>(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/PatchedDataComponentMap;)V",at=@At("TAIL"))
         private void skywars2$potionStackLimit(Holder<Item> item,int count,PatchedDataComponentMap components,CallbackInfo ci){
             // Set an explicit component so an unmodified client sees the same limit as the server.
-            if(item.value() instanceof PotionItem)components.set(DataComponents.MAX_STACK_SIZE,POTION_STACK_SIZE);
+            if(item.value() instanceof PotionItem){
+                components.set(DataComponents.MAX_STACK_SIZE,POTION_STACK_SIZE);
+                if(item.value()==Items.SPLASH_POTION)skywars2$normalizePurification((ItemStack)(Object)this);
+            }
+        }
+
+        @Inject(method={"applyComponentsAndValidate", "applyComponents(Lnet/minecraft/core/component/DataComponentPatch;)V"},
+                at=@At("TAIL"))
+        private void skywars2$normalizePatchedPurification(DataComponentPatch patch,CallbackInfo ci) {
+            var stack=(ItemStack)(Object)this;
+            if(stack.getItem() instanceof PotionItem&&stack.is(Items.SPLASH_POTION))skywars2$normalizePurification(stack);
+        }
+
+        @Unique
+        private static CompoundTag skywars2$purificationFlags() {
+            var tag=new CompoundTag();
+            tag.putInt("transformable",1);
+            tag.putInt("potion",1);
+            return tag;
+        }
+
+        @Unique
+        private static void skywars2$normalizePurification(ItemStack stack) {
+            if(!skywars2$PURIFICATION_NAME.equals(stack.get(DataComponents.CUSTOM_NAME)))return;
+            var data=stack.get(DataComponents.CUSTOM_DATA);
+            var lore=stack.get(DataComponents.LORE);
+            if(data==null||!data.matchedBy(skywars2$PURIFICATION_FLAGS)
+                    ||lore==null||!lore.lines().equals(skywars2$SPLIT_PURIFICATION_LORE))return;
+            var lines=lore.lines();
+            stack.set(DataComponents.LORE,new ItemLore(List.of(lines.get(0).copy().append(lines.get(1)),lines.get(2))));
         }
 
         @ModifyVariable(method = {"applyComponentsAndValidate", "applyComponents(Lnet/minecraft/core/component/DataComponentPatch;)V"},

@@ -13411,16 +13411,18 @@
       }
     ],
     "minecraft:lore": [
-      {
-        "translate": "type",
-        "italic": false,
-        "color": "aqua"
-      },
-      {
-        "translate": "potion.lbc",
-        "italic": false,
-        "color": "aqua"
-      },
+      [
+        {
+          "translate": "type",
+          "italic": false,
+          "color": "aqua"
+        },
+        {
+          "translate": "potion.lbc",
+          "italic": false,
+          "color": "aqua"
+        }
+      ],
       {
         "translate": "purification_potion.lore",
         "italic": false,

@@ -4207,7 +4207,7 @@ public final class GameChecks {
                                 "Purifier kit preserves source counts");
                 var purifier = inventoryItem(player, Items.SPLASH_POTION);
                 translation(purifier.getHoverName(), "purification_potion");
-                require(purifier.getMaxStackSize() == 3 && purifier.get(DataComponents.LORE).lines().size() == 3
+                require(purifier.getMaxStackSize() == 64 && purifier.get(DataComponents.LORE).lines().size() == 2
                                 && purifier.get(DataComponents.TOOLTIP_STYLE).toString().equals("lbc:tier_b"),
                                 "Purifier stack size, lore and tooltip survive import");
                 // Native splash must cleanse another player who never selected this kit, and

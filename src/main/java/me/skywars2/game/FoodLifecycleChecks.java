@@ -1,8 +1,11 @@
 package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import java.util.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,6 +16,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 /** Bounded real native consume callbacks and actual server ticks; no production clock is advanced by the fixture. */
@@ -145,6 +149,68 @@ public final class FoodLifecycleChecks {
             try{var item=new ItemStack(LbcKfcFood.GOVNO_EATEN,2);owner.setItemInHand(InteractionHand.MAIN_HAND,item);item.finishUsingItem(level,owner);require(item.getCount()==1,"native cookie alias sole debit");}finally{level.getAllEntities().forEach(entity->{if(!before.contains(entity))owned.add(entity);});}
             for(var entity:List.copyOf(owned)){game.items().entityUnloaded(entity);entity.discard();owned.remove(entity);}
         }
+        void purificationPotion() {
+            var direct = game.lbc().rollTable(level, origin, owner,
+                    "lbc:item_defs/minecraft/splash_potion__3f631738d5da").getFirst();
+            var single = game.lbc().rollTable(level, origin, owner, "lbc:purifypotion_1").getFirst();
+            var publicPotion = game.lbc().rollTable(level, origin, owner, "lbc:items/purification_potion").getFirst();
+            var type = Component.translatable("type").withStyle(s -> s.withColor(ChatFormatting.AQUA).withItalic(false));
+            var potion = Component.translatable("potion.lbc").withStyle(s -> s.withColor(ChatFormatting.AQUA).withItalic(false));
+            var description = Component.translatable("purification_potion.lore")
+                    .withStyle(s -> s.withColor(ChatFormatting.WHITE).withItalic(false));
+            var expected = List.of(type.copy().append(potion), description);
+            require(direct.is(Items.SPLASH_POTION) && direct.getMaxStackSize() == 64
+                            && direct.get(DataComponents.LORE).lines().equals(expected),
+                    "real canonical cleansing potion has one combined type line and the description");
+            require(ItemStack.matches(direct, single) && ItemStack.matches(direct, publicPotion),
+                    "single and public cleansing potion loot use the canonical item components");
+            var kit = game.lbc().rollTable(level, origin, owner, "lbc:kit/3_purify_potion").stream()
+                    .filter(stack -> stack.is(Items.SPLASH_POTION)
+                            && Objects.equals(stack.get(DataComponents.CUSTOM_NAME), direct.get(DataComponents.CUSTOM_NAME)))
+                    .toList();
+            require(kit.stream().mapToInt(ItemStack::getCount).sum() == 3
+                            && kit.stream().allMatch(stack -> ItemStack.isSameItemSameComponents(stack, direct)),
+                    "three actual kit units keep every canonical component");
+            var inventory = owner.getInventory();
+            try {
+                for (var stack : kit) require(inventory.add(stack.copy()), "native insertion of actual kit loot");
+                require(inventory.add(single.copy()), "native insertion of loot from the single potion table");
+                var merged = inventory.getItem(0);
+                require(merged.getCount() == 4 && ItemStack.isSameItemSameComponents(merged, direct)
+                                && inventory.countItem(Items.SPLASH_POTION) == 4,
+                        "native inventory merges the kit's three potions and the single potion in one slot");
+            } finally {
+                inventory.clearContent();
+            }
+
+            List<Component> split = List.of(type, potion, description);
+            var saved = direct.copyWithCount(3);
+            saved.set(DataComponents.MAX_STACK_SIZE, 3);
+            saved.set(DataComponents.LORE, new ItemLore(split));
+            require(saved.get(DataComponents.LORE).lines().size() == 3
+                            && !ItemStack.isSameItemSameComponents(saved, direct),
+                    "historical stored potion begins with distinct split lore and old stack limit");
+            var migrated = potionRoundTrip(saved);
+            require(migrated.getCount() == 3 && ItemStack.isSameItemSameComponents(migrated, direct),
+                    "native item NBT decode restores the same cleansing potion without losing units");
+            var edited = direct.copy();
+            edited.set(DataComponents.LORE, new ItemLore(List.of(type, potion, Component.literal("Edited lore"))));
+            require(ItemStack.matches(edited, potionRoundTrip(edited)),
+                    "saved cleansing potion with edited lore keeps that lore");
+            var ordinary = new ItemStack(Items.SPLASH_POTION);
+            ordinary.set(DataComponents.LORE, new ItemLore(split));
+            require(ItemStack.matches(ordinary, potionRoundTrip(ordinary)),
+                    "an unrelated potion with matching lore is left alone");
+        }
+
+        private ItemStack potionRoundTrip(ItemStack stack) {
+            return net.fabricmc.fabric.api.networking.v1.context.PacketContext.supplyWithoutContext(() -> {
+                var ops = owner.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+                var saved = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
+                return ItemStack.CODEC.parse(ops, saved).getOrThrow();
+            });
+        }
+
         void synchronous(){
             require(SOURCE.size()==41&&new HashSet<>(SOURCE).size()==41&&LbcFoodLifecycle.sourceFoodCount()==41,"exact original41 membership");
             var namedAliases=LbcNamedFoodItems.entries().stream().filter(entry->SOURCE.contains(entry.carrier())).map(LbcNamedFoodItems.Entry::item).collect(java.util.stream.Collectors.toSet());
@@ -159,6 +225,7 @@ public final class FoodLifecycleChecks {
             reset();infiniteSteakClient(InteractionHand.MAIN_HAND);
             reset();infiniteSteakClient(InteractionHand.OFF_HAND);
             reset();potionStackLimits();
+            reset();purificationPotion();
             reset();consume("bad_apple",InteractionHand.MAIN_HAND);for(var effect:List.of(MobEffects.HASTE,MobEffects.CONDUIT_POWER,MobEffects.WATER_BREATHING)){var active=owner.getEffect(effect);require(active!=null&&active.getAmplifier()==0&&active.getDuration()==6000&&active.isVisible(),"actual bad apple ordinary layer "+effect);}
             reset();var advancement=game.server().getAdvancements().get(HALLOWEEN);require(advancement!=null&&advancement.value().criteria().size()==100,"actual100-criterion task is packaged");for(var key:advancement.value().criteria().keySet())owner.getAdvancements().revoke(advancement,key);game.items().mana().score(owner,"pumpkin_counter").set(0);
             consume("halloween_food",InteractionHand.MAIN_HAND);consume("halloween_food",InteractionHand.MAIN_HAND);require(score("pumpkin_counter")==1,"multiple actual consume callbacks same native tick count once");require(owner.getAdvancements().getOrStartProgress(advancement).getCompletedCriteria().iterator().next().equals("1")&&!owner.getAdvancements().getOrStartProgress(advancement).isDone(),"only real individual criterion1, no invented completion reward");
