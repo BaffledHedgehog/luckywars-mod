@@ -436,6 +436,7 @@ public final class GameController {
         if (supernovaMap.phase()==RenewalPhase.SETTLING) {
             // Drain every accepted native structure rather than abandoning a half-built footprint.
             if (!supernovaTerrainSettled()) return;
+            events.cancelPendingAirdrops();
             holdSupernovaPlayers(); maps.purgeRenewalEntities();
             supernovaMap=supernovaMap.phase(RenewalPhase.HOLDING);
         }
@@ -1117,6 +1118,7 @@ public final class GameController {
         var unloaded=List.copyOf(nativeEntityUnloads);nativeEntityUnloads.clear();
         for(var entity:unloaded) entityUnloaded(entity);
         if (stopped || vanity.busy() || !server.tickRateManager().runsNormally()) return;
+        events.tickAirdropFlights();
         repairHealedDeaths();
         lifetimeTicks++;
         // Accepted case sessions also advance in lobby/postgame; menu refresh never ticks them.
@@ -1628,6 +1630,7 @@ public final class GameController {
         items.namedFoods().consumed(player,stack);items.oreshek().consumed(player,stack);
     }
     public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
+    public void entityLoaded(Entity entity) { items.entityLoaded(entity); events.entityLoaded(entity); }
     public void entityUnloaded(Entity entity) { events.entityUnloaded(entity); items.entityUnloaded(entity); }
     public void queueEntityUnload(Entity entity) { if(!stopped) nativeEntityUnloads.add(entity); }
     public void cancelQueuedEntityUnload(Entity entity) { nativeEntityUnloads.remove(entity); }

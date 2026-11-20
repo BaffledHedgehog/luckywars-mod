@@ -1811,6 +1811,7 @@ public final class GameChecks {
                                 case "airdrop-fast" -> setAirdropConfig(game);
                                 case "airdrop" -> checkAirdrop(game);
                                 case "airdrop-stop" -> stopAirdropMatch(game);
+                                case "airdrop-simulation" -> { AirdropSimulationChecks.run(game); return; }
                                 case "airdrop-cleanup" -> checkAirdropCleanup(game);
                                 case "fast" -> setFastConfig(game);
                                 case "restore" -> restoreFastConfig(game);
@@ -1976,6 +1977,7 @@ public final class GameChecks {
         TikTokNetworkChecks.tick(game);
         MusicStaffChecks.tick(game);
         SkillVexCelebrationChecks.tick(game);
+        AirdropSimulationChecks.tick(game);
         GenieChecks.tick(game);
         GenieLobbyChecks.tick(game);
         GenieVanityChecks.tick(game);

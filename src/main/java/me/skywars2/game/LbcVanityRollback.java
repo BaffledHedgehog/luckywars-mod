@@ -76,7 +76,7 @@ public final class LbcVanityRollback {
     }
     private boolean independentTerrainReady(){
         var items=game.items();
-        return !game.maps().busy()&&game.bedwars().startReady()&&SignedEnvironmentalEffects.queuedTerrain()==0
+        return !game.maps().busy()&&game.bedwars().startReady()&&game.events().airdropsCaptureReady()&&SignedEnvironmentalEffects.queuedTerrain()==0
                 &&items.blaze().terrainCount()==0&&items.kiuas().queuedBlockCount()==0
                 &&items.tanner().queuedBlockCount()==0&&items.portalDrops().idle()
                 &&MatchEventActorCheckpoint.captureReady(game)&&MatchFieldCheckpoint.captureReady(game)
@@ -160,6 +160,7 @@ public final class LbcVanityRollback {
         if(!hasSnapshot())throw new IllegalStateException("Save point no longer belongs to this match");
         game.server().tickRateManager().setFrozen(true);
         if(!image.terrain.ensureResident(game))return;
+        game.events().prepareAirdropRestore();
         image.world.restoreFrozen();image.prepareFrozen(game);
         game.items().duplicating().prepareCheckpointRestore();
         privateInstalled=false;preparedOffline.clear();
@@ -202,6 +203,7 @@ public final class LbcVanityRollback {
         game.items().bouncingPoop().reindexRestored(restoredBodies);
         game.items().seasonal().reindexRestored(restoredBodies);
         game.items().genie().runtime().reindexRestored(restoredBodies);
+        game.events().reindexRestoredAirdrops(restoredBodies);
     }
     private boolean waiting(Set<UUID> players,String owner){
         if(players.isEmpty())return false;waitReason=owner+": "+players;return true;

@@ -11,14 +11,16 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.CompletableFuture;
 
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ChunkResult;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -39,13 +41,28 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 
 /** События фаз матча и временные состояния навыков; их тики вызываются контроллером на серверном потоке. */
 public final class MatchEvents {
-    private final Map<Chicken, CompletableFuture<?>> pendingAirdrops = new LinkedHashMap<>();
+    private static final String AIRDROP = "skywars2.airdrop";
+    private static final String AIRDROP_FLIGHT = "skywars2.airdrop_flight";
+    private static final TicketType AIRDROP_TICKET = new TicketType(TicketType.NO_TIMEOUT,
+            TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+    // FULL (33) minus radius two permits native entity ticks at the carrier's column (31).
+    private static final int AIRDROP_TICKET_RADIUS = 2;
+    private record AirdropColumn(ServerLevel level, ChunkPos pos) { }
+    private final Map<Chicken, ServerLevel> pendingAirdrops = new LinkedHashMap<>();
+    private final Map<Chicken, AirdropColumn> airdropColumns = new HashMap<>();
+    private final Map<AirdropColumn, Integer> airdropLeases = new HashMap<>();
+
+    public static void registerAirdropTicket() {
+        Registry.register(BuiltInRegistries.TICKET_TYPE, Identifier.parse("skywars2:airdrop_flight"), AIRDROP_TICKET);
+    }
+
     private static final int TICKS_PER_SECOND = 20;
     private static final TagKey<Item> SKILL_FOOD = TagKey.create(Registries.ITEM, Identifier.parse("swrg:food"));
     private static final Map<Integer, List<String>> KIT_COMMANDS = Map.ofEntries(
@@ -214,14 +231,12 @@ public final class MatchEvents {
         nextWitherTick = -1;
         nextTntTick = -1;
         pendingVex.clear();
-        // These airdrops are still waiting for chunks and have never been added to the world.
-        for (var chicken : pendingAirdrops.keySet())
-            chicken.getSelfAndPassengers().toList().forEach(Entity::discard);
-        pendingAirdrops.clear();
+        cancelPendingAirdrops();
     }
 
     public void stop() {
         beginCelebration();
+        for (var chicken : List.copyOf(airdropColumns.keySet())) finishAirdrop(chicken);
         for (SkillState state : skillStates.values()) discardVexes(state);
         skillStates.clear();
         clearVictoryMarkers();
@@ -277,6 +292,7 @@ public final class MatchEvents {
 
     public void entityUnloaded(Entity entity) {
         if (entity instanceof SkillVex vex) vex.state.vexes.remove(vex);
+        if (entity instanceof Chicken chicken && chicken.isRemoved()) releaseAirdropTicket(chicken);
     }
 
     private boolean activeSkillOwner(ServerPlayer player) {
@@ -615,8 +631,8 @@ public final class MatchEvents {
             var cart = new MinecartChest(EntityTypes.CHEST_MINECART, level);
             chicken.setPos(x,y,z);chicken.setNoAi(false);chicken.setNoGravity(false);
             cart.setPos(x,y,z);
-            chicken.entityTags().add("skywars2.airdrop");
-            cart.entityTags().add("skywars2.airdrop");
+            chicken.entityTags().add(AIRDROP);
+            cart.entityTags().add(AIRDROP);
             chicken.entityTags().add(controller.items().epoch());
             cart.entityTags().add(controller.items().epoch());
             cart.entityTags().add("swrg.center");
@@ -625,9 +641,11 @@ public final class MatchEvents {
             // Как source item modify: раскрываем lazy loot до публикации и убираем служебный count-атрибут.
             cart.setLootTable(loot, level.getRandom().nextLong());
             // Курица несёт вагонетку, поэтому работает её нативное медленное падение с взмахами крыльев.
-            if (cart.startRiding(chicken, true, false))
-                pendingAirdrops.put(chicken, maps.prepareChunk(chicken.chunkPosition()));
-            else { cart.discard(); chicken.discard(); }
+            if (cart.startRiding(chicken, true, false)) {
+                chicken.entityTags().add(AIRDROP_FLIGHT);
+                holdAirdropColumn(chicken, level);
+                pendingAirdrops.put(chicken, level);
+            } else { cart.discard(); chicken.discard(); }
         }
     }
 
@@ -669,16 +687,18 @@ public final class MatchEvents {
         if (pendingAirdrops.isEmpty()) return;
         for (var iterator = pendingAirdrops.entrySet().iterator(); iterator.hasNext();) {
             var pending = iterator.next();
-            var future = pending.getValue();
-            if (!future.isDone()) continue;
-            iterator.remove();
             var chicken = pending.getKey();
+            var level = pending.getValue();
+            if (!activeAirdrop(chicken) || level != maps.level()) {
+                iterator.remove(); discardAirdrop(chicken); continue;
+            }
+            if (!level.isPositionEntityTicking(chicken.blockPosition())
+                    || !level.areEntitiesLoaded(chicken.chunkPosition().pack())) continue;
+            iterator.remove();
+            var pair = chicken.getSelfAndPassengers().toList();
             try {
-                Object result = future.join();
-                if (result instanceof ChunkResult<?> chunkResult && !chunkResult.isSuccess())
-                    throw new IllegalStateException("Airdrop chunk did not load");
                 var floor=airdropSurface(chicken.blockPosition().getX(),chicken.blockPosition().getZ());
-                if(floor==null){chicken.getSelfAndPassengers().toList().forEach(Entity::discard);continue;}
+                if(floor==null){discardAirdrop(chicken);continue;}
                 double spawnY=floor.getY()+21;
                 chicken.setPos(floor.getX()+.5,spawnY,floor.getZ()+.5);
                 for (var passenger : chicken.getPassengers()) if (passenger instanceof MinecartChest cart) {
@@ -686,12 +706,97 @@ public final class MatchEvents {
                     cart.getItem(0);
                     MapManager.normalizeLootCounts(cart);
                 }
-                maps.level().addFreshEntityWithPassengers(chicken);
+                if (!level.tryAddFreshEntityWithPassengers(chicken)
+                        || pair.stream().anyMatch(entity -> entity.isRemoved() || level.getEntity(entity.getUUID()) != entity))
+                    throw new IllegalStateException("Could not publish the complete native airdrop");
             } catch (RuntimeException failure) {
-                chicken.getSelfAndPassengers().toList().forEach(Entity::discard);
+                finishAirdrop(chicken);
+                pair.forEach(Entity::discard);
                 me.skywars2.SkyWars2.LOGGER.error("Could not prepare an airdrop", failure);
             }
         }
         if (pendingAirdrops.isEmpty()) me.skywars2.SkyWars2.LOGGER.info("SWRG airdrop ready");
+    }
+
+    private void holdAirdropColumn(Chicken chicken, ServerLevel level) {
+        var column = new AirdropColumn(level, chicken.chunkPosition());
+        var previous = airdropColumns.get(chicken);
+        if (column.equals(previous)) return;
+        if (airdropLeases.merge(column, 1, Integer::sum) == 1)
+            level.getChunkSource().addTicketWithRadius(AIRDROP_TICKET, column.pos(), AIRDROP_TICKET_RADIUS);
+        airdropColumns.put(chicken, column);
+        if (previous != null) releaseAirdropColumn(previous);
+    }
+
+    private void releaseAirdropTicket(Chicken chicken) {
+        var column = airdropColumns.remove(chicken);
+        if (column != null) releaseAirdropColumn(column);
+    }
+
+    private void releaseAirdropColumn(AirdropColumn column) {
+        int remaining = airdropLeases.get(column) - 1;
+        if (remaining > 0) { airdropLeases.put(column, remaining); return; }
+        airdropLeases.remove(column);
+        column.level().getChunkSource().removeTicketWithRadius(AIRDROP_TICKET, column.pos(), AIRDROP_TICKET_RADIUS);
+    }
+
+    private void finishAirdrop(Chicken chicken) {
+        chicken.entityTags().remove(AIRDROP_FLIGHT);
+        releaseAirdropTicket(chicken);
+    }
+
+    private void discardAirdrop(Chicken chicken) {
+        finishAirdrop(chicken);
+        chicken.getSelfAndPassengers().toList().forEach(Entity::discard);
+    }
+
+    void cancelPendingAirdrops() {
+        // Pending pairs have not been published into native entity storage.
+        for (var chicken : pendingAirdrops.keySet()) discardAirdrop(chicken);
+        pendingAirdrops.clear();
+    }
+
+    private boolean activeAirdrop(Chicken chicken) {
+        return !chicken.isRemoved() && chicken.entityTags().contains(AIRDROP_FLIGHT)
+                && controller.items().currentEpoch(chicken);
+    }
+
+    void entityLoaded(Entity entity) {
+        if (entity instanceof Chicken chicken && activeAirdrop(chicken)
+                && (running || controller.stage() == GameController.Stage.ENDING)
+                && chicken.level() instanceof ServerLevel level)
+            holdAirdropColumn(chicken, level);
+    }
+
+    /** Keep the native carrier moving until its first landing, including during fireworks. */
+    void tickAirdropFlights() {
+        for (var chicken : List.copyOf(airdropColumns.keySet())) {
+            if (pendingAirdrops.containsKey(chicken)) continue;
+            if (!activeAirdrop(chicken)) { releaseAirdropTicket(chicken); continue; }
+            var level = (ServerLevel) chicken.level();
+            if (!chicken.isAlive() || chicken.onGround() || chicken.isInWater() || chicken.getY() < level.getMinY()
+                    || !(chicken.getFirstPassenger() instanceof MinecartChest cart) || cart.isRemoved()
+                    || !cart.entityTags().contains(AIRDROP) || !controller.items().currentEpoch(cart)) {
+                finishAirdrop(chicken);
+            } else {
+                holdAirdropColumn(chicken, level);
+            }
+        }
+    }
+
+    boolean airdropsCaptureReady() { return pendingAirdrops.isEmpty(); }
+
+    void prepareAirdropRestore() {
+        cancelPendingAirdrops();
+        for (var chicken : List.copyOf(airdropColumns.keySet())) releaseAirdropTicket(chicken);
+    }
+
+    void reindexRestoredAirdrops(Iterable<Entity> restored) {
+        for (var body : restored) {
+            if (!(body instanceof Chicken chicken) || !activeAirdrop(chicken)
+                    || !(chicken.level() instanceof ServerLevel level)) continue;
+            var manager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
+            if (manager.isLoaded(chicken.getUUID())) holdAirdropColumn(chicken, level);
+        }
     }
 }

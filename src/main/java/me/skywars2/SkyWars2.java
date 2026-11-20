@@ -81,6 +81,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         MapManager.registerLoadingTicket();
         DeveloperTools.registerItem();
         LbcHomes.registerTicket();
+        MatchEvents.registerAirdropTicket();
         LbcPortalDrops.registerTicket();
         me.skywars2.game.LbcBlaze.registerTrialTicket();
         LbcItems.register();
@@ -161,7 +162,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(game!=null) game.cancelQueuedEntityUnload(entity);
             // Вход с сохранённым эффектом: active_effects загружается без onEffectAdded.
             if (entity instanceof ServerPlayer player) FullInvisibility.effectsChanged(player);
-            if (game != null) { game.items().entityLoaded(entity); game.itemQueue().loaded(entity); }
+            if (game != null) { game.entityLoaded(entity); game.itemQueue().loaded(entity); }
             if (game != null && game.inLobby()) game.maps().queueLobbyEntity(entity);
         });
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
