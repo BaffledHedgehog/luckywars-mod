@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.ItemFixtureAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.*;
 import net.minecraft.resources.*;
@@ -15,11 +16,13 @@ import net.minecraft.world.inventory.AbstractCraftingMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.storage.loot.*;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
 import net.minecraft.world.level.storage.loot.parameters.*;
 import net.minecraft.world.scores.ScoreHolder;
 
-/** Frozen native-registry expectations, actual appended loot entries, tags and ordinary PhD result take. */
+/** Frozen native-registry expectations, exact Infinity lottery membership, tags and native PhD result take. */
 public final class ContentCatalogChecks {
     private ContentCatalogChecks() { }
     private static void require(boolean ok,String why) { if(!ok) throw new IllegalStateException("Content catalog: "+why); }
@@ -39,20 +42,17 @@ public final class ContentCatalogChecks {
         var result=new TreeSet<String>(); for(var row:rows) require(result.add(row.getAsString()),"unique expected ID "+row);
         return result;
     }
-    /** Resolve one source entry's carrier identities; inline variant groups keep their original leaf functions. */
-    private static Set<String> sourceItems(JsonElement value,Map<String,Set<String>> cache){
-        var result=new TreeSet<String>();
-        if(value.isJsonObject()){
-            var object=value.getAsJsonObject();var type=object.has("type")?object.get("type").getAsString():"";
-            if(type.equals("minecraft:item"))return Set.of(object.get("name").getAsString());
-            if(type.equals("minecraft:loot_table")&&object.has("value")&&object.get("value").isJsonPrimitive()){
-                var ref=object.get("value").getAsString();var cached=cache.get(ref);if(cached!=null)return cached;
-                require(ref.startsWith("lbc:"),"authored vanilla profile reference "+ref);
-                var resolved=sourceItems(json("/data/lbc/loot_table/"+ref.substring(4)+".json"),cache);cache.put(ref,resolved);return resolved;
-            }
-            for(var field:object.entrySet())result.addAll(sourceItems(field.getValue(),cache));
-        }else if(value.isJsonArray())for(var child:value.getAsJsonArray())result.addAll(sourceItems(child,cache));
-        return result;
+    /** Select one known index through the actual loot entry; variant draws still use native RNG. */
+    private static final class InfinityDraw extends LegacyRandomSource {
+        private final int size,index;
+        private boolean selected;
+        InfinityDraw(int size,int index){super(268361115L);this.size=size;this.index=index;}
+        @Override public int nextInt(int bound){
+            if(selected)return super.nextInt(bound);
+            require(bound==size,"native Infinity chooses uniformly from every vanilla slot");
+            selected=true;
+            return index;
+        }
     }
     public static void run(GameController game) {
         require(game.playing(),"requires an actual match");
@@ -69,45 +69,55 @@ public final class ContentCatalogChecks {
         var parent=json("/data/lbc/loot_table/infinity_no_shulker.json");
         var pools=parent.getAsJsonArray("pools"); require(pools.size()==1,"one author infinity pool");
         var pool=pools.get(0).getAsJsonObject(); require(pool.get("rolls").getAsInt()==26,"author26 rolls retained");
-        var entries=pool.getAsJsonArray("entries"); var additions=metadata.getAsJsonArray("addedItems");
-        require(entries.size()==expected.size(),"one outer source entry per vanilla registry item");
-        var byItem=new HashMap<String,JsonObject>();var cache=new HashMap<String,Set<String>>();
-        for(var raw:entries){
-            var entry=raw.getAsJsonObject();require((!entry.has("weight")||entry.get("weight").getAsInt()==1)
-                    &&(!entry.has("quality")||entry.get("quality").getAsInt()==0)&&!entry.has("condition")&&!entry.has("conditions"),"uniform unconditional outer weight");
-            var types=sourceItems(entry,cache);require(types.size()==1,"source variants share exactly one vanilla identity");
-            require(byItem.put(types.iterator().next(),entry)==null,"source count/variant duplicates never add outer weight");
+        var entries=pool.getAsJsonArray("entries");var additions=metadata.getAsJsonArray("addedItems");
+        require(entries.equals(JsonParser.parseString("""
+                [{"type":"skywars2:uniform_item","domain":"vanilla","types":["no_recursive_shulker"]}]
+                """)),"one unconditional native vanilla Infinity selector without recursive shulkers");
+        var manifest=json("/skywars2/all_item_pools.json");
+        var nodes=manifest.getAsJsonObject("entryNodes");
+        var members=manifest.getAsJsonObject("vanillaSourceViews").getAsJsonObject("no_recursive_shulker").getAsJsonObject("members");
+        var service=game.items().allItemPools();service.initialize();
+        var infinitySlots=service.slots(LbcAllItemPools.Domain.VANILLA,List.of("no_recursive_shulker"));
+        var indexes=new HashMap<String,Integer>();
+        for(int index=0;index<infinitySlots.size();index++){
+            String slot=infinitySlots.get(index);
+            require(slot.startsWith("vanilla/")&&indexes.put(slot.substring(8),index)==null,
+                    "variant profiles never create a second lottery ticket or add custom items: "+slot);
         }
-        require(byItem.keySet().equals(expected),"all current vanilla items reachable exactly once, no custom spill");
+        require(indexes.keySet().equals(expected)&&members.keySet().equals(new HashSet<>(infinitySlots)),
+                "Infinity runtime and authored profiles contain every current vanilla registry item exactly once");
         var params=new LootParams.Builder(p.level()).withParameter(LootContextParams.ORIGIN,p.position())
                 .withParameter(LootContextParams.THIS_ENTITY,p).create(LootContextParamSets.CHEST);
+        var actualParent=game.server().reloadableRegistries().getLootTable(key("lbc:infinity_no_shulker"));
+        var nativePools=((ItemFixtureAccess.Loot)(Object)actualParent).validation$pools();require(nativePools.size()==1,"one native registry pool");
+        var nativeEntries=nativePools.getFirst().entries;
+        require(nativeEntries.size()==1&&nativeEntries.getFirst() instanceof LbcAllItemPools.Entry,"loaded Infinity table uses the exact typed entry");
+        var expanded=new ArrayList<LootPoolEntry>();
+        var context=new LootContext.Builder(params).withOptionalRandomSeed(17).create(Optional.empty());
+        nativeEntries.getFirst().expand(context,expanded::add);
+        require(expanded.size()==1&&expanded.getFirst().getWeight(0)==1&&expanded.getFirst().getWeight(1000000)==1,
+                "native Infinity selector has one unconditional equal-weight ticket independent of luck");
+        var selector=expanded.getFirst();
         var addedIds=new HashSet<String>();
-        var ops=game.server().reloadableRegistries().lookup().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
-        for(int index=0;index<additions.size();index++) {
-            String item=additions.get(index).getAsJsonObject().get("item").getAsString();
+        for(var added:additions){
+            String item=added.getAsJsonObject().get("item").getAsString();
             require(expected.contains(item)&&addedIds.add(item),"new distinct vanilla item "+item);
-            var entry=byItem.get(item);
-            var shape=new JsonObject();shape.addProperty("type","minecraft:item");shape.addProperty("name",item);shape.addProperty("weight",1);
-            require(entry.equals(shape),"exact direct item entry in existing pool "+item);
-            var singleEntries=new JsonArray();singleEntries.add(entry.deepCopy());
-            var singlePool=new JsonObject();singlePool.addProperty("rolls",1);singlePool.add("entries",singleEntries);
-            var singlePools=new JsonArray();singlePools.add(singlePool);
-            var singleTable=new JsonObject();singleTable.add("pools",singlePools);
-            // Decode the ACTUAL parent entry with vanilla's codec; no extra resource tables are created.
-            var decoded=LootTable.DIRECT_CODEC.parse(ops,singleTable).getOrThrow();
-            var result=decoded.getRandomItems(params,268361115L);
+            var profiles=members.getAsJsonArray("vanilla/"+item);
+            var shape=new JsonObject();shape.addProperty("type","minecraft:item");shape.addProperty("name",item);
+            require(profiles.size()==1&&shape.equals(nodes.get(profiles.get(0).getAsString())),"exact direct authored profile "+item);
+            var random=new InfinityDraw(infinitySlots.size(),indexes.get(item));
+            var roll=new LootContext.Builder(params).withOptionalRandomSource(random).create(Optional.empty());
+            var result=new ArrayList<ItemStack>();
+            selector.createItemStack(result::add,roll);
             var type=BuiltInRegistries.ITEM.get(Identifier.parse(item)).orElseThrow().value();
-            require(result.size()==1&&ItemStack.matches(result.getFirst(),new ItemStack(type)),"native decoded direct entry exact item/default components "+item+" got="+result);
+            require(random.selected&&result.size()==1&&ItemStack.matches(result.getFirst(),new ItemStack(type)),
+                    "actual native Infinity roll preserves exact item/default components "+item+" got="+result);
         }
         var observedNew=new HashSet<String>();
-        var actualParent=game.server().reloadableRegistries().getLootTable(key("lbc:infinity_no_shulker"));
-        var nativePools=(List<?>)WoolBucketChecks.read(actualParent,"pools");require(nativePools.size()==1,"one native registry pool");
-        var expanded=new ArrayList<net.minecraft.world.level.storage.loot.entries.LootPoolEntry>();
-        var context=new LootContext.Builder(params).withOptionalRandomSeed(17).create(Optional.empty());
-        for(var source:((LootPool)nativePools.getFirst()).entries)source.expand(context,expanded::add);
-        require(expanded.size()==expected.size()&&expanded.stream().allMatch(entry->entry.getWeight(0)==1&&entry.getWeight(1000000)==1),"native expansion has one equal weight per registry identity, independent of luck");
         for(long seed=1;seed<=64;seed++)for(var stack:actualParent.getRandomItems(params,seed)){
-            var id=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();if(addedIds.contains(id))observedNew.add(id);
+            var id=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+            require(expected.contains(id)&&!stack.has(DataComponents.CONTAINER_LOOT),"actual Infinity rolls reject custom or recursive rewards: "+id);
+            if(addedIds.contains(id))observedNew.add(id);
         }
         require(!observedNew.isEmpty(),"actual packaged parent draws new vanilla rewards");
         for(String tag:List.of("mobs","monsters","magic_mobs"))

@@ -507,7 +507,10 @@ public final class ContentGallery {
                 var value = json.get("value");
                 if (value.isJsonPrimitive()) reference(value.getAsString(), modifiers, node.ancestry);
                 else queue.addLast(new Node(value.getAsJsonObject(), modifiers, node.ancestry));
-            } else if (type.equals("minecraft:item")||type.equals("skywars2:tmt")) {
+            } else if (type.equals("minecraft:item") || type.equals("skywars2:tmt")
+                    || type.equals("skywars2:uniform_item") && json.has("slot")
+                    && json.get("slot").getAsString().equals("factory/tmt")) {
+                // An explicit TMT factory slot represents one display. Uniform lotteries do not.
                 var entry = json.deepCopy(); entry.remove("condition"); entry.remove("conditions"); entry.remove("weight"); entry.remove("quality");
                 var functions = new JsonArray(); modifiers.forEach(functions::add);
                 entry.remove("modifier");

@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.*;
+import me.skywars2.validation.mixin.GameCheckAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
@@ -47,8 +48,11 @@ public final class ContentGalleryChecks {
             require(represented.contains(item), "every registered native mod item represented: " + BuiltInRegistries.ITEM.getKey(item));
         var params = new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN, player.position())
                 .withParameter(LootContextParams.THIS_ENTITY, player).create(LootContextParamSets.CHEST);
-        var tmt=contents.stream().filter(LbcTmtItems::matches).findFirst().orElseThrow();TmtAcquisitionChecks.generated(tmt);
-        var tmtRoll=(LootTable)((Map<?,?>)WoolBucketChecks.read(catalog,"rolls")).get(new ContentGallery.Identity(tmt));
+        var tmt=contents.stream().filter(LbcTmtItems::matches).findFirst()
+                .orElseThrow(()->new IllegalStateException("Content gallery: public TMT factory slot produces a ready display"));
+        TmtAcquisitionChecks.generated(tmt);
+        var catalogRolls=((GameCheckAccess.GalleryCatalog)(Object)catalog).validation$rolls();
+        var tmtRoll=catalogRolls.get(new ContentGallery.Identity(tmt));
         require(tmtRoll!=null,"TMT frame retains its real native loot source");
         var tmtA=tmtRoll.getRandomItems(params,11L);var tmtB=tmtRoll.getRandomItems(params,12L);
         require(tmtA.size()==1&&tmtB.size()==1&&!ItemStack.matches(tmtA.getFirst(),tmtB.getFirst()),"TMT gallery source rerolls instead of cloning preview properties");
@@ -77,10 +81,8 @@ public final class ContentGalleryChecks {
         var inventory = new ArrayList<ItemStack>();
         for (int index = 0; index < player.getInventory().getContainerSize(); index++) inventory.add(player.getInventory().getItem(index).copy());
         try {
-            if(ContentGallery.allowed(player))try{
-                var sourceRolls=ContentGallery.Catalog.class.getDeclaredField("rolls");sourceRolls.setAccessible(true);
-                var liveRolls=ContentGallery.class.getDeclaredField("rolls");liveRolls.setAccessible(true);
-                liveRolls.set(service,sourceRolls.get(catalog));
+            if(ContentGallery.allowed(player)){
+                ((GameCheckAccess.Gallery)(Object)service).validation$rolls(catalogRolls);
                 var shovel=contents.stream().filter(stack->BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals("skywars2:random_enchanted_shovel")).findFirst().orElseThrow();
                 var randomFrame=ContentGallery.frame(level,origin.above(2),shovel,layout);frames.add(randomFrame);
                 require(level.addFreshEntity(randomFrame),"randomized native showroom frame");
@@ -92,7 +94,7 @@ public final class ContentGalleryChecks {
                     variants.add(ItemStack.hashItemAndComponents(result));
                 }
                 require(variants.size()>1,"right click rerolls enchantments instead of cloning the framed seed");
-            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            }
             require(service.ownsChest(level, layout.chest()) && !service.ownsChest(level, layout.chest().east()), "precise owned central chest position");
             require(!service.useBlock(player, layout.chest().east()), "foreign block never intercepted");
             require(!service.useEntity(player, player), "foreign entity never intercepted");

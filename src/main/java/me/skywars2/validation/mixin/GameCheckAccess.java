@@ -1,10 +1,13 @@
 package me.skywars2.validation.mixin;
 
 import java.util.IdentityHashMap;
+import java.util.Map;
+import me.skywars2.game.ContentGallery;
 import me.skywars2.game.LbcExoperso;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -28,5 +31,15 @@ public final class GameCheckAccess {
     @Mixin(value = LbcExoperso.class, remap = false)
     public interface Exoperso {
         @Accessor("blastSources") IdentityHashMap<Entity, ?> validation$blastSources();
+    }
+
+    @Mixin(targets = "me.skywars2.game.ContentGallery$Catalog", remap = false)
+    public interface GalleryCatalog {
+        @Accessor("rolls") Map<?, LootTable> validation$rolls();
+    }
+
+    @Mixin(value = ContentGallery.class, remap = false)
+    public interface Gallery {
+        @Accessor("rolls") void validation$rolls(Map<?, LootTable> rolls);
     }
 }

@@ -10,6 +10,8 @@
     "GameCheckAccess$CombatLinks",
     "GameCheckAccess$TeleportAck",
     "GameCheckAccess$Exoperso",
+    "GameCheckAccess$GalleryCatalog",
+    "GameCheckAccess$Gallery",
     "BotValidationAccess$Bots",
     "BotValidationAccess$State",
     "BotValidationAccess$Arrow",
@@ -22,6 +24,7 @@
     "WandFixtureAccess$Duplicating",
     "WandFixtureAccess$Blind",
     "WandFixtureAccess$TerraShot",
-    "WandFixtureAccess$Electro"
+    "WandFixtureAccess$Electro",
+    "ItemFixtureAccess$Loot"
   ]
 }
