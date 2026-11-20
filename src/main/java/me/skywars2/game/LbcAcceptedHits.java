@@ -94,7 +94,7 @@ public final class LbcAcceptedHits {
     private static void dispatch(LivingEntity victim,DamageSource source,float amount,boolean living,boolean nativeHit){
         var game=SkyWars2.game();if(game==null)return;
         game.items().academy().damaged(victim,source);
-        if(nativeHit&&victim instanceof ServerPlayer hurt)LbcTmtTriggers.input(hurt,LbcTmtTriggers.Input.HURT,source.getEntity(),null,null);
+        if(nativeHit&&victim instanceof ServerPlayer hurt)LbcTmtTriggers.hurtInput(hurt,source);
         // Fatal native credit was settled by acceptedDamage/beforeDeath already.
         if(living)game.items().indirectKills().damaged(victim,source);
         game.items().damaged(victim,source);

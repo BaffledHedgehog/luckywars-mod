@@ -7,6 +7,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -131,6 +132,9 @@ public final class LbcTmtTriggers {
         return ability.inputs().get(action)==input;
     }
     public static void input(ServerPlayer owner,Input input){input(owner,input,null,null,null);}
+    static void hurtInput(ServerPlayer owner,DamageSource source){
+        input(owner,Input.HURT,source.getEntity(),null,null,null,LbcIncomingArtifacts.isReactiveBlast(source));
+    }
     public static void useItemInput(ServerPlayer owner,InteractionHand hand){
         input(owner,Input.RIGHT_CLICK,null,null,null,hand);
     }
@@ -170,6 +174,11 @@ public final class LbcTmtTriggers {
     }
     private static void input(ServerPlayer owner,Input input,Entity target,net.minecraft.core.BlockPos block,
                               net.minecraft.world.level.block.state.BlockState before,InteractionHand itemHand){
+        input(owner,input,target,block,before,itemHand,false);
+    }
+    private static void input(ServerPlayer owner,Input input,Entity target,net.minecraft.core.BlockPos block,
+                              net.minecraft.world.level.block.state.BlockState before,InteractionHand itemHand,
+                              boolean reactiveBlast){
         var game=me.skywars2.SkyWars2.game();
         if(game!=null){
             var genie=game.items().genie().runtime();
@@ -192,7 +201,11 @@ public final class LbcTmtTriggers {
                     // The accepted-shot owner already handled this same native volley.
                     if(input==Input.SHOT&&action==Action.SHOT)continue;
                     var ready=new ArrayList<LbcTmtAbilities.Ability>();
-                    for(var property:all)if(matches(property,action,input)&&dispatched.add(new Stamp(owner.getUUID(),stack,property.id(),action)))ready.add(property);
+                    for(var property:all){
+                        if(!matches(property,action,input))continue;
+                        if(reactiveBlast&&action==Action.INCOMING&&LbcIncomingArtifacts.isReactiveExplosionProperty(property.data()))continue;
+                        if(dispatched.add(new Stamp(owner.getUUID(),stack,property.id(),action)))ready.add(property);
+                    }
                     if(ready.isEmpty())continue;
                     if(stack.isEmpty()||owner.getItemInHand(hand)!=stack)break;
                     var chosenHand=hand;

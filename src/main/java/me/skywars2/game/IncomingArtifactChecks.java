@@ -13,6 +13,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -171,6 +173,7 @@ public final class IncomingArtifactChecks {
         void observerChild(net.minecraft.world.entity.item.PrimedTnt parent){
             var child=new net.minecraft.world.entity.item.PrimedTnt(level,parent.getX(),parent.getY(),parent.getZ(),owner);child.setFuse(80);child.setDeltaMovement(Vec3.ZERO);
             service.inheritChild(parent,child);require(level.addFreshEntity(child)&&service.owner(child)==owner&&game.items().currentEpoch(child),"native TNT child inherits actual current-epoch incoming author");
+            explosionRecursion(parent,child);
             var scoped=new Snapshot(game,owner);int protection=game.config().tntProtection;
             try{
                 game.spectators().enter(owner);owner.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
@@ -192,6 +195,72 @@ public final class IncomingArtifactChecks {
             }finally{
                 game.config().tntProtection=protection;game.spectators().remove(owner);scoped.restore(game);scoped.restoreAttributes();scoped.restoreUse();enemy.removeAllEffects();enemy.setHealth(500);enemy.setDeltaMovement(Vec3.ZERO);enemy.setInvulnerableTime(0);enemy.damageCooldownTime=0;
             }
+        }
+        void explosionRecursion(PrimedTnt parent,PrimedTnt child){
+            int protection=game.config().tntProtection;
+            var external=new PrimedTnt(level,parent.getX(),parent.getY(),parent.getZ(),owner);
+            external.setFuse(80);
+            try{
+                game.config().tntProtection=0;
+                service.trackWild(owner,external);
+                require(service.owner(external)==owner,"independent native TNT shares the artifact's owner and actor registry");
+                var ownBlast=level.damageSources().explosion(parent,owner);
+                var childBlast=level.damageSources().explosion(child,owner);
+                var externalBlast=level.damageSources().explosion(external,owner);
+
+                owner.removeAllEffects();
+                put(false,5,1);
+                int count=service.count();
+                explosionHurt(owner,ownBlast);
+                effect(MobEffects.STRENGTH,0,100);
+                require(service.count()==count&&!owner.hasEffect(MobEffects.SLOW_FALLING),
+                        "artifact blast still hurts and procs other artifacts without spawning another TNT");
+                explosionHurt(owner,externalBlast);
+                require(service.count()==count+1&&owner.hasEffect(MobEffects.SLOW_FALLING),
+                        "external native TNT owned by the same wearer still procs the explosion artifact");
+
+                enemy.getInventory().setItem(1,loot("incoming_artifact_2"));
+                count=service.count();
+                explosionHurt(enemy,childBlast);
+                require(service.count()==count&&!enemy.hasEffect(MobEffects.SLOW_FALLING),
+                        "native TNT descendant cannot bounce the proc to a second wearer");
+                enemy.getInventory().setItem(1,ItemStack.EMPTY);
+
+                var carrier=LbcTmtItems.prototype(0);
+                var data=carrier.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+                var payload=loot("incoming_artifact_2").get(DataComponents.CUSTOM_DATA).copyTag();
+                var bindings=new net.minecraft.nbt.CompoundTag();
+                bindings.putString("INCOMING","HURT");
+                payload.put(LbcTmtTriggers.KEY,bindings);
+                data.putInt("tmt_item",1);
+                data.putInt(LbcTmtTriggers.SCHEMA,1);
+                LbcTmtAbilities.write(data,List.of(new LbcTmtAbilities.Ability("mystical/incoming",CustomData.of(payload))));
+                carrier.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+                enemy.setItemInHand(InteractionHand.MAIN_HAND,carrier);
+                explosionHurt(enemy,ownBlast);
+                require(service.count()==count&&!enemy.hasEffect(MobEffects.SLOW_FALLING),
+                        "native accepted HURT cannot retrigger the rebound TMT explosion property");
+                explosionHurt(enemy,externalBlast);
+                require(service.count()==count+1&&enemy.hasEffect(MobEffects.SLOW_FALLING),
+                        "a same-tick external hit still procs the rebound TMT explosion property");
+            }finally{
+                game.config().tntProtection=protection;
+                enemy.getInventory().clearContent();
+                enemy.removeAllEffects();
+                owner.getInventory().setItem(1,ItemStack.EMPTY);
+                service.forget(enemy);
+                external.discard();
+            }
+        }
+        void explosionHurt(ServerPlayer target,DamageSource source){
+            target.setHealth(500);
+            target.setAbsorptionAmount(0);
+            target.setInvulnerableTime(0);
+            target.damageCooldownTime=0;
+            float health=target.getHealth();
+            long count=service.criterionCount();
+            require(target.hurtServer(level,source,8)&&target.getHealth()<health&&service.criterionCount()==count+1,
+                    "actual native TNT damage and player criterion accepted");
         }
         void prepareShield(){reset();put(false,1,1);owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.SHIELD));owner.setYRot(0);owner.setXRot(0);owner.startUsingItem(InteractionHand.MAIN_HAND);clock=client.updates();start=game.server().getTickCount();stage=0;}
         boolean step(){

@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.damagesource.DamageSource;
@@ -41,6 +42,7 @@ import java.util.function.BooleanSupplier;
 public final class LbcIncomingArtifacts {
     private static final String ACTOR="skywars2.incoming_artifact.actor";
     private static final String WILD="skywars2.incoming_artifact.wild";
+    private static final String REACTIVE_TNT="skywars2.incoming_artifact.reactive_tnt";
     private static final TagKey<EntityType<?>> ATTACKS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:attacks"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final TagKey<Block> SOLID=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:solid"));
@@ -91,20 +93,28 @@ public final class LbcIncomingArtifacts {
         if(!a.allowed)return;
         game.items().gaaraPot().incoming(owner);
         criteria++;
-        apply(owner,source.getEntity(),a,false);
+        apply(owner,source.getEntity(),a,false,isReactiveBlast(source));
     }
     void propertyIncoming(ServerPlayer owner,Entity attacker,net.minecraft.world.item.component.CustomData property){
         if(!admitted(owner,true))return;
         var d=(ItemData.IntReader)(Object)property;int type=d.skywars2$readInt("type",0);if(type<1||type>6)return;
         int current=d.skywars2$readInt("mystical",0)==4?1<<type:0,old=d.skywars2$readInt("mystical_old",0)==4?1<<type:0;
-        apply(owner,attacker,new Admission(owner,true,current,old,true),true);
+        apply(owner,attacker,new Admission(owner,true,current,old,true),true,false);
     }
-    private void apply(ServerPlayer owner,Entity attacker,Admission a,boolean rebound){
+    static boolean isReactiveBlast(DamageSource source){
+        return source.is(DamageTypeTags.IS_EXPLOSION)&&source.getDirectEntity() instanceof PrimedTnt tnt
+                &&tnt.entityTags().contains(REACTIVE_TNT);
+    }
+    static boolean isReactiveExplosionProperty(net.minecraft.world.item.component.CustomData property){
+        var data=(ItemData.IntReader)(Object)property;
+        return data.skywars2$readInt("mystical",0)==4&&data.skywars2$readInt("type",0)==2;
+    }
+    private void apply(ServerPlayer owner,Entity attacker,Admission a,boolean rebound,boolean reactiveBlast){
         // The separate shield criterion admits the source entity's original tag, without a magic gate.
         if((a.current&2)!=0&&(rebound||attacker!=null&&attacker.getType().builtInRegistryHolder().is(ATTACKS)))shield(owner);
         // container.* outer predicate is narrower than Inventory NBT; armor/offhand alone do not open it.
         if(a.currentContainer&&!game.items().magic().beaconSuppressed(owner.position())){
-            if((a.current&4)!=0)explode(owner);
+            if((a.current&4)!=0&&!reactiveBlast)explode(owner);
             if((a.current&8)!=0)corrosion(owner);
             if((a.current&16)!=0)weakall(owner);
             if((a.current&32)!=0)speed(owner);
@@ -132,7 +142,9 @@ public final class LbcIncomingArtifacts {
         if(game.balanceLegacy())for(var target:p.level().getEntitiesOfClass(ServerPlayer.class,p.getBoundingBox().inflate(7),q->q.distanceToSqr(p)<=49
                 &&game.items().wands().validRoleTarget(q,false)))effect(target,MobEffects.RESISTANCE,20,4,false);
         effect(p,MobEffects.SLOW_FALLING,100,0,true);
-        var tnt=new PrimedTnt(p.level(),p.getX(),p.getY(),p.getZ(),p);tnt.setFuse(0);tnt.setDeltaMovement(Vec3.ZERO);ExplosionItemProtection.stamp(tnt,protection);track(p,tnt);
+        var tnt=new PrimedTnt(p.level(),p.getX(),p.getY(),p.getZ(),p);
+        tnt.setFuse(0);tnt.setDeltaMovement(Vec3.ZERO);tnt.entityTags().add(REACTIVE_TNT);
+        ExplosionItemProtection.stamp(tnt,protection);track(p,tnt);
     }
     private void corrosion(ServerPlayer p){
         var level=p.level();var origin=p.blockPosition().offset(-5,-8,-5);
@@ -317,7 +329,10 @@ public final class LbcIncomingArtifacts {
     public void inheritChild(Entity source,Entity child){
         if(!managed(source)||!(child instanceof PrimedTnt)||!actors.containsKey(source))return;
         var p=owner(source);if(p==null||!game.playing()||game.stage()==GameController.Stage.ENDING){child.discard();return;}
-        child.entityTags().add(ACTOR);if(wild(source))child.entityTags().add(WILD);game.items().markCurrentItemEpoch(child);actors.put(child,p.getUUID());game.items().timeStop().prepareFrozen(child);
+        child.entityTags().add(ACTOR);
+        if(wild(source))child.entityTags().add(WILD);
+        if(source.entityTags().contains(REACTIVE_TNT))child.entityTags().add(REACTIVE_TNT);
+        game.items().markCurrentItemEpoch(child);actors.put(child,p.getUUID());game.items().timeStop().prepareFrozen(child);
     }
     public boolean explosionTarget(Entity source,Entity target){return !managed(source)||canAffect(source,target);}
     public boolean canAffect(Entity source,Entity target){
