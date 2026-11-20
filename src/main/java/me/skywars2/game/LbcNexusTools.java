@@ -33,10 +33,15 @@ public final class LbcNexusTools {
     }
     private record Chunk(ServerLevel level,ChunkPos pos){}
     private record Image(UUID id,LbcIndirectKills.Owner cause,UUID rider,Vec3 direction,int age){}
+    private static final class ChunkLoad {
+        CompletableFuture<?> future;
+        int retriedAt=Integer.MIN_VALUE;
+        ChunkLoad(CompletableFuture<?> future){this.future=future;}
+    }
     private final GameController game;
     private final Map<Entity,Actor> actors=new LinkedHashMap<>();
     private final Deque<Actor> cells=new ArrayDeque<>();
-    private final Map<Chunk,CompletableFuture<?>> chunks=new HashMap<>();
+    private final Map<Chunk,ChunkLoad> chunks=new HashMap<>();
     private final Set<Chunk> needed=new HashSet<>();
     private final Set<UUID> casting=new HashSet<>(),cooling=new HashSet<>();
     private int lastTick=Integer.MIN_VALUE;
@@ -93,12 +98,29 @@ public final class LbcNexusTools {
     }
     void unloaded(Entity body){actors.remove(body);}
     private void remove(Actor actor){actors.remove(actor.body);actor.body.discard();}
-    private boolean resident(ServerLevel level,AABB bounds){
-        if(bounds.maxY<level.getMinY()||bounds.minY>=level.getMaxY())return true;
-        boolean ready=true;for(int x=(int)Math.floor(bounds.minX/16);x<=(int)Math.floor(bounds.maxX/16);x++)for(int z=(int)Math.floor(bounds.minZ/16);z<=(int)Math.floor(bounds.maxZ/16);z++){
-            var key=new Chunk(level,new ChunkPos(x,z));needed.add(key);var f=chunks.computeIfAbsent(key,k->level.getChunkSource().addTicketAndLoadWithRadius(TICKET,k.pos(),0));
-            if(!f.isDone()||level.getChunkSource().getChunkNow(x,z)==null)ready=false;
-        }return ready;
+    private NativeChunkLoad.Residency residency(ServerLevel level,AABB bounds){
+        if(bounds.maxY<level.getMinY()||bounds.minY>=level.getMaxY())return NativeChunkLoad.Residency.READY;
+        var source=level.getChunkSource();
+        var footprint=new ArrayList<Chunk>();
+        var result=NativeChunkLoad.Residency.READY;
+        int now=game.server().getTickCount();
+        for(int x=(int)Math.floor(bounds.minX/16);x<=(int)Math.floor(bounds.maxX/16);x++){
+            for(int z=(int)Math.floor(bounds.minZ/16);z<=(int)Math.floor(bounds.maxZ/16);z++){
+                var key=new Chunk(level,new ChunkPos(x,z));
+                footprint.add(key);
+                var load=chunks.computeIfAbsent(key,k->new ChunkLoad(source.addTicketAndLoadWithRadius(TICKET,k.pos(),0)));
+                if(source.getChunkNow(x,z)!=null)continue;
+                result=NativeChunkLoad.Residency.WAITING;
+                // Overlapping actors share the same retry, including its first server tick.
+                if(!NativeChunkLoad.failed(load.future)||load.retriedAt==now)continue;
+                if(load.retriedAt!=Integer.MIN_VALUE)return NativeChunkLoad.Residency.FAILED;
+                load.retriedAt=now;
+                source.removeTicketWithRadius(TICKET,key.pos(),0);
+                load.future=source.addTicketAndLoadWithRadius(TICKET,key.pos(),0);
+            }
+        }
+        needed.addAll(footprint);
+        return result;
     }
     private void block(ServerLevel level,BlockPos pos,Block value){if(!level.isOutsideBuildHeight(pos))LbcDropBlocks.setBlock(level,pos,value.defaultBlockState(),true);}
     /** Geometric skipping samples the exact independent .002 Bernoulli cells without visiting343 empty trials. */
@@ -107,7 +129,9 @@ public final class LbcNexusTools {
         var p=game.server().getPlayerList().getPlayer(a.rider);var level=(ServerLevel)a.body.level();
         if(p==null||p.isRemoved()||!p.isAlive()||p.level()!=level||p.getVehicle()!=a.body||p.isShiftKeyDown()){if(p!=null&&p.getVehicle()==a.body)p.stopRiding();remove(a);return;}
         if(paused(p))return;var from=a.body.position();var end=from.add(a.direction.scale(36));
-        if(!resident(level,new AABB(from,end).inflate(5)))return;
+        var residency=residency(level,new AABB(from,end).inflate(5));
+        if(residency==NativeChunkLoad.Residency.FAILED){p.stopRiding();remove(a);}
+        if(residency!=NativeChunkLoad.Residency.READY)return;
         int age=++a.age;
         game.items().indirectKills().capturedWorldChanges(level,a.cause,()->{
             if(age<=36)for(int i=0;i<13;i++){var origin=BlockPos.containing(from.add(a.direction.scale(3*i))).offset(-4,-4,-4);
@@ -119,7 +143,9 @@ public final class LbcNexusTools {
         if(age>=39)remove(a);else save(a);
     }
     private void cell(Actor a){var level=(ServerLevel)a.body.level();var point=a.body.position();
-        if(!resident(level,new AABB(point,point).inflate(2))) {cells.addLast(a);return;}
+        var residency=residency(level,new AABB(point,point).inflate(2));
+        if(residency==NativeChunkLoad.Residency.FAILED){remove(a);return;}
+        if(residency==NativeChunkLoad.Residency.WAITING){cells.addLast(a);return;}
         game.items().indirectKills().capturedWorldChanges(level,a.cause,()->{
             block(level,a.body.blockPosition(),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLACK));
             for(var delta:NEIGHBORS){var next=point.add(delta);if(!level.getBlockState(BlockPos.containing(next)).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLACK))&&level.getRandom().nextFloat()<.5f)cube(level,next,a.cause);}

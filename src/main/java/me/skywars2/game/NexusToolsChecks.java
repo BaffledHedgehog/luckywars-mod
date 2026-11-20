@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import java.nio.file.*;
+import java.util.concurrent.CompletableFuture;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.*;
@@ -21,12 +22,15 @@ public final class NexusToolsChecks {
     private NexusToolsChecks(){}
     private static void require(boolean value,String message){if(!value)throw new IllegalStateException("Nexus tools: "+message);}
     static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.init();}catch(Throwable t){running.close();running=null;if(t instanceof Error e)throw e;throw new IllegalStateException(t);}}
-    static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-tools (native air/block callbacks, Paper compass cache/reload/same-Nexus/mainhand/MAG/TimeStop, exact Corrupter ray and owned WILD concrete, cross-owner cohort clear, typed paused actors, complete525block Roadgun/39ticks/pad/sparse distribution and cleanup)");}catch(Throwable t){try{running.close();}catch(Throwable c){t.addSuppressed(c);}running=null;SkyWars2.LOGGER.error("[check] FAIL nexus-tools",t);}}
+    static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-tools (native air/block callbacks, Paper compass cache/reload/same-Nexus/mainhand/MAG/TimeStop, exact Corrupter ray and owned WILD concrete, cross-owner cohort clear, typed paused actors, complete525block Roadgun/39ticks/pad/sparse distribution, retry/failure and native ticket cleanup)");}catch(Throwable t){try{running.close();}catch(Throwable c){t.addSuppressed(c);}running=null;SkyWars2.LOGGER.error("[check] FAIL nexus-tools",t);}}
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ChefChecks.Fixture base;final ServerLevel home,nexus;final LbcNexusTools tools;
         final Path override=Path.of("config","luckywars","nexus_coords.json");final byte[] savedOverride;
         final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();final Set<Entity> owned=new HashSet<>();final Set<UUID> originalNearby=new HashSet<>();
         RegenerationBeltChecks.ScheduledClient client;Marker jammer;Cow cow;Entity road;Vec3 roadStart;int phase,wait,age,savedRoadAge;
+        ChunkPos failedColumn;
+        BlockPos warmControl;
+        Entity failedRoad,failedCell,warmCell;
         boolean closed;
         Fixture(GameController game){this.game=game;base=new ChefChecks.Fixture(game);home=base.owner.level();nexus=game.server().getLevel(LbcHedgehogDimensions.NEXUS);tools=game.items().nexusTools();require(nexus!=null&&tools.count()==0,"clean real Nexus actors");
             try{savedOverride=Files.exists(override)?Files.readAllBytes(override):null;}catch(java.io.IOException e){throw new IllegalStateException(e);}}
@@ -43,7 +47,12 @@ public final class NexusToolsChecks {
             require(use(InteractionHand.MAIN_HAND)==InteractionResult.SUCCESS&&p.level()==nexus&&p.position().equals(new Vec3(40.5,160,40.5)),"actual cached saved destination");client.acknowledge();
             require(p.getDeltaMovement().equals(motion)&&p.getYRot()==31&&p.getXRot()==-12&&game.items().nexusCompass().cooldownSeconds(p)==30,"teleport retains motion/look and native30second cooldown");
             config(64.5);game.items().mana().score(p,"nexus_compass_cd").set(0);
-            require(net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.invoker().interact(p,p.level(),InteractionHand.MAIN_HAND,new BlockHitResult(p.position(),net.minecraft.core.Direction.UP,p.blockPosition(),false))==InteractionResult.SUCCESS&&p.getX()==40.5,"block callback uses cache, same-Nexus teleport remains available");client.acknowledge();
+            var blockResult=net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.invoker().interact(p,p.level(),
+                    InteractionHand.MAIN_HAND,new BlockHitResult(p.position(),net.minecraft.core.Direction.UP,p.blockPosition(),false));
+            require(blockResult==InteractionResult.PASS&&game.items().nexusCompass().cooldownSeconds(p)==0,
+                    "Nexus compass leaves native block interaction priority intact");
+            require(use(InteractionHand.MAIN_HAND)==InteractionResult.SUCCESS&&p.getX()==40.5,
+                    "air fallback uses the existing cache and allows same-Nexus teleport");client.acknowledge();
             require(game.server().getCommands().getDispatcher().execute("skywars reloadconfig",game.server().createCommandSourceStack())>0,"real reload command updates compass table");
             game.items().mana().score(p,"nexus_compass_cd").set(0);
             require(use(InteractionHand.MAIN_HAND)==InteractionResult.SUCCESS&&p.getX()==64.5,"reloaded exact destination");client.acknowledge();
@@ -78,8 +87,101 @@ public final class NexusToolsChecks {
             }else if(phase==6){if(!road.isRemoved())return false;
                 require(p.getVehicle()==null&&Math.abs(road.getX()-roadStart.x-525)<.001,"complete35x15block source travel and natural dismount");
                 require(nexus.getBlockState(p.blockPosition().below(2)).is(Blocks.CONCRETE.pick(DyeColor.WHITE)),"source finish pad lies below the actual player");
-                require(game.items().mana().hudValue(p,"nexus_roadgun_cd")>0,"source cooldown retained");return true;
+                require(game.items().mana().hudValue(p,"nexus_roadgun_cd")>0,"source cooldown retained");
+                beginLoadFailure(p);
+                phase=7;wait=0;
+            }else if(phase==7){
+                require(failedRoad.isRemoved()&&p.getVehicle()==null,"terminal native failure retires the Roadgun and dismounts its actual rider");
+                if(!failedCell.isRemoved()||!warmCell.isRemoved()){require(wait<5,"both independent cells settle despite a failed load");return false;}
+                require(nexus.getChunkSource().getChunkNow(failedColumn.x(),failedColumn.z())==null,
+                        "failed road/cell retired before the cold footprint could publish terrain");
+                require(chunkFailure(failedColumn,null)==null&&toolTickets(failedColumn)==0,
+                        "terminal shared column releases both its request and native ticket");
+                require(nexus.getBlockState(warmControl).is(Blocks.CONCRETE.pick(DyeColor.BLACK)),
+                        "warm Corrupter still writes its real cell while a cold peer fails");
+                return true;
             }return false;}
+
+        private void beginLoadFailure(ServerPlayer player) throws ReflectiveOperationException {
+            var origin=new Vec3(609.5,160,40.5);
+            failedColumn=new ChunkPos(40,2);
+            require(nexus.getChunkSource().getChunkNow(failedColumn.x(),failedColumn.z())==null
+                            && toolTickets(failedColumn)==0,"new Roadgun frontier starts genuinely cold and unleased");
+            player.teleportTo(nexus,origin.x,origin.y,origin.z,Set.of(),-90,0,true);
+            client.acknowledge();
+            player.setNoGravity(true);
+            player.setDeltaMovement(Vec3.ZERO);
+            game.items().mana().score(player,"nexus_roadgun_cd").set(0);
+            require(use(InteractionHand.MAIN_HAND)==InteractionResult.SUCCESS&&player.getVehicle()!=null,
+                    "a second paid native Roadgun cast mounts an actual rider");
+            failedRoad=player.getVehicle();
+            owned.add(failedRoad);
+            var actor=tools.snapshot().stream().filter(a->a.body==failedRoad).findFirst().orElseThrow();
+            var advance=LbcNexusTools.class.getDeclaredMethod("road",LbcNexusTools.Actor.class);
+            advance.setAccessible(true);
+            advance.invoke(tools,actor);
+            require(actor.age==0&&failedRoad.position().equals(origin)&&toolTickets(failedColumn)==1,
+                    "actual cold look-ahead holds one native ticket and has not moved or painted");
+            var loaded=chunkFailure(failedColumn,null);
+            require(loaded!=null,"native Roadgun holds a cold load before the injected result");
+            var error=CompletableFuture.completedFuture(ChunkResult.error("fixture cold Roadgun frontier"));
+            require(chunkFailure(failedColumn,error)==loaded,"fixture fails the actual shared native request");
+            advance.invoke(tools,actor);
+            var retry=chunkFailure(failedColumn,null);
+            require(retry!=null&&retry!=error&&retry!=loaded&&toolTickets(failedColumn)==1
+                            &&actor.age==0&&player.getVehicle()==failedRoad,
+                    "native failure reissues the request once without duplicating its ticket or moving the rider");
+
+            var coldCenter=new Vec3(failedColumn.getMinBlockX()+8.5,160.5,40.5);
+            var cold=tools.cube(nexus,coldCenter,game.items().indirectKills().wildCause(player));
+            require(cold!=null,"native Corrupter branch joins the failed column");
+            failedCell=cold.body;
+            owned.add(failedCell);
+            warmControl=new BlockPos(572,160,40);
+            var black=Blocks.CONCRETE.pick(DyeColor.BLACK).defaultBlockState();
+            for(var direction:net.minecraft.core.Direction.values())
+                LbcDropBlocks.setBlock(nexus,warmControl.relative(direction),black,true);
+            LbcDropBlocks.setBlock(nexus,warmControl,Blocks.STONE.defaultBlockState(),true);
+            var warm=tools.cube(nexus,Vec3.atCenterOf(warmControl),game.items().indirectKills().wildCause(base.other));
+            require(warm!=null,"warm Corrupter has an independent ready footprint");
+            warmCell=warm.body;
+            owned.add(warmCell);
+            var cancelled=new CompletableFuture<>();
+            cancelled.cancel(false);
+            require(chunkFailure(failedColumn,cancelled)==retry,"the retried load fails independently");
+            advance.invoke(tools,actor);
+            require(actor.age==0&&player.getVehicle()==failedRoad,
+                    "same-tick use waits for the shared retry before deciding it is terminal");
+        }
+
+        @SuppressWarnings("unchecked")
+        private CompletableFuture<?> chunkFailure(ChunkPos column,CompletableFuture<?> replacement) {
+            var requests=(Map<Object,Object>)WoolBucketChecks.read(tools,"chunks");
+            for(var entry:requests.entrySet()){
+                var key=entry.getKey();
+                if(WoolBucketChecks.read(key,"level")!=nexus || !column.equals(WoolBucketChecks.read(key,"pos")))continue;
+                var load=entry.getValue();
+                if(load instanceof CompletableFuture<?> original){
+                    if(replacement!=null)entry.setValue(replacement);
+                    return original;
+                }
+                var future=(CompletableFuture<?>)WoolBucketChecks.read(load,"future");
+                if(replacement!=null)try{
+                    var field=load.getClass().getDeclaredField("future");
+                    field.setAccessible(true);
+                    field.set(load,replacement);
+                }catch(ReflectiveOperationException error){throw new IllegalStateException("Cannot inject the owned chunk result",error);}
+                return future;
+            }
+            return null;
+        }
+
+        private long toolTickets(ChunkPos column) {
+            var storage=(net.minecraft.world.level.TicketStorage)WoolBucketChecks.read(nexus.getChunkSource(),"ticketStorage");
+            return storage.getTickets(column.pack()).stream().filter(ticket->"skywars2:nexus_tools".equals(String.valueOf(
+                    net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE.getKey(ticket.getType())))).count();
+        }
+
         @Override public void close(){if(closed)return;closed=true;try{unjam();tools.stop();owned.forEach(Entity::discard);base.owner.entityTags().remove("time_stopped");base.owner.stopRiding();
                 for(var e:terrain.entrySet())game.maps().restoreSnapshot(nexus,e.getKey(),e.getValue());
                 if(base.owner.level()!=home){base.owner.teleportTo(home,base.at.x,base.at.y,base.at.z,Set.of(),0,0,true);if(client!=null)client.acknowledge();}
