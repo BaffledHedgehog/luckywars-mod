@@ -177,8 +177,10 @@ public final class LbcSheep {
         if(greed!=null&&greed.getEntity()!=p)end=greed.getLocation();
         double length=from.distanceTo(end);Vec3 lastValid=null;
         var dust=new DustParticleOptions(academy?0x813681:0xff00ff,2);
+        boolean legacy = game.balanceLegacy();
+        var reaction = NO_POTION_REACTION;
         try (var trail = new LbcParticleBatch.Group(p.level(), dust, 0, .1, false, .76,
-                game.balanceLegacy() ? 1 : 2)) {
+                legacy ? 1 : 2)) {
             PotionCandidates potions = null;
             for (int sample = 0; sample * RAY_STEP <= length; sample++) {
                 double distance = sample * RAY_STEP;
@@ -186,25 +188,31 @@ public final class LbcSheep {
                 if (!resident(p.level(), at) || suppressed(p.level(), at)) { end = lastValid; break; }
                 lastValid = at;
                 trail.add(at, academy ? 1 : 2);
-                if (sample % POTION_SEARCH_SAMPLES == 0) {
-                    double spanEnd = Math.min(length, distance + (POTION_SEARCH_SAMPLES - 1) * RAY_STEP);
-                    potions = potionsBetween(p, at, from.add(direction.scale(spanEnd)));
+                if (!reaction.triggered()) {
+                    if (sample % POTION_SEARCH_SAMPLES == 0) {
+                        double spanEnd = Math.min(length, distance + (POTION_SEARCH_SAMPLES - 1) * RAY_STEP);
+                        potions = potionsBetween(p, at, from.add(direction.scale(spanEnd)));
+                    }
+                    // The first reacting sample can activate both independent potion sources.
+                    reaction = consumePotion(p, hand, stack, at, potions);
+                    if (legacy && reaction.triggered()) return;
                 }
-                // Retain the first eligible original sample, including the two independent potion sources.
-                if (consumePotion(p, hand, stack, at, potions)) return;
             }
         }
         if(lastValid==null)return;
         // The DDA can end exactly at the first unloaded cell, between two particle samples.
         final Vec3 clipped=!resident(p.level(),end)||suppressed(p.level(),end)?lastValid:end;
+        if (!legacy && !reaction.triggered())
+            reaction = consumePotion(p, hand, stack, clipped, potionsBetween(p, clipped, clipped));
+        var potionBearers = reaction.bearers();
         // Fixed world-space margin, independent of target size; snapshot before publishing sheep.
         var targets=List.copyOf(p.level().getEntities(p,new AABB(from,clipped).inflate(2),e->
-                rayTarget(p,e,academy)&&!LbcGreed.active(e)&&!(e instanceof ItemEntity)
+                !potionBearers.contains(e)&&rayTarget(p,e,academy)&&!LbcGreed.active(e)&&!(e instanceof ItemEntity)
                 &&(e.getBoundingBox().inflate(2).contains(from)||e.getBoundingBox().inflate(2).clip(from,clipped).isPresent())
                 &&e.getBoundingBox().getCenter().subtract(from).dot(direction)>=0
                 &&e.getBoundingBox().getCenter().subtract(clipped).dot(direction)<=0));
         for(var target:targets)transform(p,target,academy);
-        consumePotion(p,hand,stack,clipped);
+        if (legacy) consumePotion(p, hand, stack, clipped);
     }
     static boolean potion(ItemStack stack) {
         if (stack.isEmpty() || !stack.has(DataComponents.CUSTOM_DATA)) return false;
@@ -215,6 +223,8 @@ public final class LbcSheep {
     private static boolean hasPotion(ServerPlayer p){for(int i=0;i<p.getInventory().getContainerSize();i++)if(potion(p.getInventory().getItem(i)))return true;return false;}
     private boolean potionHolder(ServerPlayer player){return !game.items().inventoryHazards().protectedInventory(player)&&LbcDimensionItems.ordinary(player)&&game.canUseGameplayItems(player)&&game.items().wands().validTarget(player)&&!frozen(player)&&!suppressed(player.level(),player.position());}
     private record PotionCandidates(List<ItemEntity> drops, List<ServerPlayer> holders) {}
+    private record PotionReaction(boolean triggered, List<ServerPlayer> bearers) {}
+    private static final PotionReaction NO_POTION_REACTION = new PotionReaction(false, List.of());
 
     private PotionCandidates potionsBetween(ServerPlayer caster, Vec3 from, Vec3 to) {
         var bounds = new AABB(from, to).inflate(2);
@@ -225,30 +235,40 @@ public final class LbcSheep {
 
     /** Two independently authored resources: nearby dropped potion, or a nearby player's matching inventory. */
     boolean consumePotion(ServerPlayer p, InteractionHand hand, ItemStack used, Vec3 at) {
-        return consumePotion(p, hand, used, at, potionsBetween(p, at, at));
+        return consumePotion(p, hand, used, at, potionsBetween(p, at, at)).triggered();
     }
 
-    private boolean consumePotion(ServerPlayer p, InteractionHand hand, ItemStack used, Vec3 at,
-                                  PotionCandidates potions) {
-        if (potions.drops().isEmpty() && potions.holders().isEmpty()) return false;
+    private PotionReaction consumePotion(ServerPlayer p, InteractionHand hand, ItemStack used, Vec3 at,
+                                         PotionCandidates potions) {
+        if (potions.drops().isEmpty() && potions.holders().isEmpty()) return NO_POTION_REACTION;
         var bounds = new AABB(at, at).inflate(2);
         boolean dropped = potions.drops().stream().anyMatch(item -> item.position().distanceToSqr(at) <= 4
                 && item.getBoundingBox().intersects(bounds) && game.items().wands().validTarget(item) && potion(item.getItem()));
         boolean inventory = potions.holders().stream().anyMatch(player -> player.position().distanceToSqr(at) <= 4
                 && player.getBoundingBox().intersects(bounds) && potionHolder(player) && hasPotion(player));
-        if (!dropped && !inventory) return false;
+        if (!dropped && !inventory) return NO_POTION_REACTION;
         boolean created=false;
+        List<ServerPlayer> bearers = List.of();
         if(dropped&&spawnHole(p,at)!=null){clearItems(p.level(),at);created=true;}
         if(inventory&&spawnHole(p,at)!=null){
+            var cleared = new ArrayList<ServerPlayer>();
             for(var other:p.level().getEntitiesOfClass(ServerPlayer.class,new AABB(at,at).inflate(5),e->potionHolder(e)&&e.position().distanceToSqr(at)<=25)){
-                for(int i=0;i<other.getInventory().getContainerSize();i++)if(potion(other.getInventory().getItem(i)))other.getInventory().setItem(i,ItemStack.EMPTY);
+                boolean removedPotion = false;
+                for (int i = 0; i < other.getInventory().getContainerSize(); i++) {
+                    if (!potion(other.getInventory().getItem(i))) continue;
+                    other.getInventory().setItem(i, ItemStack.EMPTY);
+                    removedPotion = true;
+                }
+                if (removedPotion) cleared.add(other);
                 other.getInventory().setChanged();other.containerMenu.broadcastChanges();
-            }created=true;
+            }
+            bearers = cleared;
+            created = true;
         }
         if(created&&!isAcademy(used)&&LbcAcademy.trial(used)){
             game.items().academy().ready(p,hand,used);p.entityTags().add("ohno");
         }
-        return created;
+        return created ? new PotionReaction(true, bearers) : NO_POTION_REACTION;
     }
     /** Academy's source gender branch includes players, but the final polymorph always excludes them. */
     Sheep transform(ServerPlayer p,Entity original,boolean academy){

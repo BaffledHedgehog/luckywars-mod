@@ -225,14 +225,29 @@ public final class SheepChecks {
                     potionPosition.z, potion());
             secondSpanDrop.setNoGravity(true);
             add(secondSpanDrop);
+            var beforePotion = cow(from.add(.25, -1, 4));
+            var afterPotion = cow(from.add(.25, -1, 18));
+            var farther = from.add(0, 0, 24);
+            var fartherPotion = new ItemEntity(owner.level(), farther.x, farther.y, farther.z, potion());
+            fartherPotion.setNoGravity(true);
+            add(fartherPotion);
             mana.set(owner, 500);
-            require(input(InteractionHand.MAIN_HAND), "native potion encounter across the search boundary");
+            require(input(InteractionHand.MAIN_HAND) && mana.get(owner) == 0,
+                    "native paid potion encounter across the search boundary");
             var holes = sheep.holeViews();
             Vec3 firstSample = from.add(0, 0, 12.75);
             require(holes.size() == 2 && holes.stream().allMatch(hole -> hole.point().distanceToSqr(firstSample) < 1e-10)
                     && secondSpanDrop.isRemoved() && other.getInventory().getItem(5).isEmpty() && other.isAlive(),
                     "dropped and carried potions each react at the same first eligible original sample: " + holes);
-            clear();move(owner,at);move(other,at.add(8,0,0));
+            var polymorph = game.items().polymorph();
+            require(polymorph.active(beforePotion) && polymorph.active(afterPotion) && !polymorph.active(other),
+                    "the same native cast transforms mobs on both sides of the potion while the bearer stays untransformed");
+            require(!fartherPotion.isRemoved(), "a later potion stays intact after the first reacting sample");
+            clear();
+            beforePotion.discard();
+            afterPotion.discard();
+            fartherPotion.discard();
+            move(owner,at);move(other,at.add(8,0,0));
         }
         void chefPolymorph(){
             require(game.items().wtf().count()==0,"no unrelated Chef before polymorph regression");move(owner,at);move(other,at.add(8,0,0));
