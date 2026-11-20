@@ -245,7 +245,7 @@ public final class CunnyChecks {
         }
         long sounds(RegenerationBeltChecks.ScheduledClient listener,boolean stop){
             var id=Identifier.parse("minecraft:lbcsounds.bafled");long count=0;
-            for(var packet:(List<?>)get(listener.connection,"packets")){
+            for(var packet:listener.packets()){
                 if(!stop&&packet instanceof net.minecraft.network.protocol.game.ClientboundSoundPacket sound&&sound.getSound().value().location().equals(id)){
                     require(sound.getSource()==net.minecraft.sounds.SoundSource.MASTER&&sound.getVolume()==2&&sound.getPitch()==1,"exact source Nahida sound category/volume/pitch");count++;
                 }
@@ -365,14 +365,28 @@ public final class CunnyChecks {
                 replayOwnerStarts=sounds(client,false);replayOtherStarts=sounds(audience,false);
                 require(game.vanity().requestRestoreForCheck(),"actual whole coordinator restore");restoring=true;next(11);return false;
             }
+            if(stage==12){
+                long ownerStarts=sounds(client,false),audienceStarts=sounds(audience,false);
+                require(ownerStarts<=replayOwnerStarts+1&&audienceStarts<=replayOtherStarts+1,
+                        "restored Nahida sound starts at most once per thawed listener");
+                if(game.server().getTickCount()-when<3)return false;
+                require(ownerStarts==replayOwnerStarts+1&&audienceStarts==replayOtherStarts+1,
+                        "restored Nahida sound reaches both listeners once after real TimeStop thaw: owner="
+                                +(ownerStarts-replayOwnerStarts)+", audience="+(audienceStarts-replayOtherStarts));
+                return true;
+            }
             if(game.vanity().busy())return false;
             require(service.state().pairs().equals(captured.pairs())&&service.state().nahida().equals(captured.nahida())&&service.state().accepted()==captured.accepted(),"pair/Nahida/accepted cursor restored");
             require(game.items().cunnyTerrain().view().equals(capturedTerrain),"exact partial template/frontier visits writes restored");
             require(level.getBlockState(replayBlock).equals(replayExpected.state()),"actual captured terrain block restored after future mutation");
-            require(game.items().timeStop().stopped(level),"native TimeStop image restored");
-            require(sounds(client,false)==replayOwnerStarts+1&&sounds(audience,false)==replayOtherStarts+1,"whole restore publishes active Nahida audio once from start on both listeners");
+            require(game.items().timeStop().stopped(level)&&TimeStopView.frozen(owner)&&TimeStopView.frozen(other),
+                    "native TimeStop image restores sound suppression for both recipients");
+            require(owner.isUsingItem()&&LbcCunnyItems.nahida(owner.getUseItem()),"whole restore retains actual Nahida use");
+            require(sounds(client,false)==replayOwnerStarts&&sounds(audience,false)==replayOtherStarts,
+                    "whole restore does not send starts while either recipient is frozen");
             game.vanity().stop();thaw();owner.startUsingItem(InteractionHand.MAIN_HAND);service.nahidaUseTick(owner);
-            require(attrs().equals(expectedAttrs)&&draw()==expectedDraw&&game.players().get(owner.getUUID()).coins==expectedCoins,"same restored random permanent gain and canonical balance");return true;
+            require(attrs().equals(expectedAttrs)&&draw()==expectedDraw&&game.players().get(owner.getUUID()).coins==expectedCoins,"same restored random permanent gain and canonical balance");
+            next(12);return false;
         }
         void restoreTeams(){var board=game.server().getScoreboard();board.removePlayerFromTeam(owner.getScoreboardName());board.removePlayerFromTeam(other.getScoreboardName());if(temporaryTeam!=null)board.removePlayerTeam(temporaryTeam);if(ownerTeam!=null&&board.getPlayerTeam(ownerTeam)!=null)board.addPlayerToTeam(owner.getScoreboardName(),board.getPlayerTeam(ownerTeam));if(otherTeam!=null&&board.getPlayerTeam(otherTeam)!=null)board.addPlayerToTeam(other.getScoreboardName(),board.getPlayerTeam(otherTeam));}
         void clearAffectedStatuses(){for(var p:affected){call(game.items().psycho(),"removeEffect",p);service.forget(p);}}

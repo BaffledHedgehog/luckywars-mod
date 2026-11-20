@@ -6,8 +6,12 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
@@ -27,11 +31,13 @@ final class LbcCunny {
     record State(List<Pair> pairs,Map<UUID,Integer> nahida,Map<UUID,Emission> emissions,int phase,
                  MatchRandomState random,long accepted,long kills,long summons){
         State{pairs=List.copyOf(pairs);nahida=Map.copyOf(nahida);emissions=Map.copyOf(emissions);}}
+    private static final Identifier NAHIDA_SOUND=Identifier.parse("minecraft:lbcsounds.bafled");
     private static final Identifier BUFF=Identifier.parse("minecraft:cunny2buffs"),PLAP=Identifier.parse("minecraft:plapper_debuff");
     private static final String[] OUTCOME_KEYS={"cunny_slab_0","cunny_slab_1","cunny_slab_2","cunny_slab_3","cunny_slab_4","cunny_slab_5","cunny_slab_6","cunny_slab_7","cunny_slab_8","cunny_slab_9","cunny_slab_10","cunny_slab_11","cunny_slab_12","cunny_slab_13","cunny_slab_14","cunny_slab_15","cunny_slab_16","cunny_slab_17","cunny_slab_18","cunny_slab_19","cunny_slab_20","cunny_slab_21"};
     private static final String[] SOUNDS={"minecraft:lbcsounds.icum","minecraft:lbcsounds.yamai_desu","minecraft:lbcsounds.yamai_desu_2","minecraft:lbcsounds.yamai_desu_3","minecraft:lbcsounds.ooh","minecraft:lbcsounds.nyah"};
     private final GameController game;private final RandomSource random=RandomSource.create();
     private final List<Pair> pairs=new ArrayList<>();private final Map<UUID,Integer> nahida=new HashMap<>();
+    private final Map<UUID,Set<UUID>> pendingNahidaSound=new HashMap<>();
     private final Map<UUID,Emission> emissions=new HashMap<>();private final EnumMap<Part,Suppression> policies=new EnumMap<>(Part.class);
     private int phase;private long accepted,kills,summons;private boolean restoring,advancing;
     LbcCunny(GameController game){this.game=game;for(var part:Part.values())policies.put(part,Suppression.SOURCE);}
@@ -116,19 +122,58 @@ final class LbcCunny {
             var a=p.getAttribute(type);if(a!=null&&!a.hasModifier(PLAP))a.addTransientModifier(new AttributeModifier(PLAP,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));}
         LbcAttributeGains.apply(p,random.nextInt(26)+1);
     }
-    private void startNahidaSound(ServerPlayer owner){var at=owner.position();for(var listener:game.server().getPlayerList().getPlayers())
-        listener.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(Holder.direct(
-                net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Identifier.parse("minecraft:lbcsounds.bafled"))),
-                net.minecraft.sounds.SoundSource.MASTER,at.x,at.y,at.z,2,1,0));}
+    private static ClientboundSoundPacket nahidaSound(ServerPlayer owner) {
+        var at=owner.position();
+        return new ClientboundSoundPacket(Holder.direct(SoundEvent.createVariableRangeEvent(NAHIDA_SOUND)),
+                SoundSource.MASTER,at.x,at.y,at.z,2,1,0);
+    }
+    private void startNahidaSound(ServerPlayer owner) {
+        var packet=nahidaSound(owner);
+        for(var listener:game.server().getPlayerList().getPlayers())listener.connection.send(packet);
+    }
+    private void publishRestoredNahidaSound(ServerPlayer owner) {
+        var packet=nahidaSound(owner);
+        for(var listener:game.server().getPlayerList().getPlayers()) {
+            if(TimeStopView.frozen(listener)) {
+                pendingNahidaSound.computeIfAbsent(owner.getUUID(),key->new HashSet<>()).add(listener.getUUID());
+            } else listener.connection.send(packet);
+        }
+    }
+    private void resumeRestoredNahidaSound() {
+        var players=game.server().getPlayerList();
+        for(var entries=pendingNahidaSound.entrySet().iterator();entries.hasNext();) {
+            var entry=entries.next();
+            var owner=players.getPlayer(entry.getKey());
+            if(owner==null||!maintainsNahida(owner)) {
+                entries.remove();
+                continue;
+            }
+            ClientboundSoundPacket packet=null;
+            for(var listeners=entry.getValue().iterator();listeners.hasNext();) {
+                var listener=players.getPlayer(listeners.next());
+                if(listener!=null) {
+                    if(TimeStopView.frozen(listener))continue;
+                    if(packet==null)packet=nahidaSound(owner);
+                    listener.connection.send(packet);
+                }
+                listeners.remove();
+            }
+            if(entry.getValue().isEmpty())entries.remove();
+        }
+    }
     private void stopNahidaSound(){for(var listener:game.server().getPlayerList().getPlayers())listener.connection.send(
-            new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(Identifier.parse("minecraft:lbcsounds.bafled"),net.minecraft.sounds.SoundSource.MASTER));}
-    private void stopNahida(ServerPlayer p){boolean wasActive=nahida.remove(p.getUUID())!=null||p.entityTags().contains("plapper");if(wasActive)stopNahidaSound();p.entityTags().remove("plapper");for(var type:List.of(Attributes.MAX_HEALTH,Attributes.MAX_ABSORPTION,Attributes.ATTACK_DAMAGE,Attributes.CAMERA_DISTANCE)){
+            new ClientboundStopSoundPacket(NAHIDA_SOUND,SoundSource.MASTER));}
+    private boolean maintainsNahida(ServerPlayer p) {
+        return active(p)&&p.isUsingItem()&&LbcCunnyItems.nahida(p.getUseItem())&&!suppressed(p,Part.NAHIDA);
+    }
+    private void stopNahida(ServerPlayer p){pendingNahidaSound.remove(p.getUUID());boolean wasActive=nahida.remove(p.getUUID())!=null||p.entityTags().contains("plapper");if(wasActive)stopNahidaSound();p.entityTags().remove("plapper");for(var type:List.of(Attributes.MAX_HEALTH,Attributes.MAX_ABSORPTION,Attributes.ATTACK_DAMAGE,Attributes.CAMERA_DISTANCE)){
         var a=p.getAttribute(type);if(a!=null)a.removeModifier(PLAP);}}
     void tick(){if(restoring||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
+        if(!pendingNahidaSound.isEmpty())resumeRestoredNahidaSound();
         if(game.items().timeStop().stopped(game.maps().level()))return;
         advancing=true;try{phase++;
         for(var id:List.copyOf(nahida.keySet())){var p=game.server().getPlayerList().getPlayer(id);if(p==null){nahida.remove(id);stopNahidaSound();continue;}if(paused(p))continue;
-            if(!active(p)||!p.isUsingItem()||!LbcCunnyItems.nahida(p.getUseItem())||suppressed(p,Part.NAHIDA))stopNahida(p);}
+            if(!maintainsNahida(p))stopNahida(p);}
         var moved=new HashSet<UUID>();for(var pair:List.copyOf(pairs)){var owner=game.server().getPlayerList().getPlayer(pair.seeker);var target=game.server().getPlayerList().getPlayer(pair.target);
             if(owner==null||target==null)continue;if(!active(owner)||!active(target)){removePair(pair);continue;}
             if(owner.level()!=target.level()||paused(owner)||paused(target)||!hostile(owner,target)||suppressed(owner,Part.PAIR)||suppressed(target,Part.PAIR))continue;
@@ -160,14 +205,14 @@ final class LbcCunny {
         if(target!=null&&pairs.stream().noneMatch(x->x.target.equals(pair.target)))target.entityTags().remove("love_girl");}
     void forget(ServerPlayer p){if(restoring||MatchPlayerCheckpoint.restoring(p))return;stopNahida(p);for(var pair:List.copyOf(pairs))if(pair.seeker.equals(p.getUUID())||pair.target.equals(p.getUUID()))removePair(pair);
         emissions.remove(p.getUUID());p.entityTags().remove("cumming");game.items().mana().score(p,"cumming").set(0);}
-    void stop(){checkpointBoundary();for(var p:game.server().getPlayerList().getPlayers())forget(p);pairs.clear();nahida.clear();emissions.clear();}
+    void stop(){checkpointBoundary();for(var p:game.server().getPlayerList().getPlayers())forget(p);pairs.clear();nahida.clear();pendingNahidaSound.clear();emissions.clear();}
     void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Cunny active tick before checkpoint");}
     State state(){checkpointBoundary();return new State(pairs,nahida,emissions,phase,MatchRandomState.capture(random),accepted,kills,summons);}
     void restore(State state){checkpointBoundary();pairs.clear();pairs.addAll(state.pairs);nahida.clear();nahida.putAll(state.nahida);emissions.clear();emissions.putAll(state.emissions);
         phase=state.phase;state.random.restore(random);accepted=state.accepted;kills=state.kills;summons=state.summons;}
-    void prepareFrozen(){checkpointBoundary();restoring=true;if(!nahida.isEmpty())stopNahidaSound();}
-    void cancelFrozen(){checkpointBoundary();restoring=false;}
+    void prepareFrozen(){checkpointBoundary();restoring=true;pendingNahidaSound.clear();if(!nahida.isEmpty())stopNahidaSound();}
+    void cancelFrozen(){checkpointBoundary();restoring=false;pendingNahidaSound.clear();}
     void publishFrozen(){checkpointBoundary();boolean publish=restoring;restoring=false;if(publish)for(var id:nahida.keySet()){
-        var p=game.server().getPlayerList().getPlayer(id);if(p!=null&&active(p))startNahidaSound(p);}}
+        var p=game.server().getPlayerList().getPlayer(id);if(p!=null&&maintainsNahida(p))publishRestoredNahidaSound(p);}}
     MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){var saved=state();return current->()->restore(saved);}
 }
