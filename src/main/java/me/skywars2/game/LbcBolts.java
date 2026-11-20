@@ -130,6 +130,11 @@ public final class LbcBolts {
     private volatile Map<Identifier,List<MapManager.TemplateSlice>> templates=Map.of();
     private volatile int preparation;
     private int ticks;
+    private static final int WATERING_QUIET_ALLOWANCE = 1_800;
+    private static final int WATERING_BUSY_ALLOWANCE = 400; // A standalone cast requests at most 375 cells per pulse.
+    private static final int WATERING_PRESSURE_START = 2_048, WATERING_PRESSURE_FULL = 8_192;
+    private ServerLevel wateringBudgetLevel;
+    private int wateringSampleTick, wateringBudgetTick, wateringLimit, wateringRemaining;
     private int workGeneration;
     private IdentityHashMap<ServerPlayer,Integer> ownerWorkGeneration=new IdentityHashMap<>();
     private int callbackDepth;
@@ -160,6 +165,7 @@ public final class LbcBolts {
         }
     }
     static final class Water extends Owned {
+        OwnedBlockWork pending;
         Water(ServerPlayer owner,Vec3 position,String epoch) { super(owner,position,epoch); }
     }
     static final class Meteor extends Owned {
@@ -707,6 +713,7 @@ public final class LbcBolts {
         workGeneration++; ownerWorkGeneration.clear();
         for(var job:List.copyOf(reforgeJobs.keySet())) job.cancel();
         bolts.clear(); waters.clear(); chains.clear();
+        wateringBudgetLevel = null;
         for(var meteor:List.copyOf(meteors)) {
             meteors.remove(meteor);
             if(!meteor.display.isRemoved()) meteor.display.discard();
@@ -764,19 +771,66 @@ public final class LbcBolts {
             if(next.isEmpty()) chains.remove(chain);
         }
     }
+    private int wateringAllowance(ServerLevel level) {
+        boolean changedLevel = wateringBudgetLevel != level;
+        if (changedLevel || ticks - wateringSampleTick >= 5) {
+            int nativePending = level.getFluidTicks().count();
+            int pressure = Math.clamp(nativePending - WATERING_PRESSURE_START, 0, WATERING_PRESSURE_FULL - WATERING_PRESSURE_START);
+            wateringLimit = WATERING_QUIET_ALLOWANCE - (WATERING_QUIET_ALLOWANCE - WATERING_BUSY_ALLOWANCE)
+                    * pressure / (WATERING_PRESSURE_FULL - WATERING_PRESSURE_START);
+            wateringSampleTick = ticks;
+        }
+        if (changedLevel || wateringBudgetTick != ticks) {
+            wateringBudgetLevel = level;
+            wateringBudgetTick = ticks;
+            wateringRemaining = wateringLimit;
+        }
+        return wateringRemaining;
+    }
+
     private void tickWater() {
-        for(var water:List.copyOf(waters)) {
-            if(!valid(water) || water.age>=200) { waters.remove(water); continue; }
-            if(paused(water.owner)) continue;
-            water.age++; if(water.age%2!=0) continue;
-            BlockPos at=BlockPos.containing(water.position);
-            var work=new BlockAreaWork(water.level,state->state.isAir(),(pos,state)->Blocks.WATER.defaultBlockState(),3);
-            work.move(new BlockAreaWork.Bounds(at.getX()-2,at.getY()-1,at.getZ()-2,at.getX()+2,at.getY()+1,at.getZ()+2),true);
-            queue(water,work);
-            water.position=Vec3.atLowerCornerOf(at.offset(water.owner.getRandom().nextInt(15)-7,water.owner.getRandom().nextInt(15)-7,water.owner.getRandom().nextInt(15)-7));
-            if(water.age>=200) waters.remove(water);
+        boolean legacy = game.balanceLegacy();
+        boolean fanOut = waters.size() > 5;
+        for (var water : List.copyOf(waters)) {
+            if (!valid(water) || water.age >= 200) {
+                waters.remove(water);
+                continue;
+            }
+            if (paused(water.owner)) continue;
+            if (!legacy && fanOut && water.pending != null && water.age % 2 == 1) {
+                wateringAllowance(water.level);
+                // Keep the next authored pulse at its current origin until the previous fill drains.
+                if (wateringLimit < WATERING_QUIET_ALLOWANCE) continue;
+            }
+            if (++water.age % 2 != 0) continue;
+            BlockPos at = BlockPos.containing(water.position);
+            var area = new BlockAreaWork.Bounds(at.getX()-2, at.getY()-1, at.getZ()-2, at.getX()+2, at.getY()+1, at.getZ()+2);
+            if (legacy) {
+                var work = new BlockAreaWork(water.level, state -> state.isAir(), (pos,state) -> Blocks.WATER.defaultBlockState(), 3);
+                work.move(area, true);
+                game.items().stonekivi().queuedWork(blockWork(water, work));
+            } else {
+                queueWatering(water, area);
+            }
+            water.position = Vec3.atLowerCornerOf(at.offset(water.owner.getRandom().nextInt(15)-7,
+                    water.owner.getRandom().nextInt(15)-7, water.owner.getRandom().nextInt(15)-7));
+            if (water.age >= 200) waters.remove(water);
         }
     }
+
+    private void queueWatering(Water water, BlockAreaWork.Bounds area) {
+        var pending = water.pending;
+        var work = pending == null
+                ? new BlockAreaWork(water.level, state -> state.isAir(), (pos,state) -> Blocks.WATER.defaultBlockState(), 3)
+                : pending.work;
+        // Resolve residency at execution, as before. A chunk can warm while its fill waits.
+        work.include(area);
+        if (pending == null && work.hasWork()) {
+            water.pending = new OwnedBlockWork(water, work);
+            game.items().stonekivi().queuedWork(water.pending);
+        }
+    }
+
     private void tickMeteors() {
         for(var meteor:List.copyOf(meteors)) {
             if(!valid(meteor) || meteor.display.isRemoved() || !meteor.level.hasChunkAt(BlockPos.containing(meteor.position))) {
@@ -834,7 +888,6 @@ public final class LbcBolts {
 
         }finally{callbackDepth--;}
     }
-    private void queue(Owned state,BlockAreaWork work) { game.items().stonekivi().queuedWork(blockWork(state,work)); }
     private LbcStonekivi.Work blockWork(Owned state,BlockAreaWork work) {return new OwnedBlockWork(state,work);}
     private LbcStonekivi.Work sequence(Owned state,ArrayDeque<LbcStonekivi.Work> jobs) {return new OwnedSequence(state,jobs);}
     private LbcStonekivi.Work template(Owned state,Identifier id,BlockPos origin) {
@@ -880,6 +933,7 @@ public final class LbcBolts {
         private final Vec3 position;
         private final int age,impact,until;
         private final ActorSetImage targets;
+        private final OwnedBlockWork pendingWater;
         OwnedImage(Owned state,MatchSpellCheckpoint.Links links){
             this.state=state;owner=links.key(state.owner);position=state.position;age=state.age;
             if(state.getClass()!=Owned.class&&!(state instanceof Bolt||state instanceof Water||state instanceof Meteor||state instanceof Chain))throw new IllegalStateException("Unreviewed bolt state");
@@ -887,13 +941,15 @@ public final class LbcBolts {
             impact=state instanceof Meteor meteor?meteor.impactVisualTicks:0;
             until=state instanceof Chain chain?chain.untilNext:0;
             targets=state instanceof Chain chain?new ActorSetImage(chain.current,links):null;
+            pendingWater=state instanceof Water water?water.pending:null;
         }
         Runnable prepare(MatchSpellCheckpoint.Links links){
             MatchAuthorityCheckpoint.world(game,state.level);var current=(ServerPlayer)links.get(owner);
             var body=display==null?null:(Display.ItemDisplay)links.get(display);var currentTargets=targets==null?null:targets.prepare(links);
             return ()->{state.owner=current;state.position=position;state.age=age;
                 if(state instanceof Meteor meteor){meteor.display=body;meteor.impactVisualTicks=impact;}
-                if(state instanceof Chain chain){chain.current=currentTargets;chain.untilNext=until;}};
+                if(state instanceof Chain chain){chain.current=currentTargets;chain.untilNext=until;}
+                if(state instanceof Water water)water.pending=pendingWater;};
         }
     }
     private abstract class OwnedWork implements LbcStonekivi.Work {
@@ -904,11 +960,24 @@ public final class LbcBolts {
     private final class OwnedBlockWork extends OwnedWork {
         final BlockAreaWork work;
         OwnedBlockWork(Owned state,BlockAreaWork work){super(state);this.work=work;}
+        private boolean limitedWatering() { return state instanceof Water && !game.balanceLegacy(); }
+        @Override public boolean ready() {
+            return !limitedWatering() || wateringAllowance(state.level) > 0 || invalid();
+        }
         @Override public boolean step(){callbackDepth++;try{
-            if(invalid()){work.clear();return true;}if(paused(state.owner))return false;
-            work.step(game,state.owner,512,System.nanoTime()+1_000_000);return !work.hasWork();
+            if(invalid()){cancel();return true;}if(paused(state.owner))return false;
+            boolean limited = limitedWatering();
+            int allowance = limited ? Math.min(512, wateringAllowance(state.level)) : 512;
+            int inspected = work.step(game,state.owner,allowance,System.nanoTime()+1_000_000);
+            if (limited) wateringRemaining -= inspected;
+            if (work.hasWork()) return false;
+            clearPending();
+            return true;
         }finally{callbackDepth--;}}
-        @Override public void cancel(){work.clear();}
+        private void clearPending() {
+            if (state instanceof Water water && water.pending == this) water.pending = null;
+        }
+        @Override public void cancel(){work.clear();clearPending();}
         @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
             checkpointBoundary();var actor=new OwnedImage(state,graph.links);var blocks=work.checkpoint();
             return links->{var owner=actor.prepare(links);return ()->{owner.run();blocks.restore();};};
@@ -969,6 +1038,9 @@ public final class LbcBolts {
         private final IdentityHashMap<LbcStonekivi.Work,MatchDamageSources.Ref> authors=new IdentityHashMap<>();
         private final Map<Identifier,List<MapManager.TemplateSlice>> savedTemplates;
         private final int savedTicks=ticks,savedGeneration=workGeneration,savedPreparation=preparation;
+        private final ServerLevel savedWateringLevel=wateringBudgetLevel;
+        private final int savedWateringSample=wateringSampleTick,savedWateringTick=wateringBudgetTick;
+        private final int savedWateringLimit=wateringLimit,savedWateringRemaining=wateringRemaining;
         @SuppressWarnings("unchecked") Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
             checkpointBoundary();preparationBoundary();savedTemplates=templates;if(rewinding)throw new IllegalStateException("Publish bolt native bodies before capture");
             owners=new MatchSpellCheckpoint.IdentityImage<>(ownerWorkGeneration,graph.links);status=chainStatus.checkpoint(graph.links);
@@ -982,7 +1054,9 @@ public final class LbcBolts {
             var restoredJobs=(IdentityHashMap<LbcStonekivi.Work,ServerPlayer>)jobs.clone();authors.forEach((work,ref)->restoredJobs.put(work,(ServerPlayer)links.get(ref)));
             return ()->{statusPlan.run();actors.forEach(Runnable::run);bolts.clear();bolts.addAll(savedBolts);waters.clear();waters.addAll(savedWaters);
                 meteors.clear();meteors.addAll(savedMeteors);chains.clear();chains.addAll(savedChains);reforgeJobs=restoredJobs;ownerWorkGeneration=ownerMap;
-                templates=savedTemplates;ticks=savedTicks;workGeneration=savedGeneration;preparation=savedPreparation;};
+                templates=savedTemplates;ticks=savedTicks;workGeneration=savedGeneration;preparation=savedPreparation;
+                wateringBudgetLevel=savedWateringLevel;wateringSampleTick=savedWateringSample;wateringBudgetTick=savedWateringTick;
+                wateringLimit=savedWateringLimit;wateringRemaining=savedWateringRemaining;};
         }
     }
 

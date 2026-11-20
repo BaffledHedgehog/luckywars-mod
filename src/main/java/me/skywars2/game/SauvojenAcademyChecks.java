@@ -18,6 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.ScoreHolder;
 
@@ -284,6 +286,95 @@ public final class SauvojenAcademyChecks {
                 }
             } finally{clear();game.maps().restoreSnapshot(owner.level(),wall,saved);}
         }
+        void wateringPressure() {
+            var owner = base.owner;
+            var level = owner.level();
+            var bolts = game.items().bolts();
+            var work = game.items().stonekivi();
+            var ledger = game.items().indirectKills();
+            var playerCell = owner.blockPosition();
+            var center = new BlockPos((playerCell.getX() >> 4) * 16 + 8, playerCell.getY(), (playerCell.getZ() >> 4) * 16 + 8);
+            var footprint = new LinkedHashSet<BlockPos>();
+            for (int height : new int[]{0, 10}) {
+                for (var shift : List.of(BlockPos.ZERO, new BlockPos(5,0,0), new BlockPos(-5,0,0),
+                        new BlockPos(0,0,5), new BlockPos(0,0,-5))) {
+                    var at = center.offset(0,height,0).offset(shift);
+                    for (var pos : BlockPos.betweenClosed(at.offset(-2,-1,-2),at.offset(2,1,2))) footprint.add(pos.immutable());
+                }
+            }
+            require(footprint.size() == 750 && work.count() == 0, "two complete early watering formations and no borrowed work");
+            var solid = center.east();
+            var downflow = center.below(2);
+            var saved = new LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
+            footprint.forEach(pos -> saved.put(pos,game.maps().snapshot(level,pos)));
+            saved.put(downflow,game.maps().snapshot(level,downflow));
+            require(saved.keySet().stream().allMatch(pos -> level.hasChunkAt(pos) && level.getBlockState(pos).isAir()
+                    && !level.getFluidTicks().hasScheduledTick(pos,Fluids.WATER)
+                    && !level.getFluidTicks().hasScheduledTick(pos,Fluids.FLOWING_WATER)), "resident clear terrain and native fluid queue for the formation");
+            var provenance = ledger.captureTerrain(level,saved.keySet());
+
+            // Native future lava ticks occupy only this warm chunk, far from either water formation.
+            // They remain queued through the entire test and cannot produce terrain while it runs.
+            var queueMin = new BlockPos(center.getX()-8,level.getMaxY()+1024,center.getZ()-8);
+            var queueMax = queueMin.offset(15,35,15);
+            var queueRegion = BoundingBox.fromCorners(queueMin,queueMax);
+            try {
+                int oldCount = level.getFluidTicks().count();
+                for (var pos : BlockPos.betweenClosed(queueMin,queueMax)) level.scheduleTick(pos.immutable(),Fluids.LAVA,20_000);
+                int unrelated = level.getFluidTicks().count();
+                require(unrelated - oldCount == 9_216, "real sustained unrelated native fluid backlog");
+
+                level.setBlock(solid,Blocks.STONE.defaultBlockState(),Block.UPDATE_CLIENTS);
+                for (int height : new int[]{0, 10}) {
+                    var drone = launch(LbcSauvojen.Kind.TELEPORT);
+                    drone.position = Vec3.atCenterOf(center.offset(0,height,0));
+                    drone.carrier.setPos(drone.position);
+                    drone.nextMode = 4;
+                    drone.lifetime = 5;
+                }
+                cow(Vec3.atCenterOf(center.offset(7,4,0)));
+                service.tick();
+                require(bolts.waterCount() == 10 && service.snapshot().stream().allMatch(drone -> drone.nextMode == 0)
+                        && bolts.waterSnapshot().stream().allMatch(water -> water.owner == owner && water.age == 0),
+                        "actual Academy drones request two complete five-source Watering casts");
+                service.stop();
+
+                bolts.tick();
+                require(work.count() == 0, "first gameplay tick never produces early water");
+                bolts.tick();
+                for (int pass = 0; pass < 64; pass++) work.tick();
+                long firstSources = footprint.stream().filter(pos -> level.getFluidState(pos).isSource()).count();
+                int firstNativeTicks = level.getFluidTicks().count() - unrelated;
+                require(firstSources > 0 && firstSources <= 400 && firstNativeTicks > 0 && firstNativeTicks <= 400 && work.count() > 0,
+                        "busy watermark limits native water ingress but keeps progressing: placed=" + firstSources + " native=" + firstNativeTicks);
+
+                bolts.tick();
+                for (int pass = 0; pass < 64 && work.count() > 0; pass++) work.tick();
+                require(work.count() == 0 && footprint.stream().filter(pos -> level.getFluidState(pos).isSource()).count() == 749
+                                && level.getBlockState(solid).is(Blocks.STONE) && level.getFluidTicks().count() >= unrelated,
+                        "both original full footprints complete while the unrelated fluid backlog is still present");
+                var sourcePos = downflow.above();
+                level.getFluidState(sourcePos).tick(level,sourcePos,level.getBlockState(sourcePos));
+                var flow = level.getFluidState(downflow);
+                var worldHazards = (Map<?,?>)((Map<?,?>)state(ledger,"hazards")).get(level);
+                var hazard = worldHazards == null ? null : worldHazards.get(downflow);
+                var cause = hazard == null ? null : (LbcIndirectKills.Owner)state(hazard,"owner");
+                require(flow.getType().isSame(Fluids.WATER) && !flow.isSource() && cause != null && cause.player().equals(owner.getUUID()),
+                        "a retained real source propagates native flowing water and preserves its caster's hazard attribution");
+                SkyWars2.LOGGER.info("[check] Academy Watering pressure: pendingOther={} firstSources={} firstNativeTicks={} finalSources=749",
+                        unrelated,firstSources,firstNativeTicks);
+            } finally {
+                clear();removeCows();
+                saved.forEach((pos,snapshot) -> game.maps().restoreSnapshot(level,pos,snapshot,2|16|32));
+                for (int height : new int[]{0,10}) {
+                    var at = center.above(height);
+                    level.getFluidTicks().clearArea(BoundingBox.fromCorners(at.offset(-7,-2,-7),at.offset(7,1,7)));
+                }
+                level.getFluidTicks().clearArea(queueRegion);
+                ledger.restoreTerrain(provenance);
+            }
+        }
+
         void detachedConsuming() {
             var owner=base.owner;var stack=held(InteractionHand.OFF_HAND);
             Vec3 origin=owner.getEyePosition().add(2,1,-2),direction=new Vec3(.6,0,.8);
@@ -941,6 +1032,7 @@ public final class SauvojenAcademyChecks {
                 new Step("detachedRainPsychicAndFire",Fixture::detachedRainPsychicAndFire),
                 new Step("detachedAcidAndAir",Fixture::detachedAcidAndAir),
                 new Step("detachedHomingAndBolts",Fixture::detachedHomingAndBolts),
+                new Step("wateringPressure",Fixture::wateringPressure),
                 new Step("detachedConsuming",Fixture::detachedConsuming),
                 new Step("detachedCorruption",Fixture::detachedCorruption),
                 new Step("detachedPsychicCharges",Fixture::detachedPsychicCharges),
