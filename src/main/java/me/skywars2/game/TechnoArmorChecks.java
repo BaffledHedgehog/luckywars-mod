@@ -188,7 +188,21 @@ public final class TechnoArmorChecks {
         void abilities(){
             service.reset(owner);for(var entry:Map.of("reactivefuel",10,"nitro",4,"reactivefuelsub",0,"technomk2shield",0,"rocket_sound",0,"coldown8",0).entrySet())require(score(entry.getKey())==entry.getValue(),"source initial shared score "+entry.getKey());
             for(var name:List.of("reactivefuel","nitro","reactivefuelsub","technomk2shield","rocket_sound","coldown8"))require(LbcKfcFood.sourceScoreAdditions().contains(name),"shared original KFC score namespace "+name);
-            wear(0,0);owner.setItemSlot(EquipmentSlot.HEAD,pieces[0][3].copy());owner.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,200,0));owner.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,200,0));owner.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,200,0));owner.addEffect(ItemEffectLevels.create(MobEffects.SPEED,200,2));service.pulse(owner,1);require(owner.hasEffect(MobEffects.BLINDNESS),"reactive helmet waits two tick cadence");service.pulse(owner,2);require(!owner.hasEffect(MobEffects.BLINDNESS)&&!owner.hasEffect(MobEffects.DARKNESS)&&!owner.hasEffect(MobEffects.NAUSEA)&&owner.hasEffect(MobEffects.SPEED),"reactive helmet clears exactly three native source effects");owner.removeAllEffects();
+            wear(0,0);
+            owner.removeAllEffects();
+            var blocked=List.of(MobEffects.BLINDNESS,MobEffects.DARKNESS,MobEffects.NAUSEA);
+            for(var effect:blocked)require(owner.addEffect(ItemEffectLevels.create(effect,200,0)), "vanilla visual effect enters the native map with no helmet");
+            owner.setItemSlot(EquipmentSlot.HEAD,pieces[0][3].copy());
+            service.pulse(owner,2);
+            require(blocked.stream().noneMatch(owner::hasEffect), "reactive helmet clears effects present before it was equipped");
+            for(int model:new int[]{0,2}){
+                owner.setItemSlot(EquipmentSlot.HEAD,pieces[model][3].copy());
+                for(var effect:blocked)require(!owner.addEffect(ItemEffectLevels.create(effect,200,0))&&!owner.hasEffect(effect),
+                        "reactive and MK2 helmets reject each visual effect on native admission");
+                require(owner.addEffect(ItemEffectLevels.create(MobEffects.SPEED,200,2))&&owner.hasEffect(MobEffects.SPEED),
+                        "native admission retains unrelated effects");
+                owner.removeAllEffects();
+            }
             wear(0,1);owner.setOnGround(true);owner.setShiftKeyDown(false);score("reactivefuel",0);service.pulse(owner,1);require(score("reactivefuel")==0,"reactive boots wait2tick cadence");service.pulse(owner,2);require(score("reactivefuel")==1,"source grounded fuel one");owner.setItemSlot(EquipmentSlot.LEGS,pieces[0][1].copy());service.pulse(owner,4);require(score("reactivefuel")==3,"source reactive legs double recharge");owner.setItemSlot(EquipmentSlot.CHEST,pieces[0][2].copy());score("reactivefuel",18);service.pulse(owner,6);require(score("reactivefuel")==20,"source chest raises fuel ceiling20");service.pulse(owner,8);require(score("reactivefuel")==20,"source fuel ceiling stable");
             wear(0,1);score("reactivefuel",3);owner.setOnGround(false);owner.setShiftKeyDown(true);score("coldownshish",0);service.pulse(owner,2);var lift=owner.getEffect(MobEffects.LEVITATION);var fall=owner.getEffect(MobEffects.SLOW_FALLING);require(lift!=null&&lift.getAmplifier()==15&&lift.getDuration()==20&&fall!=null&&fall.getDuration()==200&&fall.getAmplifier()==0&&score("reactivefuel")==2,"source airborne reactive lift16 slowfall200 consumes one fuel");wear(0,4);service.pulse(owner,4);require(owner.getEffect(MobEffects.LEVITATION).getAmplifier()==30&&score("reactivefuel")==1,"all four reactive source slots select mega lift31");owner.setShiftKeyDown(false);service.forget(owner);owner.removeAllEffects();
             wear(2,0);owner.setItemSlot(EquipmentSlot.HEAD,pieces[2][3].copy());service.pulse(owner,19);require(!owner.hasEffect(MobEffects.NIGHT_VISION),"MK2 head waits source one second");service.pulse(owner,0);require(owner.hasEffect(MobEffects.NIGHT_VISION)&&owner.getEffect(MobEffects.NIGHT_VISION).getDuration()==300&&owner.getEffect(MobEffects.NIGHT_VISION).getAmplifier()==0,"source MK2 night vision300 amplifier0");owner.removeAllEffects();
