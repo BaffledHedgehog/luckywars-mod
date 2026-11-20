@@ -5,10 +5,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -17,6 +22,7 @@ import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
@@ -28,6 +34,19 @@ public final class PendingCombatChecks {
         Attributes.SAFE_FALL_DISTANCE,Attributes.JUMP_STRENGTH,Attributes.MOVEMENT_SPEED,Attributes.KNOCKBACK_RESISTANCE);
     private static final Identifier CURSE=Identifier.parse("minecraft:gravity_curse");
     private static Trial running;
+    private static long hitCues(List<Packet<?>> packets){
+        return packets.stream().filter(packet->packet instanceof ClientboundGameEventPacket event
+                &&event.getEvent()==ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
+    }
+    private static final class ContactCow extends Cow {
+        DamageSource contact;
+        int attempts;
+        ContactCow(ServerLevel level){super(EntityTypes.COW,level);}
+        @Override public boolean hurtServer(ServerLevel level,DamageSource source,float amount){
+            if(source.getDirectEntity() instanceof Display.ItemDisplay){contact=source;attempts++;}
+            return super.hurtServer(level,source,amount);
+        }
+    }
     private static final class Trial implements AutoCloseable {
         final GameController game;final ElementalGrimoireChecks.Fixture base;final LbcPendingCombat service;
         final List<Cow> actors=new ArrayList<>();final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
@@ -43,7 +62,8 @@ public final class PendingCombatChecks {
         }
         ItemStack leaf(String name){var result=game.lbc().rollTable(base.owner.level(),base.owner.position(),base.owner,"lbc:ported/"+name);
             require(result.size()==1,"native imported singleton "+name);return result.getFirst();}
-        Cow cow(Vec3 at){var cow=new Cow(EntityTypes.COW,base.owner.level());cow.setPos(at);cow.setNoGravity(true);cow.setNoAi(true);
+        Cow cow(Vec3 at){return publishCow(new Cow(EntityTypes.COW,base.owner.level()),at);}
+        <T extends Cow> T publishCow(T cow,Vec3 at){cow.setPos(at);cow.setNoGravity(true);cow.setNoAi(true);
             cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);cow.setHealth(100);require(base.owner.level().addFreshEntity(cow),"native resident target");actors.add(cow);return cow;}
         void hit(Cow cow,net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
             require(cow.hurtServer(base.owner.level(),new DamageSource(base.owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),base.owner),1),"actual accepted native damage");}
@@ -147,12 +167,59 @@ public final class PendingCombatChecks {
                 for(var entry:saved.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue());
             }
         }
-        void chaos(){var victim=cow(base.owner.position().add(0,0,3));base.owner.setItemInHand(InteractionHand.MAIN_HAND,leaf("chaos_sword"));
+        void chaos(){var victim=cow(base.owner.position().add(0,0,3));var sword=leaf("chaos_sword");
+            var enchantments=base.owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+            sword.enchant(enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING),3);
+            sword.enchant(enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS),4);
+            var launchingSword=sword.copyWithCount(1);base.owner.setItemInHand(InteractionHand.MAIN_HAND,sword);
             hit(victim,DamageTypes.ARROW);require(service.snapshot().isEmpty(),"arrow-only accepted hit does not activate Chaos");
-            hit(victim,DamageTypes.PLAYER_ATTACK);var volley=service.snapshot();require(volley.size()==40,"one accepted native hit creates exactly forty source copies");
+            victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
+            base.owner.attack(victim);var volley=service.snapshot();require(volley.size()==40,"one actual native melee attack creates exactly forty source copies");
             var origin=base.owner.position();require(volley.stream().filter(copy->copy.display.position().equals(origin.add(11,5,-11))).count()==2,"original lastY5 duplicate remains");
             require(volley.stream().allMatch(copy->copy.owner==base.owner&&copy.display.getItemStack().is(Items.GOLDEN_SWORD)&&copy.display.entityTags().contains("magic")&&game.items().currentEpoch(copy.display)),"native actors preserve original item/magic, epoch and captured owner");
-            service.forget(base.owner);require(service.snapshot().isEmpty()&&volley.stream().allMatch(copy->copy.display.isRemoved()),"owner lifecycle discards every native copy");victim.discard();
+            victim.discard();
+            chaosContacts(volley,launchingSword,origin.add(5,1,4));
+            service.forget(base.owner);require(service.snapshot().isEmpty()&&volley.stream().allMatch(copy->copy.display.isRemoved()),"owner lifecycle discards every native copy");
+        }
+        void chaosContacts(List<LbcPendingCombat.Copy> volley,ItemStack sword,Vec3 from){
+            var owner=base.owner;var level=owner.level();var kills=game.items().indirectKills();
+            var viewer=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
+            require(viewer!=null,"independent audience receives normal combat packets");
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));
+            var rules=level.getGameRules();boolean mobDrops=rules.get(GameRules.MOB_DROPS);
+            var mobKills=Stats.CUSTOM.get(Stats.MOB_KILLS);var cowKills=Stats.ENTITY_KILLED.get(EntityTypes.COW);
+            int oldMobKills=owner.getStats().getValue(mobKills),oldCowKills=owner.getStats().getValue(cowKills);
+            rules.set(GameRules.MOB_DROPS,false,game.server());
+            try(var observer=new RegenerationBeltChecks.ScheduledClient(game,viewer)){
+                for(int scenario=0;scenario<3;scenario++){
+                    var copy=volley.get(scenario);
+                    copy.display.setPos(from);copy.direction=new Vec3(0,0,1);
+                    var target=publishCow(new ContactCow(level),from.add(.4,.1,.4));
+                    if(scenario==1)target.setHealth(1);
+                    if(scenario==2)target.setPermanentlyInvulnerable(true);
+                    long previous=hitCues(base.recording.packets),otherCues=hitCues(observer.packets());
+                    service.tick();
+                    require(copy.display.isRemoved()&&target.attempts==1&&target.contact.getDirectEntity()==copy.display
+                            &&target.contact.getEntity()==owner&&target.contact.is(DamageTypes.ARROW),
+                            "one authored sword contact with the original physical display and owner, scenario="+scenario);
+                    if(scenario==2)require(target.isInvulnerableTo(level,target.contact),"native damage rules reject the sword contact");
+                    long shooterDelta=hitCues(base.recording.packets)-previous,otherDelta=hitCues(observer.packets())-otherCues;
+                    require(shooterDelta==(scenario==2?0:1)&&otherDelta==0,
+                            "private cue counts: scenario="+scenario+" shooter="+shooterDelta+" observer="+otherDelta);
+                    require(target.getHealth()==(scenario==0?93.5F:scenario==1?0:100)
+                            &&(scenario!=1||target.getKillCredit()==owner),
+                            "native four damage plus a single Sharpness IV bonus, lethal attribution and rejection: scenario="+scenario+" hp="+target.getHealth());
+                    var hitWeapon=kills.enchantmentWeapon(target.contact);
+                    var lootWeapon=kills.boundLootWeapon(target,target.contact);
+                    require(ItemStack.matches(hitWeapon,sword),"damage receipt keeps the original sword after a hand swap, scenario="+scenario);
+                    require(lootWeapon!=null&&ItemStack.matches(lootWeapon,sword),
+                            "loot source is explicitly bound to the original sword after a hand swap, scenario="+scenario);
+                    kills.clear(target);target.discard();
+                }
+            }finally{
+                rules.set(GameRules.MOB_DROPS,mobDrops,game.server());
+                owner.getStats().setValue(owner,mobKills,oldMobKills);owner.getStats().setValue(owner,cowKills,oldCowKills);
+            }
         }
         void gravity(){cursed=cow(base.owner.position().add(0,0,3));base.owner.setItemInHand(InteractionHand.MAIN_HAND,leaf("gravity_sword"));
             hit(cursed,DamageTypes.PLAYER_ATTACK);require(service.curseSeconds(cursed)==10,"actual accepted native hit starts ten-second curse");

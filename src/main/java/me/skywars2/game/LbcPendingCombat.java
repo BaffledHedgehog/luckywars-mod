@@ -73,9 +73,10 @@ public final class LbcPendingCombat {
         if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
-        var data=LbcFartus.data(owner.getMainHandItem());
+        var weapon=owner.getMainHandItem();
+        var data=LbcFartus.data(weapon);
         // Chaos deliberately has no branch-local antimagic admission: native magic actors can be purged later.
-        if(data.getIntOr("chaos_swo",0)==1)volley(owner);
+        if(data.getIntOr("chaos_swo",0)==1)volley(owner,LbcTmtAbilities.outerCopy(WeaponEnchantments.scopedWeapon(source,weapon)));
         if(data.getIntOr("gravitationsword",0)==1&&magic(owner))gravity(owner);
     }
     private double[] gravityValues(ServerPlayer owner){
@@ -117,8 +118,8 @@ public final class LbcPendingCombat {
         curses.remove(target);for(var type:ATTRIBUTES){var attribute=target.getAttribute(type);if(attribute!=null)attribute.removeModifier(CURSE);}
         if(target instanceof ServerPlayer player)game.items().mana().score(player,"effect_gravity_curse").set(0);
     }
-    private void volley(ServerPlayer owner){
-        var cause=game.items().indirectKills().coldCause(owner,true);
+    private void volley(ServerPlayer owner,ItemStack weapon){
+        var cause=game.items().indirectKills().itemCause(owner,false,true,weapon);
         for(var offset:OFFSETS){
             var at=owner.position().add(offset[0],offset[1],offset[2]);if(!resident(owner.level(),BlockPos.containing(at)))continue;
             var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());
@@ -259,7 +260,8 @@ public final class LbcPendingCombat {
         var box=new AABB(from,from.add(1,1,1));
         for(var victim:level.getEntitiesOfClass(LivingEntity.class,box,e->target(copy,e)&&e.position().distanceToSqr(from)<=64)){
             var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),display,copy.owner);
-            victim.hurtServer(level,game.items().indirectKills().captureDamage(damage,copy.cause),4);
+            if(victim.hurtServer(level,game.items().indirectKills().captureDamage(damage,copy.cause),4))
+                LbcAcceptedHits.projectileFeedback(game,copy.owner);
             level.sendParticles(ParticleTypes.CRIT,from.x,from.y,from.z,8,.1,.1,.1,.5);
             LbcOverload.sound(copy.owner,from,"minecraft:entity.player.attack.strong",1,1,0);remove(copy);break;
         }
