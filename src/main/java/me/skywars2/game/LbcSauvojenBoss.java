@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.*;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import me.skywars2.mixin.MobLootAccess;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -139,12 +140,16 @@ public final class LbcSauvojenBoss {
             if(boss.isRemoved()||!game.items().currentEpoch(state.epoch())||boss.level()!=level){
                 actors.remove(boss);if(!boss.isRemoved())boss.discard();continue;
             }
-            if(!(boss instanceof LivingEntity living)||!living.isAlive()||boss.entityTags().contains("time_stopped"))continue;
+            if(!(boss instanceof LivingEntity living)||!living.isAlive()||!visible(level,boss)
+                    ||boss.entityTags().contains("time_stopped"))continue;
             if(phase%40==0&&nearest(level,boss.position(),110)!=null)select(living,state);
         }
         for(var cloud:List.copyOf(clouds))tickCloud(cloud);
 
         }finally{callbackDepth--;}
+    }
+    private static boolean visible(ServerLevel level,Entity entity){
+        return level.getEntity(entity.getUUID())==entity;
     }
     private LivingEntity nearest(ServerLevel level,Vec3 point,double radius){
         LivingEntity nearest=null;double best=radius*radius;
@@ -187,7 +192,8 @@ public final class LbcSauvojenBoss {
         if(d.carrier.isRemoved()||!game.items().currentEpoch(d.epoch)||level!=game.maps().level()){
             remove(cloud,false);return;
         }
-        if(d.carrier.entityTags().contains("time_stopped")||!level.hasChunkAt(BlockPos.containing(d.position)))return;
+        if(!visible(level,d.carrier)||d.carrier.entityTags().contains("time_stopped")
+                ||!level.hasChunkAt(BlockPos.containing(d.position)))return;
         if(game.items().magic().suppressedAt(level,d.position)){remove(cloud,false);return;}
         if(phase%d.kind.cadence!=0)return;
         var target=nearest(level,d.position,30_000_000);
@@ -286,8 +292,14 @@ public final class LbcSauvojenBoss {
     }
     public void unloaded(Entity entity){
         callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;
-        if(managed(entity)&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK){var state=actors.remove(entity);if(state!=null)unloaded.put(entity.getUUID(),state);}
-        if(entity.entityTags().contains(CLOUD))for(var cloud:List.copyOf(clouds))if(cloud.visual().carrier==entity)remove(cloud,false);
+        var reason=entity.getRemovalReason();
+        if(managed(entity)&&reason==Entity.RemovalReason.UNLOADED_TO_CHUNK){var state=actors.remove(entity);if(state!=null)unloaded.put(entity.getUUID(),state);}
+        if(!entity.entityTags().contains(CLOUD))return;
+        // A marker can stop tracking without being removed from the native manager.
+        var level=(ServerLevel)entity.level();
+        if(reason==null&&!visible(level,entity)
+                &&((ActorCheckpointAccess.LevelEntities)level).skywars2$manager().isLoaded(entity.getUUID()))return;
+        for(var cloud:List.copyOf(clouds))if(cloud.visual().carrier==entity)remove(cloud,false);
 
         }finally{callbackDepth--;}
     }
