@@ -2310,6 +2310,8 @@ public final class LbcItems {
             armorSets.techno().pausedMaintenance();
             armorSets.chaos().pausedMaintenance();
             exasperato.tickSearchesWhileMapStopped();exasperato.blastTick();
+            // These queues also contain projectiles in other dimensions.
+            wands.tick();stonekivi.tick();
             // Исключения Stand: кулаки двигаются, ножи лишь выпускаются и ждут native thaw.
             blackHoleVisuals.tick();reactiveArtifacts.tick();
             stand.tick(); shooters.tickPhantomBursts();

@@ -321,12 +321,13 @@ final class LbcErecto {
         }
 
         private boolean retired(){return path.pendingBlasts!=this||!game.items().currentEpoch(epoch)||!game.playing();}
+        @Override public boolean usesArenaClock(){return false;}
         @Override public boolean ready(){
             if(retired())return true;
             int tick=game.server().getTickCount();
             if(waitingTick==tick||!crossbowBlastBudget(tick)||game.items().timeStop().stopped(level))return false;
             return !(damage.getEntity() instanceof ServerPlayer player&&!player.isRemoved()
-                    &&game.items().wands().inputTimeStopped(player));
+                    &&game.items().wands().personalTimeStopped(player));
         }
         @Override public boolean snapshotIdle(){return true;}
         @Override public boolean step(){

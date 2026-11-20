@@ -78,6 +78,10 @@ final class LbcTesla {
                     trace.mechanism=mechanism;trace.teslaChain=chain;trace.statusWild=wild;trace.hostileSauvojen=hostile;};};
         }
         private void reset(){point=origin;currentYaw=yaw;currentPitch=pitch;sample=0;}
+        @Override public boolean usesArenaClock(){return false;}
+        @Override public boolean ready(){
+            return !game.items().timeStop().stopped(level)&&!game.items().wands().personalTimeStopped(owner);
+        }
         @Override public boolean step(){
             game.items().stonekivi().beginNativeWork();try {
                 if(!game.items().currentEpoch(epoch)||!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner))return true;

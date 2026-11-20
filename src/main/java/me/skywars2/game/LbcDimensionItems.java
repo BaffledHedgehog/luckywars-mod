@@ -7,7 +7,10 @@ import net.minecraft.world.level.Level;
 /** New ordinary item abilities are separate from participant roles and accepted consequences. */
 public final class LbcDimensionItems {
     private LbcDimensionItems(){}
-    public static boolean ordinary(Level level){return ordinary(level.dimension().identifier().toString());}
+    public static boolean ordinary(Level level){
+        var dimension=level.dimension();
+        return !dimension.equals(LbcHedgehogDimensions.NEXUS)&&!dimension.equals(LbcHedgehogDimensions.IMPRINTED);
+    }
     static boolean ordinary(String dimension){return !dimension.equals("minecraft:nexus")&&!dimension.equals("minecraft:imprinted");}
     public static boolean ordinary(ServerPlayer player){return player!=null&&ordinary(player.level());}
     public static boolean blocked(Level level){return !ordinary(level);}

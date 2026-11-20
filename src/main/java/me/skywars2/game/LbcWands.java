@@ -1463,24 +1463,35 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         for(var trace:electroTraces) game.items().homing().redirect(trace);
     }
     boolean timeStopped() {
-        return game.maps().level()!=null && game.items().timeStop().stopped(game.maps().level())
-                || legacyTimeStopped();
+        return arenaTimeStopped() || legacyTimeStopped();
+    }
+    boolean arenaTimeStopped() {
+        var arena=game.maps().level();
+        return arena!=null&&game.items().timeStop().stopped(arena);
     }
     /** Stand/часы освобождают ввод владельца, но не таймеры и полёт всего измерения. */
     boolean inputTimeStopped(ServerPlayer player) {
-        return game.items().timeStop().frozen(player) || player.entityTags().contains("time_stopped")
-                || legacyTimeStopped();
+        return personalTimeStopped(player) || legacyTimeStopped();
+    }
+    boolean personalTimeStopped(ServerPlayer player) {
+        return player.entityTags().contains("time_stopped") || game.items().timeStop().frozen(player);
     }
     boolean legacyTimeStopped() {
         var board=game.server().getScoreboard(); var objective=board.getObjective("lbc.math");
         var stopped=objective==null ? null : board.getPlayerScoreInfo(TIME_STOPPED,objective);
         return stopped!=null && stopped.value()>=1;
     }
+    private boolean electroPaused(ElectroTrace trace) {
+        var stop=game.items().timeStop();
+        var owner=trace.owner;
+        return stop.stopped(trace.level)||trace.sourcePolicy==null&&owner!=null
+                &&personalTimeStopped(owner);
+    }
     /** Вызывается общим item tick; snapshot устойчив к stop/death callbacks во время hurtServer. */
     void tick() {
         if(electroTraces.isEmpty()) return;
         game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
-        boolean timeStopped=timeStopped();
+        boolean legacyStopped=legacyTimeStopped();
         electroBatch.addAll(electroTraces);
         try {
             for(var trace:electroBatch) {
@@ -1488,13 +1499,13 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
                 if(!LbcBedwarsRoleGuards.canEmitFrom(trace.npcSource)||!LbcBedwarsRoleGuards.canEmitFrom(trace.explicitEmitter)||!LbcBedwarsRoleGuards.canEmit(trace.sourcePolicy,trace.level)){electroTraces.remove(trace);continue;}
                 var owner=trace.owner;
                 boolean accepted=trace.sourcePolicy!=null&&trace.sourcePolicy.persistent();
-                if(trace.age>=trace.lifetime || !game.items().currentEpoch(trace.epoch) || !accepted&&trace.level!=game.maps().level()
+                if(trace.age>=trace.lifetime || !game.items().currentEpoch(trace.epoch) || !accepted&&!LbcDimensionItems.ordinary(trace.level)
                         || !accepted&&(trace.source()==null || trace.source().level()!=trace.level)
                         || !accepted&&owner!=null && (!owner.isAlive() || owner.isRemoved() || !game.canUseGameplayItems(owner))
                         || game.stage()==GameController.Stage.ENDING) {
                     electroTraces.remove(trace); continue;
                 }
-                if(timeStopped || trace.sourcePolicy==null && owner!=null && owner.entityTags().contains("time_stopped")) continue;
+                if(legacyStopped||electroPaused(trace))continue;
                 if(game.items().magic().mechanismSuppressedAt(trace.level,trace.position)){electroTraces.remove(trace);continue;}
                 if(trace.erecto!=null&&trace.erecto.pendingBlasts!=null)continue;
                 // (user) Мана/антимагия проверяются при использовании жезла; выпущенная дуга немагическая.
@@ -1928,14 +1939,14 @@ for(int i=0;i<=100 && i<boundary;i++) {
     }
 
     int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        if(legacyTimeStopped())return 0;
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
         for(var trace:java.util.List.copyOf(electroTraces)){
             if(budget-made<count||System.nanoTime()>=deadline)break;
             if(trace.age>=trace.lifetime||!game.items().currentEpoch(trace.epoch)||trace.trialOwner!=null
                     ||trace.erecto!=null&&LbcAcademy.trial(trace.erecto.stack)
                     ||!CloneVirtualAbilityStates.near(game,holder,trace.level,trace.position,trace.cloneMask,skill)
-                    ||timeStopped()||trace.sourcePolicy==null&&trace.owner!=null
-                    &&(trace.owner.entityTags().contains("time_stopped")||game.items().timeStop().frozen(trace.owner)))continue;
+                    ||electroPaused(trace))continue;
             var points=CloneVirtualAbilityStates.positions(holder,trace.level,trace.position,skill);if(points==null)continue;
             var clones=new java.util.ArrayList<ElectroTrace>();
             for(var point:points){var copy=new ElectroTrace(trace);copy.position=point;copy.cloneMask|=bit;

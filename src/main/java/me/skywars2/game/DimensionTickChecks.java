@@ -4,24 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import me.skywars2.SkyWars2;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
+import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 
 /** Actual ordinary-dimension player ticks, native fire immunity, End escalation and emitted HUD packets. */
 public final class DimensionTickChecks {
     private DimensionTickChecks(){}
     private static Fixture running;
+    private enum ArcPhase { LOCAL_STOP, FOREIGN_STOP, LIFETIME }
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Dimension ticks: "+why);}
     private static final class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;final int oldEnd,oldVoid,oldTotems,oldEye;
@@ -30,6 +41,20 @@ public final class DimensionTickChecks {
         Cow visible,observer,foreign;
         ServerLevel eyePause;
         int eyePhase,eyeWhen,eyeOwnedAt,eyeOtherAt,eyeMark,pausedEyeTime;
+        ServerLevel arcPause;
+        ArcPhase arcPhase;
+        int arcWhen;
+        List<LbcWands.ElectroTrace> arcs=List.of();
+        List<Vec3> arcOrigins=List.of();
+        Cow arcVictim;
+        ServerLevel sniperLevel;
+        BlockPos sniperSlab;
+        MapManager.BlockSnapshot sniperSlabBefore;
+        LbcWands.ElectroTrace sniperTrace;
+        Cow sniperVictim;
+        List<Vec3> sniperCenters=List.of();
+        int sniperStarted,sniperPacketStart;
+        boolean sniperStepped,sniperStoppedArena,sniperGriefing,sniperRulesChanged;
         Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);
             oldTotems=f.owner.getStats().getValue(net.minecraft.stats.Stats.ITEM_USED.get(net.minecraft.world.item.Items.TOTEM_OF_UNDYING));
             oldEnd=game.items().mana().score(f.owner,"end_damage").get();oldVoid=game.items().mana().score(f.owner,"void_resistance").get();
@@ -128,9 +153,195 @@ public final class DimensionTickChecks {
         private static boolean removed(List<Packet<?>> packets,int id){
             return packets.stream().anyMatch(p->p instanceof ClientboundRemoveEntitiesPacket remove&&remove.entityIds().contains(id));
         }
+        void beginElectro(){
+            var owner=f.owner;
+            var level=owner.level();
+            require(level!=f.level&&(level.dimension().equals(Level.NETHER)||level.dimension().equals(Level.END)),
+                    "regular Electro is tested in a real ordinary offworld dimension");
+            require(!game.items().timeStop().stopped(level)&&!game.items().timeStop().stopped(f.level),
+                    "exclusive native world clocks for the electric arc scene");
+            var origin=owner.getEyePosition();
+            for(int offsets=-1;offsets<=3;offsets++){
+                var pos=BlockPos.containing(origin.add(0,0,offsets));
+                level.getChunkAt(pos);
+                require(level.getBlockState(pos).isAir(),"resident unobstructed Electro scene at "+pos);
+            }
+            arcVictim=eyeCow(level,origin.add(0,-.7,1.2),false);
+            arcVictim.setHealth(arcVictim.getMaxHealth());
+            owner.stopUsingItem();owner.setShiftKeyDown(false);
+            owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            var loot=game.lbc().rollTable(level,owner.position(),owner,"lbc:ported/electro_wand");
+            require(loot.size()==1&&loot.getFirst().is(LbcWands.ELECTRO),"real regular Electro loot leaf");
+            var wand=loot.getFirst();
+            owner.setItemInHand(InteractionHand.MAIN_HAND,wand);
+            game.items().mana().set(owner,5000);
+            var before=game.items().wands().electroSnapshot();
+            require(owner.gameMode.useItem(owner,level,wand,InteractionHand.MAIN_HAND).consumesAction(),
+                    "real native held Electro use in "+level.dimension());
+            arcs=game.items().wands().electroSnapshot().stream().filter(t->!before.contains(t)&&t.owner==owner).toList();
+            require(arcs.stream().map(t->t.lifetime).toList().equals(List.of(40,45,50))
+                            &&arcs.stream().allMatch(t->t.level==level&&t.age==0),
+                    "three accepted offworld native trace bodies with original active lifetimes");
+            arcOrigins=arcs.stream().map(t->t.position).toList();
+            arcPause=level;
+            game.items().timeStop().begin(arcPause,20);
+            arcPhase=ArcPhase.LOCAL_STOP;
+            arcWhen=game.server().getTickCount();
+        }
+        void parkArcs(){
+            // Keep the lifetime witness in the same resident air lane after the real first-segment hit.
+            for(int i=0;i<arcs.size();i++){
+                var arc=arcs.get(i);
+                arc.position=arcOrigins.get(i);
+                arc.yaw=0;
+                arc.pitch=0;
+            }
+        }
+        boolean stepElectro(){
+            int now=game.server().getTickCount();
+            if(now==arcWhen)return false;
+            var live=game.items().wands().electroSnapshot();
+            if(arcPhase==ArcPhase.LOCAL_STOP){
+                require(live.containsAll(arcs)&&arcs.stream().allMatch(t->t.age==0)
+                                &&arcs.stream().map(t->t.position).toList().equals(arcOrigins)
+                                &&arcVictim.getHealth()==arcVictim.getMaxHealth(),
+                        "local TimeStop preserves all accepted arc clocks, positions and target HP in "+f.owner.level().dimension());
+                if(now-arcWhen<2)return false;
+                game.items().timeStop().end(arcPause);
+                arcPause=f.level;
+                game.items().timeStop().begin(arcPause,20);
+                arcPhase=ArcPhase.FOREIGN_STOP;
+                arcWhen=now;
+                return false;
+            }
+            if(arcPhase==ArcPhase.FOREIGN_STOP){
+                var damage=arcVictim.getLastDamageSource();
+                require(game.items().timeStop().stopped(arcPause)&&live.containsAll(arcs)
+                                &&arcs.stream().allMatch(t->t.age==1)
+                                &&!arcs.stream().map(t->t.position).toList().equals(arcOrigins),
+                        "foreign arena TimeStop does not pause native offworld progress in "+f.owner.level().dimension());
+                require(arcVictim.getHealth()<arcVictim.getMaxHealth()&&damage!=null
+                                &&damage.is(LbcDamage.ELECTRO_BOLT)&&damage.getEntity()==f.owner,
+                        "first resumed segment hits the real offworld target with native electrical damage and shooter credit");
+                game.items().timeStop().end(arcPause);arcPause=null;
+                arcVictim.discard();arcVictim=null;
+                parkArcs();
+                arcPhase=ArcPhase.LIFETIME;
+                arcWhen=now;
+                return false;
+            }
+            int activeTicks=1+now-arcWhen;
+            for(var arc:arcs){
+                require(live.contains(arc)==(activeTicks<arc.lifetime)&&arc.age==Math.min(activeTicks,arc.lifetime),
+                        "each accepted trace expires after its exact active age in "+f.owner.level().dimension()
+                                +" (age "+arc.age+", elapsed "+activeTicks+", lifetime "+arc.lifetime+")");
+            }
+            if(activeTicks<50){parkArcs();return false;}
+            return true;
+        }
+        void beginSniper(){
+            var owner=f.owner;
+            sniperLevel=owner.level();
+            require(sniperLevel.dimension().equals(Level.END)&&!game.items().timeStop().stopped(sniperLevel)
+                            &&!game.items().timeStop().stopped(f.level),
+                    "real native End shooter and independent clocks");
+            require(owner.teleportTo(sniperLevel,owner.getX(),Math.floor(owner.getY())+.75,owner.getZ(),Set.of(),0,0,true),
+                    "native volley passes above the single slab's collision box");
+            f.client.acknowledge();
+            owner.setDeltaMovement(Vec3.ZERO);
+            owner.getAbilities().invulnerable=true;
+            var loot=game.lbc().rollTable(sniperLevel,owner.position(),owner,"lbc:ported/imba_sniper_crossbow");
+            require(loot.size()==1&&loot.getFirst().is(LbcImbaCrossbows.Kind.SNIPER.item),"actual native sniper loot leaf");
+            var weapon=loot.getFirst();
+            weapon.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
+            owner.setItemInHand(InteractionHand.MAIN_HAND,weapon);
+            sniperSlab=BlockPos.containing(owner.position().add(0,0,2));
+            for(int offset=0;offset<=18;offset++){
+                var cell=BlockPos.containing(owner.position().add(0,0,offset));
+                sniperLevel.getChunkAt(cell);
+                require(sniperLevel.getBlockState(cell).isAir(),"single-slab End ray has an empty resident setup");
+            }
+            sniperSlabBefore=game.maps().snapshot(sniperLevel,sniperSlab);
+            sniperLevel.setBlock(sniperSlab,Blocks.SMOOTH_STONE_SLAB.defaultBlockState(),
+                    Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+            sniperGriefing=sniperLevel.getGameRules().get(GameRules.MOB_GRIEFING);
+            sniperRulesChanged=true;
+            sniperLevel.getGameRules().set(GameRules.MOB_GRIEFING,false,game.server());
+            sniperVictim=eyeCow(sniperLevel,Vec3.atCenterOf(sniperSlab).add(4,.25,0),false);
+            sniperVictim.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
+            sniperVictim.setHealth(1000);
+            game.items().timeStop().begin(f.level,300);
+            sniperStoppedArena=true;
+            var before=game.items().wands().electroSnapshot();
+            sniperPacketStart=f.client.packets().size();
+            require(owner.gameMode.useItem(owner,sniperLevel,weapon,InteractionHand.MAIN_HAND).consumesAction(),
+                    "charged native sniper fires in End during foreign arena TimeStop");
+            var traces=game.items().wands().electroSnapshot().stream().filter(t->t.owner==owner&&!before.contains(t)).toList();
+            require(traces.size()==1&&traces.getFirst().erecto!=null&&traces.getFirst().erecto.kind==LbcErecto.CROSSBOW,
+                    "real regular sniper produces one offworld beam");
+            sniperTrace=traces.getFirst();
+            var aim=Vec3.directionFromRotation(sniperTrace.pitch,sniperTrace.yaw);
+            var centers=new ArrayList<Vec3>();
+            for(int sample=0;sample<=60;sample++){
+                var point=sniperTrace.position.add(aim.scale(sample*.3));
+                if(BlockPos.containing(point).equals(sniperSlab))centers.add(point);
+            }
+            sniperCenters=List.copyOf(centers);
+            require(sniperCenters.size()>=3&&sniperCenters.size()<=4&&sniperTrace.level==sniperLevel&&sniperTrace.age==0,
+                    "one slab contributes only three or four expected native blast centers");
+            sniperStarted=game.server().getTickCount();
+        }
+        boolean stepSniper(){
+            int elapsed=game.server().getTickCount()-sniperStarted;
+            if(elapsed==0)return false;
+            require(elapsed<240&&game.items().timeStop().stopped(f.level)&&!game.items().timeStop().stopped(sniperLevel),
+                    "End queue is observed while the foreign arena clock remains stopped");
+            if(!sniperStepped){
+                require(sniperTrace.age==1,"native crossbow ray actually advances in End while its arena is stopped");
+                removeTraces(List.of(sniperTrace));
+                sniperStepped=true;
+            }
+            var packets=tail(f.client,sniperPacketStart).stream().filter(ClientboundExplodePacket.class::isInstance)
+                    .map(ClientboundExplodePacket.class::cast).toList();
+            require(packets.size()<=sniperCenters.size(),"only the initial ray segment can publish explosions");
+            for(int index=0;index<packets.size();index++)
+                require(packets.get(index).radius()==20&&packets.get(index).center().equals(sniperCenters.get(index)),
+                        "native End blast packet keeps exact accepted center and radius");
+            if(packets.size()!=sniperCenters.size())return false;
+            var damage=sniperVictim.getLastDamageSource();
+            require(sniperVictim.getHealth()<1000&&damage!=null&&damage.getDirectEntity()==null&&damage.getEntity()==f.owner
+                            &&damage.typeHolder().equals(sniperLevel.damageSources().explosion(null,f.owner).typeHolder()),
+                    "offworld native source-null MOB blast hits the End target and keeps shooter attribution");
+            require(sniperLevel.getBlockState(sniperSlab).is(Blocks.SMOOTH_STONE_SLAB)&&sniperTrace.erecto.pendingBlasts==null
+                            &&game.items().stonekivi().queuedSnapshot().stream().noneMatch(work->
+                                work instanceof LbcErecto.CrossbowBlasts blast&&blast.path==sniperTrace.erecto),
+                    "offworld job retires after the single slab while native mob griefing remains disabled");
+            closeSniper();
+            return true;
+        }
+        void removeTraces(List<LbcWands.ElectroTrace> owned){
+            ((Set<?>)WoolBucketChecks.read(game.items().wands(),"electroTraces")).removeAll(owned);
+        }
+        void closeSniper(){
+            if(sniperStoppedArena){game.items().timeStop().end(f.level);sniperStoppedArena=false;}
+            if(sniperTrace!=null){
+                removeTraces(List.of(sniperTrace));
+                if(sniperTrace.erecto.pendingBlasts!=null)sniperTrace.erecto.pendingBlasts.cancel();
+                sniperTrace=null;
+            }
+            if(sniperVictim!=null){sniperVictim.discard();sniperVictim=null;}
+            if(sniperSlabBefore!=null){
+                game.maps().restoreSnapshot(sniperLevel,sniperSlab,sniperSlabBefore,Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+                sniperSlabBefore=null;
+            }
+            if(sniperRulesChanged){
+                sniperLevel.getGameRules().set(GameRules.MOB_GRIEFING,sniperGriefing,game.server());
+                sniperRulesChanged=false;
+            }
+        }
         boolean step(){
             f.client.acknowledge();f.audience.acknowledge();int now=game.server().getTickCount();
-            require(now-began<480,"bounded actual fire/End tick and radar scene");
+            require(now-began<900,"bounded actual fire/End tick, radar and offworld projectile scenes");
             if(phase==0){
                 if(now==when||now%10!=0)return false;
                 require(f.owner.isAlive()&&f.owner.getOffhandItem().isEmpty()
@@ -163,7 +374,20 @@ public final class DimensionTickChecks {
                 move(game.server().getLevel(Level.NETHER));f.owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,120,0));
                 beginEye();phase=5;return false;
             }
-            if(!stepEye())return false;
+            if(phase==5){
+                if(!stepEye())return false;
+                beginElectro();phase=6;return false;
+            }
+            if(phase==6){
+                if(!stepElectro())return false;
+                move(game.server().getLevel(Level.END));
+                beginElectro();phase=7;return false;
+            }
+            if(phase==7){
+                if(!stepElectro())return false;
+                beginSniper();phase=8;return false;
+            }
+            if(!stepSniper())return false;
             for(var key:java.util.List.of(LbcHedgehogDimensions.NEXUS,LbcHedgehogDimensions.IMPRINTED)){
                 var level=game.server().getLevel(key);var at=new Vec3(f.home.x,200,f.home.z);level.getChunkAt(net.minecraft.core.BlockPos.containing(at));
                 var packets=(java.util.List<?>)WoolBucketChecks.read(f.client.connection,"packets");int before=packets.size();
@@ -176,7 +400,9 @@ public final class DimensionTickChecks {
             return true;
         }
         public void close(){if(closed)return;closed=true;
-            try{if(eyePause!=null)game.items().timeStop().end(eyePause);for(var cow:eyeWitnesses)if(!cow.isRemoved())cow.discard();
+            try{if(eyePause!=null)game.items().timeStop().end(eyePause);if(arcPause!=null)game.items().timeStop().end(arcPause);
+                closeSniper();removeTraces(arcs);
+                for(var cow:eyeWitnesses)if(!cow.isRemoved())cow.discard();
                 game.items().radar().forget(f.owner);
                 if(f.owner.level()!=f.level){f.owner.teleportTo(f.level,f.home.x,f.home.y,f.home.z,Set.of(),0,0,true);f.client.acknowledge();}}
             finally{try{f.close();}finally{game.items().mana().score(f.owner,"end_damage").set(oldEnd);game.items().mana().score(f.owner,"void_resistance").set(oldVoid);eyeTime(oldEye);f.owner.getStats().setValue(f.owner,net.minecraft.stats.Stats.ITEM_USED.get(net.minecraft.world.item.Items.TOTEM_OF_UNDYING),oldTotems);}}
@@ -185,6 +411,6 @@ public final class DimensionTickChecks {
     public static void run(GameController game){require(running==null,"exclusive dimension fixture");running=new Fixture(game);
         try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
     public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;
-        SkyWars2.LOGGER.info("[check] PASS dimension-ticks (actual Nether ten-tick million in_fire; native Fire Resistance; actual End200tick escalation/outside_border/void-resistance; emitted actionbar and private moving Eye radar in both dimensions, with local Time Stop and world/observer exclusions)");
+        SkyWars2.LOGGER.info("[check] PASS dimension-ticks (Nether fire and End escalation; native HUD and Eye; regular Electro hit/exact active lifetime in both dimensions; one native End sniper impact under foreign arena TimeStop)");
     }catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL dimension-ticks",error);}}
 }

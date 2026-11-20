@@ -47,6 +47,8 @@ public final class LbcStonekivi {
         default boolean ready() { return true; }
         /** Only explicitly phase-owned source celebrations may advance after gameplay ends. */
         default boolean postgame() { return false; }
+        /** Work with its own world clock checks Time Stop in ready(). */
+        default boolean usesArenaClock() { return true; }
         /** A held producer may remain registered only when it has no accepted writes. */
         default boolean snapshotIdle() { return false; }
         default void cancel() { }
@@ -247,8 +249,9 @@ public final class LbcStonekivi {
     public void tick() {
         if(rewinding)return;if(advancing)throw new IllegalStateException("Reentrant shared terrain advance");advancing=true;try {
         if(game.stage()==GameController.Stage.LOADING) { stop(); return; }
-        boolean paused=game.items().wands().timeStopped();
-        if(paused&&game.stage()!=GameController.Stage.ENDING) return;
+        var wands=game.items().wands();
+        if(wands.legacyTimeStopped())return;
+        boolean arenaPaused=wands.arenaTimeStopped();
         long deadline=System.nanoTime()+3_000_000;
         int idle=0;
         for(int steps=0;steps<128 && !work.isEmpty() && System.nanoTime()<deadline;steps++) {
@@ -256,7 +259,7 @@ public final class LbcStonekivi {
             if(game.stage()==GameController.Stage.ENDING&&!job.postgame()) {
                 work.add(job);if(++idle>=work.size())break;continue;
             }
-            if(paused||!job.ready()) {
+            if((arenaPaused&&job.usesArenaClock())||!job.ready()) {
                 work.add(job); if(++idle>=work.size()) break;
             } else {
                 idle=0;
