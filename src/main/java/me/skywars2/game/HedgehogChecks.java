@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,9 +16,11 @@ import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Silverfish;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import java.lang.reflect.Field;
@@ -74,6 +77,11 @@ public final class HedgehogChecks {
         final net.minecraft.world.scores.PlayerTeam oldOwnerTeam,oldOtherTeam,team;final Vec3 at;final String epoch;final int cost;
         long last=Long.MIN_VALUE;int phase,sneezeWarmTicks;boolean closed;
         boolean laserOnly;Silverfish continuousLaser;Cow continuousTarget;int laserBegan,laserIdentity=-1;
+        private Silverfish hiddenFish;
+        private Arrow hiddenArrow;
+        private Vec3 warmFish, warmArrow, hiddenPoint;
+        private LbcIndirectKills.Owner hiddenCause;
+        private int visibilityPhase, visibilityTick, hiddenTimer, hiddenArrowAge;
         Fixture(GameController game){this.game=game;service=game.items().hedgehog();epoch=game.items().epoch();
             owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(game.playing()&&owner!=null&&other!=null&&owner.level()==other.level()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two actual active participants");
@@ -107,7 +115,12 @@ public final class HedgehogChecks {
             for(var actor:List.copyOf(owned))if(actor instanceof Cow&&!actor.isAlive())for(var drop:owner.level().getEntities((Entity)null,actor.getBoundingBox().inflate(3),e->!before.contains(e)&&(e instanceof net.minecraft.world.entity.item.ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb)))owned.add(drop);
             for(var e:List.copyOf(owned)){if(e instanceof LivingEntity l)game.items().indirectKills().clear(l);e.discard();}owned.clear();}
         Cow cow(Vec3 point){var c=new Cow(EntityTypes.COW,owner.level());c.setPos(point);c.setNoAi(true);c.setNoGravity(true);c.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);c.setHealth(100);require(owner.level().addFreshEntity(c),"resident native cow");owned.add(c);return c;}
-        Silverfish helper(LbcHedgehog.Kind kind,Vec3 point){service.spawnHelper(owner,owner.level(),point,kind);var f=service.helpers().getLast();f.setNoGravity(true);return f;}
+        Silverfish helper(LbcHedgehog.Kind kind, Vec3 point) {
+            var body = service.spawnHelper(owner, owner.level(), point, kind);
+            require(body != null, "native " + kind + " helper spawn accepted at " + point);
+            body.setNoGravity(true);
+            return body;
+        }
         void surfaces(){
             var block=BlockPos.containing(at).offset(0,6,5);var center=Vec3.atCenterOf(block);
             for(var normal:net.minecraft.core.Direction.values())for(var kind:List.of(LbcHedgehog.Kind.ORDINARY,LbcHedgehog.Kind.SNIPER)){
@@ -361,7 +374,9 @@ public final class HedgehogChecks {
             try(var first=new Swap(game,owner);var second=new Swap(game,other)){
                 level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,true,game.server());game.config().tntProtection=3;
                 place(center,Blocks.STONE);place(center.offset(2,0,0),Blocks.TNT);
-                var source=helper(LbcHedgehog.Kind.ORDINARY,origin);source.setHealth(1);service.sneeze(source);
+                var source = helper(LbcHedgehog.Kind.ORDINARY, Vec3.atBottomCenterOf(center.above()).add(0, .01, 0));
+                source.setHealth(1);
+                service.sneeze(source);
                 long firstSlice=service.completedBlasts()-completed;
                 require(firstSlice>=1&&firstSlice<=4&&service.pendingBlasts()==32-firstSlice,"at least one immediate real native blast and bounded32-offset queue");
                 int terrainSteps=0;
@@ -399,6 +414,7 @@ public final class HedgehogChecks {
         }
         void beginLaser(){laserOnly=true;move(owner,at.add(-4,0,-4));continuousLaser=helper(LbcHedgehog.Kind.LASER,at.add(0,1,0));continuousTarget=cow(at.add(0,1,4));laserBegan=game.server().getTickCount();}
         boolean laserStep(){
+            if (visibilityPhase != 0) return hiddenStep();
             int elapsed=game.server().getTickCount()-laserBegan;var visuals=(LbcFadingBeams)WoolBucketChecks.read(service,"beamVisuals");
             if(elapsed<=20){
                 var images=visuals.checkpoint().stream().filter(i->i.source().equals(continuousLaser.getUUID())).toList();
@@ -412,7 +428,99 @@ public final class HedgehogChecks {
                 if(elapsed==20){require(continuousTarget.getHealth()<100,"continuous beam really damages native target");continuousTarget.discard();}
                 return false;
             }
-            require(continuousLaser.isAlive()&&visuals.count()==0,"loss of the last enemy retires the beam on the next actual frame without retiring its source");return true;
+            require(continuousLaser.isAlive()&&visuals.count()==0,"loss of the last enemy retires the beam on the next actual frame without retiring its source");
+            continuousLaser.discard();
+            warmFish = at.add(10, 1, 0);
+            hiddenPoint = coldColumn();
+            hiddenFish = helper(LbcHedgehog.Kind.ORDINARY, warmFish);
+            cow(warmFish.add(0, 0, 8));
+            visibilityTick = game.server().getTickCount();
+            visibilityPhase = 1;
+            return false;
+        }
+
+        private Vec3 coldColumn() {
+            var level = owner.level();
+            int centerX = owner.blockPosition().getX() >> 4, centerZ = owner.blockPosition().getZ() >> 4;
+            for (int ring = 1; ring <= 16; ring++) {
+                for (int dx = -ring; dx <= ring; dx++) for (int dz = -ring; dz <= ring; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != ring) continue;
+                    int x = centerX + dx, z = centerZ + dz;
+                    if (level.getChunkSource().getChunkNow(x, z) == null && !level.areEntitiesLoaded(ChunkPos.pack(x, z)))
+                        return new Vec3(x * 16 + 8.5, warmFish.y, z * 16 + 8.5);
+                }
+            }
+            throw new IllegalStateException("Hedgehog: no genuinely cold test column");
+        }
+
+        private boolean registeredHidden(Entity entity) {
+            var level = owner.level();
+            return entity.getRemovalReason() == null && level.getEntity(entity.getUUID()) == null
+                    && ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager().isLoaded(entity.getUUID());
+        }
+
+        private int helperTimer() {
+            return service.views().stream().filter(view -> view.entity().equals(hiddenFish.getUUID()))
+                    .findFirst().orElseThrow().timer();
+        }
+
+        private boolean hiddenStep() {
+            int now = game.server().getTickCount();
+            var level = owner.level();
+            if (visibilityPhase == 1) {
+                require(now - visibilityTick <= 16, "ordinary helper emitted its own native arrow");
+                if (service.projectiles().isEmpty()) return false;
+                require(service.projectiles().size() == 1, "one native helper arrow at its initial eighth tick");
+                hiddenArrow = service.projectiles().getFirst();
+                hiddenTimer = helperTimer();
+                hiddenArrowAge = hiddenArrow.tickCount;
+                hiddenCause = service.cause(hiddenFish);
+                require(hiddenTimer == 0 && hiddenArrow.getOwner() == hiddenFish
+                                && service.cause(hiddenArrow) == hiddenCause && service.owner(hiddenFish) == owner,
+                        "native helper and own arrow share the original source before tracking hides them");
+                warmArrow = warmFish.add(0, 1, 2);
+                hiddenArrow.setNoGravity(true);
+                hiddenArrow.setDeltaMovement(.1, 0, 0);
+                hiddenFish.setPos(hiddenPoint);
+                hiddenArrow.setPos(hiddenPoint.add(0, 1, 0));
+                require(registeredHidden(hiddenFish) && registeredHidden(hiddenArrow),
+                        "actual entity section transition hides both original registered UUIDs");
+                visibilityTick = now;
+                visibilityPhase = 2;
+                return false;
+            }
+            if (visibilityPhase == 2) {
+                require(registeredHidden(hiddenFish) && registeredHidden(hiddenArrow)
+                                && service.helpers().contains(hiddenFish) && service.projectiles().contains(hiddenArrow),
+                        "native deferred visibility unload retains the registered helper and arrow through tick "
+                                + (now - visibilityTick) + " (fish=" + hiddenFish.getRemovalReason()
+                                + ", arrow=" + hiddenArrow.getRemovalReason() + ")");
+                require(helperTimer() == hiddenTimer && hiddenArrow.tickCount == hiddenArrowAge,
+                        "registered hidden bodies spend neither helper cadence nor native arrow flight");
+                if (now - visibilityTick < 3) return false;
+                hiddenFish.setPos(warmFish);
+                hiddenArrow.setPos(warmArrow);
+                require(level.getEntity(hiddenFish.getUUID()) == hiddenFish && level.getEntity(hiddenArrow.getUUID()) == hiddenArrow,
+                        "same native objects and UUIDs become visible again");
+                require(hiddenArrow.getOwner() == hiddenFish && service.cause(hiddenArrow) == hiddenCause
+                                && service.cause(hiddenFish) == hiddenCause && service.owner(hiddenFish) == owner,
+                        "visibility reentry retains the physical shooter and original source receipt");
+                visibilityPhase = 3;
+                return false;
+            }
+            if (visibilityPhase == 3) {
+                require(helperTimer() == 39 && hiddenArrow.tickCount > hiddenArrowAge
+                                && hiddenArrow.distanceToSqr(warmArrow) > 0 && service.projectiles().size() == 1,
+                        "the next real native tick resumes original cadence and flight without duplicate actors");
+                hiddenArrow.discard();
+                hiddenFish.discard();
+                visibilityPhase = 4;
+                return false;
+            }
+            require(hiddenFish.isRemoved() && hiddenArrow.isRemoved()
+                            && !service.helpers().contains(hiddenFish) && !service.projectiles().contains(hiddenArrow),
+                    "genuine native removal untracks both bodies");
+            return true;
         }
         boolean step(){if(owner.level().getGameTime()==last)return false;last=owner.level().getGameTime();require(game.playing()&&game.items().currentEpoch(epoch),"match epoch retained");
             if(laserOnly)return laserStep();

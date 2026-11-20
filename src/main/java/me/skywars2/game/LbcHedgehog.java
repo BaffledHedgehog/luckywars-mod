@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import me.skywars2.mixin.ActorCheckpointAccess;
 import me.skywars2.mixin.WandProjectileMixin.ArrowAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -89,8 +90,15 @@ public final class LbcHedgehog {
     private boolean frozen(Entity e){return checkpointRestoring||e instanceof Fish f&&f.retainedOwner&&player(f.author)==null||!game.server().tickRateManager().runsNormally()||game.items().wands().timeStopped()
             ||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped")||e instanceof LivingEntity living&&game.items().frost().isFrozen(living);}
     private boolean suppressed(ServerLevel l,Vec3 p){return game.items().magic().suppressedAt(l,p);}
-    private boolean valid(Fish f){var p=player(f.author);return !f.retired&&!f.isRemoved()&&(f.kind==Kind.WALL?game.playing()&&game.stage()!=GameController.Stage.ENDING:ownerValid(p)&&p.level()==f.level())
-            &&game.items().currentEpoch(f)&&resident((ServerLevel)f.level(),f.position())&&!suppressed((ServerLevel)f.level(),f.position());}
+    private static boolean registeredHidden(Entity entity) {
+        if (entity.getRemovalReason() != null || !(entity.level() instanceof ServerLevel level)
+                || level.getEntity(entity.getUUID()) != null) return false;
+        return ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager().isLoaded(entity.getUUID());
+    }
+    private boolean validLifetime(Fish f){var p=player(f.author);return !f.retired&&!f.isRemoved()&&(f.kind==Kind.WALL?game.playing()&&game.stage()!=GameController.Stage.ENDING:ownerValid(p)&&p.level()==f.level())
+            &&game.items().currentEpoch(f);}
+    private boolean activePosition(Fish f){var level=(ServerLevel)f.level();return resident(level,f.position())&&!suppressed(level,f.position());}
+    private boolean valid(Fish f){return validLifetime(f)&&activePosition(f);}
     private boolean eligible(LivingEntity e){return e.isAlive()&&game.items().wands().validTarget(e)&&e.getType().builtInRegistryHolder().is(MOBS)
             &&!frozen(e)&&!suppressed((ServerLevel)e.level(),e.position());}
     private boolean allied(Fish f,LivingEntity e){var p=player(f.author);return e==p||e==f||p!=null&&(p.isAlliedTo(e)||game.items().summons().friendly(p,e))
@@ -302,7 +310,7 @@ public final class LbcHedgehog {
     /** The same attack boundary used after the source random wall/Sniper admission. */
     public void fireBeam(Silverfish helper,LivingEntity target){
         enterCheckpointCallback();try {
-        if(helper instanceof LbcHedgehog.Fish f&&valid(f)&&!frozen(f))beam(f,target,f.kind);
+        if(helper instanceof LbcHedgehog.Fish f&&valid(f)&&!registeredHidden(f)&&!frozen(f))beam(f,target,f.kind);
         }finally{leaveCheckpointCallback();}
     }
     private final class HelperArrow extends Arrow {
@@ -313,10 +321,11 @@ public final class LbcHedgehog {
         @Override protected boolean canHitEntity(Entity e){var p=getOwner() instanceof ServerPlayer current?current:player(author);if(e.getUUID().equals(helper)||p==null)return false;
             return super.canHitEntity(e)&&(LbcGreed.active(e)||game.items().wands().physicalProjectileTarget(this,e));}
         @Override protected void onHitBlock(BlockHitResult hit){super.onHitBlock(hit);discard();}
+        private boolean validLifetime(){return game.playing()&&ownerValid(player(author))&&game.items().currentEpoch(this);}
         @Override public void tick(){
             enterCheckpointCallback();try {
                 if(checkpointRestoring || celebrating(this))return;
-                if(!game.playing()||!ownerValid(player(author))||!game.items().currentEpoch(this)||!resident((ServerLevel)level(),position())
+                if(!validLifetime()||!resident((ServerLevel)level(),position())
                     ||suppressed((ServerLevel)level(),position())){discard();return;}if(!frozen(this))super.tick();
             }finally{leaveCheckpointCallback();}
         }
@@ -345,14 +354,20 @@ public final class LbcHedgehog {
                 var wallTargets = new WallTargetSearch();
                 for (var body : List.copyOf(fish)) {
                     if (body.retainedOwner && player(body.author) == null) continue;
-                    if (!valid(body)) {
+                    boolean hidden = registeredHidden(body);
+                    if (!validLifetime(body) || !hidden && !activePosition(body)) {
                         retire(body);
                         continue;
                     }
-                    if (body.isAlive() && !frozen(body)) active(body, wallTargets);
+                    if (!hidden && body.isAlive() && !frozen(body)) active(body, wallTargets);
                 }
             }
-            arrows.removeIf(Entity::isRemoved);
+            arrows.removeIf(arrow -> {
+                if (arrow.isRemoved()) return true;
+                if (!registeredHidden(arrow) || arrow.validLifetime()) return false;
+                arrow.discard();
+                return true;
+            });
             for(var e:List.copyOf(children.keySet())){
                 var child=children.get(e);if(e.isRemoved()){children.remove(e);continue;}
                 if(!game.playing()||!game.items().currentEpoch(child.epoch)||!resident((ServerLevel)e.level(),e.position())){children.remove(e);e.discard();}
@@ -392,7 +407,12 @@ public final class LbcHedgehog {
             // Native TNT discards itself immediately before its synchronous explosion; keep that cause
             // until the next service tick so blast and chained-block callbacks still see its lineage.
             if(children.containsKey(e)&&e.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK){children.remove(e);e.discard();}
-            if(e instanceof LbcHedgehog.Fish f)retire(f);if(e instanceof LbcHedgehog.HelperArrow a){arrows.remove(a);a.discard();}
+            // Native tracking can end before the original body leaves the entity manager.
+            if (e instanceof Fish || e instanceof HelperArrow) {
+                if (registeredHidden(e)) return;
+                if (e instanceof Fish fish) retire(fish);
+                else if (e instanceof HelperArrow arrow) { arrows.remove(arrow); arrow.discard(); }
+            }
         }finally{leaveCheckpointCallback();}
     }
     public void forget(ServerPlayer p){forget(p.getUUID());}

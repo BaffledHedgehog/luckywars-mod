@@ -1,5 +1,7 @@
 package me.skywars2.game;
 
+import me.skywars2.mixin.ActorCheckpointAccess;
+
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -209,7 +211,11 @@ public final class LbcSoulless {
         ServerPlayer caster;final boolean trial;boolean retired;
         GhostVex(ServerPlayer caster,boolean trial){super(EntityTypes.VEX,caster.level());this.caster=caster;this.trial=trial;}
         @Override public boolean shouldBeSaved(){return false;}
-        @Override public void tick(){if(rewinding||checkpointHeld.containsKey(this))return;if(!validVex(this)){removeVex(this);return;}if(!paused(this))super.tick();}
+        @Override public void tick() {
+            if (rewinding || checkpointHeld.containsKey(this)) return;
+            if (!validVex(this)) { removeVex(this); return; }
+            if (!paused(this) && !registeredHidden(this)) super.tick();
+        }
         @Override public boolean hurtServer(ServerLevel level,DamageSource source,float amount){return !checkpointHeld.containsKey(this)&&super.hurtServer(level,source,amount);}
         @Override protected void dropCustomDeathLoot(ServerLevel level,DamageSource damage,boolean byPlayer){
             if(retired)return;
@@ -227,7 +233,10 @@ public final class LbcSoulless {
 
         }finally{checkpointDepth--;}
     }
-    private boolean validVex(GhostVex v){return !v.retired&&!v.isRemoved()&&ownerValid(v.caster)&&v.level()==v.caster.level()&&game.items().currentEpoch(v)&&v.caster.level().hasChunkAt(v.blockPosition());}
+    private boolean validVex(GhostVex v) {
+        return !v.retired && !v.isRemoved() && ownerValid(v.caster) && v.level() == v.caster.level()
+                && game.items().currentEpoch(v) && (v.caster.level().hasChunkAt(v.blockPosition()) || registeredHidden(v));
+    }
     private void removeVex(GhostVex v){v.retired=true;vexes.remove(v);v.discard();}
     static final class Field {
         ServerPlayer owner;Pig pig;Display.ItemDisplay display;final int type;final LbcIndirectKills.Owner cause;int age,frame;
@@ -236,7 +245,14 @@ public final class LbcSoulless {
     private final class Body extends Pig {
         Body(ServerLevel level){super(EntityTypes.PIG,level);}
         @Override public boolean shouldBeSaved(){return false;}
-        @Override public void tick(){if(rewinding||checkpointHeld.containsKey(this))return;var field=find(this);if(field==null||!valid(field)){if(field!=null)LbcSoulless.this.remove(field);else discard();return;}if(!paused(this))super.tick();}
+        @Override public void tick() {
+            if (rewinding || checkpointHeld.containsKey(this)) return;
+            var field = find(this);
+            if (field == null) { discard(); return; }
+            boolean hidden = registeredHidden(this);
+            if (!valid(field) || !hidden && !activePosition(field)) { LbcSoulless.this.remove(field); return; }
+            if (!hidden && !paused(this)) super.tick();
+        }
         @Override public boolean hurtServer(ServerLevel level,DamageSource source,float amount){return !checkpointHeld.containsKey(this)&&super.hurtServer(level,source,amount);}
         @Override protected void dropFromLootTable(ServerLevel level,DamageSource source,boolean byPlayer){}
         @Override protected void dropCustomDeathLoot(ServerLevel level,DamageSource source,boolean byPlayer){}
@@ -263,14 +279,34 @@ public final class LbcSoulless {
         }finally{checkpointDepth--;}
     }
     private Field find(Entity e){for(var f:fields)if(f.pig==e||f.display==e)return f;return null;}
-    private boolean valid(Field f){return ownerValid(f.owner)&&f.owner.level()==f.pig.level()&&!f.pig.isRemoved()&&f.pig.isAlive()&&!f.display.isRemoved()&&game.items().currentEpoch(f.pig)&&game.items().currentEpoch(f.display)&&f.owner.level().hasChunkAt(f.pig.blockPosition())&&!game.items().magic().suppressedAt(f.owner.level(),f.pig.position());}
+    private boolean valid(Field f) {
+        var level = f.owner.level();
+        return ownerValid(f.owner) && f.pig.level() == level && f.display.level() == level
+                && !f.pig.isRemoved() && f.pig.isAlive() && !f.display.isRemoved()
+                && game.items().currentEpoch(f.pig) && game.items().currentEpoch(f.display);
+    }
+    private boolean activePosition(Field f) {
+        var level = f.owner.level();
+        return level.hasChunkAt(f.pig.blockPosition()) && !game.items().magic().suppressedAt(level, f.pig.position());
+    }
+    private static boolean registeredHidden(Entity entity) {
+        if (entity.getRemovalReason() != null || !(entity.level() instanceof ServerLevel level)
+                || level.getEntity(entity.getUUID()) != null) return false;
+        return ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager().isLoaded(entity.getUUID());
+    }
     private void remove(Field f){fields.remove(f);f.pig.discard();f.display.discard();}
     private boolean friendly(Field f,LivingEntity e){return e==f.owner||f.owner.isAlliedTo(e);}
     private List<LivingEntity> fieldTargets(Field f,double r){return targets(f.owner,f.display.position(),r).stream().filter(e->!e.entityTags().contains("metasola_base")).toList();}
     void tickField(Field f){
         checkpointDepth++;try{
-        if(!valid(f)){remove(f);return;}if(paused(f.pig)||paused(f.display))return;
-        f.display.snapTo(f.pig.getX(),f.pig.getY(),f.pig.getZ(),f.pig.getYRot(),0);
+        boolean hidden = registeredHidden(f.pig);
+        if (!valid(f) || !hidden && !activePosition(f)) { remove(f); return; }
+        if (paused(f.pig) || paused(f.display)) return;
+        // The separate visual follows its body across native section boundaries, including
+        // into a hidden section. Neither one advances the field until both are visible again.
+        if (!hidden || !f.display.position().equals(f.pig.position()))
+            f.display.snapTo(f.pig.getX(),f.pig.getY(),f.pig.getZ(),f.pig.getYRot(),0);
+        if (hidden || registeredHidden(f.display)) return;
         f.age++;if(++f.frame%20==0)second(f);if(f.age<DELAYS[f.type-1])return;
         var at=f.display.position();var p=f.owner;
         switch(f.type){
@@ -288,7 +324,8 @@ public final class LbcSoulless {
     }
     void second(Field f){
         checkpointDepth++;try{
-        if(!fields.contains(f)||!valid(f)||paused(f.pig)||paused(f.display)||f.type>2)return;
+        if (f.type > 2 || !fields.contains(f) || !valid(f) || registeredHidden(f.pig)
+                || registeredHidden(f.display) || !activePosition(f) || paused(f.pig) || paused(f.display)) return;
         f.age+=20;if(f.age<DELAYS[f.type-1])return;
         if(f.type==1){LbcOverload.sound(f.owner,f.display.position(),"minecraft:entity.ravager.attack",.8f,2,0);for(var e:fieldTargets(f,10))if(!friendly(f,e)){damage(f,e,DamageTypes.MAGIC,4);particles(f.owner,e.position().add(0,1,0),ParticleTypes.SWEEP_ATTACK,1);}}
         else for(var e:fieldTargets(f,10))if(friendly(f,e)&&!incarnationCooldowns.containsKey(e)){incarnationCooldowns.put(e,20);heal(f,e);}
@@ -340,7 +377,15 @@ public final class LbcSoulless {
     }
     public static boolean managed(Entity e){return e!=null&&(e.entityTags().contains(BASE)||e.entityTags().contains(DISPLAY)||e.entityTags().contains(VEX)||e.entityTags().contains(TRIAL));}
     public void unloaded(Entity e){
-        checkpointDepth++;try{if(rewinding||checkpointHeld.containsKey(e))return;incarnationCooldowns.remove(e);if(e instanceof LivingEntity living&&ghosts.containsKey(living))clear(living);var f=find(e);if(f!=null)remove(f);if(e instanceof GhostVex v)removeVex(v);
+        checkpointDepth++;
+        try {
+            if (rewinding || checkpointHeld.containsKey(e)) return;
+            incarnationCooldowns.remove(e);
+            if (e instanceof LivingEntity living && ghosts.containsKey(living)) clear(living);
+            var field = find(e);
+            if ((field != null || e instanceof GhostVex) && registeredHidden(e)) return;
+            if (field != null) remove(field);
+            if (e instanceof GhostVex v) removeVex(v);
         }finally{checkpointDepth--;}
     }
     public void forget(ServerPlayer p){

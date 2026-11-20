@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -82,6 +84,10 @@ public final class SoullessAcademyChecks {
         final BlockPos base;final BoundingBox bounds;final Vec3 at;final int configuredCost;final String epoch;
         final net.minecraft.world.scores.PlayerTeam oldOwnerTeam,oldOtherTeam,team;
         Interaction normal,school;ItemStack trial;int phase;long last=Long.MIN_VALUE;boolean closed;
+        Vex ghostVex, trialVex;
+        LbcSoulless.Field field;
+        Vec3 ghostPosition, trialPosition, pigPosition;
+        int ghostTicks, trialTicks, fieldAge, fieldFrame;
         Fixture(GameController game){
             this.game=game;souls=game.items().soulless();academy=game.items().academy();mana=game.items().mana();epoch=game.items().epoch();
             owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
@@ -171,8 +177,15 @@ public final class SoullessAcademyChecks {
             require(game.playing()&&game.items().currentEpoch(epoch),"match and fixture epoch remain active");long now=owner.level().getGameTime();if(now==last)return false;last=now;
             switch(phase++){
                 case 0->{held(loot("soulcorruption_wand"),InteractionHand.MAIN_HAND);trial=owner.getMainHandItem();require(academy.interact(owner,InteractionHand.MAIN_HAND,normal)&&LbcAcademy.trial(trial),"normal native Academy assigns ordinary Soulless trial");}
-                case 1->{trialAndGeneration();}
-                case 2->{
+                case 1->{trialAndGeneration(); hideSouls();}
+                case 2->{verifyHiddenSouls();}
+                case 3->{verifyHiddenSouls(); returnSouls();}
+                case 4->{verifyResumedSouls();}
+                case 5->{
+                    require(!souls.vexSnapshot().contains(ghostVex) && !souls.trialSnapshot().contains(trialVex)
+                                    && field.pig.isRemoved() && field.display.isRemoved() && souls.count() == 0
+                                    && rewards().isEmpty(),
+                            "a native unload reason and owner invalidation quietly retire the respective actors");
                     require(academy.interact(owner,InteractionHand.MAIN_HAND,school),"native token school upgrade callback");var upgraded=owner.getMainHandItem();
                     require(upgraded.is(LbcSoulless.ACADEMY_WAND)&&flag(upgraded,"upgraded")==1&&flag(upgraded,"mode")==1&&Identifier.parse("lbc:tier_a").equals(upgraded.get(DataComponents.TOOLTIP_STYLE)),"real Soulless item promotion/source mode1 and A tier");
                     require(school.isRemoved(),"single-use Academy consumed by real Soulless upgrade");
@@ -215,9 +228,92 @@ public final class SoullessAcademyChecks {
             game.items().timeStop().begin(owner.level(),40);try{souls.tick();require(souls.trialSnapshot().size()==16,"Time Stop retains existing trial helpers while freezing their native activity");}finally{game.items().timeStop().end(owner.level());}
             var marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(owner.position());marker.entityTags().add("stopper_magic");add(marker);game.items().magic().loaded(marker);
             try{souls.tick();require(souls.trialSnapshot().size()==16&&rewards().isEmpty(),"existing ordinary trial Vex survive a later antimagic field");}finally{game.items().magic().unloaded(marker);marker.discard();game.items().magic().flushCleansing();}
-            souls.forget(owner);require(souls.trialSnapshot().isEmpty()&&rewards().isEmpty(),"ready item survives quiet owner-helper retirement");
+            trialVex = souls.trialSnapshot().getFirst();
+            for (var vex : souls.trialSnapshot()) if (vex != trialVex) souls.unloaded(vex);
+            require(souls.trialSnapshot().equals(List.of(trialVex)) && rewards().isEmpty(),
+                    "visible explicit retirement preserves the one trial witness and its ready item");
             trial=actualTrial;owner.setShiftKeyDown(false);
         }
+        void hideSouls() {
+            var level = owner.level();
+            ghostVex = souls.spawnVex(owner, at.add(-2, 2, 0));
+            require(ghostVex != null && souls.vexSnapshot().equals(List.of(ghostVex)), "normal real GhostVex factory");
+            owned.add(ghostVex);
+            for (var vex : List.of(ghostVex, trialVex)) { vex.setNoAi(true); vex.setNoGravity(true); }
+
+            var material = loot("metasola_4");
+            held(material, InteractionHand.MAIN_HAND);
+            require(LbcSoulless.material(material) == 4 && input(InteractionHand.MAIN_HAND) && material.isEmpty(),
+                    "native Metasola material consumes the real item to publish a field");
+            field = souls.snapshot().getFirst();
+            owned.add(field.pig);
+            owned.add(field.display);
+            field.pig.setNoAi(true);
+            field.pig.setNoGravity(true);
+            field.pig.setDeltaMovement(Vec3.ZERO);
+            field.pig.setPos(at.add(1, 1, 0));
+            field.display.setPos(field.pig.position());
+            for (int i = 0; i < 39; i++) souls.tickField(field);
+            require(field.age == 39 && field.frame == 39, "prepare the native type4 field one active tick before its pulse");
+            mana.set(owner, 100);
+            held(trial, InteractionHand.MAIN_HAND);
+
+            ghostPosition = ghostVex.position();
+            trialPosition = trialVex.position();
+            pigPosition = field.pig.position();
+            ghostTicks = ghostVex.tickCount;
+            trialTicks = trialVex.tickCount;
+            fieldAge = field.age;
+            fieldFrame = field.frame;
+            for (var body : List.<Entity>of(ghostVex, trialVex, field.pig, field.display))
+                require(level.getEntity(body.getUUID()) == body, "same registered and initially visible native body");
+
+            var cold = new Vec3(2304.5, at.y + 2, 2304.5);
+            require(level.getChunkSource().getChunkNow(144, 144) == null, "isolated cold native column");
+            ghostVex.setPos(cold);
+            trialVex.setPos(cold.add(1, 0, 0));
+            field.pig.setPos(cold.add(2, 0, 0));
+            require(hidden(ghostVex) && hidden(trialVex) && hidden(field.pig),
+                    "native section move queues tracking unload while the same actors remain registered");
+        }
+
+        private boolean hidden(Entity entity) {
+            var level = owner.level();
+            return entity.getRemovalReason() == null && level.getEntity(entity.getUUID()) == null
+                    && ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager().isLoaded(entity.getUUID());
+        }
+
+        void verifyHiddenSouls() {
+            require(hidden(ghostVex) && hidden(trialVex) && ghostVex.tickCount == ghostTicks && trialVex.tickCount == trialTicks
+                            && souls.vexSnapshot().equals(List.of(ghostVex)) && souls.trialSnapshot().equals(List.of(trialVex))
+                            && souls.owner(ghostVex) == owner && souls.owner(trialVex) == owner,
+                    "deferred native tracking unload retains the same normal and trial Vex without advancing either");
+            require(hidden(field.pig) && hidden(field.display) && souls.snapshot().equals(List.of(field))
+                            && field.display.position().equals(field.pig.position()) && souls.owner(field.pig) == owner
+                            && field.age == fieldAge && field.frame == fieldFrame && mana.get(owner) < 500,
+                    "hidden native field follows its pig without a stale display or applying a pulse");
+        }
+
+        void returnSouls() {
+            ghostVex.setPos(ghostPosition);
+            trialVex.setPos(trialPosition);
+            field.pig.setPos(pigPosition);
+        }
+
+        void verifyResumedSouls() {
+            var level = owner.level();
+            for (var body : List.<Entity>of(ghostVex, trialVex, field.pig, field.display))
+                require(level.getEntity(body.getUUID()) == body, "same native body is visible again");
+            require(ghostVex.tickCount > ghostTicks && trialVex.tickCount > trialTicks
+                            && field.age == fieldAge + 1 && field.frame == fieldFrame + 1 && mana.get(owner) >= 500,
+                    "same native Vex tick and field resumes the real delayed mana pulse once");
+            ghostVex.setRemoved(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+            souls.tick();
+            require(!souls.vexSnapshot().contains(ghostVex) && souls.trialSnapshot().contains(trialVex),
+                    "actual native chunk removal retires just that Vex");
+            souls.forget(owner);
+        }
+
         @Override public void close(){
             if(closed)return;closed=true;owner.stopUsingItem();game.items().timeStop().end(owner.level());clearSouls();academy.stop();
             for(var e:owned){if(e instanceof net.minecraft.world.entity.LivingEntity living)game.items().indirectKills().clear(living);e.discard();}

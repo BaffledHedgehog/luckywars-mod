@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -69,6 +71,11 @@ public final class GodHedgehogChecks {
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final Map<BlockPos,BlockState> terrain=new LinkedHashMap<>();
         ServerLevel crossLevel,guestLevel;ServerPlayer guest;Vec3 crossPoint,guestPoint;float guestYaw,guestPitch;Set<Entity> crossBefore;
         final Vec3 at;Silverfish boss;Entity eater,white;LbcWtf.Chef rayChef,knockedRayChef;List<LivingEntity> victims;int phase,lastTick=-1,startTick,whiteTicks,spinTicks;double spinY;float spinYaw;boolean retain;
+        private Vec3 bossWarm, warningWarm;
+        private Entity hiddenWarningActor;
+        private TrialWarningVisual hiddenWarning;
+        private LbcIndirectKills.Owner hiddenCause;
+        private int savedBossAge, savedWarningAge;
         Fixture(GameController game){
             this.game=game;service=game.items().godHedgehog();owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             require(owner!=null&&game.playing()&&game.canUseGameplayItems(owner)&&service.count()==0&&!game.items().timeStop().stopped(owner.level()),"exclusive unpaused real match and participant");
@@ -232,12 +239,115 @@ public final class GodHedgehogChecks {
                 frozenBoss.entityTags().remove("time_stopped");
             }
         }
+
+        private void beginVisibility(int now) {
+            boss = service.summon(level, at.add(0, 0, 12), owner);
+            require(boss != null, "fresh real boss for the visibility boundary");
+            fixtures.add(boss);
+            boss.setNoAi(true);
+            boss.setNoGravity(true);
+            boss.setDeltaMovement(Vec3.ZERO);
+            bossWarm = boss.position();
+            warningWarm = at.add(2, 6, -6);
+            hiddenWarningActor = service.whiteBoundary(boss, warningWarm, new Vec3(0, 0, 1), 7);
+            require(hiddenWarningActor != null && service.warningSnapshot().size() == 1,
+                    "boss owns a real already-published White Arrow warning");
+            fixtures.add(hiddenWarningActor);
+            hiddenWarning = service.warningSnapshot().getFirst();
+            hiddenCause = service.cause(boss);
+            require(hiddenCause != null && hiddenCause.friendlyFire() && service.owner(boss) == owner,
+                    "boss began with the real WILD source authority");
+            savedBossAge = boss.tickCount;
+            savedWarningAge = hiddenWarning.age();
+            // The next active frame at239 is quiet; phase240 really emits a White Arrow.
+            service.phaseForCheck(239);
+            var cold = coldColumn();
+            boss.setPos(cold);
+            hiddenWarningActor.setPos(cold.add(0, 2, 0));
+            require(registeredHidden(boss) && registeredHidden(hiddenWarningActor),
+                    "both bodies are genuinely registered but invisible immediately after native move");
+            phase = 7;
+            startTick = now;
+        }
+
+        private Vec3 coldColumn() {
+            int centerX = owner.blockPosition().getX() >> 4, centerZ = owner.blockPosition().getZ() >> 4;
+            for (int ring = 1; ring <= 16; ring++) {
+                for (int dx = -ring; dx <= ring; dx++) for (int dz = -ring; dz <= ring; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != ring) continue;
+                    int x = centerX + dx, z = centerZ + dz;
+                    if (level.getChunkSource().getChunkNow(x, z) == null && !level.areEntitiesLoaded(ChunkPos.pack(x, z)))
+                        return new Vec3(x * 16 + 8.5, bossWarm.y, z * 16 + 8.5);
+                }
+            }
+            throw new IllegalStateException("God Hedgehog: no genuinely cold test column");
+        }
+
+        private boolean registeredHidden(Entity entity) {
+            return entity.getRemovalReason() == null && level.getEntity(entity.getUUID()) == null
+                    && ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager().isLoaded(entity.getUUID());
+        }
+
+        private void visibility(int now) {
+            if (phase == 7) {
+                require(registeredHidden(boss) && registeredHidden(hiddenWarningActor)
+                                && service.isBoss(boss) && service.snapshot().contains(hiddenWarningActor),
+                        "native deferred visibility exit must retain the boss and warning actor, tick=" + (now - startTick)
+                                + " boss=" + boss.getRemovalReason() + " warning=" + hiddenWarningActor.getRemovalReason());
+                require(service.cause(boss) == hiddenCause && boss.tickCount == savedBossAge
+                                && service.actorCount() == 1 && service.warningSnapshot().getFirst() == hiddenWarning
+                                && hiddenWarning.age() == savedWarningAge && !hiddenWarning.closed(),
+                        "registered-hidden boss dispatches no new attacks and retains its accepted warning cadence and cause");
+                if (now - startTick < 4) return;
+                boss.setPos(bossWarm);
+                hiddenWarningActor.setPos(warningWarm);
+                require(level.getEntity(boss.getUUID()) == boss && level.getEntity(hiddenWarningActor.getUUID()) == hiddenWarningActor
+                                && service.cause(boss) == hiddenCause && service.owner(boss) == owner,
+                        "same boss and White Arrow bodies resume with the exact original ownership");
+                phase = 8;
+                return;
+            }
+            if (phase == 8) {
+                require(boss.tickCount > savedBossAge && service.actorCount() == 1 && hiddenWarning.age() == savedWarningAge + 1,
+                        "the first real active tick resumes at quiet239 and spends exactly one warning tick");
+                phase = 9;
+                return;
+            }
+            if (phase == 9) {
+                require(service.actorCount() == 2 && service.warningSnapshot().size() == 2,
+                        "the next real active tick reaches source240 and emits exactly one new White Arrow");
+                var arrivals = service.snapshot().stream().filter(actor -> actor != boss && actor != hiddenWarningActor).toList();
+                require(arrivals.size() == 1 && level.getEntity(arrivals.getFirst().getUUID()) == arrivals.getFirst(),
+                        "phase240 publishes a real additional visible native body");
+                boss.discard();
+                phase = 10;
+                return;
+            }
+            require(boss.isRemoved() && hiddenWarningActor.isRemoved() && hiddenWarning.closed()
+                            && service.actorCount() == 0 && !service.blocksSilverfish(level),
+                    "genuine native boss removal still retires its accepted actors and releases the encounter");
+            service.stop();
+            boss = service.summon(level, at.add(0, 0, 12), owner);
+            require(boss != null, "fresh actual spin encounter");
+            fixtures.add(boss);
+            boss.setNoAi(true);
+            boss.setNoGravity(true);
+            boss.setDeltaMovement(Vec3.ZERO);
+            service.phaseForCheck(100);
+            spinTicks = 0;
+            spinY = boss.getY();
+            spinYaw = boss.getYRot();
+            phase = 6;
+            startTick = now;
+        }
+
         boolean step(){
             require(game.playing(),"real match remains active");int tick=game.server().getTickCount();if(tick==lastTick)return false;lastTick=tick;
             switch(phase){
                 case 1->{if(tick-startTick<2)return false;var center=BlockPos.containing(at.add(12,0,0));int removed=0,kept=0;for(int x=-3;x<=3;x++)for(int y=-3;y<=3;y++)for(int z=-3;z<=3;z++){boolean air=level.getBlockState(center.offset(x,y,z)).isAir();if(x*x+y*y+z*z<=12){require(air,"eater authored integer sphere cell");removed++;}else{require(!air,"eater preserves outer cube corners");kept++;}}require(removed==179&&kept==164,"actual source179-air-cell mask, not radius3/cube");require(!eater.isRemoved(),"eater remains through source-age80 detonation");killRay();phase=2;startTick=tick;}
                 case 2->{if(tick-startTick<3)return false;require(white.isRemoved()&&!victims.getFirst().isAlive(),"source-age40 native white conversion and next native marker update kill ordinary victim");for(int i=1;i<victims.size();i++)require(victims.get(i).isAlive(),"native kill ray protects Greed/void resistance/observer/strict role "+i);require(victims.getFirst().getKillCredit()==owner,"lethal ray inherits original WILD summoner credit");require(rayChef.isRemoved()&&knockedRayChef.isRemoved()&&game.items().wtf().count()==0&&game.items().wtf().pinnedChunks()==0,"native swept /kill ray erases awake and knocked Chefs, including real mannequin eligibility and ticket cleanup");require(eater.isRemoved(),"source-age83 retires native eater");for(var item:level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(at,at).inflate(30)))if(!before.contains(item))item.discard();service.stop();boss=service.summon(level,at.add(0,0,12),owner);require(boss!=null,"second real encounter");fixtures.add(boss);boss.setNoAi(true);boss.setNoGravity(true);boss.entityTags().add("time_stopped");service.laserBoundary(boss,at.add(0,60,0),new Vec3(0,1,0));require(service.pendingBlasts()==101,"one source laser enqueues exactly101 native explosions without command/TNT marker entities");require(service.cause(boss).friendlyFire(),"queued laser retains WILD cause");boss.entityTags().remove("time_stopped");service.phaseForCheck(441);phase=3;startTick=tick;}
-                case 3->{require(service.pendingBlasts()<101,"bounded native explosion worker makes resident progress");boss.entityTags().add("time_stopped");require(level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(at,at).inflate(30)).isEmpty(),"air-only laser boundary creates no item drops");service.stop();boss=service.summon(level,at.add(0,0,12),owner);fixtures.add(boss);boss.setNoAi(true);boss.setNoGravity(true);boss.setDeltaMovement(Vec3.ZERO);service.phaseForCheck(100);spinTicks=0;spinY=boss.getY();spinYaw=boss.getYRot();phase=6;startTick=tick;}
+                case 3->{require(service.pendingBlasts()<101,"bounded native explosion worker makes resident progress");boss.entityTags().add("time_stopped");require(level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(at,at).inflate(30)).isEmpty(),"air-only laser boundary creates no item drops");service.stop();beginVisibility(tick);}
+                case 7, 8, 9, 10 -> visibility(tick);
                 case 6->{spinTicks++;spinY+=boss.getEyeHeight()-2;spinYaw+=20;
                     require(Math.abs(boss.getY()-spinY)<1e-4&&Math.abs(net.minecraft.util.Mth.wrapDegrees(boss.getYRot()-spinYaw))<1e-3,"actual spin tick uses legacy eyes-relative -2 and yaw+20, tick="+spinTicks);
                     require(boss.getY()>at.y+18,"giant boss cannot sink by two feet-relative blocks per spin tick");

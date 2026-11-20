@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import com.mojang.math.Transformation;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -65,6 +66,7 @@ public final class LbcGodHedgehog {
     static final class Encounter {
         final ServerLevel level;final UUID author;final LbcIndirectKills.Owner cause;final String epoch;final Silverfish boss;
         boolean retired;
+        int hiddenTicks;
         Encounter(ServerLevel level,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch,Silverfish boss){
             this(level,author.getUUID(),cause,epoch,boss);
         }
@@ -126,6 +128,11 @@ public final class LbcGodHedgehog {
     }
     private boolean paused(Entity e){return checkpointRestoring||game.items().wands().timeStopped()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
     private static boolean resident(ServerLevel level,Vec3 point){var p=BlockPos.containing(point);return level.getChunkSource().getChunkNow(p.getX()>>4,p.getZ()>>4)!=null;}
+    private static boolean registeredHidden(Entity entity) {
+        if (entity.getRemovalReason() != null || !(entity.level() instanceof ServerLevel level)
+                || level.getEntity(entity.getUUID()) != null) return false;
+        return ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager().isLoaded(entity.getUUID());
+    }
     private Encounter find(Entity entity){
         if(!managed(entity))return null;
         var fromBlast=blastSources.get(entity);if(fromBlast!=null)return fromBlast;
@@ -180,23 +187,29 @@ public final class LbcGodHedgehog {
             if(checkpointRestoring||game.stage()==GameController.Stage.ENDING)return;
             if(game.items().wands().timeStopped())return;
             blastChildren.removeIf(Entity::isRemoved);
-            int phase=Math.floorMod(activeTicker++,500);
+            int tick = activeTicker++;
             for(var e:List.copyOf(encounters)){
                 if(!valid(e)||e.boss.isRemoved()&&!resident(e.level,e.boss.position())){retire(e);continue;}
-                if(e.boss.isAlive()&&!e.boss.isRemoved()&&!paused(e.boss))bossTick(e,phase);
+                // Preserve the common clock for visible encounters and the original next frame for this hidden body.
+                if (registeredHidden(e.boss)) { e.hiddenTicks++; continue; }
+                if(e.boss.isAlive()&&!e.boss.isRemoved()&&!paused(e.boss))bossTick(e,tick-e.hiddenTicks);
             }
             if(!actors.isEmpty())game.items().cloneSkills().beforeOwnedStep(actors.stream().map(Actor::body).filter(Objects::nonNull).toList());
             // Copy once: descendants start on the following active tick, as in source entity selectors.
             for(var actor:List.copyOf(actors)){
-                if(!valid(actor.encounter)||actor.body()==null||actor.body().isRemoved()||!resident(actor.encounter.level,actor.point)){remove(actor);continue;}
-                if(paused(actor.body()))continue;
+                var body = actor.body();
+                if(!valid(actor.encounter)||body==null||body.isRemoved()){remove(actor);continue;}
+                if(registeredHidden(body))continue;
+                if(!resident(actor.encounter.level,actor.point)){remove(actor);continue;}
+                if(paused(body))continue;
                 if(actor.kind==0)eaterTick(actor);else if(actor.kind==1)whiteTick(actor);else rayTick(actor);
             }
             blastTick();
             encounters.removeIf(e->!e.boss.isAlive()&&actors.stream().noneMatch(a->a.encounter==e)&&lasers.stream().noneMatch(l->l.encounter==e));
         }finally{leaveCheckpointCallback();}
     }
-    private void bossTick(Encounter e,int phase){
+    private void bossTick(Encounter e,int t){
+        int phase = Math.floorMod(t, 500);
         var boss=e.boss;
         if(Math.floor(boss.getY())<=0&&resident(e.level,new Vec3(0,250,0)))boss.setPos(0,250,0);
         boss.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,2000,0,false,false));
@@ -220,7 +233,7 @@ public final class LbcGodHedgehog {
         var candidates=e.level.players().stream().filter(p->!p.isSpectator()&&game.canUseGameplayItems(p)&&!game.isObserver(p)).toList();
         if(candidates.isEmpty())return;
         var player=candidates.get(e.level.getRandom().nextInt(candidates.size()));
-        int t=activeTicker-1;double yaw,pitch=0,left=0,turn=0;
+        double yaw,pitch=0,left=0,turn=0;
         if(phase<=280){yaw=5d*t;left=1;turn=1;}
         else if(phase<=320){yaw=(int)(.1*t);left=(int)(2.5*(Math.floorMod(t,20)-10));turn=1;}
         else if(phase<=360){yaw=7d*t;pitch=Math.floorMod(t*7,180)-90;}
@@ -315,7 +328,7 @@ public final class LbcGodHedgehog {
             var e=laser.encounter;
             if(valid(e)){
                 var point=laser.origin.add(laser.direction.scale(laser.cursor*3d));
-                if(!paused(e.boss)&&resident(e.level,point)){
+                if(!paused(e.boss)&&!registeredHidden(e.boss)&&resident(e.level,point)){
                     game.items().indirectKills().trapChanges(e.level,e.cause,()->game.items().exasperato().encounterBlast(e.boss,e.level,point,10,tnt->{
                         tnt.entityTags().add(BLAST);tnt.setCustomName(Component.translatable("godbam"));blastSources.put(tnt,e);
                     }));
@@ -342,7 +355,11 @@ public final class LbcGodHedgehog {
     }
     public void unloaded(Entity entity){
         enterCheckpointCallback();try {
-        if(checkpointRestoring)return;var e=find(entity);if(e!=null&&entity==e.boss)retire(e);else for(var a:List.copyOf(actors))if(a.body()==entity)remove(a);
+            if (checkpointRestoring) return;
+            var encounter = find(entity);
+            if (encounter != null && registeredHidden(entity)) return;
+            if (encounter != null && entity == encounter.boss) retire(encounter);
+            else for (var actor : List.copyOf(actors)) if (actor.body() == entity) remove(actor);
         }finally{leaveCheckpointCallback();}
     }
     public void removeOwned(ServerPlayer player){
@@ -397,7 +414,7 @@ public final class LbcGodHedgehog {
     void cancelFrozen(){checkpointBoundary();checkpointRestoring=false;}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     final class Checkpoint {
-        private record EncounterImage(Encounter original,MatchDamageSources.Ref boss,boolean retired,boolean active){}
+        private record EncounterImage(Encounter original,MatchDamageSources.Ref boss,boolean retired,boolean active,int hiddenTicks){}
         private record ActorImage(Actor original,MatchDamageSources.Ref body,Vec3 point,Vec3 direction,int age){}
         private record LaserImage(Laser original,int cursor){}
         private record SourceImage(MatchDamageSources.Ref body,Encounter encounter,boolean child){}
@@ -409,7 +426,7 @@ public final class LbcGodHedgehog {
         Checkpoint(MatchSpellCheckpoint.Links links){
             var accepted=new java.util.LinkedHashSet<Encounter>(encounters);
             for(var actor:actors)accepted.add(actor.encounter);for(var laser:lasers)accepted.add(laser.encounter);accepted.addAll(blastSources.values());
-            savedEncounters=accepted.stream().map(e->new EncounterImage(e,links.key(e.boss),e.retired,encounters.contains(e))).toList();
+            savedEncounters=accepted.stream().map(e->new EncounterImage(e,links.key(e.boss),e.retired,encounters.contains(e),e.hiddenTicks)).toList();
             savedActors=actors.stream().map(a->new ActorImage(a,links.key(a.body()),a.point,a.direction,a.age)).toList();
             savedLasers=lasers.stream().map(l->new LaserImage(l,l.cursor)).toList();
             var sources=new ArrayList<SourceImage>();blastSources.forEach((body,e)->sources.add(new SourceImage(links.key(body),e,blastChildren.contains(body))));
@@ -421,7 +438,7 @@ public final class LbcGodHedgehog {
             for(var image:savedEncounters){var e=image.original;var body=links.get(image.boss);
                 if(body!=e.boss)throw new IllegalStateException("Restore the same native God Hedgehog boss");
                 MatchAuthorityCheckpoint.world(game,e.level);
-                plans.add(()->{e.retired=image.retired;if(e.boss instanceof Boss boss)boss.encounter=e;if(image.active)encounters.add(e);});
+                plans.add(()->{e.retired=image.retired;e.hiddenTicks=image.hiddenTicks;if(e.boss instanceof Boss boss)boss.encounter=e;if(image.active)encounters.add(e);});
             }
             for(var image:savedActors){var a=image.original;var body=links.get(image.body);
                 if(body!=a.body())throw new IllegalStateException("Restore the same native God Hedgehog attack actor");
@@ -438,9 +455,10 @@ public final class LbcGodHedgehog {
     LbcCloneSkills.ActorImage cloneImage(Entity original) {
         var encounter=find(original);if(encounter==null||encounter.retired)return null;
         if(original instanceof Boss){var author=encounter.author;var cause=encounter.cause;var epoch=encounter.epoch;
-            // Phase is service-global activeTicker: adding one Encounter preserves the same live phase.
+            int hiddenTicks = encounter.hiddenTicks;
             return CloneComplexProjectileStates.image(Boss::new,clone->{var boss=(Boss)clone;
                 var copy=new Encounter((ServerLevel)clone.level(),author,cause,epoch,boss);
+                copy.hiddenTicks=hiddenTicks;
                 boss.encounter=copy;encounters.add(copy);
             },clone->{var copy=((Boss)clone).encounter;if(copy!=null){encounters.remove(copy);copy.retired=true;}
                 ((Boss)clone).encounter=null;});
