@@ -548,8 +548,8 @@ public final class LbcItems {
     private static final class RocketState {
         final ServerPlayer owner;
         int jumps = 3;
-        int nextCharge;
-        int restoredChargeDelay=-1;
+        long nextCharge;
+        long restoredChargeDelay=-1;
         boolean retainedOffline;
         boolean initialCharging;
         RocketState(ServerPlayer owner) { this.owner = owner; }
@@ -603,7 +603,11 @@ public final class LbcItems {
     }
 
     private void scheduleRocketCharge(RocketState state,int now) {
-        state.nextCharge=now+ROCKET_CHARGE_TICKS+1;
+        scheduleRocketCharge(state, now, ROCKET_CHARGE_TICKS);
+    }
+
+    private void scheduleRocketCharge(RocketState state, int now, int remaining) {
+        state.nextCharge=(long)now+remaining+1;
         rechargingRockets.add(state);
     }
 
@@ -666,11 +670,49 @@ public final class LbcItems {
 
         var state = rockets.get(player.getUUID());
 
-        return state == null || state.nextCharge == 0 ? 0 : Math.max(0, state.nextCharge - game.server().getTickCount() - 1);
+        return state == null || state.nextCharge == 0 ? 0
+                : (int)Math.clamp(state.nextCharge - game.server().getTickCount() - 1, 0, Integer.MAX_VALUE);
 
     }
 
 
+
+    private RocketState scriptRocketState(ServerPlayer player) {
+        var state = rockets.get(player.getUUID());
+        if (state == null || state.owner != player || state.retainedOffline || !active(player) || !player.isAlive()
+                || !(state.initialCharging || isRocketBoots(player.getItemBySlot(EquipmentSlot.FEET)))) return null;
+        return state;
+    }
+
+    Integer scriptRocketJumps(ServerPlayer player) {
+        var state = scriptRocketState(player);
+        return state == null ? null : state.jumps;
+    }
+
+    Integer scriptRocketCooldown(ServerPlayer player) {
+        return scriptRocketState(player) == null ? null : rocketCooldownTicks(player);
+    }
+
+    void scriptRocketJumps(ServerPlayer player, int count) {
+        var state = scriptRocketState(player);
+        if (state == null) return;
+        state.jumps = Math.max(0, count);
+        if (state.jumps >= 3) {
+            state.nextCharge = 0;
+            state.initialCharging = false;
+            rechargingRockets.remove(state);
+        } else if (state.nextCharge == 0) {
+            scheduleRocketCharge(state, game.server().getTickCount());
+        }
+        rocketHud(state);
+    }
+
+    void scriptRocketCooldown(ServerPlayer player, int ticks) {
+        var state = scriptRocketState(player);
+        if (state == null) return;
+        scheduleRocketCharge(state, game.server().getTickCount(), Math.max(0, ticks));
+        rocketHud(state);
+    }
 
     private void rocketHud(RocketState state) {
         refreshHud(state.owner);
@@ -679,7 +721,7 @@ public final class LbcItems {
         // Исходная строка CoreUiElements: четыре пробела, glyph E173, белые числа, без нового текста.
         return Component.literal("    \uE173 ").withStyle(style -> style.withItalic(false))
                 .append(Component.literal(Integer.toString(state.jumps)).withStyle(ChatFormatting.WHITE))
-                .append(" - ").append(Component.literal(Integer.toString((rocketCooldownTicks(state.owner) + 19) / 20))
+                .append(" - ").append(Component.literal(Long.toString((rocketCooldownTicks(state.owner) + 19L) / 20))
                         .withStyle(ChatFormatting.WHITE));
     }
     /** Ported entries follow ui/get_data, charging and cooldown order; read native counters only. */
@@ -900,7 +942,7 @@ public final class LbcItems {
             ItemStack boots = state.owner.getItemBySlot(EquipmentSlot.FEET);
             if (!active(state.owner) || !state.owner.isAlive() || !state.initialCharging&&!isRocketBoots(boots)) { resetRocket(state.owner); continue; }
             if (now < state.nextCharge) continue;
-            state.jumps++;
+            if (state.jumps < Integer.MAX_VALUE) state.jumps++;
             if(state.jumps<3)scheduleRocketCharge(state,now);
             else {
                 state.nextCharge=0;
@@ -2510,7 +2552,7 @@ public final class LbcItems {
         addTurnCurse(player,1);
         var rocket=rockets.get(player.getUUID());
         if(rocket!=null) {
-            rocket.jumps++;
+            if (rocket.jumps < Integer.MAX_VALUE) rocket.jumps++;
             if(rocket.nextCharge!=0) rocket.nextCharge++;
             syncRocketGlider(player.getItemBySlot(EquipmentSlot.FEET),rocket.jumps>0);
             rocketHud(rocket);
@@ -2826,7 +2868,7 @@ public final class LbcItems {
     final class ResidentCheckpoint {
         private final me.skywars2.game.genie.GenieRuntime.Snapshot genieState=genie.runtime().snapshot();
         private record CurseImage(MatchDamageSources.Ref owner,int remaining){}
-        private record RocketImage(MatchDamageSources.Ref owner,int jumps,boolean charging,int delay,boolean initialCharging){}
+        private record RocketImage(MatchDamageSources.Ref owner,int jumps,boolean charging,long delay,boolean initialCharging){}
         private final List<CurseImage> curses;
         private final List<RocketImage> boosts;
         private final List<MatchDamageSources.Ref> traps,crafts;

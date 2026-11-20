@@ -14,6 +14,7 @@ public final class GeniePlayerParameters {
             "manaregen_visual", "modified_regen_per_tick", "effect_boost_mana", "boost_ticks",
             "reverse_mana", "reverse_seconds", "nomagic", "no_magic_seconds");
     private static final Set<String> DERIVED = Set.of("manaregen_visual", "mana_effective_regen");
+    private static final Set<String> ROCKET_COUNTERS = Set.of("rocket_jumps", "rocket_cooldown_ticks");
 
     private GeniePlayerParameters() {}
 
@@ -34,6 +35,7 @@ public final class GeniePlayerParameters {
         var names = new TreeSet<>(LbcSourceCounters.NATIVE);
         names.addAll(MANA_KEYS.keySet());
         names.addAll(DERIVED);
+        names.addAll(ROCKET_COUNTERS);
         names.add("lives");
         names.addAll(LbcMana.POTION_TIMERS);
         var objectives = game.server().getScoreboard().getObjectives();
@@ -44,6 +46,10 @@ public final class GeniePlayerParameters {
         }
         context.add("player_counter_ids", readable);
         context.add("mutable_player_counter_ids", writable);
+        var rockets = new JsonObject();
+        rockets.addProperty("rocket_jumps", read(game, player, "rocket_jumps"));
+        rockets.addProperty("rocket_cooldown_ticks", read(game, player, "rocket_cooldown_ticks"));
+        context.add("rocket_boots", rockets);
         return context;
     }
 
@@ -56,6 +62,8 @@ public final class GeniePlayerParameters {
             case "manaregen_visual" -> mana.hudValue(player, key);
             case "mana_effective_regen" -> mana.activeRegeneration(player);
             case "lives" -> game.lives(player.getUUID());
+            case "rocket_jumps" -> game.items().scriptRocketJumps(player);
+            case "rocket_cooldown_ticks" -> game.items().scriptRocketCooldown(player);
             default -> {
                 Integer current = new LbcSourceCounters(game).read(player, key);
                 boolean known = MANA_KEYS.containsKey(key) || LbcMana.POTION_TIMERS.contains(key)
@@ -68,7 +76,7 @@ public final class GeniePlayerParameters {
     private static boolean writable(GameController game, String key) {
         if (DERIVED.contains(key)) return false;
         if (key.equals("lives") || LbcSourceCounters.NATIVE.contains(key) || MANA_KEYS.containsKey(key)
-                || LbcMana.POTION_TIMERS.contains(key)) return true;
+                || LbcMana.POTION_TIMERS.contains(key) || ROCKET_COUNTERS.contains(key)) return true;
         var objective = game.server().getScoreboard().getObjective(key);
         return objective != null && !objective.getCriteria().isReadOnly();
     }
@@ -76,13 +84,16 @@ public final class GeniePlayerParameters {
     public static Integer change(GameController game, ServerPlayer actor, ServerPlayer player,
                                  String key, boolean add, int amount) {
         if (!writable(game, key) || !game.items().mana().visible(player)) return null;
-        int previous = read(game, player, key);
+        Integer previous = read(game, player, key);
+        if (previous == null) return null;
         long requested = add ? (long) previous + amount : amount;
         int value = (int) Math.clamp(requested, Integer.MIN_VALUE, Integer.MAX_VALUE);
         var mana = game.items().mana();
         switch (key) {
             case "mana" -> mana.set(player, value);
             case "lives" -> { if (!game.changeRemainingLives(player, value)) return null; }
+            case "rocket_jumps" -> game.items().scriptRocketJumps(player, value);
+            case "rocket_cooldown_ticks" -> game.items().scriptRocketCooldown(player, value);
             case "manamax" -> mana.maximum(player, value);
             case "manaregen" -> mana.baseRegen(player, value);
             case "effect_boost_mana" -> mana.boost(player, value);

@@ -2072,6 +2072,78 @@ final class GenieWorldChecks {
         }
     }
 
+    static final class RocketCounterProbe implements AutoCloseable {
+        private static final JsonPrimitive JUMPS = new JsonPrimitive("rocket_jumps");
+        private static final JsonPrimitive COOLDOWN = new JsonPrimitive("rocket_cooldown_ticks");
+        private static final JsonPrimitive SET = new JsonPrimitive("set");
+        private final GameController game;
+        private final net.minecraft.server.level.ServerPlayer owner;
+        private final ItemStack previousBoots;
+        private final Vec3 previousMotion;
+        private final boolean wasOnGround;
+        private final int initialTick;
+
+        RocketCounterProbe(GameController game, WoolBucketChecks.Fixture base) {
+            this.game = game;
+            owner = base.owner;
+            previousBoots = owner.getItemBySlot(EquipmentSlot.FEET).copy();
+            previousMotion = owner.getDeltaMovement();
+            wasOnGround = owner.onGround();
+            initialTick = game.server().getTickCount();
+            require(!LbcItems.isRocketBoots(previousBoots) && game.items().rocketJumps(owner) == 0,
+                    "no existing rocket state before the counter witness");
+            var uuid = new JsonPrimitive(owner.getUUID().toString());
+            try (var host = new GenieWorldHost(game, owner, new ItemStack(Items.STICK), () -> true, () -> 123L)) {
+                require(complete(host, queued(host, "lbc.change_counter", uuid, JUMPS, SET, new JsonPrimitive(2))).isJsonNull()
+                                && game.server().getScoreboard().getObjective("rocket_jumps") == null,
+                        "no boots means no write and no shadow score");
+                owner.setItemSlot(EquipmentSlot.FEET, new ItemStack(LbcItems.ROCKET_BOOTS));
+                require(complete(host, queued(host, "lbc.counter", uuid, JUMPS)).getAsInt() == 3,
+                        "equipping the real boots exposes their native charge count");
+                var context = GeniePlayerParameters.wishContext(game, owner);
+                require(context.getAsJsonArray("mutable_player_counter_ids").contains(COOLDOWN)
+                                && context.getAsJsonObject("rocket_boots").get("rocket_jumps").getAsInt() == 3,
+                        "provider sees both native counter IDs and the requesting player's actual charges");
+                require(complete(host, queued(host, "lbc.change_counter", uuid, JUMPS, SET, new JsonPrimitive(4))).getAsInt() == 4
+                                && complete(host, queued(host, "lbc.change_counter", uuid, COOLDOWN, SET,
+                                    new JsonPrimitive(Integer.MAX_VALUE))).getAsInt() == Integer.MAX_VALUE,
+                        "ordinary charge and recharge values are not script caps and deadlines do not overflow");
+                require(complete(host, queued(host, "lbc.change_counter", uuid, JUMPS, SET, new JsonPrimitive(0))).getAsInt() == 0,
+                        "script empties the real boots");
+                owner.setOnGround(false);
+                require(!game.items().rocketJumpPressed(owner), "an empty counter genuinely prevents the rocket boost");
+                require(complete(host, queued(host, "lbc.change_counter", uuid, JUMPS, new JsonPrimitive("add"), new JsonPrimitive(1))).getAsInt() == 1
+                                && game.items().rocketJumpPressed(owner) && game.items().rocketJumps(owner) == 0
+                                && !owner.getDeltaMovement().equals(previousMotion),
+                        "a script charge delivers and then pays for one actual rocket jump");
+                owner.setDeltaMovement(previousMotion);
+                require(complete(host, queued(host, "lbc.change_counter", uuid, COOLDOWN, SET, new JsonPrimitive(1))).getAsInt() == 1,
+                        "script replaces the live recharge deadline");
+            } catch (RuntimeException | Error failure) {
+                close();
+                throw failure;
+            }
+        }
+
+        boolean tick() {
+            int elapsed = game.server().getTickCount() - initialTick;
+            if (elapsed < 2) {
+                require(game.items().rocketJumps(owner) == 0, "the native charger respects the shortened deadline before it is due");
+                return false;
+            }
+            require(elapsed == 2 && game.items().rocketJumps(owner) == 1
+                            && game.items().rocketCooldownTicks(owner) == 300,
+                    "the real server tick recharges once on schedule and rearms the ordinary 300-tick delay");
+            return true;
+        }
+
+        @Override public void close() {
+            owner.setItemSlot(EquipmentSlot.FEET, previousBoots);
+            owner.setDeltaMovement(previousMotion);
+            owner.setOnGround(wasOnGround);
+        }
+    }
+
     private static void sharedNativeAbilities(GameController game, WoolBucketChecks.Fixture base) {
         var runtime = game.items().tmt();
         var nativeAbilities = runtime.genieAbilities();
