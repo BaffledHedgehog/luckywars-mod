@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.world.level.chunk.LevelChunk;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,7 +74,12 @@ public final class LbcKiuas {
     void arrowTerrain(ServerLevel level,ServerPlayer owner,Vec3 point,boolean ground,LbcIndirectKills.Owner cause){
         checkpointCallbacks++;try {
             var center=BlockPos.containing(point);int radius=ground?15:1;
-            var area=new BlockAreaWork(level,LbcKiuas::kiuEligible,(pos,state)->kiuResult(level,pos,state),FLAGS,false,true);
+            var newFire=new ArrayList<BlockPos>();
+            var area=new BlockAreaWork(level,LbcKiuas::kiuEligible,(pos,state)->{
+                var result=kiuResult(level,pos,state);
+                if(result.is(Blocks.FIRE)&&!state.is(Blocks.FIRE))newFire.add(pos.immutable());
+                return result;
+            },FLAGS,false,true);
             area.include(new BlockAreaWork.Bounds(center.getX()-radius,center.getY()-(ground?radius:0),center.getZ()-radius,
                     center.getX()+radius,center.getY()+(ground?radius:1),center.getZ()+radius));
             while(area.hasWork())area.step(game,owner,cause,4096,Long.MAX_VALUE);
@@ -80,7 +87,22 @@ public final class LbcKiuas {
                 for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
                     if(level.hasChunkAt(pos)&&!level.isOutsideBuildHeight(pos))level.setBlock(pos,Blocks.LAVA.defaultBlockState(),3);
             });
-            else for(var viewer:level.players())level.sendParticles(viewer,ParticleTypes.FLAME,true,false,
+            if(!newFire.isEmpty())game.items().indirectKills().trapChanges(level,cause,()->{
+                // Later conversions can remove the support on which an earlier fire was placed.
+                for(var pos:newFire){
+                    if(!resident(level,pos))continue;
+                    var state=level.getBlockState(pos);
+                    if(!state.is(Blocks.FIRE))continue;
+                    if(!fireSupported(level,pos)){
+                        level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
+                        continue;
+                    }
+                    var shape=BaseFireBlock.getState(level,pos);
+                    if(shape.is(Blocks.FIRE)&&!shape.equals(state))level.setBlock(pos,shape,FLAGS);
+                    level.scheduleTick(pos,Blocks.FIRE,30+level.getRandom().nextInt(10));
+                }
+            });
+            if(!ground)for(var viewer:level.players())level.sendParticles(viewer,ParticleTypes.FLAME,true,false,
                     point.x,point.y,point.z,3,.2,.2,.2,0);
         }finally{checkpointCallbacks--;}
     }
@@ -356,7 +378,7 @@ public final class LbcKiuas {
         var result=kiuResult(state);
         if(!result.is(Blocks.FIRE)||state.is(Blocks.FIRE))return result;
         if(fireSupported(level,pos)){
-            var placement=net.minecraft.world.level.block.BaseFireBlock.getState(level,pos);
+            var placement=BaseFireBlock.getState(level,pos);
             return placement.is(Blocks.FIRE)?placement:result;
         }
         // The first conversion still removes water/snow even when the second cannot ignite it.

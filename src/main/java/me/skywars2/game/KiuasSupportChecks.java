@@ -57,6 +57,27 @@ public final class KiuasSupportChecks {
             require(!LbcKiuas.fireSupported(level,center),"existing supported fire does not support another fire above it");
             clear.run();level.setBlock(center.east(),Blocks.OAK_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED,true),818);
             require(!LbcKiuas.fireSupported(level,center),"waterlogged side retains native nonflammability");
+            clear.run();
+            var wall=center.east();
+            var existing=center.offset(-1,0,-1);
+            level.setBlock(wall.below(),Blocks.STONE.defaultBlockState(),818);
+            level.setBlock(wall,Blocks.OAK_PLANKS.defaultBlockState(),818);
+            level.setBlock(existing.below(),Blocks.STONE.defaultBlockState(),818);
+            level.setBlock(existing,Blocks.FIRE.defaultBlockState(),818);
+            require(LbcKiuas.fireSupported(level,center)&&!level.getBlockTicks().hasScheduledTick(existing,Blocks.FIRE),
+                    "the unsupported air starts with only temporary flammable wall support and the control fire starts unscheduled");
+            service.arrowTerrain(owner,Vec3.atCenterOf(center),false);
+            require(level.getBlockState(wall).is(Blocks.FIRE)&&LbcKiuas.fireSupported(level,wall),
+                    "the same arrow burns the earlier cell's wall support and keeps the fire above the stone footing");
+            require(level.getBlockState(center).isAir()&&!level.getBlockTicks().hasScheduledTick(center,Blocks.FIRE),
+                    "the earlier cell losing its wall support is immediately air with no vanilla fire tick");
+            var fireTicks=((LevelChunkTicks<Block>)chunk.getBlockTicks()).getAll()
+                    .filter(t->t.pos().equals(wall)&&t.type()==Blocks.FIRE).toList();
+            require(fireTicks.size()==1&&fireTicks.getFirst().triggerTick()-level.getGameTime()>=30
+                            &&fireTicks.getFirst().triggerTick()-level.getGameTime()<=39,
+                    "the surviving new fire receives exactly one tick with vanilla fire delay");
+            require(level.getBlockState(existing).is(Blocks.FIRE)&&!level.getBlockTicks().hasScheduledTick(existing,Blocks.FIRE),
+                    "the arrow does not schedule a pre-existing fire in the affected volume");
             clear.run();owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcKiuas.KIUASKIVI));game.items().mana().set(owner,10000);
             service.tick();for(int i=0;i<30&&service.queuedBlockCount()>0;i++)service.tick();
             require(level.getBlockState(center).isAir(),"actual aura leaves unsupported sky empty");
@@ -78,6 +99,6 @@ public final class KiuasSupportChecks {
             level.getBlockTicks().clearArea(bounds);for(var e:blocks.entrySet())game.maps().restoreSnapshot(level,e.getKey(),e.getValue());
             level.getBlockTicks().clearArea(bounds);ticks.forEach(level.getBlockTicks()::schedule);saved.restore(game);game.items().magic().inventoryChanged(owner);
         }
-        SkyWars2.LOGGER.info("[check] PASS kiuas-support (native six-side support, ordered classification, aura/reactivity, curse and shared Blaze conversion)");
+        SkyWars2.LOGGER.info("[check] PASS kiuas-support (native six-side support, ordered classification, arrow loss of wall support and exact fire ticks, aura/reactivity, curse and shared Blaze conversion)");
     }
 }
