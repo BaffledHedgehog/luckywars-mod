@@ -1,5 +1,11 @@
 package me.skywars2.game;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -47,6 +53,71 @@ final class LbcParticleBatch {
             java.util.Arrays.fill(points,0,count,null);count=0;step=null;
         }
     }
+    /** Combine adjacent short runs within one effect, retaining each original run at range edges. */
+    static final class NearbyRuns implements AutoCloseable {
+        private static final int RUNS_PER_PACKET=8;
+        private final ServerLevel level;
+        private final Group output;
+        private final double radius, maxEndpointDistanceSquared;
+        private final Map<BlockPos,List<Cluster>> cells=new LinkedHashMap<>();
+
+        private static final class Cluster {
+            final Vec3[] first;
+            final List<Vec3[]> runs=new ArrayList<>(2);
+
+            Cluster(Vec3[] first){
+                this.first=first;
+                runs.add(first);
+            }
+
+            boolean accepts(Vec3[] points,int count,double distanceSquared){
+                return runs.size()<RUNS_PER_PACKET&&first.length==count
+                        &&first[0].distanceToSqr(points[0])<=distanceSquared
+                        &&first[count-1].distanceToSqr(points[count-1])<=distanceSquared;
+            }
+        }
+
+        NearbyRuns(ServerLevel level,ParticleOptions particle,double jitter,boolean force,double maxEndpointDistance){
+            this.level=level;
+            output=new Group(level,particle,jitter,0,force,Double.POSITIVE_INFINITY,RUNS_PER_PACKET*3);
+            radius=force?512:32;
+            maxEndpointDistanceSquared=maxEndpointDistance*maxEndpointDistance;
+        }
+
+        void add(Vec3[] points,int count){
+            var cell=BlockPos.containing(points[count/2]);
+            var clusters=cells.computeIfAbsent(cell,key->new ArrayList<>());
+            for(var cluster:clusters){
+                if(cluster.accepts(points,count,maxEndpointDistanceSquared)){
+                    cluster.runs.add(Arrays.copyOf(points,count));
+                    return;
+                }
+            }
+            clusters.add(new Cluster(Arrays.copyOf(points,count)));
+        }
+
+        @Override public void close(){
+            for(var clusters:cells.values())for(var cluster:clusters){
+                boolean combine=cluster.runs.size()>1&&sameVisibility(cluster);
+                for(var run:cluster.runs){
+                    for(var point:run)output.add(point);
+                    if(!combine)output.flush();
+                }
+                output.flush();
+            }
+        }
+
+        private boolean sameVisibility(Cluster cluster){
+            for(var player:level.players()){
+                var viewer=player.blockPosition();
+                boolean visible=viewer.closerToCenterThan(cluster.first[0],radius);
+                for(var run:cluster.runs)for(var point:run)
+                    if(viewer.closerToCenterThan(point,radius)!=visible)return false;
+            }
+            return true;
+        }
+    }
+
     static final class Group implements AutoCloseable {
         private final ServerLevel level;
         private final ParticleOptions particle;

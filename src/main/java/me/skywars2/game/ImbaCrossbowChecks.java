@@ -5,6 +5,7 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -17,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -43,7 +45,7 @@ public final class ImbaCrossbowChecks {
     private static Fixture running;
     private enum BlastPhase { PAUSED, PREFIX, CAPTURE, ORIGINAL_TAIL, RESTORE, REPLAY }
     private record CollectorRun(List<?> positions,long nextLong,int nextInt,long nanos){}
-    private record BeamPackets(long riptide,long soulPackets,int soulParticles){}
+    private record BeamPackets(long riptide,int soulPackets,int soulParticles,int dustPackets,int dustParticles,boolean dustAppearance){}
     static void require(boolean value,String why){if(!value)throw new IllegalStateException("IMBA crossbows: "+why);}
     private static Object blastField(LbcStonekivi.Work job,String name){
         try {
@@ -83,7 +85,13 @@ public final class ImbaCrossbowChecks {
                 &&sound.getSound().value().location().toString().equals("minecraft:item.trident.riptide_3")).count();
         var souls=packets.stream().filter(packet->packet instanceof ClientboundLevelParticlesPacket particles
                 &&particles.particle().getType()==ParticleTypes.SCULK_SOUL).map(ClientboundLevelParticlesPacket.class::cast).toList();
-        return new BeamPackets(sounds,souls.size(),souls.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum());
+        var dust=packets.stream().filter(packet->packet instanceof ClientboundLevelParticlesPacket particles
+                &&particles.particle().getType()==ParticleTypes.DUST_COLOR_TRANSITION).map(ClientboundLevelParticlesPacket.class::cast).toList();
+        var from=ARGB.vector3fFromRGB24(0xffccff);var to=ARGB.vector3fFromRGB24(0xccccff);
+        boolean dustAppearance=dust.stream().allMatch(packet->packet.particle() instanceof DustColorTransitionOptions color
+                &&color.getFromColor().equals(from)&&color.getToColor().equals(to)&&color.getScale()==.9f);
+        return new BeamPackets(sounds,souls.size(),souls.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum(),
+                dust.size(),dust.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum(),dustAppearance);
     }
 
     private static final class Fixture implements AutoCloseable {
@@ -257,6 +265,8 @@ public final class ImbaCrossbowChecks {
                     require(sample.riptide()==1,"one original audible riptide sample per listener for the full native volley: "+sample);
                     require(sample.soulPackets()>0&&sample.soulPackets()<320&&sample.soulParticles()==960,
                             "SCULK_SOUL uses fewer logical packets and preserves all source particles per listener: "+sample);
+                    require(sample.dustPackets()>0&&sample.dustPackets()<=672*95/100&&sample.dustParticles()==1952&&sample.dustAppearance(),
+                            "SUPER dust uses at least five percent fewer logical packets and preserves source count, colors and size: "+sample);
                 }
             }finally{
                 for(var trace:wands.electroSnapshot()){
@@ -269,6 +279,22 @@ public final class ImbaCrossbowChecks {
                 ownerRandom.restore(owner.getRandom());worldRandom.restore(level.getRandom());
             }
             require(stone.queuedSnapshot().equals(originalJobs),"SUPER packet measurement only retires its own native work");
+        }
+        void superDustVisibility(){
+            var owner=base.owner;
+            var level=owner.level();
+            var boundary=Vec3.atCenterOf(owner.blockPosition()).add(512,0,0);
+            var inside=new Vec3[]{boundary.add(-.42,0,0),boundary.add(-.24,0,0),boundary.add(-.04,0,0)};
+            var crossing=new Vec3[]{boundary.add(-.28,0,0),boundary.add(-.10,0,0),boundary.add(.10,0,0)};
+            var type=new DustColorTransitionOptions(0xffccff,0xccccff,.9f);
+            int start=base.recording.packets.size();
+            try(var grouped=new LbcParticleBatch.NearbyRuns(level,type,.1,true,.25)){
+                grouped.add(inside,inside.length);
+                grouped.add(crossing,crossing.length);
+            }
+            var beam=beamPackets(base.recording.packets,start);
+            require(beam.dustPackets()==3&&beam.dustParticles()==5&&beam.dustAppearance(),
+                    "native range edge keeps the complete original triplet and both visible samples of the crossing triplet");
         }
         void concurrentSuperVolleys(){
             try(var probe=new SuperIntake()){
@@ -757,7 +783,7 @@ public final class ImbaCrossbowChecks {
         require(running==null,"exclusive scheduled fixture");
         var f=new Fixture(game);
         try {
-            f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();f.collectorParity();f.superBeamPackets();f.concurrentSuperVolleys();
+            f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();f.collectorParity();f.superBeamPackets();f.superDustVisibility();f.concurrentSuperVolleys();
             f.coldIntake=f.new ColdIntake();f.coldIntake.begin();
             running=f;
         }catch(RuntimeException|Error failure){

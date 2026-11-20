@@ -78,6 +78,7 @@ final class LbcErecto {
         private static final class WorldEffects {
             final ServerLevel level;
             final Map<BlockPos,LbcParticleBatch.Group> souls=new LinkedHashMap<>();
+            final Map<SuperVolley,LbcParticleBatch.NearbyRuns> superDust=new LinkedHashMap<>();
             final ArrayList<Listener> listeners=new ArrayList<>();
 
             WorldEffects(ServerLevel level){
@@ -99,8 +100,14 @@ final class LbcErecto {
                     ParticleTypes.SCULK_SOUL,.1,0,true,.87,8)).add(point,3);
         }
 
+        LbcParticleBatch.NearbyRuns superDust(ServerLevel level,SuperVolley volley){
+            return worlds.computeIfAbsent(level,WorldEffects::new).superDust.computeIfAbsent(volley,
+                    key->new LbcParticleBatch.NearbyRuns(level,CROSSBOW_DUST,.1,true,.25));
+        }
+
         @Override public void close(){
             for(var world:worlds.values()){
+                for(var dust:world.superDust.values())dust.close();
                 for(var souls:world.souls.values())souls.close();
                 for(var listener:world.listeners){
                     if(listener.player.level()!=world.level||listener.player.isRemoved())continue;
@@ -114,10 +121,13 @@ final class LbcErecto {
         }
     }
 
+    static final class SuperVolley {}
+
     static final class Path {
         final int kind,focusSteps;final Vec3 origin;final ServerPlayer caster;final InteractionHand hand;final ItemStack stack;
         Vec3 focus;int side;LbcIndirectKills.Owner terrainCause;LbcBeamAmmo ammunition;
         CrossbowBlasts pendingBlasts;
+        SuperVolley superVolley;
         Path(int kind,Vec3 origin,Vec3 focus,int focusSteps,int side,ServerPlayer caster,InteractionHand hand,ItemStack stack){
             this.kind=kind;this.origin=origin;this.focus=focus;this.focusSteps=focusSteps;this.side=side;this.caster=caster;this.hand=hand;this.stack=stack;
         }
@@ -279,11 +289,13 @@ final class LbcErecto {
     /** The source mechanical sniper has its own impact payload; wand sniper behavior stays shared above. */
     void crossbow(ServerPlayer owner,ItemStack weapon,List<net.minecraft.world.entity.projectile.Projectile> family,LbcImbaCrossbows.Kind kind){
         int count=kind.beamPaths();
+        var superVolley=kind==LbcImbaCrossbows.Kind.SUPER?new SuperVolley():null;
         var origin=kind==LbcImbaCrossbows.Kind.GATLING?owner.getEyePosition().add(owner.getLookAngle()):owner.position();
         for(int i=0;i<count;i++){
             float yaw=owner.getYRot(),pitch=owner.getXRot();
             if(count>1){yaw+=(owner.getRandom().nextInt(6001)-3000)*.01f;pitch+=(owner.getRandom().nextInt(kind==LbcImbaCrossbows.Kind.GATLING?1001:6001)-(kind==LbcImbaCrossbows.Kind.GATLING?500:3000))*.01f;}
             var path=new Path(CROSSBOW,origin,null,0,0,owner,InteractionHand.MAIN_HAND,weapon.copy());
+            path.superVolley=superVolley;
             path.ammunition=(LbcBeamAmmo)LbcBeamAmmo.capture(game,owner,weapon,family);if(path.ammunition!=null)path.ammunition.precise=true;
             var trace=new LbcWands.ElectroTrace(owner,origin,game.items().epoch(),count==1?200:count==32?50:(i+1)*10);
             trace.yaw=yaw;trace.pitch=pitch;trace.erecto=path;trace.cause=game.items().indirectKills().coldCause(owner,true);
@@ -373,12 +385,24 @@ final class LbcErecto {
         double yawRadians=Math.toRadians(trace.yaw);
         var right=new Vec3(Math.cos(yawRadians),0,Math.sin(yawRadians));
         ArrayList<Vec3> centers=null;
-        try (var dust = new LbcParticleBatch.Group(trace.level,particle,.1,.1,.1,0,true,.31,game.balanceLegacy()?1:3)) {
+        boolean legacy=game.balanceLegacy();
+        var sharedDust=trace.age==0&&trace.erecto.superVolley!=null&&!legacy
+                ?effects.superDust(trace.level,trace.erecto.superVolley):null;
+        // Only the first six triplets of a volley are close enough to benefit.
+        var dustRun=sharedDust==null?null:new Vec3[3];
+        int dustPoints=0;
+        try (var dust = new LbcParticleBatch.Group(trace.level,particle,.1,.1,.1,0,true,.31,legacy?1:3)) {
             for(int i=0;i<=60;i++){
                 if(i*.3>=mechanismDistance){end=from.add(direction.scale(mechanismDistance));alive=false;break;}
                 Vec3 point=from.add(direction.scale(i*.3));var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){alive=false;break;}
                 emitted=true;end=point;
-                dust.add(point);
+                if(sharedDust!=null&&i<18){
+                    dustRun[dustPoints++]=point;
+                    if(dustPoints==dustRun.length){
+                        sharedDust.add(dustRun,dustPoints);
+                        dustPoints=0;
+                    }
+                }else dust.add(point);
                 // Keep both original RNG draws in the trace loop, even when the
                 // sample has no listener or is represented by a nearer sound.
                 if(trace.level.getRandom().nextBoolean())
@@ -404,6 +428,7 @@ final class LbcErecto {
                 }
             }
         }
+        if(dustPoints>0)sharedDust.add(dustRun,dustPoints);
         if(emitted&&crossbow){
             if(centers!=null){
                 var work=new CrossbowBlasts(trace,centers);

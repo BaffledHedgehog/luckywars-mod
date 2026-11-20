@@ -380,6 +380,7 @@ public final class LbcWands {
             position=old.position;yaw=old.yaw;pitch=old.pitch;age=old.age;cloneMask=old.cloneMask;
             if(old.erecto!=null){var path=old.erecto;
                 erecto=new LbcErecto.Path(path.kind,path.origin,path.focus,path.focusSteps,path.side,path.caster,path.hand,path.stack.copy());
+                erecto.superVolley=path.superVolley;
                 erecto.terrainCause=path.terrainCause;
                 erecto.ammunition=path.ammunition==null?null:path.ammunition.copy();
             }
