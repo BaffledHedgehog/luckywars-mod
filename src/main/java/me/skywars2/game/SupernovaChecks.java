@@ -2,12 +2,19 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.*;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
 
 /** End-to-end native match transaction. Only the disposable qualification server invokes it. */
@@ -30,7 +37,7 @@ public final class SupernovaChecks {
             if(legacyOnly)TrueLegacyChecks.run(game);
             running.close();running=null;
             if(legacyOnly)SkyWars2.LOGGER.info("[check] PASS balance-presentation (real Balance cast and native block/head/tooltip projection)");
-            else SkyWars2.LOGGER.info("[check] PASS supernova-chain (real grid exact pair, active-event exclusion, native TimeStop, complete map renewal, same epoch/inventory/XP/lives/effects, Nexus return, owner-only Balance reward and real full legacy transition)");
+            else SkyWars2.LOGGER.info("[check] PASS supernova-chain (real grid exact pair, active-event exclusion, native TimeStop, complete map renewal, same epoch/inventory/XP/lives/effects, Nexus return, Imprinted terrain/item/footprint preservation, owner-only Balance reward and real full legacy transition)");
         }catch(Throwable e){try{running.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL {}",legacyOnly?"balance-presentation":"supernova-chain",e);}
     }
     private static final class Fixture implements AutoCloseable {
@@ -38,6 +45,12 @@ public final class SupernovaChecks {
         final String epoch;int state,at,start,clock,lives,otherLives,xp,initialEcology;boolean closed,seenTerrainMove,seenStrike;
         boolean legacyOnly;
         final boolean ownerPreview,otherPreview;
+        ServerLevel mirror;
+        List<BoundingBox> mirrorBounds;
+        BlockPos mirrorBlock;
+        MapManager.BlockSnapshot previousMirrorBlock;
+        ItemEntity mirrorDrop;
+        boolean addedMirrorTicket;
         Fixture(GameController game){
             this.game=game;require(game.playing(),"actual active match");
             owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
@@ -50,6 +63,7 @@ public final class SupernovaChecks {
         void begin(){
             AtlasGlitchSignal.manual(owner,false);AtlasGlitchSignal.manual(other,true);
             game.config().noBorders=true;for(var p:List.of(owner,other)){p.closeContainer();p.inventoryMenu.getCraftSlots().clearContent();p.getInventory().clearContent();p.removeAllEffects();}
+            placeMirrorWitness();
             move(owner,game.maps().level(),new Vec3(1024.5,1000,1024.5));
             var nexus=game.server().getLevel(LbcHedgehogDimensions.NEXUS);require(nexus!=null,"native Nexus dimension");move(other,nexus,new Vec3(1,2332,1));
             initialEcology=game.items().nexusAcquisition().ecology().count();
@@ -62,6 +76,54 @@ public final class SupernovaChecks {
             require(gun.is(LbcChargedBowItems.SHISHGUN)&&net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).getOrThrow(net.minecraft.world.item.enchantment.Enchantments.INFINITY),gun)==1,"source native Shishgun Infinity retained");
             owner.inventoryMenu.getCraftSlots().setItem(0,katana);owner.inventoryMenu.getCraftSlots().setItem(1,gun);game.items().supernova().craftChanged(owner);
             game.items().timeStop().begin(owner.level(),200);clock=game.items().supernova().activeTicks();
+        }
+
+        @SuppressWarnings("unchecked")
+        List<BoundingBox> mirrorFootprint(){
+            try {
+                var bounds=MapManager.class.getDeclaredField("imprintedBounds");
+                bounds.setAccessible(true);
+                return List.copyOf((List<BoundingBox>)bounds.get(game.maps()));
+            } catch(ReflectiveOperationException error) { throw new IllegalStateException(error); }
+        }
+
+        void placeMirrorWitness(){
+            mirror=Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED));
+            mirrorBounds=mirrorFootprint();
+            require(!mirrorBounds.isEmpty(),"old map already has a real Imprinted footprint");
+            var spawn=BlockPos.containing(game.maps().spawns().getFirst().position());
+            mirrorBlock=mirrorBounds.stream().anyMatch(box->box.isInside(spawn))?spawn:mirrorBounds.getFirst().getCenter();
+            var chunk=ChunkPos.containing(mirrorBlock);
+            addedMirrorTicket=mirror.setChunkForced(chunk.x(),chunk.z(),true);
+            previousMirrorBlock=game.maps().snapshot(mirror,mirrorBlock);
+            require(mirror.setBlock(mirrorBlock,Blocks.DIAMOND_BLOCK.defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS),
+                    "native witness block placed inside the old Imprinted footprint");
+            var stack=new ItemStack(Items.PAPER);
+            stack.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("Supernova Imprinted witness"));
+            mirrorDrop=new ItemEntity(mirror,mirrorBlock.getX()+.5,mirrorBlock.getY()+1.5,mirrorBlock.getZ()+.5,stack);
+            mirrorDrop.setNoGravity(true);
+            mirrorDrop.setDeltaMovement(Vec3.ZERO);
+            require(mirror.addFreshEntity(mirrorDrop),"native dropped paper added before ordinary Supernova");
+        }
+
+        void checkMirrorWitness(){
+            require(mirrorFootprint().equals(mirrorBounds),"ordinary Supernova keeps the existing Imprinted footprint");
+            require(mirror.getBlockState(mirrorBlock).is(Blocks.DIAMOND_BLOCK),"ordinary Supernova keeps Imprinted block changes");
+            require(!mirrorDrop.isRemoved()&&mirror.getEntity(mirrorDrop.getUUID())==mirrorDrop,"ordinary Supernova keeps the actual Imprinted item entity");
+            require(mirror.getForceLoadedChunks().contains(ChunkPos.containing(mirrorBlock).pack()),"ordinary Supernova keeps the Imprinted chunk ticket");
+        }
+
+        void removeMirrorWitness(){
+            if(mirrorDrop!=null&&!mirrorDrop.isRemoved())mirrorDrop.discard();
+            if(mirrorBlock==null)return;
+            try {
+                if(previousMirrorBlock!=null&&mirror.getBlockState(mirrorBlock).is(Blocks.DIAMOND_BLOCK))
+                    game.maps().restoreSnapshot(mirror,mirrorBlock,previousMirrorBlock,Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+            } finally {
+                var chunk=ChunkPos.containing(mirrorBlock);
+                if(addedMirrorTicket)mirror.setChunkForced(chunk.x(),chunk.z(),false);
+                mirrorBlock=null;
+            }
         }
         void beginLegacyPresentation(){
             legacyOnly=true;xp=owner.experienceLevel;
@@ -110,6 +172,8 @@ public final class SupernovaChecks {
                 }
                 require(reward==1,"one owner reward");
                 for(var stack:java.util.stream.IntStream.range(0,other.getInventory().getContainerSize()).mapToObj(other.getInventory()::getItem).toList())require(!LbcBalanceItems.isBalance(stack),"no foreign reward");
+                checkMirrorWitness();
+                removeMirrorWitness();
                 activateBalance();return false;}
             if(state==4){if(!game.balanceLegacy()||game.supernovaMapTransition())return false;
                 require(!game.items().epoch().equals(epoch)&&game.maps().spawns().size()==12,"new original overlay with exact twelve source spawns");
@@ -122,6 +186,6 @@ public final class SupernovaChecks {
                 require(owner.experienceLevel==xp,"source Balance keeps existing XP");return true;}
             return false;
         }
-        public void close(){if(closed)return;closed=true;game.config().noBorders=borders;game.items().timeStop().end(game.maps().level());AtlasGlitchSignal.manual(owner,ownerPreview);AtlasGlitchSignal.manual(other,otherPreview);}
+        public void close(){if(closed)return;closed=true;try{removeMirrorWitness();}finally{game.config().noBorders=borders;game.items().timeStop().end(game.maps().level());AtlasGlitchSignal.manual(owner,ownerPreview);AtlasGlitchSignal.manual(other,otherPreview);}}
     }
 }

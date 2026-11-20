@@ -441,7 +441,7 @@ public final class GameController {
             if (intent.map()==null) { failSupernovaMap(Component.literal("No eligible replacement map")); return; }
             maps.purgeRenewalEntities();
             supernovaMap=intent.phase(RenewalPhase.LOADING);
-            maps.load(intent.map(),intent.broken(),result->{
+            maps.loadSupernova(intent.map(),intent.broken(),result->{
                 if (supernovaMap==null || !supernovaMap.event().equals(intent.event()) || stopped) return;
                 if (!result.success()) { failSupernovaMap(result.message()); return; }
                 // Completion can arrive during TimeStop; player placement waits for the active clock.

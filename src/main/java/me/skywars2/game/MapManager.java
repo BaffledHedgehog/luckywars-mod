@@ -603,6 +603,14 @@ public final class MapManager {
     }
 
     public void load(String id, boolean broken, Consumer<Result> completion) {
+        load(id,broken,true,completion);
+    }
+
+    void loadSupernova(String id, boolean broken, Consumer<Result> completion) {
+        load(id,broken,false,completion);
+    }
+
+    private void load(String id, boolean broken, boolean updateImprinted, Consumer<Result> completion) {
         if (busy) {
             completion.accept(new Result(false, Component.translatable("skywars2.map.error.busy")));
             return;
@@ -612,9 +620,9 @@ public final class MapManager {
         List<Placement> placements = manifest == null ? List.of()
                 : broken ? manifest.brokenPlacements : manifest.placements;
         var templates=new ArrayList<String>();placements.forEach(p->templates.add(p.template));
-        if(manifest!=null)imprintedPlacements(manifest).forEach(p->templates.add(p.template));
+        if(updateImprinted&&manifest!=null)imprintedPlacements(manifest).forEach(p->templates.add(p.template));
         preloadTemplatesAsync(templates,
-                () -> loadPrepared(id, broken), completion);
+                () -> loadPrepared(id,broken,updateImprinted), completion);
     }
 
     void sweepAfterModeChange(int mode) { requestedSweepMode=mode; }
@@ -659,7 +667,8 @@ public final class MapManager {
     private volatile long preparationGeneration;
     private boolean selectingMap;
     private List<BoundingBox> imprintedBounds;
-    private List<BoundingBox> pendingImprintedBounds=List.of();
+    /** Null while the current operation preserves the existing Imprinted mirror. */
+    private List<BoundingBox> pendingImprintedBounds;
     private ServerLevel mapLightingWorld;
     private Path imprintedJournal(){return boundsJournal.resolveSibling("imprinted-bounds.json");}
     private List<Placement> imprintedPlacements(Manifest manifest){
@@ -698,7 +707,7 @@ public final class MapManager {
         return true;
     }
 
-    private void loadPrepared(String id, boolean broken) {
+    private void loadPrepared(String id, boolean broken, boolean updateImprinted) {
         if (level == null) {
             fail(Component.translatable("skywars2.map.error.dimension_missing"));
             return;
@@ -747,17 +756,18 @@ public final class MapManager {
         }
         List<BoundingBox> recoveryBounds = combineBounds(activeBoxes, targetBounds);
         final ImprintedPlan imprinted;
-        try { imprinted=prepareImprinted(manifest); }
+        try { imprinted=updateImprinted?prepareImprinted(manifest):null; }
         catch (RuntimeException error) {
             fail(Component.translatable("skywars2.map.error.prepare_map", id, error.getMessage()));
             return;
         }
-        var saved = writeBoundsJournal(recoveryBounds).thenCombine(
+        var saved = writeBoundsJournal(recoveryBounds);
+        if(imprinted!=null)saved=saved.thenCombine(
                 writeBoundsJournal(imprinted.recovery, imprintedJournal(), LbcHedgehogDimensions.IMPRINTED),
                 (overworldSaved, imprintedSaved) -> overworldSaved && imprintedSaved);
         awaitJournal(saved, () -> {
         // Native mutations continued while IO was pending: include any new outer bounds first.
-        if (blockBoundsDirty) { loadPrepared(id, broken); return; }
+        if (blockBoundsDirty) { loadPrepared(id,broken,updateImprinted); return; }
         var bedwarsGame=me.skywars2.SkyWars2.game();
         if(bedwarsGame!=null&&bedwarsGame.maps()==this)bedwarsGame.bedwars().loading(level,targetBounds,bedwars(id));
         pendingMap = id;
@@ -772,7 +782,7 @@ public final class MapManager {
         replaceActiveBounds(recoveryBounds);
         try {
             addPasteWork(placements);
-            addImprintedWork(imprinted);
+            if(imprinted!=null)addImprintedWork(imprinted);
         } catch (RuntimeException error) {
             fail(Component.translatable("skywars2.map.error.prepare_map", id, error.getMessage()));
             return;
@@ -1419,7 +1429,7 @@ public final class MapManager {
         arenaSweep=null;
         pendingSweepMode=0;
         journalWait = null;
-        pendingImprintedBounds=List.of();
+        pendingImprintedBounds=null;
     }
 
     private void preloadTemplatesAsync(List<String> ids, Runnable continueOnServerThread,
@@ -2121,7 +2131,7 @@ public final class MapManager {
             cacheLobbyOverlay();
         } else {
             mapBounds = combineBounds(pendingBounds, placementExternalBounds);
-            imprintedBounds=List.copyOf(pendingImprintedBounds);
+            if(pendingImprintedBounds!=null)imprintedBounds=List.copyOf(pendingImprintedBounds);
             residentMapIds.clear();
             residentMapIds.add(pendingMap);
         }
@@ -2133,7 +2143,7 @@ public final class MapManager {
         flushChangedBlockBounds();
         if (blockBoundsDirty) { fail(Component.translatable("skywars2.map.error.persist_changes")); return; }
         var saved = writeBoundsJournal(activeBoxes);
-        if (pendingMap != null || clearingArena) saved = saved.thenCombine(
+        if (pendingImprintedBounds!=null || clearingArena) saved = saved.thenCombine(
                 writeBoundsJournal(imprintedBounds, imprintedJournal(), LbcHedgehogDimensions.IMPRINTED), (a,b) -> a && b);
         awaitJournal(saved, () -> {
         if (blockBoundsDirty) { commitPlacementBounds(entities); return; }
@@ -2144,8 +2154,10 @@ public final class MapManager {
             var game = SkyWars2.game();
             if (game != null && game.maps() == this) {
                 game.itemQueue().clearRoundStart(level);
-                var mirror = server.getLevel(LbcHedgehogDimensions.IMPRINTED);
-                if (mirror != null) game.itemQueue().clearRoundStart(mirror);
+                if(pendingImprintedBounds!=null) {
+                    var mirror=server.getLevel(LbcHedgehogDimensions.IMPRINTED);
+                    if(mirror!=null)game.itemQueue().clearRoundStart(mirror);
+                }
             } else {
                 for (var entity : allArenaEntities())
                     if (entity instanceof net.minecraft.world.entity.item.ItemEntity) entity.discard();
