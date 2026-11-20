@@ -187,7 +187,10 @@ public final class BlackHoleVisuals {
         // Shader collapse lasts0.2s; keep two extra delivery ticks before any new row assignment.
         slot.availableAt=clock+TAIL;
     }
-    public void forget(ServerPlayer owner) { if(holes.removeIf(hole->hole.owner.getUUID().equals(owner.getUUID()))) refresh(); }
+    public void forget(ServerPlayer owner) {
+        if(game.stage()==GameController.Stage.ENDING) return;
+        if(holes.removeIf(hole->hole.owner.getUUID().equals(owner.getUUID()))) refresh();
+    }
     public void stop() {
         holes.clear();
         for(var slots:viewers.values()) for(var slot:slots) release(slot);

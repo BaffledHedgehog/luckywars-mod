@@ -401,11 +401,51 @@ public final class CaseCosmeticChecks {
             require(effectJobs("WINNER").size()==1,"actual canonical winner transition enrolls one golden source producer");move(owner,origin);owner.setYRot(0);owner.setXRot(0);endingAge=(int)get(effectJobs("WINNER").getFirst(),"age");next(40);
         }
         final Set<UUID> celebrationRockets=new HashSet<>();
+        LbcSheep.Hole celebrationHole;
+        Integer celebrationHoleDisplay;
+        boolean celebrationHoleOwnerForgotten;
+
+        Integer holeDisplay(RegenerationBeltChecks.ScheduledClient viewer){
+            var model=Identifier.parse("lbc:black_hole_large");
+            var spawns=new HashSet<Integer>();
+            for(var packet:SmokeVolumeChecks.flatten(viewer.packets())){
+                if(packet instanceof ClientboundAddEntityPacket add && add.getType()==EntityTypes.ITEM_DISPLAY
+                        && new Vec3(add.getX(),add.getY(),add.getZ()).distanceToSqr(celebrationHole.point)<1e-6){
+                    spawns.add(add.getId());
+                }else if(packet instanceof ClientboundSetEntityDataPacket data && spawns.contains(data.id())
+                        && data.packedItems().stream().anyMatch(field->field.value() instanceof ItemStack stack
+                                && model.equals(stack.get(DataComponents.ITEM_MODEL))))return data.id();
+            }
+            return null;
+        }
+
+        void prepareCelebrationHole(){
+            require(game.items().sheep().holeViews().isEmpty(),"exclusive native celebration black hole");
+            var end=Objects.requireNonNull(game.server().getLevel(net.minecraft.world.level.Level.END));
+            require(end!=level && other.teleportTo(end,.5,128,.5,Set.of(),0,0,true) && other.level()==end,
+                    "actual other participant begins in End before the arena hole is published");
+            var overlook=game.maps().look();
+            move(owner,overlook);
+            audience.acknowledge();client.packets().clear();audience.packets().clear();
+            celebrationHole=game.items().sheep().spawnHole(owner,overlook.add(0,0,-3));
+            require(celebrationHole!=null && celebrationHole.entity.entityTags().contains("sheep_black_hole")
+                            && level.getEntity(celebrationHole.entity.getUUID())==celebrationHole.entity,
+                    "native Polymorph black-hole producer publishes the original tagged arena anchor");
+            endingHoleActors.add(celebrationHole.entity.getUUID());
+            require(holeDisplay(client)!=null && holeDisplay(audience)==null,
+                    "native hole display is initially sent only to the arena viewer");
+        }
+
         void beginFireworks(){
             profile().winEffect=kind==3?2:0;game.config().endingSeconds=60;
             var rewards=new LinkedHashMap<UUID,long[]>();for(var p:game.server().getPlayerList().getPlayers()){var row=game.players().get(p.getUUID());rewards.put(p.getUUID(),new long[]{row.coins,row.wins,Arrays.stream(row.keys).asLongStream().sum()});}
             @SuppressWarnings("unchecked") var members=(Map<UUID,Object>)get(game,"participants");for(var e:members.entrySet())set(e.getValue(),"lives",kind==4&&e.getKey().equals(owner.getUUID())?1:0);
+            if(kind==4)prepareCelebrationHole();
             endingStarted=true;invoke(game,"finish",new Class<?>[0]);require(game.stage()==GameController.Stage.ENDING&&Objects.equals(get(game,"victoryWinner"),kind==3?null:owner.getUUID()),"canonical finish selects the actual draw/default-winner branch");
+            if(celebrationHole!=null){
+                require(other.level()==level && game.isObserver(other),"canonical finish returns the End viewer to the arena celebration");
+                audience.acknowledge();
+            }
             for(var e:rewards.entrySet()){var row=game.players().get(e.getKey());int award=kind==4&&e.getKey().equals(owner.getUUID())?1:0;require(row.coins==e.getValue()[0]+100*award&&row.wins==e.getValue()[1]+award&&Arrays.stream(row.keys).asLongStream().sum()==e.getValue()[2]+award,"draw cannot award a false winner; normal winner keeps exact reward");}
             require(jobs().isEmpty(),"default/draw fireworks never enroll a selected winner cosmetic");observeFireworks();require(celebrationRockets.size()==4,"canonical finish immediately creates four real rockets");next(50);
         }
@@ -415,7 +455,28 @@ public final class CaseCosmeticChecks {
             }
         }
         boolean fireworksStep(int elapsed){
-            require(game.stage()==GameController.Stage.ENDING,"real ending scheduler remains active");observeFireworks();require(celebrationRockets.size()==(elapsed<20?4:8),"four native fireworks per ending second, no intervening extra wave; elapsed="+elapsed+" seen="+celebrationRockets.size());return elapsed>=21;
+            require(game.stage()==GameController.Stage.ENDING,"real ending scheduler remains active");
+            observeFireworks();require(celebrationRockets.size()==(elapsed<20?4:8),"four native fireworks per ending second, no intervening extra wave; elapsed="+elapsed+" seen="+celebrationRockets.size());
+            if(celebrationHole==null)return elapsed>=21;
+            if(celebrationHoleDisplay==null)celebrationHoleDisplay=holeDisplay(audience);
+            require(elapsed<=10||celebrationHoleDisplay!=null,
+                    "the returned viewer receives the real ITEM_DISPLAY spawn and large black-hole model during fireworks");
+            if(elapsed>=21&&!celebrationHoleOwnerForgotten){
+                audience.packets().clear();
+                // This is the owner cleanup callback used by GameController.leave. Keep the
+                // winner connection installed so the fixture can still assert normal fireworks.
+                game.items().forget(owner);
+                celebrationHoleOwnerForgotten=true;
+            }
+            require(level.getEntity(celebrationHole.entity.getUUID())==celebrationHole.entity
+                            && !celebrationHole.entity.isRemoved(),
+                    "the same native Succubus anchor survives the celebration owner-forget callback");
+            if(celebrationHoleOwnerForgotten){
+                require(SmokeVolumeChecks.flatten(audience.packets()).stream().noneMatch(packet->
+                                packet instanceof ClientboundRemoveEntitiesPacket removed && removed.entityIds().contains(celebrationHoleDisplay.intValue())),
+                        "forgetting the owner does not despawn the hole's actual display on the returned viewer");
+            }
+            return elapsed>=23;
         }
         boolean cosmeticStep(int elapsed){
             if(stage==30){if(effectJobs("SOUL").isEmpty()){require(elapsed<8,"native causal souls published on next source tick");return false;}require(effectJobs("SOUL").size()<=4,"four original item/XP age buckets bound native souls");cosmetics.stop();playerDeath(2);next(31);return false;}

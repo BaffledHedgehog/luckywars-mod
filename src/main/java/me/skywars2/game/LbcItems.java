@@ -2287,7 +2287,14 @@ public final class LbcItems {
         musicStaff.tick();
         LbcTmtTriggers.tick(game);
         // Keep accepted ability graphs visible until the real lobby transition retires them.
-        if(game.stage()==GameController.Stage.ENDING){blaze.tickTrialFlights();radar.stop();rifleZoom.tick();reactiveArtifacts.tickEnding();return;}
+        if(game.stage()==GameController.Stage.ENDING){
+            blaze.tickTrialFlights();
+            radar.stop();
+            rifleZoom.tick();
+            reactiveArtifacts.tickEnding();
+            blackHoleVisuals.tick();
+            return;
+        }
         radar.begin();
         hedgehogDimensions.tickReturns();
         steampunkRocket.tick();trollBox.tick();

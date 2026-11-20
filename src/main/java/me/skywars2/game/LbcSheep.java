@@ -453,8 +453,13 @@ public final class LbcSheep {
     }
     public void forget(UUID id){
         if(rewinding)return;
-        callbackDepth++;try{game.items().polymorph().forgetAuthor(id);for(var c:List.copyOf(sheep))if(c.owner.equals(id))remove(c);for(var h:List.copyOf(holes))if(h.owner.equals(id))remove(h);
-        }finally{callbackDepth--;}
+        callbackDepth++;
+        try {
+            game.items().polymorph().forgetAuthor(id);
+            for(var c:List.copyOf(sheep))if(c.owner.equals(id))remove(c);
+            if(game.stage()!=GameController.Stage.ENDING)
+                for(var h:List.copyOf(holes))if(h.owner.equals(id))remove(h);
+        } finally {callbackDepth--;}
     }
     public void forget(ServerPlayer p){forget(p.getUUID());}
     public void stop(){
