@@ -36,7 +36,7 @@ public final class GenieCommandAccess {
         "fill", "fillbiome", "give", "item", "kill", "locate", "loot", "msg", "particle", "playsound", "random",
         "return", "ride", "setblock", "spawnpoint", "spreadplayers", "stopsound", "summon", "tag", "teleport",
         "tell", "tellraw", "title", "tp", "w", "xp");
-    private static final Set<String> EXTERNAL_EXECUTION = Set.of("function", "store", "in");
+    private static final Set<String> DATA_ACTIONS = Set.of("get", "merge", "modify", "remove");
 
     private static final Set<String> CONTROL_IDS = Set.of(
         "command_block", "chain_command_block", "repeating_command_block", "command_block_minecart", "structure_block", "jigsaw");
@@ -88,7 +88,8 @@ public final class GenieCommandAccess {
                 if (root.getChild(name) == node) requireGameplay(name, nodes, i);
                 if (redirect != null && root.getChild(redirect.getName()) == redirect)
                     requireGameplay(redirect.getName(), nodes, i);
-                if (EXTERNAL_EXECUTION.contains(name)) throw outsideScope();
+                if (name.equals("function")) throw outsideScope();
+                if (name.equals("store")) requireLocalData(nodes, i + 2);
             }
             for (var argument : context.getArguments().values()) checkArgument(argument.getResult(),ops);
         }
@@ -180,14 +181,17 @@ public final class GenieCommandAccess {
         return block instanceof CommandBlock || block instanceof StructureBlock || block instanceof JigsawBlock;
     }
 
-    private static void checkPayload(Tag root) {
+    static void checkPayload(Tag root) {
         var pending=new ArrayDeque<Tag>();pending.add(root);
         while (!pending.isEmpty()) {
             switch (pending.removeLast()) {
                 case CompoundTag tag -> {
                     if (tag.contains("Command") || "run_command".equals(tag.getStringOr("action", ""))) throw outsideScope();
-                    String id=tag.getStringOr("id", "");
-                    if (CONTROL_IDS.contains(id.startsWith("minecraft:")?id.substring("minecraft:".length()):id)) throw outsideScope();
+                    if (controlId(tag.getStringOr("id", ""))) throw outsideScope();
+                    // Falling blocks, endermen and moving pistons can place these states in the world.
+                    if (controlBlockState(tag.get("BlockState")) || controlBlockState(tag.get("carriedBlockState"))
+                            || controlBlockState(tag.get("blockState")))
+                        throw outsideScope();
                     for (var key : tag.keySet()) {
                         var field=tag.get(key);
                         if (field instanceof CompoundTag || field instanceof ListTag) pending.add(field);
@@ -204,11 +208,35 @@ public final class GenieCommandAccess {
     private static void requireGameplay(String name, List<? extends com.mojang.brigadier.context.ParsedCommandNode<?>> nodes, int index) {
         String command = name.startsWith("minecraft:") ? name.substring("minecraft:".length()) : name;
         if (!GAMEPLAY.contains(command)) throw outsideScope();
-        if (command.equals("datapack") || command.equals("data")) {
-            String readAction = command.equals("datapack") ? "list" : "get";
-            if (index + 1 >= nodes.size() || !nodes.get(index + 1).getNode().getName().equals(readAction)) throw outsideScope();
+        if (command.equals("datapack") && !literal(nodes, index + 1).equals("list")) throw outsideScope();
+        if (command.equals("data")) {
+            String action = literal(nodes, index + 1);
+            if (!DATA_ACTIONS.contains(action)) throw outsideScope();
+            if (!action.equals("get")) requireLocalData(nodes, index + 2);
         }
     }
+
+    private static boolean controlId(String id) {
+        return CONTROL_IDS.contains(id.startsWith("minecraft:") ? id.substring("minecraft:".length()) : id);
+    }
+
+    private static boolean controlBlockState(Tag value) {
+        if (value instanceof StringTag key) return controlId(key.value());
+        return value instanceof CompoundTag state
+                && (controlId(state.getStringOr("id", "")) || controlId(state.getStringOr("Name", "")));
+    }
+
+    private static void requireLocalData(List<? extends com.mojang.brigadier.context.ParsedCommandNode<?>> nodes, int index) {
+        String target = literal(nodes, index);
+        if (!target.equals("entity") && !target.equals("block")) throw outsideScope();
+    }
+
+    private static String literal(List<? extends com.mojang.brigadier.context.ParsedCommandNode<?>> nodes, int index) {
+        if (index < nodes.size() && nodes.get(index).getNode() instanceof LiteralCommandNode<?> literal) return literal.getName();
+        return "";
+    }
+
+    static CommandSyntaxException nativeDenial() { return NATIVE_DENIED.create(); }
 
     private static IllegalArgumentException outsideScope() {
         return new IllegalArgumentException(DENIED);

@@ -5,19 +5,28 @@ import java.util.*;
 import java.util.concurrent.*;
 import me.skywars2.game.genie.GenieWorldHost;
 import me.skywars2.game.genie.script.*;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.commands.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.*;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.phys.*;
 
 /** Actual native commands, selectors and collision shapes, using the existing owned Genie fixture. */
@@ -38,9 +47,8 @@ final class GenieWorldChecks {
         return work.future().join();
     }
     private static void authorityScope(GameController game,WoolBucketChecks.Fixture base,
-                                       GenieWorldHost host,BlockPos start){
-        var foreign=java.util.stream.StreamSupport.stream(game.server().getAllLevels().spliterator(),false)
-            .filter(level->level!=base.level && LbcDimensionItems.ordinary(level)).findFirst().orElseThrow();
+                                       GenieWorldHost host,BlockPos start,ForeignEntityColumn foreignColumn){
+        var foreign=foreignColumn.level;
         var witness=base.other;
         var before=witness.position();var original=witness.level();
         float yaw=witness.getYRot(),pitch=witness.getXRot();var movement=witness.getDeltaMovement();
@@ -49,6 +57,7 @@ final class GenieWorldChecks {
         try{
             require(witness.teleportTo(foreign,before.x,before.y,before.z,Set.of(),yaw,pitch,true),"native foreign-dimension participant");
             base.audience.acknowledge();
+            foreignDataCheck(foreignColumn, host);
             var scoped=complete(host,queued(host,"world.select",new JsonPrimitive("@a"))).getAsJsonArray();
             require(scoped.contains(new JsonPrimitive(base.owner.getUUID().toString()))&&!scoped.contains(new JsonPrimitive(uuid)),
                 "local player remains visible, foreign player is excluded");
@@ -65,6 +74,7 @@ final class GenieWorldChecks {
             var nested=complete(host,queued(host,"world.command",new JsonPrimitive("execute as @a run tag @s add "+marker))).getAsJsonObject();
             require(nested.get("successes").getAsInt()>0&&base.owner.entityTags().contains(marker)&&!witness.entityTags().contains(marker),
                 "execute child keeps its source dimension");
+            foreignRelationCheck(base, host);
             try{
                 var normal=game.server().createCommandSourceStack().withLevel(base.level);
                 var unrestricted=net.minecraft.commands.arguments.EntityArgument.players().parse(new com.mojang.brigadier.StringReader("@a"));
@@ -204,6 +214,269 @@ final class GenieWorldChecks {
             inventory.setItem(7,original);
             source.clearContent();base.set(box,Blocks.AIR.defaultBlockState());
         }
+    }
+
+    static final class ForeignEntityColumn implements AutoCloseable {
+        private static final int SIMULATION_RADIUS = 2;
+        private static final TicketType TICKET = new TicketType(TicketType.NO_TIMEOUT,
+                TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+        private final ServerLevel level;
+        private final Vec3 origin;
+        private final BlockPos block;
+        private final ChunkPos chunk;
+        private boolean closed;
+
+        ForeignEntityColumn(GameController game, WoolBucketChecks.Fixture fixture) {
+            level = java.util.stream.StreamSupport.stream(game.server().getAllLevels().spliterator(), false)
+                    .filter(candidate -> candidate != fixture.level && LbcDimensionItems.ordinary(candidate)).findFirst().orElseThrow();
+            origin = fixture.other.position().add(0, 2, 0);
+            block = BlockPos.containing(origin);
+            chunk = ChunkPos.containing(block);
+            level.getChunkSource().addTicketWithRadius(TICKET, chunk, SIMULATION_RADIUS);
+        }
+
+        boolean ready() {
+            return NativeChunkLoad.resident(level, block)
+                    && level.areEntitiesActuallyLoadedAndTicking(chunk) && level.isPositionEntityTicking(block);
+        }
+
+        String state() {
+            return level.dimension().identifier() + " " + chunk + " full=" + NativeChunkLoad.resident(level, block)
+                    + ", entities=" + level.areEntitiesActuallyLoadedAndTicking(chunk)
+                    + ", simulating=" + level.isPositionEntityTicking(block);
+        }
+
+        @Override public void close() {
+            if (closed) return;
+            closed = true;
+            level.getChunkSource().removeTicketWithRadius(TICKET, chunk, SIMULATION_RADIUS);
+        }
+    }
+
+    private static void foreignDataCheck(ForeignEntityColumn column, GenieWorldHost host) {
+        var foreign = column.level;
+        require(column.ready(), "foreign entity column remains visible through the native command: " + column.state());
+        var mob = Objects.requireNonNull(EntityTypes.SKELETON.create(foreign, EntitySpawnReason.COMMAND));
+        mob.setPos(column.origin);
+        try {
+            boolean added = foreign.addFreshEntity(mob);
+            boolean registered = ((ActorCheckpointAccess.LevelEntities) foreign).skywars2$manager().isLoaded(mob.getUUID());
+            boolean visible = foreign.getEntity(mob.getUUID()) == mob;
+            require(added && registered && visible,
+                    "native foreign-dimension mob is registered and targetable there: " + column.state()
+                            + ", added=" + added + ", registered=" + registered + ", visible=" + visible
+                            + ", reason=" + mob.getRemovalReason());
+            String command = "data merge entity " + mob.getUUID() + " {NoAI:1b}";
+            require(nativeDataCommand(host, command).get("successes").getAsInt() == 0 && !mob.isNoAi(),
+                    "the ordinary native data provider cannot change a foreign registered body");
+            foreign.getServer().getCommands().performPrefixedCommand(
+                    foreign.getServer().createCommandSourceStack().withLevel(foreign).withSource(CommandSource.NULL), command);
+            require(mob.isNoAi() && foreign.getEntity(mob.getUUID()) == mob,
+                    "the same native command succeeds against that body for an ordinary local console source");
+            rejected(() -> host.validateCommand("execute in " + foreign.dimension().identifier()
+                            + " run data get entity " + mob.getUUID()),
+                    "cross-dimension execute in accepted");
+        } finally {
+            mob.discard();
+        }
+    }
+
+    private static void foreignRelationCheck(WoolBucketChecks.Fixture fixture, GenieWorldHost host) {
+        var level = fixture.level;
+        var foreign = fixture.other;
+        require(foreign.level() != level, "the relation witness is a live player in another dimension");
+        var wolf = new Wolf(EntityTypes.WOLF, level);
+        var local = Objects.requireNonNull(EntityTypes.COW.create(level, EntitySpawnReason.COMMAND));
+        wolf.setPos(fixture.owner.position().add(2, 1, 0));
+        local.setPos(wolf.position().add(0, 0, 1));
+        wolf.setNoAi(true);
+        local.setNoAi(true);
+        var previousEffects = List.copyOf(foreign.getActiveEffects());
+        try {
+            require(level.addFreshEntity(wolf) && level.getEntity(wolf.getUUID()) == wolf && level.addFreshEntity(local),
+                    "both real relation witnesses are registered in the local arena");
+            fixture.own(wolf);
+            fixture.own(local);
+            String clearOwnerEffects = "execute as " + wolf.getUUID() + " on owner run effect clear";
+            wolf.setOwner(local);
+            require(wolf.getOwner() == local && local.addEffect(new MobEffectInstance(MobEffects.HASTE, 300, 0)),
+                    "a local living owner has the native test effect");
+            var localResult = nativeDataCommand(host, clearOwnerEffects);
+            require(localResult.get("successes").getAsInt() == 1 && !local.hasEffect(MobEffects.HASTE),
+                    "a local execute-on subject retains normal implicit targeting: " + localResult);
+
+            wolf.setOwner(foreign);
+            foreign.removeEffect(MobEffects.HASTE);
+            require(wolf.getOwner() == foreign && foreign.addEffect(new MobEffectInstance(MobEffects.HASTE, 300, 0)),
+                    "native ownership still resolves the real foreign player and its test effect");
+            var result = nativeDataCommand(host, clearOwnerEffects);
+            require(result.get("successes").getAsInt() == 0 && foreign.hasEffect(MobEffects.HASTE),
+                    "the scoped relation cannot make a foreign player the implicit command target: " + result);
+
+            fixture.game.server().getCommands().performPrefixedCommand(
+                    fixture.game.server().createCommandSourceStack().withLevel(level).withSource(CommandSource.NULL),
+                    clearOwnerEffects);
+            require(!foreign.hasEffect(MobEffects.HASTE), "unscoped console relations keep their native behavior");
+        } finally {
+            foreign.removeAllEffects();
+            previousEffects.forEach(foreign::addEffect);
+            fixture.discard(wolf);
+            fixture.discard(local);
+        }
+    }
+
+    private static void nativeData(WoolBucketChecks.Fixture fixture, GenieWorldHost host, BlockPos at) {
+        var level = fixture.level;
+        var mob = Objects.requireNonNull(EntityTypes.SKELETON.create(level, EntitySpawnReason.COMMAND));
+        var creeper = Objects.requireNonNull(EntityTypes.CREEPER.create(level, EntitySpawnReason.COMMAND));
+        var control = Objects.requireNonNull(EntityTypes.COMMAND_BLOCK_MINECART.create(level, EntitySpawnReason.COMMAND));
+        var enderman = Objects.requireNonNull(EntityTypes.ENDERMAN.create(level, EntitySpawnReason.COMMAND));
+        var display = Objects.requireNonNull(EntityTypes.BLOCK_DISPLAY.create(level, EntitySpawnReason.COMMAND));
+        var origins = List.of(mob, creeper, control, enderman, display);
+        for (int i = 0; i < origins.size(); i++) {
+            var body = origins.get(i);
+            body.setPos(Vec3.atCenterOf(at.above().east(i)));
+            require(level.addFreshEntity(body), "native NBT fixture entity published");
+            fixture.own(body);
+        }
+        var to = coordinates(at);
+        var other = at.east();
+        var protectedPos = at.east(2);
+        fixture.set(at, Blocks.SHULKER_BOX.defaultBlockState());
+        fixture.set(other, Blocks.SHULKER_BOX.defaultBlockState());
+        fixture.set(protectedPos, Blocks.STRUCTURE_BLOCK.defaultBlockState());
+        var protectedBlock = (net.minecraft.world.level.block.entity.StructureBlockEntity) level.getBlockEntity(protectedPos);
+        var target = (net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity) level.getBlockEntity(at);
+        var source = (net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity) level.getBlockEntity(other);
+        var storage = fixture.game.server().getCommandStorage();
+        var storageId = net.minecraft.resources.Identifier.parse("skywars2:genie_data_native_fixture");
+        var previous = storage.get(storageId).copy();
+        String body = mob.getUUID().toString(), bomb = creeper.getUUID().toString();
+        var witness = new CompoundTag();
+        witness.putInt("count", 7);
+        var protectedCompound = new CompoundTag();
+        protectedCompound.putString("id", "minecraft:structure_block");
+        var properties = new CompoundTag();
+        properties.putString("mode", "save");
+        protectedCompound.put("properties", properties);
+        witness.put("protected_state", protectedCompound);
+        storage.set(storageId, witness);
+        try {
+            var turned = nativeDataCommand(host, "data merge entity " + body + " {NoAI:1b}");
+            require(turned.get("successes").getAsInt() == 1 && mob.isNoAi()
+                            && level.getEntity(mob.getUUID()) == mob && mob.getUUID().toString().equals(body),
+                    "native existing-entity NBT mutation changes real AI without replacing the body or UUID");
+            require(nativeDataCommand(host, "data remove entity " + body + " NoAI").get("successes").getAsInt() == 1
+                            && !mob.isNoAi(), "ordinary native remove restores the existing skeleton's AI");
+
+            var change = nativeDataCommand(host, "execute in " + level.dimension().identifier() + " store result entity "
+                    + bomb + " Fuse short 1 run data get storage " + storageId + " count");
+            require(change.get("successes").getAsInt() == 1
+                            && nativeDataCommand(host, "data get entity " + bomb + " Fuse").get("result").getAsInt() == 7,
+                    "local execute in and native store result update an existing creeper fuse");
+            require(nativeDataCommand(host, "execute store success entity " + body + " NoAI byte 1 run data get storage "
+                    + storageId + " count").get("successes").getAsInt() == 1 && mob.isNoAi(),
+                    "store success uses the same guarded existing-entity write");
+            require(nativeDataCommand(host, "data modify entity " + body + " NoAI set value 0b").get("successes").getAsInt() == 1
+                            && !mob.isNoAi(), "data modify runs the real native NBT path");
+
+            var block = nativeDataCommand(host, "data merge block " + to + " {Items:[{Slot:0b,id:'minecraft:stone',count:3}]}");
+            require(block.get("successes").getAsInt() == 1 && target == level.getBlockEntity(at)
+                            && target.getItem(0).is(Items.STONE) && target.getItem(0).getCount() == 3,
+                    "existing loaded block entity keeps identity and receives native inventory NBT");
+            var stone = nativeDataCommand(host, "execute store result block " + to + " Items[0].count int 1 run data get storage "
+                    + storageId + " count");
+            require(stone.get("successes").getAsInt() == 1 && target.getItem(0).getCount() == 7,
+                    "native store numeric result reaches the existing block entity");
+            source.setItem(0, new ItemStack(Items.STRUCTURE_BLOCK));
+            block = nativeDataCommand(host, "data modify block " + to + " Items set from block " + coordinates(other) + " Items");
+            require(block.get("successes").getAsInt() == 0 && target.getItem(0).is(Items.STONE)
+                            && target.getItem(0).getCount() == 7 && source.getItem(0).is(Items.STRUCTURE_BLOCK),
+                    "materialized payload is checked before any native block entity mutation");
+
+            require(nativeDataCommand(host, "data merge entity " + control.getUUID() + " {CustomName:{text:'forbidden'}}")
+                            .get("successes").getAsInt() == 0 && control.getCustomName() == null,
+                    "existing administrative native actor is protected even without direct unsafe input");
+            var changedIdentity = nativeDataCommand(host, "data modify entity " + body + " UUID set value [I;0,0,0,1]");
+            require(changedIdentity.get("successes").getAsInt() == 0 && level.getEntity(UUID.fromString(body)) == mob,
+                    "existing native actor identity cannot be rewritten");
+
+            String carry = "data modify entity " + enderman.getUUID() + " carriedBlockState set ";
+            var carried = nativeDataCommand(host, carry + "value 'minecraft:stone'");
+            require(carried.get("successes").getAsInt() == 1 && enderman.getCarriedBlock() == Blocks.STONE.defaultBlockState(),
+                    "the real local Enderman can still carry an ordinary native default state: " + carried);
+            String protectedState = "'minecraft:structure_block'";
+            var stateChange = nativeDataCommand(host, carry + "value " + protectedState);
+            require(stateChange.get("successes").getAsInt() == 0 && level.getEntity(enderman.getUUID()) == enderman
+                    && enderman.getCarriedBlock() == Blocks.STONE.defaultBlockState(),
+                    "final validation denies a protected state encoded as a bare ID: " + stateChange);
+            var log = Blocks.OAK_LOG.defaultBlockState().setValue(RotatedPillarBlock.AXIS, Direction.Axis.X);
+            var compound = nativeDataCommand(host, carry + "value {id:'minecraft:oak_log',properties:{axis:'x'}}");
+            require(compound.get("successes").getAsInt() == 1 && enderman.getCarriedBlock() == log,
+                    "native compound state retains the authored block properties: " + compound);
+            var fromStorage = nativeDataCommand(host, carry + "from storage " + storageId + " protected_state");
+            require(fromStorage.get("successes").getAsInt() == 0 && enderman.getCarriedBlock() == log
+                    && storage.get(storageId).get("protected_state").equals(protectedCompound),
+                    "final validation denies a protected compound read from detached storage: " + fromStorage);
+            require(nativeDataCommand(host, "data modify entity " + display.getUUID()
+                    + " block_state set value " + protectedState).get("successes").getAsInt() == 1
+                    && display.getBlockState().is(Blocks.STRUCTURE_BLOCK),
+                    "a protected block's visual-only display model is still available");
+            nativeMovingBlockData(fixture, host, at.east(3), protectedState);
+
+            rejected(() -> host.validateCommand("data modify storage " + storageId + " count set value 69"),
+                    "global storage mutation admitted");
+            rejected(() -> host.validateCommand("execute store result storage " + storageId + " count int 1 run data get entity " + bomb + " Fuse"),
+                    "global storage store destination admitted");
+            require(storage.get(storageId).getIntOr("count", 0) == 7, "global backing storage remains unchanged");
+            var denied = nativeDataCommand(host, "data merge block " + coordinates(protectedPos) + " {showair:1b}");
+            require(denied.get("successes").getAsInt() == 0 && !protectedBlock.getShowAir(),
+                    "a protected existing control block receives no scoped NBT write");
+            nativeDataCommand(host, "execute store result block " + coordinates(protectedPos)
+                    + " showair byte 1 run data get storage " + storageId + " count");
+            require(level.getBlockEntity(protectedPos) == protectedBlock && !protectedBlock.getShowAir()
+                    && storage.get(storageId).getIntOr("count", 0) == 7,
+                    "a rejected deferred store leaves both the actual block and global storage unchanged");
+            fixture.game.server().getCommands().performPrefixedCommand(
+                    fixture.game.server().createCommandSourceStack().withLevel(level).withSource(CommandSource.NULL),
+                    "data merge block " + coordinates(protectedPos) + " {showair:1b}");
+            require(protectedBlock.getShowAir(), "ordinary authorized native commands are unchanged");
+        } finally {
+            storage.set(storageId, previous);
+            source.clearContent();
+            target.clearContent();
+            fixture.set(other, Blocks.AIR.defaultBlockState());
+            fixture.set(at, Blocks.AIR.defaultBlockState());
+            fixture.set(protectedPos, Blocks.AIR.defaultBlockState());
+            origins.forEach(fixture::discard);
+        }
+    }
+
+    private static void nativeMovingBlockData(WoolBucketChecks.Fixture fixture, GenieWorldHost host,
+                                              BlockPos at, String protectedState) {
+        var level = fixture.level;
+        var placeholder = Blocks.MOVING_PISTON.defaultBlockState();
+        fixture.set(at, placeholder);
+        var piston = new PistonMovingBlockEntity(at, placeholder, Blocks.DIRT.defaultBlockState(),
+                Direction.NORTH, true, false);
+        try {
+            level.setBlockEntity(piston);
+            require(level.getBlockEntity(at) == piston, "native moving block entity is registered");
+            String target = "data modify block " + coordinates(at) + " blockState set value ";
+            var ordinary = nativeDataCommand(host, target + "'minecraft:stone'");
+            require(ordinary.get("successes").getAsInt() == 1 && piston.getMovedState().is(Blocks.STONE),
+                    "a real piston can still move a native default block state: " + ordinary);
+            var denied = nativeDataCommand(host, target + protectedState);
+            require(denied.get("successes").getAsInt() == 0 && level.getBlockEntity(at) == piston
+                    && piston.getMovedState().is(Blocks.STONE), "the final moving state cannot become a protected block: " + denied);
+        } finally {
+            level.removeBlockEntity(at);
+            fixture.set(at, Blocks.AIR.defaultBlockState());
+        }
+    }
+
+    private static JsonObject nativeDataCommand(GenieWorldHost host, String command) {
+        return complete(host, queued(host, "world.command", new JsonPrimitive(command))).getAsJsonObject();
     }
 
     private static String coordinates(BlockPos pos){return pos.getX()+" "+pos.getY()+" "+pos.getZ();}
@@ -2322,7 +2595,7 @@ final class GenieWorldChecks {
         me.skywars2.SkyWars2.LOGGER.info("[check] Genie shared native abilities families={} variants={}", index.size(), keys.size());
     }
 
-    static void run(GameController game,WoolBucketChecks.Fixture base){
+    static void run(GameController game,WoolBucketChecks.Fixture base,ForeignEntityColumn foreignColumn){
         var center=BlockPos.containing(base.resident(false));var start=center.offset(-6,0,0);
         for(var pos:BlockPos.betweenClosed(start.offset(-1,-1,-1),start.offset(12,2,1)))base.set(pos.immutable(),Blocks.AIR.defaultBlockState());
         var first=start.offset(1,-1,0);var second=start.offset(2,-1,0);
@@ -2362,7 +2635,8 @@ final class GenieWorldChecks {
             host.validateCommand("datapack list");
             host.validateCommand("execute if entity @s run give @s minecraft:stick");
             host.validateCommand("summon minecraft:pig");
-            authorityScope(game,base,host,start);
+            nativeData(base, host, start.offset(8, 1, 0));
+            authorityScope(game,base,host,start,foreignColumn);
             playerParameters(game,base,host);
             shockCounter(game,base,host);
             customStatuses(game,base,host);

@@ -8,12 +8,17 @@ import java.util.*;
 import java.util.concurrent.*;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.genie.*;
+import me.skywars2.mixin.ShulkerBowMixin;
+import me.skywars2.validation.mixin.GenieFixtureAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.HashedStack;
+import net.minecraft.network.protocol.common.ClientboundShowDialogPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.dialog.MultiActionDialog;
+import net.minecraft.server.dialog.action.CustomAll;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.inventory.*;
@@ -27,6 +32,25 @@ public final class GenieChecks {
     private static Fixture running;
     private GenieChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Genie: "+why);}
+    static MultiActionDialog lampDialog(RegenerationBeltChecks.ScheduledClient client, int from) {
+        var packets = client.packets();
+        var shown = packets.subList(from, packets.size()).stream()
+                .filter(ClientboundShowDialogPacket.class::isInstance).map(ClientboundShowDialogPacket.class::cast)
+                .toList();
+        require(shown.size() == 1 && shown.getFirst().dialog().value() instanceof MultiActionDialog,
+                "one new native lamp dialog reaches the requesting player");
+        return (MultiActionDialog) shown.getFirst().dialog().value();
+    }
+
+    static Identifier lampReply(MultiActionDialog dialog) {
+        require(dialog.actions().size() == 1, "native lamp dialog has a single submit action");
+        var action = dialog.actions().getFirst().action().orElseThrow();
+        require(action instanceof CustomAll, "native lamp submit includes input payload");
+        var id = ((CustomAll) action).id();
+        require(id.getNamespace().equals("skywars2") && id.getPath().startsWith("genie/"),
+                "native lamp submit has its own reply channel");
+        return id;
+    }
     static void requireGiftPresentation(ItemStack gift) {
         var lore = java.util.Objects.requireNonNull(gift.get(DataComponents.LORE)).lines();
         require(lore.size() == 2, "gift keeps its description and adds exactly one footer");
@@ -74,12 +98,15 @@ public final class GenieChecks {
     private static final class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture base;final GenieService service;
         final HttpServer http;final ExecutorService executor;final BlockingQueue<Request> requests=new LinkedBlockingQueue<>();
-        final GenieModelClient previous,model;final java.lang.reflect.Field modelField;
+        final GenieModelClient previous,model;final GenieFixtureAccess.Service access;
         final net.minecraft.world.SimpleContainer chest=new net.minecraft.world.SimpleContainer(27);
         int phase,when,shotIndex,inputSequence=300;float health;ItemStack edible;net.minecraft.world.entity.LivingEntity target,referenceTarget;Request request;ItemStack[] before;ItemStack waiting;boolean closed;
         Fixture(GameController game){
-            this.game=game;base=new WoolBucketChecks.Fixture(game,false);base.prepareParticipants();service=game.items().genie();
-            require(((Map<?,?>)WoolBucketChecks.read(service,"wishes")).isEmpty(),"no user wishes in fixture");
+            this.game=game;service=game.items().genie();
+            access=(GenieFixtureAccess.Service)(Object) service;
+            require(access.validation$scriptModel()==null,"offline HTTP fixture requires no configured script provider");
+            require(access.validation$wishes().isEmpty(),"no user wishes in fixture");
+            base=new WoolBucketChecks.Fixture(game,false);base.prepareParticipants();
             try{
                 http=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
                 executor=Executors.newCachedThreadPool(r->{var t=new Thread(r,"skywars2-genie-native-model");t.setDaemon(true);t.setPriority(Thread.MIN_PRIORITY);return t;});http.setExecutor(executor);
@@ -89,25 +116,27 @@ public final class GenieChecks {
                     var bytes=envelope.toString().getBytes(StandardCharsets.UTF_8);exchange.sendResponseHeaders(200,bytes.length);exchange.getResponseBody().write(bytes);
                 }catch(Exception ignored){}finally{exchange.close();}});http.start();
                 model=new GenieModelClient(new GenieModelClient.Options(URI.create("http://127.0.0.1:"+http.getAddress().getPort()+"/"),"native-fixture",30),"fixture-key");
-                modelField=GenieService.class.getDeclaredField("model");modelField.setAccessible(true);previous=(GenieModelClient)modelField.get(service);modelField.set(service,model);
+                previous=access.validation$model();access.validation$model(model);
             }catch(Exception error){base.close();throw new IllegalStateException(error);}
         }
         void next(int p){phase=p;when=game.server().getTickCount();}
-        boolean pending(){return !((Map<?,?>)WoolBucketChecks.read(service,"wishes")).isEmpty();}
+        boolean pending(){return !access.validation$wishes().isEmpty();}
         static GenieBlueprint plan(){return new GenieBlueprint("A generous sword","Heals the wielder on every accepted sword hit.","iron_sword",1,
                 List.of(new Rule(Trigger.HIT,Target.SELF,Condition.ALWAYS,Effect.HEAL,"",4,0,0,5,1)),List.of(),new Twist(TwistKind.HUNGER_PRICE,1));}
         String stablePrompt,previousHistory;GenieLaunchChecks launches;GenieScriptChecks scripts;GenieLampScriptChecks scriptedLamp;GenieThrowChecks throwsCheck;GenieHitChecks hitCheck;
         GenieWorldChecks.RocketCounterProbe rocketCounters;
+        GenieWorldChecks.ForeignEntityColumn foreignColumn;
         void submit(){submit("A sword that heals me whenever I hit someone, with communism visuals.");}
         void submit(String wish){
             base.owner.closeContainer();base.client.acknowledge();base.owner.connection.handleClientTickEnd(new net.minecraft.network.protocol.game.ServerboundClientTickEndPacket());
+            int from = base.client.packets().size();
             base.owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(InteractionHand.MAIN_HAND,inputSequence++,base.owner.getYRot(),base.owner.getXRot()));
-            var dialogs=(Map<?,?>)WoolBucketChecks.read(service,"dialogs");var dialog=dialogs.get(base.owner.getUUID());require(dialog!=null,"authenticated dialog issued");String token=(String)WoolBucketChecks.read(dialog,"token");
+            var id = lampReply(lampDialog(base.client, from));
             var tag=new CompoundTag();tag.putString("wish",wish);
-            base.owner.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(Identifier.parse("skywars2:genie/"+token),Optional.of(tag)));
+            base.owner.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(id,Optional.of(tag)));
             require(pending(),"real dialog packet starts request");waiting=base.owner.getMainHandItem();require(service.locked(base.owner,waiting),"pending token is owned by this player");
-            base.owner.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(Identifier.parse("skywars2:genie/"+token),Optional.of(tag)));
-            require(((Map<?,?>)WoolBucketChecks.read(service,"wishes")).size()==1,"same dialog token cannot be replayed");
+            base.owner.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(id,Optional.of(tag)));
+            require(access.validation$wishes().size()==1,"same dialog token cannot be replayed");
         }
         void click(int slot,ContainerInput input){var menu=base.owner.containerMenu;base.owner.connection.handleContainerClick(new ServerboundContainerClickPacket(menu.containerId,menu.getStateId(),(short)slot,(byte)0,input,it.unimi.dsi.fastutil.ints.Int2ObjectMaps.emptyMap(),HashedStack.EMPTY));}
         int ownSlot(int index){return base.owner.containerMenu.findSlot(base.owner.getInventory(),index).orElseThrow();}
@@ -149,7 +178,10 @@ public final class GenieChecks {
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.APPLE,17));next(0);
         }
         boolean step(){
-            require(game.server().getTickCount()-base.started<1200,"bounded native HTTP/inventory scenario");
+            int elapsed = game.server().getTickCount() - base.started;
+            if (elapsed >= 1200) throw new IllegalStateException("Genie: bounded native HTTP/inventory scenario"
+                    + " (phase=" + phase + ", elapsedTicks=" + elapsed + ", pending=" + pending()
+                    + ", queuedLoopbackRequests=" + requests.size() + ")");
             if(phase==0){request=requests.poll();if(request==null)return false;var root=JsonParser.parseString(request.body).getAsJsonObject();knowledge(root);base.pause();service.tick();require(pending(),"temporary TimeStop cannot cancel an accepted wish");request.reply.complete(new Gson().toJson(new Reply(true,"Your sword is ready. A hearty meal may help.","The wish did not forbid hunger.",plan())));next(1);return false;}
             if(phase==1){
                 if(pending())return false;
@@ -220,7 +252,16 @@ public final class GenieChecks {
             }
             if(phase==10){
                 if(!launches.tick())return false;
-                GenieWorldChecks.run(game,base);
+                foreignColumn=new GenieWorldChecks.ForeignEntityColumn(game,base);
+                next(16);return false;
+            }
+            if(phase==16){
+                if(!foreignColumn.ready()){
+                    require(game.server().getTickCount()-when<180,"native foreign entity column becomes available: "+foreignColumn.state());
+                    return false;
+                }
+                try{GenieWorldChecks.run(game,base,foreignColumn);}
+                finally{foreignColumn.close();foreignColumn=null;}
                 rocketCounters=new GenieWorldChecks.RocketCounterProbe(game,base);
                 next(15);return false;
             }
@@ -231,7 +272,7 @@ public final class GenieChecks {
             }
             if(phase==11){
                 if(!scripts.tick())return false;
-                try{scriptedLamp=new GenieLampScriptChecks(game,base);}catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
+                scriptedLamp=new GenieLampScriptChecks(game,base);
                 scriptedLamp.submit();next(12);return false;
             }
             if(phase==12){
@@ -313,7 +354,7 @@ public final class GenieChecks {
                 control.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);control.setHealth(1000);
                 require(base.level.addFreshEntity(control),"ordinary native arrow control target");base.own(control);referenceTarget=control;
                 var original=(net.minecraft.world.entity.projectile.arrow.Arrow)added.getFirst();
-                require(((Number)WoolBucketChecks.read(original,"baseDamage")).doubleValue()==4,"requested arrow amount8 retains native speed2 base damage4");
+                require(((ShulkerBowMixin.ArrowAccess) original).skywars2$baseDamage()==4,"requested arrow amount8 retains native speed2 base damage4");
                 var reference=new net.minecraft.world.entity.projectile.arrow.Arrow(base.level,base.owner,new ItemStack(Items.ARROW),base.owner.getMainHandItem().copyWithCount(1));
                 reference.setPos(original.position().add(offset));reference.setDeltaMovement(original.getDeltaMovement());
                 reference.setNoGravity(original.isNoGravity());reference.setBaseDamage(4);
@@ -321,6 +362,6 @@ public final class GenieChecks {
                 require(base.level.addFreshEntity(reference),"ordinary native arrow with exact initial motion");base.own(reference);
             }
         }
-        @Override public void close(){if(closed)return;closed=true;if(rocketCounters!=null)rocketCounters.close();if(scriptedLamp!=null)scriptedLamp.close();if(scripts!=null)scripts.close();service.cancelAll();model.close();http.stop(0);executor.shutdownNow();try{modelField.set(service,previous);}catch(IllegalAccessException error){throw new IllegalStateException(error);}finally{base.close();}}
+        @Override public void close(){if(closed)return;closed=true;if(foreignColumn!=null)foreignColumn.close();if(rocketCounters!=null)rocketCounters.close();if(scriptedLamp!=null)scriptedLamp.close();if(scripts!=null)scripts.close();service.cancelAll();model.close();http.stop(0);executor.shutdownNow();try{access.validation$model(previous);}finally{base.close();}}
     }
 }

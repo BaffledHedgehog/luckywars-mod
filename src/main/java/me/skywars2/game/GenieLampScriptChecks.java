@@ -3,7 +3,6 @@ package me.skywars2.game;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -12,17 +11,16 @@ import java.util.Set;
 import java.util.concurrent.*;
 import me.skywars2.game.genie.*;
 import me.skywars2.game.genie.script.*;
+import me.skywars2.validation.mixin.GenieFixtureAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.network.protocol.common.ClientboundShowDialogPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.network.protocol.game.ServerboundClientTickEndPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.dialog.MultiActionDialog;
 import net.minecraft.server.dialog.body.PlainMessage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -38,20 +36,19 @@ final class GenieLampScriptChecks implements AutoCloseable {
     private final WoolBucketChecks.Fixture base;
     private final GenieService service;
     private final GenieScriptModel model, previous;
-    private final Field field;
+    private final GenieFixtureAccess.Service access;
     private final BlockingQueue<Call> requests = new LinkedBlockingQueue<>();
     private ServerPlayer secondPlayer;
     private Call firstWish, secondWish;
     private ItemEntity returnedLamp;
     private int phase, when, sequence = 900;
 
-    GenieLampScriptChecks(GameController game, WoolBucketChecks.Fixture base) throws ReflectiveOperationException {
+    GenieLampScriptChecks(GameController game, WoolBucketChecks.Fixture base) {
         this.game = game;
         this.base = base;
         service = game.items().genie();
-        field = GenieService.class.getDeclaredField("scriptModel");
-        field.setAccessible(true);
-        previous = (GenieScriptModel) field.get(service);
+        access = (GenieFixtureAccess.Service) (Object) service;
+        previous = access.validation$scriptModel();
         model = new GenieScriptModel(new GenieScriptModel.Transport() {
             @Override public boolean independentConversations() { return true; }
             @Override public GenieScriptModel.Observation run(String prompt, String knowledge, String contract, byte[] verifier)
@@ -277,7 +274,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
             return response.get(8, TimeUnit.SECONDS);
             }
         });
-        field.set(service, model);
+        access.validation$scriptModel(model);
     }
 
     private static void require(boolean ok, String reason) {
@@ -296,18 +293,14 @@ final class GenieLampScriptChecks implements AutoCloseable {
         base.owner.getInventory().setItem(10, ItemStack.EMPTY);
         base.owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(GenieItems.LAMP));
         base.owner.getMainHandItem().set(DataComponents.CUSTOM_NAME, Component.literal("Лампа из проверки"));
+        int from = base.client.packets().size();
         use();
-        var dialog = ((Map<?,?>) WoolBucketChecks.read(service, "dialogs")).get(base.owner.getUUID());
-        require(dialog != null, "the native use packet opens the lamp dialog");
-        var shown = base.client.packets().stream().filter(ClientboundShowDialogPacket.class::isInstance)
-                .map(ClientboundShowDialogPacket.class::cast).reduce((first, last) -> last).orElseThrow();
-        require(shown.dialog().value() instanceof MultiActionDialog content && content.actions().size() == 1
-                && content.common().body().getFirst() instanceof PlainMessage warning
+        var content = GenieChecks.lampDialog(base.client, from);
+        require(content.common().body().getFirst() instanceof PlainMessage warning
                 && warning.contents().getStyle().getColor().equals(net.minecraft.network.chat.TextColor.fromLegacyFormat(ChatFormatting.RED))
                 && warning.contents().getString().lines().count() == 2, "warning is two red lines of plain text");
-        String token = (String) WoolBucketChecks.read(dialog, "token");
         var input = new CompoundTag();input.putString("wish", "LuckyWars script lamp witness");
-        submitWithMana(base.owner, token, input, 1337);
+        submitWithMana(base.owner, GenieChecks.lampReply(content), input, 1337);
         var lamp = base.owner.getMainHandItem();
         require(service.locked(base.owner, lamp), "a scripted request reserves the specific lamp");
         require(lamp.getHoverName().getContents() instanceof TranslatableContents translated
@@ -319,13 +312,12 @@ final class GenieLampScriptChecks implements AutoCloseable {
         when = game.server().getTickCount();
     }
 
-    private void submitWithMana(ServerPlayer player, String token, CompoundTag input, int value) {
+    private void submitWithMana(ServerPlayer player, Identifier id, CompoundTag input, int value) {
         var mana = game.items().mana();
         int previous = mana.get(player);
         try {
             mana.set(player, value);
-            player.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(
-                    Identifier.parse("skywars2:genie/" + token), Optional.of(input)));
+            player.connection.handleCustomClickAction(new ServerboundCustomClickActionPacket(id, Optional.of(input)));
         } finally {
             mana.set(player, previous);
         }
@@ -361,11 +353,13 @@ final class GenieLampScriptChecks implements AutoCloseable {
         secondPlayer.hasChangedDimension();
         secondPlayer.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
         secondPlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(GenieItems.LAMP));
-        require(service.open(secondPlayer, InteractionHand.MAIN_HAND), "second player opens an independent dialog");
-        var dialog = ((Map<?,?>) WoolBucketChecks.read(service, "dialogs")).get(secondPlayer.getUUID());
-        var input = new CompoundTag();
-        input.putString("wish", "LuckyWars script lamp witness for the second player");
-        submitWithMana(secondPlayer, (String) WoolBucketChecks.read(dialog, "token"), input, -222);
+        try (var client = new RegenerationBeltChecks.ScheduledClient(game, secondPlayer)) {
+            int from = client.packets().size();
+            require(service.open(secondPlayer, InteractionHand.MAIN_HAND), "second player opens an independent dialog");
+            var input = new CompoundTag();
+            input.putString("wish", "LuckyWars script lamp witness for the second player");
+            submitWithMana(secondPlayer, GenieChecks.lampReply(GenieChecks.lampDialog(client, from)), input, -222);
+        }
         var lamp = secondPlayer.getMainHandItem();
         require(service.locked(secondPlayer, lamp), "second player's request locks only their lamp");
         secondPlayer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
@@ -448,7 +442,6 @@ final class GenieLampScriptChecks implements AutoCloseable {
         if (secondPlayer != null) service.cancel(secondPlayer);
         if (returnedLamp != null) returnedLamp.discard();
         model.close();
-        try { field.set(service, previous); }
-        catch (IllegalAccessException failure) { throw new IllegalStateException(failure); }
+        access.validation$scriptModel(previous);
     }
 }

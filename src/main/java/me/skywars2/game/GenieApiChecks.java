@@ -2,10 +2,14 @@ package me.skywars2.game;
 
 import com.google.gson.JsonParser;
 import io.netty.buffer.Unpooled;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.genie.GenieScriptModel;
+import me.skywars2.game.genie.GenieService;
+import me.skywars2.validation.mixin.GenieFixtureAccess;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -34,22 +38,19 @@ final class GenieApiChecks {
         final boolean auth;
         final boolean wasOp;
         final int began;
-        final java.lang.reflect.Field currentModel;
-        final Object previousModel;
+        final GenieFixtureAccess.Service access;
         Identifier savedId;
 
         Fixture(GameController game) throws Exception {
             this.game = game;
             require(!Files.exists(settings) && !Files.exists(hostedEnabled), "isolated fixture never overwrites credentials");
+            access = (GenieFixtureAccess.Service) (Object) game.items().genie();
+            require(access.validation$scriptModel() == null, "isolated fixture requires no configured script provider");
             participants = new WoolBucketChecks.Fixture(game, false);
             participants.prepareParticipants();
             auth = game.server().usesAuthentication();
             var players = game.server().getPlayerList();
             wasOp = players.isOp(participants.owner.nameAndId());
-            currentModel = game.items().genie().getClass().getDeclaredField("scriptModel");
-            currentModel.setAccessible(true);
-            previousModel = currentModel.get(game.items().genie());
-            currentModel.set(game.items().genie(), null);
             if (!wasOp) players.op(participants.owner.nameAndId());
             began = game.server().getTickCount();
         }
@@ -114,7 +115,7 @@ final class GenieApiChecks {
             }
         }
 
-        void checkChatGptImport(Object configuredModel) throws Exception {
+        void checkChatGptImport(GenieScriptModel configuredModel) throws Exception {
             var tree = game.server().getCommands().getDispatcher().getRoot().getChild("skywars").getChild("genie").getChild("chatgpt");
             require(tree != null && tree.getChild("import") != null && tree.getChild("import").getChildren().isEmpty()
                             && tree.getChild("importfile") != null && tree.getChild("importfile").getChild("path") != null
@@ -146,7 +147,7 @@ final class GenieApiChecks {
                                 && error.getKey().equals("genie.api.chatgpt_invalid_cookie_json")
                                 && !sent.getFirst().content().getString().contains("\u6c34"),
                         "malformed input yields one private, credential-free rejection and cannot be replayed");
-                require(!Files.exists(hostedEnabled) && currentModel.get(game.items().genie()) == configuredModel,
+                require(!Files.exists(hostedEnabled) && access.validation$scriptModel() == configuredModel,
                         "malformed browser state neither enables ChatGPT nor replaces the configured Gemini provider");
             } finally {
                 game.server().setUsesAuthentication(true);
@@ -177,38 +178,40 @@ final class GenieApiChecks {
 
         boolean step() throws Exception {
             require(game.server().getTickCount() - began < 160, "async form save completed");
-            var active = currentModel.get(game.items().genie());
+            var active = access.validation$scriptModel();
             if (active == null) return false;
             var json = JsonParser.parseString(Files.readString(settings)).getAsJsonObject();
             require(json.get("provider").getAsString().equals("GEMINI")
                     && json.get("baseUrl").getAsString().equals("https://example.invalid/custom/v1beta/")
                     && json.get("model").getAsString().equals("gemini-fixture")
                     && json.get("key").getAsString().equals("synthetic-key"), "only accepted payload persisted");
-            var transport = WoolBucketChecks.read(active, "transport");
-            require(WoolBucketChecks.read(transport, "endpoint").toString()
-                    .equals("https://example.invalid/custom/v1beta/models/gemini-fixture:generateContent"), "subsequent wishes use the new endpoint and model");
+            var endpoint = endpoint(active);
+            require(endpoint.equals(URI.create("https://example.invalid/custom/v1beta/models/gemini-fixture:generateContent")),
+                    "subsequent wishes use the new endpoint and model");
             open("skywars genie api");
             participants.client.listener.handleCustomClickAction(reply(savedId, "", "", "replay"));
-            require(currentModel.get(game.items().genie()) == active, "reopening never exposes the key or accepts earlier replies");
+            require(access.validation$scriptModel() == active, "reopening never exposes the key or accepts earlier replies");
             checkChatGptImport(active);
-            var config = Class.forName("me.skywars2.game.genie.GenieConfig");
-            var load = config.getDeclaredMethod("loadScript");
-            load.setAccessible(true);
-            try (var loaded = (AutoCloseable) load.invoke(null)) {
-                require(loaded != null, "settings persist across service recreation");
-                var restored = WoolBucketChecks.read(loaded, "transport");
-                require(WoolBucketChecks.read(restored, "endpoint").equals(WoolBucketChecks.read(transport, "endpoint")),
-                        "restart uses the saved settings");
+            try (var restarted = new GenieService(game)) {
+                var loaded = ((GenieFixtureAccess.Service) (Object) restarted).validation$scriptModel();
+                require(loaded != null && loaded != active, "settings load onto a newly initialized native service");
+                require(endpoint(loaded).equals(endpoint), "restart uses the saved settings");
             }
+            require(access.validation$scriptModel() == active, "closing the fresh service leaves the live provider intact");
             return true;
+        }
+
+        private static URI endpoint(GenieScriptModel model) {
+            var transport = ((GenieFixtureAccess.Model) (Object) model).validation$transport();
+            if (transport instanceof GenieFixtureAccess.Gemini gemini) return gemini.validation$endpoint();
+            throw new IllegalStateException("Genie API: active provider is not native Gemini");
         }
 
         @Override public void close() throws Exception {
             game.server().setUsesAuthentication(auth);
             try {
-                var service = game.items().genie();
-                var active = (AutoCloseable) currentModel.get(service);
-                currentModel.set(service, previousModel);
+                var active = access.validation$scriptModel();
+                access.validation$scriptModel(null);
                 if (active != null) active.close();
                 Files.deleteIfExists(settings);
             } finally {
