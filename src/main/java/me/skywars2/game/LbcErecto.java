@@ -22,13 +22,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
-/** Higher electricity shares Electro traces; this owner stores only the source ray counter and spheres. */
+/** Higher electricity shares Electro traces and the terrain work queue. */
 final class LbcErecto {
     static final int CENTRAL=0,SIDE=1,PHANTOM=2,SNIPER=3,CROSSBOW=4;
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
@@ -37,9 +38,14 @@ final class LbcErecto {
     private static final DustColorTransitionOptions DUST=new DustColorTransitionOptions(0x00ccff,0x003333,.8f);
     private static final DustColorTransitionOptions SNIPER_DUST=new DustColorTransitionOptions(0x00ccff,0xe5e5ff,.8f);
     private static final DustColorTransitionOptions CROSSBOW_DUST=new DustColorTransitionOptions(0xffccff,0xccccff,.9f);
+    private static final int CROSSBOW_BLAST_LIMIT=8;
+    private static final long CROSSBOW_BLAST_BUDGET_NANOS=4_000_000;
+    private static final int CROSSBOW_BLAST_RADIUS=20;
+    private static final int CROSSBOW_BLAST_REACH=2*CROSSBOW_BLAST_RADIUS+2;
     static final class Path {
         final int kind,focusSteps;final Vec3 origin;final ServerPlayer caster;final InteractionHand hand;final ItemStack stack;
         Vec3 focus;int side;LbcIndirectKills.Owner terrainCause;LbcBeamAmmo ammunition;
+        CrossbowBlasts pendingBlasts;
         Path(int kind,Vec3 origin,Vec3 focus,int focusSteps,int side,ServerPlayer caster,InteractionHand hand,ItemStack stack){
             this.kind=kind;this.origin=origin;this.focus=focus;this.focusSteps=focusSteps;this.side=side;this.caster=caster;this.hand=hand;this.stack=stack;
         }
@@ -53,6 +59,8 @@ final class LbcErecto {
     private final Map<ServerPlayer,String> rays=new IdentityHashMap<>();
     private static final Identifier SNIPER_WINDUP=Identifier.parse("skywars2:erecto_sniper_windup");
     private final Map<ServerPlayer,Integer> sniperWindups=new IdentityHashMap<>();
+    private int blastTick=Integer.MIN_VALUE,blastsThisTick;
+    private long blastNanos;
     LbcErecto(GameController game){this.game=game;}
     boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
@@ -230,9 +238,12 @@ final class LbcErecto {
         }
     }
     private boolean sniper(LbcWands.ElectroTrace trace){
+        boolean crossbow=trace.erecto.kind==CROSSBOW;
+        if(crossbow&&trace.erecto.pendingBlasts!=null)return true;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean alive=true,emitted=false;
         double mechanismDistance=game.items().magic().mechanismSuppressionFraction(trace.level,from,from.add(direction.scale(18)))*18;
-        var particle=trace.erecto.kind==CROSSBOW?CROSSBOW_DUST:SNIPER_DUST;
+        var particle=crossbow?CROSSBOW_DUST:SNIPER_DUST;
+        ArrayList<Vec3> centers=null;
         try (var dust = new LbcParticleBatch.Group(trace.level,particle,.1,.1,.1,0,true,.31,game.balanceLegacy()?1:3)) {
             for(int i=0;i<=60;i++){
                 if(i*.3>=mechanismDistance){end=from.add(direction.scale(mechanismDistance));alive=false;break;}
@@ -246,10 +257,10 @@ final class LbcErecto {
                     for(int sign:new int[]{-1,1}){var at=point.add(right.scale(sign));trace.level.sendParticles(ParticleTypes.SCULK_SOUL,true,false,at.x,at.y,at.z,3,.1,.1,.1,0);}
                 }
                 if(!trace.level.getBlockState(pos).is(AIRS)){
-                    if(trace.erecto.kind==CROSSBOW){
+                    if(crossbow){
                         if(trace.erecto.ammunition!=null)trace.erecto.ammunition.blockContact(trace.level,point,trace.cause);
-                        var cause=trace.cause;var damage=game.items().indirectKills().captureDamage(trace.level.damageSources().explosion(null,trace.owner),cause);
-                        game.items().indirectKills().trapChanges(trace.level,cause,()->trace.level.explode(null,damage,null,point,20,false,net.minecraft.world.level.Level.ExplosionInteraction.MOB));
+                        if(centers==null)centers=new ArrayList<>();
+                        centers.add(point);
                         continue;
                     }
                     impact(trace,point);var p=trace.erecto;
@@ -262,11 +273,100 @@ final class LbcErecto {
                 }
             }
         }
-        if(emitted&&trace.erecto.kind==CROSSBOW){
+        if(emitted&&crossbow){
+            if(centers!=null){
+                var work=new CrossbowBlasts(trace,centers);
+                trace.erecto.pendingBlasts=work;
+                game.items().stonekivi().queuedWork(work);
+            }
             if(trace.erecto.ammunition!=null)trace.erecto.ammunition.lineSegment(trace.level,from,end,trace.cause);
             var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),trace.owner);
             LbcDamage.hurtSegment(trace.level,damage,from,end,Vec3.ZERO,.3,20,2,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(trace.owner,e)&&!e.entityTags().contains("transformator"),false,true,null,null);
         }else if(emitted)hurt(trace,from,end,.3,20,2);trace.position=end;return alive;
+    }
+
+    private boolean crossbowBlastBudget(int tick){
+        if(blastTick!=tick){
+            blastTick=tick;
+            blastsThisTick=0;
+            blastNanos=0;
+        }
+        return blastsThisTick<CROSSBOW_BLAST_LIMIT&&blastNanos<CROSSBOW_BLAST_BUDGET_NANOS;
+    }
+
+    /** Legacy schedules the whole segment before its first blast can change the sampled terrain. */
+    final class CrossbowBlasts implements LbcStonekivi.Work {
+        final Path path;
+        final List<Vec3> centers;
+        final ServerLevel level;
+        final String epoch;
+        final DamageSource damage;
+        final LbcIndirectKills.Owner cause;
+        final Vec3 footprint;
+        final int reach;
+        NativeChunkLoad.Leases.Area lease;
+        int next,waitingTick=Integer.MIN_VALUE;
+        boolean resident;
+
+        CrossbowBlasts(LbcWands.ElectroTrace trace,List<Vec3> samples){
+            path=trace.erecto;
+            centers=List.copyOf(samples);
+            level=trace.level;
+            epoch=trace.epoch;
+            cause=trace.cause;
+            damage=game.items().indirectKills().captureDamage(level.damageSources().explosion(null,trace.owner),cause);
+            var first=centers.getFirst();var last=centers.getLast();
+            footprint=first.lerp(last,.5);
+            reach=CROSSBOW_BLAST_REACH+(int)Math.ceil(Math.max(Math.abs(last.x-first.x),Math.abs(last.z-first.z))*.5);
+        }
+
+        private boolean retired(){return path.pendingBlasts!=this||!game.items().currentEpoch(epoch)||!game.playing();}
+        @Override public boolean ready(){
+            if(retired())return true;
+            int tick=game.server().getTickCount();
+            if(waitingTick==tick||!crossbowBlastBudget(tick)||game.items().timeStop().stopped(level))return false;
+            return !(damage.getEntity() instanceof ServerPlayer player&&!player.isRemoved()
+                    &&game.items().wands().inputTimeStopped(player));
+        }
+        @Override public boolean snapshotIdle(){return true;}
+        @Override public boolean step(){
+            if(retired()){cancel();return true;}
+            if(!ready())return false;
+            if(!resident){
+                if(lease==null)lease=game.items().exasperato().impactArea(level);
+                switch(lease.resident(footprint,reach)){
+                    case WAITING->{waitingTick=game.server().getTickCount();return false;}
+                    case FAILED->{cancel();return true;}
+                    case READY->resident=true;
+                }
+            }
+            var point=centers.get(next++);
+            long started=System.nanoTime();
+            blastsThisTick++;
+            try{
+                game.items().indirectKills().trapChanges(level,cause,
+                        ()->level.explode(null,damage,null,point,CROSSBOW_BLAST_RADIUS,false,Level.ExplosionInteraction.MOB));
+            }finally{
+                blastNanos+=System.nanoTime()-started;
+            }
+            if(next<centers.size())return false;
+            cancel();
+            return true;
+        }
+        @Override public void cancel(){
+            if(lease!=null){lease.close();lease=null;}
+            resident=false;
+            if(path.pendingBlasts==this)path.pendingBlasts=null;
+        }
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            var image=graph.links.damage(damage);
+            int cursor=next;
+            return links->{
+                MatchAuthorityCheckpoint.world(game,level);
+                if(MatchDamageSources.value(image)!=damage)throw new IllegalStateException("Restore accepted crossbow explosion damage");
+                return ()->{cancel();next=cursor;waitingTick=Integer.MIN_VALUE;path.pendingBlasts=this;};
+            };
+        }
     }
     int rayPending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"ray"));}
     void addPlayerCounter(ServerPlayer owner){game.items().mana().score(owner,"ray").add(1);rays.put(owner,game.items().epoch());}

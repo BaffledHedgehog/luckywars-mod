@@ -1496,6 +1496,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
                 }
                 if(timeStopped || trace.sourcePolicy==null && owner!=null && owner.entityTags().contains("time_stopped")) continue;
                 if(game.items().magic().mechanismSuppressedAt(trace.level,trace.position)){electroTraces.remove(trace);continue;}
+                if(trace.erecto!=null&&trace.erecto.pendingBlasts!=null)continue;
                 // (user) Мана/антимагия проверяются при использовании жезла; выпущенная дуга немагическая.
                 try(var scope=game.items().spellSources().scope(trace.sourcePolicy,trace.level)){
                     var author=trace.cause==null?LbcIndirectKills.playerSource(trace.source()):game.server().getPlayerList().getPlayer(trace.cause.player());

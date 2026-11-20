@@ -1965,6 +1965,7 @@ public final class GameChecks {
                 SpecialEggChecks.tick(game);
         CorruptionChecks.tick(game);
         ErectoChecks.tick(game);
+        ImbaCrossbowChecks.tick(game);
         TeslaChecks.tick(game);
         TeslaTrafficChecks.tick(game);
         SmokeVolumeChecks.tick(game);

@@ -2,8 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -14,17 +16,47 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.effect.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 
 /** Actual native use/draw/volley callbacks; no nearby-arrow substitution or second ammunition debit. */
 public final class ImbaCrossbowChecks {
     private ImbaCrossbowChecks(){}
+    private static Fixture running;
+    private enum BlastPhase { PAUSED, PREFIX, CAPTURE, ORIGINAL_TAIL, RESTORE, REPLAY }
     static void require(boolean value,String why){if(!value)throw new IllegalStateException("IMBA crossbows: "+why);}
+    private static Object blastField(LbcStonekivi.Work job,String name){
+        try {
+            var field=job.getClass().getDeclaredField(name);
+            field.setAccessible(true);
+            return field.get(job);
+        }catch(ReflectiveOperationException failure){
+            throw new IllegalStateException("Missing crossbow blast fixture field "+name,failure);
+        }
+    }
+
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ElementalGrimoireChecks.Fixture base;
         final List<Entity> owned=new ArrayList<>();final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
         final boolean skills,levelups;final int trinketLimit;
-        Fixture(GameController game){this.game=game;base=new ElementalGrimoireChecks.Fixture(game,true);skills=game.config().lbcSkills;levelups=game.config().lbcLevelups;trinketLimit=game.config().lbcTrinketLimit;game.config().lbcSkills=false;game.config().lbcLevelups=false;game.config().lbcTrinketLimit=0;base.initialize();}
+        final Map<BlockPos,MapManager.BlockSnapshot> blastBlocks=new LinkedHashMap<>();
+        final boolean mobGriefing,tntExplodes;
+        final int tntProtection;
+        List<Vec3> blastCenters;
+        Cow blastVictim;
+        LbcStonekivi.Work blastJob;
+        BlastPhase blastPhase;
+        Object capturedDamage;
+        int blastPhaseTick,publishedBlasts,capturedCursor,mostBlastsInTick;
+        boolean blastRulesChanged,blastHit,ownsVanity,closed;
+        Fixture(GameController game){this.game=game;base=new ElementalGrimoireChecks.Fixture(game,true);skills=game.config().lbcSkills;levelups=game.config().lbcLevelups;trinketLimit=game.config().lbcTrinketLimit;game.config().lbcSkills=false;game.config().lbcLevelups=false;game.config().lbcTrinketLimit=0;base.initialize();
+            var rules=base.owner.level().getGameRules();
+            mobGriefing=rules.get(GameRules.MOB_GRIEFING);
+            tntExplodes=rules.get(GameRules.TNT_EXPLODES);
+            tntProtection=game.config().tntProtection;
+        }
         ItemStack leaf(LbcImbaCrossbows.Kind kind){var items=game.lbc().rollTable(base.owner.level(),base.owner.position(),base.owner,"lbc:ported/"+kind.id);require(items.size()==1&&items.getFirst().is(kind.item),"canonical native leaf "+kind);return items.getFirst();}
         void clear(){base.owner.stopUsingItem();base.owner.getInventory().clearContent();for(var e:owned){game.items().entityUnloaded(e);e.discard();}owned.clear();base.clear();game.items().magic().inventoryChanged(base.owner);game.items().magic().flushCleansing();base.owner.setYRot(0);base.owner.setXRot(0);base.owner.setDeltaMovement(Vec3.ZERO);}
         Set<Entity> bodies(){var set=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());base.owner.level().getAllEntities().forEach(set::add);return set;}
@@ -60,6 +92,185 @@ public final class ImbaCrossbowChecks {
                 clear();
             }
         }
+        List<LbcStonekivi.Work> queuedBlasts(){
+            return game.items().stonekivi().queuedSnapshot().stream()
+                    .filter(job->job.getClass().getSimpleName().equals("CrossbowBlasts")).toList();
+        }
+        List<ClientboundExplodePacket> blastPackets(){
+            return base.recording.packets.stream().filter(ClientboundExplodePacket.class::isInstance)
+                    .map(ClientboundExplodePacket.class::cast).toList();
+        }
+        void beginBlastQueue(){
+            require(queuedBlasts().isEmpty(),"exclusive crossbow blast queue");
+            require(!game.vanity().busy()&&!game.vanity().capturePreparing()&&!game.vanity().hasSnapshot(),
+                    "exclusive native Vanity point");
+            var owner=base.owner;
+            var level=owner.level();
+            require(!game.items().timeStop().stopped(level),"crossbow fixture starts without time stop");
+            require(owner.teleportTo(level,owner.getX(),Math.floor(owner.getY())+.75,owner.getZ(),Set.of(),0,0,true),
+                    "ray starts above the slab collision shape within the same voxel");
+            require(shoot(LbcImbaCrossbows.Kind.SNIPER,new ItemStack(Items.ARROW)).isEmpty(),
+                    "real sniper volley replaces the native arrow");
+            var traces=game.items().wands().electroSnapshot();
+            require(traces.size()==1,"one actual sniper trace");
+            var trace=traces.getFirst();
+            var direction=Vec3.directionFromRotation(trace.pitch,trace.yaw);
+            var first=BlockPos.containing(trace.position.add(0,0,3));
+            var cells=List.of(first,first.south(),first.offset(0,0,2));
+            var expected=new ArrayList<Vec3>();
+            for(int sample=0;sample<=60;sample++){
+                var point=trace.position.add(direction.scale(sample*.3));
+                var cell=BlockPos.containing(point);
+                require(NativeChunkLoad.resident(level,cell)&&level.getBlockState(cell).isAir(),
+                        "resident empty native ray before adding fixture cells");
+                if(cells.contains(cell))expected.add(point);
+            }
+            blastCenters=List.copyOf(expected);
+            require(blastCenters.size()>8&&blastCenters.size()<=11
+                            &&BlockPos.containing(blastCenters.getFirst()).equals(first)
+                            &&BlockPos.containing(blastCenters.getLast()).equals(cells.getLast()),
+                    "three adjacent blocks give more centers than one native publication tick allows");
+            for(var cell:cells){
+                blastBlocks.put(cell,game.maps().snapshot(level,cell));
+                level.setBlock(cell,Blocks.SMOOTH_STONE_SLAB.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+            }
+            // Check MOB semantics with no collateral block updates and with TNT explicitly unavailable.
+            var rules=level.getGameRules();
+            blastRulesChanged=true;
+            rules.set(GameRules.MOB_GRIEFING,false,game.server());
+            rules.set(GameRules.TNT_EXPLODES,false,game.server());
+            game.config().tntProtection=5;
+            owner.getAbilities().invulnerable=true;
+            blastVictim=new Cow(EntityTypes.COW,level);
+            blastVictim.setNoAi(true);
+            blastVictim.setNoGravity(true);
+            blastVictim.setPos(Vec3.atCenterOf(first).add(4,.25,0));
+            blastVictim.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
+            blastVictim.setHealth(1000);
+            owned.add(blastVictim);
+            require(level.addFreshEntity(blastVictim),"real off-axis explosion target");
+            base.recording.packets.clear();
+            boolean advanced=game.items().erecto().step(trace);
+            var jobs=queuedBlasts();
+            if(jobs.size()==1)blastJob=jobs.getFirst();
+            require(advanced&&blastPackets().isEmpty()&&blastVictim.getHealth()==1000,
+                    "trace accepts the whole segment before native explosions can run");
+            require(blastJob!=null&&blastField(blastJob,"level")==level
+                            &&blastCenters.equals(blastField(blastJob,"centers"))
+                            &&Integer.valueOf(0).equals(blastField(blastJob,"next")),
+                    "one accepted job holds the exact original ordered centers before publication");
+            game.items().wands().stop();
+            game.items().timeStop().begin(level,40);
+            nextBlastPhase(BlastPhase.PAUSED);
+        }
+        void nextBlastPhase(BlastPhase phase){
+            blastPhase=phase;
+            blastPhaseTick=game.server().getTickCount();
+        }
+        void checkBlastPackets(List<ClientboundExplodePacket> packets,int before,int firstCenter){
+            int count=packets.size()-before;
+            int publishedNow=count-publishedBlasts;
+            require(publishedNow>=0&&publishedNow<=8&&count+firstCenter<=blastCenters.size(),
+                    "at most eight native explosions per server tick and no duplicated centers");
+            mostBlastsInTick=Math.max(mostBlastsInTick,publishedNow);
+            for(int index=publishedBlasts;index<count;index++){
+                var packet=packets.get(before+index);
+                require(packet.center().equals(blastCenters.get(firstCenter+index))&&packet.radius()==20,
+                        "native MOB blast has the exact queued center and power");
+            }
+            publishedBlasts=count;
+        }
+        void checkBlastAttribution(){
+            if(blastVictim.getHealth()<1000&&!blastHit){
+                var owner=base.owner;
+                var level=owner.level();
+                var damage=blastVictim.getLastDamageSource();
+                require(damage!=null&&damage.getDirectEntity()==null&&damage.getEntity()==owner
+                                &&damage.typeHolder().equals(level.damageSources().explosion(null,owner).typeHolder()),
+                        "real source-null MOB explosion preserves shooter attribution with TNT disabled and maximum protection");
+                blastHit=true;
+            }
+        }
+        void checkBlastCompletion(){
+            var level=base.owner.level();
+            require(blastHit&&!queuedBlasts().contains(blastJob)&&blastBlocks.keySet().stream()
+                            .allMatch(cell->level.getBlockState(cell).is(Blocks.SMOOTH_STONE_SLAB)),
+                    "all accepted blasts finish, hurt the target, and respect mob griefing");
+        }
+        boolean advanceBlastCheck(){
+            var owner=base.owner;
+            var level=owner.level();
+            var vanity=game.vanity();
+            int elapsed=game.server().getTickCount()-blastPhaseTick;
+            var packets=blastPackets();
+            require(elapsed<1200,"bounded crossbow blast phase "+blastPhase+" at "+vanity.status()
+                    +" with "+packets.size()+" observed native packets");
+            switch(blastPhase){
+                case PAUSED -> {
+                    require(packets.isEmpty()&&blastVictim.getHealth()==1000
+                                    &&Integer.valueOf(0).equals(blastField(blastJob,"next")),
+                            "native world TimeStop suspends the accepted blast queue");
+                    if(elapsed<2)return false;
+                    game.items().timeStop().end(level);
+                    nextBlastPhase(BlastPhase.PREFIX);
+                }
+                case PREFIX -> {
+                    checkBlastPackets(packets,0,0);
+                    checkBlastAttribution();
+                    if(publishedBlasts==0)return false;
+                    capturedCursor=publishedBlasts;
+                    capturedDamage=blastField(blastJob,"damage");
+                    require(capturedCursor<blastCenters.size()&&queuedBlasts().contains(blastJob)
+                                    &&Integer.valueOf(capturedCursor).equals(blastField(blastJob,"next")),
+                            "first active tick leaves an exact nonempty pending suffix beyond the native cap");
+                    // Capture also advances shared work. Hold the precise cursor with the real stopping effect first.
+                    game.items().timeStop().begin(level,10000);
+                    require(vanity.requestCapture(owner,false),"real Vanity coordinator accepts the partial crossbow job");
+                    ownsVanity=true;
+                    nextBlastPhase(BlastPhase.CAPTURE);
+                }
+                case CAPTURE -> {
+                    require(packets.size()==capturedCursor
+                                    &&Integer.valueOf(capturedCursor).equals(blastField(blastJob,"next")),
+                            "capture keeps the partial native cursor without publishing its suffix");
+                    if(vanity.capturePreparing()||vanity.busy()||!vanity.hasSnapshot())return false;
+                    require(game.items().timeStop().stopped(level),"active TimeStop is part of the capture");
+                    game.items().timeStop().end(level);
+                    nextBlastPhase(BlastPhase.ORIGINAL_TAIL);
+                }
+                case ORIGINAL_TAIL -> {
+                    checkBlastPackets(packets,0,0);
+                    checkBlastAttribution();
+                    if(publishedBlasts!=blastCenters.size())return false;
+                    checkBlastCompletion();
+                    require(vanity.requestRestoreForCheck(),"real Vanity restore after the original job retired");
+                    nextBlastPhase(BlastPhase.RESTORE);
+                }
+                case RESTORE -> {
+                    for(var player:game.server().getPlayerList().getPlayers())
+                        if(player.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)
+                            ack.skywars2$acknowledgeRestore();
+                    require(packets.size()==blastCenters.size(),"rewind publishes no native explosions while frozen");
+                    if(vanity.busy())return false;
+                    require(vanity.hasSnapshot()&&game.items().timeStop().stopped(level)
+                                    &&queuedBlasts().equals(List.of(blastJob))
+                                    &&blastCenters.equals(blastField(blastJob,"centers"))
+                                    &&Integer.valueOf(capturedCursor).equals(blastField(blastJob,"next"))
+                                    &&blastField(blastJob,"damage")==capturedDamage,
+                            "Vanity restores the exact shared job, source and partial cursor before publication");
+                    publishedBlasts=0;
+                    game.items().timeStop().end(level);
+                    nextBlastPhase(BlastPhase.REPLAY);
+                }
+                case REPLAY -> {
+                    checkBlastPackets(packets,blastCenters.size(),capturedCursor);
+                    if(publishedBlasts!=blastCenters.size()-capturedCursor)return false;
+                    checkBlastCompletion();
+                    return true;
+                }
+            }
+            return false;
+        }
         void continuous(){
             for(var kind:List.of(LbcImbaCrossbows.Kind.FAST,LbcImbaCrossbows.Kind.GATLING)){
                 var ammo=poison(7);var weapon=equip(kind,ammo);var before=bodies();require(base.owner.gameMode.useItem(base.owner,base.owner.level(),weapon,InteractionHand.MAIN_HAND).consumesAction()&&base.owner.isUsingItem(),"native sustained use "+kind);
@@ -85,7 +296,62 @@ public final class ImbaCrossbowChecks {
                 weapon=equip(kind,poison(3));base.owner.entityTags().add("time_stopped");try{require(!base.owner.gameMode.useItem(base.owner,base.owner.level(),weapon,InteractionHand.MAIN_HAND).consumesAction(),"personal stop rejects "+kind);}finally{base.owner.entityTags().remove("time_stopped");}clear();
             }
         }
-        public void close(){try{clear();}finally{game.config().lbcSkills=skills;game.config().lbcLevelups=levelups;game.config().lbcTrinketLimit=trinketLimit;base.close();}}
+        public void close(){
+            if(closed)return;
+            closed=true;
+            var level=base.owner.level();
+            Throwable failure=null;
+            for(Runnable cleanup:List.<Runnable>of(
+                    ()->{if(ownsVanity)game.vanity().stop();},
+                    ()->{if(blastJob!=null&&queuedBlasts().contains(blastJob))blastJob.cancel();},
+                    ()->{if(blastPhase!=null)game.items().timeStop().end(level);},
+                    ()->blastBlocks.forEach((cell,image)->game.maps().restoreSnapshot(level,cell,image,
+                            Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS)),
+                    this::clear,
+                    ()->{
+                        if(blastRulesChanged){
+                            level.getGameRules().set(GameRules.MOB_GRIEFING,mobGriefing,game.server());
+                            level.getGameRules().set(GameRules.TNT_EXPLODES,tntExplodes,game.server());
+                            game.config().tntProtection=tntProtection;
+                        }
+                        game.config().lbcSkills=skills;
+                        game.config().lbcLevelups=levelups;
+                        game.config().lbcTrinketLimit=trinketLimit;
+                    },
+                    base::close)){
+                try{cleanup.run();}
+                catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+            }
+            if(failure!=null)throw new IllegalStateException("Scoped crossbow fixture cleanup",failure);
+        }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();}SkyWars2.LOGGER.info("[check] PASS imba-crossbows (six canonical native prototypes, Polymer, exact256 pellets, Erecto1/32/4 source traces, native20 source-cell hits/ammo effects, selected infinite draw, held-use input and TECH/TimeStop)");}
+    public static void run(GameController game){
+        require(running==null,"exclusive scheduled fixture");
+        var f=new Fixture(game);
+        try {
+            f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();
+            f.beginBlastQueue();
+            running=f;
+        }catch(RuntimeException|Error failure){
+            try{f.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}
+            throw failure;
+        }
+    }
+    public static void tick(GameController game){
+        var f=running;
+        if(f==null)return;
+        try {
+            require(f.game==game,"same scheduled game");
+            if(!f.advanceBlastCheck())return;
+            running=null;
+            f.close();
+            SkyWars2.LOGGER.info("[check] imba-crossbows blast centers={} savedCursor={} maxPublicationsPerTick={}",
+                    f.blastCenters.size(),f.capturedCursor,f.mostBlastsInTick);
+            SkyWars2.LOGGER.info("[check] PASS imba-crossbows (native volley and ammo, capped queued MOB impacts, TimeStop, attribution and exact Vanity suffix)");
+        }catch(RuntimeException|Error failure){
+            running=null;
+            try{f.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}
+            SkyWars2.LOGGER.error("[check] FAIL imba-crossbows",failure);
+        }
+    }
 }

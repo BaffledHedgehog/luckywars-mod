@@ -44,6 +44,7 @@ public final class LbcExasperato {
     private static final int ORDINARY_REACH = 7 + 8; // Last source plus the diameter of a power-four blast.
     private final GameController game;
     private final NativeChunkLoad.Leases impactLeases = new NativeChunkLoad.Leases(IMPACT_TICKET);
+    NativeChunkLoad.Leases.Area impactArea(ServerLevel level) { return impactLeases.area(level); }
     private final Set<Charge> charges = new LinkedHashSet<>();
     private final ArrayList<Charge> batch = new ArrayList<>();
     private static final int SEARCH_SEGMENT=16, SEARCH_BUDGET=80, SEARCH_HEADROOM_BUDGET=96;
