@@ -18952,6 +18952,7 @@ public final class GameChecks {
                 var looting=enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING);
                 var main=knives.copy(); main.set(DataComponents.CUSTOM_NAME,Component.literal("Main knife fixture"));
                 main.enchant(sharpness,4); main.enchant(looting,100);
+                main.enchant(enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.FLAME),1);
                 var off=knives.copy(); off.set(DataComponents.CUSTOM_NAME,Component.literal("Offhand knife fixture"));
                 var originalMain=main.copyWithCount(1); var originalOff=off.copyWithCount(1);
 
@@ -18993,9 +18994,8 @@ public final class GameChecks {
                         net.minecraft.server.level.ServerLevel level,net.minecraft.world.entity.projectile.arrow.Arrow arrow,
                         ItemStack expected,java.util.List<net.minecraft.world.entity.animal.cow.Cow> mobs,
                         double x,int damage,boolean enchanted) {
-                var victim=new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW,level) {
-                        @Override public long getLootTableSeed() { return 61983; }
-                };
+                var victim=new ArrowLootCow(level,61983);
+                require(arrow.isOnFire()==enchanted,"Only the knife carrying native Flame is burning");
                 victim.setPos(x,286,53.5); victim.setNoGravity(true); victim.setNoAi(true);
                 victim.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
                 victim.setHealth(100);
@@ -19019,6 +19019,58 @@ public final class GameChecks {
                 victim.dropFromLootTable(level,hit,true,lootTable,loot::add);
                 int count=loot.stream().mapToInt(ItemStack::getCount).sum();
                 require(enchanted?count>8:count<=5,"Native cow loot uses the fired knife only: enchanted="+enchanted+" count="+count);
+                if(enchanted) checkNativeArrowBurn(game,owner,victim,expected);
+                else require(victim.getRemainingFireTicks()<=0,"Plain knife leaves the victim unlit");
+        }
+
+        private static final class ArrowLootCow extends net.minecraft.world.entity.animal.cow.Cow {
+                private final long lootSeed;
+                private net.minecraft.world.damagesource.DamageSource lootSource;
+                private int deathLoot;
+
+                ArrowLootCow(net.minecraft.server.level.ServerLevel level,long lootSeed) {
+                        super(net.minecraft.world.entity.EntityTypes.COW,level);
+                        this.lootSeed=lootSeed;
+                }
+
+                @Override public long getLootTableSeed() { return lootSeed; }
+
+                @Override protected void dropFromLootTable(net.minecraft.server.level.ServerLevel level,
+                                net.minecraft.world.damagesource.DamageSource source,boolean playerKilled) {
+                        lootSource=source;
+                        getLootTable().ifPresent(table->dropFromLootTable(level,source,playerKilled,table,
+                                stack->deathLoot+=stack.getCount()));
+                }
+        }
+
+        private static void checkNativeArrowBurn(GameController game,ServerPlayer owner,ArrowLootCow victim,ItemStack weapon) {
+                int duration=victim.getRemainingFireTicks();
+                require(duration==100,"The accepted native arrow hit starts a five-second burn, ticks="+duration);
+                victim.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0);
+                victim.setLastHurtByMob(null);
+                victim.setInvulnerableTime(0);
+                victim.damageCooldownTime=0;
+                victim.setHealth(1);
+                victim.baseTick(); // Real native ON_FIRE pulse at the unmodified 100 remaining ticks.
+                var source=victim.lootSource;
+                require(!victim.isAlive() && source!=null && source.is(net.minecraft.world.damagesource.DamageTypes.ON_FIRE)
+                                && source.getEntity()==null && source.getDirectEntity()==null,
+                        "Flame kills through the native ownerless ON_FIRE tick");
+                var ledger=game.items().indirectKills();
+                var bound=ledger.boundLootWeapon(victim,source);
+                require(ledger.creditedKiller(victim)==owner && bound!=null && ItemStack.matches(weapon,bound)
+                                && victim.deathLoot>8,
+                        "Native Flame death credits the physical shooter and the original Looting stack: loot="+victim.deathLoot);
+        }
+
+        private static Object nativeBurnRecord(GameController game,net.minecraft.world.entity.LivingEntity victim) {
+                try {
+                        var field=LbcIndirectKills.class.getDeclaredField("burning");
+                        field.setAccessible(true);
+                        return ((java.util.Map<?,?>)field.get(game.items().indirectKills())).get(victim);
+                } catch(ReflectiveOperationException error) {
+                        throw new IllegalStateException("Cannot read the native burn record",error);
+                }
         }
 
         private static UUID phantomStopOwner;
@@ -19188,6 +19240,7 @@ public final class GameChecks {
                         var looting = enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING);
                         enchantedPine.enchant(sharpness, 4);
                         enchantedPine.enchant(looting, 100);
+                        enchantedPine.enchant(enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.FLAME),1);
                         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, plainPine);
                         player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, enchantedPine);
                         player.getInventory().setItem(9, new ItemStack(Items.SPRUCE_LEAVES, 1));
@@ -19245,8 +19298,16 @@ public final class GameChecks {
                                         "The plain native arrow cannot borrow Looting from a later held sword");
                         var enchantedTarget = pineLootCow(level, targets, 10.5);
                         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.DIRT));
-                        require(pineLootAfterHit(player, firstOff.getFirst(), enchantedTarget, 20) > 8,
-                                        "The enchanted native offhand arrow retains Looting after both held weapons are gone");
+                        require(firstOff.getFirst().isOnFire() && pineLootAfterHit(player, firstOff.getFirst(), enchantedTarget, 20) > 8,
+                                        "The enchanted native offhand arrow retains Flame and Looting after both held weapons are gone");
+                        checkNativeArrowBurn(game,player,enchantedTarget,enchantedPine);
+                        var longBurn=pineLootCow(level,targets,14.5);
+                        longBurn.setRemainingFireTicks(200);
+                        game.items().indirectKills().ignited(longBurn,ally);
+                        var originalBurn=nativeBurnRecord(game,longBurn);
+                        pineLootAfterHit(player,firstOff.get(1),longBurn,20);
+                        require(longBurn.getRemainingFireTicks()==200 && originalBurn!=null && nativeBurnRecord(game,longBurn)==originalBurn,
+                                        "A shorter Flame arrow hit cannot replace an existing longer burn");
                         var wallArrow = firstMain.get(1);
                         pineWallPos = new net.minecraft.core.BlockPos(12, 282, 52);
                         pineWallState = level.getBlockState(pineWallPos);
@@ -19402,11 +19463,9 @@ public final class GameChecks {
                 return shotWeapon != null && shotWeapon != held && ItemStack.matches(held, shotWeapon);
         }
 
-        private static net.minecraft.world.entity.animal.cow.Cow pineLootCow(net.minecraft.server.level.ServerLevel level,
+        private static ArrowLootCow pineLootCow(net.minecraft.server.level.ServerLevel level,
                         java.util.List<net.minecraft.world.entity.animal.cow.Cow> targets, double x) {
-                var cow = new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW, level) {
-                        @Override public long getLootTableSeed() { return 1L; }
-                };
+                var cow = new ArrowLootCow(level,1L);
                 cow.setPos(x, 282, 53.5);
                 cow.setNoAi(true);
                 cow.setNoGravity(true);

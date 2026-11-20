@@ -1,20 +1,27 @@
 package me.skywars2.mixin;
 
 import me.skywars2.SkyWars2;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import me.skywars2.game.LbcAcceptedHits;
 import me.skywars2.game.ProjectileLifetimes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
 /** Отсекаем защищённые цели до нативного onHitEntity, который сначала поджигает цель. */
@@ -110,6 +117,33 @@ public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownU
     /** Облако использует физику стрелы; до native tick запрещаем движение при time-stop и в выгруженный чанк. */
     @Mixin(net.minecraft.world.entity.projectile.arrow.AbstractArrow.class)
     public static abstract class Cloud {
+        @ModifyExpressionValue(method="onHitEntity",at=@At(value="INVOKE",
+                target="Lnet/minecraft/world/entity/Entity;getRemainingFireTicks()I"))
+        private int skywars2$beforeArrowFire(int ticks,@Share("skywars2$arrowPriorFire") LocalIntRef priorFire) {
+            priorFire.set(ticks);
+            return ticks;
+        }
+
+        @WrapOperation(method="onHitEntity",at=@At(value="INVOKE",
+                target="Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
+        private boolean skywars2$acceptedArrowFire(Entity target,DamageSource source,float amount,
+                Operation<Boolean> original,@Share("skywars2$arrowAcceptedSource") LocalRef<DamageSource> accepted) {
+            boolean hit=original.call(target,source,amount);
+            if(hit)accepted.set(source);
+            return hit;
+        }
+
+        // Wait for native post-attack effects, including Fire Aspect, before measuring the burn.
+        @Inject(method="onHitEntity",at=@At("RETURN"))
+        private void skywars2$arrowBurnOwner(EntityHitResult hit,CallbackInfo ci,
+                @Share("skywars2$arrowPriorFire") LocalIntRef priorFire,
+                @Share("skywars2$arrowAcceptedSource") LocalRef<DamageSource> accepted) {
+            var source=accepted.get();
+            var game=SkyWars2.game();
+            if(source!=null && game!=null && hit.getEntity() instanceof LivingEntity target)
+                game.items().shooters().arrowIgnited(target,source,priorFire.get());
+        }
+
         @WrapOperation(method = "onHitEntity", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"))
         private void skywars2$arrowFeedback(ServerGamePacketListenerImpl connection, Packet<?> packet, Operation<Void> original) {

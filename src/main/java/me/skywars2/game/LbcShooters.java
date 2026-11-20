@@ -107,10 +107,22 @@ public final class LbcShooters {
     }
     static ItemStack arrowLootWeapon(Entity direct){
         if(direct instanceof HelicopterArrow arrow)return arrow.getWeaponItem();
-        if(!(direct instanceof Arrow arrow) || !arrow.entityTags().contains(PROJECTILE_TAG)
-                && !arrow.entityTags().contains(PHANTOM_PROJECTILE_TAG))return null;
+        if(!(direct instanceof Arrow arrow) || !handArrow(arrow))return null;
         var weapon=arrow.getWeaponItem();
         return weapon==null?ItemStack.EMPTY:weapon;
+    }
+    private static boolean handArrow(Arrow arrow) {
+        return arrow.entityTags().contains(PROJECTILE_TAG) || arrow.entityTags().contains(PHANTOM_PROJECTILE_TAG);
+    }
+    public void arrowIgnited(LivingEntity target,DamageSource source,int priorFireTicks) {
+        if(target.getRemainingFireTicks()<=priorFireTicks || !target.isAlive()
+                || !(source.getDirectEntity() instanceof Arrow arrow) || !handArrow(arrow)
+                || !(source.getEntity() instanceof ServerPlayer owner)
+                || LbcSpellSource.unownedHazard(arrow) || game.items().spellSources().lootProjectile(arrow))return;
+        var kills=game.items().indirectKills();
+        var weapon=arrowLootWeapon(arrow);
+        // Physical arrows can hit teammates in SkyWars; BedWars keeps its own allegiance rule.
+        kills.inheritedIgnited(target,kills.itemCause(owner,!LbcBedwarsHarm.active(),true,weapon));
     }
     static boolean cloneRecognizes(Entity entity){return entity instanceof HelicopterArrow;}
     LbcCloneSkills.ActorImage cloneImage(Entity entity){
