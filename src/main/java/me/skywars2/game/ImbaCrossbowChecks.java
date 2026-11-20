@@ -5,8 +5,13 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
@@ -38,6 +43,7 @@ public final class ImbaCrossbowChecks {
     private static Fixture running;
     private enum BlastPhase { PAUSED, PREFIX, CAPTURE, ORIGINAL_TAIL, RESTORE, REPLAY }
     private record CollectorRun(List<?> positions,long nextLong,int nextInt,long nanos){}
+    private record BeamPackets(long riptide,long soulPackets,int soulParticles){}
     static void require(boolean value,String why){if(!value)throw new IllegalStateException("IMBA crossbows: "+why);}
     private static Object blastField(LbcStonekivi.Work job,String name){
         try {
@@ -65,6 +71,19 @@ public final class ImbaCrossbowChecks {
             }
         });
         return result[0];
+    }
+
+    private static void flatten(Packet<?> packet,List<Packet<?>> result){
+        if(packet instanceof ClientboundBundlePacket bundle)bundle.subPackets().forEach(child->flatten(child,result));
+        else result.add(packet);
+    }
+    private static BeamPackets beamPackets(List<Packet<?>> wire,int first){
+        var packets=new ArrayList<Packet<?>>();wire.subList(first,wire.size()).forEach(packet->flatten(packet,packets));
+        long sounds=packets.stream().filter(packet->packet instanceof ClientboundSoundPacket sound
+                &&sound.getSound().value().location().toString().equals("minecraft:item.trident.riptide_3")).count();
+        var souls=packets.stream().filter(packet->packet instanceof ClientboundLevelParticlesPacket particles
+                &&particles.particle().getType()==ParticleTypes.SCULK_SOUL).map(ClientboundLevelParticlesPacket.class::cast).toList();
+        return new BeamPackets(sounds,souls.size(),souls.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum());
     }
 
     private static final class Fixture implements AutoCloseable {
@@ -182,6 +201,74 @@ public final class ImbaCrossbowChecks {
             shooter.setItemInHand(InteractionHand.MAIN_HAND,weapon);
             weapon.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
             return weapon;
+        }
+        void superBeamPackets(){
+            var owner=base.owner;var level=owner.level();var wands=game.items().wands();var stone=game.items().stonekivi();
+            var other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
+            require(other!=null&&other.level()==level,"second native listener for the same SUPER volley");
+            var traces=(Collection<?>)WoolBucketChecks.read(wands,"electroTraces");
+            var queue=(Collection<?>)WoolBucketChecks.read(stone,"work");
+            var originalJobs=stone.queuedSnapshot();
+            require(traces.isEmpty()&&!game.items().timeStop().stopped(level),"exclusive unpaused SUPER packet frame");
+            var cell=BlockPos.containing(owner.position().add(0,12,0));var contact=Vec3.atCenterOf(cell);
+            require(NativeChunkLoad.resident(level,cell)&&level.getBlockState(cell).isAir(),"resident empty SUPER packet witness");
+            int flags=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
+            var previousBlock=game.maps().snapshot(level,cell);var previousWeapon=owner.getMainHandItem();
+            var observerAt=other.position();var observerVelocity=other.getDeltaMovement();
+            var stat=Stats.ITEM_USED.get(LbcImbaCrossbows.Kind.SUPER.item);int used=owner.getStats().getValue(stat);
+            var ownerRandom=MatchRandomState.capture(owner.getRandom());var worldRandom=MatchRandomState.capture(level.getRandom());
+            try(var audience=new RegenerationBeltChecks.ScheduledClient(game,other)){
+                var ahead=Vec3.directionFromRotation(owner.getXRot(),owner.getYRot());
+                other.setPos(contact.subtract(ahead.scale(3)));
+                require(level.setBlock(cell,Blocks.OBSIDIAN.defaultBlockState(),flags),"native SUPER packet obsidian witness");
+                owner.getRandom().setSeed(0x5355504552L);level.getRandom().setSeed(0x534F554E44L);
+                var weapon=chargedSuper(owner);
+                require(owner.gameMode.useItem(owner,level,weapon,InteractionHand.MAIN_HAND).consumesAction(),"real charged SUPER packet witness");
+                var volley=wands.electroSnapshot();
+                require(volley.size()==32,"one native SUPER creates all 32 beam paths before its presentation frame");
+                var direction=new ArrayList<Vec3>();
+                for(var trace:volley){
+                    require(trace.owner==owner&&trace.position.equals(owner.position()),"SUPER preserves the native launch source");
+                    direction.add(Vec3.directionFromRotation(trace.pitch,trace.yaw));trace.position=contact;
+                }
+                var stepOwnerRng=MatchRandomState.capture(owner.getRandom());
+                var stepWorldRng=MatchRandomState.capture(level.getRandom());
+                for(int i=0;i<32*61;i++)if(level.getRandom().nextBoolean())owner.getRandom().nextLong();
+                long expectedOwnerNext=owner.getRandom().nextLong(),expectedWorldNext=level.getRandom().nextLong();
+                stepOwnerRng.restore(owner.getRandom());stepWorldRng.restore(level.getRandom());
+                int ownFirst=base.recording.packets.size(),otherFirst=audience.packets().size(),explosions=blastPackets().size();
+                wands.tick();
+                boolean ownerRngMatches=owner.getRandom().nextLong()==expectedOwnerNext;
+                boolean worldRngMatches=level.getRandom().nextLong()==expectedWorldNext;
+                var ownBeam=beamPackets(base.recording.packets,ownFirst);var otherBeam=beamPackets(audience.packets(),otherFirst);
+                SkyWars2.LOGGER.info("[check] imba-crossbows SUPER packet sample nativePaths={} shooter={} nearbyListener={} ownerRng={} worldRng={}",
+                        volley.size(),ownBeam,otherBeam,ownerRngMatches,worldRngMatches);
+                require(ownerRngMatches&&worldRngMatches,"source sample rolls and discarded packet seeds leave both native RNG states exact");
+                require(new HashSet<>(direction).size()>1&&wands.electroSnapshot().equals(volley)
+                                &&stone.queuedSnapshot().size()==originalJobs.size()+32&&blastPackets().size()==explosions,
+                        "one actual SUPER frame advances all launch paths and queues all contacts without inline explosions");
+                for(int i=0;i<volley.size();i++){
+                    var trace=volley.get(i);var job=trace.erecto.pendingBlasts;
+                    require(trace.position.distanceToSqr(contact.add(direction.get(i).scale(18)))<1e-10
+                                    &&job!=null&&job.next==0&&job.centers.getFirst().equals(contact),
+                            "each beam retains its own full original trajectory and first exact contact");
+                }
+                for(var sample:List.of(ownBeam,otherBeam)){
+                    require(sample.riptide()==1,"one original audible riptide sample per listener for the full native volley: "+sample);
+                    require(sample.soulPackets()>0&&sample.soulPackets()<320&&sample.soulParticles()==960,
+                            "SCULK_SOUL uses fewer logical packets and preserves all source particles per listener: "+sample);
+                }
+            }finally{
+                for(var trace:wands.electroSnapshot()){
+                    if(trace.erecto!=null&&trace.erecto.pendingBlasts!=null){var job=trace.erecto.pendingBlasts;queue.remove(job);job.cancel();}
+                    traces.remove(trace);
+                }
+                other.setPos(observerAt);other.setDeltaMovement(observerVelocity);
+                owner.setItemInHand(InteractionHand.MAIN_HAND,previousWeapon);owner.getStats().setValue(owner,stat,used);
+                game.maps().restoreSnapshot(level,cell,previousBlock,flags);
+                ownerRandom.restore(owner.getRandom());worldRandom.restore(level.getRandom());
+            }
+            require(stone.queuedSnapshot().equals(originalJobs),"SUPER packet measurement only retires its own native work");
         }
         void concurrentSuperVolleys(){
             try(var probe=new SuperIntake()){
@@ -670,7 +757,7 @@ public final class ImbaCrossbowChecks {
         require(running==null,"exclusive scheduled fixture");
         var f=new Fixture(game);
         try {
-            f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();f.collectorParity();f.concurrentSuperVolleys();
+            f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();f.collectorParity();f.superBeamPackets();f.concurrentSuperVolleys();
             f.coldIntake=f.new ColdIntake();f.coldIntake.begin();
             running=f;
         }catch(RuntimeException|Error failure){

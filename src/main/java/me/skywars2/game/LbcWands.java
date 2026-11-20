@@ -1495,7 +1495,8 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         boolean legacyStopped=legacyTimeStopped();
         electroBatch.addAll(electroTraces);
-        try {
+        var erecto=game.items().erecto();
+        try(var sniperEffects=new LbcErecto.SniperEffects()){
             for(var trace:electroBatch) {
                 if(!electroTraces.contains(trace)) continue;
                 if(!LbcBedwarsRoleGuards.canEmitFrom(trace.npcSource)||!LbcBedwarsRoleGuards.canEmitFrom(trace.explicitEmitter)||!LbcBedwarsRoleGuards.canEmit(trace.sourcePolicy,trace.level)){electroTraces.remove(trace);continue;}
@@ -1520,7 +1521,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
                         trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
                     }
                     if(!trace.level.hasChunkAt(BlockPos.containing(trace.position))
-                            || (trace.erecto!=null ? !game.items().erecto().step(trace) : trace.teslaChain&&trace.age%5!=0 ? false : !electroStep(trace)) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
+                            || (trace.erecto!=null ? !erecto.step(trace,sniperEffects) : trace.teslaChain&&trace.age%5!=0 ? false : !electroStep(trace)) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
                 }
             }
         } finally { electroBatch.clear(); }

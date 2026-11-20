@@ -1,14 +1,18 @@
 package me.skywars2.game;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -45,6 +49,71 @@ final class LbcErecto {
     private static final long CROSSBOW_BLAST_BUDGET_NANOS=4_000_000;
     private static final int CROSSBOW_BLAST_RADIUS=20;
     private static final int CROSSBOW_BLAST_REACH=2*CROSSBOW_BLAST_RADIUS+2;
+    /** Merge a tick of sniper effects without altering any of the sampled paths. */
+    static final class SniperEffects implements AutoCloseable {
+        private static final Holder<SoundEvent> RIPTIDE=Holder.direct(
+                SoundEvent.createVariableRangeEvent(Identifier.withDefaultNamespace("item.trident.riptide_3")));
+        private static final float VOLUME=.1f;
+        private static final double SOUND_RANGE_SQUARED=Math.pow(RIPTIDE.value().getRange(VOLUME),2);
+        private final Map<ServerLevel,WorldEffects> worlds=new LinkedHashMap<>();
+
+        private record SoundSample(Vec3 point,long seed,double distanceSquared){}
+        private static final class Listener {
+            final ServerPlayer player;
+            final Vec3 viewpoint;
+            final Map<ServerPlayer,SoundSample> nearest=new LinkedHashMap<>();
+
+            Listener(ServerPlayer player){
+                this.player=player;
+                viewpoint=LbcFpvDrone.viewpoint(player);
+            }
+
+            void offer(ServerPlayer owner,Vec3 point,long seed){
+                double distance=viewpoint.distanceToSqr(point);
+                if(distance>SOUND_RANGE_SQUARED)return;
+                var current=nearest.get(owner);
+                if(current==null||distance<current.distanceSquared)nearest.put(owner,new SoundSample(point,seed,distance));
+            }
+        }
+        private static final class WorldEffects {
+            final ServerLevel level;
+            final Map<BlockPos,LbcParticleBatch.Group> souls=new LinkedHashMap<>();
+            final ArrayList<Listener> listeners=new ArrayList<>();
+
+            WorldEffects(ServerLevel level){
+                this.level=level;
+                for(var player:level.getServer().getPlayerList().getPlayers())
+                    if(player.level()==level)listeners.add(new Listener(player));
+            }
+        }
+
+        void sound(ServerLevel level,ServerPlayer owner,Vec3 point,long seed){
+            for(var listener:worlds.computeIfAbsent(level,WorldEffects::new).listeners)listener.offer(owner,point,seed);
+        }
+
+        void soul(ServerLevel level,Vec3 point){
+            // A half-block cell bounds the variance of overlapping Gaussian clouds.
+            var cell=BlockPos.containing(point.x*2,point.y*2,point.z*2);
+            var world=worlds.computeIfAbsent(level,WorldEffects::new);
+            world.souls.computeIfAbsent(cell,key->new LbcParticleBatch.Group(level,
+                    ParticleTypes.SCULK_SOUL,.1,0,true,.87,8)).add(point,3);
+        }
+
+        @Override public void close(){
+            for(var world:worlds.values()){
+                for(var souls:world.souls.values())souls.close();
+                for(var listener:world.listeners){
+                    if(listener.player.level()!=world.level||listener.player.isRemoved())continue;
+                    for(var sample:listener.nearest.values()){
+                        var point=sample.point;
+                        listener.player.connection.send(new ClientboundSoundPacket(RIPTIDE,
+                                SoundSource.MASTER,point.x,point.y,point.z,VOLUME,2,sample.seed));
+                    }
+                }
+            }
+        }
+    }
+
     static final class Path {
         final int kind,focusSteps;final Vec3 origin;final ServerPlayer caster;final InteractionHand hand;final ItemStack stack;
         Vec3 focus;int side;LbcIndirectKills.Owner terrainCause;LbcBeamAmmo ammunition;
@@ -226,7 +295,10 @@ final class LbcErecto {
         if(kind==LbcImbaCrossbows.Kind.SNIPER)rotate(owner,owner.getLookAngle(),-15);
     }
     boolean step(LbcWands.ElectroTrace trace){
-        Path p=trace.erecto;if(p.kind==SNIPER||p.kind==CROSSBOW)return sniper(trace);
+        try(var effects=new SniperEffects()){return step(trace,effects);}
+    }
+    boolean step(LbcWands.ElectroTrace trace,SniperEffects effects){
+        Path p=trace.erecto;if(p.kind==SNIPER||p.kind==CROSSBOW)return sniper(trace,effects);
         double spacing=p.kind==SIDE?.25:p.kind==PHANTOM?.2:.5;int samples=p.kind==SIDE?9:p.kind==PHANTOM?10:4;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean clear=true;
         var shield=p.kind==PHANTOM?game.items().wands().shieldHit(trace.owner,from,from.add(direction.scale(samples*spacing))):null;
@@ -292,12 +364,14 @@ final class LbcErecto {
             e.hurtServer(level,damage,8);level.sendParticles(ParticleTypes.END_ROD,e.getX(),e.getY()+1,e.getZ(),3,.3,.6,.3,.2);
         }
     }
-    private boolean sniper(LbcWands.ElectroTrace trace){
+    private boolean sniper(LbcWands.ElectroTrace trace,SniperEffects effects){
         boolean crossbow=trace.erecto.kind==CROSSBOW;
         if(crossbow&&trace.erecto.pendingBlasts!=null)return true;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean alive=true,emitted=false;
         double mechanismDistance=game.items().magic().mechanismSuppressionFraction(trace.level,from,from.add(direction.scale(18)))*18;
         var particle=crossbow?CROSSBOW_DUST:SNIPER_DUST;
+        double yawRadians=Math.toRadians(trace.yaw);
+        var right=new Vec3(Math.cos(yawRadians),0,Math.sin(yawRadians));
         ArrayList<Vec3> centers=null;
         try (var dust = new LbcParticleBatch.Group(trace.level,particle,.1,.1,.1,0,true,.31,game.balanceLegacy()?1:3)) {
             for(int i=0;i<=60;i++){
@@ -305,11 +379,13 @@ final class LbcErecto {
                 Vec3 point=from.add(direction.scale(i*.3));var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){alive=false;break;}
                 emitted=true;end=point;
                 dust.add(point);
+                // Keep both original RNG draws in the trace loop, even when the
+                // sample has no listener or is represented by a nearer sound.
                 if(trace.level.getRandom().nextBoolean())
-                    LbcOverload.sound(trace.owner,point,"minecraft:item.trident.riptide_3",.1f,2,0);
+                    effects.sound(trace.level,trace.owner,point,trace.owner.getRandom().nextLong());
                 if((i+1)%12==0){
-                    Vec3 right=new Vec3(Math.cos(Math.toRadians(trace.yaw)),0,Math.sin(Math.toRadians(trace.yaw)));
-                    for(int sign:new int[]{-1,1}){var at=point.add(right.scale(sign));trace.level.sendParticles(ParticleTypes.SCULK_SOUL,true,false,at.x,at.y,at.z,3,.1,.1,.1,0);}
+                    effects.soul(trace.level,point.subtract(right));
+                    effects.soul(trace.level,point.add(right));
                 }
                 if(!trace.level.getBlockState(pos).is(AIRS)){
                     if(crossbow){
