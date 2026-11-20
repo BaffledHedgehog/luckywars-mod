@@ -31,6 +31,29 @@ final class NativeChunkLoad {
 
     enum Residency { WAITING, READY, FAILED }
 
+    /** Limits new cold submissions. Completed and released requests stop occupying capacity. */
+    static final class ColdRequests {
+        private final int perTick, maxPending;
+        private final Set<Leases.Lease> pending = new LinkedHashSet<>();
+        private int tick = Integer.MIN_VALUE, started;
+
+        ColdRequests(int perTick, int maxPending) {
+            this.perTick = perTick;
+            this.maxPending = maxPending;
+        }
+
+        private boolean admit(int now) {
+            if (tick != now) {
+                tick = now;
+                started = 0;
+                pending.removeIf(lease -> lease.load.isDone());
+            }
+            if (started >= perTick || pending.size() >= maxPending) return false;
+            started++;
+            return true;
+        }
+    }
+
     /** A service owns one native ticket type. Its overlapping footprints share each ticket. */
     static final class Leases {
         private final TicketType type;
@@ -42,9 +65,23 @@ final class NativeChunkLoad {
 
         private static final class Lease {
             CompletableFuture<?> load;
+            ColdRequests coldRequests;
             int holders = 1, retryTick = Integer.MIN_VALUE;
 
-            Lease(CompletableFuture<?> load) { this.load = load; }
+            Lease(CompletableFuture<?> load, ColdRequests coldRequests) {
+                replaceLoad(load, coldRequests);
+            }
+
+            void replaceLoad(CompletableFuture<?> load, ColdRequests coldRequests) {
+                releaseRequest();
+                this.load = load;
+                this.coldRequests = coldRequests;
+                if (coldRequests != null && !load.isDone()) coldRequests.pending.add(this);
+            }
+
+            void releaseRequest() {
+                if (coldRequests != null) coldRequests.pending.remove(this);
+            }
         }
 
         final class Area implements AutoCloseable {
@@ -56,40 +93,52 @@ final class NativeChunkLoad {
             boolean empty() { return held.isEmpty(); }
 
             Residency resident(Vec3 point, int reach) {
+                return resident(point, reach, null);
+            }
+
+            Residency resident(Vec3 point, int reach, ColdRequests coldRequests) {
                 var pos = BlockPos.containing(point);
                 var result = Residency.READY;
                 var wanted = new LinkedHashSet<ChunkPos>();
                 var source = level.getChunkSource();
+                int now = level.getServer().getTickCount();
                 for (int x = (pos.getX() - reach) >> 4; x <= (pos.getX() + reach) >> 4; x++) {
                     for (int z = (pos.getZ() - reach) >> 4; z <= (pos.getZ() + reach) >> 4; z++) {
                         var chunk = new ChunkPos(x, z);
                         wanted.add(chunk);
-                        var lease = acquire(chunk);
-                        if (source.getChunkNow(x, z) != null) continue;
+                        boolean warm = coldRequests != null && source.getChunkNow(x, z) != null;
+                        var shared = coldRequests == null || warm ? null : leases.get(level);
+                        boolean newCold = coldRequests != null && !warm && (shared == null || !shared.containsKey(chunk));
+                        if (newCold && !coldRequests.admit(now)) {
+                            result = Residency.WAITING;
+                            continue;
+                        }
+                        var lease = acquire(chunk, newCold ? coldRequests : null);
+                        if (warm || source.getChunkNow(x, z) != null) continue;
                         result = Residency.WAITING;
                         if (!failed(lease.load)) continue;
-                        int now = level.getServer().getTickCount();
                         // Give vanilla one frame after reissue even if the scheduler revisits this wait.
                         if (lease.retryTick == now) continue;
                         if (lease.retryTick != Integer.MIN_VALUE) return Residency.FAILED;
+                        if (coldRequests != null && !coldRequests.admit(now)) continue;
                         lease.retryTick = now;
                         source.removeTicketWithRadius(type, chunk, 0);
-                        lease.load = source.addTicketAndLoadWithRadius(type, chunk, 0);
+                        lease.replaceLoad(source.addTicketAndLoadWithRadius(type, chunk, 0), coldRequests);
                     }
                 }
                 for (var previous : List.copyOf(held)) if (!wanted.contains(previous)) release(previous);
                 return result;
             }
 
-            void hold(ChunkPos chunk) { acquire(chunk); }
+            void hold(ChunkPos chunk) { acquire(chunk, null); }
 
-            private Lease acquire(ChunkPos chunk) {
+            private Lease acquire(ChunkPos chunk, ColdRequests coldRequests) {
                 var chunks = leases.computeIfAbsent(level, ignored -> new LinkedHashMap<>());
                 var lease = chunks.get(chunk);
                 if (!held.add(chunk)) return lease;
                 if (lease != null) lease.holders++;
                 else {
-                    lease = new Lease(level.getChunkSource().addTicketAndLoadWithRadius(type, chunk, 0));
+                    lease = new Lease(level.getChunkSource().addTicketAndLoadWithRadius(type, chunk, 0), coldRequests);
                     chunks.put(chunk, lease);
                 }
                 return lease;
@@ -98,7 +147,9 @@ final class NativeChunkLoad {
             private void release(ChunkPos chunk) {
                 if (!held.remove(chunk)) return;
                 var chunks = leases.get(level);
-                if (--chunks.get(chunk).holders == 0) {
+                var lease = chunks.get(chunk);
+                if (--lease.holders == 0) {
+                    lease.releaseRequest();
                     chunks.remove(chunk);
                     level.getChunkSource().removeTicketWithRadius(type, chunk, 0);
                 }

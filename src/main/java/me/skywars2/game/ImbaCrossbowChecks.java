@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -22,8 +23,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.effect.*;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ServerExplosion;
+import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -77,6 +80,7 @@ public final class ImbaCrossbowChecks {
         BlastPhase blastPhase;
         Object capturedDamage;
         int blastPhaseTick,publishedBlasts,capturedCursor,mostBlastsInTick;
+        ColdIntake coldIntake;
         boolean blastRulesChanged,blastHit,ownsVanity,closed;
         Fixture(GameController game){this.game=game;base=new ElementalGrimoireChecks.Fixture(game,true);skills=game.config().lbcSkills;levelups=game.config().lbcLevelups;trinketLimit=game.config().lbcTrinketLimit;game.config().lbcSkills=false;game.config().lbcLevelups=false;game.config().lbcTrinketLimit=0;base.initialize();
             var rules=base.owner.level().getGameRules();
@@ -171,7 +175,10 @@ public final class ImbaCrossbowChecks {
             }
         }
         ItemStack chargedSuper(ServerPlayer shooter){
-            var weapon=leaf(LbcImbaCrossbows.Kind.SUPER);
+            return chargedCrossbow(shooter,LbcImbaCrossbows.Kind.SUPER);
+        }
+        ItemStack chargedCrossbow(ServerPlayer shooter,LbcImbaCrossbows.Kind kind){
+            var weapon=leaf(kind);
             shooter.setItemInHand(InteractionHand.MAIN_HAND,weapon);
             weapon.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
             return weapon;
@@ -307,6 +314,130 @@ public final class ImbaCrossbowChecks {
                 game.maps().restoreSnapshot(level,cell,previousBlock,flags);
                 require(wands.electroSnapshot().equals(oldTraces)&&stone.queuedSnapshot().equals(oldJobs),
                         "SUPER intake fixture retires only its own traces and queued jobs");
+            }
+        }
+        final class ColdIntake implements AutoCloseable {
+            final ServerPlayer owner=base.owner;
+            final ServerLevel level=owner.level();
+            final LbcWands wands=game.items().wands();
+            final LbcStonekivi stone=game.items().stonekivi();
+            final Collection<?> traceStore=(Collection<?>)WoolBucketChecks.read(wands,"electroTraces");
+            final Collection<?> queue=(Collection<?>)WoolBucketChecks.read(stone,"work");
+            final TicketStorage storage=(TicketStorage)WoolBucketChecks.read(level.getChunkSource(),"ticketStorage");
+            final TicketType ticket=(TicketType)WoolBucketChecks.read(game.items().exasperato(),"IMPACT_TICKET");
+            final Map<BlockPos,MapManager.BlockSnapshot> witnesses=new LinkedHashMap<>();
+            final List<LbcWands.ElectroTrace> traces=new ArrayList<>();
+            final Stat<Item> sniperStat=Stats.ITEM_USED.get(LbcImbaCrossbows.Kind.SNIPER.item);
+            final int shotsUsed=owner.getStats().getValue(sniperStat),started=game.server().getTickCount();
+            final ItemStack previousWeapon=owner.getMainHandItem();
+            final float pitch=owner.getXRot(),yaw=owner.getYRot();
+            final boolean invulnerable=owner.getAbilities().invulnerable;
+            final boolean oldMobGriefing=level.getGameRules().get(GameRules.MOB_GRIEFING);
+            final int flags=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
+            final Set<ChunkPos> footprint=new LinkedHashSet<>(),coldChunks=new LinkedHashSet<>();
+            Set<ChunkPos> firstStarts=Set.of(),initialTickets=Set.of();
+            LbcErecto.CrossbowBlasts cold,overlap,warm;
+            boolean checkedSecondTick;
+
+            Set<ChunkPos> footprint(Vec3 center,int reach){
+                var pos=BlockPos.containing(center);var result=new LinkedHashSet<ChunkPos>();
+                for(int x=(pos.getX()-reach)>>4;x<=(pos.getX()+reach)>>4;x++)
+                    for(int z=(pos.getZ()-reach)>>4;z<=(pos.getZ()+reach)>>4;z++)result.add(new ChunkPos(x,z));
+                return result;
+            }
+            boolean resident(ChunkPos pos){return level.getChunkSource().getChunkNow(pos.x(),pos.z())!=null;}
+            Set<ChunkPos> tickets(Collection<ChunkPos> chunks){
+                var result=new LinkedHashSet<ChunkPos>();
+                for(var chunk:chunks)if(storage.getTickets(chunk.pack()).stream().anyMatch(t->t.getType()==ticket))result.add(chunk);
+                return result;
+            }
+            BlockPos coldEdge(int y){
+                var home=ChunkPos.containing(owner.blockPosition());
+                for(int radius=1;radius<=24;radius++)for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++){
+                    if(dx==0&&dz==0)continue;
+                    var chunk=new ChunkPos(home.x()+dx*radius,home.z()+dz*radius);
+                    var cell=new BlockPos((chunk.x()<<4)+8,y,(chunk.z()<<4)+8);
+                    if(resident(chunk)&&level.getBlockState(cell).isAir()
+                            &&footprint(Vec3.atCenterOf(cell),42).stream().filter(pos->!resident(pos)).count()>16)return cell;
+                }
+                throw new IllegalStateException("IMBA crossbows: no genuinely cold footprint on the resident arena edge");
+            }
+            void witness(BlockPos cell){
+                require(NativeChunkLoad.resident(level,cell)&&level.getBlockState(cell).isAir(),"resident empty cold-load fixture witness");
+                witnesses.put(cell,game.maps().snapshot(level,cell));
+                require(level.setBlock(cell,Blocks.OBSIDIAN.defaultBlockState(),flags),"place bounded cold-load fixture witness");
+            }
+            LbcErecto.CrossbowBlasts stageContact(BlockPos cell){
+                int existing=wands.electroSnapshot().size();var weapon=chargedCrossbow(owner,LbcImbaCrossbows.Kind.SNIPER);
+                boolean fired=owner.gameMode.useItem(owner,level,weapon,InteractionHand.MAIN_HAND).consumesAction();
+                var beams=wands.electroSnapshot();traces.addAll(beams.subList(existing,beams.size()));
+                require(fired&&beams.size()==existing+1,"actual native sniper accepts exactly one cold-load fixture trace");
+                var trace=beams.getLast();var contact=Vec3.atCenterOf(cell);trace.position=contact;
+                game.items().erecto().step(trace);
+                var job=trace.erecto.pendingBlasts;
+                require(job!=null&&job.next==0&&job.centers.getFirst().equals(contact),"actual contact queues a still unpublished native blast segment");
+                footprint.addAll(footprint(job.footprint,job.reach));
+                return job;
+            }
+            void begin(){
+                require(queuedBlasts().isEmpty()&&!game.items().timeStop().stopped(level),"exclusive cold-load comparison");
+                var nearby=BlockPos.containing(owner.position().add(0,12,0));var edge=coldEdge(nearby.getY());
+                witness(edge);witness(nearby);
+                owner.getAbilities().invulnerable=true;
+                level.getGameRules().set(GameRules.MOB_GRIEFING,false,game.server());
+                cold=stageContact(edge);overlap=stageContact(edge);warm=stageContact(nearby);
+                require(queuedBlasts().equals(List.of(cold,overlap,warm))&&footprint(warm.footprint,warm.reach).stream().allMatch(this::resident),
+                        "two cold jobs precede a fully resident warm peer in the real queue");
+                initialTickets=tickets(footprint);
+                for(var pos:footprint)if(!resident(pos)&&!initialTickets.contains(pos))coldChunks.add(pos);
+                require(coldChunks.size()>16,"fixture has more than two frames of unique cold native chunks");
+
+                stone.tick();
+                firstStarts=tickets(coldChunks);
+                for(int pass=0;pass<6&&warm.next==0;pass++)stone.tick();
+                require(!firstStarts.isEmpty()&&firstStarts.size()<=8&&tickets(coldChunks).size()<=8&&cold.next==0&&overlap.next==0,
+                        "at most eight distinct real cold tickets start in one tick, including same-tick revisits (first="+firstStarts.size()
+                                +", current="+tickets(coldChunks).size()+", eligible="+coldChunks.size()+")");
+                require(warm.next>0&&blastPackets().stream().anyMatch(p->p.center().equals(warm.centers.getFirst())),
+                        "an already resident peer publishes a real native explosion while both cold jobs wait");
+                firstStarts=tickets(coldChunks);
+            }
+            boolean nextTick(){
+                int elapsed=game.server().getTickCount()-started;
+                if(elapsed==0)return false;
+                if(checkedSecondTick){
+                    require(elapsed<200,"queued overlap receives a native FULL footprint within 200 ticks");
+                    if(overlap.path.pendingBlasts!=null)return false;
+                    require(overlap.next==overlap.centers.size(),
+                            "surviving overlap publishes every accepted center after cold chunks arrive");
+                    require(tickets(footprint).equals(initialTickets),"completed footprints release every new native ticket");
+                    return true;
+                }
+                var secondStarts=tickets(coldChunks);secondStarts.removeAll(firstStarts);
+                if(secondStarts.isEmpty()){
+                    stone.tick();secondStarts=tickets(coldChunks);secondStarts.removeAll(firstStarts);
+                }
+                require(!secondStarts.isEmpty()&&secondStarts.size()<=8&&cold.next==0&&overlap.next==0,
+                        "a later actual tick admits the next bounded set of cold chunks without publishing partial work (new="+secondStarts.size()+")");
+                SkyWars2.LOGGER.info("[check] imba-crossbows cold distinctTicketStarts first={} next={} warmPublications={} residentEdge={}",
+                        firstStarts.size(),secondStarts.size(),warm.next,cold.footprint);
+                queue.remove(cold);cold.cancel();traceStore.remove(cold.trace);
+                require(tickets(coldChunks).containsAll(firstStarts)&&overlap.path.pendingBlasts==overlap,
+                        "canceling one overlapping footprint preserves the shared native tickets of the survivor");
+                checkedSecondTick=true;
+                return false;
+            }
+            @Override public void close(){
+                for(var trace:traces){
+                    if(trace.erecto!=null&&trace.erecto.pendingBlasts!=null){var job=trace.erecto.pendingBlasts;queue.remove(job);job.cancel();}
+                    traceStore.remove(trace);
+                }
+                witnesses.forEach((cell,image)->game.maps().restoreSnapshot(level,cell,image,flags));
+                owner.getAbilities().invulnerable=invulnerable;
+                owner.setItemInHand(InteractionHand.MAIN_HAND,previousWeapon);owner.setYRot(yaw);owner.setXRot(pitch);
+                owner.getStats().setValue(owner,sniperStat,shotsUsed);
+                level.getGameRules().set(GameRules.MOB_GRIEFING,oldMobGriefing,game.server());
+                if(!coldChunks.isEmpty())require(tickets(footprint).equals(initialTickets),"only fixture EXASPERATO tickets are released on cancellation");
             }
         }
         void beginBlastQueue(){
@@ -511,6 +642,7 @@ public final class ImbaCrossbowChecks {
             var level=base.owner.level();
             Throwable failure=null;
             for(Runnable cleanup:List.<Runnable>of(
+                    ()->{if(coldIntake!=null)coldIntake.close();},
                     ()->{if(ownsVanity)game.vanity().stop();},
                     ()->{if(blastJob!=null&&queuedBlasts().contains(blastJob))blastJob.cancel();},
                     ()->{if(blastPhase!=null)game.items().timeStop().end(level);},
@@ -539,7 +671,7 @@ public final class ImbaCrossbowChecks {
         var f=new Fixture(game);
         try {
             f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();f.collectorParity();f.concurrentSuperVolleys();
-            f.beginBlastQueue();
+            f.coldIntake=f.new ColdIntake();f.coldIntake.begin();
             running=f;
         }catch(RuntimeException|Error failure){
             try{f.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}
@@ -551,6 +683,10 @@ public final class ImbaCrossbowChecks {
         if(f==null)return;
         try {
             require(f.game==game,"same scheduled game");
+            if(f.coldIntake!=null){
+                if(!f.coldIntake.nextTick())return;
+                var completed=f.coldIntake;f.coldIntake=null;completed.close();f.beginBlastQueue();return;
+            }
             if(!f.advanceBlastCheck())return;
             running=null;
             f.close();

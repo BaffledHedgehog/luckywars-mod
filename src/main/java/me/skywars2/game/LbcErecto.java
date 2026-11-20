@@ -65,6 +65,7 @@ final class LbcErecto {
     private int blastTick=Integer.MIN_VALUE,blastsThisTick;
     private long blastNanos;
     private final Set<CrossbowBlasts> crossbowWork=new HashSet<>();
+    private final NativeChunkLoad.ColdRequests crossbowColdRequests=new NativeChunkLoad.ColdRequests(8,32);
     private final Map<UUID,Integer> firingThisTick=new HashMap<>();
     private int firingTick=Integer.MIN_VALUE,pathsFiredThisTick;
     LbcErecto(GameController game){this.game=game;}
@@ -392,7 +393,7 @@ final class LbcErecto {
             if(!ready())return false;
             if(!resident){
                 if(lease==null)lease=game.items().exasperato().impactArea(level);
-                switch(lease.resident(footprint,reach)){
+                switch(lease.resident(footprint,reach,crossbowColdRequests)){
                     case WAITING->{waitingTick=game.server().getTickCount();return false;}
                     case FAILED->{cancel();return true;}
                     case READY->resident=true;
