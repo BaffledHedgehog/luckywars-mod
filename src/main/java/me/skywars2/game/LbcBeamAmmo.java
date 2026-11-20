@@ -122,7 +122,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     void markTraits(int mask){for(var c:carriers)game.items().trinketArrows().mark(c.context,mask);}
     void nativeFlight(Entity actor,LbcIndirectKills.Owner cause){
         if(lastNativeTick==game.server().getTickCount()||actor.level()!=owner.level()||!game.items().currentEpoch(epoch))return;
-        lastNativeTick=game.server().getTickCount();sampleTargets((ServerLevel)actor.level(),actor.position(),cause,false,List.of());
+        lastNativeTick=game.server().getTickCount();sampleTargets((ServerLevel)actor.level(),actor.position(),cause,false,List.of(),false);
     }
     void nativeContact(Entity actor,LivingEntity target,Vec3 point,LbcIndirectKills.Owner cause){
         if(!game.items().currentEpoch(epoch)||!game.items().wands().projectileTarget(owner,target))return;
@@ -229,20 +229,26 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
                 target!=owner&&target.isAlive()&&!target.isSpectator()&&!(target instanceof Creeper)
                         &&target.position().distanceToSqr(point)<=9&&target.getType().builtInRegistryHolder().is(MOBS)
                         &&game.items().wands().validRoleTarget(target,false)&&game.items().wands().validTarget(target));
-        sampleTargets(level,point,cause,railgun,targets);
+        sampleTargets(level,point,cause,railgun,targets,false);
     }
-    /** Mechanical sniper: one exact segment query per tick, shared by every source sample/carrier. */
+    /** Mechanical sniper: one arrow-width segment query per tick, shared by every sample/carrier. */
     void lineSegment(ServerLevel level,Vec3 from,Vec3 to,LbcIndirectKills.Owner cause){
         if(owner==null||!game.items().currentEpoch(epoch))return;
         var targets=level.getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(1),target->
                 target!=owner&&target.isAlive()&&!target.isSpectator()&&!(target instanceof Creeper)
                 &&target.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validRoleTarget(target,false)
-                &&game.items().wands().validTarget(target)&&(target.getBoundingBox().contains(from)||target.getBoundingBox().clip(from,to).isPresent()));
+                &&game.items().wands().validTarget(target)&&contactOnSegment(target,from,to,true));
         previous=from;
         int samples=Math.max(1,(int)Math.round(from.distanceTo(to)/.3));
-        for(int i=0;i<=samples;i++)sampleTargets(level,from.lerp(to,(double)i/samples),cause,false,targets);
+        for(int i=0;i<=samples;i++)sampleTargets(level,from.lerp(to,(double)i/samples),cause,false,targets,true);
     }
-    private void sampleTargets(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun,List<LivingEntity> targets){
+    private static boolean contactOnSegment(LivingEntity target,Vec3 from,Vec3 to,boolean swept){
+        var bounds=target.getBoundingBox();
+        if(swept)return LbcProjectileSweep.entry(LbcProjectileSweep.arrowBounds(bounds),from,to)!=null;
+        return bounds.contains(to)||bounds.clip(from,to).isPresent();
+    }
+    private void sampleTargets(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun,
+            List<LivingEntity> targets,boolean swept){
         var start=previous==null?carriers.getFirst().context.position():previous;
         var direction=previous==null?carriers.getFirst().context.getDeltaMovement().normalize():point.subtract(previous).normalize();previous=point;
         for(var carrier:carriers){
@@ -267,7 +273,8 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
                 game.items().shulkerBow().beamSample(owner,weapon,context,point,cause,true);
             if(carrier.traitsActive){game.items().trinketArrows().beamSample(context,point);carrier.traitsActive=!context.isRemoved();}
             else context.setPos(point);
-            for(var target:targets)if((!precise||target.getBoundingBox().contains(point)||target.getBoundingBox().clip(start,point).isPresent())&&carrier.contacts.add(target.getUUID()))contact(level,carrier,target,cause);
+            for(var target:targets)if((!precise||contactOnSegment(target,start,point,swept))
+                    &&carrier.contacts.add(target.getUUID()))contact(level,carrier,target,cause);
         }
     }
     private void contact(ServerLevel level,Carrier carrier,LivingEntity target,LbcIndirectKills.Owner cause){

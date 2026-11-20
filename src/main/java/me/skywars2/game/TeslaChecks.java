@@ -203,6 +203,54 @@ public final class TeslaChecks {
             block(pos,Blocks.STONE);work=new LbcTesla.Instant(game,owner);pulses=victim.conducting;require(!work.step()&&work.beam==1&&victim.conducting==pulses,"nonconductor terminates beam without conduction");
             block(pos,Blocks.AIR);victim.discard();technical.discard();invulnerable.discard();other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);
         }
+        void instantContacts(){
+            owner.setYRot(0);owner.setXRot(0);
+            var eye=owner.getEyePosition();
+            var start=BlockPos.containing(eye);
+            for(var cell:BlockPos.betweenClosed(start.offset(-1,-1,0),start.offset(1,1,2)))
+                block(cell.immutable(),Blocks.AIR);
+            var observerPosition=other.position();
+            other.setPos(eye.add(0,-.6,-2));
+            try(var caster=new RegenerationBeltChecks.ScheduledClient(game,owner);
+                var observer=new RegenerationBeltChecks.ScheduledClient(game,other)){
+                instantContact(eye,0,true,caster,observer);
+                instantContact(eye,.20,true,caster,observer);
+                instantContact(eye,.30,false,caster,observer);
+                // Move the centerline next to the block edge without crossing it.
+                var edge=new Vec3(start.getX()+.9,eye.y,eye.z);
+                block(start.east(),Blocks.OBSIDIAN);
+                block(start.east().south(),Blocks.OBSIDIAN);
+                instantContact(edge,.20,false,caster,observer);
+                block(start.east(),Blocks.AIR);
+                block(start.east().south(),Blocks.AIR);
+            }finally{other.setPos(observerPosition);}
+        }
+        void instantContact(Vec3 origin,double gap,boolean hit,RegenerationBeltChecks.ScheduledClient caster,
+                RegenerationBeltChecks.ScheduledClient observer){
+            var victim=cow(origin.add(0,-.6,.85));
+            if(gap>0)victim.setPos(victim.position().add(victim.getBbWidth()*.5+gap,0,0));
+            var random=owner.getRandom();var savedRandom=MatchRandomState.capture(random);
+            try{
+                random.setSeed(0);
+                var work=new LbcTesla.Instant(game,owner);work.point=origin;
+                long casterBefore=contactSounds(caster),observerBefore=contactSounds(observer);
+                require(!work.step()&&work.beam==0&&work.sample==8
+                                &&work.point.distanceToSqr(origin.add(0,0,2))<1e-9,
+                        "one straight native Academy segment ran at gap "+gap);
+                if(gap==0){
+                    int expected=0;var box=victim.getBoundingBox();
+                    for(int i=0;i<work.sample;i++){
+                        var point=origin.add(0,0,i*.25);
+                        if(box.intersects(new net.minecraft.world.phys.AABB(point,point.add(1,1,1))))expected++;
+                    }
+                    require(expected>1&&victim.direct==expected&&victim.getHealth()==1000-expected*.5f,
+                            "instant centerline retains exact legacy sample multiplicity: "+expected+" versus "+victim.direct);
+                }else require((victim.direct>0)==hit&&(victim.getHealth()<1000)==hit,
+                        "instant arrow-width contact at gap "+gap+" expected hit="+hit+", pulses="+victim.direct);
+                require(contactSounds(caster)==casterBefore+(hit?1:0)&&contactSounds(observer)==observerBefore,
+                        "instant segment sends one accepted-contact cue only to the shooter at gap "+gap);
+            }finally{savedRandom.restore(random);victim.discard();}
+        }
         void chain(){
             var s=loot("academy_tesla_wand");flag(s,"mode",3);require(use(s,InteractionHand.MAIN_HAND)&&shots().size()==1,"one native chain carrier");var trace=shots().getFirst();require(trace.teslaChain&&trace.lifetime==150,"source chain flag/lifetime150");
             var center=at.add(0,4,12);trace.position=center;trace.yaw=0;trace.pitch=0;
@@ -299,7 +347,7 @@ public final class TeslaChecks {
             clear();cows.forEach(Entity::discard);technical.discard();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();chain();familyArcContacts();boundaries();beginInstant();phase++;return false;}
+            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();instantContacts();chain();familyArcContacts();boundaries();beginInstant();phase++;return false;}
             if(phase==1){require(game.items().stonekivi().count()>0&&instantVictim.direct==0,"actual Time Stop freezes queued instant work");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){if(game.items().stonekivi().count()>0){require(++waits<200,"queued five rays complete");return false;}require(instantVictim.getHealth()<1000&&instantVictim.direct>=5&&instantVictim.getKillCredit()==owner,"all five native instant beams hit and credit real caster");instantVictim.discard();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("tesla_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"actual Tesla Academy admission");phase++;return false;}

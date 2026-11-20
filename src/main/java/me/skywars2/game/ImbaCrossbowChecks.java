@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -79,6 +80,11 @@ public final class ImbaCrossbowChecks {
         if(packet instanceof ClientboundBundlePacket bundle)bundle.subPackets().forEach(child->flatten(child,result));
         else result.add(packet);
     }
+    private static long hitSounds(List<Packet<?>> wire,int first){
+        var packets=new ArrayList<Packet<?>>();wire.subList(first,wire.size()).forEach(packet->flatten(packet,packets));
+        return packets.stream().filter(packet->packet instanceof ClientboundGameEventPacket event
+                &&event.getEvent()==ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
+    }
     private static BeamPackets beamPackets(List<Packet<?>> wire,int first){
         var packets=new ArrayList<Packet<?>>();wire.subList(first,wire.size()).forEach(packet->flatten(packet,packets));
         long sounds=packets.stream().filter(packet->packet instanceof ClientboundSoundPacket sound
@@ -137,16 +143,44 @@ public final class ImbaCrossbowChecks {
             for(var p:shots){var arrow=(AbstractArrow)p;require(arrow.getOwner()==base.owner&&arrow.getDeltaMovement().z>=4.5&&arrow.getDeltaMovement().z<=5.5&&Math.abs(arrow.getDeltaMovement().x)<=.5&&Math.abs(arrow.getDeltaMovement().y)<=.5,"source5 speed/cartesian spread and actual owner");require(arrow.getPickupItemStackOrigin().get(DataComponents.POTION_CONTENTS).equals(ammo.get(DataComponents.POTION_CONTENTS))&&arrow.pickup==AbstractArrow.Pickup.DISALLOWED,"all source nondropping pellets preserve actual custom ammo");}
             require(ammo.getCount()==2,"already charged volley never debits inventory twice");clear();
         }
+        Cow beamTarget(Vec3 from,double forward,double gap){
+            var level=base.owner.level();var target=new Cow(EntityTypes.COW,level);
+            double across=gap==0?0:Math.copySign(target.getBbWidth()*.5+Math.abs(gap),gap);
+            target.setPos(from.add(across,-.2,forward));target.setNoAi(true);target.setNoGravity(true);
+            target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);target.setHealth(1000);
+            owned.add(target);require(level.addFreshEntity(target),"native living sniper target");
+            return target;
+        }
         void beams(){
-            for(var kind:List.of(LbcImbaCrossbows.Kind.SNIPER,LbcImbaCrossbows.Kind.SUPER)){
-                var shots=shoot(kind,poison(1));require(shots.isEmpty(),"beam replaces own accepted native arrows");var traces=game.items().wands().electroSnapshot();int count=kind==LbcImbaCrossbows.Kind.SNIPER?1:32;
-                require(traces.size()==count&&traces.stream().allMatch(t->t.erecto.kind==LbcErecto.CROSSBOW&&t.erecto.ammunition!=null&&t.owner==base.owner&&t.position.equals(base.owner.position())&&t.lifetime==(count==1?200:50)),"exact source count/lifetime/origin and accepted ammo "+kind);
-                if(count==1){
-                    var target=new Cow(EntityTypes.COW,base.owner.level());target.setNoAi(true);target.setNoGravity(true);target.setPos(base.owner.position().add(0,-.2,8));target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);target.setHealth(1000);owned.add(target);require(base.owner.level().addFreshEntity(target),"native living target");
-                    var trace=traces.getFirst();int age=trace.age;game.items().timeStop().begin(base.owner.level(),40);game.items().wands().tick();require(trace.age==age,"shared TimeStop pauses beam");game.items().timeStop().end(base.owner.level());
-                    require(game.items().erecto().step(trace)&&target.getHealth()==860&&target.hasEffect(MobEffects.POISON),"source7 unit-cell hits at20 arrow damage, legacy bypass cooldown and retained actual ammo effect hp="+target.getHealth()+" poison="+target.hasEffect(MobEffects.POISON)+" trace="+trace.position+" target="+target.position());
-                    var clone=new LbcWands.ElectroTrace(trace);require(clone.erecto.ammunition!=trace.erecto.ammunition&&clone.position.equals(trace.position),"typed clone detaches accepted payload state");
+            var other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
+            require(other!=null&&other.level()==base.owner.level(),"independent listener for native sniper contact");
+            try(var audience=new RegenerationBeltChecks.ScheduledClient(game,other)){
+                for(var kind:List.of(LbcImbaCrossbows.Kind.SNIPER,LbcImbaCrossbows.Kind.SUPER)){
+                    var shots=shoot(kind,poison(1));require(shots.isEmpty(),"beam replaces own accepted native arrows");var traces=game.items().wands().electroSnapshot();int count=kind==LbcImbaCrossbows.Kind.SNIPER?1:32;
+                    require(traces.size()==count&&traces.stream().allMatch(t->t.erecto.kind==LbcErecto.CROSSBOW&&t.erecto.ammunition!=null&&t.owner==base.owner&&t.position.equals(base.owner.position())&&t.lifetime==(count==1?200:50)),"exact source count/lifetime/origin and accepted ammo "+kind);
+                    if(count==1){
+                        var trace=traces.getFirst();var target=beamTarget(trace.position,8,0);
+                        int age=trace.age;game.items().timeStop().begin(base.owner.level(),40);game.items().wands().tick();require(trace.age==age,"shared TimeStop pauses beam");game.items().timeStop().end(base.owner.level());
+                        int ownFirst=base.recording.packets.size(),otherFirst=audience.packets().size();
+                        require(game.items().erecto().step(trace)&&target.getHealth()==860&&target.hasEffect(MobEffects.POISON),"source7 unit-cell hits at20 arrow damage, legacy bypass cooldown and retained actual ammo effect hp="+target.getHealth()+" poison="+target.hasEffect(MobEffects.POISON)+" trace="+trace.position+" target="+target.position());
+                        var ownHits=hitSounds(base.recording.packets,ownFirst);var otherHits=hitSounds(audience.packets(),otherFirst);
+                        require(ownHits==1&&otherHits==0,"seven direct damage samples emit one private shooter cue (shooter="+ownHits+", listener="+otherHits+")");
+                        var clone=new LbcWands.ElectroTrace(trace);require(clone.erecto.ammunition!=trace.erecto.ammunition&&clone.position.equals(trace.position),"typed clone detaches accepted payload state");
+                    }
+                    clear();
                 }
+                var ammo=poison(1);ammo.set(DataComponents.POTION_DURATION_SCALE,.25f);
+                require(shoot(LbcImbaCrossbows.Kind.SNIPER,ammo).isEmpty(),"real custom-ammunition sniper graze shot");
+                var traces=game.items().wands().electroSnapshot();require(traces.size()==1,"one native graze beam");
+                var trace=traces.getFirst();var graze=beamTarget(trace.position,8,.20);var outside=beamTarget(trace.position,11,-.30);
+                int ownFirst=base.recording.packets.size(),otherFirst=audience.packets().size();
+                require(game.items().erecto().step(trace),"native sniper advances through the lateral witnesses");
+                var effect=graze.getEffect(MobEffects.POISON);
+                require(graze.getHealth()<1000&&effect!=null&&effect.getDuration()==40&&effect.getAmplifier()==1,
+                        "arrow-width graze keeps native damage and exact accepted Poison II/40 ticks (hp="+graze.getHealth()+", effect="+effect+")");
+                require(outside.getHealth()==1000&&!outside.hasEffect(MobEffects.POISON),"outside the arrow-width sweep has neither damage nor ammo payload");
+                var ownHits=hitSounds(base.recording.packets,ownFirst);var otherHits=hitSounds(audience.packets(),otherFirst);
+                require(ownHits==1&&otherHits==0,"lateral graze emits exactly one private shooter cue (shooter="+ownHits+", listener="+otherHits+")");
                 clear();
             }
         }

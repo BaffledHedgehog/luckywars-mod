@@ -438,7 +438,9 @@ final class LbcErecto {
             }
             if(trace.erecto.ammunition!=null)trace.erecto.ammunition.lineSegment(trace.level,from,end,trace.cause);
             var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),trace.owner);
-            LbcDamage.hurtSegment(trace.level,damage,from,end,Vec3.ZERO,.3,20,2,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(trace.owner,e)&&!e.entityTags().contains("transformator"),false,true,null,null);
+            LbcDamage.hurtPiercingBeam(trace.level,damage,from,end,.3,20,2,
+                    e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(trace.owner,e)
+                            &&!e.entityTags().contains("transformator"),trace.owner);
         }else if(emitted)hurt(trace,from,end,.3,20,2);trace.position=end;return alive;
     }
 

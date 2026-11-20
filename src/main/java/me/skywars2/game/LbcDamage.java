@@ -117,6 +117,13 @@ public final class LbcDamage {
             isElectric(damage), null, acceptedHit, throughBlocks ? Sweep.PHANTOM_ARROW : Sweep.ARROW, shooter);
     }
 
+    /** Mechanical crossbows keep their terrain penetration and old centerline sample count. */
+    static void hurtPiercingBeam(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to,
+            double spacing, float amount, int targetLimit, Predicate<Entity> target, ServerPlayer shooter) {
+        hurtSegment(level, damage, from, to, Vec3.ZERO, spacing, amount, targetLimit, target, false,
+                true, null, null, Sweep.PHANTOM_ARROW, shooter);
+    }
+
     /** Exact line admission with source unit-cell multiplicity, independent of the native damage type. */
     static void hurtSegment(net.minecraft.server.level.ServerLevel level,DamageSource damage,
             net.minecraft.world.phys.Vec3 from,net.minecraft.world.phys.Vec3 to,

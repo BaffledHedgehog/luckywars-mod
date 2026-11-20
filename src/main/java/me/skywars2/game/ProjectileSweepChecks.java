@@ -117,7 +117,7 @@ public final class ProjectileSweepChecks {
             cow.setHealth(health);
             cow.setInvulnerableTime(0);
             cow.damageCooldownTime = 0;
-            LbcDamage.hurtArc(fixture.level, source, origin, end, .2, .5f, 2, target -> target == cow, false, false, null);
+            LbcDamage.hurtArc(fixture.level, source, origin, end, .2, .5f, 2, target -> target == cow, false, false, null, null);
             require(oldDamage > .5 && oldDamage == health - cow.getHealth(), "direct arc preserves legacy sample count");
         } finally { fixture.discard(cow); }
     }

@@ -115,8 +115,9 @@ final class LbcTesla {
                     if (conductor != null && from.distanceToSqr(conductor) > from.distanceToSqr(last)) conductor = null;
                 }
                 // Groups have disjoint sample endpoints, so splitting work cannot duplicate bypass-cooldown hits.
-                if(emitted)LbcDamage.hurtSegment(level,damage,from,last,Vec3.ZERO,.25,.5f,1,
-                        entity->entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,entity),false);
+                if(emitted)LbcDamage.hurtArc(level,damage,from,last,.25,.5f,1,
+                        entity->entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,entity),
+                        false,false,owner,null);
                 // Like moving Electro, one shared WILD conductor pulse per sampled segment.
                 if(conductor!=null)game.items().wands().teslaConduction(trace,conductor);
                 if(terminal){if(++beam>=5)return true;reset();}
