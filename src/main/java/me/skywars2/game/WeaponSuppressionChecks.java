@@ -109,7 +109,7 @@ public final class WeaponSuppressionChecks {
             if(!ready){if(!prepare())return false;guns();ready=true;armCurse(0);return false;}
             require(game.items().curseTicks(owner)==--expected,"actual scheduler advances disorder through jammer variant="+(stage/2));
             if(stage%2==0){owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.setYRot(25);beforeHealth=owner.getHealth();stage++;return false;}
-            require(owner.getHealth()==beforeHealth-1&&owner.hasEffect(MobEffects.BLINDNESS)&&owner.getEffect(MobEffects.BLINDNESS).getAmplifier()==0,"actual native rotation damage and Blindness under jammer variant="+(stage/2));
+            require(owner.getHealth()==beforeHealth-1&&!owner.hasEffect(MobEffects.BLINDNESS),"actual native rotation damage without Blindness under jammer variant="+(stage/2));
             int next=stage/2+1;if(next>=5)return true;armCurse(next);return false;
         }
         @Override public void close(){if(closed)return;closed=true;

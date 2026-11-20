@@ -2493,7 +2493,6 @@ public final class LbcItems {
 
     private static void punish(ServerPlayer player) {
         player.hurtServer(player.level(), player.damageSources().generic(), 1);
-        player.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS, 40, 0));
     }
 
     /** Shared additive psychic disorder owner. Jammers never remove an accepted curse. */
