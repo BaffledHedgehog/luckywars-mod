@@ -1,14 +1,18 @@
 package me.skywars2.game;
 
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -39,24 +43,75 @@ final class FeedbackInputChecks {
                 f.owner.inventoryMenu.getCraftSlots().clearContent();f.owner.inventoryMenu.setCarried(ItemStack.EMPTY);
             }
         }
-        SkyWars2.LOGGER.info("[check] PASS feedback-input (single command root; native tool tags, exact-stack crafting, jump edges/held key, offhand shield, composed freezing, shared slab attributes and projected clock model)");
+        SkyWars2.LOGGER.info("[check] PASS feedback-input (canonical command tree and short alias; native tool tags, exact-stack crafting, jump edges/held key, offhand shield, composed freezing, shared slab attributes and projected clock model)");
     }
     private static void commands(GameController game){
-        var root=game.server().getCommands().getDispatcher().getRoot();var sw=root.getChild("skywars");require(sw!=null,"public skywars root");
+        var dispatcher = game.server().getCommands().getDispatcher();
+        var root = dispatcher.getRoot();
+        var sw = root.getChild("skywars");
+        require(sw != null, "public skywars root");
         for(String name:List.of("gallery","developer","mapsave","mapdelete","settings")){
             require(root.getChild(name)==null,"no unprefixed mod alias "+name);
             if(!name.equals("mapdelete"))require(sw.getChild(name)!=null,"namespaced leaf "+name);
         }
         require(root.getChild("tps")!=null&&root.getChild("ping")!=null&&root.getChild("player").getChild("spawn")!=null,"explicitly permitted convenience aliases remain public");
-        require(root.getChild("sw")==null,"old sw alias removed");
-        require(root.getChild("gamemode")!=null&&root.getChild("enchant")!=null,"vanilla roots retained");
-        require(SkyWarsFeedbackCommands.effectIds().contains(LbcStaticCharge.COUNTER),"tranquillizer is testable");
-        for(String id:List.of("lbc:ice_wand","lbc:ported/ice_wand","lbc:shock_potion","lbc:unstable_reactive","lbc:ported/shock_potion","lbc:ported/unstable_reactive","lbc:ported/electrostatic_potion"))
-            require(LootTestCatalog.isSuggested(Identifier.parse(id)),"ready loot autocomplete "+id);
-        for(var row:Map.of("lbc:ported/unstable_reactive",104,"lbc:ported/electrostatic_potion",126).entrySet()){
-            var loot=game.lbc().rollTable(game.maps().level(),game.maps().lobbyPosition(),null,row.getKey());
-            require(!loot.isEmpty()&&loot.stream().anyMatch(stack->{var contents=stack.get(DataComponents.POTION_CONTENTS);if(contents==null)return false;for(var e:contents.getAllEffects())if(e.getAmplifier()==row.getValue())return true;return false;}),"public potion alias actually resolves its complete effect "+row.getKey());
+        var alias = root.getChild("sw");
+        require(alias != null && alias.getRedirect() == sw, "short root redirects to the canonical skywars tree");
+        var operator = game.server().createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS);
+        var ordinary = operator.withPermission(PermissionSet.NO_PERMISSIONS);
+        for (String command : List.of("settings", "effect cold 40t", "gamemode 0")) {
+            var canonical = dispatcher.parse("skywars " + command, operator);
+            var abbreviated = dispatcher.parse("sw " + command, operator);
+            var action = canonical.getContext().getLastChild().getCommand();
+            require(Commands.getParseException(canonical) == null && Commands.getParseException(abbreviated) == null
+                            && action != null && action == abbreviated.getContext().getLastChild().getCommand(),
+                    "short root resolves to the same native command for " + command);
+            require(Commands.getParseException(dispatcher.parse("skywars " + command, ordinary)) != null
+                            && Commands.getParseException(dispatcher.parse("sw " + command, ordinary)) != null,
+                    "short root preserves native operator permission for " + command);
         }
+        var vanillaModes = root.getChild("gamemode");
+        require(vanillaModes != null && root.getChild("enchant") != null, "vanilla roots retained");
+        for (String number : List.of("0", "1", "2", "3")) {
+            require(vanillaModes.getChild(number) instanceof LiteralCommandNode<?>
+                            && Commands.getParseException(dispatcher.parse("gamemode " + number, operator)) == null
+                            && Commands.getParseException(dispatcher.parse("gamemode " + number, ordinary)) != null,
+                    "unprefixed numeric gamemode is a native operator literal: " + number);
+        }
+        require(SkyWarsFeedbackCommands.effectIds().contains(LbcStaticCharge.COUNTER),"tranquillizer is testable");
+        String lootCommand = "loot give TestAlpha loot ";
+        var request = dispatcher.getCompletionSuggestions(dispatcher.parse(lootCommand + "lbc:", operator));
+        require(request.isDone(), "native loot completion does not block the server thread");
+        var suggestions = new HashSet<String>();
+        request.join().getList().forEach(suggestion -> suggestions.add(suggestion.getText()));
+        var routes = Map.of("lbc:ported/ice_wand", "lbc:ice_wand",
+                "lbc:ported/unstable_reactive", "lbc:unstable_reactive",
+                "lbc:ported/shock_potion", "lbc:shock_potion",
+                "lbc:ported/electrostatic_potion", "lbc:shock_potion");
+        for (var route : routes.entrySet()) {
+            String historical = route.getKey(), canonical = route.getValue();
+            require(suggestions.contains(canonical) && !suggestions.contains(historical),
+                    "native loot autocomplete shows the ready item once as " + canonical);
+            require(Commands.getParseException(dispatcher.parse(lootCommand + historical, operator)) == null,
+                    "explicit historical loot path still parses: " + historical);
+            var current = game.lbc().rollTable(game.maps().level(), game.maps().lobbyPosition(), null, canonical);
+            var previous = game.lbc().rollTable(game.maps().level(), game.maps().lobbyPosition(), null, historical);
+            require(current.size() == 1 && previous.size() == 1 && ItemStack.matches(current.getFirst(), previous.getFirst()),
+                    "explicit historical route resolves the exact ready stack: " + historical);
+            var stack = current.getFirst();
+            switch (canonical) {
+                case "lbc:ice_wand" -> require(stack.is(LbcWands.ICE), "public ice wand is the native wand item");
+                case "lbc:unstable_reactive" -> requirePotion(stack, 104, canonical);
+                case "lbc:shock_potion" -> requirePotion(stack, 126, canonical);
+            }
+        }
+    }
+    private static void requirePotion(ItemStack stack, int amplifier, String id) {
+        var contents = stack.get(DataComponents.POTION_CONTENTS);
+        if (contents != null) for (var effect : contents.getAllEffects()) {
+            if (effect.is(MobEffects.RAID_OMEN) && effect.getAmplifier() == amplifier) return;
+        }
+        throw new IllegalStateException("Feedback input: public potion resolves its complete effect " + id);
     }
     private static void piston(WoolBucketChecks.Fixture f){
         var p=f.owner;f.move(p,f.home.add(0,20,0));p.setYRot(0);p.setXRot(0);
@@ -187,10 +242,32 @@ final class FeedbackInputChecks {
         require(Math.abs(second-first*100)<=Math.max(1e-4,Math.abs(second)*1e-6),"source1s shared value, exact normal/IMBA scaling");
     }
     private static void clock(WoolBucketChecks.Fixture f){
-        var stack=f.loot("lbc:clocks");var context=f.owner.connection.getPacketContext();
-        var wire=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(stack,TooltipFlag.NORMAL,context,f.owner.registryAccess());
-        require(Identifier.parse("lbc:time_clock").equals(stack.get(DataComponents.ITEM_MODEL))
-                &&Identifier.parse("lbc:time_clock").equals(wire.get(DataComponents.ITEM_MODEL)),"actual clock wire model equals the legacy source model");
+        var stack = f.loot("lbc:clocks");
+        var sourceModel = Identifier.parse("lbc:time_clock");
+        require(stack.is(LbcClockFragments.ITEM) && sourceModel.equals(stack.get(DataComponents.ITEM_MODEL)),
+                "archived clock uses its native item and authored source model");
+        var provider = (net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider) (Object) f.client.connection;
+        net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(provider, () -> {
+            var context = provider.getPacketContext();
+            var wire = eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(
+                    stack, TooltipFlag.NORMAL, context, f.owner.registryAccess());
+            require(wire.is(Items.CARROT_ON_A_STICK) && sourceModel.equals(wire.get(DataComponents.ITEM_MODEL)),
+                    "actual clock wire model equals the legacy source model: " + wire.get(DataComponents.ITEM_MODEL));
+            var restored = eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(
+                    wire, context, f.owner.registryAccess());
+            require(ItemStack.matches(stack, restored), "archived clock proxy roundtrip preserves exact components");
+        });
+        var before = stack.copy();
+        var timer = f.game.server().tickRateManager();
+        f.owner.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        try {
+            var result = f.owner.gameMode.useItem(f.owner, f.level, stack, InteractionHand.MAIN_HAND);
+            require(!result.consumesAction() && !timer.isSprinting()
+                            && ItemStack.matches(before, f.owner.getMainHandItem()),
+                    "retired fragment does not reactivate acceleration or consume its archived stack");
+        } finally {
+            f.owner.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        }
     }
     private static void statuses(WoolBucketChecks.Fixture f){
         for(var id:List.of("effect_dimshifting","effect_rtp_4","effect_ghosting","effect_kiuaskivi","cold"))require(SkyWarsFeedbackCommands.effectIds().contains(id),"testable native consumer "+id);

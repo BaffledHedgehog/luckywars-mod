@@ -18,7 +18,7 @@ public final class LbcClockFragments {
             new Item.Properties().setId(ResourceKey.create(Registries.ITEM,Identifier.parse(ID)))
                     .component(DataComponents.ITEM_MODEL,Identifier.parse("lbc:time_clock"))
                     .component(DataComponents.CUSTOM_NAME,Component.translatable("time_fragment").withStyle(s->s.withItalic(false))),
-            Items.CARROT_ON_A_STICK));
+            Items.CARROT_ON_A_STICK, true));
     private LbcClockFragments(){}
     public static void register(){}
 }
