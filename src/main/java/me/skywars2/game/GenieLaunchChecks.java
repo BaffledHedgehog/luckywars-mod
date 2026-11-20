@@ -29,6 +29,7 @@ final class GenieLaunchChecks {
     private final WoolBucketChecks.Fixture base;
     private final Set<UUID> before;
     private int phase,when;
+    private int frozenAt, savedAge;
     private Creeper body;
     private Vec3 origin;
     private final CompletableFuture<ScriptRepository.Loaded> replacement;
@@ -114,11 +115,37 @@ final class GenieLaunchChecks {
         if(phase==1){
             if(age<5)return false;
             require(body.isAlive()&&body.position().distanceTo(origin)>2,"launched mob really moves under native physics over multiple frames");
+            frozenAt=game.server().getTickCount();
+            savedAge=body.tickCount;
+            require(savedAge>0&&savedAge<60,"native lifetime has elapsed before chunk save");
+            base.pause();
+            phase=11;return false;
+        }
+        if(phase==11){
+            if(game.server().getTickCount()-frozenAt<4)return false;
+            require(!body.isRemoved()&&body.tickCount==savedAge,"Time Stop does not advance a launched body's native age");
+            base.thaw();
+            var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                    net.minecraft.util.ProblemReporter.DISCARDING,base.level.registryAccess());
+            body.saveWithoutId(output);
+            var snapshot=output.buildResult();
+            var uuid=body.getUUID();
+            body.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+            var restored=new Creeper(EntityTypes.CREEPER,base.level);
+            restored.load(net.minecraft.world.level.storage.TagValueInput.create(
+                    net.minecraft.util.ProblemReporter.DISCARDING,base.level.registryAccess(),snapshot));
+            require(restored.getUUID().equals(uuid)&&restored.tickCount==0&&base.level.addFreshEntity(restored),
+                    "native body reload preserves identity and resets vanilla's transient tick counter");
+            body=restored;
             phase=2;return false;
         }
         if(phase==2){
-            if(age<65)return false;
-            require(body.isRemoved(),"native mob expires after its real loaded lifetime");
+            if(!body.isRemoved()){
+                require(savedAge+body.tickCount<60&&age<80,"native mob must expire at 60 cumulative active ticks after reload");
+                return false;
+            }
+            require(body.getRemovalReason()==Entity.RemovalReason.DISCARDED&&savedAge+body.tickCount==60,
+                    "reloaded native mob expires exactly at its original active lifetime");
             base.owner.stopUsingItem();base.owner.setXRot(-60);
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,GenieRuntime.construct(plan("stick",Trigger.USE,"ender_pearl",40,60)));
             var previous=base.level.getEntitiesOfClass(ThrownEnderpearl.class,base.owner.getBoundingBox().inflate(8)).stream().map(Entity::getUUID).collect(java.util.stream.Collectors.toSet());

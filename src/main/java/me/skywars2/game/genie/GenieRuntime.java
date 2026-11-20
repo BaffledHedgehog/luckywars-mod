@@ -1,6 +1,9 @@
 package me.skywars2.game.genie;
 
+import com.mojang.serialization.Codec;
 import java.util.*;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.util.Prediction;
 import me.skywars2.game.*;
 import net.minecraft.core.*;
@@ -37,6 +40,20 @@ public final class GenieRuntime {
     private boolean dispatching;
     private final Set<Entity> projectiles=Collections.newSetFromMap(new IdentityHashMap<>());
     private static final String SHOT_POWER="skywars2.genie_power/",SHOT_LIFE="skywars2.genie_life/";
+    private static final AttachmentType<ShotAge> SHOT_AGE = AttachmentRegistry.create(
+            Identifier.parse("skywars2:genie_shot_age"),
+            builder -> builder.persistent(Codec.intRange(0, Integer.MAX_VALUE).xmap(ShotAge::new, ShotAge::elapsed)));
+
+    /** Encode the native age at save time, including ticks since the last runtime update. */
+    private record ShotAge(int savedTicks, Entity body, int loadedAtTick) {
+        ShotAge(int savedTicks) { this(savedTicks, null, 0); }
+
+        int elapsed() {
+            if (body == null) return savedTicks;
+            long activeTicks = Math.max(0L, (long) body.tickCount - loadedAtTick);
+            return (int) Math.min(Integer.MAX_VALUE, savedTicks + activeTicks);
+        }
+    }
     GenieRuntime(GameController game){this.game=game;scripts=new GenieScriptRuntime(game);}
     public GenieScriptRuntime scripts(){return scripts;}
     public static boolean matches(ItemStack stack){return ItemData.contains(stack,PROGRAM)||GenieScriptItem.matches(stack);}
@@ -326,7 +343,15 @@ public final class GenieRuntime {
             case WET_ONLY,DRY_ONLY,NIGHT_ONLY,AIR_ONLY -> {}
         }
     }
-    public void loaded(Entity entity){if((entity instanceof Projectile||entity instanceof Mob)&&tagNumber(entity,SHOT_LIFE,-1)>0)projectiles.add(entity);}
+    public void loaded(Entity entity) {
+        if (!(entity instanceof Projectile || entity instanceof Mob) || tagNumber(entity, SHOT_LIFE, -1) <= 0) return;
+        var age = entity.getAttached(SHOT_AGE);
+        if (age == null || age.body() != entity) {
+            int previous = age == null ? Math.max(0, entity.tickCount) : age.elapsed();
+            entity.setAttached(SHOT_AGE, new ShotAge(previous, entity, entity.tickCount));
+        }
+        projectiles.add(entity);
+    }
     public void unloaded(Entity entity){projectiles.remove(entity);}
     private static double tagNumber(Entity entity,String prefix,double fallback){
         for(var tag:entity.entityTags())if(tag.startsWith(prefix))try{return Double.parseDouble(tag.substring(prefix.length()));}catch(NumberFormatException ignored){}
@@ -337,7 +362,9 @@ public final class GenieRuntime {
         scripts.tick();
         for(var shot:List.copyOf(projectiles)){
             if(shot.isRemoved()){projectiles.remove(shot);continue;}
-            if(shot.tickCount>=tagNumber(shot,SHOT_LIFE,200)||shot.level().isOutsideBuildHeight(shot.blockPosition())){shot.discard();projectiles.remove(shot);}
+            var age = shot.getAttached(SHOT_AGE);
+            int elapsed = age == null ? shot.tickCount : age.elapsed();
+            if(elapsed>=tagNumber(shot,SHOT_LIFE,200)||shot.level().isOutsideBuildHeight(shot.blockPosition())){shot.discard();projectiles.remove(shot);}
         }
         cooldowns.replaceAll((key,remaining)->{var owner=game.server().getPlayerList().getPlayer(key.owner);return owner!=null&&GenieNative.stopped(game,owner)?remaining:remaining-1;});
         cooldowns.values().removeIf(value->value<=0);
