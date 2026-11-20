@@ -10,12 +10,15 @@ import me.skywars2.SkyWars2;
 import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.dolphin.Dolphin;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /** Actual skill damage reaction, fireworks, owner's leave cleanup, and automatic lobby return. */
@@ -38,7 +41,7 @@ final class SkillVexCelebrationChecks {
         try {
             if(!fixture.step())return;
             active=null;fixture.close();
-            SkyWars2.LOGGER.info("[check] PASS skill-vex-celebration (accepted skill13 hit, original Vex during native fireworks and owner leave, attacks disabled, permanent lobby cleanup)");
+            SkyWars2.LOGGER.info("[check] PASS skill-vex-celebration (native Vex, dolphin and physical coin/display retained through fireworks and owner leave; ability clocks pause; permanent lobby cleanup)");
         } catch(Throwable error) {
             active=null;
             try { fixture.close(); } catch(Throwable cleanup) { error.addSuppressed(cleanup); }
@@ -62,6 +65,9 @@ final class SkillVexCelebrationChecks {
         final int start;
         Cow target;
         Vex vex;
+        Dolphin dolphin;
+        Entity coin,coinDisplay;
+        int dolphinAge,coinAge,dolphinTicks;
         int attempts,nextTrial,ending;
         boolean finishing,leaveChecked;
 
@@ -108,6 +114,7 @@ final class SkillVexCelebrationChecks {
             target.setPos(vex.position().add(2,0,0));target.setNoAi(true);target.setNoGravity(true);
             require(level.addFreshEntity(target)&&vex.canAttack(target),"ordinary native cow is an eligible hostile target in PLAYING");
             vex.setNoAi(true);vex.setInvulnerableTime(80);
+            spawnPozdmanActors();
             var members=(Map<?,?>)WoolBucketChecks.read(game,"participants");
             for(var member:members.entrySet())if(!owner.getUUID().equals(member.getKey())){
                 var field=member.getValue().getClass().getDeclaredField("lives");field.setAccessible(true);field.setInt(member.getValue(),0);
@@ -119,9 +126,31 @@ final class SkillVexCelebrationChecks {
             requireAlive("when real fireworks begin");
         }
 
+        void spawnPozdmanActors() {
+            var pozdman=game.items().pozdmanBot();
+            require(pozdman.count()==0&&!pozdman.waiting(owner),"exclusive dolphin and coin witnesses");
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcPozdmanBot.ITEM));
+            require(pozdman.use(owner,InteractionHand.MAIN_HAND,100),"admitted source bot use rolls Shark David");
+            require(pozdman.count()==1,"source bot use publishes only the dolphin");
+            var body=pozdman.snapshot().getFirst();
+            require(body instanceof Dolphin,"native dolphin witness");
+            dolphin=(Dolphin)body;
+            dolphin.setNoAi(true);
+            coin=Objects.requireNonNull(pozdman.spawnCoin(dolphin),"actual native physical coin");
+            coinDisplay=Objects.requireNonNull(pozdman.state(coin).display(),"native coin display");
+            dolphinAge=pozdman.state(dolphin).age();
+            coinAge=pozdman.state(coin).age();
+            dolphinTicks=dolphin.tickCount;
+            requireAlive("before the victory boundary");
+        }
+
         void requireAlive(String phase) {
             require(!vex.isRemoved()&&level.getEntity(vex.getUUID())==vex,
                     "original registered Vex retained "+phase+" reason="+vex.getRemovalReason());
+            for(var entity:List.of(dolphin,coin,coinDisplay)){
+                require(!entity.isRemoved()&&level.getEntity(entity.getUUID())==entity,
+                        "original Pozdman "+entity.getType()+" retained "+phase+" reason="+entity.getRemovalReason());
+            }
         }
 
         boolean step() throws ReflectiveOperationException {
@@ -141,12 +170,17 @@ final class SkillVexCelebrationChecks {
             if(game.stage()==GameController.Stage.ENDING){
                 requireAlive("during the native celebration");
                 require(!game.events().checkpointTimeline().running(),"active gameplay event timers pause at the real victory boundary");
+                var pozdman=game.items().pozdmanBot();
+                require(pozdman.count()==2&&pozdman.state(dolphin).age()==dolphinAge
+                                &&pozdman.state(coin).age()==coinAge&&pozdman.state(coin).display()==coinDisplay,
+                        "dolphin and coin gameplay clocks remain paused");
                 float health=target.getHealth();
                 require(!vex.canAttack(target)&&!vex.doHurtTarget(level,target)&&target.getHealth()==health,
                         "retained Vex cannot damage an otherwise eligible native mob during celebration");
                 for(var entity:level.getAllEntities())if(entity instanceof FireworkRocketEntity&&!initial.contains(entity))rockets.add(entity.getUUID());
                 if(now-ending>=22&&!leaveChecked){
                     require(rockets.size()>=8,"two ordinary native fireworks waves before winner cleanup");
+                    require(dolphin.tickCount>dolphinTicks,"the retained native dolphin actually ticked during fireworks");
                     // This is the leave callback called by the native removal path. Keep the
                     // listener attached so the fixture can still observe the automatic lobby.
                     game.leave(owner);leaveChecked=true;
@@ -158,6 +192,11 @@ final class SkillVexCelebrationChecks {
             var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
             require(leaveChecked&&vex.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!manager.isLoaded(vex.getUUID())
                     &&level.getEntity(vex.getUUID())==null,"real timed return to lobby permanently retires the original Vex");
+            for(var entity:List.of(dolphin,coin,coinDisplay)){
+                require(entity.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!manager.isLoaded(entity.getUUID())
+                                &&level.getEntity(entity.getUUID())==null,"lobby permanently retires "+entity.getType());
+            }
+            require(game.items().pozdmanBot().count()==0,"lobby clears the Pozdman actor ledger");
             return true;
         }
 
@@ -165,6 +204,13 @@ final class SkillVexCelebrationChecks {
             try {
                 if(vex!=null&&!vex.isRemoved())vex.discard();
                 if(target!=null&&!target.isRemoved())target.discard();
+                if(dolphin!=null){
+                    var pozdman=game.items().pozdmanBot();
+                    pozdman.removed(dolphin);
+                    if(coin!=null)pozdman.removed(coin);
+                    if(coinDisplay!=null&&!coinDisplay.isRemoved())coinDisplay.discard();
+                    pozdman.forget(owner);
+                }
                 if(!finishing&&game.playing())for(var saved:List.of(savedOwner,savedOther))saved.restore(game);
                 settings.restore();ownerProfile.restore();otherProfile.restore();
                 game.config().save();game.players().saveDeferred();

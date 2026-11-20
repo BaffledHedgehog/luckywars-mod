@@ -140,7 +140,9 @@ public final class LbcPozdmanBot {
         if(restoring||dolphin.getType()!=EntityTypes.DOLPHIN||!(dolphin.level() instanceof ServerLevel level)
                 ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
         var actor=actors.get(dolphin);if(actor==null)return;
-        if(dolphin.isRemoved()||!dolphin.isAlive()||!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(actor.epoch)){remove(dolphin);return;}
+        if(dolphin.isRemoved()||!game.items().currentEpoch(actor.epoch)){remove(dolphin);return;}
+        if(game.stage()==GameController.Stage.ENDING)return;
+        if(!game.playing()||!dolphin.isAlive()){remove(dolphin);return;}
         if(game.items().timeStop().stopped(level)||game.items().timeStop().frozen(dolphin)||dolphin.entityTags().contains("time_stopped"))return;
         callbacks++;try{actors.put(dolphin,actor.frame(actor.age+1,dolphin.getYRot()));dolphinTick(dolphin);}finally{callbacks--;}
     }
@@ -269,7 +271,9 @@ public final class LbcPozdmanBot {
         }
         for(var entity:List.copyOf(actors.keySet())){
             var actor=actors.get(entity);if(actor==null)continue;
-            if(entity.isRemoved()||!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(actor.epoch)){remove(entity);continue;}
+            if(entity.isRemoved()||!game.items().currentEpoch(actor.epoch)){remove(entity);continue;}
+            if(game.stage()==GameController.Stage.ENDING)continue;
+            if(!game.playing()){remove(entity);continue;}
             if(game.items().timeStop().stopped((ServerLevel)entity.level())||game.items().timeStop().frozen(entity))continue;
             // Dolphin.tick HEAD owns its one source invocation. END owns only coin flight.
             callbacks++;try{if(entity instanceof Coin coin)coinTick(coin);}finally{callbacks--;}
@@ -286,6 +290,7 @@ public final class LbcPozdmanBot {
     }
     public void unloaded(Entity entity){
         if(restoring)return;
+        if(keepsDuringCelebration(entity))return;
         var actor=actors.remove(entity);
         if(actor!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)dormant.put(entity.getUUID(),actor);
         else if(actor!=null&&actor.display!=null&&!actor.display.isRemoved())actor.display.discard();
@@ -295,7 +300,18 @@ public final class LbcPozdmanBot {
     private void retireDormant(Predicate<Actor> condition){
         for(var entry:List.copyOf(dormant.entrySet()))if(condition.test(entry.getValue())){retiredDormant.add(entry.getKey());if(entry.getValue().display!=null)retiredDormant.add(entry.getValue().display.getUUID());dormant.remove(entry.getKey());}
     }
-    public void forget(ServerPlayer player){if(restoring)return;waiting.remove(player);player.entityTags().remove("pozdman_wait");for(var entity:List.copyOf(actors.keySet()))if(actors.get(entity).owner.equals(player.getUUID()))remove(entity);retireDormant(a->a.owner.equals(player.getUUID()));}
+    boolean keepsDuringCelebration(Entity entity){
+        if(game.stage()!=GameController.Stage.ENDING||entity.isRemoved())return false;
+        var actor=actors.get(entity);
+        return actor!=null&&game.items().currentEpoch(actor.epoch);
+    }
+    public void forget(ServerPlayer player){
+        if(restoring)return;
+        waiting.remove(player);player.entityTags().remove("pozdman_wait");
+        if(game.stage()==GameController.Stage.ENDING)return;
+        for(var entity:List.copyOf(actors.keySet()))if(actors.get(entity).owner.equals(player.getUUID()))remove(entity);
+        retireDormant(a->a.owner.equals(player.getUUID()));
+    }
     public void stop(){for(var entity:List.copyOf(actors.keySet()))remove(entity);for(var player:waiting.keySet())player.entityTags().remove("pozdman_wait");waiting.clear();retireDormant(a->true);phases.clear();restoring=false;}
     int count(){return actors.size();}
     boolean waiting(ServerPlayer player){return waiting.containsKey(player);}

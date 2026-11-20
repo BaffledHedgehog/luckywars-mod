@@ -683,14 +683,16 @@ public final class LbcSummons {
     }
     void unloaded(Entity entity) {
         if(entity instanceof Mob mob && mobs.containsKey(mob)) remove(mob);
-        if(consequences.remove(entity)!=null && !entity.isRemoved()) entity.discard();
+        if(!game.items().pozdmanBot().keepsDuringCelebration(entity)
+                && consequences.remove(entity)!=null && !entity.isRemoved()) entity.discard();
     }
     private void remove(Mob mob) { orders.removed(mob); mobs.remove(mob); if(!mob.isRemoved()) mob.discard(); }
     public void forget(ServerPlayer player) {
         for(var mob:List.copyOf(mobs.keySet())) if(mobs.get(mob).owner.equals(player.getUUID())) remove(mob);
         rays.removeIf(ray->ray.owner.equals(player.getUUID()));
         activeRays.removeIf(ray->ray.owner.equals(player.getUUID()));
-        for(var entity:List.copyOf(consequences.keySet())) if(consequences.get(entity).equals(player.getUUID())) { consequences.remove(entity); entity.discard(); }
+        for(var entity:List.copyOf(consequences.keySet())) if(consequences.get(entity).equals(player.getUUID())
+                && !game.items().pozdmanBot().keepsDuringCelebration(entity)) { consequences.remove(entity); entity.discard(); }
     }
     public void stop() { orders.stop(); for(var mob:List.copyOf(mobs.keySet())) remove(mob); rays.clear(); activeRays.clear(); for(var entity:List.copyOf(consequences.keySet())) entity.discard(); consequences.clear(); }
 
