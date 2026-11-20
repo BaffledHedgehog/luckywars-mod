@@ -3,6 +3,7 @@ import me.skywars2.SkyWars2;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +12,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
@@ -49,6 +53,7 @@ public final class ShishEncounterChecks {
         State(GameController game,ServerPlayer p){player=p;require(!p.isUsingItem(),"fixture starts with idle hands");state=new GameChecks.WandThirdPlayerState(p,game.items().mana());ground=p.onGround();sprint=p.isSprinting();shift=p.isShiftKeyDown();known=p.getKnownMovement();pose=p.getPose();camera=p.getCamera();
             for(var h:net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.listElements().toList()){var a=p.getAttribute(h);if(a!=null)attributes.getInstance(h).replaceFrom(a);}
             for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var s=Stats.CUSTOM.get(id);stats.put(s,p.getStats().getValue(s));}for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN))for(var item:net.minecraft.core.registries.BuiltInRegistries.ITEM){var s=type.get(item);stats.put(s,p.getStats().getValue(s));}
+            var skeletonKills=Stats.ENTITY_KILLED.get(EntityTypes.SKELETON);stats.put(skeletonKills,p.getStats().getValue(skeletonKills));
             for(var objective:game.server().getScoreboard().getObjectives()){var score=game.server().getScoreboard().getPlayerScoreInfo(p,objective);if(score!=null)scores.put(objective,score.value());}
             for(var a:game.server().getAdvancements().getAllAdvancements()){var done=new HashSet<String>();p.getAdvancements().getOrStartProgress(a).getCompletedCriteria().forEach(done::add);advancements.put(a,done);}
             for(var name:List.of("attackStrengthTicker","itemSwapTicker","xxa","yya","zza","jumping","yHeadRot","yHeadRotO","hurtTime","hurtDuration","lastHurt","lastDamageStamp","lastDamageSource","lastRecordedFoodLevel","lastSentFood","lastFoodSaturationZero","lastSentHealth","lastRecordedHealthAndAbsorption"))values.put(field(p,name),read(p,name));
@@ -62,8 +67,21 @@ public final class ShishEncounterChecks {
     private static void restored(State saved){var p=saved.player;var old=saved.state;var a=p.getAbilities();require(a.invulnerable==old.abilitiesInvulnerable&&a.mayfly==old.mayFly&&a.flying==old.flying&&a.instabuild==old.instabuild&&a.mayBuild==old.mayBuild,"teardown restores exact borrowed native abilities including invulnerable="+old.abilitiesInvulnerable);require(p.gameMode()==old.mode&&p.noPhysics==old.noPhysics&&p.isNoGravity()==old.noGravity,"teardown restores native mode/physics");require(p.getInvulnerableTime()==old.invulnerable&&p.damageCooldownTime==old.damageCooldown,"teardown restores original damage immunity timers");require(p.entityTags().equals(old.tags),"teardown restores exact borrowed role/protection tags");}
     private static void equipmentUpdate(LivingEntity entity){try{var method=LivingEntity.class.getDeclaredMethod("detectEquipmentUpdates");method.setAccessible(true);method.invoke(entity);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
     private static final class AmmoRandom implements AutoCloseable {
-        final net.minecraft.server.level.ServerLevel level;final Object previous;int selections;
-        AmmoRandom(net.minecraft.server.level.ServerLevel level){this.level=level;previous=read(level,"random");set(level,"random",java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{if(method.getName().equals("nextInt")&&args!=null&&args.length==1&&args[0].equals(7)&&StackWalker.getInstance().walk(frames->frames.anyMatch(frame->frame.getClassName().startsWith("net.minecraft.world.level.storage.loot.")))){selections++;return 0;}try{return method.invoke(previous,args);}catch(java.lang.reflect.InvocationTargetException error){throw error.getCause();}}));}
+        final net.minecraft.server.level.ServerLevel level;final Object previous;int selections,counts;
+        AmmoRandom(net.minecraft.server.level.ServerLevel level){
+            this.level=level;previous=read(level,"random");
+            set(level,"random",java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),
+                    new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{
+                        if(method.getName().equals("nextInt")&&args!=null&&args.length==1
+                                &&(args[0].equals(7)||args[0].equals(2))
+                                &&StackWalker.getInstance().walk(frames->frames.anyMatch(frame->frame.getClassName().startsWith("net.minecraft.world.level.storage.loot.")))){
+                            if(args[0].equals(7)){selections++;return 0;}
+                            return counts++%2;
+                        }
+                        try{return method.invoke(previous,args);}
+                        catch(java.lang.reflect.InvocationTargetException error){throw error.getCause();}
+                    }));
+        }
         public void close(){set(level,"random",previous);}
     }
     private static final class Fixture implements AutoCloseable {
@@ -74,6 +92,10 @@ public final class ShishEncounterChecks {
         final Map<String,Map<net.minecraft.world.scores.Objective,Integer>> globals=new LinkedHashMap<>();
         Display.ItemDisplay crate;ItemStack egg,katana,yellow;net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball ball;
         net.minecraft.world.entity.animal.cow.Cow victim;Vec3 yellowOrigin;boolean yellowIssued;
+        ArmorStand convertedStand;Skeleton regularCyborg;Vec3 wyvernTakeoff;
+        int wyvernOwnerPackets,wyvernObserverPackets,scrollOwnerPackets,scrollObserverPackets;
+        Object originalShieldRandom;BlockPos scrollWall;int scrollShieldTicks;
+        final Set<Entity> beforeScroll=Collections.newSetFromMap(new IdentityHashMap<>());
         Fixture(GameController game){this.game=game;}
         void initialize(){
             owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));beta=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));
@@ -116,11 +138,21 @@ public final class ShishEncounterChecks {
             for(var pedestal:pedestals){authority(pedestal);require(nbt(pedestal).getIntOr("DisabledSlots",0)==1048623&&pedestal.isInvisible()&&pedestal.isNoGravity(),"source immutable real pedestal configuration");var head=pedestal.getItemBySlot(EquipmentSlot.HEAD);if(LbcShishEncounter.matches(head))katana=head.copy();}
             require(katana!=null&&katana.getCount()==1&&LbcFartus.data(katana).getIntOr("magicwand",0)==1&&katana.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers().size()==3,"actual source pedestal katana payload, no synthetic flags");
             owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.ARROW,6));move(owner,interaction.position().add(0,0,-2));
-            List<Entity> drops;try(var random=new AmmoRandom(level)){drops=newEntities(()->require(net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.invoker().interact(owner,level,InteractionHand.MAIN_HAND,interaction,null).consumesAction(),"actual native Interaction arrow conversion callback"));require(random.selections==12,"actual three native ammo tables each perform four weighted selections");}
+            List<Entity> drops;try(var random=new AmmoRandom(level)){
+                drops=newEntities(()->require(net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.invoker().interact(owner,level,InteractionHand.MAIN_HAND,interaction,null).consumesAction(),"actual native Interaction arrow conversion callback"));
+                require(random.selections==12&&random.counts==12,"actual three native ammo tables each perform four weighted selections and twelve count rolls");
+            }
             require(owner.getInventory().countItem(Items.ARROW)==0,"three native two-arrow debits, no duplicate interaction debit");var ammo=drops.stream().filter(net.minecraft.world.entity.item.ItemEntity.class::isInstance).map(net.minecraft.world.entity.item.ItemEntity.class::cast).toList();
-            var expected=ammoLeaves();int count=ammo.stream().mapToInt(item->item.getItem().getCount()).sum();require(ammo.size()==12&&count>=12&&count<=24&&ammo.stream().allMatch(item->item.getItem().getCount()>=1&&item.getItem().getCount()<=2&&expected.stream().anyMatch(source->ItemStack.isSameItemSameComponents(item.getItem(),source))),"three actual four-roll native ammo outputs, exact leaf components and authored uniform counts1..2");for(var item:ammo)authority(item);
+            var expected=ammoLeaves();
+            require(ammo.size()==1&&ammo.getFirst().getItem().getCount()==18
+                    &&expected.stream().anyMatch(source->ItemStack.isSameItemSameComponents(ammo.getFirst().getItem(),source)),
+                    "all twelve identical source outputs merge immediately with exactly six of each quantity");
+            authority(ammo.getFirst());
             for(var item:ammo){game.items().entityUnloaded(item);item.discard();}
-            reset();nativeCyborgs();katana();beginYellow();
+            reset();nativeCyborgs();
+            regularCyborg.setNoAi(true);
+            move(owner,origin.add(-8,0,0));
+            phase=game.server().getTickCount();stage=4;
         }
         @SuppressWarnings("unchecked") List<ItemStack> ammoLeaves(){
             var table=game.server().reloadableRegistries().getLootTable(net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:magnum_ammo")));
@@ -138,11 +170,72 @@ public final class ShishEncounterChecks {
             for(var trace:created)require(trace.sourcePolicy!=null&&trace.sourcePolicy.persistent()&&trace.sourcePolicy.emitter().equals(boss.getUUID())&&trace.sourcePolicy.author().equals(owner.getUUID())&&trace.cause.equals(authority.cause()),"real electrical emitter versus accepted WILD author");
             game.items().entityUnloaded(boss);boss.discard();
             // Actual vanilla equipment interaction must reach PlayerInteractTrigger after the stand accepts its fourth piece.
-            var stand=new net.minecraft.world.entity.decoration.ArmorStand(EntityTypes.ARMOR_STAND,level);stand.setPos(origin.add(2,0,0));stand.setNoGravity(true);owned.add(stand);level.addFreshEntity(stand);ItemStack helmet=null;
+            var stand=new ArmorStand(EntityTypes.ARMOR_STAND,level);stand.setPos(origin.add(2,0,0));stand.setNoGravity(true);owned.add(stand);level.addFreshEntity(stand);ItemStack helmet=null;
             for(var entry:Map.of(EquipmentSlot.HEAD,"helmet",EquipmentSlot.CHEST,"chestplate",EquipmentSlot.LEGS,"leggings",EquipmentSlot.FEET,"boots").entrySet()){var items=game.lbc().rollTable(level,origin,owner,"lbc:neko_set_techno/"+entry.getValue());require(!items.isEmpty(),"actual native ordinary Techno source armor "+entry.getValue());if(entry.getKey()==EquipmentSlot.HEAD)helmet=items.getFirst().copy();else stand.setItemSlot(entry.getKey(),items.getFirst().copy());}
-            var held=Objects.requireNonNull(helmet);owner.setItemInHand(InteractionHand.MAIN_HAND,held);move(owner,origin);require(level.getWorldBorder().isWithinBounds(stand.blockPosition())&&owner.isWithinEntityInteractionRange(stand.getBoundingBox(),3.0),"actual native packet stand target is within world border and interaction range");var old=game.items().shishEncounter().snapshot();newEntities(()->owner.connection.handleInteract(new ServerboundInteractPacket(stand.getId(),InteractionHand.MAIN_HAND,new Vec3(0,1.8,0),false)));
+            var held=Objects.requireNonNull(helmet);owner.setItemInHand(InteractionHand.MAIN_HAND,held);move(owner,origin);require(level.getWorldBorder().isWithinBounds(stand.blockPosition())&&owner.isWithinEntityInteractionRange(stand.getBoundingBox(),3.0),"actual native packet stand target is within world border and interaction range");var old=game.items().shishEncounter().snapshot();
+            var conversion=newEntities(()->owner.connection.handleInteract(new ServerboundInteractPacket(stand.getId(),InteractionHand.MAIN_HAND,new Vec3(0,1.8,0),false)));
+            require(conversion.stream().noneMatch(e->e instanceof ItemEntity&&!e.isRemoved()),"source conversion does not duplicate the transferred stand equipment");
             require(owner.getMainHandItem().isEmpty(),"native armor-stand swap transfers the sole helmet out of the actual player hand; held reference is not shrunk: hand="+owner.getMainHandItem()+" sourceRef="+held);require(stand.isRemoved(),"actual completed Techno stand converted after native PlayerInteractTrigger: held="+held+" head="+stand.getItemBySlot(EquipmentSlot.HEAD)+" sourceFlag="+LbcFartus.data(held)+" nativeLoaded="+owner.connection.hasClientLoaded()+" position="+owner.position()+" stand="+stand.position()+" cyborgs="+game.items().shishEncounter().cyborgCount());
-            var regular=game.items().shishEncounter().snapshot().stream().filter(e->!old.contains(e)&&e instanceof net.minecraft.world.entity.monster.skeleton.Skeleton).map(net.minecraft.world.entity.monster.skeleton.Skeleton.class::cast).findFirst().orElseThrow();owned.add(regular);authority(regular);require(regular.getItemBySlot(EquipmentSlot.HEAD).getCount()==1&&ItemStack.isSameItemSameComponents(regular.getItemBySlot(EquipmentSlot.HEAD),held),"exact original helmet components and one count transferred through native stand into converted boss");require(!regular.entityTags().contains("mk2")&&score(regular,"cyborgBossFly")==50&&regular.getHealth()==75,"distinct ordinary converted native boss initializes source Fly50");for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET))require(LbcFartus.data(regular.getItemBySlot(slot)).getIntOr("techno",0)==1,"all four actual stand armor components copied");game.items().entityUnloaded(regular);regular.discard();
+            var regular=game.items().shishEncounter().snapshot().stream().filter(e->!old.contains(e)&&e instanceof Skeleton).map(Skeleton.class::cast).findFirst().orElseThrow();owned.add(regular);authority(regular);require(regular.getItemBySlot(EquipmentSlot.HEAD).getCount()==1&&ItemStack.isSameItemSameComponents(regular.getItemBySlot(EquipmentSlot.HEAD),held),"exact original helmet components and one count transferred through native stand into converted boss");require(!regular.entityTags().contains("mk2")&&score(regular,"cyborgBossFly")==50&&regular.getHealth()==75,"distinct ordinary converted native boss initializes source Fly50");for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET))require(LbcFartus.data(regular.getItemBySlot(slot)).getIntOr("techno",0)==1,"all four actual stand armor components copied");
+            require(!regular.isNoAi()&&regular.hasEffect(MobEffects.FIRE_RESISTANCE),"ordinary Exoskeleton spawns with native AI and source Fire Resistance");
+            convertedStand=stand;regularCyborg=regular;
+        }
+        void wyvernPackets(Client receiver,int from,Vec3 at){
+            var sent=receiver.wire.packets.subList(from,receiver.wire.packets.size());
+            require(sent.stream().filter(packet->packet instanceof ClientboundLevelParticlesPacket p
+                    &&p.particle().getType()==ParticleTypes.CLOUD&&p.count()==1000&&p.overrideLimiter()
+                    &&p.x()==at.x&&p.y()==at.y+5&&p.z()==at.z&&p.xDist()==1&&p.yDist()==5&&p.zDist()==1
+                    &&p.xMaxSpeed()==.2f).count()==1,"actual Exoskeleton jump sends one forced Wyvern cloud packet");
+            require(sent.stream().filter(packet->packet instanceof ClientboundSoundPacket p
+                    &&p.getSound().value().location().equals(Identifier.parse("minecraft:entity.ender_dragon.growl"))
+                    &&p.getSource()==net.minecraft.sounds.SoundSource.MASTER&&p.getVolume()==4&&p.getPitch()==1).count()==1,
+                    "actual Exoskeleton jump sends one authored dragon growl");
+        }
+        void requireCyborgHurtSound(Client receiver,int from){
+            var packets=receiver.wire.packets;
+            require(packets.subList(from,packets.size()).stream().filter(packet->packet instanceof ClientboundSoundPacket p
+                    &&p.getSound().value().location().equals(Identifier.parse("minecraft:entity.iron_golem.hurt"))
+                    &&p.getSource()==net.minecraft.sounds.SoundSource.MASTER&&p.getVolume()==2&&p.getPitch()==1.5f).count()==1,
+                    "actual lethal Healing Scroll pulse sends one authored Exoskeleton hit sound");
+        }
+        void castHealingScroll(){
+            require(regularCyborg.isInvertedHealAndHarm()&&regularCyborg.getHealth()==75,
+                    "actual converted Exoskeleton is an undamaged native undead");
+            var shield=regularCyborg.getEffect(MobEffects.RESISTANCE);
+            require(shield!=null&&shield.getAmplifier()==4&&shield.getDuration()>100,
+                    "natural Wyvern Resistance V is active before the scroll");
+            // Keep the already-proven jumping body in place so that falling cannot kill it before the spell does.
+            regularCyborg.setNoAi(true);regularCyborg.setNoGravity(true);regularCyborg.setDeltaMovement(Vec3.ZERO);
+            // Do not let independent random helmet refreshes hide the moment the actual Wyvern shield elapses.
+            originalShieldRandom=read(level,"random");
+            var delegated=originalShieldRandom;
+            set(level,"random",java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),
+                    new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{
+                        if(method.getName().equals("nextFloat")&&StackWalker.getInstance().walk(frames->frames.anyMatch(frame->
+                                frame.getClassName().equals(LbcShishEncounter.class.getName())&&frame.getMethodName().equals("cyborg"))))return .5f;
+                        try{return method.invoke(delegated,args);}
+                        catch(java.lang.reflect.InvocationTargetException error){throw error.getCause();}
+                    }));
+            level.getAllEntities().forEach(beforeScroll::add);
+            move(owner,regularCyborg.position().add(-4,0,-4));
+            scrollWall=BlockPos.containing(owner.getEyePosition().add(0,0,5));
+            require(terrain.containsKey(scrollWall)&&level.getBlockState(scrollWall).isAir(),"owned empty Healing Scroll terminal lane");
+            level.setBlock(scrollWall,Blocks.STONE.defaultBlockState(),818);
+            var scroll=game.lbc().rollTable(level,owner.position(),owner,"lbc:item_defs/lbc/healarea__94a3e1e788aa").getFirst();
+            require(LbcLibrarySpells.matchesRawRaycast(scroll)&&LbcFartus.data(scroll).getIntOr("heal1",0)==1,"real stock Healing Scroll loot");
+            owner.setItemInHand(InteractionHand.MAIN_HAND,scroll.copyWithCount(2));
+            require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(owner,level,InteractionHand.MAIN_HAND).consumesAction(),
+                    "actual Healing Scroll callback targets the wall beside the shielded boss");
+        }
+        void restoreShieldRandom(){
+            if(originalShieldRandom==null)return;
+            set(level,"random",originalShieldRandom);originalShieldRandom=null;
+        }
+        void collectScrollDrops(){
+            if(scrollWall==null)return;
+            for(var actor:level.getAllEntities())if(!beforeScroll.contains(actor)
+                    &&(actor instanceof ItemEntity||actor instanceof ExperienceOrb)
+                    &&actor.position().distanceToSqr(regularCyborg.position())<=100)owned.add(actor);
         }
         void katana(){
             reset();owner.setItemInHand(InteractionHand.MAIN_HAND,katana.copy());equipmentUpdate(owner);game.items().mana().score(owner,"swordcharging6").set(0);game.items().mana().score(owner,"swordcharged6").set(0);
@@ -154,9 +247,64 @@ public final class ShishEncounterChecks {
             var movement=owner.getMainHandItem().get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers().stream().filter(e->e.attribute().equals(Attributes.MOVEMENT_SPEED)).findFirst().orElseThrow();require(Math.abs(movement.modifier().amount()-.07)<1e-8,"source charge resets movement.05 then native ability adds.02");cow.discard();
         }
         void beginYellow(){reset();owner.setItemInHand(InteractionHand.MAIN_HAND,yellow.copy());equipmentUpdate(owner);require(owner.entityTags().contains("yellow_lightning_active")&&owner.entityTags().contains("yellow_lightning"),"actual equipment callback admits authored hotbar/weapon passive");yellowOrigin=origin;phase=game.server().getTickCount();stage=1;}
-        boolean step(){client.ack();other.ack();int elapsed=game.server().getTickCount()-phase;require(game.server().getTickCount()-start<350,"bounded actual native tick timeout");
+        boolean step(){client.ack();other.ack();int elapsed=game.server().getTickCount()-phase;require(game.server().getTickCount()-start<590,"bounded actual native tick timeout");
             if(stage==-1){if(elapsed<5)return false;require(score(crate,"supplyFall")==0&&crate.entityTags().contains("new"),"five real TimeStop ticks pause native pending supply clock");game.items().timeStop().end(level);stopOwned=false;phase=game.server().getTickCount();stage=0;return false;}
             if(stage==0){int now=score(crate,"supplyFall");require(now>=fall&&now-fall<=2,"actual one-crate source scheduled tick plus one-second fanout");fall=now;if(crate.entityTags().contains("new")){require(elapsed<240,"actual native beacon reaches source200 without synthetic clock");return false;}require(now==200,"actual source200 opens once");opened();return false;}
+            if(stage==4){
+                int cooldown=score(regularCyborg,"cyborgBossFly");
+                require(cooldown==Math.max(0,50-elapsed)&&!regularCyborg.hasEffect(MobEffects.LEVITATION),
+                        "ordinary Exoskeleton counts down source50 and waits at zero with no nearby players");
+                if(elapsed<53)return false;
+                move(owner,regularCyborg.position().add(-2.25,0,0));
+                regularCyborg.setNoAi(false);
+                wyvernOwnerPackets=client.wire.packets.size();wyvernObserverPackets=other.wire.packets.size();
+                phase=game.server().getTickCount();stage=5;return false;
+            }
+            if(stage==5){
+                var flight=regularCyborg.getEffect(MobEffects.LEVITATION);
+                require(elapsed==1&&flight!=null&&flight.getAmplifier()==30&&flight.getDuration()==20
+                        &&score(regularCyborg,"cyborgBossFly")==199,"first native tick in three-block range starts source Wyvern lift");
+                wyvernTakeoff=regularCyborg.position();
+                wyvernPackets(client,wyvernOwnerPackets,wyvernTakeoff);wyvernPackets(other,wyvernObserverPackets,wyvernTakeoff);
+                phase=game.server().getTickCount();stage=6;return false;
+            }
+            if(stage==6){
+                if(elapsed<6)return false;
+                require(regularCyborg.getY()>wyvernTakeoff.y+.5&&regularCyborg.getDeltaMovement().y>0,
+                        "converted native Exoskeleton physically rises under real movement ticks");
+                require(convertedStand.getRemovalReason()==Entity.RemovalReason.KILLED,
+                        "source stand conversion completes with native /kill, including the stand death game event");
+                castHealingScroll();phase=game.server().getTickCount();stage=7;return false;
+            }
+            if(stage==7){
+                if(owner.getMainHandItem().getCount()==2){require(elapsed<20,"actual Healing Scroll ray reaches nearby terrain");return false;}
+                var pulse=regularCyborg.getEffect(MobEffects.INSTANT_HEALTH);
+                var shield=regularCyborg.getEffect(MobEffects.RESISTANCE);
+                require(owner.getMainHandItem().getCount()==1&&pulse!=null&&pulse.getAmplifier()==4&&pulse.getDuration()>=199
+                        &&shield!=null&&shield.getAmplifier()==4&&regularCyborg.getHealth()==75,
+                        "one scroll applies native Health V without damaging the shielded Exoskeleton");
+                scrollShieldTicks=shield.getDuration();
+                scrollOwnerPackets=client.wire.packets.size();scrollObserverPackets=other.wire.packets.size();
+                game.maps().restoreSnapshot(level,scrollWall,terrain.get(scrollWall));
+                phase=game.server().getTickCount();stage=8;return false;
+            }
+            if(stage==8){
+                if(regularCyborg.hasEffect(MobEffects.RESISTANCE)){
+                    require(regularCyborg.getHealth()==75,"actual Resistance V fully blocks the scroll's damage ticks");
+                    scrollOwnerPackets=client.wire.packets.size();scrollObserverPackets=other.wire.packets.size();
+                }
+                if(!regularCyborg.isDeadOrDying()){
+                    require(elapsed<=scrollShieldTicks+12,"same native Healing Scroll kills when Wyvern shield expires; hp="
+                            +regularCyborg.getHealth()+" effects="+regularCyborg.getActiveEffects());
+                    return false;
+                }
+                require(!regularCyborg.hasEffect(MobEffects.RESISTANCE)&&elapsed>=scrollShieldTicks
+                        &&regularCyborg.getKillCredit()==owner,"source Healing Scroll kills the same native boss after protection, with caster credit");
+                requireCyborgHurtSound(client,scrollOwnerPackets);requireCyborgHurtSound(other,scrollObserverPackets);
+                SkyWars2.LOGGER.info("[check] Healing Scroll hit real 75 HP Exoskeleton; observed shield {} ticks and lethal effect at tick {}",scrollShieldTicks,elapsed);
+                collectScrollDrops();restoreShieldRandom();
+                game.items().entityUnloaded(regularCyborg);regularCyborg.discard();katana();beginYellow();return false;
+            }
             if(stage==1){var candidates=game.items().shishEncounter().snapshot().stream().filter(e->e instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball&&e.entityTags().contains("piss")).toList();if(candidates.isEmpty()){require(elapsed<10,"actual five-tick Yellow raw inventory emission");return false;}require(candidates.size()==1,"single actual native first Yellow snowball");ball=(net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball)candidates.getFirst();owned.add(ball);authority(ball);require(ball.position().distanceTo(yellowOrigin.add(0,1.75,0))<1e-6&&ball.getDeltaMovement().distanceTo(new Vec3(0,0,.5))<1e-8&&ball.getOwner()==null&&ball.getItem().is(Items.STICK)&&Identifier.parse("lbc:empty").equals(ball.getItem().get(DataComponents.ITEM_MODEL)),"source native ownerless Snowball spawn/motion/invisible item payload");
                 owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);equipmentUpdate(owner);require(!owner.entityTags().contains("yellow_lightning_active"),"actual unequip clears absent raw passive, no fabricated permanent timer");move(owner,origin.add(-10,0,0));
                 victim=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);victim.setPos(yellowOrigin.add(1.2,.75,.5));victim.setNoAi(true);victim.setNoGravity(true);owned.add(victim);level.addFreshEntity(victim);phase=game.server().getTickCount();stage=2;return false;}
@@ -166,6 +314,7 @@ public final class ShishEncounterChecks {
             throw new IllegalStateException("invalid Shish fixture stage");
         }
         public void close(){if(closed)return;closed=true;try{
+            restoreShieldRandom();collectScrollDrops();
             if(stopOwned){game.items().timeStop().end(level);stopOwned=false;}
             if(prepared){owner.stopUsingItem();beta.stopUsingItem();owned.addAll(game.items().shishEncounter().snapshot());for(var actor:owned){if(actor instanceof LivingEntity living){game.items().psycho().clearEffects(living);game.items().indirectKills().clear(living);}game.items().entityUnloaded(actor);actor.discard();}game.items().shishEncounter().stop();game.items().wands().stop();}
             if(level!=null){for(var entry:terrain.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue());for(var entry:terrain.entrySet())require(game.maps().snapshot(level,entry.getKey()).equals(entry.getValue()),"complete native fixture terrain/provenance restoration "+entry.getKey());}
@@ -176,6 +325,6 @@ public final class ShishEncounterChecks {
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive native Shish fixture");running=new Fixture(game);try{running.initialize();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}throw error;}}
     public static void start(GameController game){run(game);}
-    public static boolean tick(GameController game){if(running==null)return true;try{if(!running.step())return false;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS shish-encounters (actual source egg UseBlock/debit and real source200 crate opening, native Interaction arrow trade, actual Techno armor-stand criterion conversion, native75HP MK2 cyborg and HurtTime10 four shared electrical lifetimes, real katana accepted melee/use/motion retention, authored Yellow native inventory/Snowball/contact/shared effects, scoped teardown; no40crate, absent ShishFly correction, natural Wyvern/peakload or complete-chain qualification)");return true;}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL shish-encounters",error);return true;}}
+    public static boolean tick(GameController game){if(running==null)return true;try{if(!running.step())return false;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS shish-encounters (actual source egg UseBlock/debit and real source200 crate opening, native Interaction arrow trade, Techno stand conversion and Wyvern cooldown/proximity/motion/sound/cloud, real Healing Scroll respects shield and kills the unprotected Exoskeleton, native75HP MK2 cyborg and HurtTime10 four shared electrical lifetimes, real katana accepted melee/use/motion retention, authored Yellow native inventory/Snowball/contact/shared effects, scoped teardown)");return true;}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL shish-encounters",error);return true;}}
     public static void cancel(GameController game){if(running!=null)try{running.close();}finally{running=null;}}
 }

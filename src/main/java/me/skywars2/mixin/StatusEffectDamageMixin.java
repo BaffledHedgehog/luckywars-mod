@@ -24,7 +24,7 @@ public abstract class StatusEffectDamageMixin {
         if(game==null) return original.call(target,level,source,amount);
         var effect=source.is(DamageTypes.WITHER)?MobEffects.WITHER:(Object)this instanceof PoisonMobEffect?MobEffects.POISON:
                 (Object)this==MobEffects.INSTANT_DAMAGE.value()?MobEffects.INSTANT_DAMAGE:MobEffects.INSTANT_HEALTH;
-        return game.items().indirectKills().statusDamage(target,effect,
+        return game.items().indirectKills().statusDamage(target,effect,source,
                 ()->original.call(target,level,source,amount));
     }
 }

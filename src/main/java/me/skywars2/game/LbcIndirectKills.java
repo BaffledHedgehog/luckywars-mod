@@ -1092,9 +1092,17 @@ public final class LbcIndirectKills {
         return statusDamage(target,MobEffects.POISON,damage);
     }
     public boolean statusDamage(LivingEntity target, Holder<MobEffect> effect, BooleanSupplier damage) {
+        return statusDamage(target,effect,null,damage);
+    }
+    public boolean statusDamage(LivingEntity target, Holder<MobEffect> effect, DamageSource source, BooleanSupplier damage) {
         LivingEntity previous=effectTarget; var previousEffect=tickingEffect;
         effectTarget=target; tickingEffect=effect;
-        try {
+        var spells=game.items().spellSources();
+        var active=spells.current();
+        // A native effect ticks inside its victim's entity tick. Its caster is retained by the status ledger.
+        boolean victimScope=active!=null && target.getUUID().equals(active.emitter())
+                && source!=null && source.getDirectEntity()==null && source.getEntity()==null;
+        try(var ignored=victimScope?spells.scope((LbcSpellSource.Source)null):null) {
             boolean applied=damage.getAsBoolean();
             var effects=statuses.get(target);
             var status=effects==null ? null : effects.get(effect);

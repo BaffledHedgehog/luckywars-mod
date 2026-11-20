@@ -42,7 +42,7 @@ public final class SignedEffectMath {
     public static boolean damage(ServerLevel world,LivingEntity target,Holder<MobEffect> effect,DamageSource source,float amount) {
         if(!(amount>0)||LbcGreed.active(target))return false;
         var game=SkyWars2.game();
-        return game==null?target.hurtServer(world,source,amount):game.items().indirectKills().statusDamage(target,effect,
+        return game==null?target.hurtServer(world,source,amount):game.items().indirectKills().statusDamage(target,effect,source,
                 ()->target.hurtServer(world,source,amount));
     }
     public static boolean periodic(ServerLevel world,LivingEntity target,Holder<MobEffect> effect,int amplifier) {
