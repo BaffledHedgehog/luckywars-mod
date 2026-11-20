@@ -69,9 +69,14 @@ public final class GenieKnowledge {
 
         var loot=resource("loot_test_catalog.json");var logical=new JsonArray();
         for(var value:loot.getAsJsonArray("items")){
-            var row=value.getAsJsonObject();var pair=new JsonArray();pair.add(row.get("table"));pair.add(row.get("carrier"));logical.add(pair);
+            var row = value.getAsJsonObject();
+            var fields = new JsonArray();
+            fields.add(row.get("table"));
+            fields.add(row.get("carrier"));
+            if (row.has("slot")) fields.add(row.get("slot"));
+            logical.add(fields);
         }
-        root.addProperty("logical_luckywars_item_count",logical.size());root.addProperty("logical_item_format","[canonical loot table, native item carrier]; repeated tables can contain distinct logical slots");root.add("logical_luckywars_items",logical);
+        root.addProperty("logical_luckywars_item_count",logical.size());root.addProperty("logical_item_format","[canonical loot table, native item carrier or factory, optional logical slot]; repeated tables can contain distinct logical slots");root.add("logical_luckywars_items",logical);
 
         var entities=new JsonArray();var launchable=new JsonArray();var standaloneTypes=new JsonArray();
         for(var id:BuiltInRegistries.ENTITY_TYPE.keySet().stream().sorted().toList()){

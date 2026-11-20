@@ -93,6 +93,23 @@ final class GenieLampScriptChecks implements AutoCloseable {
             require(tables.keySet().equals(ids), "the model sees all loaded loot table IDs");
             require(tables.asMap().values().stream().noneMatch(table -> table.getAsJsonObject().has("contents_unavailable")),
                 "all loaded loot tables were decoded for the model");
+            for (var expected : Map.of(
+                    "lbc:items/aimbob_boots", "minecraft:iron_boots",
+                    "lbc:items/add_mana_potion", "skywars2:mana_potion",
+                    "lbc:items/tmt", "factory/tmt").entrySet()) {
+                var entry = tables.getAsJsonObject(expected.getKey()).getAsJsonArray("items").get(0).getAsJsonObject();
+                require(entry.get("type").getAsString().equals("skywars2:uniform_item")
+                        && entry.get("domain").getAsString().equals("custom") && entry.has("slot"),
+                        "loaded uniform wrapper exposes its exact logical slot: " + expected.getKey());
+                var slot = entry.get("slot");
+                require(facts.getAsJsonArray("logical_luckywars_items").asList().stream()
+                        .map(JsonElement::getAsJsonArray).anyMatch(row -> row.size() == 3 && row.get(2).equals(slot)
+                                && row.get(0).getAsString().equals(expected.getKey())
+                                && row.get(1).getAsString().equals(expected.getValue())),
+                        "the slot resolves to its canonical table and carrier or factory: " + expected.getKey());
+                if (expected.getValue().equals("factory/tmt"))
+                    require(slot.getAsString().equals("factory/tmt"), "TMT remains a factory selection");
+            }
             var loadouts = facts.getAsJsonObject("loadouts");
             for (var kind : LbcLoadouts.Kind.values()) {
                 var rows = loadouts.getAsJsonArray(kind.name().toLowerCase(java.util.Locale.ROOT));

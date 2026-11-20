@@ -120,9 +120,10 @@ final class GenieContentIndex {
             case "minecraft:dynamic", "skywars2:tmt", "skywars2:uniform_item" -> {
                 var dynamic = new JsonObject();
                 dynamic.addProperty("type", type);
-                for (String field : new String[]{"name", "domain", "types"}) {
+                for (String field : new String[]{"name", "domain", "types", "slot"}) {
                     if (object.has(field)) dynamic.add(field, object.get(field));
                 }
+                if (effectiveName != null) dynamic.add("display_name", name(effectiveName));
                 items.add(dynamic);
             }
             default -> { }

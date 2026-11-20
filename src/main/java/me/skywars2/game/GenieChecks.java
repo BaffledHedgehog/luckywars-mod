@@ -258,8 +258,16 @@ public final class GenieChecks {
             for(var row:logical)tables.add(row.getAsJsonArray().get(0).getAsString());
             try(var source=new java.io.InputStreamReader(Objects.requireNonNull(GenieChecks.class.getResourceAsStream("/skywars2/loot_test_catalog.json")),StandardCharsets.UTF_8)){
                 var original=JsonParser.parseReader(source).getAsJsonObject().getAsJsonArray("items");
-                var expected=new JsonArray();for(var row:original){var value=row.getAsJsonObject();var pair=new JsonArray();pair.add(value.get("table"));pair.add(value.get("carrier"));expected.add(pair);}
-                require(logical.equals(expected)&&logical.size()==knowledge.get("logical_luckywars_item_count").getAsInt(),"all packaged logical loot items survive end-to-end request");
+                require(logical.size()==original.size()&&logical.size()==knowledge.get("logical_luckywars_item_count").getAsInt(),
+                        "all packaged logical loot items survive end-to-end request");
+                for (int i=0;i<original.size();i++) {
+                    var expected=original.get(i).getAsJsonObject();
+                    var row=logical.get(i).getAsJsonArray();
+                    boolean hasSlot=expected.has("slot");
+                    require(row.size()==(hasSlot?3:2)&&row.get(0).equals(expected.get("table"))
+                            &&row.get(1).equals(expected.get("carrier"))&&(!hasSlot||row.get(2).equals(expected.get("slot"))),
+                            "exact packaged table, carrier and optional slot at index "+i+": "+expected);
+                }
             }catch(java.io.IOException error){throw new IllegalStateException(error);}
             require(tables.contains("lbc:ported/music_staff")&&tables.contains("lbc:ported/electro_wand"),"canonical LuckyWars sources retained");
             var kinds=new HashMap<String,String>();for(var row:knowledge.getAsJsonArray("entities"))kinds.put(row.getAsJsonArray().get(0).getAsString(),row.getAsJsonArray().get(1).getAsString());
