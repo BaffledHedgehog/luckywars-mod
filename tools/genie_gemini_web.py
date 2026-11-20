@@ -58,19 +58,30 @@ def request_issue(error):
 
 
 def response_text(output):
-    raw = output.text.strip()
-    if raw.startswith(('```json\n', '```\n')) and raw.endswith('```'):
-        return raw.split('\n', 1)[1][:-3].strip()
+    raw = (output.text or "").strip()
+    opening, _, body = raw.partition("\n")
+    if opening.strip().casefold() in ("```json", "```") and body.endswith("```"):
+        return body[:-3].strip()
     return raw
 
 
 async def wish(client, model):
+    from gemini_webapi.exceptions import UsageLimitExceededError
     from verify_genie_program import canonical, parse, verify
 
     contract = parse(Path("contract.json").read_text(encoding="utf-8"))
     prompt = Path("prompt.txt").read_text(encoding="utf-8")
     chat = client.start_chat(model=model)
-    proposal = await chat.send_message(
+
+    async def turn(message, **options):
+        try:
+            return await chat.send_message(message, temporary=True, **options)
+        except UsageLimitExceededError:
+            raise
+        except Exception as error:
+            raise SessionFailure(request_issue(error) or "WISH_REQUEST_FAILED") from error
+
+    proposal = await turn(
         prompt + """
 
 For this web session, use the server verifier tool through the following protocol.
@@ -78,10 +89,9 @@ In your first reply send either {"decision":"reject"} or the proposed grant JSON
 with decision, item, answer, twist and program. Omit receipt until the server
 validates the exact proposal and sends the verifier output back to this chat.
 If validation fails, correct the proposal and return the complete corrected JSON.
-After a verified grant, reply with only {"decision":"grant","receipt":<the exact receipt>}.
+After a verified grant, confirm it by echoing the program SHA-256 supplied by the verifier.
 """,
         files=[Path(name) for name in ("game_knowledge.json", "contract.json", "verify_genie_program.py")],
-        temporary=True,
     )
     for attempt in range(3):
         raw = response_text(proposal)
@@ -94,24 +104,31 @@ After a verified grant, reply with only {"decision":"grant","receipt":<the exact
             receipt = verify(reply["program"], contract)
         except (ValueError, TypeError, KeyError, OverflowError, RecursionError) as error:
             if attempt == 2:
-                raise
-            proposal = await chat.send_message(
-                "The verifier rejected the proposal. Repair the JSON and try again. Error: "
+                raise SessionFailure("INVALID_PROPOSAL") from error
+            proposal = await turn(
+                "The verifier rejected the proposal. Return the complete revised grant JSON, without a receipt. "
+                "Check each instruction array against its exact width in contract.json. Error: "
                 + json.dumps(str(error)[:500], ensure_ascii=True),
-                temporary=True,
             )
             continue
 
-        confirmation = await chat.send_message(
-            "The verifier accepted the exact program. Reply with just this JSON as the final confirmation:\n"
-            + json.dumps({"decision": "grant", "receipt": receipt}),
-            temporary=True,
+        expected = {"decision": "grant", "program_sha256": receipt["program_sha256"]}
+        confirmation_request = (
+            "The verifier accepted the exact program. Confirm by returning only this JSON:\n"
+            + json.dumps(expected)
         )
-        if parse(response_text(confirmation)) != {"decision": "grant", "receipt": receipt}:
-            raise ValueError("Gemini did not confirm the verified program.")
+        for _ in range(2):
+            confirmation = await turn(confirmation_request)
+            try:
+                if parse(response_text(confirmation)) == expected:
+                    break
+            except (ValueError, TypeError, OverflowError, RecursionError):
+                pass
+        else:
+            raise SessionFailure("INVALID_CONFIRMATION")
         reply["receipt"] = receipt
         return {"reply": canonical(reply), "receipt": receipt}
-    raise ValueError("Gemini did not provide a valid program.")
+    raise SessionFailure("INVALID_PROPOSAL")
 
 
 async def probe_attachment(client, model):

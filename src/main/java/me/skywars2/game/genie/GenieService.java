@@ -163,9 +163,11 @@ public final class GenieService implements AutoCloseable {
 
     private void finishScript(Wish wish, GenieScriptReply reply, Throwable failure) {
         if (currentLamp(wish) == null) return;
-        if (failure instanceof GenieGeminiWebTransport.SessionFailure) {
+        if (failure instanceof GenieGeminiWebTransport.SessionFailure providerFailure) {
+            var issue = providerFailure.issue;
             finishReward(wish, ItemStack.EMPTY, null, false,
-                    Component.translatableWithFallback("genie.session_unavailable", "Веб-сессия джина сейчас недоступна. Лампа возвращена."));
+                    Component.translatableWithFallback("genie.failure." + issue.name().toLowerCase(java.util.Locale.ROOT),
+                            issue.hint + " Лампа возвращена."));
             return;
         }
         if (failure != null || reply == null) { finishReward(wish, ItemStack.EMPTY, null, false); return; }

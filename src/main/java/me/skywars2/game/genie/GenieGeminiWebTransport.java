@@ -42,7 +42,10 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
         DEPENDENCY_UNAVAILABLE("На сервере не запустился Python или gemini-webapi."),
         NETWORK_TIMEOUT("Gemini не ответил вовремя. Проверь соединение сервера с Gemini."),
         NETWORK_ERROR("Серверу не удалось связаться с Gemini. Проверь его сетевой маршрут."),
-        ATTACHMENT_FAILED("Gemini не смог прочитать проверочный файл. Проверь загрузку файлов в веб-чате.");
+        ATTACHMENT_FAILED("Gemini не смог прочитать проверочный файл. Проверь загрузку файлов в веб-чате."),
+        WISH_REQUEST_FAILED("Gemini не смог обработать запрос на создание предмета."),
+        INVALID_PROPOSAL("Gemini так и не собрал рабочую программу предмета."),
+        INVALID_CONFIRMATION("Gemini не подтвердил проверенную программу предмета.");
 
         final String hint;
         SessionIssue(String hint) { this.hint = hint; }
@@ -215,6 +218,7 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
     }
 
     @Override public boolean independentConversations() { return true; }
+    @Override public boolean verifiesInWorker() { return true; }
 
     @Override public GenieScriptModel.Observation run(String prompt, String knowledge, String contract, byte[] verifier)
             throws IOException, InterruptedException {
