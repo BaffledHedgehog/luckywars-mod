@@ -303,19 +303,29 @@ public final class LbcGodHedgehog {
         a.marker.setPos(a.point);if(++a.age>=20)remove(a);
     }
     private void blastTick(){
-        long deadline=System.nanoTime()+2_000_000;int turns=lasers.size();
-        for(int n=0;n<turns&&!lasers.isEmpty()&&System.nanoTime()<deadline;n++){
-            var laser=lasers.removeFirst();var e=laser.encounter;if(!valid(e))continue;
-            var point=laser.origin.add(laser.direction.scale(laser.cursor*3d));
-            if(!paused(e.boss)&&resident(e.level,point)){
-                game.items().indirectKills().trapChanges(e.level,e.cause,()->game.items().exasperato().encounterBlast(e.boss,e.level,point,10,tnt->{
-                    tnt.entityTags().add(BLAST);tnt.setCustomName(Component.translatable("godbam"));blastSources.put(tnt,e);
-                }));
-                laser.cursor++;
+        long deadline=System.nanoTime()+2_000_000;
+        int remaining=lasers.size();
+        boolean advanced=false;
+        while(remaining>0&&!lasers.isEmpty()&&System.nanoTime()<deadline){
+            var laser=lasers.removeFirst();
+            var e=laser.encounter;
+            if(valid(e)){
+                var point=laser.origin.add(laser.direction.scale(laser.cursor*3d));
+                if(!paused(e.boss)&&resident(e.level,point)){
+                    game.items().indirectKills().trapChanges(e.level,e.cause,()->game.items().exasperato().encounterBlast(e.boss,e.level,point,10,tnt->{
+                        tnt.entityTags().add(BLAST);tnt.setCustomName(Component.translatable("godbam"));blastSources.put(tnt,e);
+                    }));
+                    laser.cursor++;
+                    advanced=true;
+                }
+                if(laser.cursor<101)lasers.addLast(laser);
             }
-            if(laser.cursor<101)lasers.addLast(laser);
-            // One slice per series per round; outstanding source explosions are retained, never capped or dropped.
-            if(n+1==turns&&System.nanoTime()<deadline){turns+=lasers.size();}
+            if(--remaining==0){
+                // Frozen and cold series keep their exact cursor. No work is ready before another tick.
+                if(!advanced)break;
+                remaining=lasers.size();
+                advanced=false;
+            }
         }
     }
     private static void sound(ServerLevel level,Vec3 at,String id,float volume,float pitch,float minimum){LbcOverload.sound(level,at,id,volume,pitch,0,minimum);}

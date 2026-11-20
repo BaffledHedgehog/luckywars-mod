@@ -201,6 +201,7 @@ public final class GodHedgehogChecks {
                 require(remote.addFreshEntity(cow),"actual Imprinted native blast recipient");
                 service.phaseForCheck(441);service.laserBoundary(remoteBoss,Vec3.atCenterOf(probe),new Vec3(0,1,0));
                 require(service.pendingBlasts()==101,"crossworld native laser retains full authored101-job series");
+                pausedBlastBudget(remoteBoss);
                 service.tick(); // One bounded native worker slice, not101 unbounded fixture explosions.
                 require(!remoteWarning.closed()&&remoteWarning.age()==1,"outside-arena warning remains alive and advances once with its native actor");
                 require(remote.getBlockState(probe).isAir()&&service.pendingBlasts()<101,"actual native God laser destroys stone outside arena");
@@ -211,6 +212,24 @@ public final class GodHedgehogChecks {
             }finally{
                 service.stop();if(cow!=null)cow.discard();remote.setBlock(probe,old,2);
                 var fresh=new ArrayList<Entity>();remote.getAllEntities().forEach(e->{if(!existing.contains(e)&&!(e instanceof ServerPlayer))fresh.add(e);});fresh.forEach(Entity::discard);restoreGuest();
+            }
+        }
+        void pausedBlastBudget(Silverfish frozenBoss) {
+            var work = java.lang.management.ManagementFactory.getThreadMXBean();
+            frozenBoss.entityTags().add("time_stopped");
+            try {
+                var blastTick = LbcGodHedgehog.class.getDeclaredMethod("blastTick");
+                blastTick.setAccessible(true);
+                long before = work.getCurrentThreadCpuTime();
+                for (int i = 0; i < 32; i++) blastTick.invoke(service);
+                long after = work.getCurrentThreadCpuTime();
+                require(service.pendingBlasts() == 101, "paused laser retains all native blasts at the original cursor");
+                if (before >= 0 && after >= before)
+                    SkyWars2.LOGGER.info("[check] God Hedgehog frozen laser CPU over 32 worker visits: {} ns", after - before);
+            } catch (ReflectiveOperationException error) {
+                throw new IllegalStateException("Could not invoke the native laser worker", error);
+            } finally {
+                frozenBoss.entityTags().remove("time_stopped");
             }
         }
         boolean step(){
