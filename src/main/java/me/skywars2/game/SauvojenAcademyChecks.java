@@ -616,11 +616,7 @@ public final class SauvojenAcademyChecks {
             emit(stack,LbcSauvojen.Kind.TERRA,5,origin,new Vec3(0,1,0));
             var beam=base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast)
                     .filter(p->p.particle().getType()==net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK).toList();
-            require(beam.size()==121,"direct Fevgalea source beam has121 samples including both endpoints");
-            for(int i=0;i<121;i++) {
-                var p=beam.get(i);near(new Vec3(p.x(),p.y(),p.z()),origin.add(0,i,0),"Fevgalea exact detached beam sample "+i);
-                require(p.count()==10&&p.xDist()==1.5f&&p.yDist()==1.5f&&p.zDist()==1.5f,"Fevgalea source beam count/spread "+i);
-            }
+            FevgaleaStarChecks.verifyBeamPackets(game,beam,origin,new Vec3(0,1,0),121,"Academy");
             require(service.stars().count()==0,"instant Fevgalea beam does not create a timed carrier");clear();
             for(int mode=6;mode<=9;mode++) {
                 emit(stack,LbcSauvojen.Kind.TERRA,mode,origin,direction);

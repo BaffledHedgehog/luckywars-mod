@@ -1,11 +1,16 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.FixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
@@ -22,6 +27,9 @@ import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
@@ -30,6 +38,33 @@ public final class FevgaleaStarChecks {
     private FevgaleaStarChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Fevgalea Star: "+why);}
     private static void near(double actual,double expected,String why){require(Math.abs(actual-expected)<1e-4,why+" actual="+actual+" expected="+expected);}
+    private static boolean unbatched(GameController game) {
+        return game.balanceLegacy()||Boolean.getBoolean("skywars2.checkUnbatchedFevgalea");
+    }
+    static void verifyBeamPackets(GameController game, List<ClientboundLevelParticlesPacket> packets,
+                                  Vec3 origin, Vec3 direction, int samples, String label) {
+        int particles=packets.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
+        SkyWars2.LOGGER.info("[check] Fevgalea {} beam: {} packets for {} sparks",label,packets.size(),particles);
+        int group=unbatched(game)?1:3;
+        require(packets.size()==(samples+group-1)/group&&particles==samples*10,
+                label+" beam keeps its ten-spark samples and batches only adjacent samples");
+        int index=0;
+        for(var packet:packets) {
+            int combined=Math.min(samples-index,group);
+            Vec3 center=origin.add(direction.scale(index+(combined-1)*.5));
+            double variance=(combined*combined-1)/12.0;
+            require(packet.overrideLimiter()&&!packet.alwaysShow()&&packet.count()==combined*10,
+                    "spark batch keeps forced visibility and exact density through the terminal");
+            near(new Vec3(packet.x(),packet.y(),packet.z()).distanceToSqr(center),0,"spark batch center");
+            near(packet.xDist(),Math.sqrt(2.25+direction.x*direction.x*variance),"spark X spread");
+            near(packet.yDist(),Math.sqrt(2.25+direction.y*direction.y*variance),"spark Y spread");
+            near(packet.zDist(),Math.sqrt(2.25+direction.z*direction.z*variance),"spark Z spread");
+            near(packet.xMaxSpeed(),2,"original spark motion");
+            near(packet.yMaxSpeed(),2,"original spark motion");
+            near(packet.zMaxSpeed(),2,"original spark motion");
+            index+=combined;
+        }
+    }
     private static void text(Component component,String key,int color){
         require(component!=null&&component.getContents() instanceof TranslatableContents translated&&translated.getKey().equals(key)
                 &&component.getStyle().getColor()!=null&&component.getStyle().getColor().getValue()==color&&!component.getStyle().isItalic(),"source text/style "+key);
@@ -116,17 +151,78 @@ public final class FevgaleaStarChecks {
                     &&owner.getEffect(MobEffects.RESISTANCE).getDuration()==140,"source native full healing and resistanceV7seconds");
             require(base.mana.score(owner,"void_resistance").get()==beforeVoid+7,"heal adds actual source void counter7");
             owner.removeAllEffects();base.mana.score(owner,"void_resistance").set(0);owner.setShiftKeyDown(false);owner.setHealth(17.8f);charge(1);base.mana.set(owner,-200);
-            var beamVictim=cow(owner.position().add(0,0,6),200);int contacts=0;
-            for(int sample=0;sample<=120;sample++)if(beamVictim.position().distanceToSqr(owner.getEyePosition().add(owner.getLookAngle().scale(sample)))<=16)contacts++;
-            require(contacts==7,"source one-block ray samples intersect radius4 seven times at this native geometry");
-            require(input(InteractionHand.MAIN_HAND)&&counter()==0&&base.mana.get(owner)==-200,"charged normal consumes1 free of mana admission");
-            near(beamVictim.getHealth(),200-contacts*Math.floor(17.8f),"source outside_border bypasses cooldown for every geometric contact sample");
-            require(beamVictim.getLastHurtByPlayer()==owner,"playerHealth ray retains native caster credit");clear();
+            chargedBeam();
             owner.setShiftKeyDown(true);charge(7);base.mana.set(owner,-300);var half=cow(owner.position().add(0,0,6),100);half.setHealth(25.5f);
             require(input(InteractionHand.MAIN_HAND)&&counter()==0&&base.mana.get(owner)==-300,"charged sneak consumes7 free of mana admission");
             near(half.getHealth(),13.5,"charged area floors half CURRENT health25.5 to12 damage");require(half.getLastHurtByPlayer()==owner,"charged area preserves player author");clear();
             charge(6);base.mana.set(owner,4999);require(!input(InteractionHand.MAIN_HAND)&&counter()==6&&base.mana.get(owner)==4999,"six charges cannot buy charged area or bypass heal mana");
             owner.setShiftKeyDown(false);charge(0);owner.setHealth(200);
+        }
+        void chargedBeam() {
+            var owner=base.owner;
+            var level=owner.level();
+            Vec3 position=owner.position();
+            var saved=new LinkedHashMap<BlockPos,BlockState>();
+            // Keep all fourteen samples, including the solid terminal, inside one native FULL column.
+            owner.teleportTo(level,position.x,position.y,owner.chunkPosition().getMinBlockZ()+.5,Set.of(),0,0,true);
+            try {
+                Vec3 origin=owner.getEyePosition(), direction=owner.getLookAngle();
+                int samples=14;
+                for(int i=0;i<samples;i++) {
+                    var cell=BlockPos.containing(origin.add(direction.scale(i)));
+                    require(level.hasChunkAt(cell),"charged beam sample has a real resident chunk");
+                    saved.put(cell,level.getBlockState(cell));
+                    level.setBlock(cell,i==samples-1?Blocks.OBSIDIAN.defaultBlockState():Blocks.AIR.defaultBlockState(),
+                            Block.UPDATE_CLIENTS);
+                }
+                var victim=cow(owner.position().add(0,0,6),200);
+                int contacts=0;
+                for(int i=0;i<samples;i++)
+                    if(victim.position().distanceToSqr(origin.add(direction.scale(i)))<=16)contacts++;
+                require(contacts==7,"source one-block ray samples intersect radius4 seven times at this native geometry");
+                base.recording.packets.clear();
+                require(input(InteractionHand.MAIN_HAND)&&counter()==0&&base.mana.get(owner)==-200,
+                        "charged normal consumes1 free of mana admission");
+                near(victim.getHealth(),200-contacts*Math.floor(17.8f),
+                        "source outside_border bypasses cooldown for every geometric contact sample");
+                require(victim.getLastHurtByPlayer()==owner,"playerHealth ray retains native caster credit");
+
+                verifyBeamPackets(game,particlePackets(ParticleTypes.ELECTRIC_SPARK),origin,direction,samples,"sword");
+            } finally {
+                clear();
+                saved.forEach((at,state)->level.setBlock(at,state,Block.UPDATE_CLIENTS));
+                owner.teleportTo(level,position.x,position.y,position.z,Set.of(),0,0,true);
+            }
+        }
+        private List<ClientboundLevelParticlesPacket> particlePackets(ParticleType<?> kind) {
+            return base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(ClientboundLevelParticlesPacket.class::cast).filter(packet->packet.particle().getType()==kind).toList();
+        }
+        private void verifyFlightPackets(String label, ParticleType<?> type, List<Vec3> rows, Vec3 step,
+                                         int samples, boolean force, float speed) {
+            var packets=particlePackets(type);
+            int particles=packets.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
+            SkyWars2.LOGGER.info("[check] Fevgalea {} trail: {} packets for {} particles",label,packets.size(),particles);
+            require(packets.size()==rows.size()*samples&&particles==packets.size(),
+                    label+" retains one particle at each point of every original row");
+            DustParticleOptions dust=type==ParticleTypes.DUST?(DustParticleOptions)packets.getFirst().particle():null;
+            int index=0;
+            for(int offset=0;offset<samples;offset++) for(var row:rows) {
+                var center=row.add(step.scale(offset));
+                var packet=packets.get(index++);
+                require(center.distanceToSqr(new Vec3(packet.x(),packet.y(),packet.z()))<1e-10,
+                        label+" keeps the exact sample and row order");
+                require(packet.count()==1&&packet.overrideLimiter()==force&&!packet.alwaysShow(),
+                        label+" retains native density and viewer range");
+                require(packet.xMaxSpeed()==speed&&packet.yMaxSpeed()==speed&&packet.zMaxSpeed()==speed,
+                        label+" keeps exact particle velocity parameters");
+                if(dust!=null) {
+                    var actual=(DustParticleOptions)packet.particle();
+                    require(actual.getColor().equals(dust.getColor())&&actual.getScale()==1,"one original dust color and scale");
+                }
+                require(packet.xDist()==0&&packet.yDist()==0&&packet.zDist()==0,
+                        label+" adds no position jitter");
+            }
         }
         void acceptedDamage(){
             var owner=base.owner;held(InteractionHand.MAIN_HAND);charge(0);owner.setShiftKeyDown(false);
@@ -139,8 +235,16 @@ public final class FevgaleaStarChecks {
             var actor=stars.snapshot().stream().filter(v->v.kind()==SauvojenStars.Kind.CHARGE).findFirst().orElseThrow();
             require(actor.owner()==owner&&actor.flavour()>=1&&actor.flavour()<=3&&actor.lifetime()==40,"actual melee emits one source random40-tick charge");
             near(actor.position().distanceToSqr(owner.getEyePosition()),0,"melee projectile at actual player eye origin");
-            target.setInvulnerableTime(0);target.damageCooldownTime=0;target.setHealth(200);float damage=SauvojenStars.chargeDamage(target,actor.flavour());stars.tick();
-            require(target.getHealth()<200&&counter()==1,"own actual star damage is accepted without recursively granting charges");near(target.getHealth(),200-damage,"exact native selected-flavour projectile formula");clear();
+            target.setInvulnerableTime(0);target.damageCooldownTime=0;target.setHealth(200);float damage=SauvojenStars.chargeDamage(target,actor.flavour());
+            base.recording.packets.clear();stars.tick();
+            require(target.getHealth()<200&&counter()==1,"own actual star damage is accepted without recursively granting charges");near(target.getHealth(),200-damage,"exact native selected-flavour projectile formula");
+            var lateral = new Vec3(actor.direction().z,0,-actor.direction().x).normalize();
+            var rows = new ArrayList<Vec3>();rows.add(actor.position());
+            double[] width={.2,.4,.6,.75}, depth={-.07,-.15,-.2,-.25};
+            for(int sign:new int[]{1,-1})for(int i=0;i<width.length;i++)
+                rows.add(actor.position().add(lateral.scale(sign*width[i])).add(actor.direction().scale(depth[i])));
+            verifyFlightPackets("charge",ParticleTypes.DUST,rows,actor.direction().scale(.2),10,false,0);
+            clear();
             var victim=cow(owner.position().add(0,0,5),100);var type=owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE);
             charge(0);require(victim.hurtServer(owner.level(),new DamageSource(type.getOrThrow(DamageTypes.MAGIC),owner),2),"native external non-arrow owner damage accepted");
             require(counter()==1&&stars.snapshot().stream().filter(v->v.kind()==SauvojenStars.Kind.CHARGE).count()==1,"source any accepted owner non-arrow hit charges once");
@@ -161,6 +265,38 @@ public final class FevgaleaStarChecks {
                 owner.level().getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_DROPS,drops,game.server());
                 owner.getStats().setValue(owner,Stats.ENTITY_KILLED.get(EntityTypes.COW),kills);restoreAdvancements(advancementState);
                 game.players().get(owner.getUUID()).lbcUnlocks.clear();game.players().get(owner.getUUID()).lbcUnlocks.addAll(unlocks);clear();
+            }
+        }
+        void fallingTrail() {
+            var owner=base.owner;
+            held(InteractionHand.MAIN_HAND);charge(0);owner.setShiftKeyDown(false);base.mana.set(owner,1000);
+            var access=(FixtureAccess.EntityRandom)owner;
+            var original=owner.getRandom();
+            var random=new ItemFixtureChecks.DelegatingRandom(original) {
+                private boolean first=true;
+                @Override public boolean nextBoolean() { boolean result=first;first=false;return result; }
+                @Override public int nextInt(int bound) {
+                    return bound==360001?180000:bound==20001?20000:super.nextInt(bound);
+                }
+                @Override public float nextFloat() { return .9f; }
+            };
+            access.validation$random(random);
+            try {
+                require(input(InteractionHand.MAIN_HAND)&&base.mana.get(owner)==0,"native paid falling-star source");
+                stars.tick();
+                var drop=stars.snapshot().stream().filter(v->v.kind()==SauvojenStars.Kind.DROP).findFirst().orElseThrow();
+                require(drop.age()==0&&drop.direction().y<-.9999,"native rain spawns one downward drop");
+                base.recording.packets.clear();
+                stars.tick();
+                require(stars.snapshot().stream().anyMatch(v->v.carrier()==drop.carrier()&&v.age()==1
+                        &&v.position().distanceToSqr(drop.position().add(drop.direction().scale(3.3)))<1e-10),
+                        "actual drop traverses all eleven samples in one active tick");
+                var rows=List.of(drop.position());var step=drop.direction().scale(.33);
+                verifyFlightPackets("drop sparks",ParticleTypes.END_ROD,rows,step,11,false,.25f);
+                verifyFlightPackets("drop dust",ParticleTypes.DUST,rows,step,11,true,0);
+            } finally {
+                access.validation$random(original);
+                clear();
             }
         }
         void independentOffhand(){
@@ -252,7 +388,7 @@ public final class FevgaleaStarChecks {
     }
     private static List<SauvojenStars.View> retained;private static String retainedEpoch;private static ServerPlayer retainedOwner;
     public static void run(GameController game){
-        try(var fixture=new Fixture(game)){fixture.presentation();fixture.inputs();fixture.acceptedDamage();fixture.independentOffhand();fixture.friendlyPlayers();fixture.guardsAndBonuses();fixture.lifecycle();}
+        try(var fixture=new Fixture(game)){fixture.presentation();fixture.inputs();fixture.acceptedDamage();fixture.fallingTrail();fixture.independentOffhand();fixture.friendlyPlayers();fixture.guardsAndBonuses();fixture.lifecycle();}
         SkyWars2.LOGGER.info("[check] PASS fevgalea-star (authored sword, four native inputs/exact costs, real melee/non-arrow charge hook, self-payload recursion guard, source health formulas, Mage/Overload, pause/purify/lifetime)");
     }
     public static void stopProbe(GameController game){
