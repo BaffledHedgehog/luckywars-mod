@@ -120,6 +120,7 @@ final class MatchSpellCheckpoint {
         // index only after every shared policy/body link has installed successfully.
         game.items().familyDrops().reindexAfterRestore();
         var nativeBodies=MatchActorCheckpoint.currentBodies(game).values();
+        game.items().lifetimes().reindexVisibleProjectiles(nativeBodies);
         game.items().specialDrops().reindexRestored(nativeBodies);
         game.items().looseRewards().reindexRestored(nativeBodies);
         game.items().communism().reindexOwnership(nativeBodies);

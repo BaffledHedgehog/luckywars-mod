@@ -72,7 +72,9 @@ public final class ProjectileLifetimes {
     private final GameController game;
     private final Set<LivingEntity> targets = new LinkedHashSet<>();
     private final IdentityHashMap<LivingEntity,ServerLevel> radarLocations = new IdentityHashMap<>();
-    private final IdentityHashMap<ServerLevel,RadarWorld> radarWorlds = new IdentityHashMap<>();
+    private final IdentityHashMap<ServerLevel,WorldIndex<LivingEntity>> radarWorlds = new IdentityHashMap<>();
+    private final IdentityHashMap<Projectile,ServerLevel> projectileLocations = new IdentityHashMap<>();
+    private final IdentityHashMap<ServerLevel,WorldIndex<Projectile>> projectileWorlds = new IdentityHashMap<>();
     private final ArrayDeque<Review> queue = new ArrayDeque<>();
     private final IdentityHashMap<Projectile, Review> tracked = new IdentityHashMap<>();
     private List<LivingEntity> targetSnapshot = List.of();
@@ -83,11 +85,11 @@ public final class ProjectileLifetimes {
     private boolean stopped;
     private boolean reviewing;
 
-    private static final class RadarWorld {
-        final Set<LivingEntity> entities = Collections.newSetFromMap(new IdentityHashMap<>());
-        List<LivingEntity> snapshot;
+    private static final class WorldIndex<T extends Entity> {
+        final Set<T> entities = Collections.newSetFromMap(new IdentityHashMap<>());
+        List<T> snapshot;
 
-        List<LivingEntity> targets() {
+        List<T> snapshot() {
             if (snapshot == null) snapshot = List.copyOf(entities);
             return snapshot;
         }
@@ -96,18 +98,27 @@ public final class ProjectileLifetimes {
     ProjectileLifetimes(GameController game) {
         this.game = game;
         var level = game.maps().level();
-        if (level != null) for (var entity : level.getAllEntities())
-            if (entity instanceof LivingEntity living) targets.add(living);
         // Startup may already have loaded bodies. Later changes are indexed by native lifecycle events.
         for (var world : game.server().getAllLevels()) {
-            if (world == level || !LbcDimensionItems.ordinary(world)) continue;
-            for (var entity : world.getAllEntities())
-                if (entity instanceof LivingEntity living && !(living instanceof ServerPlayer)) radarLocation(living, world);
+            boolean arena = world == level;
+            boolean radarWorld = !arena && LbcDimensionItems.ordinary(world);
+            for (var entity : world.getAllEntities()) {
+                if (entity instanceof Projectile projectile) projectileLocation(projectile, world);
+                if (entity instanceof LivingEntity living) {
+                    if (arena) targets.add(living);
+                    else if (radarWorld && !(living instanceof ServerPlayer)) radarLocation(living, world);
+                }
+            }
         }
     }
 
     public void loaded(Entity entity) {
-        if (stopped || !(entity instanceof LivingEntity living) || game.items().polymorph().detached(entity)) return;
+        if (stopped) return;
+        if (entity instanceof Projectile projectile && entity.level() instanceof ServerLevel world) {
+            if (!projectile.isRemoved() && !game.items().polymorph().detached(entity)) projectileLocation(projectile, world);
+            return;
+        }
+        if (!(entity instanceof LivingEntity living) || game.items().polymorph().detached(entity)) return;
         if (entity.level() == game.maps().level()) {
             radarLocation(living, null);
             if (targets.add(living)) targetRevision++;
@@ -118,12 +129,16 @@ public final class ProjectileLifetimes {
 
     public void unloaded(Entity entity) {
         if (entity instanceof LivingEntity living) removeTarget(living);
-        if (entity instanceof Projectile projectile) forget(projectile);
+        if (entity instanceof Projectile projectile) {
+            projectileLocation(projectile, null);
+            forget(projectile);
+        }
     }
     /** Visibility changes do not cancel accepted projectile reviews or their private clocks. */
     void polymorphVisibility(Entity entity,boolean visible){
         if(visible){loaded(entity);return;}
         if(entity instanceof LivingEntity living)removeTarget(living);
+        if(entity instanceof Projectile projectile)projectileLocation(projectile,null);
     }
 
     private void removeTarget(LivingEntity entity) {
@@ -133,22 +148,45 @@ public final class ProjectileLifetimes {
 
     /** An unload can be cancelled by a following load. Remove the old world entry at either boundary. */
     private void radarLocation(LivingEntity entity, ServerLevel level) {
-        var previous = radarLocations.get(entity);
+        moveIndex(entity, level, radarLocations, radarWorlds);
+    }
+
+    private void projectileLocation(Projectile projectile, ServerLevel level) {
+        moveIndex(projectile, level, projectileLocations, projectileWorlds);
+    }
+
+    private static <T extends Entity> void moveIndex(T entity, ServerLevel level, Map<T,ServerLevel> locations,
+                                                     Map<ServerLevel,WorldIndex<T>> worlds) {
+        var previous = locations.get(entity);
         if (previous == level) return;
         if (previous != null) {
-            var oldWorld = radarWorlds.get(previous);
+            var oldWorld = worlds.get(previous);
             oldWorld.entities.remove(entity);
             oldWorld.snapshot = null;
-            if (oldWorld.entities.isEmpty()) radarWorlds.remove(previous);
+            if (oldWorld.entities.isEmpty()) worlds.remove(previous);
         }
         if (level == null) {
-            radarLocations.remove(entity);
+            locations.remove(entity);
         } else {
-            radarLocations.put(entity, level);
-            var newWorld = radarWorlds.computeIfAbsent(level, ignored -> new RadarWorld());
+            locations.put(entity, level);
+            var newWorld = worlds.computeIfAbsent(level, ignored -> new WorldIndex<>());
             newWorld.entities.add(entity);
             newWorld.snapshot = null;
         }
+    }
+
+    /** Classify protected spell tags at the sweep, since a native owner may add them after load. */
+    List<Projectile> loadedProjectiles(ServerLevel level) {
+        var world = projectileWorlds.get(level);
+        return world == null ? List.of() : world.snapshot();
+    }
+
+    void reindexVisibleProjectiles(Iterable<Entity> bodies) {
+        projectileLocations.clear();
+        projectileWorlds.clear();
+        for (var body : bodies) if (body instanceof Projectile projectile && !projectile.isRemoved()
+                && projectile.level() instanceof ServerLevel level && level.getEntity(projectile.getUUID()) == projectile)
+            projectileLocation(projectile, level);
     }
 
     public void track(Projectile projectile) {
@@ -168,7 +206,7 @@ public final class ProjectileLifetimes {
     List<LivingEntity> loadedRadarTargets(ServerLevel level) {
         if (level == game.maps().level()) return loadedTargets();
         var world = radarWorlds.get(level);
-        return world == null ? List.of() : world.targets();
+        return world == null ? List.of() : world.snapshot();
     }
 
     /** Native section iteration has its own order. Preserve publication order for equal-distance targets. */

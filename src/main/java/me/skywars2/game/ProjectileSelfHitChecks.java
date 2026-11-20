@@ -60,6 +60,59 @@ public final class ProjectileSelfHitChecks {
             && event.getEvent() == ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
     }
 
+    private static void greedSweep(GameController game,ServerPlayer owner,ServerPlayer ally) {
+        var level=owner.level();
+        var lifetimes=game.items().lifetimes();
+        var unrelated=new ArrayList<Cow>();
+        var center=ally.getEyePosition();
+        var from=center.add(0,0,-36);
+        var motion=new Vec3(0,0,40);
+        level.getChunkAt(net.minecraft.core.BlockPos.containing(from));
+        var shot=new Arrow(level,owner,new ItemStack(Items.ARROW),null);
+        var before=lifetimes.loadedProjectiles(level);
+        require(before.stream().noneMatch(ProjectileLifetimes::protectedWandProjectile),"Greed fixture starts without protected projectiles");
+        try {
+            for(int i=0;i<16;i++) {
+                var mob=new Cow(EntityTypes.COW,level);
+                mob.setNoAi(true);mob.setNoGravity(true);mob.setPos(center.add((i%4)*.3,0,4+(i/4)*.3));
+                unrelated.add(mob);
+                require(level.addFreshEntity(mob),"unrelated native mob in tracked arena section");
+            }
+            LbcGreed.tick(game);
+            ally.entityTags().add("sin_greed_active");
+            LbcGreed.tick(game);
+            require(lifetimes.loadedProjectiles(level).equals(before),"Greed's projectile index excludes unrelated warm mobs");
+
+            shot.setPos(from);shot.setDeltaMovement(motion);
+            require(level.addFreshEntity(shot)&&level.getEntity(shot.getUUID())==shot,"real native projectile published in arena");
+            require(lifetimes.loadedProjectiles(level).stream().anyMatch(body->body==shot),"native load indexes an initially ordinary projectile");
+            LbcGreed.tick(game);
+            require(shot.getOwner()==owner&&shot.getDeltaMovement().equals(motion),"regular arrows still use native impact reflection only");
+
+            shot.entityTags().add("skywars2.wand.air");
+            lifetimes.reindexVisibleProjectiles(MatchActorCheckpoint.currentBodies(game).values());
+            var otherWorld=game.server().getLevel(net.minecraft.world.level.Level.NETHER);
+            if(otherWorld!=null&&otherWorld!=level)require(lifetimes.loadedProjectiles(otherWorld).stream().noneMatch(body->body==shot),
+                    "restored visible native projectile is indexed only for its own dimension");
+            LbcGreed.tick(game);
+            require(shot.getOwner()==ally&&shot.getDeltaMovement().equals(motion.reverse())&&shot.entityTags().contains(LbcGreed.REFLECTED),
+                    "late-tagged restored projectile reflects against the entire native sweep at unchanged speed");
+            LbcGreed.tick(game);
+            require(shot.getOwner()==ally&&shot.getDeltaMovement().equals(motion.reverse()),"reversed projectile does not reflect twice");
+
+            shot.setOwner(owner);shot.setDeltaMovement(motion);shot.entityTags().remove(LbcGreed.REFLECTED);shot.discard();
+            require(level.getEntity(shot.getUUID())!=shot,"discard removes native visible identity immediately");
+            LbcGreed.tick(game);
+            require(shot.getOwner()==owner&&shot.getDeltaMovement().equals(motion),"pending unload cannot reflect a removed projectile");
+            lifetimes.reindexVisibleProjectiles(MatchActorCheckpoint.currentBodies(game).values());
+            require(lifetimes.loadedProjectiles(level).stream().noneMatch(body->body==shot),"canonical reindex excludes removed projectile");
+        } finally {
+            ally.entityTags().remove("sin_greed_active");
+            shot.discard();
+            unrelated.forEach(Entity::discard);
+        }
+    }
+
     private static Arrow feedbackArrow(ServerPlayer owner, List<Entity> actors, Vec3 at) {
         var arrow = new Arrow(owner.level(), owner, new ItemStack(Items.ARROW), null);
         actors.add(arrow);
@@ -199,6 +252,7 @@ public final class ProjectileSelfHitChecks {
             var cow=new Cow(EntityTypes.COW,owner.level());cow.setPos(at.add(4,0,0));cow.setNoAi(true);cow.setNoGravity(true);
             cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);require(owner.level().addFreshEntity(cow),"friendly native mob publication");actors.add(cow);
             board.addPlayerToTeam(cow.getScoreboardName(),team);
+            greedSweep(game,owner,ally);
             feedback(game,owner,ally,cow,actors,at);
             sourceArrows(game,owner,ally,cow,actors,at);
             for(var target:List.<LivingEntity>of(owner,ally,cow)){

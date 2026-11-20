@@ -14,9 +14,12 @@ public final class LbcGreed {
 
     /** Manual spell actors move in family services, outside vanilla projectile collision. */
     public static void tick(GameController game) {
+        var lifetimes=game.items().lifetimes();
         for(var level:game.server().getAllLevels()) {
             if(level.players().stream().noneMatch(LbcGreed::active)) continue;
-            for(var entity:level.getAllEntities()) if(entity instanceof Projectile shot && ProjectileLifetimes.protectedWandProjectile(shot)) {
+            for(var shot:lifetimes.loadedProjectiles(level)) {
+                if(!ProjectileLifetimes.protectedWandProjectile(shot) || shot.isRemoved() || shot.level()!=level
+                        || level.getEntity(shot.getUUID())!=shot) continue;
                 var hit=firstHit(level,shot.position(),shot.position().add(shot.getDeltaMovement()),shot.getBbWidth()/2);
                 if(hit!=null && (shot.getOwner()!=hit.getEntity() || !hit.getEntity().getBoundingBox().inflate(.2).contains(shot.position()))) reflect(shot,hit.getEntity());
             }
