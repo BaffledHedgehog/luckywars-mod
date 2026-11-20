@@ -1549,6 +1549,7 @@ public final class GameChecks {
                                 case "current-lucky-spawner" -> {CurrentSpawnerChecks.run(game);return;}
                                 case "uniform-item-pools" -> {UniformItemPoolChecks.run(game);return;}
                                 case "genie" -> { GenieChecks.run(game); return; }
+                                case "genie-lobby" -> { GenieLobbyChecks.run(game); return; }
                                 case "genie-api" -> { GenieApiChecks.run(game); return; }
                                 case "bulk-loot" -> {BulkLootChecks.run(game);return;}
                                 case "bucks-trader" -> {BucksTraderChecks.run(game);return;}
@@ -1973,6 +1974,7 @@ public final class GameChecks {
         TikTokNetworkChecks.tick(game);
         MusicStaffChecks.tick(game);
         GenieChecks.tick(game);
+        GenieLobbyChecks.tick(game);
         GenieApiChecks.tick();
         GuardianBeamChecks.tick(game);
         CastAchievementChecks.tick(game);

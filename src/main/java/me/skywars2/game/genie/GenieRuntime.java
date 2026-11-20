@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.util.Prediction;
 import me.skywars2.game.*;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.*;
@@ -39,6 +40,7 @@ public final class GenieRuntime {
     private final Map<String,GenieBlueprint> programs=new LinkedHashMap<>();
     private boolean dispatching;
     private final Set<Entity> projectiles=Collections.newSetFromMap(new IdentityHashMap<>());
+    private boolean roundHadLifetimeActors;
     private static final String SHOT_POWER="skywars2.genie_power/",SHOT_LIFE="skywars2.genie_life/";
     private static final AttachmentType<ShotAge> SHOT_AGE = AttachmentRegistry.create(
             Identifier.parse("skywars2:genie_shot_age"),
@@ -344,8 +346,13 @@ public final class GenieRuntime {
             case WET_ONLY,DRY_ONLY,NIGHT_ONLY,AIR_ONLY -> {}
         }
     }
+    private static boolean lifetimeActor(Entity entity) {
+        return (entity instanceof Projectile || entity instanceof Mob) && tagNumber(entity, SHOT_LIFE, -1) > 0;
+    }
+
     public void loaded(Entity entity) {
-        if (!(entity instanceof Projectile || entity instanceof Mob) || tagNumber(entity, SHOT_LIFE, -1) <= 0) return;
+        if (!lifetimeActor(entity)) return;
+        if (game.items().currentEpoch(entity)) roundHadLifetimeActors = true;
         var age = entity.getAttached(SHOT_AGE);
         if (age == null || age.body() != entity) {
             int previous = age == null ? Math.max(0, entity.tickCount) : age.elapsed();
@@ -387,5 +394,31 @@ public final class GenieRuntime {
     }
     public Snapshot snapshot(){return new Snapshot(this);}
     public void forget(ServerPlayer p){scripts.forget(p);cooldowns.keySet().removeIf(key->key.owner.equals(p.getUUID()));}
-    public void clear(){scripts.clear();cooldowns.clear();programs.clear();projectiles.clear();}
+
+    void endRound() {
+        if (roundHadLifetimeActors) {
+            retireRoundActors();
+            roundHadLifetimeActors = false;
+        }
+        clear();
+    }
+
+    private void retireRoundActors() {
+        // A tracking unload can leave the body registered in a hidden native section.
+        // Snapshot owned actors before discarding so their callbacks cannot mutate the scan.
+        var actors = new ArrayList<Entity>();
+        for (var world : game.server().getAllLevels()) {
+            var manager = ((ActorCheckpointAccess.LevelEntities) world).skywars2$manager();
+            var sections = ((ActorCheckpointAccess.Sections) manager).skywars2$sections();
+            var chunks = sections.getAllChunksWithExistingSections().iterator();
+            while (chunks.hasNext()) {
+                sections.getExistingSectionsInChunk(chunks.nextLong()).flatMap(section -> section.getEntities())
+                        .filter(entity -> !entity.isRemoved() && game.items().currentEpoch(entity) && lifetimeActor(entity))
+                        .forEach(actors::add);
+            }
+        }
+        for (var actor : actors) if (!actor.isRemoved()) actor.discard();
+    }
+
+    void clear(){scripts.clear();cooldowns.clear();programs.clear();projectiles.clear();}
 }

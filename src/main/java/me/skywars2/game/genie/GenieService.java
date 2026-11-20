@@ -299,7 +299,8 @@ public final class GenieService implements AutoCloseable {
         }
     }
     public void cancelAll(){for(var wish:List.copyOf(wishes.values()))cancel(wish.owner);dialogs.clear();warnings.clear();}
-    public void stop(){cancelAll();runtime.clear();}
+    public void stop(){cancelAll();runtime.endRound();}
+    public void prepareResidentFrozen(){cancelAll();runtime.clear();}
     void activateApi(GenieScriptModel.Transport transport) {
         if (scriptModel == null) scriptModel = new GenieScriptModel(transport);
         else scriptModel.useTransport(transport);

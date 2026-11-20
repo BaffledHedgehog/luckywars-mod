@@ -2802,7 +2802,7 @@ public final class LbcItems {
     /** Private resident state only; native attributes, inventory and scores remain canonical. */
     ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
     void prepareResidentFrozen(){
-        genie.stop();
+        genie.prepareResidentFrozen();
         turnCurses.clear();rotations.clear();rockets.clear();rechargingRockets.clear();nanoTraps.clear();originalNanoAttributes.clear();rocketCraftDrops.clear();
         tickBatch.clear();rocketBatch.clear();markerBatch.clear();nearbyTraps.clear();hudStates.clear();
     }

@@ -136,16 +136,24 @@ final class GenieLaunchChecks {
                     net.minecraft.util.ProblemReporter.DISCARDING,base.level.registryAccess(),snapshot));
             require(restored.getUUID().equals(uuid)&&restored.tickCount==0&&base.level.addFreshEntity(restored),
                     "native body reload preserves identity and resets vanilla's transient tick counter");
+            // Native movement and freeze were checked above. Isolate the remaining age
+            // from fall damage, mobs and terrain in the disposable lifetime probe.
+            restored.setDeltaMovement(Vec3.ZERO);
+            restored.setNoGravity(true);
+            restored.setNoAi(true);
+            restored.setInvulnerableTime(80);
             body=restored;
             phase=2;return false;
         }
         if(phase==2){
+            var ageDetails=" reason="+body.getRemovalReason()+" position="+body.position()
+                    +" savedAge="+savedAge+" reloadedTicks="+body.tickCount+" serverTicks="+age;
             if(!body.isRemoved()){
-                require(savedAge+body.tickCount<60&&age<80,"native mob must expire at 60 cumulative active ticks after reload");
+                require(savedAge+body.tickCount<60&&age<80,"native mob must expire at 60 cumulative active ticks after reload"+ageDetails);
                 return false;
             }
             require(body.getRemovalReason()==Entity.RemovalReason.DISCARDED&&savedAge+body.tickCount==60,
-                    "reloaded native mob expires exactly at its original active lifetime");
+                    "reloaded native mob expires exactly at its original active lifetime"+ageDetails);
             base.owner.stopUsingItem();base.owner.setXRot(-60);
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,GenieRuntime.construct(plan("stick",Trigger.USE,"ender_pearl",40,60)));
             var previous=base.level.getEntitiesOfClass(ThrownEnderpearl.class,base.owner.getBoundingBox().inflate(8)).stream().map(Entity::getUUID).collect(java.util.stream.Collectors.toSet());
