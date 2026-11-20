@@ -14,6 +14,10 @@
         const button = [...main.querySelectorAll("button")].find(e => e.innerText.trim() === label);
         return button ? button.getAttribute("aria-pressed") : null;
     };
+    const stopControls = main.querySelectorAll(
+        'button[data-testid="stop-button"],button[aria-label="Stop"],button[aria-label="Stop generating"]');
+    const generating = [...stopControls].some(button => !button.disabled
+        && button.getAttribute("aria-disabled") !== "true" && button.getClientRects().length > 0);
     const replies = [...main.querySelectorAll('[data-markdown-text-style="assistant-message"]')].map(e => ({
         message: e.closest("[data-response-body]")?.getAttribute("data-response-body") ?? null,
         text: e.querySelector?.("pre code")?.textContent ?? e.textContent
@@ -39,6 +43,7 @@
         exactModel: /\b5\.6 Medium$/.test(selected),
         chat: mode("Chat"),
         work: mode("Work"),
+        generating,
         replies,
         executions
     };

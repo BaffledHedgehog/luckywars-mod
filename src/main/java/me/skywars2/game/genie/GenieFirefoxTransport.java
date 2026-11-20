@@ -37,7 +37,7 @@ final class GenieFirefoxTransport implements GenieScriptModel.Transport {
                     Integer.toString(port), request.toString())
                 .directory(mcp.toFile()).redirectOutput(result.toFile()).redirectError(ProcessBuilder.Redirect.DISCARD).start();
             try {
-                if (!process.waitFor(250, TimeUnit.SECONDS)) throw new IOException("Firefox wish timed out");
+                process.waitFor();
                 if (process.exitValue() != 0) throw new IOException("paired Firefox wish failed");
                 if (Files.size(result) > 4_194_304) throw new IOException("Firefox reply exceeds input bounds");
                 JsonObject observation = ScriptJson.parse(Files.readString(result));

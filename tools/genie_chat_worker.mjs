@@ -40,7 +40,8 @@ function readyReply(text, executions) {
 export async function runWish(browser, request, signal, timing = {}) {
     const clock = timing.clock ?? Date.now;
     const pause = timing.pause ?? (milliseconds => sleep(milliseconds, undefined, { signal }));
-    const deadline = clock() + (timing.timeout ?? 210_000);
+    const idleTimeout = timing.timeout ?? 210_000;
+    const submissionDeadline = clock() + (timing.submitTimeout ?? idleTimeout);
     const pageSource = request.adapter.replace(/\/\*[\s\S]*?\*\//g, '').trim().replace(/\r?\n/g, ' ');
     const projection = `p=>({...p,replies:p.replies?.slice(-1).map(r=>({message:r.message,length:r.text.length,closed:r.text.trimEnd().endsWith('}')})),executions:p.executions?.filter(r=>r?.ok===true&&typeof r.verifier==='string'&&typeof r.program_sha256==='string'&&typeof r.contract_sha256==='string'&&JSON.stringify(r).length<700).slice(-32)})`;
     const step = async (command, stage = command.split(' ', 1)[0]) => {
@@ -97,7 +98,7 @@ export async function runWish(browser, request, signal, timing = {}) {
         for (;;) {
             const button = await evaluate(`(()=>{const button=document.querySelector('${send}');return {active:!!button&&!button.disabled}})()`);
             if (button.active) break;
-            if (clock() >= deadline) throw new ChatStepError('Chat send button timed out');
+            if (clock() >= submissionDeadline) throw new ChatStepError('Chat send button timed out');
             await pause(500);
         }
         sent = true; // A timeout after the click cannot authorize a second submission.
@@ -106,20 +107,29 @@ export async function runWish(browser, request, signal, timing = {}) {
         let conversation;
         let reloaded = false;
         let candidate;
-        const submittedAt = clock();
-        while (clock() < deadline) {
+        let lastProgress = clock();
+        let observedMessage;
+        let observedLength;
+        for (;;) {
             await pause(timing.interval ?? 750);
             page = await read();
+            const now = clock();
             const current = route(page.url);
             if (conversation && current !== conversation) throw new Error('Chat conversation changed');
+            const message = page.replies?.[0];
+            if (page.generating || !conversation && current !== '/' ||
+                    message?.message !== observedMessage || message?.length !== observedLength) {
+                lastProgress = now;
+            }
             if (current !== '/') conversation = current;
-            if (conversation && page.replies?.[0]?.closed) {
-                const message = page.replies[0];
+            observedMessage = message?.message;
+            observedLength = message?.length;
+            if (conversation && message?.closed) {
                 if (message.length > 4_194_304) throw new Error('Chat reply exceeds input bounds');
                 if (candidate?.message !== message.message || candidate?.reply.length !== message.length) {
                     // A streaming answer can grow while its slices are being read.
                     let reply = '';
-                    while (reply.length < message.length && clock() < deadline) {
+                    while (reply.length < message.length) {
                         const chunk = await evaluate(`(()=>{const p=${pageSource};const r=p.replies?.at(-1);return {url:p.url,length:r?.text.length,message:r?.message,text:r?.text.slice(${reply.length},${reply.length + 12000})}})()`);
                         if (route(chunk.url) !== conversation) throw new Error('Chat conversation changed');
                         if (chunk.message !== message.message || chunk.length !== message.length || !chunk.text) break;
@@ -132,13 +142,13 @@ export async function runWish(browser, request, signal, timing = {}) {
                     return { reply: candidate.reply, executions: page.executions ?? [] };
                 }
             }
-            if (conversation && !reloaded && clock() - submittedAt >= (timing.reloadAfter ?? 50_000)) {
-                // A background tab can fail to repaint a completed response. Reopen only this turn.
+            if (now - lastProgress >= idleTimeout) throw new ChatStepError('Chat stopped before a verified reply');
+            if (conversation && !page.generating && !reloaded && now - lastProgress >= (timing.reloadAfter ?? 50_000)) {
+                // A background tab can fail to repaint a completed response. Never reload an active turn.
                 await step('reload');
                 reloaded = true;
             }
         }
-        throw new Error('Chat task timed out');
     } finally {
         if (ownTab) {
             const cleanup = AbortSignal.timeout(3000);
