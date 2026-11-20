@@ -4,6 +4,9 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -13,14 +16,16 @@ import net.minecraft.world.phys.Vec3;
 
 /** Real inputs and server ticks for the shared Jack flight and nuclear encounter. */
 public final class BossProjectileChecks {
+    private static final Identifier CROCODILDO_MUSIC=Identifier.parse("minecraft:lbcsounds.crocodildo");
+    private record MusicTraffic(long starts,long stops){}
     private static Scene running;
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Boss/projectile: "+why);}
     public static void run(GameController game){require(running==null,"exclusive scene");var s=new Scene(game);running=s;try{s.begin();}catch(Throwable e){running=null;try{s.close();}catch(Throwable c){e.addSuppressed(c);}throw e;}}
-    public static void tick(GameController game){var s=running;if(s==null)return;try{if(!s.step())return;running=null;s.close();SkyWars2.LOGGER.info("[check] PASS boss-projectiles (native Jack input, persistent typed mode/clone and TimeStop; real200HP Crocodildo, active bomb cadence, NPC nuclear self-kill, immediate protected64nukes/upgraded wand, TECH ordinary rewarded death)");}catch(Throwable e){running=null;try{s.close();}catch(Throwable c){e.addSuppressed(c);}SkyWars2.LOGGER.error("[check] FAIL boss-projectiles",e);}}
+    public static void tick(GameController game){var s=running;if(s==null)return;try{if(!s.step())return;running=null;s.close();SkyWars2.LOGGER.info("[check] PASS boss-projectiles (native Jack input, persistent typed mode/clone and TimeStop; real200HP Crocodildo, stale music retired on rewind and one restored start on thaw, active bomb cadence, NPC nuclear self-kill, immediate protected64nukes/upgraded wand, TECH ordinary rewarded death)");}catch(Throwable e){running=null;try{s.close();}catch(Throwable c){e.addSuppressed(c);}SkyWars2.LOGGER.error("[check] FAIL boss-projectiles",e);}}
     static final class Scene implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;final Set<UUID> original=new HashSet<>();final Set<Long> forced=new HashSet<>();
         final NativeMeleeChecks.NativeStats stats;int phase,when,start;boolean closed;Display.BlockDisplay jack;LivingEntity boss;ItemEntity foreign;
-        Vec3 jackAt,bossAt;int savedAge;Set<UUID> rewardIds;
+        Vec3 jackAt,bossAt;int savedAge,ownerMusicFrom,otherMusicFrom;Set<UUID> rewardIds;
         Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);stats=new NativeMeleeChecks.NativeStats(f.owner,List.of(LbcKapustaItem.JACK,LbcCrocodildoItems.NUKE,LbcTmtItems.prototype(0).getItem()));f.level.getAllEntities().forEach(e->original.add(e.getUUID()));}
         void next(int p){phase=p;when=game.server().getTickCount();}
         void force(Vec3 at){var p=BlockPos.containing(at);int x=p.getX()>>4,z=p.getZ()>>4;if(f.level.setChunkForced(x,z,true))forced.add(net.minecraft.world.level.ChunkPos.pack(x,z));f.level.getChunk(x,z);}
@@ -46,6 +51,20 @@ public final class BossProjectileChecks {
             var result=game.items().crocodildo().bodies().stream().filter(e->e.getType()==EntityTypes.TURTLE&&e.isAlive()).findFirst().orElseThrow();f.own(result);
             require(result.getHealth()==200&&result.getMaxHealth()==200,"real200HP and no hidden sentinel");DisplayTransformChecks.pose((net.minecraft.world.entity.Display)result.getPassengers().getFirst(),0,1,0,15,15,15);return result;
         }
+        void markMusic(){ownerMusicFrom=f.client.packets().size();otherMusicFrom=f.audience.packets().size();}
+        MusicTraffic musicTraffic(RegenerationBeltChecks.ScheduledClient client,int from){
+            var wire=client.packets();var packets=SmokeVolumeChecks.flatten(wire.subList(from,wire.size()));
+            long starts=packets.stream().filter(p->p instanceof ClientboundSoundPacket sound
+                    &&CROCODILDO_MUSIC.equals(sound.getSound().value().location())).count();
+            long stops=packets.stream().filter(p->p instanceof ClientboundStopSoundPacket stop
+                    &&CROCODILDO_MUSIC.equals(stop.getName())).count();
+            return new MusicTraffic(starts,stops);
+        }
+        void requireMusic(long starts,long stops,String stage){
+            var expected=new MusicTraffic(starts,stops);
+            var owner=musicTraffic(f.client,ownerMusicFrom);var other=musicTraffic(f.audience,otherMusicFrom);
+            require(owner.equals(expected)&&other.equals(expected),stage+" (expected="+expected+", owner="+owner+", observer="+other+")");
+        }
         Set<UUID> rewards(){var set=new HashSet<UUID>();for(var e:f.level.getAllEntities())if(LbcBossLoot.protectedReward(e)&&!original.contains(e.getUUID()))set.add(e.getUUID());return set;}
         void verifyReward(Set<UUID> before){var drops=new ArrayList<ItemEntity>();for(var id:rewards())if(!before.contains(id))drops.add((ItemEntity)f.level.getEntity(id));
             require(drops.stream().mapToInt(e->e.getItem().is(LbcCrocodildoItems.NUKE)?e.getItem().getCount():0).sum()==64,"all64 actual usable native nuclear eggs; protected="+drops.stream().map(e->net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(e.getItem().getItem())+" x"+e.getItem().getCount()).toList());
@@ -53,11 +72,61 @@ public final class BossProjectileChecks {
         }
         boolean step(){require(game.server().getTickCount()-start<800,"bounded real-tick scene");int elapsed=game.server().getTickCount()-when;
             if(phase==0){if(elapsed<3)return false;require(jack.position().equals(jackAt)&&game.items().kapusta().state(jack).age()==savedAge,"whole native Jack flight pauses");f.thaw();next(1);return false;}
-            if(phase==1){if(elapsed<3)return false;require(!jack.position().equals(jackAt)&&game.items().kapusta().state(jack).age()>savedAge,"actual shared scheduler resumes Jack");game.items().kapusta().stop();f.owner.getInventory().clearContent();boss=spawn();bossAt=new Vec3(f.home.x,f.level.getMaxY()+250,f.home.z);boss.setPos(f.home.add(0,25,0));boss.setNoGravity(true);savedAge=game.items().crocodildo().age(boss);f.pause();next(2);return false;}
-            if(phase==2){if(elapsed<3)return false;require(game.items().crocodildo().age(boss)==savedAge&&game.items().crocodildo().bodies().size()==1,"TimeStop pauses encounter and bombing cadence");require(game.vanity().requestCapture(f.owner,false),"whole coordinator captures actual encounter");next(20);return false;}
-            if(phase==20){if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;game.items().crocodildo().stop();require(game.vanity().requestRestoreForCheck(),"actual restore after discarded encounter/visual");next(21);return false;}
-            if(phase==21){if(game.vanity().busy())return false;require(f.level.getEntity(boss.getUUID())==boss&&!boss.isRemoved()&&game.items().crocodildo().age(boss)==savedAge&&boss.getHealth()==200,"canonical body and typed encounter clock restored");require(boss.getPassengers().size()==1&&LbcCrocodildo.visual(boss.getPassengers().getFirst()),"actual paired visual restored");game.vanity().stop();boss.setPos(bossAt);f.thaw();next(3);return false;}
-            if(phase==3){var pig=game.items().crocodildo().bodies().stream().filter(e->e.getType()==EntityTypes.PIG).findFirst().orElse(null);if(pig==null){require(elapsed<110,"native five-second active bombing cadence");return false;}
+            if(phase==1){
+                if(elapsed<3)return false;
+                require(!jack.position().equals(jackAt)&&game.items().kapusta().state(jack).age()>savedAge,"actual shared scheduler resumes Jack");
+                game.items().kapusta().stop();f.owner.getInventory().clearContent();
+                require(game.items().crocodildo().bodies().isEmpty()&&game.vanity().requestCapture(f.owner,false),"whole coordinator captures a real pre-boss point");
+                next(10);return false;
+            }
+            if(phase==10){
+                if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;
+                markMusic();boss=spawn();requireMusic(1,0,"first live boss starts one track per connected listener");
+                markMusic();require(game.vanity().requestRestoreForCheck(),"actual rewind while post-point boss track sounds");
+                next(11);return false;
+            }
+            if(phase==11){
+                if(game.vanity().busy())return false;
+                require(game.items().crocodildo().bodies().isEmpty()&&f.level.getEntity(boss.getUUID())==null,"pre-boss rewind removes the later native body");
+                requireMusic(0,1,"pre-boss rewind stops the stale track once without replaying it");
+                game.vanity().stop();next(12);return false;
+            }
+            if(phase==12){
+                if(elapsed<3)return false;
+                requireMusic(0,1,"empty restored encounter stays silent on later native ticks");
+                markMusic();boss=spawn();requireMusic(1,0,"a subsequent encounter starts one fresh track");
+                bossAt=new Vec3(f.home.x,f.level.getMaxY()+250,f.home.z);boss.setPos(f.home.add(0,25,0));boss.setNoGravity(true);
+                savedAge=game.items().crocodildo().age(boss);f.pause();next(2);return false;
+            }
+            if(phase==2){
+                if(elapsed<3)return false;
+                require(game.items().crocodildo().age(boss)==savedAge&&game.items().crocodildo().bodies().size()==1,"TimeStop pauses encounter and bombing cadence");
+                require(TimeStopView.frozen(f.owner)&&TimeStopView.frozen(f.other),"both native audio connections are frozen before paused capture");
+                require(game.vanity().requestCapture(f.owner,false),"whole coordinator captures actual encounter");next(20);return false;
+            }
+            if(phase==20){
+                if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;
+                boss.setHealth(173);markMusic();
+                require(game.vanity().requestRestoreForCheck(),"actual rewind restores the modified encounter while its old track exists");
+                next(21);return false;
+            }
+            if(phase==21){
+                if(game.vanity().busy())return false;
+                require(f.level.getEntity(boss.getUUID())==boss&&!boss.isRemoved()&&game.items().crocodildo().age(boss)==savedAge&&boss.getHealth()==200,"canonical body and typed encounter clock restored");
+                require(boss.getPassengers().size()==1&&LbcCrocodildo.visual(boss.getPassengers().getFirst()),"actual paired visual restored");
+                require(TimeStopView.frozen(f.owner)&&TimeStopView.frozen(f.other),"restored Time Stop still gates both native audio connections");
+                requireMusic(0,1,"paused encounter rewind retires one old track and emits no replacement while frozen");
+                game.vanity().stop();next(22);return false;
+            }
+            if(phase==22){
+                if(elapsed<3)return false;
+                requireMusic(0,1,"restored encounter stays silent throughout extra frozen frames");
+                boss.setPos(bossAt);f.thaw();next(3);return false;
+            }
+            if(phase==3){
+                if(elapsed==1)requireMusic(1,1,"first actual thawed encounter tick starts exactly one replacement track");
+                var pig=game.items().crocodildo().bodies().stream().filter(e->e.getType()==EntityTypes.PIG).findFirst().orElse(null);if(pig==null){require(elapsed<110,"native five-second active bombing cadence");return false;}
+                requireMusic(1,1,"later active encounter ticks never duplicate the restored track");
                 // The actual falling-bomb owner handles landing next tick; no parallel blast implementation.
                 DisplayTransformChecks.pose((net.minecraft.world.entity.Display)pig.getPassengers().getFirst(),0,-.4f,0,3,3,3);boss.setPos(bossAt);pig.setPos(bossAt);pig.setNoGravity(true);pig.setOnGround(true);f.own(pig);rewardIds=rewards();foreign=new ItemEntity(f.level,bossAt.x,bossAt.y,bossAt.z,new ItemStack(Items.EMERALD));f.own(foreign);require(f.level.addFreshEntity(foreign),"foreign unprotected item witness");next(4);return false;}
             if(phase==4){if(boss.isAlive()){require(elapsed<5,"first nuclear damage is immediate on landing");return false;}

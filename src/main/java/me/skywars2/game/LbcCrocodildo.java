@@ -3,11 +3,15 @@ package me.skywars2.game;
 import java.util.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.BossEvent;
@@ -21,11 +25,13 @@ import net.minecraft.world.phys.Vec3;
 /** Real 200 HP encounter; falling bombs use the same nuclear owner as all other nukes. */
 public final class LbcCrocodildo {
     private static final String BODY="skywars2.crocodildo",VISUAL=BODY+".visual",BOMB=BODY+".bomb";
-    private static final String MUSIC="minecraft:lbcsounds.crocodildo";
+    private static final Identifier MUSIC=Identifier.parse("minecraft:lbcsounds.crocodildo");
+    private static final Holder<SoundEvent> SOUND=Holder.direct(SoundEvent.createVariableRangeEvent(MUSIC));
     private final GameController game;
     private final Set<Actor> actors=new LinkedHashSet<>();
     private final Set<ItemEntity> pending=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<UUID,ServerBossEvent> bars=new HashMap<>();
+    private final Set<ServerGamePacketListenerImpl> musicListeners=Collections.newSetFromMap(new IdentityHashMap<>());
     private int depth,lastTick=Integer.MIN_VALUE;private boolean frozen;
     private static final class Actor {
         LivingEntity body,source;Display.ItemDisplay visual;final String epoch;final boolean bomb;
@@ -73,7 +79,7 @@ public final class LbcCrocodildo {
             var actor=new Actor(body,d,game.items().epoch(),false,body);actors.add(actor);prepare(body);prepare(d);
             if(!level.addFreshEntity(body)||!level.addFreshEntity(d)){retire(actor);return false;}d.startRiding(body,true,true);
             if(debit){var remaining=token.getItem().copy();remaining.shrink(1);if(remaining.isEmpty())token.discard();else token.setItem(remaining);}
-            bar(actor);if(actors.stream().filter(a->!a.bomb).count()==1)music(true);
+            bar(actor);if(bars.size()==1)updateMusic();
             level.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION,p.x,p.y,p.z,100,10,10,10,0);return true;
         }finally{depth--;}
     }
@@ -104,6 +110,7 @@ public final class LbcCrocodildo {
                 if(a.bomb){if(a.body.onGround()){var p=a.body.position();retire(a);game.items().nukeEvent().encounterBurst(level,p,a.source);}continue;}
                 a.age++;bar(a);move(a);if(a.age%100==0)bomb(a);
             }
+            updateMusic();
         }finally{depth--;}
     }
     private void move(Actor a){
@@ -137,10 +144,22 @@ public final class LbcCrocodildo {
         for(var p:List.copyOf(bar.getPlayers()))if(p.level()!=a.body.level()||p.hasDisconnected())bar.removePlayer(p);
         for(var p:((ServerLevel)a.body.level()).players())bar.addPlayer(p);
     }
-    private void music(boolean play){for(var p:game.server().getPlayerList().getPlayers())if(play)p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-            net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Identifier.parse(MUSIC))),SoundSource.MASTER,p.getX(),p.getY(),p.getZ(),1,1,0));
-        else p.connection.send(new ClientboundStopSoundPacket(Identifier.parse(MUSIC),SoundSource.MASTER));}
-    private void closeBar(UUID id){var bar=bars.remove(id);if(bar!=null)bar.removeAllPlayers();if(bars.isEmpty())music(false);}
+    private void updateMusic(){
+        if(bars.isEmpty())return;
+        musicListeners.removeIf(listener->!listener.isAcceptingMessages());
+        for(var player:game.server().getPlayerList().getPlayers()){
+            var listener=player.connection;
+            if(listener!=null&&listener.isAcceptingMessages()&&!TimeStopView.frozen(player)&&musicListeners.add(listener))
+                listener.send(new ClientboundSoundPacket(SOUND,SoundSource.MASTER,player.getX(),player.getY(),player.getZ(),1,1,0));
+        }
+    }
+    private void stopMusic(){
+        if(musicListeners.isEmpty())return;
+        var packet=new ClientboundStopSoundPacket(MUSIC,SoundSource.MASTER);
+        for(var listener:musicListeners)if(listener.isAcceptingMessages())listener.send(packet);
+        musicListeners.clear();
+    }
+    private void closeBar(UUID id){var bar=bars.remove(id);if(bar!=null)bar.removeAllPlayers();if(bars.isEmpty())stopMusic();}
     private void retire(Actor a){actors.remove(a);a.terminal=true;if(!a.bomb)closeBar(a.body.getUUID());a.visual.discard();if(!a.body.isRemoved())a.body.discard();}
     void loaded(Entity e){
         if(frozen||MatchActorCheckpoint.restoring(e))return;
@@ -155,15 +174,20 @@ public final class LbcCrocodildo {
         if(found)prepare(e);else e.discard();
     }
     void unloaded(Entity e){if(e instanceof ItemEntity item)pending.remove(item);}
-    void stop(){for(var a:List.copyOf(actors))retire(a);pending.clear();for(var b:bars.values())b.removeAllPlayers();bars.clear();}
+    void stop(){for(var a:List.copyOf(actors))retire(a);pending.clear();for(var b:bars.values())b.removeAllPlayers();bars.clear();stopMusic();}
     List<LivingEntity> bodies(){return actors.stream().map(a->a.body).toList();}
     List<Entity> polymorphVisuals(Entity body){return actors.stream().filter(a->a.body==body).map(a->(Entity)a.visual).toList();}
     int age(Entity body){return actors.stream().filter(a->a.body==body).mapToInt(a->a.age).findFirst().orElse(-1);}
     boolean captureReady(){return depth==0&&!frozen;}
     void checkpointBoundary(){if(depth!=0)throw new IllegalStateException("Finish Crocodildo callback before checkpoint");}
     void prepareFrozen(){checkpointBoundary();frozen=true;for(var b:bars.values())b.removeAllPlayers();bars.clear();actors.clear();pending.clear();}
-    void publishFrozen(){checkpointBoundary();frozen=false;lastTick=Integer.MIN_VALUE;for(var a:actors)if(!a.bomb&&resident(a.body))bar(a);if(!bars.isEmpty())music(true);}
-    void cancelFrozen(){frozen=false;}
+    void publishFrozen(){
+        checkpointBoundary();frozen=false;lastTick=Integer.MIN_VALUE;
+        stopMusic();
+        for(var a:actors)if(!a.bomb&&resident(a.body))bar(a);
+        updateMusic();
+    }
+    void cancelFrozen(){frozen=false;if(bars.isEmpty())stopMusic();}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     final class Checkpoint {
         record Value(MatchDamageSources.Ref body,MatchDamageSources.Ref visual,MatchDamageSources.Ref source,String epoch,boolean bomb,int age){}

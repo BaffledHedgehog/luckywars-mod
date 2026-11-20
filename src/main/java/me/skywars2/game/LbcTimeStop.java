@@ -490,6 +490,8 @@ public final class LbcTimeStop {
             validateContacts();
             for(int i=0;i<leases.size();i++){var lease=leases.get(i);if(!nativeChunks.get(i).getBlockState(lease.pos).is(Blocks.BARRIER)&&!lease.level.setBlock(lease.pos,Blocks.BARRIER.defaultBlockState(),CONTACT_FLAGS))throw new IllegalStateException("Native Time Stop contact installation failed");}
             rewinding=null;validateContacts();
+            // Encounter and spell presentation follows in this same restore phase.
+            for(var player:game.server().getPlayerList().getPlayers())TimeStopView.publish(player,frozen(player));
             for(var entity:frozen.keySet()){sendMotion(entity);if(entity instanceof PrimedTnt tnt)sendTntFuse(tnt,presentationFuse());}
             return Set.of();
         }
