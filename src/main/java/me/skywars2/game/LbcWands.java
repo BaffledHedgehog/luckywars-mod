@@ -1535,20 +1535,56 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         var level=trace.level;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw);
         int samples=trace.teslaChain?20:trace.meditation || trace.npcSource!=null || trace.hostileSauvojen ? 18 : 10;
-        double mechanismFraction=game.items().magic().mechanismSuppressionFraction(
-                level,from,from.add(direction.scale(samples*.2)));
-        double mechanismDistance=mechanismFraction*samples*.2;
-        var greed=LbcGreed.firstHit(level,from,from.add(direction.scale(samples*.2)),.15);
-        // TECH contact wins a tie and prevents reflection from a victim beyond the destroyed arc.
-        if(greed!=null && from.distanceToSqr(greed.getLocation())<mechanismDistance*mechanismDistance-1e-9
-                && greed.getEntity() instanceof ServerPlayer reflector && reflector!=trace.owner) {
-            trace.owner=reflector; trace.yaw+=180; trace.pitch=-trace.pitch;
-            trace.sourcePolicy=null;trace.cause=null;trace.explicitEmitter=null;
-            return true;
+        Vec3 fullEnd = from.add(direction.scale(samples * .2));
+        double mechanismFraction = game.items().magic().mechanismSuppressionFraction(level, from, fullEnd);
+        double mechanismDistance = mechanismFraction * samples * .2;
+        var shield = shieldHit(level, trace.source(), from, fullEnd, trace.meditation || trace.statusWild);
+        double shieldDistance = shield == null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
+        double stopDistance = Math.min(shieldDistance, mechanismDistance);
+        var family = game.items().familyDrops();
+        var greed = LbcGreed.firstHit(level, from, fullEnd, .15);
+        BlockPos exactWall = null;
+        Vec3 exactWallPoint = null;
+        LbcFamilyDrops.ArcContact earlierFamily = null;
+        // Compare front faces before changing the trace's owner. A reflector
+        // behind even a corner of a solid cell cannot intercept the arc.
+        if (greed != null && greed.getEntity() instanceof ServerPlayer reflector && reflector != trace.owner) {
+            Vec3 before = fullEnd;
+            if (mechanismDistance <= shieldDistance && Double.isFinite(mechanismFraction)) {
+                before = from.lerp(fullEnd, mechanismFraction);
+            } else if (shield != null) {
+                before = shield.getLocation();
+            }
+            double limit = from.distanceToSqr(before);
+            double greedDistance = from.distanceToSqr(greed.getLocation());
+            if (greedDistance < limit - 1e-9) {
+                var wall = LbcTerra.wallHit(level, from, fullEnd, state -> !state.is(AIRS) && !state.is(CONDUCTIVE));
+                if (wall != null) {
+                    var point = wall.isInside() ? from : wall.getLocation();
+                    double wallDistance = from.distanceToSqr(point);
+                    if (wallDistance < limit - 1e-9) {
+                        exactWall = wall.getBlockPos();
+                        exactWallPoint = point;
+                        before = point;
+                        limit = wallDistance;
+                        stopDistance = Math.sqrt(limit) / direction.length();
+                    }
+                }
+                if (greedDistance < limit - 1e-9) {
+                    var familyHit = family.firstArcContact(level, from, before, exactWall);
+                    if (familyHit == null || greedDistance < from.distanceToSqr(familyHit.position()) - 1e-9) {
+                        trace.owner = reflector;
+                        trace.yaw += 180;
+                        trace.pitch = -trace.pitch;
+                        trace.sourcePolicy = null;
+                        trace.cause = null;
+                        trace.explicitEmitter = null;
+                        return true;
+                    }
+                    earlierFamily = familyHit;
+                }
+            }
         }
-        var shield=shieldHit(trace.level,trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation||trace.statusWild);
-        double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
-        double stopDistance=Math.min(shieldDistance,mechanismDistance);
         Vec3 end=from,conductor=null;
         boolean clear=true;boolean emitted=false;
         var dust=new LbcParticleBatch.Group(level,ELECTRO_PARTICLE,.1,0,true);
@@ -1572,6 +1608,11 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         }
         dust.flush();sparksVisual.flush();rods.flush();
         if(emitted)electroSound(trace,from.lerp(end,.5),"minecraft:entity.firework_rocket.twinkle",.03f,2);
+        if (clear && exactWall != null) {
+            end = exactWallPoint;
+            struckBlock = exactWall;
+            clear = false;
+        }
         // (user) Щит обрезает путь на границе сферы, не отменяя эффекты уже пройденной части.
         if(clear && Double.isFinite(mechanismDistance) && mechanismDistance<=shieldDistance) {
             end=from.add(direction.scale(mechanismDistance)); clear=false;
@@ -1579,9 +1620,12 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
             end=shield.getLocation(); clear=false;
             electroSound(trace,shield.getEntity().position(),"minecraft:item.shield.block",1,1);
         }
-        var contact = game.items().familyDrops().reactToArc(level, from, end, struckBlock, trace.owner);
+        var contact = earlierFamily != null
+                && from.distanceToSqr(earlierFamily.position()) <= from.distanceToSqr(end)
+                ? earlierFamily : family.firstArcContact(level, from, end, struckBlock);
         if (contact != null) {
-            end = contact;
+            family.reactToArc(level, contact, trace.owner, true);
+            end = contact.position();
             clear = false;
             if (conductor != null && from.distanceToSqr(conductor) > from.distanceToSqr(end)) conductor = null;
         }

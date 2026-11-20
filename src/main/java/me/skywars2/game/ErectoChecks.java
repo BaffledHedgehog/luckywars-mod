@@ -141,6 +141,105 @@ public final class ErectoChecks {
             var mark=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,owner.level());mark.setPos(at);mark.entityTags().add("stopper_magic");owner.level().addFreshEntity(mark);game.items().magic().loaded(mark);try{require(!use(s,InteractionHand.MAIN_HAND),"real antimagic blocks wand activation");game.items().erecto().tick();require(game.items().erecto().rayPending(owner)==77,"already cast electricity continues inside antimagic");}finally{game.items().magic().unloaded(mark);mark.discard();}
             game.items().timeStop().begin(owner.level(),200);game.items().erecto().tick();require(game.items().erecto().rayPending(owner)==77,"Time Stop pauses existing ray releases");game.items().timeStop().end(owner.level());game.items().clear(owner);require(game.items().erecto().rayPending(owner)==0,"full purify clears source ray counter");game.items().erecto().addPlayerCounter(owner);game.items().erecto().tick();require(game.items().erecto().rayPending(owner)==0&&target.direct>1,"KFC +1 bridges one live ray");target.discard();owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
         }
+        void instantFamilyContacts() {
+            var level = owner.level();
+            var erecto = game.items().erecto();
+            var loli = LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI);
+            var cell = BlockPos.containing(at).offset(-5, 11, 28);
+            var face = new Vec3(cell.getX(), cell.getY() + .5, cell.getZ() + .94);
+            var direction = Vec3.directionFromRotation(0, -45);
+            var aim = face.subtract(direction.scale(2.38));
+            var before = owner.position();
+            float yaw = owner.getYRot(), pitch = owner.getXRot();
+            var hand = owner.getMainHandItem();
+            var mother = EntityTypes.ARMOR_STAND.create(level, EntitySpawnReason.COMMAND);
+            require(mother != null, "native Mother for instant Erecto");
+            var tesla = game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/tesla"));
+            require(tesla != null, "native unrelated Tesla advancement");
+            var tracker = owner.getAdvancements();
+            var completed = new HashSet<String>();
+            tracker.getOrStartProgress(tesla).getCompletedCriteria().forEach(completed::add);
+            var target = cow(face.add(direction.scale(2)).add(0, -.6, 0));
+            var stoneCell = BlockPos.containing(aim.add(direction.scale(1.18)));
+            Vec3 limit = aim.add(direction.scale(6));
+            try {
+                completed.forEach(criterion -> tracker.revoke(tesla, criterion));
+                owner.teleportTo(level, aim.x, aim.y - owner.getEyeHeight(), aim.z, Set.of(), -45, 0, true);
+                owner.setYRot(-45);
+                owner.setXRot(0);
+                owner.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                var from = owner.getEyePosition();
+                for (int i = 0; i <= 12; i++) {
+                    require(!BlockPos.containing(from.add(direction.scale(i * .5))).equals(cell),
+                            "native instant Loli face is between the authored half-block samples");
+                }
+                block(cell, loli);
+                require(yellowDrops(aim, limit).isEmpty(), "isolated instant family corridor");
+
+                instantFamilyPulse();
+                var drops = yellowDrops(aim, limit);
+                SkyWars2.LOGGER.info("[check] Erecto instant Loli contact: {} drops at expected face {}", drops.size(), face);
+                require(drops.size() == 1 && drops.getFirst().getItem().getCount() == 1
+                                && drops.getFirst().position().distanceToSqr(face) < 1e-10
+                                && level.getBlockState(cell).is(loli),
+                        "instant real Academy cast triggers exactly one Yellow Lightning at the exact Loli face");
+                require(target.getHealth() == 1000 && !target.hasEffect(MobEffects.GLOWING),
+                        "instant ray cannot damage or apply statuses past the Loli face");
+                drops.forEach(Entity::discard);
+
+                mother.entityTags().addAll(Set.of("mom", "skywars2.family"));
+                game.items().markCurrentItemEpoch(mother);
+                mother.setNoGravity(true);
+                mother.setPermanentlyInvulnerable(true);
+                mother.setPos(from.add(direction.scale(1.8)).add(0, -.5, 0));
+                require(level.addFreshEntity(mother) && game.items().familyDrops().snapshot().contains(mother),
+                        "resident native Mother is registered before the instant pulse");
+                var motherFace = mother.getBoundingBox().inflate(.12).clip(from, face).orElseThrow();
+                instantFamilyPulse();
+                drops = yellowDrops(aim, limit);
+                require(drops.size() == 1 && drops.getFirst().getItem().getCount() == 1
+                                && drops.getFirst().position().distanceToSqr(motherFace) < 1e-10
+                                && mother.isAlive() && level.getBlockState(cell).is(loli),
+                        "earlier native Mother intercepts the instant beam and leaves the Loli block intact");
+                drops.forEach(Entity::discard);
+
+                block(stoneCell, Blocks.STONE);
+                var wall = LbcTerra.wallHit(level, from, motherFace);
+                require(wall != null && wall.getBlockPos().equals(stoneCell), "nearer native stone occludes Mother and Loli");
+                instantFamilyPulse();
+                require(yellowDrops(aim, limit).isEmpty() && target.getHealth() == 1000
+                                && !target.hasEffect(MobEffects.GLOWING) && mother.isAlive()
+                                && level.getBlockState(stoneCell).is(Blocks.STONE),
+                        "ordinary wall stops the unchanged instant impact before either family target can react");
+                require(!tracker.getOrStartProgress(tesla).isDone(),
+                        "instant Erecto source does not award a Tesla achievement");
+            } finally {
+                erecto.clearRay(owner);
+                yellowDrops(aim, limit).forEach(Entity::discard);
+                mother.discard();
+                target.discard();
+                for (var pos : List.of(cell, stoneCell)) {
+                    if (blocks.containsKey(pos)) game.maps().restoreSnapshot(level, pos, blocks.get(pos));
+                }
+                owner.teleportTo(level, before.x, before.y, before.z, Set.of(), yaw, pitch, true);
+                owner.setItemInHand(InteractionHand.MAIN_HAND, hand);
+                game.items().mana().set(owner, 100000);
+                completed.forEach(criterion -> tracker.award(tesla, criterion));
+            }
+        }
+
+        private void instantFamilyPulse() {
+            var service = game.items().erecto();
+            var item = loot("academy_erecto_wand");
+            flag(item, "mode", 2);
+            game.items().mana().set(owner, 100000);
+            require(use(item, InteractionHand.MAIN_HAND) && service.rayPending(owner) == 40,
+                    "actual Academy mode 2 cast schedules 40 rays");
+            service.tick();
+            require(service.rayPending(owner) == 39, "one native instant pulse fires on its existing cadence");
+            service.clearRay(owner);
+        }
+
         void sniper(){
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);owner.setXRot(0);owner.setYRot(0);var s=loot("academy_erecto_wand");flag(s,"mode",4);game.items().mana().set(owner,1100);double movement=owner.getAttributeValue(Attributes.MOVEMENT_SPEED);require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==-3900,"source1100 admission/5000 actual cost");var shot=traces().getFirst();require(shot.erecto.kind==LbcErecto.SNIPER&&shot.pitch==0&&owner.getXRot()==-15&&game.items().erecto().sniperWindupTicks(owner)==20&&owner.getAttributeValue(Attributes.MOVEMENT_SPEED)==0&&!owner.hasEffect(MobEffects.SLOWNESS),"sniper heading precedes native recoil and safe20tick zero movement without negative speed");
             CombatVisualChecks.movementPacket(owner,0);for(int i=0;i<19;i++)game.items().erecto().tick();require(owner.getAttributeValue(Attributes.MOVEMENT_SPEED)==0&&game.items().erecto().sniperWindupTicks(owner)==1,"safe sniper windup lasts19 active boundaries");game.items().erecto().tick();require(game.items().erecto().sniperWindupTicks(owner)==0&&Math.abs(owner.getAttributeValue(Attributes.MOVEMENT_SPEED)-movement)<1e-9,"20th active boundary restores prior movement attribute");CombatVisualChecks.movementPacket(owner,movement);for(var t:traces())if(t!=shot)t.age=t.lifetime;
@@ -261,7 +360,7 @@ public final class ErectoChecks {
             owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);owner.setYRot(0);owner.setXRot(0);game.items().mana().set(owner,100000);require(use(trial,InteractionHand.OFF_HAND),"actual used-hand trial volley");var side=traces().stream().filter(t->t.erecto.kind==LbcErecto.SIDE).findFirst().orElseThrow();for(var t:traces())if(t!=side)t.age=t.lifetime;side.erecto.side=0;side.yaw=0;side.pitch=0;side.age=40;side.position=side.erecto.origin.add(0,0,65);var near=cow(side.position.add(0,-.6,1));game.items().wands().tick();require(flag(trial,"upgrade_available")==0,"old age40 near hit does not qualify");near.discard();side.age=1;side.position=side.erecto.origin.add(0,0,80);side.yaw=0;side.pitch=0;var far=cow(side.position.add(0,-.6,1));game.items().wands().tick();require(far.getHealth()<1000&&flag(trial,"upgrade_available")==1,"accepted real side hit beyond70 qualifies despite age1");far.discard();clearTraces();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();ray();sniper();familyContacts();beginSphere();phase++;return false;}
+            if(phase==0){presentation();geometry();ray();instantFamilyContacts();sniper();familyContacts();beginSphere();phase++;return false;}
             if(phase==1){require(sphere.age==5,"actual Time Stop freezes sphere and its schedule");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){peak=Math.max(peak,traces().size());if(game.items().erecto().sphereCount()>0){require(++waits<320,"natural sphere expires in300 ticks");return false;}require(sphere.age==300&&peak<=32,"15-second source sphere completes without unbounded active arc accumulation");clearTraces();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("erecto_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"real Erecto Academy admission");phase++;return false;}

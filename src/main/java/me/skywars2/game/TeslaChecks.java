@@ -317,6 +317,94 @@ public final class TeslaChecks {
             }
         }
 
+        private LbcWands.ElectroTrace fireTowardGreed(Vec3 from, List<LbcWands.ElectroTrace> fixtureShots) {
+            require(use(loot("tesla_wand"), InteractionHand.MAIN_HAND), "actual moving Tesla cast");
+            var volley = shots();
+            require(volley.size() == 4, "each test press creates the source four-arc volley");
+            fixtureShots.addAll(volley);
+            var shot = volley.getFirst();
+            for (var sibling : volley) if (sibling != shot) sibling.age = sibling.lifetime;
+            shot.position = from;
+            shot.yaw = -45;
+            shot.pitch = 0;
+            game.items().wands().tick();
+            return shot;
+        }
+
+        void greedTerrainOrder() {
+            var level = owner.level();
+            var wands = game.items().wands();
+            var cell = BlockPos.containing(at).offset(3, 7, 28);
+            var wallFace = new Vec3(cell.getX(), cell.getY() + .5, cell.getZ() + .94);
+            var direction = Vec3.directionFromRotation(0, -45);
+            var from = wallFace.subtract(direction.scale(.65));
+            var reflector = wallFace.add(direction.scale(1.1)).add(0, -.55, 0);
+            var oldPosition = other.position();
+            float oldYaw = other.getYRot(), oldPitch = other.getXRot();
+            var fixtureShots = new ArrayList<LbcWands.ElectroTrace>();
+            var loli = LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI);
+            var mother = EntityTypes.ARMOR_STAND.create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            require(mother != null && !LbcGreed.active(other) && yellowDrops(from).isEmpty(),
+                    "isolated actual family outputs and reflector");
+            require(java.util.stream.IntStream.rangeClosed(0, 10)
+                            .noneMatch(i -> BlockPos.containing(from.add(direction.scale(i * .2))).equals(cell)),
+                    "terrain contact lies between the original .2-block particle samples");
+            try {
+                block(cell, Blocks.AIR);
+                other.teleportTo(level, reflector.x, reflector.y, reflector.z, Set.of(), 0, 0, true);
+                other.entityTags().add("sin_greed_active");
+                var open = fireTowardGreed(from, fixtureShots);
+                require(open.owner == other && wands.hasElectroTrace(open)
+                                && Math.abs(open.yaw - 135) < 1e-5 && yellowDrops(from).isEmpty(),
+                        "unobstructed Greed reverses the original moving arc");
+                open.age = open.lifetime;
+                wands.tick();
+
+                block(cell, Blocks.STONE);
+                var stopped = fireTowardGreed(from, fixtureShots);
+                require(!wands.hasElectroTrace(stopped) && stopped.owner == owner
+                                && stopped.position.distanceToSqr(wallFace) < 1e-10 && yellowDrops(from).isEmpty(),
+                        "the exact solid face terminates the arc before Greed behind it, even between samples");
+
+                block(cell, loli);
+                var reward = fireTowardGreed(from, fixtureShots);
+                var items = yellowDrops(from);
+                require(!wands.hasElectroTrace(reward) && reward.owner == owner
+                                && reward.position.distanceToSqr(wallFace) < 1e-10
+                                && items.size() == 1 && items.getFirst().getItem().getCount() == 1
+                                && items.getFirst().position().distanceToSqr(wallFace) < 1e-10
+                                && level.getBlockState(cell).is(loli),
+                        "nearer native Loli wins before Greed, drops once and stays in the world");
+                items.forEach(Entity::discard);
+
+                mother.entityTags().addAll(Set.of("mom", "skywars2.family"));
+                game.items().markCurrentItemEpoch(mother);
+                mother.setNoGravity(true);
+                mother.setPermanentlyInvulnerable(true);
+                mother.setPos(from.add(direction.scale(.58)).add(0, -.5, 0));
+                require(level.addFreshEntity(mother) && game.items().familyDrops().snapshot().contains(mother),
+                        "registered native Mother before the reflector");
+                block(cell, Blocks.AIR);
+                var motherFace = mother.getBoundingBox().inflate(.12)
+                        .clip(from, from.add(direction.scale(2))).orElseThrow();
+                var intercepted = fireTowardGreed(from, fixtureShots);
+                items = yellowDrops(from);
+                require(!wands.hasElectroTrace(intercepted) && intercepted.owner == owner
+                                && intercepted.position.distanceToSqr(motherFace) < 1e-10
+                                && items.size() == 1 && items.getFirst().getItem().getCount() == 1
+                                && items.getFirst().position().distanceToSqr(motherFace) < 1e-10 && mother.isAlive(),
+                        "nearer Mother has the same priority over Greed as a terrain contact");
+            } finally {
+                other.entityTags().remove("sin_greed_active");
+                other.teleportTo(level, oldPosition.x, oldPosition.y, oldPosition.z, Set.of(), oldYaw, oldPitch, true);
+                mother.discard();
+                yellowDrops(from).forEach(Entity::discard);
+                for (var shot : fixtureShots) shot.age = shot.lifetime;
+                wands.tick();
+                game.maps().restoreSnapshot(level, cell, blocks.get(cell));
+            }
+        }
+
         void yellowKatanaFamilyContacts() {
             var level = owner.level();
             var electro = game.items().electro();
@@ -468,7 +556,7 @@ public final class TeslaChecks {
             clear();cows.forEach(Entity::discard);technical.discard();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();instantContacts();chain();yellowKatanaFamilyContacts();familyArcContacts();boundaries();beginInstant();phase++;return false;}
+            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();instantContacts();chain();yellowKatanaFamilyContacts();familyArcContacts();greedTerrainOrder();boundaries();beginInstant();phase++;return false;}
             if(phase==1){require(game.items().stonekivi().count()>0&&instantVictim.direct==0,"actual Time Stop freezes queued instant work");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){if(game.items().stonekivi().count()>0){require(++waits<200,"queued five rays complete");return false;}require(instantVictim.getHealth()<1000&&instantVictim.direct>=5&&instantVictim.getKillCredit()==owner,"all five native instant beams hit and credit real caster");instantVictim.discard();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("tesla_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"actual Tesla Academy admission");phase++;return false;}

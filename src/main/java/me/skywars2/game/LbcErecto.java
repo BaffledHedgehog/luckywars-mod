@@ -575,20 +575,45 @@ final class LbcErecto {
     }
     private boolean active(ServerPlayer owner,String epoch){return owner.isAlive()&&!owner.isRemoved()&&game.items().currentEpoch(epoch)&&game.canUseGameplayItems(owner);}
     private void ray(ServerPlayer owner){rayAt(owner,owner.getEyePosition(),owner.getLookAngle());}
-    private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction){
-        Vec3 end=from.add(direction.scale(50));double boundary=game.items().magic().mechanismSuppressionFraction(owner.level(),from,end);
-        if(Double.isFinite(boundary))end=from.lerp(end,Math.max(0,Math.nextDown(boundary)));
-        var wall=LbcTerra.wallHit(owner.level(),from,end);if(wall!=null)end=wall.getLocation();
-        if(from.distanceToSqr(end)<1e-12)return;
-        try(var rayDust=new LbcParticleBatch.Group(owner.level(),DUST,.1,0,true);var raySpark=new LbcParticleBatch.Group(owner.level(),ParticleTypes.ELECTRIC_SPARK,.1,1,false)){
-for(int i=0;i<=100&&i*.5<=from.distanceTo(end)+1e-7;i++)if(owner.getRandom().nextFloat()<.35f){var point=from.add(direction.scale(i*.5));rayDust.add(point);raySpark.add(point);}
-}
-        LbcOverload.sound(owner,from.lerp(end,.5),"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
-        var damage=new DamageSource(owner.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
-        var affected=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
-        LbcDamage.hurtSegment(owner.level(),damage,from,end,Vec3.ZERO,.5,.5f,1,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e),false,e->{
-            if(affected.add(e)&&e instanceof LivingEntity living){living.addEffect(ItemEffectLevels.create(MobEffects.GLOWING,20,0),owner);living.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,20,100),owner);}
-        },null);
+    private void rayAt(ServerPlayer owner, Vec3 from, Vec3 direction) {
+        var level = owner.level();
+        Vec3 end = from.add(direction.scale(50));
+        double boundary = game.items().magic().mechanismSuppressionFraction(level, from, end);
+        if (Double.isFinite(boundary)) end = from.lerp(end, Math.max(0, Math.nextDown(boundary)));
+        var wall = LbcTerra.wallHit(level, from, end);
+        if (wall != null) end = wall.getLocation();
+
+        var family = game.items().familyDrops();
+        var contact = family.firstArcContact(level, from, end, wall == null ? null : wall.getBlockPos());
+        if (contact != null) {
+            end = contact.position();
+            family.reactToArc(level, contact, owner, false);
+        }
+        if (from.distanceToSqr(end) < 1e-12) return;
+
+        double length = from.distanceTo(end);
+        try (var rayDust = new LbcParticleBatch.Group(level, DUST, .1, 0, true);
+             var raySpark = new LbcParticleBatch.Group(level, ParticleTypes.ELECTRIC_SPARK, .1, 1, false)) {
+            for (int i = 0; i <= 100 && i * .5 <= length + 1e-7; i++) {
+                if (owner.getRandom().nextFloat() < .35f) {
+                    var point = from.add(direction.scale(i * .5));
+                    rayDust.add(point);
+                    raySpark.add(point);
+                }
+            }
+        }
+        LbcOverload.sound(owner, from.lerp(end, .5), "minecraft:entity.firework_rocket.twinkle", .03f, 2, 0);
+        var damage = new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(LbcDamage.ELECTRO_BOLT), owner);
+        var affected = Collections.newSetFromMap(new IdentityHashMap<Entity, Boolean>());
+        LbcDamage.hurtSegment(level, damage, from, end, Vec3.ZERO, .5, .5f, 1,
+                e -> e.getType().builtInRegistryHolder().is(MOBS) && game.items().wands().projectileTarget(owner, e),
+                false, e -> {
+                    if (affected.add(e) && e instanceof LivingEntity living) {
+                        living.addEffect(ItemEffectLevels.create(MobEffects.GLOWING, 20, 0), owner);
+                        living.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS, 20, 100), owner);
+                    }
+                }, null);
     }
     void clearRay(ServerPlayer owner){rays.remove(owner);game.items().mana().score(owner,"ray").set(0);clearSniperWindup(owner);}
     int sniperWindupTicks(ServerPlayer owner){return sniperWindups.getOrDefault(owner,0);}
