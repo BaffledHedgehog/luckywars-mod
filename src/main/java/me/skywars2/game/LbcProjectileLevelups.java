@@ -8,6 +8,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
+import net.minecraft.world.entity.projectile.arrow.SpectralArrow;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.phys.AABB;
 
@@ -15,6 +17,7 @@ import net.minecraft.world.phys.AABB;
 public final class LbcProjectileLevelups {
     public static final String FINALIZED="skywars2.projectile_levelups.finalized";
     public static final String SNOWBALL_PENDING="skywars2.projectile_levelups.snowball_pending";
+    static final String GRAVITAS_ARROW="skywars2.projectile_levelups.gravitas_arrow";
     public enum Launch { BOW, CROSSBOW, SNOWBALL, MACHINEGUN }
     public interface Policy {
         /** Supplied by the canonical match-resolved loadout owner, including Random14. */
@@ -52,7 +55,13 @@ public final class LbcProjectileLevelups {
             if(policy.hasLevelup(p,29))value=Math.floor(value*100.0)/100.0+0.5;
             arrow.setBaseDamage(value);
         }
-        if(policy.hasLevelup(p,30))body.setNoGravity(true);
+        if(policy.hasLevelup(p,30))grantNoGravity(body);
+    }
+    private static void grantNoGravity(Entity body){
+        // Native arrows in air have no despawn clock. Other carriers keep their own flight policy.
+        if(!body.isNoGravity()&&(body.getClass()==Arrow.class||body.getClass()==SpectralArrow.class))
+            body.entityTags().add(GRAVITAS_ARROW);
+        body.setNoGravity(true);
     }
     /** Native SnowballItem factory marks only that real use; global spawn hook consumes this
      * after shootFunction has established motion and immediately before addFreshEntity. */
@@ -90,7 +99,7 @@ public final class LbcProjectileLevelups {
     private void applyOwnedGravity(Entity body){
         if(!restoring&&gravityBody(body)&&projectileOwner(body) instanceof ServerPlayer owner
                 &&admitted(owner)&&body.level()==owner.level()&&!body.isRemoved()
-                &&policy.hasLevelup(owner,30)&&policy.auraTarget(owner,body))body.setNoGravity(true);
+                &&policy.hasLevelup(owner,30)&&policy.auraTarget(owner,body))grantNoGravity(body);
     }
     public void reconcile(ServerPlayer p){
         if(admitted(p)&&policy.hasLevelup(p,30))owners.add(p.getUUID());else clear(p.getUUID());
@@ -112,7 +121,7 @@ public final class LbcProjectileLevelups {
         // One radius-3 native spatial query per shared-work owner quantum. No world roster/NBT scan.
         // Source limit1 without sort has no stable identity: choose the first eligible mutable body.
         for(var e:p.level().getEntities((Entity)null,new AABB(eye,eye).inflate(3),e->target(p,e))){
-            e.setNoGravity(true);break;
+            grantNoGravity(e);break;
         }
     }
     private final class Dispatcher implements LbcStonekivi.Work {

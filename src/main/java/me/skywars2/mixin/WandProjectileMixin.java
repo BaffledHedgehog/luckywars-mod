@@ -125,7 +125,8 @@ public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownU
             var game=SkyWars2.game();
             if(game!=null && !game.items().madokaBow().beforeProjectile((Projectile)(Object)this)){ci.cancel();return;}
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow actual
-                    && actual.level() instanceof net.minecraft.server.level.ServerLevel && (!me.skywars2.game.LbcLegacyRanged.beforeArrow(game,actual)||!game.items().homingArrows().beforeArrow(actual)||!game.items().trinketArrows().beforeArrow(actual))){ci.cancel();return;}
+                    && actual.level() instanceof net.minecraft.server.level.ServerLevel && (!me.skywars2.game.LbcLegacyRanged.beforeArrow(game,actual)||!game.items().homingArrows().beforeArrow(actual)||!game.items().trinketArrows().beforeArrow(actual)
+                    ||game.items().lifetimes().retireEscapedGravitasArrow(actual))){ci.cancel();return;}
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.projectile.arrow.Arrow rocket
                     && me.skywars2.game.LbcSteampunkRocket.managed(rocket)
                     && !game.items().steampunkRocket().beforeArrowTick(rocket)){ci.cancel();return;}

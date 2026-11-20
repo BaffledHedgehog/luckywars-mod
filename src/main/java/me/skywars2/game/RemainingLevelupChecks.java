@@ -37,7 +37,7 @@ public final class RemainingLevelupChecks {
     private static void start(GameController game,int kind){require(running==null,"exclusive fixture");var f=new Fixture(game,kind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.kind==0?"real gates, all40 real distinct Tatam outcomes, duplicate exclusion, retained random pairs and ordinary/BedWars reapplication":f.kind==1?"actual bow/multishot/firework/snowball/egg/pearl/machinegun inputs, source scalars, owned/foreign Homing30 and owner-only Gravitas":"actual nonempty coordinator random/RNG/projectile clone/freeze replay");}
+        try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.kind==0?"real gates, all40 real distinct Tatam outcomes, duplicate exclusion, retained random pairs and ordinary/BedWars reapplication":f.kind==1?"actual bow/multishot/firework/snowball/egg/pearl/machinegun inputs, source scalars, owned/foreign Homing30 and owner-only Gravitas with bounded escaped arrow flight":"actual nonempty coordinator random/RNG/projectile clone/freeze replay");}
         catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}
     }
     /** Only used while resolving supporting finite source sequences; never installed during coordinator capture. */
@@ -167,8 +167,56 @@ public final class RemainingLevelupChecks {
             var fireworks=cross(new ItemStack(Items.FIREWORK_ROCKET),true);require(fireworks.size()==3,"actual fireworks multishot publishes three native rockets");for(var p:fireworks){require(!(p instanceof AbstractArrow),"firework retains native damage owner");finalized(p,"actual firework sibling");}
             var snow=thrown(Items.SNOWBALL);require(snow instanceof Snowball,"actual snowball native carrier");finalized(snow,"actual SnowballItem route");require(snow.getDeltaMovement().length()>1.8&&snow.getDeltaMovement().length()<2.1,"real snowball receives speed trait");
             for(var item:List.of(Items.EGG,Items.ENDER_PEARL)){var p=thrown(item);require(!p.entityTags().contains(LbcProjectileLevelups.FINALIZED)&&p.isNoGravity()&&p.getDeltaMovement().length()<1.7,"ordinary egg/pearl gets owned gravity without unsupported speed/damage "+item);p.discard();}
+            escapedGravityFlight(arrow,(AbstractArrow)enchanted.getFirst(),foreign);
             // Supporting scalar contract on a native arrow; native admission is proved by the real inputs above.
             var custom=new Arrow(EntityTypes.ARROW,level);custom.setOwner(owner);custom.setBaseDamage(2.137);custom.setDeltaMovement(12,-.0000007,3);game.items().projectileLevelups().beforePublish(owner,custom,LbcProjectileLevelups.Launch.BOW);near(coefficient(custom),3.17,"floor multiply precedes additive .5 over actual custom coefficient2.137");near(custom.getDeltaMovement().x,15.6,"speed trait has no former10 component cap");near(custom.getDeltaMovement().y,-.00000091,"cap-free1.3 retains tiny signed motion");game.items().projectileLevelups().beforePublish(owner,custom,LbcProjectileLevelups.Launch.BOW);near(coefficient(custom),3.17,"finalized body cannot receive a second coefficient mutation");near(custom.getDeltaMovement().x,15.6,"finalized body cannot receive a second speed mutation");custom.discard();discardOwned();
+        }
+        void reviewAtNativeTick(AbstractArrow arrow){
+            arrow.tickCount=Math.floorMod(-arrow.getId(),16);
+            arrow.tick();
+        }
+        void escapedGravityFlight(AbstractArrow returning,AbstractArrow below,AbstractArrow plain){
+            float pitch=owner.getXRot();
+            List<Projectile> shots;
+            owner.setXRot(-90);
+            try{shots=bow(new ItemStack(Items.ARROW),new ItemStack(Items.BOW),71980);}
+            finally{owner.setXRot(pitch);}
+            require(shots.size()==1&&shots.getFirst() instanceof Arrow,"true upward native Bow launch");
+            var outward=(AbstractArrow)shots.getFirst();
+            boolean crossed=false;
+            for(int i=0;i<40&&!outward.isRemoved();i++){
+                outward.tickCount++;
+                outward.tick();
+                crossed|=outward.getBoundingBox().minY>=level.getMaxY()+1.0;
+            }
+            require(crossed&&outward.isRemoved(),"targetless real Gravitas arrow crosses ceiling and retires in flight");
+
+            var upper=new Vec3(origin.x,level.getMaxY()+12.0,origin.z);
+            var lower=new Vec3(origin.x,level.getMinY()-12.0,origin.z);
+            returning.setPos(upper);returning.setDeltaMovement(0,-.5,0);
+            reviewAtNativeTick(returning);
+            require(!returning.isRemoved()&&returning.getY()<upper.y,"incoming Gravitas arrow keeps moving toward playable height");
+            returning.discard();
+
+            below.setPos(lower);below.setDeltaMovement(0,-.5,0);
+            reviewAtNativeTick(below);
+            require(below.isRemoved(),"outward Gravitas spectral arrow retires below the build floor");
+
+            plain.setPos(upper);plain.setDeltaMovement(0,.5,0);
+            reviewAtNativeTick(plain);
+            require(!plain.isRemoved()&&!plain.isNoGravity()&&plain.getY()>upper.y&&plain.getDeltaMovement().y<.5,
+                    "unrelated native arrow keeps its full ballistic behavior outside the build height");
+            plain.discard();
+
+            var target=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);
+            target.setPos(upper.add(0,5,0));target.setNoAi(true);target.setNoGravity(true);publish(target);
+            var viable=(AbstractArrow)bow(new ItemStack(Items.ARROW),new ItemStack(Items.BOW),71980).getFirst();
+            viable.setPos(upper);viable.setDeltaMovement(0,.5,0);
+            reviewAtNativeTick(viable);
+            require(!viable.isRemoved()&&viable.getY()>upper.y,"reachable native target above the ceiling keeps outward flight active");
+            target.discard();
+            reviewAtNativeTick(viable);
+            require(viable.isRemoved(),"the removed airborne target no longer keeps outward flight active");
         }
         void beginHoming(){
             game.config().lbcSkills=true;award("lbc:true_advancements/legends/academy/exahoming");

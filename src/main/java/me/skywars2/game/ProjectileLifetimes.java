@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -366,6 +367,40 @@ public final class ProjectileLifetimes {
             if (mayReach(projectile, target)) return false;
         }
         projectile.discard();
+        return true;
+    }
+
+    public boolean retireEscapedGravitasArrow(AbstractArrow arrow) {
+        if (((arrow.tickCount + arrow.getId()) & 15) != 0 || !arrow.isNoGravity()
+                || !arrow.entityTags().contains(LbcProjectileLevelups.GRAVITAS_ARROW)
+                || !game.playing() || !(arrow.level() instanceof ServerLevel level)
+                || !LbcDimensionItems.ordinary(level)) return false;
+        var bounds = arrow.getBoundingBox();
+        var motion = arrow.getDeltaMovement();
+        boolean above = bounds.minY >= level.getMaxY() + 1.0 && motion.y >= 0;
+        boolean below = bounds.maxY <= level.getMinY() && motion.y <= 0;
+        if (!above && !below) return false;
+        if (arrow.isVehicle() || arrow.isPassenger() || protectedWandProjectile(arrow)
+                || LbcHomingArrows.isManaged(arrow) || LbcMadokaBow.recognizes(arrow)
+                || LbcSteampunkRocket.managed(arrow) || LbcMachinegunSkill.managed(arrow)
+                || game.items().wands().legacyTimeStopped() || game.items().timeStop().stopped(level)
+                || game.items().timeStop().frozen(arrow)
+                || arrow.entityTags().contains("time_stopped") || game.items().polymorph().suspended(arrow)) return false;
+        if (game.items().homing().canSteerArrow(arrow, level)) return false;
+
+        // Native arrows lose 1% of their remaining speed per tick in air. This bounds the
+        // straight path, so a distant target cannot retain a stalled arrow forever.
+        Vec3 from = arrow.position();
+        Vec3 end = from.add(motion.scale(101));
+        for (var candidate : loadedTargets()) {
+            if (candidate.level() != level || !candidate.isAlive() || candidate.isRemoved() || candidate.isSpectator()) continue;
+            var target = candidate.getBoundingBox();
+            if (above && target.maxY < bounds.minY - 1 || below && target.minY > bounds.maxY + 1) continue;
+            var collision = target.inflate(.5);
+            if ((collision.contains(from) || collision.clip(from, end).isPresent())
+                    && game.items().wands().canHit(arrow, candidate)) return false;
+        }
+        arrow.discard();
         return true;
     }
 

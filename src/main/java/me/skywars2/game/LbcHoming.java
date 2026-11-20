@@ -451,6 +451,12 @@ public final class LbcHoming {
         return game.items().lifetimes().nearestTarget(owner.level(), from, 100, true,
                 candidate -> candidate.getType().builtInRegistryHolder().is(FOURIER_MOBS) && target(owner, candidate));
     }
+    boolean canSteerArrow(Projectile arrow,ServerLevel level){
+        return projectiles.contains(arrow) && !arrow.entityTags().contains("cant_be_homing")
+                && arrow.getDeltaMovement().lengthSqr()>=1e-12
+                && game.items().projectileLevelups().projectileOwner(arrow) instanceof ServerPlayer owner
+                && skillOwner(owner,level) && skillTarget(owner,arrow.position())!=null;
+    }
     private void tickSkillProjectiles(){
         for(var body:List.copyOf(projectiles)){
             if(body.isRemoved()){projectiles.remove(body);continue;}
