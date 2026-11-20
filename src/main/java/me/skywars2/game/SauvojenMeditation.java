@@ -82,12 +82,17 @@ public final class SauvojenMeditation {
     private static final int[] RUBY_COLUMNS=rubyColumns();
     private static int[] rubyColumns(){int[] cells=new int[349*2];int i=0;
         for(int x=-10;x<=10;x++)for(int z=-rubyHalfWidth(x);z<=rubyHalfWidth(x);z++){cells[i++]=x;cells[i++]=z;}return cells;}
-    /** Native TNT keeps its author through direct damage, terrain changes and chain callbacks. */
+    /** Trial TNT carries kill credit without a physical owner. */
     static final class TrialTnt extends PrimedTnt {
-        final ServerPlayer author;final LbcIndirectKills.Owner cause;
-        TrialTnt(Trial t,Vec3 at){super(t.level,at.x,at.y,at.z,t.owner);author=t.owner;cause=t.cause;
-            setFuse(0);setDeltaMovement(Vec3.ZERO);entityTags().add(LbcDamage.UNPROTECTED_TNT);entityTags().add(t.epoch);}
-        @Override public LivingEntity getOwner(){return author;}
+        final LbcIndirectKills.Owner cause;
+        TrialTnt(Trial t,Vec3 at) {
+            super(t.level,at.x,at.y,at.z,null);
+            cause=t.cause;
+            setFuse(0);
+            setDeltaMovement(Vec3.ZERO);
+            entityTags().add(LbcDamage.UNPROTECTED_TNT);
+            entityTags().add(t.epoch);
+        }
     }
     public static boolean managed(Entity source){return source instanceof TrialTnt;}
     public static LbcIndirectKills.Owner cause(Entity source){return source instanceof TrialTnt t?t.cause:null;}
@@ -480,7 +485,7 @@ public final class SauvojenMeditation {
         }return false;
     }
     void hurt(Trial t,LivingEntity e,float amount,ResourceKey<DamageType> type,boolean acid){
-        var damage=new DamageSource(t.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),t.owner);
+        var damage=new DamageSource(t.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type));
         e.hurtServer(t.level,game.items().indirectKills().captureDamage(damage,t.cause),amount);
         if(acid)effect(t,e,MobEffects.POISON,200,0);
         // Source calls fail irrespective of damage acceptance; close the victim's own trial only.

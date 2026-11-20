@@ -4,6 +4,7 @@ import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
@@ -211,17 +212,27 @@ public final class SauvojenMeditationChecks {
                     "first air column at exact local-18");service.stop();
             // Source damage fails an active trial even if native damage is rejected.
             t=admit();boolean invulnerable=base.owner.getAbilities().invulnerable;base.owner.getAbilities().invulnerable=true;
-            try{service.hurt(t,base.owner,8,net.minecraft.world.damagesource.DamageTypes.MAGIC,false);require(service.count()==0,"rejected native damage still fails trial");}
+            try{service.hurt(t,base.owner,8,DamageTypes.MAGIC,false);require(service.count()==0,"rejected native damage still fails trial");}
             finally{base.owner.getAbilities().invulnerable=invulnerable;}
             t=admit();var cow=new Cow(EntityTypes.COW,base.owner.level());cow.setPos(base.owner.position().add(0,0,5));cow.setNoAi(true);
             base.owner.level().addFreshEntity(cow);spawned.add(cow);float before=cow.getHealth();
-            service.hurt(t,cow,4,net.minecraft.world.damagesource.DamageTypes.IN_FIRE,true);
+            service.hurt(t,cow,4,DamageTypes.IN_FIRE,true);
             require(cow.getHealth()<before&&cow.hasEffect(net.minecraft.world.effect.MobEffects.POISON),"native acid in_fire and poison");
+            var acid=cow.getLastDamageSource();
+            require(acid!=null&&acid.is(DamageTypes.IN_FIRE)&&acid.getEntity()==null&&acid.getDirectEntity()==null,
+                    "native acid has no physical attacker or carrier");
             require(cow.getEffect(net.minecraft.world.effect.MobEffects.POISON).getAmplifier()==0&&cow.getEffect(net.minecraft.world.effect.MobEffects.POISON).getDuration()==200,
                     "source poison10 seconds amplifier0");require(service.count()==1,"foreign victim does not end author's trial");
+            cow.setHealth(1);cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
+            service.hurt(t,cow,8,DamageTypes.MAGIC,false);
+            var magic=cow.getLastDamageSource();
+            require(cow.isDeadOrDying()&&magic!=null&&magic.is(DamageTypes.MAGIC)
+                    &&magic.getEntity()==null&&magic.getDirectEntity()==null,"lethal native trial magic has no physical attacker or carrier");
+            require(cow.getKillCredit()==base.owner&&t.cause.equals(game.items().indirectKills().babylonCause(magic)),
+                    "lethal trial magic retains the separate player kill credit and exact WILD cause");
             var source=new SauvojenMeditation.TrialTnt(t,base.owner.position());
-            require(SauvojenMeditation.managed(source)&&SauvojenMeditation.cause(source)==t.cause&&source.getOwner()==base.owner,
-                    "ephemeral native TNT preserves exact wild cause");
+            require(SauvojenMeditation.managed(source)&&SauvojenMeditation.cause(source)==t.cause&&source.getOwner()==null,
+                    "ownerless native TNT preserves exact WILD cause");
             service.stop();require(service.count()==0,"service stop closes all trials");
         }
         void independent(){
@@ -410,6 +421,7 @@ public final class SauvojenMeditationChecks {
             var other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));require(other!=null,"actual allied native blast participant");
             var state=new GameChecks.WandThirdPlayerState(other,base.mana);var indirect=new Attribution(game,List.of(other));
             var board=game.server().getScoreboard();var oldOwnerTeam=base.owner.getTeam();var oldOtherTeam=other.getTeam();
+            int savedProtection=game.config().tntProtection;
             require(board.getPlayerTeam("sw2_medit_tnt")==null,"exclusive native TNT team");var team=board.addPlayerTeam("sw2_medit_tnt");team.setAllowFriendlyFire(false);
             try{
                 var t=admit();var at=base.owner.position().add(12,0,0);var c=BlockPos.containing(at);save(c.offset(-9,-9,-9),c.offset(9,9,9));
@@ -419,14 +431,21 @@ public final class SauvojenMeditationChecks {
                 other.setHealth(200);other.setAbsorptionAmount(0);other.setInvulnerableTime(0);other.damageCooldownTime=0;other.setNoGravity(true);
                 other.teleportTo(other.level(),at.x+1,at.y,at.z,Set.of(),0,0,true);
                 require(!base.owner.canHarmPlayer(other),"ordinary native team damage is disabled before trial TNT");
+                game.config().tntProtection=5;
                 float health=other.getHealth();service.blast(t,at);
-                require(other.getHealth()<health,"actual native TrialTnt explosion damages allied player through WILD admission");
-                require(other.getLastHurtByPlayer()==base.owner,"native allied TNT retains actual player author");
+                require(other.getHealth()<health,"actual native TrialTnt damages allied player with maximum ordinary TNT protection");
+                var damage=other.getLastDamageSource();
+                require(damage!=null&&damage.getEntity()==null
+                        &&damage.getDirectEntity() instanceof SauvojenMeditation.TrialTnt tnt&&tnt.getOwner()==null,
+                        "native explosion keeps the ownerless TNT as its direct source");
+                require(t.cause.equals(game.items().indirectKills().babylonCause(damage)),
+                        "native allied TNT retains the exact WILD cause apart from its physical source");
                 try{var field=LbcIndirectKills.class.getDeclaredField("laterAttacks");field.setAccessible(true);
                     require(t.cause.equals(((Map<?,?>)field.get(game.items().indirectKills())).get(other)),
                             "actual allied TNT retains exact captured WILD indirect fall author/order");
                 }catch(ReflectiveOperationException error){throw new IllegalStateException("Native trial TNT attribution",error);}
             }finally{
+                game.config().tntProtection=savedProtection;
                 service.stop();restore();board.removePlayerTeam(team);
                 if(oldOwnerTeam!=null)board.addPlayerToTeam(base.owner.getScoreboardName(),oldOwnerTeam);
                 if(oldOtherTeam!=null)board.addPlayerToTeam(other.getScoreboardName(),oldOtherTeam);
@@ -443,6 +462,6 @@ public final class SauvojenMeditationChecks {
     }
     public static void run(GameController game){
         try(var f=new Fixture(game)){f.admission();f.ruby();f.stone();f.fire();f.hazards();f.independent();f.webGraph();f.warningLifetime();f.fear();f.alliedBlast();}
-        SkyWars2.LOGGER.info("[check] PASS sauvojen-meditation (native stack/readiness,8725ruby,47x19x47 explicit stone,42510lava/20181air, complete6/120warning displays+diagonal damage+bounded damage packets, native warning geometry/lifetime/TimeStop/cleanup, one source twinkle, canonical fear/decay/105 threshold/Greed, real allied WILD TNT damage/exact author, per-participant state and cleanup)");
+        SkyWars2.LOGGER.info("[check] PASS sauvojen-meditation (native stack/readiness,8725ruby,47x19x47 explicit stone,42510lava/20181air, complete6/120warning displays+diagonal damage+bounded damage packets, native warning geometry/lifetime/TimeStop/cleanup, one source twinkle, canonical fear/decay/105 threshold/Greed, ownerless WILD damage and TNT with separate kill credit, per-participant state and cleanup)");
     }
 }
