@@ -3,10 +3,15 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 /** Real lobby requests supersede both decoding and partially applied native map work. */
@@ -15,6 +20,37 @@ public final class MapReplacementChecks {
     private static void require(boolean value,String message){if(!value)throw new IllegalStateException("Map replacement: "+message);}
     private static Object field(Object object,String name){try{var f=object.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(object);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
     public static void run(GameController game){require(active==null&&game.inLobby()&&!game.maps().busy(),"exclusive ready lobby");active=new Scene(game);active.start();}
+
+    private static void checkStoredTerrain() {
+        for(var block:List.of(Blocks.AIR,Blocks.CAVE_AIR,Blocks.VOID_AIR)) {
+            var nativeState=BlockState.CODEC.encodeStart(NbtOps.INSTANCE,block.defaultBlockState()).getOrThrow();
+            require(!MapManager.storedTerrain(chunkWithPalette(nativeState)),"native singleton air palette needs no full load for "+block);
+        }
+        var stone=BlockState.CODEC.encodeStart(NbtOps.INSTANCE,Blocks.STONE.defaultBlockState()).getOrThrow();
+        require(MapManager.storedTerrain(chunkWithPalette(stone)),"native singleton stone palette must be loaded");
+        var legacyAir=new CompoundTag();
+        legacyAir.putString("Name","minecraft:air");
+        require(!MapManager.storedTerrain(chunkWithPalette(legacyAir)),"legacy singleton Name air palette needs no full load");
+        var compoundAir=new CompoundTag();
+        compoundAir.putString("id","minecraft:air");
+        require(!MapManager.storedTerrain(chunkWithPalette(compoundAir)),"current expanded air palette needs no full load");
+        require(MapManager.storedTerrain(chunkWithPalette(new CompoundTag())),"unknown palette still falls back to a full load");
+    }
+
+    private static CompoundTag chunkWithPalette(Tag state) {
+        var palette=new ListTag();
+        palette.add(state);
+        var blockStates=new CompoundTag();
+        blockStates.put("palette",palette);
+        var section=new CompoundTag();
+        section.put("block_states",blockStates);
+        var sections=new ListTag();
+        sections.add(section);
+        var chunk=new CompoundTag();
+        chunk.put("sections",sections);
+        return chunk;
+    }
+
     private static final class Scene {
         final GameController game;final ServerPlayer owner;final String oldMap;final boolean oldBroken;final int started;
         final int oldMode;
@@ -25,6 +61,7 @@ public final class MapReplacementChecks {
         net.minecraft.world.entity.item.ItemEntity outsideItem;
         int phase;final List<net.minecraft.world.entity.item.ItemEntity> debris=new ArrayList<>();
         Scene(GameController game){
+            checkStoredTerrain();
             this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
             oldMap=game.config().mapId;oldBroken=game.config().broken;oldMode=game.config().gameMode;started=game.server().getTickCount();
             require((int)field(game.maps(),"sweptMode")==oldMode,"the first startup map applied a full sweep");

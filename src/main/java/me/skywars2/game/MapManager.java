@@ -498,6 +498,7 @@ public final class MapManager {
                     var sweep=arenaSweep;
                     applyNativeMapWork(new Work(sweep.bounds,world->sweep.tick(deadline)));
                     if(!sweep.done())return;
+                    sweep.log(true);
                     arenaSweep=null;
                 } finally { applyingMapWork=false; }
             }
@@ -1662,9 +1663,11 @@ public final class MapManager {
                 OUTER_ARENA_LIMIT,level.getMaxY(),OUTER_ARENA_LIMIT);
         private final int minChunk=bounds.minX()>>4,maxChunk=bounds.maxX()>>4,width=maxChunk-minChunk+1;
         private final ArrayDeque<Column> pending=new ArrayDeque<>();
+        private final ArrayDeque<Column> ready=new ArrayDeque<>();
         private final BlockPos.MutableBlockPos cursor=new BlockPos.MutableBlockPos();
         private final List<BoundingBox> protectedBounds;
-        private int nextColumn;
+        private int nextColumn,checkedColumns,savedReads,terrainColumns,clearedBlocks;
+        private int waitSavedReadTicks,waitFullChunkTicks;
 
         ArenaSweep(List<BoundingBox> protectedBounds) {
             this.protectedBounds=protectedBounds;
@@ -1673,16 +1676,16 @@ public final class MapManager {
         private final class Column {
             final ChunkPos pos;
             final CompletableFuture<Boolean> stored;
+            final boolean readsSavedChunk;
             CompletableFuture<?> loading;
-            boolean checked;
             LevelChunk chunk;
             int section,block;
 
             Column(ChunkPos pos) {
                 this.pos=pos;
                 var current=level.getChunkSource().getChunkNow(pos.x(),pos.z());
-                if(current!=null)stored=CompletableFuture.completedFuture(hasTerrain(current));
-                else if(terrainInHolder(pos))stored=CompletableFuture.completedFuture(true);
+                readsSavedChunk=current==null&&!terrainInHolder(pos);
+                if(!readsSavedChunk)stored=CompletableFuture.completedFuture(current==null||hasTerrain(current));
                 else stored=level.getChunkSource().chunkMap.read(pos)
                         .thenApply(tag->tag.map(MapManager::storedTerrain).orElse(false));
             }
@@ -1693,30 +1696,25 @@ public final class MapManager {
                     && bounds.isInside(new BlockPos(box.maxX(),box.maxY(),box.maxZ()));
         }
 
-        boolean done() { return nextColumn==width*width&&pending.isEmpty(); }
+        boolean done() { return nextColumn==width*width&&pending.isEmpty()&&ready.isEmpty(); }
 
         void tick(long deadline) {
             var source=level.getChunkSource();
-            for (int slices=0;slices<MAX_SLICES_PER_TICK&&System.nanoTime()<deadline;slices++) {
-                while(pending.size()<WARM_AHEAD_SLICES&&nextColumn<width*width&&System.nanoTime()<deadline) {
-                    int index=nextColumn++;
-                    pending.addLast(new Column(new ChunkPos(minChunk+index%width,minChunk+index/width)));
-                }
-                var column=pending.peekFirst();
-                if(column==null)return;
-                // Warm the next occupied columns while the current one is being cleared.
-                for(var candidate:pending) {
-                    if(System.nanoTime()>=deadline)return;
-                    if(!candidate.checked&&candidate.stored.isDone()) {
-                        candidate.checked=true;
-                        var current=source.getChunkNow(candidate.pos.x(),candidate.pos.z());
-                        if(current!=null?hasTerrain(current):candidate.stored.join()||terrainInHolder(candidate.pos))
-                            candidate.loading=prepareChunk(candidate.pos);
+            // Pick completed loads once, then reuse the selected column for its successive slices.
+            warmColumns(deadline);
+            boolean finishedColumn=false;
+            for(int slices=0;slices<MAX_SLICES_PER_TICK&&System.nanoTime()<deadline;slices++) {
+                if(ready.isEmpty()) {
+                    if(done())return;
+                    if(finishedColumn||(nextColumn<width*width&&pending.size()<WARM_AHEAD_SLICES)) {
+                        warmColumns(deadline);
+                        finishedColumn=false;
+                        continue;
                     }
+                    recordWait();
+                    return;
                 }
-                if(!column.stored.isDone())return;
-                if(column.loading==null){pending.removeFirst();continue;}
-                if(!column.loading.isDone())return;
+                var column=ready.getFirst();
                 if(column.chunk==null) {
                     var result=column.loading.join();
                     if(result instanceof ChunkResult<?> loaded&&loaded.orElse(null) instanceof LevelChunk chunk)
@@ -1724,8 +1722,51 @@ public final class MapManager {
                     else column.chunk=source.getChunkNow(column.pos.x(),column.pos.z());
                     if(column.chunk==null)throw new IllegalStateException("Could not load arena cleanup chunk "+column.pos);
                 }
-                if(clearSlice(column))pending.removeFirst();
+                if(clearSlice(column)) {
+                    ready.removeFirst();
+                    finishedColumn=true;
+                }
             }
+        }
+
+        private void warmColumns(long deadline) {
+            while(pending.size()+ready.size()<WARM_AHEAD_SLICES&&nextColumn<width*width&&System.nanoTime()<deadline) {
+                int index=nextColumn++;
+                pending.addLast(new Column(new ChunkPos(minChunk+index%width,minChunk+index/width)));
+            }
+            var source=level.getChunkSource();
+            for(var waiting=pending.iterator();waiting.hasNext()&&System.nanoTime()<deadline;) {
+                var column=waiting.next();
+                if(column.loading==null) {
+                    if(!column.stored.isDone())continue;
+                    checkedColumns++;
+                    if(column.readsSavedChunk)savedReads++;
+                    var current=source.getChunkNow(column.pos.x(),column.pos.z());
+                    boolean hasBlocks=current!=null?hasTerrain(current):column.stored.join()||terrainInHolder(column.pos);
+                    if(!hasBlocks){waiting.remove();continue;}
+                    terrainColumns++;
+                    column.loading=prepareChunk(column.pos);
+                }
+                if(column.loading.isDone()) {
+                    waiting.remove();
+                    ready.addLast(column);
+                }
+            }
+        }
+
+        private void recordWait() {
+            boolean savedRead=false,fullChunk=false;
+            for(var column:pending) {
+                if(column.loading==null)savedRead|=!column.stored.isDone();
+                else fullChunk|=!column.loading.isDone();
+            }
+            if(savedRead)waitSavedReadTicks++;
+            if(fullChunk)waitFullChunkTicks++;
+        }
+
+        void log(boolean finished) {
+            LOGGER.info("Arena sweep finished={} columnsChecked={} savedReads={} terrainColumns={} clearedBlocks={} waitSavedReadTicks={} waitFullChunkTicks={}",
+                    finished,checkedColumns,savedReads,terrainColumns,clearedBlocks,waitSavedReadTicks,waitFullChunkTicks);
         }
 
         private boolean terrainInHolder(ChunkPos pos) {
@@ -1750,8 +1791,8 @@ public final class MapManager {
                 int x=column.block&15,y=column.block>>8,z=(column.block>>4)&15;
                 if(section.getBlockState(x,y,z).isAir())continue;
                 cursor.set((column.pos.x()<<4)+x,originY+y,(column.pos.z()<<4)+z);
-                if(bounds.isInside(cursor)&&!insideAny(cursor,protectedBounds)&&(!lobbyOverlayActive||!insideLobby(cursor)))
-                    level.setBlock(cursor,Blocks.AIR.defaultBlockState(),MAP_WRITE_FLAGS);
+                if(bounds.isInside(cursor)&&!insideAny(cursor,protectedBounds)&&(!lobbyOverlayActive||!insideLobby(cursor))
+                        &&level.setBlock(cursor,Blocks.AIR.defaultBlockState(),MAP_WRITE_FLAGS))clearedBlocks++;
             }
             if(column.block==4096){column.section++;column.block=0;}
             return column.section==sections.length;
@@ -1764,15 +1805,25 @@ public final class MapManager {
         return false;
     }
 
-    private static boolean storedTerrain(CompoundTag chunk) {
-        var sections=chunk.getList("sections");
+    static boolean storedTerrain(CompoundTag chunk) {
+        var sections=chunk.getListOrEmpty("sections");
         if(sections.isEmpty())return true; // Unknown/old formats must be checked by the native loader.
-        for(var value:sections.get())if(value instanceof CompoundTag section) {
+        for(var value:sections) {
+            if(!(value instanceof CompoundTag section))return true;
             var states=section.getCompound("block_states");
-            if(states.isEmpty())continue; // Light-only sections have no block data.
+            if(states.isEmpty()) {
+                // Vanilla also writes sections containing only light.
+                for(String key:section.keySet())
+                    if(!key.equals("Y")&&!key.equals("BlockLight")&&!key.equals("SkyLight"))return true;
+                continue;
+            }
             var palette=states.get().getListOrEmpty("palette");
-            if(palette.size()!=1||!(palette.getFirst() instanceof CompoundTag state)
-                    ||!state.getStringOr("Name","").equals("minecraft:air"))return true;
+            if(palette.size()!=1)return true;
+            var state=palette.getFirst();
+            // The current codec writes default states as registry IDs. Older saves wrote Name compounds.
+            String id=state instanceof CompoundTag entry?entry.getStringOr("id",entry.getStringOr("Name",""))
+                    :state.asString().orElse("");
+            if(!id.equals("minecraft:air")&&!id.equals("minecraft:cave_air")&&!id.equals("minecraft:void_air"))return true;
         }
         return false;
     }
@@ -2378,6 +2429,7 @@ public final class MapManager {
         busy = false;
         reading = false;
         work.clear();
+        if(arenaSweep!=null)arenaSweep.log(false);
         arenaSweep = null;
         preparedTemplates = Map.of();
         preparation = null;
