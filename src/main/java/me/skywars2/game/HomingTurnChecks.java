@@ -7,6 +7,8 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -129,9 +131,42 @@ final class HomingTurnChecks {
             f.move(f.owner,f.home.add(0,60,0));f.move(f.other,f.owner.position().add(30,0,0));
             var cow=new Cow(EntityTypes.COW,f.level);cow.setNoAi(true);cow.setNoGravity(true);cow.setPos(f.owner.position().add(0,4,15));
             require(f.level.addFreshEntity(cow),"native target publication");target=cow;f.owned.add(cow.getUUID());
+            personalSkillDust();
             nearbySelectors();
             keeperVolley();
             keeperSelectors(false);
+        }
+
+        void personalSkillDust() {
+            var service=game.items().homing();
+            var from=target.getEyePosition().add(3,0,-4);
+            var direction=heading(15);
+            var ownerPackets=f.client.packets();
+            var observerPackets=f.audience.packets();
+            int fromOwner=ownerPackets.size(),fromObserver=observerPackets.size();
+            for(int pass=0;pass<20;pass++){
+                for(int slot=0;slot<20;slot++){
+                    var origin=from.add(slot*.025,0,0);
+                    var expected=ProjectileSteering.turn(direction,target.getEyePosition().subtract(origin),Math.PI/180);
+                    require(service.skillDirection(f.owner,f.level,origin,direction).equals(expected),
+                            "sampled and unsampled native skill calls have the same exact steering");
+                }
+            }
+            for(var packets:List.of(ownerPackets.subList(fromOwner,ownerPackets.size()),
+                    observerPackets.subList(fromObserver,observerPackets.size()))){
+                var dust=packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
+                        .map(ClientboundLevelParticlesPacket.class::cast)
+                        .filter(packet->packet.particle() instanceof DustParticleOptions p
+                                &&p.getColor().equals(net.minecraft.util.ARGB.vector3fFromRGB24(0xff0000))&&p.getScale()==2)
+                        .toList();
+                require(dust.size()>=19&&dust.size()<=21,
+                        "one skill dust burst per twenty eligible turns (allowing partial groups), observed "+dust.size()+" of 400");
+                require(dust.stream().allMatch(packet->packet.count()==3&&Math.abs(packet.xDist()-.1)<1e-6
+                                &&Math.abs(packet.yDist()-.1)<1e-6&&Math.abs(packet.zDist()-.1)<1e-6),
+                        "retained dust bursts keep the original particle count and spread");
+                require(dust.stream().map(ClientboundLevelParticlesPacket::x).distinct().count()>1,
+                        "stable repeated volleys display samples at more than one position");
+            }
         }
 
         ProbeCow probe(Vec3 point) {

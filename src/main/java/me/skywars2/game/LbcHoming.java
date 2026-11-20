@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -39,6 +40,7 @@ public final class LbcHoming {
     private static final DustParticleOptions STAR_DUST=new DustParticleOptions(0xccccff,4);
     private static final DustParticleOptions DESTINY_DUST=new DustParticleOptions(0x412c13,1);
     private static final DustParticleOptions SKILL_DUST=new DustParticleOptions(0xff0000,2);
+    private static final int SKILL_DUST_PERIOD=20;
     private final GameController game;
     private final Set<LargeFireball> fireballs=new LinkedHashSet<>();
     // Для глобального Curse нужен индекс уже загруженных снарядов, не новый трекер их физики.
@@ -55,6 +57,7 @@ public final class LbcHoming {
     private final List<Effect> rains=new ArrayList<>(),destinies=new ArrayList<>(),fouriers=new ArrayList<>();
     private IdentityHashMap<LivingEntity,Curse> curses=new IdentityHashMap<>();
     private int ticks;
+    private long skillDustSamples;
     private int inProgress;
 
     private static final class Effect {
@@ -438,7 +441,12 @@ public final class LbcHoming {
         var next=ProjectileSteering.turn(motion,toward,Math.PI/180);
         // Keep the authored arrow's additive speed; only its turn is replaced by the angular cap.
         if(arrow)next=next.normalize().scale(motion.add(toward.normalize().scale(.5)).length());
-        level.sendParticles(SKILL_DUST,true,false,from.x,from.y,from.z,3,.1,.1,.1,0);
+        // Select one burst per group of successful homing updates. Vary its position so
+        // a stable projectile order does not assign the trail to the same shot every tick.
+        long sample=skillDustSamples++;
+        long group=sample/SKILL_DUST_PERIOD;
+        if(sample%SKILL_DUST_PERIOD==Math.floorMod(HashCommon.murmurHash3(group),SKILL_DUST_PERIOD))
+            level.sendParticles(SKILL_DUST,true,false,from.x,from.y,from.z,3,.1,.1,.1,0);
         return next;
     }
     private boolean skillOwner(ServerPlayer owner,ServerLevel level){
@@ -655,7 +663,7 @@ public final class LbcHoming {
             for(var pending:List.copyOf(pendingRays)) pending.cancel();
             pendingRays.clear();
             var pending=List.copyOf(fireballs); fireballs.clear(); ages.clear(); steeringTargets.clear();
-            rains.clear(); destinies.clear(); fouriers.clear(); curses.clear(); ticks=0;
+            rains.clear(); destinies.clear(); fouriers.clear(); curses.clear(); ticks=0; skillDustSamples=0;
             for(var fireball:pending) fireball.discard();
             // Индекс прочих нативных снарядов сохраняется: stop не является выгрузкой мира.
 
@@ -674,6 +682,7 @@ public final class LbcHoming {
         private final MatchSpellCheckpoint.IdentityImage<LargeFireball,MatchDamageSources.Ref> steeringImage;
         private final MatchSpellCheckpoint.IdentityImage<LivingEntity,Curse> curseImage;
         private final int cadence=ticks;
+        private final long dustSamples=skillDustSamples;
         @SuppressWarnings("unchecked") Checkpoint(MatchSpellCheckpoint.Links links){
             rainImage=rains.stream().map(e->effect(e,links)).toList();destinyImage=destinies.stream().map(e->effect(e,links)).toList();
             fourierImage=fouriers.stream().map(e->effect(e,links)).toList();
@@ -704,7 +713,7 @@ public final class LbcHoming {
                 ages=nextAges;steeringTargets=nextSteering;curses=nextCurses;
                 rains.clear();rainImage.forEach(i->rains.add(i.original));destinies.clear();destinyImage.forEach(i->destinies.add(i.original));
                 fouriers.clear();fourierImage.forEach(i->fouriers.add(i.original));
-                pendingRays.clear();pendingRays.addAll(waiting);ticks=cadence;};
+                pendingRays.clear();pendingRays.addAll(waiting);ticks=cadence;skillDustSamples=dustSamples;};
         }
         private Runnable effectPlan(EffectImage image,MatchSpellCheckpoint.Links links){
             var owner=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.original.level);
