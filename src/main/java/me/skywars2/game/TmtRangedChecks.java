@@ -33,6 +33,24 @@ public final class TmtRangedChecks {
         for(var flag:flags){var data=new CompoundTag();data.putInt(flag,1);abilities.add(new LbcTmtAbilities.Ability("native/check_"+flag,CustomData.of(data)));}
         LbcTmtAbilities.write(root,abilities);result.set(DataComponents.CUSTOM_DATA,CustomData.of(root));return result;
     }
+    private static ItemStack boundWeapon(int carrier,LbcTmtTriggers.Input input,String... flags){
+        var result=LbcTmtItems.prototype(carrier);
+        var root=result.get(DataComponents.CUSTOM_DATA).copyTag();
+        root.putInt(LbcTmtTriggers.SCHEMA,1);
+        root.putInt("tmt_texture_seed",1000+carrier*32+input.ordinal());
+        var abilities=new ArrayList<LbcTmtAbilities.Ability>();
+        for(var flag:flags){
+            var bindings=new CompoundTag();
+            bindings.putString("SHOT",input.name());
+            var data=new CompoundTag();
+            data.putInt(flag,1);
+            data.put(LbcTmtTriggers.KEY,bindings);
+            abilities.add(new LbcTmtAbilities.Ability("native/limit_"+flag,CustomData.of(data)));
+        }
+        LbcTmtAbilities.write(root,abilities);
+        result.set(DataComponents.CUSTOM_DATA,CustomData.of(root));
+        return result;
+    }
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ElementalGrimoireChecks.Fixture base;
         final boolean skills,levelups;final int trinketLimit;
@@ -107,11 +125,122 @@ public final class TmtRangedChecks {
             require(game.items().wands().electroSnapshot().size()==37,"all source1/32/4 beam families run instead of first-match dispatch");
             require(added().stream().noneMatch(AbstractArrow.class::isInstance)&&ammo.getCount()==5,"one precharged native volley retires original arrows without another debit");clear();
         }
+        void atomicBeamAdmission(){
+            var owner=base.owner;
+            var level=owner.level();
+            var wands=game.items().wands();
+            var ammo=ammo();
+            owner.setItemInHand(InteractionHand.OFF_HAND,ammo);
+            for(int i=0;i<3;i++){
+                var nativeSuper=new ItemStack(LbcImbaCrossbows.Kind.SUPER.item);
+                nativeSuper.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(ammo.copyWithCount(1))));
+                owner.setItemInHand(InteractionHand.MAIN_HAND,nativeSuper);
+                require(owner.gameMode.useItem(owner,level,nativeSuper,InteractionHand.MAIN_HAND).consumesAction(),
+                        "three complete native SUPER families fill flight capacity for the fixture");
+            }
+            var traces=wands.electroSnapshot();
+            require(traces.size()==96&&game.items().stonekivi().queuedSnapshot().stream().noneMatch(LbcErecto.CrossbowBlasts.class::isInstance),
+                    "owner starts with 96 unimpacted paid paths and no terrain jobs");
+
+            var bow=boundWeapon(1,LbcTmtTriggers.Input.SHOT,"imba_super_shotgun","imba_gatlingator","madoka_bow");
+            var bowBefore=bow.copy();
+            owner.setItemInHand(InteractionHand.MAIN_HAND,bow);
+            var bowStat=net.minecraft.stats.Stats.ITEM_USED.get(bow.getItem());
+            int bowUses=owner.getStats().getValue(bowStat);
+            require(owner.gameMode.useItem(owner,level,bow,InteractionHand.MAIN_HAND).consumesAction(),"saturated TMT bow can still draw");
+            require(!bow.getItem().releaseUsing(bow,level,owner,71980)&&ItemStack.matches(bow,bowBefore)
+                            &&ammo.getCount()==5&&owner.getStats().getValue(bowStat)==bowUses
+                            &&wands.electroSnapshot().equals(traces)&&added().isEmpty(),
+                    "combined natural-bound 32+4 costs reject the whole bow before ammunition, damage, use stat or sibling output");
+            owner.stopUsingItem();
+
+            var crossbow=boundWeapon(3,LbcTmtTriggers.Input.LEFT_CLICK,"imba_super_shotgun","imba_gatlingator","madoka_bow");
+            crossbow.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(ammo.copyWithCount(1))));
+            var crossbowBefore=crossbow.copy();
+            owner.setItemInHand(InteractionHand.MAIN_HAND,crossbow);
+            var crossbowStat=net.minecraft.stats.Stats.ITEM_USED.get(crossbow.getItem());
+            int crossbowUses=owner.getStats().getValue(crossbowStat);
+            LbcTmtTriggers.input(owner,LbcTmtTriggers.Input.LEFT_CLICK);
+            require(ItemStack.matches(crossbow,crossbowBefore)&&owner.getStats().getValue(crossbowStat)==crossbowUses
+                            &&wands.electroSnapshot().equals(traces)&&added().isEmpty(),
+                    "remapped charge release is denied as one whole shot with identical chamber and use stat");
+            require(owner.gameMode.useItem(owner,level,crossbow,InteractionHand.MAIN_HAND).consumesAction()
+                            &&owner.getStats().getValue(crossbowStat)==crossbowUses+1&&wands.electroSnapshot().equals(traces)
+                            &&added().stream().filter(AbstractArrow.class::isInstance).count()==1,
+                    "same crossbow on natural input still releases the unchanged native arrow without bound beams");
+
+            var shortBow=boundWeapon(1,LbcTmtTriggers.Input.SHOT,"imba_super_shotgun");
+            owner.setItemInHand(InteractionHand.MAIN_HAND,shortBow);
+            require(!shortBow.getItem().releaseUsing(shortBow,level,owner,71999)
+                            &&wands.electroSnapshot().equals(traces)&&ammo.getCount()==5,
+                    "insufficient native charge consumes neither ammunition nor capacity");
+            require(shortBow.getItem().releaseUsing(shortBow,level,owner,71980)
+                            &&wands.electroSnapshot().size()==128&&ammo.getCount()==4,
+                    "full release in that same tick uses the immediately released reservation");
+            owner.stopUsingItem();
+            deferredMachinegun(bow,ammo);
+            deferredRebound(ammo);
+            clear();
+        }
+        void deferredMachinegun(ItemStack bow,ItemStack ammo){
+            var owner=base.owner;
+            var service=game.items().machinegunSkill();
+            var profile=game.players().get(owner.getUUID());
+            int skill=profile.lbcSkill;
+            boolean enabled=game.config().lbcSkills,ranked=game.config().ranked;
+            var charge=game.items().mana().score(owner,"bow_charge");
+            var progress=game.items().mana().score(owner,"bow_charge_sub");
+            var shots=game.items().mana().score(owner,"machinegun_shots");
+            int oldCharge=charge.get(),oldProgress=progress.get(),oldShots=shots.get();
+            try{
+                game.config().lbcSkills=game.config().ranked=true;
+                profile.lbcSkill=14;
+                require(game.lbc().hasSkill(owner,14),"active automatic bow skill");
+                service.clear(owner);
+                owner.setItemInHand(InteractionHand.MAIN_HAND,bow);
+                require(owner.gameMode.useItem(owner,owner.level(),bow,InteractionHand.MAIN_HAND).consumesAction(),
+                        "automatic TMT bow starts its native draw");
+                charge.set(LbcMachinegunSkill.interval(0)-2);
+                service.usingBow(owner,bow);
+                require(service.pending(owner)==1,"ordinary active draw schedules one skill pulse");
+                int count=ammo.getCount();
+                service.tick();
+                require(service.pending(owner)==1&&shots.get()==0&&progress.get()==0&&ammo.getCount()==count
+                                &&game.items().wands().electroSnapshot().size()==128,
+                        "full beam slots defer the automatic pulse without ammunition or skill progress debit");
+                game.items().wands().stop();
+                service.tick();
+                require(service.pending(owner)==0&&shots.get()==1&&progress.get()==1
+                                &&game.items().wands().electroSnapshot().size()==36,
+                        "the same held pulse resumes once and delivers both accepted beam families");
+                game.items().wands().stop();
+            }finally{
+                owner.stopUsingItem();
+                service.clear(owner);
+                profile.lbcSkill=skill;
+                game.config().lbcSkills=enabled; game.config().ranked=ranked;
+                charge.set(oldCharge);progress.set(oldProgress);shots.set(oldShots);
+            }
+        }
+        void deferredRebound(ItemStack ammo){
+            var owner=base.owner;
+            var wands=game.items().wands();
+            var host=weapon("double");
+            var rebound=boundWeapon(3,LbcTmtTriggers.Input.JUMP,"imba_gatlingator");
+            rebound.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(ammo.copyWithCount(1))));
+            owner.setItemInHand(InteractionHand.MAIN_HAND,rebound);
+            var property=LbcTmtAbilities.read(host).getFirst().id();
+            require(LbcTmtAbilities.invoke(host,property,()->{
+                LbcTmtTriggers.input(owner,LbcTmtTriggers.Input.JUMP);
+                return !net.minecraft.world.item.CrossbowItem.isCharged(rebound)&&wands.electroSnapshot().isEmpty();
+            }),"native release pays its chamber and defers continuation while the outer property is active");
+            require(wands.electroSnapshot().size()==4,"deferred shot retains the remapped ability after its input scope closes");
+        }
         @Override public void close(){try{clear();}finally{game.config().lbcSkills=skills;game.config().lbcLevelups=levelups;game.config().lbcTrinketLimit=trinketLimit;base.close();}}
     }
     public static void run(GameController game){
-        try(var fixture=new Fixture(game)){fixture.physical();fixture.terminals();fixture.explosive();fixture.beams();}
-        SkyWars2.LOGGER.info("[check] PASS tmt-ranged (actual native accepted volleys, private flags,512 physical arrows, independent terminal owners, native codec/ammo and single reload debit)");
+        try(var fixture=new Fixture(game)){fixture.physical();fixture.terminals();fixture.explosive();fixture.beams();fixture.atomicBeamAdmission();}
+        SkyWars2.LOGGER.info("[check] PASS tmt-ranged (actual native accepted volleys, private flags,512 physical arrows, independent terminal owners, native codec/ammo, atomic beam limits, retry, and deferred remapped shots)");
     }
     public static void runLegacy(GameController game){try(var fixture=new Fixture(game)){fixture.legacy();}SkyWars2.LOGGER.info("[check] PASS tmt-legacy-ranged (native double, independent first-arrow converters, surviving multishot/Madoka, real chamber and complete carrier)");}
 }

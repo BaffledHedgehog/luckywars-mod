@@ -89,20 +89,28 @@ public final class LbcMachinegunSkill {
 
     /** Fair owner lanes bound CPU and entity publication; unfinished bursts suppress new debt. */
     public void tick(){
-        int budget=DELIVERY_BUDGET,visits=lanes.size();long start=System.nanoTime();
+        if(lanes.isEmpty())return;
+        int budget=DELIVERY_BUDGET,visits=lanes.size();
+        var deferred=new java.util.HashSet<Draw>();
+        long start=System.nanoTime();
         while(budget>0&&visits-->0&&!lanes.isEmpty()){
             var draw=lanes.removeFirst();
             if(draws.get(draw.owner.getUUID())!=draw)continue;
             if(!valid(draw)){clear(draw.owner);continue;}
             lanes.addLast(draw);
-            if(!paused(draw.owner)&&draw.remaining>0){
-                if(shoot(draw.owner)){
+            if(!paused(draw.owner)&&draw.remaining>0&&!deferred.contains(draw)){
+                int reserved=LbcImbaCrossbows.reserveShot(draw.owner,draw.bow);
+                if(reserved<0)deferred.add(draw);
+                else if(shoot(draw.owner)){
                     draw.remaining--;budget--;
                     if(draw.remaining==0){var s=game.items().mana().score(draw.owner,"bow_charge_sub");
                         if(s.get()<Integer.MAX_VALUE)s.set(Math.max(0,s.get())+1);}
-                }else draw.remaining=0;
+                }else{
+                    LbcImbaCrossbows.releaseUnusedShot(draw.owner,reserved);
+                    draw.remaining=0;
+                }
             }
-            if(visits==0&&budget>0&&lanes.stream().anyMatch(d->d.remaining>0&&!paused(d.owner)))visits=lanes.size();
+            if(visits==0&&budget>0&&lanes.stream().anyMatch(d->d.remaining>0&&!deferred.contains(d)&&!paused(d.owner)))visits=lanes.size();
             if(System.nanoTime()-start>=DELIVERY_NANOS)break;
         }
     }

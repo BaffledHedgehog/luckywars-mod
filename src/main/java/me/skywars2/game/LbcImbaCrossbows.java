@@ -31,7 +31,8 @@ public final class LbcImbaCrossbows {
         final String id,definition,flag;Item item;
         Kind(String id,String suffix,String flag){this.id=id;definition="/data/lbc/loot_table/item_defs/minecraft/crossbow__"+suffix+".json";this.flag=flag;}
         boolean continuous(){return this==FAST||this==GATLING;}
-        boolean beam(){return this==SNIPER||this==SUPER||this==GATLING;}
+        boolean beam(){return beamPaths()>0;}
+        int beamPaths(){return switch(this){case SNIPER->1;case SUPER->32;case GATLING->4;default->0;};}
     }
     static {for(var kind:Kind.values())kind.item=register(kind);}
     private LbcImbaCrossbows(){}
@@ -47,6 +48,31 @@ public final class LbcImbaCrossbows {
             &&LbcDimensionItems.ordinary(player.level())&&!game.items().actionsBlocked(player)
             &&!game.items().wands().inputTimeStopped(player)&&!game.items().magic().mechanismSuppressed(player)
             &&!game.items().magic().artifactSuppressedAt(player.level(),player.position());}
+    public static boolean canShoot(LivingEntity shooter,ItemStack weapon){return shotAdmission(shooter,weapon,false)>=0;}
+    /** Reserves the whole family before native payment. A negative result rejects the shot. */
+    public static int reserveShot(LivingEntity shooter,ItemStack weapon){return shotAdmission(shooter,weapon,true);}
+    public static void releaseUnusedShot(LivingEntity shooter,int paths){
+        if(paths>0&&shooter instanceof ServerPlayer owner){
+            var game=SkyWars2.game();
+            if(game!=null)game.items().erecto().releaseShotPaths(owner,paths);
+        }
+    }
+    private static int shotAdmission(LivingEntity shooter,ItemStack weapon,boolean reserve){
+        if(!(shooter instanceof ServerPlayer owner)
+                ||!weapon.has(DataComponents.CUSTOM_DATA)&&!(weapon.getItem() instanceof NativeCrossbow))return 0;
+        int count;
+        if(LbcTmtItems.matches(weapon)){
+            count=LbcTmtTriggers.nativeShotAbilities(weapon).stream().mapToInt(LbcTmtRanged::beamPaths).sum();
+        }else{
+            var kind=kind(weapon);
+            if(kind==null||!kind.beam()||LbcChargedBows.matches(weapon))return 0;
+            count=kind.beamPaths();
+        }
+        if(count==0)return 0;
+        var game=SkyWars2.game();
+        if(game==null||!allowed(game,owner)||LbcRangedShots.replacesNative(game,owner,weapon))return 0;
+        return game.items().erecto().admitCrossbow(owner,count,reserve)?count:-1;
+    }
     private static Item register(Kind kind){
         var properties=LbcUtilityItemPrototypes.deferredProperties("skywars2:"+kind.id,kind.definition,Items.CROSSBOW,1);
         return Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+kind.id),new NativeCrossbow(properties,kind));
@@ -66,6 +92,7 @@ public final class LbcImbaCrossbows {
             if(!kind.continuous()){super.onUseTick(level,entity,stack,remaining);return;}
             if(!(entity instanceof ServerPlayer owner)||owner.getUseItem()!=stack)return;
             var game=SkyWars2.game();if(game==null||!allowed(game,owner))return;
+            if(kind==Kind.GATLING&&!canShoot(owner,stack))return;
             if(!isCharged(stack)){
                 var selected=LbcMinigunCrossbow.selectedAmmo(owner,this);if(selected.isEmpty())return;
                 var drawn=LbcInfiniteAmmo.drawReload(owner,stack,selected);if(drawn.isEmpty())return;

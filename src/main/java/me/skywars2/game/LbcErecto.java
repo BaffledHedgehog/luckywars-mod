@@ -39,6 +39,9 @@ final class LbcErecto {
     private static final DustColorTransitionOptions SNIPER_DUST=new DustColorTransitionOptions(0x00ccff,0xe5e5ff,.8f);
     private static final DustColorTransitionOptions CROSSBOW_DUST=new DustColorTransitionOptions(0xffccff,0xccccff,.9f);
     private static final int CROSSBOW_BLAST_LIMIT=8;
+    private static final int CROSSBOW_PATHS_PER_PLAYER=128,CROSSBOW_PATHS_TOTAL=512;
+    // Backpressure starts here; paths already in flight can all still impact.
+    private static final int CROSSBOW_JOB_WATERMARK_PER_PLAYER=64,CROSSBOW_JOB_WATERMARK_TOTAL=256;
     private static final long CROSSBOW_BLAST_BUDGET_NANOS=4_000_000;
     private static final int CROSSBOW_BLAST_RADIUS=20;
     private static final int CROSSBOW_BLAST_REACH=2*CROSSBOW_BLAST_RADIUS+2;
@@ -61,6 +64,9 @@ final class LbcErecto {
     private final Map<ServerPlayer,Integer> sniperWindups=new IdentityHashMap<>();
     private int blastTick=Integer.MIN_VALUE,blastsThisTick;
     private long blastNanos;
+    private final Set<CrossbowBlasts> crossbowWork=new HashSet<>();
+    private final Map<UUID,Integer> firingThisTick=new HashMap<>();
+    private int firingTick=Integer.MIN_VALUE,pathsFiredThisTick;
     LbcErecto(GameController game){this.game=game;}
     boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
@@ -153,9 +159,56 @@ final class LbcErecto {
     private void add(ServerPlayer owner,Vec3 at,float yaw,float pitch,int lifetime,Path path){
         var trace=new LbcWands.ElectroTrace(owner,at,game.items().epoch(),lifetime);trace.yaw=yaw;trace.pitch=pitch;trace.erecto=path;game.items().wands().higherElectro(trace);
     }
+    /**
+     * Includes jobs whose trace has retired. Per-tick debits cover launches whose
+     * TMT continuation has yet to publish its paths, including nested shots.
+     */
+    boolean admitCrossbow(ServerPlayer owner,int count,boolean reserve){
+        int tick=game.server().getTickCount();
+        if(firingTick!=tick){
+            firingTick=tick;
+            firingThisTick.clear();
+            pathsFiredThisTick=0;
+        }
+        var id=owner.getUUID();
+        int total=pathsFiredThisTick,personal=firingThisTick.getOrDefault(id,0);
+        var wands=game.items().wands();
+        for(var trace:wands.activeElectroTraces())if(trace.erecto!=null&&trace.erecto.kind==CROSSBOW){
+            total++;
+            if(trace.erecto.caster.getUUID().equals(id))personal++;
+        }
+        int jobs=0,personalJobs=0;
+        for(var work:crossbowWork)if(!work.retired()){
+            boolean sameOwner=work.path.caster.getUUID().equals(id);
+            jobs++;
+            if(sameOwner)personalJobs++;
+            if(!wands.hasElectroTrace(work.trace)){
+                total++;
+                if(sameOwner)personal++;
+            }
+        }
+        if(total+count>CROSSBOW_PATHS_TOTAL||personal+count>CROSSBOW_PATHS_PER_PLAYER
+                ||jobs>=CROSSBOW_JOB_WATERMARK_TOTAL||personalJobs>=CROSSBOW_JOB_WATERMARK_PER_PLAYER)return false;
+        if(reserve){
+            firingThisTick.merge(id,count,Integer::sum);
+            pathsFiredThisTick+=count;
+        }
+        return true;
+    }
+
+    void releaseShotPaths(ServerPlayer owner,int count){
+        if(firingTick!=game.server().getTickCount())return;
+        var id=owner.getUUID();
+        int reserved=firingThisTick.getOrDefault(id,0);
+        int released=Math.min(reserved,count);
+        if(reserved==released)firingThisTick.remove(id);
+        else firingThisTick.put(id,reserved-released);
+        pathsFiredThisTick-=released;
+    }
+
     /** The source mechanical sniper has its own impact payload; wand sniper behavior stays shared above. */
     void crossbow(ServerPlayer owner,ItemStack weapon,List<net.minecraft.world.entity.projectile.Projectile> family,LbcImbaCrossbows.Kind kind){
-        int count=kind==LbcImbaCrossbows.Kind.SUPER?32:kind==LbcImbaCrossbows.Kind.GATLING?4:1;
+        int count=kind.beamPaths();
         var origin=kind==LbcImbaCrossbows.Kind.GATLING?owner.getEyePosition().add(owner.getLookAngle()):owner.position();
         for(int i=0;i<count;i++){
             float yaw=owner.getYRot(),pitch=owner.getXRot();
@@ -166,6 +219,7 @@ final class LbcErecto {
             trace.yaw=yaw;trace.pitch=pitch;trace.erecto=path;trace.cause=game.items().indirectKills().coldCause(owner,true);
             game.items().wands().higherElectro(trace);
         }
+        releaseShotPaths(owner,count);
         LbcOverload.sound(owner,owner.position(),"minecraft:item.trident.return",3,1.3f,0);
         owner.level().sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xff00ffff),true,false,origin.x,origin.y,origin.z,1,0,0,0,0);
         if(kind==LbcImbaCrossbows.Kind.SNIPER)rotate(owner,owner.getLookAngle(),-15);
@@ -277,6 +331,7 @@ final class LbcErecto {
             if(centers!=null){
                 var work=new CrossbowBlasts(trace,centers);
                 trace.erecto.pendingBlasts=work;
+                crossbowWork.add(work);
                 game.items().stonekivi().queuedWork(work);
             }
             if(trace.erecto.ammunition!=null)trace.erecto.ammunition.lineSegment(trace.level,from,end,trace.cause);
@@ -296,6 +351,7 @@ final class LbcErecto {
 
     /** Legacy schedules the whole segment before its first blast can change the sampled terrain. */
     final class CrossbowBlasts implements LbcStonekivi.Work {
+        final LbcWands.ElectroTrace trace;
         final Path path;
         final List<Vec3> centers;
         final ServerLevel level;
@@ -309,6 +365,7 @@ final class LbcErecto {
         boolean resident;
 
         CrossbowBlasts(LbcWands.ElectroTrace trace,List<Vec3> samples){
+            this.trace=trace;
             path=trace.erecto;
             centers=List.copyOf(samples);
             level=trace.level;
@@ -359,6 +416,7 @@ final class LbcErecto {
             if(lease!=null){lease.close();lease=null;}
             resident=false;
             if(path.pendingBlasts==this)path.pendingBlasts=null;
+            crossbowWork.remove(this);
         }
         @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
             var image=graph.links.damage(damage);
@@ -366,7 +424,7 @@ final class LbcErecto {
             return links->{
                 MatchAuthorityCheckpoint.world(game,level);
                 if(MatchDamageSources.value(image)!=damage)throw new IllegalStateException("Restore accepted crossbow explosion damage");
-                return ()->{cancel();next=cursor;waitingTick=Integer.MIN_VALUE;path.pendingBlasts=this;};
+                return ()->{cancel();next=cursor;waitingTick=Integer.MIN_VALUE;path.pendingBlasts=this;crossbowWork.add(this);};
             };
         }
     }

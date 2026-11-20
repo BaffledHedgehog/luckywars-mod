@@ -1445,6 +1445,8 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
 
     void higherElectro(ElectroTrace trace){if(LbcBedwarsRoleGuards.canEmitFrom(trace.npcSource)&&LbcBedwarsRoleGuards.canEmitFrom(trace.explicitEmitter)&&LbcBedwarsRoleGuards.canEmit(trace.sourcePolicy,trace.level))electroTraces.add(trace);}
     java.util.List<ElectroTrace> electroSnapshot() { return java.util.List.copyOf(electroTraces); }
+    Iterable<ElectroTrace> activeElectroTraces(){return electroTraces;}
+    boolean hasElectroTrace(ElectroTrace trace){return electroTraces.contains(trace);}
     /** Danmaku clears moving electrical traces as well as their entity-backed counterparts. */
     int clearDanmakuRays(ServerPlayer caster,Vec3 center,double radius) {
         int before=electroTraces.size();double distance=radius*radius;
@@ -1948,6 +1950,8 @@ for(int i=0;i<=100 && i<boundary;i++) {
                     ||!CloneVirtualAbilityStates.near(game,holder,trace.level,trace.position,trace.cloneMask,skill)
                     ||electroPaused(trace))continue;
             var points=CloneVirtualAbilityStates.positions(holder,trace.level,trace.position,skill);if(points==null)continue;
+            if(trace.erecto!=null&&trace.erecto.kind==LbcErecto.CROSSBOW
+                    &&!game.items().erecto().admitCrossbow(trace.erecto.caster,points.size(),false))continue;
             var clones=new java.util.ArrayList<ElectroTrace>();
             for(var point:points){var copy=new ElectroTrace(trace);copy.position=point;copy.cloneMask|=bit;
                 if(skill==17){var direction=LbcCloneSkills.spreadMotion(Vec3.directionFromRotation(copy.pitch,copy.yaw),holder,1000,1500);

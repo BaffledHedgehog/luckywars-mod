@@ -22,6 +22,11 @@ public final class LbcTmtRanged {
     static boolean flag(LbcTmtAbilities.Ability ability,String key){return ((ItemData.IntReader)(Object)ability.data()).skywars2$readInt(key,0)==1;}
     static boolean physicalImba(LbcTmtAbilities.Ability ability){return flag(ability,"imba_fast_crossbow")||flag(ability,"imba_shotgun");}
     static boolean beamImba(LbcTmtAbilities.Ability ability){return flag(ability,"imba_sniper_crossbow")||flag(ability,"imba_super_shotgun")||flag(ability,"imba_gatlingator");}
+    static int beamPaths(LbcTmtAbilities.Ability ability){
+        for(var kind:LbcImbaCrossbows.Kind.values())
+            if(kind.flag!=null&&flag(ability,kind.flag))return kind.beamPaths();
+        return 0;
+    }
     static boolean charged(LbcTmtAbilities.Ability ability){return flag(ability,"railgun_bow")||flag(ability,"shish_gun");}
     static boolean shulker(LbcTmtAbilities.Ability ability){return flag(ability,"shulker")||flag(ability,"shulker_new");}
     static boolean legacyConversion(LbcTmtAbilities.Ability ability){return flag(ability,"fastfired")||flag(ability,"penisgun");}
@@ -50,12 +55,13 @@ public final class LbcTmtRanged {
             ItemStack weapon, ItemStack fired, List<Projectile> nativeFamily, LbcRangedShots.Shot shot) {
         if(ItemData.intValue(fired,"tmt_item",0)!=1)return false;
         var family=List.copyOf(nativeFamily);
+        var properties=LbcTmtTriggers.nativeShotAbilities(fired);
         // Native shoot returns before Bow/Crossbow award their weapon statistic
         // (and Crossbow criterion). A legal final-item continuation may consume
         // that weapon, so wait for the true native action, then its private scopes.
         LbcTmtShotCompletion.afterNativeAction(()->{
             try {
-                LbcTmtTriggers.shot(fired, () -> acceptedShot(game, owner, hand, weapon, fired, family, shot));
+                LbcTmtTriggers.shot(fired, properties, () -> acceptedShot(game, owner, hand, weapon, fired, family, shot));
                 game.items().tmt().bowShot(owner, hand, weapon, fired, family);
             } finally {
                 if (shot != null) shot.complete();

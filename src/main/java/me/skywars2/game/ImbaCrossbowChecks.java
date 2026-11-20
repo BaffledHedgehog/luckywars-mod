@@ -8,6 +8,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stat;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -167,29 +170,65 @@ public final class ImbaCrossbowChecks {
                 try{game.maps().restoreSnapshot(level,cell,before,flags);}finally{state.restore(random);}
             }
         }
+        ItemStack chargedSuper(ServerPlayer shooter){
+            var weapon=leaf(LbcImbaCrossbows.Kind.SUPER);
+            shooter.setItemInHand(InteractionHand.MAIN_HAND,weapon);
+            weapon.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
+            return weapon;
+        }
         void concurrentSuperVolleys(){
-            var owner=base.owner;var level=owner.level();var wands=game.items().wands();var stone=game.items().stonekivi();
-            var oldTraces=wands.electroSnapshot();var oldJobs=stone.queuedSnapshot();
-            var traceStore=(Collection<?>)WoolBucketChecks.read(wands,"electroTraces");
-            var queue=(Collection<?>)WoolBucketChecks.read(stone,"work");
-            var cell=BlockPos.containing(owner.position().add(0,12,0));var contact=Vec3.atCenterOf(cell);
-            int flags=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
-            require(NativeChunkLoad.resident(level,cell)&&level.getBlockState(cell).isAir(),"resident empty SUPER contact witness");
-            var previousBlock=game.maps().snapshot(level,cell);var previousWeapon=owner.getMainHandItem();
-            int previouslyPublished=blastPackets().size();
-            try{
+            try(var probe=new SuperIntake()){
+                probe.stage();probe.check();
+            }
+        }
+        final class SuperIntake implements AutoCloseable {
+            final ServerPlayer owner=base.owner;
+            final ServerLevel level=owner.level();
+            final LbcWands wands=game.items().wands();
+            final LbcStonekivi stone=game.items().stonekivi();
+            final ServerPlayer other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
+            final List<LbcWands.ElectroTrace> oldTraces=wands.electroSnapshot();
+            final List<LbcStonekivi.Work> oldJobs=stone.queuedSnapshot();
+            final Collection<?> traceStore=(Collection<?>)WoolBucketChecks.read(wands,"electroTraces");
+            final Collection<?> queue=(Collection<?>)WoolBucketChecks.read(stone,"work");
+            final BlockPos cell=BlockPos.containing(owner.position().add(0,12,0));
+            final Vec3 contact=Vec3.atCenterOf(cell);
+            final int flags=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
+            final MapManager.BlockSnapshot previousBlock;
+            final ItemStack previousWeapon=owner.getMainHandItem(),previousAmmo=owner.getOffhandItem(),otherWeapon;
+            final Stat<Item> superStat=Stats.ITEM_USED.get(LbcImbaCrossbows.Kind.SUPER.item);
+            final Stat<Item> gatlingStat=Stats.ITEM_USED.get(LbcImbaCrossbows.Kind.GATLING.item);
+            final int ownerSuperUsed=owner.getStats().getValue(superStat),ownerGatlingUsed=owner.getStats().getValue(gatlingStat),otherSuperUsed;
+            final int previouslyPublished=blastPackets().size();
+            final List<LbcStonekivi.Work> expectedQueue=new ArrayList<>(oldJobs);
+            final List<LbcErecto.CrossbowBlasts> acceptedJobs=new ArrayList<>();
+            final ItemStack finiteAmmo=new ItemStack(Items.ARROW,7);
+            List<LbcWands.ElectroTrace> traces;
+            ItemStack gatling,gatlingBefore;
+
+            SuperIntake(){
+                require(other!=null&&other.level()==level&&game.canUseGameplayItems(other)&&!other.isUsingItem(),"independent active crossbow shooter");
+                require(!game.items().timeStop().stopped(level),"native SUPER intake begins without Time Stop");
+                require(NativeChunkLoad.resident(level,cell)&&level.getBlockState(cell).isAir(),"resident empty SUPER contact witness");
+                previousBlock=game.maps().snapshot(level,cell);otherWeapon=other.getMainHandItem();
+                otherSuperUsed=other.getStats().getValue(superStat);
+            }
+
+            void stage(){
                 require(level.setBlock(cell,Blocks.OBSIDIAN.defaultBlockState(),flags),"native SUPER obsidian contact witness");
                 for(int volley=1;volley<=2;volley++){
-                    var weapon=leaf(LbcImbaCrossbows.Kind.SUPER);
-                    owner.setItemInHand(InteractionHand.MAIN_HAND,weapon);
-                    weapon.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
+                    var weapon=chargedSuper(owner);
                     require(owner.gameMode.useItem(owner,level,weapon,InteractionHand.MAIN_HAND).consumesAction()
                                     &&wands.electroSnapshot().size()==oldTraces.size()+32*volley,
                             "actual native SUPER volley "+volley+" accepts 32 independent traces");
                 }
+                gatling=leaf(LbcImbaCrossbows.Kind.GATLING);
+                owner.setItemInHand(InteractionHand.MAIN_HAND,gatling);owner.setItemInHand(InteractionHand.OFF_HAND,finiteAmmo);
+                require(owner.gameMode.useItem(owner,level,gatling,InteractionHand.MAIN_HAND).consumesAction()&&owner.getUseItem()==gatling,
+                        "real sustained Gatling use begins before the same owner builds a backlog");
+                gatlingBefore=gatling.copy();
 
-                var expectedQueue=new ArrayList<>(oldJobs);
-                var traces=wands.electroSnapshot();
+                traces=wands.electroSnapshot();
                 int acceptedCenters=0;
                 for(var trace:traces.subList(oldTraces.size(),traces.size())){
                     require(trace.owner==owner&&trace.level==level&&trace.erecto.kind==LbcErecto.CROSSBOW
@@ -202,6 +241,7 @@ public final class ImbaCrossbowChecks {
                                     &&job.centers.getFirst().equals(contact),
                             "SUPER trace queues its own job at the exact first contact without publishing it");
                     expectedQueue.add(job);
+                    acceptedJobs.add(job);
                     acceptedCenters+=job.centers.size();
                 }
                 require(expectedQueue.size()==oldJobs.size()+64&&stone.queuedSnapshot().equals(expectedQueue)
@@ -209,7 +249,50 @@ public final class ImbaCrossbowChecks {
                         "both SUPER volleys retain all 64 ordered jobs without inline blast packets or terrain edits");
                 SkyWars2.LOGGER.info("[check] imba-crossbows SUPER volleys=2 queuedJobs={} acceptedCenters={} inlineBlasts=0",
                         expectedQueue.size()-oldJobs.size(),acceptedCenters);
-            }finally{
+            }
+
+            void check(){
+                gatling.getItem().onUseTick(level,owner,gatling,72000);
+                require(owner.getUseItem()==gatling&&owner.getOffhandItem()==finiteAmmo&&finiteAmmo.getCount()==7
+                                &&gatling.getOrDefault(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.EMPTY).isEmpty()
+                                &&ItemStack.matches(gatling,gatlingBefore)&&owner.getStats().getValue(gatlingStat)==ownerGatlingUsed
+                                &&wands.electroSnapshot().equals(traces)&&stone.queuedSnapshot().equals(expectedQueue),
+                        "a held uncharged Gatling with finite ammo defers the shot before reload, damage or used stat");
+                owner.stopUsingItem();
+
+                var charged=chargedSuper(owner);var chargeBefore=charged.copy();int usedBefore=owner.getStats().getValue(superStat);
+                require(!owner.gameMode.useItem(owner,level,charged,InteractionHand.MAIN_HAND).consumesAction()
+                                &&owner.getMainHandItem()==charged&&ItemStack.matches(charged,chargeBefore)
+                                &&owner.getStats().getValue(superStat)==usedBefore&&wands.electroSnapshot().equals(traces)
+                                &&stone.queuedSnapshot().equals(expectedQueue),
+                        "one owner's unfinished segments reject the entire native SUPER while preserving exact charge, durability and used stat");
+
+                var independent=chargedSuper(other);
+                require(other.gameMode.useItem(other,level,independent,InteractionHand.MAIN_HAND).consumesAction()
+                                &&wands.electroSnapshot().stream().filter(trace->trace.owner==other&&!oldTraces.contains(trace)).count()==32
+                                &&other.getStats().getValue(superStat)==otherSuperUsed+1&&stone.queuedSnapshot().equals(expectedQueue),
+                        "the same backlog still admits a different owner's complete native SUPER volley");
+
+                for(var job:acceptedJobs){queue.remove(job);job.cancel();}
+                require(stone.queuedSnapshot().equals(oldJobs),"only the witness jobs retired before retry");
+                require(owner.gameMode.useItem(owner,level,charged,InteractionHand.MAIN_HAND).consumesAction()
+                                &&charged.getOrDefault(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.EMPTY).isEmpty()
+                                &&owner.getStats().getValue(superStat)==usedBefore+1
+                                &&wands.electroSnapshot().stream().filter(trace->trace.owner==owner&&!oldTraces.contains(trace)).count()==96,
+                        "the preserved charged SUPER retries as a full native volley when its backlog retires");
+
+                owner.setItemInHand(InteractionHand.MAIN_HAND,gatling);
+                require(owner.gameMode.useItem(owner,level,gatling,InteractionHand.MAIN_HAND).consumesAction()&&owner.getUseItem()==gatling,
+                        "native held Gatling can resume after its owner's backlog retires");
+                gatling.getItem().onUseTick(level,owner,gatling,72000);
+                require(finiteAmmo.getCount()==4&&owner.getStats().getValue(gatlingStat)==ownerGatlingUsed+1
+                                &&wands.electroSnapshot().stream().filter(trace->trace.owner==owner&&!oldTraces.contains(trace)).count()==100
+                                &&stone.queuedSnapshot().equals(oldJobs)&&blastPackets().size()==previouslyPublished,
+                        "one admitted Gatling tick consumes three finite arrows and creates only its four native traces");
+                SkyWars2.LOGGER.info("[check] imba-crossbows native overload preserves charged SUPER and held Gatling, admits independent SUPER and retries both");
+            }
+
+            @Override public void close(){
                 for(var trace:wands.electroSnapshot()){
                     if(oldTraces.contains(trace))continue;
                     if(trace.erecto!=null&&trace.erecto.pendingBlasts!=null){
@@ -217,11 +300,14 @@ public final class ImbaCrossbowChecks {
                     }
                     traceStore.remove(trace);
                 }
-                owner.setItemInHand(InteractionHand.MAIN_HAND,previousWeapon);
+                owner.stopUsingItem();owner.setItemInHand(InteractionHand.MAIN_HAND,previousWeapon);
+                owner.setItemInHand(InteractionHand.OFF_HAND,previousAmmo);other.setItemInHand(InteractionHand.MAIN_HAND,otherWeapon);
+                owner.getStats().setValue(owner,superStat,ownerSuperUsed);owner.getStats().setValue(owner,gatlingStat,ownerGatlingUsed);
+                other.getStats().setValue(other,superStat,otherSuperUsed);
                 game.maps().restoreSnapshot(level,cell,previousBlock,flags);
+                require(wands.electroSnapshot().equals(oldTraces)&&stone.queuedSnapshot().equals(oldJobs),
+                        "SUPER intake fixture retires only its own traces and queued jobs");
             }
-            require(wands.electroSnapshot().equals(oldTraces)&&stone.queuedSnapshot().equals(oldJobs),
-                    "SUPER intake fixture retires only its own traces and queued jobs");
         }
         void beginBlastQueue(){
             require(queuedBlasts().isEmpty(),"exclusive crossbow blast queue");

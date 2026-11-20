@@ -118,11 +118,15 @@ public final class LbcTmtTriggers {
         try{return run.get();}finally{if(before==null)selection.remove();else selection.set(before);}
     }
     /** The natural shot pipeline owns its one real volley, ammo debit and trinket roll. */
-    static void shot(ItemStack fired,Runnable callback){
+    static void shot(ItemStack fired,List<LbcTmtAbilities.Ability> properties,Runnable callback){
+        selected(fired,Action.SHOT,properties,()->{callback.run();return null;});
+    }
+    static List<LbcTmtAbilities.Ability> nativeShotAbilities(ItemStack weapon){
+        var properties=LbcTmtAbilities.read(weapon);
         var current=selection.get();
-        if(current!=null&&current.action==Action.SHOT&&sameSource(fired,current.source)){callback.run();return;}
-        var allowed=LbcTmtAbilities.read(fired).stream().filter(a->!bound(a)||matches(a,Action.SHOT,Input.SHOT)).toList();
-        selected(fired,Action.SHOT,allowed,()->{callback.run();return null;});
+        if(current!=null&&current.action==Action.SHOT&&sameSource(weapon,current.source))
+            return properties.stream().filter(a->current.ids.contains(a.id())).toList();
+        return properties.stream().filter(a->!bound(a)||matches(a,Action.SHOT,Input.SHOT)).toList();
     }
     private static boolean matches(LbcTmtAbilities.Ability ability,Action action,Input input){
         return ability.inputs().get(action)==input;
