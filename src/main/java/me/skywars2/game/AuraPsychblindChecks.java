@@ -50,7 +50,7 @@ public final class AuraPsychblindChecks {
         final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
         final net.minecraft.world.scores.PlayerTeam oldTeam,otherTeam,team;
         double attack,armor,toughness,knockback;int manaRegen,stage,when;boolean closed,stopped,restoring;
-        Cow target,ally,shop,observer;BlockPos support;float health;UUID doppelId;Vec3 frozenPosition;ServerPlayer doppelCaster;
+        Cow target,ally,shop,observer;BlockPos support,ceilingSupport;float health;UUID doppelId;Vec3 frozenPosition;ServerPlayer doppelCaster;
         int gramPackets,orangePackets,bluePackets;boolean orangeFrame;
         Map<UUID,Vec3> replayBodies=new LinkedHashMap<>();
         final Set<UUID> removedGrams=new LinkedHashSet<>();
@@ -117,6 +117,34 @@ public final class AuraPsychblindChecks {
         void flatten(Packet<?> packet,List<Packet<?>> out){if(packet instanceof ClientboundBundlePacket bundle)for(var child:bundle.subPackets())flatten(child,out);else out.add(packet);}
         int displayData(String field){try{var declared=Display.class.getDeclaredField(field);declared.setAccessible(true);return ((net.minecraft.network.syncher.EntityDataAccessor<?>)declared.get(null)).id();}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
         void block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){terrain.putIfAbsent(pos.immutable(),game.maps().snapshot(level,pos));level.setBlock(pos,state,2);}
+        List<BlockPos> ceilingTargets(){return List.of(ceilingSupport.east(),ceilingSupport.west(),ceilingSupport.south());}
+        void beginCeilingCopy(){
+            ceilingSupport=new BlockPos(support.getX(),level.getMaxY(),support.getZ());
+            require(level.isInsideBuildHeight(ceilingSupport)&&level.isOutsideBuildHeight(ceilingSupport.above()),
+                    "witness occupies the native last build layer");
+            block(ceilingSupport,Blocks.STONE.defaultBlockState());
+            block(ceilingSupport.north(),Blocks.OBSIDIAN.defaultBlockState());
+            for(var cell:ceilingTargets())block(cell,Blocks.AIR.defaultBlockState());
+            move(owner,Vec3.atBottomCenterOf(ceilingSupport.above()).add(0,1,0));
+            landOnCeilingSupport(2);
+            next(92);
+        }
+        void landOnCeilingSupport(double travel){
+            owner.setOnGround(false);
+            owner.move(MoverType.SELF,new Vec3(0,-travel,0));
+            near(owner.getY(),ceilingSupport.getY()+1,"native movement clips against exact maxY support");
+            require(owner.onGround(),"real block collision grounds the purple aura holder");
+        }
+        void beginAboveCeilingControl(){
+            for(var cell:ceilingTargets())block(cell,Blocks.AIR.defaultBlockState());
+            move(owner,Vec3.atBottomCenterOf(ceilingSupport.above()).add(0,.875,0));
+            owner.setOnGround(false);
+            owner.move(MoverType.SELF,new Vec3(0,-.125,0));
+            var sampled=BlockPos.containing(owner.position().add(0,-.5,0));
+            require(!owner.onGround()&&sampled.equals(ceilingSupport.above())&&level.isOutsideBuildHeight(sampled),
+                    "native airborne control samples the first illegal layer above the real support");
+            next(93);
+        }
         boolean step(){
             client.acknowledge();audience.acknowledge();require(game.server().getTickCount()-started<500,"finite scheduled fixture, stage="+stage);int elapsed=game.server().getTickCount()-when;
             if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
@@ -222,6 +250,24 @@ public final class AuraPsychblindChecks {
                 case 7->{
                     if(!level.getBlockState(support.south()).is(Blocks.RED_MUSHROOM_BLOCK)){require(elapsed<20,"purple mushroom copy finishes");owner.setOnGround(true);return false;}
                     var copied=level.getBlockState(support.south());for(var property:List.of(net.minecraft.world.level.block.HugeMushroomBlock.UP,net.minecraft.world.level.block.HugeMushroomBlock.DOWN,net.minecraft.world.level.block.HugeMushroomBlock.NORTH,net.minecraft.world.level.block.HugeMushroomBlock.SOUTH,net.minecraft.world.level.block.HugeMushroomBlock.EAST,net.minecraft.world.level.block.HugeMushroomBlock.WEST))require(copied.getValue(property),"copied source mushroom normalizes all six faces");require(level.getBlockState(support.north()).is(Blocks.OBSIDIAN),"purple admission preserves nonair neighbor");
+                    beginCeilingCopy();
+                }
+                case 92->{
+                    if(ceilingTargets().stream().anyMatch(p->!level.getBlockState(p).is(Blocks.STONE))){
+                        require(elapsed<20,"purple native support copy finishes at inclusive maxY");
+                        landOnCeilingSupport(.25);
+                        return false;
+                    }
+                    require(level.getBlockState(ceilingSupport).is(Blocks.STONE)
+                            &&level.getBlockState(ceilingSupport.north()).is(Blocks.OBSIDIAN),
+                            "purple preserves real top support and obstructed cardinal neighbor");
+                    beginAboveCeilingControl();
+                }
+                case 93->{
+                    if(elapsed<5)return false;
+                    require(ceilingTargets().stream().allMatch(p->level.getBlockState(p).isAir()),
+                            "airborne purple above the build limit does not reuse the legal support below");
+                    move(owner,Vec3.atBottomCenterOf(support.above()));
                     owner.setOnGround(false);hit();require(color()==LbcRainbowAura.Color.RED,"complete seven-state source cycle");near(owner.getAttributeValue(Attributes.ATTACK_DAMAGE),attack+5,"red reentry is single owned delta");
                     block(BlockPos.containing(owner.position()).offset(2,0,0),LbcMagic.MAGIC_BEACON_BLOCK.defaultBlockState());next(90);
                 }

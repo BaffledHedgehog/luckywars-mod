@@ -54,6 +54,48 @@ public final class OrdinaryToolChecks {
     }
     private static Skeleton mob(AllGrimoireChecks.Fixture f,double z){var m=new Skeleton(EntityTypes.SKELETON,f.level);m.setNoAi(true);m.setNoGravity(true);m.setPos(f.at.add(.5,1,z));require(f.level.addFreshEntity(m),"spawn native target");return m;}
     private static void cast(AllGrimoireChecks.Fixture f,InteractionHand hand){f.base.owner.setItemInHand(hand,loot(f,"communism"));require(f.base.input(hand),"actual native use "+hand);}
+    private static void ceilingRay(AllGrimoireChecks.Fixture f,List<Entity> affected){
+        var game=f.base.game;
+        var player=f.base.owner;
+        var service=game.items().communism();
+        var saved=player.position();
+        float yaw=player.getYRot(),pitch=player.getXRot();
+        int top=f.level.getMaxY();
+        var cells=new LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
+        try {
+            for(int z=-5;z<=7;z++)for(int y=top-1;y<=top;y++){
+                var cell=BlockPos.containing(saved.x,y,saved.z+z);
+                require(f.level.hasChunkAt(cell),"ceiling ray uses a resident lane");
+                cells.put(cell,game.maps().snapshot(f.level,cell));
+                f.level.setBlock(cell,Blocks.AIR.defaultBlockState(),2|16|32);
+            }
+            var forward=mob(f,2.5);
+            affected.add(forward);
+            forward.setPos(saved.x,top+.2,saved.z+2.5);
+            var behind=mob(f,-2.5);
+            affected.add(behind);
+            behind.setPos(saved.x,top-.5,saved.z-2.5);
+            player.setYRot(0);
+            player.setXRot(-6);
+            player.setPos(saved.x,top+1.25-player.getEyeHeight(),saved.z);
+            require(f.level.isOutsideBuildHeight(BlockPos.containing(player.getEyePosition())),"control eye is above the legal ceiling");
+            cast(f,InteractionHand.MAIN_HAND);
+            require(service.owner(forward)==null&&service.owner(behind)==null,"cast above build height affects neither direction");
+
+            player.setPos(saved.x,top+.5-player.getEyeHeight(),saved.z);
+            require(player.getEyePosition().y>top&&!f.level.isOutsideBuildHeight(BlockPos.containing(player.getEyePosition())),
+                    "test eye is in the upper half of the final legal cell");
+            cast(f,InteractionHand.MAIN_HAND);
+            boolean hitForward=service.owner(forward)==player, hitBehind=service.owner(behind)==player;
+            require(hitForward&&service.owner(behind)==null,
+                    "upward ceiling cast must hit forward only, actual forward="+hitForward+", behind="+hitBehind);
+        } finally {
+            cells.forEach((cell,image)->game.maps().restoreSnapshot(f.level,cell,image));
+            player.setPos(saved);
+            player.setYRot(yaw);
+            player.setXRot(pitch);
+        }
+    }
     private static void allegiance(AllGrimoireChecks.Fixture f){var g=f.base.game;var p=f.base.owner;var board=g.server().getScoreboard();var oldA=p.getTeam();var oldB=f.beta.getTeam();
         var a=board.addPlayerTeam("codex_tools_a");var b=board.addPlayerTeam("codex_tools_b");a.setAllowFriendlyFire(false);b.setAllowFriendlyFire(false);
         var affected=new ArrayList<Entity>();
@@ -76,6 +118,7 @@ public final class OrdinaryToolChecks {
             var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(EntityTypes.ARROW,f.level);arrow.setOwner(owned);arrow.setPos(owned.position());affected.add(arrow);require(f.level.addFreshEntity(arrow),"native mob arrow");require(arrow.getOwner()==owned&&LbcIndirectKills.playerSource(arrow)==p,"future projectiles keep their native shooter and credit the new controller");summons.stop();
             var converted=new Skeleton(EntityTypes.SKELETON,f.level);summons.ownerChanged(converted,p); // unknown actor must not become a managed summon
             require(!summons.snapshot().contains(converted),"owner change never invents summon state");
+            ceilingRay(f,affected);
         }finally{g.items().summons().stop();g.items().communism().stop();for(var e:affected){board.removePlayerFromTeam(e.getScoreboardName());e.discard();}board.removePlayerFromTeam(p.getScoreboardName());board.removePlayerFromTeam(f.beta.getScoreboardName());board.removePlayerTeam(a);board.removePlayerTeam(b);if(oldA!=null)board.addPlayerToTeam(p.getScoreboardName(),oldA);if(oldB!=null)board.addPlayerToTeam(f.beta.getScoreboardName(),oldB);}
     }
     public static void run(GameController g){try(var nativeStats=new NativeMeleeChecks.NativeStats(g.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")),LbcNativeToolItems.items());var f=new AllGrimoireChecks.Fixture(g)){try{presentation(f);recipes(f);f.reset();allegiance(f);}finally{g.items().communism().stop();}}SkyWars2.LOGGER.info("[check] PASS ordinary-tools");}

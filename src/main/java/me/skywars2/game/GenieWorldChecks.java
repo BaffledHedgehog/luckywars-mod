@@ -182,6 +182,38 @@ final class GenieWorldChecks {
 
     private static String coordinates(BlockPos pos){return pos.getX()+" "+pos.getY()+" "+pos.getZ();}
 
+    private static void ceilingCasts(GameController game,WoolBucketChecks.Fixture base,GenieWorldHost host,BlockPos column){
+        var level=base.level;var top=new BlockPos(column.getX(),level.getMaxY(),column.getZ());
+        var origin=Vec3.atCenterOf(top);var above=origin.add(0,.5,0);var east=new Vec3(1,0,0);
+        require(!level.isOutsideBuildHeight(top)&&level.isOutsideBuildHeight(BlockPos.containing(above)),
+                "actual fractional origin inside top voxel and control on first outside plane");
+        base.set(top,Blocks.AIR.defaultBlockState());
+        var arrowId=new JsonPrimitive("minecraft:arrow");var terraId=new JsonPrimitive("skywars2:terra_charge");
+        require(complete(host,queued(host,"entity.launch",arrowId,vector(above),vector(east),new JsonPrimitive(19))).isJsonNull(),
+                "native launch rejects the first position outside build height");
+        int before=game.items().terra().count();
+        require(!complete(host,queued(host,"lbc.cast",terraId,vector(above),vector(east))).getAsBoolean()
+                        &&game.items().terra().count()==before,
+                "directed Terra denies the first outside plane without publishing a body");
+
+        var uuid=complete(host,queued(host,"entity.launch",arrowId,vector(origin),vector(east),new JsonPrimitive(19)));
+        require(!uuid.isJsonNull(),"native launch accepts the center of the top legal voxel");
+        var arrow=level.getEntity(UUID.fromString(uuid.getAsString()));
+        if(arrow!=null)base.own(arrow);
+        require(arrow instanceof net.minecraft.world.entity.projectile.arrow.Arrow shot&&shot.getOwner()==base.owner
+                        &&shot.position().equals(origin)&&shot.getDeltaMovement().distanceTo(east)<1e-5,
+                "top-layer launch produces one actual arrow at exact fractional coordinates with its native owner");
+        base.discard(arrow);
+
+        require(complete(host,queued(host,"lbc.cast",terraId,vector(origin),vector(east))).getAsBoolean(),
+                "directed Terra accepts the center of the top legal voxel");
+        var charges=level.getEntitiesOfClass(LbcTerra.TerraProjectile.class,new AABB(origin,origin).inflate(1),
+                shot->shot.getOwner()==base.owner&&shot.position().equals(origin));
+        charges.forEach(base::own);
+        require(charges.size()==1&&game.items().terra().count()==before+1,"one exact native directed Terra charge in the top layer");
+        base.discard(charges.getFirst());
+    }
+
     private static void directedCasts(GameController game, WoolBucketChecks.Fixture base, Vec3 origin) {
         var wands = game.items().wands();
         var initialTraces = wands.electroSnapshot();
@@ -2112,6 +2144,7 @@ final class GenieWorldChecks {
                 base.own(arrow);base.discard(arrow);
             } finally { base.discard(spawned); }
 
+            ceilingCasts(game,base,host,BlockPos.containing(launchSpot));
             directedCasts(game, base, launchSpot.add(0, .65, 0));
             targetedOreshnik(game, base, launchSpot);
             targetedExoperso(game, base, launchSpot);

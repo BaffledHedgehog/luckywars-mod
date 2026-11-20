@@ -288,8 +288,7 @@ public final class GenieNative {
         if (!Double.isFinite(length) || length < 1e-4) throw new IllegalArgumentException("finite nonzero aim required");
 
         var level = player.level();
-        if (Math.abs(origin.x) >= 30_000_000 || Math.abs(origin.z) >= 30_000_000
-                || origin.y < level.getMinY() || origin.y > level.getMaxY()) return false;
+        if (Math.abs(origin.x) >= 30_000_000 || Math.abs(origin.z) >= 30_000_000) return false;
         var pos = BlockPos.containing(origin);
         if (!LbcLibrarySpells.admitted(game, player, hand) || game.isObserver(player)
                 || !level.isInWorldBounds(pos) || !level.hasChunkAt(pos)

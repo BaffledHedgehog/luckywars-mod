@@ -295,10 +295,11 @@ public final class GenieRuntime {
             origin=owner.getEyePosition();
             if(body instanceof Mob)origin=origin.add(owner.getLookAngle().scale((owner.getBbWidth()+body.getBbWidth())*.5+.1)).add(0,-body.getBbHeight()*.5,0);
         }
-        if(Math.abs(origin.x)>=30_000_000||Math.abs(origin.z)>=30_000_000||origin.y<level.getMinY()||origin.y>level.getMaxY())return null;
+        if(Math.abs(origin.x)>=30_000_000||Math.abs(origin.z)>=30_000_000)return null;
+        var position=BlockPos.containing(origin);
+        if(level.isOutsideBuildHeight(position)||!level.hasChunkAt(position))return null;
         body.setPos(origin);
-        if(level.isOutsideBuildHeight(body.blockPosition())||!level.hasChunkAt(body.blockPosition())
-                ||!level.getWorldBorder().isWithinBounds(body.getBoundingBox())||!level.noCollision(body,body.getBoundingBox()))return null;
+        if(!level.getWorldBorder().isWithinBounds(body.getBoundingBox())||!level.noCollision(body,body.getBoundingBox()))return null;
         if(body instanceof Projectile shot){
             shot.setOwner(owner);
             Vec3 direction=speed==0?owner.getLookAngle():velocity.scale(1/speed);

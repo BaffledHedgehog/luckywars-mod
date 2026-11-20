@@ -329,7 +329,7 @@ public final class LbcRainbowAura {
         }
     }
     private static Vec3 forward(double yaw){double r=Math.toRadians(yaw);return new Vec3(-Math.sin(r),0,Math.cos(r));}
-    private static boolean loaded(ServerLevel level,BlockPos pos){return pos.getY()>=level.getMinY()&&pos.getY()<level.getMaxY()&&level.hasChunkAt(pos);}
+    private static boolean loaded(ServerLevel level,BlockPos pos){return level.isInsideBuildHeight(pos)&&level.hasChunkAt(pos);}
     private static <T extends ParticleOptions> void particle(ServerLevel level,T type,Vec3 at,int count,double x,double y,double z,double speed){
         if(loaded(level,BlockPos.containing(at)))level.sendParticles(type,at.x,at.y,at.z,count,x,y,z,speed);
     }

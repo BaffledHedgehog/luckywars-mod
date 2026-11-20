@@ -142,7 +142,7 @@ public final class LbcCommunism {
         if(game.items().magic().suppressedAt(level,start))return false;
         if(level.isOutsideBuildHeight(BlockPos.containing(start)))return true;
         double reach=200;
-        if(direction.y>0)reach=Math.min(reach,(level.getMaxY()-start.y)/direction.y);
+        if(direction.y>0)reach=Math.min(reach,(level.getMaxY()+1.0-start.y)/direction.y);
         else if(direction.y<0)reach=Math.min(reach,(level.getMinY()-start.y)/direction.y);
         var end=start.add(direction.scale(reach));var wall=LbcTerra.surfaceHit(level,start,end,p);
         if(wall!=null)end=wall.getLocation();double distance=start.distanceTo(end);

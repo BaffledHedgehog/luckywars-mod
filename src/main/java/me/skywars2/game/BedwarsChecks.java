@@ -3,12 +3,17 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 /** Operator-only scenes use the real mode3 owner, native players and normally ticking coordinator. */
@@ -17,6 +22,8 @@ public final class BedwarsChecks {
     private static Life life;
     private static Win win;
     private static BedwarsRoleChecks.Probe role;
+    private record CeilingGlass(ServerLevel level,int team,BlockPos pos){}
+    private static CeilingGlass ceilingGlass;
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("BedWars mode3: "+why);}
     private static ServerPlayer player(GameController game,String name){return Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(name)),name);}
     private static void pass(String suite,String why){SkyWars2.LOGGER.info("[check] PASS {} ({})",suite,why);}
@@ -37,7 +44,42 @@ public final class BedwarsChecks {
             require(game.bedwars().selectTeam(p,teams.get(n/2)),"native lobby numeric team selection");p.setNoGravity(true);
         }
         require(game.canStart(null),"four native players can share two actual bed spawns");
+        ceilingGlass=game.gameMode()==3&&game.config().mapId.equals("99991b")?stageCeilingGlass(game,teams.getFirst()):null;
         pass("bedwars-menu","actual mode"+game.gameMode()+"/four native participants/two selected teams/shared-spawn capacity");
+    }
+    private static CeilingGlass stageCeilingGlass(GameController game,int team){
+        var level=game.maps().level();
+        require(level.getMaxY()==319,"local mode3 fixture has the actual Y319 ceiling");
+        var bed=BuiltInRegistries.BLOCK.getValue(Identifier.parse("minecraft:"+LbcBedwars.colorName(team)+"_bed"));
+        Entity marker=null;
+        for(var entity:level.getAllEntities())if(entity.entityTags().contains("bedwars_bed")
+                &&level.getBlockState(entity.blockPosition()).is(bed)){marker=entity;break;}
+        require(marker!=null,"real selected team's placed bed marker");
+        var bedPosition=marker.position();
+        var spawn=game.maps().spawns().stream().min(Comparator.comparingDouble(s->s.position().distanceToSqr(bedPosition))).orElseThrow();
+        var column=BlockPos.containing(spawn.position());
+        var top=new BlockPos(column.getX(),level.getMaxY(),column.getZ());
+        require(level.hasChunkAt(top)&&level.isInValidBounds(top)&&!level.isInValidBounds(top.above())
+                        &&level.getBlockState(top).isAir()&&level.getBlockState(top.below()).isAir(),
+                "empty resident ceiling column and one illegal cell above it");
+        // The normal map reset owns cleanup of this otherwise empty fixture cell.
+        game.maps().recordBlockChange(top);
+        require(level.setBlock(top,Blocks.STONE.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS),
+                "stage real resident solid at Y319 before native BedWars setup");
+        return new CeilingGlass(level,team,top);
+    }
+    private static void checkCeilingGlass(GameController game){
+        var witness=ceilingGlass;
+        require(witness!=null&&witness.level()==game.maps().level(),"pre-start ceiling witness belongs to this loaded arena");
+        var level=witness.level();var pos=witness.pos();
+        var glass=BuiltInRegistries.BLOCK.getValue(Identifier.parse("minecraft:"+LbcBedwars.colorName(witness.team())+"_stained_glass"));
+        require(game.bedwars().arena().topology().beds().stream().anyMatch(b->b.team()==witness.team()
+                        &&b.spawn().getX()==pos.getX()&&b.spawn().getZ()==pos.getZ()),"the normal setup used the witnessed spawn column");
+        require(level.getBlockState(pos).is(glass)&&game.bedwars().arena().originalTypeAt(level,pos)==glass,
+                "actual setup replaces Y319 stone with team glass and protects that final type");
+        require(level.getBlockState(pos.below()).isAir()&&!level.isInValidBounds(pos.above())
+                        &&level.getBlockState(pos.above()).isAir()&&game.bedwars().arena().originalTypeAt(level,pos.above())==null,
+                "column preserves AIR below and skips the outside cell at Y320");
     }
     public static void run(GameController game,String suite){
         require(game.playing()&&game.bedwars().mode()&&game.bedwars().active()&&game.bedwars().arena().active(),"admitted real BedWars match");
@@ -49,6 +91,7 @@ public final class BedwarsChecks {
                 require(a.position().distanceToSqr(c.position())<1&&b.position().distanceToSqr(d.position())<1,"same-team native shared spawns");
                 require(game.bedwars().arena().topology().beds().size()==2&&game.bedwars().hasBed(a)&&game.bedwars().hasBed(b)&&game.bedwars().winnerTeam()==-1,"two owned physical beds prevent solo winner logic");
                 require(!game.bedwars().auxiliaries().generators().isEmpty()&&LbcBedwars.shopRole(merchant(game)),"real marker topology/generators/protected merchant");
+                if(game.gameMode()==3&&game.config().mapId.equals("99991b"))checkCeilingGlass(game);
                 pass(suite,"actual mode"+game.gameMode()+"/shared spawns/two team beds/generators/merchant and team victory admission");
             }
             case "bedwars-shop"->{var npc=merchant(game);move(a,npc.position().add(0,0,2));BedwarsShopChecks.start(game,game.bedwars().shop(),npc);}

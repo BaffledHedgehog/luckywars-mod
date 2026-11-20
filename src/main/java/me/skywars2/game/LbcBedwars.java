@@ -220,7 +220,8 @@ public final class LbcBedwars {
         var center=BlockPos.containing(site.spawn.position());var glass=BuiltInRegistries.BLOCK.getValue(Identifier.parse("minecraft:"+COLORS[number-1]+"_stained_glass")).defaultBlockState();
         for(var pos:BlockPos.betweenClosed(center.offset(-1,-3,-1),center.offset(1,-3,1)))setup.addLast(new Write(pos.immutable(),Blocks.DIAMOND_BLOCK.defaultBlockState()));
         setup.addLast(new Write(center.below(2),Blocks.BEACON.defaultBlockState()));setup.addLast(new Write(center.below(),glass));
-        for(int y=center.getY();y<=319&&y<level.getMaxY();y++){var pos=new BlockPos(center.getX(),y,center.getZ());if(level.getBlockState(pos).is(SOLID))setup.addLast(new Write(pos,glass));}
+        int glassTop=Math.min(319,level.getMaxY());
+        for(int y=center.getY();y<=glassTop;y++){var pos=new BlockPos(center.getX(),y,center.getZ());if(level.getBlockState(pos).is(SOLID))setup.addLast(new Write(pos,glass));}
     }
     /** Native terrain/body publication succeeded; keep every original team/bed/pending/economy owner. */
     public void renewalCommitted(){
