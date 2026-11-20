@@ -144,13 +144,26 @@ public final class LbcTmtTriggers {
     public static void acceptedThrow(LivingEntity thrower,InteractionHand hand,ItemStack physical,ItemStack source,Projectile projectile){
         if(!(thrower instanceof ServerPlayer owner)||!modern(source)||!throwable(LbcTmtItems.vanillaCarrier(source))
                 ||projectile.isRemoved()||projectile.getOwner()!=owner||owner.level().getEntity(projectile.getUUID())!=projectile)return;
+        acceptedCarrier(owner,Input.THROW,hand,physical,source);
+    }
+    static void consumed(ServerPlayer owner,ItemStack source){
+        if(!modern(source))return;
+        var used=owner.getUsedItemHand();
+        // Native instant consumption does not set the active hand. Check the actual stack identity.
+        if(owner.getItemInHand(used)!=source)used=used==InteractionHand.MAIN_HAND?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND;
+        acceptedCarrier(owner,Input.EAT,used,source,source);
+    }
+    static void acceptedShot(ServerPlayer owner,InteractionHand hand,ItemStack physical,ItemStack fired){
+        acceptedCarrier(owner,Input.SHOT,hand,physical,fired);
+    }
+    private static void acceptedCarrier(ServerPlayer owner,Input event,InteractionHand hand,ItemStack physical,ItemStack source){
         var held=owner.getItemInHand(hand);
         if(held==physical&&!physical.isEmpty()){
-            input(owner,Input.THROW,null,null,null,hand);
+            input(owner,event,null,null,null,hand);
         }else if(source!=physical&&physical.isEmpty()&&held.isEmpty()){
-            // Survival tridents leave the hand before native publication. Expose the thrown copy only to this callback.
+            // A broken weapon or thrown trident can leave the hand before its accepted continuation.
             var previous=heldView.get();heldView.set(new HeldView(owner,hand,source));
-            try{input(owner,Input.THROW,null,null,null,hand);}
+            try{input(owner,event,null,null,null,hand);}
             finally{if(previous==null)heldView.remove();else heldView.set(previous);}
         }
     }

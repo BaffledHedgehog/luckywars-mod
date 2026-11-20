@@ -1617,7 +1617,7 @@ public final class GameController {
     public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
     public void consumed(ServerPlayer player, ItemStack stack) {
         items.genie().runtime().event(player,me.skywars2.game.genie.GenieBlueprint.Trigger.EAT,null,stack,player.getUsedItemHand());
-        LbcTmtTriggers.input(player,LbcTmtTriggers.Input.EAT);
+        LbcTmtTriggers.consumed(player,stack);
         items.tmt().withConsumedTraits(player,stack,()->consumedProperties(player,stack));
         events.onConsumed(player, stack);
     }

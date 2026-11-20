@@ -54,7 +54,7 @@ public final class LbcTmtRuntime {
     }
     /** Native accepted bow/crossbow event; ammo/trinkets were already handled once by the shot owner. */
     public void bowShot(ServerPlayer player,InteractionHand hand,ItemStack weapon,ItemStack fired,List<Projectile> family){
-        if(LbcTmtTriggers.modern(fired)){if(!family.isEmpty())LbcTmtTriggers.captured(player,LbcTmtTriggers.Input.SHOT,fired,hand,null,null,null);return;}
+        if(LbcTmtTriggers.modern(fired)){if(!family.isEmpty())LbcTmtTriggers.acceptedShot(player,hand,weapon,fired);return;}
         if(family.isEmpty()||!LbcTmtItems.matches(fired)||!enter(player))return;
         if(!LbcDimensionItems.ordinary(player)){
             if(player.getItemInHand(hand)==weapon&&!weapon.isEmpty())spells(player,hand);

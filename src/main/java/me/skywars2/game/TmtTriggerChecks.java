@@ -14,12 +14,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg;
+import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.*;
@@ -92,16 +95,89 @@ public final class TmtTriggerChecks {
                 f.owner.gameMode.useItem(f.owner,f.level,source,InteractionHand.MAIN_HAND);
                 if(item==Items.TRIDENT){
                     require(f.owner.isUsingItem()&&f.owner.getUseItem()==source,"actual trident windup");
-                    try{
-                        var remaining=LivingEntity.class.getDeclaredField("useItemRemaining");remaining.setAccessible(true);
-                        remaining.setInt(f.owner,source.getUseDuration(f.owner)-20);
-                    }catch(ReflectiveOperationException failure){throw new IllegalStateException("trident windup fixture",failure);}
+                    holdForRelease(f,source);
                     f.owner.releaseUsingItem();
                 }
             });
             require(projectiles.stream().filter(item==Items.TRIDENT?ThrownTrident.class::isInstance:ThrownEgg.class::isInstance).count()==1
                     &&f.owner.getMainHandItem().isEmpty(),"native throw releases its carrier and one physical body on "+item);
         }
+    }
+    private static void foodOwnership(WoolBucketChecks.Fixture f){
+        var mana=f.game.items().mana();
+        var ordinary=new ItemStack(Items.APPLE);
+        var offhand=fire(4,LbcTmtTriggers.Input.EAT);
+        rememberUseStat(f,ordinary);rememberUseStat(f,offhand);
+        f.owner.getFoodData().setFoodLevel(7);
+        f.owner.setItemInHand(InteractionHand.MAIN_HAND,ordinary);
+        f.owner.setItemInHand(InteractionHand.OFF_HAND,offhand);
+        mana.set(f.owner,1000);
+
+        var before=bodies(f);
+        eat(f,ordinary,InteractionHand.MAIN_HAND);
+        require(ordinary.isEmpty()&&f.owner.getFoodData().getFoodLevel()==11&&f.owner.getOffhandItem()==offhand
+                &&fresh(f,before).isEmpty()&&mana.get(f.owner)==1000,"vanilla apple cannot execute EAT on the uneaten offhand carrier");
+        before=bodies(f);
+        eat(f,offhand,InteractionHand.OFF_HAND);
+        var launched=fresh(f,before);
+        require(launched.size()==3&&launched.stream().allMatch(SmallFireball.class::isInstance)
+                &&mana.get(f.owner)==900&&f.owner.getOffhandItem().isEmpty(),"actual last offhand TMT bite executes its own property once");
+        launched.forEach(f::discard);
+    }
+    private static void eat(WoolBucketChecks.Fixture f,ItemStack source,InteractionHand hand){
+        f.owner.gameMode.useItem(f.owner,f.level,source,hand);
+        require(f.owner.isUsingItem()&&f.owner.getUseItem()==source&&f.owner.getUsedItemHand()==hand,"real native consumption start in "+hand);
+        try{
+            var finish=LivingEntity.class.getDeclaredMethod("completeUsingItem");finish.setAccessible(true);finish.invoke(f.owner);
+        }catch(ReflectiveOperationException failure){throw new IllegalStateException("native consumption fixture",failure);}
+        require(!f.owner.isUsingItem(),"native consumption ends its active hand");
+    }
+    private static void shotOwnership(WoolBucketChecks.Fixture f){
+        var mana=f.game.items().mana();
+        var bow=fire(1,LbcTmtTriggers.Input.JUMP);
+        var crossbow=fire(3,LbcTmtTriggers.Input.SHOT);
+        crossbow.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
+        rememberUseStat(f,bow);rememberUseStat(f,crossbow);
+        f.owner.setItemInHand(InteractionHand.MAIN_HAND,bow);
+        f.owner.setItemInHand(InteractionHand.OFF_HAND,crossbow);
+        var arrows=new ItemStack(Items.ARROW,2);
+        f.owner.getInventory().setItem(9,arrows);
+        mana.set(f.owner,1000);
+
+        var before=bodies(f);
+        f.owner.gameMode.useItem(f.owner,f.level,bow,InteractionHand.MAIN_HAND);
+        require(f.owner.isUsingItem()&&f.owner.getUseItem()==bow,"real short bow draw");
+        f.owner.releaseUsingItem();
+        require(fresh(f,before).isEmpty()&&arrows.getCount()==2&&mana.get(f.owner)==1000,"an underdrawn bow publishes no SHOT input");
+
+        before=bodies(f);
+        f.owner.gameMode.useItem(f.owner,f.level,bow,InteractionHand.MAIN_HAND);
+        require(f.owner.isUsingItem()&&f.owner.getUseItem()==bow,"real bow draw");
+        holdForRelease(f,bow);f.owner.releaseUsingItem();
+        var launched=fresh(f,before);
+        require(launched.size()==1&&launched.getFirst() instanceof Arrow&&arrows.getCount()==1
+                &&CrossbowItem.isCharged(crossbow)&&f.owner.getOffhandItem()==crossbow&&mana.get(f.owner)==1000,
+                "accepted main-hand TMT bow shot cannot execute SHOT on the other charged weapon");
+        launched.forEach(f::discard);
+
+        crossbow.setDamageValue(crossbow.getMaxDamage()-1);
+        before=bodies(f);
+        f.owner.gameMode.useItem(f.owner,f.level,crossbow,InteractionHand.OFF_HAND);
+        launched=fresh(f,before);
+        require(launched.stream().filter(Arrow.class::isInstance).count()==1&&launched.stream().filter(SmallFireball.class::isInstance).count()==3
+                &&mana.get(f.owner)==900&&f.owner.getOffhandItem().isEmpty()&&f.owner.getMainHandItem()==bow&&arrows.getCount()==1,
+                "real offhand shot dispatches its own property even after the crossbow breaks");
+        launched.forEach(f::discard);
+        f.owner.getInventory().setItem(9,ItemStack.EMPTY);
+    }
+    private static void rememberUseStat(WoolBucketChecks.Fixture f,ItemStack source){
+        var used=Stats.ITEM_USED.get(source.getItem());f.usedStats.putIfAbsent(used,f.owner.getStats().getValue(used));
+    }
+    private static void holdForRelease(WoolBucketChecks.Fixture f,ItemStack source){
+        try{
+            var remaining=LivingEntity.class.getDeclaredField("useItemRemaining");remaining.setAccessible(true);
+            remaining.setInt(f.owner,source.getUseDuration(f.owner)-20);
+        }catch(ReflectiveOperationException failure){throw new IllegalStateException("native weapon windup fixture",failure);}
     }
     @SuppressWarnings("unchecked")
     private static void rejectNextRegistration(WoolBucketChecks.Fixture f,Runnable launch){
@@ -174,8 +250,10 @@ public final class TmtTriggerChecks {
                 var thrownBodies=cast(f,thrown,()->require(f.owner.gameMode.useItem(f.owner,f.level,thrown,InteractionHand.MAIN_HAND).consumesAction(),"actual native snowball launch"));
                 require(thrownBodies.stream().filter(Snowball.class::isInstance).count()==1,"THROW follows one real native snowball publication");
                 require(thrown.isEmpty(),"last native throwable pays its one actual debit");
+                foodOwnership(f);
                 var eating=fire(4,LbcTmtTriggers.Input.EAT);
                 cast(f,eating,()->eating.finishUsingItem(f.level,f.owner));require(eating.isEmpty(),"last native food input still fires before its debit");
+                shotOwnership(f);
                 var lastBow=fire(1,LbcTmtTriggers.Input.SHOT);lastBow.setDamageValue(lastBow.getMaxDamage()-1);
                 var arrows=new ItemStack(net.minecraft.world.item.Items.ARROW,5);f.owner.getInventory().setItem(9,arrows);
                 cast(f,lastBow,()->((net.minecraft.world.item.BowItem)lastBow.getItem()).releaseUsing(lastBow,f.level,f.owner,lastBow.getUseDuration(f.owner)-20));
