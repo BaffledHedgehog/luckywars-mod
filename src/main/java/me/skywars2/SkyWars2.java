@@ -444,7 +444,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().interact(owner,hand,entity))return InteractionResult.SUCCESS;
-            if(player instanceof ServerPlayer owner)me.skywars2.game.LbcTmtTriggers.input(owner,me.skywars2.game.LbcTmtTriggers.Input.RIGHT_CLICK);
+            if(player instanceof ServerPlayer owner)LbcUseInteractions.entityPress(owner,hand,entity);
             if(me.skywars2.game.LbcBedwars.shopRole(entity))return game!=null&&player instanceof ServerPlayer owner&&hand==net.minecraft.world.InteractionHand.MAIN_HAND&&game.bedwars().shop().open(owner,entity)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
             if(game!=null&&player instanceof ServerPlayer owner){var result=game.items().nexusAcquisition().use(owner,hand,entity);if(result!=InteractionResult.PASS)return result;}

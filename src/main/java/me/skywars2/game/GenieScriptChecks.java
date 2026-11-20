@@ -8,10 +8,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /** Real vanilla input, persisted per-item state, clone isolation, pause and reset cancellation. */
@@ -65,6 +69,11 @@ final class GenieScriptChecks implements AutoCloseable {
     }
     private void sendAirUse(InteractionHand hand){
         base.owner.connection.handleUseItem(new ServerboundUseItemPacket(hand,sequence++,base.owner.getYRot(),base.owner.getXRot()));
+    }
+    private void sendEntityUse(EntityHitResult hit, InteractionHand hand){
+        var target=hit.getEntity();
+        base.owner.connection.handleInteract(new ServerboundInteractPacket(target.getId(),hand,
+                hit.getLocation().subtract(target.position()),false));
     }
     private void next(int value){phase=value;when=game.server().getTickCount();}
     boolean tick(){
@@ -156,15 +165,21 @@ final class GenieScriptChecks implements AutoCloseable {
             base.set(support,Blocks.STONE.defaultBlockState());
             checkCharges(new BlockHitResult(Vec3.atCenterOf(support).add(0,.5,0),Direction.UP,support,false));
             checkCharges(null);
+            var target=new Cow(EntityTypes.COW,base.level);
+            target.setNoAi(true);target.setNoGravity(true);target.setPos(base.owner.position().add(0,0,2));
+            require(base.level.addFreshEntity(target),"real neutral entity target for the packed input sequence");
+            base.own(target);
+            try { checkCharges(new EntityHitResult(target,target.position().add(0,1,0))); }
+            finally { base.discard(target); }
             runtime.forget(base.owner);return true;
         }
         throw new IllegalStateException("unknown script check phase");
     }
-    private void checkCharges(BlockHitResult hit){
+    private void checkCharges(HitResult hit){
         var owner=base.owner;
         var limited=GenieScriptItem.construct(preparedCharged.join(),"stick","Limited script","Two actual uses.",1);
         owner.setItemInHand(InteractionHand.MAIN_HAND,limited);
-        owner.setItemInHand(InteractionHand.OFF_HAND,hit!=null?ItemStack.EMPTY:new ItemStack(Items.SNOWBALL,3));
+        owner.setItemInHand(InteractionHand.OFF_HAND,hit instanceof BlockHitResult?ItemStack.EMPTY:new ItemStack(Items.SNOWBALL,3));
         for(int use=1;use<=2;use++){
             var copy=limited.copy();
             var copyState=copy.copy();
@@ -172,15 +187,19 @@ final class GenieScriptChecks implements AutoCloseable {
             base.set(marker,Blocks.AIR.defaultBlockState());
             if(use==1){
                 base.client.acknowledge();owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
-                if(hit!=null){
-                    owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND,hit,sequence++));
+                if(hit instanceof BlockHitResult block){
+                    owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND,block,sequence++));
                     sendAirUse(InteractionHand.MAIN_HAND);
-                    owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.OFF_HAND,hit,sequence++));
+                    owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.OFF_HAND,block,sequence++));
                 }else{
-                    owner.setXRot(-90);
+                    if(hit instanceof EntityHitResult entity){
+                        owner.lookAt(net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES,entity.getLocation());
+                        sendEntityUse(entity,InteractionHand.MAIN_HAND);
+                    }else owner.setXRot(-90);
                     var nearby=owner.getBoundingBox().inflate(3);
                     var prior=base.level.getEntitiesOfClass(Snowball.class,nearby,shot->shot.getOwner()==owner);
                     sendAirUse(InteractionHand.MAIN_HAND);
+                    if(hit instanceof EntityHitResult entity)sendEntityUse(entity,InteractionHand.OFF_HAND);
                     sendAirUse(InteractionHand.OFF_HAND);
                     var thrown=base.level.getEntitiesOfClass(Snowball.class,nearby,shot->shot.getOwner()==owner&&!prior.contains(shot));
                     thrown.forEach(base::discard);
@@ -194,9 +213,9 @@ final class GenieScriptChecks implements AutoCloseable {
             for(int step=0;step<8;step++)runtime.tick();
             require(base.level.getBlockState(marker).is(Blocks.GOLD_BLOCK),"each paid use runs the effect, including the final use");
             require(limited.isEmpty()==(use==2)&&ItemStack.matches(copy,copyState),
-                    "only the exact gift spends charges, including state written after the last charge");
+                    "only the exact gift spends one charge per "+(hit==null?"air":hit.getType())+" click, including the last charge");
             if(use==1)require(GenieScriptItem.state(limited).get("activated").getAsInt()==1
-                            && GenieScriptItem.state(limited).get("block_presses").getAsInt()==(hit==null?0:1),
+                            && GenieScriptItem.state(limited).get("block_presses").getAsInt()==(hit instanceof BlockHitResult?1:0),
                     "the vanilla hand sequence queues one USE charge and only block clicks queue one BLOCK_USE");
         }
         owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);

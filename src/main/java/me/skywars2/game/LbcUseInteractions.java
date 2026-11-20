@@ -6,32 +6,48 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.FoodOnAStickItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
 /** A server-only one-shot on a passive client carrier still permits the vanilla offhand shield. */
 public final class LbcUseInteractions {
     private static final ScopedValue<ServerPlayer> FORCED_ITEM_USE = ScopedValue.newInstance();
     private static final ScopedValue<ServerPlayer> SHIELD_HANDOFF = ScopedValue.newInstance();
     private LbcUseInteractions(){}
-    public interface BlockInput { void skywars2$finishBlockInput(); }
-    public record BlockClick(Level level, net.minecraft.world.phys.BlockHitResult hit, InteractionHand hand,
-                             ItemStack stack, boolean awaitingAir) {
+    public interface BlockInput {
+        void skywars2$finishBlockInput();
+        void skywars2$entityPress(ServerPlayer player, InteractionHand hand, Entity target);
+        void skywars2$rememberEntityPass(ServerPlayer player, InteractionHand hand, Entity target, ItemStack stack);
+    }
+    public record TargetClick(Level level, HitResult hit, InteractionHand hand, ItemStack stack, boolean awaitingAir) {
         public boolean pairsAir(Level level, InteractionHand hand, ItemStack stack) {
             return awaitingAir && this.level==level && this.hand==hand && this.stack==stack;
         }
 
-        public boolean pairsOffhand(Level level, net.minecraft.world.phys.BlockHitResult hit, ItemStack main) {
-            return hand==InteractionHand.MAIN_HAND && this.level==level && stack==main
-                    && this.hit.getBlockPos().equals(hit.getBlockPos()) && this.hit.getDirection()==hit.getDirection()
-                    && this.hit.getLocation().equals(hit.getLocation());
+        private boolean followsMain(Level level, ItemStack main) {
+            return hand==InteractionHand.MAIN_HAND && this.level==level && stack==main;
         }
 
-        public BlockClick afterAir() { return new BlockClick(level,hit,hand,stack,false); }
+        public boolean pairsOffhand(Level level, BlockHitResult hit, ItemStack main) {
+            return followsMain(level,main) && this.hit instanceof BlockHitResult before
+                    && before.getBlockPos().equals(hit.getBlockPos()) && before.getDirection()==hit.getDirection()
+                    && before.getLocation().equals(hit.getLocation());
+        }
+
+        public boolean pairsOffhand(Level level, Entity entity, ItemStack main) {
+            return followsMain(level,main) && hit instanceof EntityHitResult before && before.getEntity()==entity;
+        }
+
+        public BlockHitResult blockHit() { return hit instanceof BlockHitResult block ? block : null; }
+        public TargetClick afterAir() { return new TargetClick(level,hit,hand,stack,false); }
     }
 
     public record AirClick(Level level, ItemStack main, ItemStack offhand) {
@@ -42,6 +58,12 @@ public final class LbcUseInteractions {
 
     public static void endClientInput(ServerPlayer player){
         if(player.gameMode instanceof BlockInput input)input.skywars2$finishBlockInput();
+    }
+    public static void entityPress(ServerPlayer player, InteractionHand hand, Entity target){
+        if(player.gameMode instanceof BlockInput input)input.skywars2$entityPress(player,hand,target);
+    }
+    public static void rememberEntityPass(ServerPlayer player, InteractionHand hand, Entity target, ItemStack stack){
+        if(player.gameMode instanceof BlockInput input)input.skywars2$rememberEntityPass(player,hand,target,stack);
     }
     /** Passive client carriers send main-on, main-air, then offhand-on for one click. */
     public static boolean deferAirToOffhand(ServerPlayer player,ItemStack stack,InteractionHand hand,
