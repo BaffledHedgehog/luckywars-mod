@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
 import me.skywars2.mixin.ArenaChunkAccess;
+import me.skywars2.validation.mixin.GameCheckAccess;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
@@ -18,7 +20,6 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.phys.Vec3;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,14 +32,6 @@ public final class MapStreamingChecks {
 
     private static void require(boolean condition, String why) {
         if (!condition) throw new IllegalStateException("Map streaming: " + why);
-    }
-
-    private static Field field(Object value, String name) throws NoSuchFieldException {
-        for (Class<?> type = value.getClass(); type != null; type = type.getSuperclass()) {
-            try { var result = type.getDeclaredField(name); result.setAccessible(true); return result; }
-            catch (NoSuchFieldException ignored) { }
-        }
-        throw new NoSuchFieldException(name);
     }
 
     public static void run(GameController game) {
@@ -96,7 +89,7 @@ public final class MapStreamingChecks {
         final float yaw, pitch;
         final boolean gravity;
         final Recording recording;
-        final Field ticks;
+        final GameCheckAccess.TeleportAck listenerState;
         final Set<Long> queued = new HashSet<>();
         int acknowledged;
 
@@ -111,14 +104,14 @@ public final class MapStreamingChecks {
                         new CommonListenerCookie(player.getGameProfile(), 0, player.clientInformation(), false));
                 player.connection = listener;
                 // A channel-less scoped connection needs its actual native dispatch field bound.
-                field(recording, "packetListener").set(recording, listener);
-                ticks = field(listener, "tickCount");
+                ((NativeFixtureAccess.ConnectionBinding) (Object) recording).validation$packetListener(listener);
+                listenerState = (GameCheckAccess.TeleportAck) (Object) listener;
                 listener.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
                 listener.teleport(player.getX(), player.getY(), player.getZ(), yaw, pitch);
                 acknowledge();
                 fixture.game.server().getConnection().getConnections().add(recording);
                 player.setNoGravity(true); player.setDeltaMovement(Vec3.ZERO);
-            } catch (ReflectiveOperationException | RuntimeException failure) {
+            } catch (RuntimeException failure) {
                 fixture.game.server().getConnection().getConnections().remove(recording);
                 player.connection = previous;
                 throw new IllegalStateException("Map streaming: register native viewer", failure);
@@ -127,22 +120,19 @@ public final class MapStreamingChecks {
 
         void acknowledge() {
             listener.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
-            try {
-                if (field(listener, "awaitingPositionFromClient").get(listener) != null) {
-                    var teleport = recording.position;
-                    require(teleport != null, "acknowledge an actual emitted teleport");
-                    listener.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(teleport.id(),
-                            player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot()));
-                }
-            } catch (ReflectiveOperationException failure) { throw new IllegalStateException(failure); }
+            if (listenerState.validation$awaitingPosition() != null) {
+                var teleport = recording.position;
+                require(teleport != null, "acknowledge an actual emitted teleport");
+                listener.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(teleport.id(),
+                        player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot()));
+            }
             while (acknowledged < recording.batches) {
                 listener.handleChunkBatchReceived(new ServerboundChunkBatchReceivedPacket(64)); acknowledged++;
             }
         }
 
         int updates() {
-            try { return ticks.getInt(listener); }
-            catch (IllegalAccessException failure) { throw new IllegalStateException(failure); }
+            return listenerState.validation$listenerTicks();
         }
 
         void pending(long key) {
