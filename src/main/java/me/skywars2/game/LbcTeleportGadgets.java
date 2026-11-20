@@ -161,11 +161,11 @@ public final class LbcTeleportGadgets {
     private boolean legacySwap(ServerPlayer player,ItemStack stack){
         var level=player.level();
         var origin=player.position();
-        var destination=origin.y<=2?new Vec3(origin.x,3,origin.z)
-                :origin.y>=319?new Vec3(origin.x,315,origin.z):origin;
-        int platformY=origin.y<=2?1:origin.y>=319?314:net.minecraft.util.Mth.floor(origin.y-1.5);
+        boolean low=origin.y<=2,high=origin.y>=319;
+        var destination=low?new Vec3(origin.x,3,origin.z):high?new Vec3(origin.x,315,origin.z):origin;
+        int platformY=low?1:high?314:net.minecraft.util.Mth.floor(origin.y-1.5);
         var platform=BlockPos.containing(origin.x,platformY,origin.z);
-        var clearFrom=BlockPos.containing(destination.x,origin.y<=2?2:destination.y,destination.z);
+        var clearFrom=BlockPos.containing(destination.x,low?2:destination.y,destination.z);
         for(var corner:List.of(platform.offset(-1,0,-1),platform.offset(1,0,1),
                 platform.offset(-1,0,1),platform.offset(1,0,-1))){
             if(!level.hasChunkAt(corner)||!level.getWorldBorder().isWithinBounds(corner))return false;
@@ -177,21 +177,27 @@ public final class LbcTeleportGadgets {
         game.items().indirectKills().capturedWorldChanges(level,cause,()->{
             for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){
                 game.maps().restoreSnapshot(level,platform.offset(x,0,z),obsidian,flags);
-                if(origin.y<319)
+                if(!high)
                     for(int y=0;y<3;y++)
                         game.maps().restoreSnapshot(level,clearFrom.offset(x,y,z),MapManager.BlockSnapshot.air(),flags);
             }
         });
-        particles(level,destination,ParticleTypes.PORTAL);
+        if(high)level.sendParticles(ParticleTypes.PORTAL,origin.x,platformY,origin.z,50,.2,.4,.2,.3);
+        else particles(level,destination,ParticleTypes.PORTAL);
+        float yaw=player.getYRot(),pitch=player.getXRot();
+        if(low||high){
+            var clamped=low?destination:new Vec3(origin.x,317,origin.z);
+            move(player,clamped,yaw,pitch);
+        }
+        var returnPosition=player.position();
         var candidates=swapCandidates(player);
         if(!candidates.isEmpty()){
             var target=candidates.get(player.getRandom().nextInt(candidates.size()));
             var targetPosition=target.position();
             particles(level,targetPosition,ParticleTypes.PORTAL);
-            float yaw=player.getYRot(),pitch=player.getXRot();
             if(move(player,targetPosition,target.getYRot(),target.getXRot())){
                 if(move(target,destination,0,0))game.items().indirectKills().teleported(target,player,true);
-                else move(player,origin,yaw,pitch);
+                else move(player,returnPosition,yaw,pitch);
             }
         }
         debit(player,stack);

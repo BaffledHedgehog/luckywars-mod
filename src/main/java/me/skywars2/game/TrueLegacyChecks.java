@@ -6,12 +6,16 @@ import java.util.Objects;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
@@ -23,6 +27,7 @@ import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 
 /** Runs after the actual Supernova -> Balance transition, not a synthetic legacy flag. */
 public final class TrueLegacyChecks {
@@ -156,6 +161,7 @@ public final class TrueLegacyChecks {
             if(!oldSwap.isEmpty())break;
         }
         require(!oldSwap.isEmpty(),"real legacy loot can issue its separate swapper");
+        var edgeSwap=oldSwap.copy();
         float yaw=player.getYRot(),pitch=player.getXRot(),otherYaw=other.getYRot(),otherPitch=other.getXRot();
         ItemStack held=player.getMainHandItem();
         try {
@@ -176,6 +182,66 @@ public final class TrueLegacyChecks {
             player.teleportTo(level,origin.x,origin.y,origin.z,java.util.Set.of(),yaw,pitch,true);
             other.teleportTo(level,target.x,target.y,target.z,java.util.Set.of(),otherYaw,otherPitch,true);
             player.setItemInHand(InteractionHand.MAIN_HAND,held);
+        }
+        var protectedPlayers=new ArrayList<ServerPlayer>();
+        for(var candidate:level.players())
+            if(candidate!=player&&candidate.entityTags().add("strict_map_object"))protectedPlayers.add(candidate);
+        try {
+            legacyEdgeSwap(game,player,client,edgeSwap,false);
+            legacyEdgeSwap(game,player,client,edgeSwap,true);
+        } finally {
+            for(var candidate:protectedPlayers)candidate.entityTags().remove("strict_map_object");
+        }
+    }
+    private static void legacyEdgeSwap(GameController game,ServerPlayer player,
+            RegenerationBeltChecks.ScheduledClient client,ItemStack source,boolean high){
+        var level=player.level();var origin=player.position();
+        float yaw=player.getYRot(),pitch=player.getXRot();
+        var held=player.getMainHandItem();
+        var stat=Stats.ITEM_USED.get(source.getItem());int beforeUse=player.getStats().getValue(stat);
+        var platform=BlockPos.containing(origin.x,high?314:1,origin.z);
+        var tiles=new java.util.LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
+        for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){
+            var column=platform.offset(x,0,z);
+            require(level.hasChunkAt(column),"edge swap pad is in the loaded arena");
+            for(int y=0;y<=(high?1:3);y++){
+                var cell=column.above(y);
+                tiles.put(cell,game.maps().snapshot(level,cell));
+            }
+        }
+        var provenance=game.items().indirectKills().captureTerrain(level,tiles.keySet());
+        try {
+            var sentinel=platform.above().east();
+            level.setBlock(sentinel,Blocks.STONE.defaultBlockState(),2);
+            player.teleportTo(level,origin.x,high?340:-10,origin.z,java.util.Set.of(),37,-16,true);
+            client.acknowledge();
+            var stack=source.copyWithCount(2);
+            player.setItemInHand(InteractionHand.MAIN_HAND,stack);
+            client.packets().clear();
+            require(player.gameMode.useItem(player,level,stack,InteractionHand.MAIN_HAND).consumesAction()
+                    &&stack.getCount()==1&&player.getStats().getValue(stat)==beforeUse+1,
+                    "an instant edge swap without a target spends exactly one item and use stat");
+            var expected=new Vec3(origin.x,high?317:3,origin.z);
+            require(player.position().distanceToSqr(expected)<.0001&&player.getYRot()==37&&player.getXRot()==-16,
+                    "edge swap without a target immediately rescues the caster at "+expected+" with their own view; actual "+player.position());
+            for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){
+                var column=platform.offset(x,0,z);
+                require(level.getBlockState(column).is(Blocks.OBSIDIAN),"edge swap leaves the 3x3 obsidian platform");
+                if(!high)for(int y=1;y<=3;y++)
+                    require(level.getBlockState(column.above(y)).isAir(),"low edge swap clears Y2 through Y4");
+            }
+            if(high)require(level.getBlockState(sentinel).is(Blocks.STONE),"high edge swap does not clear above its platform");
+            require(client.packets().stream().anyMatch(packet->packet instanceof ClientboundLevelParticlesPacket p
+                    &&p.particle().getType()==ParticleTypes.PORTAL&&p.x()==origin.x&&p.y()==(high?314:4)&&p.z()==origin.z),
+                    "edge swap emits its native portal burst at the original authored height");
+            require(game.items().teleportGadgets().chargingCount()==0,"edge swap does not start a modern charge");
+        } finally {
+            tiles.forEach((pos,image)->game.maps().restoreSnapshot(level,pos,image));
+            game.items().indirectKills().restoreTerrain(provenance);
+            player.teleportTo(level,origin.x,origin.y,origin.z,java.util.Set.of(),yaw,pitch,true);
+            client.acknowledge();
+            player.setItemInHand(InteractionHand.MAIN_HAND,held);
+            player.getStats().setValue(player,stat,beforeUse);
         }
     }
     private static int count(net.minecraft.server.level.ServerPlayer p,net.minecraft.world.item.Item item){int result=0;for(int slot=0;slot<p.getInventory().getContainerSize();slot++){var stack=p.getInventory().getItem(slot);if(stack.is(item))result+=stack.getCount();}return result;}
