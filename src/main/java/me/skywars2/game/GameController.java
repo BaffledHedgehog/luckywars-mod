@@ -73,7 +73,7 @@ public final class GameController {
         private final Map<UUID,Integer> balanceRewards;
         private final Map<UUID, Participant> members = new LinkedHashMap<>();
         private final Map<UUID, PerkChoice> perkChoices;
-        private final Set<UUID> pending;
+        private final Set<UUID> pending,matchAdmissionReset;
         private final List<Entity> unloads;
         private final Stage stage;
         private final UUID host,pendingStarter,victoryWinner;
@@ -99,6 +99,7 @@ public final class GameController {
             g.participants.forEach((id,p)->members.put(id,copy(p)));
             perkChoices=Map.copyOf(g.perkChoices);
             pending=Set.copyOf(g.pendingLobby);unloads=List.copyOf(g.nativeEntityUnloads);
+            matchAdmissionReset=Set.copyOf(g.matchAdmissionReset);
             stage=g.stage;host=g.host;pendingStarter=g.pendingStarter;victoryWinner=g.victoryWinner;
             activeGameMode=g.activeGameMode;
             synchroLoot=g.synchroRanked.checkpoint();
@@ -150,6 +151,7 @@ public final class GameController {
         participants.clear();image.members.forEach((id,p)->participants.put(id,Checkpoint.copy(p)));
         perkChoices.clear();perkChoices.putAll(image.perkChoices);
         pendingLobby.clear();pendingLobby.addAll(image.pending);nativeEntityUnloads.clear();nativeEntityUnloads.addAll(image.unloads);
+        matchAdmissionReset.clear();matchAdmissionReset.addAll(image.matchAdmissionReset);
         stage=image.stage;host=image.host;pendingStarter=image.pendingStarter;victoryWinner=image.victoryWinner;
         countdownTicks=image.countdownTicks;gameTicks=image.gameTicks;finishTicks=image.finishTicks;lastAliveTicks=image.lastAliveTicks;
         lifetimeTicks=image.lifetimeTicks;lastCountdownTitleSeconds=image.lastCountdownTitleSeconds;
@@ -203,6 +205,7 @@ public final class GameController {
     private final ItemStack lobbyCompass = menuCompass();
     private final Map<UUID, Participant> participants = new LinkedHashMap<>();
     private final Set<UUID> pendingLobby = new java.util.HashSet<>();
+    private final Set<UUID> matchAdmissionReset = new java.util.HashSet<>();
     private final Set<Entity> nativeEntityUnloads = Collections.newSetFromMap(new java.util.IdentityHashMap<>());
     private final ServerBossEvent bar = new ServerBossEvent(UUID.randomUUID(), text("game.title"),
             BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
@@ -314,6 +317,8 @@ public final class GameController {
         activeGameMode=mode;
         synchroRanked.begin();
         LbcMatchReset.all(this);
+        matchAdmissionReset.clear();
+        for(var player:server.getPlayerList().getPlayers())matchAdmissionReset.add(player.getUUID());
         LbcWitchStatistics.beginMatch(this);
     }
     void prepareSoloTeams(List<ServerPlayer> ready) {
@@ -689,9 +694,15 @@ public final class GameController {
     }
 
     public void join(ServerPlayer player) {
-        if(!playing())LbcMatchReset.player(this,player);
-        if(balancePendingReset.remove(player.getUUID()))resetBalancePlayer(player);
+        var id=player.getUUID();
+        if(!playing()){
+            LbcMatchReset.player(this,player);
+            matchAdmissionReset.add(id);
+        }
+        if(balancePendingReset.remove(id))resetBalancePlayer(player);
         if(vanity.joined(player))return;
+        // A late visitor missed both online reset passes, but a reconnect belongs to this match.
+        if(playing()&&!participants.containsKey(id))resetLateMatchVisitor(player);
         items.witchClaims().reconcile(player);
         items.rifleZoom().joined(player);
         items.fpvDrone().forget(player);
@@ -715,6 +726,10 @@ public final class GameController {
         givePendingBalanceRewards(player);
         cases.onJoin(player);
         items.cosmetics().refreshSuffixes(List.of(player));
+    }
+
+    private void resetLateMatchVisitor(ServerPlayer player){
+        if(matchAdmissionReset.add(player.getUUID()))LbcMatchReset.player(this,player);
     }
 
     public void leave(ServerPlayer player) {
@@ -1446,6 +1461,7 @@ public final class GameController {
             var spawn = maps.spawns().stream().min(java.util.Comparator.comparingDouble(s ->
                     s.position().distanceToSqr(player.position()))).orElse(null);
             if (spawn == null) return false;
+            resetLateMatchVisitor(player);
             member = new Participant(spawn, 1);
             participants.put(player.getUUID(), member);
         }
@@ -1540,6 +1556,7 @@ public final class GameController {
 
     private void startRuneMap(RuneRestart restart){
         resetForLoading();
+        maps.clearRuneRestartImprintedEntities();
         for(var player:online())if(!restart.players().contains(player.getUUID()))spectators.enter(player);
         developerTools.gallery().clearForMatchStart();
         var map=maps.info(restart.map());

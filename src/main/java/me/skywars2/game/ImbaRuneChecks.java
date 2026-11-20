@@ -2,13 +2,17 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.ai.attributes.*;
@@ -17,6 +21,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.HitResult;
@@ -152,7 +157,9 @@ public final class ImbaRuneChecks {
     private static final class RestartFixture implements AutoCloseable {
         final GameController game;final UUID author;final UUID observer;final String epoch;final ItemStack held;
         final net.minecraft.server.network.ServerGamePacketListenerImpl connection;final ElementalGrimoireChecks.Recording wire;
-        int frames;boolean closed;
+        ServerLevel mirror;ChunkPos witnessChunk;Entity oldActor,marker;boolean addedWitnessTicket;
+        String oldActorBefore;
+        int frames;boolean closed,checkedImprintedReset;
         RestartFixture(GameController game){this.game=game;require(globals==null&&!game.vanity().busy()&&game.playing()&&!game.maps().busy(),"final isolated actual playing match");
             var p=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(p!=null&&game.canUseGameplayItems(p)&&!game.items().magic().suppressed(p),"actual unsuppressed restart author");
             var watching=GameChecks.createBot(game,"TestRuneWatcher");
@@ -161,23 +168,77 @@ public final class ImbaRuneChecks {
             p.connection=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),wire,p,new net.minecraft.server.network.CommonListenerCookie(p.getGameProfile(),0,p.clientInformation(),false));
             p.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());p.setGameMode(GameType.SURVIVAL);
             held=loot(game,p,LbcImbaRunes.Kind.NAUTIZ);held.setCount(2);p.setItemInHand(InteractionHand.MAIN_HAND,held);
-            require(p.gameMode.useItem(p,p.level(),held,InteractionHand.MAIN_HAND).consumesAction()&&held.getCount()==1,"actual Nautiz input and one native debit before restart");
-            var blocked=game.menus();blocked.open(p,GameMenus.Page.STATS);blocked.open(watching);
-            require(p.containerMenu==p.inventoryMenu&&watching.containerMenu==watching.inventoryMenu,
-                    "neither the caster nor the observer can open a menu during the restart");}
+            try {
+                placeOldImprintedActors();
+                require(p.gameMode.useItem(p,p.level(),held,InteractionHand.MAIN_HAND).consumesAction()&&held.getCount()==1,"actual Nautiz input and one native debit before restart");
+                var blocked=game.menus();blocked.open(p,GameMenus.Page.STATS);blocked.open(watching);
+                require(p.containerMenu==p.inventoryMenu&&watching.containerMenu==watching.inventoryMenu,
+                        "neither the caster nor the observer can open a menu during the restart");
+            } catch(RuntimeException|Error failure) {
+                try { close(); } catch(RuntimeException|Error cleanup) { failure.addSuppressed(cleanup); }
+                throw failure;
+            }
+        }
+        void placeOldImprintedActors(){
+            mirror=Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED));
+            var at=new Vec3(2304.5,100,2304.5);
+            witnessChunk=ChunkPos.containing(BlockPos.containing(at));
+            addedWitnessTicket=mirror.setChunkForced(witnessChunk.x(),witnessChunk.z(),true);
+            mirror.getChunk(witnessChunk.x(),witnessChunk.z());
+            oldActor=Objects.requireNonNull(EntityTypes.ARMOR_STAND.create(mirror,EntitySpawnReason.COMMAND));
+            oldActor.setPos(at);oldActor.setNoGravity(true);
+            marker=Objects.requireNonNull(EntityTypes.MARKER.create(mirror,EntitySpawnReason.COMMAND));
+            marker.setPos(at);
+            require(mirror.addFreshEntity(oldActor)&&mirror.addFreshEntity(marker),"real old Imprinted actors loaded outside the map footprints");
+            oldActorBefore=witnessState(oldActor);
+            require(entityManager().isLoaded(oldActor.getUUID())&&entityManager().isLoaded(marker.getUUID()),
+                    "both witnesses are registered with the native entity manager before the cast: actor="+oldActorBefore+", marker="+witnessState(marker));
+            SkyWars2.LOGGER.info("[check] Nautiz Imprinted before cast: actor={}, marker={}",oldActorBefore,witnessState(marker));
+        }
+        private net.minecraft.world.level.entity.PersistentEntitySectionManager<Entity> entityManager(){
+            return ((ActorCheckpointAccess.LevelEntities)mirror).skywars2$manager();
+        }
+        private String witnessState(Entity actor){
+            var manager=entityManager();
+            var section=((ActorCheckpointAccess.Sections)manager).skywars2$sections().getSection(SectionPos.asLong(actor.blockPosition()));
+            return "registered="+manager.isLoaded(actor.getUUID())+", tracked="+(mirror.getEntity(actor.getUUID())==actor)
+                    +", section="+(section==null?"missing":section.getStatus())+", storageReady="+mirror.areEntitiesLoaded(witnessChunk.pack())
+                    +", removal="+actor.getRemovalReason();
+        }
+        private void checkImprintedReset(){
+            require(oldActor.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!entityManager().isLoaded(oldActor.getUUID()),
+                    "Nautiz retires an old Imprinted actor outside both map footprints: before="+oldActorBefore+", after="+witnessState(oldActor));
+            require(!marker.isRemoved()&&entityManager().isLoaded(marker.getUUID()),
+                    "independent native marker in the same Imprinted chunk survives: "+witnessState(marker));
+        }
         boolean step(){require(++frames<2400,"bounded native controller restart/map preparation");var p=game.server().getPlayerList().getPlayer(author);require(p!=null,"restart preserves real participant connection");
             var watching=game.server().getPlayerList().getPlayer(observer);
             require(watching!=null&&game.isObserver(watching)&&!game.inLobby(),"Nautiz never enters the lobby or enrolls the existing spectator");
             p.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());var positions=wire.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::cast).toList();
             if(!positions.isEmpty())p.connection.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(positions.getLast().id(),p.getX(),p.getY(),p.getZ(),p.getYRot(),p.getXRot()));
-            if(game.items().currentEpoch(epoch)||game.maps().busy()||!game.playing())return false;
+            if(game.items().currentEpoch(epoch))return false;
+            if(!checkedImprintedReset){checkImprintedReset();checkedImprintedReset=true;}
+            if(game.maps().busy()||!game.playing())return false;
             require(game.canUseGameplayItems(p)&&!game.isObserver(p)&&game.lives(author)==Math.max(1,game.config().lives)&&game.selectedMapReady(),"actual selected new match/reinitialized participant lives/ready native map");
-            require(!game.canUseGameplayItems(watching)&&game.lives(observer)==0,"the previous spectator stays outside the new match roster");return true;}
-        @Override public void close(){if(closed)return;closed=true;var p=game.server().getPlayerList().getPlayer(author);if(p!=null){p.connection=connection;p.connection.resetPosition();}}
+            require(!game.canUseGameplayItems(watching)&&game.lives(observer)==0,"the previous spectator stays outside the new match roster");
+            checkImprintedReset();
+            return true;
+        }
+        @Override public void close(){
+            if(closed)return;closed=true;
+            try {
+                if(oldActor!=null&&!oldActor.isRemoved())oldActor.discard();
+                if(marker!=null&&!marker.isRemoved())marker.discard();
+                if(addedWitnessTicket)mirror.setChunkForced(witnessChunk.x(),witnessChunk.z(),false);
+            } finally {
+                var p=game.server().getPlayerList().getPlayer(author);
+                if(p!=null){p.connection=connection;p.connection.resetPosition();}
+            }
+        }
     }
     public static void startRestart(GameController game){require(restart==null,"exclusive final restart fixture");restart=new RestartFixture(game);}
     public static boolean tickRestart(GameController game){if(restart==null)return true;try{if(!restart.step())return false;restart.close();restart=null;
-        SkyWars2.LOGGER.info("[check] PASS imba-runes-restart (actual final-match Nautiz raw input/single debit; native controller map preparation/new epoch/active participant and reset lives; disposable harness owns original server snapshot)");return true;
+        SkyWars2.LOGGER.info("[check] PASS imba-runes-restart (actual final-match Nautiz raw input/single debit; native controller map preparation/new epoch/active participant and reset lives; out-of-footprint Imprinted actor retired and marker retained; disposable harness owns original server snapshot)");return true;
         }catch(Throwable failure){try{restart.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}finally{restart=null;}SkyWars2.LOGGER.error("[check] FAIL imba-runes-restart",failure);return true;}}
     public static void cancelRestart(GameController game){if(restart!=null){try{restart.close();}finally{restart=null;}}}
 }

@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import me.skywars2.mixin.ArenaChestContentsAccess;
 import me.skywars2.mixin.ArenaChunkAccess;
 import com.google.gson.JsonArray;
@@ -1223,6 +1224,22 @@ public final class MapManager {
     /** Removes entities from the isolated arena before a fresh map or lobby is placed. */
     public void clearTransientEntities() {
         removeArenaEntities();
+    }
+
+    /** Nautiz starts directly, so the lobby audit will not retire actors outside the mirror footprint. */
+    void clearRuneRestartImprintedEntities() {
+        var mirror=server.getLevel(LbcHedgehogDimensions.IMPRINTED);
+        if(mirror==null)return;
+        // Newly inserted actors have a native section before their chunk becomes visible.
+        var manager=((ActorCheckpointAccess.LevelEntities)mirror).skywars2$manager();
+        var storage=((ActorCheckpointAccess.Sections)manager).skywars2$sections();
+        var retired=new ArrayList<Entity>();
+        for(long chunk:storage.getAllChunksWithExistingSections().toLongArray()) {
+            storage.getExistingSectionsInChunk(chunk).flatMap(section->section.getEntities())
+                    .filter(entity->!entity.isRemoved()&&!(entity instanceof Player)&&!(entity instanceof Marker))
+                    .forEach(retired::add);
+        }
+        retired.forEach(Entity::discard);
     }
 
     /** Called before native writes: hold chunk sends during map work and preserve the lobby overlay. */
