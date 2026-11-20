@@ -94,6 +94,7 @@ public final class AdvancedSnowChecks {
             require(!owner.hasEffect(MobEffects.INSTANT_DAMAGE)&&owner.fallDistance==0,"Academy removes self damage and clears the pre-teleport fall");
             effect(owner,MobEffects.SLOW_FALLING,20,0);
             reset();require(use(academy(2),InteractionHand.OFF_HAND),"topmost mode");drain();require(Math.abs(owner.getY()-245.5)<1e-6,"motion-blocking highest roof, not first wall step");
+            topmostSafety();
             reset();require(use(academy(3),InteractionHand.OFF_HAND),"clip mode");drain();require(owner.getZ()>-230&&owner.level().getBlockState(owner.blockPosition()).isAir()&&owner.level().getBlockState(owner.blockPosition().above()).isAir(),"first two-air opening after traversing solid wall");
             reset();for(int y=240;y<=244;y++)for(int z=-251;z<=-250;z++)block(new BlockPos(-241,y,z),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());owner.setYRot(180);require(use(academy(2),InteractionHand.OFF_HAND),"negative-direction topmost");drain();require(Math.abs(owner.getY()-245.5)<1e-6&&owner.blockPosition().getZ()==-250,"topmost uses actual negative-facing hit block, not boundary floor");
             reset();owner.setYRot(180);require(use(academy(3),InteractionHand.OFF_HAND),"negative-direction wall clip");drain();require(owner.getZ()<-251&&owner.level().getBlockState(owner.blockPosition()).isAir()&&owner.level().getBlockState(owner.blockPosition().above()).isAir(),"negative-direction exit selects the air cell beyond the wall");
@@ -107,6 +108,85 @@ public final class AdvancedSnowChecks {
             owner.setXRot(-90);var high=cow(new Vec3(at.x,400,at.z));require(use(academy(1),InteractionHand.OFF_HAND),"above-build-height entity aim");drain();require(owner.getY()>399,"living target beyond build height extends natural ray, not a ceiling cap");high.discard();reset();
             owner.setXRot(-90);require(use(academy(1),InteractionHand.OFF_HAND),"empty vertical ray");drain();require(owner.position().equals(at),"no target above dimension means no arbitrary teleport");reset();
         }
+        void topmostSafety() {
+            var level = owner.level();
+            var side = new BlockPos(-241, 245, -232);
+            var roof = new BlockPos(-241, level.getMaxY(), -231);
+            var entityRoof = new BlockPos(-231, 263, -241);
+            var fartherWall = new BlockPos(-225, 241, -241);
+            var stone = net.minecraft.world.level.block.Blocks.STONE.defaultBlockState();
+            var scale = owner.getAttribute(Attributes.SCALE);
+            double originalScale = scale.getBaseValue();
+            var neighbor = new Vec3(-240.5, 245.5, -230.9999);
+            var goal = new Vec3(-240.5, 245.5, -230.5);
+            Cow target = null;
+            try {
+                reset();
+                block(side, stone);
+                require(!level.noCollision(owner, owner.getBoundingBox().move(neighbor.subtract(owner.position()))),
+                        "taller neighboring facade actually intersects the old face-adjacent landing");
+                var wand = academy(1);
+                owner.setShiftKeyDown(true);
+                require(use(wand, InteractionHand.OFF_HAND) && flag(wand, "mode") == 2
+                                && game.items().mana().get(owner) == 100000,
+                        "real Shift mode cycle selects Top Block without spending mana");
+                owner.setShiftKeyDown(false);
+                owner.setYRot(1.5f);
+                owner.setXRot(.75f);
+                owner.fallDistance = 32;
+                require(use(wand, InteractionHand.OFF_HAND), "actual selected Top Block cast at wall");
+                drain();
+                SkyWars2.LOGGER.info("[check] Academy Top Block edge landing actual={} expected={}",
+                        owner.position(), goal);
+                require(owner.position().distanceToSqr(goal) < 1e-10 && level.noCollision(owner)
+                                && owner.getYRot() == 1.5f && owner.getXRot() == .75f && owner.fallDistance == 0,
+                        "Top Block centers on selected column, clear of taller neighbor, preserving camera and fall reset");
+                effect(owner, MobEffects.SLOW_FALLING, 20, 0);
+
+                reset();
+                scale.setBaseValue(2);
+                owner.refreshDimensions();
+                var before = owner.position();
+                require(!level.noCollision(owner, owner.getBoundingBox().move(goal.subtract(before))),
+                        "enlarged player cannot fit on the selected roof beside the same obstruction");
+                require(use(academy(2), InteractionHand.OFF_HAND), "occupied Top Block cast admitted");
+                drain();
+                require(owner.position().equals(before) && !owner.hasEffect(MobEffects.SLOW_FALLING)
+                                && game.items().mana().get(owner) == 100000,
+                        "blocked landing keeps the original body and refunds the configured cast");
+                scale.setBaseValue(originalScale);
+                owner.refreshDimensions();
+
+                reset();
+                block(roof, stone);
+                require(use(academy(2), InteractionHand.OFF_HAND), "target a column with a block on the maximum build plane");
+                drain();
+                require(owner.getY() == level.getMaxY() + 1.5 && owner.blockPosition().getZ() == -231
+                                && level.noCollision(owner),
+                        "the actual topmost build-plane block permits unobstructed landing above the world ceiling");
+
+                reset();
+                block(entityRoof, stone);
+                block(fartherWall, stone);
+                owner.setYRot(-90);
+                target = cow(at.add(10, 1, 0));
+                require(use(academy(2), InteractionHand.OFF_HAND), "Top Block can aim at a nearer living target");
+                drain();
+                require(owner.blockPosition().getX() == entityRoof.getX()
+                                && owner.blockPosition().getZ() == entityRoof.getZ()
+                                && owner.getY() == entityRoof.getY() + 1.5 && target.getHealth() == 1000,
+                        "nearer entity keeps its native ray precedence before the farther wall and selects its roof");
+            } finally {
+                if (target != null) target.discard();
+                scale.setBaseValue(originalScale);
+                owner.refreshDimensions();
+                for (var pos : List.of(side, roof, entityRoof, fartherWall)) {
+                    if (blocks.containsKey(pos)) game.maps().restoreSnapshot(level, pos, blocks.get(pos));
+                }
+                reset();
+            }
+        }
+
         void clouds(){
             var service=game.items().advancedSnow();reset();var s=loot("snow_wand");trial(s);require(use(s,InteractionHand.OFF_HAND)&&game.items().mana().get(owner)==98500,"native ordinary snow/cost");require(service.snapshot().size()==1,"one native cloud");var state=service.snapshot().getFirst();var cloud=state.entity();
             require(cloud.getOwner()==owner&&cloud.position().equals(owner.getEyePosition().add(0,2,0))&&cloud.getRadius()==4&&cloud.getDuration()==250&&cloud.getWaitTime()==20&&cloud.getParticle() instanceof net.minecraft.core.particles.BlockParticleOption dust&&dust.getState().is(net.minecraft.world.level.block.Blocks.SNOW),"native source owner/radius/duration/wait/position/falling dust");

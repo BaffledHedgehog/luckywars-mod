@@ -108,11 +108,13 @@ public final class LbcAdvancedSnow {
             if(snow){spawn(p,point.add(0,1,0),hand,stack);return;}
             Vec3 destination;
             if(academy&&mode==2){
-                var pos=hit instanceof net.minecraft.world.phys.BlockHitResult block?block.getBlockPos():BlockPos.containing(point);
-                int y=p.level().getHeight(Heightmap.Types.MOTION_BLOCKING,pos.getX(),pos.getZ());
-                if(y<=0){if(cost>0)game.items().mana().add(p,cost);p.sendSystemMessage(Component.literal("X").withStyle(net.minecraft.ChatFormatting.DARK_RED,net.minecraft.ChatFormatting.BOLD));return;}
-                destination=new Vec3(net.minecraft.util.Mth.clamp(point.x,pos.getX()+.0001,pos.getX()+.9999),y+.5,
-                        net.minecraft.util.Mth.clamp(point.z,pos.getZ()+.0001,pos.getZ()+.9999));
+                destination = topDestination(p, hit);
+                if (destination == null) {
+                    if (cost > 0) game.items().mana().add(p, cost);
+                    p.sendSystemMessage(Component.literal("X").withStyle(
+                            net.minecraft.ChatFormatting.DARK_RED, net.minecraft.ChatFormatting.BOLD));
+                    return;
+                }
             }else{
                 if(hit.getType()==HitResult.Type.BLOCK&&!clip)point=point.subtract(direction.scale(academy?.7:.5));
                 destination=Vec3.atCenterOf(clip&&hit instanceof net.minecraft.world.phys.BlockHitResult block?block.getBlockPos():BlockPos.containing(point));
@@ -136,6 +138,22 @@ public final class LbcAdvancedSnow {
             return current->{var rebound=item.get(current);return ()->{stack=rebound;entered=crossed;};};
         }
     }
+    private static Vec3 topDestination(ServerPlayer player, HitResult hit) {
+        var cell = hit instanceof net.minecraft.world.phys.BlockHitResult block
+                ? block.getBlockPos() : BlockPos.containing(hit.getLocation());
+        var level = player.level();
+        var chunk = level.getChunkSource().getChunkNow(cell.getX() >> 4, cell.getZ() >> 4);
+        if (chunk == null) return null;
+        int surface = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, cell.getX(), cell.getZ()) + 1;
+        if (surface <= 0 || surface <= level.getMinY()) return null;
+
+        // A ray can hit a wall exactly on its face. Land over that block with
+        // the player's full body clear of the neighboring column.
+        var destination = Vec3.atCenterOf(new BlockPos(cell.getX(), surface, cell.getZ()));
+        var body = player.getBoundingBox().move(destination.subtract(player.position()));
+        return level.noCollision(player, body) ? destination : null;
+    }
+
     private int inProgress,cadenceOffset;
     void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish snow/ender native callbacks before checkpointing");}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
