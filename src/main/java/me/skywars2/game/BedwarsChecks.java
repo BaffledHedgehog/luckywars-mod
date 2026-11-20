@@ -3,17 +3,24 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Operator-only scenes use the real mode3 owner, native players and normally ticking coordinator. */
@@ -116,15 +123,35 @@ public final class BedwarsChecks {
     }
     private static void move(ServerPlayer p,Vec3 at){p.teleportTo(p.level(),at.x,at.y,at.z,Set.of(),0,0,true);p.setNoGravity(true);p.setDeltaMovement(Vec3.ZERO);}
     public static void tick(GameController game){
-        if(win!=null)try{if(win.step()){win=null;pass("bedwars-victory","actual two-team final elimination, every winning teammate100coins/key/win, living teammates creative and all match-owned auxiliaries retired");}}catch(Throwable error){win=null;SkyWars2.LOGGER.error("[check] FAIL bedwars-victory",error);}
+        if(win!=null)try{if(win.step()){win=null;pass("bedwars-victory","actual two-team elimination and rewards; native zombie and team chest survive fireworks with closed transactions, then retire in lobby");}}catch(Throwable error){win=null;SkyWars2.LOGGER.error("[check] FAIL bedwars-victory",error);}
         if(role!=null)try{if(role.finish()){role.close();role=null;}}catch(Throwable error){try{role.close();}finally{role=null;}SkyWars2.LOGGER.error("[check] FAIL bedwars-shop-role",error);}
         if(life!=null)try{if(life.step()){life.close();life=null;pass("bedwars-lifecycle","native death/body replacement/100 active ticks/+30 XP levels/TimeStop, pending bed-loss cancellation and nonempty whole-world team/bed/player rewind");}}catch(Throwable error){try{life.close();}finally{life=null;}SkyWars2.LOGGER.error("[check] FAIL bedwars-lifecycle",error);}
     }
     private static final class Win {
         final GameController game;final UUID owner,teammate;final int coins,wins,keys,teamCoins,teamWins,teamKeys;final int started;
+        final ServerLevel level;final BlockPos chest;final Display.BlockDisplay chestVisual;final Zombie defender;
+        final LbcBedwarsAuxiliaries.SharedContainer stock;
+        boolean endingChecked;
         Win(GameController game,ServerPlayer a,ServerPlayer b){
             this.game=game;owner=a.getUUID();var c=player(game,"TestGamma");teammate=c.getUUID();
             var profile=game.players().get(owner);coins=profile.coins;wins=profile.wins;keys=Arrays.stream(profile.keys).sum();var other=game.players().get(teammate);teamCoins=other.coins;teamWins=other.wins;teamKeys=Arrays.stream(other.keys).sum();
+            level=a.level();var aux=game.bedwars().auxiliaries();
+            var look=BlockPos.containing(game.maps().look());
+            level.getChunkAt(look);
+            chest=BlockPos.betweenClosedStream(look.offset(-3,-1,-3),look.offset(3,3,3))
+                    .filter(pos->!level.isOutsideBuildHeight(pos)&&level.hasChunkAt(pos)&&level.getBlockState(pos).isAir()
+                            &&game.bedwars().arena().originalTypeAt(level,pos)==null).findFirst().orElseThrow().immutable();
+            require(level.setBlock(chest,Blocks.ENDER_CHEST.defaultBlockState(),Block.UPDATE_ALL)
+                    &&aux.placed(a,level,chest,aux.teamChest(a)),"actual marked chest and its native display placed near victory viewers");
+            chestVisual=level.getEntitiesOfClass(Display.BlockDisplay.class,new AABB(chest).inflate(1),
+                    display->display.blockPosition().equals(chest)&&display.entityTags().contains("skywars2.bedwars.chest_visual")).getFirst();
+            stock=aux.container(game.bedwars().team(a));stock.setItem(0,new ItemStack(Items.DIAMOND,3));
+            var held=a.getMainHandItem();
+            var egg=aux.teamZombie(a);a.setItemInHand(InteractionHand.MAIN_HAND,egg);
+            require(aux.useZombie(a,InteractionHand.MAIN_HAND,chest,Direction.UP)&&egg.isEmpty(),"actual native team zombie item accepts and debits before victory");
+            a.setItemInHand(InteractionHand.MAIN_HAND,held);
+            defender=level.getEntitiesOfClass(Zombie.class,new AABB(chest).inflate(3),zombie->aux.owner(zombie)==a).getFirst();
+            defender.setNoGravity(true);defender.setNoAi(true);
             move(a,new Vec3(0,82,0));move(c,new Vec3(20,82,20));
             var bed=game.bedwars().arena().topology().beds().stream().filter(x->x.team()==game.bedwars().team(b)).findFirst().orElseThrow();BedwarsProtectionChecks.enemyBed(game,a,bed);
             for(var p:List.of(b,player(game,"TestDelta"))){
@@ -138,11 +165,36 @@ public final class BedwarsChecks {
             started=game.server().getTickCount();
         }
         boolean step(){
-            require(game.server().getTickCount()-started<20,"winner resolved by next core tick");if(game.playing())return false;
+            int elapsed=game.server().getTickCount()-started;
+            require(elapsed<game.config().endingSeconds*20+2400,"bounded native fireworks and lobby transition");
+            var aux=game.bedwars().auxiliaries();
+            if(endingChecked){
+                if(game.stage()==GameController.Stage.ENDING){
+                    require(level.getEntity(defender.getUUID())==defender&&level.getEntity(chestVisual.getUUID())==chestVisual,
+                            "same published native bodies remain throughout idle fireworks");return false;
+                }
+                if(!game.inLobby())return false;
+                require(defender.isRemoved()&&chestVisual.isRemoved()&&!aux.chest(level,chest)&&aux.containers().isEmpty(),"native lobby transition retires both original bodies and their auxiliary state");
+                level.setBlock(chest,Blocks.AIR.defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+                return true;
+            }
+            require(elapsed<20,"winner resolved by next core tick");if(game.playing())return false;
             require(game.stage()==GameController.Stage.ENDING,"real team winner enters native ending");var a=game.server().getPlayerList().getPlayer(owner);var c=game.server().getPlayerList().getPlayer(teammate);var profile=game.players().get(owner);var other=game.players().get(teammate);
             require(profile.coins==coins+200&&profile.wins==wins+1&&Arrays.stream(profile.keys).sum()==keys+1,"two50coin kills plus sole100coin/key/win source recipient");
             require(other.coins==teamCoins+100&&other.wins==teamWins+1&&Arrays.stream(other.keys).sum()==teamKeys+1&&a.gameMode.getGameModeForPlayer()==GameType.CREATIVE&&c.gameMode.getGameModeForPlayer()==GameType.CREATIVE,"every winning teammate receives100coins/key/win while living winners retain creative");
-            require(!game.bedwars().active()&&!game.bedwars().arena().active()&&game.bedwars().auxiliaries().containers().isEmpty(),"complete native match teardown");return true;
+            require(!game.bedwars().active()&&!game.bedwars().arena().active()&&aux.containers().contains(stock)&&stock.getItem(0).getCount()==3,
+                    "native gameplay stops while the team chest graph remains intact");
+            require(level.getEntity(defender.getUUID())==defender&&level.getEntity(chestVisual.getUUID())==chestVisual
+                    &&aux.chest(level,chest)&&level.getBlockState(chest).is(Blocks.ENDER_CHEST),"native defender and chest visual survive the first victory fireworks");
+            require(defender.getTarget()==null&&!aux.canAttack(defender,c),"retained native defender stays unable to attack");
+            require(aux.open(a,InteractionHand.MAIN_HAND,level,chest)&&a.containerMenu==a.inventoryMenu,
+                    "retained chest consumes interaction without reopening its shared store");
+            var egg=aux.teamZombie(a);a.setItemInHand(InteractionHand.MAIN_HAND,egg);
+            require(aux.useZombie(a,InteractionHand.MAIN_HAND,chest,Direction.UP)&&egg.getCount()==1,
+                    "celebration never spawns another native defender or spends the item");
+            a.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+            endingChecked=true;
+            return false;
         }
     }
     private static final class Life implements AutoCloseable {

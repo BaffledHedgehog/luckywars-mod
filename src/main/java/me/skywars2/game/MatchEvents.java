@@ -207,16 +207,21 @@ public final class MatchEvents {
             if (config.vanillaSkills || controller.debugPerks(player)) tickSkill(player);
     }
 
-    /** Cancels every delayed/repeating action immediately. */
-    public void stop() {
+    /** Stops match events and skill attacks while leaving existing summons on the arena. */
+    void beginCelebration() {
         controller.zoneBarrier().stop();
         running = false;
         nextWitherTick = -1;
         nextTntTick = -1;
         pendingVex.clear();
+        // These airdrops are still waiting for chunks and have never been added to the world.
         for (var chicken : pendingAirdrops.keySet())
             chicken.getSelfAndPassengers().toList().forEach(Entity::discard);
         pendingAirdrops.clear();
+    }
+
+    public void stop() {
+        beginCelebration();
         for (SkillState state : skillStates.values()) discardVexes(state);
         skillStates.clear();
         clearVictoryMarkers();

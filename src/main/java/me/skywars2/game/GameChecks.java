@@ -1425,6 +1425,7 @@ public final class GameChecks {
                                 case "cosmetics-native" -> {CaseCosmeticChecks.runCosmetics(game);return;}
                                 case "draw-fireworks" -> {CaseCosmeticChecks.runFireworks(game,true);return;}
                                 case "default-victory-fireworks" -> {CaseCosmeticChecks.runFireworks(game,false);return;}
+                                case "skill-vex-celebration" -> {SkillVexCelebrationChecks.run(game);return;}
                                 case "nameplates-native" -> {IndividualNameplateChecks.run(game);return;}
                                 case "nameplates-rewind" -> {IndividualNameplateChecks.runRewind(game);return;}
                                 case "time-fragment-native" -> {TimeFragmentSprintChecks.run(game);return;}
@@ -1974,6 +1975,7 @@ public final class GameChecks {
         TikTokPlaybackChecks.tick(game);
         TikTokNetworkChecks.tick(game);
         MusicStaffChecks.tick(game);
+        SkillVexCelebrationChecks.tick(game);
         GenieChecks.tick(game);
         GenieLobbyChecks.tick(game);
         GenieVanityChecks.tick(game);

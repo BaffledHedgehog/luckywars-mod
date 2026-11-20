@@ -748,7 +748,7 @@ public final class GameController {
         items.cinema().forget(player);
         lbc.clear(player);
         lbc.left(player);
-        events.removePlayerSkill(player);
+        if (stage != Stage.ENDING) events.removePlayerSkill(player);
         spectators.remove(player);
         pendingLobby.remove(player.getUUID());
         Participant p = participants.get(player.getUUID());
@@ -1652,13 +1652,16 @@ public final class GameController {
                 .filter(player->player.isAlive()&&!player.isSpectator()&&bedwars.team(player)==bedwarsWinner).toList():List.of();
         List<UUID> bedwarsRewarded=bedwarsResult&&bedwarsWinner>0?participants.keySet().stream()
                 .filter(id->bedwars.assignedTeam(id)==bedwarsWinner).toList():List.of();
-        bedwars.stop();
+        bedwars.beginCelebration();
         balanceLegacy(false);balanceMap=null;balancePendingReset.clear();balancePendingRewards.clear();
         vanity.stop();
         luckyModifiers.endMatch();
         lbc.resetLevelupMatch();
         items.beginCelebration();
-        events.stop(); if(!bedwarsResult)maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
+        events.beginCelebration();
+        if (!bedwarsResult) maps.cages(false);
+        bar.setVisible(false);
+        bar.removeAllPlayers();
         List<ServerPlayer> alive = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
                 && !e.getValue().disconnected).map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null && !isObserver(p)).toList();
         ServerPlayer winner = bedwarsResult?bedwarsLiving.stream()

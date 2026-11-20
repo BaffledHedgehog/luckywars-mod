@@ -268,6 +268,12 @@ public final class LbcBedwars {
         p.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(subtitle));
     }
     private void lostBed(int number){if(!beds.remove(number))return;for(var p:game.server().getPlayerList().getPlayers())if(team(p)==number){p.entityTags().remove("have_bed");p.sendSystemMessage(Component.translatable("no_bed"));}}
+    void beginCelebration(){
+        running=false;
+        for(var player:game.server().getPlayerList().getPlayers())player.entityTags().remove("have_bed");
+        shop.stop();
+        auxiliaries.clearZombieTargets();
+    }
     public void stop(){for(var p:game.server().getPlayerList().getPlayers())p.entityTags().remove("have_bed");shop.stop();auxiliaries.stop();arena.stop();running=activated=false;epoch=null;assignments.clear();beds.clear();respawns.clear();setup.clear();presentTeams=0;placed=List.of();sites.clear();bounds=List.of();restoring=false;renewing=renewalPrepared=false;renewalSpawns=Map.of();}
     final class Checkpoint {
         final String savedEpoch=epoch;final boolean savedRunning=running,savedActivated=activated,savedRenewing=renewing,savedRenewalPrepared=renewalPrepared;

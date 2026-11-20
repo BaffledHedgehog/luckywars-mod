@@ -180,7 +180,7 @@ public final class LbcBedwarsAuxiliaries {
     /** The original site remains scoped after Level has already removed its association. */
     public boolean withPlayerBreak(ServerPlayer player,BlockPos pos,Supplier<Boolean> action){
         var site=new Site(player.level(),pos);
-        if(!chests.containsKey(site)||!site.level.getBlockState(pos).is(Blocks.ENDER_CHEST))return action.get();
+        if(!policy.active()||!chests.containsKey(site)||!site.level.getBlockState(pos).is(Blocks.ENDER_CHEST))return action.get();
         playerBreaks.push(site);
         try{return action.get();}finally{playerBreaks.pop();}
     }
@@ -238,6 +238,10 @@ public final class LbcBedwarsAuxiliaries {
     public ServerPlayer owner(Entity body){var child=zombies.get(body.getUUID());return child==null||!game.items().currentEpoch(body)||!Objects.equals(epoch,policy.epoch())?null:game.server().getPlayerList().getPlayer(child.owner);}
     public boolean canAttack(Entity actor,Entity target){var child=zombies.get(actor.getUUID());if(child==null)return true;var owner=owner(actor);return owner!=null&&policy.active()&&!paused((ServerLevel)actor.level())&&game.items().wands().target(owner,target);}
     public void targetChanged(Mob mob,LivingEntity target){if(target!=null&&zombies.containsKey(mob.getUUID())&&!canAttack(mob,target))mob.setTarget(null);}
+    void clearZombieTargets(){
+        for(var level:game.server().getAllLevels())for(var id:zombies.keySet())
+            if(level.getEntity(id) instanceof Zombie zombie)zombie.setTarget(null);
+    }
     public void stop(){
         for(var player:game.server().getPlayerList().getPlayers())if(player.containerMenu instanceof ChestMenu menu&&menu.getContainer() instanceof LbcBedwarsAuxiliaries.SharedContainer c&&storage.containsValue(c))player.closeContainer();
         for(var entry:chests.entrySet())if(entry.getValue().display!=null){var e=entry.getKey().level.getEntity(entry.getValue().display);if(e!=null)e.discard();}
