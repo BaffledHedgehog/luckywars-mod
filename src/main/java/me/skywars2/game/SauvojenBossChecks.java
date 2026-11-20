@@ -3,17 +3,26 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
@@ -158,6 +167,78 @@ public final class SauvojenBossChecks {
                 require(!drop.hurtServer(level,new net.minecraft.world.damagesource.DamageSource(level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.EXPLOSION)),10000)&&!drop.isRemoved(),"published reward survives actual native explosion damage");}
             game.items().sauvojenBoss().died(boss);require(game.items().sauvojenBoss().rewards()==before+1,"reentrant death cannot duplicate reward");
         }
+        ItemStack keeperEgg(){
+            var result=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:item_defs/minecraft/ghast_spawn_egg__7f286bc392ee");
+            require(result.size()==1&&result.getFirst().is(Items.GHAST_SPAWN_EGG),"canonical Keeper source egg");
+            return result.getFirst().copyWithCount(2);
+        }
+        void useKeeperEgg(BlockPos pad){
+            var egg=keeperEgg();
+            owner.setItemInHand(InteractionHand.MAIN_HAND,egg);
+            var hit=new BlockHitResult(Vec3.atCenterOf(pad).add(0,.5,0),Direction.UP,pad,false);
+            require(!owner.getAbilities().instabuild&&owner.gameMode.useItemOn(owner,owner.level(),egg,InteractionHand.MAIN_HAND,hit).consumesAction()
+                    &&egg.getCount()==1,"a survival player uses the actual Keeper egg and spends exactly one");
+        }
+        void eggEncounter(){
+            var level=owner.level();
+            var service=game.items().sauvojenBoss();
+            var pad=owner.blockPosition().offset(3,-1,0);
+            var old=level.getBlockState(pad);
+            try{
+                service.stop();
+                level.setBlock(pad,Blocks.STONE.defaultBlockState(),818);
+                useKeeperEgg(pad);
+                require(service.count()==1&&service.snapshot().getFirst() instanceof Ghast,"native egg ghast enters the hostile Keeper engine");
+                var eggBoss=(Ghast)service.snapshot().getFirst();
+                eggBoss.setNoAi(true);eggBoss.setNoGravity(true);
+                require(level.getEntity(eggBoss.getUUID())==eggBoss&&eggBoss.getHealth()==124&&eggBoss.getMaxHealth()==124
+                        &&eggBoss.getName().getString().equals("Sauvojen Tuntija")&&eggBoss.getName().getStyle().isBold()
+                        &&eggBoss.getName().getStyle().getColor().getValue()==0x5555ff,
+                        "actual ghast preserves the name and effective legacy health");
+                var nbt=saved(eggBoss);
+                require(nbt.getIntOr("ExplosionPower",0)==3&&nbt.getBooleanOr("PersistenceRequired",false)
+                        &&nbt.getStringOr("DeathLootTable","").equals("minecraft:empty")
+                        &&Math.abs(eggBoss.getX()-pad.getX()-.5)<1e-6&&Math.abs(eggBoss.getZ()-pad.getZ()-.5)<1e-6,
+                        "egg keeps authored blast and native clicked placement with a single reward producer");
+                var cause=game.items().spellSources().source(eggBoss);
+                require(service.owner(eggBoss)==null&&cause!=null&&cause.emitter().equals(eggBoss.getUUID())
+                        &&cause.author()==null&&cause.unownedMobs()&&service.canAffect(eggBoss,owner)&&service.canAffect(eggBoss,beta),
+                        "egg boss has native physical authority and hostile rather than allied targeting");
+                long seed=0;
+                while(RandomSource.create(seed).nextInt(10)!=LbcSauvojen.Kind.RUBY.ordinal())seed++;
+                eggBoss.getRandom().setSeed(seed);
+                long choices=service.selections(),emits=service.emissions(),rewards=service.rewards();
+                for(int tick=0;tick<60;tick++)service.tick();
+                require(service.selections()==choices+1&&service.cloudCount()==1&&service.emissions()==emits+1,
+                        "normal boss timing creates a Ruby wand and fires from the native egg actor");
+                var arrow=game.items().ruby().snapshot().getFirst();
+                require(arrow.getOwner()==eggBoss&&game.items().spellSources().owner(arrow)==null,"scheduled wand releases with the actual hostile ghast owner");
+                require(eggBoss.hurtServer(level,eggBoss.damageSources().genericKill(),Float.MAX_VALUE)
+                        &&service.rewards()==rewards+1&&service.cloudCount()==0,"egg boss death produces one Infinity and converts the real wand");
+                var drops=level.getEntitiesOfClass(ItemEntity.class,eggBoss.getBoundingBox().inflate(5));
+                require(drops.stream().anyMatch(item->item.getItem().is(LbcWands.RUBY_WAND)&&LbcBossLoot.protectedReward(item))
+                        &&drops.stream().noneMatch(item->LbcInfinity.recognized(item.getItem())),"native death exposes the Ruby reward without a duplicate delayed token");
+                base.clear();
+
+                level.setBlock(pad,Blocks.SPAWNER.defaultBlockState(),818);
+                useKeeperEgg(pad);
+                var spawner=(SpawnerBlockEntity)level.getBlockEntity(pad);
+                var source=spawner.saveWithFullMetadata(level.registryAccess()).getCompoundOrEmpty("SpawnData").getCompoundOrEmpty("entity");
+                require(source.getStringOr("id","").equals("minecraft:ghast")
+                        &&source.getStringOr("DeathLootTable","").equals("lbc:sauvojen_tuntija"),
+                        "real spawner egg use keeps the original authored spawn data");
+                var body=EntityType.loadEntityRecursive(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),source),
+                        level,EntitySpawnReason.SPAWNER,entity->{entity.setPos(Vec3.atCenterOf(pad).add(0,3,0));return entity;});
+                require(body instanceof Ghast&&level.tryAddFreshEntityWithPassengers(body)&&service.count()==1
+                        &&LbcSauvojenBoss.managed(body)&&service.owner(body)==null,
+                        "native spawner-decoded ghast reaches the same entity-load registration");
+                var ordinary=Objects.requireNonNull(EntityTypes.GHAST.create(level,EntitySpawnReason.COMMAND));
+                ordinary.setPos(owner.position().add(-4,0,0));
+                require(level.addFreshEntity(ordinary)&&!LbcSauvojenBoss.managed(ordinary)&&service.count()==1,
+                        "an ordinary native ghast never enters the Keeper engine");
+                ordinary.discard();body.discard();
+            }finally{service.stop();level.setBlock(pad,old,818);}
+        }
         @Override public void close(){
             try{for(var cow:cows){game.items().indirectKills().clear(cow);cow.discard();}game.items().sauvojenBoss().stop();base.clear();
                 var fresh=new ArrayList<Entity>();for(var e:owner.level().getAllEntities())if(!before.contains(e)&&!(e instanceof ServerPlayer))fresh.add(e);fresh.forEach(Entity::discard);
@@ -165,8 +246,8 @@ public final class SauvojenBossChecks {
         }
     }
     public static void run(GameController game){
-        try(var fixture=new Fixture(game)){fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();fixture.creatorCleanup();fixture.death();}
-        SkyWars2.LOGGER.info("[check] PASS sauvojen-boss (native shared token activation; nine explicit source payloads and actual engine steps; source7 cactus, Blind80/WitherII, self/allied swept targets, actual Greed reflection, nested source restoration)");
+        try(var fixture=new Fixture(game)){fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();fixture.creatorCleanup();fixture.death();fixture.eggEncounter();}
+        SkyWars2.LOGGER.info("[check] PASS sauvojen-boss (native token, survival Keeper egg and spawner adoption; scheduled hostile wand and reward; nine explicit source payloads and actual engine steps; source7 cactus, Blind80/WitherII, self/allied swept targets, actual Greed reflection, nested source restoration)");
         SkyWars2.LOGGER.info("[check] PENDING sauvojen-boss continuation: all ten random branches are not exhaustively sampled here; actual cadence/logout/TimeStop/cloud replay have a separate sauvojen-lifecycle fixture");
     }
 }

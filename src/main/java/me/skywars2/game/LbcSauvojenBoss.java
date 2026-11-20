@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.*;
+import me.skywars2.mixin.MobLootAccess;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -8,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -17,9 +19,11 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -27,6 +31,9 @@ import net.minecraft.world.phys.Vec3;
 public final class LbcSauvojenBoss {
     private static final String BOSS="skywars2.sauvojen_boss",CLOUD="skywars2.sauvojen_boss.cloud";
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
+    private static final ResourceKey<LootTable> EGG_LOOT=ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:sauvojen_tuntija"));
+    private static final ResourceKey<LootTable> EMPTY_LOOT=ResourceKey.create(Registries.LOOT_TABLE,Identifier.withDefaultNamespace("empty"));
+    private static final int BOSS_HEALTH=124;
     private static final Set<String> EXCLUDED=Set.of("sauvojen_tuntija","rcdenyalways","friendly_tuntija","strict_map_object");
     private final GameController game;
     private record Actor(UUID author,String epoch,LbcSpellSource.Source source){}
@@ -55,24 +62,41 @@ public final class LbcSauvojenBoss {
         var ghast=EntityTypes.GHAST.create(level,EntitySpawnReason.COMMAND);if(ghast==null)return false;
         load(ghast,"{DeathLootTable:\"minecraft:empty\",PersistenceRequired:true,ExplosionPower:3}");
         // Legacy 100024 -> 99900 was 124 real HP above a loot-survival sentinel.
-        ghast.setPos(at.add(0,20,0));ghast.getAttribute(Attributes.MAX_HEALTH).setBaseValue(124);ghast.setHealth(124);
+        ghast.setPos(at.add(0,20,0));ghast.getAttribute(Attributes.MAX_HEALTH).setBaseValue(BOSS_HEALTH);ghast.setHealth(BOSS_HEALTH);
         ghast.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(256);ghast.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(256);
         ghast.setCustomName(Component.literal("Sauvojen Tuntija").withStyle(ChatFormatting.BLUE,ChatFormatting.BOLD).withStyle(s->s.withItalic(false)));
-        ghast.entityTags().addAll(List.of(BOSS,"sauvojen_tuntija","rcdenyalways"));game.items().markCurrentItemEpoch(ghast);
-        ghast.entityTags().add("skywars2.unowned_hazard");
-        var source=new LbcSpellSource.Source(ghast.getUUID(),null,game.items().epoch(),null,EXCLUDED,true,true);
-        var state=new Actor(author.getUUID(),game.items().epoch(),source);
-        actors.put(ghast,state);game.items().spellSources().bind(ghast,source);game.items().timeStop().prepareFrozen(ghast);
+        register(ghast,author.getUUID());
         if(!level.addFreshEntity(ghast)){actors.remove(ghast);ghast.discard();return false;}
         LbcOverload.sound(level,at,"minecraft:entity.wither.spawn",1,1,0,.5f);
         level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,at.x,at.y+10,at.z,1000,1,10,1,0);return true;
 
         }finally{callbackDepth--;}
     }
+    private void register(Ghast ghast,UUID author){
+        ghast.entityTags().addAll(List.of(BOSS,"sauvojen_tuntija","rcdenyalways","skywars2.unowned_hazard"));
+        game.items().markCurrentItemEpoch(ghast);
+        var source=new LbcSpellSource.Source(ghast.getUUID(),null,game.items().epoch(),null,EXCLUDED,true,true);
+        actors.put(ghast,new Actor(author,game.items().epoch(),source));
+        game.items().spellSources().bind(ghast,source);game.items().timeStop().prepareFrozen(ghast);
+    }
+    private void adoptEgg(Ghast ghast){
+        if(ghast.level()!=game.maps().level()||!game.playing()||game.stage()==GameController.Stage.ENDING
+                ||!ghast.entityTags().contains("sauvojen_tuntija")||!ghast.entityTags().contains("rcdenyalways")
+                ||!ghast.getLootTable().filter(EGG_LOOT::equals).isPresent())return;
+        // The authored egg uses the same 100024 -> 99900 survival sentinel as the trap.
+        float health=Math.min(ghast.getHealth(),BOSS_HEALTH);
+        ghast.getAttribute(Attributes.MAX_HEALTH).setBaseValue(BOSS_HEALTH);ghast.setHealth(health);
+        // The registered native death already publishes the Infinity reward immediately.
+        ((MobLootAccess)ghast).skywars2$lootTable(Optional.of(EMPTY_LOOT));
+        register(ghast,null);
+    }
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(BOSS);}
+    private ServerPlayer author(Actor state){
+        return state.author()==null?null:game.server().getPlayerList().getPlayer(state.author());
+    }
     public ServerPlayer owner(Entity entity){
         var state=actors.get(entity);if(state==null)return game.items().spellSources().owner(entity);
-        return game.server().getPlayerList().getPlayer(state.author());
+        return author(state);
     }
     public boolean canAffect(Entity source,Entity target){
         var state=actors.get(source);var authority=state==null?game.items().spellSources().source(source):state.source();
@@ -184,7 +208,7 @@ public final class LbcSauvojenBoss {
     void died(LivingEntity boss){
         if(rewinding||!boss.isDeadOrDying())return;
         var state=actors.remove(boss);if(state==null||!game.items().currentEpoch(state.epoch()))return;
-        infinity((ServerLevel)boss.level(),boss.position(),game.server().getPlayerList().getPlayer(state.author()));
+        infinity((ServerLevel)boss.level(),boss.position(),author(state));
     }
     /** Compatibility entry: ordinary native death owns the reward; no teleport or threshold. */
     public void infinity(LivingEntity boss,ServerPlayer author){
@@ -250,7 +274,10 @@ public final class LbcSauvojenBoss {
     }
     public void loaded(Entity entity){
         callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;
-        if(!managed(entity))return;
+        if(!managed(entity)){
+            if(entity instanceof Ghast ghast)adoptEgg(ghast);
+            return;
+        }
         if(!game.items().currentEpoch(entity)||!game.playing()||entity.level()!=game.maps().level()){entity.discard();return;}
         if(!actors.containsKey(entity)){var state=unloaded.remove(entity.getUUID());if(state==null){entity.discard();return;}actors.put(entity,state);game.items().spellSources().bind(entity,state.source());}
         game.items().timeStop().prepareFrozen(entity);
@@ -271,10 +298,10 @@ public final class LbcSauvojenBoss {
     }
     public void forget(ServerPlayer player){
         callbackDepth++;try{
-        for(var entity:List.copyOf(actors.keySet()))if(!actors.get(entity).source().persistent()&&actors.get(entity).author().equals(player.getUUID())){actors.remove(entity);entity.discard();}
-        unloaded.values().removeIf(state->!state.source().persistent()&&state.author().equals(player.getUUID()));
+        for(var entity:List.copyOf(actors.keySet()))if(!actors.get(entity).source().persistent()&&player.getUUID().equals(actors.get(entity).author())){actors.remove(entity);entity.discard();}
+        unloaded.values().removeIf(state->!state.source().persistent()&&player.getUUID().equals(state.author()));
         for(var cloud:List.copyOf(clouds))if(cloud.visual().owner==player)remove(cloud,false);
-        for(var task:List.copyOf(terrain))if(!task.source.persistent()&&task.author.equals(player.getUUID()))task.cancel();
+        for(var task:List.copyOf(terrain))if(!task.source.persistent()&&player.getUUID().equals(task.author))task.cancel();
 
         }finally{callbackDepth--;}
     }
@@ -311,7 +338,7 @@ public final class LbcSauvojenBoss {
         Checkpoint(MatchSpellCheckpoint.Links links){
             for(var entity:actors.keySet())if(links.key(entity).historical()!=null)throw new IllegalStateException("Capture live event actor bodies");
             registry=new MatchSpellCheckpoint.IdentityImage<>(actors,links);
-            for(var state:actors.values()){var author=game.server().getPlayerList().getPlayer(state.author());if(author!=null)links.key(author);}
+            for(var state:actors.values()){var author=author(state);if(author!=null)links.key(author);}
             for(var cloud:clouds){var d=cloud.visual();var carrier=links.key(d.carrier);if(carrier.historical()!=null)throw new IllegalStateException("Capture live boss cloud carriers");
                 pictures.add(new Picture(links.key(d.owner),carrier,d.kind,d.epoch,d.position,d.direction,d.lifetime,d.nextMode,cloud.source()));}
         }
