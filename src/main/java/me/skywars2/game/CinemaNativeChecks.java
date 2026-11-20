@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -12,7 +14,9 @@ import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,7 +30,7 @@ final class CinemaNativeChecks {
     private static Object get(Object target,String name){try{return field(target,name).get(target);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static void set(Object target,String name,Object value){try{field(target,name).set(target,value);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     static void start(GameController game,boolean rewind){require(running==null,"exclusive fixture");AbsoluteCinemaChecks.sourceRules();var f=new Fixture(game,rewind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
-    static void tick(GameController game){if(running==null)return;var f=running;try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.rewind?"TECH/TimeStop, angled approach, eleven children per parent, native clone and rewind, same-tick nineteen-site explosion":"actual finite AK/8 owner-safe acids/Lenin/Trump native criteria/Pozdman native death wolf/Nahida native death creative");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
+    static void tick(GameController game){if(running==null)return;var f=running;try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.rewind?"TECH/TimeStop, bounded native chunk failures, angled approach, eleven children per parent, native clone and rewind, same-tick nineteen-site explosion":"actual finite AK/8 owner-safe acids/Lenin/Trump native criteria/Pozdman native death wolf/Nahida native death creative");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
 
     private static final class Member {
         ServerPlayer p;final RegenerationBeltChecks.Snapshot saved;RegenerationBeltChecks.ScheduledClient client;final int kills,killedBy;
@@ -59,6 +63,7 @@ final class CinemaNativeChecks {
             for(var m:members){game.lbc().clear(m.p);game.players().get(m.p.getUUID()).lbcSkill=0;m.p.closeContainer();m.p.getInventory().clearContent();m.p.removeAllEffects();m.p.entityTags().removeAll(Set.of("skywars2.debug_perks","sin_vanity"));m.p.setGameMode(GameType.SURVIVAL);m.p.setNoGravity(true);m.p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);m.p.setHealth(1000);m.p.setAbsorptionAmount(0);for(var key:List.of(Attributes.ARMOR,Attributes.ARMOR_TOUGHNESS)){var attribute=m.p.getAttribute(key);attribute.removeModifiers();attribute.setBaseValue(0);}}
             move(victim,origin.add(8,0,0));move(attacker,origin.add(12,0,0));
             if(rewind){zone("stopper");service.startRoll(owner.p,1,List.of(remote));require(rockets.flightCount()==0,"TECH blocks launch without rerolling Putin");service.forget(owner.p);zone(null);
+                coldLoadFailures();
                 owner.p.getRandom().setSeed(2);service.startRoll(owner.p,1,List.of(remote));require(rockets.flightCount()==1,"actual source Putin parent accepted");
                 var parent=flights().getFirst();var start=(Vec3)get(parent,"at");float pitch=(float)get(parent,"pitch");
                 require(get(parent,"target").equals(remote)&&pitch>=10&&pitch<=60,"parent retains selected target and requested pitch bounds");
@@ -104,6 +109,63 @@ final class CinemaNativeChecks {
         @SuppressWarnings("unchecked") List<Object> flights(){return new ArrayList<>((Set<Object>)get(rockets,"flights"));}
         Map<String,Object> image(Object flight){var result=new LinkedHashMap<String,Object>();for(String key:List.of("at","age","closed","child","owner","cause","epoch"))result.put(key,get(flight,key));return result;}
         void loadedRegion(Vec3 point,int reach){var p=BlockPos.containing(point);for(int x=(p.getX()-reach)>>4;x<=(p.getX()+reach)>>4;x++)for(int z=(p.getZ()-reach)>>4;z<=(p.getZ()+reach)>>4;z++)level.getChunk(x,z);}
+        @SuppressWarnings("unchecked") Map<ChunkPos,Object> leases(){
+            return ((Map<ServerLevel,Map<ChunkPos,Object>>)get(rockets,"leases")).getOrDefault(level,Map.of());
+        }
+        void exhaustColdLoad(ChunkPos chunk,Runnable step,BooleanSupplier waiting){
+            var lease=leases().get(chunk);
+            require(lease!=null&&level.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null,"cold native request exists at "+chunk);
+            var requested=List.copyOf(leases().keySet());
+            int now=game.server().getTickCount();
+            var first=CompletableFuture.completedFuture(ChunkResult.error("controlled Oreshnik first native load failure"));
+            set(lease,"load",first);
+            step.run();
+            require(waiting.getAsBoolean()&&(int)get(lease,"retryTick")==now&&get(lease,"load")!=first,
+                    "the first terminal result schedules exactly one real native retry");
+            var last=CompletableFuture.completedFuture(ChunkResult.error("controlled Oreshnik retry failure"));
+            set(lease,"load",last);
+            step.run();
+            require(waiting.getAsBoolean()&&get(lease,"load")==last,"same-tick scheduler revisits cannot spend another retry or cancel");
+            // Model a later observer tick without letting asynchronous native generation warm the witness.
+            set(lease,"retryTick",now-1);
+            step.run();
+            var storage=(TicketStorage)get(level.getChunkSource(),"ticketStorage");
+            var type=(TicketType)get(rockets,"TICKET");
+            require(!waiting.getAsBoolean()&&leases().isEmpty()
+                            &&requested.stream().noneMatch(pos->storage.getTickets(pos.pack()).stream().anyMatch(ticket->ticket.getType()==type)),
+                    "exhausted native load removes the actual work and releases every Oreshnik ticket");
+        }
+        void coldLoadFailures(){
+            var grid=BlockPos.containing(remote);
+            // Keep these independent scenes in the same region as the existing remote Cinema fixture.
+            int regionX=grid.getX()&~511,regionZ=grid.getZ()&~511;
+            var approachTarget=new Vec3(regionX+240.5,remote.y,regionZ+240.5);
+            require(rockets.launch(owner.p,approachTarget),"real parent flight accepted for cold approach");
+            var parent=flights().getFirst();
+            var next=((Vec3)get(parent,"at")).add((Vec3)get(parent,"direction"));
+            var approachChunk=ChunkPos.containing(BlockPos.containing(next));
+            rockets.tick();
+            require((int)get(parent,"age")==0&&rockets.blastCount()==0,"cold flight waits before advancing age");
+            exhaustColdLoad(approachChunk,rockets::tick,()->rockets.flightCount()==1);
+            require(rockets.flightCount()==0&&rockets.blastCount()==0,"failed approach retires the parent without an impact");
+
+            var target=new Vec3(regionX+400.5,remote.y,regionZ+400.5);
+            loadedRegion(target,0);
+            var block=BlockPos.containing(target);
+            terrain.put(block,game.maps().snapshot(level,block));
+            level.setBlock(block,Blocks.STONE.defaultBlockState(),3);
+            require(rockets.launch(owner.p,target),"real parent accepted for cold blast tests");
+            parent=flights().getFirst();
+            set(parent,"age",99);
+            set(parent,"at",target.subtract((Vec3)get(parent,"direction")));
+            rockets.tick();
+            require(rockets.flightCount()==0&&rockets.blastCount()==19&&game.items().stonekivi().queuedSnapshot().size()==1,
+                    "native impact is accepted and queues its complete blast behind cold neighbors");
+            var neighbor=leases().keySet().stream().filter(pos->level.getChunkSource().getChunkNow(pos.x(),pos.z())==null).findFirst().orElseThrow();
+            exhaustColdLoad(neighbor,game.items().stonekivi()::tick,()->rockets.blastCount()==19);
+            require(rockets.blastCount()==0&&game.items().stonekivi().queuedSnapshot().isEmpty()&&level.getBlockState(block).is(Blocks.STONE),
+                    "failed impact retires the entire queued blast without touching its actual terrain witness");
+        }
         void smokePackets(){
             for(var flight:flights()) loadedRegion((Vec3)get(flight,"at"),3);
             rockets.tick();

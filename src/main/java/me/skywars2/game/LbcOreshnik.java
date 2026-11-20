@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.*;
@@ -27,7 +28,7 @@ public final class LbcOreshnik {
     private static final String MODEL="{item_display:'fixed',teleport_duration:1,interpolation_duration:1,brightness:{block:15,sky:15},item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:oreshnik'}},transformation:{translation:[0f,4.5f,0f],scale:[%sf,%sf,%sf],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}";
     private final GameController game;
     private Set<Flight> flights=new LinkedHashSet<>();private Set<Blasts> blasts=new LinkedHashSet<>();
-    private final Map<ServerLevel,Map<ChunkPos,Integer>> leases=new IdentityHashMap<>();
+    private final Map<ServerLevel,Map<ChunkPos,Lease>> leases=new IdentityHashMap<>();
     private boolean restoring;private int callbacks;
     public LbcOreshnik(GameController game){this.game=game;}
     public static void registerTicket(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:oreshnik"),TICKET);}
@@ -99,29 +100,51 @@ public final class LbcOreshnik {
                 .rotate(new org.joml.Quaternionf().rotationYXZ((float)(-Math.PI/180)*yaw,(float)(Math.PI/180)*pitch,0));
         return new Vec3(offset.x,offset.y,offset.z);
     }
+    private enum Residency { WAITING, READY, FAILED }
+    private static final class Lease {
+        CompletableFuture<?> load;
+        int holders=1,retryTick=Integer.MIN_VALUE;
+        Lease(CompletableFuture<?> load){this.load=load;}
+    }
     private final class Tickets {
         final ServerLevel level;final Set<ChunkPos> held=new LinkedHashSet<>();Tickets(ServerLevel level){this.level=level;}
-        boolean resident(Vec3 point,int reach){
-            var p=BlockPos.containing(point);boolean ready=true;var wanted=new LinkedHashSet<ChunkPos>();
+        Residency resident(Vec3 point,int reach){
+            var p=BlockPos.containing(point);var result=Residency.READY;var wanted=new LinkedHashSet<ChunkPos>();
             for(int x=(p.getX()-reach)>>4;x<=(p.getX()+reach)>>4;x++)for(int z=(p.getZ()-reach)>>4;z<=(p.getZ()+reach)>>4;z++){
                 var chunk=new ChunkPos(x,z);wanted.add(chunk);
-                hold(chunk);
-                if(level.getChunkSource().getChunkNow(x,z)==null)ready=false;
+                var lease=hold(chunk);
+                if(level.getChunkSource().getChunkNow(x,z)!=null)continue;
+                result=Residency.WAITING;
+                if(!NativeChunkLoad.failed(lease.load))continue;
+                int now=game.server().getTickCount();
+                // The scheduler can revisit a wait several times this tick. Give vanilla one frame after reissue.
+                if(lease.retryTick==now)continue;
+                if(lease.retryTick!=Integer.MIN_VALUE)return Residency.FAILED;
+                lease.retryTick=now;
+                level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);
+                lease.load=level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0);
             }
             for(var previous:List.copyOf(held))if(!wanted.contains(previous))release(previous);
-            return ready;
+            return result;
         }
-        void hold(ChunkPos chunk){
-            if(!held.add(chunk))return;
-            var counts=leases.computeIfAbsent(level,ignored->new LinkedHashMap<>());
-            int count=counts.getOrDefault(chunk,0);
-            counts.put(chunk,count+1);
-            if(count==0)level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0);
+        Lease hold(ChunkPos chunk){
+            var chunks=leases.computeIfAbsent(level,ignored->new LinkedHashMap<>());
+            var lease=chunks.get(chunk);
+            if(!held.add(chunk))return lease;
+            if(lease!=null)lease.holders++;
+            else {
+                lease=new Lease(level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0));
+                chunks.put(chunk,lease);
+            }
+            return lease;
         }
         void release(ChunkPos chunk){
-            if(!held.remove(chunk))return;var counts=leases.get(level);int count=counts.getOrDefault(chunk,0);
-            if(count<=1){counts.remove(chunk);level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);}else counts.put(chunk,count-1);
-            if(counts.isEmpty())leases.remove(level);
+            if(!held.remove(chunk))return;
+            var chunks=leases.get(level);
+            if(--chunks.get(chunk).holders==0){
+                chunks.remove(chunk);level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);
+            }
+            if(chunks.isEmpty())leases.remove(level);
         }
         void close(){for(var chunk:List.copyOf(held))release(chunk);}
     }
@@ -152,14 +175,16 @@ public final class LbcOreshnik {
             boolean arrives=!child&&age+1>=APPROACH_TICKS;
             var next=arrives?target:at.add(direction);
             if(impactTickets!=null&&impactTickets.held.isEmpty()){
-                impactTickets.resident(target,PARENT_BLAST_REACH);
+                if(impactTickets.resident(target,PARENT_BLAST_REACH)==Residency.FAILED){close();return;}
                 // Keep the full approach resident while the display crosses chunk boundaries.
                 for(int i=0;i<=APPROACH_TICKS;i++){
                     var cell=BlockPos.containing(at.lerp(target,i/(double)APPROACH_TICKS));
                     impactTickets.hold(new ChunkPos(cell.getX()>>4,cell.getZ()>>4));
                 }
             }
-            if(!tickets.resident(next,0))return;
+            var ready=tickets.resident(next,0);
+            if(ready==Residency.FAILED){close();return;}
+            if(ready!=Residency.READY)return;
             boolean birth=display==null;model();
             if(birth)game.items().cloneSkills().beforeOwnedStep(List.of(display));
             age++;
@@ -190,7 +215,9 @@ public final class LbcOreshnik {
         @Override public boolean step(){
             callbacks++;try{
                 if(closed||!live(epoch)){cancel();return true;}
-                if(!tickets.resident(at,child?CHILD_BLAST_REACH:PARENT_BLAST_REACH))return false;
+                var ready=tickets.resident(at,child?CHILD_BLAST_REACH:PARENT_BLAST_REACH);
+                if(ready==Residency.FAILED){cancel();return true;}
+                if(ready!=Residency.READY)return false;
                 float power=child?5:10;
                 var direct=new Marker(EntityTypes.MARKER,level);direct.setPos(at);direct.entityTags().addAll(List.of(TAG,epoch));direct.setCustomName(Component.translatable("oreshnik"));
                 var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.EXPLOSION),direct,game.server().getPlayerList().getPlayer(owner));
