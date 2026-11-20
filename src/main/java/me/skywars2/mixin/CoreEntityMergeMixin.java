@@ -2,6 +2,7 @@ package me.skywars2.mixin;
 
 import me.skywars2.game.CoreEntityMerging;
 import me.skywars2.game.LbcUltraponos;
+import me.skywars2.game.MatchActorCheckpoint;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.serialization.Codec;
@@ -106,7 +107,11 @@ public final class CoreEntityMergeMixin {
     public abstract static class Level {
         @Inject(method = "addFreshEntity", at = @At("HEAD"), cancellable = true)
         private void skywars2$mergeBeforePublication(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+            if (!(entity instanceof ItemEntity) && !(entity instanceof ExperienceOrb)) return;
             var level = (ServerLevel) (Object) this;
+            // The native registry also reserves UUIDs in hidden sections. During replay each saved body must return separately.
+            if (MatchActorCheckpoint.restoring(entity)
+                    || ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager().isLoaded(entity.getUUID())) return;
             if (entity instanceof ItemEntity item) {
                 var game = me.skywars2.SkyWars2.game();
                 var rewards = game == null ? null : game.items().combatRewards();

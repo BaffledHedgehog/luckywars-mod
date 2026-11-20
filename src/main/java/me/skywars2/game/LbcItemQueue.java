@@ -118,13 +118,14 @@ public final class LbcItemQueue {
                 unloaded(item);item.discard();changed++;
             }
             if(w.live.size()>=LIMIT||changed>0||w.store.sleeping.isEmpty())continue;
+            var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
             // A rotating cursor bounds scans through dormant items in unloaded chunks without loading any chunks.
             int inspected=0,revived=0;
             var entry=w.store.sleeping.lowerEntry(w.scanBefore);
             if(entry==null){w.scanBefore=Long.MAX_VALUE;entry=w.store.sleeping.lastEntry();}
             while(entry!=null&&w.live.size()<LIMIT&&revived<16&&inspected++<128&&System.nanoTime()<deadline){
                 var image=entry.getValue();w.scanBefore=image.order;entry=w.store.sleeping.lowerEntry(image.order);
-                if(!level.hasChunkAt(image.pos)||level.getEntity(image.uuid)!=null)continue;
+                if(!level.hasChunkAt(image.pos)||manager.isLoaded(image.uuid))continue;
                 try{
                     var tag=NbtIo.readCompressed(new ByteArrayInputStream(image.bytes),NbtAccounter.unlimitedHeap());
                     var actor=EntityType.loadEntityRecursive(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),tag),level,EntitySpawnReason.LOAD,e->e);

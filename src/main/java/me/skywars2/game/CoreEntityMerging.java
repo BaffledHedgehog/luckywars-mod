@@ -77,8 +77,7 @@ public final class CoreEntityMerging {
 
     /** Absorb into a resident body so the incoming drop never gets an entity tracker. */
     public static boolean mergeOnSpawn(ServerLevel level, ItemEntity incoming) {
-        if (MatchActorCheckpoint.restoring(incoming)) return false;
-        if (!((Items) incoming).skywars2$mergeableItem() || level.getEntity(incoming.getUUID()) != null) return false;
+        if (!((Items) incoming).skywars2$mergeableItem()) return false;
         // These are activation requests, admitted once per body by ENTITY_LOAD.
         // Combining them before admission changes trap timing and loses requests.
         // Their later native merge still checks the actual causal author.

@@ -12,6 +12,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -206,6 +208,7 @@ public final class CoreEntityMergeChecks {
             var tag = save(a); tag.putShort("Value", (short) 7); tag.putInt("Count", 9);
             var legacy = load(tag);
             require(((CoreEntityMerging.Orb) legacy).skywars2$totalExperience() == 63, "legacy short and multiplicity read");
+            legacy.setUUID(UUID.randomUUID());
             require(owner.level().addFreshEntity(legacy) && legacy.isRemoved() && a.getValue() == 100_107, "legacy grouped XP merges without loss");
             clear();
             a = orb(Integer.MAX_VALUE - 5, at()); b = orb(10, at());
@@ -229,6 +232,89 @@ public final class CoreEntityMergeChecks {
             require(!a.isRemoved() && !b.isRemoved(), "zero XP radius restores native spawn");
             CoreEntityMerging.settings().experienceMergeRadius = 3; clear();
         }
+
+        record Admission(boolean accepted,long before,long after){
+            boolean rejectedUnchanged(){return !accepted&&before==after;}
+        }
+
+        void duplicateUuidTests(){
+            var world=owner.level();
+            var manager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)world).skywars2$manager();
+            var cold=new Vec3(2304.5,at().y,2304.5);
+            var column=ChunkPos.containing(BlockPos.containing(cold));
+            require(world.getChunkSource().getChunkNow(column.x(),column.z())==null&&!world.areEntitiesLoaded(column.pack()),
+                    "registered-hidden identity fixture uses a genuinely cold native column");
+            try {
+                var itemResident=item(new ItemStack(Items.STONE,11),at());
+                var hiddenItem=item(new ItemStack(Items.STONE,17),at().add(5,0,0));
+                var xpResident=orb(19,at());var hiddenXp=orb(31,at().add(5,0,0));
+                for(var hidden:List.of(hiddenItem,hiddenXp)){
+                    require(world.getEntity(hidden.getUUID())==hidden,"body first publishes in a native visible section");
+                    hidden.setPos(cold);
+                    require(!hidden.isRemoved()&&manager.isLoaded(hidden.getUUID())&&world.getEntity(hidden.getUUID())==null,
+                            "cold native body is still registered but absent from the visible lookup: "+hidden.getType());
+                }
+
+                var itemAlias=new ItemEntity(world,at().x,at().y,at().z,new ItemStack(Items.STONE,7));
+                itemAlias.setNoGravity(true);itemAlias.setUUID(hiddenItem.getUUID());owned.add(itemAlias);
+                int beforeItem=itemResident.getItem().getCount();
+                boolean acceptedItem=world.addFreshEntity(itemAlias);
+                var itemResult=new Admission(acceptedItem,beforeItem,itemResident.getItem().getCount());
+
+                var xpAlias=new ExperienceOrb(world,at(),Vec3.ZERO,13);
+                xpAlias.setNoGravity(true);xpAlias.setUUID(hiddenXp.getUUID());owned.add(xpAlias);
+                int beforeXp=xpResident.getValue();boolean acceptedXp=world.addFreshEntity(xpAlias);
+                var hiddenXpResult=new Admission(acceptedXp,beforeXp,xpResident.getValue());
+
+                var visibleAlias=new ExperienceOrb(world,at(),Vec3.ZERO,23);
+                visibleAlias.setNoGravity(true);visibleAlias.setUUID(xpResident.getUUID());owned.add(visibleAlias);
+                beforeXp=xpResident.getValue();acceptedXp=world.addFreshEntity(visibleAlias);
+                var visibleXpResult=new Admission(acceptedXp,beforeXp,xpResident.getValue());
+
+                var freshItem=item(new ItemStack(Items.STONE,5),at());var freshXp=orb(29,at());
+                require(freshItem.isRemoved()&&freshXp.isRemoved()&&itemResident.getItem().getCount()==itemResult.after()+5
+                        &&xpResident.getValue()==visibleXpResult.after()+29,"independent fresh item and XP UUIDs still merge into the warm native bodies");
+                require(manager.isLoaded(hiddenItem.getUUID())&&manager.isLoaded(hiddenXp.getUUID())
+                        &&hiddenItem.getItem().getCount()==17&&hiddenXp.getValue()==31
+                        &&world.getChunkSource().getChunkNow(column.x(),column.z())==null,
+                        "duplicate admission does not change the registered hidden originals or load their column");
+                SkyWars2.LOGGER.info("[check] core native UUID admission item-hidden={} xp-hidden={} xp-visible={}",
+                        itemResult,hiddenXpResult,visibleXpResult);
+                require(itemResult.rejectedUnchanged()&&hiddenXpResult.rejectedUnchanged()&&visibleXpResult.rejectedUnchanged(),
+                        "duplicate add rejects every registered UUID before absorption: item-hidden="+itemResult
+                                +" xp-hidden="+hiddenXpResult+" xp-visible="+visibleXpResult);
+            } finally { clear(); }
+        }
+
+        void adjacentOrbReplay(){
+            var world=owner.level();
+            boolean wasFrozen=game.server().tickRateManager().isFrozen();
+            try {
+                var first=orb(7,at());var second=orb(37,at().add(5,0,0));
+                require(world.getEntity(first.getUUID())==first&&world.getEntity(second.getUUID())==second,
+                        "both original orb UUIDs publish beyond the merge radius");
+                second.setPos(at().add(.1,0,0));var secondAt=second.position();
+                var snapshot=MatchActorCheckpoint.captureRegistered(game);var queue=game.itemQueue().checkpoint();
+                second.discard();require(orb(120,at()).isRemoved()&&first.getValue()==127,"actual future XP merge changes the old state");
+                game.server().tickRateManager().setFrozen(true);
+                require(!game.items().timeStop().stopped(world),"native global checkpoint freeze is independent of local Time Stop");
+                snapshot.restoreBodiesFrozen();require(snapshot.restoreLinksFrozen().isEmpty(),"native adjacent XP graph links restore");
+                game.itemQueue().restore(queue);
+                require(!first.isRemoved()&&!second.isRemoved()&&world.getEntity(first.getUUID())==first
+                        &&world.getEntity(second.getUUID())==second&&first.getValue()==7&&second.getValue()==37
+                        &&second.position().equals(secondAt),"native replay preserves both distinct adjacent XP identities, values and position");
+            } finally {game.server().tickRateManager().setFrozen(wasFrozen);clear();}
+        }
+
+        void uuidAndReplayTests(){
+            RuntimeException failure=null;
+            try { duplicateUuidTests(); } catch(RuntimeException error){failure=error;}
+            try { adjacentOrbReplay(); } catch(RuntimeException error){
+                if(failure==null)failure=error;
+                else failure.addSuppressed(error);
+            }
+            if(failure!=null)throw failure;
+        }
         void pickupTests() {
             owner.getInventory().clearContent(); owner.takeXpDelay = 0;
             var tag = save(new ExperienceOrb(owner.level(), at(), Vec3.ZERO, 7)); tag.putInt("Count", 9);
@@ -246,7 +332,7 @@ public final class CoreEntityMergeChecks {
             require(++warm <= 200, "resident entity sections ready");
             for (var p : List.of(at(), at().add(5, 0, 0), at().add(-4, 0, 0)))
                 if (!owner.level().areEntitiesLoaded(net.minecraft.world.level.ChunkPos.pack(net.minecraft.util.Mth.floor(p.x) >> 4, net.minecraft.util.Mth.floor(p.z) >> 4))) return false;
-            ready = true; itemTests(); groundBoundaries(); experienceTests(); pickupTests(); return true;
+            ready = true; itemTests(); groundBoundaries(); experienceTests(); uuidAndReplayTests(); pickupTests(); return true;
         }
         @Override public void close() {
             if (closed) return; closed = true;
