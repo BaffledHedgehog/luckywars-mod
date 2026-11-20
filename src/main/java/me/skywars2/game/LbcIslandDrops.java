@@ -154,6 +154,6 @@ public final class LbcIslandDrops {
         int y=BlockPos.containing(origin).getY();
         int low=kind==LbcIslandDropItem.Kind.RAISE?-15:-25;
         int high=kind==LbcIslandDropItem.Kind.RAISE?61:0;
-        return y+low>=level.getMinY() && y+high<level.getMaxY();
+        return level.isInsideBuildHeight(y+low) && level.isInsideBuildHeight(y+high);
     }
 }
