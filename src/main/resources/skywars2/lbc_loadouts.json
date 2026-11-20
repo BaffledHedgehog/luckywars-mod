@@ -110,7 +110,7 @@
       "slot": 13,
       "table": "lbc:kit/key",
       "gate": "lbc:true_advancements/axes/randchanted",
-      "lockedKey": "lbc.adv.axe.randchanted"
+      "lockedKey": "lbc.adv.axe.randchanted.lore"
     },
     {
       "id": 15,
@@ -126,7 +126,7 @@
       "slot": 15,
       "table": "lbc:kit/key_luck",
       "gate": "lbc:true_advancements/hoes/op_hoe",
-      "lockedKey": "lbc.adv.hoe.op_hoe"
+      "lockedKey": "lbc.adv.hoe.op_hoe.lore"
     },
     {
       "id": 17,
@@ -142,7 +142,7 @@
       "slot": 17,
       "table": "lbc:kit/phd",
       "gate": "lbc:true_advancements/legends/academy/badwiki",
-      "lockedKey": "lbc.adv.upgraded_staff.badwiki"
+      "lockedKey": "lbc.adv.upgraded_staff.badwiki.lore"
     },
     {
       "id": 19,
@@ -196,7 +196,7 @@
       "slot": 0,
       "table": "lbc:kit/reroll_machine",
       "gate": "lbc:true_advancements/legends/academy/lightning",
-      "lockedKey": "lbc.adv.upgraded_tuntija.lightning.lore"
+      "lockedKey": "lbc.adv.upgraded_staff.lightning.lore"
     }
   ],
   "skills": [
@@ -219,7 +219,7 @@
       "page": 10100,
       "slot": 7,
       "gate": "lbc:true_advancements/legends/academy/omega_flag",
-      "lockedKey": "lbc.adv.upgraded_tuntija.omega_flag.lore"
+      "lockedKey": "lbc.adv.upgraded_staff.omega_flag.lore"
     },
     {
       "id": 30,
@@ -240,7 +240,7 @@
       "page": 10000,
       "slot": 21,
       "gate": "lbc:true_advancements/legends/academy/big_stone",
-      "lockedKey": "lbc.adv.upgraded_tuntija.big_stone"
+      "lockedKey": "lbc.adv.upgraded_tuntija.big_stone.lore"
     },
     {
       "id": 15,
@@ -978,7 +978,7 @@
       "page": 8000,
       "slot": 1,
       "gate": "lbc:true_advancements/accesories/mana_belt",
-      "lockedKey": "lbc.adv.accessories.mana_belt",
+      "lockedKey": "lbc.adv.accessories.mana_belt.lore",
       "modifiers": []
     },
     {
@@ -986,7 +986,7 @@
       "page": 8000,
       "slot": 10,
       "gate": "lbc:true_advancements/arcanums/neutral",
-      "lockedKey": "lbc.adv.arcanums.neutral",
+      "lockedKey": "lbc.adv.arcanums.neutral.lore",
       "modifiers": []
     },
     {
@@ -994,7 +994,7 @@
       "page": 8000,
       "slot": 16,
       "gate": "lbc:true_advancements/armor/mage",
-      "lockedKey": "lbc.adv.armor.mage",
+      "lockedKey": "lbc.adv.armor.mage.lore",
       "modifiers": []
     },
     {
@@ -1002,7 +1002,7 @@
       "page": 8100,
       "slot": 3,
       "gate": "lbc:true_advancements/legends/academy/blood",
-      "lockedKey": "lbc.adv.upgraded_staff.blood",
+      "lockedKey": "lbc.adv.upgraded_staff.blood.lore",
       "modifiers": [
         {
           "attribute": "minecraft:max_health",
@@ -1017,7 +1017,7 @@
       "page": 8100,
       "slot": 4,
       "gate": "lbc:true_advancements/armor/antimagic",
-      "lockedKey": "lbc.adv.armor.overload",
+      "lockedKey": "lbc.adv.armor.overload.lore",
       "modifiers": [
         {
           "attribute": "minecraft:max_health",

@@ -2,12 +2,17 @@ package me.skywars2.game;
 
 import java.util.*;
 import java.lang.reflect.Field;
+import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.api.gui.SimpleGui;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -15,6 +20,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.GameType;
@@ -32,7 +38,7 @@ public final class ArmorZeusSkillChecks {
     private static double points(ItemStack stack,EquipmentSlot slot,Holder<Attribute> attribute){double sum=0;for(var e:attributes(stack).modifiers())if(e.attribute().equals(attribute)&&e.slot().test(slot)&&e.modifier().operation()==AttributeModifier.Operation.ADD_VALUE&&e.modifier().amount()>0)sum+=e.modifier().amount();return sum;}
     private static ItemAttributeModifiers.Entry entry(Holder<Attribute> attribute,String id,double amount,AttributeModifier.Operation op,EquipmentSlotGroup slot){return new ItemAttributeModifiers.Entry(attribute,new AttributeModifier(Identifier.parse("skywars2:armor_check_"+id),amount,op),slot,ItemAttributeModifiers.Display.override(Component.literal("preserved "+id)));}
     private static Fixture running;
-    public static void run(GameController game){require(running==null,"exclusive native clock fixture");var f=new Fixture(game);running=f;try{f.initialize();f.menu();f.componentReserve();f.nativeReserve();f.suppression();f.chains();f.clockBegin();}catch(RuntimeException|Error error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
+    public static void run(GameController game){require(running==null,"exclusive native clock fixture");var f=new Fixture(game);running=f;try{f.initialize();f.lockedPerkMessages();f.menu();f.componentReserve();f.nativeReserve();f.suppression();f.chains();f.clockBegin();}catch(RuntimeException|Error error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
     public static void tick(GameController game){if(running==null)return;var f=running;try{if(f.clockStep()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS armor-zeus-skills (native finite post-mitigation armor reserve, terminal hit reactions and same-tick equipment refresh; exact component preservation and source menus; native lightning chains/cooldown/terrain/MAG/TECH; registered20tick active clock,50percent trials, TimeStop and disable)");}}catch(RuntimeException|Error error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
 
     private static final class Fixture implements AutoCloseable {
@@ -48,6 +54,153 @@ public final class ArmorZeusSkillChecks {
         void initialize(){game.config().lbcSkills=true;game.config().ranked=true;game.config().pvpMode=0;game.server().tickRateManager().setFrozen(false);for(var p:List.of(owner,other)){p.closeContainer();p.stopUsingItem();p.getInventory().clearContent();p.removeAllEffects();p.setGameMode(GameType.SURVIVAL);p.getAbilities().invulnerable=false;p.setNoGravity(true);p.setDeltaMovement(Vec3.ZERO);p.setKnownMovement(Vec3.ZERO);p.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0);p.setLastHurtByMob(null);p.entityTags().removeAll(Set.of("time_stopped","spectator","strict_map_object","magic_academy","rcdenyalways","sin_greed_active","nomagic_active"));var profile=game.players().get(p.getUUID());profile.lbcKit=0;profile.lbcChallengeKit=0;profile.lbcSkill=0;profile.lbcChallenge=0;profile.lbcTrinket=0;Arrays.fill(profile.levelups,0);Arrays.fill(profile.trinkets,0);reset(p);game.items().magic().inventoryChanged(p);game.items().armorSets().inventoryChanged(p);}game.items().magic().flushCleansing();int x=(owner.blockPosition().getX()>>4)*16+8,z=(owner.blockPosition().getZ()>>4)*16+8,y=Math.min(230,level.getMaxY()-8);for(int dx=-7;dx<=7;dx++)for(int dz=-7;dz<=7;dz++)for(int dy=0;dy<=4;dy++){var pos=new BlockPos(x+dx,y+dy,z+dz);require(level.hasChunkAt(pos),"resident bounded terrain");terrain.put(pos,game.maps().snapshot(level,pos));level.setBlock(pos,(dy==0?Blocks.STONE:Blocks.AIR).defaultBlockState(),2);}at=new Vec3(x+.5,y+1,z+.5);move(owner,at);move(other,at.add(0,0,7));client=new RegenerationBeltChecks.ScheduledClient(game,owner);audience=new RegenerationBeltChecks.ScheduledClient(game,other);}
         void move(ServerPlayer p,Vec3 pos){p.teleportTo(level,pos.x,pos.y,pos.z,Set.of(),0,0,true);if(p==owner&&client!=null)client.acknowledge();if(p==other&&audience!=null)audience.acknowledge();}
         void select(int id){game.players().get(owner.getUUID()).lbcSkill=id;require(game.lbc().hasSkill(owner,id),"canonical skill"+id);}
+        private record PerkGate(GameMenus.Page page, int slot, int selectedId, String advancement, String message,
+                                boolean secondPage) {
+            PerkGate(GameMenus.Page page, int slot, int selectedId, String advancement, String message) {
+                this(page, slot, selectedId, advancement, message, false);
+            }
+        }
+
+        void lockedPerkMessages() {
+            boolean wasRanked = game.config().ranked;
+            boolean hadDebugUnlock = owner.entityTags().contains("skywars2.debug_perks");
+            game.config().ranked = false;
+            try {
+                for (var gate : List.of(
+                        new PerkGate(GameMenus.Page.VANILLA_SKILLS, 12, 13,
+                                "event/soulcorrupt_wand", "lbc.adv.event.soulcorrupt_wand.lore"),
+                        new PerkGate(GameMenus.Page.VANILLA_SKILLS, 11, 12,
+                                "event/wind_wand", "lbc.adv.event.vex_wand.lore"),
+                        new PerkGate(GameMenus.Page.LBC_SKILLS, 6, 7,
+                                "armor/paladin", "lbc.adv.armor.paladin.lore"),
+                        new PerkGate(GameMenus.Page.LBC_SKILLS, 21, 21,
+                                "legends/academy/big_stone", "lbc.adv.upgraded_tuntija.big_stone.lore"),
+                        new PerkGate(GameMenus.Page.LBC_SKILLS, 7, 35,
+                                "legends/academy/omega_flag", "lbc.adv.upgraded_staff.omega_flag.lore", true),
+                        new PerkGate(GameMenus.Page.VANILLA_KITS, 21, 22,
+                                "event/eat_halloween_food", "lbc.adv.event.eat_halloween_food.lore"),
+                        new PerkGate(GameMenus.Page.VANILLA_KITS, 22, 23,
+                                "event/halloween_mace", "lbc.adv.event.halloween_mace.lore"),
+                        new PerkGate(GameMenus.Page.VANILLA_KITS, 23, 24,
+                                "event/wind_wand_upgraded", "lbc.adv.event.upgraded_wind_wand.lore"),
+                        new PerkGate(GameMenus.Page.LBC_KITS, 13, 14,
+                                "axes/randchanted", "lbc.adv.axe.randchanted.lore"),
+                        new PerkGate(GameMenus.Page.LBC_KITS, 15, 16,
+                                "hoes/op_hoe", "lbc.adv.hoe.op_hoe.lore"),
+                        new PerkGate(GameMenus.Page.LBC_KITS, 17, 18,
+                                "legends/academy/badwiki", "lbc.adv.upgraded_staff.badwiki.lore"),
+                        new PerkGate(GameMenus.Page.LBC_KITS, 0, 25,
+                                "legends/academy/lightning", "lbc.adv.upgraded_staff.lightning.lore", true),
+                        new PerkGate(GameMenus.Page.LBC_LEVELUPS, 1, 2,
+                                "accesories/mana_belt", "lbc.adv.accessories.mana_belt.lore"),
+                        new PerkGate(GameMenus.Page.LBC_LEVELUPS, 10, 11,
+                                "arcanums/neutral", "lbc.adv.arcanums.neutral.lore"),
+                        new PerkGate(GameMenus.Page.LBC_LEVELUPS, 16, 17,
+                                "armor/mage", "lbc.adv.armor.mage.lore"),
+                        new PerkGate(GameMenus.Page.LBC_LEVELUPS, 3, 31,
+                                "legends/academy/blood", "lbc.adv.upgraded_staff.blood.lore", true),
+                        new PerkGate(GameMenus.Page.LBC_LEVELUPS, 4, 32,
+                                "armor/antimagic", "lbc.adv.armor.overload.lore", true))) {
+                    lockedPerkMessage(gate);
+                }
+            } finally {
+                owner.closeContainer();
+                if (hadDebugUnlock) owner.entityTags().add("skywars2.debug_perks");
+                else owner.entityTags().remove("skywars2.debug_perks");
+                game.config().ranked = wasRanked;
+            }
+        }
+
+        static int[] selection(PlayerStore.Profile profile, GameMenus.Page page) {
+            return switch (page) {
+                case VANILLA_KITS -> new int[]{profile.kit};
+                case VANILLA_SKILLS -> new int[]{profile.skill};
+                case LBC_KITS -> new int[]{profile.lbcKit};
+                case LBC_SKILLS -> new int[]{profile.lbcSkill};
+                case LBC_LEVELUPS -> {
+                    int[] selected = Arrays.copyOf(profile.levelups, profile.levelups.length + 1);
+                    selected[profile.levelups.length] = profile.lbcLevelupSlot;
+                    yield selected;
+                }
+                default -> throw new IllegalArgumentException("Not a tested perk page: " + page);
+            };
+        }
+
+        void lockedPerkMessage(PerkGate gate) {
+            var profile = game.players().get(owner.getUUID());
+            String id = "lbc:true_advancements/" + gate.advancement;
+            var advancement = Objects.requireNonNull(game.server().getAdvancements().get(Identifier.parse(id)));
+            var criteria = advancement.value().criteria().keySet();
+            var completed = new ArrayList<String>();
+            owner.getAdvancements().getOrStartProgress(advancement).getCompletedCriteria().forEach(completed::add);
+            boolean hadUnlock = profile.lbcUnlocks.remove(id);
+            int[] originalSelection = selection(profile, gate.page);
+            boolean verifyUnlock = gate.page == GameMenus.Page.VANILLA_SKILLS || gate.page == GameMenus.Page.LBC_SKILLS;
+            boolean onSecondPage = false;
+            try {
+                for (var criterion : completed) owner.getAdvancements().revoke(advancement, criterion);
+                if (gate.page == GameMenus.Page.VANILLA_SKILLS) profile.skill = 0;
+                if (gate.page == GameMenus.Page.LBC_SKILLS) profile.lbcSkill = 0;
+                int[] beforeSelection = selection(profile, gate.page);
+                game.menus().openDebug(owner);
+                owner.entityTags().remove("skywars2.debug_perks");
+                game.menus().open(owner, gate.page);
+                require(game.canUseMenus(owner) && !game.debugPerks(owner), "ordinary gate with a real open perk menu");
+                if (gate.secondPage) {
+                    clickPerk(26);
+                    onSecondPage = true;
+                }
+                int before = client.packets().size(), observerBefore = audience.packets().size();
+                clickPerk(gate.slot);
+                require(Arrays.equals(selection(profile, gate.page), beforeSelection), "locked perk leaves selection unchanged: " + id);
+                require(hints(client, before, gate.message) == 1 && hints(audience, observerBefore, gate.message) == 0,
+                        "locked slot sends exactly one private system chat with legacy description " + gate.message);
+
+                if (verifyUnlock) {
+                    for (var criterion : criteria) owner.getAdvancements().award(advancement, criterion);
+                    game.menus().open(owner, gate.page);
+                    before = client.packets().size();
+                    clickPerk(gate.slot);
+                    require(selection(profile, gate.page)[0] == gate.selectedId && hints(client, before, gate.message) == 0,
+                            "native advancement unlock selects without the locked hint: " + id);
+                }
+            } finally {
+                if (onSecondPage) clickPerk(18);
+                for (var criterion : criteria) {
+                    if (completed.contains(criterion)) owner.getAdvancements().award(advancement, criterion);
+                    else owner.getAdvancements().revoke(advancement, criterion);
+                }
+                if (hadUnlock) profile.lbcUnlocks.add(id);
+                else profile.lbcUnlocks.remove(id);
+                switch (gate.page) {
+                    case VANILLA_KITS -> profile.kit = originalSelection[0];
+                    case VANILLA_SKILLS -> profile.skill = originalSelection[0];
+                    case LBC_KITS -> profile.lbcKit = originalSelection[0];
+                    case LBC_SKILLS -> profile.lbcSkill = originalSelection[0];
+                    case LBC_LEVELUPS -> {
+                        System.arraycopy(originalSelection, 0, profile.levelups, 0, profile.levelups.length);
+                        profile.lbcLevelupSlot = originalSelection[profile.levelups.length];
+                    }
+                    default -> throw new IllegalArgumentException("Not a tested perk page: " + gate.page);
+                }
+            }
+        }
+
+        void clickPerk(int slot) {
+            require(SguiUtils.getCurrentGui(owner) instanceof SimpleGui, "actual native perk menu");
+            var gui = (SimpleGui) SguiUtils.getCurrentGui(owner);
+            var button = Objects.requireNonNull(gui.getGuiElement(slot));
+            button.getGuiCallback().click(slot, ClickType.MOUSE_LEFT, ContainerInput.PICKUP, gui);
+        }
+
+        long hints(RegenerationBeltChecks.ScheduledClient connection, int from, String key) {
+            var sent = connection.packets();
+            return sent.subList(from, sent.size()).stream()
+                    .filter(ClientboundSystemChatPacket.class::isInstance).map(ClientboundSystemChatPacket.class::cast)
+                    .filter(packet -> !packet.overlay() && packet.content().getContents() instanceof TranslatableContents text
+                            && text.getKey().equals(key))
+                    .count();
+        }
         void menu(){require(GameController.operator(owner),"actual OP menu entry");game.config().ranked=false;var profile=game.players().get(owner.getUUID());for(var row:List.of(new Object[]{7,6,"lbc:true_advancements/armor/paladin"},new Object[]{22,22,"lbc:true_advancements/legends/academy/boltbolt"})){int id=(Integer)row[0],slot=(Integer)row[1];String gate=(String)row[2];game.menus().openDebug(owner);owner.entityTags().remove("skywars2.debug_perks");require(game.canUseMenus(owner)&&!game.debugPerks(owner),"ordinary gate context");var adv=game.server().getAdvancements().get(Identifier.parse(gate));require(adv!=null,"original gate "+gate);profile.lbcSkill=0;profile.lbcUnlocks.remove(gate);for(var key:adv.value().criteria().keySet())owner.getAdvancements().revoke(adv,key);require(!game.lbc().select(owner,LbcLoadouts.Kind.SKILLS,10000,slot),"locked source slot"+slot);for(var key:adv.value().criteria().keySet())owner.getAdvancements().award(adv,key);require(game.lbc().select(owner,LbcLoadouts.Kind.SKILLS,10000,slot)&&profile.lbcSkill==id,"completed native advancement selects"+id);game.menus().open(owner,GameMenus.Page.LBC_SKILLS);owner.entityTags().remove("skywars2.debug_perks");require(eu.pb4.sgui.api.SguiUtils.getCurrentGui(owner) instanceof eu.pb4.sgui.api.gui.SimpleGui,"actual GUI");var gui=(eu.pb4.sgui.api.gui.SimpleGui)eu.pb4.sgui.api.SguiUtils.getCurrentGui(owner);var button=gui.getGuiElement(slot);require(button!=null,"source GUI slot"+slot);profile.lbcSkill=0;button.getGuiCallback().click(slot,eu.pb4.sgui.api.ClickType.MOUSE_LEFT,net.minecraft.world.inventory.ContainerInput.PICKUP,gui);require(profile.lbcSkill==id,"real GUI callback selects"+id);owner.closeContainer();}game.config().ranked=true;}
         void clearArmor(){for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET))owner.setItemSlot(slot,ItemStack.EMPTY);equipment(owner);}
         ItemStack armor(double armor,double toughness){var stack=new ItemStack(Items.LEATHER_HELMET);stack.set(DataComponents.UNBREAKABLE,net.minecraft.util.Unit.INSTANCE);stack.set(DataComponents.CUSTOM_NAME,Component.literal("reserve fixture"));stack.set(DataComponents.ATTRIBUTE_MODIFIERS,new ItemAttributeModifiers(List.of(entry(Attributes.ARMOR,"flat",armor,AttributeModifier.Operation.ADD_VALUE,EquipmentSlotGroup.HEAD),entry(Attributes.ARMOR_TOUGHNESS,"tough",toughness,AttributeModifier.Operation.ADD_VALUE,EquipmentSlotGroup.HEAD))));owner.setItemSlot(EquipmentSlot.HEAD,stack);equipment(owner);return stack;}

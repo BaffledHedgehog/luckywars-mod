@@ -286,7 +286,15 @@ public final class GameMenus {
             if (id == 19) continue;
             ItemStack stack = OriginalGuiDesign.button(player, "swrg", 3000, sourceSlot, p, config);
             original(gui, player, sourceSlot, stack, null, List.of(), () -> {
-                if (!OriginalGuiDesign.unlocked(player, "swrg", 3000, sourceSlot, p, config)) return;
+                if (!OriginalGuiDesign.unlocked(player, "swrg", 3000, sourceSlot, p, config)) {
+                    switch (sourceSlot) {
+                        case 21 -> player.sendSystemMessage(Component.translatable("lbc.adv.event.eat_halloween_food.lore"));
+                        case 22 -> player.sendSystemMessage(Component.translatable("lbc.adv.event.halloween_mace.lore"));
+                        case 23 -> player.sendSystemMessage(Component.translatable("lbc.adv.event.upgraded_wind_wand.lore"));
+                        default -> {}
+                    }
+                    return;
+                }
                 p.kit = kit;
                 players.save();
                 if (debugAccess(player) && controller.playing()) controller.events().giveDebugKit(player);
@@ -307,7 +315,14 @@ public final class GameMenus {
             ItemStack stack = OriginalGuiDesign.button(player, "swrg", 4000, i, p, config);
             int sourceSlot = i;
             original(gui, player, i, stack, null, List.of(), () -> {
-                if (!OriginalGuiDesign.unlocked(player, "swrg", 4000, sourceSlot, p, config)) return;
+                if (!OriginalGuiDesign.unlocked(player, "swrg", 4000, sourceSlot, p, config)) {
+                    switch (sourceSlot) {
+                        case 11 -> player.sendSystemMessage(Component.translatable("lbc.adv.event.vex_wand.lore"));
+                        case 12 -> player.sendSystemMessage(Component.translatable("lbc.adv.event.soulcorrupt_wand.lore"));
+                        default -> {}
+                    }
+                    return;
+                }
                 p.skill = skill;
                 players.save();
                 if (debugAccess(player) && controller.playing()) controller.events().giveSkill(player);
