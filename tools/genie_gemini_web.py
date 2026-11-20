@@ -7,12 +7,54 @@ from pathlib import Path
 import secrets
 import sys
 import tempfile
+from urllib.parse import urlsplit
 
 
 class SessionFailure(Exception):
     def __init__(self, issue):
         super().__init__(issue)
         self.issue = issue
+
+
+def request_issue(error):
+    if isinstance(error, SessionFailure):
+        return error.issue
+    if isinstance(error, ImportError):
+        return "DEPENDENCY_UNAVAILABLE"
+    if isinstance(error, TimeoutError):
+        return "NETWORK_TIMEOUT"
+
+    from curl_cffi.requests.exceptions import RequestException, Timeout as CurlTimeout
+    from gemini_webapi.exceptions import AuthError, TemporarilyBlockedError
+    from gemini_webapi.exceptions import TimeoutError as GeminiTimeout
+
+    if isinstance(error, AuthError):
+        return "UNAUTHENTICATED"
+    if isinstance(error, TemporarilyBlockedError):
+        return "ACCESS_TEMPORARILY_UNAVAILABLE"
+    if isinstance(error, (CurlTimeout, GeminiTimeout)):
+        return "NETWORK_TIMEOUT"
+    if not isinstance(error, RequestException):
+        return None
+    response = error.response
+    if response is not None:
+        status = response.status_code
+        if status == 401:
+            return "UNAUTHENTICATED"
+        if status == 429:
+            return "ACCESS_TEMPORARILY_UNAVAILABLE"
+        if 300 <= status < 400:
+            # A proxy may reject the redirected host and leave the original response on the error.
+            try:
+                target = urlsplit(response.headers.get("location", ""))
+                path = target.path.casefold()
+                if target.scheme == "https" and target.hostname == "accounts.google.com" and (
+                    path == "/servicelogin" or path == "/signin" or path.startswith(("/signin/", "/v3/signin/"))
+                ):
+                    return "UNAUTHENTICATED"
+            except ValueError:
+                pass
+    return "NETWORK_ERROR"
 
 
 def response_text(output):
@@ -73,6 +115,8 @@ After a verified grant, reply with only {"decision":"grant","receipt":<the exact
 
 
 async def probe_attachment(client, model):
+    from gemini_webapi.exceptions import UsageLimitExceededError
+
     marker = "GENIE_" + secrets.token_hex(8)
     document = Path("session_check.json")
     document.write_text(json.dumps({"marker": marker}), encoding="utf-8")
@@ -81,8 +125,10 @@ async def probe_attachment(client, model):
             "Read the attached JSON and reply with only the exact value of the marker field.",
             files=[document], model=model, temporary=True,
         )
+    except UsageLimitExceededError:
+        raise
     except Exception as error:
-        raise SessionFailure("ATTACHMENT_FAILED") from error
+        raise SessionFailure(request_issue(error) or "ATTACHMENT_FAILED") from error
     # Gemini may format the answer. The unpredictable marker proves it read the attachment.
     if marker not in response_text(check):
         raise SessionFailure("ATTACHMENT_FAILED")
@@ -175,8 +221,9 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except SessionFailure as error:
-        print(json.dumps({"session_error": error.issue}))
-    except Exception:
-        # Neither local credentials nor remote error bodies should reach process output.
-        raise SystemExit(1) from None
+    except Exception as error:
+        issue = request_issue(error)
+        if issue is None:
+            # Neither local credentials nor remote error bodies should reach process output.
+            raise SystemExit(1) from None
+        print(json.dumps({"session_error": issue}))

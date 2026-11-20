@@ -38,7 +38,8 @@ public final class SkyWarsFeedbackCommands {
                 var link = Component.literal("chatgpt.com").withStyle(style -> style
                     .withColor(net.minecraft.ChatFormatting.AQUA).withUnderlined(true)
                     .withClickEvent(new net.minecraft.network.chat.ClickEvent.OpenUrl(java.net.URI.create("https://chatgpt.com/"))));
-                ctx.getSource().sendSuccess(() -> link, false);
+                ctx.getSource().sendSuccess(() -> Component.translatableWithFallback("skywars2.genie.login.firefox",
+                        "Открой %s в Firefox, спаренном с сервером. Для ключа OpenAI API используй /skywars genie api.", link), false);
                 return 1;
             }));
         SkyWarsCommandTree.add(dispatcher, genie);

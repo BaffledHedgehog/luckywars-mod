@@ -36,6 +36,9 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
         ACCESS_RESTRICTED("Gemini отклонил доступ для этой сессии. Проверь доступ в веб-чате."),
         QUOTA_EXHAUSTED("Лимит Gemini исчерпан."),
         PRO_UNAVAILABLE("В текущей сессии Gemini недоступна модель Pro."),
+        DEPENDENCY_UNAVAILABLE("На сервере не запустился Python или gemini-webapi."),
+        NETWORK_TIMEOUT("Gemini не ответил вовремя. Проверь соединение сервера с Gemini."),
+        NETWORK_ERROR("Серверу не удалось связаться с Gemini. Проверь его сетевой маршрут."),
         ATTACHMENT_FAILED("Gemini не смог прочитать проверочный файл. Проверь загрузку файлов в веб-чате.");
 
         final String hint;
@@ -201,14 +204,19 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
             if (python == null || python.isBlank()) python = java.io.File.separatorChar == '\\' ? "python" : "python3";
             var command = new ArrayList<>(List.of(python, script.toString(), directory.getParent().resolve("python").toString()));
             if (refresh) command.add("refresh");
-            var process = new ProcessBuilder(command)
-                    .directory(request.toFile()).redirectOutput(result.toFile()).redirectError(ProcessBuilder.Redirect.DISCARD).start();
+            Process process;
+            try {
+                process = new ProcessBuilder(command).directory(request.toFile())
+                        .redirectOutput(result.toFile()).redirectError(ProcessBuilder.Redirect.DISCARD).start();
+            } catch (IOException failure) {
+                throw new SessionFailure(SessionIssue.DEPENDENCY_UNAVAILABLE);
+            }
             try {
                 try (var stdin = process.getOutputStream()) {
                     stdin.write(cookies.json().toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
                 }
                 if (prompt != null) process.waitFor();
-                else if (!process.waitFor(70, TimeUnit.SECONDS)) throw new IOException("Gemini authentication check timed out");
+                else if (!process.waitFor(70, TimeUnit.SECONDS)) throw new SessionFailure(SessionIssue.NETWORK_TIMEOUT);
                 if (process.exitValue() != 0 || Files.size(result) > MAX_REPLY) throw new IOException("Gemini web worker failed");
                 var reply = ScriptJson.parse(Files.readString(result));
                 if (reply.has("session_error")) {
