@@ -105,7 +105,7 @@ public abstract class ObserverPacketMixin {
         // Fabric has already admitted the interaction. An Academy click consumes its own packet before this call.
         var level = player.level();
         var stack = player.getItemInHand(hand);
-        var result = original.call(player,target,hand,hit);
+        var result = LbcUseInteractions.nativeEntityItem(player, hand, stack, () -> original.call(player,target,hand,hit));
         if(result==InteractionResult.PASS && player.level()==level && target.level()==level && player.getItemInHand(hand)==stack)
             LbcUseInteractions.rememberEntityPass(player,hand,target,stack);
         return result;
@@ -117,7 +117,7 @@ public abstract class ObserverPacketMixin {
             shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$watch(ServerboundInteractPacket packet, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null && game.items().actionsBlocked(player)) { ci.cancel(); return; }
+        if (LbcUseInteractions.holdingOffhandShield(player) || game != null && game.items().actionsBlocked(player)) { ci.cancel(); return; }
         if (game == null || !game.isObserver(player)) return;
         var target = player.level().getEntityOrPart(packet.entityId());
         if (target != null && player.isWithinEntityInteractionRange(target.getBoundingBox(), 3.0)

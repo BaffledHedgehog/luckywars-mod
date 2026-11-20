@@ -6,6 +6,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.game.ServerboundClientTickEndPacket;
+import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -176,6 +179,82 @@ public final class SpecialEggChecks {
             try{require(!parent.interact(owner,InteractionHand.MAIN_HAND,Vec3.ZERO).consumesAction()&&stack.getCount()==2&&fresh(before).isEmpty(),"matching-mob path cannot bypass observer admission");}finally{game.spectators().remove(owner);observerState.restore(game);}
             parent.discard();
         }
+
+        void offspringShield() {
+            var main = InteractionHand.MAIN_HAND;
+            var off = InteractionHand.OFF_HAND;
+            var previousMain = owner.getItemInHand(main);
+            var previousOff = owner.getItemInHand(off);
+            var parent = new Zombie(EntityTypes.ZOMBIE, level);
+            parent.setNoAi(true);
+            parent.setNoGravity(true);
+            parent.setPos(origin.add(0, 1, 2));
+            require(level.addFreshEntity(parent), "real visible parent for the entity-click shield probe");
+            owned.add(parent);
+            try (var client = new RegenerationBeltChecks.ScheduledClient(game, owner)) {
+                owner.stopUsingItem();
+                owner.teleportTo(level, origin.x, origin.y + 1, origin.z, Set.of(), 0, 0, true);
+                client.acknowledge();
+                var shield = new ItemStack(Items.SHIELD);
+                owner.setItemInHand(off, shield);
+                var mismatched = egg(LbcSpecialEggs.Kind.SARVATRA_CREEPER, 2);
+                owner.setItemInHand(main, mismatched);
+                var before = current();
+                pressEgg(parent);
+                require(mismatched.getCount() == 2 && fresh(before).isEmpty() && !owner.isUsingItem(),
+                        "mismatched special egg is a real unconsumed entity click without shield handoff");
+
+                var plain = new ItemStack(Items.ZOMBIE_SPAWN_EGG, 2);
+                owner.setItemInHand(main, plain);
+                pressEgg(parent);
+                var ordinary = fresh(before);
+                require(plain.getCount() == 1 && ordinary.size() == 1 && ordinary.getFirst() instanceof Zombie baby
+                                && baby.isBaby() && !LbcSlabDrops.managed(baby) && !owner.isUsingItem(),
+                        "ordinary matching spawn egg keeps its vanilla child and shield priority");
+                ordinary.forEach(Entity::discard);
+
+                var custom = egg(LbcSpecialEggs.Kind.SLAB, 2);
+                owner.setItemInHand(main, custom);
+                require(((eu.pb4.polymer.core.api.item.PolymerItem) custom.getItem())
+                                .getPolymerItem(custom, owner.connection.getPacketContext()) == Items.ZOMBIE_SPAWN_EGG,
+                        "the custom item uses the actual vanilla client spawn-egg entity branch");
+                before = current();
+                pressEgg(parent);
+                var first = fresh(before);
+                require(custom.getCount() == 1 && first.size() == 1 && first.getFirst() instanceof Zombie,
+                        "first real entity packet consumes one special egg and publishes exactly one child");
+                slabPayload((Zombie) first.getFirst());
+                require(owner.isUsingItem() && owner.getUsedItemHand() == off && owner.getUseItem() == shield,
+                        "matching special egg raises the authoritative offhand shield without a client offhand packet");
+
+                before = current();
+                pressEgg(parent);
+                require(custom.getCount() == 1 && fresh(before).isEmpty() && owner.isUsingItem(),
+                        "a queued main-hand entity click cannot consume another egg while the shield is raised");
+                owner.connection.handlePlayerAction(new ServerboundPlayerActionPacket(
+                        ServerboundPlayerActionPacket.Action.RELEASE_USE_ITEM, pad, Direction.UP, 1));
+                require(!owner.isUsingItem(), "actual client release lowers the shield");
+                pressEgg(parent);
+                var second = fresh(before);
+                require(custom.isEmpty() && second.size() == 1 && second.getFirst() instanceof Zombie
+                                && owner.isUsingItem() && owner.getUsedItemHand() == off,
+                        "a fresh press after release consumes the last egg and raises the offhand shield again");
+                slabPayload((Zombie) second.getFirst());
+                first.forEach(Entity::discard);
+                second.forEach(Entity::discard);
+            } finally {
+                owner.stopUsingItem();
+                owner.setItemInHand(main, previousMain);
+                owner.setItemInHand(off, previousOff);
+                parent.discard();
+            }
+        }
+
+        private void pressEgg(Zombie parent) {
+            owner.connection.handleInteract(new ServerboundInteractPacket(
+                    parent.getId(), InteractionHand.MAIN_HAND, new Vec3(0, .5, 0), false));
+            owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
+        }
         void seededReward(Mob actor,String tableId,String rewardLeaf) {
             try(var input=SpecialEggChecks.class.getResourceAsStream("/data/lbc/loot_table/"+tableId.substring(4)+".json")) {
                 require(input!=null,"native chance wrapper resource "+tableId);
@@ -238,7 +317,7 @@ public final class SpecialEggChecks {
         boolean step() {
             int now=game.server().getTickCount();if(now==lastTick)return false;lastTick=now;require(game.playing(),"actual match retained");
             switch(phase){
-                case 0->{presentation();admission();slab();offspring();rewards();fluid();shahid();phase++;}
+                case 0->{presentation();admission();slab();offspring();offspringShield();rewards();fluid();shahid();phase++;}
                 case 1->{require(frozen.stream().allMatch(e->!e.isRemoved()&&e.position().distanceTo(positions.get(e))<1e-8)&&fuses.entrySet().stream().allMatch(e->e.getKey().getFuse()==e.getValue()),"actual world Time Stop retains native carrier, passenger and fuse");if(++wait>=3){game.items().timeStop().end(level);for(var e:frozen)e.discard();var actor=spawn(LbcSpecialEggs.Kind.LOW_VEX,InteractionHand.MAIN_HAND,false);actor.entityTags().removeIf(t->t.startsWith("skywars2.items."));actor.entityTags().add("skywars2.items.stale-fixture");game.items().creatureDrops().unloaded(actor);game.items().creatureDrops().loaded(actor);require(actor.isRemoved(),"old-epoch native egg actor quietly rejected");return true;}}
                 default->throw new IllegalStateException("Unknown special egg phase "+phase);
             }return false;

@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.LbcFakePlayer;
 import me.skywars2.game.LbcSpecialEggs;
+import me.skywars2.game.LbcUseInteractions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,6 +42,12 @@ public abstract class SpecialEggMixin {
                 ServerLevel level,Vec3 pos,ItemStack stack,CallbackInfoReturnable<Optional<Mob>> cir) {
             if(LbcSpecialEggs.matches(stack) && !LbcSpecialEggs.allowed(SkyWars2.game(),player))
                 cir.setReturnValue(Optional.empty());
+        }
+
+        @Inject(method="spawnOffspringFromSpawnEgg",at=@At("RETURN"))
+        private static void skywars2$acceptedEggUse(Player player, Mob parent, EntityType<? extends Mob> type,
+                ServerLevel level, Vec3 pos, ItemStack stack, CallbackInfoReturnable<Optional<Mob>> cir) {
+            if (cir.getReturnValue().isPresent()) LbcUseInteractions.acceptedEntityEgg(player, stack);
         }
 
         // (user) Matching-mob use must apply the same egg payload and author as block/fluid use.

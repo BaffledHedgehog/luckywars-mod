@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import java.util.function.Supplier;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -21,6 +23,7 @@ import net.minecraft.world.phys.HitResult;
 public final class LbcUseInteractions {
     private static final ScopedValue<ServerPlayer> FORCED_ITEM_USE = ScopedValue.newInstance();
     private static final ScopedValue<ServerPlayer> SHIELD_HANDOFF = ScopedValue.newInstance();
+    private static final ScopedValue<EntityEggUse> ENTITY_EGG_USE = ScopedValue.newInstance();
     private LbcUseInteractions(){}
     public interface BlockInput {
         void skywars2$finishBlockInput();
@@ -121,6 +124,35 @@ public final class LbcUseInteractions {
     public static boolean shieldHandoff(ServerPlayer player,InteractionHand hand){
         return hand==InteractionHand.OFF_HAND&&SHIELD_HANDOFF.isBound()&&SHIELD_HANDOFF.get()==player;
     }
+
+    private static final class EntityEggUse {
+        final ServerPlayer player;
+        final ItemStack stack;
+        boolean accepted;
+
+        EntityEggUse(ServerPlayer player, ItemStack stack) {
+            this.player = player;
+            this.stack = stack;
+        }
+    }
+
+    public static InteractionResult nativeEntityItem(ServerPlayer player, InteractionHand hand, ItemStack stack,
+            Supplier<InteractionResult> action) {
+        var item = stack.getItem();
+        if (hand != InteractionHand.MAIN_HAND || !(item instanceof SpawnEggItem) || !(item instanceof PolymerItem)
+                || !usesAsShield(player.getOffhandItem())) return action.get();
+        var use = new EntityEggUse(player, stack);
+        var result = ScopedValue.where(ENTITY_EGG_USE, use).call(action::get);
+        if (use.accepted) shieldAfter(player.gameMode, player, player.level(), hand, result);
+        return result;
+    }
+
+    public static void acceptedEntityEgg(net.minecraft.world.entity.player.Player player, ItemStack stack) {
+        if (!ENTITY_EGG_USE.isBound()) return;
+        var use = ENTITY_EGG_USE.get();
+        if (use.player == player && use.stack == stack) use.accepted = true;
+    }
+
     public static boolean forcedUse(ServerPlayer player){
         return FORCED_ITEM_USE.isBound()&&FORCED_ITEM_USE.get()==player;
     }
