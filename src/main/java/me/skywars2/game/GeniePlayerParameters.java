@@ -91,6 +91,7 @@ public final class GeniePlayerParameters {
                 else mana.reverse(player, value);
             }
             case "nomagic" -> mana.noMagic(player, value);
+            case "shock" -> game.items().electro().setScriptShock(player, actor, value);
             case "scared", "lookback", "twitching" -> {
                 if (value > previous) {
                     int delta = value - previous;

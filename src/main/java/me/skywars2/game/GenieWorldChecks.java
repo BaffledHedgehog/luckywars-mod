@@ -2010,6 +2010,68 @@ final class GenieWorldChecks {
         }
     }
 
+    private static void shockCounter(GameController game, WoolBucketChecks.Fixture base, GenieWorldHost host) {
+        var target = base.other;
+        var electro = game.items().electro();
+        var mana = game.items().mana();
+        var profile = game.players().get(target.getUUID());
+        int previousSkill = profile.lbcSkill;
+        boolean previousSkills = game.config().lbcSkills, previousRanked = game.config().ranked;
+        var uuid = new JsonPrimitive(target.getUUID().toString());
+        var shock = new JsonPrimitive("shock");
+        var set = new JsonPrimitive("set");
+        var progress = target.getAdvancements();
+        var advancement = Objects.requireNonNull(game.server().getAdvancements()
+                .get(net.minecraft.resources.Identifier.parse("lbc:true_advancements/potions/effect_shock")));
+        var originalCriteria = new HashSet<String>();
+        progress.getOrStartProgress(advancement).getCompletedCriteria().forEach(originalCriteria::add);
+        var originalBolts = Set.copyOf(electro.transientSnapshot());
+        var targetPosition = target.position();
+        java.util.function.Supplier<List<LightningBolt>> newBolts = () -> electro.transientSnapshot().stream()
+                .filter(bolt -> !originalBolts.contains(bolt) && bolt.level() == target.level()
+                        && bolt.position().equals(targetPosition)).toList();
+        require(electro.shocks(target) == 0 && mana.hudValue(target, "shock") == 0, "clean native shock target");
+        try {
+            require(complete(host, queued(host, "lbc.change_counter", uuid, shock, set, new JsonPrimitive(2))).getAsInt() == 2
+                            && electro.shocks(target) == 2 && mana.hudValue(target, "shock") == 2
+                            && newBolts.get().isEmpty(), "setting a dormant shock creates exactly two delayed native pulses");
+            for (int tick = 0; tick < 20; tick++) electro.tick();
+            try (var otherHost = new GenieWorldHost(game, target, new ItemStack(Items.STICK), () -> true, () -> 123L)) {
+                require(complete(otherHost, queued(otherHost, "lbc.change_counter", uuid, shock,
+                        new JsonPrimitive("add"), new JsonPrimitive(1))).getAsInt() == 3,
+                        "another script can increment the existing native shock");
+            }
+            for (int tick = 20; tick < 39; tick++) electro.tick();
+            require(newBolts.get().isEmpty()
+                            && complete(host, queued(host, "lbc.counter", uuid, shock)).getAsInt() == 3,
+                    "unchanged native delay: no lightning within the first 39 ticks");
+            electro.tick();
+            var bolts = newBolts.get();
+            require(bolts.size() == 1 && bolts.getFirst().getCause() == base.owner
+                            && electro.shocks(target) == 2 && mana.hudValue(target, "shock") == 2,
+                    "tick 40 publishes one actual bolt with the initial script author and updated pulse count");
+            require(complete(host, queued(host, "lbc.change_counter", uuid, shock, set, new JsonPrimitive(0))).getAsInt() == 0
+                            && electro.shocks(target) == 0 && mana.hudValue(target, "shock") == 0,
+                    "zero clears the scheduled native shock and its scoreboard projection");
+
+            game.config().lbcSkills = true;
+            game.config().ranked = true;
+            profile.lbcSkill = 19;
+            require(LbcParasite.active(target), "native Parasite immunity is active on the control target");
+            require(complete(host, queued(host, "lbc.change_counter", uuid, shock, set, new JsonPrimitive(2))).getAsInt() == 0
+                            && electro.shocks(target) == 0 && mana.hudValue(target, "shock") == 0,
+                    "native shock immunity rejects script application without a ghost score");
+        } finally {
+            game.config().lbcSkills = previousSkills;
+            game.config().ranked = previousRanked;
+            profile.lbcSkill = previousSkill;
+            electro.clearEffects(target);
+            for (var bolt : newBolts.get()) base.discard(bolt);
+            for (var criterion : advancement.value().criteria().keySet())
+                if (!originalCriteria.contains(criterion)) progress.revoke(advancement, criterion);
+        }
+    }
+
     private static void sharedNativeAbilities(GameController game, WoolBucketChecks.Fixture base) {
         var runtime = game.items().tmt();
         var nativeAbilities = runtime.genieAbilities();
@@ -2126,6 +2188,7 @@ final class GenieWorldChecks {
             host.validateCommand("summon minecraft:pig");
             authorityScope(game,base,host,start);
             playerParameters(game,base,host);
+            shockCounter(game,base,host);
             sharedNativeAbilities(game,base);
 
             Vec3 launchSpot=Vec3.atBottomCenterOf(start.offset(6,0,0));

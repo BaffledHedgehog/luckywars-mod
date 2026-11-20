@@ -397,10 +397,30 @@ for(int i=0;i<=2;i++) {
     public void clearEffects(LivingEntity entity) { shocks.remove(entity); game.items().mana().score(entity,"shock").set(0); }
     /** Общий статус shock используется также медитацией жезла телепорта; выбор цели остаётся у способности. */
     public boolean shock(LivingEntity target,ServerPlayer owner,int pulses) {
-        if(pulses<=0 || !target.isAlive() || target.isRemoved()
-                || target instanceof ServerPlayer player && (LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.WITHER))) return false;
+        if(pulses<=0 || !admitsShock(target)) return false;
         var shock=shocks.computeIfAbsent(target,ignored->new Shock(owner,0));
         shock.owner=owner;shock.retainedTarget=MatchOfflinePlayers.retained(target);shock.retainedOwner=MatchOfflinePlayers.retained(owner); shock.pulses+=pulses; game.items().mana().score(target,"shock").set(shock.pulses); return true;
+    }
+
+    private boolean admitsShock(LivingEntity target) {
+        return target.isAlive() && !target.isRemoved()
+                && (!(target instanceof ServerPlayer player)
+                    || !LbcParasite.active(player) && !game.items().magic().rejectEffect(player,MobEffects.WITHER));
+    }
+
+    void setScriptShock(ServerPlayer target, ServerPlayer author, int pulses) {
+        if (pulses <= 0 || !LbcDimensionItems.ordinary(target) || !admitsShock(target)) {
+            clearEffects(target);
+            return;
+        }
+        var active = shocks.get(target);
+        if (active == null) {
+            shock(target, author, pulses);
+        } else {
+            // Changing the counter does not move the already scheduled pulse or its author.
+            active.pulses = pulses;
+            game.items().mana().score(target, "shock").set(pulses);
+        }
     }
 
     /** ПКМ расходует накопленный заряд; обычная атака остаётся нативной. */
