@@ -46,10 +46,11 @@ public final class LbcCombatRewards {
     private static final class Scope {
         final LivingEntity victim;
         final ServerLevel level;
-        final Set<Entity> published=Collections.newSetFromMap(new IdentityHashMap<>());
+        final Set<Entity> admitted=Collections.newSetFromMap(new IdentityHashMap<>());
         final List<Vec3> hakureiDrops=new ArrayList<>();
         final List<LbcCosmetics.DropBody> cosmeticDrops=new ArrayList<>();
-        final List<ItemEntity> drops=new ArrayList<>();
+        Map<ItemEntity, Drop> incomingItems;
+        final List<Drop> drops=new ArrayList<>();
         Scope(LivingEntity victim,ServerLevel level){this.victim=victim;this.level=level;}
     }
     private record Drop(ItemStack stack,Vec3 at) { }
@@ -124,19 +125,48 @@ public final class LbcCombatRewards {
         try{game.items().sauvojenBoss().died(victim);game.items().crocodildo().died(victim);action.run();completed=true;}
         finally{scopes.pop();if(completed)finish(scope);}
     }
-    /** Called only after addFreshEntity returned true; no world or age search. */
-    public void published(ServerLevel level,Entity entity) {
-        if(scopes.isEmpty()||publishingCopies||game.items().hakureiSkill().publishing()||entity.isRemoved()
-                ||!(entity instanceof ItemEntity||entity instanceof ExperienceOrb))return;
+    private Scope admissionScope(ServerLevel level, Entity entity) {
         var scope=scopes.peek();
-        if(scope.level!=level||!scope.published.add(entity))return;
+        return scope != null && scope.level == level && !publishingCopies && !game.items().hakureiSkill().publishing()
+                && !MatchActorCheckpoint.restoring(entity) ? scope : null;
+    }
+
+    /** Capture the admitted quantity separately from any resident that may receive it. */
+    public void captureIncomingItem(ServerLevel level, ItemEntity item) {
+        var scope = admissionScope(level, item);
+        if (scope == null || scope.admitted.contains(item) || item.isRemoved() || item.getItem().isEmpty()) return;
+        var death = deaths.get(scope.victim);
+        // Some boss drops arrive before native die resolves the killer and skill.
+        if (death == null || death.killer == null || death.loot) {
+            if (scope.incomingItems == null) scope.incomingItems = new IdentityHashMap<>();
+            scope.incomingItems.put(item, new Drop(item.getItem().copy(), item.position()));
+        }
+    }
+
+    public void absorbedItem(ServerLevel level, ItemEntity item) {
+        var scope = admissionScope(level, item);
+        if (scope == null || scope.incomingItems == null || !scope.admitted.add(item)) return;
+        recordItem(scope, item);
+    }
+
+    private static void recordItem(Scope scope, ItemEntity item) {
+        if (scope.incomingItems == null) return;
+        var drop = scope.incomingItems.remove(item);
+        if (drop != null) scope.drops.add(drop);
+    }
+
+    /** Called only after addFreshEntity returned true for an actual world body. */
+    public void published(ServerLevel level,Entity entity) {
+        if(entity.isRemoved()||!(entity instanceof ItemEntity||entity instanceof ExperienceOrb))return;
+        var scope=admissionScope(level,entity);
+        if(scope==null||!scope.admitted.add(entity))return;
         // Count an actual admitted body once, even if it is merged later in the same death.
         // Core/vanilla XP absorbed before publication has no new body and contributes zero.
         scope.hakureiDrops.add(entity.position());
         var death=deaths.get(scope.victim);
         if(death!=null&&death.cosmetic!=null)
             scope.cosmeticDrops.add(new LbcCosmetics.DropBody(entity.getUUID(),entity instanceof ExperienceOrb,entity instanceof ItemEntity item&&item.getAge()>0?1:0,entity.position()));
-        if(entity instanceof ItemEntity item)scope.drops.add(item);
+        if(entity instanceof ItemEntity item)recordItem(scope,item);
     }
     private void finish(Scope scope) {
         var death=deaths.get(scope.victim);
@@ -147,12 +177,8 @@ public final class LbcCombatRewards {
         if(owner==null)return;
         if(death.hakurei)for(var at:scope.hakureiDrops)game.items().hakureiSkill().reward(owner,scope.level,at,1);
         game.items().cosmetics().killed(death.cosmetic,List.copyOf(scope.cosmeticDrops));
-        if(!death.loot)return;
-        var drops=new ArrayList<Drop>();
-        for(var entity:scope.drops)if(!entity.isRemoved()&&!entity.getItem().isEmpty())
-            drops.add(new Drop(entity.getItem().copy(),entity.position()));
-        if(drops.isEmpty())return;
-        var reward=new Reward(death.killer,death.epoch,scope.level,false,Map.of(),List.copyOf(drops));
+        if(!death.loot||scope.drops.isEmpty())return;
+        var reward=new Reward(death.killer,death.epoch,scope.level,false,Map.of(),List.copyOf(scope.drops));
         if(paused(owner))pending.add(reward);else apply(reward,owner);
     }
     private boolean paused(ServerPlayer owner) {

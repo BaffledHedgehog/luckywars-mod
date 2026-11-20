@@ -732,6 +732,7 @@ public final class GameChecks {
                                 case "homing-turn" -> { HomingTurnChecks.run(game); return; }
                                 case "combat-logout" -> { CombatLogoutChecks.run(game); return; }
                                 case "combat-reward-skills" -> { CombatRewardSkillChecks.run(game); return; }
+                                case "combat-reward-merged-loot" -> { CombatRewardSkillChecks.runMergedLoot(game); return; }
                                 case "machinegun-skill" -> { CombatRewardSkillChecks.runMachinegun(game); return; }
                                 case "combat-reward-player-death" -> { CombatRewardSkillChecks.runPlayerDeath(game); return; }
                                 case "contained-vip-respawn" -> { ContainedSkillChecks.runVipDeath(game); return; }

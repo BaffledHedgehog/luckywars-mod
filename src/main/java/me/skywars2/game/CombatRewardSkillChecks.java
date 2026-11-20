@@ -8,8 +8,10 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
@@ -38,6 +40,28 @@ public final class CombatRewardSkillChecks {
     private static void restoreAttackers(ServerPlayer p,Map<Field,Object> image){try{for(var entry:image.entrySet())entry.getKey().set(p,entry.getValue());}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     public static void run(GameController game){try(var f=new Fixture(game)){f.initialize();f.menu();f.gains();f.absorption();f.nativeMobKills();f.nestedLoot();f.suppression();}SkyWars2.LOGGER.info("[check] PASS combat-reward-skills (source menus, all26 base gains, positive native donor surplus, real credited mob death and exact published stacks)");}
 
+    public static void runMergedLoot(GameController game){
+        try(var fixture=new Fixture(game)){
+            fixture.initialize();
+            var ordinary=fixture.seededLootDeath(false,false,false);
+            require(ordinary.equals(new CowLoot(2,1)),"fixed-seed vanilla cow table really rolls beef2/leather1: "+ordinary);
+            require(fixture.seededLootDeath(false,true,false).equals(ordinary),"unskilled prepublication merge credits the original quantities once");
+            var skilled=fixture.seededLootDeath(true,true,false);
+            require(skilled.equals(ordinary.doubled()),"skill18 live prepublication merge delta: actual="+skilled+" expected="+ordinary.doubled());
+            require(fixture.seededLootDeath(true,false,false).equals(ordinary.doubled()),"skill18 duplicates ordinary published loot exactly once");
+            var sameDeath=fixture.seededLootDeath(false,false,true);
+            require(sameDeath.equals(new CowLoot(5,1)),"normal native beef2 and extra native beef3 produce one total of five: "+sameDeath);
+            var sameDeathSkilled=fixture.seededLootDeath(true,false,true);
+            require(sameDeathSkilled.equals(sameDeath.doubled()),"skill18 copies both original contributions once even after one mutates the published body: actual="
+                    +sameDeathSkilled+" expected="+sameDeath.doubled());
+        }
+        SkyWars2.LOGGER.info("[check] PASS combat-reward-merged-loot (native fixed-seed Cow deaths, old compatible bodies, exact skill/no-skill quantities, ordinary publication, two contributions in one death and recursion guard)");
+    }
+
+    private record CowLoot(int beef,int leather){
+        CowLoot doubled(){return new CowLoot(beef*2,leather*2);}
+    }
+
     private interface Staged extends AutoCloseable { boolean step(); String group(); void close(); }
     private static Staged running;
     public static void runMachinegun(GameController game){require(running==null,"exclusive staged native check");var f=new BowFixture(game);running=f;try{f.initialize();f.begin();}catch(RuntimeException|Error error){running=null;f.close();throw error;}}
@@ -62,11 +86,176 @@ public final class CombatRewardSkillChecks {
         void absorption(){resetBases(owner);resetBases(other);var defaults=bases(owner);for(var e:defaults.entrySet()){var a=other.getAttribute(e.getKey());if(DefaultAttributes.getSupplier(EntityTypes.PLAYER).hasAttribute(e.getKey()))a.setBaseValue(e.getValue()+.125);}other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(game.config().health+12);other.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(.5);other.getAttribute(Attributes.LUCK).setBaseValue(-4);other.getAttribute(Attributes.ARMOR).addTransientModifier(new AttributeModifier(Identifier.parse("skywars2:combat_reward_fixture"),500,AttributeModifier.Operation.ADD_VALUE));game.items().combatRewards().absorb(owner,other,false);near(owner.getAttributeBaseValue(Attributes.MAX_HEALTH),game.config().health+12,"HP surplus over configured match baseline");near(owner.getAttributeBaseValue(Attributes.MOVEMENT_SPEED),.5,"full positive movement surplus");near(owner.getAttributeBaseValue(Attributes.ARMOR),.125,"native modifiers excluded from donation");near(owner.getAttributeBaseValue(Attributes.LUCK),defaults.get(Attributes.LUCK),"negative donor base does not transfer");near(owner.getAttributeBaseValue(Attributes.ATTACK_SPEED),defaults.get(Attributes.ATTACK_SPEED),"explicit helper attack speed exclusion");for(var e:defaults.entrySet())if(!Set.of(Attributes.MAX_HEALTH,Attributes.MOVEMENT_SPEED,Attributes.LUCK,Attributes.ATTACK_SPEED).contains(e.getKey())&&DefaultAttributes.getSupplier(EntityTypes.PLAYER).hasAttribute(e.getKey()))near(owner.getAttributeBaseValue(e.getKey()),e.getValue()+.125,"all positive default-backed base surplus "+e.getKey());resetBases(owner);game.items().combatRewards().absorb(owner,other,true);near(owner.getAttributeBaseValue(Attributes.ATTACK_SPEED),defaults.get(Attributes.ATTACK_SPEED)+.125,"author includes attack speed surplus");resetBases(owner);resetBases(other);game.config().pvpMode=1;other.getAttribute(Attributes.ATTACK_SPEED).setBaseValue(100000);game.items().combatRewards().absorb(owner,other,true);near(owner.getAttributeBaseValue(Attributes.ATTACK_SPEED),defaults.get(Attributes.ATTACK_SPEED),"PvP1 default has no donor surplus");other.getAttribute(Attributes.ATTACK_SPEED).setBaseValue(100003);game.items().combatRewards().absorb(owner,other,true);near(owner.getAttributeBaseValue(Attributes.ATTACK_SPEED),defaults.get(Attributes.ATTACK_SPEED)+3,"PvP1 transfers only positive surplus over100000");game.config().pvpMode=0;resetBases(owner);resetBases(other);}
         Cow cow(){var c=new Cow(EntityTypes.COW,level);c.setPos(at.add(2,0,0));c.setNoAi(true);c.setNoGravity(true);require(level.addFreshEntity(c),"native victim cow");actors.add(c);return c;}
         List<ItemEntity> items(){var out=new ArrayList<ItemEntity>();for(var e:level.getAllEntities())if(e instanceof ItemEntity item&&!item.isRemoved())out.add(item);return out;}
-        void nativeMobKills(){select(16);resetBases(owner);var before=bases(owner);var victim=cow();require(victim.hurtServer(level,victim.damageSources().playerAttack(owner),1000)&&victim.isDeadOrDying()&&victim.getKillCredit()==owner,"genuine native player credited mob kill");require(bases(owner).entrySet().stream().filter(e->!Objects.equals(e.getValue(),before.get(e.getKey()))).count()==1,"one positive26 native reward per actual mob kill");resetBases(owner);select(18);var fresh=new ItemEntity(level,at.x+4,at.y,at.z,new ItemStack(Items.EMERALD,11));fresh.setNoPickUpDelay();require(level.addFreshEntity(fresh),"unrelated newborn native item");actors.add(fresh);var originals=new ArrayList<ItemStack>();var existing=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());existing.addAll(items());owner.entityTags().add("time_stopped");victim=cow();require(victim.hurtServer(level,victim.damageSources().playerAttack(owner),1000)&&victim.getKillCredit()==owner,"actual attributed death owns native loot scope");for(var item:items())if(!existing.contains(item)){originals.add(item.getItem().copy());actors.add(item);}require(!originals.isEmpty(),"actual cow loot table produced stacks");int pending=game.items().combatRewards().pendingCount();require(pending==1,"one paused victim batch captures all successful original publications");owner.entityTags().remove("time_stopped");game.items().combatRewards().tick();var copies=new ArrayList<ItemStack>();for(var item:items())if(!existing.contains(item)&&!actors.contains(item)){copies.add(item.getItem().copy());actors.add(item);}require(copies.size()==originals.size(),"one exact copy per original native death drop");for(var stack:originals){int match=-1;for(int i=0;i<copies.size();i++)if(ItemStack.matches(stack,copies.get(i))){match=i;break;}require(match>=0,"copy retains actual rolled stack count/components");copies.remove(match);}require(fresh.getItem().getCount()==11&&game.items().combatRewards().pendingCount()==0,"unrelated newborn excluded and duplicate children never recaptured");int count=items().size();game.items().combatRewards().tick();require(items().size()==count,"second worker tick cannot copy children again");}
+
+        private ItemEntity oldLoot(Vec3 position,ItemStack stack){
+            var item=new ItemEntity(level,position.x,position.y,position.z,stack);
+            item.setDefaultPickUpDelay();
+            try { field(item,"age").setInt(item,120); }
+            catch(IllegalAccessException error){throw new IllegalStateException("Set real old item age",error);}
+            actors.add(item);
+            require(level.addFreshEntity(item)&&level.getEntity(item.getUUID())==item&&item.getAge()==120,
+                    "already-published native resident stack with original age120: "+stack);
+            return item;
+        }
+
+        private List<ItemEntity> nearbyCowLoot(Vec3 position){
+            var beef=new ItemStack(Items.BEEF);var leather=new ItemStack(Items.LEATHER);
+            return items().stream().filter(item->item.position().distanceToSqr(position)<4*4
+                    &&(ItemStack.isSameItemSameComponents(item.getItem(),beef)
+                    ||ItemStack.isSameItemSameComponents(item.getItem(),leather))).toList();
+        }
+
+        private CowLoot cowLoot(Vec3 position){
+            int beef=0,leather=0;
+            for(var item:nearbyCowLoot(position)){
+                if(item.getItem().is(Items.BEEF))beef+=item.getItem().getCount();
+                else leather+=item.getItem().getCount();
+            }
+            return new CowLoot(beef,leather);
+        }
+
+        CowLoot seededLootDeath(boolean skilled,boolean merge,boolean secondBeefDrop){
+            game.players().get(owner.getUUID()).lbcSkill=skilled?18:0;
+            require(game.lbc().hasSkill(owner,18)==skilled,"live skill18 mode matches the requested control");
+            require(!game.items().timeStop().stopped(level)&&game.items().combatRewards().pendingCount()==0,
+                    "native merging stays active and there is no pending unrelated reward");
+            var position=at.add(2,0,0);
+            require(nearbyCowLoot(position).isEmpty(),"exclusive native old-stack and publication scene");
+            ItemEntity beef=null,leather=null,incompatible=null;
+            var victim=new Cow(EntityTypes.COW,level){
+                @Override public long getLootTableSeed(){return 61983L;}
+
+                @Override protected void dropCustomDeathLoot(ServerLevel world,DamageSource source,boolean killedByPlayer){
+                    super.dropCustomDeathLoot(world,source,killedByPlayer);
+                    if(!secondBeefDrop)return;
+                    var first=nearbyCowLoot(position).stream().filter(item->item.getItem().is(Items.BEEF)).findFirst().orElseThrow();
+                    require(world.getEntity(first.getUUID())==first&&first.getItem().getCount()==2,
+                            "the first beef2 body really published earlier in this native death");
+                    var incoming=spawnAtLocation(world,new ItemStack(Items.BEEF,3));
+                    require(incoming!=null&&incoming.isRemoved()&&world.getEntity(incoming.getUUID())==null
+                            &&world.getEntity(first.getUUID())==first&&first.getItem().getCount()==5,
+                            "the real second beef3 drop merges before publication into the first body's existing beef2");
+                }
+            };
+            victim.setPos(position);victim.setNoAi(true);victim.setNoGravity(true);actors.add(victim);
+            try {
+                if(merge){
+                    beef=oldLoot(position,new ItemStack(Items.BEEF,11));
+                    leather=oldLoot(position,new ItemStack(Items.LEATHER,17));
+                    var named=new ItemStack(Items.BEEF,9);
+                    named.set(DataComponents.CUSTOM_NAME,Component.literal("Independent cow-loot fixture control"));
+                    incompatible=oldLoot(position,named);
+                }
+                require(level.addFreshEntity(victim),"native fixed-seed cow before genuine death");
+                if(skilled&&!merge)owner.entityTags().add("time_stopped");
+                require(victim.hurtServer(level,victim.damageSources().playerAttack(owner),1000)
+                        &&victim.isDeadOrDying()&&victim.getKillCredit()==owner,"actual credited lethal cow hit runs native loot table");
+                if(skilled&&!merge){
+                    var originals=nearbyCowLoot(position);
+                    require(originals.size()==2&&originals.stream().allMatch(item->level.getEntity(item.getUUID())==item)
+                            &&cowLoot(position).equals(new CowLoot(secondBeefDrop?5:2,1))&&game.items().combatRewards().pendingCount()==1,
+                            "actual clean publication registers the two original bodies before the skill copies");
+                    owner.entityTags().remove("time_stopped");
+                    game.items().combatRewards().tick();
+                }
+
+                var result=cowLoot(position);
+                if(merge){
+                    var bodies=nearbyCowLoot(position);
+                    require(bodies.size()==2&&bodies.contains(beef)&&bodies.contains(leather)
+                            &&level.getEntity(beef.getUUID())==beef&&level.getEntity(leather.getUUID())==leather,
+                            "original native bodies absorb the compatible drops before entity publication");
+                    require(incompatible.getItem().getCount()==9&&incompatible.getAge()==120,
+                            "older incompatible beef body is left untouched by both merge and reward");
+                }
+                for(int tick=0;tick<2;tick++)game.items().combatRewards().tick();
+                require(cowLoot(position).equals(result)&&game.items().combatRewards().pendingCount()==0,
+                        "published or absorbed skill copies do not enqueue or recursively copy themselves");
+                return merge?new CowLoot(result.beef()-11,result.leather()-17):result;
+            } finally {
+                owner.entityTags().remove("time_stopped");
+                for(var item:nearbyCowLoot(position)){actors.add(item);item.discard();}
+                if(incompatible!=null&&!incompatible.isRemoved())incompatible.discard();
+                if(!victim.isRemoved())victim.discard();
+            }
+        }
+        private Cow seededRewardCow(long seed){
+            var body=new Cow(EntityTypes.COW,level){@Override public long getLootTableSeed(){return seed;}};
+            body.setPos(at.add(2,0,0));body.setNoAi(true);body.setNoGravity(true);
+            require(level.addFreshEntity(body),"real fixed-seed cow for this native reward case");actors.add(body);
+            return body;
+        }
+
+        private void killRewardCow(Cow victim,String phase){
+            require(victim.hurtServer(level,victim.damageSources().playerAttack(owner),1000)
+                    &&victim.isDeadOrDying()&&victim.getKillCredit()==owner,"actual credited native death: "+phase);
+        }
+
+        private CowLoot rewardLoot(){
+            var position=at.add(2,0,0);
+            for(var item:items())if(item.position().distanceToSqr(position)<4*4){
+                var stack=item.getItem();
+                if(stack.is(Items.BEEF)||stack.is(Items.LEATHER))
+                    require(ItemStack.isSameItemSameComponents(stack,new ItemStack(stack.getItem())),
+                            "vanilla native cow-loot components remain exact: "+stack);
+            }
+            return cowLoot(position);
+        }
+
+        private void requireRewardIncrease(CowLoot before,CowLoot expected,String phase){
+            var after=rewardLoot();var actual=new CowLoot(after.beef()-before.beef(),after.leather()-before.leather());
+            require(actual.equals(expected),phase+": actual="+actual+" expected="+expected);
+        }
+
+        void nativeMobKills(){
+            select(16);resetBases(owner);var before=bases(owner);
+            killRewardCow(seededRewardCow(61983L),"ordinary Soul Hunter");
+            require(bases(owner).entrySet().stream().filter(e->!Objects.equals(e.getValue(),before.get(e.getKey()))).count()==1,
+                    "one positive26 native reward per actual mob kill");
+
+            resetBases(owner);select(18);
+            var emeralds=new ItemStack(Items.EMERALD,11);
+            emeralds.set(DataComponents.CUSTOM_NAME,Component.literal("Unrelated native newborn control"));
+            var fresh=new ItemEntity(level,at.x+4,at.y,at.z,emeralds.copy());
+            fresh.setNoPickUpDelay();require(level.addFreshEntity(fresh),"unrelated newborn native item");actors.add(fresh);
+            var beforeLoot=rewardLoot();owner.entityTags().add("time_stopped");
+            try {
+                killRewardCow(seededRewardCow(61983L),"one paused skill18 batch");
+                requireRewardIncrease(beforeLoot,new CowLoot(2,1),"original native quantities are admitted while the owner is paused");
+                require(game.items().combatRewards().pendingCount()==1,"one paused victim batch captures all successful original drops");
+            } finally { owner.entityTags().remove("time_stopped"); }
+            game.items().combatRewards().tick();
+            requireRewardIncrease(beforeLoot,new CowLoot(4,2),"one exact component-matching copy per native death drop");
+            require(level.getEntity(fresh.getUUID())==fresh&&ItemStack.matches(fresh.getItem(),emeralds)&&fresh.getAge()==0
+                    &&game.items().combatRewards().pendingCount()==0,"unrelated newborn excluded and duplicate children never recaptured");
+            game.items().combatRewards().tick();
+            requireRewardIncrease(beforeLoot,new CowLoot(4,2),"second worker tick cannot copy children again");
+        }
         void suppression(){for(String tag:List.of("stopper_magic","stopper")){jammer=new Marker(EntityTypes.MARKER,level);jammer.setPos(owner.position());jammer.entityTags().add(tag);require(level.addFreshEntity(jammer),"native suppression field");actors.add(jammer);game.items().magic().loaded(jammer);try{require(tag.equals("stopper_magic")?game.items().magic().suppressed(owner):game.items().magic().mechanismSuppressed(owner),"field positive control");select(16);var before=bases(owner);var victim=cow();require(victim.hurtServer(level,victim.damageSources().playerAttack(owner),1000),"native kill under jammer");require(!before.equals(bases(owner)),"skill16 entirely unjammed");unjammedLoot();}finally{unjam();}}other.getInventory().setItem(9,new ItemStack(LbcMagic.MYSTICAL_ARTIFACT));game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();try{require(game.items().magic().suppressed(owner),"real strong artifact positive control");select(16);var before=bases(owner);var victim=cow();require(victim.hurtServer(level,victim.damageSources().playerAttack(owner),1000)&&!before.equals(bases(owner)),"skill16 strong artifact independent");unjammedLoot();}finally{other.getInventory().clearContent();game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();}}
         void unjam(){if(jammer!=null){game.items().magic().unloaded(jammer);jammer.discard();jammer=null;}}
-        void nestedLoot(){select(18);var outer=cow();var inner=cow();var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());before.addAll(items());owner.entityTags().add("time_stopped");try{game.items().combatRewards().withDeathLoot(outer,level,outer.damageSources().playerAttack(owner),()->{require(outer.hurtServer(level,outer.damageSources().playerAttack(owner),1000),"native outer scoped death");require(inner.hurtServer(level,inner.damageSources().playerAttack(owner),1000),"native nested scoped death");});require(game.items().combatRewards().pendingCount()==2,"nested native deaths retain separate owner batches");var originals=new ArrayList<ItemStack>();for(var item:items())if(!before.contains(item)){originals.add(item.getItem().copy());actors.add(item);}owner.entityTags().remove("time_stopped");game.items().combatRewards().tick();var copies=new ArrayList<ItemStack>();for(var item:items())if(!before.contains(item)&&!actors.contains(item)){copies.add(item.getItem().copy());actors.add(item);}require(copies.size()==originals.size(),"nested victims duplicate originals once without cross capture");for(var source:originals){int match=-1;for(int i=0;i<copies.size();i++)if(ItemStack.matches(source,copies.get(i))){match=i;break;}require(match>=0,"nested native stack copied exactly");copies.remove(match);}}finally{owner.entityTags().remove("time_stopped");}}
-        void unjammedLoot(){select(18);var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());before.addAll(items());var victim=cow();require(victim.hurtServer(level,victim.damageSources().playerAttack(owner),1000),"native loot kill in suppression field");var drops=new ArrayList<ItemStack>();for(var item:items())if(!before.contains(item)){drops.add(item.getItem().copy());actors.add(item);}require(!drops.isEmpty()&&drops.size()%2==0&&game.items().combatRewards().pendingCount()==0,"unpaused native death copies are immediate and entirely unjammed");while(!drops.isEmpty()){var source=drops.removeFirst();int match=-1;for(int i=0;i<drops.size();i++)if(ItemStack.matches(source,drops.get(i))){match=i;break;}require(match>=0,"immediate native loot has one identical stack partner");drops.remove(match);}}
+        void nestedLoot(){
+            select(18);var outer=seededRewardCow(61983L);var inner=seededRewardCow(3L);var before=rewardLoot();
+            owner.entityTags().add("time_stopped");
+            try {
+                game.items().combatRewards().withDeathLoot(outer,level,outer.damageSources().playerAttack(owner),()->{
+                    killRewardCow(outer,"native outer scoped death");
+                    requireRewardIncrease(before,new CowLoot(2,1),"outer victim original amounts before the inner death");
+                    killRewardCow(inner,"native nested scoped death");
+                });
+                require(game.items().combatRewards().pendingCount()==2,"nested native deaths retain separate owner batches");
+                requireRewardIncrease(before,new CowLoot(5,3),"both original native rolls remain distinct contributions");
+            } finally { owner.entityTags().remove("time_stopped"); }
+            game.items().combatRewards().tick();
+            requireRewardIncrease(before,new CowLoot(10,6),"nested victims duplicate their exact amounts once without cross capture");
+            require(game.items().combatRewards().pendingCount()==0,"both nested deferred batches settle");
+        }
+
+        void unjammedLoot(){
+            select(18);var before=rewardLoot();
+            killRewardCow(seededRewardCow(61983L),"native loot during suppression");
+            requireRewardIncrease(before,new CowLoot(4,2),"immediate native loot has one exact skill copy during suppression");
+            require(game.items().combatRewards().pendingCount()==0,"unpaused native death copies are immediate and entirely unjammed");
+        }
         @Override public void close(){if(closed)return;closed=true;Throwable failure=null;for(Runnable action:List.<Runnable>of(this::unjam,()->{owner.entityTags().remove("time_stopped");owner.stopUsingItem();other.stopUsingItem();game.items().combatRewards().clear();},()->{for(var e:level.getAllEntities())if(!originalEntities.contains(e)&&(e instanceof ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb)&&at!=null&&e.position().distanceToSqr(at)<16*16)actors.add(e);for(var e:actors){if(e instanceof net.minecraft.world.entity.LivingEntity living)game.items().indirectKills().clear(living);if(e instanceof Marker)game.items().magic().unloaded(e);e.discard();}},()->{if(client!=null)client.close();if(audience!=null)audience.close();},()->terrain.forEach((p,s)->game.maps().restoreSnapshot(level,p,s)),()->{game.config().pvpMode=pvpMode;game.config().lbcSkills=skills;game.config().ranked=ranked;saved.restore(game);otherSaved.restore(game);},()->{saved.restoreAttributes();otherSaved.restoreAttributes();saved.restoreUse();otherSaved.restoreUse();owner.damageCooldownTime=cooldown;other.damageCooldownTime=otherCooldown;restoreAttackers(owner,ownerAttackers);restoreAttackers(other,otherAttackers);},()->{game.items().magic().inventoryChanged(owner);game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();game.items().armorSets().inventoryChanged(owner);game.items().armorSets().inventoryChanged(other);game.server().tickRateManager().setFrozen(frozen);game.players().save();}))try{action.run();}catch(Throwable e){if(failure==null)failure=e;else failure.addSuppressed(e);}if(failure!=null)throw new IllegalStateException("Combat reward fixture cleanup",failure);}
     }
     private static final class BowFixture extends Fixture implements Staged {
@@ -216,7 +405,7 @@ public final class CombatRewardSkillChecks {
     }
 
     private static final class PlayerDeathFixture extends Fixture implements Staged {
-        final GameController.Checkpoint core;final int killed,killedBy;ServerPlayer retired;int stage,started,lives;List<ItemStack> originals;Set<Entity> previous;
+        final GameController.Checkpoint core;final int killed,killedBy;ServerPlayer retired;int stage,started,lives;Set<Entity> previous;
         PlayerDeathFixture(GameController game){super(game);require(!game.developerMode(),"ordinary finite player death fixture");core=game.checkpointCore();killed=owner.getStats().getValue(net.minecraft.stats.Stats.ENTITY_KILLED.get(EntityTypes.PLAYER));killedBy=other.getStats().getValue(net.minecraft.stats.Stats.ENTITY_KILLED_BY.get(EntityTypes.PLAYER));}
         public String group(){return "combat-reward-player-death";}
         void begin(){
@@ -231,12 +420,31 @@ public final class CombatRewardSkillChecks {
             }
             previous=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(previous::add);retired=other;owner.entityTags().add("time_stopped");other.setInvulnerableTime(0);other.damageCooldownTime=0;
             require(other.hurtServer(level,other.damageSources().playerAttack(owner),1000)&&other.isDeadOrDying()&&game.awaitingRespawn(other.getUUID()),"actual foreign-player native death");
-            originals=new ArrayList<>();for(var drop:items())if(!previous.contains(drop)){originals.add(drop.getItem().copy());actors.add(drop);}
+            var originals=deathLoot();
             exactStacks(expected,originals,"one complete native inventory/armor/main-hand/offhand set");
             require(game.items().combatRewards().pendingCount()==1,"one paused native player death reward batch");
-            owner.entityTags().remove("time_stopped");game.items().combatRewards().tick();var copies=new ArrayList<ItemStack>();for(var drop:items())if(!previous.contains(drop)&&!actors.contains(drop)){copies.add(drop.getItem().copy());actors.add(drop);}
-            exactStacks(expected,copies,"one complete additional set with identical counts, damage and components");
-            int count=items().size();game.items().combatRewards().tick();require(items().size()==count&&game.items().combatRewards().pendingCount()==0,"two full sets remain exactly two after the next reward tick");stage=0;
+            owner.entityTags().remove("time_stopped");game.items().combatRewards().tick();
+            exactAdditionalSet(expected,originals,"one complete additional set with identical counts, damage and components");
+            game.items().combatRewards().tick();
+            exactAdditionalSet(expected,originals,"two complete sets remain after the next reward tick");
+            require(game.items().combatRewards().pendingCount()==0,"no additional native player death reward was enqueued");stage=0;
+        }
+        List<ItemStack> deathLoot(){
+            var actual=new ArrayList<ItemStack>();
+            for(var drop:items())if(!previous.contains(drop)){actual.add(drop.getItem().copy());actors.add(drop);}
+            return actual;
+        }
+        void exactAdditionalSet(List<ItemStack> expected,List<ItemStack> originals,String why){
+            var actual=deathLoot();
+            for(var stack:actual)require(originals.stream().anyMatch(original->ItemStack.isSameItemSameComponents(original,stack)),
+                    why+" unexpected native drop components: "+stack);
+            var delta=new ArrayList<ItemStack>();
+            for(var original:originals){
+                int total=actual.stream().filter(stack->ItemStack.isSameItemSameComponents(original,stack)).mapToInt(ItemStack::getCount).sum();
+                require(total>original.getCount(),why+" no extra items matching "+original);
+                delta.add(original.copyWithCount(total-original.getCount()));
+            }
+            exactStacks(expected,delta,why);
         }
         void exactStacks(List<ItemStack> expected,List<ItemStack> actual,String why){
             var unmatched=new ArrayList<>(actual);require(unmatched.size()==expected.size(),why+" stack count: "+actual);
