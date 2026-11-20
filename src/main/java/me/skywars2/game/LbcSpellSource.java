@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.*;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -234,10 +235,16 @@ public final class LbcSpellSource {
     public void unloaded(Entity entity) {
         // Native TNT discards itself before the synchronous blast and chain callbacks.
         // The normal service tick prunes removed sources after their last native use.
-        if (entity.getRemovalReason() == Entity.RemovalReason.DISCARDED
+        var reason=entity.getRemovalReason();
+        if (reason == Entity.RemovalReason.DISCARDED
                 && entity instanceof TntOwnerAccess tnt && tnt.skywars2$detonating()) return;
-        var source=sources.remove(entity);
-        if(source!=null && entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)
+        var source=sources.get(entity);
+        if(source==null)return;
+        // A real native visibility transition leaves the registered body and its policy in place.
+        if(reason==null&&entity.level() instanceof ServerLevel level&&level.getEntity(entity.getUUID())==null
+                &&((ActorCheckpointAccess.LevelEntities)level).skywars2$manager().isLoaded(entity.getUUID()))return;
+        sources.remove(entity);
+        if(reason==Entity.RemovalReason.UNLOADED_TO_CHUNK)
             unloaded.put(entity.getUUID(),source);
     }
     public void tick(){

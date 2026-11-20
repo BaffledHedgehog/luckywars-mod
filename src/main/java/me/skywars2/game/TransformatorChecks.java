@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -55,6 +56,10 @@ public final class TransformatorChecks {
         final int skill, trinket, trinketSlot;
         final int[] trinkets;
         int lastTick, warmTicks, phase;
+        int visibilityPhaseStarted;
+        Vec3 bodyPosition,textPosition;
+        LbcTransformator.View visiblePair;
+        LbcSpellSource.Source visibleAuthority;
         boolean retain;
         Zombie actor;
         Cow target, protectedTarget;
@@ -176,13 +181,18 @@ public final class TransformatorChecks {
             var paused=token(3); require(!game.items().specialDrops().spawn(paused) && paused.getItem().getCount()==3,"frozen acquisition preserves all source units");paused.discard();
             game.items().timeStop().end(level); game.items().wands().tick();
             require(target.getHealth()<1000 && protectedTarget.getHealth()==1000,"production shared segment damages eligible native target and protects nearer service role");
-            require(target.getLastDamageSource()!=null && target.getLastDamageSource().getEntity()==actor
-                    && LbcIndirectKills.playerSource(actor)==owner,"native NPC direct source retains the true thrower"); drain();
+            var hit=target.getLastDamageSource();
+            require(hit!=null&&hit.getDirectEntity()==actor&&hit.getEntity()==actor
+                    &&game.items().transformator().owner(actor)==owner&&LbcIndirectKills.playerSource(actor)==null,
+                    "hostile native ray keeps the physical zombie and separates its stored thrower from combat credit: "+hit);drain();
             var deaths=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(deaths::add);
             protectedTarget.entityTags().remove("magic_academy");protectedTarget.setHealth(.1f);
+            var mobKills=net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS);
+            int creatorKills=owner.getStats().getValue(mobKills);
             burst(actor);game.items().wands().tick();
             require(!protectedTarget.isAlive() && protectedTarget.getLastDamageSource().getEntity()==actor
-                    && protectedTarget.getKillCredit()==owner,"real lethal NPC trace credits the thrower before native death/loot");
+                    &&protectedTarget.getKillCredit()==actor&&protectedTarget.getLastHurtByPlayer()==null
+                    &&owner.getStats().getValue(mobKills)==creatorKills,"lethal hostile trace credits the native zombie without granting the thrower a kill");
             for(var e:level.getAllEntities())if(!deaths.contains(e) && bounds.isInside(e.blockPosition())
                     && (e instanceof ItemEntity || e instanceof ExperienceOrb))owned.add(e);
             drain();
@@ -223,11 +233,13 @@ public final class TransformatorChecks {
                     && game.items().transformator().activeCount()==1,"terminal removes exactly its own actor/text, preserving a nearby concurrent pair");
             var balls=game.items().transformator().attackSnapshot().stream().filter(e->e instanceof LargeFireball).map(e->(LargeFireball)e).toList();
             require(balls.size()==1 && balls.getFirst().getDeltaMovement().equals(new Vec3(0,-10,0))
-                    && balls.getFirst().getOwner()==null && LbcIndirectKills.playerSource(balls.getFirst())==owner
+                    && balls.getFirst().getOwner()==null && LbcIndirectKills.playerSource(balls.getFirst())==null
                     && saved(balls.getFirst(),level).getByteOr("ExplosionPower",(byte)-1)==12
                     && level.getBlockState(actor.blockPosition().below()).is(Blocks.DIRT),"real power12 downward terminal fireball, original NPC owner and dirt support");
             var ball=balls.getFirst();ball.setPos(actor.position().add(0,30,0));double y=ball.getY();ball.tick();
-            require(!ball.isRemoved() && ball.getY()<y && LbcIndirectKills.playerSource(ball)==owner,"actual native fireball flies after terminal NPC removal and retains its author");
+            require(!ball.isRemoved()&&ball.getY()<y&&game.items().transformator().owner(ball)==owner
+                    &&game.items().spellSources().nativeMobSource(ball)==actor&&LbcIndirectKills.playerSource(ball)==null,
+                    "native fireball survives its creator's removal with the hostile NPC cause and no player credit");
             var high=new BlockPos(base.getX(),300,base.getZ());
             for(var p:BlockPos.betweenClosed(high.offset(-3,-3,-3),high.offset(3,3,3)))set(p,Blocks.AIR.defaultBlockState());
             set(high,Blocks.TNT.defaultBlockState());
@@ -238,17 +250,63 @@ public final class TransformatorChecks {
                     .map(e->(net.minecraft.world.entity.item.PrimedTnt)e).toList();
             require(children.size()==1,"actual native explosion primes one bounded TNT child");var child=children.getFirst();
             require(LbcTransformator.managed(child) && child.entityTags().contains(game.items().epoch())
-                    && child.getOwner()==owner && LbcIndirectKills.playerSource(child)==owner,"actual TNT chain inherits managed epoch and native true author");
+                    &&!(child.getOwner() instanceof ServerPlayer)&&game.items().spellSources().nativeMobSource(child)==actor
+                    &&LbcIndirectKills.playerSource(child)==null,"actual native TNT chain keeps managed hostile lineage without borrowing the player");
             int fuse=child.getFuse();game.items().timeStop().begin(level,200);Vec3 at=child.position();level.tickNonPassenger(child);
             require(child.getFuse()==fuse && child.position().equals(at),"Time Stop freezes native inherited TNT movement and fuse");
             game.items().timeStop().end(level);level.tickNonPassenger(child);require(!child.isRemoved() && child.getFuse()==fuse-1,"actual inherited TNT resumes its native fuse");
             child.discard();
             balls.forEach(Entity::discard);
         }
+        boolean registeredHidden(Entity entity){
+            return ((ActorCheckpointAccess.LevelEntities)level).skywars2$manager().isLoaded(entity.getUUID())
+                    &&level.getEntity(entity.getUUID())==null&&entity.getRemovalReason()==null;
+        }
+        void hidePart(Entity entity){
+            require(level.getChunkSource().getChunkNow(144,144)==null,"isolated genuinely cold native column");
+            entity.setPos(new Vec3(2304.5,entity.getY(),2304.5));
+            require(registeredHidden(entity),"native section loses visibility of only the selected pair member");
+            visibilityPhaseStarted=lastTick;
+        }
         boolean step() {
             if(game.server().getTickCount()==lastTick)return false;lastTick=game.server().getTickCount();
             if(phase==0) {if(!warm())return false;presentation();actor.setNoGravity(true);target=cow(actor.position().add(0,.5,1.6),false);protectedTarget=cow(actor.position().add(0,.5,.7),true);game.items().timeStop().begin(level,200);phase=1;return false;}
-            if(phase==1){game.items().timeStop().end(level);combat();terminal();return true;}return false;
+            if(phase==1){
+                game.items().timeStop().end(level);game.items().transformator().tick();
+                visiblePair=game.items().transformator().snapshot().getFirst();
+                require(visiblePair.actor()==actor&&visiblePair.text()!=null&&visiblePair.activeTicks()>0,
+                        "real actor and linked label begin with an active nonzero phase");
+                visibleAuthority=game.items().spellSources().source(actor);
+                require(visibleAuthority!=null&&visibleAuthority.author()==null&&visibleAuthority.unownedMobs()
+                        &&visibleAuthority.nativeEmitter()==actor,"actual loot trap starts with immutable hostile spell authority");
+                bodyPosition=actor.position();textPosition=visiblePair.text().position();
+                hidePart(actor);phase=2;return false;
+            }
+            if(lastTick-visibilityPhaseStarted<2)return false;
+            var service=game.items().transformator();
+            var text=visiblePair.text();
+            if(phase==2){
+                require(registeredHidden(actor)&&level.getEntity(text.getUUID())==text
+                        &&service.snapshot().equals(List.of(visiblePair))&&service.owner(actor)==owner,
+                        "deferred loss of body visibility keeps the same dormant actor and visible label");
+                actor.setPos(bodyPosition);
+                require(level.getEntity(actor.getUUID())==actor,"native body returns without replacement");
+                hidePart(text);phase=3;return false;
+            }
+            if(phase==3){
+                require(registeredHidden(text)&&level.getEntity(actor.getUUID())==actor
+                        &&service.snapshot().equals(List.of(visiblePair))&&service.owner(actor)==owner,
+                        "deferred loss of the linked label keeps both original identities without ticking the encounter");
+                text.setPos(textPosition);
+                require(level.getEntity(text.getUUID())==text,"the same native text display returns");
+                visibilityPhaseStarted=lastTick;phase=4;return false;
+            }
+            var resumed=service.snapshot().getFirst();
+            require(resumed.actor()==actor&&resumed.text()==text&&resumed.activeTicks()>visiblePair.activeTicks()
+                    &&service.owner(actor)==owner,"same actor and label resume the original clock");
+            combat();
+            require(game.items().spellSources().source(actor)==visibleAuthority,"same native body retains its exact hostile source for future child attacks");
+            terminal();return true;
         }
         @Override public void close() {
             game.items().timeStop().end(level);capture();

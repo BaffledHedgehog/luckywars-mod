@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -53,6 +54,10 @@ public final class StalinEncounterChecks {
         ZombifiedPiglin actor;
         Cow target, behind, service;
         int lastTick,warmTicks,phase;
+        int visibilityPhaseStarted,nativeTicks;
+        Vec3 visiblePosition;
+        LbcStalin.View visibleState;
+        LbcSpellSource.Source visibleAuthority;
         boolean retain;
         Fixture(GameController game) {
             this.game=game;level=game.maps().level();
@@ -243,6 +248,25 @@ public final class StalinEncounterChecks {
             require(game.items().wands().use(owner,InteractionHand.MAIN_HAND) && victim.getHealth()==1 && game.items().ak47().ammo(owner)==0,"actual death reward fires through normal shared native input without ammunition");
             game.items().stalin().tick();require(game.items().stalin().activeCount()==0,"dead native actor retires encounter");
         }
+        void hideEncounter(){
+            game.items().stalin().tick();
+            visibleState=game.items().stalin().snapshot().getFirst();
+            require(visibleState.actor()==actor&&visibleState.activeTicks()>0&&visibleState.cooldown()!=null,
+                    "actual encounter carries nonzero phase and its acquired gun timer");
+            visibleAuthority=game.items().spellSources().source(actor);
+            require(visibleAuthority!=null&&visibleAuthority.nativeEmitter()==actor&&visibleAuthority.author()==null,
+                    "real loot encounter captures hostile NPC authority");
+            visiblePosition=actor.position();nativeTicks=actor.tickCount;
+            var cold=new Vec3(2304.5,actor.getY(),2304.5);
+            require(level.getChunkSource().getChunkNow(144,144)==null,"isolated genuinely cold native column");
+            actor.setPos(cold);
+            require(registeredHidden(),"native section loses actor visibility but keeps its registration");
+            visibilityPhaseStarted=lastTick;
+        }
+        boolean registeredHidden(){
+            return ((ActorCheckpointAccess.LevelEntities)level).skywars2$manager().isLoaded(actor.getUUID())
+                    &&level.getEntity(actor.getUUID())==null&&actor.getRemovalReason()==null;
+        }
         boolean step() {
             if(lastTick==game.server().getTickCount())return false;lastTick=game.server().getTickCount();
             require(++warmTicks<=100,"bounded resident-section warmup");
@@ -250,7 +274,23 @@ public final class StalinEncounterChecks {
                 if(!level.getEntitiesOfClass(ServerPlayer.class,owner.getBoundingBox().inflate(1)).contains(owner))return false;
                 presentation();phase=1;return false;
             }
-            combat();reward();return true;
+            if(phase==1){combat();hideEncounter();phase=2;return false;}
+            if(phase==2){
+                if(lastTick-visibilityPhaseStarted<2)return false;
+                require(registeredHidden()&&actor.tickCount==nativeTicks&&game.items().stalin().snapshot().equals(List.of(visibleState))
+                        &&game.items().stalin().owner(actor)==owner,
+                        "deferred native unload preserves dormant Stalin identity, cadence, and author");
+                actor.setPos(visiblePosition);
+                require(level.getEntity(actor.getUUID())==actor,"same native Stalin body becomes visible again");
+                visibilityPhaseStarted=lastTick;phase=3;return false;
+            }
+            if(lastTick-visibilityPhaseStarted<2)return false;
+            var resumed=game.items().stalin().snapshot().getFirst();
+            require(resumed.actor()==actor&&resumed.activeTicks()>visibleState.activeTicks()
+                    &&resumed.cooldown().equals(visibleState.cooldown())&&game.items().stalin().owner(actor)==owner
+                    &&game.items().spellSources().source(actor)==visibleAuthority,
+                    "restored Stalin continues the same gun cadence without reinitializing its timer");
+            reward();return true;
         }
         @Override public void close() {
             game.items().timeStop().end(level);

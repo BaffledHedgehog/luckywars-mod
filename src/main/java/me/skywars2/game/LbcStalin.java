@@ -88,14 +88,18 @@ public final class LbcStalin {
         for(var state:List.copyOf(actors.values())) {
             var actor=state.actor;var level=(ServerLevel)actor.level();
             if(!game.items().currentEpoch(state.epoch) || !game.playing() || game.stage()==GameController.Stage.ENDING
-                    || actor.isRemoved() || !actor.isAlive() || !resident(level,actor.blockPosition())) {terminal(actor);continue;}
-            if(game.items().timeStop().stopped(level)) continue;
+                    || actor.isRemoved() || !actor.isAlive()) {terminal(actor);continue;}
+            if(!resident(level,actor.blockPosition())||!visible(actor)||game.items().timeStop().stopped(level)) continue;
             if(++state.ticks%5==0) pulse(actor);
         }
+    }
+    private static boolean visible(ZombifiedPiglin actor){
+        return ((ServerLevel)actor.level()).getEntity(actor.getUUID())==actor;
     }
     private boolean active(ZombifiedPiglin actor) {
         return actors.containsKey(actor) && actor.isAlive() && !actor.isRemoved()
                 && game.items().currentEpoch(actor) && game.playing() && game.stage()!=GameController.Stage.ENDING
+                && visible(actor)
                 && !game.items().timeStop().stopped((ServerLevel)actor.level())
                 && !game.items().magic().mechanismSuppressedAt((ServerLevel)actor.level(),actor.position());
     }
@@ -181,7 +185,8 @@ public final class LbcStalin {
                 || !game.items().currentEpoch(entity) || !game.playing() || game.stage()==GameController.Stage.ENDING) entity.discard();
     }
     public void unloaded(Entity entity) {
-        if(managed(entity) && entity instanceof ZombifiedPiglin actor) terminal(actor);
+        // Native tracking can stop while the same entity is still registered.
+        if(entity.getRemovalReason()!=null&&managed(entity)&&entity instanceof ZombifiedPiglin actor)terminal(actor);
     }
     void stop() {for(var actor:List.copyOf(actors.keySet())) terminal(actor);authors.clear();}
     List<View> snapshot() {return actors.values().stream().map(s->new View(s.actor,s.ticks,s.cooldown)).toList();}

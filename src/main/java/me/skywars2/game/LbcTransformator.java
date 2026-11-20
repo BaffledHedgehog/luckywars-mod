@@ -135,18 +135,23 @@ public final class LbcTransformator {
             var actor=pair.actor;var level=(ServerLevel)actor.level();
             if(game.items().polymorph().suspended(actor))continue;
             if(!game.items().currentEpoch(pair.epoch) || !game.playing() || game.stage()==GameController.Stage.ENDING
-                    || actor.isRemoved() || !actor.isAlive() || pair.text!=null && pair.text.isRemoved()
-                    || !resident(level,actor.blockPosition())) {terminal(pair);continue;}
+                    || actor.isRemoved() || !actor.isAlive() || pair.text!=null && pair.text.isRemoved()) {terminal(pair);continue;}
+            if(!resident(level,actor.blockPosition())||!visible(pair))continue;
             if(game.items().magic().mechanismSuppressedAt(level,actor.position())) {terminal(pair);continue;}
             if(game.items().timeStop().stopped(level)) continue;
             if(++pair.ticks%5==0) pulse(actor);
         }
     }
+    private static boolean visible(Pair pair){
+        var level=(ServerLevel)pair.actor.level();
+        return level.getEntity(pair.actor.getUUID())==pair.actor
+                &&(pair.text==null||level.getEntity(pair.text.getUUID())==pair.text);
+    }
     /** The producer is mechanism-driven; magic-only beacons do not suppress it. */
     void pulse(Zombie actor) {
         if(game.items().polymorph().suspended(actor))return;
         var pair=find(actor);
-        if(pair==null || !actor.isAlive() || game.items().timeStop().stopped((ServerLevel)actor.level())
+        if(pair==null || !actor.isAlive() || !visible(pair) || game.items().timeStop().stopped((ServerLevel)actor.level())
                 || game.items().magic().mechanismSuppressedAt((ServerLevel)actor.level(),actor.position())) return;
         var random=actor.getRandom();var level=(ServerLevel)actor.level();
         if(random.nextFloat()<.1f) burst(actor);
@@ -168,7 +173,8 @@ public final class LbcTransformator {
     }
     void burst(Zombie actor) {
         if(game.items().polymorph().suspended(actor))return;
-        if(find(actor)==null || !actor.isAlive() || game.items().timeStop().stopped((ServerLevel)actor.level())
+        var pair=find(actor);
+        if(pair==null || !actor.isAlive() || !visible(pair) || game.items().timeStop().stopped((ServerLevel)actor.level())
                 || game.items().magic().mechanismSuppressedAt((ServerLevel)actor.level(),actor.position())) return;
         var level=(ServerLevel)actor.level(); var origin=actor.position().add(0,1,0);
         LivingEntity nearest=null; double distance=30*30;
@@ -249,7 +255,9 @@ public final class LbcTransformator {
     }
     public void unloaded(Entity entity) {
         if(!managed(entity)) return;
-        for(var pair:List.copyOf(pairs)) if(pair.actor==entity || pair.text==entity) terminal(pair);
+        // The native visibility callback may carry no actual removal.
+        if(entity.getRemovalReason()!=null)
+            for(var pair:List.copyOf(pairs)) if(pair.actor==entity || pair.text==entity) terminal(pair);
         attacks.remove(entity);
         if(entity.getRemovalReason()!=null && !entity.getRemovalReason().shouldDestroy() && authors.get(entity)!=null)
             unloadedAuthors.put(entity.getUUID(),authors.get(entity));
