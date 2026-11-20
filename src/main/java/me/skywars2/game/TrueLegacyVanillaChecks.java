@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
+import java.util.List;
+import me.skywars2.mixin.ActorCheckpointAccess;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -14,6 +18,7 @@ final class TrueLegacyVanillaChecks {
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("True legacy vanilla: "+why);}
     static void run(GameController game,ServerPlayer player,Cow target){
         require(game.balanceLegacy()&&!VanillaExpansionRules.enabled(),"actual legacy switch disables common expansion policy");
+        hiddenModeTransitions(game,player,target);
         require(Attributes.ARMOR.value().sanitizeValue(-50)==0&&Attributes.ARMOR.value().sanitizeValue(100)==30,"native armor bounds0..30");
         require(Attributes.MAX_HEALTH.value().sanitizeValue(5000)==1024&&Attributes.ATTACK_DAMAGE.value().sanitizeValue(10000)==2048,"native health and damage upper bounds");
         require(Attributes.GRAVITY.value().sanitizeValue(-9)==-1&&Attributes.GRAVITY.value().sanitizeValue(9)==1,"native gravity bounds-1..1");
@@ -53,6 +58,81 @@ final class TrueLegacyVanillaChecks {
             }
         }finally{player.setOnGround(ground);player.removeAllEffects();}
     }
+
+    private static void hiddenModeTransitions(GameController game, ServerPlayer player, Cow existingTarget) {
+        var level = player.level();
+        var manager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
+        var cold = new BlockPos(1_000_000, 200, 1_000_000);
+        var warm = existingTarget.position().add(0, 3, 0);
+        require(!level.hasChunkAt(cold) && level.getEntity(existingTarget.getUUID()) == existingTarget,
+                "the mode probe has a cold section and an already-tracked destination");
+        var hidden = new Cow(EntityTypes.COW, level);
+        var visible = new Cow(EntityTypes.COW, level);
+        hidden.setPos(cold.getX() + .5, cold.getY(), cold.getZ() + .5);
+        visible.setPos(warm);
+        try {
+            publishMode(game, false);
+            for (var cow : List.of(hidden, visible)) {
+                cow.setNoAi(true);
+                cow.setNoGravity(true);
+                require(level.addFreshEntity(cow), "ordinary native cow registers for the mode probe");
+                cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(4096);
+                cow.setHealth(4096);
+                require(cow.getMaxHealth() == 4096 && cow.getHealth() == 4096,
+                        "modern max-health cache and current health start at 4096");
+                require(cow.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 200, 300)),
+                        "modern mode probe accepts a real expanded effect");
+            }
+            require(manager.isLoaded(hidden.getUUID()) && level.getEntity(hidden.getUUID()) == null
+                            && level.getEntity(visible.getUUID()) == visible,
+                    "native registration includes the hidden cow while only the control is visible");
+
+            publishMode(game, true);
+            requireLegacyCow(visible, "visible control");
+            require(level.getEntity(hidden.getUUID()) == null && !level.hasChunkAt(cold),
+                    "mode entry does not load the cold section or track its cow");
+            hidden.setPos(warm);
+            require(level.getEntity(hidden.getUUID()) == hidden,
+                    "native movement promotes the original hidden cow in the already-tracked section");
+            requireLegacyCow(hidden, "promoted hidden cow");
+
+            hidden.setPos(cold.getX() + .5, cold.getY(), cold.getZ() + .5);
+            require(manager.isLoaded(hidden.getUUID()) && level.getEntity(hidden.getUUID()) == null,
+                    "same cow is again registered but hidden before mode exit");
+            publishMode(game, false);
+            require(visible.getMaxHealth() == 4096 && level.getEntity(hidden.getUUID()) == null && !level.hasChunkAt(cold),
+                    "visible control resumes modern bounds while the remote section stays cold");
+            hidden.setPos(warm);
+            require(level.getEntity(hidden.getUUID()) == hidden && hidden.getMaxHealth() == 4096 && hidden.getHealth() == 1024,
+                    "mode exit reopens the formerly hidden cow's modern max-health bound without healing it");
+        } finally {
+            hidden.discard();
+            visible.discard();
+            if (!game.balanceLegacy()) publishMode(game, true);
+        }
+    }
+
+    private static void requireLegacyCow(Cow cow, String witness) {
+        var effect = cow.getEffect(MobEffects.FIRE_RESISTANCE);
+        require(cow.getMaxHealth() == 1024 && cow.getHealth() == 1024
+                        && cow.getAttribute(Attributes.MAX_HEALTH).getBaseValue() == 4096
+                        && effect != null && effect.getAmplifier() == 255,
+                witness + " applies the native caps without changing the base attribute: max="
+                        + cow.getMaxHealth() + ", health=" + cow.getHealth() + ", effect=" + effect);
+    }
+
+    private static void publishMode(GameController game, boolean legacy) {
+        // The outer suite already reached Balance by the real cast. Replay only its publication
+        // boundary here so the registered hidden body cannot unload between the probes.
+        try {
+            var method = GameController.class.getDeclaredMethod("balanceLegacy", boolean.class);
+            method.setAccessible(true);
+            method.invoke(game, legacy);
+        } catch (ReflectiveOperationException error) {
+            throw new IllegalStateException("Cannot publish the native Balance mode for the hidden cow probe", error);
+        }
+    }
+
     static void exit(GameController game){
         require(!game.balanceLegacy()&&VanillaExpansionRules.enabled(),"modern expansion policy restored after real legacy exit");
         require(Attributes.ARMOR.value().sanitizeValue(-50)==-50&&Attributes.MAX_HEALTH.value().sanitizeValue(5000)==5000,"modern native attribute endpoints restored");
