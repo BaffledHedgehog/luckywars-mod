@@ -472,9 +472,10 @@ for(int i=0;i<=2;i++) {
 
     /** (user) Каждое использование щита отражает всё в сфере 7, даже уже отражённое и своё. */
     private void tickShields() {
-        if(game.items().wands().timeStopped() || game.stage()==GameController.Stage.ENDING) return;
+        if(game.items().wands().legacyTimeStopped() || game.stage()==GameController.Stage.ENDING) return;
         for(var player:game.server().getPlayerList().getPlayers()) {
-            if(!game.canUseGameplayItems(player) || !player.isAlive() || player.level()!=game.maps().level()
+            if(!game.canUseGameplayItems(player) || !player.isAlive() || !LbcDimensionItems.ordinary(player)
+                    || game.items().timeStop().stopped(player.level())
                     || game.items().frost().isFrozen(player) || player.entityTags().contains("time_stopped")) continue;
             boolean shield=player.isUsingItem() && isShield(player.getUseItem());
             boolean blocker=blockerActive(player) && !game.items().magic().suppressed(player);

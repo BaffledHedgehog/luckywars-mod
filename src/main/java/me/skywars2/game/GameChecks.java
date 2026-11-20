@@ -1667,7 +1667,7 @@ public final class GameChecks {
                                 case "exoperso-cleanup" -> checkExopersoCleanup(game);
                                 case "exasperato-second-match" -> checkExasperatoSecondMatch(game);
                                 case "electro-gear-menu" -> checkElectroGearMenu(game);
-                                case "electro-gear" -> checkElectroGear(game);
+                                case "electro-gear" -> { checkElectroGear(game); return; }
                                 case "yellow-katana-menu" -> checkYellowKatanaMenu(game);
                                 case "yellow-katana-craft" -> {
                                         var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
@@ -6151,7 +6151,7 @@ public final class GameChecks {
         }
 
         private static void checkElectroGear(GameController game) {
-                require(game.playing(), "Electro gear checks require an actual match");
+                require(game.playing() && deferredCheck == null, "Electro gear checks require an exclusive actual match fixture");
                 var player = game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
                 var ally = game.server().getPlayerList().getPlayer(offlineUuid("TestBeta"));
                 require(player != null && ally != null && game.allowDamage(player) && game.allowDamage(ally),
@@ -6161,10 +6161,136 @@ public final class GameChecks {
                 try {
                         checkElectroGearCrafting(game, player);
                         checkElectroGearCombat(game, player, ally);
-                        SkyWars2.LOGGER.info("[check] PASS electro-gear");
                 } finally {
                         game.items().electro().reset(player); game.items().electro().reset(ally);
                         try { playerState.restore(game); } finally { allyState.restore(game); }
+                }
+                warmElectroGearDimensions(game, player);
+        }
+
+        private static void warmElectroGearDimensions(GameController game, ServerPlayer player) {
+                var dimensions = java.util.List.of(
+                                java.util.Objects.requireNonNull(game.server().getLevel(net.minecraft.world.level.Level.NETHER)),
+                                java.util.Objects.requireNonNull(game.server().getLevel(net.minecraft.world.level.Level.END)));
+                var forced = new java.util.ArrayList<net.minecraft.server.level.ServerLevel>();
+                long column = net.minecraft.world.level.ChunkPos.pack(0, 0);
+                var position = new net.minecraft.core.BlockPos(8, 260, 8);
+                Runnable release = () -> forced.forEach(level -> level.setChunkForced(0, 0, false));
+                try {
+                        for (var level : dimensions) {
+                                if (level.setChunkForced(0, 0, true)) forced.add(level);
+                                level.getChunk(0, 0);
+                        }
+                } catch (RuntimeException | Error failure) {
+                        release.run();
+                        throw failure;
+                }
+
+                // FULL chunk data can arrive before entity sections become query-visible.
+                deferredTicks = 1;
+                deferredCheck = new Runnable() {
+                        private int waited;
+
+                        @Override
+                        public void run() {
+                                boolean ready = dimensions.stream().allMatch(level -> level.areEntitiesLoaded(column)
+                                                && level.isPositionEntityTicking(position));
+                                if (!ready && ++waited < 200) {
+                                        deferredTicks = 1;
+                                        deferredCheck = this;
+                                        return;
+                                }
+                                try {
+                                        require(ready, "Nether and End shield fixture columns become entity-ticking");
+                                        checkElectroGearDimensions(game, player, dimensions);
+                                        SkyWars2.LOGGER.info("[check] PASS electro-gear");
+                                } catch (RuntimeException | Error failure) {
+                                        SkyWars2.LOGGER.error("[check] FAIL electro-gear: {}", failure.getMessage(), failure);
+                                } finally {
+                                        release.run();
+                                }
+                        }
+                };
+        }
+
+        private static void checkElectroGearDimensions(GameController game, ServerPlayer player,
+                        java.util.List<net.minecraft.server.level.ServerLevel> dimensions) {
+                var home = player.level();
+                var saved = new RegenerationBeltChecks.Snapshot(game, player);
+                var homePosition = player.position();
+                float homeYaw = player.getYRot(), homePitch = player.getXRot();
+                var timeStop = game.items().timeStop();
+                var hand = net.minecraft.world.InteractionHand.OFF_HAND;
+                try (var client = new RegenerationBeltChecks.ScheduledClient(game, player)) {
+                        try {
+                                for (var level : dimensions) {
+                                        var dimension = level.dimension().identifier();
+                                        require(!timeStop.stopped(level), "Unpaused ordinary dimension fixture " + dimension);
+                                        require(player.teleportTo(level, 8.5, 260, 8.5, java.util.Set.of(), 0, 0, true),
+                                                        "Native shield holder enters " + dimension);
+                                        client.acknowledge();
+                                        require(player.level() == level && game.canUseGameplayItems(player),
+                                                        "Shield holder stays eligible in " + dimension);
+                                        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                                        player.setItemInHand(hand, new ItemStack(LbcElectro.SHIELD));
+                                        pineUsePacket(player, hand);
+                                        require(player.isUsingItem() && LbcElectro.isShield(player.getUseItem()),
+                                                        "Native Electro Shield begins blocking in " + dimension);
+
+                                        var shooter = new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW, level);
+                                        shooter.setPos(11.5, 260, 8.5);
+                                        var projectiles = new java.util.ArrayList<net.minecraft.world.entity.Entity>();
+                                        try {
+                                                require(level.addFreshEntity(shooter), "Native arrow author in " + dimension);
+                                                var arrow = arrowProbe(level, projectiles, 10.5, 261, 8.5, player);
+                                                arrow.setOwner(shooter);
+                                                var incoming = new Vec3(-1, .125, .25);
+                                                arrow.setDeltaMovement(incoming);
+                                                var reach = new net.minecraft.world.phys.AABB(player.position(), player.position()).inflate(7);
+                                                require(level.getEntities((net.minecraft.world.entity.Entity) null, reach, entity -> entity == arrow).contains(arrow),
+                                                                "Shield scans the query-visible native arrow in " + dimension);
+                                                require(arrow.getOwner() == shooter, "Native arrow initially belongs to shooter in " + dimension);
+
+                                                timeStop.begin(level, 20);
+                                                try {
+                                                        var frozenMotion = arrow.getDeltaMovement();
+                                                        game.items().electro().tick();
+                                                        require(arrow.getOwner() == shooter && arrow.getDeltaMovement().equals(frozenMotion),
+                                                                        "Local Time Stop blocks Electro Shield reflection in " + dimension);
+                                                } finally {
+                                                        timeStop.end(level);
+                                                }
+
+                                                require(arrow.getDeltaMovement().equals(incoming), "Native arrow resumes its original motion in " + dimension);
+                                                player.stopUsingItem();
+                                                pineUsePacket(player, hand);
+                                                require(player.isUsingItem() && LbcElectro.isShield(player.getUseItem()),
+                                                                "Native shield restarts blocking after Time Stop in " + dimension);
+                                                require(level.getEntities((net.minecraft.world.entity.Entity) null, reach, entity -> entity == arrow).contains(arrow),
+                                                                "Native arrow remains visible after Time Stop in " + dimension);
+                                                require(!game.items().wands().legacyTimeStopped() && !player.entityTags().contains("time_stopped")
+                                                                && !game.items().frost().isFrozen(player) && game.canUseGameplayItems(player),
+                                                                "Only the ordinary shield admission and native reflection remain in " + dimension);
+                                                game.items().electro().tick();
+                                                require(arrow.getOwner() == player && arrow.getDeltaMovement().distanceToSqr(incoming.reverse()) < 1e-12,
+                                                                "Electro Shield reverses the native arrow and transfers ownership in " + dimension
+                                                                                + ", owner=" + arrow.getOwner() + ", motion=" + arrow.getDeltaMovement());
+                                        } finally {
+                                                player.stopUsingItem();
+                                                for (var projectile : projectiles) projectile.discard();
+                                                shooter.discard();
+                                        }
+                                }
+                        } finally {
+                                player.stopUsingItem();
+                                require(player.teleportTo(home, homePosition.x, homePosition.y, homePosition.z,
+                                                java.util.Set.of(), homeYaw, homePitch, true), "Return from native shield dimension fixture");
+                                client.acknowledge();
+                                saved.restore(game);
+                                saved.restoreAttributes();
+                                saved.restoreUse();
+                                client.acknowledge();
+                        }
                 }
         }
 
