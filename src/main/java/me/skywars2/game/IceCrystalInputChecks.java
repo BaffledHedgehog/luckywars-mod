@@ -12,11 +12,13 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
@@ -38,13 +40,13 @@ public final class IceCrystalInputChecks {
         NativeMeleeChecks.NativeStats stats;
         LbcIceWand.Crystal crystal;
         LbcIceWand.IceShot flight;
-        int ticks,lastTick,phase,face,when,start,caseIndex,flightFrames;
+        int ticks,lastTick,phase,face,when,start,caseIndex,flightFrames,blockSequence;
         int durationId,leftRotationId;
         Fixture(GameController game){this.game=game;f=new IceWandChecks.Fixture(game);}
         void init(){
             f.init();client=new RegenerationBeltChecks.ScheduledClient(game,f.owner);
             stats=new NativeMeleeChecks.NativeStats(f.owner,List.of(Items.STONE,Items.STONE_SLAB,Items.STICK,Items.APPLE,Items.FLINT_AND_STEEL,
-                    Items.WATER_BUCKET,Items.BUCKET,Items.SNOWBALL,Items.SHIELD,Items.ARMOR_STAND));
+                    Items.WATER_BUCKET,Items.BUCKET,Items.SNOWBALL,Items.SHIELD,Items.ARMOR_STAND,LbcImbaFollowupItems.FUSED_TNT));
             try{var field=Display.class.getDeclaredField("DATA_POS_ROT_INTERPOLATION_DURATION_ID");field.setAccessible(true);
                 durationId=((net.minecraft.network.syncher.EntityDataAccessor<?>)field.get(null)).id();
                 field=Display.class.getDeclaredField("DATA_LEFT_ROTATION_ID");field.setAccessible(true);leftRotationId=((net.minecraft.network.syncher.EntityDataAccessor<?>)field.get(null)).id();
@@ -187,6 +189,81 @@ public final class IceCrystalInputChecks {
                 }
             }finally{f.owner.stopUsingItem();f.clear();fresh(before);f.block(dest,Blocks.AIR);f.block(dest.below(),Blocks.AIR);}
         }
+
+        void blockConsumableShield() {
+            var owner = f.owner;
+            var level = owner.level();
+            var main = InteractionHand.MAIN_HAND;
+            var off = InteractionHand.OFF_HAND;
+            var cell = f.origin.above(3);
+            var click = Vec3.atCenterOf(cell).add(0, .5, 0);
+            var hit = new BlockHitResult(click, Direction.UP, cell, false);
+            var nearby = new AABB(cell).inflate(3);
+            var existing = Set.copyOf(level.getEntitiesOfClass(PrimedTnt.class, nearby));
+            owner.stopUsingItem();
+            owner.getInventory().clearContent();
+            owner.setShiftKeyDown(false);
+            eye(owner, click.add(0, 1.5, -2), new Vec3(0, -1.5, 2));
+            var shield = hand(off, Items.SHIELD, 1);
+            try {
+                f.block(cell, Blocks.STONE);
+                f.block(cell.above(), Blocks.AIR);
+                var regularBlock = hand(main, Items.STONE, 2);
+                useBlock(hit);
+                require(regularBlock.getCount() == 1 && level.getBlockState(cell.above()).is(Blocks.STONE)
+                                && !owner.isUsingItem(), "ordinary main-hand block placement does not start an offhand shield");
+                f.block(cell.above(), Blocks.AIR);
+
+                var egg = game.lbc().rollTable(level, owner.position(), owner, "lbc:ported/fused_tnt_funny").getFirst();
+                egg.setCount(2);
+                owner.setItemInHand(main, egg);
+                var proxy = (eu.pb4.polymer.core.api.item.PolymerItem) egg.getItem();
+                require(egg.is(LbcImbaFollowupItems.FUSED_TNT)
+                                && proxy.getPolymerItem(egg, owner.connection.getPacketContext()) == Items.PANDA_SPAWN_EGG,
+                        "the authored consumable projects to a native spawn egg that accepts on-block use on the client");
+                f.block(cell, Blocks.CHEST);
+                useBlock(hit);
+                require(owner.containerMenu != owner.inventoryMenu && egg.getCount() == 2 && !owner.isUsingItem()
+                                && blockConsumableActors(level, nearby, existing).isEmpty(),
+                        "native chest opens before the main-hand consumable or the offhand shield");
+                owner.closeContainer();
+                f.block(cell, Blocks.STONE);
+
+                useBlock(hit);
+                var first = blockConsumableActors(level, nearby, existing);
+                require(egg.getCount() == 1 && first.size() == 1 && first.getFirst().getFuse() == 50,
+                        "one main-hand packet debits one authored consumable and publishes exactly one native actor");
+                require(owner.isUsingItem() && owner.getUsedItemHand() == off && owner.getUseItem() == shield,
+                        "accepted on-block consumable raises the real offhand shield without a client offhand packet");
+                useBlock(hit);
+                require(egg.getCount() == 1 && blockConsumableActors(level, nearby, existing).equals(first)
+                                && owner.isUsingItem(), "continued main-hand use-on cannot repeat the consumable while shield is up");
+
+                owner.connection.handlePlayerAction(new ServerboundPlayerActionPacket(
+                        ServerboundPlayerActionPacket.Action.RELEASE_USE_ITEM, cell, Direction.UP, ++blockSequence));
+                require(!owner.isUsingItem(), "a native release packet lowers the offhand shield");
+                useBlock(hit);
+                require(egg.isEmpty() && blockConsumableActors(level, nearby, existing).size() == 2
+                                && owner.isUsingItem() && owner.getUsedItemHand() == off,
+                        "a fresh press after release debits the remaining item once and raises the shield again");
+            } finally {
+                owner.closeContainer();
+                owner.stopUsingItem();
+                blockConsumableActors(level, nearby, existing).forEach(Entity::discard);
+            }
+        }
+
+        private static List<PrimedTnt> blockConsumableActors(net.minecraft.server.level.ServerLevel level,
+                AABB nearby, Set<PrimedTnt> existing) {
+            return level.getEntitiesOfClass(PrimedTnt.class, nearby,
+                    actor -> !existing.contains(actor) && actor.entityTags().contains("funny_tnt"));
+        }
+
+        private void useBlock(BlockHitResult hit) {
+            f.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND, hit, ++blockSequence));
+            f.owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
+        }
+
         void beginFlight(){
             f.clear();f.owner.getInventory().clearContent();f.owner.setShiftKeyDown(false);
             var begin=f.at.add(-5,6,0);for(int x=-7;x<=13;x++)for(int y=5;y<=7;y++)f.block(f.origin.offset(x,y,0),Blocks.AIR);
@@ -207,7 +284,7 @@ public final class IceCrystalInputChecks {
             require(++ticks<180&&game.playing(),"bounded native fixture, phase="+phase);client.acknowledge();
             if(phase==0){fireFace();return false;}
             if(phase==1){faceWire();return false;}
-            if(phase==2){if(caseIndex<inputs.size()){input(inputs.get(caseIndex++));return false;}beginFlight();return false;}
+            if(phase==2){if(caseIndex<inputs.size()){input(inputs.get(caseIndex++));return false;}blockConsumableShield();beginFlight();return false;}
             flight();return flightFrames>=9;
         }
         @Override public void close(){try{if(client!=null)client.close();}finally{try{if(stats!=null)stats.close();}finally{f.close();}}}

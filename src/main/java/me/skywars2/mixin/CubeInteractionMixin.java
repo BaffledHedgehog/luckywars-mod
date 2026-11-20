@@ -2,17 +2,22 @@ package me.skywars2.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import eu.pb4.polymer.core.api.item.PolymerItem;
 import me.skywars2.game.LbcCubeInteractions;
 import me.skywars2.game.LbcTmtTriggers;
 import me.skywars2.game.LbcUseInteractions;
 import net.minecraft.server.level.*;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ServerPlayerGameMode.class)
 public abstract class CubeInteractionMixin implements LbcUseInteractions.BlockInput {
@@ -71,6 +76,20 @@ public abstract class CubeInteractionMixin implements LbcUseInteractions.BlockIn
         me.skywars2.game.LbcUseInteractions.shieldAfter((ServerPlayerGameMode)(Object)this,player,level,hand,result);
         return me.skywars2.game.LbcUseInteractions.quietResult(me.skywars2.game.LbcUseInteractions.quietUse(player,before),result);
     }
+
+    @WrapOperation(method="useItemOn", at=@At(value="INVOKE", target="Lnet/minecraft/world/item/ItemStack;useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;"))
+    private InteractionResult skywars2$shieldAfterCustomItemOnBlock(ItemStack stack, UseOnContext context,
+            Operation<InteractionResult> original) {
+        var item = stack.getItem();
+        var result = original.call(stack, context);
+        // A successful client carrier use may suppress the offhand packet. Native block
+        // interactions and block placement keep their own priority and do not start a shield.
+        if (item instanceof PolymerItem && !(item instanceof BlockItem) && context.getPlayer() instanceof ServerPlayer player) {
+            LbcUseInteractions.shieldAfter((ServerPlayerGameMode)(Object)this, player, context.getLevel(), context.getHand(), result);
+        }
+        return result;
+    }
+
     @WrapMethod(method="useItemOn")
     private InteractionResult skywars2$cubeInput(ServerPlayer player,Level level,ItemStack stack,InteractionHand hand,
             BlockHitResult hit,Operation<InteractionResult> original){
