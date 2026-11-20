@@ -27,7 +27,7 @@ public final class ExasperatoSpeedChecks {
         try{fixture.initialize();running=fixture;}catch(Throwable error){fixture.close();throw error;}}
     public static void tick(GameController game){if(running==null)return;try{
         if(!running.check())return;
-        running.close();running=null;SkyWars2.LOGGER.info("[check] PASS exasperato-fast (warm and cold-edge swept impacts, all85 native explosions and50 lightning, three real publication ticks, bounded native retry and no ticket leaks)");
+        running.close();running=null;SkyWars2.LOGGER.info("[check] PASS exasperato-fast (warm and cold-edge swept impacts, isolated 29/29/27 publication, simultaneous impacts share one slice with exact centers, bounded native retry and no ticket leaks)");
     }catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}
         SkyWars2.LOGGER.error("[check] FAIL exasperato-fast",error);}}
     private static final class Fixture implements AutoCloseable {
@@ -36,6 +36,10 @@ public final class ExasperatoSpeedChecks {
         LbcExasperato.Charge charge;BlockPos wall;int started,impact=-1;long clock;boolean closed,cold;
         Set<LightningBolt> previousBolts=Set.of();
         Set<ChunkPos> coldTickets=Set.of();
+        final Set<LightningBolt> pairBolts=Collections.newSetFromMap(new IdentityHashMap<>());
+        List<List<Vec3>> pairCenters=List.of();
+        List<BlockPos> pairWalls=List.of();
+        int pairTick,packetCursor;
         Fixture(GameController game){this.game=game;require(game.items().exasperato().count()==0&&game.items().exasperato().pendingBlasts()==0,"exclusive blast scene");
             base=new ElementalGrimoireChecks.Fixture(game,true);base.retain=true;invulnerable=base.owner.getAbilities().invulnerable;}
         void initialize(){
@@ -142,6 +146,7 @@ public final class ExasperatoSpeedChecks {
             finally{if(previous==null)System.clearProperty(option);else System.setProperty(option,previous);}
         }
         boolean check(){
+            if(!pairWalls.isEmpty())return checkPair();
             if(cold)return checkCold();
             int now=game.server().getTickCount();long count=explosions();
             require(now-started<30,"real collision observation deadline");
@@ -182,7 +187,66 @@ public final class ExasperatoSpeedChecks {
                     "original target destroyed and exact native queue completed");
             noTickets(coldTickets);
             SkyWars2.LOGGER.info("[check] exasperato-fast coldTicks={} nativePackets={} coldChunks={}",now-started,count,coldTickets);
+            startPair(now);return false;
+        }
+
+        void startPair(int now){
+            var level=base.owner.level();var service=game.items().exasperato();
+            var walls=List.of(wall.below(12),wall.above(12));
+            var centers=new ArrayList<List<Vec3>>(2);
+            previousBolts=Set.copyOf(game.items().electro().transientSnapshot());
+            base.recording.packets.clear();
+            for(var target:walls){
+                require(level.getBlockState(target).isAir(),"isolated warm pair target starts empty");
+                blocks.put(target,game.maps().snapshot(level,target));
+                LbcDropBlocks.setBlock(level,target,Blocks.STONE.defaultBlockState(),true);
+                var source=new LbcExasperato.Charge(LbcExasperato.TYPE,level);
+                source.setOwner(base.owner);source.setPos(Vec3.atCenterOf(target).add(0,0,-2));
+                source.setDeltaMovement(new Vec3(0,0,3));
+                call(service,"step",new Class<?>[]{LbcExasperato.Charge.class,ServerPlayer.class},source,base.owner);
+                require(source.isRemoved(),"actual swept pair end on its own warm wall");
+                centers.add(legacyCenters(source.position()));
+            }
+            require(service.pendingShortBlasts()==170&&explosions()==0,"two impacts accepted in one tick before any native output");
+            pairWalls=walls;pairCenters=List.copyOf(centers);started=now;
+        }
+
+        boolean checkPair(){
+            var service=game.items().exasperato();int now=game.server().getTickCount();
+            require(now-started==pairTick+1,"resident pair advances on every actual server tick");
+            var packets=base.recording.packets.stream().filter(ClientboundExplodePacket.class::isInstance)
+                    .map(ClientboundExplodePacket.class::cast).toList();
+            int impact=pairTick%2,phase=pairTick/2,expected=phase==2?27:29;
+            require(packets.size()-packetCursor==expected,
+                    "simultaneous ready impacts share one native slice per real tick, actual="+(packets.size()-packetCursor)+", expected="+expected);
+            for(int i=0;i<expected;i++){
+                var packet=packets.get(packetCursor+i);
+                require(packet.radius()==4&&packet.center().equals(pairCenters.get(impact).get(phase*29+i)),
+                        "exact authored radius4 center and round-robin order, impact="+impact+", source="+(phase*29+i));
+            }
+            packetCursor+=expected;
+            var lightning=newBolts().stream().filter(pairBolts::add).toList();
+            require(lightning.size()==(phase==0?50:0),"exactly 50 real lightning with each impact's first controlled slice");
+            if(phase==0){
+                var positions=new HashSet<>(pairCenters.get(impact).subList(0,50));
+                for(var bolt:lightning)require(bolt.getCause()==base.owner&&positions.remove(bolt.position()),"distinct original lightning position and native author");
+                require(positions.isEmpty(),"all 50 original lightning positions were published");
+            }
+            pairTick++;
+            require(service.pendingShortBlasts()==170-packetCursor,"physical queue and emitted counts reconcile");
+            if(pairTick<6)return false;
+            require(packetCursor==170&&pairBolts.size()==100&&pairWalls.stream().allMatch(pos->base.owner.level().getBlockState(pos).isAir()),
+                    "both copied volleys keep real terrain destruction, all 170 blasts and 100 lightning");
+            noTickets(coldTickets);
+            SkyWars2.LOGGER.info("[check] exasperato-fast pairTicks={} nativePackets={} nativeLightning={} maxBlastsPerTick=29 maxLightningPerTick=50",pairTick,packetCursor,pairBolts.size());
             return true;
+        }
+
+        private static List<Vec3> legacyCenters(Vec3 center){
+            var result=new ArrayList<Vec3>(85);result.add(center);
+            int[][] axes={{0,0,1},{0,1,0},{1,0,0},{0,0,-1},{0,-1,0},{-1,0,0}};
+            for(var axis:axes)for(int i=1;i<=14;i++)result.add(center.add(axis[0]*i*.5,axis[1]*i*.5,axis[2]*i*.5));
+            return List.copyOf(result);
         }
         @Override public void close(){if(closed)return;closed=true;game.items().exasperato().stop();
             var spawned=new ArrayList<Entity>();for(var entity:base.owner.level().getAllEntities())if(!base.before.contains(entity)&&!(entity instanceof net.minecraft.server.level.ServerPlayer))spawned.add(entity);

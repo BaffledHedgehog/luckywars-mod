@@ -227,6 +227,7 @@ public final class LbcExasperato {
     }
     // (user) Сохраняем все серии без отказов в касте; одна запись хранит всю серию, а не 32 задачи.
     private final ArrayDeque<BlastBatch> blasts=new ArrayDeque<>();
+    private final ArrayDeque<BlastBatch> rapidBlasts=new ArrayDeque<>();
     private boolean blastAdvancing,blastRewind;private int nativeBlasts;
 
     /** Only owner retention differs from vanilla; block resistance/calculator semantics do not. */
@@ -283,7 +284,7 @@ public final class LbcExasperato {
     public int mushroomCount() { return game.items().nuclearVisuals().count(); }
     boolean pendingNuclearTerrain(){return blasts.stream().anyMatch(batch->batch.nuclear);}
     public int pendingBlasts() {
-        int remaining=0;
+        int remaining=pendingShortBlasts();
         for(var batch:blasts) remaining+=batch.offsets.length-batch.next;
         return remaining;
     }
@@ -633,25 +634,11 @@ public final class LbcExasperato {
     /** Один нативный взрыв неделим; бюджет проверяется между взрывами, до следующего. */
     void blastTick() {
         if(blastRewind)return;if(blastAdvancing)throw new IllegalStateException("Reentrant blast queue advance");blastAdvancing=true;try{
-        if(blasts.isEmpty()) return;
-        // The ordinary wand's85 native explosions form one impact, not85 background
-        // jobs. Service one third of EACH accepted impact before the soft queue budget.
-        // Keep every native source, damage calculation and block interaction intact.
-        for(int remaining=blasts.size();remaining>0&&!blasts.isEmpty();remaining--){
-            var burst=blasts.removeFirst();
-            if(!burst.rapid){blasts.addLast(burst);continue;}
-            boolean keep=false;
-            try {
-                keep=advanceRapid(burst);
-            } finally {
-                if(keep)blasts.addLast(burst);
-                else burst.cancelPreparation();
-            }
-        }
+        rapidTick();
+        if(blasts.isEmpty())return;
         long started=System.nanoTime();
         for(int work=0;work<BLASTS_PER_TICK && !blasts.isEmpty();work++) {
             var burst=blasts.removeFirst();
-            if(burst.rapid){blasts.addLast(burst);continue;}
             if(!game.items().currentEpoch(burst.epoch) || game.stage()==GameController.Stage.ENDING
                     || !burst.cosmos && burst.level!=game.maps().level()){burst.cancelPreparation();continue;}
             if(game.items().timeStop().stopped(burst.level)) { blasts.addLast(burst); continue; }
@@ -687,6 +674,23 @@ public final class LbcExasperato {
             if(System.nanoTime()-started>=BLAST_BUDGET_NANOS) break;
         }
         }finally{blastAdvancing=false;}
+    }
+
+    private void rapidTick() {
+        // One resident impact slice per tick across all casts. An isolated cast still
+        // publishes 29, 29 and 27 blasts, with all 50 lightning in its first slice.
+        for(int remaining=rapidBlasts.size();remaining>0&&!rapidBlasts.isEmpty();remaining--){
+            var burst=rapidBlasts.removeFirst();
+            int before=burst.next;
+            boolean hadLightning=burst.lightningPublished,keep=false;
+            try {
+                keep=advanceRapid(burst);
+            } finally {
+                if(keep)rapidBlasts.addLast(burst);
+                else burst.cancelPreparation();
+            }
+            if(burst.next!=before||burst.lightningPublished!=hadLightning)return;
+        }
     }
 
     private boolean liveRapid(BlastBatch burst) {
@@ -1109,7 +1113,7 @@ public final class LbcExasperato {
         burst.sourceInit=MatchBlastCheckpoint.academyBinding(game,burst.rapidTrial);
         // The collision determines the real origin. Request its full native blast footprint immediately.
         if(prepareRapid(burst)==NativeChunkLoad.Residency.FAILED)burst.cancelPreparation();
-        else blasts.addLast(burst);
+        else rapidBlasts.addLast(burst);
     }
 
     private static Vec3[] ordinaryOffsets() {
@@ -1123,7 +1127,7 @@ public final class LbcExasperato {
 
     int pendingShortBlasts() {
         int count=0;
-        for(var burst:blasts) if(burst.protectedDamage) count+=burst.offsets.length-burst.next;
+        for(var burst:rapidBlasts) count+=burst.offsets.length-burst.next;
         return count;
     }
 
@@ -1138,9 +1142,13 @@ public final class LbcExasperato {
     }
     void stop() {
         for(var search:searches) {if(search.replay==null)search.result.cancel(false);else complete(search,null);}
-        searches.clear();searchRewind=false; game.items().nuclearVisuals().stop();for(var burst:blasts)burst.cancelPreparation();blasts.clear();blastRewind=false;
+        searches.clear();searchRewind=false;game.items().nuclearVisuals().stop();clearBlasts();blastRewind=false;
         var detached=List.copyOf(charges); charges.clear();
         for(var charge:detached) charge.discard();
+    }
+    private void clearBlasts(){
+        blasts.forEach(BlastBatch::cancelPreparation);blasts.clear();
+        rapidBlasts.forEach(BlastBatch::cancelPreparation);rapidBlasts.clear();
     }
     void searchBoundary(){if(searching)throw new IllegalStateException("Finish ray callbacks before capture/replay");}
     void prepareSearchCheckpoint(){searchRewind=true;searches.clear();}
@@ -1157,16 +1165,16 @@ public final class LbcExasperato {
 
 
     void blastBoundary(){if(nativeBlasts!=0||blastAdvancing||!batch.isEmpty())throw new IllegalStateException("Finish explosive callbacks before checkpointing");}
-    void prepareBlastCheckpoint(){blastRewind=true;for(var burst:blasts)burst.cancelPreparation();blasts.clear();}
+    void prepareBlastCheckpoint(){blastRewind=true;clearBlasts();}
     void cancelBlastCheckpoint(){blastRewind=false;}
     BlastCheckpoint checkpointBlasts(MatchBlastCheckpoint.Graph graph){return new BlastCheckpoint(graph);}
     final class BlastCheckpoint {
         private record Actor(MatchDamageSources.Ref key,int age,int mode,int life,boolean trial){}
         private record Burst(BlastBatch original,MatchDamageSources.Ref owner,Vec3[] offsets,float radius,boolean protectedDamage,boolean cosmos,int next,java.util.function.Consumer<PrimedTnt> init,boolean nuclear,NuclearTerrain.Shape terrain,LbcIndirectKills.Owner terrainCause,NuclearTerrain.Occlusion walls,boolean rapid,long preparationSeed,boolean lightningPublished,LbcAcademy.BlastTrial rapidTrial){}
         private final List<Actor> actors;private final List<Burst> queue;
-        BlastCheckpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.mode,c.lifetime,c.academyTrial)).toList();queue=blasts.stream().map(b->{graph.binding(b.sourceInit);return new Burst(b,graph.links.key(b.owner),b.offsets.clone(),b.radius,b.protectedDamage,b.cosmos,b.next,b.sourceInit,b.nuclear,b.terrain==null?null:b.terrain.copy(),b.terrainCause,b.walls==null?null:b.walls.copy(),b.rapid,b.preparationSeed,b.lightningPublished,b.rapidTrial);}).toList();}
+        BlastCheckpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.mode,c.lifetime,c.academyTrial)).toList();queue=java.util.stream.Stream.concat(blasts.stream(),rapidBlasts.stream()).map(b->{graph.binding(b.sourceInit);return new Burst(b,graph.links.key(b.owner),b.offsets.clone(),b.radius,b.protectedDamage,b.cosmos,b.next,b.sourceInit,b.nuclear,b.terrain==null?null:b.terrain.copy(),b.terrainCause,b.walls==null?null:b.walls.copy(),b.rapid,b.preparationSeed,b.lightningPublished,b.rapidTrial);}).toList();}
         Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exasperato charges first");bodies.add(c);}var owners=new java.util.IdentityHashMap<BlastBatch,ServerPlayer>();for(var b:queue){MatchAuthorityCheckpoint.world(game,b.original.level);var owner=links.get(b.owner);if(owner!=null&&!(owner instanceof ServerPlayer))throw new IllegalStateException("Restore current burst authors first");owners.put(b.original,(ServerPlayer)owner);}
-            return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.mode=a.mode;c.lifetime=a.life;c.academyTrial=a.trial;}for(var burst:blasts)burst.cancelPreparation();blasts.clear();for(var b:queue){var live=b.original;live.owner=owners.get(live);live.offsets=b.offsets.clone();live.radius=b.radius;live.protectedDamage=b.protectedDamage;live.cosmos=b.cosmos;live.rapid=b.rapid;live.preparationSeed=b.preparationSeed;live.lightningPublished=b.lightningPublished;live.rapidTrial=b.rapidTrial;live.cancelPreparation();live.next=b.next;live.sourceInit=b.init;live.nuclear=b.nuclear;live.terrain=b.terrain==null?null:b.terrain.copy();live.terrainCause=b.terrainCause;live.walls=live.terrain==null?(b.walls==null?null:b.walls.copy()):live.terrain.walls;blasts.addLast(live);}blastRewind=false;};}
+            return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.mode=a.mode;c.lifetime=a.life;c.academyTrial=a.trial;}clearBlasts();for(var b:queue){var live=b.original;live.owner=owners.get(live);live.offsets=b.offsets.clone();live.radius=b.radius;live.protectedDamage=b.protectedDamage;live.cosmos=b.cosmos;live.rapid=b.rapid;live.preparationSeed=b.preparationSeed;live.lightningPublished=b.lightningPublished;live.rapidTrial=b.rapidTrial;live.cancelPreparation();live.next=b.next;live.sourceInit=b.init;live.nuclear=b.nuclear;live.terrain=b.terrain==null?null:b.terrain.copy();live.terrainCause=b.terrainCause;live.walls=live.terrain==null?(b.walls==null?null:b.walls.copy()):live.terrain.walls;(live.rapid?rapidBlasts:blasts).addLast(live);}blastRewind=false;};}
     }
 
     /** Charge state has no Search/RayTicket link; searches are separate accepted virtual casts. */
