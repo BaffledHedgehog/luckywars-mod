@@ -105,8 +105,12 @@ public final class LbcShooters {
         }
         @Override public boolean shouldBeSaved() { return false; }
     }
-    static ItemStack helicopterLootWeapon(Entity direct){
-        return direct instanceof HelicopterArrow arrow?arrow.getWeaponItem():null;
+    static ItemStack arrowLootWeapon(Entity direct){
+        if(direct instanceof HelicopterArrow arrow)return arrow.getWeaponItem();
+        if(!(direct instanceof Arrow arrow) || !arrow.entityTags().contains(PROJECTILE_TAG)
+                && !arrow.entityTags().contains(PHANTOM_PROJECTILE_TAG))return null;
+        var weapon=arrow.getWeaponItem();
+        return weapon==null?ItemStack.EMPTY:weapon;
     }
     static boolean cloneRecognizes(Entity entity){return entity instanceof HelicopterArrow;}
     LbcCloneSkills.ActorImage cloneImage(Entity entity){
@@ -892,10 +896,6 @@ public final class LbcShooters {
                 && !game.items().wands().inputTimeStopped(player)
                 && !(mechanism?game.items().magic().mechanismSuppressed(player):game.items().magic().suppressed(player));
     }
-    private int hands(ServerPlayer player) {
-        return (isPine(player.getMainHandItem()) ? 1 : 0)
-                + (game.config().offhandWands && isPine(player.getOffhandItem()) ? 1 : 0);
-    }
     public boolean use(ServerPlayer player, InteractionHand hand) {
         if(isBossHelicopter(player.getItemInHand(hand))) return beginBossHelicopter(player,hand);
         if(isHelicopter(player.getItemInHand(hand))) return beginHelicopter(player,hand);
@@ -947,7 +947,12 @@ public final class LbcShooters {
             burst.delay = 2;
             if (canFire(owner)) {
                 // (user) Два хвоемёта удваивают очередь без второго расхода боеприпаса.
-                for (int hand = 0, held = hands(owner); hand < held; hand++) volley(owner, burst.best);
+                var main=owner.getMainHandItem();
+                var off=owner.getOffhandItem();
+                var mainWeapon=isPine(main)?main.copyWithCount(1):ItemStack.EMPTY;
+                var offWeapon=game.config().offhandWands&&isPine(off)?off.copyWithCount(1):ItemStack.EMPTY;
+                if(!mainWeapon.isEmpty())volley(owner,mainWeapon,burst.best);
+                if(!offWeapon.isEmpty())volley(owner,offWeapon,burst.best);
             }
             burst.counter-=4; if (burst.counter < -2) bursts.remove(owner.getUUID());
         }
@@ -961,32 +966,34 @@ public final class LbcShooters {
             burst.delay=2;
             if(burst.cooldown>0 && burst.cooldown<=25 && burst.cooldown%5==0 && canFire(owner)) {
                 int wave=(25-burst.cooldown)/5;
-                if(isPhantomKnives(owner.getMainHandItem())) phantomWave(owner,wave);
-                if(game.config().offhandWands && isPhantomKnives(owner.getOffhandItem())) phantomWave(owner,4-wave);
+                var main=owner.getMainHandItem();
+                if(isPhantomKnives(main)) phantomWave(owner,main,wave);
+                var off=owner.getOffhandItem();
+                if(game.config().offhandWands && isPhantomKnives(off)) phantomWave(owner,off,4-wave);
             }
             burst.cooldown-=5;
             if(burst.cooldown<=-20) phantomBursts.remove(owner.getUUID());
         }
     }
-    private void phantomWave(ServerPlayer owner,int wave) {
+    private void phantomWave(ServerPlayer owner,ItemStack firingStack,int wave) {
         int variant=phantomVariant(owner);
         if(variant<0) return;
+        var weapon=firingStack.copyWithCount(1);
         float yaw=owner.getYRot()+(variant==0?0:-20+wave*10);
         var forward=Vec3.directionFromRotation(owner.getXRot(),yaw);
         var left=new Vec3(Math.cos(Math.toRadians(yaw)),0,Math.sin(Math.toRadians(yaw)));
         var origin=owner.getEyePosition().add(left.scale(PHANTOM_ORIGINS[wave])).add(forward.scale(.5));
         if(variant==0) {
             var up=forward.cross(left);
-            phantomArrow(owner,origin,forward.add(left.scale(PHANTOM_OFFSETS[wave])).add(up.scale(wave==2?.01:0)),2);
+            phantomArrow(owner,weapon,origin,forward.add(left.scale(PHANTOM_OFFSETS[wave])).add(up.scale(wave==2?.01:0)),2);
         } else {
             for(int offset:variant==1?STAND_FAN:OVERHEAVEN_FAN)
-                phantomArrow(owner,origin,Vec3.directionFromRotation(owner.getXRot(),yaw+offset),variant==1?10:20);
+                phantomArrow(owner,weapon,origin,Vec3.directionFromRotation(owner.getXRot(),yaw+offset),variant==1?10:20);
         }
         owner.level().playSound(null,owner.getX(),owner.getY(),owner.getZ(),SoundEvents.TRIDENT_RIPTIDE_1,SoundSource.MASTER,1,2);
     }
-    private void phantomArrow(ServerPlayer owner,Vec3 origin,Vec3 direction,double damage) {
-        var arrow=new Arrow(EntityTypes.ARROW,owner.level());
-        arrow.setOwner(owner);
+    private void phantomArrow(ServerPlayer owner,ItemStack weapon,Vec3 origin,Vec3 direction,double damage) {
+        var arrow=new Arrow(owner.level(),owner,new ItemStack(Items.ARROW),weapon);
         arrow.pickup=AbstractArrow.Pickup.DISALLOWED;
         arrow.setBaseDamage(damage);
         ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)arrow).skywars2$setPierceLevel((byte)127);
@@ -996,16 +1003,15 @@ public final class LbcShooters {
         orient(arrow);
         arrow.entityTags().add(PHANTOM_PROJECTILE_TAG);
         game.items().markCurrentItemEpoch(arrow);
-        owner.level().addFreshEntity(arrow);
+        publishShot(owner.level(),arrow);
         game.items().timeStop().prepareFrozen(arrow);
     }
-    private void volley(ServerPlayer owner, boolean best) {
+    private void volley(ServerPlayer owner,ItemStack weapon,boolean best) {
         var direction = owner.getLookAngle();
         var origin = owner.getEyePosition().subtract(direction.scale(.2));
         int speed = best ? 5000 : 2000;
         for (int shot = 0; shot < (best ? 2 : 3); shot++) {
-            var arrow = new Arrow(EntityTypes.ARROW, owner.level());
-            arrow.setOwner(owner);
+            var arrow=new Arrow(owner.level(),owner,new ItemStack(Items.ARROW),weapon);
             arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
             arrow.setBaseDamage(best ? 1.5 : .5);
             arrow.setSoundEvent(SoundEvents.AZALEA_LEAVES_BREAK);
@@ -1015,10 +1021,13 @@ public final class LbcShooters {
             // Arrow использует углы скорости, а не углы взгляда игрока; задаём их до spawn-пакета.
             orient(arrow);
             arrow.entityTags().add(PROJECTILE_TAG);
-            owner.level().addFreshEntity(arrow);
+            publishShot(owner.level(),arrow);
         }
         owner.level().playSound(null, owner.getX(), owner.getY(), owner.getZ(),
                 SoundEvents.AZALEA_LEAVES_BREAK, SoundSource.MASTER, 1, 2);
+    }
+    private static void publishShot(ServerLevel level,Arrow arrow) {
+        if(level.addFreshEntity(arrow)) arrow.applyOnProjectileSpawned(level,arrow.getPickupItemStackOrigin());
     }
     static void orient(Projectile projectile) {
         var motion=projectile.getDeltaMovement();

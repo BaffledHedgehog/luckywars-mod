@@ -18915,14 +18915,16 @@ public final class GameChecks {
                         shooters.forget(owner); owner.entityTags().removeAll(java.util.Set.of("have_stand","stand_clocks_active"));
                         owner.getInventory().clearContent(); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(LbcWands.TINY_FIRE));
                         owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,knives.copy()); mana.inventoryChanged(owner); mana.set(owner,1000);
+                        int fireCost=mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("tiny_fire_wand_mana_use"),"lbc.math").get();
                         pineUsePacket(owner,net.minecraft.world.InteractionHand.MAIN_HAND);
                         phantomTicks(shooters,2);
                         var mixedFire=new java.util.ArrayList<net.minecraft.world.entity.Entity>();
                         for(var entity:level.getAllEntities()) if(!initial.contains(entity)
                                 && entity instanceof net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball fire && fire.getOwner()==owner) mixedFire.add(entity);
-                        require(mana.get(owner)==975 && !mixedFire.isEmpty() && phantomArrows(level,owner,initial).size()==1,
-                                "One native mainhand Tiny Fire use also arms offhand knives; only fire spends25 mana");
+                        require(mana.get(owner)==1000-fireCost && !mixedFire.isEmpty() && phantomArrows(level,owner,initial).size()==1,
+                                "One native mainhand Tiny Fire use also arms offhand knives; only fire spends its configured mana");
                         mixedFire.forEach(net.minecraft.world.entity.Entity::discard);
+                        checkPhantomWeaponSnapshots(game,owner,level,knives,initial,mobs);
                 } finally {
                         if(game.isObserver(owner)) game.spectators().remove(owner);
                         if(game.isObserver(ally)) game.spectators().remove(ally);
@@ -18936,6 +18938,87 @@ public final class GameChecks {
                         if(madeTeam) board.removePlayerTeam(team); game.config().offhandWands=offhand;
                 }
                 SkyWars2.LOGGER.info("[check] PASS phantom-knives");
+        }
+
+        private static void checkPhantomWeaponSnapshots(GameController game,ServerPlayer owner,
+                        net.minecraft.server.level.ServerLevel level,ItemStack knives,
+                        java.util.Set<net.minecraft.world.entity.Entity> initial,
+                        java.util.List<net.minecraft.world.entity.animal.cow.Cow> mobs) {
+                var shooters=game.items().shooters();
+                var mainHand=net.minecraft.world.InteractionHand.MAIN_HAND;
+                var offHand=net.minecraft.world.InteractionHand.OFF_HAND;
+                var enchantments=owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+                var sharpness=enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS);
+                var looting=enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING);
+                var main=knives.copy(); main.set(DataComponents.CUSTOM_NAME,Component.literal("Main knife fixture"));
+                main.enchant(sharpness,4); main.enchant(looting,100);
+                var off=knives.copy(); off.set(DataComponents.CUSTOM_NAME,Component.literal("Offhand knife fixture"));
+                var originalMain=main.copyWithCount(1); var originalOff=off.copyWithCount(1);
+
+                phantomArrows(level,owner,initial).forEach(net.minecraft.world.entity.Entity::discard);
+                shooters.forget(owner);
+                owner.setItemInHand(mainHand,main); owner.setItemInHand(offHand,off);
+                pineUsePacket(owner,offHand);
+                phantomTicks(shooters,1);
+                require(shooters.phantomBurstCount()==1 && phantomArrows(level,owner,initial).isEmpty(),
+                        "Native offhand use arms a scheduled two-hand wave without an immediate shot");
+                phantomTicks(shooters,1);
+                var fired=phantomArrows(level,owner,initial);
+                require(fired.size()==2,"First scheduled weapon-snapshot wave emits both hands");
+                var mainArrow=fired.stream().filter(shot->shot.getDeltaMovement().x>0).findFirst().orElseThrow();
+                var offArrow=fired.stream().filter(shot->shot.getDeltaMovement().x<0).findFirst().orElseThrow();
+                var firedMain=mainArrow.getWeaponItem(); var firedOff=offArrow.getWeaponItem();
+                require(firedMain!=null && firedOff!=null && ItemStack.matches(firedMain,originalMain)
+                                && ItemStack.matches(firedOff,originalOff),
+                        "Both native arrows capture their own physical hand, name and enchantments");
+
+                main.set(DataComponents.CUSTOM_NAME,Component.literal("Changed main knife fixture"));
+                phantomTicks(shooters,2);
+                var next=phantomArrows(level,owner,initial);
+                require(next.size()==4 && next.stream().anyMatch(shot->!fired.contains(shot)
+                                && shot.getDeltaMovement().x>0 && shot.getWeaponItem()!=null
+                                && ItemStack.matches(shot.getWeaponItem(),main)),
+                        "Following wave reads the updated mainhand knife without rebinding a published arrow");
+                owner.setItemInHand(offHand,ItemStack.EMPTY);
+                owner.setItemInHand(mainHand,new ItemStack(Items.IRON_SWORD));
+                checkPhantomWeaponHit(game,owner,level,mainArrow,originalMain,mobs,8.5,9,true);
+
+                var unrelated=new ItemStack(Items.IRON_SWORD);
+                unrelated.enchant(sharpness,4); unrelated.enchant(looting,100);
+                owner.setItemInHand(mainHand,unrelated);
+                checkPhantomWeaponHit(game,owner,level,offArrow,originalOff,mobs,12.5,4,false);
+        }
+
+        private static void checkPhantomWeaponHit(GameController game,ServerPlayer owner,
+                        net.minecraft.server.level.ServerLevel level,net.minecraft.world.entity.projectile.arrow.Arrow arrow,
+                        ItemStack expected,java.util.List<net.minecraft.world.entity.animal.cow.Cow> mobs,
+                        double x,int damage,boolean enchanted) {
+                var victim=new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW,level) {
+                        @Override public long getLootTableSeed() { return 61983; }
+                };
+                victim.setPos(x,286,53.5); victim.setNoGravity(true); victim.setNoAi(true);
+                victim.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
+                victim.setHealth(100);
+                mobs.add(victim);
+                require(level.addFreshEntity(victim),"Native knife enchantment victim enters the arena");
+                float health=victim.getHealth();
+                arrow.setPos(x,286.62,51.8); arrow.setDeltaMovement(0,0,2); arrow.setNoGravity(true);
+                arrow.tick();
+                var hit=victim.getLastDamageSource();
+                require(hit!=null && hit.is(net.minecraft.world.damagesource.DamageTypes.ARROW)
+                                && hit.getEntity()==owner && hit.getDirectEntity()==arrow && health-victim.getHealth()==damage,
+                        "Native knife retains arrow collision and applies Sharpness once from its fired stack: enchanted="+enchanted
+                                +" damage="+(health-victim.getHealth()));
+                var weapon=game.items().indirectKills().boundLootWeapon(victim,hit);
+                require(weapon!=null && ItemStack.matches(weapon,expected),
+                        "Knife loot resolves the unmodified fired stack after both hands change");
+                victim.setLastHurtByPlayer(owner.getUUID(),100);
+                var loot=new java.util.ArrayList<ItemStack>();
+                var lootTable=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE,
+                        net.minecraft.resources.Identifier.withDefaultNamespace("entities/cow"));
+                victim.dropFromLootTable(level,hit,true,lootTable,loot::add);
+                int count=loot.stream().mapToInt(ItemStack::getCount).sum();
+                require(enchanted?count>8:count<=5,"Native cow loot uses the fired knife only: enchanted="+enchanted+" count="+count);
         }
 
         private static UUID phantomStopOwner;
@@ -19095,8 +19178,18 @@ public final class GameChecks {
                         }
 
                         // Two held Pineguns multiply arrows while preserving the single cartridge cost.
-                        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, gun.copy());
-                        player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, gun.copy());
+                        var plainPine = gun.copy();
+                        require(!plainPine.isEnchanted(), "The native loot-table Pinegun starts without enchantments");
+                        var enchantedPine = plainPine.copy();
+                        var replacementPine = plainPine.copy();
+                        replacementPine.set(DataComponents.CUSTOM_NAME, Component.literal("Later RazorPine wave"));
+                        var enchantments = player.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+                        var sharpness = enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS);
+                        var looting = enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING);
+                        enchantedPine.enchant(sharpness, 4);
+                        enchantedPine.enchant(looting, 100);
+                        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, plainPine);
+                        player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, enchantedPine);
                         player.getInventory().setItem(9, new ItemStack(Items.SPRUCE_LEAVES, 1));
                         var pairStart = java.util.Collections.newSetFromMap(
                                         new java.util.IdentityHashMap<net.minecraft.world.entity.Entity, Boolean>());
@@ -19105,17 +19198,28 @@ public final class GameChecks {
                         for (int i = 0; i < 2; i++) shooters.tick();
                         require(player.getInventory().getItem(9).isEmpty() && shooters.arrowCount() == 34,
                                         "A held Pinegun pair doubles the first volley while consuming one cartridge");
+                        var pairArrows = new java.util.ArrayList<net.minecraft.world.entity.projectile.arrow.Arrow>();
+                        collectPineArrows(level, pairStart, player, pairArrows);
+                        var firstMain = pairArrows.stream().filter(arrow -> pineWeaponSnapshot(arrow, plainPine)).toList();
+                        var firstOff = pairArrows.stream().filter(arrow -> pineWeaponSnapshot(arrow, enchantedPine)).toList();
+                        require(pairArrows.size() == 4 && firstMain.size() == 2 && firstOff.size() == 2,
+                                        "The first paid native wave copies the two exact weapons, two arrows from each hand: total="
+                                                        + pairArrows.size() + " main=" + firstMain.size() + " off=" + firstOff.size());
+                        player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, replacementPine);
                         for (int i = 0; i < 10; i++) shooters.tick();
                         require(shooters.burstCount() == 0 && shooters.arrowCount() == 54,
                                         "Paired Pineguns produce six volleys of four best-ammo arrows");
-                        var pairArrows = new java.util.ArrayList<net.minecraft.world.entity.projectile.arrow.Arrow>();
                         collectPineArrows(level, pairStart, player, pairArrows);
-                        require(pairArrows.size() == 24, "A paired best-ammo burst tracks twenty-four native arrows");
+                        require(pairArrows.size() == 24
+                                                && pairArrows.stream().filter(arrow -> pineWeaponSnapshot(arrow, plainPine)).count() == 12
+                                                && pairArrows.stream().filter(arrow -> pineWeaponSnapshot(arrow, enchantedPine)).count() == 2
+                                                && pairArrows.stream().filter(arrow -> pineWeaponSnapshot(arrow, replacementPine)).count() == 10,
+                                        "Replacing the held offhand gun changes only its following five scheduled volleys");
 
                         // Force one real native arrow through vanilla swept entity collision to verify direct damage
                         // and owner credit without depending on the bots' current teams or aim.
-                        var target = regularTerraCow(level, targets, 8.5, 282, 53.5);
-                        var collisionArrow = pairArrows.getFirst();
+                        var target = pineLootCow(level, targets, 8.5);
+                        var collisionArrow = firstMain.getFirst();
                         require(shooters.canHit(collisionArrow, target),
                                         "Pinegun arrow uses the shared wand target filter for an eligible target");
                         if (oldPlayerTeam != null) board.removePlayerFromTeam(player.getScoreboardName());
@@ -19132,15 +19236,18 @@ public final class GameChecks {
                         game.spectators().remove(ally); enteredAllyObserver = false;
                         board.removePlayerFromTeam(player.getScoreboardName());
                         if (oldPlayerTeam != null) board.addPlayerToTeam(player.getScoreboardName(), oldPlayerTeam);
-                        collisionArrow.setPos(8.5, 282.62, 50.5);
-                        collisionArrow.setDeltaMovement(0, 0, 5);
-                        collisionArrow.setNoGravity(true);
-                        collisionArrow.tick();
-                        require(target.getHealth() < 100 && target.getLastDamageSource() != null
-                                        && target.getLastDamageSource().getEntity() == player
-                                        && target.getLastDamageSource().getDirectEntity() == collisionArrow,
-                                        "A native Pinegun arrow damages a living target with projectile and player attribution");
-                        var wallArrow = pairArrows.get(1);
+                        var unrelated = new ItemStack(Items.IRON_SWORD);
+                        unrelated.enchant(sharpness, 5);
+                        unrelated.enchant(looting, 100);
+                        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, unrelated);
+                        player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                        require(pineLootAfterHit(player, collisionArrow, target, 8) <= 5,
+                                        "The plain native arrow cannot borrow Looting from a later held sword");
+                        var enchantedTarget = pineLootCow(level, targets, 10.5);
+                        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.DIRT));
+                        require(pineLootAfterHit(player, firstOff.getFirst(), enchantedTarget, 20) > 8,
+                                        "The enchanted native offhand arrow retains Looting after both held weapons are gone");
+                        var wallArrow = firstMain.get(1);
                         pineWallPos = new net.minecraft.core.BlockPos(12, 282, 52);
                         pineWallState = level.getBlockState(pineWallPos);
                         level.setBlockAndUpdate(pineWallPos, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
@@ -19288,6 +19395,45 @@ public final class GameChecks {
                 player.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
                 player.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(
                                 hand, 0, player.getYRot(), player.getXRot()));
+        }
+
+        private static boolean pineWeaponSnapshot(net.minecraft.world.entity.projectile.arrow.Arrow arrow, ItemStack held) {
+                var shotWeapon = arrow.getWeaponItem();
+                return shotWeapon != null && shotWeapon != held && ItemStack.matches(held, shotWeapon);
+        }
+
+        private static net.minecraft.world.entity.animal.cow.Cow pineLootCow(net.minecraft.server.level.ServerLevel level,
+                        java.util.List<net.minecraft.world.entity.animal.cow.Cow> targets, double x) {
+                var cow = new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW, level) {
+                        @Override public long getLootTableSeed() { return 1L; }
+                };
+                cow.setPos(x, 282, 53.5);
+                cow.setNoAi(true);
+                cow.setNoGravity(true);
+                cow.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);
+                cow.setHealth(100);
+                require(level.addFreshEntity(cow), "Native Pinegun loot target enters the arrow lane");
+                targets.add(cow);
+                return cow;
+        }
+
+        private static int pineLootAfterHit(ServerPlayer owner, net.minecraft.world.entity.projectile.arrow.Arrow arrow,
+                        net.minecraft.world.entity.animal.cow.Cow target, int expectedDamage) {
+                arrow.setPos(target.getX(), 282.62, 50.5);
+                arrow.setDeltaMovement(0, 0, 5);
+                arrow.setNoGravity(true);
+                arrow.tick();
+                var hit = target.getLastDamageSource();
+                require(hit != null && hit.getEntity() == owner && hit.getDirectEntity() == arrow
+                                        && hit.is(net.minecraft.world.damagesource.DamageTypes.ARROW)
+                                        && target.getHealth() == 100 - expectedDamage,
+                                "Native Pinegun hit keeps arrow ownership and uses only its firing weapon once: expected damage="
+                                                + expectedDamage + ", HP=" + target.getHealth());
+                var table = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE,
+                                net.minecraft.resources.Identifier.withDefaultNamespace("entities/cow"));
+                var drops = new java.util.ArrayList<ItemStack>();
+                target.dropFromLootTable(owner.level(), hit, true, table, drops::add);
+                return drops.stream().mapToInt(ItemStack::getCount).sum();
         }
 
         private static void collectPineArrows(net.minecraft.server.level.ServerLevel level,

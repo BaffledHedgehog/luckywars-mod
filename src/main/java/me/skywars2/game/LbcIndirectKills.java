@@ -280,8 +280,8 @@ public final class LbcIndirectKills {
         var cause = source instanceof CapturedDamage captured ? captured.cause
                 : source instanceof InheritedKill inherited ? inherited.cause : null;
         if (cause != null && cause.weaponAction()) return cause.enchantmentWeapon();
-        var helicopterWeapon = LbcShooters.helicopterLootWeapon(source.getDirectEntity());
-        if (helicopterWeapon != null) return helicopterWeapon;
+        var shooterWeapon = LbcShooters.arrowLootWeapon(source.getDirectEntity());
+        if (shooterWeapon != null) return shooterWeapon;
         var scripted = GenieCombat.spellWeapon(source);
         return scripted.isEmpty() ? null : scripted;
     }
