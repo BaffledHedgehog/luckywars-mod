@@ -72,7 +72,8 @@ public final class LbcRasengan {
         var direction=Vec3.directionFromRotation(p.getXRot(),p.getYRot());
         // The source's nearby protection is measured from its positioned eye origin, not feet.
         var protection=ExplosionItemProtection.area(game,level,origin,4,4).and(p.getUUID(),5);
-        if(game.balanceLegacy()){
+        boolean legacy=game.balanceLegacy();
+        if(legacy){
             for(var target:level.players())if(target.distanceToSqr(origin)<=16&&game.items().wands().validRoleTarget(target,false))
                 target.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,3,false,false,false),p);
             p.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false,false),p);
@@ -81,8 +82,9 @@ public final class LbcRasengan {
         var vanilla=p.damageSources().explosion(null,null);
         var named=new BlastDamage(vanilla);
         var damage=game.items().indirectKills().captureDamage(named,cause);
+        var blastOrigin=legacy?origin:origin.add(direction.scale(.5));
         for(int i=0;i<26;i++){
-            var point=origin.add(direction.scale(i*.2));var calculator=blastCalculator(i);
+            var point=blastOrigin.add(direction.scale(i*.2));var calculator=blastCalculator(i);
             if(!level.hasChunkAt(net.minecraft.core.BlockPos.containing(point)))continue;
             game.items().indirectKills().trapChanges(level,cause,
                     ()->ExplosionItemProtection.with(damage,protection,()->level.explode(null,damage,calculator,point,1,false,Level.ExplosionInteraction.MOB)));

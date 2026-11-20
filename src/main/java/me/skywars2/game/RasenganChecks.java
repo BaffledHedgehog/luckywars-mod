@@ -3,6 +3,7 @@ package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
@@ -32,6 +33,40 @@ public final class RasenganChecks {
         require(!LbcRasengan.matches(new ItemStack(Items.SNOWBALL))&&LbcRasengan.matches(token(1)),"both raw custom flags required");
         var missing=token(1);var data=missing.get(DataComponents.CUSTOM_DATA).copyTag();data.remove("gadget");missing.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
         require(!LbcRasengan.matches(missing),"unrelated rasengan marker cannot bypass gadget dispatcher");
+    }
+    private static void checkBlastCenters(ChefChecks.Fixture f) {
+        boolean originalMode=f.game.balanceLegacy();
+        try(var client=new RegenerationBeltChecks.ScheduledClient(f.game,f.owner)) {
+            var setMode=GameController.class.getDeclaredMethod("balanceLegacy",boolean.class);
+            setMode.setAccessible(true);
+            try {
+                f.move(f.owner,f.at);
+                f.owner.setYRot(32);f.owner.setXRot(-19);
+                for(boolean legacy:new boolean[]{true,false}) {
+                    setMode.invoke(f.game,legacy);
+                    var origin=f.owner.position().add(0,1.62,0);
+                    var look=f.owner.getLookAngle();
+                    var ball=new Snowball(f.owner.level(),f.owner,token(1));
+                    ball.setPos(origin);
+                    try {
+                        int first=client.packets().size();
+                        require(f.owner.level().addFreshEntity(ball),"native throw for packet center check");
+                        f.game.items().rasengan().tick();
+                        var blasts=client.packets().subList(first,client.packets().size()).stream()
+                                .filter(ClientboundExplodePacket.class::isInstance).map(ClientboundExplodePacket.class::cast).toList();
+                        require(blasts.size()==26,"26 native explosion packets in legacy="+legacy+", got "+blasts.size());
+                        for(int cell=0;cell<blasts.size();cell++) {
+                            var expected=origin.add(look.scale(cell*.2+(legacy?0:.5)));
+                            // Vanilla uses slightly different trig lookups for getLookAngle and directionFromRotation.
+                            require(blasts.get(cell).center().distanceToSqr(expected)<1e-6,
+                                    "explosion center "+cell+" in legacy="+legacy+": "+blasts.get(cell).center()+" expected "+expected);
+                        }
+                    } finally {ball.discard();}
+                }
+            } finally {setMode.invoke(f.game,originalMode);}
+        } catch(ReflectiveOperationException error) {
+            throw new IllegalStateException("Cannot publish Balance mode for the Rasengan center check",error);
+        }
     }
     public static void run(GameController game){
         geometry();var service=game.items().rasengan();require(service.pendingCount()==0,"no unrelated pending throw");
@@ -98,6 +133,7 @@ public final class RasenganChecks {
                 require(game.items().magic().rasenganSuppressed(f.owner.level(),f.owner.position()),"raw inventory mystical2 includes12 before aura activation");
                 f.move(f.other,f.at.add(0,0,12.001));
                 require(!game.items().magic().rasenganSuppressed(f.owner.level(),f.owner.position()),"raw mystical inventory excludes beyond12");f.other.getInventory().clearContent();
+                checkBlastCenters(f);
             }finally{
                 service.stop();var cleanup=new java.util.ArrayList<Entity>();
                 f.owner.level().getAllEntities().forEach(e->{if(e!=null)cleanup.add(e);});
@@ -106,6 +142,6 @@ public final class RasenganChecks {
                 }
             }
         }
-        SkyWars2.LOGGER.info("[check] PASS rasengan (both actual native hands/stat/debit,26 native cells with exact x1/x2/x6 native impulses and single-hit power1 damage, caster geometry, native MOB damage/protected role, resistance/launch clocks, retained physical snowball, once-only dispatch, source suppression boundaries, shared stasis and logout/stop cancellation; exact fixture restoration)");
+        SkyWars2.LOGGER.info("[check] PASS rasengan (native hands/stat/debit, exact x1/x2/x6 impulse and single-hit power1 damage, 26 real packet centers shifted forward 0.5 only in modern mode, native MOB damage/protected role, resistance/launch clocks, retained physical snowball, once-only dispatch, suppression and stasis)");
     }
 }
