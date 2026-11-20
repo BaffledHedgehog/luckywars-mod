@@ -327,16 +327,62 @@ public final class LbcQuiver {
     private void explode(ServerLevel level,Vec3 at,Authority authority){if((authority.cause==null||owner(authority)!=null)&&level.hasChunkAt(BlockPos.containing(at)))game.items().babylonEffects().quiverExplosionAt(level,at,authority.cause);}
     private void trail(ServerLevel level,Vec3 at,int amp,Authority authority){if(!level.hasChunkAt(BlockPos.containing(at)))return;var marker=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,level);marker.setPos(at);marker.entityTags().addAll(List.of(TRAIL,"slowraycast","magic","other",amp==112?"lightarrowtrail":"trappertrail"));game.items().markCurrentItemEpoch(marker);trails.put(marker,new Trail(amp,authority));if(!level.addFreshEntity(marker))trails.remove(marker);}
     private void tickTrails(){game.items().cloneSkills().beforeOwnedStep(trails.keySet());for(var marker:List.copyOf(trails.keySet())){var trail=trails.get(marker);if(marker.isRemoved()||!runtime(marker)||!game.items().currentEpoch(trail.authority.epoch)){trails.remove(marker);marker.discard();continue;}if(frozen(marker))continue;var level=(ServerLevel)marker.level();var at=marker.position();int age=++trail.age;
-        if(trail.amp==112){level.sendParticles(ParticleTypes.END_ROD,at.x,at.y,at.z,1,0,0,0,0);if(age==50||age==100||age==150){int from=age==50?0xffffff:age==100?0xffff00:0xff0000;int to=age==50?0xffff00:age==100?0xff0000:0x000000;level.sendParticles(new DustColorTransitionOptions(from,to,4),true,false,at.x,at.y+.5,at.z,10,1,.5,1,.05);}if(age==199)column(level,at,trail.authority);if(age>=200)removeTrail(marker);}
+        if(trail.amp==112)tickLightTrail(marker,trail,level,at,age);
         else {if(age>=120&&level.getRandom().nextFloat()<.25f&&level.players().stream().anyMatch(p->p.position().distanceToSqr(at)<=6400))trapper(marker,trail);if(age>=400)removeTrail(marker);}
     }}
     private void trapper(net.minecraft.world.entity.Marker marker,Trail trail){var level=(ServerLevel)marker.level();final var center=marker.position();var at=center;var owner=owner(trail.authority);if(owner==null&&trail.authority.cause!=null)return;var nearby=level.getEntitiesOfClass(LivingEntity.class,new AABB(center,center).inflate(15),e->e.getType().builtInRegistryHolder().is(MOBS)&&e.position().distanceToSqr(center)<=225&&target(trail.authority,e));if(nearby.stream().anyMatch(e->e.position().distanceToSqr(center)<=25))fang(level,at,trail.authority);
         if(nearby.stream().noneMatch(e->e.position().distanceToSqr(center)<=2.25)&&level.getRandom().nextFloat()<.5f){var nearest=nearby.stream().min(Comparator.comparingDouble(e->e.position().distanceToSqr(center))).orElse(null);if(nearest!=null){var delta=nearest.position().subtract(at);if(delta.lengthSqr()>1e-12)at=at.add(delta.normalize());}}
         at=new Vec3(Math.floor(at.x)+level.getRandom().nextInt(3)-1,Math.floor(at.y)+level.getRandom().nextInt(3)-1,Math.floor(at.z)+level.getRandom().nextInt(3)-1);if(level.hasChunkAt(BlockPos.containing(at)))marker.setPos(at);if(trail.age>=390)removeTrail(marker);
     }
+    private static final int LIGHT_CHARGE_TICKS=199, LIGHT_TNT_PER_TICK=9;
+
+    private void tickLightTrail(net.minecraft.world.entity.Marker marker,Trail trail,ServerLevel level,Vec3 at,int age){
+        if(age<=LIGHT_CHARGE_TICKS+1)
+            level.sendParticles(ParticleTypes.END_ROD,at.x,at.y,at.z,1,0,0,0,0);
+        if(age==50||age==100||age==150){
+            int from=age==50?0xffffff:age==100?0xffff00:0xff0000;
+            int to=age==50?0xffff00:age==100?0xff0000:0x000000;
+            level.sendParticles(new DustColorTransitionOptions(from,to,4),true,false,at.x,at.y+.5,at.z,10,1,.5,1,.05);
+        }
+        if(age<LIGHT_CHARGE_TICKS)return;
+        if(game.balanceLegacy()){
+            if(age==LIGHT_CHARGE_TICKS)column(level,at,trail.authority,0,TNT_Y.length);
+            else removeTrail(marker);
+            return;
+        }
+        // Keep the fuse at zero and continue from the age captured by clones and rewind.
+        int first=(age-LIGHT_CHARGE_TICKS)*LIGHT_TNT_PER_TICK;
+        int end=Math.min(first+LIGHT_TNT_PER_TICK,TNT_Y.length);
+        if(first<end)column(level,at,trail.authority,first,end);
+        if(end==TNT_Y.length)removeTrail(marker);
+    }
+
     private static final int[] TNT_Y={0,3,-1,-2,-3,-4,-5,-7,-9,-11,-13,-15,-17,-19,-21,-23,-25,-27,-29,-31,-33,-35,-37,-39,-41,-43,-45};
     private static final int[] BOLT_Y={0,3,-1,-2,-3,-4,-5,-6,-7,-9,-13,-17,-21,-25,-33,-45};
-    private void column(ServerLevel level,Vec3 at,Authority authority){var owner=owner(authority);if(owner==null&&authority.cause!=null)return;for(int y:TNT_Y){var pos=at.add(0,y,0);if(!level.hasChunkAt(BlockPos.containing(pos)))continue;var tnt=new PrimedTnt(EntityTypes.TNT,level);tnt.setPos(pos);tnt.setDeltaMovement(Vec3.ZERO);tnt.setFuse(0);child(tnt,authority);}for(int y:BOLT_Y){var pos=at.add(0,y,0);if(!level.hasChunkAt(BlockPos.containing(pos)))continue;var bolt=new LightningBolt(EntityTypes.LIGHTNING_BOLT,level);bolt.setPos(pos);bolt.setCause(owner);var original=authority.cause;child(bolt,new Authority(original==null?null:new LbcIndirectKills.Owner(original.player(),original.order(),true,true),authority.epoch));}}
+    private void column(ServerLevel level,Vec3 at,Authority authority,int first,int end){
+        var owner=owner(authority);
+        if(owner==null&&authority.cause!=null)return;
+        for(int index=first;index<end;index++){
+            var pos=at.add(0,TNT_Y[index],0);
+            if(!level.hasChunkAt(BlockPos.containing(pos)))continue;
+            var tnt=new PrimedTnt(EntityTypes.TNT,level);
+            tnt.setPos(pos);
+            tnt.setDeltaMovement(Vec3.ZERO);
+            tnt.setFuse(0);
+            child(tnt,authority);
+        }
+        if(end!=TNT_Y.length)return;
+        var original=authority.cause;
+        var boltAuthority=new Authority(original==null?null:new LbcIndirectKills.Owner(original.player(),original.order(),true,true),authority.epoch);
+        for(int y:BOLT_Y){
+            var pos=at.add(0,y,0);
+            if(!level.hasChunkAt(BlockPos.containing(pos)))continue;
+            var bolt=new LightningBolt(EntityTypes.LIGHTNING_BOLT,level);
+            bolt.setPos(pos);
+            bolt.setCause(owner);
+            child(bolt,boltAuthority);
+        }
+    }
     private void child(Entity entity,Authority authority){children.put(entity,authority);entity.entityTags().add(CHILD);game.items().markCurrentItemEpoch(entity);if(!((ServerLevel)entity.level()).addFreshEntity(entity))children.remove(entity);}
     private void removeTrail(net.minecraft.world.entity.Marker marker){trails.remove(marker);if(!marker.isRemoved())marker.discard();}
     public LbcIndirectKills.Owner cause(Entity entity){var state=children.get(entity);return state==null?null:state.cause;}
