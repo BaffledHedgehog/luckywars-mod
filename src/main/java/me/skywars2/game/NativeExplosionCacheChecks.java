@@ -83,6 +83,45 @@ public final class NativeExplosionCacheChecks {
         SkyWars2.LOGGER.info("[check] blast-height bounds: {} exact sparse-terrain block/RNG cases, stateReads={} -> {}",cases,plainReads,boundedReads);
     }
 
+    private static void visibilityContract(WoolBucketChecks.Fixture f, BlockPos center) {
+        var probe = center.above(5);
+        for (int x=-6;x<=6;x++) f.set(probe.offset(x,0,0),Blocks.AIR.defaultBlockState());
+
+        class CountingBlocks implements BlockGetter {
+            int fluidReads;
+            public int getMinY(){return f.level.getMinY();}
+            public int getHeight(){return f.level.getHeight();}
+            public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(BlockPos pos){return f.level.getBlockEntity(pos);}
+            public net.minecraft.world.level.block.state.BlockState getBlockState(BlockPos pos){return f.level.getBlockState(pos);}
+            public net.minecraft.world.level.material.FluidState getFluidState(BlockPos pos){fluidReads++;return f.level.getFluidState(pos);}
+        }
+        var reference = new CountingBlocks();
+        var optimized = new CountingBlocks();
+        var slab = Blocks.OAK_SLAB.defaultBlockState();
+        var cases = List.of(Blocks.AIR.defaultBlockState(),Blocks.CAVE_AIR.defaultBlockState(),
+                Blocks.WATER.defaultBlockState(),Blocks.STONE.defaultBlockState(),slab,
+                slab.setValue(SlabBlock.WATERLOGGED,true),Blocks.OAK_FENCE.defaultBlockState());
+        for(var state:cases) {
+            f.set(probe,state);
+            for(double height:new double[]{.25,.75}) {
+                var mid=Vec3.atLowerCornerOf(probe).add(.5,height,.5);
+                for(int direction:new int[]{-1,1}) {
+                    var context=new ClipContext(mid.add(-6*direction,0,0),mid.add(6*direction,0,0),
+                            ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,f.owner);
+                    var expected=reference.clip(context);
+                    var observed=ExplosionExposure.clipSolid(optimized,context);
+                    require(expected.getType()==observed.getType()&&expected.getLocation().equals(observed.getLocation())
+                            &&expected.getBlockPos().equals(observed.getBlockPos())&&expected.getDirection()==observed.getDirection()
+                            &&expected.isInside()==observed.isInside(),"exact native exposure collision for "+state+" height="+height+" direction="+direction);
+                }
+            }
+        }
+        require(reference.fluidReads>optimized.fluidReads,
+                "same native collider with fewer ignored fluid reads: "+reference.fluidReads+" -> "+optimized.fluidReads);
+        SkyWars2.LOGGER.info("[check] native exposure collider: {} exact rays, ignored fluid reads {} -> {}",
+                cases.size()*4,reference.fluidReads,optimized.fluidReads);
+    }
+
     private record FireballCollection(List<?> positions, long nextRandom, int nextInt, long nanos) { }
 
     private static FireballCollection collectFireball(Method collector, WoolBucketChecks.Fixture f, Vec3 at,
@@ -176,6 +215,7 @@ public final class NativeExplosionCacheChecks {
             }
             require(boundedNativeCases>=10,"large ordinary native TNT really exercises the finite-height branch");
             heightContract(f);
+            visibilityContract(f,center);
             require(LbcExasperato.optimizedBlockSearches()-begin==cases,"ordinary TNT really enters optimized collection, including lightshoot column TNT");
             sisyphusContract(method, f, center);
             SkyWars2.LOGGER.info("[check] native finite-height oracle cases={}",boundedNativeCases);

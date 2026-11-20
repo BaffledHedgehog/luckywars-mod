@@ -32,7 +32,12 @@ public final class HazardPropagationMixins {
         }
         @WrapOperation(method="getSeenPercent",at=@At(value="INVOKE",target="Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
         private static net.minecraft.world.phys.BlockHitResult skywars2$preCraterClip(net.minecraft.world.level.Level level,net.minecraft.world.level.ClipContext context,Operation<net.minecraft.world.phys.BlockHitResult> original){
-            var retained=me.skywars2.game.NuclearTerrain.clip(level,context);return retained==null?original.call(level,context):retained;
+            var retained=me.skywars2.game.NuclearTerrain.clip(level,context);
+            if(retained!=null)return retained;
+            // getSeenPercent constructs COLLIDER / Fluid.NONE. Use the same native shape
+            // and traversal without fetching a second palette entry for an ignored fluid.
+            return level instanceof ServerLevel?me.skywars2.game.ExplosionExposure.clipSolid(level,context)
+                    :original.call(level,context);
         }
         @org.spongepowered.asm.mixin.gen.Invoker("interactWithBlocks")
         public abstract void skywars2$applyNuclearBlocks(java.util.List<BlockPos> positions);
