@@ -65,6 +65,11 @@ public final class TikTokPlayback implements AutoCloseable {
         var view=views.get(player.getUUID());
         if(view!=null&&view.player==player&&view.enhanced&&current(view))clientClock.requestFallback(player,request);
     }
+    void requestClientSegment(ServerPlayer player, MediaPackets.RequestSegment request) {
+        var view = views.get(player.getUUID());
+        if (view != null && view.player == player && view.enhanced && current(view)) clientClock.requestSegment(player, request);
+    }
+
     TikTokPlayback(MinecraftServer server,TikTokCache cache){this.server=server;this.cache=cache;}
     boolean enhanced(ServerPlayer player) {
         var view=views.get(player.getUUID());

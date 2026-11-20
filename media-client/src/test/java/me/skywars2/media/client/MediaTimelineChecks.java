@@ -18,7 +18,28 @@ public final class MediaTimelineChecks {
         check(t.queued()==8,"queue memory bounded under stalled render/audio");
         t.close();check(t.queued()==0&&!t.offer(101,pcm)&&!t.running(),"stop clears data and rejects late work");
         checkPause(pcm);
+        checkDelayedSegment(pcm);
         System.out.println("PASS MediaTimeline: priming,20FPS,stereo,underrun,duplicate,queue bound,pause,resume,stop");
+    }
+
+    private static void checkDelayedSegment(byte[] pcm) {
+        var timeline = new MediaTimeline(true);
+        long start = 1_000_000_000L, step = MediaTimeline.STEP;
+        for (int serial = 0; serial < 4; serial++) check(timeline.offer(serial, pcm), "page's initial samples");
+        timeline.start(start);
+        for (int serial = 0; serial < 4; serial++) check(timeline.read()[1] == 91, "page's scheduled PCM in order");
+        check(timeline.read()[1] == 0 && timeline.read()[1] == 0, "late HTTPS page buffers native silence");
+        long pause = start + 5 * step;
+        timeline.setPaused(true, pause);
+        check(timeline.offer(4, pcm) && timeline.offer(5, pcm) && !timeline.offer(7, pcm), "received page retains exact source order");
+        long thaw = pause + 20_000_000_000L;
+        check(timeline.presented(thaw) == 3 && timeline.queued() == 2, "late page survives Time Stop");
+        timeline.setPaused(false, thaw);
+        check(timeline.read()[1] == 91 && timeline.read()[1] == 91, "late PCM plays without skipping source slices");
+        check(timeline.presented(thaw + step - 1) == 3 && timeline.presented(thaw + step) == 4
+                        && timeline.presented(thaw + 2 * step) == 5,
+                "video resumes in exact phase with the delayed native audio");
+        timeline.close();
     }
 
     private static void checkPause(byte[] pcm) {

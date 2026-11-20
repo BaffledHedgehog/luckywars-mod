@@ -12,7 +12,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 /** Connection-scoped capability: an absent/old client keeps the vanilla phone path. */
 public final class TikTokClientSupport {
-    private record Peer(ServerGamePacketListenerImpl listener, boolean httpsPlayback, boolean mp4) {}
+    private record Peer(ServerGamePacketListenerImpl listener, boolean httpsPlayback, boolean mp4, boolean segments) {}
     private static final ConcurrentMap<UUID,Peer> peers=new ConcurrentHashMap<>();
     private TikTokClientSupport(){}
     static void register(){
@@ -26,13 +26,19 @@ public final class TikTokClientSupport {
                 playback.requestClientFallback(context.player(), request);
             }
         });
+        ServerPlayNetworking.registerGlobalReceiver(MediaPackets.RequestSegment.TYPE, (request, context) -> {
+            var playback = TikTokAccounts.playback();
+            if (playback != null && segments(context.player())) playback.requestClientSegment(context.player(), request);
+        });
         ServerPlayNetworking.registerGlobalReceiver(MediaPackets.Hello.TYPE,(hello,context)->{
             var player=context.player();
             if(hello.supported()&&ServerPlayNetworking.canSend(player,MediaPackets.Frame.TYPE)&&ServerPlayNetworking.canSend(player,MediaPackets.Stop.TYPE)) {
                 boolean httpsPlayback = (hello.features() & MediaPackets.HTTPS_PLAYBACK) != 0
                         && ServerPlayNetworking.canSend(player, MediaPackets.Link.TYPE);
                 peers.put(player.getUUID(), new Peer(player.connection, httpsPlayback,
-                        httpsPlayback && (hello.features() & MediaPackets.DIRECT_MP4) != 0));
+                        httpsPlayback && (hello.features() & MediaPackets.DIRECT_MP4) != 0,
+                        httpsPlayback && (hello.features() & MediaPackets.HTTPS_SEGMENTS) != 0
+                                && ServerPlayNetworking.canSend(player, MediaPackets.Segment.TYPE)));
             } else forget(player.getUUID(), player.connection);
         });
     }
@@ -50,6 +56,11 @@ public final class TikTokClientSupport {
     static boolean httpsPlayback(ServerPlayer player) {
         var peer = peers.get(player.getUUID());
         return peer != null && peer.listener == player.connection && peer.httpsPlayback;
+    }
+
+    static boolean segments(ServerPlayer player) {
+        var peer = peers.get(player.getUUID());
+        return peer != null && peer.listener == player.connection && peer.segments;
     }
 
     static boolean mp4(ServerPlayer player) {

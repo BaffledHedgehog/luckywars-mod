@@ -11,7 +11,7 @@ import net.minecraft.resources.Identifier;
 /** Small versioned play protocol shared by the optional client and the dedicated server. */
 public final class MediaPackets {
     public static final int VERSION=1, JPEG=1, PCM=2, FEATURES=JPEG|PCM, FPS=20;
-    public static final int HTTPS_PLAYBACK = 4, DIRECT_MP4 = 8;
+    public static final int HTTPS_PLAYBACK = 4, DIRECT_MP4 = 8, HTTPS_SEGMENTS = 16;
     public static final int MAX_LINK_LENGTH = 4096;
     public static final int MAX_JPEG=131072, MAX_PCM=16384, MAX_WIDTH=720, MAX_HEIGHT=1280;
     private static boolean registered;
@@ -23,6 +23,8 @@ public final class MediaPackets {
         PayloadTypeRegistry.clientboundPlay().register(Frame.TYPE,Frame.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Stop.TYPE,Stop.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Link.TYPE,Link.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(RequestSegment.TYPE, RequestSegment.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(Segment.TYPE, Segment.CODEC);
         registered=true;
     }
     public record Hello(int protocol,int features) implements CustomPacketPayload {
@@ -104,6 +106,51 @@ public final class MediaPackets {
         };
         @Override public Type<Fallback> type() { return TYPE; }
     }
+    /** Absolute sequence advances across loops, even when the same HTTPS object is reused. */
+    public record Segment(UUID session, long sequence, int totalFrames, int width, int height, String uri)
+            implements CustomPacketPayload {
+        public static final Type<Segment> TYPE = new Type<>(Identifier.parse("skywars2:media/segment_v1"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, Segment> CODEC = new StreamCodec<>() {
+            @Override public Segment decode(RegistryFriendlyByteBuf buffer) {
+                return new Segment(buffer.readUUID(), buffer.readVarLong(), buffer.readVarInt(),
+                        buffer.readVarInt(), buffer.readVarInt(), buffer.readUtf(MAX_LINK_LENGTH));
+            }
+            @Override public void encode(RegistryFriendlyByteBuf buffer, Segment payload) {
+                buffer.writeUUID(payload.session);
+                buffer.writeVarLong(payload.sequence);
+                buffer.writeVarInt(payload.totalFrames);
+                buffer.writeVarInt(payload.width);
+                buffer.writeVarInt(payload.height);
+                buffer.writeUtf(payload.uri, MAX_LINK_LENGTH);
+            }
+        };
+        public Segment {
+            Objects.requireNonNull(session);
+            if (sequence < 0 || totalFrames < 1 || totalFrames > MediaClip.MAX_FRAMES
+                    || width < 1 || width > MAX_WIDTH || height < 1 || height > MAX_HEIGHT
+                    || !Link.validLink(uri) || uri.isEmpty()) throw new IllegalArgumentException("media_segment_bounds");
+        }
+        @Override public Type<Segment> type() { return TYPE; }
+    }
+
+    public record RequestSegment(UUID session, long sequence) implements CustomPacketPayload {
+        public static final Type<RequestSegment> TYPE = new Type<>(Identifier.parse("skywars2:media/request_segment_v1"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, RequestSegment> CODEC = new StreamCodec<>() {
+            @Override public RequestSegment decode(RegistryFriendlyByteBuf buffer) {
+                return new RequestSegment(buffer.readUUID(), buffer.readVarLong());
+            }
+            @Override public void encode(RegistryFriendlyByteBuf buffer, RequestSegment payload) {
+                buffer.writeUUID(payload.session);
+                buffer.writeVarLong(payload.sequence);
+            }
+        };
+        public RequestSegment {
+            Objects.requireNonNull(session);
+            if (sequence < 1) throw new IllegalArgumentException("media_segment_sequence");
+        }
+        @Override public Type<RequestSegment> type() { return TYPE; }
+    }
+
     /** Validate JPEG dimensions before invoking a native decoder, including against allocation bombs. */
     public static boolean jpegMatches(byte[] data,int width,int height){
         if(data.length<4||data.length>MAX_JPEG||(data[0]&255)!=255||(data[1]&255)!=216)return false;

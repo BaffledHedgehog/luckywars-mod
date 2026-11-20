@@ -34,6 +34,41 @@ final class MediaProtocolChecks {
         require(TikTokClientSupport.httpsPlayback(player)&&TikTokClientSupport.mp4(player),
                 "advertised Link channel and exact connection negotiate MP4 transport");
     }
+    static void negotiateSegments(ServerPlayer player) {
+        var addon = net.fabricmc.fabric.impl.networking.server.ServerNetworkingImpl.getAddon(player.connection);
+        var hello = new MediaPackets.Hello(MediaPackets.VERSION,
+                MediaPackets.FEATURES | MediaPackets.HTTPS_PLAYBACK | MediaPackets.HTTPS_SEGMENTS);
+        addon.handle(hello);
+        require(TikTokClientSupport.httpsPlayback(player) && !TikTokClientSupport.segments(player),
+                "without a registered segment channel the old HTTPS route remains");
+        addon.handle(new net.fabricmc.fabric.impl.networking.RegistrationPayload(
+                net.fabricmc.fabric.impl.networking.RegistrationPayload.REGISTER, List.of(MediaPackets.Segment.TYPE.id())));
+        addon.handle(hello);
+        require(TikTokClientSupport.segments(player) && !TikTokClientSupport.mp4(player),
+                "actual Fabric channels negotiate no-FFmpeg segmented HTTPS");
+    }
+
+    static void requestSegment(ServerPlayer player, UUID session, long sequence) {
+        var bytes = new RegistryFriendlyByteBuf(Unpooled.buffer(), player.registryAccess());
+        try {
+            var request = new MediaPackets.RequestSegment(session, sequence);
+            MediaPackets.RequestSegment.CODEC.encode(bytes, request);
+            var decoded = MediaPackets.RequestSegment.CODEC.decode(bytes);
+            require(request.equals(decoded) && !bytes.isReadable(), "exact native segment request round-trip");
+            new ServerboundCustomPayloadPacket(decoded).handle(player.connection);
+        } finally { bytes.release(); }
+    }
+
+    static MediaPackets.Segment segmentWire(ServerPlayer player, MediaPackets.Segment original) {
+        var bytes = new RegistryFriendlyByteBuf(Unpooled.buffer(), player.registryAccess());
+        try {
+            MediaPackets.Segment.CODEC.encode(bytes, original);
+            var decoded = MediaPackets.Segment.CODEC.decode(bytes);
+            require(original.equals(decoded) && !bytes.isReadable(), "exact native segment receipt round-trip");
+            return decoded;
+        } finally { bytes.release(); }
+    }
+
     static void fallback(ServerPlayer player,UUID session,boolean relayFailed){
         var bytes=new RegistryFriendlyByteBuf(Unpooled.buffer(),player.registryAccess());
         try{

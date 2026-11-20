@@ -6,6 +6,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -22,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.LockSupport;
 import me.skywars2.SkyWars2;
+import me.skywars2.media.MediaClip;
 import me.skywars2.media.MediaPackets;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.ConnectionProtocol;
@@ -34,6 +36,7 @@ import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 
@@ -76,7 +79,10 @@ public final class TikTokPlaybackChecks {
                 String id="1234567"+i;
                 Path clipDirectory=directory.resolve("cache/videos").resolve(id);
                 clip(clipDirectory,i);
-                if(relay!=null)relay.stageClip(clipDirectory,id);
+                if (relay != null) {
+                    relay.stageClip(clipDirectory, id);
+                    if (i == 1) relay.stageSegmentVideo(clipDirectory);
+                }
             }
             cache=new TikTokCache(directory.resolve("cache"),directory.resolve("no-cookies.json"),false);
             clip(directory.resolve("migration/videos/12345672"),2);
@@ -534,6 +540,7 @@ public final class TikTokPlaybackChecks {
         HttpClient client;
         CompletableFuture<HttpResponse<byte[]>> download;
         UUID session;
+        MediaPackets.Segment part;
         int phase;
         long since;
         static RelayFixture configured()throws Exception{
@@ -562,6 +569,87 @@ public final class TikTokPlaybackChecks {
             source.addProperty("expiresAt",expires);
             Files.writeString(directory.resolve("source.json"),source.toString());
         }
+        void stageSegmentVideo(Path directory) throws IOException {
+            int count = 2 * MediaClip.SEGMENT_FRAMES + 1;
+            var picture = new java.awt.image.BufferedImage(720, 1280, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            byte[][] images = new byte[2][];
+            for (int i = 0; i < images.length; i++) {
+                picture.setRGB(20, 20, i == 0 ? 0xffff00 : 0x0022ff);
+                var jpeg = new java.io.ByteArrayOutputStream();
+                javax.imageio.ImageIO.write(picture, "jpeg", jpeg);
+                images[i] = jpeg.toByteArray();
+            }
+            var map = new java.io.ByteArrayOutputStream();
+            try (var zip = new java.util.zip.DeflaterOutputStream(map)) {
+                byte[] pixels = new byte[TikTokMedia.PIXELS];
+                Arrays.fill(pixels, (byte) 4);
+                zip.write(pixels);
+            }
+            byte[] packed = map.toByteArray();
+            var indices = ByteBuffer.allocate(count * Long.BYTES);
+            try (var output = new java.io.DataOutputStream(Files.newOutputStream(directory.resolve("clip.tkp")))) {
+                for (int value : new int[]{0x544b5033, count, TikTokMedia.FPS, TikTokMedia.WIDTH,
+                        TikTokMedia.HEIGHT, TikTokMedia.RATE, TikTokMedia.BANDS}) output.writeInt(value);
+                byte[] bands = new byte[TikTokMedia.BAND_BYTES];
+                for (int i = 0; i < count; i++) {
+                    indices.putLong(output.size());
+                    byte[] image = images[i % images.length];
+                    output.writeInt(packed.length);
+                    output.writeInt(image.length);
+                    output.write(packed);
+                    output.write(bands);
+                    output.write(ByteBuffer.allocate(TikTokMedia.AUDIO_BYTES).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                            .putShort((short) i).putShort((short) ~i).array());
+                    output.write(image);
+                }
+            }
+            Files.write(directory.resolve("clip.idx"), indices.array());
+            var spectral = ByteBuffer.allocate(16 + count * TikTokMedia.SPECTRAL_BYTES);
+            spectral.putInt(0x544b4131).putInt(count).putInt(20).putInt(88);
+            for (int i = 0; i < count; i++) {
+                int position = spectral.position();
+                spectral.putShort((short) 2).putShort((short) (100 << 5)).putShort((short) 4096)
+                        .putShort((short) ((200 << 5) | 1)).putShort((short) 2048);
+                spectral.position(position + TikTokMedia.SPECTRAL_BYTES);
+            }
+            Files.write(directory.resolve("clip.tka"), spectral.array());
+        }
+
+        void getSegment(ServerPlayer player, MediaPackets.Segment advertised, long sequence) {
+            part = MediaProtocolChecks.segmentWire(player, advertised);
+            require(part.sequence() == sequence && part.totalFrames() == 81 && part.width() == 720 && part.height() == 1280,
+                    "segmented route preserves exact clip length/full quality and monotonic sequence");
+            var uri = URI.create(part.uri());
+            require(origin.resolve("/").equals(uri.resolve("/")) && uri.getRawQuery() == null,
+                    "segmented receipt uses only the trusted signed relay");
+            download = client.sendAsync(HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(5)).GET().build(),
+                    HttpResponse.BodyHandlers.ofByteArray());
+        }
+
+        boolean verifySegment(Fixture fixture) throws IOException {
+            if (!download.isDone()) return false;
+            var response = download.join();
+            require(response.statusCode() == 200 && response.body().length <= MediaClip.MAX_SEGMENT_BYTES,
+                    "actual authenticated HTTPS PUT and bounded signed GET");
+            var temp = Files.createTempFile(fixture.directory, "part-", ".lwm");
+            try {
+                Files.write(temp, response.body());
+                try (var clip = MediaClip.openSegment(temp, part.width(), part.height(), part.totalFrames(), part.sequence())) {
+                    var cached = fixture.cache.next("");
+                    require(clip.frameCount() == (part.sequence() % 3 == 2 ? 1 : 40), "actual exact segment interval");
+                    int start = MediaClip.segmentIndex(part.sequence(), part.totalFrames()) * MediaClip.SEGMENT_FRAMES;
+                    for (int i = 0; i < clip.frameCount(); i++) {
+                        var frame = clip.next();
+                        var expected = cached.clientFrame(start + i);
+                        require(Arrays.equals(frame.jpeg(), expected.jpeg()) && Arrays.equals(frame.pcm(), expected.pcm()),
+                                "no re-encoding, stereo swap or lost source frames across segment boundary");
+                    }
+                    require(clip.next() == null, "exact segment EOF");
+                }
+            } finally { Files.delete(temp); }
+            return true;
+        }
+
         void advance(Fixture fixture){phase++;since=fixture.now;}
         boolean step(Fixture fixture)throws Exception{
             var player=fixture.f.owner;
@@ -570,9 +658,11 @@ public final class TikTokPlaybackChecks {
             var others=fixture.f.audience.packets();
             var links=media(packets,MediaPackets.Link.class);
             var frames=media(packets,MediaPackets.Frame.class);
+            var segments=media(packets,MediaPackets.Segment.class);
             long elapsed=fixture.now-since;
             require(media(others,MediaPackets.Link.class).isEmpty()&&media(others,MediaPackets.Frame.class).isEmpty()
-                    &&media(others,MediaPackets.Stop.class).isEmpty(),"relay media stays on the receiving native connection");
+                    &&media(others,MediaPackets.Stop.class).isEmpty()&&media(others,MediaPackets.Segment.class).isEmpty(),
+                    "relay media stays on the receiving native connection");
             switch(phase){
                 case 0->{
                     fixture.playback.reset();
@@ -642,6 +732,69 @@ public final class TikTokPlaybackChecks {
                     if(elapsed<200_000_000L)return false;
                     require(frames.isEmpty()&&links.isEmpty()&&puts()==1,"stopped native session refuses later receipts and frames");
                     SkyWars2.LOGGER.info("[check] TikTok negotiated transport PASS (direct CDN Link, one on-demand TLS relay PUT and exact signed GET, same-session JPEG/PCM recovery, stale/foreign receipt and stop controls)");
+                    fixture.playback.reset();
+                    MediaProtocolChecks.negotiateSegments(player);
+                    MediaProtocolChecks.negotiateSegments(observer);
+                    packets.clear();
+                    player.setItemInHand(InteractionHand.MAIN_HAND,fixture.authored.copy());
+                    fixture.use();
+                    advance(fixture);
+                }
+                case 6->{
+                    require(links.isEmpty() && frames.isEmpty(), "no-FFmpeg enhanced client uses only segment receipts");
+                    if (segments.isEmpty()) return false;
+                    require(segments.size() == 1 && puts() == 2, "only initial requested segment was published");
+                    getSegment(player, segments.getFirst(), 0);
+                    session = part.session();
+                    MediaProtocolChecks.requestSegment(player, UUID.randomUUID(), 1);
+                    MediaProtocolChecks.requestSegment(observer, session, 1);
+                    MediaProtocolChecks.requestSegment(player, session, 2);
+                    advance(fixture);
+                }
+                case 7->{
+                    if (elapsed < 250_000_000L || !verifySegment(fixture)) return false;
+                    require(segments.size() == 1 && puts() == 2, "stale, foreign and skipped requests cannot publish a part");
+                    MediaProtocolChecks.requestSegment(player, session, 1);
+                    MediaProtocolChecks.requestSegment(player, session, 1);
+                    advance(fixture);
+                }
+                case 8->{
+                    if (segments.size() < 2) return false;
+                    require(segments.size() == 2 && puts() == 3, "exactly one prefetch follows duplicate receipts");
+                    getSegment(player, segments.getLast(), 1);
+                    MediaProtocolChecks.requestSegment(player, session, 2);
+                    MediaProtocolChecks.requestSegment(player, session, 3);
+                    advance(fixture);
+                }
+                case 9->{
+                    if (elapsed < 250_000_000L || !verifySegment(fixture)) return false;
+                    require(segments.size() == 2 && puts() == 3, "a valid future page waits for its presentation cadence");
+                    advance(fixture);
+                }
+                case 10->{
+                    if (segments.size() < 3) return false;
+                    require(segments.size() == 3 && puts() == 4 && links.isEmpty() && frames.isEmpty(),
+                            "one demand-coded segment follows cadence without game media packets");
+                    getSegment(player, segments.getLast(), 2);
+                    advance(fixture);
+                }
+                case 11->{
+                    if (!verifySegment(fixture)) return false;
+                    MediaProtocolChecks.requestSegment(player, session, 3);
+                    player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                    fixture.playback.tick();
+                    require(media(packets,MediaPackets.Stop.class).stream().map(MediaPackets.Stop::session).toList().equals(List.of(session)),
+                            "Stop retires exact segmented session and its queued next page");
+                    packets.clear();
+                    MediaProtocolChecks.requestSegment(player, session, 3);
+                    advance(fixture);
+                }
+                case 12->{
+                    if (elapsed < 2_100_000_000L) return false;
+                    require(segments.isEmpty() && links.isEmpty() && frames.isEmpty() && puts() == 4
+                                    && fixture.playback.pins().isEmpty(),
+                            "stopped segment session releases clip and cannot publish from a queued or stale request");
+                    SkyWars2.LOGGER.info("[check] TikTok segmented HTTPS PASS (3 real TLS parts, 40+40+1 frames, exact JPEG/stereo, per-connection requests, duplicate/out-of-order gates, cadence, Stop drops pending work)");
                     return true;
                 }
                 default->throw new IllegalStateException("unexpected relay fixture phase");

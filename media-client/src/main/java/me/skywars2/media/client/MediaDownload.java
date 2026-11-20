@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import javax.net.ssl.SNIHostName;
+import me.skywars2.media.MediaClip;
 import me.skywars2.media.MediaRelayEndpoint;
 
 /** Downloads one selected clip without using the system proxy or storing credentials. */
@@ -63,17 +64,21 @@ final class MediaDownload {
     }
 
     Transfer direct(URI uri) {
-        return start(uri, true);
+        return start(uri, true, MAX_BYTES);
     }
 
     /** Call after a CDN failure or after releasing an unsupported CDN file. */
     Transfer fallback(URI uri) {
-        return start(uri, false);
+        return start(uri, false, MAX_BYTES);
     }
 
-    private Transfer start(URI uri, boolean direct) {
+    Transfer segment(URI uri) {
+        return start(uri, false, MediaClip.MAX_SEGMENT_BYTES);
+    }
+
+    private Transfer start(URI uri, boolean direct, long maxBytes) {
         validate(uri, direct, relayOrigin);
-        return new Transfer(temporaryDirectory, uri, direct, relayOrigin);
+        return new Transfer(temporaryDirectory, uri, direct, relayOrigin, maxBytes);
     }
 
     static String validateRelayOrigin(URI origin) {
@@ -132,14 +137,16 @@ final class MediaDownload {
     }
 
     /** Owns the partial and completed file. Close the decoder before closing this handle. */
-    static final class Transfer implements AutoCloseable {
+    static final class Transfer implements MediaSegmentQueue.Download {
         private final CompletableFuture<Path> result = new CompletableFuture<>();
         private final Thread worker;
+        private final long maxBytes;
         private boolean closed;
         private Channel channel;
         private Path retained;
 
-        private Transfer(Path directory, URI uri, boolean direct, URI relayOrigin) {
+        private Transfer(Path directory, URI uri, boolean direct, URI relayOrigin, long maxBytes) {
+            this.maxBytes = maxBytes;
             worker = Thread.ofVirtual().name("skywars-media-download").unstarted(() -> download(directory, uri, direct, relayOrigin));
             result.orTimeout(TOTAL_SECONDS, TimeUnit.SECONDS).whenComplete((path, failure) -> {
                 if (failure instanceof TimeoutException) cancel();
@@ -147,7 +154,7 @@ final class MediaDownload {
             worker.start();
         }
 
-        CompletionStage<Path> file() {
+        @Override public CompletionStage<Path> file() {
             return result.minimalCompletionStage();
         }
 
@@ -241,7 +248,7 @@ final class MediaDownload {
                                 if (!IPV4.matcher(host).matches()) parameters.setServerNames(List.of(new SNIHostName(host)));
                                 ssl.engine().setSSLParameters(parameters);
                                 ssl.setHandshakeTimeoutMillis(CONNECT_MILLIS);
-                                transport.pipeline().addLast(ssl, new HttpClientCodec(), new Response(response, file, direct));
+                                transport.pipeline().addLast(ssl, new HttpClientCodec(), new Response(response, file, direct, maxBytes));
                             }
                         }).connect(new InetSocketAddress(address, port));
                 Channel transport = request.channel();
@@ -292,13 +299,15 @@ final class MediaDownload {
         private final CompletableFuture<String> result;
         private final FileChannel file;
         private final boolean direct;
+        private final long maxBytes;
         private boolean headers;
         private long length = -1, read;
 
-        Response(CompletableFuture<String> result, FileChannel file, boolean direct) {
+        Response(CompletableFuture<String> result, FileChannel file, boolean direct, long maxBytes) {
             this.result = result;
             this.file = file;
             this.direct = direct;
+            this.maxBytes = maxBytes;
         }
 
         @Override protected void channelRead0(ChannelHandlerContext context, HttpObject object) throws IOException {
@@ -329,13 +338,13 @@ final class MediaDownload {
                         throw new IOException("Partial media file");
                     length = entire;
                 }
-                if (length == 0 || length > MAX_BYTES) throw new IOException("Media response size exceeds its limit");
+                if (length == 0 || length > maxBytes) throw new IOException("Media response size exceeds its limit");
             }
             if (object instanceof HttpContent content) {
                 if (!headers) throw new IOException("Missing media response headers");
                 var data = content.content();
                 read += data.readableBytes();
-                if (read > MAX_BYTES || length >= 0 && read > length) throw new IOException("Media response size exceeds its limit");
+                if (read > maxBytes || length >= 0 && read > length) throw new IOException("Media response size exceeds its limit");
                 while (data.isReadable()) {
                     if (data.readBytes(file, data.readableBytes()) == 0) throw new IOException("Could not write media file");
                 }

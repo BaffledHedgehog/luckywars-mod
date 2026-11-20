@@ -23,7 +23,10 @@ public final class MediaClip {
 
     private static final int MAGIC = 0x4c574d31; // LWM1
     private static final int HEADER_BYTES = 7 * Integer.BYTES;
-    private static final int MAX_FRAMES = 6_000;
+    public static final int MAX_FRAMES = 6_000;
+    public static final int SEGMENT_FRAMES = 40;
+    public static final long MAX_SEGMENT_BYTES = HEADER_BYTES
+            + (long) SEGMENT_FRAMES * (Integer.BYTES + MediaPackets.MAX_JPEG + PCM_BYTES);
     private static final int MIN_JPEG = 4;
 
     private MediaClip() { }
@@ -93,6 +96,35 @@ public final class MediaClip {
             }
             throw failure;
         }
+    }
+
+    public static int segmentCount(int totalFrames) {
+        if (totalFrames < 1 || totalFrames > MAX_FRAMES) throw new IllegalArgumentException("media_segment_frames");
+        return (totalFrames + SEGMENT_FRAMES - 1) / SEGMENT_FRAMES;
+    }
+
+    public static int segmentIndex(long sequence, int totalFrames) {
+        if (sequence < 0) throw new IllegalArgumentException("media_segment_sequence");
+        return (int) (sequence % segmentCount(totalFrames));
+    }
+
+    public static int framesInSegment(long sequence, int totalFrames) {
+        return Math.min(SEGMENT_FRAMES, totalFrames - segmentIndex(sequence, totalFrames) * SEGMENT_FRAMES);
+    }
+
+    public static void writeSegment(Path path, int width, int height, int totalFrames, long sequence, FrameSource source)
+            throws IOException {
+        int start = segmentIndex(sequence, totalFrames) * SEGMENT_FRAMES;
+        write(path, width, height, framesInSegment(sequence, totalFrames), number -> source.frame(start + number));
+    }
+
+    public static Reader openSegment(Path path, int width, int height, int totalFrames, long sequence) throws IOException {
+        int expected = framesInSegment(sequence, totalFrames);
+        if (Files.size(path) > MAX_SEGMENT_BYTES) throw new SizeLimitException();
+        var reader = open(path);
+        if (reader.width() == width && reader.height() == height && reader.frameCount() == expected) return reader;
+        reader.close();
+        throw new IOException("media_segment_header");
     }
 
     public static Reader open(Path path) throws IOException {
