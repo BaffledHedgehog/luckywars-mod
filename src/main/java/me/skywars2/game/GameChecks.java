@@ -9193,6 +9193,38 @@ public final class GameChecks {
                                         "Native Thorns retaliates against the cultist that fired Terra: source="+thorny.getLastDamageSource()
                                                 +", targetHP="+thorny.getHealth()+", mobHP="+chaosBefore+"->"+chaos.getHealth()
                                                 +", casterHP="+ownerBefore+"->"+owner.getHealth());
+                        var terraService=game.items().terra();
+                        var ceiling=net.minecraft.core.BlockPos.containing(flight.x,level.getMaxY(),flight.z);
+                        var floor=ceiling.atY(level.getMinY());
+                        for(var edge:java.util.List.of(ceiling,floor)) {
+                                changedBlocks.putIfAbsent(edge,game.maps().snapshot(edge));
+                                level.setBlock(edge,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2|16|32);
+                        }
+                        var above=Vec3.atBottomCenterOf(ceiling).add(0,1.5,0);
+                        var below=Vec3.atBottomCenterOf(floor).add(0,-.5,0);
+                        var up=new Vec3(0,1.8,0);
+                        shot.setPos(above); shot.setDeltaMovement(up.reverse()); terraService.tick();
+                        require(!shot.isRemoved() && shot.getY()<level.getMaxY()+1,"Cultist Terra can return from above the build height");
+                        shot.setPos(below); shot.setDeltaMovement(up); terraService.tick();
+                        require(!shot.isRemoved() && shot.getY()>level.getMinY(),"Cultist Terra can return from below the build height");
+                        var flyingTarget=frostProbeCow(level,cows,above.x,above.y+2.2,above.z);
+                        shot.setPos(above); shot.setDeltaMovement(up);
+                        terraService.tick(); terraService.tick();
+                        require(!shot.isRemoved() && flyingTarget.getHealth()<flyingTarget.getMaxHealth(),
+                                        "An outward Cultist Terra charge still hits a reachable entity above the build height");
+                        flyingTarget.discard();
+                        require(shot.display()!=null,"Cultist Terra has a Polymer model before leaving the world");
+                        terraService.tick();
+                        require(shot.isRemoved() && shot.display()==null && !terraService.transientSnapshot().contains(shot),
+                                        "An outward cultist charge with no target discards its body, model and active flight above the world");
+                        var priorFalling=new java.util.HashSet<>(terraService.transientSnapshot());
+                        terraService.cultistCharge(owner,chaos,below,up.reverse());
+                        var fallingShots=terraService.transientSnapshot().stream().filter(charge->!priorFalling.contains(charge)).toList();
+                        require(fallingShots.size()==1 && fallingShots.getFirst().display()!=null,"Native cultist charge exists below the build height");
+                        var falling=fallingShots.getFirst();
+                        terraService.tick();
+                        require(falling.isRemoved() && falling.display()==null && !terraService.transientSnapshot().contains(falling),
+                                        "An outward cultist charge with no target discards its body, model and active flight below the world");
                         chaosVictim.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,armor.copy());
                         chaosVictim.setInvulnerableTime(0);
                         chaos.setInvulnerableTime(0);

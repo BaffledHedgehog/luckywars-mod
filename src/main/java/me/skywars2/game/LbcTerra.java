@@ -413,7 +413,7 @@ public final class LbcTerra {
         while (!finishingModels.isEmpty() && finishingModels.peekFirst().removeAt() <= modelTicks)
             finishingModels.removeFirst().holder().destroy();
         if (projectiles.isEmpty()) return;
-        boolean stopped = game.items().wands().timeStopped();
+        boolean legacyStopped = game.items().wands().legacyTimeStopped();
         batch.addAll(projectiles);
         try {
             for (var projectile : batch) {
@@ -425,7 +425,8 @@ public final class LbcTerra {
                     remove(projectile); continue;
                 }
                 if(projectile.holder==null&&!projectile.emitterStyle)projectile.attachModel();
-                if (game.items().timeStop().stopped((ServerLevel)projectile.level()) || (game.items().spellSources().current()!=null?projectile:owner).entityTags().contains("time_stopped")) {
+                if (legacyStopped || game.items().timeStop().stopped((ServerLevel)projectile.level())
+                        || (game.items().spellSources().current()!=null?projectile:owner).entityTags().contains("time_stopped")) {
                     if (!projectile.modelPaused) projectile.syncModel(projectile.position());
                     projectile.modelPaused = true;
                     continue;
@@ -449,7 +450,8 @@ public final class LbcTerra {
         var level = sourceLevel(owner);
         Vec3 from = projectile.position(), motion = projectile.getDeltaMovement(), to = from.add(motion);
         if (!level.hasChunkAt(BlockPos.containing(from)) || motion.lengthSqr() < 1e-12
-                || game.items().magic().suppressedAt(level, from)) return false;
+                || game.items().magic().suppressedAt(level, from)
+                || escapedCultistCharge(projectile, owner, level)) return false;
         // Один native DDA останавливается на стене ИЛИ первом недоступном чанке.
         // hasChunkAt вызывается до чтения каждой клетки: путь не подгружает мир,
         // а попадания до границы чанка сохраняются даже у быстрого заряда.
@@ -588,6 +590,28 @@ public final class LbcTerra {
         // Полный тик интерполяции + тик для кадра в конечной точке, без новых gameplay-тиков.
         finishingModels.addLast(new FinishingModel(holder, (ServerLevel)projectile.level(), impact,
                 projectile.kind, projectile.getYRot(), projectile.getXRot(), projectile.display.getOffset(), modelTicks + 2));
+    }
+
+    private boolean escapedCultistCharge(TerraProjectile projectile, ServerPlayer owner, ServerLevel level) {
+        // The native shooter is the cultist, so the player-only lifetime review cannot retire this flight.
+        if (projectile.kind.lifetime != 0 || projectile.sourceLifetime != 0 || !(projectile.getOwner() instanceof Mob)) return false;
+
+        var bounds = projectile.getBoundingBox();
+        var motion = projectile.getDeltaMovement();
+        boolean leavingAbove = bounds.minY >= level.getMaxY() + 1.0 && motion.y >= 0;
+        boolean leavingBelow = bounds.maxY <= level.getMinY() && motion.y <= 0;
+        if (!leavingAbove && !leavingBelow) return false;
+
+        // Players and mobs can still be hit outside the build height.
+        var from = projectile.position();
+        var direction = motion.normalize();
+        for (var candidate : game.items().lifetimes().loadedTargets()) {
+            if (!candidate.isAlive() || candidate.isRemoved() || !target(owner, candidate)) continue;
+            var hitbox = LbcProjectileSweep.arrowBounds(candidate.getBoundingBox());
+            double reach = hitbox.getCenter().subtract(from).dot(direction) + 2 * hitbox.getSize();
+            if (reach > 0 && LbcProjectileSweep.entry(hitbox, from, from.add(direction.scale(reach))) != null) return false;
+        }
+        return true;
     }
 
     private boolean target(ServerPlayer owner, Entity entity) {
