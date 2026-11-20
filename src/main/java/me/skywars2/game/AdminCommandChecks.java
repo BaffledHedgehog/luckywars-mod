@@ -15,6 +15,133 @@ public final class AdminCommandChecks {
         try{return game.server().getCommands().getDispatcher().execute("skywars admin "+suffix,game.server().createCommandSourceStack());}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException("Native admin command "+suffix,error);}
     }
+    private static void dropRequests(GameController game, net.minecraft.server.level.ServerPlayer online,
+                                     String offlineName, UUID uuid) throws Exception {
+        var server = game.server();
+        var dispatcher = server.getCommands().getDispatcher();
+        var output = new java.util.ArrayList<String>();
+        var source = server.createCommandSourceStack().withSource(new net.minecraft.commands.CommandSource() {
+            public void sendSystemMessage(net.minecraft.network.chat.Component message) { output.add(message.getString()); }
+            public boolean acceptsSuccess() { return true; }
+            public boolean acceptsFailure() { return true; }
+            public boolean shouldInformAdmins() { return false; }
+        });
+        String earned = LbcDropRequests.earnedKey(3), fulfilled = LbcDropRequests.fulfilledKey(3);
+        var earnedAdv = server.getAdvancements().get(Identifier.parse(earned));
+        var fulfilledAdv = server.getAdvancements().get(Identifier.parse(fulfilled));
+        require(earnedAdv != null && fulfilledAdv != null, "exact source drop request ids");
+        var files = SavedAdvancements.of(server);
+        var originalFile = files.legacy().resolve(uuid + ".json");
+        var editedFile = files.current().resolve(uuid + ".json");
+        require(!Files.exists(originalFile) && !Files.exists(editedFile), "offline fixture owns both native files exclusively");
+        boolean createdLegacyDirectory = !Files.exists(files.legacy());
+        Files.createDirectories(files.legacy());
+        var nativeBefore = java.util.Map.of(earnedAdv, online.getAdvancements().getOrStartProgress(earnedAdv).isDone(),
+                fulfilledAdv, online.getAdvancements().getOrStartProgress(fulfilledAdv).isDone());
+        try {
+            // One real legacy completed criterion, one bogus 'done' flag, and an unrelated saved entry.
+            byte[] original = ("""
+                    {
+                      "swrg:rewards/drop_3": {"criteria": {"s": "2026-11-20 12:00:00 +0300"}, "done": true},
+                      "swrg:rewards/drop_2": {"criteria": {"other": "2026-11-20 12:00:00 +0300"}, "done": true},
+                      "fixture:unrelated": {"criteria": {"x": "2026-11-20 12:00:00 +0300"}, "done": true},
+                      "DataVersion": 4325
+                    }
+                    """).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            Files.write(originalFile, original);
+            String query = "advancement query " + offlineName + " ";
+            require(dispatcher.execute(query + earned, source) == 1
+                            && dispatcher.execute(query + LbcDropRequests.earnedKey(2), source) == 0,
+                    "query decodes legacy completed requirements, ignoring a bogus 'done' field");
+            String[] prefixes = {"advancement query qaAd", "advancement grant qaAd", "advancement revoke qaAd", query + "swrg:rewards/drop_3_"};
+            for (String prefix : prefixes) {
+                String suggestion = prefix.equals(prefixes[3]) ? fulfilled : offlineName;
+                require(dispatcher.getCompletionSuggestions(dispatcher.parse(prefix, source)).join().getList().stream()
+                        .anyMatch(entry -> entry.getText().equals(suggestion)), "real Brigadier suggestion for " + prefix);
+            }
+
+            var noPermission = net.minecraft.server.permissions.PermissionSet.NO_PERMISSIONS;
+            require(!dispatcher.getRoot().getChild("droprequests").canUse(source.withPermission(noPermission))
+                            && !dispatcher.getRoot().getChild("advancement").canUse(source.withPermission(noPermission)),
+                    "legacy listing and native advancement queries retain op admission");
+            require(dispatcher.execute("droprequests", source) == 1, "offline listing scheduled through shown command");
+            long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+            server.managedBlock(() -> output.stream().anyMatch(line -> line.startsWith("Unfulfilled manual prizes:"))
+                    || System.nanoTime() >= deadline);
+            var profile = game.players().knownProfiles().get(uuid);
+            require(output.stream().anyMatch(line -> line.startsWith(offlineName + " [") && line.contains(" drop_3 "))
+                            && LbcDropRequests.pending(profile).equals(List.of(3)), "list includes only the exact offline earned request");
+            require(dispatcher.execute("skywars droprequest made " + offlineName + " 2", source) == 0,
+                    "attempt to fulfill an unearned request does not fabricate it");
+            require(dispatcher.execute("skywars droprequest made " + offlineName + " 3", source) == 1
+                            && dispatcher.execute(query + earned, source) == 1 && dispatcher.execute(query + fulfilled, source) == 1
+                            && LbcDropRequests.pending(profile).isEmpty()
+                            && files.read(uuid).progress(fulfilled, fulfilledAdv.value().requirements()).isDone(), "offline marking preserves earned and records the matching completion");
+
+            String revoke = "advancement revoke " + offlineName + " only ";
+            require(dispatcher.execute(revoke + fulfilled + " s", source) == 1
+                            && dispatcher.execute(query + fulfilled, source) == 0 && dispatcher.execute(query + earned, source) == 1,
+                    "offline revoke alters only the chosen criterion and matching canonical completion");
+            String grant = "advancement grant " + offlineName.toLowerCase(java.util.Locale.ROOT) + " only ";
+            require(dispatcher.execute(grant + fulfilled, source) == 1 && dispatcher.execute(query + fulfilled, source) == 1
+                            && files.read(uuid).progress(fulfilled, fulfilledAdv.value().requirements()).isDone(),
+                    "offline case-insensitive grant is saved to the native current progress file");
+            require(java.util.Arrays.equals(Files.readAllBytes(originalFile), original)
+                            && files.read(uuid).data().has("fixture:unrelated"), "legacy file and unrelated native progress survive editing");
+
+            String root = "lbc:true_advancements/root";
+            String branch = "lbc:true_advancements/accesories";
+            String leaf = "lbc:true_advancements/accesories/save_platform";
+            String editPrefix = "advancement grant " + offlineName + " ";
+            String revokePrefix = "advancement revoke " + offlineName + " ";
+            require(dispatcher.execute(editPrefix + "until " + branch, source) > 0
+                            && dispatcher.execute(query + root, source) == 1 && dispatcher.execute(query + branch, source) == 1
+                            && dispatcher.execute(query + leaf, source) == 0, "offline until changes the parent branch only");
+            require(dispatcher.execute(editPrefix + "from " + branch, source) > 0 && dispatcher.execute(query + leaf, source) == 1
+                            && dispatcher.execute(revokePrefix + "through " + branch, source) > 0
+                            && dispatcher.execute(query + root, source) == 0 && dispatcher.execute(query + leaf, source) == 0,
+                    "offline from and through use the native advancement hierarchy");
+            require(dispatcher.execute(editPrefix + "everything", source) > 0 && dispatcher.execute(query + leaf, source) == 1
+                            && dispatcher.execute(revokePrefix + "everything", source) > 0 && dispatcher.execute(query + leaf, source) == 0
+                            && files.read(uuid).data().has("fixture:unrelated"), "everything respects the registered advancement set");
+            require(dispatcher.execute(editPrefix + "only " + earned, source) == 1
+                            && dispatcher.execute(editPrefix + "only " + fulfilled, source) == 1, "restore the targeted request for rollback");
+            var beforeFailure = Files.readAllBytes(editedFile);
+            var temp = Path.of("config","luckywars","players.json.tmp");
+            require(!Files.exists(temp), "atomic-save failure fixture owns the temporary path");
+            Files.createDirectory(temp);
+            var sentinel = temp.resolve("owned");
+            try {
+                Files.writeString(sentinel, "offline advancement save failure");
+                require(dispatcher.execute(revoke + fulfilled, source) == 0
+                                && java.util.Arrays.equals(beforeFailure, Files.readAllBytes(editedFile))
+                                && dispatcher.execute(query + fulfilled, source) == 1,
+                        "failed profile transaction restores the actual native saved file and the in-memory entitlement");
+            } finally {
+                Files.deleteIfExists(sentinel);
+                Files.deleteIfExists(temp);
+            }
+
+            String player = online.getScoreboardName();
+            require(dispatcher.execute("advancement query " + player + " " + earned, source) == (nativeBefore.get(earnedAdv) ? 1 : 0),
+                    "query reads genuinely live advancement state");
+            if (!nativeBefore.get(earnedAdv)) require(dispatcher.execute("advancement grant " + player + " only " + earned, source) == 1,
+                    "ordinary live grant still uses the vanilla command");
+            require(dispatcher.execute("skywars droprequest made " + player + " 3", source) == 1
+                            && online.getAdvancements().getOrStartProgress(earnedAdv).isDone()
+                            && online.getAdvancements().getOrStartProgress(fulfilledAdv).isDone(),
+                    "actual online fulfillment awards the matching advancement and preserves the earned one");
+        } finally {
+            for (var entry : nativeBefore.entrySet())
+                for (String criterion : entry.getKey().value().criteria().keySet()) {
+                    if (entry.getValue()) online.getAdvancements().award(entry.getKey(), criterion);
+                    else online.getAdvancements().revoke(entry.getKey(), criterion);
+                }
+            Files.deleteIfExists(editedFile);
+            Files.deleteIfExists(originalFile);
+            if (createdLegacyDirectory) Files.deleteIfExists(files.legacy());
+        }
+    }
     public static void run(GameController game){
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         var ordinary=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
@@ -60,12 +187,13 @@ public final class AdminCommandChecks {
             var payout=LbcCases.class.getDeclaredMethod("apply",PlayerStore.Profile.class,LbcCases.Payout.class);payout.setAccessible(true);
             payout.invoke(null,online,new LbcCases.Payout("swrg.kit20",0,0,"",false));
             require(online.legacyUnlocks.contains("swrg.kit20")&&!online.revokedLegacyUnlocks.contains("swrg.kit20"),"new canonical case award reopens a previously revoked unlock");
+            dropRequests(game,owner,offlineName,offline);
             var temporary=Path.of("config","luckywars","players.json.tmp");var sentinel=temporary.resolve("admin-io-sentinel");
             require(!Files.exists(temporary),"exclusive absent durable-save temporary path");
             try{Files.createDirectory(temporary);Files.writeString(sentinel,"owned admin command failure fixture");require(command(game,"coins "+offlineName+" add 10")==0&&row.coins==123&&PlayerStore.load().knownProfiles().get(offline).coins==123,"failed durable save restores memory and leaves disk unchanged");}
             finally{Files.deleteIfExists(sentinel);Files.deleteIfExists(temporary);}
         }catch(Exception error){throw new IllegalStateException("Native administration fixture: "+error.getMessage(),error);}
         finally{saved.restore(game);saved.restoreAttributes();saved.restoreUse();game.players().restoreProfiles(profiles);try{game.players().saveAtomic();}catch(java.io.IOException error){throw new IllegalStateException("Restore admin profiles",error);}}
-        SkyWars2.LOGGER.info("[check] PASS admin-commands (actual permission/dispatcher, offline currency and five key slots, overflow/unknown controls, source native grants/revokes/selections, stale projection denial, disk reload, re-earned case ownership and failed-save rollback)");
+        SkyWars2.LOGGER.info("[check] PASS admin-commands (actual permission/dispatcher, offline currency and five key slots, overflow/unknown controls, source native grants/revokes/selections, stale projection denial, disk reload, re-earned case ownership, saved drop requests and offline advancement commands/completions, failed-save rollback)");
     }
 }

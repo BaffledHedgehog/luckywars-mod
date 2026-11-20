@@ -58,6 +58,15 @@ public final class LbcSourceUnlocks {
         return changed;
     }
 
+    static void publishDropRequest(ServerPlayer player, int id, boolean made) {
+        var flag = player.level().getServer().getAdvancements().get(Identifier.parse(LbcDropRequests.fulfilledKey(id)));
+        if (flag == null) return;
+        for (String criterion : flag.value().criteria().keySet()) {
+            if (made) project(player, flag, criterion);
+            else player.getAdvancements().revoke(flag, criterion);
+        }
+    }
+
     /** Projections are repaired after durable commit/rejoin, never used as the payout journal. */
     static void publish(ServerPlayer player, PlayerStore.Profile profile) {
         for(String key:profile.revokedLegacyUnlocks){
@@ -67,9 +76,7 @@ public final class LbcSourceUnlocks {
         for (String id : profile.dropRequestOverrides) {
             String key = LbcDropRequests.fulfilledKey(Integer.parseInt(id));
             if (profile.legacyUnlocks.contains(key)) continue;
-            var advancement = player.level().getServer().getAdvancements().get(Identifier.parse(key));
-            if (advancement != null) for (String criterion : advancement.value().criteria().keySet())
-                player.getAdvancements().revoke(advancement, criterion);
+            publishDropRequest(player, Integer.parseInt(id), false);
         }
         for (String key : profile.legacyUnlocks) {
             if(profile.revokedLegacyUnlocks.contains(key))continue;
