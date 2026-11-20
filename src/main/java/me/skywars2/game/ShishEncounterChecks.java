@@ -1,5 +1,6 @@
 package me.skywars2.game;
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 /** Native encounter callbacks and real server ticks; no production clock is advanced by this fixture. */
@@ -93,7 +95,7 @@ public final class ShishEncounterChecks {
         final Map<String,Map<net.minecraft.world.scores.Objective,Integer>> globals=new LinkedHashMap<>();
         Display.ItemDisplay crate;ItemStack egg,katana,yellow;net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball ball;
         net.minecraft.world.entity.animal.cow.Cow victim;Vec3 yellowOrigin;boolean yellowIssued;
-        ArmorStand convertedStand;Skeleton regularCyborg;Vec3 wyvernTakeoff;
+        ArmorStand convertedStand;Skeleton regularCyborg;Vec3 cyborgHome,wyvernTakeoff;
         int wyvernOwnerPackets,wyvernObserverPackets,scrollOwnerPackets,scrollObserverPackets;
         Object originalShieldRandom;BlockPos scrollWall;int scrollShieldTicks;
         final Set<Entity> beforeScroll=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -153,7 +155,43 @@ public final class ShishEncounterChecks {
             reset();nativeCyborgs();
             regularCyborg.setNoAi(true);
             move(owner,origin.add(-8,0,0));
-            phase=game.server().getTickCount();stage=4;
+            hideCyborg();
+        }
+        void hideCyborg() {
+            var uuid = regularCyborg.getUUID();
+            require(level.getEntity(uuid) == regularCyborg, "ordinary Cyborg starts as a visible native body");
+            cyborgHome = regularCyborg.position();
+            var cold = new Vec3(2304.5, cyborgHome.y, 2304.5);
+            require(coldColumn(ChunkPos.containing(BlockPos.containing(cold))), "native hidden test column starts cold");
+            regularCyborg.setPos(cold);
+            require(nativeCyborgHidden(), "native movement hides the same registered Cyborg without loading a chunk");
+            phase = game.server().getTickCount();
+            stage = 9;
+        }
+        boolean coldColumn(ChunkPos chunk) {
+            return level.getChunkSource().getChunkNow(chunk.x(), chunk.z()) == null
+                    && !level.areEntitiesLoaded(ChunkPos.pack(chunk.x(), chunk.z()));
+        }
+        boolean nativeCyborgHidden() {
+            var uuid = regularCyborg.getUUID();
+            var manager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
+            return manager.isLoaded(uuid) && level.getEntity(uuid) == null && regularCyborg.getRemovalReason() == null
+                    && coldColumn(regularCyborg.chunkPosition());
+        }
+        void resumeCyborg() {
+            require(nativeCyborgHidden(), "native Cyborg remains registered and hidden after deferred tracking callback");
+            require(!game.items().shishEncounter().snapshot().contains(regularCyborg)
+                    && score(regularCyborg, "cyborgBossFly") == 50,
+                    "hidden Cyborg pauses encounter actions and its exact launch cooldown");
+            regularCyborg.setPos(cyborgHome);
+            require(!regularCyborg.isRemoved() && level.getEntity(regularCyborg.getUUID()) == regularCyborg
+                    && game.items().shishEncounter().snapshot().contains(regularCyborg),
+                    "native tracking returns the same Cyborg body to the encounter registry");
+            authority(regularCyborg);
+            require(score(regularCyborg, "cyborgBossFly") == 50 && regularCyborg.getHealth() == 75,
+                    "returning Cyborg retains its exact cooldown and health");
+            phase = game.server().getTickCount();
+            stage = 4;
         }
         @SuppressWarnings("unchecked") List<ItemStack> ammoLeaves(){
             var table=game.server().reloadableRegistries().getLootTable(net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:magnum_ammo")));
@@ -284,6 +322,7 @@ public final class ShishEncounterChecks {
         boolean step(){client.ack();other.ack();int elapsed=game.server().getTickCount()-phase;require(game.server().getTickCount()-start<590,"bounded actual native tick timeout");
             if(stage==-1){if(elapsed<5)return false;require(score(crate,"supplyFall")==0&&crate.entityTags().contains("new"),"five real TimeStop ticks pause native pending supply clock");game.items().timeStop().end(level);stopOwned=false;phase=game.server().getTickCount();stage=0;return false;}
             if(stage==0){int now=score(crate,"supplyFall");require(now>=fall&&now-fall<=2,"actual one-crate source scheduled tick plus one-second fanout");fall=now;if(crate.entityTags().contains("new")){require(elapsed<240,"actual native beacon reaches source200 without synthetic clock");return false;}require(now==200,"actual source200 opens once");opened();return false;}
+            if(stage==9){if(elapsed<2)return false;resumeCyborg();return false;}
             if(stage==4){
                 int cooldown=score(regularCyborg,"cyborgBossFly");
                 require(cooldown==Math.max(0,50-elapsed)&&!regularCyborg.hasEffect(MobEffects.LEVITATION),
@@ -359,6 +398,6 @@ public final class ShishEncounterChecks {
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive native Shish fixture");running=new Fixture(game);try{running.initialize();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}throw error;}}
     public static void start(GameController game){run(game);}
-    public static boolean tick(GameController game){if(running==null)return true;try{if(!running.step())return false;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS shish-encounters (actual source egg UseBlock/debit and real source200 crate opening, native Interaction arrow trade, Techno stand conversion and Wyvern cooldown/proximity/motion/sound/cloud, real Healing Scroll respects shield and kills the unprotected Exoskeleton, native75HP MK2 cyborg and HurtTime10 four shared electrical lifetimes, real katana accepted melee/use/motion retention, authored Yellow native inventory/Snowball/contact/shared effects, scoped teardown)");return true;}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL shish-encounters",error);return true;}}
+    public static boolean tick(GameController game){if(running==null)return true;try{if(!running.step())return false;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS shish-encounters (actual source egg UseBlock/debit and real source200 crate opening, native Interaction arrow trade, Techno stand conversion, Cyborg retracking and Wyvern cooldown/proximity/motion/sound/cloud, real Healing Scroll respects shield and kills the unprotected Exoskeleton, native75HP MK2 cyborg and HurtTime10 four shared electrical lifetimes, real katana accepted melee/use/motion retention, authored Yellow native inventory/Snowball/contact/shared effects, scoped teardown)");return true;}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL shish-encounters",error);return true;}}
     public static void cancel(GameController game){if(running!=null)try{running.close();}finally{running=null;}}
 }

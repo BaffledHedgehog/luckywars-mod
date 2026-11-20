@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.*;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -276,8 +277,26 @@ public final class LbcShishEncounter {
         }finally{checkpointDepth--;}
     }
     public void unloaded(Entity entity){
-        checkpointDepth++;try{if(checkpointFrozen||MatchActorCheckpoint.restoring(entity))return;var state=actors.remove(entity);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);
-        }finally{checkpointDepth--;}
+        checkpointDepth++;
+        try {
+            if (checkpointFrozen || MatchActorCheckpoint.restoring(entity)) return;
+            var state = actors.remove(entity);
+            if (state == null) return;
+            var reason = entity.getRemovalReason();
+            // Fabric ends tracking when a body enters a hidden section, before native removal.
+            // Suspend the encounter until the same UUID becomes visible or is reloaded from disk.
+            if (reason == Entity.RemovalReason.UNLOADED_TO_CHUNK
+                    || reason == null && state.kind == Kind.CYBORG && hiddenCyborg(entity)) {
+                unloaded.put(entity.getUUID(), state);
+            }
+        } finally {
+            checkpointDepth--;
+        }
+    }
+    private static boolean hiddenCyborg(Entity entity) {
+        if (!(entity.level() instanceof ServerLevel level) || level.getEntity(entity.getUUID()) != null) return false;
+        var manager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
+        return manager.isLoaded(entity.getUUID());
     }
     public void tick(){
         if(checkpointFrozen)return;checkpointDepth++;try{int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
