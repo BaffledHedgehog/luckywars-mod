@@ -472,6 +472,8 @@ public final class ImbaCrossbowChecks {
             final Collection<?> queue=(Collection<?>)WoolBucketChecks.read(stone,"work");
             final TicketStorage storage=(TicketStorage)WoolBucketChecks.read(level.getChunkSource(),"ticketStorage");
             final TicketType ticket=(TicketType)WoolBucketChecks.read(game.items().exasperato(),"IMPACT_TICKET");
+            final NativeChunkLoad.ColdRequests coldRequests = (NativeChunkLoad.ColdRequests)
+                    WoolBucketChecks.read(game.items().erecto(), "crossbowColdRequests");
             final Map<BlockPos,MapManager.BlockSnapshot> witnesses=new LinkedHashMap<>();
             final List<LbcWands.ElectroTrace> traces=new ArrayList<>();
             final Stat<Item> sniperStat=Stats.ITEM_USED.get(LbcImbaCrossbows.Kind.SNIPER.item);
@@ -484,6 +486,7 @@ public final class ImbaCrossbowChecks {
             final Set<ChunkPos> footprint=new LinkedHashSet<>(),coldChunks=new LinkedHashSet<>();
             Set<ChunkPos> firstStarts=Set.of(),initialTickets=Set.of();
             LbcErecto.CrossbowBlasts cold,overlap,warm;
+            int firstColdStarts;
             boolean checkedSecondTick;
 
             Set<ChunkPos> footprint(Vec3 center,int reach){
@@ -497,6 +500,23 @@ public final class ImbaCrossbowChecks {
                 var result=new LinkedHashSet<ChunkPos>();
                 for(var chunk:chunks)if(storage.getTickets(chunk.pack()).stream().anyMatch(t->t.getType()==ticket))result.add(chunk);
                 return result;
+            }
+            int coldStartsThisTick() {
+                int requestTick = (int)WoolBucketChecks.read(coldRequests, "tick");
+                return requestTick == game.server().getTickCount()
+                        ? (int)WoolBucketChecks.read(coldRequests, "started") : 0;
+            }
+            void witnessWarmPin(Set<ChunkPos> residentFootprint) {
+                var chunk = residentFootprint.stream().filter(pos -> !initialTickets.contains(pos)).findFirst().orElseThrow();
+                var cell = new BlockPos((chunk.x() << 4) + 8, owner.blockPosition().getY(), (chunk.z() << 4) + 8);
+                var one = Set.of(chunk);
+                int before = coldStartsThisTick();
+                try (var probe = game.items().exasperato().impactArea(level)) {
+                    require(probe.resident(Vec3.atCenterOf(cell), 0, coldRequests) == NativeChunkLoad.Residency.READY
+                                    && tickets(one).equals(one) && coldStartsThisTick() == before,
+                            "a resident FULL column acquires a real impact ticket without spending a cold slot");
+                }
+                require(tickets(one).isEmpty(), "warm probe releases its own native ticket");
             }
             BlockPos coldEdge(int y){
                 var home=ChunkPos.containing(owner.blockPosition());
@@ -533,21 +553,23 @@ public final class ImbaCrossbowChecks {
                 owner.getAbilities().invulnerable=true;
                 level.getGameRules().set(GameRules.MOB_GRIEFING,false,game.server());
                 cold=stageContact(edge);overlap=stageContact(edge);warm=stageContact(nearby);
-                require(queuedBlasts().equals(List.of(cold,overlap,warm))&&footprint(warm.footprint,warm.reach).stream().allMatch(this::resident),
+                var residentFootprint = footprint(warm.footprint, warm.reach);
+                require(queuedBlasts().equals(List.of(cold,overlap,warm))&&residentFootprint.stream().allMatch(this::resident),
                         "two cold jobs precede a fully resident warm peer in the real queue");
                 initialTickets=tickets(footprint);
+                witnessWarmPin(residentFootprint);
                 for(var pos:footprint)if(!resident(pos)&&!initialTickets.contains(pos))coldChunks.add(pos);
                 require(coldChunks.size()>16,"fixture has more than two frames of unique cold native chunks");
 
                 stone.tick();
-                firstStarts=tickets(coldChunks);
                 for(int pass=0;pass<6&&warm.next==0;pass++)stone.tick();
-                require(!firstStarts.isEmpty()&&firstStarts.size()<=8&&tickets(coldChunks).size()<=8&&cold.next==0&&overlap.next==0,
-                        "at most eight distinct real cold tickets start in one tick, including same-tick revisits (first="+firstStarts.size()
-                                +", current="+tickets(coldChunks).size()+", eligible="+coldChunks.size()+")");
+                firstStarts=tickets(coldChunks);
+                firstColdStarts=coldStartsThisTick();
+                require(firstColdStarts>0&&firstColdStarts<=8&&!firstStarts.isEmpty()&&cold.next==0&&overlap.next==0,
+                        "at most eight cold submissions in one tick, including same-tick revisits (cold="+firstColdStarts
+                                +", pinned="+firstStarts.size()+", eligible="+coldChunks.size()+")");
                 require(warm.next>0&&blastPackets().stream().anyMatch(p->p.center().equals(warm.centers.getFirst())),
                         "an already resident peer publishes a real native explosion while both cold jobs wait");
-                firstStarts=tickets(coldChunks);
             }
             boolean nextTick(){
                 int elapsed=game.server().getTickCount()-started;
@@ -561,13 +583,16 @@ public final class ImbaCrossbowChecks {
                     return true;
                 }
                 var secondStarts=tickets(coldChunks);secondStarts.removeAll(firstStarts);
-                if(secondStarts.isEmpty()){
+                int secondColdStarts=coldStartsThisTick();
+                if(secondStarts.isEmpty()||secondColdStarts==0){
                     stone.tick();secondStarts=tickets(coldChunks);secondStarts.removeAll(firstStarts);
+                    secondColdStarts=coldStartsThisTick();
                 }
-                require(!secondStarts.isEmpty()&&secondStarts.size()<=8&&cold.next==0&&overlap.next==0,
-                        "a later actual tick admits the next bounded set of cold chunks without publishing partial work (new="+secondStarts.size()+")");
-                SkyWars2.LOGGER.info("[check] imba-crossbows cold distinctTicketStarts first={} next={} warmPublications={} residentEdge={}",
-                        firstStarts.size(),secondStarts.size(),warm.next,cold.footprint);
+                require(!secondStarts.isEmpty()&&secondColdStarts>0&&secondColdStarts<=8&&cold.next==0&&overlap.next==0,
+                        "a later actual tick admits the next bounded set of cold chunks without publishing partial work (cold="
+                                +secondColdStarts+", newPins="+secondStarts.size()+")");
+                SkyWars2.LOGGER.info("[check] imba-crossbows coldSubmissions first={} next={} actualPinsFirst={} actualPinsNext={} warmPublications={} residentEdge={}",
+                        firstColdStarts,secondColdStarts,firstStarts.size(),secondStarts.size(),warm.next,cold.footprint);
                 queue.remove(cold);cold.cancel();traceStore.remove(cold.trace);
                 require(tickets(coldChunks).containsAll(firstStarts)&&overlap.path.pendingBlasts==overlap,
                         "canceling one overlapping footprint preserves the shared native tickets of the survivor");
