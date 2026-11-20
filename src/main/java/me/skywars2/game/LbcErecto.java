@@ -345,7 +345,8 @@ final class LbcErecto {
             blastsThisTick++;
             try{
                 game.items().indirectKills().trapChanges(level,cause,
-                        ()->level.explode(null,damage,null,point,CROSSBOW_BLAST_RADIUS,false,Level.ExplosionInteraction.MOB));
+                        ()->CrossbowBlastBlocks.scoped(level,point,damage,
+                                ()->level.explode(null,damage,null,point,CROSSBOW_BLAST_RADIUS,false,Level.ExplosionInteraction.MOB)));
             }finally{
                 blastNanos+=System.nanoTime()-started;
             }

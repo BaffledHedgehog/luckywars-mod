@@ -100,6 +100,7 @@ public final class HazardPropagationMixins {
             var blast=(ServerExplosion)(Object)this;
             var source=blast.getDirectSourceEntity();
             if(me.skywars2.game.NuclearTerrain.damageOnly(blast))return java.util.List.of();
+            if(me.skywars2.game.CrossbowBlastBlocks.absorbsAllRays(blast,damageCalculator))return java.util.List.of();
             // Source-null trap bursts reuse the collector; damage, drops and publication remain native.
             if(skywars2$ultraponos&&damageCalculator.getClass()==net.minecraft.world.level.ExplosionDamageCalculator.class
                     && !Boolean.getBoolean("skywars2.disableExplosionCache"))return me.skywars2.game.LbcExasperato.explosionBlocks(blast,damageCalculator);

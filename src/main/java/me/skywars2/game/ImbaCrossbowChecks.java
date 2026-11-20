@@ -1,12 +1,15 @@
 package me.skywars2.game;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
@@ -16,6 +19,8 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.effect.*;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -26,6 +31,7 @@ public final class ImbaCrossbowChecks {
     private ImbaCrossbowChecks(){}
     private static Fixture running;
     private enum BlastPhase { PAUSED, PREFIX, CAPTURE, ORIGINAL_TAIL, RESTORE, REPLAY }
+    private record CollectorRun(List<?> positions,long nextLong,int nextInt,long nanos){}
     static void require(boolean value,String why){if(!value)throw new IllegalStateException("IMBA crossbows: "+why);}
     private static Object blastField(LbcStonekivi.Work job,String name){
         try {
@@ -35,6 +41,24 @@ public final class ImbaCrossbowChecks {
         }catch(ReflectiveOperationException failure){
             throw new IllegalStateException("Missing crossbow blast fixture field "+name,failure);
         }
+    }
+
+    private static CollectorRun collect(Method collector,ServerLevel level,Vec3 at,DamageSource damage,float power){
+        var result=new CollectorRun[1];
+        CrossbowBlastBlocks.scoped(level,at,damage,()->{
+            var explosion=new ServerExplosion(level,null,damage,null,at,power,false,Explosion.BlockInteraction.DESTROY);
+            require(explosion.getDirectSourceEntity()==null&&explosion.getDamageSource()==damage,
+                    "source-null collector retains the accepted crossbow damage object");
+            try{
+                long start=System.nanoTime();
+                var positions=(List<?>)collector.invoke(explosion);
+                long elapsed=System.nanoTime()-start;
+                result[0]=new CollectorRun(positions,level.getRandom().nextLong(),level.getRandom().nextInt(),elapsed);
+            }catch(ReflectiveOperationException failure){
+                throw new IllegalStateException("Native crossbow explosion collector",failure);
+            }
+        });
+        return result[0];
     }
 
     private static final class Fixture implements AutoCloseable {
@@ -99,6 +123,105 @@ public final class ImbaCrossbowChecks {
         List<ClientboundExplodePacket> blastPackets(){
             return base.recording.packets.stream().filter(ClientboundExplodePacket.class::isInstance)
                     .map(ClientboundExplodePacket.class::cast).toList();
+        }
+        void collectorParity(){
+            String option="skywars2.disableExplosionCache",previous=System.getProperty(option);
+            var level=base.owner.level();var random=level.getRandom();var state=MatchRandomState.capture(random);
+            var cell=BlockPos.containing(base.owner.position().add(0,2,0));
+            int flags=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
+            require(NativeChunkLoad.resident(level,cell)&&level.getBlockState(cell).isAir(),"resident empty collector witness cell");
+            var before=game.maps().snapshot(level,cell);
+            var kills=game.items().indirectKills();
+            var damage=kills.captureDamage(level.damageSources().explosion(null,base.owner),kills.wildCause(base.owner));
+            try{
+                var collector=ServerExplosion.class.getDeclaredMethod("calculateExplodedPositions");collector.setAccessible(true);
+                var offsets=List.of(new Vec3(.5,.5,.5),new Vec3(.99,.17,.01),new Vec3(.03,.8,.97));
+                for(var block:List.of(Blocks.OBSIDIAN,Blocks.STONE)){
+                    boolean absorbed=block==Blocks.OBSIDIAN;
+                    float power=absorbed?20:4;
+                    require(level.setBlock(cell,block.defaultBlockState(),flags),"placed native collector witness "+block);
+                    long[] nativeNanos=new long[offsets.size()],scopedNanos=new long[offsets.size()];
+                    for(int sample=0;sample<offsets.size();sample++){
+                        var at=Vec3.atLowerCornerOf(cell).add(offsets.get(sample));
+                        long seed=0x43524F5353424F57L+sample;
+                        System.setProperty(option,"true");random.setSeed(seed);
+                        var expected=collect(collector,level,at,damage,power);
+                        System.clearProperty(option);random.setSeed(seed);
+                        var actual=collect(collector,level,at,damage,power);
+                        require(absorbed?expected.positions().isEmpty():expected.positions().contains(cell),
+                                "native collector witnesses a fully absorbed cast or a destructible center at "+at+" in "+block);
+                        require(actual.positions().equals(expected.positions())&&actual.nextLong()==expected.nextLong()
+                                        &&actual.nextInt()==expected.nextInt(),
+                                "scoped source-null collector preserves vanilla position order and subsequent world RNG at "+at+" in "+block);
+                        nativeNanos[sample]=expected.nanos();scopedNanos[sample]=actual.nanos();
+                    }
+                    Arrays.sort(nativeNanos);Arrays.sort(scopedNanos);
+                    SkyWars2.LOGGER.info("[check] imba-crossbows collector {} radius={} calls={} nativeMedianUs={} scopedMedianUs={} nativeTotalUs={} scopedTotalUs={}",
+                            block,power,offsets.size(),nativeNanos[1]/1_000d,scopedNanos[1]/1_000d,
+                            Arrays.stream(nativeNanos).sum()/1_000d,Arrays.stream(scopedNanos).sum()/1_000d);
+                }
+            }catch(ReflectiveOperationException failure){
+                throw new IllegalStateException("Missing native crossbow explosion collector",failure);
+            }finally{
+                if(previous==null)System.clearProperty(option);else System.setProperty(option,previous);
+                try{game.maps().restoreSnapshot(level,cell,before,flags);}finally{state.restore(random);}
+            }
+        }
+        void concurrentSuperVolleys(){
+            var owner=base.owner;var level=owner.level();var wands=game.items().wands();var stone=game.items().stonekivi();
+            var oldTraces=wands.electroSnapshot();var oldJobs=stone.queuedSnapshot();
+            var traceStore=(Collection<?>)WoolBucketChecks.read(wands,"electroTraces");
+            var queue=(Collection<?>)WoolBucketChecks.read(stone,"work");
+            var cell=BlockPos.containing(owner.position().add(0,12,0));var contact=Vec3.atCenterOf(cell);
+            int flags=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
+            require(NativeChunkLoad.resident(level,cell)&&level.getBlockState(cell).isAir(),"resident empty SUPER contact witness");
+            var previousBlock=game.maps().snapshot(level,cell);var previousWeapon=owner.getMainHandItem();
+            int previouslyPublished=blastPackets().size();
+            try{
+                require(level.setBlock(cell,Blocks.OBSIDIAN.defaultBlockState(),flags),"native SUPER obsidian contact witness");
+                for(int volley=1;volley<=2;volley++){
+                    var weapon=leaf(LbcImbaCrossbows.Kind.SUPER);
+                    owner.setItemInHand(InteractionHand.MAIN_HAND,weapon);
+                    weapon.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
+                    require(owner.gameMode.useItem(owner,level,weapon,InteractionHand.MAIN_HAND).consumesAction()
+                                    &&wands.electroSnapshot().size()==oldTraces.size()+32*volley,
+                            "actual native SUPER volley "+volley+" accepts 32 independent traces");
+                }
+
+                var expectedQueue=new ArrayList<>(oldJobs);
+                var traces=wands.electroSnapshot();
+                int acceptedCenters=0;
+                for(var trace:traces.subList(oldTraces.size(),traces.size())){
+                    require(trace.owner==owner&&trace.level==level&&trace.erecto.kind==LbcErecto.CROSSBOW
+                                    &&trace.erecto.pendingBlasts==null,"accepted SUPER trace belongs to this volley");
+                    // Preserve each native spread and stage just the first sample inside the same block.
+                    trace.position=contact;
+                    game.items().erecto().step(trace);
+                    var job=trace.erecto.pendingBlasts;
+                    require(job!=null&&job.path==trace.erecto&&job.level==level&&job.next==0
+                                    &&job.centers.getFirst().equals(contact),
+                            "SUPER trace queues its own job at the exact first contact without publishing it");
+                    expectedQueue.add(job);
+                    acceptedCenters+=job.centers.size();
+                }
+                require(expectedQueue.size()==oldJobs.size()+64&&stone.queuedSnapshot().equals(expectedQueue)
+                                &&blastPackets().size()==previouslyPublished&&level.getBlockState(cell).is(Blocks.OBSIDIAN),
+                        "both SUPER volleys retain all 64 ordered jobs without inline blast packets or terrain edits");
+                SkyWars2.LOGGER.info("[check] imba-crossbows SUPER volleys=2 queuedJobs={} acceptedCenters={} inlineBlasts=0",
+                        expectedQueue.size()-oldJobs.size(),acceptedCenters);
+            }finally{
+                for(var trace:wands.electroSnapshot()){
+                    if(oldTraces.contains(trace))continue;
+                    if(trace.erecto!=null&&trace.erecto.pendingBlasts!=null){
+                        var job=trace.erecto.pendingBlasts;queue.remove(job);job.cancel();
+                    }
+                    traceStore.remove(trace);
+                }
+                owner.setItemInHand(InteractionHand.MAIN_HAND,previousWeapon);
+                game.maps().restoreSnapshot(level,cell,previousBlock,flags);
+            }
+            require(wands.electroSnapshot().equals(oldTraces)&&stone.queuedSnapshot().equals(oldJobs),
+                    "SUPER intake fixture retires only its own traces and queued jobs");
         }
         void beginBlastQueue(){
             require(queuedBlasts().isEmpty(),"exclusive crossbow blast queue");
@@ -329,7 +452,7 @@ public final class ImbaCrossbowChecks {
         require(running==null,"exclusive scheduled fixture");
         var f=new Fixture(game);
         try {
-            f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();
+            f.presentation();f.shotgun();f.beams();f.continuous();f.rockets();f.guards();f.collectorParity();f.concurrentSuperVolleys();
             f.beginBlastQueue();
             running=f;
         }catch(RuntimeException|Error failure){
