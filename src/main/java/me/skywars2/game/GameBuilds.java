@@ -166,7 +166,7 @@ public final class GameBuilds {
         p.suffix = cosmetic(player, LbcCosmetics.Kind.SUFFIX, build.suffix);
         p.winEffect = cosmetic(player, LbcCosmetics.Kind.WIN, build.winEffect);
         p.killEffect = cosmetic(player, LbcCosmetics.Kind.KILL, build.killEffect);
-        players.save(); game.lbc().refreshKnowledgeView(player); cosmetics.refreshSuffixes(List.of(player));
+        players.saveDeferred(); game.lbc().refreshKnowledgeView(player); cosmetics.refreshSuffixes(List.of(player));
         if (game.menus().debugAccess(player) && game.playing()) {
             game.events().giveDebugKit(player); game.events().giveSkill(player);
             game.lbc().refreshDebugSelection(player, LbcLoadouts.Kind.SKILLS);

@@ -364,7 +364,7 @@ public final class LbcLoadouts {
             case 25 -> profile.lbcChallengeKit = 0;
             default -> { return false; }
         }
-        players.save();
+        players.saveDeferred();
         refreshKnowledgeView(player);
         return true;
     }
@@ -422,7 +422,7 @@ public final class LbcLoadouts {
                 profile.lbcLevelupSlot = (slotIndex + 1) % config.lbcLevelupLimit;
             }
         }
-        players.save();
+        players.saveDeferred();
         if(kind==Kind.SKILLS){inventoryChanged(player);reconcileReactiveSkills(player);game.selectedSkillChanged(player);}
         return true;
     }
