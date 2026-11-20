@@ -7,6 +7,7 @@ group = project.maven_group
 
 // The optional client compiles this same small wire contract independently.
 sourceSets.main.java.srcDir('media-protocol/src/main/java')
+sourceSets.main.resources.srcDir('media-protocol/src/main/resources')
 
 base {
     archivesName = project.archives_base_name

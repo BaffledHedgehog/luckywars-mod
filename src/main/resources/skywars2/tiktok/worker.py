@@ -33,6 +33,15 @@ SAMPLES = RATE // FPS
 MAX_SECONDS, MAX_ORIGINAL, MAX_JPEG = 300, 64 * 1024 * 1024, 131072
 HEADER = struct.Struct(">4sIIIIII")  # TKP3, frames, fps, palette width/height, rate, bands
 BANDS = 48
+CDN_HOSTS = ("tiktokcdn.com", "tiktokcdn-us.com", "tiktokcdn-eu.com", "tiktokcdn-in.com", "tiktokv.com", "muscdn.com")
+CDN_EXPIRATION_KEYS = {"expire", "expires", "x-expires"}
+CDN_QUERY_KEYS = CDN_EXPIRATION_KEYS | {
+    "a", "br", "bt", "btag", "bti", "cd", "ch", "codec", "cr", "cs", "cv", "dr", "ds", "er", "ft",
+    "key-pair-id", "l", "lr", "mime_type", "ply_type", "policy", "qs", "rc", "signature", "signaturev3",
+    "tk", "x-keyid", "x-signature",
+}
+MAX_CDN_URL = 4096
+CDN_SOURCE_TTL_SECONDS = 3600
 
 
 def spectral_module():
@@ -47,9 +56,11 @@ class MediaError(Exception):
     """Only a fixed code crosses the worker/server boundary."""
 
 
-def atomic_json(path: Path, value) -> None:
+def atomic_json(path: Path, value, private: bool = False) -> None:
     temp = path.with_suffix(path.suffix + ".tmp")
-    with temp.open("w", encoding="utf-8") as out:
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    stream = os.fdopen(os.open(temp, flags, 0o600), "w", encoding="utf-8") if private else temp.open("w", encoding="utf-8")
+    with stream as out:
         json.dump(value, out, ensure_ascii=False, separators=(",", ":"))
     os.replace(temp, path)
 
@@ -216,7 +227,53 @@ def execute(argv: list[str], timeout: int, code: str) -> None:
         raise MediaError(code) from None
 
 
-def download(clip: dict, cookies: Path, stage: Path, diagnostics: dict | None = None) -> Path:
+def selected_cdn_source(clip_id: str, response, account_cookies: list[dict], now: int) -> dict | None:
+    """Only share an independently usable media URL from the exact successful download."""
+    if response.status_code not in (200, 206) or response.history or any(
+            name.lower() in ("cookie", "authorization", "proxy-authorization") for name in response.request.headers):
+        return None
+    url = response.request.url
+    if (not re.fullmatch(r"[0-9]{8,24}", clip_id) or len(url) > MAX_CDN_URL
+            or not re.fullmatch(r"[\x21-\x7e]+", url)):
+        return None
+    try:
+        parsed = urllib.parse.urlsplit(url)
+        host = parsed.hostname or ""
+        if (parsed.scheme != "https" or parsed.netloc.lower() != host or "#" in url
+                or not any(host == domain or host.endswith("." + domain) for domain in CDN_HOSTS)
+                or not re.fullmatch(r"/video/tos/(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+/?", parsed.path)):
+            return None
+        query = parsed.query.split("&")
+        if len(query) > 32:
+            return None
+        expires = None
+        seen = set()
+        for pair in query:
+            key, separator, raw = pair.partition("=")
+            key = key.lower()
+            value = urllib.parse.unquote(raw, errors="strict")
+            if (not separator or key in seen or key not in CDN_QUERY_KEYS
+                    or not re.fullmatch(r"[A-Za-z0-9_.,:~|+/!-]*={0,2}", value)
+                    or key == "tk" and value != "tt_chain_token"):
+                return None
+            seen.add(key)
+            if key in CDN_EXPIRATION_KEYS:
+                if expires is not None or not re.fullmatch(r"[0-9]{9,12}", value):
+                    return None
+                expires = int(value)
+        if expires is None or expires <= now:
+            return None
+        decoded = urllib.parse.unquote(url, errors="strict")
+        for cookie in account_cookies:
+            secret = cookie.get("value")
+            if isinstance(secret, str) and len(secret) >= 12 and secret in decoded:
+                return None
+        return {"clipId": clip_id, "url": url, "expiresAt": min(expires, now + CDN_SOURCE_TTL_SECONDS)}
+    except (ValueError, UnicodeError):
+        return None
+
+
+def download(clip: dict, cookies: Path, stage: Path, diagnostics: dict | None = None) -> tuple[Path, dict | None]:
     # Use the signed media addresses from the actual authenticated feed when available.
     # Stream in bounded chunks: no full video body in RAM and no signed URL in a process command line/log.
     diagnostics = diagnostics if diagnostics is not None else {}
@@ -226,8 +283,9 @@ def download(clip: dict, cookies: Path, stage: Path, diagnostics: dict | None = 
         import requests
         original = stage / "original.mp4"
         partial = stage / "original.mp4.part"
+        account_cookies = clip["cookies"] if "cookies" in clip else cookies_for_browser(cookies)
         with requests.Session() as session:
-            for cookie in clip.get("cookies", cookies_for_browser(cookies)):
+            for cookie in account_cookies:
                 expires = cookie.get("expires", -1)
                 session.cookies.set(cookie["name"], cookie["value"], domain=cookie["domain"], path=cookie["path"],
                                     secure=cookie["secure"], expires=int(expires) if isinstance(expires, (int, float)) and expires > 0 else None)
@@ -237,7 +295,7 @@ def download(clip: dict, cookies: Path, stage: Path, diagnostics: dict | None = 
                 parsed = urllib.parse.urlparse(url)
                 host = parsed.hostname or ""
                 if parsed.scheme != "https" or not any(host == suffix or host.endswith("." + suffix)
-                        for suffix in ("tiktok.com", "tiktokcdn.com", "tiktokcdn-us.com", "tiktokv.com", "muscdn.com")):
+                        for suffix in ("tiktok.com", *CDN_HOSTS)):
                     continue
                 attempt = {"host": host}; diagnostics["directAttempts"].append(attempt)
                 try:
@@ -260,7 +318,8 @@ def download(clip: dict, cookies: Path, stage: Path, diagnostics: dict | None = 
                         if count:
                             attempt["downloadedBytes"] = count
                             os.replace(partial, original)
-                            return original
+                            source = selected_cdn_source(clip["id"], response, account_cookies, int(time.time()))
+                            return original, source
                 except Exception as error:
                     attempt["errorType"] = type(error).__name__  # Messages may contain signed addresses.
                 finally:
@@ -278,7 +337,7 @@ def download(clip: dict, cookies: Path, stage: Path, diagnostics: dict | None = 
     originals = list(stage.glob("original.*"))
     if len(originals) != 1 or not originals[0].is_file() or not 0 < originals[0].stat().st_size <= MAX_ORIGINAL:
         raise MediaError("download_size")
-    return originals[0]
+    return originals[0], None
 
 
 def palette_lut(colors):
@@ -426,6 +485,7 @@ def main():
             return
         if not args.palette:
             raise MediaError("palette_missing")
+        source = None
         if args.local:
             original = stage / "original.mp4"
             shutil.copyfile(args.local, original)
@@ -435,9 +495,14 @@ def main():
                 raise MediaError("cookies_missing")
             excluded = set(json.loads(args.exclude.read_text(encoding="utf-8"))) if args.exclude else set()
             clip = asyncio.run(recommendations(args.cookies, excluded, diagnostics))
-            original = download(clip, args.cookies, stage, diagnostics)
+            original, source = download(clip, args.cookies, stage, diagnostics)
         result = prepare(original, stage, args.palette)
         result["id"] = clip["id"]
+        if source is not None and source["expiresAt"] > time.time():
+            try:
+                atomic_json(stage / "source.json", source, private=True)
+            except OSError as error:
+                diagnostics["sourceMetadataError"] = type(error).__name__
         atomic_json(stage / "manifest.json", result)
         print(json.dumps({"ok": True, "id": clip["id"]}), flush=True)
     except BaseException as error:

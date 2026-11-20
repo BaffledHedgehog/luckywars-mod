@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.*;
 import java.util.concurrent.*;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import me.skywars2.media.MediaPackets;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
@@ -14,6 +15,7 @@ import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomModelData;
@@ -25,6 +27,8 @@ public final class TikTokPlayback implements AutoCloseable {
     private static final long FRAME_NANOS=50_000_000L, COOLDOWN=5_000_000_000L;
     private record Read(long serial, int pixelStep, CustomModelData colors) {}
     private static final class View {
+        final ServerPlayer player;
+        final ServerGamePacketListenerImpl listener;
         final TikTokMedia clip;
         final long started;
         final boolean enhanced;
@@ -34,7 +38,9 @@ public final class TikTokPlayback implements AutoCloseable {
         volatile List<Integer> slots;
         volatile boolean active = true;
 
-        View(TikTokMedia clip, long now, boolean enhanced, TikTokOutput output, List<Integer> slots) {
+        View(ServerPlayer player, TikTokMedia clip, long now, boolean enhanced, TikTokOutput output, List<Integer> slots) {
+            this.player = player;
+            listener = player.connection;
             this.clip = clip;
             started = now;
             this.enhanced = enhanced;
@@ -44,10 +50,9 @@ public final class TikTokPlayback implements AutoCloseable {
     }
     private final MinecraftServer server;
     private final TikTokCache cache;
-    private final Map<ServerPlayer,View> views=new HashMap<>();
-    private final Map<ServerPlayer,Long> cooldowns=new WeakHashMap<>();
-    private final Map<ServerPlayer,String> history=new WeakHashMap<>();
-    private final Set<UUID> enhancedViewers = ConcurrentHashMap.newKeySet();
+    private final ConcurrentMap<UUID,View> views=new ConcurrentHashMap<>();
+    private final Map<ServerGamePacketListenerImpl,Long> cooldowns=new WeakHashMap<>();
+    private final Map<ServerGamePacketListenerImpl,String> history=new WeakHashMap<>();
     private final ConcurrentMap<String,Integer> inFlight=new ConcurrentHashMap<>();
     private final Set<String> retire=new HashSet<>();
     private final ExecutorService reader=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64),
@@ -55,8 +60,16 @@ public final class TikTokPlayback implements AutoCloseable {
     private boolean closed;
     private final TikTokSoundClock audioClock=new TikTokSoundClock(id->inFlight.merge(id,1,Integer::sum),this::release);
     private final TikTokClientClock clientClock=new TikTokClientClock(id->inFlight.merge(id,1,Integer::sum),this::release);
+
+    void requestClientFallback(ServerPlayer player, MediaPackets.Fallback request) {
+        var view=views.get(player.getUUID());
+        if(view!=null&&view.player==player&&view.enhanced&&current(view))clientClock.requestFallback(player,request);
+    }
     TikTokPlayback(MinecraftServer server,TikTokCache cache){this.server=server;this.cache=cache;}
-    boolean enhanced(ServerPlayer player) { return enhancedViewers.contains(player.getUUID()); }
+    boolean enhanced(ServerPlayer player) {
+        var view=views.get(player.getUUID());
+        return view!=null&&view.player==player&&view.active&&view.enhanced&&view.output.activeFor(player);
+    }
     static boolean phone(ItemStack stack){return stack.is(LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item);}
 
     boolean use(ServerPlayer player){
@@ -64,27 +77,34 @@ public final class TikTokPlayback implements AutoCloseable {
         var held = slots(player);
         var output = TikTokOutput.forPlayer(player);
         if (held.isEmpty() || output == null) return false;
-        long now=System.nanoTime();var old=views.get(player);
-        if(now<cooldowns.getOrDefault(player,Long.MIN_VALUE)){loading(player);return true;}
-        var clip=cache.next(history.getOrDefault(player,""));
+        var listener=player.connection;
+        long now=System.nanoTime();var old=views.get(player.getUUID());
+        if(now<cooldowns.getOrDefault(listener,Long.MIN_VALUE)){loading(player);return true;}
+        var clip=cache.next(history.getOrDefault(listener,""));
         if(clip==null){loading(player);return true;}
-        var view = new View(clip, now, TikTokClientSupport.enhanced(player), output, held);
-        if (old != null) old.active = false;
-        clientClock.stop(player);
-        audioClock.stop(player);
-        views.put(player, view);
+        var view = new View(player, clip, now, TikTokClientSupport.enhanced(player), output, held);
+        if (old != null) stopClocks(old);
+        views.put(player.getUUID(), view);
         if (view.enhanced) {
-            enhancedViewers.add(player.getUUID());
             clientClock.play(player, clip, now, output);
         } else {
-            enhancedViewers.remove(player.getUUID());
             audioClock.play(player, clip, now, output);
         }
-        history.put(player, clip.id);
-        cooldowns.put(player, now + COOLDOWN);
+        history.put(listener, clip.id);
+        cooldowns.put(listener, now + COOLDOWN);
         publish(player, held);
         if (old != null && old.clip != clip) retire.add(old.clip.id);
         return true;
+    }
+
+    private boolean current(View view) {
+        return server.getPlayerList().getPlayer(view.player.getUUID())==view.player && view.output.activeFor(view.player);
+    }
+
+    private void stopClocks(View view) {
+        view.active=false;
+        clientClock.stop(view.player,view.listener);
+        audioClock.stop(view.player,view.listener);
     }
     private static void loading(ServerPlayer player){
         player.sendSystemMessage(Component.translatable("tiktok.loading").withStyle(style->style.withColor(ChatFormatting.RED).withItalic(false)));
@@ -127,7 +147,7 @@ public final class TikTokPlayback implements AutoCloseable {
         if (packets.isEmpty()) return;
         var packet = packets.size() == 1 ? packets.getFirst() : new ClientboundBundlePacket(packets);
         view.output.offerVanillaFrame(packet, view.started + (frame.serial + 3) * FRAME_NANOS,
-                () -> view.active && view.slots == slots && !TimeStopView.frozen(player), frame.pixelStep);
+                () -> view.active && view.slots == slots && view.output.activeFor(player) && !TimeStopView.frozen(player), frame.pixelStep);
     }
     private static void original(ServerPlayer player,int slot){
         var stack=player.getInventory().getItem(slot);
@@ -141,16 +161,16 @@ public final class TikTokPlayback implements AutoCloseable {
     void tick(){
         if(closed)return;
         long now=System.nanoTime();
-        var iterator=views.entrySet().iterator();
-        while(iterator.hasNext()){
-            var entry=iterator.next();var player=entry.getKey();var view=entry.getValue();
+        for(var view:views.values()){
+            var player=view.player;
             var current=slots(player);
-            if (server.getPlayerList().getPlayer(player.getUUID()) != player || !player.isAlive() || player.isRemoved()
-                    || !view.output.active() || current.isEmpty() || !cache.ids().contains(view.clip.id)) {
-                view.active = false;
-                clientClock.stop(player);audioClock.stop(player);enhancedViewers.remove(player.getUUID());
-                for (int slot : view.slots) original(player, slot);
-                retire.add(view.clip.id);iterator.remove();continue;
+            boolean sameConnection=current(view);
+            if (!sameConnection || !player.isAlive() || player.isRemoved()
+                    || current.isEmpty() || !cache.ids().contains(view.clip.id)) {
+                if(!views.remove(player.getUUID(),view))continue;
+                stopClocks(view);
+                if(sameConnection)for (int slot : view.slots) original(player, slot);
+                retire.add(view.clip.id);continue;
             }
             if(!view.slots.equals(current)){
                 var prior=view.slots;view.slots=current;
@@ -195,12 +215,13 @@ public final class TikTokPlayback implements AutoCloseable {
     }
     private void release(String id){inFlight.computeIfPresent(id,(key,count)->count==1?null:count-1);}
     void reset(){
-        views.values().forEach(view -> view.active = false);
+        var retired=List.copyOf(views.values());
+        retired.forEach(view->view.active=false);
+        views.clear();
         clientClock.clear();
         audioClock.clear();
-        enhancedViewers.clear();
-        for (var entry : views.entrySet()) publish(entry.getKey(), entry.getValue().slots);
-        views.clear();cooldowns.clear();history.clear();retire.clear();
+        for(var view:retired)if(current(view))publish(view.player,view.slots);
+        cooldowns.clear();history.clear();retire.clear();
     }
     @Override public void close(){if(closed)return;closed=true;reset();clientClock.close();audioClock.close();reader.shutdownNow();}
 }

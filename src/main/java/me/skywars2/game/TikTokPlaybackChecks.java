@@ -9,13 +9,20 @@ import java.io.DataInputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.LockSupport;
 import me.skywars2.SkyWars2;
+import me.skywars2.media.MediaPackets;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -23,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientboundPingPacket;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.Identifier;
@@ -39,6 +47,11 @@ public final class TikTokPlaybackChecks {
                 .map(ClientboundSetPlayerInventoryPacket.class::cast)
                 .filter(p->TikTokPlayback.VIDEO_MODEL.equals(p.contents().get(DataComponents.ITEM_MODEL))).toList();
     }
+    private static <T> List<T> media(List<Packet<?>> packets,Class<T> payloadType){
+        return SmokeVolumeChecks.flatten(packets).stream().filter(ClientboundCustomPayloadPacket.class::isInstance)
+                .map(ClientboundCustomPayloadPacket.class::cast).map(ClientboundCustomPayloadPacket::payload)
+                .filter(payloadType::isInstance).map(payloadType::cast).toList();
+    }
     private static final class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;
         final Path directory;final TikTokCache cache;final TikTokPlayback playback,previous;
@@ -46,18 +59,25 @@ public final class TikTokPlaybackChecks {
         final java.lang.reflect.Field playbackField,channelField;final Object previousChannel;
         final EmbeddedChannel channel = new EmbeddedChannel();
         final ItemStack authored;
+        final RelayFixture relay;
         volatile boolean echoMediaReceipts = true;
         final List<net.minecraft.world.entity.item.ItemEntity> dropped=new ArrayList<>();
-        long started,windowStarted;int began,phase,when;long now,wireBytes;boolean closing,realReference;
+        long started,windowStarted;int began,phase,when;long now,wireBytes;boolean closing,realReference,enhancedVerified;
         byte[] shapedPixels;
         int shapedPhase;
         long firstGameDelay, lastSlowReceipt;
         CompletableFuture<LinkSample> link;
         private record LinkSample(int videoBytes,long gameDelay) {}
         Fixture(GameController game)throws Exception{
+            relay=RelayFixture.configured();
             this.game=game;f=new WoolBucketChecks.Fixture(game,false);f.prepareParticipants();
             directory=Files.createTempDirectory(game.server().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT),"tiktok-stream-");
-            for(int i=0;i<2;i++)clip(directory.resolve("cache/videos/1234567"+i),i);
+            for(int i=0;i<2;i++){
+                String id="1234567"+i;
+                Path clipDirectory=directory.resolve("cache/videos").resolve(id);
+                clip(clipDirectory,i);
+                if(relay!=null)relay.stageClip(clipDirectory,id);
+            }
             cache=new TikTokCache(directory.resolve("cache"),directory.resolve("no-cookies.json"),false);
             clip(directory.resolve("migration/videos/12345672"),2);
             migrationCache=new TikTokCache(directory.resolve("migration"),directory.resolve("no-migration-cookies.json"));
@@ -464,8 +484,13 @@ public final class TikTokPlaybackChecks {
                     .map(ClientboundSetPlayerInventoryPacket.class::cast).anyMatch(p->p.slot()==1&&p.contents().isEmpty()),"Q explicitly restores authoritative empty client slot");
                 next(12);
             }
-            if(shapedPixels!=null&&!shapedLink())return false;
-            enhanced();
+            if(!enhancedVerified){
+                if(shapedPixels!=null&&!shapedLink())return false;
+                enhanced();
+                TikTokReplacementChecks.verify(game,f.owner,cache.next(""),f.client.packets());
+                enhancedVerified=true;
+            }
+            if(relay!=null&&!relay.step(this))return false;
             SkyWars2.LOGGER.info("[check] PASS tiktok-playback (native480p20FPS/60Hz old fallback,20Hz spectral stereo, actual cookie-free background cache upgrade; real Fabric Hello/version/channel gate, enhanced independent20Hz JPEG/48k stereo PCM, native shared codecs/JPEG bomb bound, no vanilla pixels/tones on enhanced path, private stream, bounded video/audio while writable, live receipt recovery, TimeStop, Q/Stop/empty-slot ordering; {} compressed vanilla bytes/frame, realForYouBinary={})",wireBytes,realReference);
             return true;
         }
@@ -492,13 +517,138 @@ public final class TikTokPlaybackChecks {
         }
         public void close(){
             if(closing)return;closing=true;
-            try{playback.close();playbackField.set(null,previous);channelField.set(f.client.connection,previousChannel);channel.finishAndReleaseAll();cache.close();migrationCache.close();dropped.forEach(net.minecraft.world.entity.Entity::discard);}
+            try{if(relay!=null)relay.close();playback.close();playbackField.set(null,previous);channelField.set(f.client.connection,previousChannel);channel.finishAndReleaseAll();cache.close();migrationCache.close();dropped.forEach(net.minecraft.world.entity.Entity::discard);}
             catch(Exception error){throw new IllegalStateException("TikTok fixture service restore",error);}
             finally{
                 f.close();try(var files=Files.walk(directory)){for(var path:files.sorted(Comparator.reverseOrder()).toList())Files.delete(path);}
                 catch(Exception error){throw new IllegalStateException("TikTok fixture files",error);}
             }
         }
+    }
+    private static final class RelayFixture implements AutoCloseable {
+        final Path receipts;
+        final URI origin;
+        final byte[] mp4;
+        final long expires=Instant.now().plusSeconds(300).getEpochSecond();
+        final String cdn="https://fixture.tiktokcdn.com/video/tos/synthetic_fixture/?expire="+expires;
+        HttpClient client;
+        CompletableFuture<HttpResponse<byte[]>> download;
+        UUID session;
+        int phase;
+        long since;
+        static RelayFixture configured()throws Exception{
+            String path=System.getProperty("skywars2.tiktok.relay.fixture");
+            return path==null?null:new RelayFixture(Path.of(path));
+        }
+        RelayFixture(Path directory)throws Exception{
+            origin=URI.create(Files.readString(directory.resolve("origin")).strip());
+            int port=origin.getPort();
+            require(port>0&&origin.equals(URI.create("https://127.0.0.1:"+port))
+                    &&origin.toString().equals(System.getenv("SKYWARS2_MEDIA_RELAY_URI")),
+                    "opt-in relay fixture uses the configured isolated TLS loopback");
+            Path video=directory.resolve("original.mp4");
+            require(Files.size(video)>32&&Files.size(video)<=1024*1024,"bounded generated MP4 fixture");
+            mp4=Files.readAllBytes(video);
+            require(new String(mp4,4,4,java.nio.charset.StandardCharsets.US_ASCII).equals("ftyp"),"local MP4 container");
+            receipts=directory.resolve("puts");
+            require(puts()==0,"fresh isolated relay with no uploads");
+        }
+        int puts()throws java.io.IOException{return Integer.parseInt(Files.readString(receipts).strip());}
+        void stageClip(Path directory,String id)throws java.io.IOException{
+            Files.write(directory.resolve("original.mp4"),mp4);
+            var source=new com.google.gson.JsonObject();
+            source.addProperty("clipId",id);
+            source.addProperty("url",cdn);
+            source.addProperty("expiresAt",expires);
+            Files.writeString(directory.resolve("source.json"),source.toString());
+        }
+        void advance(Fixture fixture){phase++;since=fixture.now;}
+        boolean step(Fixture fixture)throws Exception{
+            var player=fixture.f.owner;
+            var observer=fixture.f.other;
+            var packets=fixture.f.client.packets();
+            var others=fixture.f.audience.packets();
+            var links=media(packets,MediaPackets.Link.class);
+            var frames=media(packets,MediaPackets.Frame.class);
+            long elapsed=fixture.now-since;
+            require(media(others,MediaPackets.Link.class).isEmpty()&&media(others,MediaPackets.Frame.class).isEmpty()
+                    &&media(others,MediaPackets.Stop.class).isEmpty(),"relay media stays on the receiving native connection");
+            switch(phase){
+                case 0->{
+                    fixture.playback.reset();
+                    MediaProtocolChecks.negotiateLinks(player);
+                    MediaProtocolChecks.negotiateLinks(observer);
+                    packets.clear();
+                    player.setItemInHand(InteractionHand.MAIN_HAND,fixture.authored.copy());
+                    fixture.use();
+                    links=media(packets,MediaPackets.Link.class);
+                    require(links.size()==1,"native phone sends an immediate direct Link");
+                    var direct=MediaProtocolChecks.linkWire(player,links.getFirst());
+                    require(direct.cdn().equals(cdn)&&direct.relay().isEmpty()&&!direct.relayMp4(),
+                            "direct CDN advertisement contains only the authorized local test metadata");
+                    session=direct.session();
+                    MediaProtocolChecks.fallback(player,UUID.randomUUID(),false);
+                    MediaProtocolChecks.fallback(observer,session,false);
+                    MediaProtocolChecks.fallback(player,session,true);
+                    advance(fixture);
+                }
+                case 1->{
+                    if(elapsed<250_000_000L)return false;
+                    require(links.size()==1&&frames.isEmpty()&&puts()==0,
+                            "direct mode never uploads or streams and rejects foreign/stale/premature receipts");
+                    MediaProtocolChecks.fallback(player,session,false);
+                    MediaProtocolChecks.fallback(player,session,false);
+                    advance(fixture);
+                }
+                case 2->{
+                    require(frames.isEmpty(),"JPEG/PCM stays idle while the fallback uploads");
+                    if(links.size()<2)return false;
+                    require(links.size()==2&&puts()==1,"repeated fallback receipts publish one real authenticated upload");
+                    var fallback=MediaProtocolChecks.linkWire(player,links.getLast());
+                    require(fallback.session().equals(session)&&fallback.cdn().isEmpty()&&fallback.relayMp4(),
+                            "relay-only MP4 Link identifies the original native session");
+                    var signed=URI.create(fallback.relay());
+                    require(origin.resolve("/").equals(signed.resolve("/"))&&signed.getRawQuery()==null
+                            &&signed.getRawFragment()==null&&signed.getRawPath().matches("/luckywars-media/v1/[0-9a-f]{64}/[0-9]{10,12}/[0-9a-f]{64}"),
+                            "signed download stays on the exact isolated HTTPS relay");
+                    client=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+                    download=client.sendAsync(HttpRequest.newBuilder(signed).timeout(Duration.ofSeconds(5)).GET().build(),
+                            HttpResponse.BodyHandlers.ofByteArray());
+                    advance(fixture);
+                }
+                case 3->{
+                    require(frames.isEmpty()&&links.size()==2&&puts()==1,"relay play stays out of the game data path");
+                    if(!download.isDone())return false;
+                    var response=download.join();
+                    require(response.statusCode()==200&&Arrays.equals(response.body(),mp4),
+                            "actual HTTPS GET verifies signed download of the exact generated MP4");
+                    MediaProtocolChecks.fallback(player,session,true);
+                    advance(fixture);
+                }
+                case 4->{
+                    if(frames.isEmpty())return false;
+                    require(frames.stream().allMatch(p->p.session().equals(session)&&p.width()==720&&p.height()==1280
+                            &&p.pcm().length==9600&&p.rate()==48000&&p.channels()==2)&&puts()==1&&links.size()==2,
+                            "relay failure resumes the existing native JPEG/PCM route and session without another PUT");
+                    player.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+                    fixture.playback.tick();
+                    require(media(packets,MediaPackets.Stop.class).stream().map(MediaPackets.Stop::session).toList().equals(List.of(session)),
+                            "unholding the phone stops the original session once");
+                    packets.clear();
+                    MediaProtocolChecks.fallback(player,session,false);
+                    advance(fixture);
+                }
+                case 5->{
+                    if(elapsed<200_000_000L)return false;
+                    require(frames.isEmpty()&&links.isEmpty()&&puts()==1,"stopped native session refuses later receipts and frames");
+                    SkyWars2.LOGGER.info("[check] TikTok negotiated transport PASS (direct CDN Link, one on-demand TLS relay PUT and exact signed GET, same-session JPEG/PCM recovery, stale/foreign receipt and stop controls)");
+                    return true;
+                }
+                default->throw new IllegalStateException("unexpected relay fixture phase");
+            }
+            return false;
+        }
+        @Override public void close(){if(client!=null)client.shutdownNow();}
     }
     private static void clip(Path path,int seed)throws Exception{
         Files.createDirectories(path);Files.write(path.resolve("original.mp4"),new byte[]{1});

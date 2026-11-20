@@ -1,10 +1,23 @@
 package me.skywars2.game;
 
+import com.google.gson.JsonParser;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.zip.Inflater;
 import java.util.zip.DataFormatException;
 
@@ -15,12 +28,28 @@ final class TikTokMedia implements AutoCloseable {
     static final int AUDIO_FPS=60, SLICES=AUDIO_FPS/FPS, BAND_BYTES=BANDS*SLICES;
     static final int AUDIO_BYTES=RATE/FPS*4, MAX_JPEG=131072, MAX_COMPRESSED=PIXELS+1024;
     static final int SPECTRAL_PARTIALS=88, SPECTRAL_BYTES=2+4*SPECTRAL_PARTIALS;
+    private static final int MAX_SOURCE_URL=4096, SOURCE_TTL_SECONDS=3600;
+    private static final List<String> CDN_HOSTS=List.of("tiktokcdn.com","tiktokcdn-us.com","tiktokcdn-eu.com",
+            "tiktokcdn-in.com","tiktokv.com","muscdn.com");
+    private static final Set<String> CDN_EXPIRATION_KEYS=Set.of("expire","expires","x-expires");
+    // Mirrors the isolated Python worker. Only media routing and resource-scoped signing keys are admitted.
+    private static final Set<String> CDN_QUERY_KEYS=Set.of("a","br","bt","btag","bti","cd","ch","codec","cr",
+            "cs","cv","dr","ds","er","expire","expires","ft","key-pair-id","l","lr","mime_type","ply_type","policy",
+            "qs","rc","signature","signaturev3","tk","x-expires","x-keyid","x-signature");
+    private static final Pattern CDN_URL_TEXT=Pattern.compile("[\\x21-\\x7e]+");
+    private static final Pattern CDN_PATH=Pattern.compile("/video/tos/(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+/?");
+    private static final Pattern CDN_VALUE=Pattern.compile("[A-Za-z0-9_.,:~|+/!-]*={0,2}");
+    private static final Pattern UNIX_SECONDS=Pattern.compile("[0-9]{9,12}");
     record Frame(byte[] map, byte[] bands, byte[] pcm, byte[] jpeg) {}
+    record CdnSource(String clipId, URI uri, long expiresAt) {
+        @Override public String toString(){return "CdnSource[clipId="+clipId+", expiresAt="+expiresAt+"]";}
+    }
     final String id;
     final Path directory;
     final int frames;
     private final FileChannel video;
     private final long[] offsets;
+    private final CdnSource source;
     private volatile FileChannel spectral;
 
     TikTokMedia(String id, Path directory) throws IOException {
@@ -48,8 +77,62 @@ final class TikTokMedia implements AutoCloseable {
                 if (offsets[0]!=28) throw new IOException("index_invalid");
             }
             video=channel;
+            source=readSource(id,directory.resolve("source.json"),Instant.now().getEpochSecond());
             openSpectral();
         } catch (Throwable error) { channel.close(); throw error; }
+    }
+    Optional<CdnSource> cdnSource() {
+        return source!=null && source.expiresAt()>Instant.now().getEpochSecond() ? Optional.of(source) : Optional.empty();
+    }
+    private static CdnSource readSource(String id, Path sidecar, long now) {
+        if (id.equals("local") || !Files.isRegularFile(sidecar,LinkOption.NOFOLLOW_LINKS)) return null;
+        int maxBytes=MAX_SOURCE_URL+256;
+        try (var stream=Files.newInputStream(sidecar,LinkOption.NOFOLLOW_LINKS)) {
+            byte[] bytes=stream.readNBytes(maxBytes+1);
+            if (bytes.length>maxBytes) return null;
+            var json=JsonParser.parseString(new String(bytes,StandardCharsets.UTF_8)).getAsJsonObject();
+            if (!json.keySet().equals(Set.of("clipId","url","expiresAt"))) return null;
+            var clipId=json.getAsJsonPrimitive("clipId");
+            var url=json.getAsJsonPrimitive("url");
+            var expiresAt=json.getAsJsonPrimitive("expiresAt");
+            if (!clipId.isString() || !clipId.getAsString().equals(id) || !url.isString() || !expiresAt.isNumber()
+                    || !UNIX_SECONDS.matcher(expiresAt.getAsString()).matches()) return null;
+            long expires=expiresAt.getAsLong();
+            String raw=url.getAsString();
+            if (expires<=now || expires>now+SOURCE_TTL_SECONDS || raw.length()>MAX_SOURCE_URL
+                    || !CDN_URL_TEXT.matcher(raw).matches()) return null;
+            URI uri=URI.create(raw);
+            return cdnExpiration(uri)>=expires ? new CdnSource(id,uri,expires) : null;
+        } catch (IOException | RuntimeException unavailable) {
+            // This optional sidecar cannot invalidate an otherwise playable clip.
+            return null;
+        }
+    }
+    private static long cdnExpiration(URI uri) {
+        var host=uri.getHost();
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || host==null || !host.equalsIgnoreCase(uri.getRawAuthority())
+                || uri.getRawFragment()!=null || !CDN_PATH.matcher(uri.getRawPath()).matches()) return -1;
+        String lower=host.toLowerCase(Locale.ROOT);
+        if (CDN_HOSTS.stream().noneMatch(domain->lower.equals(domain)||lower.endsWith("."+domain))) return -1;
+        var query=uri.getRawQuery();
+        if (query==null) return -1;
+        var pairs=query.split("&",33);
+        if (pairs.length>32) return -1;
+        var seen=new HashSet<String>();
+        long expires=-1;
+        for (var pair:pairs) {
+            int split=pair.indexOf('=');
+            if (split<1) return -1;
+            var key=pair.substring(0,split).toLowerCase(Locale.ROOT);
+            if (!CDN_QUERY_KEYS.contains(key) || !seen.add(key)) return -1;
+            var value=URLDecoder.decode(pair.substring(split+1).replace("+","%2B"),StandardCharsets.UTF_8);
+            if (!CDN_VALUE.matcher(value).matches() || key.equals("tk") && !value.equals("tt_chain_token")) return -1;
+            if (CDN_EXPIRATION_KEYS.contains(key)) {
+                if (expires!=-1 || !UNIX_SECONDS.matcher(value).matches()) return -1;
+                expires=Long.parseLong(value);
+            }
+        }
+        return expires;
     }
     private int[] sizes(int number) throws IOException {
         if(number<0||number>=frames)throw new IOException("frame_invalid");

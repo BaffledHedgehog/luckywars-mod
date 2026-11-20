@@ -71,7 +71,7 @@ final class TikTokOutput {
 
     static TikTokOutput forPlayer(ServerPlayer player) {
         var listener = player.connection;
-        if (listener == null) return null;
+        if (listener == null || listener.player != player) return null;
         var connection = ((MediaTransportAccess.Listener) listener).skywars2$mediaConnection();
         var channel = ((MediaTransportAccess.Transport) connection).skywars2$mediaChannel();
         if (channel == null || !channel.isActive()) return null;
@@ -123,6 +123,10 @@ final class TikTokOutput {
 
     boolean active() {
         return channel.isActive() && channel.attr(KEY).get() == this;
+    }
+
+    boolean activeFor(ServerPlayer player) {
+        return player.connection == listener && listener.player == player && active();
     }
 
     long clientTicks() {

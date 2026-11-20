@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -15,12 +16,13 @@ final class TikTokSoundClock implements AutoCloseable {
     private static final long PERIOD=1_000_000_000L/TikTokMedia.AUDIO_FPS;
     private static final class Stream {
         final ServerPlayer identity;
+        final ServerGamePacketListenerImpl listener;
         final TikTokOutput output;
         final TikTokMedia clip;final long started;volatile boolean active=true;long last=-1,lastSpectral=-1;
         long lastClientTick=Long.MIN_VALUE;
         final TikTokVoiceBudget voices=new TikTokVoiceBudget();
         Stream(ServerPlayer player, TikTokMedia clip, long started, TikTokOutput output) {
-            identity=player;this.clip=clip;this.started=started;this.output=output;
+            identity=player;listener=player.connection;this.clip=clip;this.started=started;this.output=output;
         }
     }
     private final ConcurrentMap<UUID,Stream> streams=new ConcurrentHashMap<>();
@@ -31,16 +33,22 @@ final class TikTokSoundClock implements AutoCloseable {
         this.pin=pin;this.release=release;clock.scheduleAtFixedRate(this::pulse,0,PERIOD,TimeUnit.NANOSECONDS);
     }
     void play(ServerPlayer player, TikTokMedia clip, long started, TikTokOutput output) {
-        stop(player);
+        if(!output.activeFor(player))return;
+        var previous=streams.get(player.getUUID());
+        if(previous!=null)stop(previous.identity,previous.listener);
         streams.put(player.getUUID(), new Stream(player, clip, started, output));
     }
-    void stop(ServerPlayer player){var stream=streams.remove(player.getUUID());if(stream!=null)stream.active=false;}
+    void stop(ServerPlayer player, ServerGamePacketListenerImpl listener){
+        var stream=streams.get(player.getUUID());
+        if(stream!=null&&stream.identity==player&&stream.listener==listener&&streams.remove(player.getUUID(),stream))stream.active=false;
+    }
     private void pulse(){
         long now=System.nanoTime();
         for(var stream:streams.values()){
             long serial=Math.max(0,now-stream.started)/PERIOD;
             if(serial==stream.last)continue;stream.last=serial;
-            if (!stream.active || !stream.output.soundReady() || TimeStopView.frozen(stream.identity)) continue;
+            if (!stream.active || !stream.output.activeFor(stream.identity)
+                    || !stream.output.soundReady() || TimeStopView.frozen(stream.identity)) continue;
             pin.accept(stream.clip.id);
             try{
                 // These constructors read only getId()/getUUID(), not mutable entity position or inventory.
@@ -62,7 +70,7 @@ final class TikTokSoundClock implements AutoCloseable {
                 }
                 if (!packets.isEmpty() && stream.output.offerSound(
                         new ClientboundBundlePacket(packets), now + 100_000_000L,
-                        () -> stream.active && !TimeStopView.frozen(stream.identity))) {
+                        () -> stream.active && stream.output.activeFor(stream.identity) && !TimeStopView.frozen(stream.identity))) {
                     stream.voices.emitted(System.nanoTime(), clientTick, packets.size());
                     emittedSlices.incrementAndGet();
                 }

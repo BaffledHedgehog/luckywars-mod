@@ -11,14 +11,18 @@ import net.minecraft.resources.Identifier;
 /** Small versioned play protocol shared by the optional client and the dedicated server. */
 public final class MediaPackets {
     public static final int VERSION=1, JPEG=1, PCM=2, FEATURES=JPEG|PCM, FPS=20;
+    public static final int HTTPS_PLAYBACK = 4, DIRECT_MP4 = 8;
+    public static final int MAX_LINK_LENGTH = 4096;
     public static final int MAX_JPEG=131072, MAX_PCM=16384, MAX_WIDTH=720, MAX_HEIGHT=1280;
     private static boolean registered;
     private MediaPackets(){}
     public static synchronized void register(){
         if(registered)return;
         PayloadTypeRegistry.serverboundPlay().register(Hello.TYPE,Hello.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(Fallback.TYPE,Fallback.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Frame.TYPE,Frame.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Stop.TYPE,Stop.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(Link.TYPE,Link.CODEC);
         registered=true;
     }
     public record Hello(int protocol,int features) implements CustomPacketPayload {
@@ -54,6 +58,51 @@ public final class MediaPackets {
         };
         public Stop{Objects.requireNonNull(session);}
         @Override public Type<Stop> type(){return TYPE;}
+    }
+
+    /** Start with the CDN URL or deliver a relay URL for the same session. */
+    public record Link(UUID session, String cdn, String relay, boolean relayMp4) implements CustomPacketPayload {
+        public static final Type<Link> TYPE = new Type<>(Identifier.parse("skywars2:media/link_v2"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, Link> CODEC = new StreamCodec<>() {
+            @Override public Link decode(RegistryFriendlyByteBuf buffer) {
+                return new Link(buffer.readUUID(), buffer.readUtf(MAX_LINK_LENGTH), buffer.readUtf(MAX_LINK_LENGTH), buffer.readBoolean());
+            }
+
+            @Override public void encode(RegistryFriendlyByteBuf buffer, Link payload) {
+                buffer.writeUUID(payload.session);
+                buffer.writeUtf(payload.cdn, MAX_LINK_LENGTH);
+                buffer.writeUtf(payload.relay, MAX_LINK_LENGTH);
+                buffer.writeBoolean(payload.relayMp4);
+            }
+        };
+
+        public Link {
+            Objects.requireNonNull(session);
+            if (!validLink(cdn) || !validLink(relay) || (cdn.isEmpty() && relay.isEmpty()) || relayMp4 && relay.isEmpty()) {
+                throw new IllegalArgumentException("media_link_bounds");
+            }
+        }
+
+        private static boolean validLink(String value) {
+            return value != null && value.length() <= MAX_LINK_LENGTH
+                    && value.chars().allMatch(character -> character > 32 && character < 127);
+        }
+
+        @Override public Type<Link> type() { return TYPE; }
+    }
+
+    public record Fallback(UUID session, boolean relayFailed) implements CustomPacketPayload {
+        public static final Type<Fallback> TYPE = new Type<>(Identifier.parse("skywars2:media/fallback_v2"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, Fallback> CODEC = new StreamCodec<>() {
+            @Override public Fallback decode(RegistryFriendlyByteBuf buffer) {
+                return new Fallback(buffer.readUUID(), buffer.readBoolean());
+            }
+            @Override public void encode(RegistryFriendlyByteBuf buffer, Fallback payload) {
+                buffer.writeUUID(payload.session);
+                buffer.writeBoolean(payload.relayFailed);
+            }
+        };
+        @Override public Type<Fallback> type() { return TYPE; }
     }
     /** Validate JPEG dimensions before invoking a native decoder, including against allocation bombs. */
     public static boolean jpegMatches(byte[] data,int width,int height){

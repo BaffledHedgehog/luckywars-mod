@@ -17,6 +17,39 @@ public final class MediaTimelineChecks {
         for(int i=14;i<100;i++)t.offer(i,pcm);
         check(t.queued()==8,"queue memory bounded under stalled render/audio");
         t.close();check(t.queued()==0&&!t.offer(101,pcm)&&!t.running(),"stop clears data and rejects late work");
-        System.out.println("PASS MediaTimeline: priming,20FPS,stereo,underrun,duplicate,queue bound,stop");
+        checkPause(pcm);
+        System.out.println("PASS MediaTimeline: priming,20FPS,stereo,underrun,duplicate,queue bound,pause,resume,stop");
+    }
+
+    private static void checkPause(byte[] pcm) {
+        var timeline = new MediaTimeline();
+        long start = 1_000_000_000L;
+        long step = MediaTimeline.STEP;
+        long frozen = start + 2 * step + step / 2;
+        long resumed = frozen + 20_000_000_000L;
+        for (int i = 40; i < 48; i++) timeline.offer(i, pcm);
+        timeline.start(start);
+        check(timeline.read()[1] == 91, "consume first sound slice before Time Stop");
+        timeline.setPaused(true, frozen);
+        timeline.setPaused(true, frozen + 100 * step);
+        check(timeline.presented(resumed) == 42 && timeline.queued() == 7,
+                "Time Stop holds presentation and keeps queued sound");
+        timeline.setPaused(false, resumed);
+        check(timeline.presented(resumed + step / 2 - 1) == 42
+                && timeline.presented(resumed + step / 2) == 43,
+                "resume from same frame phase after a long pause");
+        check(timeline.read()[1] == 91 && timeline.queued() == 6, "resume from next retained sound slice");
+        timeline.setPaused(true, resumed + step);
+        timeline.close();
+        check(timeline.queued() == 0 && !timeline.offer(48, pcm) && !timeline.running(),
+                "stop during Time Stop clears buffered audio");
+
+        var lateSound = new MediaTimeline();
+        lateSound.offer(80, pcm);
+        lateSound.setPaused(true, frozen);
+        lateSound.start(frozen + 100 * step);
+        lateSound.setPaused(false, resumed);
+        check(lateSound.presented(resumed) == 80 && lateSound.presented(resumed + step) == 81,
+                "audio primed during Time Stop starts on thaw without an artificial delay");
     }
 }
