@@ -5,6 +5,7 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +36,7 @@ public final class CursedPumpkinChecks {
         try {
             if (!running.step()) return;
             running.close(); running = null;
-            SkyWars2.LOGGER.info("[check] PASS cursed-pumpkin (scheduled source35 topology/within-pass armor/offhand, exact native stored stacks and persistence/Polymer isolation; protected inventory/MAG/TECH/real TimeStop; actual sword target-only melee; empty unpack/no phantom stone; 300 distinct outputs under MAG with partial-cursor full coordinator rewind)");
+            SkyWars2.LOGGER.info("[check] PASS cursed-pumpkin (scheduled source35 topology/within-pass armor/offhand, exact native stored stacks and persistence/Polymer isolation; protected inventory/MAG/TECH/real TimeStop; actual sword target-only melee; unreadable items never block healthy output, empty unpack/no phantom stone; 300 distinct outputs under MAG with partial-cursor full coordinator rewind)");
         } catch (Throwable failure) {
             try { running.close(); } catch (Throwable cleanup) { failure.addSuppressed(cleanup); }
             running = null; SkyWars2.LOGGER.error("[check] FAIL cursed-pumpkin", failure);
@@ -55,6 +56,7 @@ public final class CursedPumpkinChecks {
         final boolean skills, borders;
         RegenerationBeltChecks.ScheduledClient client, otherClient;
         Marker jammer;
+        final List<UUID> unreadableCurses = new ArrayList<>();
         UUID sourceId, emptyId;
         ItemStack original;
         Map<Integer, ItemStack> captured;
@@ -225,7 +227,19 @@ public final class CursedPumpkinChecks {
                 require(ItemStack.matches(original, LbcCursedPumpkin.get(owner, 35)), "real world TimeStop pauses whole inventory walk");
                 if (elapsed < 22) return false;
                 game.items().timeStop().end(owner.level()); owner.getInventory().clearContent(); service.inventoryChanged(owner);
-                jammer(true); emptyId = drop(curse()).getUUID(); var stack = curse();
+                jammer(true);
+                for (int i = 0; i < 4; i++) {
+                    var broken = curse();
+                    var data = broken.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+                    var legacyStorage = new ListTag();
+                    var undecodable = new CompoundTag();
+                    undecodable.putInt("malformed_fixture_index", i);
+                    legacyStorage.add(undecodable);
+                    data.put("storage", legacyStorage);
+                    broken.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
+                    unreadableCurses.add(drop(broken).getUUID());
+                }
+                emptyId = drop(curse()).getUUID(); var stack = curse();
                 stack.set(LbcCursedPumpkinItems.CONTENTS, payload.stream().map(ItemStackTemplate::fromNonEmptyStack).toList());
                 stack.setCount(3);sourceId = drop(stack).getUUID(); begin(7); return false;
             }
@@ -233,6 +247,12 @@ public final class CursedPumpkinChecks {
                 var actual = outputs(); if (actual.isEmpty()) { require(elapsed <= 25, "source global-second drop intake"); return false; }
                 require(actual.size() < 300 && owner.level().getEntity(sourceId) != null, "bounded worker retains nonempty partial cursor");
                 require(owner.level().getEntity(emptyId) == null, "empty pumpkin discarded without phantom stone");
+                for (var id : unreadableCurses) {
+                    require(owner.level().getEntity(id) instanceof ItemEntity broken
+                                    && ItemData.contains(broken.getItem(), "storage"),
+                            "unreadable legacy contents stay intact and do not block a healthy cache");
+                    owner.level().getEntity(id).discard();
+                }
                 captured = actual; game.items().timeStop().begin(owner.level(), 500);
                 require(game.vanity().requestCapture(owner, false), "real full coordinator captures partial native unpack cursor"); begin(8); return false;
             }

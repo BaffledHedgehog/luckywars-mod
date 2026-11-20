@@ -106,14 +106,14 @@ public final class LbcCursedPumpkin {
         target.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.PUMPKIN.defaultBlockState()),target.getX(),target.getY()+1,target.getZ(),59,.3,.6,.3,0);
         LbcOverload.sound(target.level(),target.position(),"minecraft:lbcsounds.hahahahaha",1,1,0,0);
     }
-    private void unpack(ItemEntity item,int budget){
-        if(item.isRemoved()||!ordinary(item)||paused(item)||!item.level().hasChunkAt(item.blockPosition()))return;
-        var stack=item.getItem();if(!LbcCursedPumpkinItems.curse(stack))return;
-        var saved=contents(stack,(ServerLevel)item.level());if(saved==null)return;
+    private int unpack(ItemEntity item,int budget){
+        if(item.isRemoved()||!ordinary(item)||paused(item)||!item.level().hasChunkAt(item.blockPosition()))return 0;
+        var stack=item.getItem();if(!LbcCursedPumpkinItems.curse(stack))return 0;
+        var saved=contents(stack,(ServerLevel)item.level());if(saved==null)return 0;
         long total=saved.size(),cursor=Math.clamp(stack.getOrDefault(LbcCursedPumpkinItems.PROGRESS,0L),0,total);
-        if(total==0){item.discard();dropped.remove(item.getUUID());cursors.remove(item.getUUID());return;}
+        if(total==0){item.discard();dropped.remove(item.getUUID());cursors.remove(item.getUUID());return 0;}
         item.setPickUpDelay(32767);item.setPermanentlyInvulnerable(true);item.setUnlimitedLifetime();
-        long end=Math.min(total,cursor+budget);
+        long start=cursor,end=Math.min(total,start+budget);
         while(cursor<end){
             var output=saved.get((int)(cursor%saved.size())).create();
             var result=new ItemEntity(item.level(),item.getX(),item.getY(),item.getZ(),output);
@@ -125,6 +125,7 @@ public final class LbcCursedPumpkin {
         cursors.put(item.getUUID(),cursor);
         stack.set(LbcCursedPumpkinItems.PROGRESS,cursor);
         if(cursor==total){item.discard();dropped.remove(item.getUUID());cursors.remove(item.getUUID());}
+        return (int)(cursor-start);
     }
     public void tick(){
         int now=game.server().getTickCount();if(restoring||lastTick==now||!game.playing())return;lastTick=now;
@@ -137,11 +138,13 @@ public final class LbcCursedPumpkin {
             if(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(level))continue;
             int phase=phases.get(level)+1;phases.put(level,phase);
             if(phase%10==0)for(var id:List.copyOf(holders)){var p=game.server().getPlayerList().getPlayer(id);if(p!=null&&p.level()==level)walk(p);}
+            boolean intake=phase%20==0;
+            if(!intake&&cursors.isEmpty())continue;
             int remaining=64;
             for(var item:List.copyOf(dropped.values())){
                 if(item.isRemoved()){dropped.remove(item.getUUID());continue;}
-                if(item.level()!=level||phase%20!=0&&!cursors.containsKey(item.getUUID())||remaining<=0)continue;
-                int batch=Math.min(16,remaining);unpack(item,batch);remaining-=batch;
+                if(item.level()!=level||!intake&&!cursors.containsKey(item.getUUID())||remaining<=0)continue;
+                remaining-=unpack(item,Math.min(16,remaining));
             }
         }
     }
@@ -153,7 +156,8 @@ public final class LbcCursedPumpkin {
         final Set<UUID> savedHolders=Set.copyOf(holders),savedDirty=Set.copyOf(dirty);
         final Map<ServerLevel,Integer> clocks=new IdentityHashMap<>(phases);
         final Map<UUID,Long> progress=Map.copyOf(cursors);
-        final List<UUID> items=List.copyOf(dropped.keySet());
+        // Native discard precedes the queued unload notification, which may run after capture.
+        final List<UUID> items=dropped.values().stream().filter(item->!item.isRemoved()).map(Entity::getUUID).toList();
         MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var restored=new LinkedHashMap<UUID,ItemEntity>();var missing=new LinkedHashSet<UUID>();
             for(var id:items)if(lookup.apply(id) instanceof ItemEntity item)restored.put(id,item);else missing.add(id);
