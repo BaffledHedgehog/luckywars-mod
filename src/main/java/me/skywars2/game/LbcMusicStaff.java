@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import eu.pb4.polymer.core.api.entity.*;
 import java.util.*;
+import me.skywars2.mixin.WandProjectileMixin;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.*;
@@ -124,7 +125,7 @@ public final class LbcMusicStaff {
             for (int i = 0; i < count; i++) {
                 var shot = new Shot(TYPE, player.level());
                 shot.damage = improved ? 16 : 8;
-                shot.weapon = weapon.copyWithCount(1);
+                shot.bindWeapon(weapon.copyWithCount(1));
                 shot.setOwner(player);
                 shot.setPos(count == 2 ? LbcBalanceExtras.doubleArrowOrigin(origin, aim, lateral, i == 0 ? -1 : 1, true) : origin);
                 shot.getSlot(0).set(new ItemStack(Items.ARROW));
@@ -146,14 +147,27 @@ public final class LbcMusicStaff {
         level.playSound(null, position.x, position.y, position.z, SoundEvents.ARROW_SHOOT, SoundSource.PLAYERS, 1.0f, 1.0f);
     }
     public static final class Shot extends Arrow implements PolymerEntity,FixedArrowDamage {
-        int damage=8;ItemStack weapon=ItemStack.EMPTY;ProjectileModel model;
+        int damage=8;ProjectileModel model;
         Shot(EntityType<? extends Arrow> type,Level level){super(type,level);entityTags().add("magic");}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
         @Override public boolean shouldBeSaved(){return false;}
-        @Override public ItemStack getWeaponItem(){return weapon;}
+        private void bindWeapon(ItemStack weapon){
+            ((WandProjectileMixin.ArrowAccess)(Object)this).skywars2$setFiredFromWeapon(weapon.isEmpty()?null:weapon);
+        }
+        @Override public ItemStack getWeaponItem(){
+            var weapon=super.getWeaponItem();
+            return weapon==null?ItemStack.EMPTY:weapon;
+        }
         @Override public float fixedArrowDamage(){return damage;}
-        @Override public void addAdditionalSaveData(ValueOutput output){super.addAdditionalSaveData(output);output.putInt("MusicStaffDamage",damage);output.store("MusicStaffWeapon",ItemStack.OPTIONAL_CODEC,weapon);}
-        @Override public void readAdditionalSaveData(ValueInput input){super.readAdditionalSaveData(input);damage=input.getIntOr("MusicStaffDamage",8);weapon=input.read("MusicStaffWeapon",ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);}
+        @Override public void addAdditionalSaveData(ValueOutput output){
+            super.addAdditionalSaveData(output);
+            output.putInt("MusicStaffDamage",damage);
+        }
+        @Override public void readAdditionalSaveData(ValueInput input){
+            super.readAdditionalSaveData(input);
+            damage=input.getIntOr("MusicStaffDamage",8);
+            if(super.getWeaponItem()==null)input.read("MusicStaffWeapon",ItemStack.OPTIONAL_CODEC).ifPresent(this::bindWeapon);
+        }
         @Override public void tick(){
             var game=me.skywars2.SkyWars2.game();
             if(game==null||!game.items().currentEpoch(this)){discard();return;}

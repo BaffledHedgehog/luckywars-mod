@@ -3,11 +3,21 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 
 /** Real native arrows, global sound packets and a full uninterrupted 1040-server-tick study. */
@@ -18,7 +28,7 @@ public final class MusicStaffChecks {
     public static void run(GameController game){require(running==null,"exclusive fixture");var fixture=new Fixture(game);running=fixture;try{fixture.begin();}catch(Throwable error){running=null;fixture.close();throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{require(f.game==game,"same native game");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS music-staff (bundled prices, aqua score lore and a local arrow sound, no cooldown including stale item tags, shared double-bow offsets/independent spread, fixed8/16 WILD allied hits, global music lifecycle, actual1040tick Academy trial)");}
+        try{require(f.game==game,"same native game");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS music-staff (bundled prices, aqua score lore and a local arrow sound, no cooldown including stale item tags, shared double-bow offsets/independent spread, fixed8/16 WILD allied hits, native knockback and old weapon snapshots, global music lifecycle, actual1040tick Academy trial)");}
         catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL music-staff",error);}
     }
     private static final class Fixture implements AutoCloseable {
@@ -91,8 +101,55 @@ public final class MusicStaffChecks {
             }
         }
         void aim(){base.move(base.owner,base.home.add(0,12,0));base.move(base.other,base.owner.position().add(0,0,6));base.owner.setYRot(0);base.owner.setXRot(0);base.other.setInvulnerableTime(0);base.other.damageCooldownTime=0;base.other.setHealth(1000);health=base.other.getHealth();}
+        Vec3 knockbackImpact(ItemStack weapon,ItemStack replacement){
+            aim();
+            var shot=shoot(weapon).getFirst();
+            base.owner.setItemInHand(InteractionHand.MAIN_HAND,replacement);
+            // Both real releases hit the same lane so motion differences come from the firing weapon.
+            shot.setDeltaMovement(0,0,3);
+            int before=(int)hitSounds(base.client);
+            for(int tick=0;tick<4&&!shot.isRemoved();tick++)shot.tick();
+            require(base.other.getHealth()==health-8&&shot.isRemoved(),"actual native ally contact keeps the fixed eight damage");
+            require(hitSounds(base.client)==before+1&&hitSounds(base.audience)==0,"both real contacts keep one private cue");
+            require(ItemStack.matches(shot.getWeaponItem(),weapon),"in-flight native arrow retains its exact firing stack");
+            return base.other.getDeltaMovement();
+        }
+        void nativeKnockback(){
+            var enchantment=base.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.KNOCKBACK);
+            require(staff.isEnchantable()&&EnchantmentHelper.getAvailableEnchantmentResults(30,staff,java.util.stream.Stream.of(enchantment))
+                    .stream().anyMatch(entry->entry.enchantment().equals(enchantment)&&entry.level()==2),
+                    "the staff qualifies for Knockback II in the native enchanting table pool");
+            var book=new ItemStack(Items.ENCHANTED_BOOK);
+            var enchants=new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+            enchants.set(enchantment,2);
+            book.set(DataComponents.STORED_ENCHANTMENTS,enchants.toImmutable());
+            var anvil=new AnvilMenu(62,base.owner.getInventory(),ContainerLevelAccess.create(base.level,base.owner.blockPosition()));
+            anvil.getSlot(0).set(staff.copy());
+            anvil.getSlot(1).set(book);
+            anvil.createResult();
+            var enchanted=anvil.getSlot(2).getItem().copy();
+            require(LbcMusicStaff.matches(enchanted)&&enchanted.getEnchantments().getLevel(enchantment)==2,
+                    "native anvil applies a Knockback II book to the staff");
+            var otherWeapon=new ItemStack(Items.IRON_SWORD);otherWeapon.enchant(enchantment,5);
+            base.other.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(0);
+            Vec3 regular=knockbackImpact(staff,otherWeapon);
+            Vec3 improved=knockbackImpact(enchanted,ItemStack.EMPTY);
+            require(Math.abs(improved.z-regular.z-1.2)<1.0e-4,
+                    "firing Knockback II applies once after swapping hands; plain weapon borrows nothing: "+regular+" -> "+improved);
+
+            var legacy=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,base.level.registryAccess());
+            legacy.putInt("MusicStaffDamage",16);
+            legacy.store("MusicStaffWeapon",ItemStack.OPTIONAL_CODEC,enchanted);
+            var restored=new LbcMusicStaff.Shot(LbcMusicStaff.TYPE,base.level);
+            restored.readAdditionalSaveData(TagValueInput.create(ProblemReporter.DISCARDING,base.level.registryAccess(),legacy.buildResult()));
+            require(restored.fixedArrowDamage()==16&&ItemStack.matches(restored.getWeaponItem(),enchanted),"old MusicStaffWeapon snapshot retains damage and enchantment");
+            var migrated=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,base.level.registryAccess());
+            restored.addAdditionalSaveData(migrated);
+            require(migrated.buildResult().contains("weapon"),"restored staff snapshot stores its weapon in the native arrow field");
+            base.client.packets().clear();base.audience.packets().clear();
+        }
         void begin(){
-            require(staff.is(LbcMusicStaff.ITEM)&&!LbcMusicStaff.upgraded(staff),"base canonical leaf");aim();manaConfiguration();var shots=shoot(staff);require(shots.size()==1,"base always emits one");next(0);
+            require(staff.is(LbcMusicStaff.ITEM)&&!LbcMusicStaff.upgraded(staff),"base canonical leaf");aim();manaConfiguration();nativeKnockback();aim();var shots=shoot(staff);require(shots.size()==1,"base always emits one");next(0);
         }
         boolean step(){
             require(game.server().getTickCount()-began<1800,"bounded native52second fixture");int elapsed=game.server().getTickCount()-when;

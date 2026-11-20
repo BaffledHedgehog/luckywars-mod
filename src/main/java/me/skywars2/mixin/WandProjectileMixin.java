@@ -16,6 +16,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,6 +34,8 @@ public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownU
     /** Прямой setter вместо полной загрузки NBT для каждого ножа в массовом залпе. */
     @Mixin(net.minecraft.world.entity.projectile.arrow.AbstractArrow.class)
     public interface ArrowAccess {
+        @org.spongepowered.asm.mixin.gen.Accessor("firedFromWeapon")
+        void skywars2$setFiredFromWeapon(@Nullable ItemStack weapon);
         @org.spongepowered.asm.mixin.gen.Invoker("setPierceLevel")
         void skywars2$setPierceLevel(byte level);
         @org.spongepowered.asm.mixin.gen.Invoker("isInGround")
