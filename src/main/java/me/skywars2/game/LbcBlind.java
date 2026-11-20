@@ -89,7 +89,7 @@ public final class LbcBlind {
         int phase;
         GatlingQueue(String epoch) { this.epoch=epoch; }
     }
-    private static final class RainCloud {
+    static final class RainCloud {
         final ServerPlayer owner;
         final net.minecraft.server.level.ServerLevel level;
         Vec3 position;

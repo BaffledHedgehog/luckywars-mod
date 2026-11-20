@@ -256,13 +256,14 @@ public final class LbcSpecialTools {
         var reason=Component.translatable("skywars2.banhammer.kick");
         // Carpet's socketless connection drops disconnect packets and never invokes the
         // native cleanup callback. Its own API shakes off riders and schedules that callback.
-        if(player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake")){
-            try{player.getClass().getMethod("kill",Component.class).invoke(player,reason);}
-            catch(ReflectiveOperationException failure){
-                SkyWars2.LOGGER.warn("Carpet Banhammer removal API failed; using native disconnect cleanup",failure);
-                player.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(reason));
-            }
-        }else player.connection.disconnect(reason);
+        try {
+            if (LbcCarpetBots.disconnectFake(player, reason)) return;
+        } catch (RuntimeException failure) {
+            SkyWars2.LOGGER.warn("Carpet Banhammer removal API failed; using native disconnect cleanup", failure);
+            player.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(reason));
+            return;
+        }
+        player.connection.disconnect(reason);
     }
     void tick(){
         if(!hammers.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));

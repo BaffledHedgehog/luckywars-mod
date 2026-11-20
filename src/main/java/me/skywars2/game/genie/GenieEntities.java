@@ -1,34 +1,33 @@
 package me.skywars2.game.genie;
 
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.util.*;
-import net.minecraft.world.entity.*;
+import java.util.Set;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
-import net.minecraft.world.entity.projectile.Projectile;
 
 /** Native factory metadata shared by the constructor, its validator and the model index. */
 public final class GenieEntities {
     private GenieEntities(){}
-    private static final Map<EntityType<?>,Class<?>> CLASSES=classes();
-    private static Map<EntityType<?>,Class<?>> classes(){
-        var result=new IdentityHashMap<EntityType<?>,Class<?>>();
-        for(var field:EntityTypes.class.getFields())if(Modifier.isStatic(field.getModifiers())
-                &&field.getGenericType() instanceof ParameterizedType generic&&generic.getRawType()==EntityType.class
-                &&generic.getActualTypeArguments()[0] instanceof Class<?> body){
-            try{result.put((EntityType<?>)field.get(null),body);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
-        }
-        return Collections.unmodifiableMap(result);
+    private static final Set<EntityType<?>> PROJECTILES = Set.of(
+            EntityTypes.ARROW, EntityTypes.BREEZE_WIND_CHARGE, EntityTypes.DRAGON_FIREBALL, EntityTypes.EGG,
+            EntityTypes.ENDER_PEARL, EntityTypes.EXPERIENCE_BOTTLE, EntityTypes.FIREBALL, EntityTypes.FIREWORK_ROCKET,
+            EntityTypes.FISHING_BOBBER, EntityTypes.LINGERING_POTION, EntityTypes.LLAMA_SPIT, EntityTypes.SHULKER_BULLET,
+            EntityTypes.SMALL_FIREBALL, EntityTypes.SNOWBALL, EntityTypes.SPECTRAL_ARROW, EntityTypes.SPLASH_POTION,
+            EntityTypes.TRIDENT, EntityTypes.WIND_CHARGE, EntityTypes.WITHER_SKULL);
+    private static final Set<EntityType<?>> NON_MOBS = Set.of(EntityTypes.ARMOR_STAND, EntityTypes.MANNEQUIN, EntityTypes.PLAYER);
+
+    private static boolean vanillaLiving(EntityType<?> type) {
+        var id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+        return id != null && id.getNamespace().equals("minecraft") && DefaultAttributes.hasSupplier(type);
     }
     public static String category(EntityType<?> type){
-        var body=CLASSES.get(type);
-        return body!=null&&Projectile.class.isAssignableFrom(body)?"projectile":
-                body!=null&&LivingEntity.class.isAssignableFrom(body)?"living":"other";
+        return PROJECTILES.contains(type) ? "projectile" : vanillaLiving(type) ? "living" : "other";
     }
     public static boolean launchable(EntityType<?> type){
-        var body=CLASSES.get(type);
-        return type.canSummon()&&body!=null&&(Projectile.class.isAssignableFrom(body)||Mob.class.isAssignableFrom(body));
+        return type.canSummon() && (PROJECTILES.contains(type) || vanillaLiving(type) && !NON_MOBS.contains(type));
     }
     /** Larger native bodies pay for their actual health, damage and simultaneous population. */
     public static double power(EntityType<?> type){

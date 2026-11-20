@@ -3,18 +3,17 @@ package me.skywars2.game;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
+import me.skywars2.validation.mixin.WandFixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.server.level.ChunkResult;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
@@ -60,31 +59,30 @@ public final class ExasperatoSpeedChecks {
         long explosions(){return base.recording.packets.stream().filter(ClientboundExplodePacket.class::isInstance).count();}
         List<LightningBolt> newBolts(){return game.items().electro().transientSnapshot().stream()
                 .filter(bolt->!previousBolts.contains(bolt)&&!base.before.contains(bolt)&&!bolt.isRemoved()).toList();}
-        @SuppressWarnings("unchecked") Map<ChunkPos,Object> leases(){
-            var service=game.items().exasperato();
-            return ((Map<ServerLevel,Map<ChunkPos,Object>>)get(get(service,"impactLeases"),"leases")).getOrDefault(base.owner.level(),Map.of());
+        Map<ChunkPos,NativeChunkLoad.Leases.Lease> leases(){
+            return game.items().exasperato().impactLeaseSnapshot(base.owner.level());
         }
         void noTickets(Set<ChunkPos> requested){
-            var storage=(TicketStorage)get(base.owner.level().getChunkSource(),"ticketStorage");
-            var type=(TicketType)get(game.items().exasperato(),"IMPACT_TICKET");
-            require(leases().isEmpty()&&requested.stream().noneMatch(pos->storage.getTickets(pos.pack()).stream().anyMatch(t->t.getType()==type)),
+            var storage=((NativeFixtureAccess.Chunks)(Object)base.owner.level().getChunkSource()).skywars2$validationTicketStorage();
+            require(leases().isEmpty()&&requested.stream().noneMatch(pos->storage.getTickets(pos.pack()).stream()
+                            .anyMatch(t->t.getType()==LbcExasperato.IMPACT_TICKET)),
                     "every native impact ticket was released");
         }
         void terminalFailure(Vec3 origin){
             var service=game.items().exasperato();var level=base.owner.level();var chunk=ChunkPos.containing(BlockPos.containing(origin));
             require(!NativeChunkLoad.resident(level,BlockPos.containing(origin)),"controlled failure footprint starts cold");
-            call(service,"burst",new Class<?>[]{ServerPlayer.class,Vec3.class,boolean.class},base.owner,origin,false);
+            ((WandFixtureAccess.Exasperato)(Object)service).validation$burst(base.owner,origin,false);
             var lease=leases().get(chunk);require(lease!=null&&service.pendingShortBlasts()==85,"accepted all sources before native failure");
             var footprint=Set.copyOf(leases().keySet());
             var first=CompletableFuture.completedFuture(ChunkResult.error("controlled Ortkelé first load failure"));
-            set(lease,"load",first);service.blastTick();
+            lease.load=first;service.blastTick();
             int now=game.server().getTickCount();
-            require(service.pendingShortBlasts()==85&&(int)get(lease,"retryTick")==now&&get(lease,"load")!=first,
+            require(service.pendingShortBlasts()==85&&lease.retryTick==now&&lease.load!=first,
                     "exactly one native reissue and no partial output on the first error");
             var last=CompletableFuture.completedFuture(ChunkResult.error("controlled Ortkelé retry failure"));
-            set(lease,"load",last);service.blastTick();
-            require(service.pendingShortBlasts()==85&&get(lease,"load")==last,"same-tick revisit keeps the bounded retry");
-            set(lease,"retryTick",now-1);service.blastTick();
+            lease.load=last;service.blastTick();
+            require(service.pendingShortBlasts()==85&&lease.load==last,"same-tick revisit keeps the bounded retry");
+            lease.retryTick=now-1;service.blastTick();
             require(service.pendingShortBlasts()==0&&explosions()==0&&newBolts().isEmpty(),"second completed error retires the entire unpublished impact");
             noTickets(footprint);
         }
@@ -107,7 +105,7 @@ public final class ExasperatoSpeedChecks {
 
             charge=new LbcExasperato.Charge(LbcExasperato.TYPE,level);
             charge.setOwner(owner);charge.setPos(start);charge.setDeltaMovement(new Vec3(0,0,3));
-            call(service,"step",new Class<?>[]{LbcExasperato.Charge.class,ServerPlayer.class},charge,owner);
+            ((WandFixtureAccess.Exasperato)(Object)service).validation$step(charge,owner);
             require(charge.isRemoved()&&service.pendingShortBlasts()==85,
                     "real swept wall contact accepts all native sources across the cold boundary");
             coldTickets=Set.copyOf(leases().keySet());
@@ -123,27 +121,23 @@ public final class ExasperatoSpeedChecks {
         void nativeGeometryReference(){
             String option="skywars2.disableExplosionCache",previous=System.getProperty(option);var level=base.owner.level();
             try{
-                var constructor=Class.forName("me.skywars2.game.LbcExasperato$NativeBlastSource").getDeclaredConstructor(
-                        net.minecraft.server.level.ServerLevel.class,net.minecraft.world.phys.Vec3.class,net.minecraft.world.entity.LivingEntity.class,boolean.class);
-                constructor.setAccessible(true);
-                var calculate=net.minecraft.world.level.ServerExplosion.class.getDeclaredMethod("calculateExplodedPositions");calculate.setAccessible(true);
                 for(var at:List.of(net.minecraft.world.phys.Vec3.atCenterOf(wall),net.minecraft.world.phys.Vec3.atLowerCornerOf(wall).add(.17,.93,-.001))){
-                    var source=(Entity)constructor.newInstance(level,at,base.owner,true);source.entityTags().add(LbcExasperato.EXPLOSIVE);
+                    var source=new LbcExasperato.NativeBlastSource(level,at,base.owner,true);source.entityTags().add(LbcExasperato.EXPLOSIVE);
                     require(LbcExasperato.cacheableNativeBlast(source),"actual opt-in native source class");
                     var blast=new net.minecraft.world.level.ServerExplosion(level,source,level.damageSources().explosion(source,base.owner),null,at,4,false,
                             net.minecraft.world.level.Explosion.BlockInteraction.DESTROY);
+                    var nativeCollector=(NuclearTerrain.BlockEffects)(Object)blast;
                     for(long seed:new long[]{4711,991,917458}){
                         System.setProperty(option,"true");level.getRandom().setSeed(seed);
-                        var vanilla=new HashSet<>((List<?>)calculate.invoke(blast));
+                        var vanilla=new HashSet<>(nativeCollector.skywars2$nativeNuclearPositions());
                         System.clearProperty(option);level.getRandom().setSeed(seed);
-                        var cached=new HashSet<>((List<?>)calculate.invoke(blast));
+                        var cached=new HashSet<>(nativeCollector.skywars2$nativeNuclearPositions());
                         require(!vanilla.isEmpty()&&vanilla.equals(cached),"cached/native destroyed-position sets must match at the same seed, including fractional surface origin");
                     }
                     source.discard();
                 }
                 SkyWars2.LOGGER.info("[check] exasperato-fast cached/native geometry reference PASS6 exact sets");
-            }catch(ReflectiveOperationException error){throw new IllegalStateException("Native geometry reference",error);}
-            finally{if(previous==null)System.clearProperty(option);else System.setProperty(option,previous);}
+            }finally{if(previous==null)System.clearProperty(option);else System.setProperty(option,previous);}
         }
         boolean check(){
             if(!pairWalls.isEmpty())return checkPair();
@@ -203,7 +197,7 @@ public final class ExasperatoSpeedChecks {
                 var source=new LbcExasperato.Charge(LbcExasperato.TYPE,level);
                 source.setOwner(base.owner);source.setPos(Vec3.atCenterOf(target).add(0,0,-2));
                 source.setDeltaMovement(new Vec3(0,0,3));
-                call(service,"step",new Class<?>[]{LbcExasperato.Charge.class,ServerPlayer.class},source,base.owner);
+                ((WandFixtureAccess.Exasperato)(Object)service).validation$step(source,base.owner);
                 require(source.isRemoved(),"actual swept pair end on its own warm wall");
                 centers.add(legacyCenters(source.position()));
             }
@@ -249,32 +243,10 @@ public final class ExasperatoSpeedChecks {
             return List.copyOf(result);
         }
         @Override public void close(){if(closed)return;closed=true;game.items().exasperato().stop();
-            var spawned=new ArrayList<Entity>();for(var entity:base.owner.level().getAllEntities())if(!base.before.contains(entity)&&!(entity instanceof net.minecraft.server.level.ServerPlayer))spawned.add(entity);
+            var spawned=new ArrayList<Entity>();for(var entity:base.owner.level().getAllEntities())if(!base.before.contains(entity)&&!(entity instanceof ServerPlayer))spawned.add(entity);
             for(var bolt:game.items().electro().transientSnapshot())if(!base.before.contains(bolt))spawned.add(bolt);
             spawned.forEach(Entity::discard);
             blocks.forEach((p,s)->game.maps().restoreSnapshot(base.owner.level(),p,s));base.owner.getAbilities().invulnerable=invulnerable;base.close();}
     }
 
-    private static java.lang.reflect.Field field(Object target,String name){
-        try{
-            var field=target.getClass().getDeclaredField(name);
-            field.setAccessible(true);
-            return field;
-        }catch(ReflectiveOperationException error){throw new IllegalStateException("Native fixture field "+name,error);}
-    }
-    private static Object get(Object target,String name){
-        try{return field(target,name).get(target);}
-        catch(IllegalAccessException error){throw new IllegalStateException(error);}
-    }
-    private static void set(Object target,String name,Object value){
-        try{field(target,name).set(target,value);}
-        catch(IllegalAccessException error){throw new IllegalStateException(error);}
-    }
-    private static void call(Object target,String name,Class<?>[] signature,Object... arguments){
-        try{
-            var method=target.getClass().getDeclaredMethod(name,signature);
-            method.setAccessible(true);
-            method.invoke(target,arguments);
-        }catch(ReflectiveOperationException error){throw new IllegalStateException("Native fixture call "+name,error);}
-    }
 }

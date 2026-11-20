@@ -77,6 +77,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
     @Override
     public void onInitializeServer() {
         // Здесь связываются жизненный цикл сервера, игровые события и команды; состояние матча хранит контроллер.
+        var nativeChecks = NativeCheckHooks.get();
         CoreEntityMerging.load();
         MapManager.registerLoadingTicket();
         DeveloperTools.registerItem();
@@ -147,7 +148,11 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             me.skywars2.game.SignedEnvironmentalEffects.beginTick();
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> me.skywars2.game.ServerNetworkTransport.endTick(server,()->{
-            if (game != null) { game.tick(); GameChecks.tick(game); game.items().psycho().audioMaintenance(); }
+            if (game != null) {
+                game.tick();
+                if (nativeChecks != null) nativeChecks.tick(game);
+                game.items().psycho().audioMaintenance();
+            }
             me.skywars2.game.SignedEnvironmentalEffects.tick();
             me.skywars2.game.SignedEffectVisuals.tick(server);
             me.skywars2.game.WeaponSpreadVisuals.tick(server);
@@ -531,9 +536,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             root.then(Commands.literal("stop").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(ctx -> {
                 if (game != null) game.stopMatch(); return 1;
             }));
-            root.then(Commands.literal("check").requires(source->source.getEntity()==null&&Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source))
+            if (nativeChecks != null) root.then(Commands.literal("check").requires(source->source.getEntity()==null&&Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source))
                     .then(Commands.argument("suite", StringArgumentType.word()).executes(ctx -> {
-                        if (game != null) GameChecks.run(game, StringArgumentType.getString(ctx, "suite")); return 1;
+                        if (game != null) nativeChecks.run(game, StringArgumentType.getString(ctx, "suite")); return 1;
                     })));
             root.then(Commands.literal("lbc-unlock").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                     .then(Commands.argument("player", net.minecraft.commands.arguments.EntityArgument.player())

@@ -1,5 +1,7 @@
 package me.skywars2.game;
 
+import me.skywars2.validation.mixin.BotValidationAccess;
+
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
@@ -19,7 +21,7 @@ final class BotStarterChecks {
         final ItemStack[] pack=new ItemStack[36];final Map<EquipmentSlot,ItemStack> armor=new EnumMap<>(EquipmentSlot.class);
         int originalCobblestone;boolean prepared;
         Fixture(GameController game){super(game);}
-        Object state(){return ((Map<?,?>)WoolBucketChecks.read(game.carpetBots(),"states")).get(bot.getUUID());}
+        BotValidationAccess.State state(){return CarpetBotChecks.state(game,bot);}
         static void require(boolean value,String why){if(!value)throw new IllegalStateException("Bot starter: "+why);}
         @Override void setup(){
             for(var actor:base.level.getAllEntities())preexisting.add(actor.getUUID());super.setup();
@@ -45,8 +47,8 @@ final class BotStarterChecks {
         private static boolean lucky(ItemStack item){return item.getItem() instanceof BlockItem block&&LbcLuckyBlocks.kind(block.getBlock().defaultBlockState())!=null;}
         boolean prepareKit(){
             if(prepared)return true;
-            var state=state();if(state==null||Boolean.TRUE.equals(WoolBucketChecks.read(state,"startingLoot"))
-                    ||!((LbcBotCrafting)WoolBucketChecks.read(state,"crafting")).prepared())return false;
+            var state=state();if(state==null||state.skywars2$validationStartingLoot()
+                    ||!state.skywars2$validationCrafting().prepared())return false;
             require(bot.getMaxHealth()==20,"ordinary native HP");
             require(bot.getInventory().countItem(Items.WATER_BUCKET)>0,"actual starter bucket available");
             require(java.util.stream.IntStream.range(0,36).mapToObj(i->bot.getInventory().getItem(i))

@@ -40,6 +40,17 @@ final class GenieLaunchChecks {
     private ItemStack ordinaryCrossbow;
     GenieLaunchChecks(GameController game,WoolBucketChecks.Fixture base){
         this.game=game;this.base=base;
+        require(GenieEntities.category(EntityTypes.CREEPER).equals("living")&&GenieEntities.launchable(EntityTypes.CREEPER),
+                "native living mob metadata admits the vanilla standalone creeper");
+        require(GenieEntities.category(EntityTypes.TRIDENT).equals("projectile")&&GenieEntities.launchable(EntityTypes.TRIDENT),
+                "native projectile metadata retains the vanilla trident");
+        require(GenieEntities.category(EntityTypes.FISHING_BOBBER).equals("projectile")&&!GenieEntities.launchable(EntityTypes.FISHING_BOBBER),
+                "native projectile category keeps the bobber's standalone spawn restriction");
+        for (var type : List.of(EntityTypes.ARMOR_STAND, EntityTypes.MANNEQUIN, EntityTypes.PLAYER))
+            require(GenieEntities.category(type).equals("living")&&!GenieEntities.launchable(type),
+                    "living avatar and armor stand are not native mob launch factories");
+        require(GenieEntities.category(EntityTypes.ITEM).equals("other")&&!GenieEntities.launchable(EntityTypes.ITEM),
+                "native item entities stay outside the actor factory catalog");
         replacement=game.items().genie().runtime().scripts().prepare("""
             {"version":1,"state":{},"handlers":{"SHOT_REPLACE":"replace"},"functions":{"replace":{
             "parameters":["event"],"code":[
@@ -68,7 +79,7 @@ final class GenieLaunchChecks {
             ["put"],["drop"],["load","state"],["const","shots"],["load","state"],["const","shots"],["get"],["const",1],
             ["add"],["put"],["return"]]}}}
             """);
-        for(String type:List.of("player","fishing_bobber","item","not_a_native_entity"))reject(type,40,200);
+        for(String type:List.of("player","armor_stand","mannequin","fishing_bobber","item","not_a_native_entity"))reject(type,40,200);
         reject("warden",40,200);
         var repeated=plan("stick",Trigger.USE,"creeper",40,600);
         try{GenieRuntime.construct(new GenieBlueprint(repeated.name(),repeated.description(),repeated.icon(),1,List.of(repeated.rules().getFirst(),repeated.rules().getFirst()),List.of(),repeated.twist()));throw new IllegalStateException("excessive simultaneous native population accepted");}catch(IllegalArgumentException expected){}

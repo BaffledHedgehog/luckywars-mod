@@ -220,7 +220,7 @@ public final class LbcStonekivi {
                 MatchAuthorityCheckpoint.world(game,level);return ()->{owner=current;stack=currentStack;};};
         }
     }
-    private final class Sequence implements Work {
+    final class Sequence implements Work {
         final ArrayDeque<Work> children;
         Sequence(ArrayDeque<Work> children) { this.children=children; }
         @Override public boolean ready() {

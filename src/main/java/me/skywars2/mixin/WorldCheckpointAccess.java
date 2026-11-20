@@ -51,6 +51,8 @@ public final class WorldCheckpointAccess {
         @Accessor("skyDarken") void skywars2$sky(int value);
     }
     @Mixin(WorldBorder.class) public interface Border {
+        @Accessor("extent") WorldBorder.BorderExtent skywars2$extent();
+        @Accessor("extent") void skywars2$extent(WorldBorder.BorderExtent value);
         @Accessor("initialized") boolean skywars2$initialized();
         @Accessor("initialized") void skywars2$initialized(boolean value);
         @Accessor("centerX") void skywars2$x(double value);

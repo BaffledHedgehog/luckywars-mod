@@ -1,0 +1,27 @@
+{
+  "required": true,
+  "package": "me.skywars2.validation.mixin",
+  "mixins": [
+    "FixtureAccess$Attribution",
+    "FixtureAccess$NativeEntityGetter",
+    "FixtureAccess$EntityRandom",
+    "FixtureAccess$Homing",
+    "FixtureAccess$BoltActors",
+    "GameCheckAccess$CombatLinks",
+    "GameCheckAccess$TeleportAck",
+    "GameCheckAccess$Exoperso",
+    "BotValidationAccess$Bots",
+    "BotValidationAccess$State",
+    "BotValidationAccess$Arrow",
+    "ChefValidationAccess$Apocalypse",
+    "ChefValidationAccess$Supplies",
+    "NativeFixtureAccess$Chunks",
+    "NativeFixtureAccess$Polymer",
+    "WandFixtureAccess$Exasperato",
+    "WandFixtureAccess$Blaze",
+    "WandFixtureAccess$Duplicating",
+    "WandFixtureAccess$Blind",
+    "WandFixtureAccess$TerraShot",
+    "WandFixtureAccess$Electro"
+  ]
+}

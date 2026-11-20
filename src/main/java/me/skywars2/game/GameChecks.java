@@ -28,7 +28,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
-import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10847,28 +10846,9 @@ public final class GameChecks {
 
         /** The synchronous SLR fixture may clear only attribution it created itself. */
         private static java.util.List<String> slrAttributionFields(GameController game,ServerPlayer player) {
-                var result=new java.util.ArrayList<String>();
-                try {
-                        for(var field:LbcIndirectKills.class.getDeclaredFields())if(java.util.Map.class.isAssignableFrom(field.getType())){
-                                field.setAccessible(true);
-                                if(((java.util.Map<?,?>)field.get(game.items().indirectKills())).containsKey(player))result.add(field.getName());
-                        }
-                } catch(IllegalAccessException error){throw new IllegalStateException("SLR attribution inspection",error);}
-                return result;
-        }
-        private static java.util.Map<java.lang.reflect.Field,Object> slrCombatSnapshot(ServerPlayer player) {
-                var saved=new java.util.LinkedHashMap<java.lang.reflect.Field,Object>();
-                try {
-                        for(String name:java.util.List.of("lastHurtByMob","lastHurtByMobTimestamp","lastHurtByPlayer","lastHurtByPlayerMemoryTime","lastHurtMob","lastHurtMobTimestamp")){
-                                var field=net.minecraft.world.entity.LivingEntity.class.getDeclaredField(name);
-                                field.setAccessible(true);saved.put(field,field.get(player));
-                        }
-                } catch(ReflectiveOperationException error){throw new IllegalStateException("SLR combat snapshot",error);}
-                return saved;
-        }
-        private static void slrCombatRestore(ServerPlayer player,java.util.Map<java.lang.reflect.Field,Object> saved) {
-                try{for(var entry:saved.entrySet())entry.getKey().set(player,entry.getValue());}
-                catch(IllegalAccessException error){throw new IllegalStateException("SLR combat restore",error);}
+                return SauvojenMeditationChecks.Attribution.fields(game.items().indirectKills()).entrySet().stream()
+                                .filter(entry -> entry.getValue().containsKey(player))
+                                .map(java.util.Map.Entry::getKey).sorted().toList();
         }
         private static void checkSlr(GameController game) {
                 var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
@@ -10882,7 +10862,8 @@ public final class GameChecks {
                         if(!priorAttribution.get(player).isEmpty())SkyWars2.LOGGER.info("[check] slr preserving prior attribution: player={}, fields={}, damage={}",player.getScoreboardName(),priorAttribution.get(player),player.getLastDamageSource());
                         game.items().indirectKills().clear(player);
                 }
-                var ownerCombat=slrCombatSnapshot(owner);var otherCombat=slrCombatSnapshot(other);
+                var ownerCombat=SauvojenMeditationChecks.CombatLinks.capture(owner);
+                var otherCombat=SauvojenMeditationChecks.CombatLinks.capture(other);
                 var saved=new WandThirdPlayerState(owner,mana); var savedOther=new WandThirdPlayerState(other,mana);
                 boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
                 var initial=new java.util.HashSet<net.minecraft.world.entity.Entity>(); level.getAllEntities().forEach(initial::add);
@@ -10982,16 +10963,12 @@ public final class GameChecks {
                         other.teleportTo(level,.5,270,5.5,java.util.Set.of(),0,0,true); other.setDeltaMovement(Vec3.ZERO);
                         slrReady(game,owner,4); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && service.stunned(other) && service.stunTicks(other)==80,"Electro shot establishes80 full ticks of input lock");
                         var lockedPosition=other.position(); float lockedYaw=other.getYRot(),lockedPitch=other.getXRot();
-                        try {
-                                var listener=net.minecraft.server.network.ServerGamePacketListenerImpl.class;
-                                var teleportId=listener.getDeclaredField("awaitingTeleport"); teleportId.setAccessible(true);
-                                var awaitingPosition=listener.getDeclaredField("awaitingPositionFromClient"); awaitingPosition.setAccessible(true);
-                                require(awaitingPosition.get(other.connection)!=null,"Movement fixture has an actual pending teleport acknowledgement");
-                                other.connection.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(
-                                                teleportId.getInt(other.connection),lockedPosition.x+1,lockedPosition.y+1,lockedPosition.z+1,lockedYaw+45,lockedPitch+30));
-                                require(awaitingPosition.get(other.connection)==null && other.position().equals(lockedPosition)
-                                                && other.getYRot()==lockedYaw && other.getXRot()==lockedPitch,"Real teleport ACK is accepted without client movement or look overriding stun");
-                        } catch(ReflectiveOperationException failure) { throw new AssertionError("Native teleport fixture fields changed",failure); }
+                        var listener=(me.skywars2.validation.mixin.GameCheckAccess.TeleportAck) other.connection;
+                        require(listener.validation$awaitingPosition()!=null,"Movement fixture has an actual pending teleport acknowledgement");
+                        other.connection.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(
+                                        listener.validation$teleportId(),lockedPosition.x+1,lockedPosition.y+1,lockedPosition.z+1,lockedYaw+45,lockedPitch+30));
+                        require(listener.validation$awaitingPosition()==null && other.position().equals(lockedPosition)
+                                        && other.getYRot()==lockedYaw && other.getXRot()==lockedPitch,"Real teleport ACK is accepted without client movement or look overriding stun");
                         other.connection.handleMovePlayer(new net.minecraft.network.protocol.game.ServerboundMovePlayerPacket.PosRot(
                                         lockedPosition.add(1,0,1),lockedYaw+60,lockedPitch+20,false,false));
                         other.connection.handlePlayerInput(new net.minecraft.network.protocol.game.ServerboundPlayerInputPacket(
@@ -11064,7 +11041,7 @@ public final class GameChecks {
                         if(previousTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),previousTeam);
                         for(var player:java.util.List.of(owner,other))require(slrAttributionFields(game,player).isEmpty(),"SLR removes fixture attribution before restoring original participants");
                         saved.restore(game); savedOther.restore(game);
-                        slrCombatRestore(owner,ownerCombat);slrCombatRestore(other,otherCombat);attribution.close();
+                        ownerCombat.restore(owner);otherCombat.restore(other);attribution.close();
                         for(var player:java.util.List.of(owner,other))require(java.util.Set.copyOf(slrAttributionFields(game,player)).equals(priorAttribution.get(player)),"SLR restores original participant attribution without fixture residue");
                 }
                 SkyWars2.LOGGER.info("[check] PASS slr");
@@ -15502,16 +15479,13 @@ public final class GameChecks {
                         require(cow.getHealth() < 1000 && cow.getLastDamageSource() != null
                                         && cow.getLastDamageSource().getEntity() == owner,
                                         "A drained TNT explosion damages a living target with Exoperso owner attribution");
-                        var sourceMap = LbcExoperso.class.getDeclaredField("blastSources");
-                        sourceMap.setAccessible(true);
-                        require(((java.util.Map<?, ?>) sourceMap.get(exo)).isEmpty(),
+                        var sources = (me.skywars2.validation.mixin.GameCheckAccess.Exoperso) (Object) exo;
+                        require(sources.validation$blastSources().isEmpty(),
                                         "Completed TNT callbacks release all Exoperso blast-series source entries");
                         burst.stop(); exo.stop();
                         require(burst.pendingBlasts() == 0 && burst.mushroomCount() == 0 && exo.count() == 0,
                                         "Burst fixture leaves no queued work or charges");
                         SkyWars2.LOGGER.info("[check] PASS exoperso-blast");
-                } catch (ReflectiveOperationException failure) {
-                        throw new IllegalStateException("Could not inspect Exoperso series cleanup", failure);
                 } finally {
                         exo.stop(); burst.stop();
                         for (var entity : spawned) if (!entity.isRemoved()) entity.discard();
@@ -19157,13 +19131,8 @@ public final class GameChecks {
         }
 
         private static Object nativeBurnRecord(GameController game,net.minecraft.world.entity.LivingEntity victim) {
-                try {
-                        var field=LbcIndirectKills.class.getDeclaredField("burning");
-                        field.setAccessible(true);
-                        return ((java.util.Map<?,?>)field.get(game.items().indirectKills())).get(victim);
-                } catch(ReflectiveOperationException error) {
-                        throw new IllegalStateException("Cannot read the native burn record",error);
-                }
+                var ledger = (me.skywars2.validation.mixin.FixtureAccess.Attribution) (Object) game.items().indirectKills();
+                return ledger.validation$burning().get(victim);
         }
 
         private static UUID phantomStopOwner;
@@ -29380,20 +29349,7 @@ public final class GameChecks {
         }
 
         private static Connection carpetConnection() {
-                try {
-                        Class<?> fakeConnection = Class.forName("carpet.patches.FakeClientConnection");
-                        Constructor<?> constructor = fakeConnection.getDeclaredConstructor(PacketFlow.class);
-                        constructor.setAccessible(true);
-                        return (Connection) constructor.newInstance(PacketFlow.SERVERBOUND);
-                } catch (ClassNotFoundException missingCarpet) {
-                        throw new IllegalStateException(
-                                        "Install Carpet to run /sw check bots; it supplies FakeClientConnection.",
-                                        missingCarpet);
-                } catch (ReflectiveOperationException | ClassCastException failure) {
-                        throw new IllegalStateException(
-                                        "Could not create Carpet FakeClientConnection (PacketFlow.SERVERBOUND).",
-                                        failure);
-                }
+                return CarpetBotChecks.fakeConnection();
         }
 
         private static void setFastConfig(GameController game) {

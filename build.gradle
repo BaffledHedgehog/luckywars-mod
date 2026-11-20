@@ -14,12 +14,20 @@ base {
 
 repositories {
     maven { url = 'https://maven.nucleoid.xyz/' }
+    exclusiveContent {
+        forRepository {
+            maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' }
+        }
+        filter { includeModule('maven.modrinth', 'TQTTVgYE') }
+    }
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    // Carpet 26.3 API, optional on deployed servers. Do not bundle a second mod.
+    compileOnly('maven.modrinth:TQTTVgYE:yt9oDFOj') { transitive = false }
 
     // Installed separately on the server as polymer-bundled; do not bundle duplicates.
     implementation "eu.pb4:polymer-core:${project.polymer_version}"
@@ -27,6 +35,10 @@ dependencies {
     implementation "eu.pb4:polymer-virtual-entity:${project.polymer_version}"
     implementation "eu.pb4:polymer-blocks:${project.polymer_version}"
     implementation include("eu.pb4:sgui:2.2.1+26.3")
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/skywars2.accesswidener')
 }
 
 processResources {
@@ -1189,7 +1201,7 @@ processResources {
             'data/minecraft/tags/entity_type/monsters.json'
     // Legacy assets stay in the working tree; their registries/advancements must not run
     // alongside the new controller. The map Overworld uses a native26.3 void-flat stem.
-    include 'fabric.mod.json', 'skywars2.mixins.json', 'data/skywars2/**', 'data/swrg/structure/**',
+    include 'fabric.mod.json', 'skywars2.mixins.json', 'skywars2.accesswidener', 'data/skywars2/**', 'data/swrg/structure/**',
             'data/swrg/loot_table/chests/**', 'data/swrg/loot_table/game/**',
             'data/swrg/loot_table/gui/**',
             'data/swrg/tags/item/food.json',
@@ -1453,15 +1465,41 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 25
 }
 
-// The ordinary deployable artifact physically contains no map writer/deleter implementation,
-// including their nested classes and native check fixtures. They remain compilation inputs so
-// the explicitly requested test-server artifact can carry the complete authoring implementation.
-def mapEditingClassPatterns = [
+// Only the test edition registers these entrypoints and can link the excluded classes.
+def testServerClassPatterns = [
         'me/skywars2/game/MapAuthoring*.class',
-        'me/skywars2/game/MapDeletion*.class'
+        'me/skywars2/game/MapDeletion*.class',
+        'me/skywars2/game/*Checks.class',
+        'me/skywars2/game/*Checks$*.class',
+        'me/skywars2/game/Vanity*Scene.class',
+        'me/skywars2/game/Vanity*Scene$*.class',
+        'me/skywars2/game/NativeCheckBackend.class',
+        'me/skywars2/validation/**'
 ]
 def productionModJar = tasks.named('jar', Jar) {
-    exclude(mapEditingClassPatterns)
+    exclude(testServerClassPatterns)
+}
+
+def productionArchive = productionModJar.flatMap { it.archiveFile }
+def testServerMetadata = layout.buildDirectory.file('generated/test-server/fabric.mod.json')
+def generateTestServerMetadata = tasks.register('generateTestServerMetadata') {
+    dependsOn(productionModJar)
+    inputs.file(productionArchive)
+    outputs.file(testServerMetadata)
+    doLast {
+        // Read Loom's final metadata, including the nested Fabric JAR declarations.
+        def mod = new java.util.zip.ZipFile(productionArchive.get().asFile).withCloseable { archive ->
+            archive.getInputStream(archive.getEntry('fabric.mod.json')).withReader('UTF-8') { reader ->
+                new groovy.json.JsonSlurper().parse(reader)
+            }
+        }
+        mod.entrypoints['skywars2:map-editing'] = ['me.skywars2.game.MapAuthoringBackend']
+        mod.entrypoints['skywars2:test-checks'] = ['me.skywars2.game.NativeCheckBackend']
+        mod.mixins.add('skywars2.validation.mixins.json')
+        def output = testServerMetadata.get().asFile
+        output.parentFile.mkdirs()
+        output.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(mod)) + '\n', 'UTF-8')
+    }
 }
 
 tasks.register('productionJar') {
@@ -1473,7 +1511,7 @@ tasks.register('productionJar') {
 tasks.register('testServerJar', Jar) {
     group = 'build'
     description = 'Build an explicit test-server jar with map authoring; runtime still requires the testpath guard.'
-    dependsOn(productionModJar)
+    dependsOn(productionModJar, generateTestServerMetadata)
     archiveClassifier = 'test-server'
     duplicatesStrategy = DuplicatesStrategy.FAIL
     inputs.file(productionModJar.flatMap { it.archiveFile })
@@ -1481,10 +1519,12 @@ tasks.register('testServerJar', Jar) {
     // Copy the FINAL Loom-produced jar instead of repackaging main.output alone. This retains
     // Fabric metadata and every nested Jar-in-Jar dependency added by Loom's ordinary jar task.
     from({ zipTree(productionModJar.get().archiveFile.get().asFile) }) {
-        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/MANIFEST.MF', 'fabric.mod.json'
     }
+    from(testServerMetadata)
+    from('src/test-server/resources')
     from(sourceSets.main.output) {
-        include(mapEditingClassPatterns)
+        include(testServerClassPatterns)
     }
     doFirst {
         manifest.from(zipTree(productionModJar.get().archiveFile.get().asFile).matching {

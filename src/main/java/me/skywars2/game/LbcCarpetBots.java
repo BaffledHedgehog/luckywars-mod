@@ -1,10 +1,14 @@
 package me.skywars2.game;
 
-import java.lang.reflect.Method;
+import carpet.fakes.ServerPlayerInterface;
+import carpet.helpers.EntityPlayerActionPack;
+import carpet.patches.EntityPlayerMPFake;
+import net.fabricmc.loader.api.FabricLoader;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -22,6 +26,7 @@ import net.minecraft.world.phys.*;
 
 /** Optional Carpet players: shared Chef routing, actual survival inputs/inventory and native attacks. */
 public final class LbcCarpetBots {
+    private static final boolean CARPET_LOADED=FabricLoader.getInstance().isModLoaded("carpet");
     private static final class RangedWands {
         static final Set<Item> ITEMS=java.util.stream.Stream.concat(LbcWands.tmtAbilities().stream()
                 .map(ability->net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(ability.nativeItem())),LbcAcademy.wandItems().stream())
@@ -42,8 +47,13 @@ public final class LbcCarpetBots {
                 &&shot.getOwner() instanceof net.minecraft.world.entity.LivingEntity attacker&&attacker!=player&&!player.isAlliedTo(attacker))
             state.defense.rangedDamage(attacker,shot);
     }
-    static boolean bot(ServerPlayer player){return player.getGameProfile().name().regionMatches(true,0,"bot",0,3)
-            &&player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake");}
+    static boolean bot(ServerPlayer player){return CARPET_LOADED&&player.getGameProfile().name().regionMatches(true,0,"bot",0,3)
+            &&CarpetInput.fake(player);}
+    static boolean disconnectFake(ServerPlayer player, Component reason) {
+        if (!CARPET_LOADED || !CarpetInput.fake(player)) return false;
+        CarpetInput.disconnect(player, reason);
+        return true;
+    }
     /** Let native death/drop/life accounting finish before replacing the real Carpet body. */
     public boolean died(ServerPlayer player){
         if(!bot(player)||!game.playing()||game.lives(player.getUUID())<=0||game.isObserver(player))return false;
@@ -87,21 +97,34 @@ public final class LbcCarpetBots {
     Observation observation(ServerPlayer player){var s=states.get(player.getUUID());return s==null?new Observation(0,0,0,0,0):new Observation(s.attempts,s.hits,s.looted,s.placements,s.foods);}
     String diagnostics(ServerPlayer player){var state=states.get(player.getUUID());return state==null?"inactive":state.diagnostics();}
 
-    /** Resolve the optional API once, rather than reflection/NBT discovery on every input. */
+    /** Only linked when Fabric has loaded the optional Carpet mod. */
     private static final class CarpetInput {
-        static final Method GET,FORWARD,STRAFE,SNEAK,SPRINT,START,ONCE,CONTINUOUS,STOP;
-        static final Object JUMP;
-        static {try{
-            GET=Class.forName("carpet.fakes.ServerPlayerInterface").getMethod("getActionPack");
-            var type=Class.forName("carpet.helpers.EntityPlayerActionPack");
-            var action=Class.forName("carpet.helpers.EntityPlayerActionPack$Action");var actionType=Class.forName("carpet.helpers.EntityPlayerActionPack$ActionType");
-            START=type.getMethod("start",actionType,action);ONCE=action.getMethod("once");CONTINUOUS=action.getMethod("continuous");JUMP=actionType.getField("JUMP").get(null);
-            FORWARD=type.getMethod("setForward",float.class);STRAFE=type.getMethod("setStrafing",float.class);SNEAK=type.getMethod("setSneaking",boolean.class);SPRINT=type.getMethod("setSprinting",boolean.class);STOP=type.getMethod("stopAll");
-        }catch(ReflectiveOperationException error){throw new ExceptionInInitializerError(error);}}
-        final Object pack;boolean jumpDown,swimming;
-        CarpetInput(ServerPlayer player){try{pack=GET.invoke(player);STOP.invoke(pack);}catch(ReflectiveOperationException error){throw new IllegalStateException("Carpet bot input",error);}}
-        void jump(boolean down,boolean swim){try{if(down!=jumpDown||down&&swim!=swimming){START.invoke(pack,JUMP,down?(swim?CONTINUOUS:ONCE).invoke(null):null);jumpDown=down;swimming=swim;}}catch(ReflectiveOperationException error){throw new IllegalStateException("Carpet bot jump",error);}}
-        void move(float forward,float side,boolean sneak,boolean sprint){try{SNEAK.invoke(pack,sneak);SPRINT.invoke(pack,sprint);FORWARD.invoke(pack,forward);STRAFE.invoke(pack,side);}catch(ReflectiveOperationException error){throw new IllegalStateException("Carpet bot movement",error);}}
+        final EntityPlayerActionPack pack;
+        boolean jumpDown,swimming;
+
+        static boolean fake(ServerPlayer player){return player.getClass()==EntityPlayerMPFake.class;}
+        static void disconnect(ServerPlayer player, Component reason) {
+            ((EntityPlayerMPFake) player).kill(reason);
+        }
+
+        CarpetInput(ServerPlayer player){
+            pack=((ServerPlayerInterface)player).getActionPack();
+            pack.stopAll();
+        }
+
+        void jump(boolean down,boolean swim){
+            if(down==jumpDown&&(!down||swim==swimming))return;
+            var action=down?(swim?EntityPlayerActionPack.Action.continuous():EntityPlayerActionPack.Action.once()):null;
+            pack.start(EntityPlayerActionPack.ActionType.JUMP,action);
+            jumpDown=down;swimming=swim;
+        }
+
+        void move(float forward,float side,boolean sneak,boolean sprint){
+            pack.setSneaking(sneak);
+            pack.setSprinting(sprint);
+            pack.setForward(forward);
+            pack.setStrafing(side);
+        }
     }
     private final class State implements LbcChefBrain.Driver {
         final ServerPlayer player;

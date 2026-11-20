@@ -43,12 +43,7 @@ public final class DeathBodyChecks {
     }
 
     private static void checkCarpetDeath(GameController game,ServerPlayer reference){
-        ServerPlayer player;
-        try{
-            player=CarpetBotChecks.connect(game,"TestDelta",reference.level(),reference.clientInformation());
-        }catch(ReflectiveOperationException error){
-            throw new IllegalStateException("Could not connect the real Carpet actor",error);
-        }
+        var player=CarpetBotChecks.connect(game,"TestDelta",reference.level(),reference.clientInformation());
         require(game.returnFromGameModeCommand(player,GameType.SURVIVAL),"ordinary Carpet fake participates in the round");
         player.setGameMode(GameType.SURVIVAL);player.getAbilities().invulnerable=false;
         player.hasChangedDimension();

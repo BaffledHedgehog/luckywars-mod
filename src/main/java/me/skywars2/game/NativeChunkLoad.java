@@ -63,7 +63,12 @@ final class NativeChunkLoad {
 
         Area area(ServerLevel level) { return new Area(level); }
 
-        private static final class Lease {
+        Map<ChunkPos, Lease> snapshot(ServerLevel level) {
+            var resident = leases.get(level);
+            return resident == null ? Map.of() : Map.copyOf(resident);
+        }
+
+        static final class Lease {
             CompletableFuture<?> load;
             ColdRequests coldRequests;
             int holders = 1, retryTick = Integer.MIN_VALUE;

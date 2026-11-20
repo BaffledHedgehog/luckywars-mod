@@ -1,6 +1,5 @@
 package me.skywars2.game;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
@@ -122,11 +121,14 @@ public final class NativeExplosionCacheChecks {
                 cases.size()*4,reference.fluidReads,optimized.fluidReads);
     }
 
-    private record FireballCollection(List<?> positions, long nextRandom, int nextInt, long nanos) { }
+    private record FireballCollection(List<BlockPos> positions, long nextRandom, int nextInt, long nanos) { }
 
-    private static FireballCollection collectFireball(Method collector, WoolBucketChecks.Fixture f, Vec3 at,
-                                                       int power, long seed, boolean sisyphus)
-            throws ReflectiveOperationException {
+    private static List<BlockPos> collect(ServerExplosion blast) {
+        return ((NuclearTerrain.BlockEffects) (Object) blast).skywars2$nativeNuclearPositions();
+    }
+
+    private static FireballCollection collectFireball(WoolBucketChecks.Fixture f, Vec3 at,
+                                                       int power, long seed, boolean sisyphus) {
         var fireball = new LargeFireball(f.level, f.owner, Vec3.ZERO, power);
         fireball.setPos(at);
         if (sisyphus) fireball.entityTags().add(LbcHoming.SLOW_TAG);
@@ -134,14 +136,13 @@ public final class NativeExplosionCacheChecks {
         var random = f.level.getRandom();
         random.setSeed(seed);
         long start = System.nanoTime();
-        var positions = (List<?>) collector.invoke(blast);
+        var positions = collect(blast);
         long nanos = System.nanoTime() - start;
         return new FireballCollection(positions, random.nextLong(), random.nextInt(), nanos);
     }
 
     /** Keep a full-power native collector inside one warm chunk without applying terrain or entity damage. */
-    private static void sisyphusContract(Method collector, WoolBucketChecks.Fixture f, BlockPos terrain)
-            throws ReflectiveOperationException {
+    private static void sisyphusContract(WoolBucketChecks.Fixture f, BlockPos terrain) {
         var center = new BlockPos((terrain.getX() >> 4) * 16 + 8, terrain.getY() + 20,
                 (terrain.getZ() >> 4) * 16 + 8);
         require(!f.level.isDebug() && f.level.isInWorldBounds(center.above(2))
@@ -163,8 +164,8 @@ public final class NativeExplosionCacheChecks {
             for (int power : new int[]{4, 100}) {
                 long ordinaryNanos = 0, sisyphusNanos = 0;
                 for (long seed : new long[]{73, 91}) {
-                    var ordinary = collectFireball(collector, f, at, power, seed, false);
-                    var sisyphus = collectFireball(collector, f, at, power, seed, true);
+                    var ordinary = collectFireball(f, at, power, seed, false);
+                    var sisyphus = collectFireball(f, at, power, seed, true);
                     require(ordinary.positions.contains(center.above()) && ordinary.positions.contains(center.below())
                                     && ordinary.positions.contains(center.west())
                                     && ordinary.positions.contains(center.east()) == (power == 100)
@@ -189,7 +190,6 @@ public final class NativeExplosionCacheChecks {
         String previous=System.getProperty("skywars2.disableExplosionCache");
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var center=BlockPos.containing(f.home.add(0,55,0));var at=Vec3.atCenterOf(center);
-            var method=ServerExplosion.class.getDeclaredMethod("calculateExplodedPositions");method.setAccessible(true);
             var tnt=new PrimedTnt(EntityTypes.TNT,f.level);tnt.setPos(at);
             for(int x=(center.getX()-24)>>4;x<=(center.getX()+24)>>4;x++)
                 for(int z=(center.getZ()-24)>>4;z<=(center.getZ()+24)>>4;z++)f.level.getChunk(x,z);
@@ -203,10 +203,10 @@ public final class NativeExplosionCacheChecks {
                 for(float radius:new float[]{4,12})for(int seed=0;seed<5;seed++){
                     System.setProperty("skywars2.disableExplosionCache","true");f.level.getRandom().setSeed(seed);
                     long start=System.nanoTime();
-                    var original=(List<BlockPos>)method.invoke(new ServerExplosion(f.level,tnt,null,null,at,radius,false,Explosion.BlockInteraction.DESTROY));
+                    var original=collect(new ServerExplosion(f.level,tnt,null,null,at,radius,false,Explosion.BlockInteraction.DESTROY));
                     slowNanos+=System.nanoTime()-start;long expectedRandom=f.level.getRandom().nextLong();
                     System.setProperty("skywars2.disableExplosionCache","false");f.level.getRandom().setSeed(seed);start=System.nanoTime();
-                    var actual=(List<BlockPos>)method.invoke(new ServerExplosion(f.level,tnt,null,null,at,radius,false,Explosion.BlockInteraction.DESTROY));
+                    var actual=collect(new ServerExplosion(f.level,tnt,null,null,at,radius,false,Explosion.BlockInteraction.DESTROY));
                     fastNanos+=System.nanoTime()-start;
                     if(LbcExasperato.blastHeightBounds(f.level,at,radius,false).minY()!=Integer.MIN_VALUE)boundedNativeCases++;
                     require(new HashSet<>(actual).equals(new HashSet<>(original)),"exact native selected blocks in air/stone/fluids/high-resistance scene="+scene+" seed="+seed);
@@ -217,10 +217,9 @@ public final class NativeExplosionCacheChecks {
             heightContract(f);
             visibilityContract(f,center);
             require(LbcExasperato.optimizedBlockSearches()-begin==cases,"ordinary TNT really enters optimized collection, including lightshoot column TNT");
-            sisyphusContract(method, f, center);
+            sisyphusContract(f, center);
             SkyWars2.LOGGER.info("[check] native finite-height oracle cases={}",boundedNativeCases);
             SkyWars2.LOGGER.info("[check] PASS native-explosion-cache ({} seeded native/original block sets+RNG identical; block-search benchmark native={}ms optimized={}ms; damage/drop pipeline unchanged)",cases,slowNanos/1e6,fastNanos/1e6);
-        }catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
-        finally{if(previous==null)System.clearProperty("skywars2.disableExplosionCache");else System.setProperty("skywars2.disableExplosionCache",previous);}
+        }finally{if(previous==null)System.clearProperty("skywars2.disableExplosionCache");else System.setProperty("skywars2.disableExplosionCache",previous);}
     }
 }

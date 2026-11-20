@@ -1,9 +1,8 @@
 package me.skywars2.game;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
+import me.skywars2.mixin.RaidCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
@@ -46,9 +45,9 @@ final class MatchRaids {
     void validate(){levels.forEach((level,owner)->{if(level.getRaids()!=owner)throw new IllegalStateException("Native raid service owner changed");});}
     void prepareFrozen(Collection<Entity> current){
         validate();linksRestored=false;var future=Collections.newSetFromMap(new IdentityHashMap<Raid,Boolean>());
-        for(var owner:managers.keySet())future.addAll(MatchRaids.<Raid>map(owner,Raids.class,"raidMap").values());
+        for(var owner:managers.keySet())future.addAll(managerAccess(owner).skywars2$raidMap().values());
         for(var entity:current)if(entity instanceof Raider body&&body.getCurrentRaid()!=null)future.add(body.getCurrentRaid());
-        for(var raid:future){var bar=(ServerBossEvent)read(raid,Raid.class,"raidEvent");bar.setVisible(false);bar.removeAllPlayers();}
+        for(var raid:future){var bar=raidAccess(raid).skywars2$raidEvent();bar.setVisible(false);bar.removeAllPlayers();}
         managers.values().forEach(Manager::restore);
         raids.values().forEach(Image::restoreValues);
     }
@@ -59,31 +58,93 @@ final class MatchRaids {
         raids.values().forEach(image->image.restoreLinks(lookup,pending));
         linksRestored=true;
     }
+    private static RaidCheckpointAccess.Manager managerAccess(Raids owner) {
+        return (RaidCheckpointAccess.Manager)(Object) owner;
+    }
+    private static RaidCheckpointAccess.State raidAccess(Raid owner) {
+        return (RaidCheckpointAccess.State)(Object) owner;
+    }
+
     private static final class Manager {
         final Raids owner;
-        final Map<Integer,Raid> original,entries;
-        final Map<Field,Object> values;
-        Manager(Raids owner){this.owner=owner;original=map(owner,Raids.class,"raidMap");entries=new LinkedHashMap<>(original);values=values(owner,Raids.class,"nextId","tick");}
-        void restore(){
-            requireIdentity(owner,Raids.class,"raidMap",original);original.clear();original.putAll(entries);restoreValues(owner,values);
-            // Even an originally clean image must persist the restored contents over a future disk save.
+        final Map<Integer,Raid> original, entries;
+        final int nextId, tick;
+        Manager(Raids owner) {
+            this.owner=owner;
+            var access = managerAccess(owner);
+            original=access.skywars2$raidMap();
+            entries=new LinkedHashMap<>(original);
+            nextId=access.skywars2$raidNextId();
+            tick=access.skywars2$raidTick();
+        }
+        void restore() {
+            var access = managerAccess(owner);
+            requireIdentity(access.skywars2$raidMap(),original,"raidMap");
+            original.clear();
+            original.putAll(entries);
+            access.skywars2$raidNextId(nextId);
+            access.skywars2$raidTick(tick);
+            // Persist these restored contents over a future disk save.
             owner.setDirty();
         }
     }
     private static final class Body {
-        final Raider owner;final Raid raid;final MatchDamageSources.Ref ref;final Map<Field,Object> values;
-        Body(Raider owner,MatchDamageSources.Ref ref){this.owner=owner;this.ref=ref;raid=owner.getCurrentRaid();values=values(owner,Raider.class,"wave","canJoinRaid","ticksOutsideRaid");}
-        void restore(){
-            restoreValues(owner,values);
-            boolean omitted=ref.historical()==null&&MatchDamageSources.intentionallyAbsent(ref.id());
+        final Raider owner;
+        final Raid raid;
+        final MatchDamageSources.Ref ref;
+        final int wave, ticksOutside;
+        final boolean canJoin;
+
+        Body(Raider owner, MatchDamageSources.Ref ref) {
+            this.owner=owner;
+            this.ref=ref;
+            raid=owner.getCurrentRaid();
+            var access = (RaidCheckpointAccess.Body)(Object) owner;
+            wave=access.skywars2$raidWave();
+            canJoin=access.skywars2$raidCanJoin();
+            ticksOutside=access.skywars2$raidOutside();
+        }
+        void restore() {
+            var access = (RaidCheckpointAccess.Body)(Object) owner;
+            access.skywars2$raidWave(wave);
+            access.skywars2$raidCanJoin(canJoin);
+            access.skywars2$raidOutside(ticksOutside);
+            boolean omitted=ref.historical()==null && MatchDamageSources.intentionallyAbsent(ref.id());
             owner.setCurrentRaid(omitted?null:raid);
+        }
+    }
+
+    private record RaidValues(long ticksActive, BlockPos center, boolean started, float totalHealth, int raidOmenLevel,
+                              boolean active, int groupsSpawned, int postRaidTicks, int raidCooldownTicks, int numGroups,
+                              Raid.RaidStatus status, int celebrationTicks, Optional<BlockPos> waveSpawnPos) {
+        RaidValues(RaidCheckpointAccess.State access) {
+            this(access.skywars2$raidTicksActive(),access.skywars2$raidCenter(),access.skywars2$raidStarted(),
+                    access.skywars2$raidTotalHealth(),access.skywars2$raidOmenLevel(),access.skywars2$raidActive(),
+                    access.skywars2$raidGroupsSpawned(),access.skywars2$raidPostRaidTicks(),access.skywars2$raidCooldownTicks(),
+                    access.skywars2$raidNumGroups(),access.skywars2$raidStatus(),access.skywars2$raidCelebrationTicks(),
+                    access.skywars2$raidWaveSpawnPos());
+        }
+        void restore(RaidCheckpointAccess.State access) {
+            if (access.skywars2$raidNumGroups() != numGroups) throw new IllegalStateException("Final native raid group count changed");
+            access.skywars2$raidTicksActive(ticksActive);
+            access.skywars2$raidCenter(center);
+            access.skywars2$raidStarted(started);
+            access.skywars2$raidTotalHealth(totalHealth);
+            access.skywars2$raidOmenLevel(raidOmenLevel);
+            access.skywars2$raidActive(active);
+            access.skywars2$raidGroupsSpawned(groupsSpawned);
+            access.skywars2$raidPostRaidTicks(postRaidTicks);
+            access.skywars2$raidCooldownTicks(raidCooldownTicks);
+            access.skywars2$raidStatus(status);
+            access.skywars2$raidCelebrationTicks(celebrationTicks);
+            access.skywars2$raidWaveSpawnPos(waveSpawnPos);
         }
     }
     private record Member(Raider original,MatchDamageSources.Ref ref,float health) { }
     private record Group(Set<Raider> original,List<Member> members) { }
     private final class Image {
         final Raid owner;
-        final Map<Field,Object> values;
+        final RaidValues values;
         final Map<Integer,Raider> leaderMap;
         final Map<Integer,Set<Raider>> groupMap;
         final Map<Integer,Member> leaders=new LinkedHashMap<>();
@@ -94,29 +155,38 @@ final class MatchRaids {
         final ServerBossEvent event;final Bar bar;
         Image(Raid owner){
             this.owner=owner;
-            values=values(owner,Raid.class,"ticksActive","center","started","totalHealth","raidOmenLevel","active","groupsSpawned",
-                    "postRaidTicks","raidCooldownTicks","numGroups","status","celebrationTicks","waveSpawnPos");
-            for(var value:values.values()){
-                if(value instanceof BlockPos.MutableBlockPos position)positions.put(position,position.immutable());
-                if(value instanceof Optional<?> optional&&optional.orElse(null) instanceof BlockPos.MutableBlockPos position)positions.put(position,position.immutable());
-            }
-            leaderMap=map(owner,Raid.class,"groupToLeaderMap");leaderMap.forEach((wave,body)->leaders.put(wave,member(body)));
-            groupMap=map(owner,Raid.class,"groupRaiderMap");groupMap.forEach((wave,members)->groups.put(wave,new Group(members,members.stream().map(this::member).toList())));
-            heroes=set(owner,Raid.class,"heroesOfTheVillage");heroValues=Set.copyOf(heroes);
-            random=(RandomSource)read(owner,Raid.class,"random");randomState=MatchRandomState.capture(random);
-            event=(ServerBossEvent)read(owner,Raid.class,"raidEvent");bar=new Bar(event);
+            var access = raidAccess(owner);
+            values = new RaidValues(access);
+            if (values.center() instanceof BlockPos.MutableBlockPos position) positions.put(position,position.immutable());
+            if (values.waveSpawnPos().orElse(null) instanceof BlockPos.MutableBlockPos position) positions.put(position,position.immutable());
+            leaderMap = access.skywars2$raidLeaders();
+            leaderMap.forEach((wave,body)->leaders.put(wave,member(body)));
+            groupMap = access.skywars2$raidGroups();
+            groupMap.forEach((wave,members)->groups.put(wave,new Group(members,members.stream().map(this::member).toList())));
+            heroes = access.skywars2$raidHeroes();
+            heroValues = Set.copyOf(heroes);
+            random = access.skywars2$raidRandom();
+            randomState = MatchRandomState.capture(random);
+            event = access.skywars2$raidEvent();
+            bar = new Bar(event);
         }
         Member member(Raider body){return new Member(body,sources.dependencyRef(body),body.getHealth());}
         void restoreValues(){
-            positions.forEach(BlockPos.MutableBlockPos::set);MatchRaids.restoreValues(owner,values);
-            requireIdentity(owner,Raid.class,"random",random);randomState.restore(random);
-            requireIdentity(owner,Raid.class,"raidEvent",event);
-            requireIdentity(owner,Raid.class,"heroesOfTheVillage",heroes);heroes.clear();heroes.addAll(heroValues);
+            var access = raidAccess(owner);
+            positions.forEach(BlockPos.MutableBlockPos::set);
+            values.restore(access);
+            requireIdentity(access.skywars2$raidRandom(),random,"random");
+            randomState.restore(random);
+            requireIdentity(access.skywars2$raidEvent(),event,"raidEvent");
+            requireIdentity(access.skywars2$raidHeroes(),heroes,"heroesOfTheVillage");
+            heroes.clear();
+            heroes.addAll(heroValues);
         }
         void restoreLinks(Function<UUID,Entity> lookup,Set<UUID> pending){
-            requireIdentity(owner,Raid.class,"groupToLeaderMap",leaderMap);leaderMap.clear();
+            var access = raidAccess(owner);
+            requireIdentity(access.skywars2$raidLeaders(),leaderMap,"groupToLeaderMap");leaderMap.clear();
             leaders.forEach((wave,member)->{var body=resolve(member,lookup,pending);if(body!=null)leaderMap.put(wave,body);});
-            requireIdentity(owner,Raid.class,"groupRaiderMap",groupMap);groupMap.clear();float removedHealth=0;
+            requireIdentity(access.skywars2$raidGroups(),groupMap,"groupRaiderMap");groupMap.clear();float removedHealth=0;
             for(var entry:groups.entrySet()){
                 var group=entry.getValue();group.original.clear();
                 for(var member:group.members){
@@ -126,7 +196,7 @@ final class MatchRaids {
                 }
                 groupMap.put(entry.getKey(),group.original);
             }
-            write(owner,Raid.class,"totalHealth",(Float)values.get(field(Raid.class,"totalHealth"))-removedHealth);
+            access.skywars2$raidTotalHealth(values.totalHealth()-removedHealth);
             bar.restore(event,lookup,pending);
             // Omitted bodies leave as native removeFromRaid(...,true), without lifecycle callbacks.
             if(removedHealth!=0)owner.updateBossbar();
@@ -159,21 +229,7 @@ final class MatchRaids {
             }
         }
     }
-    private static Map<Field,Object> values(Object owner,Class<?> type,String... names){
-        var values=new LinkedHashMap<Field,Object>();
-        for(var name:names){var field=field(type,name);Object value=read(owner,type,name);
-            if(!field.getType().isPrimitive()&&!field.getType().isEnum()&&!(value instanceof BlockPos)&&!(value instanceof Optional<?>))throw new IllegalStateException("Review native raid value: "+field);
-            values.put(field,value);
-        }return values;
+    private static void requireIdentity(Object value, Object expected, String label) {
+        if (value != expected) throw new IllegalStateException("Native raid container identity changed: " + label);
     }
-    private static void restoreValues(Object owner,Map<Field,Object> values){values.forEach((field,value)->{
-        if(Modifier.isFinal(field.getModifiers())){if(!Objects.equals(read(owner,field.getDeclaringClass(),field.getName()),value))throw new IllegalStateException("Final native raid value changed: "+field);}
-        else write(owner,field.getDeclaringClass(),field.getName(),value);
-    });}
-    @SuppressWarnings("unchecked") private static <T> Map<Integer,T> map(Object owner,Class<?> type,String name){return (Map<Integer,T>)read(owner,type,name);}
-    @SuppressWarnings("unchecked") private static <T> Set<T> set(Object owner,Class<?> type,String name){return (Set<T>)read(owner,type,name);}
-    private static void requireIdentity(Object owner,Class<?> type,String name,Object expected){if(read(owner,type,name)!=expected)throw new IllegalStateException("Native raid container identity changed: "+name);}
-    private static Field field(Class<?> type,String name){try{var field=type.getDeclaredField(name);field.setAccessible(true);return field;}catch(ReflectiveOperationException error){throw new IllegalStateException("Review native raid field "+type.getName()+"."+name,error);}}
-    private static Object read(Object owner,Class<?> type,String name){try{return field(type,name).get(owner);}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
-    private static void write(Object owner,Class<?> type,String name,Object value){try{field(type,name).set(owner,value);}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
 }

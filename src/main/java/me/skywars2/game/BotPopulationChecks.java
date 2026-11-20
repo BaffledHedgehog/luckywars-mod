@@ -43,7 +43,7 @@ final class BotPopulationChecks {
             require(live==24,"all24 active bot bodies remain alive throughout the real full-media terrain benchmark");
             var state=game.items().badApple().view();
             if(movieStopping){
-                if(getMovieCurrent()!=null)return false;
+                if(state.logicalTicks()!=0)return false;
                 SkyWars2.LOGGER.info("[check] badapple-24 metrics: fullServerTicks={} distinctCompletedFrames={} coalescedFrames={} nativeMedia=228x171 actualFps=10 liveBots=24 surfaceCacheNativeInvalidation=true",
                         metrics(movieTicks),movieFrames.size(),movieCoalesced);
                 require(movieFrames.size()>=190&&movieCoalesced==0,"at least190 distinct full frames complete across the 20second window, without coalescing");
@@ -57,10 +57,6 @@ final class BotPopulationChecks {
             if(state.logicalTicks()<400)return false;
             require(movieTicks.size()>=390,"twenty actual seconds of full native completed-server-tick samples");
             game.items().badApple().requestStop();movieStopping=true;return false;
-        }
-        Object getMovieCurrent(){
-            try{var field=LbcBadApple.class.getDeclaredField("current");field.setAccessible(true);return field.get(game.items().badApple());}
-            catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
         }
         void startEruption(){
             require(game.items().ultraponos().pendingBlastCount()==0&&game.items().ultraponos().emitterCount()==0,"exclusive actual trap queue");

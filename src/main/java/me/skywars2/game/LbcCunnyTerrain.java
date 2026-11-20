@@ -1,23 +1,48 @@
 package me.skywars2.game;
 
 import java.util.*;
-import java.lang.reflect.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.*;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.*;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.attribute.EnvironmentAttributeReader;
 import net.minecraft.world.effect.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.*;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.ticks.LevelTickAccess;
+import net.minecraft.world.ticks.TickPriority;
 
 /** Source virtual markers. Every persistent cursor and RNG belongs to the shared work graph. */
 public final class LbcCunnyTerrain {
@@ -90,7 +115,78 @@ public final class LbcCunnyTerrain {
     private record Emit(BlockPos at,MapManager.BlockSnapshot cell)implements Op{}
     private record Corrector(BlockPos at,int wood,int rot,int front,int back,int phase)implements Op{}
     private record Spread(Vec3 at,int attempts,Mark mark)implements Op{}
-    private record Schedule(BlockPos at,Object type,int delay,net.minecraft.world.ticks.TickPriority priority)implements Op{}
+    private record Schedule(BlockPos at,Object type,int delay,TickPriority priority)implements Op{}
+
+    /** The native jungle feature reads planned blocks while placement and tick scheduling stay queued. */
+    private record TreePlacement(ServerLevel level, RandomSource random, Map<BlockPos, BlockState> blocks,
+                                 List<Op> scheduled) implements WorldGenLevel {
+        @Override public BlockState getBlockState(BlockPos pos) { return blocks.getOrDefault(pos, level.getBlockState(pos)); }
+        @Override public FluidState getFluidState(BlockPos pos) { return getBlockState(pos).getFluidState(); }
+        @Override public boolean isStateAtPosition(BlockPos pos, Predicate<BlockState> test) { return test.test(getBlockState(pos)); }
+        @Override public boolean isFluidAtPosition(BlockPos pos, Predicate<FluidState> test) { return test.test(getFluidState(pos)); }
+        @Override public boolean setBlock(BlockPos pos, BlockState state, int flags, int updateLimit) {
+            blocks.put(pos.immutable(), state);
+            return true;
+        }
+        @Override public boolean removeBlock(BlockPos pos, boolean movedByPiston) {
+            return setBlock(pos, Blocks.AIR.defaultBlockState(), 0, 0);
+        }
+        @Override public boolean destroyBlock(BlockPos pos, boolean dropResources, Entity breaker, int updateLimit) {
+            return removeBlock(pos, false);
+        }
+        @Override public boolean addFreshEntity(Entity entity) { throw new IllegalStateException("Tree feature attempted entity publication"); }
+        @Override public void scheduleTick(BlockPos pos, Block type, int delay) { scheduleTick(pos, type, delay, TickPriority.NORMAL); }
+        @Override public void scheduleTick(BlockPos pos, Block type, int delay, TickPriority priority) {
+            scheduled.add(new Schedule(pos.immutable(), type, delay, priority));
+        }
+        @Override public void scheduleTick(BlockPos pos, Fluid type, int delay) { scheduleTick(pos, type, delay, TickPriority.NORMAL); }
+        @Override public void scheduleTick(BlockPos pos, Fluid type, int delay, TickPriority priority) {
+            scheduled.add(new Schedule(pos.immutable(), type, delay, priority));
+        }
+        @Override public void levelEvent(Entity source, int type, BlockPos pos, int data) { }
+        @Override public void gameEvent(Holder<GameEvent> event, Vec3 pos, GameEvent.Context context) { }
+        @Override public LevelTickAccess<Block> getBlockTicks() { return level.getBlockTicks(); }
+        @Override public LevelTickAccess<Fluid> getFluidTicks() { return level.getFluidTicks(); }
+        @Override public long nextSubTickCount() { return level.nextSubTickCount(); }
+        @Override public long getSeed() { return level.getSeed(); }
+        @Override public ServerLevel getLevel() { return level; }
+        @Override public LevelData getLevelData() { return level.getLevelData(); }
+        @Override public MinecraftServer getServer() { return level.getServer(); }
+        @Override public RegistryAccess registryAccess() { return level.registryAccess(); }
+        @Override public RandomSource getRandom() { return random; }
+        @Override public DifficultyInstance getCurrentDifficultyAt(BlockPos pos) { return level.getCurrentDifficultyAt(pos); }
+        @Override public ServerChunkCache getChunkSource() { return level.getChunkSource(); }
+        @Override public ChunkAccess getChunk(int x, int z, ChunkStatus status, boolean load) {
+            return level.getChunk(x, z, status, load);
+        }
+        @Override public int getHeight(Heightmap.Types type, int x, int z) { return level.getHeight(type, x, z); }
+        @Override public int getSkyDarken() { return level.getSkyDarken(); }
+        @Override public BiomeManager getBiomeManager() { return level.getBiomeManager(); }
+        @Override public Holder<Biome> getUncachedNoiseBiome(int x, int y, int z) { return level.getUncachedNoiseBiome(x, y, z); }
+        @Override public boolean isClientSide() { return level.isClientSide(); }
+        @Override public int getSeaLevel() { return level.getSeaLevel(); }
+        @Override public DimensionType dimensionType() { return level.dimensionType(); }
+        @Override public FeatureFlagSet enabledFeatures() { return level.enabledFeatures(); }
+        @Override public EnvironmentAttributeReader environmentAttributes() { return level.environmentAttributes(); }
+        @Override public LevelLightEngine getLightEngine() { return level.getLightEngine(); }
+        @Override public WorldBorder getWorldBorder() { return level.getWorldBorder(); }
+        @Override public BlockEntity getBlockEntity(BlockPos pos) { return level.getBlockEntity(pos); }
+        @Override public List<? extends Player> players() { return level.players(); }
+        @Override public List<Entity> getEntities(Entity except, AABB box, Predicate<? super Entity> filter) {
+            return level.getEntities(except, box, filter);
+        }
+        @Override public <T extends Entity> List<T> getEntities(EntityTypeTest<Entity, T> type, AABB box,
+                                                               Predicate<? super T> filter) {
+            return level.getEntities(type, box, filter);
+        }
+        @Override public void playSound(Entity except, BlockPos pos, SoundEvent sound, SoundSource source, float volume, float pitch) {
+            level.playSound(except, pos, sound, source, volume, pitch);
+        }
+        @Override public void addParticle(ParticleOptions particle, double x, double y, double z, double dx, double dy, double dz) {
+            level.addParticle(particle, x, y, z, dx, dy, dz);
+        }
+    }
+
     private final class Job implements LbcStonekivi.Work {
         ServerPlayer author;final ServerLevel level;final String epoch;final LbcIndirectKills.Owner cause;
         RandomSource random;ArrayDeque<Op> ops=new ArrayDeque<>();Set<BlockPos> claims=new HashSet<>();
@@ -197,24 +293,9 @@ public final class LbcCunnyTerrain {
                 // Vanilla's finite feature plans against a read-your-writes overlay; publication is queued.
                 for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)if(!resident(t.at.offset(x*16,0,z*16))){push(t);return;}
                 var overlay=new LinkedHashMap<BlockPos,BlockState>();var scheduled=new ArrayList<Op>();
-                WorldGenLevel virtual=(WorldGenLevel)Proxy.newProxyInstance(WorldGenLevel.class.getClassLoader(),new Class<?>[]{WorldGenLevel.class},(proxy,method,args)->{
-                    String name=method.getName();
-                    if(name.equals("getRandom"))return random;
-                    if(name.equals("setBlock")){overlay.put(((BlockPos)args[0]).immutable(),(BlockState)args[1]);return true;}
-                    if(name.equals("removeBlock")||name.equals("destroyBlock")){overlay.put(((BlockPos)args[0]).immutable(),Blocks.AIR.defaultBlockState());return true;}
-                    if(name.equals("getBlockState"))return overlay.getOrDefault((BlockPos)args[0],level.getBlockState((BlockPos)args[0]));
-                    if(name.equals("getFluidState"))return overlay.getOrDefault((BlockPos)args[0],level.getBlockState((BlockPos)args[0])).getFluidState();
-                    if(name.equals("isStateAtPosition"))return ((java.util.function.Predicate<BlockState>)args[1]).test(overlay.getOrDefault((BlockPos)args[0],level.getBlockState((BlockPos)args[0])));
-                    if(name.equals("isFluidAtPosition"))return ((java.util.function.Predicate<net.minecraft.world.level.material.FluidState>)args[1]).test(overlay.getOrDefault((BlockPos)args[0],level.getBlockState((BlockPos)args[0])).getFluidState());
-                    if(name.equals("addFreshEntity"))throw new IllegalStateException("Tree feature attempted entity publication");
-                    if(name.equals("scheduleTick")){scheduled.add(new Schedule(((BlockPos)args[0]).immutable(),args[1],(int)args[2],args.length==4?(net.minecraft.world.ticks.TickPriority)args[3]:net.minecraft.world.ticks.TickPriority.NORMAL));return null;}
-                    if(name.equals("blockUpdated")||name.equals("levelEvent")||name.equals("gameEvent")||name.equals("setCurrentlyGenerating"))return null;
-                    if(method.isDefault())return InvocationHandler.invokeDefault(proxy,method,args==null?new Object[0]:args);
-                    try{return method.invoke(level,args);}catch(InvocationTargetException error){throw error.getCause();}
-                });
                 var feature=level.registryAccess().lookupOrThrow(Registries.FEATURE).getValue(Identifier.parse("minecraft:mega_jungle_tree"));
                 if(feature==null)throw new IllegalStateException("Missing native mega_jungle_tree");
-                feature.place(virtual,level.getChunkSource().getGenerator(),random,t.at);
+                feature.place(new TreePlacement(level, random, overlay, scheduled),level.getChunkSource().getGenerator(),random,t.at);
                 var changes=new ArrayList<Op>();overlay.forEach((at,state)->changes.add(new Emit(at,cell(state))));changes.addAll(scheduled);push(changes.toArray(Op[]::new));
             }
         }

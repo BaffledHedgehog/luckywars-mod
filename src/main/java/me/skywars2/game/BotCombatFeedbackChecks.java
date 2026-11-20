@@ -1,5 +1,7 @@
 package me.skywars2.game;
 
+import me.skywars2.validation.mixin.BotValidationAccess;
+
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
@@ -18,7 +20,7 @@ final class BotCombatFeedbackChecks {
     private static final class Fixture extends CarpetBotChecks.Fixture {
         int phase,at,miningStart=-1,continuous,firstHit=-1;float health,lastYaw;BlockPos lucky;boolean supplied;
         Fixture(GameController game){super(game);}
-        Object state(){return ((Map<?,?>)WoolBucketChecks.read(game.carpetBots(),"states")).get(bot.getUUID());}
+        BotValidationAccess.State state(){return CarpetBotChecks.state(game,bot);}
         @Override void setup(){
             super.setup();if(base.level.getBlockEntity(firstChest) instanceof net.minecraft.world.Container chest)chest.clearContent();
             base.set(firstChest,Blocks.AIR.defaultBlockState());
@@ -46,10 +48,10 @@ final class BotCombatFeedbackChecks {
             }
             if(phase==1){
                 var ai=state();if(ai==null)return false;
-                var defense=(LbcBotDefense)WoolBucketChecks.read(ai,"defense");
+                var defense=ai.skywars2$validationDefense();
                 if(!supplied){defense.rangedDamage(base.other);supplied=true;at=now;}
                 if(now-at<90)return false;
-                require(WoolBucketChecks.read(defense,"rangedAttacker")==null&&!bot.isUsingItem(),"a ceased attack expires instead of leaving a perpetual shield/cover stalemate");
+                require(defense.rangedAttacker==null&&!bot.isUsingItem(),"a ceased attack expires instead of leaving a perpetual shield/cover stalemate");
                 game.carpetBots().forget(bot);bot.getInventory().clearContent();base.move(base.other,origin.add(84,8,0));move(bot,origin,-90);lastYaw=bot.getYRot();
                 lucky=BlockPos.containing(origin).offset(2,0,0);base.set(lucky,LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL).defaultBlockState());
                 bot.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE,400,2,false,false));phase=2;at=now;return false;
@@ -59,8 +61,8 @@ final class BotCombatFeedbackChecks {
                 require(!LbcBotActions.clearArrowShot(bot,base.other,LbcBotActions.arrowAim(bot,base.other,3),3),"the lower curved arrow trajectory is blocked by that slab");
                 return true;
             }
-            var ai=state();if(ai==null||!lucky.equals(WoolBucketChecks.read(ai,"mining")))return false;
-            int began=(Integer)WoolBucketChecks.read(ai,"miningSince");
+            var ai=state();if(ai==null||!lucky.equals(ai.skywars2$validationMining()))return false;
+            int began=ai.skywars2$validationMiningSince();
             if(miningStart<0){miningStart=began;bot.getInventory().setItem(2,new ItemStack(Items.DIAMOND_CHESTPLATE));}
             require(began==miningStart&&bot.getItemBySlot(EquipmentSlot.CHEST).isEmpty(),"new armor waits while the native continuous break keeps the same start tick");
             if(++continuous<12)return false;

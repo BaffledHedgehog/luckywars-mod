@@ -36,7 +36,7 @@ final class BotWorkbenchChecks {
                 signature=current;lastChange=now;
             }
             if(bot.getInventory().countItem(Items.WOODEN_PICKAXE)==0)return false;
-            var state=state();var crafting=state==null?null:(LbcBotCrafting)WoolBucketChecks.read(state,"crafting");
+            var state=state();var crafting=state==null?null:state.skywars2$validationCrafting();
             if(crafting==null||crafting.active()||bot.containerMenu!=bot.inventoryMenu)return false;
             require(sawMenu&&bot.position().distanceToSqr(from)>.25,"native movement reaches an actual usable table face");
             int placed=game.carpetBots().observation(bot).placements();

@@ -3,13 +3,39 @@ package me.skywars2.game;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.gui.SimpleGui;
+import io.netty.buffer.Unpooled;
 import me.skywars2.SkyWars2;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.inventory.ContainerInput;
 
 /** Native GUI input, durable UUID profile and vanilla-client FOV arithmetic. */
 public final class PersonalSettingsChecks {
     private PersonalSettingsChecks() { }
     private static void require(boolean ok,String message){if(!ok)throw new IllegalStateException("Personal settings: "+message);}
+    private static void checkPersonalTabName(ServerPlayer player, ItemStack stack) {
+        var bytes = Unpooled.buffer();
+        try {
+            var buffer = new RegistryFriendlyByteBuf(bytes, player.registryAccess());
+            var packet = new ClientboundContainerSetSlotPacket(player.containerMenu.containerId, 0, 22, stack);
+            ClientboundContainerSetSlotPacket.STREAM_CODEC.encode(buffer, packet);
+            var clientStack = ClientboundContainerSetSlotPacket.STREAM_CODEC.decode(buffer).getItem();
+            var name = clientStack.get(DataComponents.CUSTOM_NAME);
+            var expected = Style.EMPTY.withColor(ChatFormatting.YELLOW).withItalic(false);
+            require(name != null && name.getContents() instanceof TranslatableContents text
+                    && text.getKey().equals("menu.personal_settings") && name.getStyle().equals(expected),
+                    "cosmetic tab sends the localized yellow non-italic title: " + name);
+        } finally {
+            bytes.release();
+        }
+    }
+
     public static void run(GameController game){
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var profile=game.players().get(f.owner.getUUID());int previous=profile.fovEffects;
@@ -21,6 +47,7 @@ public final class PersonalSettingsChecks {
                 profile.fovEffects=5;stage.set(game,GameController.Stage.LOBBY);ready.setBoolean(game,true);
                 game.menus().open(f.owner,GameMenus.Page.COSMETICS);
                 var gui=(SimpleGui)SguiUtils.getCurrentGui(f.owner);require(gui.getGuiElement(22)!=null,"cosmetic hub contains personal tab");
+                checkPersonalTabName(f.owner, gui.getGuiElement(22).getItemStack());
                 gui.click(22,ClickType.MOUSE_LEFT,ContainerInput.PICKUP);
                 gui=(SimpleGui)SguiUtils.getCurrentGui(f.owner);require(gui.getGuiElement(13)!=null,"native personal FOV button rendered");
                 gui.click(13,ClickType.MOUSE_LEFT,ContainerInput.PICKUP);require(profile.fovEffects==5,"unrequested left click does not change preference");
@@ -38,7 +65,7 @@ public final class PersonalSettingsChecks {
                     float scope=LbcRifleZoom.projectedWalking(speed,.1f,true,percent,multiplier);
                     require(Math.abs((speed/scope+1)/2-.25)<1e-5,"weapon scopes keep full strength at every preference");
                 }
-                SkyWars2.LOGGER.info("[check] PASS personal-settings (native cosmetic tab/clicks, modulo101, durable UUID preference, default5, speed/sprint/flight/bow curves and full scopes)");
+                SkyWars2.LOGGER.info("[check] PASS personal-settings (native yellow non-italic localized cosmetic tab packet, clicks, modulo101, durable UUID preference, default5, speed/sprint/flight/bow curves and full scopes)");
             }finally{
                 profile.fovEffects=previous;game.players().save();game.items().rifleZoom().personalSettingsChanged(f.owner);
                 var gui=SguiUtils.getCurrentGui(f.owner);if(gui!=null)gui.close();stage.set(game,oldStage);ready.setBoolean(game,oldReady);

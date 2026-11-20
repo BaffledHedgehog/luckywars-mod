@@ -1,18 +1,30 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.CombatCheckpointAccess;
+import me.skywars2.validation.mixin.FixtureAccess;
+import me.skywars2.validation.mixin.GameCheckAccess;
+import me.skywars2.validation.mixin.WandFixtureAccess;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -46,10 +58,29 @@ public final class SauvojenAcademyChecks {
     private static void near(Vec3 actual,Vec3 expected,String detail) {
         require(actual.distanceToSqr(expected)<1e-9,detail+" actual="+actual+" expected="+expected);
     }
-    private static Object state(Object value,String field) {
-        try{var f=value.getClass().getDeclaredField(field);f.setAccessible(true);return f.get(value);}
-        catch(ReflectiveOperationException e){throw new IllegalStateException("Native payload state "+field,e);}
+    private record CombatLinks(EntityReference<LivingEntity> lastMob, int lastMobTime,
+                               EntityReference<Player> lastPlayer, int lastPlayerMemory,
+                               LivingEntity lastAttack, int lastAttackTime) {
+        static CombatLinks capture(ServerPlayer player) {
+            var state = (CombatCheckpointAccess.Living) player;
+            var links = (GameCheckAccess.CombatLinks) player;
+            return new CombatLinks(state.skywars2$mob(), links.validation$mobTime(), state.skywars2$player(),
+                    state.skywars2$memory(), links.validation$attacked(), links.validation$attackTime());
+        }
+
+        void restore(ServerPlayer player) {
+            var state = (CombatCheckpointAccess.Living) player;
+            state.skywars2$mob(lastMob);
+            state.skywars2$mobTime(lastMobTime);
+            state.skywars2$player(lastPlayer);
+            state.skywars2$memory(lastPlayerMemory);
+            state.skywars2$attacked(lastAttack);
+            state.skywars2$attackTime(lastAttackTime);
+        }
     }
+
+    private record ParticipantRows(Map<? super ServerPlayer,Object> live, Map<ServerPlayer,Object> entries) { }
+
     private static final class Fixture implements AutoCloseable {
         final GameController game;
         final ElementalGrimoireChecks.Fixture base;
@@ -58,9 +89,9 @@ public final class SauvojenAcademyChecks {
         final Map<AdvancementHolder,Set<String>> advancements=new LinkedHashMap<>();
         final Map<net.minecraft.stats.Stat<?>,Integer> extraStats=new LinkedHashMap<>();
         final Map<net.minecraft.server.level.ServerPlayer,GameChecks.WandThirdPlayerState> peers=new LinkedHashMap<>();
-        final Map<net.minecraft.server.level.ServerPlayer,Map<java.lang.reflect.Field,Object>> combat=new LinkedHashMap<>();
-        final Map<java.lang.reflect.Field,Map<net.minecraft.server.level.ServerPlayer,Object>> attribution=new LinkedHashMap<>();
-        final Map<Object,Integer> fallGrace=new IdentityHashMap<>();
+        final Map<ServerPlayer,CombatLinks> combat=new LinkedHashMap<>();
+        final List<ParticipantRows> attribution=new ArrayList<>();
+        final Map<LbcIndirectKills.Fall,Integer> fallGrace=new IdentityHashMap<>();
         final Map<net.minecraft.server.level.ServerPlayer,Map<String,Integer>> customScores=new LinkedHashMap<>();
         final int cost,stat;
         boolean retain;
@@ -70,26 +101,19 @@ public final class SauvojenAcademyChecks {
             require(probes||service.count()==0,"exclusive empty drone service");
             base=new ElementalGrimoireChecks.Fixture(game,probes);
             var participants=game.server().getPlayerList().getPlayers().stream().filter(game::canUseGameplayItems).toList();
-            try {
-                for(var player:participants) {
-                    if(player!=base.owner)peers.put(player,new GameChecks.WandThirdPlayerState(player,base.mana));
-                    var scores=new LinkedHashMap<String,Integer>();customScores.put(player,scores);
-                    for(String name:List.of("ray","acid_rifle","scared","lookback","twitching","piss","delayed_death"))scores.put(name,base.mana.score(player,name).get());
-                    var fields=new LinkedHashMap<java.lang.reflect.Field,Object>();combat.put(player,fields);
-                    for(String name:List.of("lastHurtByMob","lastHurtByMobTimestamp","lastHurtByPlayer","lastHurtByPlayerMemoryTime","lastHurtMob","lastHurtMobTimestamp")) {
-                        var field=net.minecraft.world.entity.LivingEntity.class.getDeclaredField(name);field.setAccessible(true);fields.put(field,field.get(player));
-                    }
-                }
-                for(var field:LbcIndirectKills.class.getDeclaredFields())if(Map.class.isAssignableFrom(field.getType())) {
-                    field.setAccessible(true);var map=(Map<?,?>)field.get(game.items().indirectKills());
-                    var entries=new LinkedHashMap<net.minecraft.server.level.ServerPlayer,Object>();attribution.put(field,entries);
-                    for(var player:participants) {
-                        Object value=map.get(player);if(value instanceof Map<?,?> nested)value=new LinkedHashMap<>(nested);
-                        entries.put(player,value);
-                        if(value!=null&&value.getClass().getSimpleName().equals("Fall"))fallGrace.put(value,(Integer)state(value,"grace"));
-                    }
-                }
-            } catch(ReflectiveOperationException error){throw new IllegalStateException("Academy exact participant snapshot",error);}
+            for(var player:participants) {
+                if(player!=base.owner)peers.put(player,new GameChecks.WandThirdPlayerState(player,base.mana));
+                var scores=new LinkedHashMap<String,Integer>();customScores.put(player,scores);
+                for(String name:List.of("ray","acid_rifle","scared","lookback","twitching","piss","delayed_death"))scores.put(name,base.mana.score(player,name).get());
+                combat.put(player,CombatLinks.capture(player));
+            }
+            var ledger=(FixtureAccess.Attribution)(Object)game.items().indirectKills();
+            List<Map<? extends LivingEntity,?>> tables=List.of(ledger.validation$logoutAbsorption(),
+                    ledger.validation$logoutAttacks(),ledger.validation$lootOwners(),ledger.validation$falls(),
+                    ledger.validation$statuses(),ledger.validation$pendingMana(),ledger.validation$manaDrains(),
+                    ledger.validation$manaDebts(),ledger.validation$hungerDebts(),ledger.validation$removedSupports(),
+                    ledger.validation$laterAttacks(),ledger.validation$burning(),ledger.validation$arrivals());
+            for(var table:tables) captureAttribution(table,participants);
             cost=base.mana.score(ScoreHolder.forNameOnly("sauvojen_wand_mana_use"),"lbc.math").get();
             stat=base.owner.getStats().getValue(Stats.ITEM_USED.get(LbcWands.SAUVOJEN));
             for(var s:List.of(Stats.ITEM_USED.get(LbcWands.ACADEMY_SAUVOJEN),Stats.CUSTOM.get(Stats.MOB_KILLS),Stats.CUSTOM.get(Stats.DAMAGE_DEALT),Stats.CUSTOM.get(Stats.DAMAGE_TAKEN),Stats.ENTITY_KILLED.get(EntityTypes.COW)))extraStats.put(s,base.owner.getStats().getValue(s));
@@ -136,29 +160,37 @@ public final class SauvojenAcademyChecks {
             var lightning=new ArrayList<Entity>();for(var e:base.owner.level().getAllEntities())if(!base.before.contains(e)&&e instanceof net.minecraft.world.entity.LightningBolt bolt&&LbcElectro.managedLightning(bolt)&&bolt.getCause()==base.owner)lightning.add(e);
             lightning.forEach(Entity::discard);
         }
-        Object reboundStatus(Object value,net.minecraft.server.level.ServerPlayer player) {
-            if(value==null||!value.getClass().getSimpleName().equals("Status"))return value;
-            var prior=(net.minecraft.world.effect.MobEffectInstance)state(value,"effect");var active=player.getEffect(prior.getEffect());
-            if(active==null)return value;
-            try{var constructor=value.getClass().getDeclaredConstructors()[0];constructor.setAccessible(true);return constructor.newInstance(state(value,"owner"),active);}
-            catch(ReflectiveOperationException error){throw new IllegalStateException("Academy exact active-effect attribution restore",error);}
+        Object reboundStatus(Object value,ServerPlayer player) {
+            if(!(value instanceof LbcIndirectKills.Status status))return value;
+            var active=player.getEffect(status.effect().getEffect());
+            return active==null?status:new LbcIndirectKills.Status(status.owner(),active);
         }
+
         @SuppressWarnings("unchecked")
+        void captureAttribution(Map<? extends LivingEntity,?> rows,List<ServerPlayer> participants) {
+            var entries=new LinkedHashMap<ServerPlayer,Object>();
+            for(var player:participants) {
+                Object value=rows.get(player);
+                if(value instanceof Map<?,?> nested)value=new LinkedHashMap<>(nested);
+                entries.put(player,value);
+                if(value instanceof LbcIndirectKills.Fall fall)fallGrace.put(fall,fall.grace);
+            }
+            // This table only touches the live ServerPlayer keys read above; each saved value goes back to its own map.
+            attribution.add(new ParticipantRows((Map<? super ServerPlayer,Object>)(Map<?,?>)rows,entries));
+        }
+
         void restoreAttribution() {
-            try {
-                for(var field:attribution.entrySet()) {
-                    var map=(Map<Object,Object>)field.getKey().get(game.items().indirectKills());
-                    for(var entry:field.getValue().entrySet()) {
-                        Object value=entry.getValue();var player=entry.getKey();
-                        if(value instanceof Map<?,?> nested) {
-                            var effects=new LinkedHashMap<Object,Object>();nested.forEach((effect,status)->effects.put(effect,reboundStatus(status,player)));value=effects;
-                        } else value=reboundStatus(value,player);
-                        if(value==null)map.remove(player);else map.put(player,value);
-                    }
+            for(var table:attribution) {
+                for(var entry:table.entries.entrySet()) {
+                    Object value=entry.getValue();var player=entry.getKey();
+                    if(value instanceof Map<?,?> nested) {
+                        var effects=new LinkedHashMap<Object,Object>();nested.forEach((effect,status)->effects.put(effect,reboundStatus(status,player)));value=effects;
+                    } else value=reboundStatus(value,player);
+                    if(value==null)table.live.remove(player);else table.live.put(player,value);
                 }
-                for(var entry:fallGrace.entrySet()){var field=entry.getKey().getClass().getDeclaredField("grace");field.setAccessible(true);field.setInt(entry.getKey(),entry.getValue());}
-                for(var player:combat.entrySet())for(var field:player.getValue().entrySet())field.getKey().set(player.getKey(),field.getValue());
-            } catch(ReflectiveOperationException error){throw new IllegalStateException("Academy exact participant attribution restore",error);}
+            }
+            fallGrace.forEach((fall,grace)->fall.grace=grace);
+            combat.forEach((player,links)->links.restore(player));
         }
         void projectile(Projectile shot,Vec3 origin,Vec3 direction,double speed,String detail) {
             require(shot.getOwner()==base.owner&&game.items().currentEpoch(shot),"actual owner/epoch "+detail);
@@ -178,7 +210,7 @@ public final class SauvojenAcademyChecks {
             require(owner.getYRot()==yaw&&owner.getXRot()==pitch&&owner.getAbilities().pack().equals(abilities),"detached helper preserves camera and native abilities "+kind+"/"+mode);
             require(base.mana.get(owner)==balance&&base.mana.maximum(owner)==maximum&&owner.getStats().getValue(Stats.ITEM_USED.get(LbcWands.SAUVOJEN))==used,"detached helper has no paid admission/debit/use stat/Mage callback "+kind+"/"+mode);
             require(ItemStack.isSameItemSameComponents(stack,copy)&&stack.getCount()==copy.getCount(),"detached helper never changes owner stack/mode/trial/readiness "+kind+"/"+mode);
-            require(base.recording.packets.subList(packets,base.recording.packets.size()).stream().noneMatch(p->p.getClass().getSimpleName().equals("ClientboundPlayerPositionPacket")||p.getClass().getSimpleName().equals("ClientboundPlayerAbilitiesPacket")),"no transient owner movement or abilities spoof packets "+kind+"/"+mode);
+            require(base.recording.packets.subList(packets,base.recording.packets.size()).stream().noneMatch(p->p instanceof ClientboundPlayerPositionPacket||p instanceof ClientboundPlayerAbilitiesPacket),"no transient owner movement or abilities spoof packets "+kind+"/"+mode);
         }
         void drainRays() {
             for(int i=0;i<48&&game.items().exasperato().pendingSearches()>0;i++)game.items().exasperato().tick();
@@ -356,9 +388,7 @@ public final class SauvojenAcademyChecks {
                 var sourcePos = downflow.above();
                 level.getFluidState(sourcePos).tick(level,sourcePos,level.getBlockState(sourcePos));
                 var flow = level.getFluidState(downflow);
-                var worldHazards = (Map<?,?>)((Map<?,?>)state(ledger,"hazards")).get(level);
-                var hazard = worldHazards == null ? null : worldHazards.get(downflow);
-                var cause = hazard == null ? null : (LbcIndirectKills.Owner)state(hazard,"owner");
+                var cause = ledger.hazardOwner(level,downflow);
                 require(flow.getType().isSame(Fluids.WATER) && !flow.isSource() && cause != null && cause.player().equals(owner.getUUID()),
                         "a retained real source propagates native flowing water and preserves its caster's hazard attribution");
                 SkyWars2.LOGGER.info("[check] Academy Watering pressure: pendingOther={} firstSources={} firstNativeTicks={} finalSources=749",
@@ -513,15 +543,16 @@ public final class SauvojenAcademyChecks {
                     emit(stack,LbcSauvojen.Kind.FIRE,mode,origin,direction);
                     if(mode==4||mode==6) {
                         require(game.items().blaze().terrainCount()==1,"actual queued Fireblaze terrain producer "+mode);
-                        var queue=(Collection<?>)state(game.items().blaze(),"terrain");var terrain=queue.iterator().next();
-                        require(state(terrain,"owner")==owner,"Fireblaze terrain preserves actual author "+mode);
-                        var areas=(Collection<?>)state(terrain,"areas");require(!areas.isEmpty(),"Fireblaze source queues real block work "+mode);
+                        var queue=((WandFixtureAccess.Blaze)(Object)game.items().blaze()).validation$terrain();
+                        var terrain=(LbcBlaze.Terrain)queue.getFirst();
+                        require(terrain.owner()==owner,"Fireblaze terrain preserves actual author "+mode);
+                        var areas=terrain.areas();require(!areas.isEmpty(),"Fireblaze source queues real block work "+mode);
                         var center=victim.blockPosition();
                         if(mode==4) {
                             // Test cow is the only nearby high-altitude target; global source may also include real match actors.
-                            require(areas.stream().map(a->(BlockAreaWork.Bounds)state(a,"bounds")).anyMatch(b->b.equals(new BlockAreaWork.Bounds(center.getX()-1,center.getY(),center.getZ()-1,center.getX()+1,center.getY()+1,center.getZ()+1))),"Kiuas real native queue contains exact source target3x2x3 footprint");
-                            require(areas.stream().map(a->(BlockAreaWork.Bounds)state(a,"bounds")).anyMatch(b->b.equals(new BlockAreaWork.Bounds(center.getX()-15,center.getY()-15,center.getZ()-15,center.getX()+15,center.getY()+15,center.getZ()+15))),"Kiuas real queue contains exact source31cube");
-                        } else require(areas.stream().map(a->(BlockAreaWork.Bounds)state(a,"bounds")).anyMatch(b->b.minY()==0&&b.maxY()==319&&b.minX()==b.maxX()&&b.minZ()==b.maxZ()&&Math.abs(b.minX()-center.getX())<=30&&Math.abs(b.minZ()-center.getZ())<=30),"Pillars real native queue contains random target±30 vertical0..319 lava column");
+                            require(areas.stream().map(BlockAreaWork::bounds).anyMatch(b->b.equals(new BlockAreaWork.Bounds(center.getX()-1,center.getY(),center.getZ()-1,center.getX()+1,center.getY()+1,center.getZ()+1))),"Kiuas real native queue contains exact source target3x2x3 footprint");
+                            require(areas.stream().map(BlockAreaWork::bounds).anyMatch(b->b.equals(new BlockAreaWork.Bounds(center.getX()-15,center.getY()-15,center.getZ()-15,center.getX()+15,center.getY()+15,center.getZ()+15))),"Kiuas real queue contains exact source31cube");
+                        } else require(areas.stream().map(BlockAreaWork::bounds).anyMatch(b->b.minY()==0&&b.maxY()==319&&b.minX()==b.maxX()&&b.minZ()==b.maxZ()&&Math.abs(b.minX()-center.getX())<=30&&Math.abs(b.minZ()-center.getZ())<=30),"Pillars real native queue contains random target±30 vertical0..319 lava column");
                         require(!owner.hasEffect(MobEffects.FIRE_RESISTANCE),"global detached Fireblaze does not award paid owner resistance");
                     } else {
                         var shots=new ArrayList<Projectile>();for(var e:owner.level().getAllEntities())if(!base.before.contains(e)&&!e.isRemoved()&&e instanceof Projectile p&&p.getOwner()==owner)shots.add(p);
@@ -550,7 +581,8 @@ public final class SauvojenAcademyChecks {
                 emit(stack,LbcSauvojen.Kind.TERRA,mode,origin,direction);
                 var shots=new ArrayList<LbcTerra.TerraProjectile>();for(var e:owner.level().getAllEntities())if(e instanceof LbcTerra.TerraProjectile p&&!p.isRemoved())shots.add(p);
                 require(shots.size()==1,"one actual detached Terra variant "+mode);var shot=shots.getFirst();
-                require(state(shot,"kind")==terraKind[mode]&&shot.sourceLifetime==terraLifetime[mode],"exact Terra source producer kind/lifetime "+mode);
+                require(((WandFixtureAccess.TerraShot)(Object)shot).validation$kind()==terraKind[mode]
+                        &&shot.sourceLifetime==terraLifetime[mode],"exact Terra source producer kind/lifetime "+mode);
                 require(shot.getOwner()==owner&&game.items().currentEpoch(shot),"Terra author/epoch "+mode);near(shot.position(),origin,"Terra source variant launch point "+mode);
                 if(mode==3) {
                     float expectedYaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
@@ -660,8 +692,10 @@ public final class SauvojenAcademyChecks {
             for(int mode=3;mode<=6;mode++) {
                 emit(stack,LbcSauvojen.Kind.RUBY,mode,origin,direction);
                 if(mode==5) {
-                    var jobs=(Collection<?>)state(game.items().duplicating(),"jobs");require(jobs.size()==1,"one actual Divide DDA work job");
-                    var job=jobs.iterator().next();near((Vec3)state(job,"start"),origin,"Divide native DDA starts at drone");near((Vec3)state(job,"direction"),direction,"Divide native DDA captures drone direction");
+                    var jobs=((WandFixtureAccess.Duplicating)(Object)game.items().duplicating()).validation$jobs();
+                    require(jobs.size()==1,"one actual Divide DDA work job");
+                    var job=(LbcDuplicating.Divide)jobs.iterator().next();
+                    near(job.start,origin,"Divide native DDA starts at drone");near(job.direction,direction,"Divide native DDA captures drone direction");
                 } else {
                     var markers=game.items().duplicating().markerSnapshot();require(markers.size()==1,"one actual duplicating moving center "+mode);
                     var marker=markers.getFirst();int mapped=mode==3?1:mode==4?4:2;
@@ -728,13 +762,13 @@ public final class SauvojenAcademyChecks {
                 owner.level().setBlock(wall,Blocks.STONE.defaultBlockState(),2|16|32);
                 for(int mode=5;mode<=8;mode++) {
                     emit(stack,LbcSauvojen.Kind.STONE,mode,origin,direction);
-                    var queue=(Collection<?>)state(game.items().stonekivi(),"work");require(queue.size()==1,"one actual queued Stonekivi producer "+mode);
-                    var task=queue.iterator().next();
+                    var queue=game.items().stonekivi().queuedSnapshot();require(queue.size()==1,"one actual queued Stonekivi producer "+mode);
+                    var task=queue.getFirst();
                     if(mode==8) {
-                        require(task.getClass().getName().endsWith("LbcMagmify$Work")&&state(task,"owner")==owner,"Sun creates actual owned Magmify terrain state");
-                        require(((it.unimi.dsi.fastutil.longs.LongSet)state(task,"discovered")).contains(wall.asLong()),"Sun native discovery starts at detached ray wall");
+                        require(task instanceof LbcMagmify.Work magmify&&magmify.belongsTo(owner),"Sun creates actual owned Magmify terrain state");
+                        require(((LbcMagmify.Work)task).discovered(wall),"Sun native discovery starts at detached ray wall");
                     } else {
-                        var children=(Collection<?>)state(task,"children");
+                        var children=((LbcStonekivi.Sequence)task).children;
                         require(mode==5?children.size()==5:mode==7?children.size()==1:!children.isEmpty(),"actual layered/Earth/comet source work structure, without donor trial task "+mode);
                     }
                     var particles=base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast).toList();
@@ -757,9 +791,10 @@ public final class SauvojenAcademyChecks {
             try {
                 owner.level().setBlock(wall,Blocks.OBSIDIAN.defaultBlockState(),2|16|32);
                 emit(stack,LbcSauvojen.Kind.BLIND,2,origin,direction);
-                var clouds=(Collection<?>)state(game.items().blind(),"clouds");require(clouds.size()==1,"one actual native blind rain cloud");
-                var cloud=clouds.iterator().next();require(state(cloud,"owner")==owner&&game.items().currentEpoch((String)state(cloud,"epoch")),"blind rain actual source author/epoch");
-                require(((Vec3)state(cloud,"position")).distanceToSqr(origin.add(0,10,6))<2,"blind rain cloud ten blocks above detached ray contact");clear();
+                var clouds=((WandFixtureAccess.Blind)(Object)game.items().blind()).validation$clouds();require(clouds.size()==1,"one actual native blind rain cloud");
+                var cloud=(LbcBlind.RainCloud)clouds.iterator().next();
+                require(cloud.owner==owner&&game.items().currentEpoch(cloud.epoch),"blind rain actual source author/epoch");
+                require(cloud.position.distanceToSqr(origin.add(0,10,6))<2,"blind rain cloud ten blocks above detached ray contact");clear();
                 var victim=cow(origin.add(0,-.5,3));
                 emit(stack,LbcSauvojen.Kind.BLIND,6,origin,direction);
                 require(game.items().psycho().rayCount(owner)==0&&game.items().psycho().count()==0,"source immediate mindblowing loop never creates paid forty-tick queue");
@@ -809,8 +844,8 @@ public final class SauvojenAcademyChecks {
             boolean tnt=level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES);
             int protection=game.config().tntProtection;
             var bolts=new ArrayList<Entity>();
-            var managed=(Collection<?>)state(game.items().electro(),"liveBolts");
-            var priorManaged=Collections.newSetFromMap(new IdentityHashMap<Object,Boolean>());priorManaged.addAll(managed);
+            var managed=((WandFixtureAccess.Electro)(Object)game.items().electro()).validation$liveBolts();
+            var priorManaged=Collections.newSetFromMap(new IdentityHashMap<LightningBolt,Boolean>());priorManaged.addAll(managed);
             net.minecraft.world.level.ChunkPos originChunk=null;boolean originForced=false;
             try {
                 // Outside build height no terrain can be destroyed; the native blast and lightning paths still execute.
@@ -826,18 +861,18 @@ public final class SauvojenAcademyChecks {
                 require(level.hasChunkAt(BlockPos.containing(origin)),"resident actual source Chaos emission origin");
                 base.recording.packets.clear();emit(stack,LbcSauvojen.Kind.AIR,11,origin,direction);
                 // The service adds an actual bolt only after addFreshEntity succeeds; outside-height sections can be absent from visible entity iteration.
-                for(var e:managed)if(!priorManaged.contains(e)&&e instanceof net.minecraft.world.entity.LightningBolt bolt&&!bolt.isRemoved()&&bolt.getCause()==owner)bolts.add(bolt);
+                for(var bolt:managed)if(!priorManaged.contains(bolt)&&!bolt.isRemoved()&&bolt.getCause()==owner)bolts.add(bolt);
                 require(bolts.size()==40,"source Chaos creates forty successfully added actual native lightning bolts, actual="+bolts.size());
                 Vec3 floored=new Vec3((int)center.x,(int)center.y,(int)center.z);
                 for(var bolt:bolts) {
                     Vec3 offset=bolt.position().subtract(floored);require(Math.abs(offset.x)<=35&&Math.abs(offset.y)<=35&&Math.abs(offset.z)<=35,"Chaos lightning actual center is drone+direction60 with integer±35 offsets");
                     require(bolt instanceof net.minecraft.world.entity.LightningBolt lightning&&lightning.getCause()==owner&&LbcElectro.managedLightning(lightning),"Chaos lightning retains actual native cause and shared managed lifetime");
                 }
-                long packets=base.recording.packets.stream().filter(p->p.getClass().getSimpleName().equals("ClientboundExplodePacket")).count();
+                long packets=base.recording.packets.stream().filter(ClientboundExplodePacket.class::isInstance).count();
                 require(packets>0&&packets<=80&&game.items().exasperato().snapshot().isEmpty(),"source Chaos runs native immediate blasts without donor missile carrier");
             } finally{
                 try {
-                    var fresh=new ArrayList<Entity>();for(var e:managed)if(!priorManaged.contains(e)&&e instanceof net.minecraft.world.entity.LightningBolt bolt&&bolt.getCause()==owner)fresh.add(bolt);
+                    var fresh=new ArrayList<LightningBolt>();for(var bolt:managed)if(!priorManaged.contains(bolt)&&bolt.getCause()==owner)fresh.add(bolt);
                     fresh.forEach(Entity::discard);managed.removeAll(fresh);
                     clear();game.config().tntProtection=protection;level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,tnt,game.server());owner.teleportTo(level,previous.x,previous.y,previous.z,Set.of(),yaw,pitch,true);owner.setDeltaMovement(Vec3.ZERO);
                 } finally {
@@ -899,10 +934,11 @@ public final class SauvojenAcademyChecks {
                 exasperato.tick();near(bomb.position(),impact.add(0,499,0),"native bomb consumer moves on first active tick");
                 for(int tick=0;tick<501&&!bomb.isRemoved();tick++)exasperato.tick();
                 require(bomb.isRemoved()&&exasperato.mushroomCount()==1&&exasperato.pendingBlasts()>0&&exasperato.pendingBlasts()<=32,"real bomb impacts surface and queues bounded source nuclear payload");
-                var burst=((Deque<?>)state(exasperato,"blasts")).getFirst();
-                require(((Vec3[])state(burst,"offsets")).length==32,"impact uses all32 original native blast offsets");
+                var queued=((WandFixtureAccess.Exasperato)(Object)exasperato).validation$blasts();
+                var burst=(LbcExasperato.BlastBatch)queued.getFirst();
+                require(burst.offsets.length==32,"impact uses all32 original native blast offsets");
                 // A native clip starting exactly on the top face reports an inside hit .001 down.
-                var physicalImpact=(Vec3)state(burst,"origin");
+                var physicalImpact=burst.origin;
                 require(Math.abs(physicalImpact.x-impact.x)<1e-9&&Math.abs(physicalImpact.z-impact.z)<1e-9
                         &&physicalImpact.y<=impact.y&&physicalImpact.y>=impact.y-.001001
                         &&BlockPos.containing(physicalImpact).equals(surface),"native payload impacts the actual target surface, including inside-start clip epsilon");

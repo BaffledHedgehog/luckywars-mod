@@ -1,8 +1,15 @@
 package me.skywars2.game;
 
 import java.util.*;
+import carpet.patches.EntityPlayerMPFake;
+import carpet.patches.FakeClientConnection;
+import carpet.patches.NetHandlerPlayServerFake;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.BotValidationAccess;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -18,15 +25,34 @@ public final class CarpetBotChecks {
     private CarpetBotChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Carpet bot: "+why);}
     static ServerPlayer connect(GameController game,String name,net.minecraft.server.level.ServerLevel world,
-            net.minecraft.server.level.ClientInformation information) throws ReflectiveOperationException {
+            net.minecraft.server.level.ClientInformation information) {
+        requireCarpet();
         var uuid=GameChecks.offlineUuid(name);require(game.server().getPlayerList().getPlayer(uuid)==null,"owned fake identity offline");
-        var profile=new com.mojang.authlib.GameProfile(uuid,name);var type=Class.forName("carpet.patches.EntityPlayerMPFake");
-        var p=(ServerPlayer)type.getMethod("respawnFake",net.minecraft.server.MinecraftServer.class,net.minecraft.server.level.ServerLevel.class,
-                com.mojang.authlib.GameProfile.class,net.minecraft.server.level.ClientInformation.class).invoke(null,game.server(),world,profile,information);
-        var connection=(net.minecraft.network.Connection)Class.forName("carpet.patches.FakeClientConnection")
-                .getConstructor(net.minecraft.network.protocol.PacketFlow.class).newInstance(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
+        var profile=new com.mojang.authlib.GameProfile(uuid,name);
+        var p=CarpetTransport.player(game,world,profile,information);
+        var connection=CarpetTransport.connection();
         game.server().getPlayerList().placeNewPlayer(connection,p,new net.minecraft.server.network.CommonListenerCookie(profile,0,p.clientInformation(),false));
         return p;
+    }
+    private static void requireCarpet(){require(FabricLoader.getInstance().isModLoaded("carpet"),"install Carpet to run this native fixture");}
+    static Connection fakeConnection(){
+        requireCarpet();
+        return CarpetTransport.connection();
+    }
+    static boolean fakeListener(ServerPlayer player){
+        return FabricLoader.getInstance().isModLoaded("carpet")&&CarpetTransport.fakeListener(player);
+    }
+    static BotValidationAccess.State state(GameController game,ServerPlayer bot){
+        var access=(BotValidationAccess.Bots)(Object)game.carpetBots();
+        return (BotValidationAccess.State)access.skywars2$validationStates().get(bot.getUUID());
+    }
+    private static final class CarpetTransport {
+        static Connection connection(){return new FakeClientConnection(PacketFlow.SERVERBOUND);}
+        static boolean fakeListener(ServerPlayer player){return player.connection.getClass()==NetHandlerPlayServerFake.class;}
+        static ServerPlayer player(GameController game,net.minecraft.server.level.ServerLevel world,
+                                   com.mojang.authlib.GameProfile profile,net.minecraft.server.level.ClientInformation information){
+            return EntityPlayerMPFake.respawnFake(game.server(),world,profile,information);
+        }
     }
     private static Fixture running;
     static class Fixture implements AutoCloseable {
@@ -71,17 +97,15 @@ public final class CarpetBotChecks {
             return create(name,pos,true);
         }
         ServerPlayer create(String name,Vec3 pos,boolean botExpected){
-            try{
-                var p=connect(game,name,base.level,base.owner.clientInformation());actors.add(p);
-                require(game.returnFromGameModeCommand(p,GameType.SURVIVAL),"real Carpet fake enrolls through existing native roster owner");p.setGameMode(GameType.SURVIVAL);
-                p.getInventory().clearContent();p.removeAllEffects();p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);p.setHealth(100);
-                game.items().mana().resetResources(p);
-                p.getAttribute(Attributes.ARMOR).setBaseValue(0);p.setAbsorptionAmount(0);p.setInvulnerableTime(0);p.damageCooldownTime=0;
-                game.server().getScoreboard().removePlayerFromTeam(p.getScoreboardName());
-                move(p,pos,0);p.hasChangedDimension();p.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
-                require((!botExpected||LbcCarpetBots.bot(p))&&p.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),"actual Carpet body/listener without recording substitute");
-                return p;
-            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            var p=connect(game,name,base.level,base.owner.clientInformation());actors.add(p);
+            require(game.returnFromGameModeCommand(p,GameType.SURVIVAL),"real Carpet fake enrolls through existing native roster owner");p.setGameMode(GameType.SURVIVAL);
+            p.getInventory().clearContent();p.removeAllEffects();p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);p.setHealth(100);
+            game.items().mana().resetResources(p);
+            p.getAttribute(Attributes.ARMOR).setBaseValue(0);p.setAbsorptionAmount(0);p.setInvulnerableTime(0);p.damageCooldownTime=0;
+            game.server().getScoreboard().removePlayerFromTeam(p.getScoreboardName());
+            move(p,pos,0);p.hasChangedDimension();p.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
+            require((!botExpected||LbcCarpetBots.bot(p))&&CarpetTransport.fakeListener(p),"actual Carpet body/listener without recording substitute");
+            return p;
         }
         void move(ServerPlayer p,Vec3 pos,float yaw){
             require(p.teleportTo(base.level,pos.x,pos.y,pos.z,Set.of(),yaw,0,true),"native bot teleport fixture setup");
@@ -105,7 +129,7 @@ public final class CarpetBotChecks {
             if(phase==8){var replacement=game.server().getPlayerList().getPlayer(bot.getUUID());
                 if(replacement==null)throw new IllegalStateException("Carpet bot: remaining-life fake was disconnected");
                 if(replacement==bot)return false;
-                require(LbcCarpetBots.bot(replacement)&&replacement.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),"native PlayerList/Carpet respawn preserves actual fake body/listener type");
+                require(LbcCarpetBots.bot(replacement)&&CarpetTransport.fakeListener(replacement),"native PlayerList/Carpet respawn preserves actual fake body/listener type");
                 require(replacement.isAlive()&&game.allowDamage(replacement)&&game.lives(replacement.getUUID())==deathLives-1,"actual native death debits one life and ordinary respawn re-enrolls body");
                 actors.remove(bot);actors.add(replacement);bot=replacement;lastYaw=bot.getYRot();when=now;phase=9;
             }

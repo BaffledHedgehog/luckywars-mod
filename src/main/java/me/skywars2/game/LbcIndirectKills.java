@@ -1,5 +1,8 @@
 package me.skywars2.game;
 
+import it.unimi.dsi.fastutil.Hash;
+import it.unimi.dsi.fastutil.HashCommon;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import me.skywars2.mixin.CombatCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.function.BooleanSupplier;
@@ -66,15 +70,27 @@ public final class LbcIndirectKills {
         @Override public int hashCode(){return java.util.Objects.hash(player,order,friendlyFire,projectile);}
     }
     private record TrapFrame(Owner owner, ServerLevel level, Map<BlockPos,BlockState> candidates) { }
-    private static final class Fall {
+    static final class Fall {
         final Owner owner;
         final boolean levitation;
         int grace = 2;
         Fall(Owner owner, boolean levitation) { this.owner=owner; this.levitation=levitation; }
     }
-    private record Status(Owner owner, MobEffectInstance effect) { }
+    record Status(Owner owner, MobEffectInstance effect) { }
     private record Support(Owner owner, ServerLevel level) { }
     private record Hazard(Owner owner, BlockState state) { }
+    // Flowing water fills dense vertical bands, which collide under BlockPos's linear hash.
+    private static final Hash.Strategy<BlockPos> HAZARD_POSITIONS = new Hash.Strategy<>() {
+        @Override
+        public int hashCode(BlockPos pos) {
+            return pos == null ? 0 : Long.hashCode(HashCommon.murmurHash3(pos.asLong()));
+        }
+
+        @Override
+        public boolean equals(BlockPos first, BlockPos second) {
+            return Objects.equals(first, second);
+        }
+    };
     private record Burn(Owner owner, DamageSource mobSource, long order) {
         Burn(Owner owner) { this(owner,null,owner.order()); }
     }
@@ -611,17 +627,25 @@ public final class LbcIndirectKills {
             blocks.remove(pos);
             if(blocks.isEmpty()) stone.remove(level);
         }
-        var damageBlocks=hazards.get(level);
-        if(damageBlocks!=null) { damageBlocks.remove(pos); if(damageBlocks.isEmpty()) hazards.remove(level); }
-        if(hazardWriter!=null && hazardLevel==level && hazardous(state))
-            hazards.computeIfAbsent(level,ignored->new HashMap<>()).put(pos.immutable(),new Hazard(hazardWriter,state));
+        if (hazardWriter != null && hazardLevel == level && hazardous(state)) {
+            hazardBlocks(level).put(pos.immutable(), new Hazard(hazardWriter, state));
+        } else {
+            var damageBlocks = hazards.get(level);
+            if (damageBlocks != null) {
+                damageBlocks.remove(pos);
+                if (damageBlocks.isEmpty()) hazards.remove(level);
+            }
+        }
+    }
+    private Map<BlockPos, Hazard> hazardBlocks(ServerLevel level) {
+        return hazards.computeIfAbsent(level, ignored -> new Object2ObjectOpenCustomHashMap<>(HAZARD_POSITIONS));
     }
     /** Opaque rollback token: only exact terrain cells and potentially touched support leases. */
     static final class TerrainProvenance {
         private final ServerLevel level;
         private final java.util.Set<BlockPos> cells;
         private final Map<BlockPos,Owner> stoneBefore=new HashMap<>();
-        private final Map<BlockPos,Hazard> hazardsBefore=new HashMap<>();
+        private final Map<BlockPos,Hazard> hazardsBefore=new Object2ObjectOpenCustomHashMap<>(HAZARD_POSITIONS);
         private final java.util.Set<LivingEntity> supportTargets=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
         private final Map<LivingEntity,Support> supportBefore=new java.util.IdentityHashMap<>();
         private final Map<LivingEntity,Fall> fallsBefore=new java.util.IdentityHashMap<>();
@@ -664,7 +688,7 @@ public final class LbcIndirectKills {
         var oldStone=stone.get(saved.level);if(oldStone!=null){saved.cells.forEach(oldStone::remove);if(oldStone.isEmpty())stone.remove(saved.level);}
         var oldHazards=hazards.get(saved.level);if(oldHazards!=null){saved.cells.forEach(oldHazards::remove);if(oldHazards.isEmpty())hazards.remove(saved.level);}
         if(!saved.stoneBefore.isEmpty())stone.computeIfAbsent(saved.level,ignored->new HashMap<>()).putAll(saved.stoneBefore);
-        if(!saved.hazardsBefore.isEmpty())hazards.computeIfAbsent(saved.level,ignored->new HashMap<>()).putAll(saved.hazardsBefore);
+        if(!saved.hazardsBefore.isEmpty())hazardBlocks(saved.level).putAll(saved.hazardsBefore);
         saved.supportTargets.forEach(removedSupports::remove);removedSupports.putAll(saved.supportBefore);
         saved.supportTargets.forEach(falls::remove);falls.putAll(saved.fallsBefore);
     }
@@ -675,7 +699,7 @@ public final class LbcIndirectKills {
     }
     public void hazardPlaced(ServerLevel level, BlockPos pos, ServerPlayer player) {
         var state=level.getBlockState(pos);
-        if(hazardous(state)) hazards.computeIfAbsent(level,ignored->new HashMap<>())
+        if(hazardous(state)) hazardBlocks(level)
                 .put(pos.immutable(),new Hazard(owner(player),state));
     }
     /** Нативное растекание лавы/распространение огня переносит автора на реально созданные блоки. */
@@ -1255,6 +1279,11 @@ public final class LbcIndirectKills {
         pendingMana.remove(target); manaDrains.remove(target); manaDebts.remove(target);
         burning.remove(target); hungerDebts.remove(target); logoutAbsorption.remove(target); logoutAttacks.remove(target);
     }
+    Owner hazardOwner(ServerLevel level, BlockPos pos) {
+        var cells = hazards.get(level);
+        var hazard = cells == null ? null : cells.get(pos);
+        return hazard == null ? null : hazard.owner;
+    }
     static boolean unownedDamage(DamageSource source){
         return npcSource(source)||LbcSpellSource.unownedHazard(source.getDirectEntity())||LbcSpellSource.unownedHazard(source.getEntity());
     }
@@ -1311,7 +1340,8 @@ public final class LbcIndirectKills {
             pendingImage=copy(pendingMana,this::applied);drainsImage=copy(manaDrains,(target,v)->v);debtsImage=copy(manaDebts,(target,v)->v);hungerImage=copy(hungerDebts,(target,v)->v);
             supportImage=copy(removedSupports,(target,v)->v);laterImage=copy(laterAttacks,(target,v)->v);burnImage=copy(burning,(target,v)->new BurnImage(v.owner,sources.capture(v.mobSource),v.order));
             arrivalImage=copy(arrivals,(target,v)->new Arrival(v.owner,v.level,cells(v.cells)));
-            stone.forEach((world,v)->stoneImage.put(world,cells(v)));hazards.forEach((world,v)->hazardImage.put(world,cells(v)));
+            stone.forEach((world,v)->stoneImage.put(world,cells(v)));
+            hazards.forEach((world,v)->hazardImage.put(world,new Object2ObjectOpenCustomHashMap<>(v,HAZARD_POSITIONS)));
         }
         private void stable(boolean frozen){
             if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore causal ledgers on the same stable frozen native match thread");
@@ -1344,7 +1374,8 @@ public final class LbcIndirectKills {
             burning.clear();burnImage.forEach((ref,v)->burning.put(victims.get(ref),v.install()));
             hungerDebts.clear();hungerImage.forEach((ref,v)->hungerDebts.put((ServerPlayer)victims.get(ref),v));
             arrivals.clear();arrivalImage.forEach((ref,v)->arrivals.put(victims.get(ref),new Arrival(v.owner,v.level,cells(v.cells))));
-            stone.clear();stoneImage.forEach((world,map)->stone.put(world,cells(map)));hazards.clear();hazardImage.forEach((world,map)->hazards.put(world,cells(map)));
+            stone.clear();stoneImage.forEach((world,map)->stone.put(world,cells(map)));
+            hazards.clear();hazardImage.forEach((world,map)->hazardBlocks(world).putAll(map));
             order=sequence;return java.util.Set.of();
         }
         /** Reconnect installs this victim's saved causal rows after its real native body/effects, never the old global ledger. */

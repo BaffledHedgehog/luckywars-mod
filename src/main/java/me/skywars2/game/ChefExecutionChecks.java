@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.ChefValidationAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -57,11 +58,11 @@ public final class ChefExecutionChecks {
             var stand=base.spawn(base.other,target);require(game.items().stand().resolveArrowHit(stand,base.owner,1,false)&&!stand.isRemoved()&&base.service.stasis(stand)==200,"actual lethal Stand Arrow roll only knocks Chef");base.clear();
             require(game.items().apocalypseEvents().pendingSnapshot().isEmpty()&&game.items().apocalypseActors().count()==0,"no borrowed apocalypse schedule/actors");
             var apocalypse=base.spawn(base.owner,target);try{
-                var method=LbcApocalypseEvents.class.getDeclaredMethod("phase",LbcApocalypseEvents.Authority.class,LbcApocalypseEvents.Kind.class,int.class,net.minecraft.commands.CommandSourceStack.class);method.setAccessible(true);
+                var events=(ChefValidationAccess.Apocalypse)(Object)game.items().apocalypseEvents();
                 var a=new LbcApocalypseEvents.Authority(base.owner.getUUID(),game.items().indirectKills().wildCause(base.owner),game.items().epoch());
-                method.invoke(game.items().apocalypseEvents(),a,LbcApocalypseEvents.Kind.END,54,game.server().createCommandSourceStack().withLevel(level).withPosition(base.at));
+                events.skywars2$validationPhase(a,LbcApocalypseEvents.Kind.END,54,game.server().createCommandSourceStack().withLevel(level).withPosition(base.at));
                 require(apocalypse.isRemoved()&&base.service.count()==0&&base.service.pinnedChunks()==0,"actual End54 random native selector includes and erases Chef");
-            }catch(ReflectiveOperationException e){throw new IllegalStateException(e);}finally{game.items().apocalypseEvents().stop();game.items().apocalypseActors().stop();}
+            }finally{game.items().apocalypseEvents().stop();game.items().apocalypseActors().stop();}
             target=base.cow(base.at.add(0,0,6));delayed=base.spawn(base.owner,target);delayed.receive(20);game.items().acidCorruption().applyDeath(base.owner,delayed,1);
             require(game.items().acidCorruption().deathRemaining(delayed)==1,"actual shared delayed-death status attached to knocked Chef");
             game.items().timeStop().begin(level,100);stopped=true;at=start=game.server().getTickCount();

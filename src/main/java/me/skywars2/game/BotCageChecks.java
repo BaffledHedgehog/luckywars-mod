@@ -74,7 +74,7 @@ final class BotCageChecks {
             }
             require(bot.position().distanceToSqr(previous)<4,"escape uses real movement without teleporting "+kind());previous=bot.position();
             if(!directionSet&&state()!=null){
-                var survival=(LbcBotSurvival)WoolBucketChecks.read(state(),"survival");
+                var survival=state().skywars2$validationSurvival();
                 if(survival.cage!=null){
                     survival.exit=blockedExitTrial()?Direction.EAST:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST).get(trial%4);
                     directionSet=true;

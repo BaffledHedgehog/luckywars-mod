@@ -15,10 +15,14 @@ import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 public final class CombatCheckpointAccess {
     private CombatCheckpointAccess() { }
     @Mixin(LivingEntity.class) public interface Living {
+        @Invoker("setLivingEntityFlag") void skywars2$livingFlag(int flag, boolean value);
+        @Accessor("useItem") void skywars2$useItem(ItemStack value);
+        @Accessor("useItemRemaining") void skywars2$useItemRemaining(int value);
         @Accessor("lastHurtByPlayer") EntityReference<Player> skywars2$player();
         @Accessor("lastHurtByPlayer") void skywars2$player(EntityReference<Player> value);
         @Accessor("lastHurtByMob") EntityReference<LivingEntity> skywars2$mob();

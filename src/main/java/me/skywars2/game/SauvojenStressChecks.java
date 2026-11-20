@@ -1,7 +1,6 @@
 package me.skywars2.game;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
+import carpet.patches.NetHandlerPlayServerFake;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -18,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import jdk.jfr.Recording;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.FixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.DisconnectionDetails;
@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.ScoreHolder;
 
@@ -42,6 +43,7 @@ import net.minecraft.world.scores.ScoreHolder;
 final class SauvojenStressChecks {
     private static final int BOTS=15, CASTS=10, WARMUP_TICKS=100, IDLE_TICKS=80, BURST_TICKS=420;
     private static final int FLUID_SAMPLE_INTERVAL=10;
+    private static final int WATER_TAIL_LIMIT=3600;
     private static Fixture running;
 
     private SauvojenStressChecks() {}
@@ -75,6 +77,26 @@ final class SauvojenStressChecks {
         if(!condition)throw new IllegalStateException("Sauvojen stress: "+reason);
     }
 
+    private record AirBranchRandom(RandomSource delegate) implements RandomSource {
+        @Override public RandomSource fork() { return delegate.fork(); }
+        @Override public PositionalRandomFactory forkPositional() { return delegate.forkPositional(); }
+        @Override public void setSeed(long seed) { delegate.setSeed(seed); }
+        @Override public int nextInt() { return delegate.nextInt(); }
+        @Override public int nextInt(int bound) {
+            return bound == 9 ? LbcSauvojen.Kind.AIR.ordinal() : delegate.nextInt(bound);
+        }
+        @Override public int nextInt(int origin,int bound) { return delegate.nextInt(origin,bound); }
+        @Override public int nextIntBetweenInclusive(int min,int max) { return delegate.nextIntBetweenInclusive(min,max); }
+        @Override public long nextLong() { return delegate.nextLong(); }
+        @Override public boolean nextBoolean() { return delegate.nextBoolean(); }
+        @Override public float nextFloat() { return delegate.nextFloat(); }
+        @Override public double nextDouble() { return delegate.nextDouble(); }
+        @Override public double nextGaussian() { return delegate.nextGaussian(); }
+        @Override public double triangle(double mean,double spread) { return delegate.triangle(mean,spread); }
+        @Override public float triangle(float mean,float spread) { return delegate.triangle(mean,spread); }
+        @Override public void consumeCount(int rounds) { delegate.consumeCount(rounds); }
+    }
+
     private static final class Fixture implements AutoCloseable {
         final GameController game;
         final ServerPlayer owner, other;
@@ -83,7 +105,7 @@ final class SauvojenStressChecks {
         final MatchCoreCheckpoint core;
         final MatchRandomState random;
         final Set<Entity> nativeProjectiles;
-        final Set<LbcBolts.Water> watering;
+        final Set<?> watering;
         final List<ServerPlayer> bots=new ArrayList<>();
         final List<ChunkPos> forced=new ArrayList<>();
         final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
@@ -92,14 +114,15 @@ final class SauvojenStressChecks {
         final boolean suppressWatering=Boolean.getBoolean("skywars2.check.sauvojenSuppressWatering");
         final Path jfr=Path.of(System.getProperty("skywars2.check.sauvojenJfr","sauvojen-stress.jfr"));
         final Path csv=Path.of(System.getProperty("skywars2.check.sauvojenCsv","sauvojen-stress.csv"));
-        final Measurement idle=new Measurement("idle",IDLE_TICKS), burst=new Measurement("burst",BURST_TICKS);
+        final boolean waterTail=Boolean.getBoolean("skywars2.check.sauvojenWaterTail");
+        final Measurement idle=new Measurement("idle",IDLE_TICKS);
+        final Measurement burst=new Measurement("burst",waterTail?WATER_TAIL_LIMIT:BURST_TICKS);
         Recording recording;
         Instant profileStart;
         long profileClock;
         int setupTick,removedWatering;
         boolean closed;
 
-        @SuppressWarnings("unchecked")
         Fixture(GameController game){
             this.game=game;
             var players=game.server().getPlayerList();
@@ -113,11 +136,11 @@ final class SauvojenStressChecks {
             saved=new RegenerationBeltChecks.Snapshot(game,owner);
             otherSaved=other==null?null:new RegenerationBeltChecks.Snapshot(game,other);
             random=MatchRandomState.capture(owner.getRandom());
-            nativeProjectiles=(Set<Entity>)WoolBucketChecks.read(game.items().homing(),"projectiles");
-            watering=(Set<LbcBolts.Water>)WoolBucketChecks.read(game.items().bolts(),"waters");
+            nativeProjectiles=((FixtureAccess.Homing)(Object)game.items().homing()).validation$projectiles();
+            watering=((FixtureAccess.BoltActors)(Object)game.items().bolts()).validation$waters();
         }
 
-        void setup() throws ReflectiveOperationException {
+        void setup() {
             game.config().noBorders=true;
             game.config().lbcSkills=true;
             game.config().ranked=true;
@@ -154,7 +177,7 @@ final class SauvojenStressChecks {
                 bots.add(bot);
                 require(game.returnFromGameModeCommand(bot,GameType.SURVIVAL),"ordinary Carpet participant "+name);
                 bot.setGameMode(GameType.SURVIVAL);
-                require(LbcCarpetBots.bot(bot)&&bot.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),"genuine Carpet player and connection "+name);
+                require(LbcCarpetBots.bot(bot)&&bot.connection instanceof NetHandlerPlayServerFake,"genuine Carpet player and connection "+name);
                 bot.getInventory().clearContent();bot.removeAllEffects();fortify(bot);
                 game.players().get(bot.getUUID()).lbcSkill=0;
                 game.server().getScoreboard().removePlayerFromTeam(bot.getScoreboardName());
@@ -181,7 +204,7 @@ final class SauvojenStressChecks {
 
         boolean step() throws Exception {
             int tick=game.server().getTickCount();
-            require(game.playing()&&game.allowDamage(owner)&&tick-setupTick<800,"bounded live stress run");
+            require(game.playing()&&game.allowDamage(owner)&&tick-setupTick<(waterTail?WATER_TAIL_LIMIT+300:800),"bounded live stress run");
             if(recording==null){
                 if(tick-setupTick<WARMUP_TICKS)return false;
                 beginRecording();idle.begin(tick+1);return false;
@@ -196,19 +219,33 @@ final class SauvojenStressChecks {
             }
             if(suppressWatering)removeNewWatering();
             burst.recordScene(tick);
-            if(!burst.collect(tick-1))return false;
+            boolean exhausted=burst.collect(tick-1);
+            boolean tailSettled=waterTail&&burst.count>=BURST_TICKS&&burst.count%FLUID_SAMPLE_INTERVAL==0&&wateringSettled();
+            if(!exhausted&&!tailSettled)return false;
             burst.report();
             require(bots.stream().allMatch(bot->bot.isAlive()&&bot.level()==level&&game.allowDamage(bot)),"all fifteen Carpet bodies stayed live in the measured match");
             require(burst.peakProjectiles>0&&game.items().sauvojen().count()==0,"native projectiles and full Academy carrier lifetime in the measured window, peak="+burst.peakProjectiles+", drones="+game.items().sauvojen().count());
             require(!suppressWatering||allAir||removedWatering>0,"mixed run suppressed real BoltBolt watering before its first fill");
             SkyWars2.LOGGER.info("[check] Sauvojen stress flight: nativeProjectilePeak={} finalDrones={} homing={} suppressedWatering={}",burst.peakProjectiles,game.items().sauvojen().count(),homing,removedWatering);
-            writeMetrics();return true;
+            if(waterTail)SkyWars2.LOGGER.info("[check] Sauvojen stress watering tail: drained={} scheduledFluidTicks={} remainingActors={}",
+                    tailSettled,level.getFluidTicks().count(),watering.size());
+            writeMetrics();
+            require(!waterTail||tailSettled,"all authored water work and native water queue drain before the bounded tail limit");
+            return true;
+        }
+
+        private boolean wateringSettled(){
+            if(!watering.isEmpty()||level.getFluidTicks().count()>idle.peakFluidTicks+512)return false;
+            for(var work:game.items().stonekivi().queuedSnapshot()){
+                if(game.items().bolts().isWaterWork(work,owner,level))return false;
+            }
+            return true;
         }
 
         void removeNewWatering(){
             var iterator=watering.iterator();
             while(iterator.hasNext()){
-                var water=iterator.next();
+                var water=(LbcBolts.Water)iterator.next();
                 if(water.owner!=owner||water.level!=level)continue;
                 // This callback follows bolts.tick, so a new producer has only reached age one.
                 require(water.age<=1,"watering suppression precedes any fill: age="+water.age);
@@ -223,12 +260,13 @@ final class SauvojenStressChecks {
             recording.enable("jdk.ExecutionSample").withPeriod(Duration.ofMillis(5)).withStackTrace();
             recording.enable("jdk.NativeMethodSample").withPeriod(Duration.ofMillis(10)).withStackTrace();
             recording.enable("jdk.GarbageCollection");
+            recording.enable("jdk.ClassLoad").withThreshold(Duration.ofMillis(5)).withStackTrace();
             for(String event:List.of("jdk.ThreadPark","jdk.JavaMonitorEnter","jdk.FileRead","jdk.FileWrite"))
                 recording.enable(event).withThreshold(Duration.ofMillis(10)).withStackTrace();
             recording.start();profileClock=System.nanoTime();profileStart=Instant.now();
         }
 
-        void cast() throws ReflectiveOperationException {
+        void cast() {
             var service=game.items().sauvojen();
             require(service.count()==0,"idle window starts without Sauvojen drones");
             require(game.lbc().hasSkill(owner,30)==homing,"same Homing setting at launch");
@@ -239,19 +277,14 @@ final class SauvojenStressChecks {
             mana.set(owner,price*CASTS);
             int tick=game.server().getTickCount();
 
-            var field=Entity.class.getDeclaredField("random");field.setAccessible(true);
+            var access=(FixtureAccess.EntityRandom)owner;
             var original=owner.getRandom();var seed=RandomSource.create(3);
-            RandomSource selected=allAir?(RandomSource)Proxy.newProxyInstance(RandomSource.class.getClassLoader(),
-                    new Class<?>[]{RandomSource.class},(proxy,method,args)->{
-                        if(method.getName().equals("nextInt")&&args!=null&&args.length==1&&args[0].equals(9))
-                            return LbcSauvojen.Kind.AIR.ordinal();
-                        try{return method.invoke(seed,args);}catch(InvocationTargetException error){throw error.getCause();}
-                    }):seed;
-            field.set(owner,selected);long started=System.nanoTime();
+            RandomSource selected=allAir?new AirBranchRandom(seed):seed;
+            access.validation$random(selected);long started=System.nanoTime();
             try{
                 for(int i=0;i<CASTS;i++)require(owner.getMainHandItem().use(level,owner,InteractionHand.MAIN_HAND).consumesAction(),"native paid cast "+(i+1));
             }
-            finally{field.set(owner,original);}
+            finally{access.validation$random(original);}
             double launchMs=(System.nanoTime()-started)/1_000_000d;
             var drones=service.snapshot();
             require(game.server().getTickCount()==tick&&drones.size()==CASTS&&mana.get(owner)==0
@@ -341,15 +374,16 @@ final class SauvojenStressChecks {
                 nanos[count]=duration;observed[count++]=System.nanoTime();return complete();
             }
             void report(){
-                var ordered=nanos.clone();Arrays.sort(ordered);
-                double mean=Arrays.stream(nanos).average().orElseThrow()/1_000_000d;
+                var measured=Arrays.copyOf(nanos,count);
+                var ordered=measured.clone();Arrays.sort(ordered);
+                double mean=Arrays.stream(measured).average().orElseThrow()/1_000_000d;
                 double tps=(count-1)*1_000_000_000d/(observed[count-1]-observed[0]);
                 double median=ordered[(int)Math.ceil(count*.50)-1]/1_000_000d;
                 double p95=ordered[(int)Math.ceil(count*.95)-1]/1_000_000d;
                 double p99=ordered[(int)Math.ceil(count*.99)-1]/1_000_000d;
                 SkyWars2.LOGGER.info("[check] Sauvojen stress window: phase={} homing={} firstTick={} lastTick={} startUtc={} endUtc={} samples={} tps={} meanMspt={} p50Mspt={} p95Mspt={} p99Mspt={} maxMspt={} over50ms={}",
                         name,homing,first,first+count-1,started,Instant.now(),count,tps,mean,median,p95,p99,
-                        ordered[count-1]/1_000_000d,Arrays.stream(nanos).filter(value->value>50_000_000).count());
+                        ordered[count-1]/1_000_000d,Arrays.stream(measured).filter(value->value>50_000_000).count());
                 SkyWars2.LOGGER.info("[check] Sauvojen stress fluid: phase={} sampleEveryTicks={} samples={} sampledScheduledPeak={} projectilePeak={}",name,FLUID_SAMPLE_INTERVAL,fluidSamples,peakFluidTicks,peakProjectiles);
             }
             void rows(StringBuilder out){

@@ -1,11 +1,9 @@
 package me.skywars2.game;
 
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
-import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
+import me.skywars2.mixin.PoiCheckpointAccess;
 import net.minecraft.nbt.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
@@ -34,8 +32,8 @@ public final class MatchPoiStorage {
 
     static boolean captureReady(ServerLevel level){
         if(!MatchPoiMemory.ready(level))return false;
-        var storage=read(level.getPoiManager(),SectionStorage.class,"simpleRegionStorage");
-        var worker=read(storage,SimpleRegionStorage.class,"worker");
+        var storage=MatchPoiMemory.storageAccess(level.getPoiManager()).skywars2$poiRegionStorage();
+        var worker=worker(storage);
         synchronized(REGISTRY_LOCK){return !RESTORES.containsKey(worker);}
     }
     MatchPoiStorage(ServerLevel level){
@@ -43,7 +41,7 @@ public final class MatchPoiStorage {
         if(!MatchMobGoals.enabled())throw new IllegalStateException("POI checkpoint storage belongs to the unfinished native goal experiment");
         if(!captureReady(level))throw new IllegalStateException("Native POI storage is not ready for a new point");
         owner=level.getPoiManager();memory=new MatchPoiMemory(level);known=memory.loadedChunkKeys();
-        storage=(SimpleRegionStorage)read(owner,SectionStorage.class,"simpleRegionStorage");worker=(IOWorker)read(storage,SimpleRegionStorage.class,"worker");
+        storage=MatchPoiMemory.storageAccess(owner).skywars2$poiRegionStorage();worker=worker(storage);
         synchronized(REGISTRY_LOCK){OWNERS.computeIfAbsent(worker,key->Collections.newSetFromMap(new IdentityHashMap<>())).add(this);tracking=true;}
     }
     /** Null allows the actual native store; a future acknowledges a discarded intermediate-restore write. */
@@ -147,15 +145,19 @@ public final class MatchPoiStorage {
     private <T>T owned(Supplier<T> task){
         var previous=WRITER.get();WRITER.set(this);try{return task.get();}finally{if(previous==null)WRITER.remove();else WRITER.set(previous);}
     }
-    private CompoundTag encodeLoaded(ChunkPos pos){
-        try{
-            var method=SectionStorage.class.getDeclaredMethod("writeChunk",ChunkPos.class,DynamicOps.class);method.setAccessible(true);
-            var encoded=(Dynamic<?>)method.invoke(owner,pos,level.registryAccess().createSerializationContext(NbtOps.INSTANCE));
-            if(encoded.getValue() instanceof CompoundTag tag)return tag;
-            throw new IllegalStateException("Native POI encoder returned non-compound data");
-        }catch(ReflectiveOperationException error){throw new IllegalStateException("Review native POI chunk encoder",error);}
+    private CompoundTag encodeLoaded(ChunkPos pos) {
+        var encoded = MatchPoiMemory.storageAccess(owner).skywars2$poiEncode(pos,
+                level.registryAccess().createSerializationContext(NbtOps.INSTANCE));
+        if (encoded.getValue() instanceof CompoundTag tag) return tag;
+        throw new IllegalStateException("Native POI encoder returned non-compound data");
     }
-    private void validate(){if(level.getPoiManager()!=owner||read(owner,SectionStorage.class,"simpleRegionStorage")!=storage||read(storage,SimpleRegionStorage.class,"worker")!=worker)throw new IllegalStateException("Native POI storage owner changed");}
+    private static IOWorker worker(SimpleRegionStorage storage) {
+        return ((PoiCheckpointAccess.Region)(Object) storage).skywars2$poiWorker();
+    }
+    private void validate() {
+        if(level.getPoiManager()!=owner
+                || MatchPoiMemory.storageAccess(owner).skywars2$poiRegionStorage()!=storage || worker(storage)!=worker)
+            throw new IllegalStateException("Native POI storage owner changed");
+    }
     private void requireThread(boolean frozen){if(!level.getServer().isSameThread()||frozen&&!level.getServer().tickRateManager().isFrozen())throw new IllegalStateException("POI storage phases require their server thread and frozen restoration");}
-    private static Object read(Object owner,Class<?> type,String name){try{var field=type.getDeclaredField(name);field.setAccessible(true);return field.get(owner);}catch(ReflectiveOperationException error){throw new IllegalStateException("Review native POI storage field "+type.getName()+"."+name,error);}}
 }

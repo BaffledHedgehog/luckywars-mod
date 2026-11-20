@@ -1,7 +1,6 @@
 package me.skywars2.game;
 
 import java.util.*;
-import java.lang.reflect.Field;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
@@ -42,7 +41,7 @@ final class BotRouteChecks {
                 List.of(origin.add(20,up,-20),origin.add(20,up,20),origin.add(-20,up,20),origin.add(-20,up,-20));
     }
     private static final class Fixture extends BotStarterChecks.Fixture {
-        final Kind kind;final Map<BlockPos,BlockState> terrain=new LinkedHashMap<>();final Map<String,Field> access=new HashMap<>();
+        final Kind kind;final Map<BlockPos,BlockState> terrain=new LinkedHashMap<>();
         List<Vec3> points;Vec3 previous;int at,waypoint,fastTicks,airTicks,wetGroundTicks,initialPlacements;double distance;float lastPitch;boolean started;
         Fixture(GameController game,Kind kind){super(game);this.kind=kind;}
         @Override void setup(){super.setup();at=game.server().getTickCount();}
@@ -61,7 +60,7 @@ final class BotRouteChecks {
                 bot.closeContainer();
                 bot.stopUsingItem();
                 move(bot,start,-90);
-                ((LbcChefBrain)WoolBucketChecks.read(state(),"brain")).reset();
+                state().skywars2$validationBrain().reset();
                 intent();
             }else resetStarterBody(start);
             if(kind==Kind.NARROW||kind==Kind.LEDGE)for(int slot=0;slot<36;slot++)if(bot.getInventory().getItem(slot).getItem() instanceof net.minecraft.world.item.BlockItem)
@@ -69,15 +68,14 @@ final class BotRouteChecks {
             initialPlacements=game.carpetBots().observation(bot).placements();
             previous=bot.position();lastYaw=bot.getYRot();lastPitch=bot.getXRot();at=game.server().getTickCount();started=true;
         }
-        void set(Object state,String name,Object value){
-            try{var field=access.get(name);if(field==null){field=state.getClass().getDeclaredField(name);field.setAccessible(true);access.put(name,field);}field.set(state,value);}
-            catch(ReflectiveOperationException error){throw new IllegalStateException("Native route intent",error);}
-        }
         void intent(){
             var state=state();if(state==null)return;
-            set(state,"startingLoot",false);set(state,"nextScan",Integer.MAX_VALUE);set(state,"nextRoam",Integer.MAX_VALUE);set(state,"chest",null);
-            ((Collection<?>)WoolBucketChecks.read(state,"chests")).clear();
-            set(state,"goal",points.get(waypoint));
+            state.skywars2$validationStartingLoot(false);
+            state.skywars2$validationNextScan(Integer.MAX_VALUE);
+            state.skywars2$validationNextRoam(Integer.MAX_VALUE);
+            state.skywars2$validationChest(null);
+            state.skywars2$validationChests().clear();
+            state.skywars2$validationGoal(points.get(waypoint));
         }
         @Override boolean step(){
             base.client.acknowledge();base.audience.acknowledge();int elapsed=game.server().getTickCount()-at;
@@ -104,7 +102,7 @@ final class BotRouteChecks {
                     if(kind==Kind.WADING)require(wetGroundTicks>=6&&distance>=2.5,"same native body actually walks the water-covered floor");
                     SkyWars2.LOGGER.info("[check] Native route completed {} ticks={} distance={} fastTicks={} airTicks={}",kind,elapsed,distance,fastTicks,airTicks);return true;
                 }
-                var state=state();if(state!=null)((LbcChefBrain)WoolBucketChecks.read(state,"brain")).reset();
+                var state=state();if(state!=null)state.skywars2$validationBrain().reset();
             }
             intent();return false;
         }

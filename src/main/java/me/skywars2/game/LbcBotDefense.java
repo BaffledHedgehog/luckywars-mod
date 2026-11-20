@@ -23,7 +23,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 
 /** Real shield/finite cover and retreat intents. Never absorbs damage or modifies an attack. */
-final class LbcBotDefense {
+public final class LbcBotDefense {
     final ServerPlayer player;final LbcChefBrain.Driver driver;final LbcBotSurvival survival;
     private record ThornGear(Item item,ItemEnchantments enchantments){}
     private final Map<UUID,List<ThornGear>> thorny=new LinkedHashMap<>();

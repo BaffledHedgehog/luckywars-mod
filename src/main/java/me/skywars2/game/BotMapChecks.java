@@ -1,5 +1,7 @@
 package me.skywars2.game;
 
+import me.skywars2.validation.mixin.BotValidationAccess;
+
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
@@ -17,7 +19,7 @@ final class BotMapChecks {
         final Set<BlockPos> starters=new HashSet<>(),opened=new HashSet<>();
         final Set<UUID> preexisting=new HashSet<>();int at;boolean landed,suppressLucky=true;
         Fixture(GameController game){super(game,game.maps().spawns().getFirst().position());}
-        Object state(){return ((Map<?,?>)WoolBucketChecks.read(game.carpetBots(),"states")).get(bot.getUUID());}
+        BotValidationAccess.State state(){return CarpetBotChecks.state(game,bot);}
         @Override void setup(){
             require(game.gameMode()==1||game.gameMode()==2,"real SkyWars match mode");
             for(var entity:base.level.getAllEntities()){
@@ -47,17 +49,16 @@ final class BotMapChecks {
             require(bot.getMaxHealth()==20&&!bot.isNoGravity(),"ordinary health and gravity");
             var state=state();if(state==null)return false;
             // This scene ends before opening random Lucky blocks; all movement/loot/tool recipes remain native.
-            try{if(suppressLucky){var field=state.getClass().getDeclaredField("nextLuckyScan");field.setAccessible(true);field.setInt(state,Integer.MAX_VALUE);}}
-            catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
-            var survival=(LbcBotSurvival)WoolBucketChecks.read(state,"survival");
+            if(suppressLucky)state.skywars2$validationNextLuckyScan(Integer.MAX_VALUE);
+            var survival=state.skywars2$validationSurvival();
             if(!landed&&survival.hasSafe){
                 require(survival.safe.y<origin.y-3&&survival.climbGoal==null,"first real island landing establishes support below the spawn cage");landed=true;
             }
-            var chest=(BlockPos)WoolBucketChecks.read(state,"chest");
+            var chest=state.skywars2$validationChest();
             if(bot.containerMenu!=bot.inventoryMenu&&starters.contains(chest))opened.add(chest);
             if(elapsed%100==0)SkyWars2.LOGGER.info("[check] Actual bot island ticks={} opened={} landed={} {}",elapsed,opened,landed,game.carpetBots().diagnostics(bot));
-            if(opened.containsAll(starters)&&!Boolean.TRUE.equals(WoolBucketChecks.read(state,"startingLoot"))
-                    &&((LbcBotCrafting)WoolBucketChecks.read(state,"crafting")).prepared()){
+            if(opened.containsAll(starters)&&!state.skywars2$validationStartingLoot()
+                    &&state.skywars2$validationCrafting().prepared()){
                 require(landed&&game.carpetBots().observation(bot).looted()>0,"actual chest menu transfers precede completing starter preparation");
                 SkyWars2.LOGGER.info("[check] Actual island complete mode={} ticks={} opened={} inventory={}",game.gameMode(),elapsed,opened,
                         java.util.stream.IntStream.range(0,36).mapToObj(slot->bot.getInventory().getItem(slot)).toList());return true;

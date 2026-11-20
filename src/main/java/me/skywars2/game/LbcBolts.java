@@ -248,6 +248,10 @@ public final class LbcBolts {
     public int count() { return bolts.size()+waters.size()+meteors.size()+chains.size()+reforgeJobs.size(); }
     List<Bolt> snapshot() { return List.copyOf(bolts); }
     List<Water> waterSnapshot() { return List.copyOf(waters); }
+    boolean isWaterWork(LbcStonekivi.Work work, ServerPlayer owner, ServerLevel level) {
+        return work instanceof OwnedWork owned && owned.state instanceof Water water
+                && water.owner == owner && water.level == level;
+    }
     List<Meteor> meteorSnapshot() { return List.copyOf(meteors); }
     int chainCount() { return chains.size(); }
     List<Chain> chainSnapshot() { return List.copyOf(chains); }

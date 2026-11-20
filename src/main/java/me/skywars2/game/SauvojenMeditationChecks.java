@@ -1,12 +1,18 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.CombatCheckpointAccess;
+import me.skywars2.validation.mixin.FixtureAccess;
+import me.skywars2.validation.mixin.GameCheckAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -21,40 +27,89 @@ public final class SauvojenMeditationChecks {
     private static void require(boolean condition,String message){if(!condition)throw new IllegalStateException("Sauvojen meditation: "+message);}
     /** Per-participant entries only: teardown cannot erase another actor's ambient attribution. */
     static final class Attribution implements AutoCloseable {
-        final LbcIndirectKills service;
-        final Map<java.lang.reflect.Field,Map<net.minecraft.world.entity.LivingEntity,Object>> saved=new LinkedHashMap<>();
-        final List<? extends net.minecraft.world.entity.LivingEntity> targets;
-        final Map<net.minecraft.world.entity.LivingEntity,Map<java.lang.reflect.Field,Object>> combat=new IdentityHashMap<>();
-        Attribution(GameController game,List<? extends net.minecraft.world.entity.LivingEntity> targets){
-            service=game.items().indirectKills();this.targets=List.copyOf(targets);
-            try{for(var field:LbcIndirectKills.class.getDeclaredFields())if(Map.class.isAssignableFrom(field.getType())){
-                field.setAccessible(true);var map=(Map<?,?>)field.get(service);var values=new IdentityHashMap<net.minecraft.world.entity.LivingEntity,Object>();
-                for(var target:targets)if(map.containsKey(target)){var value=map.get(target);values.put(target,value instanceof Map<?,?> nested?new HashMap<>(nested):value);}
-                saved.put(field,values);
+        private record Row(Map<? extends LivingEntity, ?> map, Map<LivingEntity, Object> values) { }
+        private final List<Row> saved = new ArrayList<>();
+        private final List<? extends LivingEntity> targets;
+        private final Map<LivingEntity, CombatLinks> combat = new IdentityHashMap<>();
+
+        Attribution(GameController game, List<? extends LivingEntity> targets) {
+            this.targets = List.copyOf(targets);
+            for (var map : fields(game.items().indirectKills()).values()) {
+                var values = new IdentityHashMap<LivingEntity, Object>();
+                for (var target : this.targets) {
+                    if (!map.containsKey(target)) continue;
+                    var value = map.get(target);
+                    values.put(target, value instanceof Map<?, ?> nested ? new HashMap<>(nested) : value);
+                }
+                saved.add(new Row(map, values));
             }
-                for(var target:targets){var fields=new LinkedHashMap<java.lang.reflect.Field,Object>();combat.put(target,fields);
-                    for(var name:List.of("lastHurtByMob","lastHurtByMobTimestamp","lastHurtByPlayer","lastHurtByPlayerMemoryTime","lastHurtMob","lastHurtMobTimestamp")){
-                        var field=net.minecraft.world.entity.LivingEntity.class.getDeclaredField(name);field.setAccessible(true);fields.put(field,field.get(target));
-                    }
-                }
-            }catch(ReflectiveOperationException error){throw new IllegalStateException("Meditation attribution snapshot",error);}
+            for (var target : this.targets) combat.put(target, CombatLinks.capture(target));
         }
-        private Object rebound(Object value,net.minecraft.world.entity.LivingEntity target)throws ReflectiveOperationException{
-            if(value instanceof Map<?,?> nested){var result=new HashMap<Object,Object>();for(var entry:nested.entrySet())result.put(entry.getKey(),rebound(entry.getValue(),target));return result;}
-            if(value!=null&&value.getClass().isRecord()&&value.getClass().getSimpleName().equals("Status")){
-                var effect=value.getClass().getDeclaredMethod("effect");var owner=value.getClass().getDeclaredMethod("owner");effect.setAccessible(true);owner.setAccessible(true);
-                var previous=(net.minecraft.world.effect.MobEffectInstance)effect.invoke(value);var current=target.getEffect(previous.getEffect());
-                var constructor=value.getClass().getDeclaredConstructor(LbcIndirectKills.Owner.class,net.minecraft.world.effect.MobEffectInstance.class);constructor.setAccessible(true);
-                return constructor.newInstance(owner.invoke(value),current==null?previous:current);
-            }return value;
+
+        static Map<String, Map<? extends LivingEntity, ?>> fields(LbcIndirectKills ledger) {
+            var state = (FixtureAccess.Attribution) (Object) ledger;
+            return Map.ofEntries(
+                    Map.entry("logoutAbsorption", state.validation$logoutAbsorption()),
+                    Map.entry("logoutAttacks", state.validation$logoutAttacks()),
+                    Map.entry("lootOwners", state.validation$lootOwners()),
+                    Map.entry("falls", state.validation$falls()),
+                    Map.entry("statuses", state.validation$statuses()),
+                    Map.entry("pendingMana", state.validation$pendingMana()),
+                    Map.entry("manaDrains", state.validation$manaDrains()),
+                    Map.entry("manaDebts", state.validation$manaDebts()),
+                    Map.entry("hungerDebts", state.validation$hungerDebts()),
+                    Map.entry("removedSupports", state.validation$removedSupports()),
+                    Map.entry("laterAttacks", state.validation$laterAttacks()),
+                    Map.entry("burning", state.validation$burning()),
+                    Map.entry("arrivals", state.validation$arrivals()));
         }
-        @SuppressWarnings("unchecked") public void close(){
-            try{for(var entry:saved.entrySet()){
-                var map=(Map<Object,Object>)entry.getKey().get(service);for(var target:targets){
-                    if(entry.getValue().containsKey(target))map.put(target,rebound(entry.getValue().get(target),target));else map.remove(target);
+
+        private static Object rebound(Object value, LivingEntity target) {
+            if (value instanceof Map<?, ?> nested) {
+                var result = new HashMap<Object, Object>();
+                nested.forEach((key, entry) -> result.put(key, rebound(entry, target)));
+                return result;
+            }
+            if (value instanceof LbcIndirectKills.Status status) {
+                var previous = status.effect();
+                var current = target.getEffect(previous.getEffect());
+                return new LbcIndirectKills.Status(status.owner(), current == null ? previous : current);
+            }
+            return value;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void close() {
+            for (var row : saved) {
+                // Each row is written back to the same map and with the same participant keys.
+                var map = (Map<LivingEntity, Object>) (Map<?, ?>) row.map();
+                for (var target : targets) {
+                    if (row.values().containsKey(target)) map.put(target, rebound(row.values().get(target), target));
+                    else map.remove(target);
                 }
-            }for(var actor:combat.entrySet())for(var field:actor.getValue().entrySet())field.getKey().set(actor.getKey(),field.getValue());
-            }catch(ReflectiveOperationException error){throw new IllegalStateException("Meditation attribution restore",error);}
+            }
+            combat.forEach((target, links) -> links.restore(target));
+        }
+    }
+
+    record CombatLinks(EntityReference<LivingEntity> mob, int mobTime, EntityReference<Player> player,
+                       int playerMemory, LivingEntity attacked, int attackTime) {
+        static CombatLinks capture(LivingEntity target) {
+            var living = (CombatCheckpointAccess.Living) target;
+            var checks = (GameCheckAccess.CombatLinks) target;
+            return new CombatLinks(living.skywars2$mob(), checks.validation$mobTime(), living.skywars2$player(),
+                    living.skywars2$memory(), checks.validation$attacked(), checks.validation$attackTime());
+        }
+
+        void restore(LivingEntity target) {
+            var living = (CombatCheckpointAccess.Living) target;
+            living.skywars2$mob(mob);
+            living.skywars2$mobTime(mobTime);
+            living.skywars2$player(player);
+            living.skywars2$memory(playerMemory);
+            living.skywars2$attacked(attacked);
+            living.skywars2$attackTime(attackTime);
         }
     }
     private static final class Recording extends net.minecraft.network.Connection {
@@ -440,10 +495,9 @@ public final class SauvojenMeditationChecks {
                         "native explosion keeps the ownerless TNT as its direct source");
                 require(t.cause.equals(game.items().indirectKills().babylonCause(damage)),
                         "native allied TNT retains the exact WILD cause apart from its physical source");
-                try{var field=LbcIndirectKills.class.getDeclaredField("laterAttacks");field.setAccessible(true);
-                    require(t.cause.equals(((Map<?,?>)field.get(game.items().indirectKills())).get(other)),
-                            "actual allied TNT retains exact captured WILD indirect fall author/order");
-                }catch(ReflectiveOperationException error){throw new IllegalStateException("Native trial TNT attribution",error);}
+                var ledger = (FixtureAccess.Attribution) (Object) game.items().indirectKills();
+                require(t.cause.equals(ledger.validation$laterAttacks().get(other)),
+                        "actual allied TNT retains exact captured WILD indirect fall author/order");
             }finally{
                 game.config().tntProtection=savedProtection;
                 service.stop();restore();board.removePlayerTeam(team);

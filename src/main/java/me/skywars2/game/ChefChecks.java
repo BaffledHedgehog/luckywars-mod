@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.CombatCheckpointAccess;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -13,13 +14,16 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -33,45 +37,41 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ScheduledTick;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 
 /** Synchronous native dispatch boundaries; no claim that explicit calls advance server time. */
 public final class ChefChecks {
     private ChefChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Chef: "+why);}
-    private static Object copy(Object value){if(value instanceof int[] a)return a.clone();if(value instanceof Set<?> s)return new HashSet<>(s);return value;}
-    private static Map<Field,Object> fields(Object target){
-        var result=new LinkedHashMap<Field,Object>();
-        try{for(var f:target.getClass().getFields())if(!Modifier.isStatic(f.getModifiers()))result.put(f,copy(f.get(target)));}
-        catch(IllegalAccessException e){throw new IllegalStateException(e);}return result;
-    }
-    private static void fields(Object target,Map<Field,Object> values){try{for(var e:values.entrySet())e.getKey().set(target,copy(e.getValue()));}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
-    private static Map<Field,Object> attackers(ServerPlayer player){
-        var saved=new LinkedHashMap<Field,Object>();
-        try{for(String name:List.of("lastHurtByMob","lastHurtByMobTimestamp","lastHurtByPlayer","lastHurtByPlayerMemoryTime")){
-            var field=net.minecraft.world.entity.LivingEntity.class.getDeclaredField(name);field.setAccessible(true);saved.put(field,field.get(player));
-        }}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
-        return saved;
+    private record Attackers(EntityReference<Player> player,EntityReference<LivingEntity> mob,int timestamp,int memory) {
+        static Attackers save(ServerPlayer player) {
+            var access=(CombatCheckpointAccess.Living)player;
+            return new Attackers(access.skywars2$player(),access.skywars2$mob(),player.getLastHurtByMobTimestamp(),
+                    access.skywars2$memory());
+        }
+        void restore(ServerPlayer target) {
+            var access=(CombatCheckpointAccess.Living)target;
+            access.skywars2$player(player);
+            access.skywars2$mob(mob);
+            access.skywars2$mobTime(timestamp);
+            access.skywars2$memory(memory);
+        }
     }
     /** Existing pending combat must belong to its game, never to an operator-run fixture. */
     private static boolean cleanAttribution(GameController game,ServerPlayer player){
-        var service=game.items().indirectKills();
-        try{for(var field:LbcIndirectKills.class.getDeclaredFields())if(Map.class.isAssignableFrom(field.getType())){
-            field.setAccessible(true);if(((Map<?,?>)field.get(service)).containsKey(player))return false;
-        }}catch(IllegalAccessException error){throw new IllegalStateException(error);}
-        return true;
+        return SauvojenMeditationChecks.Attribution.fields(game.items().indirectKills()).values().stream()
+                .noneMatch(rows->rows.containsKey(player));
     }
     private static final class Saved {
-        final ServerPlayer player;final GameChecks.WandThirdPlayerState state;final PlayerStore.Profile profile;
-        final Map<Field,Object> profileFields,attackerFields;final boolean shift;final int visualRegen,cowKills;final net.minecraft.world.scores.PlayerTeam team;
+        final ServerPlayer player;final GameChecks.WandThirdPlayerState state;final MatchValueSnapshot profile;
+        final Attackers attackers;final boolean shift;final int visualRegen,cowKills;final net.minecraft.world.scores.PlayerTeam team;
         final Map<AdvancementHolder,Set<String>> advancements=new LinkedHashMap<>();
         final Map<Stat<Identifier>,Integer> custom=new LinkedHashMap<>();
         final Map<String,Integer> scores=new LinkedHashMap<>();
         final Map<Stat<Item>,Integer> crafted=new LinkedHashMap<>();
         Saved(GameController game,ServerPlayer player){
-            this.player=player;team=player.getTeam();state=new GameChecks.WandThirdPlayerState(player,game.items().mana());profile=game.players().get(player.getUUID());profileFields=fields(profile);attackerFields=attackers(player);
+            this.player=player;team=player.getTeam();state=new GameChecks.WandThirdPlayerState(player,game.items().mana());
+            profile=new MatchValueSnapshot(game.players().get(player.getUUID()));attackers=Attackers.save(player);
             for(String name:List.of("fartus_sword"))scores.put(name,game.items().mana().score(player,name).get());
             shift=player.isShiftKeyDown();visualRegen=game.items().mana().regeneration(player);cowKills=player.getStats().getValue(Stats.ENTITY_KILLED.get(EntityTypes.COW));
             for(var adv:game.server().getAdvancements().getAllAdvancements()){var done=new HashSet<String>();player.getAdvancements().getOrStartProgress(adv).getCompletedCriteria().forEach(done::add);advancements.put(adv,done);}
@@ -80,7 +80,7 @@ public final class ChefChecks {
         }
         void restore(GameController game){
             advancements.forEach((adv,done)->{for(var key:adv.value().criteria().keySet())if(done.contains(key))player.getAdvancements().award(adv,key);else player.getAdvancements().revoke(adv,key);});
-            var board=game.server().getScoreboard();if(player.getTeam()!=null)board.removePlayerFromTeam(player.getScoreboardName(),player.getTeam());if(team!=null)board.addPlayerToTeam(player.getScoreboardName(),team);fields(profile,profileFields);state.restore(game);player.setShiftKeyDown(shift);fields(player,attackerFields);game.items().mana().score(player,"manaregen_visual").set(visualRegen);
+            var board=game.server().getScoreboard();if(player.getTeam()!=null)board.removePlayerFromTeam(player.getScoreboardName(),player.getTeam());if(team!=null)board.addPlayerToTeam(player.getScoreboardName(),team);profile.restore();state.restore(game);player.setShiftKeyDown(shift);attackers.restore(player);game.items().mana().score(player,"manaregen_visual").set(visualRegen);
             scores.forEach((name,value)->game.items().mana().score(player,name).set(value));
             custom.forEach((stat,value)->player.getStats().setValue(player,stat,value));crafted.forEach((stat,value)->player.getStats().setValue(player,stat,value));
             player.getStats().setValue(player,Stats.ENTITY_KILLED.get(EntityTypes.COW),cowKills);game.items().magic().inventoryChanged(player);
@@ -88,7 +88,7 @@ public final class ChefChecks {
     }
     static final class Fixture implements AutoCloseable {
         final GameController game;final LbcWtf service;final LbcMana mana;final ServerPlayer owner,other;
-        final Saved saved,otherSaved;final Map<Field,Object> config;final Vec3 at;final BlockPos center;
+        final Saved saved,otherSaved;final MatchValueSnapshot config;final Vec3 at;final BlockPos center;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final List<Cow> cows=new ArrayList<>();
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final net.minecraft.world.scores.PlayerTeam team;
         final BoundingBox bounds;final List<ScheduledTick<Block>> blockTicks=new ArrayList<>();final List<ScheduledTick<Fluid>> fluidTicks=new ArrayList<>();boolean closed;
@@ -97,7 +97,7 @@ public final class ChefChecks {
             require(owner!=null&&other!=null&&game.playing()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two active participants");
             require(service.pendingCount()==0&&!game.items().timeStop().stopped(owner.level()),"no unrelated Chef, fountain or dimension Time Stop work");
             for(var p:List.of(owner,other))require(p.containerMenu==p.inventoryMenu&&cleanAttribution(game,p)&&!game.items().frost().isFrozen(p)&&game.items().frost().cold(p)==0,"closed menus and no pre-existing combat/frost");
-            saved=new Saved(game,owner);otherSaved=new Saved(game,other);config=fields(game.config());owner.level().getAllEntities().forEach(before::add);
+            saved=new Saved(game,owner);otherSaved=new Saved(game,other);config=new MatchValueSnapshot(game.config());owner.level().getAllEntities().forEach(before::add);
             center=owner.blockPosition().offset(0,32,0);at=Vec3.atBottomCenterOf(center);require(center.getY()+12<owner.level().getMaxY(),"bounded clearbox below ceiling");
             bounds=new BoundingBox(center.getX()-16,center.getY()-4,center.getZ()-16,center.getX()+16,center.getY()+12,center.getZ()+16);
             team=game.server().getScoreboard().addPlayerTeam("chef_fixture");team.setAllowFriendlyFire(false);
@@ -216,7 +216,7 @@ public final class ChefChecks {
             owner.level().getBlockTicks().clearArea(bounds);owner.level().getFluidTicks().clearArea(bounds);
             for(var entry:blocks.entrySet())game.maps().restoreSnapshot(owner.level(),entry.getKey(),entry.getValue());
             owner.level().getBlockTicks().clearArea(bounds);owner.level().getFluidTicks().clearArea(bounds);blockTicks.forEach(owner.level().getBlockTicks()::schedule);fluidTicks.forEach(owner.level().getFluidTicks()::schedule);
-            fields(game.config(),config);saved.restore(game);otherSaved.restore(game);game.server().getScoreboard().removePlayerTeam(team);
+            config.restore();saved.restore(game);otherSaved.restore(game);game.server().getScoreboard().removePlayerTeam(team);
             var fresh=new ArrayList<Entity>();owner.level().getAllEntities().forEach(e->{if(!before.contains(e)&&(e instanceof net.minecraft.world.entity.item.ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb))fresh.add(e);});fresh.forEach(Entity::discard);game.players().save();game.items().magic().flushCleansing();
         }
         void corridor(boolean gap){

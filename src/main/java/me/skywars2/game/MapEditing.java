@@ -10,7 +10,9 @@ import net.minecraft.world.phys.AABB;
 
 /** Production-safe boundary: write/delete implementations exist only in the test-server JAR. */
 public interface MapEditing extends AutoCloseable {
-    boolean TEST_BUILD = detectTestBuild();
+    TestBackend TEST_BACKEND = FabricLoader.getInstance().getEntrypointContainers("skywars2:map-editing",TestBackend.class)
+            .stream().filter(entry->entry.getProvider().getMetadata().getId().equals("skywars2"))
+            .findFirst().map(entry->entry.getEntrypoint()).orElse(null);
     boolean TEST_DIRECTORY = allowedDirectory(FabricLoader.getInstance().getGameDir());
     void select(ServerPlayer player,int corner);
     void save(ServerPlayer player,String mode,String name);
@@ -20,12 +22,15 @@ public interface MapEditing extends AutoCloseable {
     void tick();
     void close();
 
-    private static boolean detectTestBuild() {
-        try { Class.forName("me.skywars2.game.MapAuthoring",false,MapEditing.class.getClassLoader()); return true; }
-        catch (ClassNotFoundException absent) { return false; }
+    interface TestBackend {
+        MapEditing create(GameController game);
+        void registerTicket();
+        int delete(GameController game,ServerPlayer player,String id);
+        void runCheck(GameController game,String name);
+        void tickChecks(GameController game);
     }
-    static boolean testBuildAvailable() { return TEST_BUILD; }
-    static boolean enabledHere() { return TEST_BUILD && TEST_DIRECTORY; }
+    static boolean testBuildAvailable() { return TEST_BACKEND!=null; }
+    static boolean enabledHere() { return testBuildAvailable() && TEST_DIRECTORY; }
     static boolean allowedDirectory(Path directory) {
         try {
             Path actual=directory.toRealPath();
@@ -42,10 +47,7 @@ public interface MapEditing extends AutoCloseable {
                 && player.getGameProfile().name().equals("BaffledHedgehog");
     }
     static MapEditing create(GameController game) {
-        if (allowedServer(game.server())) {
-            try { return (MapEditing)Class.forName("me.skywars2.game.MapAuthoring").getConstructor(GameController.class).newInstance(game); }
-            catch (ReflectiveOperationException failure) { throw new IllegalStateException("Cannot initialize test-server map authoring",failure); }
-        }
+        if (allowedServer(game.server())) return TEST_BACKEND.create(game);
         return new MapEditing() {
             private void denied(ServerPlayer player) { player.sendSystemMessage(Component.literal("Map writing is unavailable in this build or server.")); }
             public void select(ServerPlayer p,int corner){denied(p);}
@@ -58,26 +60,19 @@ public interface MapEditing extends AutoCloseable {
         };
     }
     static void registerTicket() {
-        if (!enabledHere()) return;
-        try { var method=Class.forName("me.skywars2.game.MapAuthoring").getDeclaredMethod("registerTicket");method.setAccessible(true);method.invoke(null); }
-        catch (ReflectiveOperationException failure) { throw new IllegalStateException("Cannot register test map capture ticket",failure); }
+        if (enabledHere()) TEST_BACKEND.registerTicket();
     }
     static int delete(GameController game,ServerPlayer player,String id) {
         if (!allowedDeletion(player,game.server())) {
             player.sendSystemMessage(Component.literal("Map deletion requires operator BaffledHedgehog on this test server.")); return 0;
         }
-        try { return ((Number)Class.forName("me.skywars2.game.MapDeletion").getMethod("delete",GameController.class,ServerPlayer.class,String.class).invoke(null,game,player,id)).intValue(); }
-        catch (ReflectiveOperationException failure) { throw new IllegalStateException("Cannot invoke test-server map deletion",failure); }
+        return TEST_BACKEND.delete(game,player,id);
     }
     static void runCheck(GameController game,String name) {
         if (!allowedServer(game.server())) throw new IllegalStateException("Map editing checks are available only on the test server");
-        if (!name.equals("MapAuthoringChecks") && !name.equals("MapDeletionChecks")) throw new IllegalArgumentException("Unknown editing check");
-        try { Class.forName("me.skywars2.game."+name).getMethod("run",GameController.class).invoke(null,game); }
-        catch (ReflectiveOperationException failure) { throw new IllegalStateException("Map editing check failed",failure); }
+        TEST_BACKEND.runCheck(game,name);
     }
     static void tickChecks(GameController game) {
-        if (!allowedServer(game.server())) return;
-        try { Class.forName("me.skywars2.game.MapAuthoringChecks").getMethod("tick",GameController.class).invoke(null,game); }
-        catch (ReflectiveOperationException failure) { throw new IllegalStateException("Map authoring check tick failed",failure); }
+        if (allowedServer(game.server())) TEST_BACKEND.tickChecks(game);
     }
 }

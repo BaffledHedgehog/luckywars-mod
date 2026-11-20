@@ -19,10 +19,9 @@ public final class MapEditingPolicyChecks {
         require(!MapEditing.allowedDirectory(Path.of("E:/servers_mew/cringe1_21_4_skywars")),"legacy server directory cannot enable map editing");
         if(!MapEditing.testBuildAvailable()){
             require(!enabled&&!game.developerTools().authoring().busy(),"production disabled implementation initializes normally");
-            for(String name:new String[]{"MapAuthoring","MapAuthoringChecks","MapDeletion","MapDeletionChecks"}){
-                try{Class.forName("me.skywars2.game."+name);throw new IllegalStateException("Unexpected production class "+name);}
-                catch(ClassNotFoundException expected){}
-            }
+            var archive=MapEditingPolicyChecks.class.getClassLoader();
+            for(String name:new String[]{"MapAuthoring","MapAuthoringBackend","MapAuthoringChecks","MapDeletion","MapDeletionChecks"})
+                require(archive.getResource("me/skywars2/game/"+name+".class")==null,"physically absent production class "+name);
         }else{
             require(enabled,"qualified test artifact runs only in the allowlisted fixture");
             for(var player:game.server().getPlayerList().getPlayers()){

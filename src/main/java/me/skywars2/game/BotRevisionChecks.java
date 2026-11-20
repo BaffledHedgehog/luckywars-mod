@@ -1,5 +1,7 @@
 package me.skywars2.game;
 
+import me.skywars2.validation.mixin.BotValidationAccess;
+
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
@@ -30,7 +32,7 @@ final class BotRevisionChecks {
         net.minecraft.world.entity.projectile.ShulkerBullet counterBullet;
         final boolean defenseOnly,counterOnly,academyOnly;
         Fixture(GameController game,boolean defenseOnly,boolean counterOnly,boolean academyOnly){super(game);this.defenseOnly=defenseOnly;this.counterOnly=counterOnly;this.academyOnly=academyOnly;}
-        Object state(){return ((Map<?,?>)WoolBucketChecks.read(game.carpetBots(),"states")).get(bot.getUUID());}
+        BotValidationAccess.State state(){return CarpetBotChecks.state(game,bot);}
         @Override void setup(){
             for(var actor:base.level.getAllEntities())preexisting.add(actor.getUUID());
             super.setup();bot.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20);bot.setHealth(20);bot.getFoodData().setFoodLevel(20);
@@ -97,8 +99,8 @@ final class BotRevisionChecks {
             require(bot.isAlive()&&game.server().getPlayerList().getPlayer(bot.getUUID())==bot,"ordinary20HP native body survives phase "+phase);
             switch(phase){
                 case 0->{
-                    var state=state();if(state==null||Boolean.TRUE.equals(WoolBucketChecks.read(state,"startingLoot"))
-                            ||!((LbcBotCrafting)WoolBucketChecks.read(state,"crafting")).prepared())return false;
+                    var state=state();if(state==null||state.skywars2$validationStartingLoot()
+                            ||!state.skywars2$validationCrafting().prepared())return false;
                     require(bot.getMaxHealth()==20,"no inflated survival HP");
                     require(game.carpetBots().observation(bot).looted()>20,"actual starter tables transferred through player chest menus");
                     require(bot.getInventory().countItem(Items.WATER_BUCKET)>0,"three actual starter tables supply a native water bucket");
@@ -116,7 +118,7 @@ final class BotRevisionChecks {
                     if((now-at)%20==0)SkyWars2.LOGGER.info("[check] Native crossbow frame={} phase={} ammo={} targetHealth={} targetAbsorption={} targetDamage={} arrows={}",now-at,phase,
                             bot.getInventory().countItem(Items.ARROW),base.other.getHealth(),base.other.getAbsorptionAmount(),base.other.getLastDamageSource(),
                             base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(24),arrow->arrow.getOwner()==bot).stream()
-                                    .map(arrow->arrow.position()+"/ground="+((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()+"/block="+WoolBucketChecks.read(arrow,"lastState")).toList());
+                                    .map(arrow->arrow.position()+"/ground="+((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()+"/block="+((BotValidationAccess.Arrow)(Object)arrow).skywars2$validationLastState()).toList());
                     if(bot.isUsingItem()&&startedUse<0)startedUse=now;
                     if(CrossbowItem.isCharged(bot.getMainHandItem())){sawCharge=true;require(bot.getInventory().countItem(Items.ARROW)==0,"last ammunition really loads into crossbow");}
                     for(var arrow:base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(20),e->e.getOwner()==bot)){sawShot=true;base.owned.add(arrow.getUUID());}
@@ -138,12 +140,12 @@ final class BotRevisionChecks {
                 }
                 case 5->{
                     if(bot.getHealth()+bot.getAbsorptionAmount()>=botHealth)return false;
-                    var state=state();var defense=(LbcBotDefense)WoolBucketChecks.read(state,"defense");require(defense.thorns(base.other),"real native reflected hit remembers this thorny opponent");
+                    var state=state();var defense=state.skywars2$validationDefense();require(defense.thorns(base.other),"real native reflected hit remembers this thorny opponent");
                     hits=game.carpetBots().observation(bot).hits();next(6);
                 }
                 case 6->{
                     require(game.carpetBots().observation(bot).hits()==hits,"bot does not keep damaging itself against known thorns");
-                    var defense=(LbcBotDefense)WoolBucketChecks.read(state(),"defense");
+                    var defense=state().skywars2$validationDefense();
                     require(defense.thorns(base.other),"unchanged thorny gear remains known beyond the old ten-second timeout");
                     if(now-at<240)return false;
                     base.other.setItemSlot(EquipmentSlot.CHEST,ItemStack.EMPTY);
@@ -165,9 +167,9 @@ final class BotRevisionChecks {
                                     .map(arrow->arrow.position()+"/"+arrow.getDeltaMovement()+"/owner="+(arrow.getOwner()==bot)).toList(),game.carpetBots().diagnostics(bot));
                     for(var arrow:base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(32),e->e.getOwner()==bot)){
                         if(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()&&reflectionMisses.add(arrow.getUUID()))
-                            SkyWars2.LOGGER.info("[check] Native grounded miss before thorns learning pos={} block={}",arrow.position(),WoolBucketChecks.read(arrow,"lastState"));
+                            SkyWars2.LOGGER.info("[check] Native grounded miss before thorns learning pos={} block={}",arrow.position(),((BotValidationAccess.Arrow)(Object)arrow).skywars2$validationLastState());
                     }
-                    var state=state();if(state==null||!((LbcBotDefense)WoolBucketChecks.read(state,"defense")).thorns(base.other))return false;
+                    var state=state();if(state==null||!state.skywars2$validationDefense().thorns(base.other))return false;
                     var damage=bot.getLastDamageSource();
                     require(damage!=null&&damage.is(net.minecraft.world.damagesource.DamageTypes.THORNS)&&damage.getEntity()==base.other,"the actual ranged hit returns native thorns damage from the target");
                     reflectionAmmo=bot.getInventory().countItem(Items.ARROW);reflectionHealth=bot.getHealth()+bot.getAbsorptionAmount();
@@ -188,7 +190,7 @@ final class BotRevisionChecks {
                 }
                 case 7->{
                     require(now-at<300,"bounded late-slot recipe discovery and native clicks, including checkpoint cancellation");
-                    var state=state();if(state==null)return false;var craft=(LbcBotCrafting)WoolBucketChecks.read(state,"crafting");
+                    var state=state();if(state==null)return false;var craft=state.skywars2$validationCrafting();
                     if(!checkpointCraft&&craft.stage==2){
                         game.checkpointCore();checkpointCraft=true;
                         require(!craft.active()&&bot.inventoryMenu.getCarried().isEmpty(),"checkpoint cancels cursor before native player image");
@@ -219,7 +221,7 @@ final class BotRevisionChecks {
                     }
                     if(ItemData.intValue(wand,"upgrade_available",0)!=1)return false;
                     require(game.items().frost().isFrozen(base.other),"real native Ice casts freeze a player and complete the Academy criterion");
-                    require((int)WoolBucketChecks.read(state(),"crystalsCleared")>0,
+                    require(state().skywars2$validationCrystalsCleared()>0,
                             "trial clears an obstructing real Ice crystal through a native aimed attack");
                     base.move(base.other,origin.add(84,8,0));game.items().frost().clear(base.other);base.other.removeAllEffects();next(9);
                 }
@@ -243,12 +245,10 @@ final class BotRevisionChecks {
                 }
                 case 11->{
                     require(now-at<100,"finite native cover response");
-                    if(now-at<40){var ai=state();var defense=ai==null?null:(LbcBotDefense)WoolBucketChecks.read(ai,"defense");SkyWars2.LOGGER.info("[check] Cover frame={} arrowOwner={} alive={} time={} arrow={} {} {}",now-at,defended.getOwner()==base.other,defended.isAlive(),LbcBotActions.impactTime(bot,defended),defended.position(),defense==null?null:defense.diagnostics(),game.carpetBots().diagnostics(bot));}
+                    if(now-at<40){var ai=state();var defense=ai==null?null:ai.skywars2$validationDefense();SkyWars2.LOGGER.info("[check] Cover frame={} arrowOwner={} alive={} time={} arrow={} {} {}",now-at,defended.getOwner()==base.other,defended.isAlive(),LbcBotActions.impactTime(bot,defended),defended.position(),defense==null?null:defense.diagnostics(),game.carpetBots().diagnostics(bot));}
                     require(bot.getHealth()==botHealth,"legal wall intercepts the real incoming arrow: arrow="+defended.position()+" motion="+defended.getDeltaMovement()+" "+game.carpetBots().diagnostics(bot));
                     if(game.carpetBots().observation(bot).placements()<2)return false;
-                    boolean grounded;
-                    try{var m=AbstractArrow.class.getDeclaredMethod("isInGround");m.setAccessible(true);grounded=(Boolean)m.invoke(defended);}
-                    catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
+                    boolean grounded=((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)defended).skywars2$isInGround();
                     if(!grounded)return false;
                     require(bot.getInventory().countItem(Items.COBBLESTONE)==14,"two real cover blocks are debited from the finite owned stack");
                     if(defenseOnly)return true;
@@ -284,7 +284,7 @@ final class BotRevisionChecks {
                     }else counterShot();
                 }
                 case 18->{
-                    var state=state();var defense=state==null?null:(LbcBotDefense)WoolBucketChecks.read(state,"defense");
+                    var state=state();var defense=state==null?null:state.skywars2$validationDefense();
                     if((now-at)%20==0)SkyWars2.LOGGER.info("[check] Native counter tick={} bullet={} motion={} alive={} ticking={} time={} ray={} attack={} {} {}",now-at,
                             counterBullet.position(),counterBullet.getDeltaMovement(),counterBullet.isAlive(),counterBullet.tickCount,LbcBotActions.impactTime(bot,counterBullet),
                             LbcBotActions.melee(bot,counterBullet,bot.entityInteractionRange()),bot.getAttributeValue(Attributes.ATTACK_DAMAGE),defense==null?null:defense.diagnostics(),game.carpetBots().diagnostics(bot));

@@ -51,7 +51,7 @@ final class BotTrapChecks {
             if(armedAt<0){center=origin.add(2,0,0);resetStarterBody(center);armedAt=game.server().getTickCount();return;}
             // The controller must observe the real supported ground before the trap removes it.
             if(game.server().getTickCount()-armedAt<2)return;
-            require(state()!=null&&((LbcBotSurvival)WoolBucketChecks.read(state(),"survival")).hasSafe,"native pre-trap footing observed");
+            require(state()!=null&&state().skywars2$validationSurvival().hasSafe,"native pre-trap footing observed");
             for(var actor:base.level.getAllEntities())beforeTrap.add(actor.getUUID());
             var cell=BlockPos.containing(center);var floor=base.level.getBlockState(cell.below());var feet=base.level.getBlockState(cell);
             if(kind.equals("badspawner"))base.set(cell.above(10),Blocks.AIR.defaultBlockState());

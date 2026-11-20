@@ -1,9 +1,12 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.ChefValidationAccess;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -119,16 +122,12 @@ public final class ChefRecoveryChecks {
         hit(f,chef,victim,"deep floor descent");
     }
     private static int nativeTickets(ChefChecks.Fixture f,net.minecraft.world.level.ChunkPos pos){
-        try{
-            var source=f.owner.level().getChunkSource();
-            var field=source.getClass().getDeclaredField("ticketStorage");field.setAccessible(true);
-            var storage=(net.minecraft.world.level.TicketStorage)field.get(source);
-            var own=storage.getTickets(pos.pack()).stream().filter(t->
-                    net.minecraft.resources.Identifier.parse("skywars2:chef").equals(
-                            net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE.getKey(t.getType()))).toList();
-            for(var ticket:own)require(ticket.getTicketLevel()==30,"native Chef ticket keeps adjacent chunks entity-ticking");
-            return own.size();
-        }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+        var chunks=(NativeFixtureAccess.Chunks)(Object)f.owner.level().getChunkSource();
+        var own=chunks.skywars2$validationTicketStorage().getTickets(pos.pack()).stream().filter(t->
+                net.minecraft.resources.Identifier.parse("skywars2:chef").equals(
+                        net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE.getKey(t.getType()))).toList();
+        for(var ticket:own)require(ticket.getTicketLevel()==30,"native Chef ticket keeps adjacent chunks entity-ticking");
+        return own.size();
     }
     private static void lifecycle(ChefChecks.Fixture f){
         var victim=f.cow(f.at.add(0,0,7));var first=f.spawn(f.owner,victim);var second=f.spawn(f.owner,victim);
@@ -151,10 +150,7 @@ public final class ChefRecoveryChecks {
     }
     private static void foreignWater(ChefChecks.Fixture f,boolean blocked){
         var victim=f.cow(f.at.add(0,0,8));var chef=f.spawn(f.owner,victim);start(chef,f.at);
-        try{
-            var supply=LbcChefSurvival.class.getDeclaredField("bucket");supply.setAccessible(true);
-            supply.set(chef.survival,new net.minecraft.world.item.ItemStack(Items.BUCKET));
-        }catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
+        ((ChefValidationAccess.Supplies)(Object)chef.survival).skywars2$validationBucket(new ItemStack(Items.BUCKET));
         BlockPos source=f.center.offset(2,0,0);f.block(source,Blocks.WATER);
         if(blocked)for(int z=-1;z<=1;z++)for(int y=0;y<=2;y++)f.block(f.center.offset(1,y,z),Blocks.BEDROCK);
         // Keep the body still: only the native survival pickup may change this source.

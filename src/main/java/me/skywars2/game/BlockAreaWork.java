@@ -41,6 +41,8 @@ final class BlockAreaWork {
     private final LinkedHashMap<Long, SectionScan> scans = new LinkedHashMap<>();
     private Bounds bounds;
 
+    Bounds bounds() { return bounds; }
+
     BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
                   BiFunction<BlockPos, BlockState, BlockState> replacement, int writeFlags) {
         this(level,eligible,replacement,writeFlags,false);

@@ -30,7 +30,7 @@ final class MatchStartup24Checks {
         long preparationNanos, handoffNanos, releaseNanos, phaseTime, resetTime;
         boolean ready, requested, passed, closed;
         Fixture(GameController game){this.game=game;countdown=game.config().countdownSeconds;armed=game.server().getTickCount();}
-        void prepare() throws ReflectiveOperationException {
+        void prepare() {
             require(game.inLobby()&&!game.maps().busy()&&game.maps().spawns().size()==24,"source map64 ready with24 spawns");
             require(game.server().getPlayerList().getPlayerCount()==2,"only reusable native fixture identities online");
             var beta=game.server().getPlayerList().getPlayerByName("TestBeta");require(beta!=null,"Beta initially online");

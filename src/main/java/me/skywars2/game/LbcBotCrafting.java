@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 
 /** Bounded discovery through the shared recipes, then actual player-grid clicks. No private recipes/debits. */
-final class LbcBotCrafting {
+public final class LbcBotCrafting {
     final ServerPlayer player;
     final LbcBotToolCrafting tools;
     int first,second=1,next,stage=-1,a,b,crafted,pairCursor;

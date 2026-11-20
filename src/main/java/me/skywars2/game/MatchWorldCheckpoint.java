@@ -1,6 +1,5 @@
 package me.skywars2.game;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,20 +22,18 @@ import net.minecraft.world.level.storage.PrimaryLevelData;
 /** GLOBAL native metadata/timeline owner. Compose before terrain, bodies and final world-RNG replay.
  * Does not replace saved-data services, dimensions, listeners or resource registries. Not the full rewind. */
 final class MatchWorldCheckpoint {
-    // The native BorderExtent interface is private. One exact reviewed field retains its original
-    // object/immutable lerp anchors; the mutable primitives use typed mixins. No codec/restarted lerp.
-    private static final Field EXTENT=extentField();
-    private static Field extentField(){try{var f=WorldBorder.class.getDeclaredField("extent");f.setAccessible(true);return f;}catch(ReflectiveOperationException e){throw new ExceptionInInitializerError(e);}}
-    static Object extent(WorldBorder border){try{return EXTENT.get(border);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
-    private static void extent(WorldBorder border,Object value){try{EXTENT.set(border,value);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
-    private record Border(WorldBorder owner,WorldBorder.Settings settings,int maximum,boolean initialized,Object original,long remaining,double size,double previous) {
+    static WorldBorder.BorderExtent extent(WorldBorder border) {
+        return ((WorldCheckpointAccess.Border) border).skywars2$extent();
+    }
+
+    private record Border(WorldBorder owner,WorldBorder.Settings settings,int maximum,boolean initialized,WorldBorder.BorderExtent original,long remaining,double size,double previous) {
         Border(WorldBorder border){this(border,new WorldBorder.Settings(border),border.getAbsoluteMaxSize(),((WorldCheckpointAccess.Border)border).skywars2$initialized(),extent(border),
                 extent(border) instanceof WorldCheckpointAccess.Moving m?m.skywars2$remaining():0,
                 extent(border) instanceof WorldCheckpointAccess.Moving m?m.skywars2$size():0,
                 extent(border) instanceof WorldCheckpointAccess.Moving m?m.skywars2$previous():0);
             if(!(original instanceof WorldCheckpointAccess.Moving)&&!(original instanceof WorldCheckpointAccess.Static))throw new IllegalStateException("Unknown native border extent");}
         void restore(){var a=(WorldCheckpointAccess.Border)owner;a.skywars2$x(settings.centerX());a.skywars2$z(settings.centerZ());a.skywars2$damage(settings.damagePerBlock());a.skywars2$safe(settings.safeZone());a.skywars2$blocks(settings.warningBlocks());a.skywars2$time(settings.warningTime());a.skywars2$max(maximum);a.skywars2$initialized(initialized);
-            extent(owner,original);if(original instanceof WorldCheckpointAccess.Moving m){m.skywars2$remaining(remaining);m.skywars2$size(size);m.skywars2$previous(previous);}else ((WorldCheckpointAccess.Static)original).skywars2$rebuild();owner.setDirty();}
+            a.skywars2$extent(original);if(original instanceof WorldCheckpointAccess.Moving m){m.skywars2$remaining(remaining);m.skywars2$size(size);m.skywars2$previous(previous);}else ((WorldCheckpointAccess.Static)original).skywars2$rebuild();owner.setDirty();}
     }
     private record World(ServerLevel level,Border border,float oldRain,float rain,float oldThunder,float thunder,int sky) {
         World(ServerLevel level){this(level,new Border(level.getWorldBorder()),((WorldCheckpointAccess.Weather)level).skywars2$oldRain(),((WorldCheckpointAccess.Weather)level).skywars2$rain(),

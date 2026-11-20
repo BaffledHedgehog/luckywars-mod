@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.AcademyCheckpointAccess;
+import me.skywars2.mixin.ActorCheckpointAccess;
+import me.skywars2.validation.mixin.FixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -8,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -26,17 +30,15 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ScheduledTick;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
 import java.util.*;
+import java.util.function.Consumer;
 
 /** Real native input/loot and Academy callbacks; successive clicks use actual server ticks. */
 public final class AcidAcademyChecks {
@@ -45,24 +47,50 @@ public final class AcidAcademyChecks {
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Acid Academy: "+why);}
     private static int flag(ItemStack stack,String key){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr(key,0);}
     private static void flag(ItemStack stack,String key,int value){var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();tag.putInt(key,value);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));}
-    private static Object copy(Object value){if(value instanceof int[] a)return a.clone();if(value instanceof Set<?> s)return new HashSet<>(s);return value;}
-    private static Map<Field,Object> fields(Object value){
-        var result=new LinkedHashMap<Field,Object>();
-        try{for(var f:value.getClass().getFields())if(!Modifier.isStatic(f.getModifiers()))result.put(f,copy(f.get(value)));}
-        catch(IllegalAccessException e){throw new IllegalStateException(e);}return result;
+    private static Map<UUID,Long> clickTimes(LbcAcademy academy) {
+        return ((AcademyCheckpointAccess) (Object) academy).skywars2$interactions();
     }
-    private static void restore(Object value,Map<Field,Object> saved){try{for(var e:saved.entrySet())e.getKey().set(value,copy(e.getValue()));}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
-    @SuppressWarnings("unchecked") private static Map<UUID,Long> clickTimes(LbcAcademy academy){try{var f=LbcAcademy.class.getDeclaredField("lastInteractions");f.setAccessible(true);return (Map<UUID,Long>)f.get(academy);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
-    private static boolean cleanAttribution(GameController game,ServerPlayer player){
-        try{for(var f:LbcIndirectKills.class.getDeclaredFields())if(Map.class.isAssignableFrom(f.getType())){f.setAccessible(true);if(((Map<?,?>)f.get(game.items().indirectKills())).containsKey(player))return false;}}
-        catch(IllegalAccessException e){throw new IllegalStateException(e);}return true;
+    private static boolean cleanAttribution(GameController game,ServerPlayer player) {
+        var state = (FixtureAccess.Attribution) (Object) game.items().indirectKills();
+        return !state.validation$logoutAbsorption().containsKey(player)
+                && !state.validation$logoutAttacks().containsKey(player)
+                && !state.validation$lootOwners().containsKey(player)
+                && !state.validation$falls().containsKey(player)
+                && !state.validation$statuses().containsKey(player)
+                && !state.validation$pendingMana().containsKey(player)
+                && !state.validation$manaDrains().containsKey(player)
+                && !state.validation$manaDebts().containsKey(player)
+                && !state.validation$hungerDebts().containsKey(player)
+                && !state.validation$removedSupports().containsKey(player)
+                && !state.validation$laterAttacks().containsKey(player)
+                && !state.validation$burning().containsKey(player)
+                && !state.validation$arrivals().containsKey(player);
+    }
+
+    private record EntitySearchProbe(LevelEntityGetter<Entity> original, List<AABB> searches)
+            implements LevelEntityGetter<Entity> {
+        @Override public Entity get(int id) { return original.get(id); }
+        @Override public Entity get(UUID id) { return original.get(id); }
+        @Override public Iterable<Entity> getAll() { return original.getAll(); }
+        @Override public <U extends Entity> void get(EntityTypeTest<Entity,U> type, AbortableIterationConsumer<U> consumer) {
+            original.get(type,consumer);
+        }
+        @Override public void get(AABB box, Consumer<Entity> output) {
+            searches.add(box);
+            original.get(box,output);
+        }
+        @Override public <U extends Entity> void get(EntityTypeTest<Entity,U> type, AABB box,
+                                                    AbortableIterationConsumer<U> consumer) {
+            searches.add(box);
+            original.get(type,box,consumer);
+        }
     }
     private static final class Saved {
-        final ServerPlayer player;final GameChecks.WandThirdPlayerState state;final PlayerStore.Profile profile;
-        final Map<Field,Object> profileFields;final Map<String,Integer> scores=new LinkedHashMap<>();
+        final ServerPlayer player;final GameChecks.WandThirdPlayerState state;final MatchValueSnapshot profile;
+        final Map<String,Integer> scores=new LinkedHashMap<>();
         final List<Runnable> counters=new ArrayList<>();final boolean shift,sprint,ground;final Long click;
         Saved(GameController game,ServerPlayer player){
-            this.player=player;state=new GameChecks.WandThirdPlayerState(player,game.items().mana());profile=game.players().get(player.getUUID());profileFields=fields(profile);
+            this.player=player;state=new GameChecks.WandThirdPlayerState(player,game.items().mana());profile=new MatchValueSnapshot(game.players().get(player.getUUID()));
             shift=player.isShiftKeyDown();sprint=player.isSprinting();ground=player.onGround();click=clickTimes(game.items().academy()).get(player.getUUID());
             for(var name:List.of("effect_ghosting","void_resistance","manaregen_visual"))scores.put(name,game.items().mana().score(player,name).get());
             for(var id:BuiltInRegistries.CUSTOM_STAT)stat(Stats.CUSTOM.get(id));
@@ -75,7 +103,7 @@ public final class AcidAcademyChecks {
         }
         <T> void stat(Stat<T> stat){int value=player.getStats().getValue(stat);counters.add(()->player.getStats().setValue(player,stat,value));}
         void restore(GameController game){
-            AcidAcademyChecks.restore(profile,profileFields);state.restore(game);player.setShiftKeyDown(shift);player.setSprinting(sprint);player.setOnGround(ground);
+            profile.restore();state.restore(game);player.setShiftKeyDown(shift);player.setSprinting(sprint);player.setOnGround(ground);
             scores.forEach((key,value)->game.items().mana().score(player,key).set(value));counters.forEach(Runnable::run);
             if(click==null)clickTimes(game.items().academy()).remove(player.getUUID());else clickTimes(game.items().academy()).put(player.getUUID(),click);
             game.items().magic().inventoryChanged(player);
@@ -93,7 +121,7 @@ public final class AcidAcademyChecks {
 
     private static final class Fixture implements AutoCloseable {
         final GameController game;final LbcClouds clouds;final LbcAcademy academy;final LbcMana mana;
-        final ServerPlayer owner,other;final Saved saved,otherSaved;final Map<Field,Object> config;
+        final ServerPlayer owner,other;final Saved saved,otherSaved;final MatchValueSnapshot config;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>()),owned=Collections.newSetFromMap(new IdentityHashMap<>());
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();
         final List<ScheduledTick<Block>> blockTicks=new ArrayList<>();final List<ScheduledTick<Fluid>> fluidTicks=new ArrayList<>();
@@ -107,7 +135,7 @@ public final class AcidAcademyChecks {
             require(game.server().tickRateManager().runsNormally()&&!game.items().timeStop().stopped(owner.level())&&clouds.acidSnapshot().isEmpty()&&academy.ownedCount()==0&&academy.pendingCount()==0,"exclusive empty native services and normal clock");
             for(var p:List.of(owner,other))require(p.containerMenu==p.inventoryMenu&&cleanAttribution(game,p)&&!game.items().frost().isFrozen(p)&&game.items().frost().cold(p)==0,"closed menus and no existing frost/combat");
             require(game.server().getScoreboard().getPlayerTeam("acid_academy_fixture")==null,"exclusive fixture team");
-            saved=new Saved(game,owner);otherSaved=new Saved(game,other);config=fields(game.config());configuredCost=cost();
+            saved=new Saved(game,owner);otherSaved=new Saved(game,other);config=new MatchValueSnapshot(game.config());configuredCost=cost();
             oldOwnerTeam=owner.getTeam();oldOtherTeam=other.getTeam();team=game.server().getScoreboard().addPlayerTeam("acid_academy_fixture");team.setAllowFriendlyFire(false);
             owner.level().getAllEntities().forEach(before::add);
             base=new BlockPos((owner.blockPosition().getX()>>4)*16+2,240,(owner.blockPosition().getZ()>>4)*16+2);
@@ -222,21 +250,13 @@ public final class AcidAcademyChecks {
                 level.setBlock(pos,(x==3?Blocks.STONE:Blocks.AIR).defaultBlockState(),Block.UPDATE_CLIENTS);
             }
             var target=cow(from.add(1.75,-.25,0));
-            var manager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+            var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+            var access=(FixtureAccess.NativeEntityGetter)(Object)manager;
             var original=manager.getEntityGetter();
             var searches=new ArrayList<AABB>();
             try {
-                var field=manager.getClass().getDeclaredField("entityGetter");
-                field.setAccessible(true);
-                var probe=Proxy.newProxyInstance(LevelEntityGetter.class.getClassLoader(),new Class<?>[]{LevelEntityGetter.class},
-                        (ignored,method,args)->{
-                            if(method.getName().equals("get")&&args!=null)
-                                for(var arg:args)if(arg instanceof AABB box)searches.add(box);
-                            try {return method.invoke(original,args);}
-                            catch(InvocationTargetException error){throw error.getCause();}
-                        });
                 shot.setPos(from);shot.setDeltaMovement(new Vec3(2048,0,0));shot.tickCount=30;
-                field.set(manager,probe);
+                access.validation$entityGetter(new EntitySearchProbe(original,searches));
                 try {
                     var wall=ProjectileUtil.getHitResultOnMoveVector(shot,shot::canHitEntity);
                     require(wall instanceof BlockHitResult block&&wall.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK
@@ -255,9 +275,8 @@ public final class AcidAcademyChecks {
                             "real acid search stops at the clip instead of scanning the full attack rectangle: "+searches);
                     SkyWars2.LOGGER.info("[check] acid sweep candidate search width {} -> {}, exact native Greed hit",
                             searches.getLast().getXsize(),searches.getFirst().getXsize());
-                } finally {field.set(manager,original);}
-            }catch(ReflectiveOperationException error){throw new IllegalStateException("Observe native acid entity sweep",error);}
-            finally {
+                } finally {access.validation$entityGetter(original);}
+            } finally {
                 saved.forEach((pos,snapshot)->game.maps().restoreSnapshot(level,pos,snapshot,Block.UPDATE_CLIENTS));
                 target.discard();
             }
@@ -410,7 +429,7 @@ public final class AcidAcademyChecks {
             owner.level().getBlockTicks().clearArea(bounds);owner.level().getFluidTicks().clearArea(bounds);
             for(var e:blocks.entrySet()){if(owner.level().getBlockEntity(e.getKey()) instanceof net.minecraft.world.Container container)container.clearContent();game.maps().restoreSnapshot(owner.level(),e.getKey(),e.getValue());}
             owner.level().getBlockTicks().clearArea(bounds);owner.level().getFluidTicks().clearArea(bounds);blockTicks.forEach(owner.level().getBlockTicks()::schedule);fluidTicks.forEach(owner.level().getFluidTicks()::schedule);
-            restore(game.config(),config);mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("stacid_wand_mana_use"),"lbc.math").set(configuredCost);
+            config.restore();mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("stacid_wand_mana_use"),"lbc.math").set(configuredCost);
             var board=game.server().getScoreboard();for(var p:List.of(owner,other))if(p.getTeam()==team)board.removePlayerFromTeam(p.getScoreboardName(),team);
             if(oldOwnerTeam!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldOwnerTeam);if(oldOtherTeam!=null)board.addPlayerToTeam(other.getScoreboardName(),oldOtherTeam);board.removePlayerTeam(team);
             saved.restore(game);otherSaved.restore(game);game.players().save();game.items().magic().flushCleansing();

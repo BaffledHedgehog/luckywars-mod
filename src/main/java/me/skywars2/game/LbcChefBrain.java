@@ -16,7 +16,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import java.util.*;
 
 /** Resident-chunk, shape-aware action graph. Only native travel moves the mannequin. */
-final class LbcChefBrain {
+public final class LbcChefBrain {
     private static final int SLICE=192,GLOBAL_NODES=1536,EDIT_LIMIT=1536,MAX_OPEN=8192;
     private static final int GLOBAL_PROBES=36000,SLICE_PROBES=6000;
     private static long budgetTick=Long.MIN_VALUE;

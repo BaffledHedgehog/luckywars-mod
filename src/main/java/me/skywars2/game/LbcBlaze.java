@@ -74,7 +74,7 @@ public final class LbcBlaze {
     private int checkpointCallbacks;
     private boolean checkpointRestoring;
     private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust,boolean wild) { }
-    private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas,
+    record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas,
                            LbcIndirectKills.Owner cause) { }
 
     private record TrialChunk(ServerLevel level, ChunkPos pos) {}

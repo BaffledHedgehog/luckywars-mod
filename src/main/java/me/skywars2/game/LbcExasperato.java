@@ -22,6 +22,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -38,13 +39,16 @@ import java.util.Set;
 public final class LbcExasperato {
     public static final String EXPLOSIVE = "skywars2.wand.exasperato";
     public static final EntityType<Charge> TYPE = registerType();
-    private static final TicketType IMPACT_TICKET = new TicketType(0, TicketType.FLAG_LOADING | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+    static final TicketType IMPACT_TICKET = new TicketType(0, TicketType.FLAG_LOADING | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private static final Vec3[] ORDINARY_OFFSETS = ordinaryOffsets();
     private static final int ORDINARY_LIGHTNING = 50;
     private static final int ORDINARY_REACH = 7 + 8; // Last source plus the diameter of a power-four blast.
     private final GameController game;
     private final NativeChunkLoad.Leases impactLeases = new NativeChunkLoad.Leases(IMPACT_TICKET);
     NativeChunkLoad.Leases.Area impactArea(ServerLevel level) { return impactLeases.area(level); }
+    java.util.Map<ChunkPos,NativeChunkLoad.Leases.Lease> impactLeaseSnapshot(ServerLevel level) {
+        return impactLeases.snapshot(level);
+    }
     private final Set<Charge> charges = new LinkedHashSet<>();
     private final ArrayList<Charge> batch = new ArrayList<>();
     private static final int SEARCH_SEGMENT=16, SEARCH_BUDGET=80, SEARCH_HEADROOM_BUDGET=96;
@@ -189,7 +193,7 @@ public final class LbcExasperato {
         var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,replay::trail,false,false,replay::target);search.blockRule=replay::block;search.shieldBlockable=false;search.replay=replay;
         if(range>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
     }
-    private static final class BlastBatch {
+    static final class BlastBatch {
         ServerPlayer owner;
         final ServerLevel level;
         final Vec3 origin;
@@ -231,7 +235,7 @@ public final class LbcExasperato {
     private boolean blastAdvancing,blastRewind;private int nativeBlasts;
 
     /** Only owner retention differs from vanilla; block resistance/calculator semantics do not. */
-    private static final class NativeBlastSource extends PrimedTnt {
+    static final class NativeBlastSource extends PrimedTnt {
         private final LivingEntity author;
         private final boolean cachedBlocks,nuclear;
         NativeBlastSource(ServerLevel level,Vec3 at,LivingEntity author,boolean cachedBlocks){this(level,at,author,cachedBlocks,false);}

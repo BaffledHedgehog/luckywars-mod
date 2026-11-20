@@ -1231,22 +1231,22 @@ public final class GameController {
     private void startPlaying() {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < (developerMode() ? 1 : 2)) { restoreLobby(); return; }
-        MatchStartup24Checks.phase(this,"enter");
+        NativeCheckHooks.phase(this,"enter");
         perkChoices.clear();
-        MatchStartup24Checks.resetStep(this,"perk_choices");
+        NativeCheckHooks.resetStep(this,"perk_choices");
         LbcGayradar.resetRound(this);
-        MatchStartup24Checks.resetStep(this,"damage_scores");
+        NativeCheckHooks.resetStep(this,"damage_scores");
         lbc.resetLevelupMatch();
-        MatchStartup24Checks.resetStep(this,"levelups");
+        NativeCheckHooks.resetStep(this,"levelups");
         LbcPhdCrafting.matchStarted(this);
-        MatchStartup24Checks.resetStep(this,"crafting_seed");
+        NativeCheckHooks.resetStep(this,"crafting_seed");
         luckyModifiers.startMatch();
-        MatchStartup24Checks.resetStep(this,"lucky_modifier");
-        MatchStartup24Checks.phase(this,"reset");
+        NativeCheckHooks.resetStep(this,"lucky_modifier");
+        NativeCheckHooks.phase(this,"reset");
         if(!bedwars.mode()){
-            maps.cages(false);MatchStartup24Checks.phase(this,"cages");
-            maps.captureRespawnIslands();MatchStartup24Checks.phase(this,"islands");
-            maps.fillChests(false);MatchStartup24Checks.phase(this,"chests");
+            maps.cages(false);NativeCheckHooks.phase(this,"cages");
+            maps.captureRespawnIslands();NativeCheckHooks.phase(this,"islands");
+            maps.fillChests(false);NativeCheckHooks.phase(this,"chests");
         }
         transition(Stage.PLAYING); gameTicks = 0;
         events.start();
@@ -1267,7 +1267,7 @@ public final class GameController {
             items.stand().matchStarted(player);
         }
         }
-        MatchStartup24Checks.phase(this,"kits_and_statistics");
+        NativeCheckHooks.phase(this,"kits_and_statistics");
         maps.level().getGameRules().set(GameRules.BLOCK_DROPS, true, server);
         maps.level().getGameRules().set(GameRules.ENTITY_DROPS, true, server);
         maps.level().getGameRules().set(GameRules.MOB_DROPS, true, server);
@@ -1276,7 +1276,7 @@ public final class GameController {
         }
         items.seasonal().started();
         updateBar();
-        MatchStartup24Checks.phase(this,"finish");
+        NativeCheckHooks.phase(this,"finish");
     }
 
     /** Match membership, including real pending vanilla/BedWars respawns; no second lives registry. */

@@ -328,11 +328,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
     }
 
     private void startParallelWishes() {
-        try {
-            secondPlayer = CarpetBotChecks.connect(game, "TestDelta", base.owner.level(), base.owner.clientInformation());
-        } catch (ReflectiveOperationException failure) {
-            throw new IllegalStateException("Could not create a second native lamp user", failure);
-        }
+        secondPlayer = CarpetBotChecks.connect(game, "TestDelta", base.owner.level(), base.owner.clientInformation());
         require(game.returnFromGameModeCommand(secondPlayer, GameType.SURVIVAL), "second participant may play");
         secondPlayer.setGameMode(GameType.SURVIVAL);
         secondPlayer.hasChangedDimension();

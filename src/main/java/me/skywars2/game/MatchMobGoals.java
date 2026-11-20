@@ -1,9 +1,9 @@
 package me.skywars2.game;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Consumer;
+import me.skywars2.mixin.MobGoalCheckpointAccess;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -30,8 +30,9 @@ final class MatchMobGoals {
 
     MatchMobGoals(Mob mob) {
         owner=mob;worldTime=mob.level().getGameTime();
-        selectors.add(new Selector((GoalSelector)read(mob,Mob.class,"goalSelector")));
-        selectors.add(new Selector((GoalSelector)read(mob,Mob.class,"targetSelector")));
+        var access = (MobGoalCheckpointAccess.MobAccess)(Object) mob;
+        selectors.add(new Selector(access.skywars2$goalGoalSelector()));
+        selectors.add(new Selector(access.skywars2$goalTargetSelector()));
         retained=new MatchRetainedGoals(mob,goal->capture(goal,false));
     }
     private void capture(Goal goal,boolean running){
@@ -78,7 +79,7 @@ final class MatchMobGoals {
                 continue;
             }
             if(resolved!=null&&!(resolved instanceof LivingEntity))throw new IllegalStateException("Native ranged target resolved to a non-living body");
-            write(attack.goal,RangedAttackGoal.class,"target",resolved);
+            attack.access.skywars2$goalTarget((LivingEntity) resolved);
         }
         for(var target:targets.values())if(target.restoreReferences(lookup,pending)){
             target.absent();for(var selector:selectors)selector.retire(target.goal);
@@ -93,7 +94,7 @@ final class MatchMobGoals {
                 continue;
             }
             if(resolved!=null&&!(resolved instanceof Animal))throw new IllegalStateException("Native breeding partner resolved to a non-animal body");
-            write(task.goal,BreedGoal.class,"partner",resolved);
+            task.access.skywars2$goalPartner((Animal) resolved);
         }
         for(var task:common.values())if(task.restoreReferences(lookup,pending)){
             task.absent();for(var selector:selectors)selector.retire(task.goal);
@@ -108,10 +109,11 @@ final class MatchMobGoals {
         final Map<Goal.Flag,WrappedGoal> locked,savedLocked=new EnumMap<>(Goal.Flag.class);
         final EnumSet<Goal.Flag> disabled,savedDisabled;
         final Map<WrappedGoal,Boolean> running=new IdentityHashMap<>();
-        @SuppressWarnings("unchecked") Selector(GoalSelector selector) {
+        Selector(GoalSelector selector) {
+            var access = (MobGoalCheckpointAccess.GoalSelectorAccess)(Object) selector;
             available=selector.getAvailableGoals();ordered=List.copyOf(available);
-            locked=(Map<Goal.Flag,WrappedGoal>)read(selector,GoalSelector.class,"lockedFlags");savedLocked.putAll(locked);
-            disabled=(EnumSet<Goal.Flag>)read(selector,GoalSelector.class,"disabledFlags");savedDisabled=disabled.clone();
+            locked=access.skywars2$goalLockedFlags();savedLocked.putAll(locked);
+            disabled=access.skywars2$goalDisabledFlags();savedDisabled=disabled.clone();
             var all=Collections.newSetFromMap(new IdentityHashMap<WrappedGoal,Boolean>());
             all.addAll(ordered);all.addAll(locked.values());
             for(var wrapper:all) {
@@ -121,135 +123,201 @@ final class MatchMobGoals {
         }
         void suspend(){
             // Native NBT/equipment loaders may remove tasks before restore(); never replay stop() there.
-            for(var wrapper:available)write(wrapper,WrappedGoal.class,"isRunning",false);
-            for(var wrapper:locked.values())write(wrapper,WrappedGoal.class,"isRunning",false);
+            for(var wrapper:available)running(wrapper,false);
+            for(var wrapper:locked.values())running(wrapper,false);
         }
         void retireFuture() {
-            for(var wrapper:available)if(!running.containsKey(wrapper))write(wrapper,WrappedGoal.class,"isRunning",false);
-            for(var wrapper:locked.values())if(!running.containsKey(wrapper))write(wrapper,WrappedGoal.class,"isRunning",false);
+            for(var wrapper:available)if(!running.containsKey(wrapper))running(wrapper,false);
+            for(var wrapper:locked.values())if(!running.containsKey(wrapper))running(wrapper,false);
         }
         void restore() {
             available.clear();available.addAll(ordered);
-            running.forEach((wrapper,active)->write(wrapper,WrappedGoal.class,"isRunning",active));
+            running.forEach((wrapper,active)->running(wrapper,active));
             locked.clear();locked.putAll(savedLocked);disabled.clear();disabled.addAll(savedDisabled);
         }
         void retire(Goal goal) {
-            for(var wrapper:available)if(wrapper.getGoal()==goal)write(wrapper,WrappedGoal.class,"isRunning",false);
+            for(var wrapper:available)if(wrapper.getGoal()==goal)running(wrapper,false);
             locked.entrySet().removeIf(entry->entry.getValue().getGoal()==goal);
         }
     }
-    private static final class Melee {
-        final MeleeAttackGoal goal;
-        final Map<Field,Object> values=new LinkedHashMap<>();
-        final long lastCheck;
-        final MatchMobNavigation.Route route;
+    private static void running(WrappedGoal wrapper, boolean running) {
+        ((MobGoalCheckpointAccess.WrappedGoalAccess)(Object) wrapper).skywars2$goalIsRunning(running);
+    }
+
+    private record Melee(MobGoalCheckpointAccess.MeleeAttackGoalAccess access, Path path, double x, double y, double z,
+                         int recalc, int attack, long lastCheck, MatchMobNavigation.Route route) {
         Melee(MeleeAttackGoal goal) {
-            this.goal=goal;
-            for(String name:List.of("path","pathedTargetX","pathedTargetY","pathedTargetZ","ticksUntilNextPathRecalculation","ticksUntilNextAttack")) {
-                Field field=field(MeleeAttackGoal.class,name);values.put(field,get(field,goal));
-            }
-            lastCheck=(Long)read(goal,MeleeAttackGoal.class,"lastCanUseCheck");
-            Path path=(Path)read(goal,MeleeAttackGoal.class,"path");route=path==null?null:new MatchMobNavigation.Route(path);
+            this((MobGoalCheckpointAccess.MeleeAttackGoalAccess)(Object) goal);
+        }
+        private Melee(MobGoalCheckpointAccess.MeleeAttackGoalAccess access) {
+            this(access,access.skywars2$goalPath(),access.skywars2$goalPathedTargetX(),access.skywars2$goalPathedTargetY(),
+                    access.skywars2$goalPathedTargetZ(),access.skywars2$goalTicksUntilNextPathRecalculation(),
+                    access.skywars2$goalTicksUntilNextAttack(),access.skywars2$goalLastCanUseCheck(),
+                    access.skywars2$goalPath() == null ? null : new MatchMobNavigation.Route(access.skywars2$goalPath()));
         }
         void restore(long delta) {
-            if(route!=null)route.restore();values.forEach((field,value)->set(field,goal,value));
-            write(goal,MeleeAttackGoal.class,"lastCanUseCheck",Math.addExact(lastCheck,delta));
+            if (route != null) route.restore();
+            access.skywars2$goalPath(path);
+            access.skywars2$goalPathedTargetX(x);
+            access.skywars2$goalPathedTargetY(y);
+            access.skywars2$goalPathedTargetZ(z);
+            access.skywars2$goalTicksUntilNextPathRecalculation(recalc);
+            access.skywars2$goalTicksUntilNextAttack(attack);
+            access.skywars2$goalLastCanUseCheck(Math.addExact(lastCheck,delta));
         }
     }
+
     /** The target is not Mob.target: native stop clears this separate cache before a half-step. */
     private static final class Ranged {
         final RangedAttackGoal goal;
-        final Map<Field,Object> values=new LinkedHashMap<>();
+        final MobGoalCheckpointAccess.RangedAttackGoalAccess access;
         final LivingEntity target;
-        MatchDamageSources.Ref targetRef;boolean referencesCaptured;
+        final int attack, see;
+        MatchDamageSources.Ref targetRef;
+        boolean referencesCaptured;
+
         Ranged(RangedAttackGoal goal) {
-            this.goal=goal;target=(LivingEntity)read(goal,RangedAttackGoal.class,"target");
-            for(String name:List.of("target","attackTime","seeTime")) {
-                Field field=field(RangedAttackGoal.class,name);values.put(field,get(field,goal));
-            }
+            this.goal=goal;
+            access=(MobGoalCheckpointAccess.RangedAttackGoalAccess)(Object) goal;
+            target=access.skywars2$goalTarget();
+            attack=access.skywars2$goalAttackTime();
+            see=access.skywars2$goalSeeTime();
         }
-        void restore(){values.forEach((field,value)->set(field,goal,value));}
-        void captureReferences(MatchDamageSources sources){targetRef=sources.dependencyRef(target);referencesCaptured=true;}
-        void absent(){write(goal,RangedAttackGoal.class,"target",null);write(goal,RangedAttackGoal.class,"attackTime",-1);write(goal,RangedAttackGoal.class,"seeTime",0);}
+        void restore() {
+            access.skywars2$goalTarget(target);
+            access.skywars2$goalAttackTime(attack);
+            access.skywars2$goalSeeTime(see);
+        }
+        void captureReferences(MatchDamageSources sources) {
+            targetRef=sources.dependencyRef(target);
+            referencesCaptured=true;
+        }
+        void absent() {
+            access.skywars2$goalTarget(null);
+            access.skywars2$goalAttackTime(-1);
+            access.skywars2$goalSeeTime(0);
+        }
     }
-    /** Reviewed target base, nearest-search cache and body-local retaliation stamp; not arbitrary subclasses. */
+
+    /** Reviewed target base, nearest-search cache and body-local retaliation stamp. */
     private static final class Target {
         final TargetGoal goal;
-        final Map<Field,Object> values=new LinkedHashMap<>();
-        final Map<Class<?>[],Class<?>[]> classArrays=new IdentityHashMap<>();
-        final Map<Field,LivingEntity> bodies=new LinkedHashMap<>();
-        final Map<Field,MatchDamageSources.Ref> references=new LinkedHashMap<>();
+        final MobGoalCheckpointAccess.TargetGoalAccess access;
+        final MobGoalCheckpointAccess.NearestAttackableTargetGoalAccess nearest;
+        final HurtBy hurtBy;
+        final int reach, reachTime, unseen, memory;
+        final LivingEntity target, nearestTarget;
+        MatchDamageSources.Ref targetRef, nearestRef;
         boolean referencesCaptured;
-        Target(TargetGoal goal){
+
+        Target(TargetGoal goal) {
             this.goal=goal;
-            for(String name:List.of("reachCache","reachCacheTime","unseenTicks","unseenMemoryTicks"))save(TargetGoal.class,name);
-            body(TargetGoal.class,"targetMob");
-            if(goal instanceof NearestAttackableTargetGoal<?>)body(NearestAttackableTargetGoal.class,"target");
-            if(goal instanceof HurtByTargetGoal){
-                save(HurtByTargetGoal.class,"timestamp");
-                save(HurtByTargetGoal.class,"alertSameType");
-                classArray("toIgnoreDamage");classArray("toIgnoreAlert");
-            }
+            access=(MobGoalCheckpointAccess.TargetGoalAccess)(Object) goal;
+            reach=access.skywars2$goalReachCache();
+            reachTime=access.skywars2$goalReachCacheTime();
+            unseen=access.skywars2$goalUnseenTicks();
+            memory=access.skywars2$goalUnseenMemoryTicks();
+            target=access.skywars2$goalTargetMob();
+            nearest=goal instanceof NearestAttackableTargetGoal<?>
+                    ? (MobGoalCheckpointAccess.NearestAttackableTargetGoalAccess)(Object) goal : null;
+            nearestTarget=nearest == null ? null : nearest.skywars2$goalTarget();
+            hurtBy=goal instanceof HurtByTargetGoal
+                    ? new HurtBy((MobGoalCheckpointAccess.HurtByTargetGoalAccess)(Object) goal) : null;
         }
-        void save(Class<?> type,String name){Field field=field(type,name);values.put(field,get(field,goal));}
-        void classArray(String name){
-            save(HurtByTargetGoal.class,name);
-            var array=(Class<?>[])get(field(HurtByTargetGoal.class,name),goal);
-            if(array!=null)classArrays.computeIfAbsent(array,key->key.clone());
+
+        void restore() {
+            if (hurtBy != null) hurtBy.restoreArrays();
+            access.skywars2$goalReachCache(reach);
+            access.skywars2$goalReachCacheTime(reachTime);
+            access.skywars2$goalUnseenTicks(unseen);
+            access.skywars2$goalUnseenMemoryTicks(memory);
+            access.skywars2$goalTargetMob(target);
+            if (nearest != null) nearest.skywars2$goalTarget(nearestTarget);
+            if (hurtBy != null) hurtBy.restore();
         }
-        void body(Class<?> type,String name){save(type,name);Field field=field(type,name);bodies.put(field,(LivingEntity)get(field,goal));}
-        void restore(){
-            // Native constructors/setAlertOthers retain caller-owned arrays, including the final damage filter.
-            // Restore their contents in place so other holders retain the original aliases.
-            classArrays.forEach((array,saved)->System.arraycopy(saved,0,array,0,saved.length));
-            values.forEach((field,value)->{
-                if(Modifier.isFinal(field.getModifiers())){
-                    if(get(field,goal)!=value)throw new IllegalStateException("Final native target value identity changed: "+field);
-                }else set(field,goal,value);
-            });
+
+        void captureReferences(MatchDamageSources sources) {
+            targetRef=sources.dependencyRef(target);
+            nearestRef=nearest == null ? null : sources.dependencyRef(nearestTarget);
+            referencesCaptured=true;
         }
-        void captureReferences(MatchDamageSources sources){bodies.forEach((field,body)->references.put(field,sources.dependencyRef(body)));referencesCaptured=true;}
-        boolean restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending){
-            if(!referencesCaptured)return false;
-            boolean absent=false;
-            for(var entry:references.entrySet()){
-                var ref=entry.getValue();Entity resolved=MatchDamageSources.resolve(ref,lookup,pending);
-                if(ref!=null&&resolved==null){
-                    if(!MatchDamageSources.intentionallyAbsent(ref.id()))continue;
-                    absent=true;
-                }
-                if(resolved!=null&&!(resolved instanceof LivingEntity))throw new IllegalStateException("Native target task resolved to a non-living body");
-                set(entry.getKey(),goal,resolved);
-            }
+
+        boolean restoreReferences(Function<UUID,Entity> lookup, Set<UUID> pending) {
+            if (!referencesCaptured) return false;
+            boolean absent=bind(targetRef,lookup,pending,access::skywars2$goalTargetMob);
+            if (nearest != null) absent |= bind(nearestRef,lookup,pending,nearest::skywars2$goalTarget);
             return absent;
         }
-        void absent(){
-            bodies.keySet().forEach(field->set(field,goal,null));
-            for(String name:List.of("reachCache","reachCacheTime","unseenTicks"))write(goal,TargetGoal.class,name,0);
+
+        private static boolean bind(MatchDamageSources.Ref ref, Function<UUID,Entity> lookup, Set<UUID> pending,
+                                    Consumer<LivingEntity> write) {
+            Entity resolved=MatchDamageSources.resolve(ref,lookup,pending);
+            boolean missing=ref!=null && resolved==null;
+            if (missing && !MatchDamageSources.intentionallyAbsent(ref.id())) return false;
+            if (resolved!=null && !(resolved instanceof LivingEntity))
+                throw new IllegalStateException("Native target task resolved to a non-living body");
+            write.accept((LivingEntity) resolved);
+            return missing;
+        }
+
+        void absent() {
+            access.skywars2$goalTargetMob(null);
+            if (nearest!=null) nearest.skywars2$goalTarget(null);
+            access.skywars2$goalReachCache(0);
+            access.skywars2$goalReachCacheTime(0);
+            access.skywars2$goalUnseenTicks(0);
         }
     }
+
+    private record HurtBy(MobGoalCheckpointAccess.HurtByTargetGoalAccess access, int timestamp, boolean alert,
+                          Class<?>[] damage, Class<?>[] savedDamage, Class<?>[] ignored, Class<?>[] savedIgnored) {
+        HurtBy(MobGoalCheckpointAccess.HurtByTargetGoalAccess access) {
+            this(access,access.skywars2$goalTimestamp(),access.skywars2$goalAlertSameType(),
+                    access.skywars2$goalToIgnoreDamage(),copy(access.skywars2$goalToIgnoreDamage()),
+                    access.skywars2$goalToIgnoreAlert(),copy(access.skywars2$goalToIgnoreAlert()));
+        }
+        private static Class<?>[] copy(Class<?>[] values) {
+            return values == null ? null : values.clone();
+        }
+        void restoreArrays() {
+            // Native constructors/setAlertOthers keep caller-owned arrays, including the final damage filter.
+            if (damage != null) System.arraycopy(savedDamage,0,damage,0,savedDamage.length);
+            if (ignored != null && ignored != damage) System.arraycopy(savedIgnored,0,ignored,0,savedIgnored.length);
+        }
+        void restore() {
+            access.skywars2$goalTimestamp(timestamp);
+            access.skywars2$goalAlertSameType(alert);
+            if (access.skywars2$goalToIgnoreDamage()!=damage)
+                throw new IllegalStateException("Final native target damage filter identity changed");
+            access.skywars2$goalToIgnoreAlert(ignored);
+        }
+    }
+
     private static final class Breeding {
         final BreedGoal goal;
+        final MobGoalCheckpointAccess.BreedGoalAccess access;
         final Animal partner;
         final int loveTime;
-        MatchDamageSources.Ref partnerRef;boolean referencesCaptured;
-        Breeding(BreedGoal goal){
-            this.goal=goal;partner=(Animal)read(goal,BreedGoal.class,"partner");loveTime=(Integer)read(goal,BreedGoal.class,"loveTime");
+        MatchDamageSources.Ref partnerRef;
+        boolean referencesCaptured;
+
+        Breeding(BreedGoal goal) {
+            this.goal=goal;
+            access=(MobGoalCheckpointAccess.BreedGoalAccess)(Object) goal;
+            partner=access.skywars2$goalPartner();
+            loveTime=access.skywars2$goalLoveTime();
         }
-        void restore(){write(goal,BreedGoal.class,"partner",partner);write(goal,BreedGoal.class,"loveTime",loveTime);}
-        void captureReferences(MatchDamageSources sources){partnerRef=sources.dependencyRef(partner);referencesCaptured=true;}
-        void absent(){write(goal,BreedGoal.class,"partner",null);write(goal,BreedGoal.class,"loveTime",0);}
-    }
-    private static Field field(Class<?> type,String name) {
-        try{var field=type.getDeclaredField(name);field.setAccessible(true);return field;}
-        catch(ReflectiveOperationException error){throw new IllegalStateException("Review native goal checkpoint "+type.getName()+"."+name,error);}
-    }
-    private static Object read(Object target,Class<?> type,String name){return get(field(type,name),target);}
-    private static Object get(Field field,Object target) {
-        try{return field.get(target);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
-    }
-    private static void write(Object target,Class<?> type,String name,Object value){set(field(type,name),target,value);}
-    private static void set(Field field,Object target,Object value) {
-        try{field.set(target,value);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
+        void restore() {
+            access.skywars2$goalPartner(partner);
+            access.skywars2$goalLoveTime(loveTime);
+        }
+        void captureReferences(MatchDamageSources sources) {
+            partnerRef=sources.dependencyRef(partner);
+            referencesCaptured=true;
+        }
+        void absent() {
+            access.skywars2$goalPartner(null);
+            access.skywars2$goalLoveTime(0);
+        }
     }
 }

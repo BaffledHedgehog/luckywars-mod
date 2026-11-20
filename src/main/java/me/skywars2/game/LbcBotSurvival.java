@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.phys.*;
 
 /** Perception and ordinary survival inputs. Every block/item action still belongs to its native owner. */
-final class LbcBotSurvival {
+public final class LbcBotSurvival {
     final ServerPlayer player;final LbcChefBrain.Driver driver;final LbcChefBrain brain;final Consumer<Vec3> destination;
     Vec3 safe,climbGoal,landing;BlockPos cage,water;Direction exit;int waterAt,cageAt;String decision="idle";boolean cageCovered,cageRain,escapeWater,cageSwimming,cageRoofAbandoned,hasSafe;
     private boolean obsidianCage,returningToCage;

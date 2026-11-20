@@ -479,7 +479,7 @@ public final class LbcDuplicating {
             if(!divider && layer!=center) job.operations.add(new Clone(job.level,point.add(-half,-half,-half),point.add(half,half,half),job.level,point.add(center,layer,center),shared));
         }
     }
-    private final class Divide extends Job {
+    final class Divide extends Job {
         final Vec3 start,direction; int sample;
         Divide(ServerPlayer owner) {this(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
         Divide(ServerPlayer owner,Vec3 origin,Vec3 look) {

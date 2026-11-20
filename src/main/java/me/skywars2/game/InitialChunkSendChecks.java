@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import me.skywars2.mixin.ArenaChunkAccess;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundChunkBatchFinishedPacket;
@@ -28,43 +29,40 @@ public final class InitialChunkSendChecks {
         final GameController game;final WoolBucketChecks.Fixture f;final ChunkTrackingView originalView,initialView;
         final List<Packet<?>> packets;final ChunkPos target;final BlockPos probe;
         MapLighting.Update update;int phase,when,started,cursor,targetPackets,before;boolean closed;
-        @SuppressWarnings("unchecked") Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);originalView=f.owner.getChunkTrackingView();target=f.owner.chunkPosition();initialView=ChunkTrackingView.of(target,2);probe=BlockPos.containing(f.home).above(5);
-            packets=(List<Packet<?>>)WoolBucketChecks.read(WoolBucketChecks.read(f.client,"connection"),"packets");}
+        Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);originalView=f.owner.getChunkTrackingView();target=f.owner.chunkPosition();initialView=ChunkTrackingView.of(target,2);probe=BlockPos.containing(f.home).above(5);
+            packets=f.client.packets();}
         void begin(){f.prepareParticipants();started=game.server().getTickCount();require(initialView.contains(target.x(),target.z()),"actual initial view includes player's central chunk");}
         void collect(){f.client.acknowledge();f.audience.acknowledge();while(cursor<packets.size()){
             var packet=packets.get(cursor++);if(packet instanceof ClientboundChunkBatchFinishedPacket)f.client.listener.handleChunkBatchReceived(new ServerboundChunkBatchReceivedPacket(64));
             if(packet instanceof ClientboundLevelChunkWithLightPacket chunk&&chunk.x()==target.x()&&chunk.z()==target.z())targetPackets++;
         }}
         void enterView(){var access=(ArenaChunkAccess)f.level.getChunkSource().chunkMap;access.skywars2$applyChunkTrackingView(f.owner,ChunkTrackingView.EMPTY);access.skywars2$applyChunkTrackingView(f.owner,initialView);}
-        void sendToCarpet() throws ReflectiveOperationException {
+        void sendToCarpet() {
             ServerPlayer actor = CarpetBotChecks.connect(game, "ChunkSendProbe", f.level, f.owner.clientInformation());
             try {
-                require(actor.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),
-                    "actual fake listener, no recording replacement");
+                require(CarpetBotChecks.fakeListener(actor),"actual fake listener, no recording replacement");
                 var chunk = f.level.getChunk(target.x(), target.z());
                 f.set(probe, Blocks.CHEST.defaultBlockState());
                 require(chunk.getBlockEntity(probe) != null, "native chunk packet would collect a block entity");
-                var alert = Class.forName("eu.pb4.polymer.core.impl.PolymerImplUtils")
-                        .getDeclaredField("alreadySentMissingChunkPacketContextWarning");
-                alert.setAccessible(true);
-                long oldAlert = alert.getLong(null);
+                long oldAlert = NativeFixtureAccess.Polymer.skywars2$validationChunkPacketWarning();
                 try {
-                    alert.setLong(null, 0);
+                    NativeFixtureAccess.Polymer.skywars2$validationChunkPacketWarning(0);
                     var sender = actor.connection.chunkSender;
                     // Match the first, unthrottled batch of a fresh fake joining beside the ready chunk.
                     sender.onChunkBatchReceivedByClient(64);
                     sender.markChunkPendingToSend(chunk);
                     sender.sendNextChunks(actor);
                     require(!sender.isPending(target.pack()), "native sender removes the fake's pending position");
-                    require(alert.getLong(null) == 0, "Carpet's discarded chunk must not run Polymer packet construction");
+                    require(NativeFixtureAccess.Polymer.skywars2$validationChunkPacketWarning() == 0,
+                            "Carpet's discarded chunk must not run Polymer packet construction");
                 } finally {
-                    alert.setLong(null, oldAlert);
+                    NativeFixtureAccess.Polymer.skywars2$validationChunkPacketWarning(oldAlert);
                 }
             } finally {
                 game.server().getPlayerList().remove(actor);
             }
         }
-        boolean step() throws ReflectiveOperationException {collect();require(game.server().getTickCount()-started<160,"bounded real native scene phase="+phase);var map=f.level.getChunkSource().chunkMap;int elapsed=game.server().getTickCount()-when;
+        boolean step() {collect();require(game.server().getTickCount()-started<160,"bounded real native scene phase="+phase);var map=f.level.getChunkSource().chunkMap;int elapsed=game.server().getTickCount()-when;
             if(phase==0){if(map.getChunkToSend(target.pack())==null)return false;
                 if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("carpet")) sendToCarpet();
                 update=new MapLighting.Update(f.level);update.changed(probe);f.set(probe,Blocks.GLOWSTONE.defaultBlockState());before=targetPackets;enterView();
