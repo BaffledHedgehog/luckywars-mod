@@ -40,6 +40,92 @@ public final class SeasonalEventChecks {
                 ||stack.is(LbcHalloweenWind.WIND)||stack.is(LbcHalloweenWind.MACE)
                 ||ItemData.intValue(stack,"jack_o_lantern",0)==1||ItemData.intValue(stack,"soulcorruption",0)==1;
     }
+    private static Display.ItemDisplay circle(GameController game,ServerPlayer player,Vec3 position){
+        var level=player.level();
+        var actor=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);
+        actor.entityTags().add(LbcSeasonalEvents.SCREAMER);
+        actor.setPos(position);
+        game.items().markCurrentItemEpoch(actor);
+        require(level.addFreshEntity(actor),"native screamer circle added");
+        return actor;
+    }
+
+    private static void overlap(GameController game,ServerPlayer player) throws ReflectiveOperationException {
+        var level=player.level();
+        var beta=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));
+        require(beta.level()==level&&beta.isAlive()&&!beta.isSpectator()&&!game.isObserver(beta),"independent living screamer visitor");
+
+        var service=game.items().seasonal();
+        var timeStop=game.items().timeStop();
+        require(!timeStop.stopped(level),"exclusive stopped-clock test");
+        var tickField=GameController.class.getDeclaredField("gameTicks");
+        tickField.setAccessible(true);
+        int savedTick=game.matchTicks();
+        int pulse=(Math.floorDiv(savedTick,20)+2)*20;
+        var savedPlayer=new GameChecks.WandThirdPlayerState(player,game.items().mana());
+        var savedBeta=new GameChecks.WandThirdPlayerState(beta,game.items().mana());
+        var playerRandom=MatchRandomState.capture(player.getRandom());
+        var betaRandom=MatchRandomState.capture(beta.getRandom());
+        var levelRandom=MatchRandomState.capture(level.getRandom());
+        var profile=game.players().get(player.getUUID());
+        var betaProfile=game.players().get(beta.getUUID());
+        int savedMemcoins=profile.memcoins, savedBetaMemcoins=betaProfile.memcoins;
+        var original=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
+        level.getAllEntities().forEach(original::add);
+
+        var block=player.blockPosition();
+        // Both visitors and three test circles fit in the player's already loaded chunk.
+        var near=new Vec3(((block.getX()>>4)<<4)+4.5,level.getMaxY()-8,((block.getZ()>>4)<<4)+8.5);
+        var far=near.add(8,0,0);
+        try{
+            player.teleportTo(level,near.x,near.y,near.z,Set.of(),player.getYRot(),player.getXRot(),true);
+            beta.teleportTo(level,far.x,far.y,far.z,Set.of(),beta.getYRot(),beta.getXRot(),true);
+            var first=circle(game,player,near.add(.75,0,0));
+            var second=circle(game,player,near.add(-.75,0,0));
+            var separate=circle(game,beta,far.add(.75,0,0));
+            require(service.count()==28,"three real circles registered by entity load");
+
+            tickField.setInt(game,pulse-1);
+            service.tick();
+            require(!first.isRemoved()&&!second.isRemoved()&&!separate.isRemoved(),"visitors wait for the one-second pulse");
+
+            tickField.setInt(game,pulse);
+            timeStop.begin(level,20);
+            try{
+                service.tick();
+                require(!first.isRemoved()&&!second.isRemoved()&&!separate.isRemoved(),"Time Stop pauses the actual screamer pulse");
+            }finally{timeStop.end(level);}
+
+            // The native RNG seed yields 17 coins and the harmless skeleton branch.
+            player.getRandom().setSeed(12);
+            beta.getRandom().setSeed(12);
+            service.tick();
+            require(first.isRemoved()&&!second.isRemoved()&&separate.isRemoved(),
+                    "the first visitor consumes only one overlapping circle and the other visitor consumes its own on the same pulse");
+            require(profile.memcoins==savedMemcoins+17&&betaProfile.memcoins==savedBetaMemcoins+17,
+                    "one real reward per visitor on the shared pulse");
+
+            tickField.setInt(game,pulse+20);
+            player.getRandom().setSeed(12);
+            service.tick();
+            require(second.isRemoved()&&profile.memcoins==savedMemcoins+34&&betaProfile.memcoins==savedBetaMemcoins+17,
+                    "the same visitor can consume its remaining circle on the next pulse");
+        }finally{
+            tickField.setInt(game,savedTick);
+            var spawned=new ArrayList<Entity>();
+            level.getAllEntities().forEach(actor->{if(!original.contains(actor))spawned.add(actor);});
+            spawned.forEach(Entity::discard);
+            savedPlayer.restore(game);
+            savedBeta.restore(game);
+            playerRandom.restore(player.getRandom());
+            betaRandom.restore(beta.getRandom());
+            levelRandom.restore(level.getRandom());
+            profile.memcoins=savedMemcoins;
+            betaProfile.memcoins=savedBetaMemcoins;
+            game.players().save();
+        }
+    }
+
     public static void run(GameController game){
         require(game.playing(),"real released match");var player=alpha(game);var service=game.items().seasonal();var level=player.level();
         var persisted=GameConfig.load();require(persisted.eventHalloween&&persisted.eventNovember&&persisted.eventTournament,"three flags survive disk reload");
@@ -71,6 +157,7 @@ public final class SeasonalEventChecks {
         var original=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(original::add);
         var at=player.position();int mem=game.players().get(player.getUUID()).memcoins;
         try{
+            overlap(game,player);
             for(int outcome=1;outcome<=7;outcome++){
                 service.screamer(player,outcome);var added=new ArrayList<Entity>();level.getAllEntities().forEach(e->{if(!original.contains(e))added.add(e);});
                 if(outcome==1)require(added.stream().filter(Skeleton.class::isInstance).map(Skeleton.class::cast).anyMatch(m->m.hasEffect(MobEffects.INVISIBILITY)&&m.hasEffect(MobEffects.FIRE_RESISTANCE)&&LbcSpellSource.unownedHazard(m)),"invisible unowned native skeleton");
@@ -100,6 +187,6 @@ public final class SeasonalEventChecks {
             require(game.server().getScoreboard().getDisplayObjective(DisplaySlot.SIDEBAR).getName().equals("tournament_kills")&&game.server().getScoreboard().getDisplayObjective(DisplaySlot.LIST).getName().equals("tournament_wins"),"real postgame tournament displays");
         }catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
         finally{game.items().psycho().clearStatus(player,"scared");game.items().psycho().clearStatus(player,"lookback");}
-        SkyWars2.LOGGER.info("[check] PASS seasonal-events (real manual commands, persistence, source GUI, weighted loot, source25 actors,7 native outcomes, November and actual finish rewards)");
+        SkyWars2.LOGGER.info("[check] PASS seasonal-events (real manual commands, persistence, source GUI, weighted loot, source25 actors, one circle per visitor and pulse,7 native outcomes, November and actual finish rewards)");
     }
 }

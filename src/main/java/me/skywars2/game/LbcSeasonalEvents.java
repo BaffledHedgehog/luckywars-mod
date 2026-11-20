@@ -74,7 +74,8 @@ public final class LbcSeasonalEvents {
         if(!game.playing()||!game.server().tickRateManager().runsNormally())return;
         var level=game.maps().level();if(game.items().timeStop().stopped(level))return;
         if(game.config().eventNovember&&game.matchTicks()==20)november();
-        boolean second=game.matchTicks()%20==0;
+        boolean halloweenPulse=game.matchTicks()%20==0&&game.config().eventHalloween;
+        var screamers=halloweenPulse?new ArrayList<Entity>():null;
         for(var actor:List.copyOf(actors)){
             if(actor.isRemoved()||!game.items().currentEpoch(actor)){actors.remove(actor);continue;}
             if(actor.level()!=level||game.items().timeStop().frozen(actor)||!level.hasChunkAt(actor.blockPosition()))continue;
@@ -82,11 +83,22 @@ public final class LbcSeasonalEvents {
                 var at=actor.position();level.sendParticles(ParticleTypes.GUST,at.x,at.y,at.z,1,0,0,0,0);
                 actor.setPos(at.add(actor.getLookAngle().scale(.2)));actor.setYRot(actor.getYRot()+10);
                 if(level.getRandom().nextFloat()<.04f)actor.discard();
-            }else if(second&&game.config().eventHalloween){
-                for(var player:level.players())if(!player.isSpectator()&&!game.isObserver(player)&&player.isAlive()
-                        &&!game.items().timeStop().frozen(player)&&player.position().distanceToSqr(actor.position())<=4){
-                    actor.discard();actors.remove(actor);activate(player);break;
-                }
+            }else if(screamers!=null){
+                screamers.add(actor);
+            }
+        }
+        if(screamers==null||screamers.isEmpty())return;
+        // The legacy second selects at most one circle for each eligible player.
+        for(var player:level.players()){
+            if(player.isSpectator()||game.isObserver(player)||!player.isAlive()||game.items().timeStop().frozen(player))continue;
+            for(var remaining=screamers.iterator();remaining.hasNext();){
+                var actor=remaining.next();
+                if(actor.isRemoved()||player.position().distanceToSqr(actor.position())>4)continue;
+                remaining.remove();
+                actor.discard();
+                actors.remove(actor);
+                activate(player);
+                break;
             }
         }
     }
