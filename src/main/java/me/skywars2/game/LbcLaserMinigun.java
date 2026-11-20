@@ -160,14 +160,15 @@ public final class LbcLaserMinigun {
     /** Source full_rev/cast: each held copy pays independently, then narrows spread before tracing. */
     private void shoot(Spool spool,InteractionHand hand) {
         var owner=spool.owner;
-        if(!current(spool) || !isMinigun(owner.getItemInHand(hand))
+        var weapon=owner.getItemInHand(hand);
+        if(!current(spool) || !isMinigun(weapon)
                 || !game.items().mana().trySpend(owner,100)) return;
         spool.spread=LbcGunAccuracy.minigunNextShotSpread(spool.spread);
         spool.shots++;
         game.items().armorSets().phantom().activity(owner);
         if(spool.spread<=1000) game.items().mana().award(owner,"lbc:true_advancements/shooter/laser_minigun");
         sound(owner,"shot",2,0);
-        nativeRay(spool,hand);
+        nativeRay(spool,hand,weapon);
     }
     private Spool state(ServerPlayer owner) {
         return states.computeIfAbsent(owner.getUUID(),id->new Spool(owner,game.items().epoch()));
@@ -192,7 +193,7 @@ public final class LbcLaserMinigun {
                 Identifier.parse("lbc:laser_minigun/"+nextFrame(frame(owner,hand),sourceSequentialSkip)));
     }
     /** Source ray/cast rotations and muzzle, with the author's native first-hit endpoint policy. */
-    private void nativeRay(Spool spool,InteractionHand hand) {
+    private void nativeRay(Spool spool,InteractionHand hand,ItemStack weapon) {
         var owner=spool.owner;
         int spread=spool.spread;
         Vec3 origin=muzzle(owner,hand);
@@ -209,8 +210,9 @@ public final class LbcLaserMinigun {
         else if(hit instanceof EntityHitResult entityHit) {
             var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                     .getOrThrow(DamageTypes.GENERIC),owner);
-            // Accepted native damage already feeds the common indirect-kill attribution hook.
-            if(entityHit.getEntity().hurtServer(owner.level(),source,2.5f))
+            var attribution=game.items().indirectKills();
+            var cause=attribution.itemCause(owner,false,false,weapon);
+            if(entityHit.getEntity().hurtServer(owner.level(),attribution.captureDamage(source,cause),2.5f))
                 LbcAcceptedHits.projectileFeedback(game,owner);
             if(current(spool)) sparks(owner,end,10,false);
         } else if(hit instanceof BlockHitResult wall && owner.level().hasChunkAt(wall.getBlockPos()))

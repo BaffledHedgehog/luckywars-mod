@@ -18421,12 +18421,81 @@ public final class GameChecks {
                                 && gun.beamSnapshot().getLast().length()<6
                                 && minigunHitCues(caster)==4 && minigunHitCues(observer)==0,
                                 "Real entity contact rejected by native damage produces no vanilla hit cue");
+                        first.discard();second.discard();
+                        checkMinigunOffhandWeapon(game,owner,caster,observer,true);
+                        checkMinigunOffhandWeapon(game,owner,caster,observer,false);
                 } finally {
                         game.items().shooters().clearStun(owner); game.items().shooters().forget(other);
                         board.removePlayerFromTeam(owner.getScoreboardName()); board.removePlayerFromTeam(other.getScoreboardName()); board.removePlayerTeam(team);
                         if(ownerTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),ownerTeam);
                         if(otherTeam!=null) board.addPlayerToTeam(other.getScoreboardName(),otherTeam);
                         savedOther.restore(game); mobs.forEach(net.minecraft.world.entity.Entity::discard); game.maps().restoreSnapshot(wall,old); gun.forget(owner);
+                }
+        }
+        private static void checkMinigunOffhandWeapon(GameController game,ServerPlayer owner,
+                        RegenerationBeltChecks.ScheduledClient caster,RegenerationBeltChecks.ScheduledClient observer,boolean enchanted) {
+                var gun=game.items().laserMinigun();var level=owner.level();
+                var main=new ItemStack(Items.IRON_SWORD);var off=shooterPairSource(game,owner,"laser_minigun");
+                off.set(DataComponents.CUSTOM_NAME,Component.literal("Offhand minigun source witness"));
+                var registry=owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+                var improved=enchanted?off:main;
+                improved.enchant(registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS),4);
+                improved.enchant(registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING),100);
+                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,main);
+                owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,off);
+                gun.forget(owner);gun.purify(owner);
+                var muzzle=LbcLaserMinigun.muzzle(owner,net.minecraft.world.InteractionHand.OFF_HAND);
+                var at=muzzle.add(0,-.5,5);
+                var cow=new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW,level){
+                        @Override public long getLootTableSeed(){return 1L;}
+                };
+                cow.setPos(at);cow.setNoAi(true);cow.setNoGravity(true);
+                var lootArea=new net.minecraft.world.phys.AABB(at,at).inflate(3);
+                java.util.function.Predicate<net.minecraft.world.entity.Entity> lootBody=e->e instanceof net.minecraft.world.entity.item.ItemEntity
+                        ||e instanceof net.minecraft.world.entity.ExperienceOrb;
+                var previousLoot=java.util.Set.copyOf(level.getEntities((net.minecraft.world.entity.Entity)null,lootArea,lootBody));
+                var killStat=net.minecraft.stats.Stats.ENTITY_KILLED.get(net.minecraft.world.entity.EntityTypes.COW);
+                int previousKills=owner.getStats().getValue(killStat);
+                require(level.addFreshEntity(cow),"native offhand minigun cow entered the muzzle path");
+                try {
+                        long cues=minigunHitCues(caster),otherCues=minigunHitCues(observer);
+                        game.items().mana().set(owner,100);
+                        for(int i=0;i<30;i++){
+                                pineUsePacket(owner,net.minecraft.world.InteractionHand.OFF_HAND);gun.tick();
+                        }
+                        float expected=enchanted?5:2.5f;
+                        require(gun.shots(owner)==1&&game.items().mana().get(owner)==0
+                                        &&Math.abs(cow.getHealth()-(10-expected))<.0001,
+                                "Paid offhand minigun applies only its own Sharpness once: enchanted="+enchanted+", HP="+cow.getHealth());
+                        var hit=cow.getLastDamageSource();
+                        require(hit!=null&&hit.getEntity()==owner&&hit.getDirectEntity()==owner
+                                        &&hit.is(net.minecraft.world.damagesource.DamageTypes.GENERIC),
+                                "Captured minigun hit retains the physical shooter and original generic damage");
+                        var weapon=game.items().indirectKills().enchantmentWeapon(hit);
+                        require(weapon.is(off.getItem())&&weapon.getHoverName().equals(off.getHoverName())
+                                        &&weapon.getEnchantments().equals(off.getEnchantments()),
+                                "Minigun hit retains exact offhand weapon identity, name and enchantments");
+                        require(minigunHitCues(caster)==cues+1&&minigunHitCues(observer)==otherCues,
+                                "Weapon enchantments retain exactly one private minigun hit cue");
+
+                        cow.damageCooldownTime=0;cow.setInvulnerableTime(0);cow.setHealth(1);
+                        game.items().mana().set(owner,100);
+                        pineUsePacket(owner,net.minecraft.world.InteractionHand.OFF_HAND);gun.tick();
+                        int drops=0;
+                        for(var entity:level.getEntities((net.minecraft.world.entity.Entity)null,lootArea,lootBody)){
+                                if(!previousLoot.contains(entity)&&entity instanceof net.minecraft.world.entity.item.ItemEntity item
+                                                &&(item.getItem().is(Items.LEATHER)||item.getItem().is(Items.BEEF)))drops+=item.getItem().getCount();
+                        }
+                        require(!cow.isAlive()&&gun.shots(owner)==2&&game.items().mana().get(owner)==0
+                                        &&(enchanted?drops>8:drops<=5),
+                                "Native lethal offhand hit uses only its Looting on fixed-seed cow loot: enchanted="+enchanted+", drops="+drops);
+                        require(minigunHitCues(caster)==cues+2&&minigunHitCues(observer)==otherCues,
+                                "Lethal minigun contact still sends exactly one private cue");
+                } finally {
+                        cow.discard();
+                        for(var entity:level.getEntities((net.minecraft.world.entity.Entity)null,lootArea,lootBody))
+                                if(!previousLoot.contains(entity))entity.discard();
+                        owner.getStats().setValue(owner,killStat,previousKills);
                 }
         }
         private static long minigunHitCues(RegenerationBeltChecks.ScheduledClient client) {
