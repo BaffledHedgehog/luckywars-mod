@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.SkyWarsCommandTree;
+import me.skywars2.game.genie.script.ScriptJson;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
@@ -43,6 +44,10 @@ import net.minecraft.server.level.ServerPlayer;
 /** Owner-only configuration, with a blank key field and a single-use reply bound to the login. */
 final class GenieApiDialog implements AutoCloseable {
     static final String PREFIX = "genie/api/";
+    private static final String CHATGPT_PREFIX = PREFIX + "chatgpt/";
+    // One NBT string uses up to three modified-UTF-8 bytes per UTF-16 unit.
+    // Leave enough of the native 64 KiB payload for the compound and field name.
+    private static final int CHATGPT_DIALOG_LIMIT = 21_840;
     private static final int EXPIRY_TICKS = 2400;
     private final Map<ServerPlayer, Pending> pending = new WeakHashMap<>();
     private final ExecutorService writer = Executors.newSingleThreadExecutor(task -> {
@@ -53,8 +58,9 @@ final class GenieApiDialog implements AutoCloseable {
     private boolean saving;
     private boolean closed;
 
-    private enum Form { API, GEMINI_COOKIES, GEMINI_FILE }
+    private enum Form { API, GEMINI_COOKIES, GEMINI_FILE, CHATGPT_COOKIES }
     private record Pending(Identifier id, int opened, Form form) {}
+    @FunctionalInterface private interface HostedInput { String read() throws IOException; }
 
     static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
@@ -65,6 +71,7 @@ final class GenieApiDialog implements AutoCloseable {
                             .then(Commands.argument("path", StringArgumentType.greedyString()).executes(context ->
                                     importFile(context.getSource(), StringArgumentType.getString(context, "path")))));
             var chatgpt = Commands.literal("chatgpt")
+                    .then(Commands.literal("import").executes(context -> open(context.getSource().getPlayerOrException(), Form.CHATGPT_COOKIES)))
                     .then(Commands.literal("probe").executes(context -> connectHosted(context.getSource(), null)))
                     .then(Commands.literal("importfile")
                             .then(Commands.argument("path", StringArgumentType.greedyString()).executes(context ->
@@ -92,23 +99,24 @@ final class GenieApiDialog implements AutoCloseable {
         var game = SkyWars2.game();
         if (game == null) return 0;
         var service = game.items().genie();
-        return service.api.connectHostedChat(service, source, path) ? 1 : 0;
+        return service.api.connectHostedChat(service, source.getServer(),
+                () -> path == null ? null : readCookieFile(path), source::sendSystemMessage) ? 1 : 0;
     }
 
-    private boolean connectHostedChat(GenieService service, CommandSourceStack source, String path) {
+    private boolean connectHostedChat(GenieService service, MinecraftServer server, HostedInput input,
+                                      Consumer<Component> report) {
         if (closed || saving) {
-            source.sendSystemMessage(status("chatgpt_busy", "Предыдущее подключение джина ещё сохраняется.", true));
+            report.accept(status("chatgpt_busy", "Предыдущее подключение джина ещё сохраняется.", true));
             return false;
         }
         saving = true;
-        source.sendSystemMessage(status("chatgpt_checking", "Проверяю ChatGPT на хостинге…", false));
-        var server = source.getServer();
+        report.accept(status("chatgpt_checking", "Проверяю ChatGPT на хостинге…", false));
         writer.execute(() -> {
             GenieHostedChatTransport verified = null;
             var issue = GenieHostedChatTransport.Issue.UNAVAILABLE;
             try {
                 var hosted = GenieConfig.hostedChat();
-                hosted.connect(path == null ? null : readCookieFile(path));
+                hosted.connect(input.read());
                 GenieConfig.enableHostedChat();
                 verified = hosted;
             } catch (GenieHostedChatTransport.Unavailable failure) {
@@ -126,9 +134,9 @@ final class GenieApiDialog implements AutoCloseable {
                 if (closed) return;
                 if (connected != null) {
                     service.activateHostedIfUnconfigured(connected);
-                    source.sendSystemMessage(status("chatgpt_connected", "ChatGPT на хостинге подключён.", false));
+                    report.accept(status("chatgpt_connected", "ChatGPT на хостинге подключён.", false));
                 } else {
-                    source.sendSystemMessage(status("chatgpt_" + failure.name().toLowerCase(java.util.Locale.ROOT),
+                    report.accept(status("chatgpt_" + failure.name().toLowerCase(java.util.Locale.ROOT),
                             failure.hint, true));
                 }
             });
@@ -155,9 +163,14 @@ final class GenieApiDialog implements AutoCloseable {
             message(player, "private_connection", "Для ввода ключа подключись локально или через сервер с online-mode=true.", true);
             return false;
         }
-        var id = Identifier.fromNamespaceAndPath("skywars2", PREFIX + UUID.randomUUID());
+        var id = Identifier.fromNamespaceAndPath("skywars2",
+                (form == Form.CHATGPT_COOKIES ? CHATGPT_PREFIX : PREFIX) + UUID.randomUUID());
         pending.put(player, new Pending(id, player.level().getServer().getTickCount(), form));
-        player.openDialog(form == Form.API ? dialog(id) : geminiDialog(id, form == Form.GEMINI_FILE));
+        player.openDialog(switch (form) {
+            case API -> dialog(id);
+            case GEMINI_COOKIES, GEMINI_FILE -> geminiDialog(id, form == Form.GEMINI_FILE);
+            case CHATGPT_COOKIES -> chatgptDialog(id);
+        });
         return true;
     }
 
@@ -169,6 +182,16 @@ final class GenieApiDialog implements AutoCloseable {
                 DialogAction.CLOSE, List.of(new PlainMessage(text(file ? "file_hint" : "cookies_hint",
                     file ? "Укажи путь к JSON с cookies Gemini на сервере."
                          : "Открой веб-чат Gemini, экспортируй его cookies и вставь JSON. Для большого файла используй /sw genie gemini importfile."), 360)),
+                List.of(field));
+        return confirmation(data, id);
+    }
+
+    private static Holder<net.minecraft.server.dialog.Dialog> chatgptDialog(Identifier id) {
+        var field = new Input("cookies", new TextInput(360, text("chatgpt_cookies", "JSON cookies ChatGPT"), true, "",
+                CHATGPT_DIALOG_LIMIT, Optional.of(new TextInput.MultilineOptions(Optional.empty(), Optional.of(130)))));
+        var data = new CommonDialogData(text("chatgpt_title", "Подключить веб-чат ChatGPT"), Optional.empty(), true, false,
+                DialogAction.CLOSE, List.of(new PlainMessage(text("chatgpt_cookies_hint",
+                        "Вставь JSON с cookies chatgpt.com. Если экспорт не помещается, используй /sw genie chatgpt importfile <путь>."), 360)),
                 List.of(field));
         return confirmation(data, id);
     }
@@ -205,9 +228,18 @@ final class GenieApiDialog implements AutoCloseable {
                 || (form.form == Form.API && !privateConnection(player))) return;
         if (form.form != Form.API) {
             String input = payload.orElse(null) instanceof CompoundTag tag ? tag.getStringOr("cookies", "") : "";
-            importGemini(service, server, form.form == Form.GEMINI_FILE, input, response -> {
+            Consumer<Component> report = response -> {
                 if (owner(player)) player.sendSystemMessage(response);
-            });
+            };
+            if (form.form == Form.CHATGPT_COOKIES) {
+                if (!looksLikeHostedCookies(input)) {
+                    report.accept(status("chatgpt_invalid_cookie_json", "Вставь JSON с cookies chatgpt.com.", true));
+                    return;
+                }
+                connectHostedChat(service, server, () -> input, report);
+            } else {
+                importGemini(service, server, form.form == Form.GEMINI_FILE, input, report);
+            }
             return;
         }
         if (saving) {
@@ -303,6 +335,20 @@ final class GenieApiDialog implements AutoCloseable {
             var data = stream.readNBytes(GenieGeminiWebTransport.MAX_IMPORT + 1);
             if (data.length > GenieGeminiWebTransport.MAX_IMPORT) throw new IOException("Cookie file too large");
             return new String(data, StandardCharsets.UTF_8);
+        }
+    }
+
+    /** Catch malformed dialogue input locally; the hosted worker validates and imports the cookies. */
+    private static boolean looksLikeHostedCookies(String input) {
+        if (input.isBlank() || input.length() > CHATGPT_DIALOG_LIMIT) return false;
+        try {
+            var envelope = ScriptJson.parse("{\"state\":" + input + "}");
+            if (envelope.size() != 1) return false;
+            var state = envelope.get("state");
+            var cookies = state.isJsonObject() ? state.getAsJsonObject().get("cookies") : state;
+            return cookies != null && cookies.isJsonArray() && !cookies.getAsJsonArray().isEmpty();
+        } catch (IllegalArgumentException malformed) {
+            return false;
         }
     }
 

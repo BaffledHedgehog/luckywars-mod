@@ -171,4 +171,31 @@ assert.throws(() => chatCookies({ cookies: [cookie, { ...cookie, domain: 'chatgp
     { status: 'INVALID_BROWSER_STATE' });
 assert.throws(() => chatCookies({ cookies: [cookie], origins: [{ origin }] }), { status: 'INVALID_BROWSER_STATE' });
 
+const { expires, ...exportFields } = cookie;
+const editor = [
+    { ...exportFields, domain: 'chatgpt.com', expirationDate: 1900000000.123, session: false,
+        sameSite: 'no_restriction', hostOnly: true, storeId: '0' },
+    { ...exportFields, name: 'session', session: true, sameSite: 'unspecified' },
+    { ...exportFields, name: 'strict', sameSite: 'strict' },
+    { ...exportFields, name: 'lax', sameSite: 'lax' },
+];
+assert.deepEqual(chatCookies(editor), [
+    { ...cookie, domain: 'chatgpt.com', expires: 1900000000.123, sameSite: 'None' },
+    { ...cookie, name: 'session', sameSite: 'Lax' },
+    { ...cookie, name: 'strict', sameSite: 'Strict' },
+    { ...cookie, name: 'lax', sameSite: 'Lax' },
+]);
+for (const invalid of [
+    [],
+    [...editor, { ...editor[0], domain: 'openai.com' }],
+    [{ ...editor[0], expirationDate: '1900000000' }],
+    [{ ...editor[0], sameSite: 'anywhere' }],
+    [{ ...editor[0], sameSite: 2 }],
+    [{ ...editor[0], session: 'true' }],
+    [{ ...editor[0], value: 'x'.repeat(16385) }],
+    Array(257).fill(editor[0]),
+]) {
+    assert.throws(() => chatCookies(invalid), { status: 'INVALID_BROWSER_STATE' });
+}
+
 console.log('GENIE_HOSTED_CHAT_WORKER_PASS owned tab, exact UI, attachments, verifier witness, no-submit probe, challenges, cancellation and cookie scope');

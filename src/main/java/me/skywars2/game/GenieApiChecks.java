@@ -8,8 +8,10 @@ import java.util.Optional;
 import me.skywars2.SkyWars2;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.common.ClientboundShowDialogPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.MultiActionDialog;
 import net.minecraft.server.dialog.action.CustomAll;
@@ -28,6 +30,7 @@ final class GenieApiChecks {
         final GameController game;
         final WoolBucketChecks.Fixture participants;
         final Path settings = FabricLoader.getInstance().getConfigDir().resolve("skywars2/genie/api.json");
+        final Path hostedEnabled = settings.resolveSibling("chatgpt-enabled.json");
         final boolean auth;
         final boolean wasOp;
         final int began;
@@ -37,7 +40,7 @@ final class GenieApiChecks {
 
         Fixture(GameController game) throws Exception {
             this.game = game;
-            require(!Files.exists(settings), "isolated fixture never overwrites credentials");
+            require(!Files.exists(settings) && !Files.exists(hostedEnabled), "isolated fixture never overwrites credentials");
             participants = new WoolBucketChecks.Fixture(game, false);
             participants.prepareParticipants();
             auth = game.server().usesAuthentication();
@@ -71,7 +74,16 @@ final class GenieApiChecks {
                     require(field.maxLength() == (command.endsWith(" importfile") ? 2048 : 20000),
                             "Gemini opens the selected file or cookie JSON form");
                 }
-                return ((CustomAll) dialog.actions().getFirst().action().orElseThrow()).id();
+                var id = ((CustomAll) dialog.actions().getFirst().action().orElseThrow()).id();
+                if (command.endsWith(" chatgpt import")) {
+                    var field = (TextInput) inputs.getLast().control();
+                    require(field.maxLength() == 21_840 && field.multiline().isPresent()
+                                    && field.label().getContents() instanceof TranslatableContents label
+                                    && label.getKey().equals("genie.api.chatgpt_cookies")
+                                    && id.getPath().startsWith("genie/api/chatgpt/"),
+                            "ChatGPT opens a multiline JSON field under only its cookie reply path");
+                }
+                return id;
             } finally {
                 buffer.release();
             }
@@ -84,6 +96,61 @@ final class GenieApiChecks {
             payload.putString("model", model);
             payload.putString("key", key);
             return new ServerboundCustomClickActionPacket(id, Optional.of(payload));
+        }
+
+        ServerboundCustomClickActionPacket cookieReply(Identifier id, String cookies) {
+            var payload = new CompoundTag();
+            payload.putString("cookies", cookies);
+            var buffer = Unpooled.buffer();
+            try {
+                ServerboundCustomClickActionPacket.STREAM_CODEC.encode(buffer,
+                        new ServerboundCustomClickActionPacket(id, Optional.of(payload)));
+                var decoded = ServerboundCustomClickActionPacket.STREAM_CODEC.decode(buffer);
+                require(!buffer.isReadable() && decoded.id().equals(id) && decoded.payload().orElseThrow().equals(payload),
+                        "real native common-action codec preserves one complete JSON string");
+                return decoded;
+            } finally {
+                buffer.release();
+            }
+        }
+
+        void checkChatGptImport(Object configuredModel) throws Exception {
+            var tree = game.server().getCommands().getDispatcher().getRoot().getChild("skywars").getChild("genie").getChild("chatgpt");
+            require(tree != null && tree.getChild("import") != null && tree.getChild("import").getChildren().isEmpty()
+                            && tree.getChild("importfile") != null && tree.getChild("importfile").getChild("path") != null
+                            && tree.getChild("probe") != null,
+                    "text import has no file argument; existing trusted file and probe commands are retained");
+            game.server().setUsesAuthentication(false);
+            try {
+                var superseded = open("sw genie chatgpt import");
+                var current = open("skywars genie chatgpt import");
+                require(!superseded.equals(current), "ChatGPT text import is login-bound and renewed on reopen");
+                String malformed = "\u6c34".repeat(21_840);
+                var rejected = cookieReply(current, malformed);
+                boolean vanillaRejected = false;
+                try { cookieReply(Identifier.parse("skywars2:genie/api/fixture"), malformed); }
+                catch (RuntimeException expected) { vanillaRejected = true; }
+                require(vanillaRejected, "ordinary API dialogs retain the native 32 KiB accounting");
+                int from = participants.client.packets().size();
+                int otherFrom = participants.audience.packets().size();
+                participants.audience.listener.handleCustomClickAction(rejected);
+                participants.client.listener.handleCustomClickAction(cookieReply(superseded, malformed));
+                require(participants.client.packets().size() == from && participants.audience.packets().size() == otherFrom,
+                        "foreign and superseded replies never reach the cookie processor");
+                participants.client.listener.handleCustomClickAction(rejected);
+                participants.client.listener.handleCustomClickAction(rejected);
+                var packets = participants.client.packets();
+                var sent = packets.subList(from, packets.size()).stream().filter(ClientboundSystemChatPacket.class::isInstance)
+                        .map(ClientboundSystemChatPacket.class::cast).toList();
+                require(sent.size() == 1 && sent.getFirst().content().getContents() instanceof TranslatableContents error
+                                && error.getKey().equals("genie.api.chatgpt_invalid_cookie_json")
+                                && !sent.getFirst().content().getString().contains("\u6c34"),
+                        "malformed input yields one private, credential-free rejection and cannot be replayed");
+                require(!Files.exists(hostedEnabled) && currentModel.get(game.items().genie()) == configuredModel,
+                        "malformed browser state neither enables ChatGPT nor replaces the configured Gemini provider");
+            } finally {
+                game.server().setUsesAuthentication(true);
+            }
         }
 
         void begin() throws Exception {
@@ -123,6 +190,7 @@ final class GenieApiChecks {
             open("skywars genie api");
             participants.client.listener.handleCustomClickAction(reply(savedId, "", "", "replay"));
             require(currentModel.get(game.items().genie()) == active, "reopening never exposes the key or accepts earlier replies");
+            checkChatGptImport(active);
             var config = Class.forName("me.skywars2.game.genie.GenieConfig");
             var load = config.getDeclaredMethod("loadScript");
             load.setAccessible(true);
@@ -171,7 +239,7 @@ final class GenieApiChecks {
             if (!running.step()) return;
             running.close();
             running = null;
-            SkyWars2.LOGGER.info("[check] PASS genie-api (native command, dialog and settings persistence, zero cloud requests)");
+            SkyWars2.LOGGER.info("[check] PASS genie-api (native command, dialogs, large private ChatGPT reply and replay/foreign rejection, settings persistence, zero cloud requests)");
         } catch (Exception failure) {
             try { running.close(); } catch (Exception cleanup) { failure.addSuppressed(cleanup); }
             running = null;

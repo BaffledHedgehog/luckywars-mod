@@ -181,22 +181,40 @@ async function runHosted(context, request, probe, signal, timing) {
     }
 }
 
-/** Accept the explicitly supplied cookie-only portion of Playwright storage state. */
+const exportedSameSite = new Map([
+    ['strict', 'Strict'], ['lax', 'Lax'], ['none', 'None'], ['no_restriction', 'None'], ['unspecified', 'Lax'],
+]);
+
+/** Accept cookie-only Playwright state or a browser extension's cookie JSON array. */
 export function chatCookies(state) {
-    if (!state || !Array.isArray(state.cookies) || !state.cookies.length || state.cookies.length > 256 ||
-        state.origins !== undefined && (!Array.isArray(state.origins) || state.origins.length !== 0)) {
+    const exported = Array.isArray(state);
+    const cookies = exported ? state : state?.cookies;
+    if (!Array.isArray(cookies) || !cookies.length || cookies.length > 256 ||
+        !exported && state.origins !== undefined && (!Array.isArray(state.origins) || state.origins.length !== 0)) {
         throw new HostedChatError('INVALID_BROWSER_STATE');
     }
-    return state.cookies.map(cookie => {
+    return cookies.map(cookie => {
         if (!cookie || !['chatgpt.com', '.chatgpt.com'].includes(cookie.domain) ||
             typeof cookie.name !== 'string' || !cookie.name || cookie.name.length > 256 ||
             typeof cookie.value !== 'string' || cookie.value.length > 16384 ||
             typeof cookie.path !== 'string' || !cookie.path.startsWith('/') ||
-            !Number.isFinite(cookie.expires) || typeof cookie.httpOnly !== 'boolean' ||
-            typeof cookie.secure !== 'boolean' || !['Strict', 'Lax', 'None'].includes(cookie.sameSite)) {
+            typeof cookie.httpOnly !== 'boolean' || typeof cookie.secure !== 'boolean') {
             throw new HostedChatError('INVALID_BROWSER_STATE');
         }
-        const { name, value, domain, path, expires, httpOnly, secure, sameSite } = cookie;
+        let { expires, sameSite } = cookie;
+        if (exported) {
+            if (cookie.session !== undefined && typeof cookie.session !== 'boolean' ||
+                cookie.expirationDate !== undefined && !Number.isFinite(cookie.expirationDate) ||
+                sameSite != null && typeof sameSite !== 'string') {
+                throw new HostedChatError('INVALID_BROWSER_STATE');
+            }
+            expires = cookie.session === true ? -1 : cookie.expirationDate ?? -1;
+            sameSite = exportedSameSite.get((sameSite ?? 'unspecified').toLowerCase());
+        }
+        if (!Number.isFinite(expires) || !['Strict', 'Lax', 'None'].includes(sameSite)) {
+            throw new HostedChatError('INVALID_BROWSER_STATE');
+        }
+        const { name, value, domain, path, httpOnly, secure } = cookie;
         return { name, value, domain, path, expires, httpOnly, secure, sameSite };
     });
 }

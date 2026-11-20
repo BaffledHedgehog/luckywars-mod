@@ -74,12 +74,17 @@ final class GenieHostedChatTransport implements GenieScriptModel.Transport {
                 Files.move(previous, profile, StandardCopyOption.ATOMIC_MOVE);
             }
             Files.createDirectories(requests);
-            Path request = Files.getFileStore(requests).supportsFileAttributeView("posix")
-                    ? Files.createTempDirectory(requests, "chatgpt-", PosixFilePermissions.asFileAttribute(
-                            PosixFilePermissions.fromString("rwx------")))
+            boolean posix = Files.getFileStore(requests).supportsFileAttributeView("posix");
+            var privateDirectory = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+            Path request = posix
+                    ? Files.createTempDirectory(requests, "chatgpt-", privateDirectory)
                     : Files.createTempDirectory(requests, "chatgpt-");
             try {
                 Path workerProfile = importedState == null ? profile : request.resolve("imported-profile");
+                // The worker resolves the directory before starting the browser. Imported
+                // state always starts in its own temporary profile until the probe succeeds.
+                if (posix) Files.createDirectories(workerProfile, privateDirectory);
+                else Files.createDirectories(workerProfile);
                 var result = runWorker(request, workerProfile, prompt, knowledge, contract, verifier, importedState);
                 if (importedState != null && ready(result)) replaceProfile(workerProfile, previous);
                 return result;

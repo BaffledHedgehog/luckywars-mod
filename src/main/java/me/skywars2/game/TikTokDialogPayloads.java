@@ -18,7 +18,8 @@ public final class TikTokDialogPayloads {
         return new StreamCodec<>(){
             @Override public ServerboundCustomClickActionPacket decode(ByteBuf buffer){
                 int position=buffer.readerIndex();var id=Identifier.STREAM_CODEC.decode(buffer);
-                if(!id.getNamespace().equals("skywars2")||!id.getPath().startsWith("tiktok/import/")){
+                if (!id.getNamespace().equals("skywars2")
+                        || !(id.getPath().startsWith("tiktok/import/") || id.getPath().startsWith("genie/api/chatgpt/"))) {
                     buffer.readerIndex(position);return original.decode(buffer);
                 }
                 return new ServerboundCustomClickActionPacket(id,IMPORT_TAG.decode(buffer));
