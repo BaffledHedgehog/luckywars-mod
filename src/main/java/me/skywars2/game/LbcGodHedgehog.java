@@ -96,6 +96,7 @@ public final class LbcGodHedgehog {
         @Override public void tick(){
             enterCheckpointCallback();try {
                 if(checkpointRestoring)return;
+                if(celebrating(encounter))return;
                 if(encounter==null||!valid(encounter)){discard();return;}
                 if(paused(this))return;
                 if(getTarget()!=null&&!target(getTarget(),false))setTarget(null);
@@ -120,6 +121,9 @@ public final class LbcGodHedgehog {
     public static boolean managed(Entity entity){return entity!=null&&(entity.entityTags().contains(MANAGED)||entity.entityTags().contains(BLAST));}
     private boolean valid(Encounter e){return !e.retired&&game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&game.items().currentEpoch(e.epoch);}
+    private boolean celebrating(Encounter e){
+        return e!=null&&!e.retired&&game.stage()==GameController.Stage.ENDING&&game.items().currentEpoch(e.epoch);
+    }
     private boolean paused(Entity e){return checkpointRestoring||game.items().wands().timeStopped()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
     private static boolean resident(ServerLevel level,Vec3 point){var p=BlockPos.containing(point);return level.getChunkSource().getChunkNow(p.getX()>>4,p.getZ()>>4)!=null;}
     private Encounter find(Entity entity){
@@ -173,7 +177,7 @@ public final class LbcGodHedgehog {
     }
     public void tick(){
         enterCheckpointCallback();try {
-            if(checkpointRestoring)return;
+            if(checkpointRestoring||game.stage()==GameController.Stage.ENDING)return;
             if(game.items().wands().timeStopped())return;
             blastChildren.removeIf(Entity::isRemoved);
             int phase=Math.floorMod(activeTicker++,500);
@@ -333,7 +337,7 @@ public final class LbcGodHedgehog {
     private void retire(Encounter e){e.retired=true;for(var a:List.copyOf(actors))if(a.encounter==e)remove(a);lasers.removeIf(l->l.encounter==e);for(var child:List.copyOf(blastChildren))if(find(child)==e){blastChildren.remove(child);child.discard();}if(!e.boss.isRemoved())e.boss.discard();encounters.remove(e);}
     public void loaded(Entity entity){
         enterCheckpointCallback();try {
-        if(checkpointRestoring)return;if(managed(entity)&&!spawning.contains(entity)){var e=find(entity);if(e==null||!valid(e))entity.discard();}
+        if(checkpointRestoring)return;if(managed(entity)&&!spawning.contains(entity)){var e=find(entity);if(e==null||!valid(e)&&!celebrating(e))entity.discard();}
         }finally{leaveCheckpointCallback();}
     }
     public void unloaded(Entity entity){
@@ -343,7 +347,7 @@ public final class LbcGodHedgehog {
     }
     public void removeOwned(ServerPlayer player){
         enterCheckpointCallback();try {
-        for(var e:List.copyOf(encounters))if(e.author.equals(player.getUUID()))retire(e);
+        for(var e:List.copyOf(encounters))if(e.author.equals(player.getUUID())&&!celebrating(e))retire(e);
         }finally{leaveCheckpointCallback();}
     }
     public void stop(){

@@ -1431,6 +1431,7 @@ public final class GameChecks {
                                 case "draw-fireworks" -> {CaseCosmeticChecks.runFireworks(game,true);return;}
                                 case "default-victory-fireworks" -> {CaseCosmeticChecks.runFireworks(game,false);return;}
                                 case "skill-vex-celebration" -> {SkillVexCelebrationChecks.run(game);return;}
+                                case "god-hedgehog-celebration" -> {SkillVexCelebrationChecks.runBoss(game);return;}
                                 case "nameplates-native" -> {IndividualNameplateChecks.run(game);return;}
                                 case "nameplates-rewind" -> {IndividualNameplateChecks.runRewind(game);return;}
                                 case "time-fragment-native" -> {TimeFragmentSprintChecks.run(game);return;}

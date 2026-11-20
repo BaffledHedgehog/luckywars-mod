@@ -229,6 +229,7 @@ public final class LbcSummons {
         if(entity instanceof Mob mob){var state=mobs.get(mob);if(state!=null)mobs.put(mob,new Summon(owner.getUUID(),state.epoch,state.kind));}
     }
     boolean canAttack(Mob mob,LivingEntity target) {
+        if(game.stage()==GameController.Stage.ENDING)return false;
         var owner=owner(mob);
         return valid(owner) && !paused(mob) && mob.level()==owner.level() && target(owner,target);
     }
@@ -469,6 +470,7 @@ public final class LbcSummons {
         return enemies(owner,position,radius).stream().min(Comparator.comparingDouble(e->e.distanceToSqr(position))).orElse(null);
     }
     public void tick() {
+        if(game.stage()==GameController.Stage.ENDING)return;
         if(advancing)throw new IllegalStateException("Reentrant summon advance");advancing=true;try {
         ++ticks;
         orders.tick();
@@ -688,11 +690,11 @@ public final class LbcSummons {
     }
     private void remove(Mob mob) { orders.removed(mob); mobs.remove(mob); if(!mob.isRemoved()) mob.discard(); }
     public void forget(ServerPlayer player) {
+        if(game.stage()==GameController.Stage.ENDING)return;
         for(var mob:List.copyOf(mobs.keySet())) if(mobs.get(mob).owner.equals(player.getUUID())) remove(mob);
         rays.removeIf(ray->ray.owner.equals(player.getUUID()));
         activeRays.removeIf(ray->ray.owner.equals(player.getUUID()));
-        for(var entity:List.copyOf(consequences.keySet())) if(consequences.get(entity).equals(player.getUUID())
-                && !game.items().pozdmanBot().keepsDuringCelebration(entity)) { consequences.remove(entity); entity.discard(); }
+        for(var entity:List.copyOf(consequences.keySet())) if(consequences.get(entity).equals(player.getUUID())) { consequences.remove(entity); entity.discard(); }
     }
     public void stop() { orders.stop(); for(var mob:List.copyOf(mobs.keySet())) remove(mob); rays.clear(); activeRays.clear(); for(var entity:List.copyOf(consequences.keySet())) entity.discard(); consequences.clear(); }
 

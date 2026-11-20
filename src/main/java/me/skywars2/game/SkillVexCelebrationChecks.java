@@ -14,6 +14,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.dolphin.Dolphin;
 import net.minecraft.world.entity.monster.Vex;
@@ -25,9 +26,13 @@ import net.minecraft.world.phys.Vec3;
 final class SkillVexCelebrationChecks {
     private static Fixture active;
 
-    static void run(GameController game) {
+    static void run(GameController game) { run(game, false); }
+
+    static void runBoss(GameController game) { run(game, true); }
+
+    private static void run(GameController game, boolean bossScenario) {
         require(active==null,"exclusive fixture");
-        var fixture=new Fixture(game);
+        var fixture=new Fixture(game, bossScenario);
         try { fixture.begin();active=fixture; }
         catch(Throwable error) {
             try { fixture.close(); } catch(Throwable cleanup) { error.addSuppressed(cleanup); }
@@ -41,11 +46,11 @@ final class SkillVexCelebrationChecks {
         try {
             if(!fixture.step())return;
             active=null;fixture.close();
-            SkyWars2.LOGGER.info("[check] PASS skill-vex-celebration (native Vex, dolphin and physical coin/display retained through fireworks and owner leave; ability clocks pause; permanent lobby cleanup)");
+            SkyWars2.LOGGER.info("[check] PASS {} (native Vex, dolphin, coin/display, summon and hedgehog retained through fireworks and owner leave; attacks pause; permanent lobby cleanup)",fixture.suite());
         } catch(Throwable error) {
             active=null;
             try { fixture.close(); } catch(Throwable cleanup) { error.addSuppressed(cleanup); }
-            SkyWars2.LOGGER.error("[check] FAIL skill-vex-celebration",error);
+            SkyWars2.LOGGER.error("[check] FAIL "+fixture.suite(),error);
         }
     }
 
@@ -57,6 +62,7 @@ final class SkillVexCelebrationChecks {
         final GameController game;
         final ServerPlayer owner,other;
         final ServerLevel level;
+        final boolean bossScenario;
         final GameChecks.WandThirdPlayerState savedOwner,savedOther;
         final MatchValueSnapshot settings,ownerProfile,otherProfile;
         final RegenerationBeltChecks.ScheduledClient client,audience;
@@ -66,13 +72,15 @@ final class SkillVexCelebrationChecks {
         Cow target;
         Vex vex;
         Dolphin dolphin;
+        Mob summon, hedgehog;
         Entity coin,coinDisplay;
         int dolphinAge,coinAge,dolphinTicks;
         int attempts,nextTrial,ending;
         boolean finishing,leaveChecked;
 
-        Fixture(GameController game) {
+        Fixture(GameController game, boolean bossScenario) {
             this.game=game;
+            this.bossScenario=bossScenario;
             owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
             other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));
             level=game.maps().level();
@@ -87,6 +95,8 @@ final class SkillVexCelebrationChecks {
             client=new RegenerationBeltChecks.ScheduledClient(game,owner);
             audience=new RegenerationBeltChecks.ScheduledClient(game,other);
         }
+
+        String suite() { return bossScenario ? "god-hedgehog-celebration" : "skill-vex-celebration"; }
 
         void begin() {
             game.config().vanillaSkills=true;game.config().ranked=true;game.config().endingSeconds=2;
@@ -114,6 +124,7 @@ final class SkillVexCelebrationChecks {
             target.setPos(vex.position().add(2,0,0));target.setNoAi(true);target.setNoGravity(true);
             require(level.addFreshEntity(target)&&vex.canAttack(target),"ordinary native cow is an eligible hostile target in PLAYING");
             vex.setNoAi(true);vex.setInvulnerableTime(80);
+            spawnSummonAndHedgehog();
             spawnPozdmanActors();
             var members=(Map<?,?>)WoolBucketChecks.read(game,"participants");
             for(var member:members.entrySet())if(!owner.getUUID().equals(member.getKey())){
@@ -124,6 +135,21 @@ final class SkillVexCelebrationChecks {
             require(game.stage()==GameController.Stage.ENDING&&owner.getUUID().equals(WoolBucketChecks.read(game,"victoryWinner")),
                     "real match finalization announces the fixture owner");
             requireAlive("when real fireworks begin");
+        }
+
+        private void spawnSummonAndHedgehog() {
+            var at = vex.position().add(-3, 0, 0);
+            summon = Objects.requireNonNull(game.items().summons().spawnPreset(owner, "vex", at),
+                    "real owner-linked summon witness");
+            summon.setNoAi(true);
+            summon.setNoGravity(true);
+            hedgehog = Objects.requireNonNull(bossScenario
+                    ? game.items().godHedgehog().summon(level, at, owner)
+                    : game.items().hedgehog().spawnHelper(owner, level, at.add(-2, 0, 0), LbcHedgehog.Kind.TANK),
+                    "real hedgehog actor witness");
+            hedgehog.setNoGravity(true);
+            require(game.items().summons().owner(summon)==owner && hedgehog.isAlive(),
+                    "ordinary summoned mob belongs to the winner and hedgehog starts alive");
         }
 
         void spawnPozdmanActors() {
@@ -147,7 +173,7 @@ final class SkillVexCelebrationChecks {
         void requireAlive(String phase) {
             require(!vex.isRemoved()&&level.getEntity(vex.getUUID())==vex,
                     "original registered Vex retained "+phase+" reason="+vex.getRemovalReason());
-            for(var entity:List.of(dolphin,coin,coinDisplay)){
+            for(var entity:List.of(dolphin,coin,coinDisplay,summon,hedgehog)){
                 require(!entity.isRemoved()&&level.getEntity(entity.getUUID())==entity,
                         "original Pozdman "+entity.getType()+" retained "+phase+" reason="+entity.getRemovalReason());
             }
@@ -177,6 +203,8 @@ final class SkillVexCelebrationChecks {
                 float health=target.getHealth();
                 require(!vex.canAttack(target)&&!vex.doHurtTarget(level,target)&&target.getHealth()==health,
                         "retained Vex cannot damage an otherwise eligible native mob during celebration");
+                require(!summon.canAttack(target)&&!hedgehog.doHurtTarget(level,target)&&target.getHealth()==health,
+                        "retained ordinary summons and hedgehogs cannot deal melee damage during celebration");
                 for(var entity:level.getAllEntities())if(entity instanceof FireworkRocketEntity&&!initial.contains(entity))rockets.add(entity.getUUID());
                 if(now-ending>=22&&!leaveChecked){
                     require(rockets.size()>=8,"two ordinary native fireworks waves before winner cleanup");
@@ -192,11 +220,13 @@ final class SkillVexCelebrationChecks {
             var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
             require(leaveChecked&&vex.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!manager.isLoaded(vex.getUUID())
                     &&level.getEntity(vex.getUUID())==null,"real timed return to lobby permanently retires the original Vex");
-            for(var entity:List.of(dolphin,coin,coinDisplay)){
+            for(var entity:List.of(dolphin,coin,coinDisplay,summon,hedgehog)){
                 require(entity.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!manager.isLoaded(entity.getUUID())
                                 &&level.getEntity(entity.getUUID())==null,"lobby permanently retires "+entity.getType());
             }
             require(game.items().pozdmanBot().count()==0,"lobby clears the Pozdman actor ledger");
+            require(game.items().godHedgehog().count()==0 && game.items().hedgehog().trackedCount()==0 && game.items().summons().count()==0,
+                    "lobby clears the summon and hedgehog actor ledgers");
             return true;
         }
 
@@ -204,6 +234,8 @@ final class SkillVexCelebrationChecks {
             try {
                 if(vex!=null&&!vex.isRemoved())vex.discard();
                 if(target!=null&&!target.isRemoved())target.discard();
+                if(summon!=null&&!summon.isRemoved())summon.discard();
+                if(hedgehog!=null&&!hedgehog.isRemoved())hedgehog.discard();
                 if(dolphin!=null){
                     var pozdman=game.items().pozdmanBot();
                     pozdman.removed(dolphin);

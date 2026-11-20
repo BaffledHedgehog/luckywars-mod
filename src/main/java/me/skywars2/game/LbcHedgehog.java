@@ -152,12 +152,12 @@ public final class LbcHedgehog {
         @Override public void setTarget(LivingEntity target){if(target!=null&&author!=null&&!MatchActorCheckpoint.restoring(this)&&!enemy(this,target))target=null;super.setTarget(target);}
         @Override public void tick(){
             enterCheckpointCallback();try {
-                if(checkpointRestoring||retainedOwner&&player(author)==null)return;if(!valid(this)){retire(this);return;}if(!frozen(this))super.tick();
+                if(checkpointRestoring || celebrating(this) || retainedOwner&&player(author)==null)return;if(!valid(this)){retire(this);return;}if(!frozen(this))super.tick();
             }finally{leaveCheckpointCallback();}
         }
         @Override public boolean doHurtTarget(ServerLevel l,Entity target){
             enterCheckpointCallback();try {
-                if(!(target instanceof LivingEntity living)||!impact(this,living))return false;
+                if(celebrating(this)||!(target instanceof LivingEntity living)||!impact(this,living))return false;
                 // Same native Mob melee operations, with captured cause before ServerPlayer's admission.
                 var weapon=getWeaponItem();var damage=game.items().indirectKills().captureDamage(weapon.getDamageSource(this),cause);
                 float amount=(float)getAttributeValue(Attributes.ATTACK_DAMAGE);
@@ -315,7 +315,7 @@ public final class LbcHedgehog {
         @Override protected void onHitBlock(BlockHitResult hit){super.onHitBlock(hit);discard();}
         @Override public void tick(){
             enterCheckpointCallback();try {
-                if(checkpointRestoring)return;
+                if(checkpointRestoring || celebrating(this))return;
                 if(!game.playing()||!ownerValid(player(author))||!game.items().currentEpoch(this)||!resident((ServerLevel)level(),position())
                     ||suppressed((ServerLevel)level(),position())){discard();return;}if(!frozen(this))super.tick();
             }finally{leaveCheckpointCallback();}
@@ -334,7 +334,7 @@ public final class LbcHedgehog {
     }
     public void tick(){
         enterCheckpointCallback();try {
-            if(checkpointRestoring)return;
+            if(checkpointRestoring || game.stage()==GameController.Stage.ENDING)return;
             if(!game.server().tickRateManager().runsNormally())return;
             for(var s:List.copyOf(silverfish)){
                 if(s.isRemoved()||!s.isAlive()){silverfish.remove(s);continue;}
@@ -361,6 +361,9 @@ public final class LbcHedgehog {
         }finally{leaveCheckpointCallback();}
     }
     private void retire(Fish f){f.retired=true;fish.remove(f);f.discard();}
+    private boolean celebrating(Entity entity){
+        return game.stage()==GameController.Stage.ENDING && game.items().currentEpoch(entity);
+    }
     public void retireSilverfish(ServerLevel level,boolean all){
         enterCheckpointCallback();try {
             var snapshot=new ArrayList<Silverfish>();for(var e:level.getAllEntities())if(e instanceof Silverfish s)snapshot.add(s);
@@ -396,7 +399,8 @@ public final class LbcHedgehog {
     public void forget(UUID id){retireOwned(id,false);}
     public void retireOwned(UUID id,boolean includeWalls){
         enterCheckpointCallback();try {
-        for(var f:List.copyOf(fish))if(f.author.equals(id)&&(includeWalls||f.kind!=Kind.WALL))retire(f);for(var a:List.copyOf(arrows))if(a.author.equals(id)){a.discard();arrows.remove(a);}
+        for(var f:List.copyOf(fish))if(f.author.equals(id)&&(includeWalls||f.kind!=Kind.WALL)&&!celebrating(f))retire(f);
+        for(var a:List.copyOf(arrows))if(a.author.equals(id)&&!celebrating(a)){a.discard();arrows.remove(a);}
         }finally{leaveCheckpointCallback();}
     }
     public void stop(){
