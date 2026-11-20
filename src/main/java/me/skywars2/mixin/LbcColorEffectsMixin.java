@@ -64,6 +64,7 @@ public abstract class LbcColorEffectsMixin {
     @Inject(method="addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z",
             at=@At("HEAD"),cancellable=true)
     private void skywars2$projectileEffect(MobEffectInstance effect,Entity source,CallbackInfoReturnable<Boolean> ci) {
+        if(skywars2$nexusEffects()){ci.setReturnValue(false);return;}
         var game=SkyWars2.game();
         if(game!=null) {
             var target=(LivingEntity)(Object)this;
@@ -112,6 +113,7 @@ public abstract class LbcColorEffectsMixin {
     }
     @Inject(method="canBeAffected",at=@At("HEAD"),cancellable=true)
     private void skywars2$artifactEffectGuard(MobEffectInstance effect, CallbackInfoReturnable<Boolean> ci) {
+        if(skywars2$nexusEffects()){ci.setReturnValue(false);return;}
         if(me.skywars2.game.LbcParasite.active((LivingEntity)(Object)this)
                 && me.skywars2.game.LbcParasite.rejects((LivingEntity)(Object)this,effect)) { ci.setReturnValue(false); return; }
         // Raid Omen 119 служил транспортом Stand-стрелы в датапаке. Настоящее
@@ -125,12 +127,29 @@ public abstract class LbcColorEffectsMixin {
 
     @Inject(method="tickEffects",at=@At("HEAD"))
     private void skywars2$artifactBeforeEffects(CallbackInfo ci) {
+        if(skywars2$nexusEffects()){
+            var target=(LivingEntity)(Object)this;
+            if(!target.getActiveEffects().isEmpty())target.removeAllEffects();
+            return;
+        }
         var game = SkyWars2.game();
         if (game != null && (Object)this instanceof ServerPlayer player) {
             me.skywars2.game.LbcParasite.beforeEffects(player);
             game.items().containedSkills().beforeEffects(player);
             game.items().magic().beforeEffects(player);
         }
+    }
+    @Inject(method="forceAddEffect",at=@At("HEAD"),cancellable=true)
+    private void skywars2$rejectForcedNexusEffects(MobEffectInstance effect,Entity source,CallbackInfo ci){
+        if(skywars2$nexusEffects())ci.cancel();
+    }
+    @Inject(method="calculateFallDamage",at=@At("HEAD"),cancellable=true)
+    private void skywars2$nexusFallDamage(double distance,float multiplier,CallbackInfoReturnable<Integer> ci){
+        if(skywars2$nexusEffects())ci.setReturnValue(0);
+    }
+    @org.spongepowered.asm.mixin.Unique private boolean skywars2$nexusEffects(){
+        var level=((LivingEntity)(Object)this).level();
+        return level instanceof net.minecraft.server.level.ServerLevel&&me.skywars2.game.LbcDimensionItems.nexus(level);
     }
     @Inject(method="readAdditionalSaveData",at=@At("TAIL"))
     private void skywars2$loadedInvisibility(ValueInput input, CallbackInfo ci) {

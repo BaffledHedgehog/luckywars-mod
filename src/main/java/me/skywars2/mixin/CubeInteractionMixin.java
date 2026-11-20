@@ -64,6 +64,7 @@ public abstract class CubeInteractionMixin implements LbcUseInteractions.BlockIn
             skywars2$pendingAirInput=null;
         }
         if(LbcUseInteractions.holdingOffhandShield(player))return InteractionResult.FAIL;
+        if(me.skywars2.game.LbcDimensionItems.nexus(level))return original.call(player,level,stack,hand);
         if(!forced&&game!=null&&game.items().academy().tryUse(player,hand))return InteractionResult.SUCCESS;
         if(LbcUseInteractions.deferAirToOffhand(player,stack,hand,pairedTarget?targetInput.blockHit():null))return InteractionResult.PASS;
         if(!forced&&me.skywars2.game.LbcTmtTriggers.tryCycle(player,stack,hand))return me.skywars2.game.LbcUseInteractions.quietResult(true,InteractionResult.SUCCESS);
@@ -81,10 +82,13 @@ public abstract class CubeInteractionMixin implements LbcUseInteractions.BlockIn
     private InteractionResult skywars2$shieldAfterCustomItemOnBlock(ItemStack stack, UseOnContext context,
             Operation<InteractionResult> original) {
         var item = stack.getItem();
+        if(context.getPlayer() instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.nexus(context.getLevel())
+                &&!me.skywars2.game.LbcDimensionItems.allowed(owner,stack))return InteractionResult.FAIL;
+        boolean custom=me.skywars2.game.LbcDimensionItems.custom(stack);
         var result = original.call(stack, context);
         // A successful client carrier use may suppress the offhand packet. Native block
         // interactions and block placement keep their own priority and do not start a shield.
-        if (item instanceof PolymerItem && !(item instanceof BlockItem) && context.getPlayer() instanceof ServerPlayer player) {
+        if ((item instanceof PolymerItem || custom) && !(item instanceof BlockItem) && context.getPlayer() instanceof ServerPlayer player) {
             LbcUseInteractions.shieldAfter((ServerPlayerGameMode)(Object)this, player, context.getLevel(), context.getHand(), result);
         }
         return result;
@@ -98,6 +102,8 @@ public abstract class CubeInteractionMixin implements LbcUseInteractions.BlockIn
         skywars2$pendingTargetInput=null;
         skywars2$pendingAirInput=null;
         if(LbcUseInteractions.holdingOffhandShield(player))return InteractionResult.FAIL;
+        if(me.skywars2.game.LbcDimensionItems.nexus(level))
+            return LbcCubeInteractions.useOn((ServerPlayerGameMode)(Object)this,player,level,stack,hand,hit,original);
         if(game!=null&&game.items().academy().tryUse(player,hand))return InteractionResult.SUCCESS;
         if(me.skywars2.game.LbcTmtTriggers.tryCycle(player,stack,hand))return me.skywars2.game.LbcUseInteractions.quietResult(true,InteractionResult.SUCCESS);
         // Vanilla moves to the offhand with the same hit; a new click starts from the main hand.

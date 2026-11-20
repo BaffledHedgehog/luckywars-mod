@@ -40,13 +40,18 @@ public final class LbcNexusWires {
     boolean captureReady(){return gateways.isEmpty();}
     int loadingChunks(){return loads.size();}
     public void inventoryChanged(ServerPlayer player){dirty.add(player.getUUID());}
-    boolean nexusExperience(ServerLevel level){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&level.dimension().equals(LbcHedgehogDimensions.NEXUS);}
+    boolean nexusExperience(ServerLevel level){return level.dimension().equals(LbcHedgehogDimensions.NEXUS);}
+    static boolean persistentDrop(Entity entity){
+        return entity instanceof ItemEntity item&&entity.level().dimension().equals(LbcHedgehogDimensions.NEXUS)
+                &&LbcNexusWireItems.kind(item.getItem())!=0;
+    }
     private boolean paused(Entity entity){return frozen||entity.level() instanceof ServerLevel level&&game.items().timeStop().stopped(level)||entity.entityTags().contains("time_stopped");}
     /** Called before XP spawn merging: one actual source orb yields one wire, regardless of its value. */
     boolean convert(ExperienceOrb orb){
-        if(orb.isRemoved()||!(orb.level() instanceof ServerLevel level)||!nexusExperience(level)||paused(orb)||MatchActorCheckpoint.restoring(orb))return false;
+        if(orb.isRemoved()||!game.playing()||game.stage()==GameController.Stage.ENDING
+                ||!(orb.level() instanceof ServerLevel level)||!nexusExperience(level)||paused(orb)||MatchActorCheckpoint.restoring(orb))return false;
         var drop=new ItemEntity(level,orb.getX(),orb.getY(),orb.getZ(),new ItemStack(LbcNexusWireItems.RED));
-        drop.setDefaultPickUpDelay();drop.setNoGravity(true);game.items().markCurrentItemEpoch(drop);
+        drop.setDefaultPickUpDelay();drop.setNoGravity(true);
         if(!level.addFreshEntity(drop))return false;
         orb.discard();pending.remove(orb);return true;
     }
@@ -126,7 +131,8 @@ public final class LbcNexusWires {
         if(++heightPhase%20==0)for(var p:game.server().getPlayerList().getPlayers())
             if(p.isAlive()&&!p.isSpectator()&&!game.isObserver(p)&&LbcDimensionItems.ordinary(p)&&p.getY()>=14500000&&!paused(p))game.items().hedgehogDimensions().heightNexus(p);
     }
-    void stop(){pending.clear();dirty.clear();carriers.clear();gateways.clear();for(var key:loads.keySet())key.level().getChunkSource().removeTicketWithRadius(GATEWAY_TICKET,key.pos(),0);loads.clear();frozen=false;heightPhase=0;}
+    void roundEnded(){dirty.clear();carriers.clear();gateways.clear();for(var key:loads.keySet())key.level().getChunkSource().removeTicketWithRadius(GATEWAY_TICKET,key.pos(),0);loads.clear();frozen=false;heightPhase=0;}
+    void stop(){pending.clear();roundEnded();}
     void prepareFrozen(){stop();frozen=true;}
     void publishFrozen(){frozen=false;lastTick=game.server().getTickCount();for(var p:game.server().getPlayerList().getPlayers())inventoryChanged(p);}
     Checkpoint checkpoint(){return new Checkpoint();}

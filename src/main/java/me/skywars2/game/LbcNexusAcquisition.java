@@ -121,8 +121,12 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
     }
     void unloaded(Entity entity){
         ecology.unloaded(entity);wires.remove(entity.getUUID());var cage=cages.get(entity.getUUID());
-        if(cage!=null&&cage.body==entity){cage.body=null;if(entity.getRemovalReason()!=Entity.RemovalReason.UNLOADED_TO_CHUNK){remove(cage);return;}queuePair(cage);}
-        UUID owner=components.get(entity.getUUID());if(owner!=null){cage=cages.get(owner);if(cage!=null){if(cage.reward==entity)cage.reward=null;if(cage.frame==entity)cage.frame=null;queuePair(cage);}}
+        if(cage!=null&&cage.body==entity){
+            var reason=entity.getRemovalReason();
+            if(reason!=null&&reason!=Entity.RemovalReason.UNLOADED_TO_CHUNK){remove(cage);return;}
+            cage.body=null;pending.remove(cage.id);
+        }
+        UUID owner=components.get(entity.getUUID());if(owner!=null){cage=cages.get(owner);if(cage!=null){if(cage.reward==entity)cage.reward=null;if(cage.frame==entity)cage.frame=null;if(cage.body!=null)queuePair(cage);}}
     }
     private void discard(UUID id,Entity body){if(id==null)return;components.remove(id);if(body!=null)body.discard();else retired.add(id);}
     private void remove(Cage cage){if(cages.remove(cage.id)!=cage)return;pending.remove(cage.id);discard(cage.rewardId,cage.reward);discard(cage.frameId,cage.frame);if(cage.body!=null)cage.body.discard();else retired.add(cage.id);}
@@ -215,7 +219,7 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
         int tick=game.server().getTickCount();if(lastTick==tick||!running())return;lastTick=tick;ecology.tick();
         if(cleanup==null&&!clears.isEmpty()){cleanup=new CleanupWork();game.items().stonekivi().queuedWork(cleanup);}
         long now=System.nanoTime(),until=Math.max(now+100_000,Math.min(EffectTerrain.deadlineNanos(),now+1_000_000));int work=0;
-        int pairs=pairings.size();while(pairs-->0&&!pairings.isEmpty()&&work++<64&&System.nanoTime()<until){var id=pairings.removeFirst();if(!pending.remove(id))continue;var cage=cages.get(id);if(cage!=null){pair(cage);if(cage.body==null)queuePair(cage);}}
+        int pairs=pairings.size();while(pairs-->0&&!pairings.isEmpty()&&work++<64&&System.nanoTime()<until){var id=pairings.removeFirst();if(!pending.remove(id))continue;var cage=cages.get(id);if(cage!=null)pair(cage);}
         int count=reds.size();while(count-->0&&!reds.isEmpty()&&work++<192&&System.nanoTime()<until){var id=reds.removeFirst();var wire=wires.get(id);if(wire==null||wire.visited==tick)continue;wire.visited=tick;if(wire.body().isRemoved()||!LbcNexusWireItems.isRed(wire.body().getItem())){wires.remove(id);continue;}craft(wire,tick);if(wires.containsKey(id))reds.addLast(id);}
         queueCleanup();
         if(tick%20==0)for(var player:game.server().getPlayerList().getPlayers())if(nexus(player.level())&&!player.isSpectator()&&!game.isObserver(player)&&nearCage(player.level(),player.position(),0,5))game.items().mana().award(player,"lbc:true_advancements/nexus/cage");

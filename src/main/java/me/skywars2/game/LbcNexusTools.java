@@ -53,6 +53,10 @@ public final class LbcNexusTools {
     int count(){return actors.size();}
     int loadingChunks(){return chunks.size();}
     private boolean toolWorld(ServerLevel level){return !level.dimension().equals(LbcHedgehogDimensions.IMPRINTED);}
+    static boolean persistentCell(Entity entity){
+        return entity instanceof Marker&&entity.level().dimension().equals(LbcHedgehogDimensions.NEXUS)
+                &&entity.entityTags().contains("sim_cube")&&entity.entityTags().contains("nexus_rc");
+    }
     private boolean paused(Entity entity){return entity.entityTags().contains("time_stopped")||game.items().timeStop().stopped((ServerLevel)entity.level());}
     private boolean admitted(ServerPlayer p){return game.playing()&&game.canUseGameplayItems(p)&&p.isAlive()&&!p.isRemoved()&&!game.isObserver(p)&&toolWorld(p.level())&&!paused(p)&&!game.items().wands().inputTimeStopped(p);}
     public boolean use(ServerPlayer p,InteractionHand hand){
@@ -78,7 +82,8 @@ public final class LbcNexusTools {
     }
     private void install(Actor actor){
         actor.body.entityTags().add(TAG);actor.body.entityTags().add("nexus_rc");actor.body.entityTags().add(actor.road()?"roadgun":"sim_cube");
-        actor.body.entityTags().add("rare");game.items().markCurrentItemEpoch(actor.body);actors.put(actor.body,actor);save(actor);if(!actor.road())cells.addLast(actor);
+        actor.body.entityTags().add("rare");if(!persistentCell(actor.body))game.items().markCurrentItemEpoch(actor.body);
+        actors.put(actor.body,actor);save(actor);if(!actor.road())cells.addLast(actor);
     }
     Actor cube(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){
         var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(Vec3.atCenterOf(BlockPos.containing(point)));
@@ -90,7 +95,7 @@ public final class LbcNexusTools {
     private void save(Actor a){tag(a.body,"age",Integer.toString(a.age));if(a.cause!=null){tag(a.body,"owner",a.cause.player().toString());tag(a.body,"order",Long.toString(a.cause.order()));}
         if(a.rider!=null){tag(a.body,"rider",a.rider.toString());tag(a.body,"direction",a.direction.x+","+a.direction.y+","+a.direction.z);}}
     void loaded(Entity body){
-        if(restoring||actors.containsKey(body)||!body.entityTags().contains(TAG))return;
+        if(restoring||actors.containsKey(body)||!body.entityTags().contains(TAG)&&!persistentCell(body))return;
         try{var owner=value(body,"owner","");var cause=owner.isEmpty()?null:new LbcIndirectKills.Owner(UUID.fromString(owner),Long.parseLong(value(body,"order","0")),true,false);
             var rider=value(body,"rider","");Vec3 direction=Vec3.ZERO;if(!rider.isEmpty()){var xyz=value(body,"direction","0,0,1").split(",");direction=new Vec3(Double.parseDouble(xyz[0]),Double.parseDouble(xyz[1]),Double.parseDouble(xyz[2]));}
             var actor=new Actor(body,cause,rider.isEmpty()?null:UUID.fromString(rider),direction,Integer.parseInt(value(body,"age","0")),-1);actors.put(body,actor);if(!actor.road())cells.addLast(actor);
@@ -163,18 +168,24 @@ public final class LbcNexusTools {
     public int cooldown(ServerPlayer p){String key=LbcNexusToolItems.isRoadgun(p.getMainHandItem())||LbcNexusToolItems.isRoadgun(p.getOffhandItem())?"nexus_roadgun_cd":LbcNexusToolItems.isCorrupter(p.getMainHandItem())||LbcNexusToolItems.isCorrupter(p.getOffhandItem())?"nexus_corrupter_cd":LbcNexusToolItems.isPulsar(p.getMainHandItem())||LbcNexusToolItems.isPulsar(p.getOffhandItem())?"pulsar_cd":null;return key==null?Integer.MIN_VALUE:game.items().mana().hudValue(p,key);}
     public void tick(){
         int tick=game.server().getTickCount();if(restoring||lastTick==tick)return;lastTick=tick;if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.server().tickRateManager().runsNormally()||game.items().wands().legacyTimeStopped())return;needed.clear();
-        for(var a:List.copyOf(actors.values())){if(a.body.isRemoved()||!game.items().currentEpoch(a.body)){remove(a);continue;}if(a.road()&&toolWorld((ServerLevel)a.body.level())&&!paused(a.body)&&a.born!=tick)road(a);}
+        for(var a:List.copyOf(actors.values())){if(a.body.isRemoved()||!persistentCell(a.body)&&!game.items().currentEpoch(a.body)){remove(a);continue;}if(a.road()&&toolWorld((ServerLevel)a.body.level())&&!paused(a.body)&&a.born!=tick)road(a);}
         int count=cells.size(),work=0;long until=Math.max(System.nanoTime()+200_000,Math.min(EffectTerrain.deadlineNanos(),System.nanoTime()+2_000_000));
-        while(count-->0&&!cells.isEmpty()&&work++<256&&System.nanoTime()<until){var a=cells.removeFirst();if(!actors.containsKey(a.body))continue;
+        while(count-->0&&!cells.isEmpty()&&work++<256&&System.nanoTime()<until){var a=cells.removeFirst();if(actors.get(a.body)!=a)continue;
             if(!toolWorld((ServerLevel)a.body.level())||paused(a.body)||a.born==tick){cells.addLast(a);continue;}cell(a);}
-        for(var a:cells)if(actors.containsKey(a.body)){var p=a.body.blockPosition();for(int x=(p.getX()-2)>>4;x<=(p.getX()+2)>>4;x++)for(int z=(p.getZ()-2)>>4;z<=(p.getZ()+2)>>4;z++)needed.add(new Chunk((ServerLevel)a.body.level(),new ChunkPos(x,z)));}
+        for(var a:cells)if(actors.get(a.body)==a){var p=a.body.blockPosition();for(int x=(p.getX()-2)>>4;x<=(p.getX()+2)>>4;x++)for(int z=(p.getZ()-2)>>4;z<=(p.getZ()+2)>>4;z++)needed.add(new Chunk((ServerLevel)a.body.level(),new ChunkPos(x,z)));}
         for(var it=chunks.keySet().iterator();it.hasNext();){var key=it.next();if(!needed.contains(key)){key.level().getChunkSource().removeTicketWithRadius(TICKET,key.pos(),0);it.remove();}}
         for(var it=cooling.iterator();it.hasNext();){var p=game.server().getPlayerList().getPlayer(it.next());if(p==null){it.remove();continue;}if(paused(p))continue;
             var mana=game.items().mana();int phase=mana.hudValue(p,"nexus_tools_phase")+1;if(phase>=20){phase=0;for(String key:List.of("nexus_roadgun_cd","nexus_corrupter_cd","pulsar_cd")){int cd=mana.hudValue(p,key);if(cd>0)mana.score(p,key).set(cd-1);}}
             mana.score(p,"nexus_tools_phase").set(phase);if(mana.hudValue(p,"nexus_roadgun_cd")<=0&&mana.hudValue(p,"nexus_corrupter_cd")<=0&&mana.hudValue(p,"pulsar_cd")<=0)it.remove();}
     }
-    private void clearDerived(){casting.clear();actors.clear();cells.clear();for(var key:chunks.keySet())key.level().getChunkSource().removeTicketWithRadius(TICKET,key.pos(),0);chunks.clear();needed.clear();cooling.clear();}
-    public void stop(){for(var a:List.copyOf(actors.values()))remove(a);clearDerived();restoring=false;
+    private void clearRuntime(){casting.clear();for(var key:chunks.keySet())key.level().getChunkSource().removeTicketWithRadius(TICKET,key.pos(),0);chunks.clear();needed.clear();cooling.clear();}
+    private void clearDerived(){actors.clear();cells.clear();clearRuntime();}
+    public void stop(){for(var a:List.copyOf(actors.values()))remove(a);clearDerived();resetCooldowns();}
+    void roundEnded(){
+        for(var a:List.copyOf(actors.values()))if(!persistentCell(a.body))remove(a);
+        cells.removeIf(a->actors.get(a.body)!=a);clearRuntime();resetCooldowns();
+    }
+    private void resetCooldowns(){restoring=false;
         var board=game.server().getScoreboard();for(String name:List.of("nexus_roadgun_cd","nexus_corrupter_cd","pulsar_cd","nexus_tools_phase")){
             var objective=board.getObjective(name);if(objective==null)continue;
             for(var holder:List.copyOf(board.getTrackedPlayers()))if(board.getPlayerScoreInfo(holder,objective)!=null)board.getOrCreatePlayerScore(holder,objective).set(0);

@@ -638,6 +638,7 @@ public final class GameChecks {
                                 case "legacy-mob-ticks" -> {LegacyMobTickChecks.run(game);return;}
                                 case "nuclear-finalization" -> {NuclearFinalizationChecks.run(game);return;}
                                 case "native-explosion-cache" -> { NativeExplosionCacheChecks.run(game); return; }
+                                case "resident-block-rays" -> { ResidentBlockRayChecks.run(game); return; }
                                 case "exoperso-shape" -> { ExopersoShapeChecks.run(game); return; }
                                 case "exoperso-ritual" -> {ExopersoRitualChecks.run(game);return;}
                                 case "nuclear-visual" -> checkNuclearVisual(game);
@@ -1064,6 +1065,7 @@ public final class GameChecks {
                                 case "charged-bows" -> { ChargedBowChecks.run(game); return; }
                                 case "balance-runtime" -> { BalanceRuntimeChecks.run(game); return; }
                                 case "nexus-acquisition" -> { NexusAcquisitionChecks.run(game); return; }
+                                case "nexus-lobby" -> { NexusLobbyChecks.run(game); return; }
                                 case "vanity-rollback" -> { VanityRollbackChecks.run(game); return; }
                                 case "vanity-snapshot-perf" -> { VanitySnapshotPerfChecks.run(game); return; }
                                 case "vanity-snapshot-perf-services" -> { VanitySnapshotPerfChecks.runServices(game); return; }
@@ -1980,6 +1982,7 @@ public final class GameChecks {
         TikTokNetworkChecks.tick(game);
         MusicStaffChecks.tick(game);
         SkillVexCelebrationChecks.tick(game);
+        NexusLobbyChecks.tick(game);
         VoidArcanumChecks.celebrationTick(game);
         VoidArcanumChecks.indexTick(game);
         AirdropSimulationChecks.tick(game);

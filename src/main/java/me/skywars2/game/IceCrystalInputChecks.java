@@ -46,7 +46,8 @@ public final class IceCrystalInputChecks {
         void init(){
             f.init();client=new RegenerationBeltChecks.ScheduledClient(game,f.owner);
             stats=new NativeMeleeChecks.NativeStats(f.owner,List.of(Items.STONE,Items.STONE_SLAB,Items.STICK,Items.APPLE,Items.FLINT_AND_STEEL,
-                    Items.WATER_BUCKET,Items.BUCKET,Items.SNOWBALL,Items.SHIELD,Items.ARMOR_STAND,LbcImbaFollowupItems.FUSED_TNT));
+                    Items.WATER_BUCKET,Items.BUCKET,Items.SNOWBALL,Items.SHIELD,Items.ARMOR_STAND,
+                    Items.PANDA_SPAWN_EGG,LbcImbaFollowupItems.FUSED_TNT));
             try{var field=Display.class.getDeclaredField("DATA_POS_ROT_INTERPOLATION_DURATION_ID");field.setAccessible(true);
                 durationId=((net.minecraft.network.syncher.EntityDataAccessor<?>)field.get(null)).id();
                 field=Display.class.getDeclaredField("DATA_LEFT_ROTATION_ID");field.setAccessible(true);leftRotationId=((net.minecraft.network.syncher.EntityDataAccessor<?>)field.get(null)).id();
@@ -259,6 +260,65 @@ public final class IceCrystalInputChecks {
                     actor -> !existing.contains(actor) && actor.entityTags().contains("funny_tnt"));
         }
 
+        void callbackConsumableShield() {
+            var owner = f.owner;
+            var level = owner.level();
+            var cell = f.origin.above(3);
+            var click = Vec3.atCenterOf(cell).add(0, .5, 0);
+            var hit = new BlockHitResult(click, Direction.UP, cell, false);
+            var encounter = game.items().shishEncounter();
+            var existing = Set.copyOf(encounter.snapshot());
+            owner.stopUsingItem();
+            owner.getInventory().clearContent();
+            owner.setShiftKeyDown(false);
+            eye(owner, click.add(0, 1.5, -2), new Vec3(0, -1.5, 2));
+            f.block(cell, Blocks.STONE);
+            f.block(cell.above(), Blocks.AIR);
+            var beacon = game.lbc().rollTable(level, owner.position(), owner,
+                    "lbc:item_defs/lbc/supply_beacon__09dbb5a70097").getFirst();
+            require(beacon.is(Items.PANDA_SPAWN_EGG) && ItemData.intValue(beacon,"supply_beacon",0) == 1,
+                    "real callback beacon has the vanilla spawn-egg client carrier");
+            beacon.setCount(2);
+            owner.setItemInHand(InteractionHand.MAIN_HAND,beacon);
+            var shield = hand(InteractionHand.OFF_HAND, Items.SHIELD, 1);
+            try {
+                useBlock(hit);
+                var first = newSupplyDisplays(existing);
+                require(beacon.getCount() == 1 && first.size() == 1, "real block callback debits and publishes one beacon");
+                require(owner.getUseItem() == shield && LbcUseInteractions.holdingOffhandShield(owner),
+                        "accepted block callback raises the shield with a main-only packet");
+                useBlock(hit);
+                owner.connection.handleUseItem(new ServerboundUseItemPacket(
+                        InteractionHand.MAIN_HAND, ++blockSequence, owner.getYRot(), owner.getXRot()));
+                owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
+                require(beacon.getCount() == 1 && newSupplyDisplays(existing).equals(first)
+                                && owner.getUseItem() == shield && LbcUseInteractions.holdingOffhandShield(owner),
+                        "both repeated main packet paths leave the same shield raised and cannot debit again");
+
+                owner.connection.handlePlayerAction(new ServerboundPlayerActionPacket(
+                        ServerboundPlayerActionPacket.Action.RELEASE_USE_ITEM, cell, Direction.UP, ++blockSequence));
+                require(!owner.isUsingItem(), "real release packet lowers the callback shield");
+                useBlock(hit);
+                require(beacon.isEmpty() && newSupplyDisplays(existing).size() == 2
+                                && owner.getUseItem() == shield && LbcUseInteractions.holdingOffhandShield(owner),
+                        "one new press accepts the final beacon and raises the shield again");
+            } finally {
+                owner.stopUsingItem();
+                for (var actor : newSupplyDisplays(existing)) {
+                    actor.discard();
+                    game.items().entityUnloaded(actor);
+                }
+            }
+        }
+
+        private Set<Entity> newSupplyDisplays(Set<Entity> existing) {
+            var result = new HashSet<Entity>();
+            for (var actor : game.items().shishEncounter().snapshot())
+                if (!existing.contains(actor) && actor instanceof Display.ItemDisplay
+                        && actor.entityTags().contains("supply_drop")) result.add(actor);
+            return result;
+        }
+
         private void useBlock(BlockHitResult hit) {
             f.owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND, hit, ++blockSequence));
             f.owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
@@ -284,7 +344,7 @@ public final class IceCrystalInputChecks {
             require(++ticks<180&&game.playing(),"bounded native fixture, phase="+phase);client.acknowledge();
             if(phase==0){fireFace();return false;}
             if(phase==1){faceWire();return false;}
-            if(phase==2){if(caseIndex<inputs.size()){input(inputs.get(caseIndex++));return false;}blockConsumableShield();beginFlight();return false;}
+            if(phase==2){if(caseIndex<inputs.size()){input(inputs.get(caseIndex++));return false;}blockConsumableShield();callbackConsumableShield();beginFlight();return false;}
             flight();return flightFrames>=9;
         }
         @Override public void close(){try{if(client!=null)client.close();}finally{try{if(stats!=null)stats.close();}finally{f.close();}}}

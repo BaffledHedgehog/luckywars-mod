@@ -158,10 +158,10 @@ public final class LbcItemQueue {
         var w=world(level);w.live.clear();w.order.clear();w.store.sleeping.clear();
         w.store.setDirty();w.scanBefore=Long.MAX_VALUE;
     }
-    /** Full round boundaries retire sleeping loot too; server shutdown alone keeps saved data. */
-    public void roundEnded(){if(!closed)for(var w:worlds.values())if(!w.store.sleeping.isEmpty()){
+    /** Retire stored round loot while keeping the persistent Nexus inventory on the ground. */
+    public void roundEnded(){if(!closed)worlds.forEach((level,w)->{if(!level.dimension().equals(LbcHedgehogDimensions.NEXUS)&&!w.store.sleeping.isEmpty()){
         w.store.sleeping.clear();w.store.setDirty();w.scanBefore=Long.MAX_VALUE;
-    }}
+    }});}
     /** Same-round map replacement must retire dormant loot in the old terrain as well as live entities. */
     void terrainReplaced(ServerLevel level,java.util.List<net.minecraft.world.level.levelgen.structure.BoundingBox> bounds){
         if(closed||bounds.isEmpty())return;

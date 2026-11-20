@@ -97,7 +97,7 @@ public final class LbcLuckyBlocks {
                             var game=SkyWars2.game();
                             if(!(context.getPlayer() instanceof ServerPlayer player)||game==null
                                     ||!game.canUseGameplayItems(player)||game.isObserver(player)
-                                    ||game.items().actionsBlocked(player)||!LbcDimensionItems.ordinary(player))return InteractionResult.FAIL;
+                                    ||game.items().actionsBlocked(player)||!LbcDimensionItems.allowed(player,context.getItemInHand()))return InteractionResult.FAIL;
                             return super.useOn(context);
                         }
                     });

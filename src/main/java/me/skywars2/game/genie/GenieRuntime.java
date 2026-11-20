@@ -127,7 +127,8 @@ public final class GenieRuntime {
         catch(RuntimeException invalid){return null;}
     }
     public boolean admitted(ServerPlayer owner){return game.playing()&&!game.balanceLegacy()&&!game.isObserver(owner)&&owner.isAlive()
-            &&game.canUseGameplayItems(owner)&&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner);}
+            &&me.skywars2.game.LbcDimensionItems.ordinary(owner)&&game.canUseGameplayItems(owner)
+            &&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner);}
     public net.minecraft.world.InteractionResult replaceUse(ServerPlayer owner,InteractionHand hand) {
         var stack=owner.getItemInHand(hand);
         if (!GenieScriptItem.replacesUse(stack)) return net.minecraft.world.InteractionResult.PASS;

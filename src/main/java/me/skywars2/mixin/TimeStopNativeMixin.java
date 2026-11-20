@@ -22,6 +22,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Scoped simulation gates. Global clocks and vanilla tick-rate state remain authoritative. */
 @Mixin(ServerLevel.class)
 public abstract class TimeStopNativeMixin {
+    @org.spongepowered.asm.mixin.injection.ModifyVariable(method="tickChunk",at=@At("HEAD"),argsOnly=true)
+    private int skywars2$nexusRandomTicks(int speed){
+        return me.skywars2.game.LbcDimensionItems.nexus((ServerLevel)(Object)this)?0:speed;
+    }
+
     @org.spongepowered.asm.mixin.Unique
     private boolean skywars2$worldStopped() {
         var game = SkyWars2.game();

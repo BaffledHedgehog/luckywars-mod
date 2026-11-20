@@ -69,6 +69,10 @@ public final class SignedEffectFormulaMixin {
         @Shadow private float exhaustionLevel;
         @Shadow private float saturationLevel;
         @Shadow private int foodLevel;
+        @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method="tick",at=@At(value="INVOKE",target="Ljava/lang/Boolean;booleanValue()Z"))
+        private boolean skywars2$nexusNaturalRegeneration(boolean enabled,net.minecraft.server.level.ServerPlayer player){
+            return enabled&&!me.skywars2.game.LbcDimensionItems.nexus(player.level());
+        }
         @Override public void skywars2$restoreExhaustion(float amount) {
             float restored=Math.min(Math.max(0,exhaustionLevel),amount);exhaustionLevel-=restored;
             // Four exhaustion normally costs one saturation point: reverse that same rate.

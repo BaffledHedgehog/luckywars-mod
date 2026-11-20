@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Tick tail runs only after native item ticking has passed its pause guards. */
 @Mixin(ItemEntity.class)
 public abstract class LbcLooperItemMixin {
-    @org.spongepowered.asm.mixin.Unique private static final net.minecraft.resources.Identifier skywars2$nexusDimension=net.minecraft.resources.Identifier.parse("minecraft:nexus");
     /** Event-driven reindexing for transformed dropped wires; constructor stacks are not yet tracked. */
     @Inject(method="setItem",at=@At("TAIL"))
     private void skywars2$wireStackChanged(net.minecraft.world.item.ItemStack stack,CallbackInfo ci){
@@ -18,14 +17,16 @@ public abstract class LbcLooperItemMixin {
         if(self.level() instanceof net.minecraft.server.level.ServerLevel level
                 &&level.getEntity(self.getUUID())==self){
             var game=me.skywars2.SkyWars2.game();
-            if(game!=null){game.items().supernova().itemChanged(self);game.items().chargedBows().itemChanged(self);game.items().cursedPumpkin().itemChanged(self);
-                if(level.dimension().identifier().equals(skywars2$nexusDimension))game.items().nexusAcquisition().itemChanged(self);
+            if(game!=null){
+                if(me.skywars2.game.LbcDimensionItems.nexus(level))game.items().nexusAcquisition().itemChanged(self);
+                else{game.items().supernova().itemChanged(self);game.items().chargedBows().itemChanged(self);game.items().cursedPumpkin().itemChanged(self);}
             }
         }
     }
 
     @Inject(method="tick",at=@At("TAIL"))
     private void skywars2$looper(CallbackInfo ci){
-        LbcSkills.groundTick((ItemEntity)(Object)this);
+        var item=(ItemEntity)(Object)this;
+        if(!me.skywars2.game.LbcDimensionItems.nexus(item.level()))LbcSkills.groundTick(item);
     }
 }

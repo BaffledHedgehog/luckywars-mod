@@ -1664,6 +1664,15 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
+        if(LbcDimensionItems.nexus(entity.level())){
+            if(!(entity instanceof net.minecraft.world.entity.player.Player)&&entity.entityTags().add("dated")){
+                entity.setNoGravity(true);entity.setSilent(true);
+                if(entity instanceof net.minecraft.world.entity.Mob mob)mob.setNoAi(true);
+            }
+            nexusWires.loaded(entity);nexusAcquisition.loaded(entity);nexusTools.loaded(entity);
+            if(entity instanceof ServerPlayer player){nexusCompass.inventoryChanged(player);nexusTools.inventoryChanged(player);}
+            return;
+        }
         genie.runtime().loaded(entity);
         legacyEffects.staticCharge().loaded(entity);
         if(game.bedwars()!=null)game.bedwars().auxiliaries().loaded(entity);
@@ -2000,6 +2009,7 @@ public final class LbcItems {
     private static String newEntityEpochTag() { return "skywars2.items." + UUID.randomUUID(); }
 
     boolean hasStaleItemEpoch(Entity entity) {
+        if(LbcNexusTools.persistentCell(entity)||LbcNexusWires.persistentDrop(entity))return false;
         for (String tag : entity.entityTags()) {
             if (tag.startsWith("skywars2.items.") && !tag.equals(entityEpochTag)) return true;
         }
@@ -2741,7 +2751,7 @@ public final class LbcItems {
         stand.stop();
         kfcFood.stop();
         helicopterEncounter.stop();crocodildo.stop();
-        familyDrops.stop();specialDrops.stop();eternalWealth.stop();nexusWires.stop();nexusCompass.stop();nexusTools.stop();nexusCombat.stop();nexusAcquisition.stop();supernova.stop();chargedBows.stop();balance.stop();
+        familyDrops.stop();specialDrops.stop();eternalWealth.stop();nexusWires.roundEnded();nexusCompass.stop();nexusTools.roundEnded();nexusCombat.stop();nexusAcquisition.stop();supernova.stop();chargedBows.stop();balance.stop();
         chaosTrapActors.stop();
         sauvojenBoss.stop();
         infinity.stop();

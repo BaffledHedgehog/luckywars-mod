@@ -45,6 +45,14 @@ public final class LbcHedgehogDimensions {
         if(!game.server().tickRateManager().runsNormally())return;
         var mana=game.items().mana();
         for(var player:game.server().getPlayerList().getPlayers()){
+            if(player.level().dimension().equals(NEXUS)&&player.isAlive()&&!player.isRemoved()
+                    &&net.minecraft.util.Mth.floor(player.getY())<=-32&&!game.items().timeStop().stopped(player.level())){
+                var random=player.getRandom();int radius=game.config().noBorders?1024:192;
+                var point=new Vec3(random.nextInt(2*radius+1)-radius,random.nextInt(320)+1,random.nextInt(2*radius+1)-radius);
+                player.teleport(new TeleportTransition(game.server().overworld(),point,Vec3.ZERO,
+                        player.getYRot(),player.getXRot(),TeleportTransition.DO_NOTHING));
+                continue;
+            }
             int left=mana.hudValue(player,RETURN_COUNTER);
             if(!player.level().dimension().equals(IMPRINTED)){
                 if(left>0)mana.score(player,RETURN_COUNTER).set(0);

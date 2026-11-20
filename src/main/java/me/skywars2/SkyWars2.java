@@ -226,12 +226,20 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity,source,baseDamage,damage,blocked) ->
                 me.skywars2.game.LbcAcceptedHits.nonlethal(entity,source,damage,blocked));
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, damage, amount) -> {
+            if(me.skywars2.game.LbcDimensionItems.nexus(entity.level())
+                    &&damage.is(net.minecraft.tags.DamageTypeTags.IS_FALL))return false;
             if(game!=null&&LbcDamage.isElectricalContact(damage)&&game.items().fpvDrone().tryShortCircuit(entity))return false;
             boolean allowed=game==null ? LbcDamage.allowDamage(entity,damage) : game.items().allowDamage(entity,damage);
             if(allowed && game!=null && amount>0) game.items().academy().beforeDamage(entity,damage);
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            if(player instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.nexus(level)){
+                if(game!=null&&(game.vanity().blocked(owner)||game.items().actionsBlocked(owner)||game.isObserver(owner)))return InteractionResult.FAIL;
+                var tool=nexusToolUse(owner,hand);
+                if(tool!=InteractionResult.PASS)return tool;
+                return me.skywars2.game.LbcDimensionItems.allowed(owner,owner.getItemInHand(hand))?InteractionResult.PASS:InteractionResult.FAIL;
+            }
             if(game!=null&&player instanceof ServerPlayer owner
                     &&!me.skywars2.game.LbcUseInteractions.forcedUse(owner)
                     &&!me.skywars2.game.LbcUseInteractions.shieldHandoff(owner,hand)
@@ -407,7 +415,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
-            if(player instanceof ServerPlayer owner)me.skywars2.game.LbcTmtTriggers.input(owner,me.skywars2.game.LbcTmtTriggers.Input.LEFT_CLICK);
+            if(player instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.ordinary(level))
+                me.skywars2.game.LbcTmtTriggers.input(owner,me.skywars2.game.LbcTmtTriggers.Input.LEFT_CLICK);
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
@@ -419,6 +428,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if(player instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.nexus(level))
+                return game!=null&&(game.items().actionsBlocked(owner)||game.isObserver(owner))?InteractionResult.FAIL:InteractionResult.PASS;
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
             var bw=bedwarsUse(player,hand,hit);if(bw!=InteractionResult.PASS)return bw;
             // Air-use abilities run from UseItemCallback. Fabric invokes this callback
@@ -428,10 +439,15 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
             if(game!=null){var slab=me.skywars2.game.LbcLegacySlabs.legacyUseOn(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(slab!=InteractionResult.PASS)return slab;}
-            if(game!=null){var utility=me.skywars2.game.LbcImbaTerrainUtilityItems.legacyBlock(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(utility!=InteractionResult.PASS)return utility;}
+            if(game!=null){var utility=me.skywars2.game.LbcImbaTerrainUtilityItems.legacyBlock(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(utility!=InteractionResult.PASS){
+                if(player instanceof ServerPlayer owner)LbcUseInteractions.shieldAfter(owner.gameMode,owner,level,hand,utility);
+                return utility;
+            }}
             if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){
                 var pos=hit.getBlockPos();if(!level.getBlockState(pos).getCollisionShape(level,pos).isEmpty())pos=pos.relative(hit.getDirection());
-                return game.items().shishEncounter().useBeacon(owner,hand,net.minecraft.world.phys.Vec3.atBottomCenterOf(pos))?InteractionResult.SUCCESS:InteractionResult.FAIL;
+                var result=game.items().shishEncounter().useBeacon(owner,hand,net.minecraft.world.phys.Vec3.atBottomCenterOf(pos))?InteractionResult.SUCCESS:InteractionResult.FAIL;
+                LbcUseInteractions.shieldAfter(owner.gameMode,owner,level,hand,result);
+                return result;
             }
             if (game != null && player instanceof ServerPlayer serverPlayer
                     && LbcItems.isNanobot(player.getItemInHand(hand)) && !game.canUseGameplayItems(serverPlayer))
@@ -444,6 +460,11 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if(player instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.nexus(level)){
+                if(game!=null&&(game.vanity().blocked(owner)||game.items().actionsBlocked(owner)||game.isObserver(owner)))return InteractionResult.FAIL;
+                if(game!=null){var cage=game.items().nexusAcquisition().use(owner,hand,entity);if(cage!=InteractionResult.PASS)return cage;}
+                return me.skywars2.game.LbcDimensionItems.allowed(owner,owner.getItemInHand(hand))?InteractionResult.PASS:InteractionResult.FAIL;
+            }
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().interact(owner,hand,entity))return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner)LbcUseInteractions.entityPress(owner,hand,entity);
             if(me.skywars2.game.LbcBedwars.shopRole(entity))return game!=null&&player instanceof ServerPlayer owner&&hand==net.minecraft.world.InteractionHand.MAIN_HAND&&game.bedwars().shop().open(owner,entity)?InteractionResult.SUCCESS:InteractionResult.FAIL;

@@ -89,6 +89,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
     public CompletableFuture<ScriptRepository.Loaded> prepare(String source){mainThread();return repository().prepare(source);}
     private boolean admitted(ServerPlayer owner){
         return owner.isAlive()&&!owner.isRemoved()&&!game.balanceLegacy()&&!game.isObserver(owner)
+            &&me.skywars2.game.LbcDimensionItems.ordinary(owner)
             &&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner)
             &&(game.canUseGameplayItems(owner)||game.stage().name().equals("ENDING"));
     }

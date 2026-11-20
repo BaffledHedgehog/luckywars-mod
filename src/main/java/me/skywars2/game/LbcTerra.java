@@ -541,7 +541,9 @@ public final class LbcTerra {
     }
 
     static BlockHitResult wallHit(ServerLevel level, Vec3 from, Vec3 to) {
-        return wallHit(level,from,to,state->!state.is(AIRS));
+        return ResidentBlockRay.clip(level, from, to,
+                (pos, state) -> state.is(AIRS) ? Shapes.empty() : Shapes.block(),
+                Blocks.AIR.defaultBlockState().is(AIRS), Blocks.VOID_AIR.defaultBlockState().is(AIRS));
     }
     /** Та же DDA/граница чанка для лучей, которые ищут только выбранный тип блока. */
     static BlockHitResult wallHit(ServerLevel level, Vec3 from, Vec3 to,
@@ -563,9 +565,8 @@ public final class LbcTerra {
     static BlockHitResult surfaceHit(ServerLevel level,Vec3 from,Vec3 to,Entity viewer) {
         var context=viewer==null ? net.minecraft.world.phys.shapes.CollisionContext.empty()
                 : net.minecraft.world.phys.shapes.CollisionContext.of(viewer);
-        return BlockGetter.traverseBlocks(from,to,level,(world,pos)->
-                (world.hasChunkAt(pos)?world.getBlockState(pos).getCollisionShape(world,pos,context):Shapes.block())
-                        .clip(from,to,pos),world->null);
+        return ResidentBlockRay.clip(level, from, to,
+                (pos, state) -> state.getCollisionShape(level, pos, context), true, true);
     }
 
     /** Прогноз только картинки: без поиска целей, урона, роста растений или загрузки чанков. */

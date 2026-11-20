@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 /** New ordinary item abilities are separate from participant roles and accepted consequences. */
 public final class LbcDimensionItems {
     private LbcDimensionItems(){}
+    public static boolean nexus(Level level){return level.dimension().equals(LbcHedgehogDimensions.NEXUS);}
     public static boolean ordinary(Level level){
         var dimension=level.dimension();
         return !dimension.equals(LbcHedgehogDimensions.NEXUS)&&!dimension.equals(LbcHedgehogDimensions.IMPRINTED);
@@ -24,7 +25,16 @@ public final class LbcDimensionItems {
                 ||stack.get(net.minecraft.core.component.DataComponents.ITEM_MODEL)!=null
                     &&stack.get(net.minecraft.core.component.DataComponents.ITEM_MODEL).getNamespace().equals("lbc");
     }
-    public static boolean allowed(ServerPlayer player,ItemStack stack){return player!=null&&(!custom(stack)||ordinary(player)||nexusInput(player,stack));}
+    public static boolean allowed(ServerPlayer player,ItemStack stack){
+        return player!=null&&(!custom(stack)||ordinary(player)||nexus(player.level())&&(nexusTool(stack)||physicalBlock(stack)));
+    }
+    private static boolean physicalBlock(ItemStack stack){
+        var item=stack.getItem();
+        return item instanceof LbcBlockModels.CubeItem||item instanceof LbcVanillaBlockAliasItem
+                ||item instanceof net.minecraft.world.item.BlockItem block
+                    &&(block.getBlock() instanceof net.minecraft.world.level.block.ShulkerBoxBlock
+                        ||stack.has(net.minecraft.core.component.DataComponents.CONTAINER_LOOT));
+    }
     /** Exact live Nexus-specific RC flags. Recognition supplies no missing tool implementation. */
     public static boolean nexusTool(ItemStack stack){
         if(stack.isEmpty())return false;var d=LbcFartus.data(stack);
@@ -32,5 +42,5 @@ public final class LbcDimensionItems {
                 ||d.getIntOr("nexus_orb_gun",0)==1||d.getIntOr("nexus_pulsar",0)==1||LbcNexusToolItems.isCompass(stack);
     }
     /** For a dedicated Nexus RC router only; ordinary input must use ordinary(player). */
-    public static boolean nexusInput(ServerPlayer player,ItemStack stack){return player!=null&&player.level().dimension().identifier().toString().equals("minecraft:nexus")&&nexusTool(stack);}
+    public static boolean nexusInput(ServerPlayer player,ItemStack stack){return player!=null&&nexus(player.level())&&nexusTool(stack);}
 }

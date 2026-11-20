@@ -1267,9 +1267,9 @@ public final class MapManager {
         removeLobbyEntities();
     }
 
-    /** Lobby whitelist in the arena; other dimensions preserve only players. */
+    /** Nexus is persistent across rounds, independently of the lobby whitelist. */
     public void queueLobbyEntity(Entity entity) {
-        if (!(entity instanceof Player)) lobbyEntityCandidates.add(entity);
+        if (!(entity instanceof Player) && !LbcDimensionItems.nexus(entity.level())) lobbyEntityCandidates.add(entity);
     }
 
     public void resetLobbyEntityCleanup() {
@@ -1285,6 +1285,7 @@ public final class MapManager {
             // Entry sweep also finds pre-existing/unloaded-during-transition entities.
             // Periodic audits catch direct tag edits by commands or other mods.
             for (ServerLevel world : server.getAllLevels()) {
+                if (LbcDimensionItems.nexus(world)) continue;
                 for (Entity entity : world.getAllEntities()) queueLobbyEntity(entity);
             }
         }
@@ -1295,6 +1296,7 @@ public final class MapManager {
     }
 
     private boolean keepLobbyEntity(Entity entity) {
+        if (LbcDimensionItems.nexus(entity.level())) return true;
         if (entity instanceof net.minecraft.world.entity.decoration.ItemFrame && entity.entityTags().contains("skywars2.gallery")) return true;
         if (entity.entityTags().contains("developer_map_marker") && (entity instanceof Marker
                 || entity instanceof net.minecraft.world.entity.npc.villager.Villager && entity.entityTags().contains("bedwars_shop"))) return true;
