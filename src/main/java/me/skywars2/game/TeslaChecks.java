@@ -99,9 +99,26 @@ public final class TeslaChecks {
             var center=at.add(0,3,8);var victim=cow(center.add(0,-.6,1));game.server().getScoreboard().addPlayerToTeam(victim.getScoreboardName(),team);
             other.teleportTo(other.level(),center.x,center.y-.6,center.z+1,Set.of(),0,0,true);other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);other.setHealth(1000);other.setAbsorptionAmount(0);
             require(use(loot("tesla_wand"),InteractionHand.OFF_HAND),"actual offhand Tesla volley");var trace=shots().getFirst();shots().stream().filter(t->t!=trace).forEach(t->t.age=t.lifetime);trace.position=center;trace.yaw=0;trace.pitch=0;
-            game.items().wands().tick();require(Math.abs(trace.position.distanceTo(center)-2)<1e-6&&victim.getHealth()<1000&&victim.direct>=2&&victim.getKillCredit()==owner&&other.getHealth()==1000,"2-block native sampled arc hits friendly mob repeatedly, protects allied player and credits caster");
-            game.items().wands().reflectElectro(other);require(trace.owner==other,"electro shield reflection transfers owner on shared trace");
-            trace.owner=owner;trace.position=center;trace.age=29;game.items().wands().tick();require(!shots().contains(trace),"ordinary arc expires at30 source ticks");clear();victim.discard();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            try (var caster = new RegenerationBeltChecks.ScheduledClient(game, owner);
+                 var reflector = new RegenerationBeltChecks.ScheduledClient(game, other)) {
+                game.items().wands().tick();
+                require(Math.abs(trace.position.distanceTo(center)-2)<1e-6&&victim.getHealth()<1000
+                                &&victim.direct>=2&&victim.getKillCredit()==owner&&other.getHealth()==1000,
+                        "2-block native sampled arc hits friendly mob repeatedly, protects allied player and credits caster");
+                require(contactSounds(caster)==1&&contactSounds(reflector)==0,
+                        "sampled Tesla contact sends one private native hit sound to the caster");
+                victim.discard();
+                var reflectedVictim=cow(center.add(0,-.6,1));
+                try {
+                    game.items().wands().reflectElectro(other);
+                    require(trace.owner==other,"electro shield reflection transfers owner on shared trace");
+                    trace.yaw=180;trace.pitch=0;
+                    game.items().wands().tick();
+                    require(reflectedVictim.getHealth()<1000&&contactSounds(caster)==1&&contactSounds(reflector)==1,
+                            "reflected Tesla hit sends one sound to the current shooter and none to the original caster");
+                } finally { reflectedVictim.discard(); }
+            }
+            trace.owner=owner;trace.position=center;trace.age=29;game.items().wands().tick();require(!shots().contains(trace),"ordinary arc expires at30 source ticks");clear();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
             // A real vanilla shield clips Tesla at the same shared sphere as other shield_blockable arcs.
             game.server().getScoreboard().removePlayerFromTeam(other.getScoreboardName(),team);other.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.SHIELD));other.setYRot(180);other.startUsingItem(InteractionHand.MAIN_HAND);for(int i=0;i<6;i++)other.doTick();require(other.isBlocking(),"native shield blocking delay");
             require(use(loot("tesla_wand"),InteractionHand.MAIN_HAND),"shield volley");var blocked=shots().getFirst();blocked.position=center.add(0,0,-2);blocked.yaw=0;blocked.pitch=0;game.items().wands().tick();require(!shots().contains(blocked)&&blocked.position.distanceTo(center.add(0,0,-2))<2,"native shield clips moving Tesla arc");clear();other.stopUsingItem();other.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);game.server().getScoreboard().addPlayerToTeam(other.getScoreboardName(),team);
@@ -109,6 +126,12 @@ public final class TeslaChecks {
             game.items().wands().teslaConduction(new LbcWands.ElectroTrace(owner,owner.position(),game.items().epoch()),owner.position());
             require(owner.getHealth()==999&&other.getHealth()==999,"conduction reaches caster and allied player even with team friendly fire disabled; owner="+owner.getHealth()+" ally="+other.getHealth()+" armor="+owner.getAttributeValue(Attributes.ARMOR)+"/"+other.getAttributeValue(Attributes.ARMOR)+" cooldown="+owner.damageCooldownTime+"/"+other.damageCooldownTime+" invulnerable="+owner.getInvulnerableTime()+"/"+other.getInvulnerableTime()+" loaded="+owner.connection.hasClientLoaded()+"/"+other.connection.hasClientLoaded()+" changing="+owner.isChangingDimension()+"/"+other.isChangingDimension()+" effects="+owner.getActiveEffects()+"/"+other.getActiveEffects());
             other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);
+        }
+        private static long contactSounds(RegenerationBeltChecks.ScheduledClient client) {
+            return client.packets().stream().filter(packet ->
+                    packet instanceof net.minecraft.network.protocol.game.ClientboundGameEventPacket event
+                            && event.getEvent() == net.minecraft.network.protocol.game.ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND)
+                    .count();
         }
         void cadence(){
             clear();

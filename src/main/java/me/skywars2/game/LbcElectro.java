@@ -328,7 +328,7 @@ for(int i=0;i<=2;i++) {
         LbcOverload.sound(trace.owner,from.lerp(end,.5),"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
         LbcOverload.sound(trace.owner,from.lerp(end,.5),"minecraft:block.rooted_dirt.break",.03f,2,0);
         LbcDamage.hurtArc(trace.level,yellowDamage(trace,LbcDamage.YELLOW_BOLT),from,end,.5,.25f,2,
-                entity->yellowTarget(trace.owner,entity),false,false,null);
+                entity->yellowTarget(trace.owner,entity),false,false,trace.owner,null);
         trace.position=end;
         if(!yellowTraces.contains(trace) || !game.items().currentEpoch(trace.epoch)
                 || game.stage()==GameController.Stage.ENDING) return false;
@@ -449,13 +449,15 @@ for(int i=0;i<=2;i++) {
                 Shock shock = shocks.get(target);
                 if (shock == null||shock.retainedTarget||shock.retainedOwner) continue;
                 ServerPlayer owner = shock.owner;
-                if (!target.isAlive() || target.isRemoved() || target.level() != game.maps().level()
+                if (!target.isAlive() || target.isRemoved() || !(target.level() instanceof ServerLevel level)
+                        || !LbcDimensionItems.ordinary(level)
                         || target instanceof ServerPlayer player && (!game.canUseGameplayItems(player)
                             || (LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.WITHER)))) { clearEffects(target); continue; }
-                if (target.entityTags().contains("time_stopped") || owner.entityTags().contains("time_stopped")) continue;
+                if (game.items().timeStop().stopped(level)
+                        || target.entityTags().contains("time_stopped") || owner.entityTags().contains("time_stopped")) continue;
                 if (--shock.untilNext > 0) continue;
                 shock.untilNext = SHOCK_INTERVAL;
-                emitLightning(owner, target);
+                emitLightning(owner, target, level);
                 if (--shock.pulses <= 0) shocks.remove(target);
                 game.items().mana().score(target,"shock").set(Math.max(0,shock.pulses));
             }
@@ -571,14 +573,16 @@ for(int i=0;i<=2;i++) {
         game.items().madokaBow().ownerChanged(entity,owner);
         game.items().pozdmanBot().ownerChanged(entity,owner);
         game.items().shulkerBow().ownerChanged(entity,owner);
+        LbcLegacyRanged.ownerChanged(game,entity,owner);
     }
 
-    private void emitLightning(ServerPlayer owner, LivingEntity target) {
-        var bolt=lightning(owner,target.position());
+    private void emitLightning(ServerPlayer owner, LivingEntity target, ServerLevel level) {
+        var bolt = lightning(owner, level, target.position());
+        if (bolt == null || bolt.isRemoved()) return;
         // Keep the meditation marker for compatibility; native bolts can hit their caster.
-        if(bolt!=null && target==owner) bolt.entityTags().add(SELF_SHOCK_BOLT);
-        if(bolt!=null) owner.level().sendParticles(ParticleTypes.END_ROD,target.getX(),target.getY()+1,target.getZ(),
-                100,.5,1,.5,1);
+        if (target == owner) bolt.entityTags().add(SELF_SHOCK_BOLT);
+        level.sendParticles(ParticleTypes.END_ROD, target.getX(), target.getY() + 1, target.getZ(), 100, .5, 1, .5, 1);
+        game.items().mana().award(target, "lbc:true_advancements/potions/effect_shock");
     }
 
     /** Молния из яйца использует общие электрический урон, владельца, защиту целей и очистку при stop. */
@@ -587,8 +591,11 @@ for(int i=0;i<=2;i++) {
         bolt.setCause(owner); bolt.entityTags().add(SHOCK_BOLT); bolt.entityTags().add(EGG_BOLT); liveBolts.add(bolt);
     }
     net.minecraft.world.entity.LightningBolt lightning(ServerPlayer owner,Vec3 position) {
+        return lightning(owner, game.items().spellSources().level(owner), position);
+    }
+
+    private LightningBolt lightning(ServerPlayer owner, ServerLevel level, Vec3 position) {
         if(checkpointFrozen)return null;checkpointDepth++;try{
-        ServerLevel level=game.items().spellSources().level(owner);
         var epoch=game.items().epoch();
         LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
         if (bolt == null) return null;

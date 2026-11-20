@@ -112,9 +112,9 @@ public final class LbcDamage {
 
     static void hurtArc(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to,
             double spacing, float amount, int targetLimit, Predicate<Entity> target, boolean includeOwner,
-            boolean throughBlocks, Consumer<Entity> acceptedHit) {
+            boolean throughBlocks, ServerPlayer shooter, Consumer<Entity> acceptedHit) {
         hurtSegment(level, damage, from, to, Vec3.ZERO, spacing, amount, targetLimit, target, includeOwner,
-            isElectric(damage), null, acceptedHit, throughBlocks ? Sweep.PHANTOM_ARROW : Sweep.ARROW);
+            isElectric(damage), null, acceptedHit, throughBlocks ? Sweep.PHANTOM_ARROW : Sweep.ARROW, shooter);
     }
 
     /** Exact line admission with source unit-cell multiplicity, independent of the native damage type. */
@@ -125,12 +125,12 @@ public final class LbcDamage {
             java.util.function.Consumer<net.minecraft.world.entity.Entity> sampledHit,
             java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
         hurtSegment(level, damage, from, to, padding, spacing, amount, targetLimit, target, includeOwner,
-            sourceCells, sampledHit, acceptedHit, Sweep.LINE);
+            sourceCells, sampledHit, acceptedHit, Sweep.LINE, null);
     }
 
     private static void hurtSegment(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to, Vec3 padding,
             double spacing, float amount, int targetLimit, Predicate<Entity> target, boolean includeOwner,
-            boolean sourceCells, Consumer<Entity> sampledHit, Consumer<Entity> acceptedHit, Sweep sweep) {
+            boolean sourceCells, Consumer<Entity> sampledHit, Consumer<Entity> acceptedHit, Sweep sweep, ServerPlayer shooter) {
         double length=from.distanceTo(to);
         boolean shortCircuit=isElectricalContact(damage);
         Predicate<Entity> admitted=shortCircuit
@@ -161,6 +161,7 @@ public final class LbcDamage {
             int begin=Math.max(0,(int)Math.ceil(first/spacing-1e-6));
             int end=Math.min(maxSample,(int)Math.floor(last/spacing+1e-6));
             if(end<begin) begin=end=Math.min(maxSample,begin);
+            boolean notified = false;
             for(int i=begin;i<=end;i++) if(perSample[i]<targetLimit && admitted.test(entity)) {
                 if(useSourceCells){
                     var point=from.lerp(to,length>0?i*spacing/length:0);
@@ -171,7 +172,14 @@ public final class LbcDamage {
                 perSample[i]++;
                 boolean accepted=entity.hurtServer(level,damage,amount);
                 if(sampledHit!=null)sampledHit.accept(entity);
-                if(accepted&&acceptedHit!=null)acceptedHit.accept(entity);
+                if (accepted) {
+                    // One contact cue per target even when the arc applies several damage samples.
+                    if (!notified && shooter != null) {
+                        LbcAcceptedHits.projectileFeedback(game, shooter);
+                        notified = true;
+                    }
+                    if (acceptedHit != null) acceptedHit.accept(entity);
+                }
             }
         }
     }

@@ -37,7 +37,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     private final List<Carrier> carriers;
     private final int variant;
     private final Set<Integer> variants;
-    private final boolean shulker,madoka;
+    private boolean shulker,madoka;
     private Vec3 previous;
     private boolean worldVariants=true;
     boolean precise;
@@ -105,7 +105,17 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             c.payloads=carrier.payloads==null?null:carrier.payloads.copy();
             c.contacts.addAll(carrier.contacts);c.traitsActive=carrier.traitsActive;c.terminal=carrier.terminal;c.lastReactiveTick=carrier.lastReactiveTick;copied.add(c);
         }
-        var result=new LbcBeamAmmo(game,owner,weapon,copied);result.previous=previous;result.worldVariants=worldVariants;result.precise=precise;result.lastNativeTick=lastNativeTick;return result;
+        var result=new LbcBeamAmmo(game,owner,weapon,copied);result.previous=previous;result.worldVariants=worldVariants;result.precise=precise;result.lastNativeTick=lastNativeTick;
+        result.shulker=shulker;result.madoka=madoka;return result;
+    }
+    ItemStack acceptedWeapon(){return carriers.getFirst().weapon;}
+    void reassignNativeOwner(ServerPlayer owner,LbcIndirectKills.Owner cause){
+        this.owner=owner;
+        for(var carrier:carriers){
+            carrier.context.setOwner(owner);
+            game.items().trinketArrows().ownerChanged(carrier.context,owner,cause);
+            if(carrier.payloads!=null)carrier.payloads.cause=cause;
+        }
     }
     /** One real actor tick; native contact alone selects the damage recipient. */
     boolean nativeTarget(Entity target){return game.items().wands().projectileTarget(owner,target);}
@@ -161,6 +171,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         var tag=new net.minecraft.nbt.CompoundTag();var ops=owner.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
         tag.putString("owner",owner.getUUID().toString());tag.putString("epoch",epoch);tag.put("weapon",ItemStack.CODEC.encodeStart(ops,weapon).getOrThrow());
         tag.putBoolean("world",worldVariants);tag.putBoolean("precise",precise);tag.putInt("frame",game.server().getTickCount());tag.putBoolean("native_this_tick",lastNativeTick==game.server().getTickCount());
+        tag.putBoolean("shulker",shulker);tag.putBoolean("madoka",madoka);
         if(previous!=null)tag.put("previous",Vec3.CODEC.encodeStart(ops,previous).getOrThrow());
         var list=new net.minecraft.nbt.ListTag();for(var c:carriers){var row=new net.minecraft.nbt.CompoundTag();
             var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,owner.registryAccess());c.context.saveWithoutId(output);row.put("context",output.buildResult());
@@ -171,8 +182,12 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         }tag.put("carriers",list);return tag;
     }
     static LbcBeamAmmo load(GameController game,ServerLevel level,net.minecraft.nbt.CompoundTag tag){
+        return load(game,level,tag,null);
+    }
+    static LbcBeamAmmo load(GameController game,ServerLevel level,net.minecraft.nbt.CompoundTag tag,ServerPlayer reflector){
         var ownerId=UUID.fromString(tag.getStringOr("owner",""));var owner=game.server().getPlayerList().getPlayer(ownerId);
         if(owner==null)owner=MatchOfflinePlayers.find(ownerId);
+        if(owner==null)owner=reflector;
         if(owner==null||!game.items().currentEpoch(tag.getStringOr("epoch","")))return null;
         var ops=level.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);var carriers=new ArrayList<Carrier>();
         for(var value:tag.getListOrEmpty("carriers")){if(!(value instanceof net.minecraft.nbt.CompoundTag row))continue;
@@ -187,6 +202,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         if(carriers.isEmpty())return null;
         var result=new LbcBeamAmmo(game,owner,ItemStack.CODEC.parse(ops,tag.getCompoundOrEmpty("weapon")).getOrThrow(),carriers);
         result.worldVariants=tag.getBooleanOr("world",true);result.precise=tag.getBooleanOr("precise",false);result.previous=tag.contains("previous")?Vec3.CODEC.parse(ops,tag.get("previous")).getOrThrow():null;
+        result.shulker=tag.getBooleanOr("shulker",result.shulker);result.madoka=tag.getBooleanOr("madoka",result.madoka);
         result.lastNativeTick=tag.getBooleanOr("native_this_tick",false)?game.server().getTickCount():Integer.MIN_VALUE;return result;
     }
     private static int variant(ItemStack ammo){

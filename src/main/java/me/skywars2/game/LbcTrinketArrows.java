@@ -48,8 +48,11 @@ public final class LbcTrinketArrows {
     }
     /** Called by the actual ownership-transfer event; detached rockets keep their accepted cause. */
     public void ownerChanged(Entity actor,ServerPlayer owner){
+        ownerChanged(actor,owner,null);
+    }
+    void ownerChanged(Entity actor,ServerPlayer owner,LbcIndirectKills.Owner transferred){
         if(!(actor instanceof Projectile)||!equivalent(actor)||(mask(actor)==0&&value(actor,AUTHOR)==null))return;
-        var cause=game.items().indirectKills().coldCause(owner,true);
+        var cause=transferred==null?game.items().indirectKills().coldCause(owner,true):transferred;
         actor.entityTags().removeIf(tag->tag.startsWith(AUTHOR)||tag.startsWith(ORDER)||tag.startsWith(TEAM));
         actor.entityTags().add(AUTHOR+cause.player());actor.entityTags().add(ORDER+cause.order());
         if(owner.getTeam()!=null)actor.entityTags().add(TEAM+owner.getTeam().getName());

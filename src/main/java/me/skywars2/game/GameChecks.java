@@ -6165,10 +6165,10 @@ public final class GameChecks {
                         game.items().electro().reset(player); game.items().electro().reset(ally);
                         try { playerState.restore(game); } finally { allyState.restore(game); }
                 }
-                warmElectroGearDimensions(game, player);
+                warmElectroGearDimensions(game, player, ally);
         }
 
-        private static void warmElectroGearDimensions(GameController game, ServerPlayer player) {
+        private static void warmElectroGearDimensions(GameController game, ServerPlayer player, ServerPlayer author) {
                 var dimensions = java.util.List.of(
                                 java.util.Objects.requireNonNull(game.server().getLevel(net.minecraft.world.level.Level.NETHER)),
                                 java.util.Objects.requireNonNull(game.server().getLevel(net.minecraft.world.level.Level.END)));
@@ -6202,7 +6202,7 @@ public final class GameChecks {
                                 }
                                 try {
                                         require(ready, "Nether and End shield fixture columns become entity-ticking");
-                                        checkElectroGearDimensions(game, player, dimensions);
+                                        checkElectroGearDimensions(game, player, author, dimensions);
                                         SkyWars2.LOGGER.info("[check] PASS electro-gear");
                                 } catch (RuntimeException | Error failure) {
                                         SkyWars2.LOGGER.error("[check] FAIL electro-gear: {}", failure.getMessage(), failure);
@@ -6213,7 +6213,7 @@ public final class GameChecks {
                 };
         }
 
-        private static void checkElectroGearDimensions(GameController game, ServerPlayer player,
+        private static void checkElectroGearDimensions(GameController game, ServerPlayer player, ServerPlayer author,
                         java.util.List<net.minecraft.server.level.ServerLevel> dimensions) {
                 var home = player.level();
                 var saved = new RegenerationBeltChecks.Snapshot(game, player);
@@ -6280,6 +6280,7 @@ public final class GameChecks {
                                                 for (var projectile : projectiles) projectile.discard();
                                                 shooter.discard();
                                         }
+                                        checkElectroShockDimension(game, player, author);
                                 }
                         } finally {
                                 player.stopUsingItem();
@@ -6290,6 +6291,63 @@ public final class GameChecks {
                                 saved.restoreAttributes();
                                 saved.restoreUse();
                                 client.acknowledge();
+                        }
+                }
+        }
+
+        private static void checkElectroShockDimension(GameController game, ServerPlayer victim, ServerPlayer author) {
+                var level = victim.level();
+                String dimension = level.dimension().identifier().toString();
+                var electro = game.items().electro();
+                var timeStop = game.items().timeStop();
+                var advancement = java.util.Objects.requireNonNull(game.server().getAdvancements()
+                                .get(net.minecraft.resources.Identifier.parse("lbc:true_advancements/potions/effect_shock")));
+                var victimProgress = victim.getAdvancements();
+                var authorProgress = author.getAdvancements();
+                var authorCriteria = new java.util.HashSet<String>();
+                authorProgress.getOrStartProgress(advancement).getCompletedCriteria().forEach(authorCriteria::add);
+                for (var criterion : advancement.value().criteria().keySet()) victimProgress.revoke(advancement, criterion);
+                victim.getInventory().clearContent();
+                game.items().magic().inventoryChanged(victim);
+                game.items().magic().flushCleansing();
+                var position = victim.position();
+                var bounds = new net.minecraft.world.phys.AABB(position, position).inflate(1);
+                var lightningType = net.minecraft.world.entity.LightningBolt.class;
+                var before = java.util.Set.copyOf(level.getEntitiesOfClass(lightningType, bounds));
+                java.util.function.Supplier<java.util.List<net.minecraft.world.entity.LightningBolt>> added = () ->
+                                level.getEntitiesOfClass(lightningType, bounds,
+                                                bolt -> LbcElectro.managedLightning(bolt) && !before.contains(bolt));
+                try {
+                        require(author.level() != level && electro.shocks(victim) == 0 && electro.shock(victim, author, 2),
+                                        "Status is accepted from an author in a different dimension: " + dimension);
+                        require(!victimProgress.getOrStartProgress(advancement).isDone() && added.get().isEmpty(),
+                                        "Applying the status does not award Shock or emit a bolt in " + dimension);
+                        for (int tick = 0; tick < 39; tick++) electro.tick();
+                        require(electro.shocks(victim) == 2 && !victimProgress.getOrStartProgress(advancement).isDone()
+                                        && added.get().isEmpty(), "The first 39 active ticks keep both pulses pending in " + dimension);
+                        timeStop.begin(level, 20);
+                        try {
+                                electro.tick();
+                                require(electro.shocks(victim) == 2 && !victimProgress.getOrStartProgress(advancement).isDone()
+                                                && added.get().isEmpty(), "Local Time Stop holds the pending Shock pulse in " + dimension);
+                        } finally {
+                                timeStop.end(level);
+                        }
+                        electro.tick();
+                        var bolts = added.get();
+                        require(electro.shocks(victim) == 1 && bolts.size() == 1 && bolts.getFirst().getCause() == author
+                                        && bolts.getFirst().position().equals(position),
+                                        "The first delayed pulse emits one native bolt at the victim and retains its author in " + dimension);
+                        var finalAuthorCriteria = new java.util.HashSet<String>();
+                        authorProgress.getOrStartProgress(advancement).getCompletedCriteria().forEach(finalAuthorCriteria::add);
+                        require(victimProgress.getOrStartProgress(advancement).isDone() && authorCriteria.equals(finalAuthorCriteria),
+                                        "The actual Shock pulse awards the victim in " + dimension);
+                } finally {
+                        electro.clearEffects(victim);
+                        for (var bolt : added.get()) bolt.discard();
+                        for (var criterion : advancement.value().criteria().keySet()) {
+                                if (authorCriteria.contains(criterion)) authorProgress.award(advancement, criterion);
+                                else authorProgress.revoke(advancement, criterion);
                         }
                 }
         }

@@ -458,9 +458,13 @@ public final class LbcIndirectKills {
         if(effect.is(MobEffects.POISON) || effect.is(MobEffects.WITHER) || effect.is(MobEffects.BLINDNESS)
                 ||effect.is(MobEffects.CONDUIT_POWER)||effect.is(MobEffects.INSTANT_DAMAGE)||effect.is(MobEffects.INSTANT_HEALTH)) {
             effectRemoved(target,effect);
-            if(player!=null && player!=target) statuses.computeIfAbsent(target,ignored->new HashMap<>())
-                    .put(effect.getEffect(),new Status(effect.is(MobEffects.CONDUIT_POWER)?
-                            fresh(player,false,true):owner(player,LbcTotems.managed(source)),effect));
+            if(player!=null && player!=target){
+                var accepted=causeTarget==target&&activeCause!=null&&activeCause.projectile()&&activeCause.weaponAction()
+                        &&activeCause.player().equals(player.getUUID())?activeCause:null;
+                var author=effect.is(MobEffects.CONDUIT_POWER)?fresh(player,false,true)
+                        :accepted!=null?accepted:owner(player,LbcTotems.managed(source));
+                statuses.computeIfAbsent(target,ignored->new HashMap<>()).put(effect.getEffect(),new Status(author,effect));
+            }
         }
         if(effect.is(MobEffects.RAID_OMEN) && effect.getAmplifier()==20) {
             pendingMana.remove(target);

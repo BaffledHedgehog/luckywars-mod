@@ -32,10 +32,14 @@ public final class LbcLegacyRanged {
         Ammo(net.minecraft.nbt.CompoundTag encoded){this.encoded=encoded.copy();}
         Ammo(LbcBeamAmmo payload,LbcIndirectKills.Owner cause){this.payload=payload;this.cause=cause;}
         private boolean resolve(GameController game,Entity actor){
+            return resolve(game,actor,null);
+        }
+        private boolean resolve(GameController game,Entity actor,ServerPlayer reflector){
             if(payload!=null)return true;
-            payload=LbcBeamAmmo.load(game,(net.minecraft.server.level.ServerLevel)actor.level(),encoded.getCompoundOrEmpty("payload"));
+            payload=LbcBeamAmmo.load(game,(net.minecraft.server.level.ServerLevel)actor.level(),encoded.getCompoundOrEmpty("payload"),reflector);
             if(payload==null)return false;
-            cause=new LbcIndirectKills.Owner(java.util.UUID.fromString(encoded.getStringOr("author","")),encoded.getLongOr("order",0),encoded.getBooleanOr("friendly",false),true);
+            cause=new LbcIndirectKills.Owner(java.util.UUID.fromString(encoded.getStringOr("author","")),encoded.getLongOr("order",0),
+                    encoded.getBooleanOr("friendly",false),true,payload.acceptedWeapon(),true);
             encoded=null;return true;
         }
         net.minecraft.nbt.CompoundTag save(){
@@ -46,7 +50,16 @@ public final class LbcLegacyRanged {
     }
     static void captureAmmo(GameController game,ServerPlayer owner,ItemStack weapon,Projectile donor,Entity output){
         var payload=(LbcBeamAmmo)LbcBeamAmmo.capture(game,owner,weapon,List.of(donor));
-        if(payload!=null)output.setAttached(AMMO,new Ammo(payload,game.items().indirectKills().coldCause(owner,true)));
+        if(payload!=null)output.setAttached(AMMO,new Ammo(payload,game.items().indirectKills().itemCause(owner,false,true,payload.acceptedWeapon())));
+    }
+    static void ownerChanged(GameController game,Entity actor,ServerPlayer owner){
+        var ammo=actor.getAttached(AMMO);
+        if(ammo==null||!ammo.resolve(game,actor,owner))return;
+        if(!ammo.cause.player().equals(owner.getUUID()))
+            ammo.cause=game.items().indirectKills().itemCause(owner,ammo.cause.friendlyFire(),ammo.cause.projectile(),ammo.payload.acceptedWeapon());
+        ammo.payload.reassignNativeOwner(owner,ammo.cause);
+        var compound=LbcTmtAmmoPayloads.state(actor);
+        if(compound!=null)compound.cause=ammo.cause;
     }
     static void copyAmmo(Entity original,Entity clone){var ammo=original.getAttached(AMMO);if(ammo!=null)clone.setAttached(AMMO,ammo.copy());}
     static void flight(GameController game,Entity actor){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.nativeFlight(actor,ammo.cause);}

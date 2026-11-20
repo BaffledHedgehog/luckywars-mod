@@ -5,6 +5,9 @@ import me.skywars2.SkyWars2;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.world.InteractionHand;
@@ -18,6 +21,8 @@ import net.minecraft.world.entity.projectile.arrow.SpectralArrow;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ChargedProjectiles;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
 
 /** Actual native bow/crossbow input, separate from the TMT coordinator checks. */
@@ -151,7 +156,76 @@ public final class LegacyRangedChecks {
                 explosiveBow(f,owned);
             }finally{for(var e:owned){game.items().entityUnloaded(e);e.discard();}}
         }
-        SkyWars2.LOGGER.info("[check] PASS legacy-ranged (native double spectral geometry, Blaze/Ghast potion contacts, Dildomet spectral contact, Firework shell color and accepted repeated blast payloads)");
+        reflectedBlaze(game);
+        SkyWars2.LOGGER.info("[check] PASS legacy-ranged (native double spectral geometry, Blaze/Ghast potion contacts, reflected Blaze and compound TMT attribution/enchanted source, Dildomet spectral contact, Firework shell color and accepted repeated blast payloads)");
+    }
+    private static void reflectedBlaze(GameController game){
+        try(var f=new WoolBucketChecks.Fixture(game,false);
+            var stats=new NativeMeleeChecks.NativeStats(f.owner,List.of(LbcProjectileWeaponItems.Kind.BLAZE_CROSSBOW.item,LbcTmtItems.prototype(3).getItem()))){
+            var arena=new Vec3(f.home.x,Math.min(240,f.level.getMaxY()-40),f.home.z);
+            var looting=f.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.LOOTING);
+            for(boolean compound:new boolean[]{false,true}){
+                f.prepareParticipants();f.move(f.owner,arena);f.move(f.other,arena.add(0,0,6));
+                var weapon=compound?compoundBlaze():LbcProjectileWeaponItems.Kind.BLAZE_CROSSBOW.item.getDefaultInstance();
+                weapon.enchant(looting,7);
+                weapon.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(tipped(1))));
+                f.owner.setItemInHand(InteractionHand.OFF_HAND,weapon);
+                var before=snapshot(f.owner);
+                require(f.owner.gameMode.useItem(f.owner,f.level,weapon,InteractionHand.OFF_HAND).consumesAction(),"real Blaze offhand crossbow release, compound="+compound);
+                var created=created(f.owner,before);created.forEach(f::own);
+                var fire=created.stream().filter(e->e instanceof SmallFireball&&!e.isRemoved()&&LbcLegacyRanged.hasAmmo(e))
+                        .map(e->(SmallFireball)e).findFirst().orElseThrow();
+                var ammo=fire.getAttached(LbcLegacyRanged.ammoType());
+                require(fire.getOwner()==f.owner&&ammo!=null,"physical shooter and private converted ammo before reflection");
+                require(compound==LbcTmtAmmoPayloads.hasVariant(fire,0),"compound carries an independent ordinary tipped ammo descriptor");
+                var original=ammo.save();
+                fire.setAttached(LbcLegacyRanged.ammoType(),new LbcLegacyRanged.Ammo(original));
+                require(!game.items().specialFireballs().canAffect(fire,f.owner),"ordinary original shot cannot hit its own shooter");
+
+                var unrelated=new ItemStack(Items.IRON_SWORD);unrelated.enchant(looting,61);
+                f.other.setItemInHand(InteractionHand.MAIN_HAND,unrelated);
+                f.other.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcElectro.SHIELD));
+                f.other.startUsingItem(InteractionHand.OFF_HAND);
+                fire.setPos(arena.add(0,1,4));fire.setDeltaMovement(0,0,2);
+                game.items().electro().tick();f.other.stopUsingItem();
+                require(fire.getOwner()==f.other&&fire.getDeltaMovement().z<0,"active native Electro shield actually reflects the converted shot");
+                require(game.items().specialFireballs().canAffect(fire,f.owner)&&!game.items().specialFireballs().canAffect(fire,f.other),
+                        "reflected ammo targeting admits former shooter and excludes shield owner");
+                var saved=fire.getAttached(LbcLegacyRanged.ammoType()).save();
+                var detached=saved.getCompoundOrEmpty("payload");
+                require(saved.getStringOr("author","").equals(f.other.getUUID().toString())
+                        &&detached.getStringOr("owner","").equals(f.other.getUUID().toString())
+                        &&saved.getLongOr("order",0)>original.getLongOr("order",0),"native reflection owns causal and detached payload state");
+                var captured=original.getCompoundOrEmpty("payload").getListOrEmpty("carriers").getCompoundOrEmpty(0);
+                var retained=detached.getListOrEmpty("carriers").getCompoundOrEmpty(0);
+                require(retained.getCompoundOrEmpty("weapon").equals(captured.getCompoundOrEmpty("weapon"))
+                        &&retained.getCompoundOrEmpty("ammo").equals(captured.getCompoundOrEmpty("ammo"))
+                        &&retained.getListOrEmpty("contacts").equals(captured.getListOrEmpty("contacts")),"reflection preserves exact accepted original components and contacts");
+                fire.setAttached(LbcLegacyRanged.ammoType(),new LbcLegacyRanged.Ammo(saved));
+                for(int tick=0;tick<6&&!fire.isRemoved();tick++)fire.tick();
+                require(fire.isRemoved()&&f.owner.getHealth()<1000&&f.owner.getLastDamageSource()!=null
+                        &&f.owner.getLastDamageSource().getEntity()==f.other,"native reflected hit reaches former shooter with retained physical shield attacker");
+                var causes=game.items().indirectKills().effectCauses(f.owner);
+                for(var effect:compound?List.of(MobEffects.POISON,MobEffects.WITHER):List.of(MobEffects.POISON)){
+                    var cause=causes.get(effect);
+                    require(f.owner.hasEffect(effect)&&cause!=null&&cause.player().equals(f.other.getUUID())
+                            &&cause.order()==saved.getLongOr("order",0)&&cause.weaponAction()
+                            &&cause.enchantmentWeapon().getEnchantments().getLevel(looting)==7,
+                            "actual reflected base/compound status credits shield owner with original weapon, not reflector inventory: "+effect);
+                }
+            }
+        }
+    }
+    private static ItemStack compoundBlaze(){
+        var result=LbcTmtItems.prototype(3);
+        var data=result.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        var flag=new CompoundTag();flag.putInt("fastfired",1);
+        var extra=LbcImbaNativeItems.QUIVER_POISON_ARROW.getDefaultInstance().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        extra.putString(LbcTmtAbilities.NATIVE,BuiltInRegistries.ITEM.getKey(LbcImbaNativeItems.QUIVER_POISON_ARROW).toString());
+        LbcTmtAbilities.write(data,List.of(new LbcTmtAbilities.Ability("check/fastfired",CustomData.of(flag)),
+                new LbcTmtAbilities.Ability("native/ammo/poison_arrow",CustomData.of(extra))));
+        result.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+        return result;
     }
     private static void explosiveBow(ElementalGrimoireChecks.Fixture f,Set<Entity> owned){
         var center=f.owner.position().add(0,10,0);
