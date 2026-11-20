@@ -2,16 +2,24 @@ package me.skywars2.game;
 
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.HashedStack;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerInventoryPacket;
+import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Blocks;
@@ -79,6 +87,7 @@ public final class BulkLootChecks {
                     if(block==Blocks.CHEST){
                         owner.getInventory().clearContent();owner.closeContainer();require(owner.openMenu((ChestBlockEntity)entity).isPresent(),"actual native chest menu opens");
                         client.acknowledge();var menu=owner.containerMenu;
+                        storedSwaps(owner,client,container,slot,count,original);
                         // quickMoveStack performs ONE move. The real input handler owns
                         // repeated moves until the player slots fill or the source empties.
                         owner.connection.handleContainerClick(new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(menu.containerId,menu.getStateId(),(short)slot,(byte)0,net.minecraft.world.inventory.ContainerInput.QUICK_MOVE,it.unimi.dsi.fastutil.ints.Int2ObjectMaps.emptyMap(),net.minecraft.network.HashedStack.EMPTY));
@@ -100,45 +109,115 @@ public final class BulkLootChecks {
             require(HopperBlockEntity.suckInItems(level,hopper)&&chest.getItem(0).getCount()==63&&hopper.getItem(0).getCount()==1,"real hopper extracts one native-max sword without losing the oversized remainder");
             var ordinary=new ArrayList<ItemStack>();LootTable.createStackSplitter(level,ordinary::add).accept(original.copyWithCount(200));
             require(ordinary.size()==200&&ordinary.stream().allMatch(s->s.getCount()==1&&ItemStack.isSameItemSameComponents(s,original)),"quantities beyond native persistent count99 retain ordinary safe splitting");
-            SkyWars2.LOGGER.info("[check] PASS bulk-loot (count64/99, original Terra components/durability, native storage save-load and packed shulker contents, legal Shift-click and hopper transfer)");
+            SkyWars2.LOGGER.info("[check] PASS bulk-loot (count64/99, original Terra components/durability, native storage save-load and packed shulker contents, legal SWAP, Shift-click and hopper transfer)");
         }finally{
             owner.closeContainer();
             clear(level,pos);clear(level,upper);game.maps().restoreSnapshot(level,upper,above);game.maps().restoreSnapshot(level,pos,before);
             saved.restore(game);saved.restoreAttributes();saved.restoreUse();game.players().save();
         }
     }
+    private static void storedSwaps(ServerPlayer owner, RegenerationBeltChecks.ScheduledClient client,
+            Container container, int source, int count, ItemStack original) {
+        var inventory = owner.getInventory();
+        var menu = owner.containerMenu;
+        for (int button : new int[]{0, Inventory.SLOT_OFFHAND}) {
+            var target = menu.findSlot(inventory, button);
+            for (var held : List.of(ItemStack.EMPTY, new ItemStack(Items.STICK))) {
+                inventory.setItem(button, held);
+                var stored = original.copyWithCount(count);
+                container.setItem(source, stored);
+                menu.sendAllDataToRemote();
+                client.packets().clear();
+
+                // The vanilla client predicts the entire exchange once it sees the packed display stack.
+                var predicted = new Int2ObjectOpenHashMap<HashedStack>();
+                predicted.put(source, HashedStack.create(held, component -> 0));
+                target.ifPresent(slot -> predicted.put(slot, HashedStack.create(stored, component -> 0)));
+                owner.connection.handleContainerClick(new ServerboundContainerClickPacket(menu.containerId,
+                        menu.getStateId(), (short)source, (byte)button, ContainerInput.SWAP, predicted, HashedStack.EMPTY));
+
+                var expectedTarget = held.isEmpty() ? original : held;
+                var expectedSource = original.copyWithCount(count - (held.isEmpty() ? 1 : 0));
+                require(ItemStack.matches(expectedTarget, inventory.getItem(button))
+                                && ItemStack.matches(expectedSource, container.getItem(source)),
+                        "number-key SWAP moves one legal sword or preserves both occupied stacks: " + button);
+                require(client.packets().stream().anyMatch(packet -> packet instanceof ClientboundContainerSetSlotPacket update
+                                && update.getSlot()==source && ItemStack.matches(expectedSource, update.getItem())),
+                        "accepted SWAP publishes the actual stored remainder: " + button);
+                require(client.packets().stream().anyMatch(packet -> target.isPresent()
+                                ? packet instanceof ClientboundContainerSetSlotPacket slotUpdate && slotUpdate.getSlot()==target.getAsInt()
+                                        && ItemStack.matches(expectedTarget, slotUpdate.getItem())
+                                : packet instanceof ClientboundSetPlayerInventoryPacket inventoryUpdate && inventoryUpdate.slot()==button
+                                        && ItemStack.matches(expectedTarget, inventoryUpdate.contents())),
+                        "accepted SWAP corrects the predicted hotbar/offhand slot: " + button);
+            }
+            inventory.setItem(button, ItemStack.EMPTY);
+        }
+        container.setItem(source, original.copyWithCount(count));
+        menu.sendAllDataToRemote();
+    }
+
     private static void shulkerDropWire(net.minecraft.server.level.ServerPlayer owner, net.minecraft.core.BlockPos pos,
             ShulkerBoxBlockEntity box) {
         var level = owner.level();
-        // Vanilla tools and beds reproduce the two oversized slots reported by the client.
-        box.clearContent();
         var picks = new ItemStack(Items.IRON_PICKAXE,32);
+        picks.setDamageValue(6);
         var beds = new ItemStack(Items.BED.pick(DyeColor.RED),16);
-        box.setItem(0,picks);
-        box.setItem(9,beds);
-        var drops = net.minecraft.world.level.block.Block.getDrops(level.getBlockState(pos),level,pos,box,owner,new ItemStack(Items.IRON_PICKAXE));
-        require(drops.size()==1&&drops.getFirst().is(Items.SHULKER_BOX),"actual shulker drop table returns the packed block");
-        var stack = drops.getFirst();
-        var stored = stack.getOrDefault(DataComponents.CONTAINER,ItemContainerContents.EMPTY);
-        var slots = NonNullList.withSize(27,ItemStack.EMPTY);
-        stored.copyInto(slots);
-        require(slots.stream().filter(item->!item.isEmpty()).count()==2
-                &&ItemStack.matches(slots.get(0),picks)&&ItemStack.matches(slots.get(9),beds),
-                "drop keeps both oversized stacks, empty slots and original item components");
-        var item = new net.minecraft.world.entity.item.ItemEntity(level,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,stack);
-        var packet = new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(item.getId(),item.getEntityData().getNonDefaultValues());
-        net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(owner.connection,()->{
-            var raw = io.netty.buffer.Unpooled.buffer();
-            try {
-                var wire = new net.minecraft.network.RegistryFriendlyByteBuf(raw,owner.registryAccess());
-                net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.encode(wire,packet);
-                require(wire.readableBytes()>0&&wire.readableBytes()<65_536,"exact item entity metadata is valid and compact");
-                var decoded = net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.decode(wire);
-                require(decoded.id()==item.getId()&&!wire.isReadable(),"client can decode the entire drop packet");
-            } finally {
-                raw.release();
-            }
-        });
+        for(boolean mixed:new boolean[]{false,true}){
+            box.clearContent();
+            if(mixed)box.setItem(0,picks);
+            box.setItem(9,beds);
+            var expected = mixed ? List.of(picks,beds) : List.of(beds);
+            var drops = net.minecraft.world.level.block.Block.getDrops(level.getBlockState(pos),level,pos,box,owner,new ItemStack(Items.IRON_PICKAXE));
+            require(drops.size()==1&&drops.getFirst().is(Items.SHULKER_BOX),"actual shulker drop table returns the packed block");
+            var stack = drops.getFirst();
+            var actual = stack.copy();
+            var stored = stack.getOrDefault(DataComponents.CONTAINER,ItemContainerContents.EMPTY);
+            var slots = NonNullList.withSize(27,ItemStack.EMPTY);
+            stored.copyInto(slots);
+            require(slots.stream().filter(item->!item.isEmpty()).count()==expected.size()
+                    &&ItemStack.matches(slots.get(0),mixed?picks:ItemStack.EMPTY)&&ItemStack.matches(slots.get(9),beds),
+                    "drop keeps packed bed/tool counts, slots and original components");
+            var item = new net.minecraft.world.entity.item.ItemEntity(level,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,stack);
+            var packet = new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(item.getId(),item.getEntityData().getNonDefaultValues());
+            net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(owner.connection,()->{
+                var raw = io.netty.buffer.Unpooled.buffer();
+                try {
+                    var wire = new net.minecraft.network.RegistryFriendlyByteBuf(raw,owner.registryAccess());
+                    net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.encode(wire,packet);
+                    require(wire.readableBytes()>0&&wire.readableBytes()<65_536,"exact item entity metadata is valid and compact");
+                    // An outbound packet decodes on a vanilla client without Polymer's serverbound restoration context.
+                    var decoded = net.fabricmc.fabric.api.networking.v1.context.PacketContext.supplyWithoutContext(
+                            ()->net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.decode(wire));
+                    require(decoded.id()==item.getId()&&!wire.isReadable(),"client can decode the entire drop packet");
+                    var received = decoded.packedItems().stream().map(net.minecraft.network.syncher.SynchedEntityData.DataValue::value)
+                            .filter(ItemStack.class::isInstance).map(ItemStack.class::cast).findFirst().orElseThrow();
+                    var templates = received.getOrDefault(DataComponents.CONTAINER,ItemContainerContents.EMPTY).nonEmptyItems().iterator();
+                    var context = owner.connection.getPacketContext();
+                    var projected = eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(stack, context, owner.registryAccess());
+                    var projectedTemplates = projected.getOrDefault(DataComponents.CONTAINER,ItemContainerContents.EMPTY).nonEmptyItems().iterator();
+                    for(var original:expected){
+                        require(templates.hasNext()&&projectedTemplates.hasNext(),"client receives a packed tooltip template for each real stack");
+                        var planned = projectedTemplates.next();
+                        var preview = templates.next().create();
+                        // The server-only materialization patch can return a stack the vanilla tooltip would reject.
+                        var validation = ItemStack.validateStrict(preview);
+                        require(preview.is(original.getItem())&&preview.getCount()==original.getCount()&&!validation.isError(),
+                                "wire tooltip template must pass vanilla validation: real="+original+" (max "+original.getMaxStackSize()
+                                        +"), projected="+planned.count()+" (max "+planned.getMaxStackSize()+"), wire="+preview
+                                        +" (max "+preview.getMaxStackSize()+"), validation="+validation);
+                    }
+                    require(!templates.hasNext(),"tooltip keeps exactly the real occupied slots");
+                    require(ItemStack.matches(actual,eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(received, context, owner.registryAccess())),
+                            "serverbound restoration resolves the original packed stack instead of the client projection");
+                } finally {
+                    raw.release();
+                }
+            });
+            require(ItemStack.matches(actual,item.getItem())&&ItemStack.matches(beds,box.getItem(9))
+                            &&ItemStack.matches(mixed?picks:ItemStack.EMPTY,box.getItem(0)),
+                    "client tooltip projection preserves real components, max stack sizes and counts");
+        }
         mergedGroundStackWire(owner, pos);
     }
 

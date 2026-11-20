@@ -20,20 +20,22 @@ public final class LbcBulkLoot {
         // Vanilla client SimpleContainer.setItem clamps received stacks too.
         // Polymer preserves the exact real stack in its restoration metadata.
         PolymerItemUtils.CONTEXT_ITEM_CHECK.register((stack,context)->stack instanceof ItemStack item
-                && (isOversizedStoredStack(item)||packedDamageableContents(item)!=null));
+                && (isOversizedStoredStack(item)||packedContents(item)!=null));
         PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original,client,context)->{
             if(client.isEmpty()||!(original instanceof ItemStack stack))return client;
-            var contents=packedDamageableContents(stack);
+            var contents=packedContents(stack);
             if(!isOversizedStoredStack(stack)&&contents==null)return client;
             var view=client.copy();
             if(isOversizedStoredStack(stack))view.set(DataComponents.MAX_STACK_SIZE,Math.max(view.getMaxStackSize(),stack.getCount()));
             if(contents!=null){
                 var slots=NonNullList.withSize(contents.size(),ItemStack.EMPTY);
                 contents.copyInto(slots);
-                for(var slot:slots)if(isOversizedStoredStack(slot)&&slot.has(DataComponents.MAX_DAMAGE)){
+                for(var slot:slots)if(isOversizedStoredStack(slot)){
                     // Nested client templates validate their components when materialized.
-                    slot.remove(DataComponents.MAX_DAMAGE);
-                    slot.remove(DataComponents.DAMAGE);
+                    if(slot.has(DataComponents.MAX_DAMAGE)){
+                        slot.remove(DataComponents.MAX_DAMAGE);
+                        slot.remove(DataComponents.DAMAGE);
+                    }
                     slot.set(DataComponents.MAX_STACK_SIZE,slot.getCount());
                 }
                 view.set(DataComponents.CONTAINER,ItemContainerContents.fromItems(slots));
@@ -41,10 +43,10 @@ public final class LbcBulkLoot {
             return view;
         });
     }
-    private static ItemContainerContents packedDamageableContents(ItemStack item){
+    private static ItemContainerContents packedContents(ItemStack item){
         var contents=item.get(DataComponents.CONTAINER);
         if(contents!=null)for(var stored:contents.nonEmptyItems())
-            if(isOversizedStoredStack(stored)&&stored.get(DataComponents.MAX_DAMAGE)!=null)return contents;
+            if(isOversizedStoredStack(stored))return contents;
         return null;
     }
 }
