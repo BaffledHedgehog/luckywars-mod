@@ -461,6 +461,8 @@
     "TimeStopNativeMixin$PlayerTick",
     "TimeStopNativeMixin$BlockEntities",
     "TimeStopNativeMixin$ChunkSimulation",
+    "NexusBiomeGenerationMixin",
+    "NexusBiomeGenerationMixin$SectionBiomes",
     "TimeStopSchedulesMixin",
     "TimeStopSchedulesMixin$ChunkTicks",
     "TimeStopDamageMixin$Players",

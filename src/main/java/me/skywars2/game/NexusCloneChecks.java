@@ -1,11 +1,17 @@
 package me.skywars2.game;
 
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ChunkResult;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
@@ -18,6 +24,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.storage.SerializableChunkData;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -32,7 +45,7 @@ public final class NexusCloneChecks {
     }
     public static void tick(GameController game){
         if(game==null||running==null)return;
-        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native async/full-height Stonekivi MOVE, failed and timed-out destination loads release the capture barrier without writes, one alternate destination and independent late completion, two-world TimeStop, source deduplication, exact chest stack and AIR replacement, UUID/entity/passenger delta, player/marker exclusions, callback3centers/16trees and scoped restoration)");}
+        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native uniform biomes, full save and packet height, async/full-height Stonekivi MOVE, failed and timed-out destination loads release the capture barrier without writes, one alternate destination and independent late completion, two-world TimeStop, source deduplication, exact chest stack and AIR replacement, UUID/entity/passenger delta, player/marker exclusions, callback3centers/16trees and scoped restoration)");}
         catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL nexus-clone",error);}
     }
 
@@ -269,6 +282,97 @@ public final class NexusCloneChecks {
         }
     }
 
+    /** Keep the witness independent of reusable island destinations and their disk palettes. */
+    private static final class FreshNexusColumn implements AutoCloseable {
+        private final ServerLevel level;
+        private ChunkPos pos;
+        private CompletableFuture<?> load;
+
+        FreshNexusColumn(ServerLevel level){this.level=level;}
+
+        void start(){
+            var root=level.getServer().getWorldPath(LevelResource.ROOT);
+            var region=DimensionType.getStorageFolder(level.dimension(),root).resolve("region");
+            var cache=level.getChunkSource();
+            for(int offset=0;offset<16;offset++){
+                int x=128+offset,z=-129;
+                var candidate=new ChunkPos(x*32+16,z*32+16);
+                if(!Files.notExists(region.resolve("r."+x+"."+z+".mca"))
+                        ||cache.getChunkNow(candidate.x(),candidate.z())!=null)continue;
+                pos=candidate;
+                load=cache.addTicketAndLoadWithRadius(TicketType.FORCED,pos,0);
+                return;
+            }
+            throw new IllegalStateException("No fresh reserved Nexus region for the biome fixture");
+        }
+
+        boolean finish(){
+            if(load==null||!load.isDone())return false;
+            require(!load.isCancelled()&&!NativeChunkLoad.failed(load),"owned cold Nexus chunk finishes native generation");
+            var chunk=level.getChunkSource().getChunkNow(pos.x(),pos.z());
+            if(chunk==null)return false;
+            verify(chunk);
+            close();
+            return true;
+        }
+
+        private void verify(LevelChunk chunk){
+            require(chunk.getPersistedStatus()==ChunkStatus.FULL&&chunk.getMinY()==0&&chunk.getMaxY()==2031
+                    &&chunk.getSections().length==127,"authored Nexus retains the full 2032-block height");
+            var factory=level.palettedContainerFactory();
+            var biome=level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(
+                    ResourceKey.create(Registries.BIOME,Identifier.parse("minecraft:nexus")));
+            var original=new LevelChunkSection(factory);
+            original.fillBiomesFromNoise((x,y,z)->biome,0,0,0);
+            var uniform=new LevelChunkSection(factory.createForBlockStates(),new PalettedContainer<>(biome,factory.biomeStrategy()));
+            int sectionCount=chunk.getSections().length;
+            int originalBytes=sectionCount*original.getSerializedSize(),compactBytes=sectionCount*uniform.getSerializedSize();
+            Set<Object> uniquePalettes=Collections.newSetFromMap(new IdentityHashMap<>());
+            int maxBits=0;
+            for(var section:chunk.getSections()){
+                require(section.hasOnlyAir()&&uniquePalettes.add(section.getBiomes()),"generated air sections own distinct biome palettes");
+                maxBits=Math.max(maxBits,section.getBiomes().bitsPerEntry());
+                for(int x=0;x<4;x++)for(int y=0;y<4;y++)for(int z=0;z<4;z++)
+                    require(section.getNoiseBiome(x,y,z).equals(biome),"every generated quart cell uses the authored Nexus biome");
+            }
+
+            int wireBytes;
+            var packet=new ClientboundLevelChunkPacketData(chunk).getReadBuffer();
+            try{
+                wireBytes=packet.readableBytes();
+                var decoded=new LevelChunkSection(factory);
+                for(int i=0;i<sectionCount;i++){
+                    decoded.read(packet);
+                    require(decoded.hasOnlyAir()&&decoded.getNoiseBiome(0,0,0).equals(biome)
+                            &&decoded.getNoiseBiome(3,3,3).equals(biome),"native client decodes every section through the ceiling");
+                }
+                require(packet.readableBytes()==0,"full native chunk packet contains exactly 127 section records");
+            }finally{packet.release();}
+
+            var file=SerializableChunkData.copyOf(level,chunk).write();
+            var roundTrip=SerializableChunkData.parse(level,factory,file);
+            require(roundTrip!=null&&roundTrip.chunkStatus()==ChunkStatus.FULL&&roundTrip.minSectionY()==0,
+                    "native storage round trip retains Nexus full status and floor");
+            var savedSections=roundTrip.sectionData().stream().filter(section->section.chunkSection()!=null).toList();
+            require(savedSections.size()==sectionCount,"native storage preserves 127 terrain and biome sections");
+            for(int i=0;i<sectionCount;i++){
+                var saved=savedSections.get(i);
+                require(saved.y()==i&&saved.chunkSection().getNoiseBiome(3,3,3).equals(biome)
+                        &&saved.chunkSection().getBiomes().bitsPerEntry()==0,"saved section position and uniform biome at "+i);
+            }
+            SkyWars2.LOGGER.info("[check] Nexus native biome column={} sections={} cells={} paletteBits={} wireBytes={} stockWireBytes={} compactWireBytes={}",
+                    pos,sectionCount,sectionCount*64,maxBits,wireBytes,originalBytes,compactBytes);
+            require(maxBits==0&&wireBytes==compactBytes&&originalBytes-compactBytes>=1270,
+                    "fresh native Nexus column should be compact: bits="+maxBits+", wire="+wireBytes+", expected="+compactBytes);
+        }
+
+        @Override public void close(){
+            if(pos==null)return;
+            level.getChunkSource().removeTicketWithRadius(TicketType.FORCED,pos,0);
+            pos=null;
+        }
+    }
+
     private static final class Fixture implements AutoCloseable {
         final GameController game;
         final ChefChecks.Fixture base;
@@ -278,6 +382,7 @@ public final class NexusCloneChecks {
         final ServerLevel source,destination;
         final ChunkPos sourceChunk=new ChunkPos(2048,2048);
         final ResidentRecovery recovery;
+        final FreshNexusColumn freshNexus;
         final Map<BlockPos,MapManager.BlockSnapshot> sourceOriginal=new LinkedHashMap<>(),destinationOriginal=new LinkedHashMap<>();
         final Map<BlockPos,MapManager.BlockSnapshot> sample=new LinkedHashMap<>();
         final Map<UUID,Vec3> positions=new LinkedHashMap<>();
@@ -304,6 +409,7 @@ public final class NexusCloneChecks {
         int stage,when,callbacks,lastCompleted,retryTick;
         int sourceContainerItems;
         boolean closed,sourceCaptured,destinationCaptured,sourceStopped,destinationStopped,sawProgress;
+        boolean freshNexusVerified;
 
         Fixture(GameController game){
             this.game=game;
@@ -312,6 +418,7 @@ public final class NexusCloneChecks {
             base=new ChefChecks.Fixture(game);source=base.owner.level();destination=game.server().getLevel(LbcHedgehogDimensions.NEXUS);
             require(destination!=null&&source!=destination,"ordinary source and native Nexus");
             recovery=new ResidentRecovery(game,source,sourceChunk);
+            freshNexus=new FreshNexusColumn(destination);
             require(!game.items().timeStop().stopped(destination),"no borrowed Nexus TimeStop");
             failedClone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
                 throw new IllegalStateException("Failed destination must never receive terrain or a completion callback");
@@ -341,7 +448,7 @@ public final class NexusCloneChecks {
             require(failedClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null)
                     &&!failedClone.captureReady(),"failed transfer enters the actual shared scheduler");
             recovery.exercise(base.owner);
-            sourceLoad=game.maps().prepareChunk(source,sourceChunk);begin(0);
+            sourceLoad=game.maps().prepareChunk(source,sourceChunk);freshNexus.start();begin(0);
             SkyWars2.LOGGER.info("[check] START nexus-clone (real ticks; reserved source {},{})",sourceChunk.x(),sourceChunk.z());
         }
         AABB box(ServerLevel level,ChunkPos chunk){return new AABB(chunk.getMinBlockX(),level.getMinY(),chunk.getMinBlockZ(),chunk.getMinBlockX()+16,level.getMaxY(),chunk.getMinBlockZ()+16);}
@@ -414,7 +521,8 @@ public final class NexusCloneChecks {
                 if(elapsed==0)return false;
                 require(!pendingSource.isDone()&&failedClone.captureReady()&&!failedClone.sourceInFlight(source,sourceChunk),
                         "a completed native failure releases the transfer while the other load remains pending");
-                if(ready(sourceLoad,source,sourceChunk)&&recovery.complete()){
+                if(!freshNexusVerified)freshNexusVerified=freshNexus.finish();
+                if(freshNexusVerified&&ready(sourceLoad,source,sourceChunk)&&recovery.complete()){
                     require(stalledClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null),
                             "stalled destination request enters the actual shared scheduler");
                     begin(6);
@@ -511,6 +619,7 @@ public final class NexusCloneChecks {
                     failedClone::stop,
                     stalledClone::stop,
                     recovery::close,
+                    freshNexus::close,
                     ()->{for(var level:List.of(source,destination))for(var id:owned){var entity=level.getEntity(id);if(entity!=null){if(entity instanceof LivingEntity living)game.items().indirectKills().clear(living);entity.discard();}}},
                     ()->{if(sourceCaptured)restoreColumn(source,sourceChunk,sourceOriginal);},
                     ()->{if(destinationCaptured)restoreColumn(destination,view.destinationChunk(),destinationOriginal);},
