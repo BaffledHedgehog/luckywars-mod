@@ -1342,6 +1342,7 @@ public final class GameController {
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
+        var creditedKiller=quitting?null:items.indirectKills().creditedKiller(player);
         // Compare maximum HP before ordinary death cleanup removes event skill modifiers.
         Entity seasonalKiller=damage.getEntity()!=null?damage.getEntity():player.getKillCredit();
         if(seasonalKiller instanceof ServerPlayer killer)items.lightsabers().onKill(killer,player);
@@ -1371,7 +1372,8 @@ public final class GameController {
         items.clear(player);
         lbc.clear(player);
         if (!developerMode()) players.get(player.getUUID()).deaths++;
-        Entity attacker = damage.getEntity()!=null ? damage.getEntity() : player.getKillCredit();
+        Entity attacker = creditedKiller != null ? creditedKiller
+                : damage.getEntity() != null ? damage.getEntity() : player.getKillCredit();
         UUID killerId=quitting?CombatLogout.killer(player):attacker instanceof ServerPlayer killer?killer.getUUID():null;
         if (!developerMode() && killerId!=null&&!killerId.equals(player.getUUID())&&participants.containsKey(killerId)) {
             players.get(killerId).kills++;

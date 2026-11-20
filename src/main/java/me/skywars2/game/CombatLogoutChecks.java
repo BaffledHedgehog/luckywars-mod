@@ -74,6 +74,69 @@ final class CombatLogoutChecks {
             for(var wanted:expected){int found=-1;for(int i=0;i<actual.size();i++)if(ItemStack.matches(wanted,actual.get(i))){found=i;break;}require(found>=0,"exact full components/count for "+wanted);actual.remove(found);}
             require(actual.isEmpty(),"no duplicate native armor or leftover stack");clearDrops();
         }
+        void nativeKillAwards(){
+            var author=participant();
+            var victim=participant();
+            var profile=game.players().get(author.getUUID());
+            var victimProfile=game.players().get(victim.getUUID());int victimDeaths=victimProfile.deaths;
+            int kills=profile.kills,coins=profile.coins;
+            int playerKills=author.getStats().getValue(net.minecraft.stats.Stats.CUSTOM,net.minecraft.stats.Stats.PLAYER_KILLS);
+            var at=new net.minecraft.world.phys.Vec3(base.home.x,Math.min(240,base.level.getMaxY()-32),base.home.z);
+            move(author,at.add(-4,0,0),0);author.setNoGravity(true);
+            move(victim,at.add(0,0,4),0);victim.setNoGravity(true);victim.setHealth(1);
+            var hedgehogs=game.items().hedgehog();
+            var helper=hedgehogs.spawnHelper(author,base.level,at,LbcHedgehog.Kind.ORDINARY);
+            require(helper!=null,"actual allied hedgehog at a loaded native position");
+            base.owned.add(helper.getUUID());helper.setNoGravity(true);
+            for(int tick=0;tick<8;tick++)hedgehogs.tick();
+            var arrow=hedgehogs.projectiles().stream().filter(shot->shot.getOwner()==helper).findFirst().orElseThrow();
+            base.owned.add(arrow.getUUID());
+            arrow.setPos(victim.position().add(0,1,-1));arrow.setDeltaMovement(0,0,2);arrow.tick();
+            var physical=victim.getLastDamageSource();
+            var nativeKiller=victim.getKillCredit();
+            boolean validPhysical=physical!=null&&physical.getEntity()==helper&&physical.getDirectEntity()==arrow;
+            // Carpet restores the old fake body's health after calling native ServerPlayer.die.
+            boolean deathRecorded=game.awaitingRespawn(victim.getUUID())&&victimProfile.deaths==victimDeaths+1;
+            require(deathRecorded&&nativeKiller==author&&validPhysical,
+                    "actual helper-arrow death keeps original physical hitter and native player credit: hp="+victim.getHealth()
+                    +", awaiting="+game.awaitingRespawn(victim.getUUID())+", profile deaths="+victimProfile.deaths+" (before="+victimDeaths+")"
+                    +", native killer="+nativeKiller+", mark="+victim.getLastHurtByPlayer()
+                    +", accepted killer="+game.items().indirectKills().creditedKiller(victim)+", damage="+physical
+                    +", causing="+(physical==null?null:physical.getEntity())+", direct="+(physical==null?null:physical.getDirectEntity())
+                    +", shot owner="+arrow.getOwner()+", shot cause="+hedgehogs.cause(arrow)+", profile="+profile.kills+"/"+profile.coins
+                    +", vanilla PLAYER_KILLS="+author.getStats().getValue(net.minecraft.stats.Stats.CUSTOM,net.minecraft.stats.Stats.PLAYER_KILLS));
+            kills++;coins+=50;playerKills++;
+            require(profile.kills==kills&&profile.coins==coins
+                    &&author.getStats().getValue(net.minecraft.stats.Stats.CUSTOM,net.minecraft.stats.Stats.PLAYER_KILLS)==playerKills,
+                    "same accepted hedgehog death grants its player exactly one profile kill and 50 coins");
+            base.discard(arrow);base.discard(helper);disconnect(victim);
+
+            var ordinary=participant();
+            require(ordinary.hurtServer(base.level,ordinary.damageSources().playerAttack(author),1000)&&ordinary.getKillCredit()==author,
+                    "ordinary direct player attack really kills and retains native credit");
+            kills++;coins+=50;playerKills++;
+            require(profile.kills==kills&&profile.coins==coins
+                    &&author.getStats().getValue(net.minecraft.stats.Stats.CUSTOM,net.minecraft.stats.Stats.PLAYER_KILLS)==playerKills,
+                    "ordinary player kills retain the same single profile award");
+            disconnect(ordinary);
+
+            var npc=new Skeleton(EntityTypes.SKELETON,base.level);
+            npc.setNoAi(true);npc.setNoGravity(true);npc.setPos(at.add(3,0,0));
+            require(base.level.addFreshEntity(npc),"actual hostile native skeleton body");base.owned.add(npc.getUUID());
+            for(boolean wild:new boolean[]{false,true}){
+                var otherVictim=participant();
+                if(wild){game.items().spellSources().unowned(npc);hit(otherVictim,author);}
+                otherVictim.setInvulnerableTime(0);otherVictim.damageCooldownTime=0;
+                var source=otherVictim.damageSources().mobAttack(npc);
+                require(otherVictim.hurtServer(base.level,source,1000)&&otherVictim.getKillCredit()==npc,
+                        "native unowned direct attack keeps its mob, wild="+wild);
+                require(profile.kills==kills&&profile.coins==coins
+                        &&author.getStats().getValue(net.minecraft.stats.Stats.CUSTOM,net.minecraft.stats.Stats.PLAYER_KILLS)==playerKills,
+                        "unowned mob cannot grant a player kill even after earlier PvP contact, wild="+wild);
+                disconnect(otherVictim);
+            }
+            base.discard(npc);disconnect(author);
+        }
         private void verifyForfeitWithoutIncomingDamage(ServerPlayer attacker, ServerPlayer opponent, String name) {
             var expected = item(Items.GOLD_INGOT, 4, name);
             attacker.getInventory().setItem(9, expected.copy());
@@ -149,6 +212,7 @@ final class CombatLogoutChecks {
         @Override void setup(){
             base.prepareParticipants();require(!game.developerMode(),"ordinary match statistics");started=game.server().getTickCount();
             game.players().get(base.owner.getUUID()).lbcSkill=0;game.players().get(base.other.getUUID()).lbcSkill=0;
+            nativeKillAwards();
             var quiet=participant();var kept=item(Items.DIAMOND,7,"quiet leave");quiet.getInventory().setItem(9,kept);int deaths=game.players().get(quiet.getUUID()).deaths;quit(quiet);
             require(game.players().get(quiet.getUUID()).deaths==deaths&&ItemStack.matches(quiet.getInventory().getItem(9),kept)&&drops().isEmpty(),"noncombat leave preserves items and statistics");saved(quiet,false);
 
@@ -263,5 +327,5 @@ final class CombatLogoutChecks {
         }
     }
     static void run(GameController game){require(running==null,"exclusive native scene");running=new Scene(game);try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
-    static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS combat-logout (actual native leave/save, last player and captured spell credit, absorption-only and restored chronology, NPC supersession, all inventory/vanishing armor/offhand/totem/craft/cursor drops under keepInventory, once guard and noncombat/PvE/rejected/naturally expired controls)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL combat-logout",error);}}
+    static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS combat-logout (native hedgehog/direct-player/WILD mob kill awards, actual native leave/save, last player and captured spell credit, absorption-only and restored chronology, NPC supersession, all inventory/vanishing armor/offhand/totem/craft/cursor drops under keepInventory, once guard and noncombat/PvE/rejected/naturally expired controls)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL combat-logout",error);}}
 }

@@ -260,6 +260,12 @@ public final class LbcIndirectKills {
         return cause != null && marker != null && cause.player.equals(marker.getUUID()) ? cause : null;
     }
 
+    /** The accepted death already settled this player without changing the physical damage source. */
+    ServerPlayer creditedKiller(LivingEntity victim) {
+        var cause = lootOwner(victim);
+        return cause == null ? null : game.server().getPlayerList().getPlayer(cause.player());
+    }
+
     public net.minecraft.world.item.ItemStack lootWeapon(LivingEntity victim) {
         var cause = lootOwner(victim);
         return cause == null ? net.minecraft.world.item.ItemStack.EMPTY : cause.enchantmentWeapon();
