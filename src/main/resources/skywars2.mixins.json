@@ -44,7 +44,6 @@
     "LegacyLootTextMixin",
     "CloneProjectileTickMixin",
     "TmtInputMixin",
-    "TmtInputMixin$Thrown",
     "TmtInputMixin$UseModifier",
     "TmtInputMixin$SourceView",
     "AcademyInteractionMixin$Data",

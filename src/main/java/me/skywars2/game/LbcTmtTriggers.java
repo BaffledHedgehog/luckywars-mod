@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
@@ -64,8 +65,13 @@ public final class LbcTmtTriggers {
         var type=LbcTmtItems.vanillaCarrier(carrier);
         if(type==Items.BOW||type==Items.CROSSBOW)result.add(Input.SHOT);
         if(type==Items.GOLDEN_APPLE)result.add(Input.EAT);
-        if(type==Items.SNOWBALL)result.add(Input.THROW);
+        if(throwable(type))result.add(Input.THROW);
         return List.copyOf(result);
+    }
+    private static boolean throwable(Item carrier){
+        return carrier==Items.SNOWBALL||carrier==Items.EGG||carrier==Items.BLUE_EGG||carrier==Items.BROWN_EGG||carrier==Items.ENDER_PEARL
+                ||carrier==Items.WIND_CHARGE||carrier==Items.EXPERIENCE_BOTTLE
+                ||carrier==Items.SPLASH_POTION||carrier==Items.LINGERING_POTION||carrier==Items.TRIDENT;
     }
     static EnumSet<Action> actions(LbcTmtCatalog.Family family){
         var result=EnumSet.noneOf(Action.class);
@@ -135,6 +141,19 @@ public final class LbcTmtTriggers {
     public static void useItemInput(ServerPlayer owner,InteractionHand hand){
         input(owner,Input.RIGHT_CLICK,null,null,null,hand);
     }
+    public static void acceptedThrow(LivingEntity thrower,InteractionHand hand,ItemStack physical,ItemStack source,Projectile projectile){
+        if(!(thrower instanceof ServerPlayer owner)||!modern(source)||!throwable(LbcTmtItems.vanillaCarrier(source))
+                ||projectile.isRemoved()||projectile.getOwner()!=owner||owner.level().getEntity(projectile.getUUID())!=projectile)return;
+        var held=owner.getItemInHand(hand);
+        if(held==physical&&!physical.isEmpty()){
+            input(owner,Input.THROW,null,null,null,hand);
+        }else if(source!=physical&&physical.isEmpty()&&held.isEmpty()){
+            // Survival tridents leave the hand before native publication. Expose the thrown copy only to this callback.
+            var previous=heldView.get();heldView.set(new HeldView(owner,hand,source));
+            try{input(owner,Input.THROW,null,null,null,hand);}
+            finally{if(previous==null)heldView.remove();else heldView.set(previous);}
+        }
+    }
     public static void input(ServerPlayer owner,Input input,Entity target,net.minecraft.core.BlockPos block,
                              net.minecraft.world.level.block.state.BlockState before){
         input(owner,input,target,block,before,null);
@@ -145,7 +164,7 @@ public final class LbcTmtTriggers {
         if(game!=null){
             var genie=game.items().genie().runtime();
             if(itemHand==null)genie.input(owner,input,target);
-            else genie.event(owner,me.skywars2.game.genie.GenieBlueprint.Trigger.USE,null,owner.getItemInHand(itemHand),itemHand);
+            else if(input==Input.RIGHT_CLICK)genie.event(owner,me.skywars2.game.genie.GenieBlueprint.Trigger.USE,null,owner.getItemInHand(itemHand),itemHand);
         }
         if(game==null||game.balanceLegacy()||dispatchDepth.get()>0||LbcModeScroll.scrolling()||!game.items().tmt().admitted(owner))return;
         int now=game.server().getTickCount();if(tick!=now){dispatched.clear();tick=now;}

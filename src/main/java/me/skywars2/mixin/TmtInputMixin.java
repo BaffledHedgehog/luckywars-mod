@@ -5,14 +5,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SnowballItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Actual punch and projectile publication boundaries; Q is deliberately absent. */
+/** Native punch and sneak press boundaries. */
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class TmtInputMixin {
     @Shadow public ServerPlayer player;
@@ -24,15 +23,6 @@ public abstract class TmtInputMixin {
         net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread(packet,(ServerGamePacketListenerImpl)(Object)this,player.level());
         boolean was=player.isShiftKeyDown();original.call(packet);
         if(!was&&player.isShiftKeyDown())LbcTmtTriggers.input(player,LbcTmtTriggers.Input.SNEAK_PRESS);
-    }
-    @Mixin(SnowballItem.class)
-    public abstract static class Thrown {
-        @com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method="use",at=@At(value="INVOKE",target="Lnet/minecraft/world/item/ItemStack;consume(ILnet/minecraft/world/entity/LivingEntity;)V"))
-        private void skywars2$tmtThrown(ItemStack stack,int amount,LivingEntity user,com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original){
-            // Native snowball publication has succeeded, and even the final item is still present.
-            if(user instanceof ServerPlayer owner)LbcTmtTriggers.input(owner,LbcTmtTriggers.Input.THROW);
-            original.call(stack,amount,user);
-        }
     }
     @Mixin(net.minecraft.world.entity.Entity.class)
     public abstract static class UseModifier {

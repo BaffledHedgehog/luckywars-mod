@@ -7,14 +7,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.*;
@@ -26,9 +31,13 @@ public final class TmtTriggerChecks {
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("TMT triggers: "+why);}
     private static int seed;
     private static ItemStack fire(int carrier,LbcTmtTriggers.Input input){
+        return fire(LbcTmtItems.prototype(carrier),input);
+    }
+    private static ItemStack fire(ItemStack stack,LbcTmtTriggers.Input input){
         var profile=LbcWands.tmtAbilities().stream().filter(p->p.nativeItem().toString().equals("skywars2:fire_wand")).findFirst().orElseThrow();
         var payload=profile.inMode(0).data().copyTag();var bindings=new CompoundTag();bindings.putString("USE",input.name());payload.put(LbcTmtTriggers.KEY,bindings);
-        var stack=LbcTmtItems.prototype(carrier);var data=stack.get(DataComponents.CUSTOM_DATA).copyTag();
+        var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        data.putInt("tmt_item",1);
         data.putInt("tmt_texture_seed",++seed);data.putInt(LbcTmtTriggers.SCHEMA,1);
         LbcTmtAbilities.write(data,List.of(new LbcTmtAbilities.Ability("wand/stfire",CustomData.of(payload))));
         stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));return stack;
@@ -45,6 +54,78 @@ public final class TmtTriggerChecks {
         require(!LbcTmtAbilities.active(source)&&!ItemData.contains(source,LbcTmtAbilities.ACTIVE),"temporary native view closes");
         for(var body:created)f.discard(body);
         return List.copyOf(created);
+    }
+    private static void throwOwnership(WoolBucketChecks.Fixture f){
+        var mana=f.game.items().mana();
+        var offhand=fire(2,LbcTmtTriggers.Input.THROW);
+        var ordinary=new ItemStack(Items.SNOWBALL);
+        var used=Stats.ITEM_USED.get(offhand.getItem());
+        f.usedStats.putIfAbsent(used,f.owner.getStats().getValue(used));
+        f.owner.setItemInHand(InteractionHand.MAIN_HAND,ordinary);
+        f.owner.setItemInHand(InteractionHand.OFF_HAND,offhand);
+        mana.set(f.owner,1000);
+        var before=bodies(f);
+        f.owner.gameMode.useItem(f.owner,f.level,ordinary,InteractionHand.MAIN_HAND);
+        var launched=fresh(f,before);
+        require(launched.size()==1&&launched.getFirst() instanceof Snowball&&mana.get(f.owner)==1000
+                &&f.owner.getOffhandItem()==offhand&&!offhand.isEmpty(),"ordinary main-hand throw cannot trigger the unthrown TMT offhand");
+        launched.forEach(f::discard);
+        before=bodies(f);
+        f.owner.gameMode.useItem(f.owner,f.level,offhand,InteractionHand.OFF_HAND);
+        launched=fresh(f,before);
+        require(launched.stream().filter(Snowball.class::isInstance).count()==1&&launched.stream().filter(SmallFireball.class::isInstance).count()==3
+                &&mana.get(f.owner)==900&&f.owner.getOffhandItem().isEmpty(),"actual final offhand throw dispatches its own ability once and consumes the item");
+        launched.forEach(f::discard);
+
+        var refused=fire(2,LbcTmtTriggers.Input.THROW);
+        f.owner.setItemInHand(InteractionHand.MAIN_HAND,refused);
+        mana.set(f.owner,1000);before=bodies(f);
+        rejectNextRegistration(f,()->f.owner.gameMode.useItem(f.owner,f.level,refused,InteractionHand.MAIN_HAND));
+        require(fresh(f,before).isEmpty()&&mana.get(f.owner)==1000&&refused.isEmpty(),"native UUID refusal preserves vanilla debit but cannot fire a rebound property");
+
+        for(var item:List.of(Items.BLUE_EGG,Items.TRIDENT)){
+            var itemUsed=Stats.ITEM_USED.get(item);
+            f.usedStats.putIfAbsent(itemUsed,f.owner.getStats().getValue(itemUsed));
+            var source=fire(new ItemStack(item),LbcTmtTriggers.Input.THROW);
+            require(LbcTmtTriggers.inputs(source).contains(LbcTmtTriggers.Input.THROW),"compatible native throw input on "+item);
+            var projectiles=cast(f,source,()->{
+                f.owner.gameMode.useItem(f.owner,f.level,source,InteractionHand.MAIN_HAND);
+                if(item==Items.TRIDENT){
+                    require(f.owner.isUsingItem()&&f.owner.getUseItem()==source,"actual trident windup");
+                    try{
+                        var remaining=LivingEntity.class.getDeclaredField("useItemRemaining");remaining.setAccessible(true);
+                        remaining.setInt(f.owner,source.getUseDuration(f.owner)-20);
+                    }catch(ReflectiveOperationException failure){throw new IllegalStateException("trident windup fixture",failure);}
+                    f.owner.releaseUsingItem();
+                }
+            });
+            require(projectiles.stream().filter(item==Items.TRIDENT?ThrownTrident.class::isInstance:ThrownEgg.class::isInstance).count()==1
+                    &&f.owner.getMainHandItem().isEmpty(),"native throw releases its carrier and one physical body on "+item);
+        }
+    }
+    @SuppressWarnings("unchecked")
+    private static void rejectNextRegistration(WoolBucketChecks.Fixture f,Runnable launch){
+        try{
+            var manager=WoolBucketChecks.read(f.level,"entityManager");
+            var field=manager.getClass().getDeclaredField("knownUuids");field.setAccessible(true);
+            var accepted=(Set<UUID>)field.get(manager);
+            var guard=new AbstractSet<UUID>(){
+                UUID rejected;
+                @Override public Iterator<UUID> iterator(){return accepted.iterator();}
+                @Override public int size(){return accepted.size();}
+                @Override public boolean contains(Object uuid){return accepted.contains(uuid);}
+                @Override public boolean remove(Object uuid){return accepted.remove(uuid);}
+                @Override public boolean add(UUID uuid){
+                    if(rejected!=null)return accepted.add(uuid);
+                    if(!accepted.add(uuid))return false;
+                    rejected=uuid;
+                    return false;
+                }
+            };
+            field.set(manager,guard);
+            try{launch.run();require(guard.rejected!=null,"real native duplicate UUID guard rejected the projectile");}
+            finally{if(guard.rejected!=null)accepted.remove(guard.rejected);field.set(manager,accepted);}
+        }catch(ReflectiveOperationException failure){throw new IllegalStateException("native projectile refusal fixture",failure);}
     }
     public static void run(GameController game){synchronous(game);TmtReboundChecks.run(game);beginTimed(game);}
     private static void synchronous(GameController game){
@@ -88,6 +169,7 @@ public final class TmtTriggerChecks {
                 require(mana.get(f.owner)==1000&&fresh(f,before).isEmpty(),"rebound jump property does not also cast on old RMB");
                 cast(f,jumping,()->GroundJumpEvents.jumped(f.owner));
                 LbcTmtTriggers.input(f.owner,LbcTmtTriggers.Input.JUMP);require(mana.get(f.owner)==900,"same input/frame cannot double-run a private property");
+                throwOwnership(f);
                 var thrown=fire(2,LbcTmtTriggers.Input.THROW);
                 var thrownBodies=cast(f,thrown,()->require(f.owner.gameMode.useItem(f.owner,f.level,thrown,InteractionHand.MAIN_HAND).consumesAction(),"actual native snowball launch"));
                 require(thrownBodies.stream().filter(Snowball.class::isInstance).count()==1,"THROW follows one real native snowball publication");

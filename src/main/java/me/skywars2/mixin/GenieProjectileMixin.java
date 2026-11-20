@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import me.skywars2.game.GenieCombat;
 import me.skywars2.game.GenieNative;
 import me.skywars2.game.LbcTmtShotCompletion;
+import me.skywars2.game.LbcTmtTriggers;
 import me.skywars2.game.genie.GenieRuntime;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,6 +44,7 @@ public abstract class GenieProjectileMixin {
                 @Local(argsOnly=true) InteractionHand hand){
             var shot=original.call(factory,level,source,owner,offset,speed,spread);
             GenieNative.acceptedThrow(owner,hand,source,source,shot);
+            LbcTmtTriggers.acceptedThrow(owner,hand,source,source,shot);
             return shot;
         }
     }
@@ -59,8 +61,10 @@ public abstract class GenieProjectileMixin {
                 ItemStack thrownStack,LivingEntity owner,float offset,float speed,float spread,Operation<Projectile> original,
                 @Local(argsOnly=true) ItemStack physical){
             var hand=owner.getUsedItemHand();
+            boolean releasing=owner.isUsingItem()&&owner.getUseItem()==physical;
             var shot=original.call(factory,level,thrownStack,owner,offset,speed,spread);
             GenieNative.acceptedThrow(owner,hand,physical,thrownStack,shot);
+            if(releasing)LbcTmtTriggers.acceptedThrow(owner,hand,physical,thrownStack,shot);
             return shot;
         }
 
