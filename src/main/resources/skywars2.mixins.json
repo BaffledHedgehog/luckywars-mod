@@ -329,6 +329,7 @@
     "WorldCheckpointAccess$Static",
     "ActorCheckpointAccess$LevelEntities",
     "ActorCheckpointAccess$Sections",
+    "EntityLookupLivingMixin",
     "CreativeBlockDropsMixin",
     "AttributeLimitsMixin",
     "DirectionalKnockbackMixin",

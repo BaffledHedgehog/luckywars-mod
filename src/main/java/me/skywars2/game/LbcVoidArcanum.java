@@ -332,10 +332,10 @@ public final class LbcVoidArcanum {
                 }
             }
         }
-        // Match the source's unlimited loaded-dimension nearest selector without loading chunks.
+        // Match the source's unlimited nearest selector using the arena's loaded living entities.
         LivingEntity nearest=null;double best=Double.POSITIVE_INFINITY;
-        for(var entity:hole.world.getAllEntities()){
-            if(!(entity instanceof LivingEntity target)||!physicalTarget(hole,author,target)
+        for(var target:NativeLivingEntities.in(hole.world)){
+            if(!physicalTarget(hole,author,target)
                     ||!resident(hole.world,target.position())||!hole.wild&&!game.items().wands().target(author,target))continue;
             // A captured body keeps being pulled/damaged, but is no longer a destination.
             // Use its actual volume, so tall mobs cannot pin the hole to their feet or eyes.

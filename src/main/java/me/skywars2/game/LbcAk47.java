@@ -67,15 +67,18 @@ public final class LbcAk47 {
         return isAk47(stack) && data!=null && data.matchedBy(FINITE);
     }
     public boolean use(ServerPlayer owner,InteractionHand hand) {
-        if(!valid(owner) || !isAk47(owner.getItemInHand(hand))
+        if(!valid(owner)) return false;
+        var gun=owner.getItemInHand(hand);
+        if(!isAk47(gun)
                 || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
                 || game.items().actionsBlocked(owner) || game.items().wands().inputTimeStopped(owner)
                 || game.items().magic().mechanismSuppressedAt(owner.level(),owner.position())) return false;
         // (user) Each hand pays only for its own finite gun; both copies share the player's rounds.
-        boolean finite=isFinite(owner.getItemInHand(hand));
+        boolean finite=isFinite(gun);
         if(finite && ammo(owner)<1) return false;
         String epoch=game.items().epoch();
-        nativeRay(owner);
+        var weapon=LbcTmtAbilities.outerCopy(gun);
+        nativeRay(owner,LbcGunAccuracy.ak47(owner),null,160,weapon);
         // An accepted hit may synchronously end the match or remove the shooter.
         if(valid(owner) && game.items().currentEpoch(epoch)) {
             float yaw=owner.getYRot()+owner.getRandom().nextInt(9)-4;
@@ -91,9 +94,6 @@ public final class LbcAk47 {
                 && owner.level()==game.maps().level() && game.canUseGameplayItems(owner)
                 && game.stage()!=GameController.Stage.ENDING;
     }
-    private void nativeRay(ServerPlayer owner) {
-        nativeRay(owner,LbcGunAccuracy.ak47(owner),null);
-    }
     /** One gun engine: NPC collision is supplied explicitly; player policy is unchanged. */
     void nativeRay(net.minecraft.world.entity.LivingEntity owner,Vec3 direction,
             java.util.function.Predicate<net.minecraft.world.entity.Entity> collision) {
@@ -101,6 +101,10 @@ public final class LbcAk47 {
     }
     void nativeRay(net.minecraft.world.entity.LivingEntity owner,Vec3 direction,
             java.util.function.Predicate<net.minecraft.world.entity.Entity> collision,double range) {
+        nativeRay(owner,direction,collision,range,ItemStack.EMPTY);
+    }
+    private void nativeRay(net.minecraft.world.entity.LivingEntity owner,Vec3 direction,
+            java.util.function.Predicate<net.minecraft.world.entity.Entity> collision,double range,ItemStack weapon) {
         var level=(net.minecraft.server.level.ServerLevel)owner.level();
         Vec3 origin=owner.getEyePosition();
         var originBlock=BlockPos.containing(origin);
@@ -115,10 +119,15 @@ public final class LbcAk47 {
         if(hit!=null&&Double.isFinite(suppression)&&origin.distanceToSqr(hit.getLocation())>=origin.distanceToSqr(end)-1e-9)hit=null;
         if(hit!=null) end=hit.getLocation();
         trail(owner,origin,end);
+        if(hit==null) return;
+        var kills=game.items().indirectKills();
+        var cause=owner instanceof ServerPlayer player && !weapon.isEmpty()?kills.itemCause(player,false,false,weapon):null;
         if(hit instanceof EntityHitResult entityHit) {
             var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                     .getOrThrow(DamageTypes.ARROW),owner);
-            entityHit.getEntity().hurtServer(level,source,9);
+            if(entityHit.getEntity().hurtServer(level,kills.captureDamage(source,cause),9)
+                    && cause!=null && owner instanceof ServerPlayer player)
+                LbcAcceptedHits.projectileFeedback(game,player);
             sound(owner,end,"minecraft:entity.pig.hurt",1,1,0,0);
         } else if(hit instanceof BlockHitResult wall && level.getChunkSource().getChunkNow(
                 wall.getBlockPos().getX()>>4,wall.getBlockPos().getZ()>>4)!=null) {
@@ -126,9 +135,10 @@ public final class LbcAk47 {
             level.sendParticles(ParticleTypes.CLOUD,cloud.x,cloud.y,cloud.z,1,0,0,0,.1);
             if(!level.getBlockState(wall.getBlockPos()).is(INDESTRUCTIBLE)) {
                 try {
-                    game.items().indirectKills().worldChanges(level,owner,!(owner instanceof ServerPlayer),
-                            ()->game.items().wands().destroyRubyCell(owner,wall.getBlockPos()));
-                } finally { game.items().indirectKills().finishSupportRemoval(); }
+                    Runnable destroy=()->game.items().wands().destroyRubyCell(owner,wall.getBlockPos());
+                    if(cause==null)kills.worldChanges(level,owner,!(owner instanceof ServerPlayer),destroy);
+                    else kills.capturedWorldChanges(level,cause,destroy);
+                } finally { kills.finishSupportRemoval(); }
             }
         }
         // No shieldHit: neither source AK ray has a shield_blockable marker.

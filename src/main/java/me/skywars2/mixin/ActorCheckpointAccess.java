@@ -5,12 +5,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityLookup;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 public final class ActorCheckpointAccess {
     private ActorCheckpointAccess() { }
+
     @Mixin(Entity.class) public interface Body {
         @Accessor("levelCallback") net.minecraft.world.level.entity.EntityInLevelCallback skywars2$levelCallback();
         @Invoker("unsetRemoved") void skywars2$revive();
@@ -29,5 +31,6 @@ public final class ActorCheckpointAccess {
     }
     @Mixin(net.minecraft.world.level.entity.PersistentEntitySectionManager.class) public interface Sections {
         @Accessor("sectionStorage") net.minecraft.world.level.entity.EntitySectionStorage<Entity> skywars2$sections();
+        @Accessor("visibleEntityStorage") EntityLookup<Entity> skywars2$visibleEntities();
     }
 }

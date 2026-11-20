@@ -1232,6 +1232,7 @@ public final class GameChecks {
                                 case "defensive-arcanums-stop-probe" -> { DefensiveArcanumChecks.stopProbe(game); return; }
                                 case "defensive-arcanums-cleanup" -> { DefensiveArcanumChecks.cleanup(game); return; }
                                 case "void-arcanum" -> { VoidArcanumChecks.run(game); return; }
+                                case "void-arcanum-index" -> { VoidArcanumChecks.index(game); return; }
                                 case "void-arcanum-celebration" -> { VoidArcanumChecks.celebration(game); return; }
                                 case "void-arcanum-stop-probe" -> { VoidArcanumChecks.stopProbe(game); return; }
                                 case "void-arcanum-cleanup" -> { VoidArcanumChecks.cleanup(game); return; }
@@ -1979,6 +1980,7 @@ public final class GameChecks {
         MusicStaffChecks.tick(game);
         SkillVexCelebrationChecks.tick(game);
         VoidArcanumChecks.celebrationTick(game);
+        VoidArcanumChecks.indexTick(game);
         AirdropSimulationChecks.tick(game);
         GenieChecks.tick(game);
         GenieLobbyChecks.tick(game);
@@ -18185,6 +18187,11 @@ public final class GameChecks {
                         owner.damageCooldownTime=0;owner.setInvulnerableTime(0);ammo=gun.ammo(owner);
                         require(owner.hurtServer(level,owner.damageSources().onFire(),1)&&gun.ammo(owner)==ammo,"Actual accepted burning damage grants no round");
                         ammo=gun.ammo(owner); game.items().kfcFood().applyOutcome(owner,7); require(gun.ammo(owner)==ammo+1,"Real KFC counter outcome increments shared AK ammunition once");
+                        // The previous cow died beside the new targets. Clear its fixture drops before testing new loot.
+                        for (var entity : com.google.common.collect.Lists.newArrayList(level.getAllEntities()))
+                                if (!initial.contains(entity) && entity instanceof net.minecraft.world.entity.item.ItemEntity item
+                                        && (item.getItem().is(Items.LEATHER) || item.getItem().is(Items.BEEF))) item.discard();
+                        checkAk47EnchantedShots(game,owner,other,stack,finite,mobs);
                         gun.forget(owner); require(gun.ammo(owner)==0,"Owner lifecycle forget clears shared rounds");
                         gun.setAmmo(owner,23); gun.stop(); require(gun.ammo(owner)==0,"Service stop clears retained player rounds");
                         ak47CheckedEpoch=game.items().epoch();
@@ -18199,6 +18206,76 @@ public final class GameChecks {
                         for(var objective:board.getObjectives()) if(scores.containsKey(objective)) board.getOrCreatePlayerScore(owner,objective,true).set(scores.get(objective)); else board.resetSinglePlayerScore(owner,objective);
                 }
                 SkyWars2.LOGGER.info("[check] PASS ak47");
+        }
+        private static void checkAk47EnchantedShots(GameController game,ServerPlayer owner,ServerPlayer other,
+                ItemStack infinite,ItemStack finite,java.util.List<net.minecraft.world.entity.animal.cow.Cow> mobs) {
+                var level=owner.level();var service=game.items().ak47();var kills=game.items().indirectKills();
+                var main=net.minecraft.world.InteractionHand.MAIN_HAND;var off=net.minecraft.world.InteractionHand.OFF_HAND;
+                var enchantments=owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+                var sharpness=enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS);
+                var looting=enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.LOOTING);
+                var cowType=net.minecraft.world.entity.EntityTypes.COW;
+                var cowKills=net.minecraft.stats.Stats.ENTITY_KILLED.get(cowType);int oldKills=owner.getStats().getValue(cowKills);
+                java.util.function.Predicate<net.minecraft.network.protocol.Packet<?>> cue=packet->
+                        packet instanceof net.minecraft.network.protocol.game.ClientboundGameEventPacket event
+                                &&event.getEvent()==net.minecraft.network.protocol.game.ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND;
+                try(var shooter=new RegenerationBeltChecks.ScheduledClient(game,owner);
+                        var observer=new RegenerationBeltChecks.ScheduledClient(game,other)) {
+                        for(int scenario=0;scenario<3;scenario++) {
+                                boolean enchanted=scenario<2;
+                                var hand=scenario==0?main:off;
+                                var weapon=(hand==main?infinite:finite).copy();
+                                var unrelated=new ItemStack(Items.IRON_SWORD);
+                                require(sharpness.value().isSupportedItem(weapon)&&looting.value().isSupportedItem(weapon),
+                                        "Canonical AK accepts applicable sword enchantments: "+hand);
+                                if(enchanted){weapon.enchant(sharpness,4);weapon.enchant(looting,100);}
+                                else{unrelated.enchant(sharpness,20);unrelated.enchant(looting,100);}
+                                owner.setItemInHand(hand,weapon);
+                                owner.setItemInHand(hand==main?off:main,unrelated);
+                                service.setAmmo(owner,2);
+                                var target=new net.minecraft.world.entity.animal.cow.Cow(cowType,level) {
+                                        @Override public long getLootTableSeed(){return 1L;}
+                                };
+                                target.setPos(owner.getX(),owner.getEyeY()-.5,owner.getZ()+4);
+                                target.setNoAi(true);target.setNoGravity(true);
+                                target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
+                                target.setHealth(20);mobs.add(target);
+                                require(level.addFreshEntity(target),"Published native AK enchantment target");
+                                shooter.packets().clear();observer.packets().clear();
+                                owner.setYRot(0);owner.setXRot(0);pineUsePacket(owner,hand);
+                                var source=target.getLastDamageSource();
+                                float expected=enchanted?8.5F:11;
+                                require(Math.abs(target.getHealth()-expected)<.001F,
+                                        "Native AK applies only the firing hand's Sharpness: scenario="+scenario+" hp="+target.getHealth());
+                                require(source!=null&&source.getEntity()==owner&&source.getDirectEntity()==owner
+                                                &&source.is(net.minecraft.world.damagesource.DamageTypes.ARROW)
+                                                &&ItemStack.matches(kills.enchantmentWeapon(source),weapon),
+                                        "AK hit keeps the original physical shooter, damage type and exact firing stack: "+hand);
+                                int remaining=hand==main?2:1;
+                                require(service.ammo(owner)==remaining&&shooter.packets().stream().filter(cue).count()==1
+                                                &&observer.packets().stream().noneMatch(cue),
+                                        "Each accepted AK hit has one private cue and debits only its finite hand: "+hand);
+
+                                var lootArea=target.getBoundingBox().inflate(2);
+                                var drops=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,lootArea);
+                                target.setHealth(1);target.setInvulnerableTime(0);target.damageCooldownTime=0;
+                                owner.setYRot(0);owner.setXRot(0);pineUsePacket(owner,hand);
+                                int loot=0;
+                                for(var drop:level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,lootArea)) {
+                                        if(!drops.contains(drop)&&(drop.getItem().is(Items.LEATHER)||drop.getItem().is(Items.BEEF))) {
+                                                loot+=drop.getItem().getCount();drop.discard();
+                                        }
+                                }
+                                require(!target.isAlive()&&target.getKillCredit()==owner
+                                                &&(enchanted?loot>8:loot<=5)&&service.ammo(owner)==(hand==main?remaining:remaining-1),
+                                        "Native lethal AK hit uses its own Looting and exact rounds: scenario="+scenario+" loot="+loot
+                                                +" hp="+target.getHealth()+" owner="+(target.getKillCredit()==owner)+" ammo="+service.ammo(owner));
+                                SkyWars2.LOGGER.info("[check] METRIC AK native enchantments hand={} enchanted={} loot={}",hand,enchanted,loot);
+                                require(shooter.packets().stream().filter(cue).count()==2&&observer.packets().stream().noneMatch(cue),
+                                        "Lethal AK still sends exactly one private cue");
+                                target.discard();
+                        }
+                } finally { owner.getStats().setValue(owner,cowKills,oldKills); }
         }
         private static void checkAk47Cleanup(GameController game) {
                 require(game.inLobby() && ak47CheckedEpoch!=null && !game.items().currentEpoch(ak47CheckedEpoch),"Actual match stop invalidates tested AK epoch");

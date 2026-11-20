@@ -10,6 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
@@ -19,23 +20,29 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ScheduledTick;
 import net.minecraft.world.phys.Vec3;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 /** Bounded native fixture; explicit service calls below test boundaries without elapsed-time claims. */
@@ -43,6 +50,37 @@ public final class VoidArcanumChecks {
     private VoidArcanumChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Void Arcanum: "+why);}
     private static Object copy(Object value){if(value instanceof int[] array)return array.clone();if(value instanceof Set<?> set)return new HashSet<>(set);return value;}
+
+    /** Count visits to the native full-world iterator only during one explicit steering pulse. */
+    private static final class EntityWalk implements AutoCloseable {
+        final Object manager;
+        final Field getter;
+        final LevelEntityGetter<Entity> original;
+        int queries,visits;
+
+        EntityWalk(ServerLevel level) {
+            var nativeManager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+            manager=nativeManager;original=nativeManager.getEntityGetter();
+            try {
+                getter=nativeManager.getClass().getDeclaredField("entityGetter");getter.setAccessible(true);
+                var observed=Proxy.newProxyInstance(LevelEntityGetter.class.getClassLoader(),new Class<?>[]{LevelEntityGetter.class},(proxy,method,args)->{
+                    if(method.getName().equals("getAll")){
+                        queries++;
+                        return (Iterable<Entity>)()->java.util.stream.StreamSupport.stream(original.getAll().spliterator(),false)
+                                .peek(entity->visits++).iterator();
+                    }
+                    try { return method.invoke(original,args); }
+                    catch(InvocationTargetException error) { throw error.getCause(); }
+                });
+                getter.set(manager,observed);
+            } catch(ReflectiveOperationException error) { throw new IllegalStateException("Install scoped native entity iterator observer",error); }
+        }
+
+        @Override public void close() {
+            try { getter.set(manager,original); }
+            catch(IllegalAccessException error) { throw new IllegalStateException("Restore native entity getter",error); }
+        }
+    }
     private static Map<Field,Object> fields(Object target){
         var values=new LinkedHashMap<Field,Object>();try{for(var f:target.getClass().getFields())if(!Modifier.isStatic(f.getModifiers()))values.put(f,copy(f.get(target)));}
         catch(IllegalAccessException error){throw new IllegalStateException(error);}return values;
@@ -368,6 +406,95 @@ public final class VoidArcanumChecks {
             finally{game.items().magic().unloaded(stopper);stopper.discard();}
             var stale=new Marker(EntityTypes.MARKER,owner.level());stale.entityTags().add("skywars2.void_arcanum");owner.level().addFreshEntity(stale);service.loaded(stale);require(stale.isRemoved(),"unowned restored body rejected on native load");clear();
         }
+
+        void indexedSteering(){
+            prime();var hole=spawn(owner,at);hole.level=5;
+            var level=owner.level();var lifetimes=game.items().lifetimes();
+            var created=new ArrayList<Entity>();
+            try {
+                // Same eye height and exact opposing horizontal distances beyond the physical pull.
+                var east=at.add(96,0,0);var west=at.add(-96,0,0);
+                var first=cow(east);created.add(first);
+                var second=cow(west);created.add(second);
+                require(level.getEntity(first.getUUID())==first&&level.getEntity(second.getUUID())==second,
+                        "both distant cows are genuine visible arena bodies");
+                require(lifetimes.loadedTargets().indexOf(first)>=0
+                        &&lifetimes.loadedTargets().indexOf(first)<lifetimes.loadedTargets().indexOf(second),
+                        "live index retains first native publication order for two distant equal contenders");
+
+                var staleAt=at.add(0,0,-40);
+                var stale=cow(staleAt);created.add(stale);stale.discard();
+                require(level.getEntity(stale.getUUID())==null&&lifetimes.loadedTargets().contains(stale),
+                        "discarded closer body is genuinely stale until the deferred unload callback");
+                var end=Objects.requireNonNull(game.server().getLevel(Level.END));
+                var foreign=new ProbeCow(end);var foreignAt=endTarget(end);
+                foreign.setPos(foreignAt);foreign.setNoAi(true);foreign.setNoGravity(true);
+                require(end.addFreshEntity(foreign),"native closer End control enters the world");created.add(foreign);
+                require(end.getEntity(foreign.getUUID())==foreign&&lifetimes.loadedRadarTargets(end).contains(foreign)
+                        &&!lifetimes.loadedTargets().contains(foreign),"visible End body belongs exclusively to its native world index");
+
+                for(int i=0;i<128;i++){
+                    var decoration=new Marker(EntityTypes.MARKER,level);
+                    decoration.setPos(at.add(3+i%16*.125,1,3+i/16*.125));
+                    require(level.addFreshEntity(decoration),"native non-living decoration control "+i);created.add(decoration);
+                }
+                var paper=new ItemStack(Items.PAPER);
+                paper.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("Void steering pull fixture"));
+                var loose=new ItemEntity(level,at.x+9,at.y,at.z,paper);
+                loose.setDeltaMovement(Vec3.ZERO);loose.setPickUpDelay(32767);
+                require(level.addFreshEntity(loose),"native dropped-item pull control");created.add(loose);
+                long decorations=java.util.stream.StreamSupport.stream(level.getAllEntities().spliterator(),false)
+                        .filter(entity->entity instanceof Marker&&created.contains(entity)).count();
+                require(decorations==128,"all non-living controls are actually in the native visible iterator");
+
+                var cause=service.source(hole).cause();
+                try(var walk=new EntityWalk(level)){
+                    service.physics(hole,owner,cause);
+                    SkyWars2.LOGGER.info("[check] METRIC void-arcanum steering full-world queries={} visited={} visible controls={} living candidates={}",
+                            walk.queries,walk.visits,decorations,lifetimes.loadedTargets().size());
+                    require(hole.velocity.x>0&&Math.abs(hole.velocity.z)<1e-10,
+                            "unlimited steering selects the first published exact-distance tie, not stale/offworld bodies");
+                    require(loose.getDeltaMovement().x<0,"nearby non-living item still receives physical pull");
+                    require(walk.queries==0&&walk.visits==0,"native physics no longer scans the world's complete visible entity list");
+                }
+                var cold=new Vec3(2304.5,at.y,2304.5);
+                int coldX=BlockPos.containing(cold).getX()>>4,coldZ=BlockPos.containing(cold).getZ()>>4;
+                require(level.getChunkSource().getChunkNow(coldX,coldZ)==null
+                        &&!level.areEntitiesLoaded(ChunkPos.pack(coldX,coldZ)),
+                        "cold section is absent before visibility churn");
+                var manager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+                int tick=game.server().getTickCount();
+                first.setPos(cold);
+                require(manager.isLoaded(first.getUUID())&&level.getEntity(first.getUUID())==null&&!first.isRemoved(),
+                        "east cow leaves native visibility without disposing or loading its cold section");
+                first.setPos(east);
+                require(level.getEntity(first.getUUID())==first&&game.server().getTickCount()==tick
+                        &&level.getChunkSource().getChunkNow(coldX,coldZ)==null,
+                        "same instance returns to native visibility within the same tick and cold column stays unloaded");
+                var visibleWinner=java.util.stream.StreamSupport.stream(level.getAllEntities().spliterator(),false)
+                        .filter(actor->actor==first||actor==second).findFirst().orElseThrow();
+                require(visibleWinner==second,"the native visible lookup now places west before the republished east cow");
+
+                steerFromCenter(hole,cause);
+                require(hole.velocity.x<0&&Math.abs(hole.velocity.z)<1e-10,
+                        "exact distant tie follows same-tick native visibility order and steers west");
+                second.discard();steerFromCenter(hole,cause);
+                require(hole.velocity.x>0&&Math.abs(hole.velocity.z)<1e-10,
+                        "removed west cow no longer pins the hole and the republished east cow wins immediately");
+            } finally {
+                for(var entity:created){
+                    if(entity instanceof ProbeCow cow){game.items().indirectKills().clear(cow);mobs.remove(cow);}
+                    if(!entity.isRemoved())entity.discard();
+                }
+                bodies();
+            }
+        }
+
+        void steerFromCenter(LbcVoidArcanum.Hole hole,LbcIndirectKills.Owner cause){
+            hole.point=at;hole.velocity=Vec3.ZERO;hole.marker.snapTo(at.x,at.y,at.z,0,0);
+            service.physics(hole,owner,cause);
+        }
+        Vec3 endTarget(ServerLevel end){return new Vec3(at.x,Math.min(at.y,end.getMaxY()-4),at.z+40);}
         @Override public void close(){
             for(var entity:bystanders)entity.entityTags().remove("strict_map_object");bystanders.clear();
             clear();for(var cow:mobs){game.items().indirectKills().clear(cow);cow.discard();}game.items().indirectKills().clear(owner);game.items().indirectKills().clear(other);
@@ -380,6 +507,89 @@ public final class VoidArcanumChecks {
         }
     }
     public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.fluidTerrain();f.elevatedChase();f.closeChaseAndBodyPush();f.motion();f.boundaries();f.denseTerrain();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, radial noisy erosion/lens, small-tier source/flowing water/lava and waterlogged absorption, bounded moving/dense native erosion work, all-tier chain chase and speed caps, captured target exclusion and marker body-push guard, tilt metadata and cleanup; explicit boundary ticks)");}
+
+    private static IndexedScene indexedScene;
+
+    static void index(GameController game){
+        require(indexedScene==null,"exclusive native index fixture");
+        var scene=new IndexedScene(game);
+        try { scene.begin();indexedScene=scene; }
+        catch(Throwable error) {
+            try { scene.close(); } catch(Throwable cleanup) { error.addSuppressed(cleanup); }
+            throw error;
+        }
+    }
+
+    static void indexTick(GameController game){
+        var scene=indexedScene;
+        if(scene==null||scene.fixture.game!=game)return;
+        try {
+            if(!scene.step())return;
+            indexedScene=null;scene.close();
+            SkyWars2.LOGGER.info("[check] PASS void-arcanum-index (native distant tie, same-tick visibility order, stale and offworld exclusion, physical item pull and zero complete world iteration)");
+        } catch(Throwable error) {
+            indexedScene=null;
+            try { scene.close(); } catch(Throwable cleanup) { error.addSuppressed(cleanup); }
+            SkyWars2.LOGGER.error("[check] FAIL void-arcanum-index",error);
+        }
+    }
+
+    private record IndexColumn(ServerLevel level,ChunkPos pos){
+        IndexColumn(ServerLevel level,Vec3 point){this(level,ChunkPos.containing(BlockPos.containing(point)));}
+        boolean ready(){return level.getChunkSource().getChunkNow(pos.x(),pos.z())!=null&&level.areEntitiesActuallyLoadedAndTicking(pos);}
+        boolean force(){return !level.getForceLoadedChunks().contains(pos.pack())&&level.getChunkSource().updateChunkForced(pos,true);}
+        void release(){level.setChunkForced(pos.x(),pos.z(),false);}
+    }
+
+    private static final class IndexedScene implements AutoCloseable {
+        final Fixture fixture;
+        final List<IndexColumn> columns;
+        final List<IndexColumn> owned=new ArrayList<>();
+        final int started;
+        boolean initialized,closed;
+
+        IndexedScene(GameController game){
+            var end=Objects.requireNonNull(game.server().getLevel(Level.END));
+            fixture=new Fixture(game);var arena=fixture.owner.level();var at=fixture.at;
+            columns=List.of(new IndexColumn(arena,at),new IndexColumn(arena,at.add(96,0,0)),
+                    new IndexColumn(arena,at.add(-96,0,0)),new IndexColumn(arena,at.add(0,0,-40)),
+                    new IndexColumn(end,fixture.endTarget(end)));
+            started=game.server().getTickCount();
+        }
+
+        void begin(){
+            for(var saved:List.of(fixture.saved,fixture.otherSaved)){
+                saved.player.setNoGravity(true);saved.player.setDeltaMovement(Vec3.ZERO);
+            }
+            for(var column:columns)if(column.force())owned.add(column);
+        }
+
+        boolean step(){
+            require(fixture.game.playing()&&fixture.owner.level()==columns.getFirst().level
+                    &&fixture.other.level()==columns.getFirst().level,"native fixture players remain in the original arena");
+            var pending=columns.stream().filter(column->!column.ready()).toList();
+            if(!pending.isEmpty()){
+                require(fixture.game.server().getTickCount()-started<240,"native entity section promotion before spawning any fixture bodies: "+pending);
+                return false;
+            }
+            fixture.before.clear();fixture.owner.level().getAllEntities().forEach(fixture.before::add);
+            initialized=true;fixture.init();fixture.indexedSteering();
+            return true;
+        }
+
+        @Override public void close(){
+            if(closed)return;closed=true;
+            try {
+                if(initialized)fixture.close();
+                else {
+                    fixture.game.server().getScoreboard().removePlayerTeam(fixture.team);
+                    for(var saved:List.of(fixture.saved,fixture.otherSaved)){
+                        saved.player.setNoGravity(saved.state.noGravity);saved.player.setDeltaMovement(saved.state.velocity);
+                    }
+                }
+            } finally { for(var column:owned)column.release(); }
+        }
+    }
 
     private static Celebration celebration;
 
