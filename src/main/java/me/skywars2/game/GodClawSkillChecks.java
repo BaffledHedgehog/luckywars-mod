@@ -8,6 +8,7 @@ import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.item.*;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Scheduled gameplay checks: real sneak input, owned conversion and pause/replay, never fake tick loops. */
@@ -22,13 +23,16 @@ public final class GodClawSkillChecks {
     }
     public static void tick(GameController game){
         if(running==null)return;var r=running;
-        try{if(r.step()){running=null;r.close();SkyWars2.LOGGER.info("[check] PASS god-claw (actual60tick sneak/release, finite terrain and whole-stack conversion, exact native VoidMan owner, protected role, TimeStop/actual nonempty whole-coordinator replay, cooldown sneak freeze, loaded TECH control and skill cleanup)");}}
+        try{if(r.step()){running=null;r.close();SkyWars2.LOGGER.info("[check] PASS god-claw (actual60tick sneak/release, finite terrain and whole-stack conversion, exact native VoidMan owner, protected role, TimeStop/actual nonempty whole-coordinator replay, cooldown sneak freeze, loaded TECH control, skill cleanup, ceiling seed and spread)");}}
         catch(RuntimeException|Error failure){running=null;try{r.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL god-claw",failure);}
     }
     private static final class Run implements AutoCloseable {
         final GameController game;final ChefChecks.Fixture f;final LbcGodClawSkill skill;
         final Set<Entity> summons=Collections.newSetFromMap(new IdentityHashMap<>());
         final Map<net.minecraft.world.entity.ai.attributes.AttributeInstance,Double> bases=new IdentityHashMap<>();
+        final Map<BlockPos,MapManager.BlockSnapshot> ceilingCells=new LinkedHashMap<>();
+        LbcIndirectKills.TerrainProvenance ceilingProvenance;
+        BlockPos ceilingSeed,ceilingWitness;
         ItemEntity input;Cow cow;Marker admin,jammer;UUID liquidId,adminId,chefId;RegenerationBeltChecks.ScheduledClient client,audience;int stage,at,pausedScore,pausedFrontier,cooldown;
         boolean closed;
         Run(GameController game){this.game=game;f=new ChefChecks.Fixture(game);skill=game.items().godClaw();}
@@ -52,7 +56,32 @@ public final class GodClawSkillChecks {
             require(game.items().magic().mechanismSuppressed(f.owner)&&!game.items().magic().suppressed(f.owner),"loaded TECH positive control, MAG absent");
             f.owner.setShiftKeyDown(true);at=game.server().getTickCount();
         }
-        List<net.minecraft.world.entity.monster.skeleton.Skeleton> voidBodies(){return f.owner.level().getEntitiesOfClass(net.minecraft.world.entity.monster.skeleton.Skeleton.class,f.owner.getBoundingBox().inflate(40),e->e.entityTags().contains("skywars2.godclaw.voidman"));}
+        List<net.minecraft.world.entity.monster.skeleton.Skeleton> voidBodies(){return f.owner.level().getEntitiesOfClass(net.minecraft.world.entity.monster.skeleton.Skeleton.class,new AABB(f.at,f.at).inflate(40),e->e.entityTags().contains("skywars2.godclaw.voidman"));}
+        void chargeAtCeiling(boolean spread){
+            var level=f.owner.level();
+            var top=new BlockPos(f.center.getX(),level.getMaxY(),f.center.getZ());
+            if(ceilingCells.isEmpty()){
+                for(var cell:BlockPos.betweenClosed(top.offset(-2,-2,-2),top.offset(2,0,2))){
+                    require(level.hasChunkAt(cell),"ceiling proof uses resident terrain");
+                    ceilingCells.put(cell.immutable(),game.maps().snapshot(level,cell));
+                }
+                ceilingProvenance=game.items().indirectKills().captureTerrain(level,ceilingCells.keySet());
+            }
+            for(var cell:ceilingCells.keySet())level.setBlock(cell,Blocks.AIR.defaultBlockState(),2);
+            ceilingSeed=spread?top.below():top;
+            ceilingWitness=spread?top.east():top;
+            level.setBlock(ceilingSeed,Blocks.STONE.defaultBlockState(),2);
+            if(spread){
+                level.setBlock(ceilingSeed.east(),Blocks.STONE.defaultBlockState(),2);
+                level.setBlock(ceilingWitness,Blocks.STONE.defaultBlockState(),2);
+            }
+            f.move(f.owner,Vec3.atBottomCenterOf(ceilingSeed.above()));
+            client.acknowledge();
+            skill.clear(f.owner);
+            game.players().get(f.owner.getUUID()).lbcSkill=23;
+            f.owner.setShiftKeyDown(true);
+            stage=spread?12:11;at=game.server().getTickCount();
+        }
         boolean step(){
             int elapsed=game.server().getTickCount()-at;
             if(game.vanity().busy())for(var player:game.server().getPlayerList().getPlayers())if(player.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
@@ -124,8 +153,18 @@ public final class GodClawSkillChecks {
                 require(skill.score(f.owner)<cooldown,"only outside-sneak cooldown debit");
                 game.players().get(f.owner.getUUID()).lbcSkill=0;stage=7;at=game.server().getTickCount();return false;
             }
-            if(elapsed<2)return false;
-            require(skill.score(f.owner)==0&&skill.frontier(f.owner)==0,"skill loss retires all native bookkeeping");return true;
+            if(stage==7){
+                if(elapsed<2)return false;
+                require(skill.score(f.owner)==0&&skill.frontier(f.owner)==0,"skill loss retires all native bookkeeping");
+                chargeAtCeiling(false);return false;
+            }
+            if(!f.owner.level().getBlockState(ceilingWitness).equals(LbcGodClawSkill.CONSUMED)){
+                require(elapsed<70,stage==11?"real sneak claims the inclusive ceiling seed":"axial spread reaches the legal ceiling layer");
+                return false;
+            }
+            require(f.owner.level().getBlockState(ceilingSeed).equals(LbcGodClawSkill.CONSUMED),"authored seed is consumed first");
+            if(stage==11){chargeAtCeiling(true);return false;}
+            return true;
         }
         @Override public void close(){
             if(closed)return;closed=true;
@@ -134,6 +173,8 @@ public final class GodClawSkillChecks {
             if(chefId!=null&&f.owner.level().getEntity(chefId)!=null)game.items().wtf().erase(f.owner.level().getEntity(chefId));
             if(admin!=null)admin.discard();if(input!=null)input.discard();
             for(var body:voidBodies())if(!summons.contains(body)){body.discard();game.items().spellSources().unloaded(body);}
+            ceilingCells.forEach((cell,image)->game.maps().restoreSnapshot(f.owner.level(),cell,image));
+            if(ceilingProvenance!=null)game.items().indirectKills().restoreTerrain(ceilingProvenance);
             bases.forEach((instance,base)->instance.setBaseValue(base));if(client!=null)client.close();if(audience!=null)audience.close();f.close();
         }
     }

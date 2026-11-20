@@ -80,7 +80,15 @@ public final class LbcImbaTerrainUtilities {
             fill(new BlockPos(x+4,y-6,z+4),new BlockPos(x-4,50,z-4),Blocks.STONE),
             fill(new BlockPos(x+4,49,z+4),new BlockPos(x-4,1,z-4),Blocks.DEEPSLATE),
             fill(new BlockPos(x+4,0,z+4),new BlockPos(x-4,0,z-4),Blocks.BEDROCK));}
-    private static List<Fill> boundedFills(Vec3 origin,ServerLevel level){var result=new ArrayList<Fill>();for(var fill:dirterFills(origin)){int min=Math.max(fill.min.getY(),level.getMinY()),max=(int)Math.min((long)fill.min.getY()+fill.height-1,level.getMaxY()-1L);if(min<=max)result.add(new Fill(new BlockPos(fill.min.getX(),min,fill.min.getZ()),fill.width,max-min+1,fill.depth,fill.block));}return List.copyOf(result);}
+    private static List<Fill> boundedFills(Vec3 origin,ServerLevel level){
+        var result=new ArrayList<Fill>();
+        for(var fill:dirterFills(origin)){
+            int min=Math.max(fill.min.getY(),level.getMinY());
+            int max=(int)Math.min((long)fill.min.getY()+fill.height-1,level.getMaxY());
+            if(min<=max)result.add(new Fill(new BlockPos(fill.min.getX(),min,fill.min.getZ()),fill.width,max-min+1,fill.depth,fill.block));
+        }
+        return List.copyOf(result);
+    }
     private final class Job implements LbcStonekivi.Work {
         final long id;ServerPlayer author;final ServerLevel level;final String epoch;final Kind kind;final Vec3 origin;final LbcIndirectKills.Owner cause;final List<Fill> fills;
         final Map<ChunkPos,CompletableFuture<?>> tickets=new LinkedHashMap<>();

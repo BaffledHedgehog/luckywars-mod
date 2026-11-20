@@ -150,7 +150,7 @@ public final class LbcGodClawSkill {
     }
     private Long2ObjectOpenHashMap<State> index(ServerLevel level){return positions.computeIfAbsent(level,k->new Long2ObjectOpenHashMap<>());}
     private void claim(State s,BlockPos p,ArrayDeque<Cell> queue){
-        if(p.getY()<s.level.getMinY()||p.getY()>=s.level.getMaxY())return;
+        if(s.level.isOutsideBuildHeight(p))return;
         if(index(s.level).putIfAbsent(p.asLong(),s)==null)queue.add(new Cell(p.asLong()));
     }
     private boolean resident(ServerLevel level,BlockPos p){
@@ -179,7 +179,7 @@ public final class LbcGodClawSkill {
             // Enumerate the 27 cube offsets except the center, preserving all26 exactly once.
             int actual=n>=13?n+1:n;dx=actual%3-1;dy=actual/3%3-1;dz=actual/9-1;
             var target=pos.offset(dx,dy,dz);
-            if(target.getY()<s.level.getMinY()||target.getY()>=s.level.getMaxY()){cell.neighbor++;continue;}
+            if(s.level.isOutsideBuildHeight(target)){cell.neighbor++;continue;}
             if(!resident(s.level,target))return false;
             cell.neighbor++;
             if(Math.abs(dx)+Math.abs(dy)+Math.abs(dz)!=1&&s.random(5)>=2)continue;

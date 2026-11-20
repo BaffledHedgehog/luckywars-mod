@@ -38,7 +38,7 @@ public final class StonekiviSunChecks {
         try {
             if(fixture.tick()) {
                 running=null;fixture.close();
-                SkyWars2.LOGGER.info("[check] PASS stonekivi-sun (radius100/source148 offset geometry, bounded shared queue, no generation, strict floating magma/glass120 normal ticks)");
+                SkyWars2.LOGGER.info("[check] PASS stonekivi-sun (radius100/source148 offset geometry, bounded shared queue and inclusive native build ceiling, no generation, strict floating magma/glass120 normal ticks)");
             }
         }catch(RuntimeException|Error error){running=null;fixture.close();throw error;}
     }
@@ -102,19 +102,21 @@ public final class StonekiviSunChecks {
         require(tongues>0&&LbcStonekiviSun.material(121,0,0,100,424242)==null,"finite photospheric flame ribbons extend beyond sphere");
     }
     private static final class Fixture implements AutoCloseable {
-        final GameController game;final ServerPlayer owner;final ServerLevel level;final BlockPos center;
+        final GameController game;final ServerPlayer owner;final ServerLevel level;final BlockPos center,ceiling;
         final BoundingBox bounds;
         final Map<BlockPos,MapManager.BlockSnapshot> originals=new LinkedHashMap<>();
+        final Map<BlockPos,MapManager.BlockSnapshot> ceilingOriginals=new LinkedHashMap<>();
         final Map<BlockPos,BlockState> stable=new LinkedHashMap<>();
         final List<ScheduledTick<Block>> blockTicks=new ArrayList<>();
         final List<ScheduledTick<Fluid>> fluidTicks=new ArrayList<>();
         final it.unimi.dsi.fastutil.longs.LongOpenHashSet forced;
-        LbcStonekiviSun.SunWork work;long started,finished;boolean placed;
+        LbcStonekiviSun.SunWork work,ceilingWork,remoteWork;BlockState aboveCeiling;long started,finished;boolean placed;
         Fixture(GameController game) {
             this.game=game;owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             require(game.playing()&&owner!=null&&game.canUseGameplayItems(owner),"actual active match participant");
             level=owner.level();require(level==game.maps().level(),"native arena world");
             center=new BlockPos(owner.getBlockX(),Math.min(owner.getBlockY()+48,level.getMaxY()-19),owner.getBlockZ());
+            ceiling=new BlockPos(center.getX(),level.getMaxY(),center.getZ());
             bounds=new BoundingBox(center.getX()-17,center.getY()-17,center.getZ()-17,
                     center.getX()+17,center.getY()+17,center.getZ()+17);
             require(bounds.minY()>=level.getMinY()&&bounds.maxY()<level.getMaxY(),"fixture and halo fit world height");
@@ -136,18 +138,34 @@ public final class StonekiviSunChecks {
             int remoteX=owner.getBlockX()+16384,remoteZ=owner.getBlockZ()+16384;
             for(int cx=(remoteX-15)>>4;cx<=(remoteX+15)>>4;cx++)for(int cz=(remoteZ-15)>>4;cz<=(remoteZ+15)>>4;cz++)
                 require(level.getChunkSource().getChunkNow(cx,cz)==null,"unresident control columns");
-            var remote=new LbcStonekiviSun.SunWork(game,owner,new BlockPos(remoteX,center.getY(),remoteZ),8,424242);
-            require(remote.step()&&remote.writes()==0&&remote.visits()==0,"unresident work finishes without terrain reads/writes or generation");
-            require(level.getChunkSource().getChunkNow(remoteX>>4,remoteZ>>4)==null,"unresident control remains absent");
+            remoteWork=new LbcStonekiviSun.SunWork(game,owner,new BlockPos(remoteX,center.getY(),remoteZ),8,424242);
+            game.items().stonekivi().queuedWork(remoteWork);
             work=new LbcStonekiviSun.SunWork(game,owner,center,8,424242);
-            game.items().stonekivi().queuedWork(work);started=level.getGameTime();
+            game.items().stonekivi().queuedWork(work);
+
+            // A tiny second SUN is disjoint from the radius-eight fixture's material.
+            // Only save cells the same native palette can write, clipped to the legal ceiling.
+            for(var pos:BlockPos.betweenClosed(ceiling.offset(-6,-6,-6),ceiling.offset(6,0,6))){
+                if(LbcStonekiviSun.material(pos.getX()-ceiling.getX(),pos.getY()-ceiling.getY(),pos.getZ()-ceiling.getZ(),1,424242)==null)continue;
+                ceilingOriginals.put(pos.immutable(),game.maps().snapshot(level,pos));
+            }
+            aboveCeiling=level.getBlockState(ceiling.above());
+            game.maps().restoreSnapshot(level,ceiling,MapManager.BlockSnapshot.air(),LbcStonekiviSun.FLAGS);
+            ceilingWork=new LbcStonekiviSun.SunWork(game,owner,ceiling,1,424242);
+            game.items().stonekivi().queuedWork(ceilingWork);started=level.getGameTime();
         }
         boolean tick() {
             require(game.server().tickRateManager().runsNormally()&&!game.items().timeStop().stopped(level),"normal unpaused persistence interval");
             if(!placed) {
                 require(level.getGameTime()-started<400,"native shared work completes");
-                if(!work.finished())return false;
+                if(!work.finished()||!ceilingWork.finished()||!remoteWork.finished())return false;
+                require(remoteWork.writes()==0&&remoteWork.visits()==0,"unresident work finishes without terrain reads or writes");
+                for(int x=0;x<remoteWork.chunkWidth;x++)for(int z=0;z<remoteWork.chunkDepth;z++)
+                    require(level.getChunkSource().getChunkNow(remoteWork.minChunkX+x,remoteWork.minChunkZ+z)==null,"unresident columns remain absent");
                 require(work.writes()>0&&forced.equals(level.getForceLoadedChunks()),"bounded native writes preserve forced chunks");
+                require(level.getBlockState(ceiling).is(Blocks.MAGMA_BLOCK)&&ceilingWork.maxY==ceiling.getY()
+                                &&level.isOutsideBuildHeight(ceiling.above())&&level.getBlockState(ceiling.above())==aboveCeiling,
+                        "actual SUN writes the legal top layer and leaves the next plane outside build height");
                 int floatingMagma=0;
                 for(var pos:originals.keySet()) {
                     BlockState expected=LbcStonekiviSun.material(pos.getX()-center.getX(),pos.getY()-center.getY(),pos.getZ()-center.getZ(),8,424242);
@@ -168,6 +186,9 @@ public final class StonekiviSunChecks {
         }
         public void close() {
             if(work!=null)work.cancel();
+            if(ceilingWork!=null)ceilingWork.cancel();
+            if(remoteWork!=null)remoteWork.cancel();
+            ceilingOriginals.forEach((pos,snapshot)->game.maps().restoreSnapshot(level,pos,snapshot,LbcStonekiviSun.FLAGS));
             if(originals.isEmpty())return;
             level.getBlockTicks().clearArea(bounds);level.getFluidTicks().clearArea(bounds);
             for(var entry:originals.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue(),LbcStonekiviSun.FLAGS);

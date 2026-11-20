@@ -143,7 +143,7 @@ public final class LbcMidas {
         BodyFill(int minX,int minY,int minZ,int maxX,int maxY,int maxZ){this.minX=minX;this.minY=minY;this.minZ=minZ;this.maxX=maxX;this.maxY=maxY;this.maxZ=maxZ;x=minX;y=minY;z=minZ;}
         static BodyFill of(AABB box,ServerLevel level){
             int minX=(int)Math.floor(box.minX),minY=Math.max((int)Math.floor(box.minY),level.getMinY()),minZ=(int)Math.floor(box.minZ);
-            int maxX=(int)Math.ceil(box.maxX)-1,maxY=Math.min((int)Math.ceil(box.maxY)-1,level.getMaxY()-1),maxZ=(int)Math.ceil(box.maxZ)-1;
+            int maxX=(int)Math.ceil(box.maxX)-1,maxY=Math.min((int)Math.ceil(box.maxY)-1,level.getMaxY()),maxZ=(int)Math.ceil(box.maxZ)-1;
             return minX>maxX||minY>maxY||minZ>maxZ?null:new BodyFill(minX,minY,minZ,maxX,maxY,maxZ);
         }
         BlockPos pos(){return new BlockPos(x,y,z);}

@@ -9,6 +9,7 @@ import net.minecraft.server.level.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.item.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
@@ -34,6 +35,7 @@ public final class ImbaFollowupChecks {
         final Set<Entity> owned=Collections.newSetFromMap(new IdentityHashMap<>());
         final Vec3 debrisAt=new Vec3(1032.5,110,1032.5),diamondAt=new Vec3(1080.5,110,1032.5),midasAt=new Vec3(1032.5,150,1032.5),explosiveAt=new Vec3(1080.5,190,1032.5);
         final List<BlockPos> midasCells=new ArrayList<>();BlockPos diamondCenter;Marker center;net.minecraft.world.entity.animal.cow.Cow victim;PrimedTnt tnt;ItemEntity eligible,plainDiamond,excludedEgg;net.minecraft.world.entity.animal.cow.Cow protectedCow;long reproductionPulse;LbcWtf.Chef chef;
+        BlockPos ceilingGold;Cow ceilingVictim;
         int phase,when,started,midasCaptureStarted,midasCaptureFinished,midasRestoreStarted;boolean stopped,closed,restoring;long expectedRandom;ItemStack capturedHand;
         List<LbcImbaTerrainUtilities.JobView> jobs;List<LbcDiamondifier.ActorView> actors;List<LbcMidas.WaveView> waves;final Map<BlockPos,BlockState> midasCaptured=new LinkedHashMap<>(),midasFinal=new LinkedHashMap<>();net.minecraft.world.entity.animal.cow.Cow capturedVictim;LbcWtf.Chef capturedChef;float capturedVictimHealth;
         Fixture(GameController game,boolean rewind){this.game=game;this.rewind=rewind;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));level=owner.level();
@@ -62,6 +64,30 @@ public final class ImbaFollowupChecks {
             set(clicked,Blocks.STONE.defaultBlockState());set(diamondCenter,Blocks.AIR.defaultBlockState());set(diamondCenter.east(4),Blocks.STONE.defaultBlockState());set(diamondCenter.west(4),Blocks.AIR.defaultBlockState());useOn("diamondificator",InteractionHand.MAIN_HAND,clicked);var views=game.items().diamondifier().actorViews(10);require(views.size()==1,"single real native diamond center");center=views.getFirst().body();owned.add(center);require(views.getFirst().lifetime()==0&&views.getFirst().cause().player().equals(owner.getUUID()),"source Lifetime0 and original owner before first global pulse");diamondClones();}
         void diamondClones(){var service=game.items().diamondifier();require(!game.items().timeStop().stopped(level),"fresh Diamondifier native copies run before TimeStop");var source=service.actorViews(20).getFirst();require(game.items().cloneSkills().copyNow(center,15),"canonical native Diamondifier x2");var doubled=service.actorViews(20).stream().map(LbcDiamondifier.ActorView::body).filter(e->e!=center).findFirst().orElseThrow();require(game.items().cloneSkills().copyNow(center,17)&&game.items().cloneSkills().copyNow(doubled,17)&&service.count()==8,"canonical native Diamondifier x2*x4 creates eight actors");for(var view:service.actorViews(20)){var body=view.body();owned.add(body);require(view.lifetime()==source.lifetime()&&view.active()==source.active()&&view.pulses()==source.pulses()&&view.consumed()==source.consumed()&&view.writes()==source.writes()&&view.cause().equals(source.cause())&&game.items().spellSources().owner(body)==owner,"all eight fresh Diamondifiers preserve Lifetime, counters and original source author");require(!game.items().cloneSkills().copyNow(body,15)&&!game.items().cloneSkills().copyNow(body,17),"same-variant Diamondifier recursion closed");if(body!=center){game.items().entityUnloaded(body);body.discard();}}require(!center.isRemoved()&&service.pendingFills()==0,"retain original fresh center without cloned terrain work/refunds");}
         void beginMidas(){game.items().diamondifier().stop();move(midasAt);var origin=BlockPos.containing(midasAt).east(2);for(int x=-1;x<=26;x++)for(int y=-1;y<=4;y++)for(int z=-2;z<=2;z++)set(origin.offset(x,y,z),Blocks.AIR.defaultBlockState());for(int x=0;x<=24;x++){var at=origin.east(x);midasCells.add(at);set(at,Blocks.STONE.defaultBlockState());}var clicked=origin.below();set(clicked,Blocks.STONE.defaultBlockState());victim=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);victim.setPos(Vec3.atBottomCenterOf(origin.east(4)).add(0,1,0));victim.setNoAi(true);victim.setNoGravity(true);require(level.addFreshEntity(victim),"own real Midas conversion witness");owned.add(victim);chef=game.items().wtf().spawn(owner,victim);require(chef!=null,"owned actual Midas Chef witness");chef.setPos(Vec3.atBottomCenterOf(origin.east(8)).add(0,1,0));chef.setNoGravity(true);chef.setDeltaMovement(Vec3.ZERO);owned.add(chef);useOn("midas_block",InteractionHand.OFF_HAND,clicked);waves=game.items().cosmetics().midas().views();require(waves.size()==1&&waves.getFirst().affectEntities()&&waves.getFirst().radiusSquared()<0,"source entity-enabled unlimited connected Midas mode");next(4);}
+        void beginCeilingMidas(){
+            int ceiling=level.getMaxY();
+            move(new Vec3(midasAt.x,ceiling-3,midasAt.z));
+            var origin=BlockPos.containing(midasAt.x+2,ceiling,midasAt.z);
+            for(var at:BlockPos.betweenClosed(origin.offset(-1,-2,-1),origin.offset(2,0,1)))
+                set(at,Blocks.AIR.defaultBlockState());
+            set(origin.below(),Blocks.STONE.defaultBlockState());
+            // The item itself paints the origin. Only the cow's overlapping body can paint this adjacent AIR cell.
+            ceilingGold=origin.east();
+            ceilingVictim=new Cow(EntityTypes.COW,level);
+            ceilingVictim.setPos(Vec3.atBottomCenterOf(origin).add(.35,.2,0));
+            ceilingVictim.setNoAi(true);ceilingVictim.setNoGravity(true);
+            var box=ceilingVictim.getBoundingBox();
+            require(box.intersects(new AABB(ceilingGold))&&box.maxY>ceiling+1
+                            &&level.isInValidBounds(ceilingGold)&&!level.isInValidBounds(ceilingGold.above()),
+                    "real cow overlaps the last legal cell and extends beyond build height");
+            useOn("midas_block",InteractionHand.OFF_HAND,origin.below());
+            require(level.getBlockState(origin).is(Blocks.RAW_GOLD_BLOCK)&&level.getBlockState(ceilingGold).isAir()
+                            &&game.items().cosmetics().midas().views().stream().anyMatch(wave->wave.origin().equals(origin)&&wave.affectEntities()),
+                    "native Midas paints its ceiling origin and queues the separate body conversion");
+            require(level.addFreshEntity(ceilingVictim),"own native ceiling Midas victim");
+            owned.add(ceilingVictim);
+            next(42);
+        }
         boolean step(){client.acknowledge();audience.acknowledge();require(game.server().getTickCount()-started<1800,"bounded native phases phase="+phase);if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();if(rewind)return replay();
             if(phase==0){if(game.server().getTickCount()-when<5)return false;require(jobs.equals(game.items().imbaTerrainUtilities().views()),"TimeStop freezes accepted actual debris cursor");thaw();next(1);}
             if(phase==1){if(game.items().imbaTerrainUtilities().state().jobs()!=0)return false;assertDebris();beginDiamond();pause();actors=game.items().diamondifier().actorViews(10).stream().filter(v->!v.body().isRemoved()).toList();next(2);return false;}
@@ -70,7 +96,16 @@ public final class ImbaFollowupChecks {
             if(phase==32){var all=game.items().diamondifier().actorViews(10);var parent=all.stream().filter(v->v.body()==center).findFirst().orElseThrow();if(parent.pulses()==reproductionPulse)return false;require(eligible.isRemoved()&&!plainDiamond.isRemoved()&&!excludedEgg.isRemoved()&&protectedCow.isAlive(),"source reproduction deletes eligible nonplayer and excludes plain diamond, own egg and protected role");require(all.size()==2,"eligible nonplayer outside3 produces one centered child");var child=all.stream().filter(v->v.body()!=center).findFirst().orElseThrow();owned.add(child.body());require(child.lifetime()==0&&child.cause().player().equals(owner.getUUID()),"new native child waits for following global20 pulse and retains original owner");child.body().discard();plainDiamond.discard();excludedEgg.discard();protectedCow.discard();require(owner.gameMode.destroyBlock(diamondCenter),"actual native own diamond-center break");next(31);return false;}
             if(phase==31){if(game.items().diamondifier().count()!=0)return false;var eggs=level.getEntitiesOfClass(ItemEntity.class,new AABB(diamondCenter).inflate(2),e->LbcDiamondifier.matches(e.getItem()));require(eggs.size()==1&&eggs.getFirst().getItem().getCount()==1,"broken source center returns exactly one diamondifier egg");owned.addAll(eggs);collectLocalItems(Vec3.atCenterOf(diamondCenter),3);beginMidas();return false;}
             if(phase==4){if(!game.items().cosmetics().midas().views().isEmpty())return false;for(var at:midasCells)require(level.getBlockState(at).is(Blocks.RAW_GOLD_BLOCK),"source six-neighbor wave reaches connected cell beyond20 "+at);require(!victim.isAlive()||victim.isRemoved(),"source actual nonplayer body conversion");require(chef.isRemoved()&&!game.items().wtf().snapshot().contains(chef),"Midas permanently erases actual Chef authority");for(var at:midasCells)set(at,Blocks.STONE.defaultBlockState());eligible=item(new ItemStack(Items.APPLE),Vec3.atCenterOf(midasCells.get(4)).add(0,1,0));game.items().cosmetics().midas().launch(owner,level,midasCells.getFirst(),game.items().indirectKills().wildCause(owner));var cosmetic=game.items().cosmetics().midas().views().getFirst();require(!cosmetic.affectEntities()&&cosmetic.radiusSquared()==400,"existing cosmetic default remains false/radius20");next(41);return false;}
-            if(phase==41){if(!game.items().cosmetics().midas().views().isEmpty())return false;require(level.getBlockState(midasCells.get(20)).is(Blocks.RAW_GOLD_BLOCK)&&level.getBlockState(midasCells.get(21)).is(Blocks.STONE)&&!eligible.isRemoved(),"existing cosmetic wave preserves radius20 boundary and living/item isolation");eligible.discard();beginExplosives();return false;}
+            if(phase==41){if(!game.items().cosmetics().midas().views().isEmpty())return false;require(level.getBlockState(midasCells.get(20)).is(Blocks.RAW_GOLD_BLOCK)&&level.getBlockState(midasCells.get(21)).is(Blocks.STONE)&&!eligible.isRemoved(),"existing cosmetic wave preserves radius20 boundary and living/item isolation");eligible.discard();beginCeilingMidas();return false;}
+            if(phase==42){
+                if(!game.items().cosmetics().midas().views().isEmpty())return false;
+                require(!ceilingVictim.isAlive()||ceilingVictim.isRemoved(),"native ceiling cow is converted");
+                require(level.getBlockState(ceilingGold).is(Blocks.RAW_GOLD_BLOCK)
+                                &&level.getBlockState(ceilingGold.above()).isAir(),
+                        "Midas body fills the final legal block, up to the exact build-height boundary");
+                collectLocalItems(ceilingVictim.position(),4);
+                beginExplosives();return false;
+            }
             if(phase==5||phase==51||phase==52)return explosives();return false;}
         boolean replay(){
             if(phase==10){var current=game.items().imbaTerrainUtilities().views();var diamond=game.items().diamondifier().actorViews(10);if(game.items().diamondifier().pendingFills()==0||diamond.isEmpty()||diamond.getFirst().lifetime()!=20)return false;require(!current.isEmpty()&&current.stream().anyMatch(v->v.cursor()>0)||game.items().diamondifier().pendingFills()>0,"actual partial accepted queue work");pause();require(game.vanity().requestCapture(owner,false),"whole coordinator accepts actual partial native queue");next(11);return false;}

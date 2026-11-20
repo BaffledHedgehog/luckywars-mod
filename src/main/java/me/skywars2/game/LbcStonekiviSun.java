@@ -106,7 +106,7 @@ public final class LbcStonekiviSun {
             this.radius=radius;extent=radius+(int)Math.ceil(radius*.15)+5;this.seed=seed;
             minChunkX=(center.getX()-extent)>>4;minChunkZ=(center.getZ()-extent)>>4;
             chunkWidth=((center.getX()+extent)>>4)-minChunkX+1;chunkDepth=((center.getZ()+extent)>>4)-minChunkZ+1;
-            minY=Math.max(level.getMinY(),center.getY()-extent);maxY=Math.min(level.getMaxY()-1,center.getY()+extent);y=minY;
+            minY=Math.max(level.getMinY(),center.getY()-extent);maxY=Math.min(level.getMaxY(),center.getY()+extent);y=minY;
             cause=game.items().indirectKills().wildCause(owner);lighting=new MapLighting.Update(level);
         }
         long writes(){return writes;}
@@ -173,7 +173,7 @@ public final class LbcStonekiviSun {
                     lighting.cancel();lighting=new MapLighting.Update(level);owner=rebound;
                     chunkIndex=savedChunk;y=savedY;cellIndex=savedCell;sealed=savedSealed;closed=savedClosed;
                     visits=savedVisits;writes=savedWrites;maxStepNanos=savedMax;touched=savedTouched.clone();
-                    for(long key:touched){var chunk=net.minecraft.world.level.ChunkPos.unpack(key);lighting.changed(new BlockPos(chunk.getMinBlockX(),Math.clamp(center.getY(),level.getMinY(),level.getMaxY()-1),chunk.getMinBlockZ()));}
+                    for(long key:touched){var chunk=net.minecraft.world.level.ChunkPos.unpack(key);lighting.changed(new BlockPos(chunk.getMinBlockX(),Math.clamp(center.getY(),level.getMinY(),level.getMaxY()),chunk.getMinBlockZ()));}
                     if(sealed)lighting.finishWrites();
                 };
             };

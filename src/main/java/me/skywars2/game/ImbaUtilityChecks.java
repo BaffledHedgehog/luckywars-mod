@@ -8,6 +8,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.*;
 import net.minecraft.nbt.*;
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
 import net.minecraft.util.RandomSource;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
@@ -53,6 +55,8 @@ public final class ImbaUtilityChecks {
         final Map<BlockPos,BlockState> bastionExpected=new LinkedHashMap<>();
         final List<net.minecraft.world.entity.animal.cow.Cow> arrowWitnesses=new ArrayList<>();
         LbcWtf.Chef arrowChef;long arrowSteps;List<LbcWhiteArrows.View> capturedRays;
+        LbcImbaTerrainUtilities.State beforeCeilingDirter;
+        int ceilingSequence;
         BlockPos padOrigin,bastionOrigin,dirterPlaced;Vec3 bastionActor;long expectedRandom;int phase,started,when,remaining,activeTicks;boolean closed,stopped,restoring;ServerPlayer doomed;
         List<LbcImbaTerrainUtilities.JobView> capturedJobs;List<LbcTeleportGadgets.ImbaDelay> capturedDelays;BlockPos changed;BlockState capturedBlock;
         Fixture(GameController game,boolean rewind){
@@ -161,6 +165,55 @@ public final class ImbaUtilityChecks {
         }
         void assertPad(){for(int x=0;x<5;x++)for(int z=0;z<5;z++)require(level.getBlockState(padOrigin.offset(x,0,z)).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE)),"exact source5x1x5 current-position pad");require(owner.position().distanceToSqr(padPosition)<1e-8,"delayed pad never teleports owner a second time");}
         void assertDirter(){var center=BlockPos.containing(dirterOrigin);for(int x=-4;x<=4;x++)for(int z=-4;z<=4;z++)for(int y=0;y<=57;y++){var expected=y==57?Blocks.GRASS_BLOCK:y>=53?Blocks.DIRT:y>=50?Blocks.STONE:y>=1?Blocks.DEEPSLATE:Blocks.BEDROCK;var at=new BlockPos(center.getX()+x,y,center.getZ()+z);var actual=level.getBlockState(at);boolean shadedSourceGrass=y==57&&at.equals(dirterPlaced.below())&&level.getBlockState(at.above()).is(Blocks.COARSE_DIRT)&&actual.is(Blocks.DIRT);require(actual.is(expected)||shadedSourceGrass,"source complete9x9 ordered strata "+at+" expected="+expected+" actual="+actual);}}
+        BlockPos ceilingDirterCenter(){
+            var center=BlockPos.containing(dirterOrigin);
+            return new BlockPos(center.getX(),level.getMaxY(),center.getZ());
+        }
+        void prepareCeilingDirter(){
+            var top=ceilingDirterCenter();
+            // The normal Dirter case already owns layers 0 through 57 in these columns.
+            for(var pos:BlockPos.betweenClosed(top.offset(-4,58-top.getY(),-4),top.offset(4,0,4)))remember(pos);
+            set(top.east(5),Blocks.GOLD_BLOCK.defaultBlockState());
+        }
+        void placeCeilingDirter(boolean outside){
+            var top=ceilingDirterCenter();
+            var support=top.east(2);
+            var placed=support.west();
+            set(support,Blocks.STONE.defaultBlockState());
+            set(placed,Blocks.AIR.defaultBlockState());
+            var origin=new Vec3(dirterOrigin.x,top.getY()+(outside?2:1),dirterOrigin.z);
+            move(origin);
+
+            var lookAt=Vec3.atCenterOf(support).add(-.49,0,0);
+            var hit=level.clip(new ClipContext(owner.getEyePosition(),lookAt,ClipContext.Block.OUTLINE,ClipContext.Fluid.NONE,owner));
+            require(hit.getType()==HitResult.Type.BLOCK&&hit.getBlockPos().equals(support)&&hit.getDirection()==Direction.WEST
+                    &&owner.isWithinBlockInteractionRange(support,0),"real side face at maxY is directly visible and within normal reach");
+            var stack=leaf("dirter").copyWithCount(3);
+            owner.setItemInHand(InteractionHand.OFF_HAND,stack);
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK,7));
+            beforeCeilingDirter=game.items().imbaTerrainUtilities().state();
+            owner.connection.handleUseItemOn(new ServerboundUseItemOnPacket(InteractionHand.OFF_HAND,hit,++ceilingSequence));
+            require(level.getBlockState(placed).is(Blocks.COARSE_DIRT)&&stack.getCount()==2&&owner.getMainHandItem().getCount()==7,
+                    "native packet places coarse dirt on the legal side face and debits only the offhand once");
+            var jobs=game.items().imbaTerrainUtilities().views();
+            require(jobs.size()==1&&jobs.getFirst().kind()==LbcImbaTerrainUtilities.Kind.DIRTER&&jobs.getFirst().origin().equals(origin),
+                    "actual upper-bound placement admits one job at the player's real origin");
+        }
+        boolean ceilingDirterFinished(boolean outside){
+            var state=game.items().imbaTerrainUtilities().state();
+            if(state.jobs()!=0)return false;
+            var top=ceilingDirterCenter();
+            var expected=outside?Blocks.DIRT:Blocks.GRASS_BLOCK;
+            for(var pos:BlockPos.betweenClosed(top.offset(-4,0,-4),top.offset(4,0,4)))
+                require(level.getBlockState(pos).is(expected),"exact9x9 Dirter top at "+pos+" expected="+expected+" actual="+level.getBlockState(pos));
+            require(level.getBlockState(top.east(5)).is(Blocks.GOLD_BLOCK),"sentinel outside the actual9x9 footprint is untouched");
+            require(level.isOutsideBuildHeight(top.above())&&level.getBlockState(top.above()).isAir(),"outside-plane grass is never placed");
+            long legalCells=81L*(top.getY()-Math.max(0,level.getMinY())+1);
+            require(state.finished()==beforeCeilingDirter.finished()+1&&state.visits()-beforeCeilingDirter.visits()==legalCells
+                    &&owner.getOffhandItem().getCount()==2&&owner.getMainHandItem().getCount()==7,
+                    "one actual job completes all legal layers with no additional debit");
+            return true;
+        }
         void beginBastion(){
             move(dirterOrigin.add(40,0,0));var clicked=owner.blockPosition().east(2).below();set(clicked,Blocks.STONE.defaultBlockState());set(clicked.above(),Blocks.AIR.defaultBlockState());
             field(false,owner.position().add(12,0,0));field(true,owner.position().add(13,0,0));require(game.items().magic().suppressed(owner)&&game.items().magic().mechanismSuppressed(owner),"real MAG/TECH cover Bastion activation");
@@ -204,7 +257,11 @@ public final class ImbaUtilityChecks {
             if(phase==1){var delays=game.items().teleportGadgets().imbaDelays();int now=delays.isEmpty()?0:delay().remaining();require(now==remaining||now==remaining-1,"delay decrements at most once per active native tick");if(now<remaining)activeTicks++;remaining=now;if(now>0){require(!level.getBlockState(padOrigin).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE)),"no early pad before20 active ticks");return false;}require(activeTicks==20,"exact20 active ticks before pad admission");if(!game.items().teleportGadgets().imbaPads().isEmpty())return false;assertPad();move(dirterOrigin);placeDirter();next(2);return false;}
             if(phase==2){if(game.items().imbaTerrainUtilities().state().jobs()!=0)return false;assertDirter();require(game.items().magic().suppressed(owner)&&game.items().magic().mechanismSuppressed(owner),"accepted Dirter completes under real MAG/TECH");removeFields();beginBastion();return false;}
             if(phase==4){var bounds=game.items().imbaTerrainUtilities().bastionBounds(bastionActor);boolean ready=true;var job=bastionJob();for(int x=bounds.min().getX()>>4;x<=bounds.max().getX()>>4;x++)for(int z=bounds.min().getZ()>>4;z<=bounds.max().getZ()>>4;z++)ready&=(Boolean)call(job,"resident",new BlockPos(x*16,58,z*16));if(!ready)return false;require(game.items().imbaTerrainUtilities().views().stream().allMatch(v->v.writes()==0),"paused accepted Bastion plans no writes");readBastion();thaw();next(5);return false;}
-            if(phase==5){if(game.items().imbaTerrainUtilities().state().jobs()!=0)return false;for(var entry:bastionExpected.entrySet())require(level.getBlockState(entry.getKey())==entry.getValue(),"exact source Bastion cell atoffset(-8,-1,-8): "+entry.getKey()+" wanted="+entry.getValue()+" actual="+level.getBlockState(entry.getKey())+" metrics="+game.items().imbaTerrainUtilities().state());noFallbackActors();return true;}return false;
+            if(phase==5){if(game.items().imbaTerrainUtilities().state().jobs()!=0)return false;for(var entry:bastionExpected.entrySet())require(level.getBlockState(entry.getKey())==entry.getValue(),"exact source Bastion cell atoffset(-8,-1,-8): "+entry.getKey()+" wanted="+entry.getValue()+" actual="+level.getBlockState(entry.getKey())+" metrics="+game.items().imbaTerrainUtilities().state());noFallbackActors();move(dirterOrigin);next(6);return false;}
+            if(phase==6){var top=ceilingDirterCenter();for(int x=(top.getX()-4)>>4;x<=(top.getX()+5)>>4;x++)for(int z=(top.getZ()-4)>>4;z<=(top.getZ()+4)>>4;z++)if(level.getChunkSource().getChunkNow(x,z)==null)return false;prepareCeilingDirter();placeCeilingDirter(false);next(7);return false;}
+            if(phase==7){if(!ceilingDirterFinished(false))return false;placeCeilingDirter(true);next(8);return false;}
+            if(phase==8)return ceilingDirterFinished(true);
+            return false;
         }
         boolean replayStep(){
             if(phase==10){var jobs=game.items().imbaTerrainUtilities().views();if(jobs.isEmpty()||jobs.stream().noneMatch(v->v.writes()>0))return false;require(game.items().teleportGadgets().pendingImba()==1&&!game.items().whiteArrows().views().isEmpty(),"actual unfinished delay and White Arrow overlap partial accepted terrain");removeFields();pause();require(game.vanity().requestCapture(owner,false),"canonical coordinator accepts nonempty delay/terrain/ray cursor");next(11);return false;}
