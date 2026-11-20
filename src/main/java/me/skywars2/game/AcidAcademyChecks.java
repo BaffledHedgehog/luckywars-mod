@@ -21,13 +21,21 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ScheduledTick;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 /** Real native input/loot and Academy callbacks; successive clicks use actual server ticks. */
@@ -197,8 +205,64 @@ public final class AcidAcademyChecks {
             require(!shot.canHitEntity(target),"ordinary entity passage remains native");other.entityTags().add("sin_greed_active");
             require(shot.canHitEntity(other),"native Greed collision remains enabled");other.entityTags().remove("sin_greed_active");
             var from=shot.position();var velocity=shot.getDeltaMovement();shot.tick();
-            require(!shot.isRemoved()&&shot.position().distanceToSqr(from)>0&&shot.getDeltaMovement().y<velocity.y,"actual native tick applies existing gravity and motion");clearAcids();target.discard();
+            require(!shot.isRemoved()&&shot.position().distanceToSqr(from)>0&&shot.getDeltaMovement().y<velocity.y,"actual native tick applies existing gravity and motion");
+            boundedSweep(shot);
+            clearAcids();target.discard();
         }
+
+        private void boundedSweep(LbcClouds.AcidProjectile shot) {
+            var level=owner.level();
+            var from=Vec3.atCenterOf(BlockPos.containing(at).above(7));
+            var first=BlockPos.containing(from);
+            var barrier=first.east(3);
+            var saved=new LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
+            for(int x=0;x<=3;x++){
+                var pos=first.east(x);
+                saved.put(pos,game.maps().snapshot(level,pos));
+                level.setBlock(pos,(x==3?Blocks.STONE:Blocks.AIR).defaultBlockState(),Block.UPDATE_CLIENTS);
+            }
+            var target=cow(from.add(1.75,-.25,0));
+            var manager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+            var original=manager.getEntityGetter();
+            var searches=new ArrayList<AABB>();
+            try {
+                var field=manager.getClass().getDeclaredField("entityGetter");
+                field.setAccessible(true);
+                var probe=Proxy.newProxyInstance(LevelEntityGetter.class.getClassLoader(),new Class<?>[]{LevelEntityGetter.class},
+                        (ignored,method,args)->{
+                            if(method.getName().equals("get")&&args!=null)
+                                for(var arg:args)if(arg instanceof AABB box)searches.add(box);
+                            try {return method.invoke(original,args);}
+                            catch(InvocationTargetException error){throw error.getCause();}
+                        });
+                shot.setPos(from);shot.setDeltaMovement(new Vec3(2048,0,0));shot.tickCount=30;
+                field.set(manager,probe);
+                try {
+                    var wall=ProjectileUtil.getHitResultOnMoveVector(shot,shot::canHitEntity);
+                    require(wall instanceof BlockHitResult block&&wall.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK
+                            &&block.getBlockPos().equals(barrier),
+                            "native solid wall still intercepts a fast acid sweep: from="+from+" wall="+barrier
+                                    +" hit="+wall.getType()+"@"+wall.getLocation());
+                    target.entityTags().add("sin_greed_active");
+                    var exact=ProjectileUtil.getHitResultOnMoveVector(shot,shot::canHitEntity);
+                    var originalBox=shot.getBoundingBox().expandTowards(shot.getDeltaMovement()).inflate(1);
+                    var expected=ProjectileUtil.getEntityHitResult(level,shot,from,wall.getLocation(),
+                            originalBox,shot::canHitEntity,ProjectileUtil.computeMargin(shot));
+                    require(exact instanceof EntityHitResult hit&&expected!=null&&hit.getEntity()==target
+                            &&hit.getLocation().equals(expected.getLocation()),"native hit selects even a tagged non-player Greed target before the wall");
+                    require(searches.size()==3&&searches.get(0).getXsize()<4&&searches.get(1).getXsize()<4
+                            &&searches.getLast().getXsize()>2048,
+                            "real acid search stops at the clip instead of scanning the full attack rectangle: "+searches);
+                    SkyWars2.LOGGER.info("[check] acid sweep candidate search width {} -> {}, exact native Greed hit",
+                            searches.getLast().getXsize(),searches.getFirst().getXsize());
+                } finally {field.set(manager,original);}
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("Observe native acid entity sweep",error);}
+            finally {
+                saved.forEach((pos,snapshot)->game.maps().restoreSnapshot(level,pos,snapshot,Block.UPDATE_CLIENTS));
+                target.discard();
+            }
+        }
+
         void guards(){
             held(loot("academy_acid_wand"),InteractionHand.MAIN_HAND);mana.set(owner,1000);
             mana.noMagic(owner,1);require(input(InteractionHand.MAIN_HAND)&&acids().size()==1&&mana.get(owner)==750,"nomagic regen countdown preserves source paid casts");clearAcids();mana.noMagic(owner,0);mana.set(owner,1000);
@@ -264,6 +328,39 @@ public final class AcidAcademyChecks {
             } finally {
                 clearAcids();
                 witnesses.forEach(Entity::discard);
+            }
+            ignitionBlocks(cell);
+        }
+
+        private void ignitionBlocks(BlockPos inside) {
+            var level = owner.level();
+            var boundary = inside.atY((inside.getY() & ~15) + 15);
+            int flags = Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
+            for (var center : List.of(inside, boundary)) {
+                var neighbor = center.offset(1, 1, 1);
+                var beyond = center.offset(2, 1, 1);
+                require(level.getBlockState(neighbor).isAir() && level.getBlockState(beyond).isAir(),
+                        "resident block ignition witnesses start in air");
+                var savedNeighbor = game.maps().snapshot(level, neighbor);
+                var savedBeyond = game.maps().snapshot(level, beyond);
+                try {
+                    level.setBlock(beyond, Blocks.MAGMA_BLOCK.defaultBlockState(), flags);
+                    var shot = ignitionShot(Vec3.atCenterOf(center), false);
+                    clouds.tick();
+                    require(!shot.entityTags().contains("on_fire"), "magma beyond the exact ignition cube cannot ignite acid");
+                    level.setBlock(neighbor, Blocks.MAGMA_BLOCK.defaultBlockState(), flags);
+                    clouds.tick();
+                    require(shot.entityTags().contains("on_fire"), "same-tick magma at the cube corner ignites acid");
+                    clearAcids();
+                    game.maps().restoreSnapshot(level, neighbor, savedNeighbor, flags);
+                    shot = ignitionShot(Vec3.atCenterOf(center), false);
+                    clouds.tick();
+                    require(!shot.entityTags().contains("on_fire"), "removed magma is not cached for the next acid");
+                } finally {
+                    clearAcids();
+                    game.maps().restoreSnapshot(level, neighbor, savedNeighbor, flags);
+                    game.maps().restoreSnapshot(level, beyond, savedBeyond, flags);
+                }
             }
         }
 

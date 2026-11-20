@@ -424,6 +424,7 @@
     "AdvancementFilterMixin",
     "TrinketBowMixin",
     "WandProjectileMixin",
+    "AcidProjectileSweepMixin",
     "ProjectileBodyCollisionMixin",
     "SilenceFallingBlockMixin",
     "WandProjectileMixin$ArrowAccess",

@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleTypes;
@@ -766,11 +767,33 @@ public final class LbcClouds {
 
     private boolean ordinaryAcidIgnited(AcidProjectile projectile) {
         var level=(ServerLevel)projectile.level();
-        var center=projectile.blockPosition();
-        for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
-            if(level.hasChunkAt(pos) && level.getBlockState(pos).is(FIRE_LAVA)) return true;
+        if (localIgnitionBlock(level, projectile.blockPosition())) return true;
         boolean great=projectile.entityTags().contains(GREAT_ACID)||awakenedVariant(projectile)>0;
         return nearbyFire(projectile, great ? 7.5 : 5, great ? 10 : 7, false);
+    }
+
+    private static boolean localIgnitionBlock(ServerLevel level, BlockPos center) {
+        var min = center.offset(-1, -1, -1);
+        var max = center.offset(1, 1, 1);
+        if (!level.isDebug() && SectionPos.asLong(min) == SectionPos.asLong(max)
+                && level.isInValidBounds(min) && level.isInValidBounds(max)) {
+            int chunkX = center.getX() >> 4, chunkZ = center.getZ() >> 4;
+            if (!level.hasChunk(chunkX, chunkZ)) return false;
+            var chunk = level.getChunkSource().getChunkNow(chunkX, chunkZ);
+            if (chunk != null) {
+                var section = chunk.getSection(level.getSectionIndex(center.getY()));
+                if (section.hasOnlyAir()) return Blocks.AIR.defaultBlockState().is(FIRE_LAVA);
+                for (var pos : BlockPos.betweenClosed(min, max)) {
+                    if (section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15).is(FIRE_LAVA)) return true;
+                }
+                return false;
+            }
+        }
+        // Keep native reads at section/chunk boundaries, in debug worlds, and during a FULL transition.
+        for (var pos : BlockPos.betweenClosed(min, max)) {
+            if (level.hasChunkAt(pos) && level.getBlockState(pos).is(FIRE_LAVA)) return true;
+        }
+        return false;
     }
 
     private boolean nearbyFire(AcidProjectile projectile, double fireRadius, double chargeRadius, boolean small) {
