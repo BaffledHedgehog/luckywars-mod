@@ -6,10 +6,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -17,6 +19,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -25,6 +30,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -160,6 +166,102 @@ public final class BabylonChecks {
             var victim=cow(at.add(0,0,4));var trident=service.emit(owner,3,4);trident.setPos(victim.getX(),victim.getY()+.6,victim.getZ()-2);trident.setDeltaMovement(new Vec3(0,0,3));trident.tick();
             require(victim.getHealth()==12&&victim.getLastHurtByMob()==owner,"native actual trident collision deals8 with native owner");service.unloaded(trident);victim.discard();
         }
+        void embeddedLaunch() {
+            hands(false, false);
+            owner.setYRot(0);
+            owner.setXRot(0);
+            var origin = owner.getEyePosition().add(0, 3, 0);
+            var solid = BlockPos.containing(origin);
+            block(solid, Blocks.OBSIDIAN);
+            try {
+                var shot = service.emit(owner, 3, 2);
+                require(shot != null && shot.position().distanceToSqr(origin) < 1e-10 && !shot.isRemoved(),
+                        "real Babylon origin is inside the occupied cell");
+                shot.tick();
+                var lightning = bolts();
+                require(shot.isRemoved() && service.count() == 0 && owner.level().getEntity(shot.getUUID()) == null,
+                        "initially embedded arrow retires without waiting for a later block-hit callback");
+                require(lightning.size() == 1 && lightning.getFirst().position().distanceToSqr(origin) < 1e-10,
+                        "the initially embedded arrow still performs its legacy consequence at the native position");
+                shot.tick();
+                require(bolts().equals(lightning), "the embedded release emits only one lightning bolt");
+            } finally {
+                clear();
+                clearBolts();
+                block(solid, Blocks.AIR);
+            }
+        }
+        void pickupPolicy() {
+            hands(false, false);
+            for (int kind = 1; kind <= 4; kind++) {
+                var shot = (AbstractArrow)service.emit(owner, 3, kind);
+                require(shot.pickup == AbstractArrow.Pickup.DISALLOWED,
+                        "source-owned Babylon projectile cannot be collected, kind " + kind);
+                shot.setOwner(other);
+                require(shot.getOwner() == other && shot.pickup == AbstractArrow.Pickup.DISALLOWED,
+                        "native owner reassignment cannot re-enable pickup, kind " + kind);
+                service.unloaded(shot);
+            }
+
+            var wall = BlockPos.containing(at).offset(-4, 2, 0);
+            block(wall, Blocks.OBSIDIAN);
+            var trident = (AbstractArrow)service.emit(owner, 3, 4);
+            try {
+                trident.setPos(Vec3.atCenterOf(wall).add(0, 0, -1.5));
+                trident.setDeltaMovement(new Vec3(0, 0, 3));
+                trident.setNoGravity(true);
+                trident.tick();
+                require(!trident.isRemoved() && ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)trident).skywars2$isInGround(),
+                        "the source trident keeps its native block embedding");
+                for (int tick = 0; tick < 8; tick++) trident.tick();
+                int beforeTridents = owner.getInventory().countItem(Items.TRIDENT);
+                trident.playerTouch(owner);
+                require(!trident.isRemoved() && owner.getInventory().countItem(Items.TRIDENT) == beforeTridents,
+                        "even the owner cannot collect the real embedded trident");
+            } finally {
+                service.unloaded(trident);
+                block(wall, Blocks.AIR);
+            }
+
+            var level = owner.level();
+            var target = new Cow(EntityTypes.COW, level) {
+                @Override public boolean hurtServer(ServerLevel level, DamageSource source, float amount) { return false; }
+            };
+            target.setPos(at.add(-3, 2, 4));
+            target.setNoAi(true);
+            target.setNoGravity(true);
+            var contact = new Vec3(target.getX(), target.getY() + .5, target.getBoundingBox().minZ);
+            var area = new AABB(contact, contact).inflate(1);
+            require(level.getEntitiesOfClass(ItemEntity.class, area).isEmpty(), "isolated arrow-drop witness");
+            try {
+                require(level.addFreshEntity(target), "native living target rejects damage and deflects arrows");
+                for (int kind = 1; kind <= 3; kind++) {
+                    var shot = service.emit(owner, 3, kind);
+                    shot.setPos(contact.add(0, 0, -.0005));
+                    shot.setNoGravity(true);
+                    shot.setDeltaMovement(new Vec3(0, 0, .001));
+                    shot.tick();
+                    require(shot.isRemoved() && level.getEntitiesOfClass(ItemEntity.class, area).isEmpty(),
+                            "a real weak deflection discards the shot without spawning a collectible tipped arrow, kind " + kind);
+                    service.unloaded(shot);
+                }
+                var plain = new Arrow(EntityTypes.ARROW, level);
+                plain.setOwner(owner);
+                plain.setPos(contact.add(0, 0, -.0005));
+                plain.setNoGravity(true);
+                plain.setDeltaMovement(new Vec3(0, 0, .001));
+                require(level.addFreshEntity(plain), "native ordinary arrow control");
+                plain.tick();
+                var ordinary = level.getEntitiesOfClass(ItemEntity.class, area);
+                require(plain.isRemoved() && ordinary.size() == 1 && ordinary.getFirst().getItem().is(Items.ARROW)
+                                && ordinary.getFirst().getItem().getCount() == 1,
+                        "the same real weak deflection still drops a regular owner-fired arrow");
+            } finally {
+                clear();
+                level.getEntitiesOfClass(ItemEntity.class, area).forEach(Entity::discard);
+                target.discard();
+            }
+        }
         List<net.minecraft.world.entity.LightningBolt> bolts(){var result=new ArrayList<net.minecraft.world.entity.LightningBolt>();for(var e:owner.level().getAllEntities())if(e instanceof net.minecraft.world.entity.LightningBolt bolt&&!before.contains(e)&&!e.isRemoved())result.add(bolt);return result;}
         void clearBolts(){for(var bolt:bolts()){game.items().babylonEffects().unloaded(bolt);bolt.discard();}}
         void enqueue(LivingEntity target,ServerPlayer author,int amp,int duration){var shot=service.emit(author,3,amp==101?1:amp==109?2:3);require(game.items().babylonEffects().accept(target,shot,new MobEffectInstance(MobEffects.RAID_OMEN,duration,amp)),"accepted native transport boundary");service.unloaded(shot);}
@@ -199,7 +301,7 @@ public final class BabylonChecks {
                 require(!owner.hurtServer(owner.level(),owner.damageSources().generic(),100)&&!owner.hurtServer(owner.level(),owner.damageSources().fellOutOfWorld(),100)&&owner.getHealth()==20,"Greed rejects native generic and void damage");
                 owner.setHealth(1);require(owner.getHealth()==20,"Greed rejects direct health decrease");owner.knockback(2,1,0,owner.damageSources().generic(),0);require(owner.getDeltaMovement().equals(Vec3.ZERO),"Greed rejects native knockback");
                 require(!owner.addEffect(new MobEffectInstance(MobEffects.POISON,200,1),other)&&!owner.hasEffect(MobEffects.POISON),"Greed rejects external negative potion effect");
-                var arrow=service.emit(other,3,2);arrow.setPos(owner.getX(),owner.getY()+.6,owner.getZ()-2);arrow.setDeltaMovement(new Vec3(0,0,3));arrow.tick();require(owner.getHealth()==20&&!owner.hasEffect(MobEffects.RAID_OMEN)&&game.items().babylonEffects().queued(owner,109)==0&&arrow.getOwner()==owner&&arrow.getDeltaMovement().z<0,"Greed actual native arrow impact reverses flight/current owner without damage or secondary counter");service.unloaded(arrow);
+                var arrow=(Arrow)service.emit(other,3,2);arrow.setPos(owner.getX(),owner.getY()+.6,owner.getZ()-2);arrow.setDeltaMovement(new Vec3(0,0,3));arrow.tick();require(owner.getHealth()==20&&!owner.hasEffect(MobEffects.RAID_OMEN)&&game.items().babylonEffects().queued(owner,109)==0&&arrow.getOwner()==owner&&arrow.getDeltaMovement().z<0&&arrow.pickup==AbstractArrow.Pickup.DISALLOWED,"Greed actual native arrow impact reverses flight/current owner without damage, secondary counter or pickup");service.unloaded(arrow);
             }finally{owner.entityTags().remove("sin_greed_active");}
         }
         void firebreak(){
@@ -275,7 +377,7 @@ public final class BabylonChecks {
             game.players().save();mana.inventoryChanged(owner);mana.inventoryChanged(other);game.items().magic().flushCleansing();
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.manaAndHands();f.launches();f.nativeFlights();f.nativeArrowEffects();f.greed();f.firebreak();f.nativeBlockEffects();f.pools();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS babylon (native loot, independent both-hand300 dispatch, source25 origin/weapon combinations at2 angles, native markers/rocket, block/entity consequences, gates and reload retirement; explicit boundary ticks)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.manaAndHands();f.embeddedLaunch();f.pickupPolicy();f.launches();f.nativeFlights();f.nativeArrowEffects();f.greed();f.firebreak();f.nativeBlockEffects();f.pools();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS babylon (native loot, independent both-hand300 dispatch, source25 origin/weapon combinations at2 angles, native markers/rocket, block/entity consequences, gates and reload retirement; explicit boundary ticks)");}
     private static Saved stopSaved;private static String stopEpoch;private static net.minecraft.world.entity.projectile.Projectile stopShot;private static Cow stopTarget;
     public static void stopProbe(GameController game){
         require(stopSaved==null,"exclusive stop fixture");var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(owner!=null&&game.canUseGameplayItems(owner)&&game.items().babylon().count()==0,"clean actual stop probe");stopSaved=new Saved(game,owner);

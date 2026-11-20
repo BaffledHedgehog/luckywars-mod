@@ -18,6 +18,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
@@ -151,20 +152,34 @@ public final class LbcBabylon {
         boolean retired,blockEffectDone;final int transportAmp;
         BabylonArrow(ServerLevel level,int transportAmp){super(EntityTypes.ARROW,level);this.transportAmp=transportAmp;}
         @Override public boolean shouldBeSaved(){return false;}
+        @Override public void setOwner(Entity owner){
+            super.setOwner(owner);
+            // Vanilla makes player-owned arrows collectible on both launch and reflection.
+            pickup=Pickup.DISALLOWED;
+        }
+        @Override protected boolean tryPickup(Player player){return false;}
         @Override public void tick(){
             if(!valid(this)){unloaded(this);return;}
             if(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped((ServerLevel)level())
                     ||game.items().timeStop().frozen(this)||entityTags().contains("time_stopped"))return;
             super.tick();
+            // A launch point inside a solid voxel embeds directly in the native tick.
+            if(!isRemoved()&&isInGround())finishBlockImpact();
         }
         @Override protected void onHitBlock(net.minecraft.world.phys.BlockHitResult hit){
             super.onHitBlock(hit);
+            finishBlockImpact();
+        }
+        private void finishBlockImpact(){
             // Legacy prein -> arrows_f acts once at the embedded arrow position,
             // then kills the transport even when a ward suppresses its consequence.
             if(blockEffectDone||retired||!valid(this))return;
             blockEffectDone=true;
-            game.items().babylonEffects().blockImpact(this,transportAmp,position());
-            unloaded(this);
+            try{
+                game.items().babylonEffects().blockImpact(this,transportAmp,position());
+            }finally{
+                unloaded(this);
+            }
         }
         @Override protected void doPostHurtEffects(LivingEntity target){
             var previous=EFFECT_ARROW.get();
@@ -177,6 +192,11 @@ public final class LbcBabylon {
         boolean retired;
         BabylonTrident(ServerLevel level){super(EntityTypes.TRIDENT,level);}
         @Override public boolean shouldBeSaved(){return false;}
+        @Override public void setOwner(Entity owner){
+            super.setOwner(owner);
+            pickup=Pickup.DISALLOWED;
+        }
+        @Override protected boolean tryPickup(Player player){return false;}
         @Override public void tick(){if(!valid(this)){unloaded(this);return;}super.tick();}
     }
     private final class BabylonRocket extends FireworkRocketEntity {
