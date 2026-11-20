@@ -449,6 +449,7 @@ public final class MapManager {
     int streamingPendingBatches() { return pendingMapLighting.size(); }
     int streamingCompletedBatches() { return completedLightingBatches; }
     Set<Long> streamingChangedChunks() { return Set.copyOf(streamingChangedChunks); }
+    boolean waitingForBoundsJournal() { return journalWait != null; }
 
     public boolean brokenAvailable(String id) {
         Manifest manifest = manifests.get(id);

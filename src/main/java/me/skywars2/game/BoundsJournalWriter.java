@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Serial, coalescing disk writes. Only immutable coordinates cross the server-thread boundary. */
-final class BoundsJournalWriter {
+public final class BoundsJournalWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger("skywars2/map-journal");
     record Region(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) { }
     record Snapshot(String dimension, List<Region> bounds) {
@@ -28,7 +28,7 @@ final class BoundsJournalWriter {
             bounds = List.copyOf(bounds);
         }
     }
-    @FunctionalInterface interface Sink { void write(Path journal, String json) throws IOException; }
+    @FunctionalInterface public interface Sink { void write(Path journal, String json) throws IOException; }
     private static final class Pending {
         Snapshot snapshot;
         final CompletableFuture<Boolean> result = new CompletableFuture<>();

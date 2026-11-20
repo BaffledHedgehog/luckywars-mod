@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import me.skywars2.mixin.ActorCheckpointAccess;
+import me.skywars2.validation.mixin.MapValidationAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -38,7 +39,6 @@ import net.minecraft.world.phys.Vec3;
 public final class MapReplacementChecks {
     private static Scene active;
     private static void require(boolean value,String message){if(!value)throw new IllegalStateException("Map replacement: "+message);}
-    private static Object field(Object object,String name){try{var f=object.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(object);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
     public static void run(GameController game){require(active==null&&game.inLobby()&&!game.maps().busy(),"exclusive ready lobby");active=new Scene(game);active.start();}
 
     private static void checkStoredTerrain() {
@@ -73,6 +73,8 @@ public final class MapReplacementChecks {
 
     private static final class Scene {
         final GameController game;final ServerPlayer owner;final String oldMap;final boolean oldBroken;final int started;
+        final MapValidationAccess.Manager mapState;
+        final MapValidationAccess.Controller controllerState;
         final int oldMode;
         final BlockPos untracked, outside, lobby;
         final MapManager.BlockSnapshot previousOutside,lobbyBlock;
@@ -88,14 +90,16 @@ public final class MapReplacementChecks {
         Scene(GameController game){
             checkStoredTerrain();
             this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
+            mapState=(MapValidationAccess.Manager)(Object)game.maps();
+            controllerState=(MapValidationAccess.Controller)(Object)game;
             oldMap=game.config().mapId;oldBroken=game.config().broken;oldMode=game.config().gameMode;started=game.server().getTickCount();
-            require((int)field(game.maps(),"sweptMode")==oldMode,"the first startup map applied a full sweep");
+            require(mapState.validation$sweptMode()==oldMode,"the first startup map applied a full sweep");
             var level=game.maps().level();int edge=MapManager.OUTER_ARENA_LIMIT;
             untracked=new BlockPos(edge,level.getMaxY(),edge);outside=untracked.east();
             topBlock=new BlockPos(1,level.getMaxY(),0);
-            var cells=(Map<?,?>)field(game.maps(),"lobbyVisible");
+            var cells=mapState.validation$lobbyVisible();
             lobby=cells.entrySet().stream().filter(entry->entry.getValue() instanceof MapManager.BlockSnapshot snapshot&&!snapshot.state().isAir())
-                    .map(entry->(BlockPos)entry.getKey()).findFirst().orElseThrow();
+                    .map(Map.Entry::getKey).findFirst().orElseThrow();
             lobbyBlock=game.maps().snapshot(lobby);previousOutside=game.maps().snapshot(outside);
             var chunk=level.getChunk(untracked.getX()>>4,untracked.getZ()>>4);
             chunk.setBlockState(untracked,Blocks.DIAMOND_BLOCK.defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
@@ -103,7 +107,7 @@ public final class MapReplacementChecks {
             require(!game.maps().arenaTerrainAt(untracked),"direct-written witness is outside the tracked map bounds");
         }
         void select(String id){require(game.selectMap(owner,id,false),"actual native selection accepted "+id);}
-        void start(){select("60");var first=field(game.maps(),"preparation");select("61");require(first!=field(game.maps(),"preparation"),"second click replaces the in-flight preparation immediately");select("1");require(game.maps().busy()&&!game.selectedMapReady(),"latest request is the sole active operation");}
+        void start(){select("60");var first=mapState.validation$preparation();select("61");require(first!=mapState.validation$preparation(),"second click replaces the in-flight preparation immediately");select("1");require(game.maps().busy()&&!game.selectedMapReady(),"latest request is the sole active operation");}
         void prepareHeightFixture() throws IOException {
             heightFixture=Files.createTempDirectory(game.server().getWorldPath(LevelResource.ROOT),".map-height-check-");
             var template=new CompoundTag();
@@ -157,14 +161,13 @@ public final class MapReplacementChecks {
                 heightFixture=null;
             }
         }
-        @SuppressWarnings("unchecked")
         void checkTopRespawnIsland() {
             var maps=game.maps();
             var spawn=maps.spawns().getFirst();
             var feet=BlockPos.containing(spawn.position());
             var previousFeet=maps.snapshot(feet);
             var previousTop=maps.snapshot(topBlock);
-            var islands=(Map<BlockPos, Map<BlockPos,MapManager.BlockSnapshot>>)field(maps,"respawnIslands");
+            var islands=mapState.validation$respawnIslands();
             var previousIslands=Map.copyOf(islands);
             try {
                 maps.captureRespawnIslands();
@@ -220,8 +223,8 @@ public final class MapReplacementChecks {
             require(registered(entity)&&world.getEntity(entity.getUUID())==null,
                     "native manual-clear witness is registered but hidden in "+world.dimension());
         }
-        @SuppressWarnings("unchecked") BlockPos coldImprintedCell(ServerLevel mirror) {
-            var bounds=(List<BoundingBox>)field(game.maps(),"imprintedBounds");
+        BlockPos coldImprintedCell(ServerLevel mirror) {
+            var bounds=mapState.validation$imprintedBounds();
             require(!bounds.isEmpty(),"manual clear has a real Imprinted footprint");
             for(var box:bounds) {
                 for(int x=box.minX()>>4;x<=box.maxX()>>4;x++) {
@@ -273,8 +276,8 @@ public final class MapReplacementChecks {
             }
             if(phase==2&&debris.isEmpty()&&game.maps().busy()
                     &&!game.maps().streamingChangedChunks().isEmpty()
-                    &&((Collection<?>)field(game.maps(),"work")).isEmpty()
-                    &&field(game.maps(),"journalWait")!=null){
+                    &&mapState.validation$work().isEmpty()
+                    &&game.maps().waitingForBoundsJournal()){
                 var at=game.maps().spawns().getFirst().position();
                 for(var world:List.of(game.maps().level(),Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED)))){
                     addDebris(world,at,"Cubes load debris",debris);
@@ -307,14 +310,14 @@ public final class MapReplacementChecks {
                 if(game.maps().busy())return false;
                 require(game.selectedMapReady()&&game.config().mapId.equals(heightMaps.getFirst())
                                 &&game.maps().level().getBlockState(topBlock).is(Blocks.DIAMOND_BLOCK)&&game.maps().spawns().size()==1,
-                        "a real saved map pastes its highest legal layer and becomes ready: "+field(game,"mapFailure"));
+                        "a real saved map pastes its highest legal layer and becomes ready: "+controllerState.validation$mapFailure());
                 checkTopRespawnIsland();
                 checkTopMadokaRegion();
                 select(heightMaps.getLast());phase=5;return false;
             }
             if(phase==5){
                 if(game.maps().busy())return false;
-                var failure=(Component)field(game,"mapFailure");
+                var failure=controllerState.validation$mapFailure();
                 require(!game.selectedMapReady()&&failure.getContents() instanceof TranslatableContents reason
                                 &&reason.getKey().equals("skywars2.map.error.height")
                                 &&((Number)reason.getArgs()[2]).intValue()==topBlock.getY()+1
@@ -409,10 +412,10 @@ public final class MapReplacementChecks {
             SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);
         }
     }
-    @SuppressWarnings("unchecked") public static void imprinted(GameController game){
+    public static void imprinted(GameController game){
         var level=game.maps().level();var target=Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED));
         require(!game.maps().busy(),"copy completes before ready callback");
-        var bounds=(List<BoundingBox>)field(game.maps(),"mapBounds");int retained=0,missing=0,other=0,sampled=0;
+        var bounds=game.maps().arenaTerrainBounds();int retained=0,missing=0,other=0,sampled=0;
         search:for(var box:bounds)for(int y=box.maxY();y>=box.minY();y--)for(int x=box.minX();x<=box.maxX();x++)for(int z=box.minZ();z<=box.maxZ();z++){
             var at=new BlockPos(x,y,z);var original=level.getBlockState(at);if(original.isAir())continue;
             // Starting play releases temporary loading tickets. Read the actual persisted native

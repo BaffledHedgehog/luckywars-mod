@@ -2,10 +2,8 @@ package me.skywars2.game;
 
 import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -13,25 +11,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.MapValidationAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 
 /** Holds the actual loader's file sink while native server frames and rapid selections continue. */
 public final class MapJournalChecks {
+    private static final BlockPos LATE_CHANGE = new BlockPos(4240, 100, 4096);
     private static Scene active;
     private static void require(boolean ok, String message) { if (!ok) throw new IllegalStateException("Map journal: " + message); }
-    private static Field field(Object object, String name) {
-        try { var field=object.getClass().getDeclaredField(name);field.setAccessible(true);return field; }
-        catch (ReflectiveOperationException error) { throw new IllegalStateException(error); }
-    }
-    private static Object get(Object object, String name) {
-        try { return field(object,name).get(object); }
-        catch (ReflectiveOperationException error) { throw new IllegalStateException(error); }
-    }
-    private static void set(Object object, String name, Object value) {
-        try { field(object,name).set(object,value); }
-        catch (ReflectiveOperationException error) { throw new IllegalStateException(error); }
-    }
     private static final class Gate {
         final CountDownLatch entered=new CountDownLatch(1), release=new CountDownLatch(1);
         final AtomicInteger calls=new AtomicInteger();
@@ -45,8 +33,10 @@ public final class MapJournalChecks {
     private static final class Scene implements AutoCloseable {
         final GameController game;
         final MapManager maps;
+        final MapValidationAccess.Manager mapState;
         final ServerPlayer owner;
         final BoundsJournalWriter writer;
+        final MapValidationAccess.Journal journalState;
         final BoundsJournalWriter.Sink original;
         final String oldMap;
         final boolean oldBroken;
@@ -55,17 +45,22 @@ public final class MapJournalChecks {
         final AtomicBoolean failNext=new AtomicBoolean();
         volatile Gate gate;
         CompletableFuture<Boolean> normal,coalesced,failed;
-        int phase,heldAt=-1,enteredAt=-1,selectionGeneration;
+        int phase,heldAt=-1,enteredAt=-1;
+        long selectionGeneration;
+        boolean observedFirstSlice;
         Scene(GameController game) {
             this.game=game;maps=game.maps();
+            mapState=(MapValidationAccess.Manager)(Object)maps;
             owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
             oldMap=game.config().mapId;oldBroken=game.config().broken;started=game.server().getTickCount();
-            writer=(BoundsJournalWriter)get(maps,"journalWriter");original=(BoundsJournalWriter.Sink)get(writer,"sink");
-            journal=(Path)get(maps,"boundsJournal");
+            writer=mapState.validation$writer();
+            journalState=(MapValidationAccess.Journal)(Object)writer;
+            original=journalState.validation$sink();
+            journal=mapState.validation$journal();
         }
         void start() {
             gate=new Gate();
-            set(writer,"sink",(BoundsJournalWriter.Sink)(path,json)->{
+            journalState.validation$sink((path,json)->{
                 require(!game.server().isSameThread(),"file IO must never run on the server thread");
                 Gate held=gate;
                 if (held!=null) {
@@ -80,12 +75,11 @@ public final class MapJournalChecks {
             change(4096);normal=latest();
             require(!normal.isDone(),"submission returns before its held file write");
         }
-        @SuppressWarnings("unchecked") int queued() { synchronized(writer){return ((Map<Path,?>)get(writer,"pending")).size();} }
-        @SuppressWarnings("unchecked") CompletableFuture<Boolean> latest(){return (CompletableFuture<Boolean>)get(maps,"lastBoundsWrite");}
+        int queued() { synchronized(writer){return journalState.validation$pending().size();} }
+        CompletableFuture<Boolean> latest(){return mapState.validation$lastBoundsWrite();}
         void change(int x) {
             maps.recordBlockChange(new BlockPos(x,100,4096));
-            try { var method=MapManager.class.getDeclaredMethod("flushChangedBlockBounds");method.setAccessible(true);method.invoke(maps); }
-            catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            mapState.validation$flushChangedBlockBounds();
         }
         boolean contains(int x) {
             try {
@@ -138,31 +132,35 @@ public final class MapJournalChecks {
                     heldAt=tick;phase=5;
                 }
                 case 5 -> {
-                    require(get(maps,"journalWait")!=null&&maps.streamingChangedChunks().isEmpty()&&(int)get(maps,"completedSlices")==0,
+                    require(maps.waitingForBoundsJournal()&&maps.streamingChangedChunks().isEmpty()&&mapState.validation$completedSlices()==0,
                             "no world clearing/pasting before recovery write completes");
                     if(tick-heldAt<15)return false;
-                    select("61",false);selectionGeneration=((Long)get(maps,"preparationGeneration")).intValue();phase=6;
+                    select("61",false);selectionGeneration=mapState.validation$preparationGeneration();phase=6;
                 }
                 case 6 -> {
                     require(maps.streamingChangedChunks().isEmpty(),"superseded loading cannot mutate blocks while IO held");
                     require(queued()<=2,"rapid map selection keeps one pending snapshot per dimension");
-                    if(get(maps,"journalWait")==null)return false;
-                    require(((Long)get(maps,"preparationGeneration")).intValue()==selectionGeneration,"latest preparation stays authoritative");
-                    maps.recordBlockChange(new BlockPos(4240,100,4096));
+                    if(!maps.waitingForBoundsJournal())return false;
+                    require(mapState.validation$preparationGeneration()==selectionGeneration,"latest preparation stays authoritative");
+                    maps.recordBlockChange(LATE_CHANGE);
                     gate.release.countDown();enteredAt=tick;phase=7;
                 }
                 case 7 -> {
-                    if((int)get(maps,"completedSlices")>0&&maps.busy()) {
-                        require(Objects.equals(get(maps,"pendingMap"),"61"),"discarded journal continuation never places the old map");
-                        require(contains(4240),"outer writes arriving during IO committed before first placement slice");
+                    if(!observedFirstSlice && mapState.validation$completedSlices()>0 && maps.busy()) {
+                        require("61".equals(mapState.validation$pendingMap()),"discarded journal continuation never places the old map");
+                        require(contains(LATE_CHANGE.getX()),"outer writes arriving during IO committed before first placement slice");
+                        observedFirstSlice = true;
                     }
                     if(!game.selectedMapReady())return false;
-                    require(game.config().mapId.equals("61")&&tick>enteredAt,"latest selection alone becomes ready");
+                    require(observedFirstSlice && game.config().mapId.equals("61") && tick>enteredAt,
+                            "latest selection alone places slices and becomes ready");
+                    require(!maps.arenaTerrainAt(LATE_CHANGE) && !contains(LATE_CHANGE.getX()),
+                            "finished placement retires the cleared outer bound from memory and the durable journal");
                     gate=null;failNext.set(true);select(oldMap,oldBroken);phase=8;
                 }
                 case 8 -> {
                     if(maps.busy())return false;
-                    require(!game.selectedMapReady()&&maps.streamingChangedChunks().isEmpty()&&(int)get(maps,"completedSlices")==0,
+                    require(!game.selectedMapReady()&&maps.streamingChangedChunks().isEmpty()&&mapState.validation$completedSlices()==0,
                             "failed recovery write rejects selection before world changes");
                     select(oldMap,oldBroken);phase=9;
                 }
@@ -176,7 +174,7 @@ public final class MapJournalChecks {
             }
             return false;
         }
-        public void close() { if(gate!=null)gate.release.countDown();gate=null;set(writer,"sink",original); }
+        public void close() { if(gate!=null)gate.release.countDown();gate=null;journalState.validation$sink(original); }
     }
     public static void tick(GameController game) {
         if(active==null)return;

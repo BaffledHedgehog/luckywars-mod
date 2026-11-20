@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.MapValidationAccess;
 import net.minecraft.server.level.ServerPlayer;
 import java.util.*;
 
@@ -25,11 +26,11 @@ public final class MapCapacityChecks {
     }
     public static void crowd(GameController game){begin(game,16);}
     /** Native source-card callbacks; caller awaits the asynchronous map54 preparation afterward. */
-    @SuppressWarnings("unchecked") public static void menu(GameController game){
+    public static void menu(GameController game){
         require(game.inLobby()&&!game.maps().busy()&&game.config().gameMode<=2,"idle SkyWars menu");
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(player!=null,"actual menu actor");
         var previous=player.connection;var recording=new ElementalGrimoireChecks.Recording(player);boolean admin=player.entityTags().contains("admin");
-        Map<UUID,Integer> pages;try{var field=GameMenus.class.getDeclaredField("mapPages");field.setAccessible(true);pages=(Map<UUID,Integer>)field.get(game.menus());}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+        var pages=((MapValidationAccess.Menus)(Object)game.menus()).validation$mapPages();
         var oldPage=pages.get(player.getUUID());
         try{
             player.connection=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),recording,player,new net.minecraft.server.network.CommonListenerCookie(player.getGameProfile(),0,player.clientInformation(),false));
@@ -64,17 +65,16 @@ public final class MapCapacityChecks {
     public static void match(GameController game){
         require(crowd!=null&&game.playing(),"real quick-start reached playing");
         require(game.server().getPlayerList().getPlayers().size()==crowd.count,"all real players remain connected");
-        try{
-            var field=GameController.class.getDeclaredField("participants");field.setAccessible(true);var participants=(Map<?,?>)field.get(game);
-            require(participants.size()==crowd.count,"real participant enrollment count");var positions=new HashSet<Object>();
-            for(var player:game.server().getPlayerList().getPlayers()){
-                require(game.allowDamage(player)&&!game.isObserver(player),"actual active participant "+player.getGameProfile().name());
-                var participant=participants.get(player.getUUID());require(participant!=null,"native participant entry");
-                var spawn=participant.getClass().getDeclaredField("spawn");spawn.setAccessible(true);var assigned=(MapManager.Spawn)spawn.get(participant);
-                require(positions.add(assigned.position()),"distinct actual assigned spawn");
-            }
-            require(game.maps().info(game.config().mapId).playerCapacity()>=crowd.count,"chosen actual map fits crowd");
-        }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+        var participants=((MapValidationAccess.Controller)(Object)game).validation$participants();
+        require(participants.size()==crowd.count,"real participant enrollment count");
+        var positions=new HashSet<net.minecraft.world.phys.Vec3>();
+        for(var player:game.server().getPlayerList().getPlayers()){
+            require(game.allowDamage(player)&&!game.isObserver(player),"actual active participant "+player.getGameProfile().name());
+            var participant=(MapValidationAccess.Participant)participants.get(player.getUUID());
+            require(participant!=null,"native participant entry");
+            require(positions.add(participant.validation$assignedSpawn().position()),"distinct actual assigned spawn");
+        }
+        require(game.maps().info(game.config().mapId).playerCapacity()>=crowd.count,"chosen actual map fits crowd");
         SkyWars2.LOGGER.info("[check] PASS map-capacity-match players={} map={}",crowd.count,game.config().mapId);
     }
     public static void cleanup(GameController game){
@@ -85,11 +85,14 @@ public final class MapCapacityChecks {
     private static final class Crowd {
         final GameController game;final int count;final List<ServerPlayer> created=new ArrayList<>();
         final List<GameChecks.WandThirdPlayerState> originals=new ArrayList<>();
-        final Map<UUID,PlayerStore.Profile> profiles;final GameConfig config;
-        final com.google.gson.Gson gson=new com.google.gson.Gson();
-        @SuppressWarnings("unchecked") Map<UUID,PlayerStore.Profile> profiles(){try{var field=PlayerStore.class.getDeclaredField("profiles");field.setAccessible(true);return (Map<UUID,PlayerStore.Profile>)field.get(game.players());}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
+        final Map<UUID,PlayerStore.Profile> profiles,originalProfiles;
+        final List<MatchValueSnapshot> profileValues;
+        final MatchValueSnapshot config;
         Crowd(GameController game,int count){this.game=game;this.count=count;
-            config=gson.fromJson(gson.toJson(game.config()),GameConfig.class);profiles=new LinkedHashMap<>();profiles().forEach((id,p)->profiles.put(id,gson.fromJson(gson.toJson(p),PlayerStore.Profile.class)));
+            config=new MatchValueSnapshot(game.config());
+            profiles=((MapValidationAccess.Profiles)(Object)game.players()).validation$profiles();
+            originalProfiles=new LinkedHashMap<>(profiles);
+            profileValues=originalProfiles.values().stream().map(MatchValueSnapshot::new).toList();
             for(var player:game.server().getPlayerList().getPlayers())originals.add(new GameChecks.WandThirdPlayerState(player,game.items().mana()));
             for(int i=3;i<=count;i++)require(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(String.format(java.util.Locale.ROOT,"TestMap%02d",i)))==null,"fresh crowd identity");
         }
@@ -97,8 +100,9 @@ public final class MapCapacityChecks {
         void close(){
             for(var player:created)if(game.server().getPlayerList().getPlayer(player.getUUID())==player)player.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Map capacity fixture complete")));
             for(var original:originals)original.restore(game);
-            profiles().clear();profiles().putAll(profiles);game.players().save();
-            try{for(var field:GameConfig.class.getFields())if(!java.lang.reflect.Modifier.isStatic(field.getModifiers())&&!java.lang.reflect.Modifier.isFinal(field.getModifiers()))field.set(game.config(),field.get(config));}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            profileValues.forEach(MatchValueSnapshot::restore);
+            profiles.clear();profiles.putAll(originalProfiles);game.players().save();
+            config.restore();
             game.config().save();game.luckyModifiers().syncConfig();
         }
     }
