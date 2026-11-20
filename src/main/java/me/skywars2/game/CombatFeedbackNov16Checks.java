@@ -73,6 +73,22 @@ public final class CombatFeedbackNov16Checks {
             mana.overload().armor().tick(owner);
             require(!owner.entityTags().contains("overload_slam") && mana.score(owner, "overload_slam").get() == 0,
                     "actual contact with the collision surface triggers impact");
+
+            var armor = mana.overload().armor();
+            armor.clear(owner);
+            var top = new BlockPos(floor.getX(), f.level.getMaxY(), floor.getZ());
+            for (int offset = 0; offset <= 8; offset++) f.set(top.below(offset), Blocks.AIR.defaultBlockState());
+            owner.setShiftKeyDown(true);
+            owner.setOnGround(false);
+            owner.setPos(top.getX() + .5, top.getY() + 1.25, top.getZ() + .5);
+            armor.tick(owner);
+            require(!owner.entityTags().contains("overload_slam"), "the slam air column cannot start above build height");
+            owner.setPos(owner.getX(), top.getY() + .25, owner.getZ());
+            armor.tick(owner);
+            require(owner.entityTags().contains("overload_slam") && mana.score(owner, "overload_slam").get() == 2,
+                    "a fully clear air column can start the Overload slam on the inclusive top layer");
+            armor.clear(owner);
+            owner.setShiftKeyDown(false);
         }
         SkyWars2.LOGGER.info("[check] PASS combat-feedback-nov16 (native positive/resisted/fatal/rejected hits; actual Overload minigun zero/negative/insufficient mana; wand overdraft retained; physical slam landing)");
     }

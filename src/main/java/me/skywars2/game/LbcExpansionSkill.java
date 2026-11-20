@@ -129,7 +129,7 @@ public final class LbcExpansionSkill {
             return links->()->{cancelled=saved;if(!cancelled)queued=this;};
         }
     }
-    private boolean inside(ServerLevel level,BlockPos p){return p.getY()>=level.getMinY()&&p.getY()<level.getMaxY();}
+    private static boolean inside(ServerLevel level,BlockPos p){return level.isInsideBuildHeight(p.getY());}
     private boolean resident(ServerLevel level,BlockPos p){
         if(!inside(level,p)||NativeChunkLoad.resident(level,p))return true;
         var key=new Chunk(level,new ChunkPos(p.getX()>>4,p.getZ()>>4));var old=loading.get(key);

@@ -71,14 +71,17 @@ public final class ExpansionSkillChecks {
             for(var pos:skill.frontierPositionsForCheck(f.owner))for(var at:BlockPos.betweenClosed(pos.offset(-2,-2,-2),pos.offset(2,1,2))){
                 if(f.blocks.containsKey(at)||extra.containsKey(at))continue;
                 require(Math.abs(at.getX()-origin.getX())<128&&Math.abs(at.getZ()-origin.getZ())<128,"natural stochastic event stays inside bounded qualification fixture");
-                if(at.getY()<f.owner.level().getMinY()||at.getY()>=f.owner.level().getMaxY())continue;
-                var chunk=f.owner.level().getChunk(at);long key=chunk.getPos().pack();
-                if(savedChunks.add(key)){
-                    ((net.minecraft.world.ticks.LevelChunkTicks<Block>)chunk.getBlockTicks()).getAll().forEach(blockTicks::add);
-                    ((net.minecraft.world.ticks.LevelChunkTicks<net.minecraft.world.level.material.Fluid>)chunk.getFluidTicks()).getAll().forEach(fluidTicks::add);
-                }
-                extra.put(at.immutable(),game.maps().snapshot(f.owner.level(),at));
+                if(f.owner.level().isInsideBuildHeight(at.getY()))rememberExtra(at);
             }
+        }
+        void rememberExtra(BlockPos pos){
+            var level=f.owner.level();
+            var chunk=level.getChunk(pos);
+            if(savedChunks.add(chunk.getPos().pack())){
+                ((net.minecraft.world.ticks.LevelChunkTicks<Block>)chunk.getBlockTicks()).getAll().forEach(blockTicks::add);
+                ((net.minecraft.world.ticks.LevelChunkTicks<net.minecraft.world.level.material.Fluid>)chunk.getFluidTicks()).getAll().forEach(fluidTicks::add);
+            }
+            extra.putIfAbsent(pos.immutable(),game.maps().snapshot(level,pos));
         }
         boolean step(){
             int elapsed=game.server().getTickCount()-at;
@@ -153,7 +156,42 @@ public final class ExpansionSkillChecks {
                 if(++kind<3){beginLucky();return false;}
                 game.players().get(f.owner.getUUID()).lbcSkill=0;stage=11;at=game.server().getTickCount();return false;
             }
-            if(elapsed<2)return false;require(skill.score(f.owner)==0&&skill.frontier(f.owner)==0,"skill loss clears all native ownership");return true;
+            if(stage==11){
+                if(elapsed<2)return false;
+                require(skill.score(f.owner)==0&&skill.frontier(f.owner)==0,"skill loss clears all native ownership");
+                var level=f.owner.level();
+                origin=new BlockPos(origin.getX(),level.getMaxY(),origin.getZ());
+                for(var pos:initialCells()){
+                    rememberExtra(pos);
+                    level.setBlock(pos,(pos.equals(origin)?Blocks.GOLD_BLOCK:Blocks.AIR).defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+                }
+                game.players().get(f.owner.getUUID()).lbcSkill=24;
+                chargeAt(origin);
+                stage=12;return false;
+            }
+            if(stage==12){
+                if(elapsed<61&&!skill.active(f.owner))return false;
+                require(skill.active(f.owner)&&skill.frontier(f.owner)==4
+                                &&initialCells().stream().allMatch(p->f.owner.level().getBlockState(p).is(Blocks.GOLD_BLOCK)),
+                        "held sneak writes all four native expansion seeds on the inclusive highest block layer");
+                skill.clear(f.owner);
+                chargeAt(origin.above());
+                stage=13;return false;
+            }
+            if(elapsed<62)return false;
+            require(!skill.active(f.owner)&&skill.frontier(f.owner)==0
+                            &&initialCells().stream().allMatch(p->f.owner.level().getBlockState(p).is(Blocks.GOLD_BLOCK)),
+                    "a seed one layer above the world retires without changing the legal top layer");
+            return true;
+        }
+        List<BlockPos> initialCells(){
+            return List.of(origin,origin.east(),origin.west(),origin.north(),origin.south());
+        }
+        void chargeAt(BlockPos pos){
+            f.move(f.owner,net.minecraft.world.phys.Vec3.atBottomCenterOf(pos).add(0,.75,0));
+            client.acknowledge();
+            f.owner.setShiftKeyDown(true);
+            at=game.server().getTickCount();
         }
         void beginLucky(){
             skill.clear(f.owner);f.block(beacon,Blocks.AIR);f.move(f.owner,f.at);
@@ -174,7 +212,7 @@ public final class ExpansionSkillChecks {
         }
         void clearExtraTicks(){
             for(long key:savedChunks){var chunk=new net.minecraft.world.level.ChunkPos((int)key,(int)(key>>32));
-                var box=new BoundingBox(chunk.getMinBlockX(),f.owner.level().getMinY(),chunk.getMinBlockZ(),chunk.getMaxBlockX(),f.owner.level().getMaxY()-1,chunk.getMaxBlockZ());
+                var box=new BoundingBox(chunk.getMinBlockX(),f.owner.level().getMinY(),chunk.getMinBlockZ(),chunk.getMaxBlockX(),f.owner.level().getMaxY(),chunk.getMaxBlockZ());
                 f.owner.level().getBlockTicks().clearArea(box);f.owner.level().getFluidTicks().clearArea(box);
             }
         }

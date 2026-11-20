@@ -176,7 +176,7 @@ public final class LbcOverloadArmor {
         BlockPos feet = player.blockPosition();
         for (int offset = 0; offset <= 8; offset++) {
             BlockPos actual = feet.below(offset);
-            if (actual.getY() < level.getMinY() || actual.getY() >= level.getMaxY()
+            if (!level.isInsideBuildHeight(actual.getY())
                     || !level.getBlockState(actual).is(SOURCE_AIRS)) return false;
         }
         return true;
