@@ -113,7 +113,7 @@ final class GenieApiDialog implements AutoCloseable {
         var data = new CommonDialogData(text("gemini_title", "Подключить веб-чат Gemini"), Optional.empty(), true, false,
                 DialogAction.CLOSE, List.of(new PlainMessage(text(file ? "file_hint" : "cookies_hint",
                     file ? "Укажи путь к JSON с cookies Gemini на сервере."
-                         : "Вставь JSON с cookies Gemini. Для большого файла используй /sw genie gemini importfile."), 360)),
+                         : "Открой веб-чат Gemini, экспортируй его cookies и вставь JSON. Для большого файла используй /sw genie gemini importfile."), 360)),
                 List.of(field));
         return confirmation(data, id);
     }

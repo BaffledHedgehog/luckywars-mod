@@ -182,7 +182,32 @@ public final class GenieContracts {
         }
     }
 
+    static void geminiWebCookieImport() {
+        var legacy = GenieGeminiWebTransport.Cookies.parse("""
+                {"__Secure-1PSID":"test-1psid","__Secure-1PSIDTS":"test-1psidts"}
+                """);
+        require(legacy.browserCookies().isEmpty() && legacy.json().size() == 2,
+                "existing two-cookie configuration remains valid");
+
+        var exported = GenieGeminiWebTransport.Cookies.parse("""
+                {"cookies":[
+                    {"name":"__Secure-1PSID","domain":".google.com","value":"test-1psid"},
+                    {"name":"__Secure-1PSIDTS","domain":".google.com","value":"test-1psidts"},
+                    {"name":"SID","domain":".google.com","value":"test-google-sid","secure":false},
+                    {"name":"__Secure-OSID","domain":"gemini.google.com","path":"/app","value":"test-gemini-osid"},
+                    {"name":"unrelated","domain":"example.org","value":"unrelated-site"}
+                ]}
+                """);
+        require(exported.browserCookies().equals(List.of(
+                new GenieGeminiWebTransport.BrowserCookie("SID", "test-google-sid", ".google.com", "/", false),
+                new GenieGeminiWebTransport.BrowserCookie("__Secure-OSID", "test-gemini-osid", "gemini.google.com", "/app", true))),
+                "preserve Gemini browser cookies and scope");
+        require(exported.equals(GenieGeminiWebTransport.Cookies.parse(exported.json().toString())),
+                "full Gemini browser context survives configuration serialization");
+    }
+
     public static void main(String[] args)throws Exception{
+        geminiWebCookieImport();
         openAiTransport();
         geminiTransport();
         shape();var executor=Executors.newCachedThreadPool(r->{var t=new Thread(r,"genie-contract-http");t.setDaemon(true);return t;});

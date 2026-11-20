@@ -163,6 +163,7 @@ def select_pro_model(client):
 
 
 async def run(cookie, proxy):
+    from curl_cffi.requests import Cookies
     from loguru import logger
     logger.remove()
     from gemini_webapi import GeminiClient
@@ -170,6 +171,16 @@ async def run(cookie, proxy):
     from gemini_webapi.exceptions import UsageLimitExceededError
 
     client = GeminiClient(cookie["__Secure-1PSID"], cookie["__Secure-1PSIDTS"], proxy=proxy)
+    if context := cookie.get("cookies"):
+        session = Cookies()
+        for row in context:
+            name = row["name"]
+            domain = row["domain"]
+            # curl_cffi strips the domain from __Host- cookies when rebuilding the jar.
+            if name.startswith("__Host-") or domain.lstrip(".") not in ("google.com", "gemini.google.com"):
+                continue
+            session.set(name, row["value"], domain=domain, path=row["path"], secure=row["secure"])
+        client.cookies = session
     try:
         await client.init(timeout=35, watchdog_timeout=35, auto_refresh=False)
         if client.account_status == AccountStatus.UNAUTHENTICATED:

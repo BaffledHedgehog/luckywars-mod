@@ -1,5 +1,6 @@
 package me.skywars2.game.genie;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.genie.GenieConfig.WebSession;
 import me.skywars2.game.genie.script.ScriptJson;
@@ -21,6 +23,7 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
     static final int MAX_IMPORT = 128 * 1024;
     private static final int MAX_REPLY = 4_194_304;
     private static final String SID = "__Secure-1PSID", SID_TS = "__Secure-1PSIDTS";
+    private static final Pattern COOKIE_NAME = Pattern.compile("[!#$%&'*+.^_`|~0-9A-Za-z-]{1,128}");
     private volatile WebSession session;
     private WebSession persistedSession;
     private final Path configuration;
@@ -28,7 +31,7 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
     private volatile ScheduledExecutorService maintenance;
 
     enum SessionIssue {
-        UNAUTHENTICATED("Вход в Gemini не подтверждён. Войди в Gemini и импортируй свежий JSON cookies."),
+        UNAUTHENTICATED("Вход в Gemini не подтверждён. Открой чат Gemini и экспортируй cookies заново, включая __Secure-OSID, если он есть."),
         LOCATION_REJECTED("Gemini недоступен из региона сервера."),
         TERMS_REQUIRED("Открой Gemini в браузере и прими актуальные условия использования."),
         ACCOUNT_UNTRUSTED("Gemini ограничил возможности этой сессии после проверки аккаунта."),
@@ -53,37 +56,68 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
         }
     }
 
-    record Cookies(String psid, String psidts) {
+    record BrowserCookie(String name, String value, String domain, String path, boolean secure) {
+        JsonObject json() {
+            var row = new JsonObject();
+            row.addProperty("name", name);
+            row.addProperty("value", value);
+            row.addProperty("domain", domain);
+            row.addProperty("path", path);
+            row.addProperty("secure", secure);
+            return row;
+        }
+
+        @Override public String toString() { return "Gemini browser cookie"; }
+    }
+
+    record Cookies(String psid, String psidts, List<BrowserCookie> browserCookies) {
         Cookies {
-            if (!valid(psid) || !valid(psidts)) throw new IllegalArgumentException("Invalid Gemini cookie export");
+            if (psid == null || psid.length() < 8 || !valid(psid)
+                    || psidts == null || psidts.length() < 8 || !valid(psidts)) {
+                throw new IllegalArgumentException("Invalid Gemini cookie export");
+            }
+            browserCookies = List.copyOf(browserCookies);
         }
 
         private static boolean valid(String value) {
-            return value != null && value.length() >= 8 && value.length() <= 4096
+            return value.length() <= 4096
                     && value.chars().allMatch(c -> c >= 33 && c <= 126 && c != ';');
         }
 
         static Cookies parse(String input) {
             if (input.length() > MAX_IMPORT) throw new IllegalArgumentException("Gemini cookie export too large");
             JsonElement rows = JsonParser.parseString(input);
+            String sid = null, timestamp = null;
             if (rows.isJsonObject()) {
                 var object = rows.getAsJsonObject();
                 rows = object.get("cookies");
-                if (rows == null) return new Cookies(string(object, SID), string(object, SID_TS));
+                if (object.has(SID)) sid = string(object, SID);
+                if (object.has(SID_TS)) timestamp = string(object, SID_TS);
+                if (rows == null) return new Cookies(sid, timestamp, List.of());
             }
             if (!rows.isJsonArray()) throw new IllegalArgumentException("Expected a Gemini cookie export");
-            String sid = null, timestamp = null;
+            var context = new ArrayList<BrowserCookie>();
             for (var row : rows.getAsJsonArray()) {
                 if (!row.isJsonObject()) continue;
                 var cookie = row.getAsJsonObject();
                 String name = string(cookie, "name");
                 String domain = string(cookie, "domain").toLowerCase(java.util.Locale.ROOT);
-                if (domain.startsWith(".")) domain = domain.substring(1);
-                if (!domain.equals("google.com") && !domain.equals("gemini.google.com")) continue;
-                if (name.equals(SID)) sid = unique(sid, string(cookie, "value"));
-                if (name.equals(SID_TS)) timestamp = unique(timestamp, string(cookie, "value"));
+                String host = domain.startsWith(".") ? domain.substring(1) : domain;
+                if (!host.equals("google.com") && !host.equals("gemini.google.com")) continue;
+                String value = string(cookie, "value");
+                if (name.equals(SID)) sid = unique(sid, value);
+                else if (name.equals(SID_TS)) timestamp = unique(timestamp, value);
+                else if (COOKIE_NAME.matcher(name).matches() && valid(value)) {
+                    String path = string(cookie, "path");
+                    if (path.isEmpty()) path = "/";
+                    if (!path.startsWith("/") || !valid(path)) continue;
+                    var secure = cookie.get("secure");
+                    context.add(new BrowserCookie(name, value, domain, path,
+                            secure == null || !secure.isJsonPrimitive() || !secure.getAsJsonPrimitive().isBoolean()
+                                    || secure.getAsBoolean()));
+                }
             }
-            return new Cookies(sid, timestamp);
+            return new Cookies(sid, timestamp, context);
         }
 
         private static String string(JsonObject value, String key) {
@@ -100,6 +134,11 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
             var json = new JsonObject();
             json.addProperty(SID, psid);
             json.addProperty(SID_TS, psidts);
+            if (!browserCookies.isEmpty()) {
+                var rows = new JsonArray();
+                for (var cookie : browserCookies) rows.add(cookie.json());
+                json.add("cookies", rows);
+            }
             return json;
         }
 
@@ -141,7 +180,8 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
             var timestamp = result.get("timestamp");
             if (timestamp == null || !timestamp.isJsonPrimitive() || !timestamp.getAsJsonPrimitive().isString())
                 throw new IOException("Gemini returned no refreshed timestamp");
-            var next = new WebSession(new Cookies(expected.cookies().psid(), timestamp.getAsString()), expected.id());
+            var cookies = expected.cookies();
+            var next = new WebSession(new Cookies(cookies.psid(), timestamp.getAsString(), cookies.browserCookies()), expected.id());
             if (!next.equals(expected)) {
                 session = next;
                 persistSession(worker);
