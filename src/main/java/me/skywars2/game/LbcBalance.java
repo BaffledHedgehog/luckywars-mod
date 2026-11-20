@@ -36,6 +36,7 @@ public final class LbcBalance {
     private final LbcBalanceExplosiveBow explosive;
     private final LbcBalanceEggActors eggs;
     private final Map<UUID,Integer> clocks=new LinkedHashMap<>();
+    private long nextArtifactPulse;
     public LbcBalance(GameController game,Consumer<ServerPlayer> activate,BooleanSupplier legacy){
         this.game=game;this.activate=activate;this.legacy=legacy;passive=new LbcBalancePassive(game);rays=new LbcBalanceRays(game,this::admitted);extras=new LbcBalanceExtras(game);explosive=new LbcBalanceExplosiveBow(game);eggs=new LbcBalanceEggActors(game);
     }
@@ -82,23 +83,32 @@ public final class LbcBalance {
     public static boolean managedRain(Entity body){return LbcBalanceRays.managedRain(body);}
     public LbcCloneSkills.ActorImage cloneRain(Entity body){return rays.cloneRain(body);}
     public List<net.minecraft.world.entity.projectile.Projectile> augment(ServerPlayer p,ItemStack weapon,List<net.minecraft.world.entity.projectile.Projectile> family){return extras.augment(p,weapon,family);}
-    public void begin(){clocks.clear();cooldowns.clear();passive.clear();for(var p:game.server().getPlayerList().getPlayers())passive.changed(p);tick();}
+    public void begin(){
+        clocks.clear();cooldowns.clear();passive.clear();
+        nextArtifactPulse=game.maps().level().getGameTime();
+        for(var p:game.server().getPlayerList().getPlayers())passive.changed(p);
+        tick();
+    }
     public void tick(){
         rays.tick();extras.tick();explosive.tick();eggs.tick();
         if(!legacy.getAsBoolean())return;
+        // The original scheduled function runs on one shared phase, including with no eligible holders.
+        long gameTime = game.maps().level().getGameTime();
+        boolean artifactPulse = gameTime >= nextArtifactPulse;
+        if (artifactPulse) nextArtifactPulse = gameTime + 5;
         for(var p:game.server().getPlayerList().getPlayers()){
             if(game.items().timeStop().stopped(p.level())||game.items().wands().inputTimeStopped(p))continue;
             int clock=clocks.getOrDefault(p.getUUID(),0);clocks.put(p.getUUID(),clock+1);
             if(clock%20==0)passive.portals(p);
             if(!p.isAlive()||p.isRemoved()||p.isSpectator()||game.isObserver(p))continue;
-            passive.tick(p,clock);
+            passive.tick(p,clock,artifactPulse);
             if(clock%5==0){var scores=cooldowns.computeIfAbsent(p.getUUID(),ignored->new int[8]);int bonus=passive.cooldownBonus(p);
                 for(int i=0;i<scores.length;i++)scores[i]-=5+(i==LbcBalanceItems.Wand.WIKI.ordinal()?0:bonus);}
         }
     }
     /** Disconnect drops derived body caches; legacy scoreboard values survive reconnect. */
     public void forget(ServerPlayer p){passive.forget(p);rays.forget(p);}
-    public void stop(){cooldowns.clear();passive.clear();rays.stop();extras.stop();explosive.stop();eggs.stop();clocks.clear();}
+    public void stop(){cooldowns.clear();passive.clear();rays.stop();extras.stop();explosive.stop();eggs.stop();clocks.clear();nextArtifactPulse=0;}
     public int cooldown(ServerPlayer p,LbcBalanceItems.Wand wand){var values=cooldowns.get(p.getUUID());return values==null?0:values[wand.ordinal()];}
     private List<LivingEntity> enemies(ServerPlayer p,double radius){return p.level().getEntitiesOfClass(LivingEntity.class,p.getBoundingBox().inflate(radius),e->e!=p&&e.distanceToSqr(p)<=radius*radius&&game.items().wands().projectileTarget(p,e));}
     private List<LivingEntity> wild(ServerPlayer p,double radius){return p.level().getEntitiesOfClass(LivingEntity.class,p.getBoundingBox().inflate(radius),e->e.distanceToSqr(p)<=radius*radius&&game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e));}
@@ -139,7 +149,8 @@ public final class LbcBalance {
     }
     /** Cooldowns and cached equipment are values; entities remain with the shared summon/ray owners. */
     MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
+        long artifactDelay=Math.max(0,nextArtifactPulse-game.maps().level().getGameTime());
         var savedClocks=new LinkedHashMap<>(clocks);var saved=new LinkedHashMap<UUID,int[]>();cooldowns.forEach((id,values)->saved.put(id,values.clone()));var equipment=passive.image();var rayImage=rays.checkpoint(links);var extraImage=extras.checkpoint(links);var explosiveImage=explosive.checkpoint(links);var eggImage=eggs.checkpoint(links);var pigImage=game.items().luckyPigs().fakeCheckpoint(links);
-        return current->{var rayPlan=rayImage.prepare(current);var extraPlan=extraImage.prepare(current);var explosivePlan=explosiveImage.prepare(current);var eggPlan=eggImage.prepare(current);var pigPlan=pigImage.prepare(current);return ()->{clocks.clear();clocks.putAll(savedClocks);cooldowns.clear();saved.forEach((id,values)->cooldowns.put(id,values.clone()));passive.restore(equipment);rayPlan.run();extraPlan.run();explosivePlan.run();eggPlan.run();pigPlan.run();};};
+        return current->{var rayPlan=rayImage.prepare(current);var extraPlan=extraImage.prepare(current);var explosivePlan=explosiveImage.prepare(current);var eggPlan=eggImage.prepare(current);var pigPlan=pigImage.prepare(current);return ()->{nextArtifactPulse=game.maps().level().getGameTime()+artifactDelay;clocks.clear();clocks.putAll(savedClocks);cooldowns.clear();saved.forEach((id,values)->cooldowns.put(id,values.clone()));passive.restore(equipment);rayPlan.run();extraPlan.run();explosivePlan.run();eggPlan.run();pigPlan.run();};};
     }
 }

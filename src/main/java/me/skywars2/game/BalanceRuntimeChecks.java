@@ -36,6 +36,11 @@ public final class BalanceRuntimeChecks {
         ItemEntity luckyToken;BlockPos luckyPos;boolean sawSpawner;
         boolean sawRainProducer;
         UUID eggActor;Vec3 nukeAt;long nukeBlasts;
+        EvokerFangs artifactFangs;
+        PrimedTnt artifactTnt;
+        AbstractArrow artifactArrow;
+        BlockPos artifactLava;
+        long artifactGameTime;
         final int start;int step,at,cooldown,mana;boolean closed;
         @SuppressWarnings("unchecked") Fixture(GameController game,LbcBalance service){
             this.game=game;this.service=service;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
@@ -151,9 +156,75 @@ public final class BalanceRuntimeChecks {
                     for(int i=0;i<box.getContainerSize();i++){var contents=box.getItem(i);if(contents.has(DataComponents.CONTAINER_LOOT))self++;else if(!contents.isEmpty())outputs++;}
                     require(self==1&&outputs==26,"native lazy old shulker keeps one selfreference and26 random outputs without eager recursion: self="+self+", outputs="+outputs);
                 }finally{game.maps().restoreSnapshot(owner.level(),position,prior);}
+                prepareArtifactCadence();
+                nextArtifactWitnesses();
+                at=now;step=16;return false;
+            }
+            if(step==16){
+                if(!scheduledArtifactsReacted()){
+                    require(now-at<20,"all three old scheduled artifact branches become query-visible and react");
+                    return false;
+                }
+                // Calibrate the shared pulse by observing a real reaction, not by reading the new clock.
+                nextArtifactWitnesses();
+                artifactArrow=new net.minecraft.world.entity.projectile.arrow.Arrow(EntityTypes.ARROW,owner.level());
+                artifactArrow.setPos(origin.add(0,0,3));artifactArrow.setNoGravity(true);
+                require(owner.level().addFreshEntity(artifactArrow),"native old arrow artifact witness published");
+                artifactGameTime=owner.level().getGameTime();
+                at=now;step=17;return false;
+            }
+            if(step==17){
+                int elapsed=now-at;
+                if(elapsed<5){
+                    require(artifactArrow.isRemoved(),"old arrow conversion still runs on the first intervening tick");
+                    require(!artifactFangs.isRemoved()&&!artifactTnt.isRemoved()
+                                    && owner.level().getBlockState(artifactLava).is(Blocks.LAVA),
+                                    "five-tick old artifacts do not react between pulses, elapsed="+elapsed);
+                    if(elapsed==1)game.items().timeStop().begin(owner.level(),20);
+                    if(elapsed==3)game.items().timeStop().end(owner.level());
+                    return false;
+                }
+                if(elapsed!=5||!scheduledArtifactsReacted())
+                    throw new IllegalStateException("Balance runtime: all three artifacts react on the shared fifth tick after resuming the holder"
+                            +", serverElapsed="+elapsed+", worldElapsed="+(owner.level().getGameTime()-artifactGameTime)
+                            +", world="+owner.level().getGameTime()+", deadline="+read(service,"nextArtifactPulse")
+                            +", holder="+owner.position()+", stopped="+game.items().timeStop().stopped(owner.level())
+                            +", inputStopped="+game.items().wands().inputTimeStopped(owner)
+                            +", tags="+owner.entityTags()+", observer="+game.isObserver(owner)+", alive="+owner.isAlive()
+                            +", gear="+((LbcBalancePassive)read(service,"passive")).image().get(owner.getUUID())
+                            +", fangs="+artifactFangs.position()+"/"+artifactFangs.isRemoved()
+                            +", tnt="+artifactTnt.position()+"/"+artifactTnt.isRemoved()+"/"+artifactTnt.getFuse()
+                            +", fluid="+artifactLava+"/"+owner.level().getBlockState(artifactLava));
                 return true;
             }
             return false;
+        }
+        void prepareArtifactCadence(){
+            // Supersede the preceding gadget's pending native teleport before freezing this holder.
+            require(owner.teleportTo(owner.level(),origin.x,origin.y,origin.z,Set.of(),0,0,true),
+                    "artifact holder returns to the actual witness coordinates");
+            owner.setDeltaMovement(Vec3.ZERO);
+            owner.setKnownMovement(Vec3.ZERO);
+            owner.getInventory().clearContent();
+            owner.getInventory().setItem(8,loot("lbc/mysticalartifact__ea76c358d2c7"));
+            owner.getInventory().setItem(9,loot("lbc/mysticalartifact__c0c57b189b69"));
+            owner.getInventory().setItem(10,loot("lbc/mysticalartifact__d8f5c4f554d0"));
+            owner.getInventory().setItem(11,loot("lbc/mysticalartifact__7123fdec2ee1"));
+            service.inventoryChanged(owner);
+            artifactLava=BlockPos.containing(origin.add(0,-2,-2));
+            blocks.putIfAbsent(artifactLava,game.maps().snapshot(owner.level(),artifactLava));
+        }
+        void nextArtifactWitnesses(){
+            var level=owner.level();
+            artifactFangs=Objects.requireNonNull(EntityTypes.EVOKER_FANGS.create(level,EntitySpawnReason.TRIGGERED));
+            artifactFangs.setPos(origin.add(-3,0,0));
+            artifactTnt=new PrimedTnt(level,origin.x+3,origin.y,origin.z,null);
+            artifactTnt.setFuse(200);artifactTnt.setNoGravity(true);artifactTnt.setDeltaMovement(Vec3.ZERO);
+            require(level.addFreshEntity(artifactFangs)&&level.addFreshEntity(artifactTnt),"native old scheduled artifact witnesses published");
+            require(level.setBlock(artifactLava,Blocks.LAVA.defaultBlockState(),2|16|32),"native legacy fluid witness placed");
+        }
+        boolean scheduledArtifactsReacted(){
+            return artifactFangs.isRemoved()&&artifactTnt.isRemoved()&&owner.level().getBlockState(artifactLava).is(Blocks.BASALT);
         }
         List<Projectile> shoot(String leaf,ItemStack ammo){owner.setYRot(0);owner.setXRot(0);owner.setDeltaMovement(Vec3.ZERO);owner.setItemInHand(InteractionHand.MAIN_HAND,loot(leaf));owner.setItemInHand(InteractionHand.OFF_HAND,ammo.copy());var weapon=owner.getMainHandItem();var previous=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());owner.level().getAllEntities().forEach(previous::add);require(owner.gameMode.useItem(owner,owner.level(),weapon,InteractionHand.MAIN_HAND).consumesAction(),"actual original source native bow use "+leaf);require(Items.BOW.releaseUsing(weapon,owner.level(),owner,71980),"actual native successful original bow release "+leaf);owner.stopUsingItem();require(owner.getOffhandItem().isEmpty(),"one original ammo debit "+leaf);var outputs=new ArrayList<Projectile>();owner.level().getAllEntities().forEach(e->{if(!previous.contains(e)&&e instanceof Projectile p&&!p.isRemoved()&&p.getOwner()==owner)outputs.add(p);});return outputs;}
         void egg(String leaf){var block=BlockPos.containing(origin).offset(6,-1,0);owner.level().setBlock(block,Blocks.STONE.defaultBlockState(),3);var source=loot(leaf);source.setCount(1);owner.setItemInHand(InteractionHand.MAIN_HAND,source);var context=new net.minecraft.world.item.context.UseOnContext(owner,InteractionHand.MAIN_HAND,new net.minecraft.world.phys.BlockHitResult(Vec3.atCenterOf(block),net.minecraft.core.Direction.UP,block,false));require(source.useOn(context).consumesAction(),"actual native original entity_data egg use "+leaf);require(owner.getMainHandItem().isEmpty(),"exact one original native egg debit "+leaf);}
@@ -169,5 +240,5 @@ public final class BalanceRuntimeChecks {
     private static Object read(Object target,String name){try{var field=target.getClass().getDeclaredField(name);field.setAccessible(true);return field.get(target);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
     public static void run(GameController game,LbcBalance service){require(running==null,"exclusive fixture");running=new Fixture(game,service);}
     public static void run(GameController game){run(game,game.items().balance());}
-    public static void tick(GameController game){if(running==null)return;try{if(running.step()){running.close();running=null;SkyWars2.LOGGER.info("[check] PASS balance-runtime (actual8 old source wands/Fabric callbacks/native fangs/no mana/hat+belt/TimeStop/reactive/TNT ray26/81Wiki; double/shulker/bridge/luckyspawner/chest/explosive29/native rain carts; nonempty29 TNT coordinator rewind; actual compressed/fakepig/20s9blast oldnuke eggs and whole terrain restore)");}}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL balance-runtime",error);}}
+    public static void tick(GameController game){if(running==null)return;try{if(running.step()){running.close();running=null;SkyWars2.LOGGER.info("[check] PASS balance-runtime (actual8 old source wands/Fabric callbacks/native fangs/no mana/hat+belt/TimeStop/reactive/TNT ray26/81Wiki; double/shulker/bridge/luckyspawner/chest/explosive29/native rain carts; nonempty29 TNT coordinator rewind; actual compressed/fakepig/20s9blast oldnuke eggs, whole terrain restore, and shared five-tick old artifacts)");}}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL balance-runtime",error);}}
 }
