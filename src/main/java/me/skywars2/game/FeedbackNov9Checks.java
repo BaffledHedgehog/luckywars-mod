@@ -26,7 +26,7 @@ public final class FeedbackNov9Checks {
         Fixture(GameController game){this.game=game;base=new WoolBucketChecks.Fixture(game,false);}
         void setup(){
             base.prepareParticipants();began=when=game.server().getTickCount();heavy();timerFormats();terrain();gravitas();
-            require(((Map<?,?>)WoolBucketChecks.read(game.events(),"pendingAirdrops")).isEmpty(),"exclusive pending airdrop fixture");
+            require(game.events().airdropsCaptureReady(),"exclusive pending airdrop fixture");
             for(var e:base.level.getAllEntities())before.add(e.getUUID());
             game.events().stageTwo(8);
             tnt=new PrimedTnt(EntityTypes.TNT,base.level);tnt.setPos(base.owner.getEyePosition().add(0,20,0));tnt.setNoGravity(true);tnt.setFuse(20);
