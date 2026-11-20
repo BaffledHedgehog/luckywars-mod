@@ -286,7 +286,7 @@ public final class LbcSauvojen {
             }
             case TERRA->{
                 if(mode>=5)stars.castAt(owner,hand,stack,mode,origin,direction);
-                else game.items().terra().castAt(owner,origin,direction,switch(mode){
+                else game.items().terra().castFromKeeper(owner,origin,direction,switch(mode){
                     case 1->LbcTerra.Kind.ACADEMY;case 2->LbcTerra.Kind.TRUE_CHARGE;
                     case 3->LbcTerra.Kind.RAZOR;case 4->LbcTerra.Kind.TRUE_BEAM;default->LbcTerra.Kind.REGULAR;
                 },switch(mode){case 1,2->20;case 3->10;case 4->50;default->200;});

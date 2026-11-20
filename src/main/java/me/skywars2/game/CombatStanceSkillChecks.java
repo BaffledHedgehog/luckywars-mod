@@ -25,7 +25,7 @@ public final class CombatStanceSkillChecks {
     private static Fixture running;
     public static void run(GameController game){
         require(running==null,"exclusive staged fixture");var f=new Fixture(game);running=f;
-        try{f.initialize();f.hits();f.champion();f.begin();}
+        try{f.initialize();f.hits();f.terraVampirism();f.champion();f.begin();}
         catch(RuntimeException|Error error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}
     }
     public static void tick(GameController game){
@@ -111,6 +111,82 @@ public final class CombatStanceSkillChecks {
             var ordinary=body(false,at.add(0,0,-3));ordinary.hurtServer(level,ordinary.damageSources().playerAttack(owner),1);
             require(ordinary.magical.isEmpty(),"ordinary cow receives no invented undead/mob bonus");
             mana.set(owner,0);owner.entityTags().add("time_stopped");try{hit(other,other.damageSources().playerAttack(owner));near(mana.get(owner),0,"TimeStop closes event grant");}finally{owner.entityTags().remove("time_stopped");}
+        }
+        private List<LbcTerra.TerraProjectile> liveTerraShots(LbcTerra terra) {
+            // Native discard is immediate, while the spell registry drains its unload queue later.
+            return terra.transientSnapshot().stream()
+                    .filter(shot -> !shot.isRemoved() && level.getEntity(shot.getUUID()) == shot)
+                    .toList();
+        }
+        void terraVampirism() {
+            var terra = game.items().terra();
+            var mana = game.items().mana();
+            var blade = new ItemStack(LbcTerra.TRUE_SWORD);
+            var keeper = new ItemStack(LbcWands.ACADEMY_SAUVOJEN);
+            var hand = owner.getMainHandItem();
+            require(liveTerraShots(terra).isEmpty(), "exclusive native Terra flight fixture");
+            try {
+                select(29);
+                move(other,at.add(3,0,0));
+                ready(other);
+                mana.set(owner, 5000);
+                mana.set(other, 1000);
+                owner.setItemInHand(InteractionHand.MAIN_HAND, blade);
+                require(owner.gameMode.useItem(owner,level,blade,InteractionHand.MAIN_HAND).consumesAction(),
+                        "actual held True Terra Sword accepts the native click");
+                var swordShots = liveTerraShots(terra);
+                require(swordShots.size()==1,"actual held True Terra Sword publishes one charge, native="+swordShots.size());
+                var swordCharge = swordShots.getFirst();
+                int remaining = mana.get(owner);
+                owner.setItemInHand(InteractionHand.MAIN_HAND, keeper);
+                terra.tick();
+                require(other.getHealth()<100&&liveTerraShots(terra).stream().anyMatch(shot -> shot != swordCharge),
+                        "native sword charge hits and launches its follow-up beam");
+                near(mana.get(owner),remaining+1000,"actual sword charge transfers exactly 1000 mana after the weapon is swapped");
+                near(mana.get(other),0,"actual Terra sword debit follows the contact");
+                liveTerraShots(terra).forEach(Entity::discard);
+
+                move(other,at.add(3,0,0));
+                ready(other);
+                mana.set(owner, 0);
+                mana.set(other, 1000);
+                game.items().sauvojen().emitAcademy(owner,InteractionHand.MAIN_HAND,keeper,
+                        LbcSauvojen.Kind.TERRA,2,owner.getEyePosition(),owner.getLookAngle());
+                var keeperShots = liveTerraShots(terra);
+                require(keeperShots.size()==1,"Academy Keeper publishes the same Terra charge geometry, native="
+                        +keeperShots.size()+" registered="+terra.count());
+                var keeperCharge = keeperShots.getFirst();
+                owner.setItemInHand(InteractionHand.MAIN_HAND, blade);
+                terra.tick();
+                require(other.getHealth()<100&&liveTerraShots(terra).stream().anyMatch(shot -> shot != keeperCharge),
+                        "native Keeper charge hits and still launches its follow-up beam");
+                near(mana.get(owner),0,"Academy Keeper charge cannot steal mana even after swapping to the sword");
+                near(mana.get(other),1000,"Keeper charge leaves target mana unchanged");
+                keeperCharge.discard();
+
+                move(other,at.add(1,0,0));
+                ready(other);
+                terra.tick();
+                require(other.getHealth()<100,"inherited Keeper beam actually damages the opponent");
+                near(mana.get(owner),0,"Keeper beam inherits the charge's ineligible origin");
+                near(mana.get(other),1000,"inherited beam leaves target mana unchanged");
+                liveTerraShots(terra).forEach(Entity::discard);
+
+                ready(other);
+                owner.setItemInHand(InteractionHand.MAIN_HAND, keeper);
+                game.items().sauvojen().emitAcademy(owner,InteractionHand.MAIN_HAND,keeper,
+                        LbcSauvojen.Kind.TERRA,4,owner.getEyePosition(),owner.getLookAngle());
+                require(liveTerraShots(terra).size()==1,"Academy Keeper publishes exactly one direct beam");
+                terra.tick();
+                require(other.getHealth()<100,"Academy Keeper's direct Terra beam actually damages the opponent");
+                near(mana.get(owner),0,"Keeper's direct Terra beam cannot steal mana");
+                near(mana.get(other),1000,"direct Keeper beam leaves target mana unchanged");
+            } finally {
+                liveTerraShots(terra).forEach(Entity::discard);
+                owner.setItemInHand(InteractionHand.MAIN_HAND, hand);
+                move(other,at.add(3,0,0));
+                ready(other);
+            }
         }
         void magicPolicy(){
             var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(owner.position());marker.entityTags().add("stopper_magic");

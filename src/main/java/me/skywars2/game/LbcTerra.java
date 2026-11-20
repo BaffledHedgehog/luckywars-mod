@@ -124,8 +124,10 @@ public final class LbcTerra {
     }
     static boolean swordProjectile(Entity entity,ServerPlayer owner){
         return entity instanceof TerraProjectile projectile&&projectile.getOwner()==owner
+                &&!projectile.entityTags().contains(KEEPER_CAST)
                 &&(projectile.kind==Kind.SWORD||projectile.kind==Kind.TRUE_CHARGE||projectile.kind==Kind.TRUE_BEAM);
     }
+    private static final String KEEPER_CAST = "skywars2.terra.keeper_cast";
     private static boolean flagged(ItemStack stack,String name) {
         var data=stack.get(DataComponents.CUSTOM_DATA);
         return !stack.isEmpty() && data!=null && data.copyTag().getIntOr(name,0)==1;
@@ -189,11 +191,14 @@ public final class LbcTerra {
         if (!admitted(owner)) return;
         var held = owner.getMainHandItem();
         boolean melee = LbcDamage.isMeleeAttack(source, owner);
-        Kind charge = source.getDirectEntity() instanceof TerraProjectile projectile && projectile.getOwner() == owner
-                ? projectile.kind : null;
+        var projectile = source.getDirectEntity() instanceof TerraProjectile shot && shot.getOwner() == owner ? shot : null;
+        Kind charge = projectile == null ? null : projectile.kind;
         if (charge == Kind.SWORD || melee && matches(held, SWORD, SWORD_FLAG))
             swordCharges.put(owner.getUUID(), Math.min(4, charges(owner) + 1));
-        if (charge == Kind.TRUE_CHARGE || melee && matches(held, TRUE_SWORD, TRUE_SWORD_FLAG)) cast(owner, Kind.TRUE_BEAM);
+        if (charge == Kind.TRUE_CHARGE || melee && matches(held, TRUE_SWORD, TRUE_SWORD_FLAG)) {
+            boolean keeper = projectile != null && projectile.entityTags().contains(KEEPER_CAST);
+            castAt(owner, owner.getEyePosition(), owner.getLookAngle(), Kind.TRUE_BEAM, 0, false, nativeSourceOwner(owner), keeper);
+        }
     }
 
     private boolean admitted(ServerPlayer owner) {
@@ -357,15 +362,18 @@ public final class LbcTerra {
         castAt(owner,origin,direction,kind,0);
     }
     TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime) {
-        return castAt(owner,origin,direction,kind,lifetime,false,nativeSourceOwner(owner));
+        return castAt(owner,origin,direction,kind,lifetime,false,nativeSourceOwner(owner),false);
+    }
+    void castFromKeeper(ServerPlayer owner, Vec3 origin, Vec3 direction, Kind kind, int lifetime) {
+        castAt(owner,origin,direction,kind,lifetime,false,nativeSourceOwner(owner),true);
     }
     TerraProjectile sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){
-        return castAt(owner,origin,direction,Kind.REGULAR,60,true,nativeSourceOwner(owner));
+        return castAt(owner,origin,direction,Kind.REGULAR,60,true,nativeSourceOwner(owner),false);
     }
     void cultistCharge(ServerPlayer owner, Mob cultist, Vec3 origin, Vec3 direction) {
-        castAt(owner,origin,direction,Kind.REGULAR,0,false,cultist);
+        castAt(owner,origin,direction,Kind.REGULAR,0,false,cultist,false);
     }
-    private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime,boolean emitterStyle,Entity shooter) {
+    private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime,boolean emitterStyle,Entity shooter,boolean keeper) {
         var level = sourceLevel(owner);
         if (!persistentSource()&&(level != game.maps().level() || !game.canUseGameplayItems(owner))) return null;
         var projectile = new TerraProjectile(TYPE, level);
@@ -381,6 +389,7 @@ public final class LbcTerra {
             projectile.setDeltaMovement(Vec3.directionFromRotation(pitch,yaw).scale(kind.speed));
         }
         projectile.entityTags().add("magic");
+        if (keeper) projectile.entityTags().add(KEEPER_CAST);
         game.items().markCurrentItemEpoch(projectile);
         if (level.addFreshEntity(projectile) && !projectile.isRemoved()) {
             projectiles.add(projectile);
