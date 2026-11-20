@@ -1,5 +1,7 @@
 package me.skywars2.game;
 
+import me.skywars2.mixin.ActorCheckpointAccess;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -383,6 +385,55 @@ public final class ProjectileLifetimes {
         var nearest = nearestEligible(level, at, local, ranks, preferLastOnTie, selection);
         if (nearest != null || bounded) return nearest;
         return nearestEligible(level, at, snapshot, ranks, preferLastOnTie, selection);
+    }
+
+    /** Keeper retargets every tick, and exact ties follow native section order. */
+    LivingEntity nearestNativeOrderedTarget(ServerLevel level, Vec3 at, double radius, Predicate<LivingEntity> selection) {
+        var bounds = new AABB(at, at).inflate(radius);
+        var snapshot = loadedTargets();
+        double best = radius * radius;
+        if (snapshot.size() <= SPARSE_TARGET_LIMIT) {
+            var manager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
+            var sections = ((ActorCheckpointAccess.Sections) manager).skywars2$sections();
+            LivingEntity nearest = null;
+            boolean tied = false;
+            for (var target : snapshot) {
+                if (target.level() != level || target.isRemoved()) continue;
+                double distance = target.position().distanceToSqr(at);
+                if (!(distance <= best) || !target.getBoundingBox().intersects(bounds)
+                        || level.getEntity(target.getUUID()) != target) continue;
+                var section = sections.getSection(SectionPos.asLong(target.blockPosition()));
+                // Always-ticking players may be tracked even while their section is inaccessible.
+                if (section == null || !section.getStatus().isAccessible() || !selection.test(target)) continue;
+                if (nearest != null && distance == best) {
+                    tied = true;
+                    continue;
+                }
+                nearest = target;
+                best = distance;
+                tied = false;
+            }
+            if (!tied) return nearest;
+        } else {
+            double localRadius = Math.min(radius, 24);
+            var localBounds = new AABB(at, at).inflate(localRadius + 1e-6);
+            var nearest = nearestInSections(level, at, localBounds, localRadius * localRadius, selection);
+            if (nearest != null) return nearest;
+        }
+        return nearestInSections(level, at, bounds, best, selection);
+    }
+
+    private static LivingEntity nearestInSections(ServerLevel level, Vec3 at, AABB bounds, double best,
+                                                   Predicate<LivingEntity> selection) {
+        LivingEntity nearest = null;
+        for (var target : level.getEntitiesOfClass(LivingEntity.class, bounds, selection)) {
+            double distance = target.position().distanceToSqr(at);
+            if (distance <= best) {
+                best = distance;
+                nearest = target;
+            }
+        }
+        return nearest;
     }
 
     private static LivingEntity nearestIndexedTarget(ServerLevel level, Vec3 at, double radius, boolean preferLastOnTie,

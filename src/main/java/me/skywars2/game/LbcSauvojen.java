@@ -15,12 +15,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -180,12 +178,9 @@ public final class LbcSauvojen {
             if(drone.lifetime>=(drone.academy?400:200)||!drone.academy&&!owner.level().getBlockState(cell).is(AIRS)){
                 remove(drone,true);continue;
             }
-            LivingEntity nearest=null;double best=150*150;
-            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(drone.position,drone.position).inflate(150),
-                    candidate->game.items().lifetimes().target(owner,candidate)&&game.items().wands().target(owner,candidate))){
-                double distance=target.position().distanceToSqr(drone.position);
-                if(distance<=best){best=distance;nearest=target;}
-            }
+            var lifetimes=game.items().lifetimes();
+            var nearest=lifetimes.nearestNativeOrderedTarget(owner.level(),drone.position,150,
+                    candidate->lifetimes.target(owner,candidate)&&game.items().wands().target(owner,candidate));
             if(nearest!=null){
                 Vec3 aim=nearest.getEyePosition().subtract(drone.position);
                 if(aim.lengthSqr()>1e-12)drone.direction=aim.normalize();

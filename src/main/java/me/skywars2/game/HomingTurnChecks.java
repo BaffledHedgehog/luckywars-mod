@@ -43,13 +43,15 @@ final class HomingTurnChecks {
         require(ProjectileSteering.turn(Vec3.ZERO,new Vec3(0,1,0),1).equals(Vec3.ZERO),"stationary projectile never invents motion");
         require(ProjectileSteering.turn(new Vec3(1,2,3),Vec3.ZERO,1).equals(new Vec3(1,2,3)),"coincident target keeps finite original motion");
     }
-    private static final class HomingQueries implements AutoCloseable {
+    private static final class SpatialQueries implements AutoCloseable {
         final Object manager;
         final Field field;
         final LevelEntityGetter<Entity> original;
-        int broadQueries;
+        int homingWideQueries;
+        int keeperNarrowQueries;
+        int keeperWideQueries;
 
-        HomingQueries(ServerLevel level) {
+        SpatialQueries(ServerLevel level) {
             var nativeManager = ((ActorCheckpointAccess.LevelEntities) level).skywars2$manager();
             manager = nativeManager;
             original = nativeManager.getEntityGetter();
@@ -60,9 +62,11 @@ final class HomingTurnChecks {
                         new Class<?>[]{LevelEntityGetter.class}, (proxy, method, args) -> {
                     if (method.getName().equals("get") && args != null) {
                         for (Object arg : args) {
-                            if (arg instanceof AABB box && Math.abs(box.maxX - box.minX - 200) < 1e-4
-                                    && Math.abs(box.maxY - box.minY - 200) < 1e-4
-                                    && Math.abs(box.maxZ - box.minZ - 200) < 1e-4) broadQueries++;
+                            if (arg instanceof AABB box) {
+                                if (width(box, 200)) homingWideQueries++;
+                                if (width(box, 48)) keeperNarrowQueries++;
+                                if (width(box, 300)) keeperWideQueries++;
+                            }
                         }
                     }
                     try {
@@ -75,6 +79,12 @@ final class HomingTurnChecks {
             } catch (ReflectiveOperationException error) {
                 throw new IllegalStateException("Install scoped Homing query observer", error);
             }
+        }
+
+        private static boolean width(AABB box, double width) {
+            return Math.abs(box.maxX - box.minX - width) < 1e-4
+                    && Math.abs(box.maxY - box.minY - width) < 1e-4
+                    && Math.abs(box.maxZ - box.minZ - width) < 1e-4;
         }
 
         @Override public void close() {
@@ -117,6 +127,7 @@ final class HomingTurnChecks {
             require(f.level.addFreshEntity(cow),"native target publication");target=cow;f.owned.add(cow.getUUID());
             nearbySelectors();
             keeperVolley();
+            keeperSelectors(false);
         }
 
         ProbeCow probe(Vec3 point) {
@@ -141,7 +152,7 @@ final class HomingTurnChecks {
                 var lifetimes = game.items().lifetimes();
                 require(lifetimes.loadedTargets().size() <= 64, "sparse scene stays within the fast-path limit");
                 require(f.level.getEntity(edge.getUUID()) == edge, "radius witness is native-visible");
-                try (var queries = new HomingQueries(f.level)) {
+                try (var queries = new SpatialQueries(f.level)) {
                     require(lifetimes.nearestTarget(f.level, from, 100, true, candidate -> candidate == edge) == edge,
                             "exactly 100 blocks includes the target's feet");
                     edge.setPos(from.add(0, -100.001, 0));
@@ -163,7 +174,7 @@ final class HomingTurnChecks {
                     edge.setPos(from.add(0, -100, 0));
                     require(lifetimes.nearestTarget(f.level, from, 100, true, candidate -> candidate == edge) == edge,
                             "same-tick reappearance is eligible without a warmup or cache refresh");
-                    sparseQueries = queries.broadQueries;
+                    sparseQueries = queries.homingWideQueries;
                 }
                 edge.discard();
                 int[] remoteRoleChecks = {0};
@@ -172,6 +183,15 @@ final class HomingTurnChecks {
                     return candidate == out || candidate == first || candidate == last;
                 });
                 require(beam == first, "unlimited beam keeps its first published tie winner");
+                var nativeOrder = f.level.getEntitiesOfClass(LivingEntity.class, new AABB(from, from).inflate(150),
+                        candidate -> candidate == first || candidate == last);
+                require(nativeOrder.size() == 2, "both exact ties appear in the native Keeper query");
+                try (var queries = new SpatialQueries(f.level)) {
+                    var tie = lifetimes.nearestNativeOrderedTarget(f.level, from, 150,
+                            candidate -> candidate == first || candidate == last);
+                    require(tie == nativeOrder.getLast() && queries.keeperWideQueries == 1,
+                            "Keeper resolves exact ties in original native traversal order");
+                }
 
                 out.roleChecks = 0;
                 var heading = game.items().homing().skillDirection(f.owner, f.level, from, new Vec3(0, 0, 1));
@@ -189,15 +209,30 @@ final class HomingTurnChecks {
             }
         }
 
+        private static final Identifier KEEPER_ADVANCEMENT = Identifier.parse("lbc:true_advancements/staffs/sauvojen_tuntija_wand");
+
+        Set<String> keeperCriteria() {
+            var advancement = game.server().getAdvancements().get(KEEPER_ADVANCEMENT);
+            var earned = new HashSet<String>();
+            if (advancement != null) f.owner.getAdvancements().getOrStartProgress(advancement).getCompletedCriteria().forEach(earned::add);
+            return earned;
+        }
+
+        void restoreKeeperCriteria(Set<String> earned) {
+            var advancement = game.server().getAdvancements().get(KEEPER_ADVANCEMENT);
+            if (advancement == null) return;
+            var actual = keeperCriteria();
+            actual.removeAll(earned);
+            for (var criterion : actual) f.owner.getAdvancements().revoke(advancement, criterion);
+        }
+
         void keeperVolley() {
             var keeper = game.items().sauvojen();
             var wands = game.items().wands();
             require(keeper.count() == 0 && wands.electroSnapshot().isEmpty(), "exclusive real Keeper and electrical producers");
             var originalTarget = target.position();
             var previousItem = f.owner.getMainHandItem();
-            var advancement = game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/sauvojen_tuntija_wand"));
-            var earned = new HashSet<String>();
-            if (advancement != null) f.owner.getAdvancements().getOrStartProgress(advancement).getCompletedCriteria().forEach(earned::add);
+            var earned = keeperCriteria();
             try {
                 var stack = f.leaf("sauvojen_wand");
                 require(stack.is(LbcWands.SAUVOJEN), "uses actual ordinary Keeper loot");
@@ -217,7 +252,7 @@ final class HomingTurnChecks {
                 target.setPos(originalTarget.add(6, 0, 0));
                 var goal = target.getEyePosition().subtract(origin);
                 var expected = ProjectileSteering.turn(initial, goal, Math.PI / 180);
-                try (var queries = new HomingQueries(f.level)) {
+                try (var queries = new SpatialQueries(f.level)) {
                     wands.tick();
                     for (var arc : arcs) {
                         require(wands.hasElectroTrace(arc) && arc.age == 1, "each of the four traces advances through native flight");
@@ -227,20 +262,80 @@ final class HomingTurnChecks {
                                         && angle(turned, goal) < angle(initial, goal),
                                 "each Keeper trace turns one degree toward the target's current eye position");
                     }
-                    require(queries.broadQueries == 0 && sparseQueries == 0,
+                    require(queries.homingWideQueries == 0 && sparseQueries == 0,
                             "sparse selectors and real Keeper volley issue zero native 100-block AABB queries, selectors="
-                                    + sparseQueries + " volley=" + queries.broadQueries);
+                                    + sparseQueries + " volley=" + queries.homingWideQueries);
                 }
             } finally {
                 target.setPos(originalTarget);
                 wands.stop();
                 keeper.stop();
                 f.owner.setItemInHand(InteractionHand.MAIN_HAND, previousItem);
-                if (advancement != null) {
-                    var actual = new ArrayList<String>();
-                    f.owner.getAdvancements().getOrStartProgress(advancement).getCompletedCriteria().forEach(actual::add);
-                    for (var criterion : actual) if (!earned.contains(criterion)) f.owner.getAdvancements().revoke(advancement, criterion);
+                restoreKeeperCriteria(earned);
+            }
+        }
+
+        void keeperSelectors(boolean dense) {
+            var keeper = game.items().sauvojen();
+            var wands = game.items().wands();
+            var originalTarget = target.position();
+            var previousItem = f.owner.getMainHandItem();
+            var earned = keeperCriteria();
+            var kind = LbcSauvojen.Kind.ELECTRO;
+            require(keeper.count() == 0 && wands.electroSnapshot().isEmpty(), "exclusive Keeper selector scene");
+            require((game.items().lifetimes().loadedTargets().size() > 64) == dense, "expected Keeper selector density");
+            try {
+                for (boolean academy : new boolean[]{false, true}) {
+                    var stack = f.leaf(academy ? "academy_sauvojen_wand" : "sauvojen_wand");
+                    require(stack.is(academy ? LbcWands.ACADEMY_SAUVOJEN : LbcWands.SAUVOJEN), "exact Keeper variant loot");
+                    f.owner.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                    keeper.cast(f.owner, InteractionHand.MAIN_HAND, stack, kind.ordinal());
+                    require(keeper.count() == 1, "one actual Keeper carrier for selector check");
+                    var drone = keeper.snapshot().getFirst();
+                    require(drone.academy == academy, "Keeper carrier retains actual Academy mode");
+                    drone.lifetime = academy ? kind.academyCadence() : kind.cadence;
+                    keeperAimTick(drone, new Vec3(-5, 2, 7), dense);
+                    var volley = wands.electroSnapshot();
+                    require(volley.size() == (academy ? 3 : 4), "first real Keeper pulse before retargeting");
+                    keeperAimTick(drone, new Vec3(6, 2, 7), dense);
+                    keeperAimTick(drone, new Vec3(0, 26, 9), dense);
+                    require(wands.electroSnapshot().equals(volley) && drone.nextMode == (academy ? 1 : 0),
+                            "retargeting between volleys has no extra emit or Academy mode advance");
+                    wands.stop();
+                    keeper.stop();
                 }
+            } finally {
+                target.setPos(originalTarget);
+                wands.stop();
+                keeper.stop();
+                f.owner.setItemInHand(InteractionHand.MAIN_HAND, previousItem);
+                restoreKeeperCriteria(earned);
+            }
+        }
+
+        void keeperAimTick(LbcSauvojen.Drone drone, Vec3 offset, boolean dense) {
+            Vec3 before = drone.position;
+            target.setPos(before.add(offset));
+            require(f.level.getEntity(target.getUUID()) == target, "retargeted witness is an actual visible mob");
+            Vec3 eye = f.owner.getEyePosition();
+            Vec3 away = before.subtract(eye);
+            if (drone.academy) away = new Vec3(away.x, 0, away.z);
+            Vec3 expectedPosition = before.add(away.normalize().scale(.1)).add(0, drone.academy ? .04 : 0, 0);
+            Vec3 expectedAim = target.getEyePosition().subtract(before).normalize();
+            boolean far = offset.lengthSqr() > 24 * 24;
+            String scene = " academy=" + drone.academy + " dense=" + dense + " far=" + far;
+            try (var queries = new SpatialQueries(f.level)) {
+                game.items().sauvojen().tick();
+                require(drone.direction.distanceToSqr(expectedAim) < 1e-12, "Keeper keeps current eye aim" + scene);
+                require(f.level.getEntity(drone.carrier.getUUID()) == drone.carrier
+                                && drone.position.distanceToSqr(expectedPosition) < 1e-12
+                                && drone.carrier.position().distanceToSqr(expectedPosition) < 1e-12,
+                        "Keeper follows its native carrier motion" + scene);
+                require(angle(Vec3.directionFromRotation(drone.display.getPitch(), drone.display.getYaw()), expectedAim) < .02,
+                        "Keeper display rotates with native aim" + scene);
+                require(queries.keeperNarrowQueries == (dense ? 1 : 0) && queries.keeperWideQueries == (dense && far ? 1 : 0),
+                        "Keeper uses expected native query widths" + scene + " narrow=" + queries.keeperNarrowQueries
+                                + " wide=" + queries.keeperWideQueries);
             }
         }
 
@@ -256,11 +351,13 @@ final class HomingTurnChecks {
                 for (int i = 0; i < 63; i++) cows.add(probe(from.add(0, 8 + i, 0)));
                 require(lifetimes.loadedTargets().size() > 64 && cows.stream().allMatch(cow -> f.level.getEntity(cow.getUUID()) == cow),
                         "dense scene contains 65 actual published and visible targets");
-                try (var queries = new HomingQueries(f.level)) {
+                try (var queries = new SpatialQueries(f.level)) {
                     var winner = lifetimes.nearestTarget(f.level, from, 100, true, candidate -> cows.contains(candidate));
-                    require(winner == last && queries.broadQueries == 1,
+                    require(winner == last && queries.homingWideQueries == 1,
                             "dense fallback runs one native spatial query and keeps the later exact tie");
                 }
+                cows.forEach(cow -> cow.entityTags().add("strict_map_object"));
+                keeperSelectors(true);
             } finally {
                 cows.forEach(Entity::discard);
             }
@@ -293,5 +390,5 @@ final class HomingTurnChecks {
         @Override public void close(){if(closed)return;closed=true;try{game.items().danmaku().stop();}finally{f.close();}}
     }
     static void run(GameController game){require(running==null,"exclusive native scene");running=new Scene(game);try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
-    static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS homing-turn (native one-degree arrow turn with source acceleration, exact final throwable/card alignment near players, foreign/null ownership, bounded antipodal geometry, exact sparse and dense target selection and real Keeper volley query counts)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL homing-turn",error);}}
+    static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS homing-turn (native one-degree arrow turn with source acceleration, exact final throwable/card alignment near players, foreign/null ownership, bounded antipodal geometry, exact sparse and dense target selection and ordinary/Academy Keeper volley, carrier motion and sparse/dense query counts)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL homing-turn",error);}}
 }
