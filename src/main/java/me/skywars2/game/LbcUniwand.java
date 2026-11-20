@@ -87,9 +87,9 @@ public final class LbcUniwand {
             &&entity.level()==game.maps().level()&&entity.level().hasChunkAt(entity.blockPosition())
             &&game.items().currentEpoch(entity)&&LbcDimensionItems.ordinary(entity.level());}
     public void tick(){
-        resident.removeIf(Entity::isRemoved);
         if(!game.playing()||game.stage()==GameController.Stage.ENDING||game.server().getTickCount()%20!=0
                 ||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(game.maps().level()))return;
+        resident.removeIf(Entity::isRemoved);
         for(var wand:List.copyOf(resident))if(ready(wand)&&matches(wand.getItem()))compose(wand);
     }
     /** One source-second absorbs the finite nearby stacks, nearest first and one authored slot per unit. */

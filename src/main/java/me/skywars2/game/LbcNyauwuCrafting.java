@@ -198,11 +198,11 @@ public final class LbcNyauwuCrafting {
     }
 
     public void tick(){
-        items.removeIf(item->item.isRemoved()||item.level()!=game.maps().level());
         var level=game.maps().level();
         if(level==null||!game.playing()||game.stage()==GameController.Stage.ENDING||!LbcDimensionItems.ordinary(level)
                 ||game.items().timeStop().stopped(level)||game.items().wands().timeStopped())return;
         phase=(phase+1)%20;if(phase!=0)return;
+        items.removeIf(item->item.isRemoved()||item.level()!=level);
         for(var first:List.copyOf(items)){
             if(!eligible(first)||LbcFartus.data(first.getItem()).getIntOr("craftusable",0)!=1)continue;
             if(tryInfiniteShulker(first)||tryTechnoSet(first))continue;
