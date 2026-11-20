@@ -110,7 +110,7 @@ final class CinemaNativeChecks {
         Map<String,Object> image(Object flight){var result=new LinkedHashMap<String,Object>();for(String key:List.of("at","age","closed","child","owner","cause","epoch"))result.put(key,get(flight,key));return result;}
         void loadedRegion(Vec3 point,int reach){var p=BlockPos.containing(point);for(int x=(p.getX()-reach)>>4;x<=(p.getX()+reach)>>4;x++)for(int z=(p.getZ()-reach)>>4;z<=(p.getZ()+reach)>>4;z++)level.getChunk(x,z);}
         @SuppressWarnings("unchecked") Map<ChunkPos,Object> leases(){
-            return ((Map<ServerLevel,Map<ChunkPos,Object>>)get(rockets,"leases")).getOrDefault(level,Map.of());
+            return ((Map<ServerLevel,Map<ChunkPos,Object>>)get(get(rockets,"leases"),"leases")).getOrDefault(level,Map.of());
         }
         void exhaustColdLoad(ChunkPos chunk,Runnable step,BooleanSupplier waiting){
             var lease=leases().get(chunk);

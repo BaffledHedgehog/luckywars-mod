@@ -1,7 +1,8 @@
 package me.skywars2.game;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import me.skywars2.game.NativeChunkLoad.Leases.Area;
+import me.skywars2.game.NativeChunkLoad.Residency;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.*;
@@ -28,7 +29,7 @@ public final class LbcOreshnik {
     private static final String MODEL="{item_display:'fixed',teleport_duration:1,interpolation_duration:1,brightness:{block:15,sky:15},item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:oreshnik'}},transformation:{translation:[0f,4.5f,0f],scale:[%sf,%sf,%sf],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}";
     private final GameController game;
     private Set<Flight> flights=new LinkedHashSet<>();private Set<Blasts> blasts=new LinkedHashSet<>();
-    private final Map<ServerLevel,Map<ChunkPos,Lease>> leases=new IdentityHashMap<>();
+    private final NativeChunkLoad.Leases leases=new NativeChunkLoad.Leases(TICKET);
     private boolean restoring;private int callbacks;
     public LbcOreshnik(GameController game){this.game=game;}
     public static void registerTicket(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:oreshnik"),TICKET);}
@@ -100,62 +101,14 @@ public final class LbcOreshnik {
                 .rotate(new org.joml.Quaternionf().rotationYXZ((float)(-Math.PI/180)*yaw,(float)(Math.PI/180)*pitch,0));
         return new Vec3(offset.x,offset.y,offset.z);
     }
-    private enum Residency { WAITING, READY, FAILED }
-    private static final class Lease {
-        CompletableFuture<?> load;
-        int holders=1,retryTick=Integer.MIN_VALUE;
-        Lease(CompletableFuture<?> load){this.load=load;}
-    }
-    private final class Tickets {
-        final ServerLevel level;final Set<ChunkPos> held=new LinkedHashSet<>();Tickets(ServerLevel level){this.level=level;}
-        Residency resident(Vec3 point,int reach){
-            var p=BlockPos.containing(point);var result=Residency.READY;var wanted=new LinkedHashSet<ChunkPos>();
-            for(int x=(p.getX()-reach)>>4;x<=(p.getX()+reach)>>4;x++)for(int z=(p.getZ()-reach)>>4;z<=(p.getZ()+reach)>>4;z++){
-                var chunk=new ChunkPos(x,z);wanted.add(chunk);
-                var lease=hold(chunk);
-                if(level.getChunkSource().getChunkNow(x,z)!=null)continue;
-                result=Residency.WAITING;
-                if(!NativeChunkLoad.failed(lease.load))continue;
-                int now=game.server().getTickCount();
-                // The scheduler can revisit a wait several times this tick. Give vanilla one frame after reissue.
-                if(lease.retryTick==now)continue;
-                if(lease.retryTick!=Integer.MIN_VALUE)return Residency.FAILED;
-                lease.retryTick=now;
-                level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);
-                lease.load=level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0);
-            }
-            for(var previous:List.copyOf(held))if(!wanted.contains(previous))release(previous);
-            return result;
-        }
-        Lease hold(ChunkPos chunk){
-            var chunks=leases.computeIfAbsent(level,ignored->new LinkedHashMap<>());
-            var lease=chunks.get(chunk);
-            if(!held.add(chunk))return lease;
-            if(lease!=null)lease.holders++;
-            else {
-                lease=new Lease(level.getChunkSource().addTicketAndLoadWithRadius(TICKET,chunk,0));
-                chunks.put(chunk,lease);
-            }
-            return lease;
-        }
-        void release(ChunkPos chunk){
-            if(!held.remove(chunk))return;
-            var chunks=leases.get(level);
-            if(--chunks.get(chunk).holders==0){
-                chunks.remove(chunk);level.getChunkSource().removeTicketWithRadius(TICKET,chunk,0);
-            }
-            if(chunks.isEmpty())leases.remove(level);
-        }
-        void close(){for(var chunk:List.copyOf(held))release(chunk);}
-    }
     private final class Flight {
         final ServerLevel level;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;final boolean child;final float yaw,pitch;
-        final Tickets tickets,impactTickets;final Vec3 exhaust,direction,target;final int splitAge;
+        final Area tickets,impactTickets;final Vec3 exhaust,direction,target;final int splitAge;
         Vec3 at;int age;Display.ItemDisplay display;boolean closed;
         Flight(ServerLevel level,UUID owner,LbcIndirectKills.Owner cause,String epoch,Vec3 at,float yaw,float pitch,int age,boolean child,Vec3 target,int splitAge){
-            this.level=level;this.owner=owner;this.cause=cause;this.epoch=epoch;this.at=at;this.yaw=yaw;this.pitch=pitch;this.age=age;this.child=child;tickets=new Tickets(level);exhaust=exhaustOffset(yaw,pitch,child);
+            this.level=level;this.owner=owner;this.cause=cause;this.epoch=epoch;this.at=at;this.yaw=yaw;this.pitch=pitch;this.age=age;this.child=child;tickets=leases.area(level);exhaust=exhaustOffset(yaw,pitch,child);
             this.direction=Vec3.directionFromRotation(pitch,yaw).normalize();this.target=target;this.splitAge=splitAge;
-            impactTickets=child?null:new Tickets(level);
+            impactTickets=child?null:leases.area(level);
         }
         Vec3 translatedTarget(Vec3 copy){return target==null?null:target.add(copy.subtract(at));}
         void model(){
@@ -174,7 +127,7 @@ public final class LbcOreshnik {
             if(game.items().magic().mechanismSuppressedAt(level,at)){close();return;}
             boolean arrives=!child&&age+1>=APPROACH_TICKS;
             var next=arrives?target:at.add(direction);
-            if(impactTickets!=null&&impactTickets.held.isEmpty()){
+            if(impactTickets!=null&&impactTickets.empty()){
                 if(impactTickets.resident(target,PARENT_BLAST_REACH)==Residency.FAILED){close();return;}
                 // Keep the full approach resident while the display crosses chunk boundaries.
                 for(int i=0;i<=APPROACH_TICKS;i++){
@@ -207,9 +160,9 @@ public final class LbcOreshnik {
         void close(){closed=true;releaseTickets();if(display!=null)display.discard();flights.remove(this);}
     }
     private final class Blasts implements LbcStonekivi.Work {
-        final ServerLevel level;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;final Vec3 at;final boolean child;final List<Vec3> offsets;final Tickets tickets;
+        final ServerLevel level;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;final Vec3 at;final boolean child;final List<Vec3> offsets;final Area tickets;
         int cursor;boolean closed;
-        Blasts(ServerLevel level,UUID owner,LbcIndirectKills.Owner cause,String epoch,Vec3 at,boolean child){this.level=level;this.owner=owner;this.cause=cause;this.epoch=epoch;this.at=at;this.child=child;offsets=offsets(child);tickets=new Tickets(level);}
+        Blasts(ServerLevel level,UUID owner,LbcIndirectKills.Owner cause,String epoch,Vec3 at,boolean child){this.level=level;this.owner=owner;this.cause=cause;this.epoch=epoch;this.at=at;this.child=child;offsets=offsets(child);tickets=leases.area(level);}
         @Override public boolean ready(){return closed||!live(epoch)||!game.items().timeStop().stopped(level);}
         @Override public boolean snapshotIdle(){return true;}
         @Override public boolean step(){

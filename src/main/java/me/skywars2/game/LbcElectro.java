@@ -594,7 +594,7 @@ for(int i=0;i<=2;i++) {
         return lightning(owner, game.items().spellSources().level(owner), position);
     }
 
-    private LightningBolt lightning(ServerPlayer owner, ServerLevel level, Vec3 position) {
+    LightningBolt lightning(ServerPlayer owner, ServerLevel level, Vec3 position) {
         if(checkpointFrozen)return null;checkpointDepth++;try{
         var epoch=game.items().epoch();
         LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
