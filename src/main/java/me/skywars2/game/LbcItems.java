@@ -2445,6 +2445,7 @@ public final class LbcItems {
         tickRocketCrafts();
         for(var player:game.server().getPlayerList().getPlayers()) { aimbobRewards.tickPlayer(player);trollBox.playerTick(player);refreshHud(player); }
         planetoidSkill.tick();
+        radar.end();
         if (turnCurses.isEmpty()) return;
         // Reuse a bounded snapshot: damage can synchronously remove an owner through AFTER_DEATH.
         tickBatch.addAll(turnCurses.values());
@@ -2469,7 +2470,6 @@ public final class LbcItems {
             mana.score(owner,"skill_issue").set(Math.max(0,curse.remaining));
         }
         tickBatch.clear();
-        radar.end();
     }
 
     private static void punish(ServerPlayer player) {

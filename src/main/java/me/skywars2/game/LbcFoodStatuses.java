@@ -12,6 +12,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.Level;
@@ -63,15 +64,18 @@ public final class LbcFoodStatuses {
         if(read(p,"void_resistance")<=0&&value>0)p.hurtServer(p.level(),new net.minecraft.world.damagesource.DamageSource(p.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.OUTSIDE_BORDER)),value);
     }
     private void allSeeingEye(ServerPlayer p){
-        for(var entity:game.items().lifetimes().loadedTargets()){
-            if(entity==p||entity.level()!=p.level()||entity.isSpectator()||entity.entityTags().contains("spectator")
-                    ||!entity.getType().builtInRegistryHolder().is(MOBS))continue;
-            game.items().radar().mark(p,entity);
-        }
+        var level=p.level();
+        for(var entity:game.items().lifetimes().loadedRadarTargets(level)) markEyeTarget(p,entity);
+        if(level!=game.maps().level())for(var player:level.players()) markEyeTarget(p,player);
         // Both the old silhouette and distant directional glyph now refer to this target mark.
         // They always belong to the effect holder, never whichever player happens to be nearest.
         p.removeEffect(MobEffects.DARKNESS);p.removeEffect(MobEffects.BLINDNESS);p.removeEffect(MobEffects.NAUSEA);
         game.items().mana().award(p,"lbc:true_advancements/potions/effect_all_seeing_eye");drain(p,"all_seeing_eye");
+    }
+    private void markEyeTarget(ServerPlayer player,LivingEntity entity){
+        if(entity==player||entity.level()!=player.level()||entity.isSpectator()||entity.entityTags().contains("spectator")
+                ||!entity.getType().builtInRegistryHolder().is(MOBS))return;
+        game.items().radar().mark(player,entity);
     }
     private void livingLegend(ServerPlayer p){
         var level=p.level();int color=level.getRandom().nextInt(16);
