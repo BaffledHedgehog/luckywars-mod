@@ -4,6 +4,7 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -19,13 +20,16 @@ public final class MapReplacementChecks {
         final int oldMode;
         final BlockPos untracked, outside, lobby;
         final MapManager.BlockSnapshot previousOutside,lobbyBlock;
+        ChunkPos outsideTicket;
+        boolean addedOutsideTicket;
+        net.minecraft.world.entity.item.ItemEntity outsideItem;
         int phase;final List<net.minecraft.world.entity.item.ItemEntity> debris=new ArrayList<>();
         Scene(GameController game){
             this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
             oldMap=game.config().mapId;oldBroken=game.config().broken;oldMode=game.config().gameMode;started=game.server().getTickCount();
             require((int)field(game.maps(),"sweptMode")==oldMode,"the first startup map applied a full sweep");
             var level=game.maps().level();int edge=MapManager.OUTER_ARENA_LIMIT;
-            untracked=new BlockPos(edge,level.getMaxY()-2,edge);outside=untracked.east();
+            untracked=new BlockPos(edge,level.getMaxY(),edge);outside=untracked.east();
             var cells=(Map<?,?>)field(game.maps(),"lobbyVisible");
             lobby=cells.entrySet().stream().filter(entry->entry.getValue() instanceof MapManager.BlockSnapshot snapshot&&!snapshot.state().isAir())
                     .map(entry->(BlockPos)entry.getKey()).findFirst().orElseThrow();
@@ -59,6 +63,10 @@ public final class MapReplacementChecks {
             if(phase==3){
                 if(game.maps().busy())return false;
                 require(!game.selectedMapReady()&&game.maps().spawns().isEmpty(),"manual clear keeps the arena empty until a new selection");
+                require(game.maps().level().getForceLoadedChunks().contains(ChunkPos.pack(outsideTicket.x(),outsideTicket.z())),
+                        "manual clear preserves independent force-loaded chunks outside the arena");
+                require(outsideItem!=null&&!outsideItem.isRemoved(),"manual clear preserves loose items outside the arena: "+outsideItem.getRemovalReason());
+                restoreOutsideEntity();
                 checkSweep();
                 restoreOutside();
                 game.configureLobbySetting(null,"gameMode",Integer.toString(oldMode));
@@ -82,6 +90,17 @@ public final class MapReplacementChecks {
                 var level=game.maps().level();
                 level.getChunk(untracked.getX()>>4,untracked.getZ()>>4)
                         .setBlockState(untracked,Blocks.DIAMOND_BLOCK.defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+                var itemPos=outside.east(32);
+                require(!game.maps().arenaTerrainAt(itemPos),"loose-item control is outside tracked and fallback cleanup");
+                outsideTicket=ChunkPos.containing(itemPos);
+                addedOutsideTicket=level.setChunkForced(outsideTicket.x(),outsideTicket.z(),true);
+                level.getChunk(outsideTicket.x(),outsideTicket.z());
+                outsideItem=new net.minecraft.world.entity.item.ItemEntity(level,itemPos.getX()+.5,itemPos.getY(),itemPos.getZ()+.5,
+                        new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PAPER));
+                outsideItem.setNoGravity(true);
+                outsideItem.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+                outsideItem.entityTags().add("map_object");
+                require(level.addFreshEntity(outsideItem),"independent loose item just outside active arena");
                 require(game.server().getCommands().getDispatcher().execute("skywars clearmap",game.server().createCommandSourceStack())==1
                         &&game.maps().busy(),"operator command starts a manual full sweep");
                 phase=3;return false;
@@ -94,8 +113,13 @@ public final class MapReplacementChecks {
             require(game.maps().snapshot(lobby).equals(lobbyBlock),"visible lobby block and data survive the sweep");
         }
         void restoreOutside(){game.maps().restoreSnapshot(game.maps().level(),outside,previousOutside,Block.UPDATE_SKIP_ALL_SIDEEFFECTS);}
+        void restoreOutsideEntity(){
+            if(outsideItem!=null&&!outsideItem.isRemoved())outsideItem.discard();
+            if(addedOutsideTicket)game.maps().level().setChunkForced(outsideTicket.x(),outsideTicket.z(),false);
+            addedOutsideTicket=false;
+        }
     }
-    public static void tick(GameController game){if(active==null)return;try{if(!active.tick())return;active=null;SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; Cubes8 loose-item cleanup before readiness in both worlds, Imprinted mirror and original selection restored)");}catch(Throwable error){if(active!=null)for(var item:active.debris)if(!item.isRemoved())item.discard();active=null;SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);}}
+    public static void tick(GameController game){if(active==null)return;try{if(!active.tick())return;active=null;SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; startup and mode sweeps, manual cleanup boundaries, Cubes8 loose-item cleanup in both worlds, Imprinted mirror and original selection restored)");}catch(Throwable error){if(active!=null){active.restoreOutsideEntity();for(var item:active.debris)if(!item.isRemoved())item.discard();}active=null;SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);}}
     @SuppressWarnings("unchecked") public static void imprinted(GameController game){
         var level=game.maps().level();var target=Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED));
         require(!game.maps().busy(),"copy completes before ready callback");

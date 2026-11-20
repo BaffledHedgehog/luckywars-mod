@@ -231,6 +231,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
             limit -> {
                 if(context.detached||!owned(owner,context.item))return false;
                 GenieScriptItem.spendCharge(context.item,limit);
+                if(context.item.isEmpty())context.detached=true;
                 owner.getInventory().setChanged();
                 owner.containerMenu.broadcastChanges();
                 return true;

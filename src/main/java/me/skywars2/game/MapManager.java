@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
 import me.skywars2.mixin.ArenaChestContentsAccess;
+import me.skywars2.mixin.ArenaChunkAccess;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -756,9 +757,6 @@ public final class MapManager {
         awaitJournal(saved, () -> {
         // Native mutations continued while IO was pending: include any new outer bounds first.
         if (blockBoundsDirty) { loadPrepared(id, broken); return; }
-        var queueGame=me.skywars2.SkyWars2.game();
-        if(queueGame!=null&&queueGame.maps()==this)queueGame.itemQueue().terrainReplaced(level,mapBounds);
-
         var bedwarsGame=me.skywars2.SkyWars2.game();
         if(bedwarsGame!=null&&bedwarsGame.maps()==this)bedwarsGame.bedwars().loading(level,targetBounds,bedwars(id));
         pendingMap = id;
@@ -851,7 +849,7 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.prepare_lobby", error.getMessage()));
             return;
         }
-        if (work.isEmpty()) finishPlacement();
+        if (work.isEmpty() && arenaSweep==null) finishPlacement();
         }, Component.translatable("skywars2.map.error.save_bounds"));
     }
 
@@ -1610,10 +1608,13 @@ public final class MapManager {
 
     private void prepareArenaClear(boolean fullSweep,List<BoundingBox> target) {
         if(fullSweep)arenaSweep=new ArenaSweep(List.of());
-        var retired=fullSweep?combineBounds(mapBounds,List.of(arenaSweep.bounds)):mapBounds;
+        var retired=new ArrayList<>(mapBounds);
+        if(fullSweep)retired.add(arenaSweep.bounds);
+        var game=SkyWars2.game();
+        if(game!=null&&game.maps()==this)game.itemQueue().terrainReplaced(level,retired);
         removeMapEntitiesWithin(retired);
         restoreCages();
-        clearForcedChunksOutsideLobby();
+        clearForcedChunksOutsideLobby(clearingArena?retired:null);
         mapUnderLobby.clear();
         for(var cell:lobbyCells)if(insideAny(cell.pos,retired)||insideAny(cell.pos,target))
             mapUnderLobby.put(cell.pos,BlockSnapshot.air());
@@ -1658,7 +1659,7 @@ public final class MapManager {
     /** Scan saved columns on Minecraft's IO worker and clear occupied sections on the level thread. */
     private final class ArenaSweep {
         private final BoundingBox bounds=new BoundingBox(-OUTER_ARENA_LIMIT,level.getMinY(),-OUTER_ARENA_LIMIT,
-                OUTER_ARENA_LIMIT,level.getMaxY()-1,OUTER_ARENA_LIMIT);
+                OUTER_ARENA_LIMIT,level.getMaxY(),OUTER_ARENA_LIMIT);
         private final int minChunk=bounds.minX()>>4,maxChunk=bounds.maxX()>>4,width=maxChunk-minChunk+1;
         private final ArrayDeque<Column> pending=new ArrayDeque<>();
         private final BlockPos.MutableBlockPos cursor=new BlockPos.MutableBlockPos();
@@ -1680,9 +1681,10 @@ public final class MapManager {
             Column(ChunkPos pos) {
                 this.pos=pos;
                 var current=level.getChunkSource().getChunkNow(pos.x(),pos.z());
-                stored=current==null?level.getChunkSource().chunkMap.read(pos)
-                        .thenApply(tag->tag.map(MapManager::storedTerrain).orElse(false))
-                        :CompletableFuture.completedFuture(hasTerrain(current));
+                if(current!=null)stored=CompletableFuture.completedFuture(hasTerrain(current));
+                else if(terrainInHolder(pos))stored=CompletableFuture.completedFuture(true);
+                else stored=level.getChunkSource().chunkMap.read(pos)
+                        .thenApply(tag->tag.map(MapManager::storedTerrain).orElse(false));
             }
         }
 
@@ -1708,8 +1710,7 @@ public final class MapManager {
                     if(!candidate.checked&&candidate.stored.isDone()) {
                         candidate.checked=true;
                         var current=source.getChunkNow(candidate.pos.x(),candidate.pos.z());
-                        var holder=source.chunkMap.getUpdatingChunkIfPresent(ChunkPos.pack(candidate.pos.x(),candidate.pos.z()));
-                        if(current!=null?hasTerrain(current):candidate.stored.join()||holder!=null&&hasTerrain(holder.getLatestChunk()))
+                        if(current!=null?hasTerrain(current):candidate.stored.join()||terrainInHolder(candidate.pos))
                             candidate.loading=prepareChunk(candidate.pos);
                     }
                 }
@@ -1725,6 +1726,14 @@ public final class MapManager {
                 }
                 if(clearSlice(column))pending.removeFirst();
             }
+        }
+
+        private boolean terrainInHolder(ChunkPos pos) {
+            var chunks=level.getChunkSource().chunkMap;
+            long key=ChunkPos.pack(pos.x(),pos.z());
+            var holder=chunks.getUpdatingChunkIfPresent(key);
+            if(holder==null)holder=((ArenaChunkAccess)chunks).skywars2$pendingUnloads().get(key);
+            return holder!=null&&hasTerrain(holder.getLatestChunk());
         }
 
         private boolean clearSlice(Column column) {
@@ -2000,7 +2009,7 @@ public final class MapManager {
         }
         if(clearingArena){
             mapBounds=placementExternalBounds;
-            imprintedBounds=List.of();
+            if(server.getLevel(LbcHedgehogDimensions.IMPRINTED)!=null)imprintedBounds=List.of();
             residentMapIds.clear();
             pristinePlacements=List.of();
             pristineTemplates=Map.of();
@@ -2077,7 +2086,7 @@ public final class MapManager {
                 writeBoundsJournal(imprintedBounds, imprintedJournal(), LbcHedgehogDimensions.IMPRINTED), (a,b) -> a && b);
         awaitJournal(saved, () -> {
         if (blockBoundsDirty) { commitPlacementBounds(entities); return; }
-        if (pendingMap != null || clearingArena) {
+        if (pendingMap != null) {
             // Native structures can contain loose authoring items, and chest contents can
             // drop while the parts are pasted. Retire them after ALL placement work, before
             // publishing readiness; clearing only at match start leaves a dirty lobby map.
@@ -2109,7 +2118,7 @@ public final class MapManager {
         }
     }
 
-    private void clearForcedChunksOutsideLobby() {
+    private void clearForcedChunksOutsideLobby(List<BoundingBox> scope) {
         if (level == null) return;
         for (long packed : level.getForceLoadedChunks().toLongArray()) {
             int chunkX = net.minecraft.world.level.ChunkPos.getX(packed);
@@ -2119,7 +2128,9 @@ public final class MapManager {
             boolean lobbyChunk = lobbyBounds.stream().anyMatch(box ->
                     minX <= box.maxX() && maxX >= box.minX()
                             && minZ <= box.maxZ() && maxZ >= box.minZ());
-            if (!lobbyChunk) level.setChunkForced(chunkX, chunkZ, false);
+            if (!lobbyChunk&&(scope==null||scope.stream().anyMatch(box->
+                    minX<=box.maxX()&&maxX>=box.minX()&&minZ<=box.maxZ()&&maxZ>=box.minZ())))
+                level.setChunkForced(chunkX, chunkZ, false);
         }
     }
 

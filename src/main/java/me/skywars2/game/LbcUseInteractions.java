@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.FoodOnAStickItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
@@ -67,7 +68,12 @@ public final class LbcUseInteractions {
     public static boolean holdingOffhandShield(ServerPlayer player){
         return player.isUsingItem()
                 &&player.getUsedItemHand()==InteractionHand.OFF_HAND
-                &&player.getUseItem().has(DataComponents.BLOCKS_ATTACKS);
+                &&usesAsShield(player.getUseItem());
+    }
+    public static boolean usesAsShield(ItemStack stack){
+        var equipment=stack.get(DataComponents.EQUIPPABLE);
+        return stack.has(DataComponents.BLOCKS_ATTACKS)&&stack.getUseAnimation()==ItemUseAnimation.BLOCK
+                &&(equipment==null||!equipment.swappable());
     }
     public static boolean shieldHandoff(ServerPlayer player,InteractionHand hand){
         return hand==InteractionHand.OFF_HAND&&SHIELD_HANDOFF.isBound()&&SHIELD_HANDOFF.get()==player;
@@ -77,7 +83,7 @@ public final class LbcUseInteractions {
     }
     static InteractionResult forceItem(ServerPlayer player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
-        if(stack.isEmpty()||stack.has(DataComponents.BLOCKS_ATTACKS))return InteractionResult.PASS;
+        if(stack.isEmpty()||usesAsShield(stack))return InteractionResult.PASS;
         return ScopedValue.where(FORCED_ITEM_USE,player)
                 .call(()->player.gameMode.useItem(player,player.level(),stack,hand));
     }
@@ -86,7 +92,7 @@ public final class LbcUseInteractions {
         if(hand!=InteractionHand.MAIN_HAND||!(result instanceof InteractionResult.Success)
                 ||player.isUsingItem()||player.isPassenger()
                 ||forcedUse(player)
-                ||!player.getOffhandItem().has(DataComponents.BLOCKS_ATTACKS))return;
+                ||!usesAsShield(player.getOffhandItem()))return;
         ScopedValue.where(SHIELD_HANDOFF,player)
                 .run(()->mode.useItem(player,level,player.getOffhandItem(),InteractionHand.OFF_HAND));
     }

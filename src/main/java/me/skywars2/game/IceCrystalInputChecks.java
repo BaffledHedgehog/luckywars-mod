@@ -171,6 +171,17 @@ public final class IceCrystalInputChecks {
                             require(f.owner.gameMode.useItem(f.owner,f.owner.level(),thrown,InteractionHand.MAIN_HAND).consumesAction()
                                     &&thrown.isEmpty()&&f.owner.isUsingItem()&&f.owner.getUsedItemHand()==InteractionHand.OFF_HAND,
                                     "ordinary instant consumable spends one and hands off to the shield");
+                            f.owner.stopUsingItem();
+                            var blockingFood=hand(InteractionHand.OFF_HAND,Items.APPLE,1);
+                            var component=net.minecraft.core.component.DataComponents.BLOCKS_ATTACKS;
+                            blockingFood.set(component,new ItemStack(Items.SHIELD).get(component));
+                            var secondThrow=hand(InteractionHand.MAIN_HAND,Items.SNOWBALL,1);
+                            require(f.owner.gameMode.useItem(f.owner,f.owner.level(),secondThrow,InteractionHand.MAIN_HAND).consumesAction()
+                                    &&secondThrow.isEmpty()&&!f.owner.isUsingItem()&&blockingFood.getCount()==1,
+                                    "a blocking trait cannot auto-start offhand eating");
+                            game.items().twitchItemAction(f.owner,InteractionHand.OFF_HAND);
+                            require(f.owner.isUsingItem()&&f.owner.getUseItem()==blockingFood,
+                                    "a forced item activation can still use food with the blocking trait");
                         }}
                     case SHIFT_WAND->require(crystal.removed&&f.service.shotSnapshot().isEmpty()&&game.items().mana().get(f.owner)==99800,"native crouching wand action shatters managed crystal once");
                 }

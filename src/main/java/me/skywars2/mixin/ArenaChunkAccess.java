@@ -15,6 +15,9 @@ public interface ArenaChunkAccess {
     @Accessor("visibleChunkMap")
     Long2ObjectLinkedOpenHashMap<ChunkHolder> skywars2$visibleChunks();
 
+    @Accessor("pendingUnloads")
+    Long2ObjectLinkedOpenHashMap<ChunkHolder> skywars2$pendingUnloads();
+
     @Invoker("applyChunkTrackingView")
     void skywars2$applyChunkTrackingView(ServerPlayer player,ChunkTrackingView view);
 }

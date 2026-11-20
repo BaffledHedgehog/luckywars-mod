@@ -5,7 +5,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import me.skywars2.game.LbcCubeInteractions;
 import me.skywars2.game.LbcTmtTriggers;
 import me.skywars2.game.LbcUseInteractions;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.*;
 import net.minecraft.world.*;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +23,7 @@ public abstract class CubeInteractionMixin implements LbcUseInteractions.BlockIn
             return;
         }
         // A use-on, an air fallback and an offhand shield packet can all describe one client click.
-        if(player.getOffhandItem().has(DataComponents.BLOCKS_ATTACKS)){
+        if(LbcUseInteractions.usesAsShield(player.getOffhandItem())){
             if(skywars2$shieldClick)return;
             skywars2$shieldClick=true;
         }

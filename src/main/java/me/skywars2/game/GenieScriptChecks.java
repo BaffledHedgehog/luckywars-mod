@@ -40,8 +40,9 @@ final class GenieScriptChecks implements AutoCloseable {
             """.formatted(new com.google.gson.JsonPrimitive(command));
         prepared=runtime.prepare(source);when=game.server().getTickCount();
         preparedCharged=runtime.prepare("""
-            {"version":1,"state":{},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
+            {"version":1,"state":{"activated":0},"handlers":{"USE":"main"},"functions":{"main":{"parameters":["event"],"code":[
             ["const",2],["call","item.use_charge",1],["jump_if_false","done"],
+            ["load","state"],["const","activated"],["load","state"],["const","activated"],["get"],["const",1],["add"],["put"],["drop"],
             ["const",%s],["call","world.command",1],["return"],["label","done"],["const",false],["return"]]}}}
             """.formatted(new com.google.gson.JsonPrimitive(command)));
         preparedPassive = runtime.prepare("""
@@ -153,16 +154,17 @@ final class GenieScriptChecks implements AutoCloseable {
     private void checkCharges(){
         var owner=base.owner;
         var limited=GenieScriptItem.construct(preparedCharged.join(),"stick","Limited script","Two actual uses.",1);
-        var copy=limited.copy();
         owner.setItemInHand(InteractionHand.MAIN_HAND,limited);
-        owner.getInventory().setItem(10,copy);
         for(int use=1;use<=2;use++){
+            var copy=limited.copy();
+            var copyState=copy.copy();
+            owner.getInventory().setItem(10,copy);
             base.set(marker,Blocks.AIR.defaultBlockState());
             click();
             for(int step=0;step<8;step++)runtime.tick();
             require(base.level.getBlockState(marker).is(Blocks.GOLD_BLOCK),"each paid use runs the effect, including the final use");
-            require(limited.isEmpty()==(use==2)&&copy.getCount()==1
-                    &&!ItemData.contains(copy,"genie_uses_remaining"),"only the exact gift spends charges and disappears at zero");
+            require(limited.isEmpty()==(use==2)&&ItemStack.matches(copy,copyState),
+                    "only the exact gift spends charges, including state written after the last charge");
         }
         base.set(marker,Blocks.AIR.defaultBlockState());
         click();
