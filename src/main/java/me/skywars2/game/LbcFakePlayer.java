@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
@@ -17,6 +18,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -54,14 +56,12 @@ public final class LbcFakePlayer implements PolymerEntity {
 
         static Snapshot capture(ServerPlayer player) {
             var inventory = player.getInventory();
-            var items = new ArrayList<ItemStack>(inventory.getContainerSize());
-            for (int slot = 0; slot < inventory.getContainerSize(); slot++) items.add(inventory.getItem(slot).copy());
             byte layers = 0;
             for (var part : PlayerModelPart.values()) {
                 if (player.isModelPartShown(part)) layers |= (byte) part.getMask();
             }
             return new Snapshot(ResolvableProfile.createResolved(player.getGameProfile()), player.getMainArm(),
-                layers, inventory.getSelectedSlot(), List.copyOf(items));
+                layers, inventory.getSelectedSlot(), List.of()).updateInventory(inventory);
         }
 
         static Snapshot absent(UUID expected) {
@@ -71,6 +71,26 @@ public final class LbcFakePlayer implements PolymerEntity {
 
         ItemStack slot(int index) {
             return index >= 0 && index < inventory.size() ? inventory.get(index) : ItemStack.EMPTY;
+        }
+
+        Snapshot updateInventory(Inventory source) {
+            int size = source.getContainerSize();
+            int nextSelected = source.getSelectedSlot();
+            if (size != inventory.size()) {
+                var items = new ArrayList<ItemStack>(size);
+                for (int slot = 0; slot < size; slot++) items.add(source.getItem(slot).copy());
+                return new Snapshot(profile, arm, layers, nextSelected, List.copyOf(items));
+            }
+            ArrayList<ItemStack> changed = null;
+            for (int slot = 0; slot < size; slot++) {
+                // Stack consumption and component edits can happen without an Inventory change signal.
+                var current = source.getItem(slot);
+                if (ItemStack.matches(current, inventory.get(slot))) continue;
+                if (changed == null) changed = new ArrayList<>(inventory);
+                changed.set(slot, current.copy());
+            }
+            if (changed == null && selected == nextSelected) return this;
+            return new Snapshot(profile, arm, layers, nextSelected, changed == null ? inventory : List.copyOf(changed));
         }
     }
 
@@ -86,12 +106,14 @@ public final class LbcFakePlayer implements PolymerEntity {
         }
     }
 
-    private final Snapshot snapshot;
+    private Snapshot snapshot;
+    private final UUID sourceId;
     private final List<SynchedEntityData.DataValue<?>> metadata;
     private final EnumMap<EquipmentSlot, ItemStack> visible = new EnumMap<>(EquipmentSlot.class);
 
     private LbcFakePlayer(Villager actor, Snapshot snapshot) {
         this.snapshot = snapshot;
+        sourceId = snapshot.profile().partialProfile().id();
         var model = new Model(actor.level(), snapshot);
         metadata = model.getEntityData().getNonDefaultValues().stream()
             .filter(value -> value.id() >= Model.FIRST_AVATAR_FIELD).toList();
@@ -174,9 +196,34 @@ public final class LbcFakePlayer implements PolymerEntity {
             ? fake.visible.getOrDefault(slot, ItemStack.EMPTY) : ordinary;
     }
 
+    /** Called by the native entity tracker. Inventory is copied, never installed as Villager AI equipment. */
+    public static ClientboundSetEquipmentPacket updateEquipment(Entity actor) {
+        if (!(actor instanceof Villager) || !(actor.level() instanceof ServerLevel level)
+                || !(PolymerEntity.get(actor) instanceof LbcFakePlayer fake) || fake.sourceId == null) return null;
+        var source = level.getServer().getPlayerList().getPlayer(fake.sourceId);
+        if (source == null || source.isRemoved()) return null;
+        var next = fake.snapshot.updateInventory(source.getInventory());
+        if (next == fake.snapshot) return null;
+        fake.snapshot = next;
+        var changes = new ArrayList<Pair<EquipmentSlot, ItemStack>>();
+        fake.refreshEquipment(EquipmentSlot.MAINHAND, next.slot(next.selected()), changes);
+        Inventory.EQUIPMENT_SLOT_MAPPING.forEach((index, slot) -> fake.refreshEquipment(slot, next.slot(index), changes));
+        return changes.isEmpty() ? null : new ClientboundSetEquipmentPacket(actor.getId(), changes);
+    }
+
+    private void refreshEquipment(EquipmentSlot slot, ItemStack stack, List<Pair<EquipmentSlot, ItemStack>> changes) {
+        if (ItemStack.matches(stack, visible.getOrDefault(slot, ItemStack.EMPTY))) return;
+        visible.put(slot, stack);
+        changes.add(Pair.of(slot, stack));
+    }
+
     // Package-visible snapshot query for server-side checks, never an accessible Mob container.
     static ItemStack copiedSlot(Villager actor, int index) {
         return PolymerEntity.get(actor) instanceof LbcFakePlayer fake ? fake.snapshot.slot(index).copy() : ItemStack.EMPTY;
+    }
+
+    static int selectedSlot(Villager actor) {
+        return PolymerEntity.get(actor) instanceof LbcFakePlayer fake ? fake.snapshot.selected() : -1;
     }
 
     @Override
@@ -192,9 +239,9 @@ public final class LbcFakePlayer implements PolymerEntity {
     }
 
     @Override
-    public List<com.mojang.datafixers.util.Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(
-            List<com.mojang.datafixers.util.Pair<EquipmentSlot, ItemStack>> items, ServerPlayer viewer) {
-        return items.stream().map(pair -> com.mojang.datafixers.util.Pair.of(pair.getFirst(),
+    public List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(
+            List<Pair<EquipmentSlot, ItemStack>> items, ServerPlayer viewer) {
+        return items.stream().map(pair -> Pair.of(pair.getFirst(),
             visible.getOrDefault(pair.getFirst(), ItemStack.EMPTY))).toList();
     }
 }

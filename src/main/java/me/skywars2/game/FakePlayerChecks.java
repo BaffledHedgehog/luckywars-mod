@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
@@ -94,6 +95,60 @@ final class FakePlayerChecks {
                 raw.release();
             }
         });
+    }
+
+    private static ServerEntity equipmentTracker(WoolBucketChecks.Fixture f, Villager actor,
+                                                  List<ClientboundSetEquipmentPacket> sent) {
+        var sync = new ServerEntity.Synchronizer() {
+            public void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet) {
+                if (packet instanceof ClientboundSetEquipmentPacket equipment) sent.add(equipment);
+            }
+            public void sendToTrackingPlayersAndSelf(Packet<? super ClientGamePacketListener> packet) {
+                sendToTrackingPlayers(packet);
+            }
+            public void sendToTrackingPlayersFiltered(Packet<? super ClientGamePacketListener> packet,
+                                                       Predicate<net.minecraft.server.level.ServerPlayer> filter) {
+                if (filter.test(f.owner)) sendToTrackingPlayers(packet);
+            }
+        };
+        return new ServerEntity(f.level, actor, UpdateInterval.periodic(3), true, sync);
+    }
+
+    private static void mirror(WoolBucketChecks.Fixture f, Villager actor, Villager restored, ItemStack carried) {
+        List<ClientboundSetEquipmentPacket> sent = new ArrayList<>();
+        var tracker = equipmentTracker(f, actor, sent);
+        var source = f.other;
+        var selected = new ItemStack(Items.DIAMOND_AXE);
+        selected.set(DataComponents.CUSTOM_NAME, Component.literal("Live selected item"));
+        source.getInventory().setItem(6, selected);
+        source.connection.handleSetCarriedItem(new ServerboundSetCarriedItemPacket(6));
+        require(source.getInventory().getSelectedSlot() == 6, "real held-slot packet updates the represented player");
+        source.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+        tracker.sendChanges();
+        require(LbcFakePlayer.selectedSlot(actor) == 6 && ItemStack.matches(LbcFakePlayer.copiedSlot(actor, 6), selected)
+                && ItemStack.matches(LbcFakePlayer.copiedSlot(actor, 24), carried)
+                && actor.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty(),
+            "native tracking mirrors exact selected and private inventory slots without changing Villager equipment");
+        require(sent.size() == 1 && sent.getFirst().getEntity() == actor.getId() && sent.getFirst().getSlots().size() == 2
+                && sent.getFirst().getSlots().stream().anyMatch(p -> p.getFirst() == EquipmentSlot.MAINHAND
+                        && ItemStack.matches(p.getSecond(), selected))
+                && sent.getFirst().getSlots().stream().anyMatch(p -> p.getFirst() == EquipmentSlot.OFFHAND && p.getSecond().isEmpty()),
+            "existing viewers receive the selected item and the cleared offhand, with no unrelated slots");
+        tracker.sendChanges();
+        carried.shrink(1);
+        var name = Component.literal("In-place component change");
+        carried.set(DataComponents.CUSTOM_NAME, name);
+        tracker.sendChanges();
+        require(sent.size() == 1 && ItemStack.matches(LbcFakePlayer.copiedSlot(actor, 24), carried),
+            "in-place hidden stack count and component updates mirror without equipment spam");
+        LbcFakePlayer.copiedSlot(actor, 24).setCount(1);
+        require(LbcFakePlayer.copiedSlot(actor, 24).getCount() == carried.getCount(),
+            "callers cannot mutate the source or the stored copy through a copied slot");
+
+        sent.clear();
+        equipmentTracker(f, restored, sent).sendChanges();
+        require(LbcFakePlayer.selectedSlot(restored) == 6 && ItemStack.matches(LbcFakePlayer.copiedSlot(restored, 24), carried),
+            "native saved disguise rebinds the same source UUID and refreshes selected and hidden slots");
     }
 
     private static BlockHitResult top(BlockPos block) {
@@ -193,6 +248,7 @@ final class FakePlayerChecks {
                         && PolymerEntity.get(restored).getPolymerEntityType(PacketContext.get()) == EntityTypes.MANNEQUIN
                         && LbcFakePlayer.copiedSlot(restored,24).getCount() == 11,
                     "saved disguise restores the original independent inventory snapshot");
+                mirror(f, actor, restored, carried);
 
                 actor.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.DIAMOND));
                 actor.setGuaranteedDrop(EquipmentSlot.MAINHAND);
@@ -220,6 +276,6 @@ final class FakePlayerChecks {
                 game.server().getScoreboard().removePlayerTeam(team);
             }
         }
-        SkyWars2.LOGGER.info("[check] PASS fake-player (real survival egg and spawner payload, Villager brain, vanilla mannequin wire metadata and equipment, persisted snapshot, no death loot)");
+        SkyWars2.LOGGER.info("[check] PASS fake-player (real survival egg and spawner payload, Villager brain, vanilla mannequin metadata, live selected slot, full inventory and equipment mirroring, saved source UUID, no death loot)");
     }
 }

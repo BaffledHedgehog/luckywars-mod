@@ -462,6 +462,7 @@
     "DimensionPostEffectsMixin",
     "FakePlayerMixin$Persistence",
     "FakePlayerMixin$Pairing",
+    "FakePlayerMixin$Tracking",
     "FakePlayerMixin$DeathLoot",
     "SpecialEggMixin",
     "SpecialEggMixin$Offspring",
