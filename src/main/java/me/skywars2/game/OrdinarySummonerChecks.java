@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.equine.SkeletonHorse;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -40,7 +42,8 @@ public final class OrdinarySummonerChecks {
         if(index==2)require(actors.stream().allMatch(e->e.getMainHandItem().is(Items.DIAMOND_SWORD)&&e.getItemBySlot(EquipmentSlot.CHEST).is(Items.DIAMOND_CHESTPLATE))
                 &&actors.stream().anyMatch(e->e.position().distanceToSqr(f.at.add(0,0,1))<1e-8),"flat local elite formation and diamond gear");
         if(index==3){var bat=actors.stream().filter(e->e.getType()==EntityTypes.BAT).findFirst().orElseThrow();var horse=actors.stream().filter(e->e.getType()==EntityTypes.SKELETON_HORSE).findFirst().orElseThrow();var rider=actors.stream().filter(e->e.getType()==EntityTypes.SKELETON).findFirst().orElseThrow();
-            require(horse.getVehicle()==bat&&rider.getVehicle()==horse&&rider.getMainHandItem().is(Items.BOW)&&horse.isInvisible(),"native bat/horse/rider tree and authored invisible horse");}
+            require(horse.getVehicle()==bat&&rider.getVehicle()==horse&&rider.getMainHandItem().is(Items.BOW)
+                    &&bat.isInvisible()&&!horse.isInvisible()&&!rider.isInvisible(),"native invisible bat carrying the visible horse and bow rider");}
         if(index==4)require(actors.stream().allMatch(e->e.getType()==EntityTypes.GHAST&&e.getY()==f.at.y+20)&&actors.stream().anyMatch(e->e.position().equals(f.at.add(10,20,-10))),"nine high ghasts and exact corner");
         if(index==5)require(actors.stream().allMatch(e->e.getType()==EntityTypes.BLAZE)&&actors.stream().filter(e->e.getVehicle()!=null).count()==2,"three-blaze native passenger tower");
         if(index==6)require(actors.stream().allMatch(e->e.getType()==EntityTypes.GUARDIAN&&e.isNoGravity()),"four source no-gravity guardians");
@@ -75,6 +78,42 @@ public final class OrdinarySummonerChecks {
         p.setItemInHand(InteractionHand.MAIN_HAND,loot(f,LbcSummonerItems.kinds().getFirst()));f.base.mana.set(p,0);
         require(f.base.input(InteractionHand.MAIN_HAND)&&f.base.mana.get(p)==-3000&&service.count()==20,"full Overload bypasses only admission, actual mana debt retained");
     }
+    private static Skeleton ghostRiderAfterFlight(AllGrimoireChecks.Fixture f) {
+        var owner = f.base.owner;
+        var service = f.base.game.items().summons();
+        var kind = LbcSummonerItems.kinds().stream().filter(entry -> entry.kind().equals("ghostrider")).findFirst().orElseThrow();
+        owner.setItemInHand(InteractionHand.MAIN_HAND, loot(f, kind));
+        f.base.mana.set(owner, kind.price());
+        require(f.base.input(InteractionHand.MAIN_HAND), "actual Hunter's Dreams cast");
+
+        var actors = service.ordinarySnapshot(kind.kind());
+        require(actors.size() == 3, "summon creates the complete riding formation");
+        var bat = actors.stream().filter(actor -> actor.getType() == EntityTypes.BAT).findFirst().orElseThrow();
+        var horse = actors.stream().filter(SkeletonHorse.class::isInstance).map(SkeletonHorse.class::cast).findFirst().orElseThrow();
+        var rider = actors.stream().filter(Skeleton.class::isInstance).map(Skeleton.class::cast).findFirst().orElseThrow();
+        var originalEffect = bat.getEffect(MobEffects.INVISIBILITY);
+        require(horse.isTamed() && originalEffect != null && originalEffect.getAmplifier() == 1
+                        && originalEffect.getDuration() == 1_999_980 && !originalEffect.isVisible()
+                        && !horse.isInvisible() && !rider.isInvisible(),
+                "only the bat carries invisibility while the horse and bow rider stay visible");
+        int batAge = bat.tickCount, horseAge = horse.tickCount, riderAge = rider.tickCount;
+        for (int tick = 0; tick < 100; tick++) f.level.tickNonPassenger(bat);
+        service.tick();
+
+        require(bat.tickCount == batAge + 100 && horse.tickCount == horseAge + 100 && rider.tickCount == riderAge + 100,
+                "each member ticks through five seconds of native flight");
+        require(actors.stream().allMatch(actor -> actor.isAlive() && f.level.getEntity(actor.getUUID()) == actor
+                        && service.owner(actor) == owner),
+                "the same three native actors stay present and attributed after flight");
+        require(bat.getPassengers().equals(List.of(horse)) && horse.getVehicle() == bat
+                        && horse.getPassengers().equals(List.of(rider)) && rider.getVehicle() == horse,
+                "the live horse still carries the skeleton and rides the invisible bat");
+        var remainingEffect = bat.getEffect(MobEffects.INVISIBILITY);
+        require(bat.isInvisible() && !horse.isInvisible() && !rider.isInvisible()
+                        && remainingEffect != null && remainingEffect.getDuration() == 1_999_880,
+                "only the supporting bat stays invisible throughout flight");
+        return rider;
+    }
     private static void combat(AllGrimoireChecks.Fixture f){
         reset(f);var service=f.base.game.items().summons();var p=f.base.owner;
         service.castOrdinary(p,LbcSummonerItems.kinds().getFirst());var skeleton=service.ordinarySnapshot("skeletons").getFirst();
@@ -86,7 +125,7 @@ public final class OrdinarySummonerChecks {
         var converted=skeleton.convertTo(EntityTypes.STRAY,net.minecraft.world.entity.ConversionParams.single(skeleton,true,true),e->{});
         require(converted!=null&&skeleton.isRemoved()&&service.owner(converted)==p&&f.base.game.items().currentEpoch(converted),"native powder-snow conversion retains author/epoch");
         var convertedTarget=cow(f,converted.position().add(0,0,1),1);require(converted.doHurtTarget(f.level,convertedTarget)&&convertedTarget.getKillCredit()==p,"converted native melee retains kill credit");
-        reset(f);service.castOrdinary(p,LbcSummonerItems.kinds().get(3));var rider=(Skeleton)service.ordinarySnapshot("ghostrider").stream().filter(e->e instanceof Skeleton).findFirst().orElseThrow();
+        reset(f);var rider=ghostRiderAfterFlight(f);
         var victim=cow(f,rider.position().add(0,0,12),100);rider.performRangedAttack(victim,1);
         var arrow=new ArrayList<AbstractArrow>();for(var e:f.level.getAllEntities())if(!f.base.before.contains(e)&&e instanceof AbstractArrow a)arrow.add(a);
         require(arrow.size()==1&&arrow.getFirst().getOwner()==rider&&service.owner(arrow.getFirst())==p&&arrow.getFirst().isOnFire()
