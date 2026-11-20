@@ -46,6 +46,7 @@ public final class ProjectileLifetimes {
     private static final int REVIEWS_PER_TICK = 8;
     private static final double TARGET_BUFFER = 48;
     private static final double LOCAL_NEAREST_RANGE = 32;
+    private static final int SPARSE_TARGET_LIMIT = 64;
     // Длина отрезка ограничивает native DDA: даже диагональ посещает не более 32 клеток за порцию.
     private static final int TERRAIN_SEGMENT = 16, TERRAIN_WORK = 32, TERRAIN_BUDGET = 2048;
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE,
@@ -371,13 +372,38 @@ public final class ProjectileLifetimes {
 
     LivingEntity nearestTarget(ServerLevel level, Vec3 at, double radius, boolean preferLastOnTie,
                                Predicate<LivingEntity> selection) {
-        var ranks = loadedTargetRanks();
         boolean bounded = Double.isFinite(radius);
+        var snapshot = loadedTargets();
+        if (bounded && radius >= 0 && snapshot.size() <= SPARSE_TARGET_LIMIT) {
+            return nearestIndexedTarget(level, at, radius, preferLastOnTie, selection, snapshot);
+        }
+        var ranks = loadedTargetRanks();
         // A target inside the sphere is nearer than every target outside it.
         var local = targetSphere(level, at, bounded ? radius : LOCAL_NEAREST_RANGE, ranks);
         var nearest = nearestEligible(level, at, local, ranks, preferLastOnTie, selection);
         if (nearest != null || bounded) return nearest;
-        return nearestEligible(level, at, loadedTargets(), ranks, preferLastOnTie, selection);
+        return nearestEligible(level, at, snapshot, ranks, preferLastOnTie, selection);
+    }
+
+    private static LivingEntity nearestIndexedTarget(ServerLevel level, Vec3 at, double radius, boolean preferLastOnTie,
+                                                       Predicate<LivingEntity> selection, List<LivingEntity> snapshot) {
+        // Sparse arenas can avoid the section query and its per-projectile temporary list.
+        double best = radius * radius;
+        double extent = radius + 1e-6;
+        double minX = at.x - extent, minY = at.y - extent, minZ = at.z - extent;
+        double maxX = at.x + extent, maxY = at.y + extent, maxZ = at.z + extent;
+        LivingEntity nearest = null;
+        for (var candidate : snapshot) {
+            if (candidate.level() != level || candidate.isRemoved()) continue;
+            double distance = candidate.position().distanceToSqr(at);
+            if (!(distance <= best) || nearest != null && distance == best && !preferLastOnTie) continue;
+            if (!candidate.getBoundingBox().intersects(minX, minY, minZ, maxX, maxY, maxZ)
+                    || level.getEntity(candidate.getUUID()) != candidate
+                    || !selection.test(candidate)) continue;
+            nearest = candidate;
+            best = distance;
+        }
+        return nearest;
     }
 
     private static LivingEntity nearestEligible(ServerLevel level, Vec3 at, List<LivingEntity> candidates,

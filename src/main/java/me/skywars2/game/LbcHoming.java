@@ -38,6 +38,7 @@ public final class LbcHoming {
     private static final DustParticleOptions BLACK=new DustParticleOptions(net.minecraft.util.ARGB.colorFromFloat(1,.001f,0,.001f)&0xffffff,4);
     private static final DustParticleOptions STAR_DUST=new DustParticleOptions(0xccccff,4);
     private static final DustParticleOptions DESTINY_DUST=new DustParticleOptions(0x412c13,1);
+    private static final DustParticleOptions SKILL_DUST=new DustParticleOptions(0xff0000,2);
     private final GameController game;
     private final Set<LargeFireball> fireballs=new LinkedHashSet<>();
     // Для глобального Curse нужен индекс уже загруженных снарядов, не новый трекер их физики.
@@ -428,17 +429,16 @@ public final class LbcHoming {
     /** Shared skill30 rotation for virtual native adapters. The author is the actual current
      * projectile owner; selection elsewhere never grants control over foreign bodies. */
     Vec3 skillDirection(ServerPlayer owner,ServerLevel level,Vec3 from,Vec3 direction){
-        return skillMotion(owner,level,from,direction,false);
+        return skillOwner(owner,level)?skillMotion(owner,level,from,direction,false):direction;
     }
     private Vec3 skillMotion(ServerPlayer owner,ServerLevel level,Vec3 from,Vec3 motion,boolean arrow){
-        if(!skillOwner(owner,level))return motion;
         var aimed=skillTarget(owner,from);
         if(aimed==null)return motion;
         var toward=aimed.getEyePosition().subtract(from);
         var next=ProjectileSteering.turn(motion,toward,Math.PI/180);
         // Keep the authored arrow's additive speed; only its turn is replaced by the angular cap.
         if(arrow)next=next.normalize().scale(motion.add(toward.normalize().scale(.5)).length());
-        level.sendParticles(new DustParticleOptions(0xff0000,2),true,false,from.x,from.y,from.z,3,.1,.1,.1,0);
+        level.sendParticles(SKILL_DUST,true,false,from.x,from.y,from.z,3,.1,.1,.1,0);
         return next;
     }
     private boolean skillOwner(ServerPlayer owner,ServerLevel level){
@@ -458,15 +458,18 @@ public final class LbcHoming {
                 && skillOwner(owner,level) && skillTarget(owner,arrow.position())!=null;
     }
     private void tickSkillProjectiles(){
+        if(projectiles.isEmpty())return;
+        var admittedOwners=new java.util.IdentityHashMap<ServerPlayer,Boolean>();
         for(var body:List.copyOf(projectiles)){
             if(body.isRemoved()){projectiles.remove(body);continue;}
             if(!(body instanceof Projectile projectile)||game.items().polymorph().suspended(body)||body.entityTags().contains("cant_be_homing")
                     ||game.items().timeStop().frozen(body)||body.entityTags().contains("time_stopped")
                     ||!(game.items().projectileLevelups().projectileOwner(body) instanceof ServerPlayer owner)
-                    ||!skillOwner(owner,(ServerLevel)body.level()))continue;
+                    ||owner.level()!=body.level())continue;
             Vec3 motion=body.getDeltaMovement();if(motion.lengthSqr()<1e-12)continue;
             boolean arrow=projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow;
             if(arrow&&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)projectile).skywars2$isInGround())continue;
+            if(!admittedOwners.computeIfAbsent(owner,p->skillOwner(p,p.level())))continue;
             Vec3 next=skillMotion(owner,owner.level(),body.position(),motion,arrow);
             if(next.equals(motion))continue;
             body.setDeltaMovement(next);body.needsSync=true;LbcShooters.orient(projectile);
