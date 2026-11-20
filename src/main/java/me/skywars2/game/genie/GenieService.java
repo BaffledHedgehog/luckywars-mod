@@ -56,6 +56,9 @@ public final class GenieService implements AutoCloseable {
         scriptModel=GenieConfig.loadScript();
     }
     public static void registerCommands() { GenieApiDialog.register(); }
+    void activateHostedIfUnconfigured(GenieHostedChatTransport hosted) {
+        if (scriptModel == null) activateApi(hosted);
+    }
     public GenieRuntime runtime(){return runtime;}
     private boolean livingOwner(ServerPlayer p){return game.playing()&&!game.balanceLegacy()&&!game.isObserver(p)&&p.isAlive()&&!p.isRemoved()
             &&game.server().getPlayerList().getPlayer(p.getUUID())==p;}
@@ -168,6 +171,12 @@ public final class GenieService implements AutoCloseable {
             finishReward(wish, ItemStack.EMPTY, null, false,
                     Component.translatableWithFallback("genie.failure." + issue.name().toLowerCase(java.util.Locale.ROOT),
                             issue.hint + " Лампа возвращена."));
+            return;
+        }
+        if (failure instanceof GenieHostedChatTransport.Unavailable hosted) {
+            finishReward(wish, ItemStack.EMPTY, null, false,
+                    Component.translatableWithFallback("genie.chatgpt.failure." + hosted.issue.name().toLowerCase(java.util.Locale.ROOT),
+                            hosted.issue.hint + " Лампа возвращена."));
             return;
         }
         if (failure != null || reply == null) { finishReward(wish, ItemStack.EMPTY, null, false); return; }

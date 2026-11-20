@@ -70,12 +70,15 @@ public final class GenieScriptModel implements AutoCloseable {
                 try {
                     observation = provider.run(prompt(wish, provider.verifiesInWorker()), knowledge, schema, verifier);
                 } catch (QuotaExceeded | GenieGeminiWebTransport.SessionFailure limited) {
-                    if (limited instanceof GenieGeminiWebTransport.SessionFailure session
-                            && session.issue != GenieGeminiWebTransport.SessionIssue.QUOTA_EXHAUSTED) throw limited;
                     if (result.isCancelled() || Thread.currentThread().isInterrupted()) throw new InterruptedException();
-                    var fallback = GenieConfig.openAiFallback();
+                    GenieScriptModel.Transport fallback = GenieConfig.hostedChatFallback();
+                    boolean quota = limited instanceof QuotaExceeded
+                            || limited instanceof GenieGeminiWebTransport.SessionFailure session
+                                    && session.issue == GenieGeminiWebTransport.SessionIssue.QUOTA_EXHAUSTED;
+                    if (fallback == null && quota) fallback = GenieConfig.openAiFallback();
                     if (fallback == null) throw limited;
-                    GenieWishAudit.record(wish, provider.getClass().getSimpleName(), null, "quota_fallback");
+                    GenieWishAudit.record(wish, provider.getClass().getSimpleName(), null,
+                            quota ? "quota_fallback" : "session_fallback");
                     activeProvider = fallback;
                     observation = fallback.run(prompt(wish, fallback.verifiesInWorker()), knowledge, schema, verifier);
                 }
@@ -89,8 +92,11 @@ public final class GenieScriptModel implements AutoCloseable {
                 }
             } catch (Exception failure) {
                 if (!result.isCancelled() && !(failure instanceof InterruptedException)) {
-                    Object reason = failure instanceof GenieGeminiWebTransport.SessionFailure session
-                            ? session.issue : failure.getClass().getSimpleName();
+                    Object reason = switch (failure) {
+                        case GenieGeminiWebTransport.SessionFailure session -> session.issue;
+                        case GenieHostedChatTransport.Unavailable hosted -> hosted.issue;
+                        default -> failure.getClass().getSimpleName();
+                    };
                     SkyWars2.LOGGER.warn("Genie {} failed ({})", stage, reason);
                     GenieWishAudit.record(wish, activeProvider.getClass().getSimpleName(), rawReply, "failed:" + reason);
                 }

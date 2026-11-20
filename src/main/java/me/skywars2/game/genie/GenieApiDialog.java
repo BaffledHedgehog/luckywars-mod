@@ -57,16 +57,23 @@ final class GenieApiDialog implements AutoCloseable {
     private record Pending(Identifier id, int opened, Form form) {}
 
     static void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) ->
-                SkyWarsCommandTree.add(dispatcher, Commands.literal("genie")
-                        .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
-                        .then(Commands.literal("api").executes(context -> open(context.getSource().getPlayerOrException(), Form.API)))
-                        .then(Commands.literal("gemini")
-                                .then(Commands.literal("import").executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_COOKIES)))
-                                .then(Commands.literal("importfile")
-                                        .executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_FILE))
-                                        .then(Commands.argument("path", StringArgumentType.greedyString()).executes(context ->
-                                                importFile(context.getSource(), StringArgumentType.getString(context, "path"))))))));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
+            var gemini = Commands.literal("gemini")
+                    .then(Commands.literal("import").executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_COOKIES)))
+                    .then(Commands.literal("importfile")
+                            .executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_FILE))
+                            .then(Commands.argument("path", StringArgumentType.greedyString()).executes(context ->
+                                    importFile(context.getSource(), StringArgumentType.getString(context, "path")))));
+            var chatgpt = Commands.literal("chatgpt")
+                    .then(Commands.literal("probe").executes(context -> connectHosted(context.getSource(), null)))
+                    .then(Commands.literal("importfile")
+                            .then(Commands.argument("path", StringArgumentType.greedyString()).executes(context ->
+                                    connectHosted(context.getSource(), StringArgumentType.getString(context, "path")))));
+            SkyWarsCommandTree.add(dispatcher, Commands.literal("genie")
+                    .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
+                    .then(Commands.literal("api").executes(context -> open(context.getSource().getPlayerOrException(), Form.API)))
+                    .then(gemini).then(chatgpt));
+        });
     }
 
     private static int open(ServerPlayer player, Form form) {
@@ -79,6 +86,54 @@ final class GenieApiDialog implements AutoCloseable {
         if (game == null) return 0;
         var service = game.items().genie();
         return service.api.importGemini(service, source.getServer(), true, path, source::sendSystemMessage) ? 1 : 0;
+    }
+
+    private static int connectHosted(CommandSourceStack source, String path) {
+        var game = SkyWars2.game();
+        if (game == null) return 0;
+        var service = game.items().genie();
+        return service.api.connectHostedChat(service, source, path) ? 1 : 0;
+    }
+
+    private boolean connectHostedChat(GenieService service, CommandSourceStack source, String path) {
+        if (closed || saving) {
+            source.sendSystemMessage(status("chatgpt_busy", "Предыдущее подключение джина ещё сохраняется.", true));
+            return false;
+        }
+        saving = true;
+        source.sendSystemMessage(status("chatgpt_checking", "Проверяю ChatGPT на хостинге…", false));
+        var server = source.getServer();
+        writer.execute(() -> {
+            GenieHostedChatTransport verified = null;
+            var issue = GenieHostedChatTransport.Issue.UNAVAILABLE;
+            try {
+                var hosted = GenieConfig.hostedChat();
+                hosted.connect(path == null ? null : readCookieFile(path));
+                GenieConfig.enableHostedChat();
+                verified = hosted;
+            } catch (GenieHostedChatTransport.Unavailable failure) {
+                issue = failure.issue;
+                SkyWars2.LOGGER.info("Genie ChatGPT connection unavailable ({})", issue);
+            } catch (InterruptedException canceled) {
+                Thread.currentThread().interrupt();
+            } catch (IOException | RuntimeException failure) {
+                SkyWars2.LOGGER.warn("Genie ChatGPT connection failed ({})", failure.getClass().getSimpleName());
+            }
+            var connected = verified;
+            var failure = issue;
+            server.execute(() -> {
+                saving = false;
+                if (closed) return;
+                if (connected != null) {
+                    service.activateHostedIfUnconfigured(connected);
+                    source.sendSystemMessage(status("chatgpt_connected", "ChatGPT на хостинге подключён.", false));
+                } else {
+                    source.sendSystemMessage(status("chatgpt_" + failure.name().toLowerCase(java.util.Locale.ROOT),
+                            failure.hint, true));
+                }
+            });
+        });
+        return true;
     }
 
     private static boolean owner(ServerPlayer player) {

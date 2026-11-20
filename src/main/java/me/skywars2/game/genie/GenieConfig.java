@@ -75,6 +75,43 @@ final class GenieConfig {
     static Path apiPath() { return folder().resolve("api.json"); }
     static Path fallbackPath() { return folder().resolve("openai-fallback.json"); }
 
+    static GenieHostedChatTransport hostedChat() throws IOException {
+        Path runtime = FabricLoader.getInstance().getGameDir().resolve("runtime/tiktok").toAbsolutePath().normalize();
+        Path driver = runtime.resolve("python/playwright/driver");
+        Path node = environmentPath("SKYWARS2_GENIE_CHATGPT_NODE", driver.resolve("node"));
+        Path playwright = environmentPath("SKYWARS2_PLAYWRIGHT_MODULE", driver.resolve("package/index.mjs"));
+        Path chromium = environmentPath("SKYWARS2_BROWSER_EXECUTABLE", null);
+        Path browsers = runtime.resolve("browsers");
+        if (chromium == null && Files.isDirectory(browsers)) {
+            try (var paths = Files.find(browsers, 3, (path, attributes) -> attributes.isRegularFile()
+                    && (path.getFileName().toString().equals("chrome-headless-shell")
+                    || path.getFileName().toString().equals("headless_shell")))) {
+                chromium = paths.sorted(java.util.Comparator.reverseOrder()).findFirst().orElse(null);
+            }
+        }
+        if (!Files.isExecutable(node) || !Files.isRegularFile(playwright)
+                || chromium == null || !Files.isExecutable(chromium)) {
+            throw new GenieHostedChatTransport.Unavailable(GenieHostedChatTransport.Issue.UNAVAILABLE);
+        }
+        return new GenieHostedChatTransport(node, playwright, chromium, folder().resolve("chatgpt-profile"),
+                folder().resolve("requests"));
+    }
+
+    static GenieHostedChatTransport hostedChatFallback() {
+        if (!Files.isRegularFile(folder().resolve("chatgpt-enabled.json"))) return null;
+        try { return hostedChat(); }
+        catch (IOException | RuntimeException unavailable) { return null; }
+    }
+
+    static void enableHostedChat() throws IOException {
+        saveConfiguration(folder().resolve("chatgpt-enabled.json"), "{\"enabled\":true}");
+    }
+
+    private static Path environmentPath(String name, Path fallback) {
+        String value = System.getenv(name);
+        return value == null || value.isBlank() ? fallback : local(value.strip());
+    }
+
     static GenieScriptModel.Transport openAiFallback() {
         try {
             var settings = readApi(fallbackPath());
@@ -158,6 +195,8 @@ final class GenieConfig {
             SkyWars2.LOGGER.warn("Genie API configuration could not be loaded");
             return null;
         }
+        var hosted = hostedChatFallback();
+        if (hosted != null) return new GenieScriptModel(hosted);
         String key = System.getenv(GEMINI_KEY);
         if (key != null && !key.isBlank()) return new GenieScriptModel(new GenieGeminiTransport(key.strip()));
         key = System.getenv(OPENAI_KEY);

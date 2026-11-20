@@ -56,7 +56,7 @@ final class GenieFirefoxTransport implements GenieScriptModel.Transport {
         }
     }
 
-    private static Path resource(Path directory, String name) throws IOException {
+    static Path resource(Path directory, String name) throws IOException {
         Path file = directory.resolve(name);
         try (var input = GenieFirefoxTransport.class.getResourceAsStream("/skywars2/genie/" + name)) {
             if (input == null) throw new IOException("missing packaged browser worker resource");
@@ -65,7 +65,7 @@ final class GenieFirefoxTransport implements GenieScriptModel.Transport {
         return file;
     }
 
-    private static void cancel(Process process) {
+    static void cancel(Process process) {
         try (var stdin = process.getOutputStream()) {
             stdin.write("cancel\n".getBytes(StandardCharsets.UTF_8));
             stdin.flush();

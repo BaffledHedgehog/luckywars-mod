@@ -43,7 +43,7 @@ loom {
 
 processResources {
     from('tools') {
-        include 'verify_genie_program.py', 'genie_chat_page.js', 'genie_chat_worker.mjs', 'genie_gemini_web.py'
+        include 'verify_genie_program.py', 'genie_chat_page.js', 'genie_chat_worker.mjs', 'genie_gemini_web.py', 'genie_hosted_chat_worker.mjs'
         into 'skywars2/genie'
     }
     // Executable media helpers are resources; local Python import caches are not.
