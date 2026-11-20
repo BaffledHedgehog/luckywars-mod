@@ -2,15 +2,21 @@ package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 /** Native damage criteria, real mana consumers and the actual landing surface. */
 public final class CombatFeedbackNov16Checks {
@@ -75,6 +81,7 @@ public final class CombatFeedbackNov16Checks {
                     "actual contact with the collision surface triggers impact");
 
             var armor = mana.overload().armor();
+            checkEdgeLanding(f, mana, armor, floor);
             armor.clear(owner);
             var top = new BlockPos(floor.getX(), f.level.getMaxY(), floor.getZ());
             for (int offset = 0; offset <= 8; offset++) f.set(top.below(offset), Blocks.AIR.defaultBlockState());
@@ -90,6 +97,40 @@ public final class CombatFeedbackNov16Checks {
             armor.clear(owner);
             owner.setShiftKeyDown(false);
         }
-        SkyWars2.LOGGER.info("[check] PASS combat-feedback-nov16 (native positive/resisted/fatal/rejected hits; actual Overload minigun zero/negative/insufficient mana; wand overdraft retained; physical slam landing)");
+        SkyWars2.LOGGER.info("[check] PASS combat-feedback-nov16 (native positive/resisted/fatal/rejected hits; actual Overload minigun zero/negative/insufficient mana; wand overdraft retained; physical slam landing at center and ledge; inclusive slam ceiling)");
+    }
+
+    private static void checkEdgeLanding(WoolBucketChecks.Fixture f, LbcMana mana, LbcOverloadArmor armor, BlockPos floor) {
+        var owner = f.owner;
+        for (var pos : BlockPos.betweenClosed(floor, floor.offset(1, 2, 0)))
+            if (!pos.equals(floor)) f.set(pos, Blocks.AIR.defaultBlockState());
+        f.set(floor.east().below(), Blocks.AIR.defaultBlockState());
+        owner.setShiftKeyDown(false);
+        owner.setPos(floor.getX() + 1.15, floor.getY() + 2, floor.getZ() + .5);
+        owner.setOnGround(false);
+        owner.move(MoverType.SELF, new Vec3(0, -2, 0));
+        var feet = owner.position();
+        require(owner.onGround() && Math.abs(feet.y - floor.getY() - 1) < 1e-6,
+                "native swept AABB lands on the edge of one block");
+        require(f.level.clip(new ClipContext(feet.add(0, .02, 0), feet.add(0, -1.02, 0),
+                        ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, owner)).getType() == HitResult.Type.MISS,
+                "ledge landing has no support under the center ray");
+        var target = new Cow(EntityTypes.COW, f.level);
+        target.setPos(feet.add(0, 0, 1.5)); target.setNoAi(true); target.setNoGravity(true);
+        require(f.level.addFreshEntity(target), "nearby real slam target");
+        f.own(target);
+        owner.entityTags().add("overload_slam");
+        mana.score(owner, "overload_slam").set(20);
+        f.client.packets().clear();
+        armor.tick(owner);
+        require(!owner.entityTags().contains("overload_slam") && mana.score(owner, "overload_slam").get() == 0
+                        && target.getHealth() < target.getMaxHealth() && target.getLastDamageSource().getEntity() == owner,
+                "native ledge landing applies attributed slam damage and clears the active slam");
+        require(f.client.packets().stream().anyMatch(packet -> packet instanceof ClientboundLevelParticlesPacket visual
+                        && visual.count() == 600 && Math.abs(visual.y() - feet.y) < 1e-6),
+                "ledge slam particle burst starts at the physical contact height");
+        require(f.client.packets().stream().anyMatch(packet -> packet instanceof ClientboundSoundPacket sound
+                        && sound.getSound().value().location().toString().equals("minecraft:lbcsounds.overload_impact")),
+                "ledge slam emits its original impact sound");
     }
 }

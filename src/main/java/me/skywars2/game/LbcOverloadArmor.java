@@ -113,11 +113,14 @@ public final class LbcOverloadArmor {
         // A non-air cell below is only a broad phase: feet can still be almost a block above it.
         // Use the actual collision/fluid surface for both the impact and its visual origin.
         var feet = player.position();
-        if (player.onGround() || !player.level().getBlockState(player.blockPosition().below()).is(SOURCE_AIRS)) {
+        boolean grounded = player.onGround();
+        if (grounded || !player.level().getBlockState(player.blockPosition().below()).is(SOURCE_AIRS)) {
             var hit = player.level().clip(new ClipContext(feet.add(0, .02, 0), feet.add(0, -1.02, 0),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player));
             if (hit.getType() == HitResult.Type.BLOCK && feet.y - hit.getLocation().y <= .06)
                 impact(player, slamTicks, hit.getLocation());
+            // The collision sweep lands the whole player box; the center ray can miss a ledge.
+            else if (grounded) impact(player, slamTicks, feet);
         }
     }
 
