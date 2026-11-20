@@ -122,7 +122,8 @@ public final class StalinEncounterChecks {
             require(actor.position().equals(origin.add(0,.5,0)) && actor.getHealth()==500 && actor.getMaxHealth()==500
                     && actor.getAttribute(Attributes.FOLLOW_RANGE).getBaseValue()==100 && actor.isSilent() && !actor.isNoAi(),"native500HP actor and exact noncentered source spawn");
             require(actor.hasCustomName() && actor.isCustomNameVisible() && actor.getCustomName().getStyle().getColor().getValue()==0xff5555
-                    && actor.entityTags().containsAll(Set.of("stalin","lucky_mob")) && game.items().stalin().owner(actor)==owner,"visible source name/tags and native causal owner");
+                    && actor.entityTags().containsAll(Set.of("stalin","lucky_mob")) && game.items().stalin().owner(actor)==owner,"visible source name/tags and recorded token thrower");
+            require(LbcSpellSource.unownedHazard(actor),"regular dropped Stalin token produces a hostile loot actor");
             require(actor.hasEffect(MobEffects.INVISIBILITY) && actor.hasEffect(MobEffects.FIRE_RESISTANCE),"source long-lived effects");
             for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.FEET)) {
                 var armor=actor.getItemBySlot(slot);var equip=armor.get(DataComponents.EQUIPPABLE);
@@ -152,14 +153,35 @@ public final class StalinEncounterChecks {
         }
         void combat() {
             game.items().timeStop().end(level);
+            var mobKills=net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS);
+            int humanKills=owner.getStats().getValue(mobKills);
             // Exercise real native melee independently of ray direction and aiming policy.
             var melee=cow(actor.position().add(2,0,0));melee.setHealth(1);
-            require(actor.doHurtTarget(level,melee) && !melee.isAlive() && melee.getKillCredit()==owner,"actual native lethal piglin melee credits source author");melee.discard();
+            require(actor.doHurtTarget(level,melee) && !melee.isAlive(),"actual native piglin melee kills the target");
+            var meleeSource=melee.getLastDamageSource();
+            require(meleeSource!=null && meleeSource.is(DamageTypes.MOB_ATTACK) && meleeSource.getDirectEntity()==actor
+                    && meleeSource.getEntity()==actor && melee.getKillCredit()==actor && melee.getLastHurtByPlayer()==null,
+                    "lethal hostile melee keeps the physical piglin and native kill credit, actual credit="+melee.getKillCredit());
+            require(owner.getStats().getValue(mobKills)==humanKills,"lethal hostile melee leaves the recorded thrower's mob-kill count unchanged");
+            melee.discard();
             require(!actor.doHurtTarget(level,service) && service.getHealth()==10,"service role blocks real native melee");
             require(game.items().stalin().aimTarget(actor)==target,"nearest physical service role is excluded from aim");
             target.entityTags().add("communist");require(game.items().stalin().aimTarget(actor)==behind,"communist tag excluded from aim");
-            shot();require(target.getHealth()==1 && behind.getHealth()==10 && service.getHealth()==10,"aim exclusion retains physical first collision and exact9damage");
-            require(target.getLastDamageSource().is(DamageTypes.ARROW) && target.getLastDamageSource().getEntity()==actor,"real native arrow damage uses actual NPC source");
+            var oldHand=owner.getMainHandItem();
+            var unrelated=new ItemStack(Items.IRON_SWORD);
+            var enchantments=level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+            unrelated.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS),20);
+            unrelated.enchant(enchantments.getOrThrow(Enchantments.LOOTING),100);
+            owner.setItemInHand(InteractionHand.MAIN_HAND,unrelated);
+            try {
+                shot();
+                require(target.getHealth()==1 && behind.getHealth()==10 && service.getHealth()==10,
+                        "shared NPC ray keeps first physical contact and exact nine damage with an enchanted thrower");
+                var raySource=target.getLastDamageSource();
+                require(raySource!=null && raySource.is(DamageTypes.ARROW) && raySource.getDirectEntity()==actor
+                        && raySource.getEntity()==actor && game.items().indirectKills().enchantmentWeapon(raySource).isEmpty(),
+                        "ordinary NPC ray retains physical authority and borrows no player weapon");
+            } finally { owner.setItemInHand(InteractionHand.MAIN_HAND,oldHand); }
             target.entityTags().remove("communist");reset(target);
             var communism=new ItemStack(Items.PAPER);var data=new net.minecraft.nbt.CompoundTag();data.putInt("communism",1);communism.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             other.teleportTo(level,actor.getX()+2,actor.getY(),actor.getZ()+1,Set.of(),0,0,true);other.getInventory().setItem(9,communism);
@@ -176,12 +198,14 @@ public final class StalinEncounterChecks {
             require(other.isBlocking() && game.items().wands().shieldHit(owner,actor.getEyePosition(),actor.getEyePosition().add(0,0,8))!=null,"actual blocking shield sphere covers lane");
             shot();require(target.getHealth()==1,"AK bypasses magic shield interception and hits actual cow");other.stopUsingItem();
             other.teleportTo(level,origin.x+24,origin.y+2,origin.z+24,Set.of(),0,0,true);
-            reset(target);target.setHealth(1);int kills=owner.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS));shot();
+            reset(target);target.setHealth(1);shot();
             require(!target.isAlive(),"native lethal NPC shot kills physical target; health="+target.getHealth());
-            require(target.getLastDamageSource().getEntity()==actor,"lethal ray retains actual NPC damage source");
-            require(target.getKillCredit()==owner,"lethal ray credits thrower during actual death; credit="+target.getKillCredit());
-            require(owner.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS))==kills+1,
-                    "lethal ray awards native credited mob kill statistic; before="+kills+" after="+owner.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS)));target.discard();
+            var lethalRay=target.getLastDamageSource();
+            require(lethalRay!=null && lethalRay.is(DamageTypes.ARROW) && lethalRay.getDirectEntity()==actor
+                    && lethalRay.getEntity()==actor && target.getKillCredit()==actor && target.getLastHurtByPlayer()==null,
+                    "lethal hostile ray keeps the physical piglin and native kill credit, actual credit="+target.getKillCredit());
+            require(owner.getStats().getValue(mobKills)==humanKills,"lethal hostile ray leaves the recorded thrower's mob-kill count unchanged");
+            target.discard();
             target=behind;reset(target);
             actor.setHealth(500);for(int i=0;i<16;i++)game.items().stalin().pulse(actor);
             require(game.items().stalin().snapshot().getFirst().cooldown()==0,"source timer drains to zero even after health recovery");
