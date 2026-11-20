@@ -1232,6 +1232,7 @@ public final class GameChecks {
                                 case "defensive-arcanums-stop-probe" -> { DefensiveArcanumChecks.stopProbe(game); return; }
                                 case "defensive-arcanums-cleanup" -> { DefensiveArcanumChecks.cleanup(game); return; }
                                 case "void-arcanum" -> { VoidArcanumChecks.run(game); return; }
+                                case "void-arcanum-celebration" -> { VoidArcanumChecks.celebration(game); return; }
                                 case "void-arcanum-stop-probe" -> { VoidArcanumChecks.stopProbe(game); return; }
                                 case "void-arcanum-cleanup" -> { VoidArcanumChecks.cleanup(game); return; }
                                 case "neutral-crafts" -> { NeutralCraftChecks.run(game); return; }
@@ -1977,6 +1978,7 @@ public final class GameChecks {
         TikTokNetworkChecks.tick(game);
         MusicStaffChecks.tick(game);
         SkillVexCelebrationChecks.tick(game);
+        VoidArcanumChecks.celebrationTick(game);
         AirdropSimulationChecks.tick(game);
         GenieChecks.tick(game);
         GenieLobbyChecks.tick(game);

@@ -1,11 +1,13 @@
 package me.skywars2.game;
 
+import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import me.skywars2.SkyWars2;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -378,6 +380,174 @@ public final class VoidArcanumChecks {
         }
     }
     public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.fluidTerrain();f.elevatedChase();f.closeChaseAndBodyPush();f.motion();f.boundaries();f.denseTerrain();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, radial noisy erosion/lens, small-tier source/flowing water/lava and waterlogged absorption, bounded moving/dense native erosion work, all-tier chain chase and speed caps, captured target exclusion and marker body-push guard, tilt metadata and cleanup; explicit boundary ticks)");}
+
+    private static Celebration celebration;
+
+    static void celebration(GameController game) {
+        require(celebration == null, "exclusive celebration fixture");
+        var fixture = new Celebration(game);
+        try {
+            fixture.begin();
+            celebration = fixture;
+        } catch (Throwable error) {
+            try { fixture.close(); } catch (Throwable cleanup) { error.addSuppressed(cleanup); }
+            throw new IllegalStateException("Void Arcanum celebration setup", error);
+        }
+    }
+
+    static void celebrationTick(GameController game) {
+        var fixture = celebration;
+        if (fixture == null || fixture.game != game) return;
+        try {
+            if (!fixture.tick()) return;
+            celebration = null;
+            fixture.close();
+            SkyWars2.LOGGER.info("[check] PASS void-arcanum-celebration (native victory and winner leave retain the original inactive body and audience display until timed lobby teardown)");
+        } catch (Throwable error) {
+            celebration = null;
+            try { fixture.close(); } catch (Throwable cleanup) { error.addSuppressed(cleanup); }
+            SkyWars2.LOGGER.error("[check] FAIL void-arcanum-celebration", error);
+        }
+    }
+
+    private static final class Celebration {
+        final GameController game;
+        final ServerPlayer owner, other;
+        final net.minecraft.server.level.ServerLevel level;
+        final MatchValueSnapshot settings, profile;
+        final GameChecks.WandThirdPlayerState ownerState;
+        final RegenerationBeltChecks.ScheduledClient spectator;
+        final Map<Object, Integer> originalLives = new LinkedHashMap<>();
+        final int start;
+        LbcVoidArcanum.Hole hole;
+        BlackHoleVisuals.Handle handle;
+        ItemDisplayElement display;
+        ProbeCow target;
+        Vec3 center;
+        BlockPos stone;
+        MapManager.BlockSnapshot originalStone;
+        float health;
+        int ending;
+        boolean finished, departed, closed;
+
+        Celebration(GameController game) {
+            this.game = game;
+            owner = Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
+            other = Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));
+            level = game.maps().level();
+            require(game.playing() && !game.maps().busy() && !game.bedwars().mode() && game.allowDamage(owner)
+                    && owner.level() == level && other.level() == level && game.items().voidArcanum().count() == 0
+                    && game.items().blackHoleVisuals().count() == 0, "clean running native arena for celebration");
+            settings = new MatchValueSnapshot(game.config());
+            profile = new MatchValueSnapshot(game.players().get(owner.getUUID()));
+            ownerState = new GameChecks.WandThirdPlayerState(owner, game.items().mana());
+            spectator = new RegenerationBeltChecks.ScheduledClient(game, other);
+            start = game.server().getTickCount();
+        }
+
+        void begin() throws ReflectiveOperationException {
+            game.config().endingSeconds = 2;
+            game.players().get(owner.getUUID()).winEffect = 0;
+            center = game.maps().look().add(0, 12, 0);
+            stone = BlockPos.containing(center).below();
+            originalStone = game.maps().snapshot(level, stone);
+            level.setBlock(stone, Blocks.STONE.defaultBlockState(), Block.UPDATE_CLIENTS);
+            owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(LbcVoidArcanum.ITEM));
+            hole = game.items().voidArcanum().spawn(owner, center);
+            require(hole != null && level.getEntity(hole.marker.getUUID()) == hole.marker,
+                    "held native Arcanum produces an original registered body");
+            game.items().voidArcanum().updateVisual(hole, owner);
+            handle = hole.visual;
+            var visuals = game.items().blackHoleVisuals();
+            var index = visuals.origins(other).indexOf(center);
+            require(index >= 0 && handle != null, "arena spectator has an actual item display before victory");
+            display = visuals.displays(other).get(index);
+            require(Identifier.parse("lbc:black_hole_small").equals(display.getItem().get(DataComponents.ITEM_MODEL)),
+                    "actual visible source model before the fireworks");
+            target = new ProbeCow(level);
+            target.setPos(center.add(.7, 0, 0));
+            target.setNoAi(true);
+            target.setNoGravity(true);
+            require(level.addFreshEntity(target), "native cow within the hole's normal damage radius");
+            health = target.getHealth();
+            var participants = (Map<?, ?>) WoolBucketChecks.read(game, "participants");
+            for (var entry : participants.entrySet()) {
+                var lives = livesField(entry.getValue());
+                originalLives.put(entry.getValue(), lives.getInt(entry.getValue()));
+                lives.setInt(entry.getValue(), owner.getUUID().equals(entry.getKey()) ? 1 : 0);
+            }
+            var finish = GameController.class.getDeclaredMethod("finish");
+            finish.setAccessible(true);
+            finish.invoke(game);
+            finished = true;
+            ending = game.server().getTickCount();
+            require(game.stage() == GameController.Stage.ENDING && owner.getUUID().equals(WoolBucketChecks.read(game, "victoryWinner"))
+                    && owner.getMainHandItem().isEmpty(), "real victory chooses the owner and clears the held item");
+            retained("when the winner's inventory is cleared");
+        }
+
+        boolean tick() {
+            spectator.acknowledge();
+            var now = game.server().getTickCount();
+            require(now - start < 600, "bounded timed lobby return, stage=" + game.stage());
+            if (game.stage() == GameController.Stage.ENDING) {
+                retained("during fireworks");
+                require(target.getHealth() == health && target.accepted == 0 && hole.point.equals(center)
+                        && level.getBlockState(stone).is(Blocks.STONE), "celebration advances neither Arcanum damage, motion nor erosion");
+                if (!departed && now - ending >= 24) {
+                    spectator.packets().clear();
+                    // Keep the listener connected for assertions after the canonical leave callback.
+                    game.leave(owner);
+                    departed = true;
+                    retained("after the winner's leave callback");
+                }
+                if (departed) require(!displayRemoved(), "spectator gets no removal packet during celebration");
+                return false;
+            }
+            if (!game.inLobby()) return false;
+            require(departed && hole.marker.getRemovalReason() == Entity.RemovalReason.DISCARDED
+                    && level.getEntity(hole.marker.getUUID()) == null && game.items().voidArcanum().count() == 0
+                    && !game.items().blackHoleVisuals().displays(other).contains(display) && displayRemoved(),
+                    "automatic lobby teardown discards the original marker and sends the original display removal");
+            return true;
+        }
+
+        private boolean displayRemoved() {
+            return SmokeVolumeChecks.flatten(spectator.packets()).stream().anyMatch(packet ->
+                    packet instanceof ClientboundRemoveEntitiesPacket removed && removed.entityIds().contains(display.getEntityId()));
+        }
+
+        private void retained(String phase) {
+            require(!hole.marker.isRemoved() && level.getEntity(hole.marker.getUUID()) == hole.marker && hole.visual == handle
+                    && game.items().voidArcanum().snapshot().contains(hole)
+                    && game.items().blackHoleVisuals().displays(other).contains(display),
+                    "original registered body, handle and audience display survive " + phase + ", native reason=" + hole.marker.getRemovalReason());
+        }
+
+        private static Field livesField(Object participant) throws ReflectiveOperationException {
+            var field = participant.getClass().getDeclaredField("lives");
+            field.setAccessible(true);
+            return field;
+        }
+
+        void close() throws ReflectiveOperationException {
+            if (closed) return;
+            closed = true;
+            try {
+                if (hole != null && !hole.marker.isRemoved()) game.items().voidArcanum().unloaded(hole.marker);
+                if (target != null && !target.isRemoved()) target.discard();
+                if (originalStone != null && level.getBlockState(stone).is(Blocks.STONE)) game.maps().restoreSnapshot(level, stone, originalStone);
+                if (!finished) {
+                    ownerState.restore(game);
+                    for (var entry : originalLives.entrySet()) livesField(entry.getKey()).setInt(entry.getKey(), entry.getValue());
+                }
+                settings.restore();
+                profile.restore();
+                game.config().save();
+                game.players().saveDeferred();
+            } finally { spectator.close(); }
+        }
+    }
 
     private static Saved stopSaved;private static String stopEpoch;private static LbcVoidArcanum.Hole stopHole;
     private static final Set<Entity> stopBefore=Collections.newSetFromMap(new IdentityHashMap<>());

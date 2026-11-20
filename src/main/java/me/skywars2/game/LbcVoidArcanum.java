@@ -442,7 +442,10 @@ public final class LbcVoidArcanum {
     }
     public void forget(ServerPlayer owner){
         if(rewinding)return;
-        callbackDepth++;try{hands.remove(owner.getUUID());removeOwner(owner.getUUID(),false);
+        callbackDepth++;try{
+            hands.remove(owner.getUUID());
+            // The finished match still owns these inactive bodies until the lobby reset.
+            if(game.stage()!=GameController.Stage.ENDING)removeOwner(owner.getUUID(),false);
         }finally{callbackDepth--;}
     }
     public void stop(){
