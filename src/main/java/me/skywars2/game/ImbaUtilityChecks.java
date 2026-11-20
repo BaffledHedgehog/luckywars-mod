@@ -7,6 +7,7 @@ import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.*;
 import net.minecraft.nbt.*;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.resources.Identifier;
@@ -54,7 +55,10 @@ public final class ImbaUtilityChecks {
         final Vec3 dirterOrigin=new Vec3(1032.5,58,1032.5),padPosition=new Vec3(1032.5,90,1032.5);
         final Map<BlockPos,BlockState> bastionExpected=new LinkedHashMap<>();
         final List<net.minecraft.world.entity.animal.cow.Cow> arrowWitnesses=new ArrayList<>();
-        LbcWtf.Chef arrowChef;long arrowSteps;List<LbcWhiteArrows.View> capturedRays;
+        LbcWtf.Chef arrowChef;LivingEntity arrowChefTarget;
+        long arrowSteps,arrowKills,ownerHitCues,audienceHitCues;
+        boolean chefHitChecked;
+        List<LbcWhiteArrows.View> capturedRays;
         LbcImbaTerrainUtilities.State beforeCeilingDirter;
         int ceilingSequence;
         BlockPos padOrigin,bastionOrigin,dirterPlaced;Vec3 bastionActor;long expectedRandom;int phase,started,when,remaining,activeTicks;boolean closed,stopped,restoring;ServerPlayer doomed;
@@ -121,6 +125,16 @@ public final class ImbaUtilityChecks {
         }
         void disconnectDoom(){if(doomed!=null){doomed.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("IMBA utility fixture cleanup")));doomed=null;}}
         net.minecraft.world.entity.animal.cow.Cow arrowCow(Vec3 at){var cow=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);cow.setPos(at);cow.setNoAi(true);cow.setNoGravity(true);cow.setOnGround(true);cow.setDeltaMovement(Vec3.ZERO);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);cow.setHealth(100);require(level.addFreshEntity(cow),"real grounded White Arrow witness");arrowWitnesses.add(cow);return cow;}
+        private long hitCues(RegenerationBeltChecks.ScheduledClient watcher) {
+            return watcher.packets().stream().filter(packet -> packet instanceof ClientboundGameEventPacket event
+                    && event.getEvent() == ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND).count();
+        }
+        private void requireArrowHitCues(long expected) {
+            long shooter = hitCues(client) - ownerHitCues;
+            long observer = hitCues(audience) - audienceHitCues;
+            require(shooter == expected && observer == 0,
+                    "White Arrow private hit cues shooter=" + shooter + " expected=" + expected + " observer=" + observer);
+        }
         void beginArrow(){
             var from=dirterOrigin.add(0,22,0);for(int z:new int[]{16,32,48})move(from.add(0,0,z));move(from);
             var source=java.util.stream.IntStream.range(0,owner.getInventory().getContainerSize()).mapToObj(owner.getInventory()::getItem).filter(LbcWhiteArrows::matches).findFirst().orElseThrow().copy();
@@ -131,8 +145,23 @@ public final class ImbaUtilityChecks {
             var team=owner.getTeam();if(team==null){team=game.server().getScoreboard().addPlayerTeam("sw2_utility_arrow");game.server().getScoreboard().addPlayerToTeam(owner.getScoreboardName(),team);}game.server().getScoreboard().addPlayerToTeam(ally.getScoreboardName(),team);
             set(BlockPos.containing(from).offset(0,1,2),Blocks.STONE.defaultBlockState());
             field(false,victim.position().add(0,0,19.5));field(true,from.add(6,0,0));require(!game.items().magic().suppressed(owner)&&game.items().magic().suppressedAt(level,victim.position())&&game.items().magic().mechanismSuppressed(owner),"target MAG and caster TECH are actual positive controls");
-            arrowChef=game.items().wtf().spawn(owner,victim);require(arrowChef!=null,"own native Chef witness");arrowChef.setPos(from.add(0,0,1.5));arrowChef.setNoGravity(true);arrowChef.setDeltaMovement(Vec3.ZERO);
-            arrowSteps=game.items().whiteArrows().state().steps();
+            // The live Chef must contact the first ray step. Its own target stays outside the beam.
+            arrowChefTarget = arrowCow(from.add(4,.8,6));
+            var chefAt = from.add(0,1,1);
+            set(BlockPos.containing(chefAt).below(),Blocks.STONE.defaultBlockState());
+            arrowChef = game.items().wtf().spawn(other,arrowChefTarget);
+            require(arrowChef!=null&&!game.items().summons().friendly(owner,arrowChef),
+                    "opposing native Chef has an independent live target");
+            arrowChef.setPos(chefAt);
+            arrowChef.setDeltaMovement(Vec3.ZERO);
+            arrowChef.setOnGround(true);
+            require(arrowChef.getBoundingBox().contains(owner.getEyePosition().add(0,0,1)),
+                    "supported Chef body before the wall intersects the actual eye-height ray");
+            var beforeArrows = game.items().whiteArrows().state();
+            arrowSteps = beforeArrows.steps();
+            arrowKills = beforeArrows.kills();
+            ownerHitCues = hitCues(client);
+            audienceHitCues = hitCues(audience);
             require(owner.gameMode.useItem(owner,level,source,InteractionHand.MAIN_HAND).consumesAction()&&game.items().mana().maximum(owner)==1500&&game.items().mana().get(owner)==-500,"TECH admits source White Arrow and debits independent MAX/current500 including negative current");
             require(ItemStack.matches(source,new ItemStack(LbcWhiteArrowItem.TOKEN)),"source default White Arrow activation leaves token unchanged");
             owner.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcWhiteArrowItem.TOKEN));require(owner.gameMode.useItem(owner,level,owner.getOffhandItem(),InteractionHand.OFF_HAND).consumesAction()&&game.items().mana().maximum(owner)==1000&&game.items().mana().get(owner)==-1000,"actual offhand White Arrow independently pays source costs");
@@ -142,7 +171,9 @@ public final class ImbaUtilityChecks {
             var greed=arrowWitnesses.get(0);var ally=arrowWitnesses.get(1);var role=arrowWitnesses.get(2);var victim=arrowWitnesses.get(3);
             require((!victim.isAlive()||victim.isRemoved())&&victim.getKillCredit()==owner,"precise native White Arrow pierces wall and target MAG with actual owner credit");
             require(greed.isAlive()&&greed.getHealth()==100&&ally.isAlive()&&ally.getHealth()==100&&role.isAlive()&&role.getHealth()==100,"White Arrow preserves Greed, cast-team ally and protected role");
-            require(arrowChef.isRemoved()&&!game.items().wtf().snapshot().contains(arrowChef),"same native White Arrow permanently erases Chef authority");
+            require(chefHitChecked&&arrowChefTarget.isAlive()&&arrowChef.isRemoved()
+                    &&!game.items().wtf().snapshot().contains(arrowChef),"same native White Arrow permanently erases Chef authority");
+            requireArrowHitCues(2);
             for(var cow:arrowWitnesses){game.server().getScoreboard().removePlayerFromTeam(cow.getScoreboardName());game.items().indirectKills().clear(cow);cow.discard();}removeFields();game.items().whiteArrows().stop();move(dirterOrigin);launchTeleport();move(padPosition);pause();remaining=delay().remaining();next(0);
         }
         void prepareDirterFootprint(){var center=BlockPos.containing(dirterOrigin);for(int x=-4;x<=4;x++)for(int z=-4;z<=4;z++)for(int y=0;y<=57;y++)remember(new BlockPos(center.getX()+x,y,center.getZ()+z));dirterPlaced=center.east(2);set(dirterPlaced.below(),Blocks.STONE.defaultBlockState());set(dirterPlaced,Blocks.AIR.defaultBlockState());}
@@ -251,8 +282,23 @@ public final class ImbaUtilityChecks {
                 roll(doomed,1,InteractionHand.OFF_HAND,false);require(!doomed.isAlive()||doomed.isRemoved(),"source1 kills actual non-Greed native participant");
                 disconnectDoom();beginArrow();return false;
             }
-            if(phase==-10){if(game.server().getTickCount()-when<8)return false;require(game.items().whiteArrows().state().steps()==arrowSteps&&game.items().whiteArrows().views().stream().allMatch(v->v.age()==0),"TimeStop pauses accepted White Arrow rays");thaw();next(-9);return false;}
-            if(phase==-9){if(game.items().whiteArrows().state().active()!=0)return false;require(game.items().whiteArrows().state().steps()==arrowSteps+40,"two source rays each advance20 native active ticks");finishArrow();return false;}
+            if(phase==-10){if(game.server().getTickCount()-when<8)return false;require(game.items().whiteArrows().state().steps()==arrowSteps&&game.items().whiteArrows().views().stream().allMatch(v->v.age()==0),"TimeStop pauses accepted White Arrow rays");requireArrowHitCues(0);thaw();next(-9);return false;}
+            if(phase==-9){
+                var whiteArrow = game.items().whiteArrows().state();
+                if(!chefHitChecked&&whiteArrow.steps()>arrowSteps){
+                    require(arrowChef.isRemoved()&&arrowChefTarget.isAlive()&&arrowWitnesses.get(3).isAlive()
+                                    &&whiteArrow.kills()==arrowKills+1,
+                            "first White Arrow step erases Chef before reaching the cow, kills="+(whiteArrow.kills()-arrowKills)
+                                    +" chefBounds="+arrowChef.getBoundingBox());
+                    requireArrowHitCues(1);
+                    chefHitChecked = true;
+                }
+                if(whiteArrow.active()!=0)return false;
+                require(whiteArrow.steps()==arrowSteps+40&&whiteArrow.kills()==arrowKills+2,
+                        "two source rays advance 20 native active ticks and have one accepted hit per real target");
+                finishArrow();
+                return false;
+            }
             if(phase==0){if(game.server().getTickCount()-when<8)return false;require(delay().remaining()==remaining&&game.items().teleportGadgets().imbaPads().isEmpty(),"TimeStop holds exact accepted pad delay");thaw();next(1);return false;}
             if(phase==1){var delays=game.items().teleportGadgets().imbaDelays();int now=delays.isEmpty()?0:delay().remaining();require(now==remaining||now==remaining-1,"delay decrements at most once per active native tick");if(now<remaining)activeTicks++;remaining=now;if(now>0){require(!level.getBlockState(padOrigin).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE)),"no early pad before20 active ticks");return false;}require(activeTicks==20,"exact20 active ticks before pad admission");if(!game.items().teleportGadgets().imbaPads().isEmpty())return false;assertPad();move(dirterOrigin);placeDirter();next(2);return false;}
             if(phase==2){if(game.items().imbaTerrainUtilities().state().jobs()!=0)return false;assertDirter();require(game.items().magic().suppressed(owner)&&game.items().magic().mechanismSuppressed(owner),"accepted Dirter completes under real MAG/TECH");removeFields();beginBastion();return false;}

@@ -240,11 +240,44 @@ public final class ShishEncounterChecks {
         void katana(){
             reset();owner.setItemInHand(InteractionHand.MAIN_HAND,katana.copy());equipmentUpdate(owner);game.items().mana().score(owner,"swordcharging6").set(0);game.items().mana().score(owner,"swordcharged6").set(0);
             var cow=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);cow.setPos(origin.add(0,0,2));cow.setNoAi(true);cow.setNoGravity(true);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);level.addFreshEntity(cow);owned.add(cow);
-            for(int n=0;n<3;n++){set(owner,"attackStrengthTicker",200);cow.setInvulnerableTime(0);cow.damageCooldownTime=0;float before=cow.getHealth();owner.attack(cow);require(cow.getHealth()<before,"actual accepted native katana melee "+n);}
+            game.items().shishEncounter().seedMovement(owner);
+            float standingDamage=0;
+            for(int n=0;n<3;n++){
+                set(owner,"attackStrengthTicker",200);cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
+                float before=cow.getHealth();owner.attack(cow);standingDamage=before-cow.getHealth();
+                require(standingDamage>0,"actual accepted native katana melee "+n);
+            }
             require(score(owner,"swordcharging6")==0&&score(owner,"swordcharged6")==5,"three actual native melee callbacks grant exactly five uses");
+            int beforeTick=game.server().getTickCount();
+            int beforeZ=score(owner,"z"),beforeSleep=score(owner,"sleep_time");
             var motion=new Vec3(.31,-.27,.43);owner.setDeltaMovement(motion);var from=owner.position();int count=owner.getMainHandItem().getCount();require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(owner,level,InteractionHand.MAIN_HAND).consumesAction(),"actual native raw katana use callback");
             require(owner.position().distanceTo(from.add(0,0,5))<1e-6&&owner.getDeltaMovement().equals(motion)&&owner.getMainHandItem().getCount()==count&&score(owner,"swordcharged6")==4,"native use moves forward5, retains full XYZ motion, spends exactly one charge/no item");client.ack();
-            var movement=owner.getMainHandItem().get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers().stream().filter(e->e.attribute().equals(Attributes.MOVEMENT_SPEED)).findFirst().orElseThrow();require(Math.abs(movement.modifier().amount()-.07)<1e-8,"source charge resets movement.05 then native ability adds.02");cow.discard();
+            var movement=owner.getMainHandItem().get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers().stream().filter(e->e.attribute().equals(Attributes.MOVEMENT_SPEED)).findFirst().orElseThrow();require(Math.abs(movement.modifier().amount()-.07)<1e-8,"source charge resets movement.05 then native ability adds.02");
+
+            cow.setPos(owner.position().add(0,0,2));cow.setDeltaMovement(Vec3.ZERO);
+            owner.setOnGround(true);owner.fallDistance=0;
+            set(owner,"attackStrengthTicker",200);cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
+            require(owner.isWithinEntityInteractionRange(cow.getBoundingBox(),0),"phase hit target inside native range");
+            float beforeHit=cow.getHealth();
+            owner.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(cow.getId()));
+            float phaseDamage=beforeHit-cow.getHealth();
+            require(Math.abs(phaseDamage-standingDamage-365)<.001f,
+                    "same-tick native phase hit adds the exact 365 damage for a five-block delta, standing="+standingDamage+" phase="+phaseDamage);
+            require(game.server().getTickCount()==beforeTick&&score(owner,"speed")==0&&score(owner,"z")==beforeZ
+                            &&score(owner,"sleep_time")==beforeSleep,
+                    "native attack measures pending displacement without advancing movement or sleep scores");
+
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));equipmentUpdate(owner);
+            owner.setOnGround(true);owner.fallDistance=0;
+            set(owner,"attackStrengthTicker",200);cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
+            float beforeStick=cow.getHealth();
+            owner.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(cow.getId()));
+            float stickDamage=beforeStick-cow.getHealth();
+            require(stickDamage>0&&stickDamage<4,"a same-tick swap to an ordinary item cannot retain the katana bonus");
+            game.items().shishEncounter().sampleMovement(owner);
+            require(score(owner,"speed")==500&&score(owner,"z")==beforeZ+500,
+                    "next ordinary motion sample processes the exact pending displacement");
+            cow.discard();
         }
         void beginYellow(){reset();owner.setItemInHand(InteractionHand.MAIN_HAND,yellow.copy());equipmentUpdate(owner);require(owner.entityTags().contains("yellow_lightning_active")&&owner.entityTags().contains("yellow_lightning"),"actual equipment callback admits authored hotbar/weapon passive");yellowOrigin=origin;phase=game.server().getTickCount();stage=1;}
         boolean step(){client.ack();other.ack();int elapsed=game.server().getTickCount()-phase;require(game.server().getTickCount()-start<590,"bounded actual native tick timeout");
