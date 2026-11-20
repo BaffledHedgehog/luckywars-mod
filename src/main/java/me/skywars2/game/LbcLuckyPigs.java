@@ -153,6 +153,11 @@ public final class LbcLuckyPigs {
 
     public void loaded(Entity actor) {
         if(actor instanceof LightningBolt bolt&&actor.entityTags().contains(FAKE_BOLT)){if(game.items().currentEpoch(actor))fakeBolts.add(bolt);else actor.discard();return;}
+        // Spawners publish native NBT directly, without the egg item's pre-insertion processor.
+        if (!managed(actor) && actor instanceof Pig pig
+                && actor.entityTags().contains("fakepig") && actor.entityTags().contains("lucky_mob")
+                && game.playing() && game.stage() != GameController.Stage.ENDING
+                && LbcDimensionItems.ordinary(actor.level())) adoptFakeEgg(pig, null);
         if (!managed(actor)) return;
         if (!active(actor)) {
             unloadedCauses.remove(actor.getUUID());

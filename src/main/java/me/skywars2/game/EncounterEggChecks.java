@@ -136,9 +136,36 @@ public final class EncounterEggChecks {
                             && LbcCreatureDrops.managed(vex) && game.items().currentEpoch(vex),
                     "real survival-configured spawner adopts tagless Low Vex and clears vanilla hands");
             vex.discard();
+            fakePigSpawner();
             var plain = spawnFromSpawner(new ItemStack(Items.ZOMBIE_SPAWN_EGG), true);
             require(plain.getType() == EntityTypes.ZOMBIE && !game.items().currentEpoch(plain),
                     "ordinary vanilla spawn from the same survival spawner retains vanilla lifecycle");
+            plain.discard();
+        }
+        void fakePigSpawner() {
+            var raw = game.lbc().rollTable(level, origin, owner,
+                    "lbc:item_defs/minecraft/pig_spawn_egg__091d3d7e2b95").getFirst();
+            for (boolean configureByPlayer : new boolean[]{false, true}) {
+                var actor = spawnFromSpawner(raw, configureByPlayer);
+                require(actor instanceof net.minecraft.world.entity.animal.pig.Pig
+                                && LbcLuckyPigs.managed(actor) && game.items().currentEpoch(actor),
+                        "actual native spawner preserves fake Lucky Pig's lightning reaction");
+                require(actor.entityTags().contains("fakepig") && actor.entityTags().contains("lucky_mob")
+                                && ((LivingEntity)actor).getMaxHealth() == 50
+                                && LbcIndirectKills.playerSource(actor) == null,
+                        "fake pig retains authored payload without assigning the spawner user as owner");
+                var before = current();
+                ((LivingEntity)actor).hurtTime = 2;
+                game.items().luckyPigs().tick();
+                var bolts = fresh(before).stream().filter(LightningBolt.class::isInstance).toList();
+                require(bolts.size() == 1 && bolts.getFirst().position().distanceTo(actor.position()) < 1e-8,
+                        "fake spawner pig emits its actual native lightning bolt on HurtTime=2");
+                bolts.forEach(Entity::discard);
+                actor.discard();
+            }
+            var plain = spawnFromSpawner(new ItemStack(Items.PIG_SPAWN_EGG), true);
+            require(!LbcLuckyPigs.managed(plain) && !game.items().currentEpoch(plain),
+                    "ordinary pig from the same spawner does not gain fake-pig behavior");
             plain.discard();
         }
         Entity spawnFromSpawner(ItemStack egg, boolean configureByPlayer) {
