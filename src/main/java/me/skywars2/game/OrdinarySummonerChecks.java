@@ -153,7 +153,70 @@ public final class OrdinarySummonerChecks {
         reset(f);for(int roll=0;roll<128;roll++)for(var item:f.base.game.lbc().rollTable(f.level,f.at,p,"lbc:transformables_summons"))
             require(LbcSummonerItems.kind(item)!=null||item.is(LbcWands.SUMMONER_VEXES),"ordinary weighted pool has only ready native items");
     }
-    public static void run(GameController g){try(var f=new AllGrimoireChecks.Fixture(g)){inputs(f);combat(f);}SkyWars2.LOGGER.info("[check] PASS ordinary-summoners");}
+    private static VisibilityFixture running;
+    private static final class VisibilityFixture implements AutoCloseable {
+        final AllGrimoireChecks.Fixture f;
+        final Mob mob;
+        final Vec3 home, cold;
+        final UUID uuid;
+        int since, phase;
+        VisibilityFixture(AllGrimoireChecks.Fixture f) {
+            this.f = f;
+            reset(f);
+            var service = f.base.game.items().summons();
+            require(service.castOrdinary(f.base.owner, LbcSummonerItems.kinds().getFirst()), "native visibility formation");
+            mob = service.ordinarySnapshot("skeletons").getFirst();
+            home = mob.position(); uuid = mob.getUUID();
+            cold = new Vec3(2304.5, home.y, 2304.5);
+            require(f.level.getChunkSource().getChunkNow(144,144) == null, "visibility destination begins as a cold native column");
+            mob.setPos(cold);
+            since = f.base.game.server().getTickCount();
+        }
+        boolean step() {
+            var game = f.base.game;
+            int elapsed = game.server().getTickCount() - since;
+            if (elapsed == 0) return false;
+            var service = game.items().summons();
+            if (phase == 0) {
+                var manager = ((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)f.level).skywars2$manager();
+                require(!mob.isRemoved() && manager.isLoaded(uuid) && f.level.getEntity(uuid) == null,
+                        "deferred native tracking callback preserves the same registered summon");
+                require(service.owner(mob) == f.base.owner && service.snapshot().contains(mob)
+                                && mob.position().equals(cold)
+                                && f.level.getChunkSource().getChunkNow(144,144) == null,
+                        "hidden summon retains owner and source without loading its cold column");
+                if (elapsed < 5) return false;
+                mob.setPos(home); phase = 1; since = game.server().getTickCount(); return false;
+            }
+            if (phase == 1) {
+                require(f.level.getEntity(uuid) == mob && service.owner(mob) == f.base.owner && !mob.isRemoved(),
+                        "same native summon resumes after deferred tracking entry");
+                mob.discard(); phase = 2; since = game.server().getTickCount(); return false;
+            }
+            require(!service.snapshot().contains(mob), "real deferred removal still retires the summon");
+            return true;
+        }
+        public void close() { if (!mob.isRemoved()) mob.setPos(home); f.close(); }
+    }
+    public static void run(GameController g) {
+        require(running == null, "exclusive native summon visibility fixture");
+        var f = new AllGrimoireChecks.Fixture(g);
+        try { inputs(f); combat(f); running = new VisibilityFixture(f); }
+        catch (Throwable error) { f.close(); throw error; }
+    }
+    public static void tick(GameController game) {
+        var fixture = running;
+        if (fixture == null) return;
+        try {
+            if (!fixture.step()) return;
+            running = null; fixture.close();
+            SkyWars2.LOGGER.info("[check] PASS ordinary-summoners (seven native formations, combat, registered-hidden pause/resume and real removal)");
+        } catch (Throwable error) {
+            running = null;
+            try { fixture.close(); } catch (Throwable cleanup) { error.addSuppressed(cleanup); }
+            SkyWars2.LOGGER.error("[check] FAIL ordinary-summoners", error);
+        }
+    }
     private static AllGrimoireChecks.Fixture retained;private static List<Mob> actors;
     public static void stopProbe(GameController g){require(retained==null,"exclusive stop probe");var f=new AllGrimoireChecks.Fixture(g,true);try{
         for(var kind:LbcSummonerItems.kinds())require(g.items().summons().castOrdinary(f.base.owner,kind),"retained formation "+kind.kind());actors=g.items().summons().snapshot();require(actors.size()>=42,"all seven source formations retained");f.retain=true;retained=f;

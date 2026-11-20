@@ -183,7 +183,8 @@ public final class LbcSummons {
     }
     /** После призыва состояние хозяина не замораживает самостоятельный нативный AI. */
     private boolean paused(Mob mob) {
-        return game.items().wands().timeStopped() || mob.entityTags().contains("time_stopped")
+        return ((ServerLevel)mob.level()).getEntity(mob.getUUID()) != mob
+                || game.items().wands().timeStopped() || mob.entityTags().contains("time_stopped")
                 || game.items().frost().isFrozen(mob);
     }
     private boolean target(ServerPlayer owner,Entity target) {
@@ -684,6 +685,11 @@ public final class LbcSummons {
         }
     }
     void unloaded(Entity entity) {
+        // The native tracking callback also runs when a live registered body becomes hidden.
+        // Keep its formation and owner until it returns; genuine unload/removal still retires it.
+        if (entity.getRemovalReason() == null && entity.level() instanceof ServerLevel level
+                && level.getEntity(entity.getUUID()) == null
+                && ((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)level).skywars2$manager().isLoaded(entity.getUUID())) return;
         if(entity instanceof Mob mob && mobs.containsKey(mob)) remove(mob);
         if(!game.items().pozdmanBot().keepsDuringCelebration(entity)
                 && consequences.remove(entity)!=null && !entity.isRemoved()) entity.discard();

@@ -1993,6 +1993,7 @@ public final class GameChecks {
         GenieVanityChecks.tick(game);
         GenieApiChecks.tick();
         GuardianBeamChecks.tick(game);
+        OrdinarySummonerChecks.tick(game);
         CastAchievementChecks.tick(game);
         PlayerNameChecks.tick(game);
         SynchroRankedChecks.tick(game);
