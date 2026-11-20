@@ -100,6 +100,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         me.skywars2.game.TikTokAccounts.register();
         me.skywars2.game.genie.GenieService.registerCommands();
         PolymerResourcePackUtils.addModAssets(MOD_ID);
+        // Load the vanilla remote-slot implementation before the first player's inventory opens.
+        ServerLifecycleEvents.SERVER_STARTING.register(server ->
+                new net.minecraft.world.inventory.RemoteSlot.Synchronized(component -> 0));
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             var config = GameConfig.load();
             var players = PlayerStore.load();
