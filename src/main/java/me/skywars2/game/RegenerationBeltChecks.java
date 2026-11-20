@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.GameCheckAccess;
+import me.skywars2.validation.mixin.ItemFixtureAccess;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -24,6 +27,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
@@ -47,28 +55,41 @@ public final class RegenerationBeltChecks {
     static final class ScheduledClient implements AutoCloseable {
         List<net.minecraft.network.protocol.Packet<?>> packets(){return connection.packets;}
         final GameController game;final ServerPlayer player;final net.minecraft.server.network.ServerGamePacketListenerImpl previous,listener;
-        final ScheduledConnection connection=new ScheduledConnection();final java.lang.reflect.Field updates;
+        final ScheduledConnection connection=new ScheduledConnection();
         ScheduledClient(GameController game,ServerPlayer player){this.game=game;this.player=player;previous=player.connection;
             try{
                 listener=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),connection,player,new net.minecraft.server.network.CommonListenerCookie(player.getGameProfile(),0,player.clientInformation(),false));
                 // A fresh memory connection has no protocol channel pipeline; bind only its own native dispatch field.
-                field(connection,"packetListener").set(connection,listener);updates=field(listener,"tickCount");
+                ((NativeFixtureAccess.ConnectionBinding)(Object)connection).validation$packetListener(listener);
                 listener.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
                 listener.teleport(player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot());
                 var teleport=connection.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::cast).reduce((a,b)->b).orElseThrow();
                 listener.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(teleport.id(),player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));
-                require(listener.hasClientLoaded()&&field(listener,"awaitingPositionFromClient").get(listener)==null,"fresh native listener loaded and real teleport acknowledged");
+                require(listener.hasClientLoaded()&&timing().validation$awaitingPosition()==null,"fresh native listener loaded and real teleport acknowledged");
                 game.server().getConnection().getConnections().add(connection);
-            }catch(ReflectiveOperationException|RuntimeException|Error error){game.server().getConnection().getConnections().remove(connection);player.connection=previous;throw new IllegalStateException("scoped native connection scheduler",error);}
+            }catch(RuntimeException|Error error){game.server().getConnection().getConnections().remove(connection);player.connection=previous;throw new IllegalStateException("scoped native connection scheduler",error);}
         }
+        private GameCheckAccess.TeleportAck timing(){return (GameCheckAccess.TeleportAck)(Object)listener;}
         String diagnostics(){
             var state=new LinkedHashMap<String,Object>();state.put("player",player.getScoreboardName());state.put("level",player.level().dimension().identifier());state.put("position",player.position());state.put("loaded",listener.hasClientLoaded());state.put("changingDimension",player.isChangingDimension());state.put("samePlayerListener",listener==player.connection);state.put("currentPlayerListener",player.connection==null?"null":player.connection.getClass().getName()+"@"+Integer.toHexString(System.identityHashCode(player.connection)));state.put("scopedListener",listener.getClass().getName()+"@"+Integer.toHexString(System.identityHashCode(listener)));state.put("latestTeleport",String.valueOf(connection.latestPosition));
-            for(var name:List.of("awaitingPositionFromClient","awaitingTeleport","awaitingTeleportTime","tickCount"))try{state.put(name,field(listener,name).get(listener));}catch(ReflectiveOperationException error){state.put(name,"unavailable:"+error.getClass().getSimpleName());}
+            var timing=timing();
+            state.put("awaitingPositionFromClient",timing.validation$awaitingPosition());
+            state.put("awaitingTeleport",timing.validation$teleportId());
+            state.put("awaitingTeleportTime",timing.validation$awaitingTeleportTime());
+            state.put("tickCount",timing.validation$listenerTicks());
             return state.toString();
         }
-        void acknowledge(){listener.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());try{if(field(listener,"awaitingPositionFromClient").get(listener)!=null){var teleport=Objects.requireNonNull(connection.latestPosition,"actual emitted teleport packet survives measurement windows: "+diagnostics());listener.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(teleport.id(),player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));}}catch(ReflectiveOperationException error){throw new IllegalStateException("native teleport ACK fields: "+diagnostics(),error);}require(ready(),"native player loaded and latest actual teleport acknowledged: "+diagnostics());}
-        boolean ready(){try{return listener.hasClientLoaded()&&!player.isChangingDimension()&&field(listener,"awaitingPositionFromClient").get(listener)==null;}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
-        int updates(){try{return updates.getInt(listener);}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
+        void acknowledge(){
+            listener.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
+            if(timing().validation$awaitingPosition()!=null){
+                var teleport=Objects.requireNonNull(connection.latestPosition,"actual emitted teleport packet survives measurement windows: "+diagnostics());
+                listener.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(
+                        teleport.id(),player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));
+            }
+            require(ready(),"native player loaded and latest actual teleport acknowledged: "+diagnostics());
+        }
+        boolean ready(){return listener.hasClientLoaded()&&!player.isChangingDimension()&&timing().validation$awaitingPosition()==null;}
+        int updates(){return timing().validation$listenerTicks();}
         @Override public void close(){try{game.server().getConnection().getConnections().remove(connection);}finally{player.connection=previous;}}
     }
     static final class Snapshot {
@@ -95,11 +116,6 @@ public final class RegenerationBeltChecks {
         void restoreProfile(GameController game){try{for(var e:profile.entrySet()){var value=e.getValue();e.getKey().set(game.players().get(player.getUUID()),value instanceof int[] array?array.clone():value instanceof Set<?> set?new HashSet<>(set):value);}}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
         void restore(GameController game){for(var objective:game.server().getScoreboard().getObjectives())if(scores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(player,objective,true).set(scores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(player,objective);stats.forEach((s,v)->player.getStats().setValue(player,s,v));
             advancements.forEach((a,done)->{for(var key:a.value().criteria().keySet())if(done.contains(key))player.getAdvancements().award(a,key);else player.getAdvancements().revoke(a,key);});state.restore(game);player.setOnGround(ground);player.setSprinting(sprint);player.setShiftKeyDown(shift);player.setSwimming(swimming);player.setKnownMovement(knownMovement);player.setPose(pose);try{for(var entry:tickers.entrySet())entry.getKey().set(player,entry.getValue());}catch(IllegalAccessException error){throw new IllegalStateException(error);}player.getFoodData().readAdditionalSaveData(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,player.registryAccess(),food));try{for(var entry:foodFields.entrySet())entry.getKey().set(player.getFoodData(),entry.getValue());}catch(IllegalAccessException e){throw new IllegalStateException(e);}restoreProfile(game);}
-    }
-    private static final class Entry implements AutoCloseable {
-        final Map<Object,Object> map;final Object key,previous;final boolean existed;
-        @SuppressWarnings("unchecked") Entry(Object service,String name,Object key){this.key=key;try{map=(Map<Object,Object>)field(service,name).get(service);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}existed=map.containsKey(key);previous=map.remove(key);}
-        @Override public void close(){map.remove(key);if(existed)map.put(key,previous);}
     }
     private static final class Fixture implements AutoCloseable {
         final Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -130,12 +146,72 @@ public final class RegenerationBeltChecks {
             board.getOrCreatePlayerScore(owner,y,true).set(0);
             owner.getInventory().setItem(9,loot(1));other.getInventory().setItem(9,loot(1));begin(-1);
         }
-        @SuppressWarnings("unchecked") <T>T weightedAccessory(java.util.function.Supplier<T> action){
-            var key=net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:transformables_accessory"));var table=game.server().reloadableRegistries().getLootTable(key);
-            try{var pools=(List<net.minecraft.world.level.storage.loot.LootPool>)field(table,"pools").get(table);require(pools.size()==1&&pools.getFirst().entries.size()>1,"actual original sword pool");var sequence=(Optional<Identifier>)field(table,"randomSequence").get(table);require(sequence.isEmpty(),"original sword pool uses normal native level RNG");var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(level).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,at).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,owner).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.COMMAND);var context=new net.minecraft.world.level.storage.loot.LootContext.Builder(params).create(sequence);var pool=pools.getFirst();require(context.getLuck()==0&&(pool.condition.isEmpty()||pool.condition.get().value().test(context)),"actual normal reforge context/pool admission");int total=0,offset=-1,selected=0;var weights=new ArrayList<Integer>();for(int i=0;i<pool.entries.size();i++){var expanded=new ArrayList<net.minecraft.world.level.storage.loot.entries.LootPoolEntry>();pool.entries.get(i).expand(context,expanded::add);int sum=0;for(var entry:expanded){int weight=entry.getWeight(context.getLuck());if(weight<=0)continue;if(i==2){if(offset<0)offset=total;selected++;}total=Math.addExact(total,weight);sum=Math.addExact(sum,weight);}weights.add(sum);}require(selected==1&&offset>=0&&weights.get(2)==10,"original Belt entry2 native effective weight10");int bound=total,pick=offset;var random=field(level,"random");var original=random.get(level);int[] calls={0};random.set(level,java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{if(method.getName().equals("nextInt")&&args!=null&&args.length==1&&args[0].equals(bound)){calls[0]++;return pick;}try{return method.invoke(original,args);}catch(java.lang.reflect.InvocationTargetException error){throw error.getCause();}}));try{T result=action.get();require(calls[0]==1,"one actual normal pool selection, no retries");SkyWars2.LOGGER.info("[check] Belt native original pool entry2 weights={} total={} selectedOffset={}",weights,bound,pick);return result;}finally{random.set(level,original);}}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
+        List<ItemStack> rollWeightedBelt(){
+            String tableId="lbc:transformables_accessory";
+            var key=net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse(tableId));
+            var table=(ItemFixtureAccess.Loot)(Object)game.server().reloadableRegistries().getLootTable(key);
+            var pools=table.validation$pools();
+            require(pools.size()==1&&pools.getFirst().entries.size()>2,"actual original weighted accessory pool");
+            var sequence=table.validation$sequence();
+            require(sequence.isEmpty(),"original accessory pool uses native level RNG");
+            var params=new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN,at)
+                    .withOptionalParameter(LootContextParams.THIS_ENTITY,owner).create(LootContextParamSets.COMMAND);
+            var context=new LootContext.Builder(params).create(sequence);
+            var pool=pools.getFirst();
+            require(context.getLuck()==0&&(pool.condition.isEmpty()||pool.condition.get().value().test(context)),
+                    "native weighted table admits the source fixture with luck0");
+
+            int total=0,offset=-1,selected=0;
+            var weights=new ArrayList<Integer>();
+            for(int index=0;index<pool.entries.size();index++){
+                var expanded=new ArrayList<LootPoolEntry>();
+                pool.entries.get(index).expand(context,expanded::add);
+                int sum=0;
+                for(var entry:expanded){
+                    int weight=entry.getWeight(context.getLuck());
+                    if(weight<=0)continue;
+                    if(index==2){if(offset<0)offset=total;selected++;}
+                    total=Math.addExact(total,weight);
+                    sum=Math.addExact(sum,weight);
+                }
+                weights.add(sum);
+            }
+            require(selected==1&&offset>=0&&weights.get(2)==10,"original Belt entry2 native effective weight10");
+            int bound=total,pick=offset;
+            int[] calls={0};
+            var original=level.getRandom();
+            ItemFixtureChecks.random(level,new ItemFixtureChecks.DelegatingRandom(original){
+                @Override public int nextInt(int actualBound){
+                    if(actualBound!=bound)return super.nextInt(actualBound);
+                    calls[0]++;
+                    return pick;
+                }
+            });
+            try{
+                var result=game.lbc().rollTable(level,at,owner,tableId);
+                require(calls[0]==1,"one original weighted table draw without retries");
+                SkyWars2.LOGGER.info("[check] Belt native weighted source entry2 weights={} total={} selectedOffset={}",weights,bound,pick);
+                return result;
+            }finally{ItemFixtureChecks.random(level,original);}
         }
+
         void reforge(){
-            require(owner.getLuck()==0,"normal reforge source luck0");var donorStack=new ItemStack(Items.STICK);var data=new net.minecraft.nbt.CompoundTag();data.putInt("transformable",1);data.putInt("accessory",1);donorStack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));var donor=new net.minecraft.world.entity.item.ItemEntity(level,at.x,at.y,at.z,donorStack);donor.setNoGravity(true);actors.add(donor);require(level.addFreshEntity(donor),"actual normal accessory reforge input");var outputs=new ArrayList<ItemStack>();weightedAccessory(()->{try{var factory=LbcBolts.class.getDeclaredMethod("reforgeInput",net.minecraft.world.entity.item.ItemEntity.class,LbcBolts.ReforgeFamily.class,int.class,ServerPlayer.class,java.util.function.Consumer.class);factory.setAccessible(true);var work=(LbcStonekivi.Work)factory.invoke(game.items().bolts(),donor,LbcBolts.ReforgeFamily.NORMAL,1,owner,(java.util.function.Consumer<ItemStack>)outputs::add);require(work!=null&&work.step(),"actual existing NORMAL reforge Work boundary");return true;}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}});require(donor.isRemoved()&&donorStack.isEmpty()&&outputs.size()==1&&ItemStack.matches(outputs.getFirst(),token),"existing normal reforge delivers original Belt identity/presentation and consumes1");
+            require(owner.getLuck()==0,"normal reforge source luck0");
+            var source=rollWeightedBelt();
+            require(source.size()==1&&ItemStack.matches(source.getFirst(),token),
+                    "old weighted table delivers the exact Belt leaf");
+            var donorStack=new ItemStack(Items.STICK);
+            var data=new net.minecraft.nbt.CompoundTag();
+            data.putInt("transformable",1);
+            data.putInt("accessory",1);
+            donorStack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+            var donor=new net.minecraft.world.entity.item.ItemEntity(level,at.x,at.y,at.z,donorStack);
+            donor.setNoGravity(true);
+            actors.add(donor);
+            require(level.addFreshEntity(donor),"actual normal accessory reforge input");
+            var outputs=OrdinaryAccessoryChecks.reforgeUniform(game,owner,donor,"custom/a6759f1a47c9b8eb3f01");
+            require(donor.isRemoved()&&donorStack.isEmpty()&&outputs.size()==1&&ItemStack.matches(outputs.getFirst(),token),
+                    "actual uniform normal reforge consumes one donor and delivers the unchanged Belt");
         }
         void scopes(){
             // Paper starts with the actual selected mainhand, not fixed hotbar slot0.

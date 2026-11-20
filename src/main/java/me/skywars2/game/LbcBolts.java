@@ -540,7 +540,7 @@ public final class LbcBolts {
         }finally{callbackDepth--;}
     }
     /** Exact donor, explicit unit budget and delivery context; never captures nearby inputs. */
-    private ReforgeInput reforgeInput(ItemEntity item,ReforgeFamily family,int units,ServerPlayer recipient,
+    ReforgeInput reforgeInput(ItemEntity item,ReforgeFamily family,int units,ServerPlayer recipient,
                                       java.util.function.Consumer<ItemStack> delivery) {
         if(units<=0 || reforgeTables(item.getItem(),family).isEmpty()) return null;
         return new ReforgeInput(item,family,units,recipient,delivery);

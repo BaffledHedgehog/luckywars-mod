@@ -1,7 +1,5 @@
 package me.skywars2.game;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,18 +8,18 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.GameCheckAccess;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.Ticket;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.vehicle.minecart.MinecartChest;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
@@ -112,8 +110,8 @@ final class AirdropSimulationChecks {
             audience=new RegenerationBeltChecks.ScheduledClient(game,other);
         }
 
-        @SuppressWarnings("unchecked") Map<Chicken,?> pending(){
-            return (Map<Chicken,?>)WoolBucketChecks.read(game.events(),"pendingAirdrops");
+        Map<Chicken,ServerLevel> pending(){
+            return ((GameCheckAccess.Airdrops)(Object)game.events()).validation$pending();
         }
 
         void begin() {
@@ -126,7 +124,7 @@ final class AirdropSimulationChecks {
         }
 
         List<Ticket> tickets(Identifier type) {
-            var storage=(TicketStorage)WoolBucketChecks.read(arena.getChunkSource(),"ticketStorage");
+            var storage=((NativeFixtureAccess.Chunks)(Object)arena.getChunkSource()).skywars2$validationTicketStorage();
             return storage.getTickets(column.pack()).stream()
                     .filter(ticket->type.equals(BuiltInRegistries.TICKET_TYPE.getKey(ticket.getType()))).toList();
         }
@@ -145,18 +143,18 @@ final class AirdropSimulationChecks {
             require(support.equals(game.events().airdropSurface(x,z)),"actual heightmap selects the controlled support");
         }
 
-        void stageAirdrops() throws ReflectiveOperationException {
+        void stageAirdrops() {
             require(pending().isEmpty(),"no unrelated pending airdrops before stage event");
-            var random=Level.class.getDeclaredField("random");random.setAccessible(true);
-            var original=arena.getRandom();int[] draws={0};
+            var original=arena.getRandom();
+            class GeometryRandom extends ItemFixtureChecks.DelegatingRandom {
+                int draws;
+                GeometryRandom() { super(original); }
+                @Override public double nextDouble() { return draws++%2==0 ? angle : radius; }
+            }
             // Fix only the two geometry draws. All native loot and entity randomness remains normal.
-            var controlled=Proxy.newProxyInstance(RandomSource.class.getClassLoader(),new Class<?>[]{RandomSource.class},(proxy,method,args)->{
-                if(method.getName().equals("nextDouble")&&method.getParameterCount()==0)return draws[0]++%2==0?angle:radius;
-                try { return method.invoke(original,args); }
-                catch(InvocationTargetException error) { throw error.getCause(); }
-            });
-            try { random.set(arena,controlled);game.events().stageTwo(8); }
-            finally { random.set(arena,original); }
+            var controlled=new GeometryRandom();
+            try { ItemFixtureChecks.random(arena,controlled);game.events().stageTwo(8); }
+            finally { ItemFixtureChecks.random(arena,original); }
             var flights=new ArrayList<Flight>();
             for(var chicken:pending().keySet()){
                 require(chicken.chunkPosition().equals(column)&&chicken.getPassengers().size()==1
@@ -164,7 +162,7 @@ final class AirdropSimulationChecks {
                 flights.add(new Flight(chicken,(MinecartChest)chicken.getPassengers().getFirst()));
             }
             wave=List.copyOf(flights);owned.addAll(wave);
-            require(wave.size()==10&&draws[0]==20,"ten native graphs use their real supported-position callback");
+            require(wave.size()==10&&controlled.draws==20,"ten native graphs use their real supported-position callback");
             when=game.server().getTickCount();
         }
 
@@ -192,7 +190,7 @@ final class AirdropSimulationChecks {
             return true;
         }
 
-        boolean step() throws ReflectiveOperationException {
+        boolean step() {
             client.acknowledge();audience.acknowledge();int now=game.server().getTickCount();
             require(now-start<1050,"bounded real fixture phase="+phase+" stage="+game.stage());
             if(phase<8)require(owner.level()==end&&other.level()==end,"no player approaches the arena flight");

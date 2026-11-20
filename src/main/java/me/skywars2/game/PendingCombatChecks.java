@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.FixtureAccess;
+import me.skywars2.validation.mixin.ItemFixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -51,10 +53,23 @@ public final class PendingCombatChecks {
         final GameController game;final ElementalGrimoireChecks.Fixture base;final LbcPendingCombat service;
         final List<Cow> actors=new ArrayList<>();final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
         Cow cursed;int started;boolean sawNine;LbcIndirectKills.TerrainProvenance terrainBefore;
-        static Object field(Object target,String name){try{var field=target.getClass().getDeclaredField(name);field.setAccessible(true);return field.get(target);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
-        @SuppressWarnings("unchecked") Map<Object,Object> provenance(String name){
-            var result=new HashMap<Object,Object>();((Map<Object,Object>)field(game.items().indirectKills(),name)).forEach((key,value)->result.put(key,value instanceof Map<?,?> nested?new HashMap<>(nested):value));return result;
+        private record Provenance(Map<ServerLevel,Map<BlockPos,?>> stone, Map<ServerLevel,Map<BlockPos,?>> hazards,
+                                  Map<LivingEntity,?> support, Map<LivingEntity,?> falls) { }
+
+        private static Map<ServerLevel,Map<BlockPos,?>> copyTerrain(Map<ServerLevel,? extends Map<BlockPos,?>> source) {
+            var copy=new HashMap<ServerLevel,Map<BlockPos,?>>();
+            source.forEach((level,cells)->copy.put(level,new HashMap<>(cells)));
+            return copy;
         }
+
+        Provenance provenance() {
+            Object ledger=game.items().indirectKills();
+            var terrain=(ItemFixtureAccess.TerrainLedger)ledger;
+            var actors=(FixtureAccess.Attribution)ledger;
+            return new Provenance(copyTerrain(terrain.validation$stone()),copyTerrain(terrain.validation$hazards()),
+                    new HashMap<>(actors.validation$removedSupports()),new HashMap<>(actors.validation$falls()));
+        }
+
         Trial(GameController game){this.game=game;base=new ElementalGrimoireChecks.Fixture(game);service=game.items().pendingCombat();
             require(service.snapshot().isEmpty(),"exclusive empty Chaos service");base.initialize();base.owner.removeAllEffects();
             base.owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);base.owner.setHealth(100);
@@ -87,14 +102,14 @@ public final class PendingCombatChecks {
             var standing=cow(Vec3.atCenterOf(first.offset(0,0,24)).add(0,.5,0));standing.setOnGround(true);
             indirect.displaced(standing,other);
             indirect.supportRemoved(level,indirect.coldCause(other,false),first.offset(0,0,24));
-            Map<Object,Object> stoneBefore=provenance("stone"),hazardsBefore=provenance("hazards"),supportBefore=provenance("removedSupports"),fallsBefore=provenance("falls");
-            require(supportBefore.containsKey(standing),"real native support shape seeds previous independent support cause");
+            var before=provenance();
+            require(before.support().containsKey(standing),"real native support shape seeds previous independent support cause");
             var tickSource=first.offset(0,0,20);level.scheduleTick(tickSource,Blocks.STONE,600);
             int[] writes={0};require(!service.shift(base.owner,first,new Vec3(0,0,1),(pos,snapshot)->{
                 if(++writes[0]==4)throw new IllegalStateException("fixture rejected fourth native write");game.maps().restoreSnapshot(level,pos,snapshot);
             }),"native transaction rejects injected late write failure");require(writes[0]==4,"failure occurs after three actual changed cells");
             int index=0;for(var pos:terrain.keySet())require(game.maps().snapshot(level,pos).equals(snapshots.get(index++)),"entire chain rolled back after actual partial writes");
-            require(provenance("stone").equals(stoneBefore)&&provenance("hazards").equals(hazardsBefore)&&provenance("removedSupports").equals(supportBefore)&&provenance("falls").equals(fallsBefore),"late failure restores prior stone/hazard/support authors after trap finalization");
+            require(provenance().equals(before),"late failure restores prior stone/hazard/support authors after trap finalization");
             require(level.getBlockTicks().hasScheduledTick(tickSource,Blocks.STONE)&&!level.getBlockTicks().hasScheduledTick(tickSource.offset(0,0,1),Blocks.STONE),"failed transaction adds no copied native block tick");
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,leaf("piston_sword"));base.owner.setYRot(0);base.owner.setXRot(0);
             var border=level.getWorldBorder();double centerX=border.getCenterX(),centerZ=border.getCenterZ(),size=border.getSize();

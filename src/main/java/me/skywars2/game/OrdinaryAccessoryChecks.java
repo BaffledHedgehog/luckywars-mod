@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.CombatCheckpointAccess;
+import me.skywars2.validation.mixin.GameCheckAccess;
+import me.skywars2.validation.mixin.ItemFixtureAccess;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
+import net.minecraft.util.RandomSource;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -21,6 +26,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -31,7 +37,33 @@ public final class OrdinaryAccessoryChecks {
     private OrdinaryAccessoryChecks(){}
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Ordinary accessories: "+why);}
     private static void near(double actual,double expected,String why){require(Math.abs(actual-expected)<1e-4,why+" actual="+actual+" expected="+expected);}
-    private static java.lang.reflect.Field field(Object actor,String name)throws NoSuchFieldException{for(Class<?> type=actor.getClass();type!=null;type=type.getSuperclass())try{var f=type.getDeclaredField(name);f.setAccessible(true);return f;}catch(NoSuchFieldException ignored){}throw new NoSuchFieldException(name);}
+
+    static List<ItemStack> reforgeUniform(GameController game,ServerPlayer owner,ItemEntity donor,String logicalId) {
+        var slots=game.items().allItemPools().slots(LbcAllItemPools.Domain.CUSTOM,List.of("accessory"));
+        int slot=slots.indexOf(logicalId);
+        require(slot>=0,"authored logical accessory slot exists: "+logicalId);
+        var output=new ArrayList<ItemStack>();
+        var work=game.items().bolts().reforgeInput(donor,LbcBolts.ReforgeFamily.NORMAL,1,owner,output::add);
+        require(work!=null,"actual NORMAL reforge Work admits the donor");
+        var level=owner.level();
+        var original=level.getRandom();
+        var drawBounds=new ArrayList<Integer>();
+        ItemFixtureChecks.random(level,new ItemFixtureChecks.DelegatingRandom(original){
+            @Override public int nextInt(int bound) {
+                drawBounds.add(bound);
+                return drawBounds.size()==1&&bound==slots.size()?slot:super.nextInt(bound);
+            }
+        });
+        try {
+            require(work.step(),"actual NORMAL reforge Work completes");
+            require(drawBounds.equals(List.of(slots.size(),1)),
+                    "one actual uniform logical draw and one authored profile draw: "+drawBounds+" for "+logicalId);
+        } finally {
+            ItemFixtureChecks.random(level,original);
+        }
+        return output;
+    }
+
     private static MobEffectInstance effect(LivingEntity actor,Holder<MobEffect> kind,int duration,int amp,boolean visible){var value=actor.getEffect(kind);require(value!=null&&value.getDuration()==duration&&value.getAmplifier()==amp&&value.isVisible()==visible&&value.showIcon()==visible&&!value.isAmbient(),"exact native effect "+kind+" expected="+duration+"/"+amp+" visible="+visible+" actual="+value);return value;}
     private static MobEffectInstance hidden(MobEffectInstance effect){return effect==null?null:((EffectLayers.Access)effect).skywars2$layerHidden();}
     private static void layer(MobEffectInstance value,int amp,int ticks){require(value!=null&&value.getAmplifier()==amp&&value.getDuration()==ticks,"native layer expected="+amp+"/"+ticks+" actual="+value);}
@@ -48,51 +80,62 @@ public final class OrdinaryAccessoryChecks {
     }
     private static final class ScheduledClient implements AutoCloseable {
         final GameController game;final ServerPlayer player;final net.minecraft.server.network.ServerGamePacketListenerImpl previous,listener;
-        final ScheduledConnection connection=new ScheduledConnection();final java.lang.reflect.Field updates;
+        final ScheduledConnection connection=new ScheduledConnection();
         ScheduledClient(GameController game,ServerPlayer player){this.game=game;this.player=player;previous=player.connection;
             try{
                 listener=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),connection,player,new net.minecraft.server.network.CommonListenerCookie(player.getGameProfile(),0,player.clientInformation(),false));
                 // A fresh memory connection has no protocol channel pipeline; bind only its own native dispatch field.
-                field(connection,"packetListener").set(connection,listener);updates=field(listener,"tickCount");
+                ((NativeFixtureAccess.ConnectionBinding)(Object)connection).validation$packetListener(listener);
                 listener.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
                 listener.teleport(player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot());
                 var teleport=connection.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::cast).reduce((a,b)->b).orElseThrow();
                 listener.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(teleport.id(),player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));
-                require(listener.hasClientLoaded()&&field(listener,"awaitingPositionFromClient").get(listener)==null,"fresh native listener loaded and real teleport acknowledged");
+                require(listener.hasClientLoaded()&&((GameCheckAccess.TeleportAck)(Object)listener).validation$awaitingPosition()==null,"fresh native listener loaded and real teleport acknowledged");
                 game.server().getConnection().getConnections().add(connection);
-            }catch(ReflectiveOperationException|RuntimeException|Error error){game.server().getConnection().getConnections().remove(connection);player.connection=previous;throw new IllegalStateException("scoped native connection scheduler",error);}
+            }catch(RuntimeException|Error error){game.server().getConnection().getConnections().remove(connection);player.connection=previous;throw new IllegalStateException("scoped native connection scheduler",error);}
         }
-        int updates(){try{return updates.getInt(listener);}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
+        int updates(){return ((GameCheckAccess.TeleportAck)(Object)listener).validation$listenerTicks();}
         @Override public void close(){try{game.server().getConnection().getConnections().remove(connection);}finally{player.connection=previous;}}
     }
     private static final class Snapshot {
-        final ServerPlayer player;final GameChecks.WandThirdPlayerState state;final net.minecraft.nbt.CompoundTag food;
-        final boolean ground,sprint,shift,swimming;final Vec3 knownMovement;final net.minecraft.world.entity.Pose pose;final Map<java.lang.reflect.Field,Object> tickers=new LinkedHashMap<>();
-        final net.minecraft.world.entity.ai.attributes.AttributeMap attributes=new net.minecraft.world.entity.ai.attributes.AttributeMap(net.minecraft.world.entity.ai.attributes.DefaultAttributes.getSupplier(EntityTypes.PLAYER));final Map<EquipmentSlot,ItemStack> equipment=new EnumMap<>(EquipmentSlot.class);
+        final ServerPlayer player;final GameChecks.WandThirdPlayerState state;final ItemFixtureChecks.Nutrition food;
+        final boolean ground,sprint,shift,swimming;final Vec3 knownMovement;final net.minecraft.world.entity.Pose pose;final ItemFixtureChecks.PlayerTicks tickers;
+        final net.minecraft.world.entity.ai.attributes.AttributeMap attributes=new net.minecraft.world.entity.ai.attributes.AttributeMap(net.minecraft.world.entity.ai.attributes.DefaultAttributes.getSupplier(EntityTypes.PLAYER));final Map<EquipmentSlot,ItemStack> equipment;
         final Map<net.minecraft.stats.Stat<?>,Integer> stats=new LinkedHashMap<>();final Map<net.minecraft.world.scores.Objective,Integer> scores=new LinkedHashMap<>();
-        final Map<java.lang.reflect.Field,Object> combatTracker=new LinkedHashMap<>();
+        final ItemFixtureChecks.Combat combatTracker;
         final Map<net.minecraft.advancements.AdvancementHolder,Set<String>> advancements=new LinkedHashMap<>();
-        final Map<java.lang.reflect.Field,Object> profile=new LinkedHashMap<>();
-        Snapshot(GameController game,ServerPlayer player){this.player=player;for(var holder:net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.listElements().toList()){var attr=player.getAttribute(holder);if(attr!=null)attributes.getInstance(holder).replaceFrom(attr);}try{var map=(Map<?,?>)field(player,"lastEquipmentItems").get(player);for(var entry:map.entrySet())equipment.put((EquipmentSlot)entry.getKey(),((ItemStack)entry.getValue()).copy());}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}for(var objective:game.server().getScoreboard().getObjectives()){var score=game.server().getScoreboard().getPlayerScoreInfo(player,objective);if(score!=null)scores.put(objective,score.value());}state=new GameChecks.WandThirdPlayerState(player,game.items().mana());ground=player.onGround();sprint=player.isSprinting();shift=player.isShiftKeyDown();swimming=player.isSwimming();knownMovement=player.getKnownMovement();pose=player.getPose();
-            try{for(var name:List.of("attackStrengthTicker","itemSwapTicker","xxa","yya","zza","jumping","yHeadRot","yHeadRotO","hurtTime","hurtDuration","lastHurt","lastDamageStamp")){var f=field(player,name);tickers.put(f,f.get(player));}}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
-            try{for(var f:player.getCombatTracker().getClass().getDeclaredFields())if(!java.lang.reflect.Modifier.isStatic(f.getModifiers())){f.setAccessible(true);var v=f.get(player.getCombatTracker());if(v instanceof List<?> list)combatTracker.put(f,new ArrayList<>(list));else if(!java.lang.reflect.Modifier.isFinal(f.getModifiers()))combatTracker.put(f,v);}}catch(IllegalAccessException error){throw new IllegalStateException(error);}
-            var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,player.registryAccess());player.getFoodData().addAdditionalSaveData(output);food=output.buildResult();
+        final MatchValueSnapshot profile;
+        Snapshot(GameController game,ServerPlayer player){this.player=player;for(var holder:net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.listElements().toList()){var attr=player.getAttribute(holder);if(attr!=null)attributes.getInstance(holder).replaceFrom(attr);}equipment=ItemFixtureChecks.captureEquipment(player);for(var objective:game.server().getScoreboard().getObjectives()){var score=game.server().getScoreboard().getPlayerScoreInfo(player,objective);if(score!=null)scores.put(objective,score.value());}state=new GameChecks.WandThirdPlayerState(player,game.items().mana());ground=player.onGround();sprint=player.isSprinting();shift=player.isShiftKeyDown();swimming=player.isSwimming();knownMovement=player.getKnownMovement();pose=player.getPose();
+            tickers=ItemFixtureChecks.PlayerTicks.capture(player);
+            combatTracker=ItemFixtureChecks.Combat.capture(player);
+            food=ItemFixtureChecks.Nutrition.capture(player.getFoodData());
             for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var stat=Stats.CUSTOM.get(id);stats.put(stat,player.getStats().getValue(stat));}
             for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN))for(var item:List.of(Items.WOODEN_SWORD,Items.BOW,Items.CARROT_ON_A_STICK,Items.LEATHER_HELMET,Items.LEATHER_CHESTPLATE,Items.LEATHER_LEGGINGS,Items.LEATHER_BOOTS)){var stat=type.get(item);stats.put(stat,player.getStats().getValue(stat));}
             var killed=Stats.ENTITY_KILLED.get(EntityTypes.COW);stats.put(killed,player.getStats().getValue(killed));
             for(var a:game.server().getAdvancements().getAllAdvancements()){var done=new HashSet<String>();player.getAdvancements().getOrStartProgress(a).getCompletedCriteria().forEach(done::add);advancements.put(a,done);}
-            try{var p=game.players().get(player.getUUID());for(var f:p.getClass().getFields())if(!java.lang.reflect.Modifier.isStatic(f.getModifiers())){var v=f.get(p);profile.put(f,v instanceof int[] a?a.clone():v instanceof Set<?> set?new HashSet<>(set):v);}}
-            catch(IllegalAccessException error){throw new IllegalStateException(error);}
+            profile=new MatchValueSnapshot(game.players().get(player.getUUID()));
         }
-        @SuppressWarnings({"unchecked","rawtypes"}) void restoreAttributes(){try{for(var entry:combatTracker.entrySet())if(entry.getValue() instanceof List values){var target=(List)entry.getKey().get(player.getCombatTracker());target.clear();target.addAll(values);}else entry.getKey().set(player.getCombatTracker(),entry.getValue());}catch(IllegalAccessException error){throw new IllegalStateException(error);}player.getAttributes().assignAllValues(attributes);try{var map=(Map<EquipmentSlot,ItemStack>)field(player,"lastEquipmentItems").get(player);map.clear();equipment.forEach((slot,stack)->map.put(slot,stack.copy()));}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
-        void restoreProfile(GameController game){try{for(var e:profile.entrySet()){var value=e.getValue();e.getKey().set(game.players().get(player.getUUID()),value instanceof int[] array?array.clone():value instanceof Set<?> set?new HashSet<>(set):value);}}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
+        void restoreAttributes(){
+            combatTracker.restore(player);
+            player.getAttributes().assignAllValues(attributes);
+            ItemFixtureChecks.restoreEquipment(player,equipment);
+        }
+        void restoreProfile(){profile.restore();}
         void restore(GameController game){for(var objective:game.server().getScoreboard().getObjectives())if(scores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(player,objective,true).set(scores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(player,objective);stats.forEach((s,v)->player.getStats().setValue(player,s,v));
-            advancements.forEach((a,done)->{for(var key:a.value().criteria().keySet())if(done.contains(key))player.getAdvancements().award(a,key);else player.getAdvancements().revoke(a,key);});state.restore(game);player.setOnGround(ground);player.setSprinting(sprint);player.setShiftKeyDown(shift);player.setSwimming(swimming);player.setKnownMovement(knownMovement);player.setPose(pose);try{for(var entry:tickers.entrySet())entry.getKey().set(player,entry.getValue());}catch(IllegalAccessException error){throw new IllegalStateException(error);}player.getFoodData().readAdditionalSaveData(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,player.registryAccess(),food));restoreProfile(game);}
+            advancements.forEach((a,done)->{for(var key:a.value().criteria().keySet())if(done.contains(key))player.getAdvancements().award(a,key);else player.getAdvancements().revoke(a,key);});state.restore(game);player.setOnGround(ground);player.setSprinting(sprint);player.setShiftKeyDown(shift);player.setSwimming(swimming);player.setKnownMovement(knownMovement);player.setPose(pose);
+            tickers.restore(player,false);
+            food.restore(player.getFoodData());
+            restoreProfile();
+        }
     }
-    private static final class Entry implements AutoCloseable {
-        final Map<Object,Object> map;final Object key,previous;final boolean existed;
-        @SuppressWarnings("unchecked") Entry(Object service,String name,Object key){this.key=key;try{map=(Map<Object,Object>)field(service,name).get(service);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}existed=map.containsKey(key);previous=map.remove(key);}
-        @Override public void close(){map.remove(key);if(existed)map.put(key,previous);}
+    private record Entry(Runnable restore) implements AutoCloseable {
+        static <K,V> Entry suspend(Map<K,V> map,K key){
+            boolean existed=map.containsKey(key);
+            V old=map.remove(key);
+            return new Entry(()->{map.remove(key);if(existed)map.put(key,old);});
+        }
+
+        @Override public void close(){restore.run();}
     }
     private static final class Audience implements AutoCloseable {
         final ServerPlayer player;final net.minecraft.server.network.ServerGamePacketListenerImpl original;final ElementalGrimoireChecks.Recording recording;
@@ -102,25 +145,46 @@ public final class OrdinaryAccessoryChecks {
     private static final class Fixture implements AutoCloseable {
         final GameController game;final List<Entry> entries=new ArrayList<>();final List<Entity> actors=new ArrayList<>();
         final Set<Long> forced=new LinkedHashSet<>();final Map<net.minecraft.core.BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
-        final Map<net.minecraft.core.BlockPos,MapManager.BlockSnapshot> walls=new LinkedHashMap<>();final Map<String,Map<net.minecraft.core.BlockPos,Object>> terrainOwners=new LinkedHashMap<>();final Set<String> originalTerrainMaps=new HashSet<>();
+        final Map<net.minecraft.core.BlockPos,MapManager.BlockSnapshot> walls=new LinkedHashMap<>();LbcIndirectKills.TerrainProvenance terrainOwners;
         ElementalGrimoireChecks.Fixture base;ServerPlayer owner,other;Snapshot saved,otherSaved;Audience audience;ScheduledClient client;SauvojenMeditationChecks.Attribution attribution;
         net.minecraft.server.network.ServerGamePacketListenerImpl initial,otherInitial;net.minecraft.server.level.ServerLevel level;Vec3 at;
-        LbcOrdinaryAccessories local,live;java.lang.reflect.Field clock;int oldPhase,start,last=-1,stage,probeUpdates,grantUpdates;String epoch;Set<String> tags;
+        LbcOrdinaryAccessories local,live;boolean phaseCaptured;int oldPhase,start,last=-1,stage,probeUpdates,grantUpdates;String epoch;Set<String> tags;
         net.fabricmc.fabric.api.attachment.v1.AttachmentType<net.minecraft.nbt.CompoundTag> frostData;net.minecraft.nbt.CompoundTag oldFrostData;boolean otherUsed;InteractionHand otherUsedHand;ItemStack otherUsedItem;int otherUsedRemaining;boolean otherUseCaptured;boolean attachmentCaptured,used;InteractionHand usedHand;ItemStack usedItem;int usedRemaining;boolean useCaptured;boolean setup,rulesCaptured,regen,drops,closed;float healthBefore;double saturationBefore;ItemStack platform,magnet,stomach;
         Fixture(GameController game){this.game=game;}
-        Entry entry(Object service,String name,Object key){var entry=new Entry(service,name,key);entries.add(entry);return entry;}
-        Object member(Object object,String name){try{return field(object,name).get(object);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
-        void integer(Object object,String name,int value){try{field(object,name).setInt(object,value);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
+        <K,V> void suspend(Map<K,V> map,K key){entries.add(Entry.suspend(map,key));}
+
+        void suspendPlayerStatuses(ServerPlayer player){
+            var items=game.items();
+            var psycho=(ItemFixtureAccess.Psycho)(Object)items.psycho();
+            suspend(psycho.validation$effects(),player);
+            suspend(psycho.validation$rays(),player);
+            suspend(((ItemFixtureAccess.Electro)(Object)items.electro()).validation$shocks(),player);
+            suspend(((ItemFixtureAccess.Corruption)(Object)items.acidCorruption()).validation$deaths(),player);
+            suspend(((ItemFixtureAccess.Mana)(Object)items.mana()).validation$reverseOwners(),player);
+            var status=(ItemFixtureAccess.Items)(Object)items;
+            suspend(status.validation$turnCurses(),player.getUUID());
+            suspend(status.validation$rotations(),player.getUUID());
+            suspend(((ItemFixtureAccess.Homing)(Object)items.homing()).validation$curses(),player);
+        }
+
+        ItemFixtureAccess.Accessories clock(LbcOrdinaryAccessories service){return (ItemFixtureAccess.Accessories)(Object)service;}
+
         com.google.gson.JsonObject json(String path){try(var in=OrdinaryAccessoryChecks.class.getClassLoader().getResourceAsStream("data/lbc/"+path+".json")){require(in!=null,"compiled original resource "+path);return LootDefinitionChecks.expanded(com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(in,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject());}catch(java.io.IOException e){throw new IllegalStateException(e);}}
-        @SuppressWarnings("unchecked") void initialize(){
+        void initialize(){
             owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));require(owner!=null&&other!=null,"two actual participants");initial=owner.connection;otherInitial=other.connection;
             saved=new Snapshot(game,owner);otherSaved=new Snapshot(game,other);base=new ElementalGrimoireChecks.Fixture(game);audience=new Audience(game,other);attribution=new SauvojenMeditationChecks.Attribution(game,List.of(owner,other));level=owner.level();epoch=game.items().epoch();tags=new HashSet<>(owner.entityTags());
-            for(var serviceName:List.of("effects","rays"))entry(game.items().psycho(),serviceName,owner);entry(game.items().electro(),"shocks",owner);entry(game.items().acidCorruption(),"deaths",owner);entry(game.items().mana(),"reverseOwners",owner);entry(game.items(),"turnCurses",owner.getUUID());entry(game.items(),"rotations",owner.getUUID());entry(game.items().homing(),"curses",owner);require(!game.items().frost().isFrozen(owner)&&!game.items().shooters().stunned(owner),"no ambient physical shell/stun overwritten");
-            entry(game.items().frost(),"affected",owner);try{var data=LbcFrost.class.getDeclaredField("DATA");data.setAccessible(true);frostData=(net.fabricmc.fabric.api.attachment.v1.AttachmentType<net.minecraft.nbt.CompoundTag>)data.get(null);var old=owner.getAttached(frostData);oldFrostData=old==null?null:old.copy();attachmentCaptured=true;owner.removeAttached(frostData);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}used=owner.isUsingItem();usedHand=used?owner.getUsedItemHand():InteractionHand.MAIN_HAND;usedItem=owner.getItemInHand(usedHand);usedRemaining=owner.getUseItemRemainingTicks();useCaptured=true;owner.stopUsingItem();otherUsed=other.isUsingItem();otherUsedHand=otherUsed?other.getUsedItemHand():InteractionHand.MAIN_HAND;otherUsedItem=other.getItemInHand(otherUsedHand);otherUsedRemaining=other.getUseItemRemainingTicks();otherUseCaptured=true;other.stopUsingItem();
-            for(var serviceName:List.of("effects","rays"))entry(game.items().psycho(),serviceName,other);entry(game.items().electro(),"shocks",other);entry(game.items().acidCorruption(),"deaths",other);entry(game.items().mana(),"reverseOwners",other);entry(game.items(),"turnCurses",other.getUUID());entry(game.items(),"rotations",other.getUUID());entry(game.items().homing(),"curses",other);
-            live=game.items().ordinaryAccessories();local=new LbcOrdinaryAccessories(game);try{clock=field(live,"phase");oldPhase=clock.getInt(live);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
+            suspendPlayerStatuses(owner);require(!game.items().frost().isFrozen(owner)&&!game.items().shooters().stunned(owner),"no ambient physical shell/stun overwritten");
+            suspend(((ItemFixtureAccess.Frost)(Object)game.items().frost()).validation$affected(),owner);
+            frostData=ItemFixtureAccess.Frost.validation$data();
+            var old=owner.getAttached(frostData);
+            oldFrostData=old==null?null:old.copy();
+            attachmentCaptured=true;
+            owner.removeAttached(frostData);
+            used=owner.isUsingItem();usedHand=used?owner.getUsedItemHand():InteractionHand.MAIN_HAND;usedItem=owner.getItemInHand(usedHand);usedRemaining=owner.getUseItemRemainingTicks();useCaptured=true;owner.stopUsingItem();otherUsed=other.isUsingItem();otherUsedHand=otherUsed?other.getUsedItemHand():InteractionHand.MAIN_HAND;otherUsedItem=other.getItemInHand(otherUsedHand);otherUsedRemaining=other.getUseItemRemainingTicks();otherUseCaptured=true;other.stopUsingItem();
+            suspendPlayerStatuses(other);
+            live=game.items().ordinaryAccessories();local=new LbcOrdinaryAccessories(game);oldPhase=clock(live).validation$phase();phaseCaptured=true;
             regen=level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.NATURAL_HEALTH_REGENERATION);drops=level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_DROPS);rulesCaptured=true;setup=true;base.initialize();at=owner.position();
-            for(var player:List.of(owner,other)){player.getInventory().clearContent();player.removeAllEffects();player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);player.getAbilities().invulnerable=false;player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);player.getAttribute(Attributes.MAX_ABSORPTION).setBaseValue(1000);player.setHealth(100);player.setAbsorptionAmount(0);player.setNoGravity(true);player.setDeltaMovement(Vec3.ZERO);player.setKnownMovement(Vec3.ZERO);player.setOnGround(true);player.setSprinting(false);player.setShiftKeyDown(false);try{for(var name:List.of("xxa","yya","zza"))field(player,name).setFloat(player,0);field(player,"jumping").setBoolean(player,false);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}var profile=game.players().get(player.getUUID());profile.lbcSkill=0;profile.lbcTrinket=0;profile.lbcChallenge=0;Arrays.fill(profile.trinkets,0);food(player,20,5,0);game.items().magic().inventoryChanged(player);}
+            for(var player:List.of(owner,other)){player.getInventory().clearContent();player.removeAllEffects();player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);player.getAbilities().invulnerable=false;player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);player.getAttribute(Attributes.MAX_ABSORPTION).setBaseValue(1000);player.setHealth(100);player.setAbsorptionAmount(0);player.setNoGravity(true);player.setDeltaMovement(Vec3.ZERO);player.setKnownMovement(Vec3.ZERO);player.setOnGround(true);player.setSprinting(false);player.setShiftKeyDown(false);ItemFixtureChecks.clearMotionInput(player);var profile=game.players().get(player.getUUID());profile.lbcSkill=0;profile.lbcTrinket=0;profile.lbcChallenge=0;Arrays.fill(profile.trinkets,0);food(player,20,5,0);game.items().magic().inventoryChanged(player);}
             game.items().magic().flushCleansing();other.teleportTo(level,at.x+4,at.y,at.z,Set.of(),0,0,true);level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.NATURAL_HEALTH_REGENERATION,false,game.server());level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_DROPS,false,game.server());base.mana.set(owner,5000);base.mana.baseRegen(owner,0);
             for(int x=net.minecraft.util.Mth.floor(at.x-32)>>4;x<=net.minecraft.util.Mth.floor(at.x+32)>>4;x++)for(int z=net.minecraft.util.Mth.floor(at.z-32)>>4;z<=net.minecraft.util.Mth.floor(at.z+32)>>4;z++){if(level.setChunkForced(x,z,true))forced.add(net.minecraft.world.level.ChunkPos.pack(x,z));level.getChunk(x,z);}
             client=new ScheduledClient(game,owner);start=game.server().getTickCount();
@@ -129,33 +193,40 @@ public final class OrdinaryAccessoryChecks {
         List<net.minecraft.network.protocol.Packet<?>> packets(){return client==null?base.recording.packets:client.connection.packets;}
         List<ClientboundSoundPacket> sounds(){return packets().stream().filter(ClientboundSoundPacket.class::isInstance).map(ClientboundSoundPacket.class::cast).toList();}
         void window(){packets().clear();audience.recording.packets.clear();}
-        void phase(LbcOrdinaryAccessories service,int value){try{clock.setInt(service,value);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
+        void phase(LbcOrdinaryAccessories service,int value){clock(service).validation$phase(value);}
         void pulse(int before){phase(local,before);window();local.tick();}
         ItemStack loot(String name){var items=game.lbc().rollTable(level,at,owner,"lbc:ported/"+name);require(items.size()==1,"one exact native leaf "+name);return items.getFirst();}
         void clean(){owner.removeAllEffects();owner.getInventory().clearContent();owner.inventoryMenu.getCraftSlots().clearContent();owner.containerMenu.setCarried(ItemStack.EMPTY);owner.stopUsingItem();owner.setAbsorptionAmount(0);owner.setHealth(100);owner.setNoGravity(true);owner.setDeltaMovement(Vec3.ZERO);owner.teleportTo(level,at.x,at.y,at.z,Set.of(),0,0,true);for(var tag:List.of("time_stopped","strict_map_object","spectator","sin_greed_active","nomagic_active"))owner.entityTags().remove(tag);base.removeField();base.mana.noMagic(owner,0);game.items().magic().inventoryChanged(owner);game.items().magic().flushCleansing();food(owner,20,5,0);window();}
-        @SuppressWarnings("unchecked") <T>T weighted(int sourceIndex,java.util.function.Supplier<T> action){
+        <T>T weighted(int sourceIndex,java.util.function.Supplier<T> action){
             var source=json("loot_table/transformables_accessory").getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");require(Set.of(1,4,5).contains(sourceIndex),"selected original source index");
             var selected=source.get(sourceIndex).getAsJsonObject();require(selected.get("weight").getAsInt()==10,"literal original weight10");
             var table=game.server().reloadableRegistries().getLootTable(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE,Identifier.parse("lbc:transformables_accessory")));
-            try{
-                var pools=(List<net.minecraft.world.level.storage.loot.LootPool>)field(table,"pools").get(table);require(pools.size()==1&&pools.getFirst().entries.size()==source.size(),"actual loaded source pool retains aligned entry containers");
-                var sequence=(Optional<Identifier>)field(table,"randomSequence").get(table);require(sequence.isEmpty(),"source accessory table uses native level RNG, no random_sequence override");
-                var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(owner.level()).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,owner).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,owner.position()).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.COMMAND);
-                var context=new net.minecraft.world.level.storage.loot.LootContext.Builder(params).create(sequence);require(context.getLuck()==0,"native COMMAND context defaults to exact luck0 without changing player Luck");
-                var pool=pools.getFirst();require(pool.condition.isEmpty()||pool.condition.get().value().test(context),"actual native accessory pool condition admits the fixture");
-                var effectiveWeights=new ArrayList<Integer>();int total=0,offset=-1,selectedEntries=0;
-                for(int i=0;i<pool.entries.size();i++){
-                    var expanded=new ArrayList<net.minecraft.world.level.storage.loot.entries.LootPoolEntry>();pool.entries.get(i).expand(context,expanded::add);int containerWeight=0;
-                    for(var entry:expanded){int weight=entry.getWeight(context.getLuck());if(weight<=0)continue;if(i==sourceIndex){if(offset<0)offset=total;selectedEntries++;}total=Math.addExact(total,weight);containerWeight=Math.addExact(containerWeight,weight);}
-                    effectiveWeights.add(containerWeight);
+            var loot=(ItemFixtureAccess.Loot)(Object)table;var pools=loot.validation$pools();require(pools.size()==1&&pools.getFirst().entries.size()==source.size(),"actual loaded source pool retains aligned entry containers");
+            var sequence=loot.validation$sequence();require(sequence.isEmpty(),"source accessory table uses native level RNG, no random_sequence override");
+            var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(owner.level()).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,owner).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,owner.position()).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.COMMAND);
+            var context=new net.minecraft.world.level.storage.loot.LootContext.Builder(params).create(sequence);require(context.getLuck()==0,"native COMMAND context defaults to exact luck0 without changing player Luck");
+            var pool=pools.getFirst();require(pool.condition.isEmpty()||pool.condition.get().value().test(context),"actual native accessory pool condition admits the fixture");
+            var effectiveWeights=new ArrayList<Integer>();int total=0,offset=-1,selectedEntries=0;
+            for(int i=0;i<pool.entries.size();i++){
+                var expanded=new ArrayList<net.minecraft.world.level.storage.loot.entries.LootPoolEntry>();pool.entries.get(i).expand(context,expanded::add);int containerWeight=0;
+                for(var entry:expanded){int weight=entry.getWeight(context.getLuck());if(weight<=0)continue;if(i==sourceIndex){if(offset<0)offset=total;selectedEntries++;}total=Math.addExact(total,weight);containerWeight=Math.addExact(containerWeight,weight);}
+                effectiveWeights.add(containerWeight);
+            }
+            require(selectedEntries==1&&offset>=0&&effectiveWeights.get(sourceIndex)==10&&total>0,"aligned native selected accessory container expands to one positive weight10 entry");
+            int totalWeight=total,pick=offset;
+            SkyWars2.LOGGER.info("[check] ordinary-accessories native accessory selection table=lbc:transformables_accessory sourceIndex={} luck={} effectiveWeights={} effectiveTotal={} chosenOffset={}",sourceIndex,context.getLuck(),effectiveWeights,totalWeight,pick);
+            var nativeLevel=owner.level();
+            var original=nativeLevel.getRandom();
+            int[] selections={0};
+            ItemFixtureChecks.random(nativeLevel,new ItemFixtureChecks.DelegatingRandom(RandomSource.create(0x504f4f4cL)){
+                @Override public int nextInt(int bound){
+                    if(bound!=totalWeight)return super.nextInt(bound);
+                    selections[0]++;
+                    return pick;
                 }
-                require(selectedEntries==1&&offset>=0&&effectiveWeights.get(sourceIndex)==10&&total>0,"aligned native selected accessory container expands to one positive weight10 entry");
-                int totalWeight=total,pick=offset;
-                SkyWars2.LOGGER.info("[check] ordinary-accessories native accessory selection table=lbc:transformables_accessory sourceIndex={} luck={} effectiveWeights={} effectiveTotal={} chosenOffset={}",sourceIndex,context.getLuck(),effectiveWeights,totalWeight,pick);
-                var f=field(owner.level(),"random");var original=f.get(owner.level());var r=net.minecraft.util.RandomSource.create(0x504f4f4cL);int[] selections={0};
-                f.set(owner.level(),java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{if(method.getName().equals("nextInt")&&args!=null&&args.length==1&&args[0].equals(totalWeight)){selections[0]++;return pick;}try{return method.invoke(r,args);}catch(java.lang.reflect.InvocationTargetException e){throw e.getCause();}}));
-                try{T result=action.get();require(selections[0]==1,"one actual native effective-weight accessory selection without rerolls");return result;}finally{f.set(owner.level(),original);}
-            }catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
+            });
+            try{T result=action.get();require(selections[0]==1,"one actual native effective-weight accessory selection without rerolls");return result;}finally{ItemFixtureChecks.random(nativeLevel,original);}
+
         }
 
         net.minecraft.advancements.AdvancementHolder task(String suffix){var value=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/accesories/"+suffix));require(value!=null,"native imported task "+suffix);return value;}
@@ -173,22 +244,34 @@ public final class OrdinaryAccessoryChecks {
             platform=loot("save_platform");magnet=loot("magnet");stomach=loot("devil_stomach");var stacks=List.of(platform,magnet,stomach,loot("legacy_save_platform"),loot("legacy_magnet"));
             var flags=List.of("save","magnet","demonkishki","save","magnet");var models=List.of("saveplatform","magnet","kishki","saveplatform","magnet");var names=List.of("save_platform","magnet_item","devil_stomach","save_platform","magnet_item");int[] rows={2,4,6,1,3};
             var source=json("loot_table/transformables_accessory").getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");int[] indices={1,4,5},qualities={9,0,10};
+            var logicalIds=List.of("custom/6d7dbfaed0325d3edb4f","custom/81446122d4f931b0676f","custom/bcbcc6609678d37f974d");
             for(int i=0;i<5;i++){var stack=stacks.get(i);require(stack.is(i<3?List.of(LbcAccessoryItems.Kind.SAVE_PLATFORM.item,LbcAccessoryItems.Kind.MAGNET.item,LbcAccessoryItems.Kind.DEVIL_STOMACH.item).get(i):Items.REPEATING_COMMAND_BLOCK)&&stack.getCount()==1&&stack.getDamageValue()==0&&!stack.isDamageableItem(),"exact native/legacy identity/count/non-durability");require(Identifier.parse("lbc:"+models.get(i)).equals(stack.get(DataComponents.ITEM_MODEL)),"source exact model "+i);var name=stack.get(DataComponents.CUSTOM_NAME);require(name.getContents() instanceof TranslatableContents t&&t.getKey().equals(names.get(i))&&!name.getStyle().isItalic(),"source exact translated nonitalic name");if(i==0||i==3)text(name,names.get(i),0x55ff55);else require(name.getStyle().getColor()==null,"source omitted name color");var data=LbcFartus.data(stack);require(data.getIntOr(flags.get(i),0)==1,"native exact passive flag");require(data.getIntOr("transformable",0)==(i<3?1:0)&&data.getIntOr("accessory",0)==(i<3?1:0),"legacy flags remain distinct from current transformable/accessory");require(stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).modifiers().isEmpty(),"no invented carrier attributes");var lore=stack.get(DataComponents.LORE).lines();require(lore.size()==rows[i],"exact source lore count");int first=i<3?1:0;if(i<3){text(lore.getFirst(),"type",0xffffff);text(lore.getFirst().getSiblings().getFirst(),"accessory",0xffffff);require(Identifier.parse(i==1?"lbc:tier_d":"lbc:tier_b").equals(stack.get(DataComponents.TOOLTIP_STYLE)),"source distinct current tier");}else require(stack.get(DataComponents.TOOLTIP_STYLE)==null,"legacy has no tier");for(int j=first;j<lore.size();j++)text(lore.get(j),i==0||i==3?"save_platform.lore":(i==2?"devil_stomach":"magnet_item")+".lore."+(j-first+1),i==0||i==3?0x55ff55:0xffffff);
                 if(i==3){var protection=owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).getOrThrow(net.minecraft.world.item.enchantment.Enchantments.PROTECTION);require(stack.getEnchantments().getLevel(protection)==1&&stack.get(DataComponents.TOOLTIP_DISPLAY).hiddenComponents().contains(DataComponents.ENCHANTMENTS),"legacy ProtectionI hidden native component");}else require(stack.getEnchantments().isEmpty(),"no invented enchants");
-                if(i<3){int index=indices[i];var leaf=json("loot_table/ported/"+List.of("save_platform","magnet","devil_stomach").get(i)).getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0);require(source.get(index).equals(leaf)&&source.get(index).getAsJsonObject().get("quality").getAsInt()==qualities[i],"exact original pool entry with unchanged weight/quality");var expected=stack;var result=weighted(index,()->game.lbc().rollTable(level,at,owner,"lbc:transformables_accessory"));require(result.size()==1&&ItemStack.matches(result.getFirst(),expected),"actual original pool native weighted acquisition");reforge(index,expected);}
+                if(i<3){int index=indices[i];var leaf=json("loot_table/ported/"+List.of("save_platform","magnet","devil_stomach").get(i)).getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0);require(source.get(index).equals(leaf)&&source.get(index).getAsJsonObject().get("quality").getAsInt()==qualities[i],"exact original pool entry with unchanged weight/quality");var expected=stack;var result=weighted(index,()->game.lbc().rollTable(level,at,owner,"lbc:transformables_accessory"));require(result.size()==1&&ItemStack.matches(result.getFirst(),expected),"actual original pool native weighted acquisition");reforge(logicalIds.get(i),expected);}
             }
             String[] suffix={"save_platform","magnet","devilstomach"},parents={"lbc:true_advancements/accesories","lbc:true_advancements/accesories/mana_belt","lbc:true_advancements/accesories/magnet"},titles={"save_platform","magnet","devil_stomach"};for(int i=0;i<3;i++){var a=task(suffix[i]);var d=a.value().display().orElseThrow();require(a.value().parent().orElseThrow().equals(Identifier.parse(parents[i]))&&d.icon().is(Items.REPEATING_COMMAND_BLOCK)&&Identifier.parse("lbc:"+models.get(i)).equals(d.icon().get(DataComponents.ITEM_MODEL))&&d.type()==net.minecraft.advancements.AdvancementType.TASK,"source advancement parent/icon/task");require(d.title().getContents() instanceof TranslatableContents t&&t.getKey().equals("lbc.adv.accessories."+titles[i])&&d.description().getContents() instanceof TranslatableContents t2&&t2.getKey().equals("lbc.adv.accessories."+titles[i]+".lore"),"source exact advancement text");require(a.value().criteria().size()==1&&a.value().criteria().values().iterator().next().trigger().equals(net.minecraft.advancements.triggers.CriteriaTriggers.IMPOSSIBLE),"source actual impossible passive task");}
         }
-        void reforge(int index,ItemStack expected){var donorStack=new ItemStack(Items.STICK);var flags=new net.minecraft.nbt.CompoundTag();flags.putInt("transformable",1);flags.putInt("accessory",1);donorStack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(flags));var donor=new net.minecraft.world.entity.item.ItemEntity(level,at.x,at.y,at.z,donorStack);donor.setNoGravity(true);require(level.addFreshEntity(donor),"real normal-reforge donor");actors.add(donor);var output=new ArrayList<ItemStack>();weighted(index,()->{try{var factory=LbcBolts.class.getDeclaredMethod("reforgeInput",net.minecraft.world.entity.item.ItemEntity.class,LbcBolts.ReforgeFamily.class,int.class,ServerPlayer.class,java.util.function.Consumer.class);factory.setAccessible(true);var work=(LbcStonekivi.Work)factory.invoke(game.items().bolts(),donor,LbcBolts.ReforgeFamily.NORMAL,1,owner,(java.util.function.Consumer<ItemStack>)output::add);require(work!=null&&work.step(),"actual NORMAL Work.step");return true;}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}});require(donor.isRemoved()&&donorStack.isEmpty()&&output.size()==1&&ItemStack.matches(output.getFirst(),expected),"actual ordinary reforge consumes1 and delivers unchanged source accessory");}
+        void reforge(String logicalId,ItemStack expected){var donorStack=new ItemStack(Items.STICK);var flags=new net.minecraft.nbt.CompoundTag();flags.putInt("transformable",1);flags.putInt("accessory",1);donorStack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(flags));var donor=new ItemEntity(level,at.x,at.y,at.z,donorStack);donor.setNoGravity(true);require(level.addFreshEntity(donor),"real normal-reforge donor");actors.add(donor);
+            var output=reforgeUniform(game,owner,donor,logicalId);
+            require(donor.isRemoved()&&donorStack.isEmpty()&&output.size()==1&&ItemStack.matches(output.getFirst(),expected),"actual ordinary reforge consumes1 and delivers unchanged source accessory");}
         net.minecraft.world.entity.item.ItemEntity item(Vec3 position,ItemStack stack){var entity=new net.minecraft.world.entity.item.ItemEntity(level,position.x,position.y,position.z,stack);entity.setNoGravity(true);require(level.addFreshEntity(entity),"actual resident item entity");actors.add(entity);require(level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,entity.getBoundingBox().inflate(.01)).contains(entity),"native spatial query sees newly spawned item");return entity;}
-        void magnets(){clean();revoke("magnet");owner.getInventory().setItem(9,magnet.copy());var close=item(at.add(29.9,0,0),new ItemStack(Items.DIAMOND,7));var boundary=item(at.add(30,0,0),new ItemStack(Items.EMERALD));var outside=item(at.add(30.001,0,0),new ItemStack(Items.IRON_INGOT));close.setTarget(other.getUUID());close.setThrower(other);integer(close,"age",321);integer(close,"pickupDelay",123);close.setDeltaMovement(.4,.5,.6);var thrower=member(close,"thrower");var target=member(close,"target");var original=close.getItem().copy();
+        void magnets(){clean();revoke("magnet");owner.getInventory().setItem(9,magnet.copy());var close=item(at.add(29.9,0,0),new ItemStack(Items.DIAMOND,7));var boundary=item(at.add(30,0,0),new ItemStack(Items.EMERALD));var outside=item(at.add(30.001,0,0),new ItemStack(Items.IRON_INGOT));close.setTarget(other.getUUID());close.setThrower(other);var drop=(ItemFixtureAccess.Drop)(Object)close;drop.validation$age(321);close.setPickUpDelay(123);close.setDeltaMovement(.4,.5,.6);var thrower=drop.validation$thrower();var target=drop.validation$target();var original=close.getItem().copy();
             var cow=new Cow(EntityTypes.COW,level);cow.setPos(at.add(0,0,20));cow.setNoGravity(true);cow.setNoAi(true);require(level.addFreshEntity(cow),"native non-item magnet witness");actors.add(cow);var projectile=new net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball(EntityTypes.SNOWBALL,level);projectile.setPos(at.add(0,1,20));projectile.setOwner(other);projectile.setNoGravity(true);require(level.addFreshEntity(projectile),"native projectile magnet witness");actors.add(projectile);var wall=net.minecraft.core.BlockPos.containing(at.add(10,0,0));walls.put(wall,game.maps().snapshot(level,wall));level.setBlock(wall,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),818);
-            pulse(19);near(close.position().distanceTo(at.add(29.9,0,0)),0,"backpack enables helper without pulling");require(!done("magnet"),"ordinary nearby drop never awards hazard task");owner.setItemInHand(InteractionHand.MAIN_HAND,magnet.copy());pulse(19);near(close.position().distanceTo(at),0,"held mainhand exact instantaneous30 sphere through intervening solid block");near(cow.position().distanceTo(at.add(0,0,20)),0,"magnet never teleports living mobs");near(projectile.position().distanceTo(at.add(0,1,20)),0,"magnet never teleports projectiles or changes foreign shooter");require(projectile.getOwner()==other,"unrelated native projectile retains original owner");near(boundary.position().distanceTo(at),0,"inclusive source30 boundary");near(outside.position().distanceTo(at.add(30.001,0,0)),0,"outside30 excluded");require(close.getItem().getCount()==7&&ItemStack.matches(close.getItem(),original)&&member(close,"thrower")==thrower&&Objects.equals(member(close,"target"),target)&&((Integer)member(close,"age"))==321&&((Integer)member(close,"pickupDelay"))==123,"native teleport preserves actual entity identity/full stack/age/pickup/foreign target+thrower");near(close.getDeltaMovement().distanceTo(new Vec3(.4,.5,.6)),0,"magnet coordinate edit preserves all velocity axes");require(sounds().isEmpty()&&packets().stream().noneMatch(ClientboundLevelParticlesPacket.class::isInstance),"magnet no added feedback");
+            pulse(19);near(close.position().distanceTo(at.add(29.9,0,0)),0,"backpack enables helper without pulling");require(!done("magnet"),"ordinary nearby drop never awards hazard task");owner.setItemInHand(InteractionHand.MAIN_HAND,magnet.copy());pulse(19);near(close.position().distanceTo(at),0,"held mainhand exact instantaneous30 sphere through intervening solid block");near(cow.position().distanceTo(at.add(0,0,20)),0,"magnet never teleports living mobs");near(projectile.position().distanceTo(at.add(0,1,20)),0,"magnet never teleports projectiles or changes foreign shooter");require(projectile.getOwner()==other,"unrelated native projectile retains original owner");near(boundary.position().distanceTo(at),0,"inclusive source30 boundary");near(outside.position().distanceTo(at.add(30.001,0,0)),0,"outside30 excluded");require(close.getItem().getCount()==7&&ItemStack.matches(close.getItem(),original)&&drop.validation$thrower()==thrower&&Objects.equals(drop.validation$target(),target)&&close.getAge()==321&&drop.validation$pickupDelay()==123,"native teleport preserves actual entity identity/full stack/age/pickup/foreign target+thrower");near(close.getDeltaMovement().distanceTo(new Vec3(.4,.5,.6)),0,"magnet coordinate edit preserves all velocity axes");require(sounds().isEmpty()&&packets().stream().noneMatch(ClientboundLevelParticlesPacket.class::isInstance),"magnet no added feedback");
             owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);owner.setItemInHand(InteractionHand.OFF_HAND,loot("legacy_magnet"));close.setPos(at.add(0,0,20));pulse(19);near(close.position().distanceTo(at),0,"offhand holding activates same native pull");
-            for(var flag:List.of("penis_bomb","malevich")){revoke("magnet");owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);var stack=new ItemStack(Items.STICK);var data=new net.minecraft.nbt.CompoundTag();data.putInt(flag,1);stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));var hazard=item(at.add(1,0,0),stack);integer(hazard,"age",77);pulse(19);notification("new_skill");require(done("magnet")&&!hazard.isRemoved()&&hazard.getItem()==stack&&hazard.getAge()==77,"backpack-only exact1 hazard award without pickup/consume/age0 restriction "+flag);hazard.discard();}
+            for(var flag:List.of("penis_bomb","malevich")){revoke("magnet");owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);var stack=new ItemStack(Items.STICK);var data=new net.minecraft.nbt.CompoundTag();data.putInt(flag,1);stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));var hazard=item(at.add(1,0,0),stack);((ItemFixtureAccess.Drop)(Object)hazard).validation$age(77);pulse(19);notification("new_skill");require(done("magnet")&&!hazard.isRemoved()&&hazard.getItem()==stack&&hazard.getAge()==77,"backpack-only exact1 hazard award without pickup/consume/age0 restriction "+flag);hazard.discard();}
             for(var entity:actors)entity.discard();for(var entry:walls.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue());walls.clear();clean();
         }
-        @SuppressWarnings("unchecked") void savePlane(){if(!terrain.isEmpty())return;for(var pos:net.minecraft.core.BlockPos.betweenClosed(net.minecraft.core.BlockPos.containing(at.x-2,1,at.z-2),net.minecraft.core.BlockPos.containing(at.x+2,1,at.z+2))){var cell=pos.immutable();require(level.hasChunkAt(cell),"resident entire absolute platform plane");terrain.put(cell,game.maps().snapshot(level,cell));}for(var key:List.of("stone","hazards")){var outer=(Map<Object,Map<net.minecraft.core.BlockPos,Object>>)member(game.items().indirectKills(),key);if(outer.containsKey(level))originalTerrainMaps.add(key);var saved=new HashMap<net.minecraft.core.BlockPos,Object>();var map=outer.get(level);if(map!=null)for(var cell:terrain.keySet())if(map.containsKey(cell))saved.put(cell,map.get(cell));terrainOwners.put(key,saved);}}
+        void savePlane(){
+            if(!terrain.isEmpty())return;
+            for(var pos:net.minecraft.core.BlockPos.betweenClosed(net.minecraft.core.BlockPos.containing(at.x-2,1,at.z-2),
+                    net.minecraft.core.BlockPos.containing(at.x+2,1,at.z+2))){
+                var cell=pos.immutable();
+                require(level.hasChunkAt(cell),"resident entire absolute platform plane");
+                terrain.put(cell,game.maps().snapshot(level,cell));
+            }
+            terrainOwners=game.items().indirectKills().captureTerrain(level,terrain.keySet());
+        }
         net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket positionPacket(){return packets().stream().filter(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::cast).reduce((a,b)->b).orElseThrow();}
         void platformMotionSetup(){owner.setPos(at.x,-9.01,at.z);owner.setKnownMovement(new Vec3(.2,.5,-.3));owner.setDeltaMovement(.7,.8,.9);owner.setYRot(37);owner.setXRot(12);}
         void platformMotionResult(String path){near(owner.getX(),at.x,path+" originalX");near(owner.getY(),2,path+" absoluteY2");near(owner.getZ(),at.z,path+" originalZ");near(owner.getDeltaMovement().x,.7,path+" actual server movementX");near(owner.getDeltaMovement().y,.8,path+" vertical momentum");near(owner.getDeltaMovement().z,.9,path+" actual server movementZ");near(owner.getYRot(),37,path+" original yaw");near(owner.getXRot(),12,path+" original pitch");SkyWars2.LOGGER.info("[check] ordinary-accessories {} native teleport knownBefore{} serverDeltaBefore{} result{} packetRelatives{}",path,new Vec3(.2,.5,-.3),new Vec3(.7,.8,.9),owner.getDeltaMovement(),positionPacket().relatives());}
@@ -219,24 +302,44 @@ public final class OrdinaryAccessoryChecks {
             for(var tag:List.of("time_stopped","strict_map_object","spectator")){stomachReady();owner.entityTags().add(tag);pulse(4);require(owner.getActiveEffects().isEmpty()&&sounds().isEmpty(),"native shared role/time admission "+tag);owner.entityTags().remove(tag);}
             stomachReady();base.mana.set(owner,0);pulse(4);effect(owner,MobEffects.REGENERATION,40,5,false);require(base.mana.get(owner)==0,"zero mana stomach admitted without payment");stomachReady();base.mana.set(owner,-50);pulse(4);effect(owner,MobEffects.REGENERATION,40,5,false);require(base.mana.get(owner)==-50,"negative mana accepted synchronously without cost");base.mana.set(owner,5000);
             stomachReady();owner.entityTags().add("sin_greed_active");pulse(4);require(sounds().size()==1,"no invented Greed admission/payment gate");
-            stomachReady();require(!game.items().timeStop().stopped(level),"no ambient time stop overwritten");phase(local,4);game.items().timeStop().begin(level,10);try{window();local.tick();require(((Integer)member(local,"phase"))==4&&owner.getActiveEffects().isEmpty(),"actual dimension TimeStop pauses phase and passive effects");}finally{game.items().timeStop().end(level);}
+            stomachReady();require(!game.items().timeStop().stopped(level),"no ambient time stop overwritten");phase(local,4);game.items().timeStop().begin(level,10);try{window();local.tick();require(clock(local).validation$phase()==4&&owner.getActiveEffects().isEmpty(),"actual dimension TimeStop pauses phase and passive effects");}finally{game.items().timeStop().end(level);}
             stomachReady();require(game.items().shooters().stun(other,owner,10),"actual native shooter stun");try{require(game.items().actionsBlocked(owner),"stun actually blocks active input");pulse(4);effect(owner,MobEffects.REGENERATION,40,5,false);sound();}finally{game.items().shooters().clearStun(owner);}
             stomachReady();for(int i=0;i<10&&!game.items().frost().isFrozen(owner);i++)game.items().frost().add(owner,other);require(game.items().frost().isFrozen(owner),"actual native ice freeze positive control");try{pulse(4);effect(owner,MobEffects.REGENERATION,40,5,false);sound();}finally{game.items().frost().clear(owner);}clean();
             stomachReady();game.spectators().enter(owner);try{pulse(4);require(owner.getActiveEffects().isEmpty()&&sounds().isEmpty(),"actual observer registry admission");}finally{game.spectators().remove(owner);owner.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);owner.setNoGravity(true);}
             stomachReady();var alternate=java.util.stream.StreamSupport.stream(game.server().getAllLevels().spliterator(),false).filter(l->l!=level).findFirst().orElseThrow();owner.teleportTo(alternate,at.x,at.y,at.z,Set.of(),0,0,true);try{pulse(4);require(owner.getActiveEffects().isEmpty(),"wrong native map rejects passive");}finally{owner.teleportTo(level,at.x,at.y,at.z,Set.of(),0,0,true);}
-            stomachReady();try{var state=field(game,"stage");var before=state.get(game);try{state.set(game,GameController.Stage.ENDING);phase(local,4);local.tick();require(((Integer)member(local,"phase"))==4&&owner.getActiveEffects().isEmpty(),"ENDING pauses source phase/effects");}finally{state.set(game,before);}}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
-            owner.addEffect(ItemEffectLevels.create(MobEffects.LUCK,333,0),other);local.stop();require(((Integer)member(local,"phase"))==0,"stop resets cadence");effect(owner,MobEffects.LUCK,333,0,true);require(base.mana.get(owner)==5000,"all source paths are mana-free");clean();
+            stomachReady();
+            var match=(ItemFixtureAccess.Match)(Object)game;
+            var before=game.stage();
+            try{
+                match.validation$stage(GameController.Stage.ENDING);phase(local,4);local.tick();
+                require(clock(local).validation$phase()==4&&owner.getActiveEffects().isEmpty(),"ENDING pauses source phase/effects");
+            }finally{match.validation$stage(before);}
+            owner.addEffect(ItemEffectLevels.create(MobEffects.LUCK,333,0),other);local.stop();require(clock(local).validation$phase()==0,"stop resets cadence");effect(owner,MobEffects.LUCK,333,0,true);require(base.mana.get(owner)==5000,"all source paths are mana-free");clean();
         }
         void acknowledge(){client.listener.teleport(owner.getX(),owner.getY(),owner.getZ(),owner.getYRot(),owner.getXRot());var teleport=client.connection.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::cast).reduce((a,b)->b).orElseThrow();client.listener.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(teleport.id(),owner.getX(),owner.getY(),owner.getZ(),owner.getYRot(),owner.getXRot()));}
         int probeStart;boolean observedHeal,observedRefresh;
-        void begin(){clean();base.mana.set(owner,5000);base.mana.baseRegen(owner,0);owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1);owner.setHealth(1);owner.getInventory().setItem(9,stomach.copy());owner.addEffect(ItemEffectLevels.create(MobEffects.LUCK,300,0),other);food(owner,20,5,0);acknowledge();phase(live,0);probeStart=game.server().getTickCount();probeUpdates=client.updates();stage=1;window();}
+        void begin(){
+            clean();base.mana.set(owner,5000);base.mana.baseRegen(owner,0);
+            // Isolate the cap from loadout modifiers already attached to this player. Snapshot restores them.
+            var maximum = owner.getAttribute(Attributes.MAX_HEALTH);
+            maximum.removeModifiers();
+            maximum.setBaseValue(1);
+            requireHealthCap();
+            owner.setHealth(1);owner.getInventory().setItem(9,stomach.copy());owner.addEffect(ItemEffectLevels.create(MobEffects.LUCK,300,0),other);food(owner,20,5,0);acknowledge();phase(live,0);probeStart=game.server().getTickCount();probeUpdates=client.updates();stage=1;window();
+        }
+
+        void requireHealthCap() {
+            var maximum = owner.getAttribute(Attributes.MAX_HEALTH);
+            near(owner.getMaxHealth(), 1, "effective health cap base=" + maximum.getBaseValue()
+                    + " modifiers=" + maximum.getModifiers());
+        }
         boolean step(){
             require(owner.isAlive()&&!owner.isRemoved()&&game.canUseGameplayItems(owner)&&epoch.equals(game.items().epoch()),"live fixture owner/map/epoch");int now=game.server().getTickCount();require(now-start<260,"bounded actual native accessory probe");if(now==last)return false;last=now;
             if(stage==0){if(now==start||client.updates()==0){require(now-start<=3,"strictly bounded first actual native update/chunk readiness");return false;}require(client.updates()>0&&now>start,"separate real native tick before item spatial queries");presentation();magnets();platforms();stomachs();guards();begin();return false;}
             int elapsed=now-probeStart,updates=client.updates()-probeUpdates;require(updates==elapsed,"one real registered native listener update per source scheduler tick elapsed="+elapsed+" updates="+updates);effect(owner,MobEffects.LUCK,300-updates,0,true);
             if(elapsed<5)require(!owner.hasEffect(MobEffects.REGENERATION)&&!owner.hasEffect(MobEffects.HUNGER),"stomach waits source fifth active tick");
-            if(elapsed==5){effect(owner,MobEffects.REGENERATION,40,5,false);effect(owner,MobEffects.HUNGER,200,255,false);near(owner.getHealth(),1,"source grant schedules native healing");grantUpdates=client.updates();require(done("devilstomach"),"integrated source exact1 award");window();}
-            if(elapsed==6){effect(owner,MobEffects.REGENERATION,39,5,false);effect(owner,MobEffects.HUNGER,199,255,false);near(((Number)member(owner.getFoodData(),"exhaustionLevel")).doubleValue(),1.28,"actual native Hunger256 first metabolism update");near(owner.getHealth(),1,"native regeneration obeys maximum health");}
+            if(elapsed==5){requireHealthCap();effect(owner,MobEffects.REGENERATION,40,5,false);effect(owner,MobEffects.HUNGER,200,255,false);near(owner.getHealth(),1,"source grant schedules native healing");grantUpdates=client.updates();require(done("devilstomach"),"integrated source exact1 award");window();}
+            if(elapsed==6){requireHealthCap();effect(owner,MobEffects.REGENERATION,39,5,false);effect(owner,MobEffects.HUNGER,199,255,false);near(((ItemFixtureAccess.Food)owner.getFoodData()).validation$exhaustion(),1.28,"actual native Hunger256 first metabolism update");near(owner.getHealth(),1,"native regeneration obeys maximum health");}
             if(elapsed==9){effect(owner,MobEffects.REGENERATION,36,5,false);effect(owner,MobEffects.HUNGER,196,255,false);require(owner.getFoodData().getSaturationLevel()<5,"native hunger consumes saturation through actual FoodData");window();}
             if(elapsed==10){effect(owner,MobEffects.REGENERATION,40,5,false);effect(owner,MobEffects.HUNGER,200,255,false);sound();observedRefresh=true;owner.getInventory().clearContent();game.items().magic().inventoryChanged(owner);game.items().magic().flushCleansing();owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);owner.setHealth(100);healthBefore=owner.getHealth();window();}
             if(elapsed==11){near(owner.getHealth(),healthBefore+1,"actual source-capped RegenVI heals one HP per native tick");observedHeal=true;}
@@ -246,10 +349,15 @@ public final class OrdinaryAccessoryChecks {
             if(elapsed==210){require(observedHeal&&observedRefresh&&!owner.hasEffect(MobEffects.HUNGER)&&!owner.hasEffect(MobEffects.REGENERATION),"actual native40/200 expiry and cadence refresh observed without item");require(client.updates()-grantUpdates==205,"real native connection updates carried entire effect lifetime");require(base.mana.get(owner)==5000&&owner.getInventory().isEmpty(),"no passive mana cost/stray item after expiry");return true;}return false;
         }
         @FunctionalInterface interface Finish{void run()throws Exception;}
-        @SuppressWarnings("unchecked") void restoreTerrain(){for(var entry:walls.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue());walls.clear();for(var entry:terrain.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue());for(var key:terrainOwners.keySet()){var outer=(Map<Object,Map<net.minecraft.core.BlockPos,Object>>)member(game.items().indirectKills(),key);var map=outer.get(level);if(map!=null)for(var cell:terrain.keySet())map.remove(cell);if(originalTerrainMaps.contains(key)||!terrainOwners.get(key).isEmpty())outer.computeIfAbsent(level,l->new HashMap<>()).putAll(terrainOwners.get(key));if(!originalTerrainMaps.contains(key)&&outer.containsKey(level)&&outer.get(level).isEmpty())outer.remove(level);}}
-        @Override public void close(){if(closed)return;closed=true;var actions=new ArrayList<Finish>();actions.add(()->{if(client!=null)client.close();});actions.add(()->{if(setup){game.items().shooters().clearStun(owner);game.items().frost().clear(owner);clean();}});for(var entity:actors)actions.add(entity::discard);actions.add(()->{if(!terrain.isEmpty()||!walls.isEmpty())restoreTerrain();});actions.add(()->{if(clock!=null)clock.setInt(live,oldPhase);});actions.add(()->{if(rulesCaptured){level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.NATURAL_HEALTH_REGENERATION,regen,game.server());level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_DROPS,drops,game.server());}});actions.add(()->{if(tags!=null){owner.entityTags().clear();owner.entityTags().addAll(tags);}});actions.add(()->{if(setup)saved.restore(game);});actions.add(()->{if(setup)otherSaved.restore(game);});actions.add(()->{if(setup){game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();base.close();}});actions.add(()->{if(setup&&saved!=null)saved.restoreAttributes();});actions.add(()->{if(setup&&otherSaved!=null)otherSaved.restoreAttributes();});for(var entry:entries)actions.add(entry::close);actions.add(()->{if(attachmentCaptured){if(oldFrostData==null)owner.removeAttached(frostData);else owner.setAttached(frostData,oldFrostData);}});actions.add(()->{if(useCaptured&&used){owner.setItemInHand(usedHand,usedItem);owner.startUsingItem(usedHand);field(owner,"useItemRemaining").setInt(owner,usedRemaining);}});actions.add(()->{if(otherUseCaptured&&otherUsed){other.setItemInHand(otherUsedHand,otherUsedItem);other.startUsingItem(otherUsedHand);field(other,"useItemRemaining").setInt(other,otherUsedRemaining);}});actions.add(()->{if(attribution!=null)attribution.close();});actions.add(()->{if(audience!=null)audience.close();});actions.add(()->{if(initial!=null)owner.connection=initial;if(otherInitial!=null)other.connection=otherInitial;});for(var key:forced)actions.add(()->level.setChunkForced((int)(long)key,(int)(key>>32),false));actions.add(()->{if(saved!=null)saved.restoreProfile(game);if(otherSaved!=null)otherSaved.restoreProfile(game);});Throwable failure=null;for(var action:actions)try{action.run();}catch(Throwable problem){if(failure==null)failure=problem;else failure.addSuppressed(problem);}if(failure!=null)throw new IllegalStateException("ordinary accessory exact partial fixture restoration",failure);}
+        void restoreTerrain(){
+            walls.forEach((pos,snapshot)->game.maps().restoreSnapshot(level,pos,snapshot));
+            walls.clear();
+            terrain.forEach((pos,snapshot)->game.maps().restoreSnapshot(level,pos,snapshot));
+            if(terrainOwners!=null)game.items().indirectKills().restoreTerrain(terrainOwners);
+        }
+        @Override public void close(){if(closed)return;closed=true;var actions=new ArrayList<Finish>();actions.add(()->{if(client!=null)client.close();});actions.add(()->{if(setup){game.items().shooters().clearStun(owner);game.items().frost().clear(owner);clean();}});for(var entity:actors)actions.add(entity::discard);actions.add(()->{if(!terrain.isEmpty()||!walls.isEmpty())restoreTerrain();});actions.add(()->{if(phaseCaptured)phase(live,oldPhase);});actions.add(()->{if(rulesCaptured){level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.NATURAL_HEALTH_REGENERATION,regen,game.server());level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_DROPS,drops,game.server());}});actions.add(()->{if(tags!=null){owner.entityTags().clear();owner.entityTags().addAll(tags);}});actions.add(()->{if(setup)saved.restore(game);});actions.add(()->{if(setup)otherSaved.restore(game);});actions.add(()->{if(setup){game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();base.close();}});actions.add(()->{if(setup&&saved!=null)saved.restoreAttributes();});actions.add(()->{if(setup&&otherSaved!=null)otherSaved.restoreAttributes();});for(var entry:entries)actions.add(entry::close);actions.add(()->{if(attachmentCaptured){if(oldFrostData==null)owner.removeAttached(frostData);else owner.setAttached(frostData,oldFrostData);}});actions.add(()->{if(useCaptured&&used){owner.setItemInHand(usedHand,usedItem);owner.startUsingItem(usedHand);((CombatCheckpointAccess.Living)owner).skywars2$useItemRemaining(usedRemaining);}});actions.add(()->{if(otherUseCaptured&&otherUsed){other.setItemInHand(otherUsedHand,otherUsedItem);other.startUsingItem(otherUsedHand);((CombatCheckpointAccess.Living)other).skywars2$useItemRemaining(otherUsedRemaining);}});actions.add(()->{if(attribution!=null)attribution.close();});actions.add(()->{if(audience!=null)audience.close();});actions.add(()->{if(initial!=null)owner.connection=initial;if(otherInitial!=null)other.connection=otherInitial;});for(var key:forced)actions.add(()->level.setChunkForced((int)(long)key,(int)(key>>32),false));actions.add(()->{if(saved!=null)saved.restoreProfile();if(otherSaved!=null)otherSaved.restoreProfile();});Throwable failure=null;for(var action:actions)try{action.run();}catch(Throwable problem){if(failure==null)failure=problem;else failure.addSuppressed(problem);}if(failure!=null)throw new IllegalStateException("ordinary accessory exact partial fixture restoration",failure);}
     }
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive native ordinary accessories fixture");running=new Fixture(game);try{running.initialize();}catch(Throwable problem){try{running.close();}catch(Throwable cleanup){problem.addSuppressed(cleanup);}finally{running=null;}throw problem;}}
-    public static void tick(GameController game){if(game==null||running==null)return;try{if(running.step()){running.close();running=null;SkyWars2.LOGGER.info("[check] PASS ordinary-accessories (actual original weighted normal reforges; five exact native leaves/tasks/kit gate; source inventory scope and metadata-preserving magnet; absolute25 STRICT platform/clear order; exact capped stomach thresholds/feedback; real native5tick refresh and40/200 effect metabolism/expiry; source suppression, pause and passive stun/ice policy; scoped exact restoration)");}}catch(Throwable problem){try{running.close();}catch(Throwable cleanup){problem.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL ordinary-accessories",problem);}}
+    public static void tick(GameController game){if(game==null||running==null)return;try{if(running.step()){running.close();running=null;SkyWars2.LOGGER.info("[check] PASS ordinary-accessories (original weighted acquisition and actual uniform NORMAL reforges; five exact native leaves/tasks/kit gate; source inventory scope and metadata-preserving magnet; absolute25 STRICT platform/clear order; exact capped stomach thresholds/feedback; real native5tick refresh and40/200 effect metabolism/expiry; source suppression, pause and passive stun/ice policy; scoped exact restoration)");}}catch(Throwable problem){try{running.close();}catch(Throwable cleanup){problem.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL ordinary-accessories",problem);}}
 }

@@ -10,6 +10,7 @@
     "GameCheckAccess$CombatLinks",
     "GameCheckAccess$TeleportAck",
     "GameCheckAccess$Exoperso",
+    "GameCheckAccess$Airdrops",
     "GameCheckAccess$GalleryCatalog",
     "GameCheckAccess$Gallery",
     "BotValidationAccess$Bots",
@@ -25,6 +26,24 @@
     "WandFixtureAccess$Blind",
     "WandFixtureAccess$TerraShot",
     "WandFixtureAccess$Electro",
-    "ItemFixtureAccess$Loot"
+    "NativeFixtureAccess$ConnectionBinding",
+    "ItemFixtureAccess$TerrainLedger",
+    "ItemFixtureAccess$Equipment",
+    "ItemFixtureAccess$PlayerSync",
+    "ItemFixtureAccess$Food",
+    "ItemFixtureAccess$LevelRandom",
+    "ItemFixtureAccess$Loot",
+    "ItemFixtureAccess$Drop",
+    "ItemFixtureAccess$Arrow",
+    "ItemFixtureAccess$Match",
+    "ItemFixtureAccess$Accessories",
+    "ItemFixtureAccess$Quiver",
+    "ItemFixtureAccess$Psycho",
+    "ItemFixtureAccess$Electro",
+    "ItemFixtureAccess$Corruption",
+    "ItemFixtureAccess$Mana",
+    "ItemFixtureAccess$Items",
+    "ItemFixtureAccess$Homing",
+    "ItemFixtureAccess$Frost"
   ]
 }
