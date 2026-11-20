@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.LbcHoming;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.LavaFluid;
 import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,9 +45,13 @@ public final class HazardPropagationMixins {
         @org.spongepowered.asm.mixin.Unique
         private boolean skywars2$skipEmptyBlastBlocks;
         @org.spongepowered.asm.mixin.Unique private boolean skywars2$ultraponos;
+        @org.spongepowered.asm.mixin.Unique private boolean skywars2$reuseSisyphusFluid;
         @org.spongepowered.asm.mixin.injection.Inject(method="<init>",at=@At("TAIL"))
         private void skywars2$identifyWandBlast(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
-            var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
+            var blast=(ServerExplosion)(Object)this;
+            var source=blast.getDirectSourceEntity();
+            skywars2$reuseSisyphusFluid=source!=null&&source.getClass()==LargeFireball.class
+                    &&source.entityTags().contains(LbcHoming.SLOW_TAG)&&!blast.level().isDebug();
             skywars2$skipEmptyBlastBlocks=me.skywars2.game.VanillaExpansionRules.enabled()
                     && source!=null&&source.getClass()==net.minecraft.world.entity.item.PrimedTnt.class
                     ||me.skywars2.game.LbcNukeEvent.cacheableNativeBlast(source)||source instanceof net.minecraft.world.entity.item.PrimedTnt
@@ -92,6 +98,14 @@ public final class HazardPropagationMixins {
                 if(nutCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,nutCause);
                 damageSource=game.items().spellSources().damage(damageSource);
             }
+        }
+
+        @WrapOperation(method="calculateExplodedPositions",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/server/level/ServerLevel;getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"))
+        private FluidState skywars2$sisyphusFluid(ServerLevel level,BlockPos position,Operation<FluidState> original,
+                                                   @Local BlockState state) {
+            // The level section reads the same palette entry for fluid immediately after the block read.
+            return skywars2$reuseSisyphusFluid?state.getFluidState():original.call(level,position);
         }
 
         // Only replace block discovery for our native TNT; entity damage and block application stay native.

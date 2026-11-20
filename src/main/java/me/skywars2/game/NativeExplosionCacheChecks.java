@@ -1,12 +1,15 @@
 package me.skywars2.game;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.phys.Vec3;
 
 /** Independent vanilla method path and RNG oracle for ordinary native TNT's optimized collector. */
@@ -79,6 +82,69 @@ public final class NativeExplosionCacheChecks {
         require(boundedReads<plainReads*.8,"at least20percent fewer state reads in the real sparse height scene: "+plainReads+" -> "+boundedReads);
         SkyWars2.LOGGER.info("[check] blast-height bounds: {} exact sparse-terrain block/RNG cases, stateReads={} -> {}",cases,plainReads,boundedReads);
     }
+
+    private record FireballCollection(List<?> positions, long nextRandom, int nextInt, long nanos) { }
+
+    private static FireballCollection collectFireball(Method collector, WoolBucketChecks.Fixture f, Vec3 at,
+                                                       int power, long seed, boolean sisyphus)
+            throws ReflectiveOperationException {
+        var fireball = new LargeFireball(f.level, f.owner, Vec3.ZERO, power);
+        fireball.setPos(at);
+        if (sisyphus) fireball.entityTags().add(LbcHoming.SLOW_TAG);
+        var blast = new ServerExplosion(f.level, fireball, null, null, at, power, true, Explosion.BlockInteraction.DESTROY);
+        var random = f.level.getRandom();
+        random.setSeed(seed);
+        long start = System.nanoTime();
+        var positions = (List<?>) collector.invoke(blast);
+        long nanos = System.nanoTime() - start;
+        return new FireballCollection(positions, random.nextLong(), random.nextInt(), nanos);
+    }
+
+    /** Keep a full-power native collector inside one warm chunk without applying terrain or entity damage. */
+    private static void sisyphusContract(Method collector, WoolBucketChecks.Fixture f, BlockPos terrain)
+            throws ReflectiveOperationException {
+        var center = new BlockPos((terrain.getX() >> 4) * 16 + 8, terrain.getY() + 20,
+                (terrain.getZ() >> 4) * 16 + 8);
+        require(!f.level.isDebug() && f.level.isInWorldBounds(center.above(2))
+                && f.level.isInWorldBounds(center.below(2))
+                && f.level.getChunkSource().getChunkNow(center.getX() >> 4, center.getZ() >> 4) != null,
+                "Sisyphus collector scene is entirely inside one resident ordinary chunk");
+        var randomState = MatchRandomState.capture(f.level.getRandom());
+        try {
+            for (var pos : BlockPos.betweenClosed(center.offset(-2, -2, -2), center.offset(2, 2, 2))) {
+                int shell = Math.max(Math.abs(pos.getX() - center.getX()),
+                        Math.max(Math.abs(pos.getY() - center.getY()), Math.abs(pos.getZ() - center.getZ())));
+                f.set(pos, (shell == 2 ? Blocks.OBSIDIAN : Blocks.AIR).defaultBlockState());
+            }
+            var slab = Blocks.OAK_SLAB.defaultBlockState();
+            f.set(center.east(), slab.setValue(SlabBlock.WATERLOGGED, true));
+            f.set(center.west(), slab);
+            f.set(center.below(), Blocks.STONE.defaultBlockState());
+            var at = Vec3.atCenterOf(center);
+            for (int power : new int[]{4, 100}) {
+                long ordinaryNanos = 0, sisyphusNanos = 0;
+                for (long seed : new long[]{73, 91}) {
+                    var ordinary = collectFireball(collector, f, at, power, seed, false);
+                    var sisyphus = collectFireball(collector, f, at, power, seed, true);
+                    require(ordinary.positions.contains(center.above()) && ordinary.positions.contains(center.below())
+                                    && ordinary.positions.contains(center.west())
+                                    && ordinary.positions.contains(center.east()) == (power == 100)
+                                    && !ordinary.positions.contains(center.above(2)),
+                            "native Sisyphus witness keeps ignition air, cuts stone and distinguishes fluid absorption power=" + power);
+                    require(ordinary.positions.equals(sisyphus.positions) && ordinary.nextRandom == sisyphus.nextRandom
+                                    && ordinary.nextInt == sisyphus.nextInt,
+                            "Sisyphus preserves vanilla fireball positions in order and subsequent RNG power=" + power + " seed=" + seed);
+                    ordinaryNanos += ordinary.nanos;
+                    sisyphusNanos += sisyphus.nanos;
+                }
+                SkyWars2.LOGGER.info("[check] Sisyphus native collector power={} seeds=2 ordinaryTotalUs={} taggedTotalUs={}",
+                        power, ordinaryNanos / 1_000d, sisyphusNanos / 1_000d);
+            }
+        } finally {
+            randomState.restore(f.level.getRandom());
+        }
+    }
+
     public static void run(GameController game){
         sphericalContract();
         String previous=System.getProperty("skywars2.disableExplosionCache");
@@ -111,6 +177,7 @@ public final class NativeExplosionCacheChecks {
             require(boundedNativeCases>=10,"large ordinary native TNT really exercises the finite-height branch");
             heightContract(f);
             require(LbcExasperato.optimizedBlockSearches()-begin==cases,"ordinary TNT really enters optimized collection, including lightshoot column TNT");
+            sisyphusContract(method, f, center);
             SkyWars2.LOGGER.info("[check] native finite-height oracle cases={}",boundedNativeCases);
             SkyWars2.LOGGER.info("[check] PASS native-explosion-cache ({} seeded native/original block sets+RNG identical; block-search benchmark native={}ms optimized={}ms; damage/drop pipeline unchanged)",cases,slowNanos/1e6,fastNanos/1e6);
         }catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
