@@ -23,6 +23,8 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
@@ -80,8 +82,9 @@ public final class MapReplacementChecks {
         final List<String> heightMaps=new ArrayList<>();
         final BlockPos topBlock;
         Path heightFixture;
-        int phase;
+        int phase,manualStarted;
         final List<ItemEntity> debris=new ArrayList<>(),hiddenDebris=new ArrayList<>();
+        final List<Entity> manualWitnesses=new ArrayList<>(),quickstartActors=new ArrayList<>();
         Scene(GameController game){
             checkStoredTerrain();
             this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
@@ -208,6 +211,59 @@ public final class MapReplacementChecks {
             require(world.addFreshEntity(item),"real debris added after the last native paste, before map readiness");
             items.add(item);
         }
+        boolean registered(Entity entity) {
+            var world=(ServerLevel)entity.level();
+            return ((ActorCheckpointAccess.LevelEntities)world).skywars2$manager().isLoaded(entity.getUUID());
+        }
+        void requireHidden(Entity entity) {
+            var world=(ServerLevel)entity.level();
+            require(registered(entity)&&world.getEntity(entity.getUUID())==null,
+                    "native manual-clear witness is registered but hidden in "+world.dimension());
+        }
+        @SuppressWarnings("unchecked") BlockPos coldImprintedCell(ServerLevel mirror) {
+            var bounds=(List<BoundingBox>)field(game.maps(),"imprintedBounds");
+            require(!bounds.isEmpty(),"manual clear has a real Imprinted footprint");
+            for(var box:bounds) {
+                for(int x=box.minX()>>4;x<=box.maxX()>>4;x++) {
+                    for(int z=box.minZ()>>4;z<=box.maxZ()>>4;z++) {
+                        if(!mirror.getChunkSource().hasChunk(x,z)&&!mirror.areEntitiesLoaded(ChunkPos.pack(x,z)))
+                            return new BlockPos(Math.max(x<<4,box.minX()),box.minY(),Math.max(z<<4,box.minZ()));
+                    }
+                }
+            }
+            return null;
+        }
+        void addManualWitnesses(ServerLevel arena,ServerLevel mirror,BlockPos mirrorCell) {
+            BlockPos arenaCell=null;
+            for(int x=untracked.getX()-32;x>=untracked.getX()-160;x-=16) {
+                var candidate=new BlockPos(x,untracked.getY(),untracked.getZ());
+                int cx=candidate.getX()>>4,cz=candidate.getZ()>>4;
+                if(!arena.getChunkSource().hasChunk(cx,cz)&&!arena.areEntitiesLoaded(ChunkPos.pack(cx,cz))) {
+                    arenaCell=candidate;
+                    break;
+                }
+            }
+            require(arenaCell!=null&&!game.maps().arenaTerrainAt(arenaCell),"cold arena witness belongs to the fallback rectangle only");
+            var loose=new ItemEntity(arena,arenaCell.getX()+.5,arenaCell.getY()+.5,arenaCell.getZ()+.5,
+                    new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PAPER));
+            loose.setNoGravity(true);
+            loose.entityTags().add("map_object");
+            manualWitnesses.add(loose);
+            require(arena.addFreshEntity(loose),"native hidden loose item accepted inside manual map scope");
+            requireHidden(loose);
+
+            var marker=Objects.requireNonNull(EntityTypes.MARKER.create(mirror,EntitySpawnReason.COMMAND));
+            marker.setPos(Vec3.atCenterOf(mirrorCell));
+            // This role survives the normal lobby audit. Only the scoped clear should remove it here.
+            marker.entityTags().add("developer_map_marker");
+            manualWitnesses.add(marker);
+            require(mirror.addFreshEntity(marker),"native hidden marker accepted inside old Imprinted footprint");
+            requireHidden(marker);
+            arena.getAllEntities().forEach(entity->{
+                if(entity.entityTags().contains("swrg.quickstart"))quickstartActors.add(entity);
+            });
+            require(!quickstartActors.isEmpty(),"original native lobby overlay has quickstart actors");
+        }
         boolean tick() throws com.mojang.brigadier.exceptions.CommandSyntaxException, IOException {
             require(game.inLobby()&&game.server().getTickCount()-started<3600,"bounded lobby scene");
             if(phase==0){
@@ -237,6 +293,10 @@ public final class MapReplacementChecks {
                 require(game.maps().level().getForceLoadedChunks().contains(ChunkPos.pack(outsideTicket.x(),outsideTicket.z())),
                         "manual clear preserves independent force-loaded chunks outside the arena");
                 require(outsideItem!=null&&!outsideItem.isRemoved(),"manual clear preserves loose items outside the arena: "+outsideItem.getRemovalReason());
+                require(manualWitnesses.size()==2,"both worlds supplied hidden manual witnesses");
+                for(var entity:manualWitnesses)require(entity.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!registered(entity),
+                        "manual clear permanently retires the native hidden body in "+entity.level().dimension()+": "+entity.getRemovalReason());
+                require(quickstartActors.stream().noneMatch(Entity::isRemoved)&&registered(owner),"manual clear preserves the original lobby overlay actors and player");
                 restoreOutsideEntity();
                 checkSweep();
                 restoreOutside();
@@ -286,7 +346,18 @@ public final class MapReplacementChecks {
                     require(game.itemQueue().active(world)==0&&game.itemQueue().dormant(world)==0,"no archived debris can revive after readiness");
                 }
                 checkSweep();
+                manualStarted=game.server().getTickCount();
+                phase=7;return false;
+            }
+            if(phase==7){
                 var level=game.maps().level();
+                var mirror=Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED));
+                var mirrorCell=coldImprintedCell(mirror);
+                if(mirrorCell==null){
+                    require(game.server().getTickCount()-manualStarted<160,"a native Imprinted section becomes hidden after temporary paste tickets release");
+                    return false;
+                }
+                addManualWitnesses(level,mirror,mirrorCell);
                 level.getChunk(untracked.getX()>>4,untracked.getZ()>>4)
                         .setBlockState(untracked,Blocks.DIAMOND_BLOCK.defaultBlockState(),Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
                 var itemPos=outside.east(32);
@@ -327,11 +398,12 @@ public final class MapReplacementChecks {
         try {
             if(!scene.tick())return;
             active=null;
-            SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; startup and mode sweeps, manual cleanup boundaries, Cubes8 visible/hidden loose-item cleanup in both worlds, Imprinted mirror, inclusive map/respawn/Madoka height limits, and original selection restored)");
+            SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; startup and mode sweeps, manual cleanup boundaries and hidden entities, Cubes8 visible/hidden loose-item cleanup in both worlds, Imprinted mirror, inclusive map/respawn/Madoka height limits, and original selection restored)");
         } catch(Throwable error) {
             scene.restoreOutsideEntity();
             for(var item:scene.debris)if(!item.isRemoved())item.discard();
             for(var item:scene.hiddenDebris)if(!item.isRemoved())item.discard();
+            for(var entity:scene.manualWitnesses)if(!entity.isRemoved())entity.discard();
             try { scene.cleanupHeightFixture(); } catch(IOException cleanup) { error.addSuppressed(cleanup); }
             active=null;
             SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);

@@ -656,10 +656,7 @@ public final class MapManager {
             if(mirror!=null){
                 var game=SkyWars2.game();
                 if(game!=null&&game.maps()==this)game.itemQueue().terrainReplaced(mirror,imprintedBounds);
-                var removed=new ArrayList<Entity>();
-                for(var entity:mirror.getAllEntities())
-                    if(!(entity instanceof Player)&&insideAny(entity.blockPosition(),imprintedBounds))removed.add(entity);
-                removed.forEach(Entity::discard);
+                removeRegisteredEntitiesWithin(mirror,imprintedBounds,false);
                 addClearWork(imprintedBounds,false,mirror);
             }
         },Component.translatable("skywars2.map.error.save_bounds"));
@@ -1640,7 +1637,8 @@ public final class MapManager {
         if(fullSweep)retired.add(arenaSweep.bounds);
         var game=SkyWars2.game();
         if(game!=null&&game.maps()==this)game.itemQueue().terrainReplaced(level,retired);
-        removeMapEntitiesWithin(retired);
+        if(clearingArena)removeRegisteredEntitiesWithin(level,retired,lobbyOverlayActive);
+        else removeMapEntitiesWithin(retired);
         restoreCages();
         clearForcedChunksOutsideLobby(clearingArena?retired:null);
         mapUnderLobby.clear();
@@ -2270,16 +2268,39 @@ public final class MapManager {
     private void removeMapEntitiesWithin(List<BoundingBox> bounds) {
         for (Entity entity : entitiesWithin(bounds)) {
             if (entity instanceof Player) continue;
-            if (lobbyOverlayActive && (entity.entityTags().contains("swrg.lobby")
-                    || entity.entityTags().contains("swrg.quickstart"))) continue;
+            if (lobbyOverlayActive && lobbyOverlayActor(entity)) continue;
             entity.discard();
         }
     }
 
+    /** Manual cleanup includes bodies already registered in native sections before tracking starts. */
+    private static void removeRegisteredEntitiesWithin(ServerLevel world, List<BoundingBox> bounds, boolean protectLobby) {
+        if (bounds.isEmpty()) return;
+        var manager = ((ActorCheckpointAccess.LevelEntities)world).skywars2$manager();
+        var sections = ((ActorCheckpointAccess.Sections)manager).skywars2$sections();
+        var retired = new ArrayList<Entity>();
+        var chunks = sections.getAllChunksWithExistingSections().iterator();
+        while (chunks.hasNext()) {
+            long chunk = chunks.nextLong();
+            int x = ChunkPos.getX(chunk) << 4, z = ChunkPos.getZ(chunk) << 4;
+            if (bounds.stream().noneMatch(box -> x <= box.maxX() && x + 15 >= box.minX()
+                    && z <= box.maxZ() && z + 15 >= box.minZ())) continue;
+            sections.getExistingSectionsInChunk(chunk).forEach(section -> section.getEntities().forEach(entity -> {
+                if (!entity.isRemoved() && !(entity instanceof Player)
+                        && (!protectLobby || !lobbyOverlayActor(entity)) && insideAny(entity.blockPosition(),bounds))
+                    retired.add(entity);
+            }));
+        }
+        retired.forEach(Entity::discard);
+    }
+
+    private static boolean lobbyOverlayActor(Entity entity) {
+        return entity.entityTags().contains("swrg.lobby") || entity.entityTags().contains("swrg.quickstart");
+    }
+
     private void removeLobbyEntities() {
         for (Entity entity : entitiesWithin(lobbyBounds)) {
-            if (!(entity instanceof Player) && (entity.entityTags().contains("swrg.lobby")
-                    || entity.entityTags().contains("swrg.quickstart"))) entity.discard();
+            if (!(entity instanceof Player) && lobbyOverlayActor(entity)) entity.discard();
         }
     }
 
