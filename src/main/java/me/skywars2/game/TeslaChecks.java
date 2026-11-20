@@ -317,6 +317,127 @@ public final class TeslaChecks {
             }
         }
 
+        void yellowKatanaFamilyContacts() {
+            var level = owner.level();
+            var electro = game.items().electro();
+            var cell = BlockPos.containing(at).offset(2, 5, 24);
+            var from = Vec3.atCenterOf(cell).add(0, 0, -1);
+            var meleeTarget = cow(owner.position().add(1, 0, 0));
+            var mother = EntityTypes.ARMOR_STAND.create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            require(mother != null, "native Yellow Katana Mother fixture");
+            var tesla = game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/tesla"));
+            require(tesla != null, "native Tesla advancement for unrelated award control");
+            var tracker = owner.getAdvancements();
+            var oldCriteria = new HashSet<String>();
+            tracker.getOrStartProgress(tesla).getCompletedCriteria().forEach(oldCriteria::add);
+            var main = owner.getMainHandItem();
+            var oldPitch = owner.getXRot();
+            var oldYaw = owner.getYRot();
+            try {
+                oldCriteria.forEach(criterion -> tracker.revoke(tesla, criterion));
+                owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(LbcElectro.SHIT_KATANA));
+                owner.setXRot(0);
+                owner.setYRot(0);
+                block(cell.north(), Blocks.AIR);
+                block(cell, LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI));
+                require(yellowDrops(from).isEmpty(), "empty native Yellow Katana loot corridor");
+                var loliHit = fireYellowKatanaArc(electro, meleeTarget, from);
+                var loot = yellowDrops(from);
+                SkyWars2.LOGGER.info("[check] native Yellow Katana Loli contact: {} drops, endpoint {}",
+                        loot.size(), loliHit.position);
+                require(loot.size()==1 && loot.getFirst().getItem().getCount()==1
+                                && Math.abs(loliHit.position.z-cell.getZ())<1e-6
+                                && LbcLuckyBlocks.kind(level.getBlockState(cell))==LbcLuckyBlocks.Kind.LOLI,
+                        "a real Yellow Katana arc stops on Loli and drops one Yellow Lightning");
+                loot.forEach(Entity::discard);
+
+                mother.entityTags().addAll(Set.of("mom", "skywars2.family"));
+                game.items().markCurrentItemEpoch(mother);
+                mother.setNoGravity(true);
+                mother.setPos(from.add(0, -.5, 1.05));
+                require(level.addFreshEntity(mother) && game.items().familyDrops().snapshot().contains(mother),
+                        "native Yellow Katana Mother enters the actor index");
+                block(cell, Blocks.STONE);
+                var wallHit = fireYellowKatanaArc(electro, meleeTarget, from);
+                require(Math.abs(wallHit.position.z-cell.getZ())<1e-6 && yellowDrops(from).isEmpty(),
+                        "natural stone collision prevents a Mother reaction behind the wall");
+
+                block(cell, LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI));
+                mother.setPos(from.add(0, -.5, .75));
+                var motherHit = fireYellowKatanaArc(electro, meleeTarget, from);
+                loot = yellowDrops(from);
+                require(loot.size()==1 && loot.getFirst().getItem().getCount()==1
+                                && motherHit.position.z>from.z && motherHit.position.z<cell.getZ()
+                                && Math.abs(loot.getFirst().getZ()-motherHit.position.z)<1e-6
+                                && mother.isAlive() && LbcLuckyBlocks.kind(level.getBlockState(cell))==LbcLuckyBlocks.Kind.LOLI,
+                        "closest native Mother stops the arc early and reacts once while leaving the Loli block intact");
+                loot.forEach(Entity::discard);
+
+                checkYellowKatanaShield(electro, meleeTarget, from);
+                require(!tracker.getOrStartProgress(tesla).isDone(),
+                        "Yellow Katana family contact does not award the unrelated Tesla advancement");
+            } finally {
+                electro.transformOrigins(level, point -> null);
+                electro.reset(owner);
+                yellowDrops(from).forEach(Entity::discard);
+                block(cell, Blocks.AIR);
+                mother.discard();
+                meleeTarget.discard();
+                owner.setItemInHand(InteractionHand.MAIN_HAND, main);
+                owner.setXRot(oldPitch);
+                owner.setYRot(oldYaw);
+                oldCriteria.forEach(criterion -> tracker.award(tesla, criterion));
+            }
+        }
+
+        private LbcElectro.YellowTrace fireYellowKatanaArc(LbcElectro electro, ProbeCow target, Vec3 from) {
+            require(electro.yellowSnapshot().isEmpty(), "fresh native Yellow Katana volley");
+            target.setInvulnerableTime(0);
+            target.damageCooldownTime = 0;
+            float health = target.getHealth();
+            owner.resetAttackStrengthTicker();
+            owner.attack(target);
+            var volley = electro.yellowSnapshot();
+            require(target.getHealth()<health && volley.size()==7,
+                    "native accepted melee launches seven ordinary Yellow Katana arcs");
+            var witness = volley.getFirst();
+            var eye = witness.position;
+            // Route one actual melee bolt into the bounded corridor so the drop count is exact.
+            electro.transformOrigins(owner.level(), point -> point.equals(eye) ? from : null);
+            require(electro.yellowSnapshot().equals(List.of(witness)), "one real Yellow Katana trace enters the corridor");
+            electro.tick();
+            require(electro.yellowSnapshot().isEmpty(), "terminal native Yellow Katana contact retires the trace");
+            return witness;
+        }
+
+        private void checkYellowKatanaShield(LbcElectro electro, ProbeCow target, Vec3 from) {
+            var offhand = other.getOffhandItem();
+            var position = other.position();
+            var yaw = other.getYRot();
+            var pitch = other.getXRot();
+            var scoreboard = game.server().getScoreboard();
+            scoreboard.removePlayerFromTeam(other.getScoreboardName(), team);
+            try {
+                var blocker = from.add(0, -1, 2.95);
+                other.teleportTo(other.level(), blocker.x, blocker.y, blocker.z, Set.of(), 180, 0, true);
+                other.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.SHIELD));
+                other.startUsingItem(InteractionHand.OFF_HAND);
+                for (int i=0;i<6;i++) other.doTick();
+                var clip = game.items().wands().shieldHit(owner, from, from.add(0, 0, .5));
+                require(other.isBlocking() && clip!=null && clip.getEntity()==other
+                                && clip.getLocation().z>from.z && clip.getLocation().z<from.z+.4,
+                        "active native shield is ahead of both family targets");
+                var blocked = fireYellowKatanaArc(electro, target, from);
+                require(blocked.position.distanceToSqr(clip.getLocation())<1e-8 && yellowDrops(from).isEmpty(),
+                        "the native shield stops Yellow Katana before either family target can react");
+            } finally {
+                other.stopUsingItem();
+                other.setItemInHand(InteractionHand.OFF_HAND, offhand);
+                other.teleportTo(other.level(), position.x, position.y, position.z, Set.of(), yaw, pitch, true);
+                scoreboard.addPlayerToTeam(other.getScoreboardName(), team);
+            }
+        }
+
         private List<net.minecraft.world.entity.item.ItemEntity> yellowDrops(Vec3 point) {
             return owner.level().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
                     new net.minecraft.world.phys.AABB(point, point).inflate(3),
@@ -347,7 +468,7 @@ public final class TeslaChecks {
             clear();cows.forEach(Entity::discard);technical.discard();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();instantContacts();chain();familyArcContacts();boundaries();beginInstant();phase++;return false;}
+            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();instantContacts();chain();yellowKatanaFamilyContacts();familyArcContacts();boundaries();beginInstant();phase++;return false;}
             if(phase==1){require(game.items().stonekivi().count()>0&&instantVictim.direct==0,"actual Time Stop freezes queued instant work");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){if(game.items().stonekivi().count()>0){require(++waits<200,"queued five rays complete");return false;}require(instantVictim.getHealth()<1000&&instantVictim.direct>=5&&instantVictim.getKillCredit()==owner,"all five native instant beams hit and credit real caster");instantVictim.discard();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("tesla_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"actual Tesla Academy admission");phase++;return false;}

@@ -13,15 +13,19 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
@@ -49,7 +53,8 @@ public final class ErectoChecks {
             saved=new GameChecks.WandThirdPlayerState(owner,game.items().mana());otherSaved=new GameChecks.WandThirdPlayerState(other,game.items().mana());offhand=game.config().offhandWands;
             var p=game.players().get(owner.getUUID());skill=p.lbcSkill;trinket=p.lbcTrinket;challengeProgress=p.lbcChallengeProgress;unlocks=new HashSet<>(p.lbcUnlocks);
             for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var s=net.minecraft.stats.Stats.CUSTOM.get(id);stats.put(s,owner.getStats().getValue(s));}
-            for(String key:List.of("lbc:true_advancements/legends/tuntija_wands/erecto","lbc:true_advancements/legends/academy/erecto")){
+            for(String key:List.of("lbc:true_advancements/legends/tuntija_wands/erecto","lbc:true_advancements/legends/academy/erecto",
+                    "lbc:true_advancements/staffs/tesla")){
                 var id=Identifier.parse(key);var advancement=game.server().getAdvancements().get(id);if(advancement!=null){var done=new HashSet<String>();owner.getAdvancements().getOrStartProgress(advancement).getCompletedCriteria().forEach(done::add);advancements.put(id,done);}
             }
             owner.level().getAllEntities().forEach(before::add);team=game.server().getScoreboard().addPlayerTeam("erecto_fixture");team.setAllowFriendlyFire(false);
@@ -153,6 +158,99 @@ public final class ErectoChecks {
             require(stopped&&continued,"both source20-percent stop and continued wall penetration exercised");
             owner.setXRot(90);game.items().mana().set(owner,1100);var enemy=cow(at.add(0,5,80));require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==1100&&traces().isEmpty()&&owner.getXRot()<89,"downward sniper use is free aim assistance without a shot");enemy.discard();owner.setXRot(0);owner.setYRot(0);owner.removeAllEffects();game.items().mana().set(owner,100000);
         }
+        LbcWands.ElectroTrace familyShot(boolean crossbow, Vec3 from, float yaw) {
+            owner.setXRot(0);
+            owner.setYRot(yaw);
+            owner.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+            var item = loot(crossbow ? "imba_sniper_crossbow" : "academy_erecto_wand");
+            if (crossbow) {
+                item.set(DataComponents.CHARGED_PROJECTILES,
+                        ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
+            } else {
+                flag(item, "mode", 4);
+                game.items().mana().set(owner, 1100);
+            }
+            require(use(item, InteractionHand.MAIN_HAND), "native family-contact shot");
+            var active = traces();
+            require(active.size() == 1, "native item emits one sniper path");
+            var shot = active.getFirst();
+            require(shot.erecto.kind == (crossbow ? LbcErecto.CROSSBOW : LbcErecto.SNIPER),
+                    "fixture uses the real moving sniper path");
+            shot.position = from;
+            shot.yaw = yaw;
+            shot.pitch = 0;
+            return shot;
+        }
+        List<ItemEntity> yellowDrops(Vec3 from, Vec3 to) {
+            return owner.level().getEntitiesOfClass(ItemEntity.class, new AABB(from, to).inflate(1),
+                    item -> flag(item.getItem(), "yellow_lightning") == 1);
+        }
+        void familyContacts() {
+            var level = owner.level();
+            var loli = LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI);
+            for (boolean crossbow : new boolean[]{false, true}) {
+                var cell = BlockPos.containing(at).offset(2, 9, crossbow ? 67 : 50);
+                var exact = new Vec3(cell.getX(), cell.getY() + .5, cell.getZ() + .94);
+                var direction = Vec3.directionFromRotation(0, -45);
+                var from = exact.subtract(direction.scale(2.45));
+                var to = from.add(direction.scale(5));
+                require(yellowDrops(from, to).isEmpty(), "isolated Yellow Lightning output");
+                // The arc crosses the corner between two of its native 0.3-block samples.
+                for (int sample = 0; sample <= 60; sample++) {
+                    require(!BlockPos.containing(from.add(direction.scale(sample * .3))).equals(cell),
+                            "Loli contact is between samples");
+                }
+                var victim = cow(exact.add(direction.scale(2)).add(0, -.6, 0));
+                block(cell, loli);
+                try {
+                    var shot = familyShot(crossbow, from, -45);
+                    game.items().wands().tick();
+                    var drops = yellowDrops(from, to);
+                    require(!traces().contains(shot) && shot.position.distanceToSqr(exact) < 1e-10
+                                    && drops.size() == 1 && drops.getFirst().getItem().getCount() == 1,
+                            "sniper stops at exact Loli face and drops one source item, crossbow=" + crossbow
+                                    + ", distance=" + shot.position.distanceTo(exact) + ", drops=" + drops.size());
+                    require(drops.getFirst().position().distanceToSqr(exact) < 1e-10
+                                    && level.getBlockState(cell).is(loli) && victim.getHealth() == 1000
+                                    && shot.erecto.pendingBlasts == null,
+                            "Loli stays intact and blocks downstream damage or blast");
+                    drops.forEach(Entity::discard);
+
+                    var mother = EntityTypes.ARMOR_STAND.create(level, EntitySpawnReason.COMMAND);
+                    require(mother != null, "native Mother");
+                    mother.entityTags().addAll(Set.of("mom", "skywars2.family"));
+                    game.items().markCurrentItemEpoch(mother);
+                    mother.setNoGravity(true);
+                    mother.setPermanentlyInvulnerable(true);
+                    mother.setPos(from.add(direction.scale(1.4)).add(0, -.5, 0));
+                    require(level.addFreshEntity(mother) && game.items().familyDrops().snapshot().contains(mother),
+                            "registered native Mother");
+                    try {
+                        var motherFace = mother.getBoundingBox().inflate(.12).clip(from, exact).orElseThrow();
+                        shot = familyShot(crossbow, from, -45);
+                        game.items().wands().tick();
+                        drops = yellowDrops(from, to);
+                        require(!traces().contains(shot) && shot.position.distanceToSqr(motherFace) < 1e-10
+                                        && drops.size() == 1 && drops.getFirst().getItem().getCount() == 1
+                                        && drops.getFirst().position().distanceToSqr(motherFace) < 1e-10,
+                                "earlier Mother intercepts the sniper before Loli, crossbow=" + crossbow);
+                        require(mother.isAlive() && level.getBlockState(cell).is(loli)
+                                        && victim.getHealth() == 1000 && shot.erecto.pendingBlasts == null,
+                                "Mother contact preserves actors and downstream terrain");
+                    } finally {
+                        mother.discard();
+                    }
+                } finally {
+                    yellowDrops(from, to).forEach(Entity::discard);
+                    victim.discard();
+                    clearTraces();
+                    game.maps().restoreSnapshot(level, cell, blocks.get(cell));
+                }
+            }
+            owner.setXRot(0);
+            owner.setYRot(0);
+            game.items().mana().set(owner, 100000);
+        }
         LbcErecto.Sphere sphere;int waits,peak;
         void beginSphere(){
             var wall=BlockPos.containing(owner.getEyePosition().add(0,0,5));block(wall,Blocks.STONE);var s=loot("academy_erecto_wand");flag(s,"mode",3);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);require(use(s,InteractionHand.MAIN_HAND)&&game.items().erecto().sphereCount()==1,"native sphere first wall acquisition");sphere=game.items().erecto().sphereSnapshot().getFirst();for(int i=0;i<5;i++)game.items().erecto().tick();require(traces().size()==16&&traces().stream().allMatch(t->t.erecto.kind==LbcErecto.PHANTOM&&t.lifetime==8),"16 source phantom charges at5 ticks, each lifetime8");
@@ -163,7 +261,7 @@ public final class ErectoChecks {
             owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);owner.setYRot(0);owner.setXRot(0);game.items().mana().set(owner,100000);require(use(trial,InteractionHand.OFF_HAND),"actual used-hand trial volley");var side=traces().stream().filter(t->t.erecto.kind==LbcErecto.SIDE).findFirst().orElseThrow();for(var t:traces())if(t!=side)t.age=t.lifetime;side.erecto.side=0;side.yaw=0;side.pitch=0;side.age=40;side.position=side.erecto.origin.add(0,0,65);var near=cow(side.position.add(0,-.6,1));game.items().wands().tick();require(flag(trial,"upgrade_available")==0,"old age40 near hit does not qualify");near.discard();side.age=1;side.position=side.erecto.origin.add(0,0,80);side.yaw=0;side.pitch=0;var far=cow(side.position.add(0,-.6,1));game.items().wands().tick();require(far.getHealth()<1000&&flag(trial,"upgrade_available")==1,"accepted real side hit beyond70 qualifies despite age1");far.discard();clearTraces();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();ray();sniper();beginSphere();phase++;return false;}
+            if(phase==0){presentation();geometry();ray();sniper();familyContacts();beginSphere();phase++;return false;}
             if(phase==1){require(sphere.age==5,"actual Time Stop freezes sphere and its schedule");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){peak=Math.max(peak,traces().size());if(game.items().erecto().sphereCount()>0){require(++waits<320,"natural sphere expires in300 ticks");return false;}require(sphere.age==300&&peak<=32,"15-second source sphere completes without unbounded active arc accumulation");clearTraces();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("erecto_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"real Erecto Academy admission");phase++;return false;}

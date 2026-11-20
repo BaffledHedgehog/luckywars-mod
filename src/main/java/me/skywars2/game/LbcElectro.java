@@ -314,6 +314,9 @@ public final class LbcElectro {
         var shield=game.items().wands().shieldHit(trace.owner,from,wall==null ? end : wall.getLocation());
         if(wall!=null) end=wall.getLocation();
         if(shield!=null) end=shield.getLocation();
+        var contact=game.items().familyDrops().reactToArc(trace.level,from,end,
+                wall!=null&&shield==null?wall.getBlockPos():null,trace.owner,false);
+        if(contact!=null) end=contact;
         double distance=from.distanceTo(end);
         try(var yellowVisual=new LbcParticleBatch.Group(trace.level,YELLOW_PARTICLE,.1,0,true);var yellowDirt=new LbcParticleBatch.Group(trace.level,DIRT_PARTICLE,.1,1,false)){
 for(int i=0;i<=2;i++) {
@@ -330,7 +333,7 @@ for(int i=0;i<=2;i++) {
         LbcDamage.hurtArc(trace.level,yellowDamage(trace,LbcDamage.YELLOW_BOLT),from,end,.5,.25f,2,
                 entity->yellowTarget(trace.owner,entity),false,false,trace.owner,null);
         trace.position=end;
-        if(!yellowTraces.contains(trace) || !game.items().currentEpoch(trace.epoch)
+        if(contact!=null || !yellowTraces.contains(trace) || !game.items().currentEpoch(trace.epoch)
                 || game.stage()==GameController.Stage.ENDING) return false;
         if(shield!=null) {
             LbcOverload.sound(trace.owner,end,"minecraft:item.shield.block",1,1,0); return false;

@@ -112,6 +112,19 @@ public final class LbcFamilyDrops {
      * A loaded lucky block or the first Mother intercepts the arc and drops the source loot.
      */
     Vec3 reactToArc(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock, ServerPlayer author) {
+        return reactToArc(level, from, end, struckBlock, author, true);
+    }
+
+    Vec3 reactToArc(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock, ServerPlayer author, boolean awardTesla) {
+        var hit=firstArcContact(level,from,end,struckBlock);
+        if(hit==null)return null;
+        reactToArc(level,hit,author,awardTesla);
+        return hit.position();
+    }
+
+    record ArcContact(Vec3 position, BlockPos block, ArmorStand mother) {}
+
+    ArcContact firstArcContact(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock) {
         if (!game.playing() || game.stage() == GameController.Stage.ENDING || !LbcDimensionItems.ordinary(level)) return null;
         BlockPos loli = struckBlock != null && level.hasChunkAt(struckBlock)
                 && LbcLuckyBlocks.kind(level.getBlockState(struckBlock)) == LbcLuckyBlocks.Kind.LOLI ? struckBlock : null;
@@ -132,16 +145,19 @@ public final class LbcFamilyDrops {
             }
         }
         if (mother == null && loli == null) return null;
+        return new ArcContact(contact,mother==null?loli:null,mother);
+    }
 
-        var target = mother == null ? new ArcTarget(level, loli, null) : new ArcTarget(level, null, mother);
+    void reactToArc(ServerLevel level, ArcContact hit, ServerPlayer author, boolean awardTesla) {
+        var contact=hit.position();
+        var target=new ArcTarget(level,hit.block(),hit.mother());
         for (var stack : game.lbc().rollTable(level, contact, author, "lbc:yellow_lightning")) {
             var item = new ItemEntity(level, contact.x, contact.y, contact.z, stack);
             item.setDefaultPickUpDelay();
             level.addFreshEntity(item);
         }
-        arcEffects.put(target, mother == null ? 30 : 60);
-        if (author != null) game.items().mana().award(author, "lbc:true_advancements/staffs/tesla");
-        return contact;
+        arcEffects.put(target, hit.mother() == null ? 30 : 60);
+        if (awardTesla && author != null) game.items().mana().award(author, "lbc:true_advancements/staffs/tesla");
     }
 
     private void tickArcEffects() {

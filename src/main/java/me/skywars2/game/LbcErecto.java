@@ -381,6 +381,11 @@ final class LbcErecto {
         if(crossbow&&trace.erecto.pendingBlasts!=null)return true;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean alive=true,emitted=false;
         double mechanismDistance=game.items().magic().mechanismSuppressionFraction(trace.level,from,from.add(direction.scale(18)))*18;
+        var family=game.items().familyDrops();
+        Vec3 familyLimit=from.add(direction.scale(Math.min(18,mechanismDistance)));
+        var loli=LbcTerra.wallHit(trace.level,from,familyLimit,state->LbcLuckyBlocks.kind(state)==LbcLuckyBlocks.Kind.LOLI);
+        var familyHit=family.firstArcContact(trace.level,from,loli==null?familyLimit:loli.getLocation(),loli==null?null:loli.getBlockPos());
+        double familyDistance=familyHit==null?Double.POSITIVE_INFINITY:from.distanceTo(familyHit.position())/direction.length();
         var particle=crossbow?CROSSBOW_DUST:SNIPER_DUST;
         double yawRadians=Math.toRadians(trace.yaw);
         var right=new Vec3(Math.cos(yawRadians),0,Math.sin(yawRadians));
@@ -393,6 +398,11 @@ final class LbcErecto {
         int dustPoints=0;
         try (var dust = new LbcParticleBatch.Group(trace.level,particle,.1,.1,.1,0,true,.31,legacy?1:3)) {
             for(int i=0;i<=60;i++){
+                if(familyDistance<mechanismDistance-1e-7&&i*.3+1e-7>=familyDistance){
+                    end=familyHit.position();alive=false;emitted=true;
+                    family.reactToArc(trace.level,familyHit,trace.owner,true);
+                    break;
+                }
                 if(i*.3>=mechanismDistance){end=from.add(direction.scale(mechanismDistance));alive=false;break;}
                 Vec3 point=from.add(direction.scale(i*.3));var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){alive=false;break;}
                 emitted=true;end=point;
