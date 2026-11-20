@@ -1699,6 +1699,7 @@ public final class LbcItems {
             entity.discard();
             return;
         }
+        LbcSpecialEggs.adoptFromSpawner(game, entity);
         steampunkRocket.loaded(entity);trollBox.loaded(entity);
         helicopterEncounter.loaded(entity);crocodildo.loaded(entity);
         transformator.loaded(entity);

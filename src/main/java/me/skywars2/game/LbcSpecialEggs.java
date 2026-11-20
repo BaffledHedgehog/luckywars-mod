@@ -4,13 +4,16 @@ import eu.pb4.polymer.core.api.item.PolymerItem;
 import me.skywars2.SkyWars2;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +23,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Vex;
@@ -35,10 +40,16 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /** Source eggs retain vanilla placement, finalizeSpawn, fluid use and dispenser spawning. */
 public final class LbcSpecialEggs {
+    private static final String SPAWNER_MARK = "skywars2.spawner_egg.";
+
     public enum Kind {
         MOM("skywars2:mom_spawn_egg", "mom_spawn_egg", Items.PIG_SPAWN_EGG, EntityTypes.ITEM, "lbc:tier_ff", """
                 {"PickupDelay":32767,"Item":{"count":1,"id":"skywars2:mom_drop"}}
@@ -90,7 +101,13 @@ public final class LbcSpecialEggs {
                 """);
 
         private final Item item;
+        private final EntityType<?> entityType;
+        private final String nameKey;
+        private final String spawnerMark;
         Kind(String id, String name, Item proxy, EntityType<?> type, String tier, String payload) {
+            this.entityType = type;
+            this.nameKey = name;
+            this.spawnerMark = SPAWNER_MARK + name;
             var key=ResourceKey.create(Registries.ITEM, Identifier.parse(id));
             var flags=new CompoundTag(); flags.putInt("imba",1);
             item=Registry.register(BuiltInRegistries.ITEM,key,new Egg(new Item.Properties() {
@@ -112,11 +129,112 @@ public final class LbcSpecialEggs {
     }
     public static final Item SLAB=Kind.SLAB.item(), LOW_VEX=Kind.LOW_VEX.item(),
             SARVATRA_CREEPER=Kind.SARVATRA_CREEPER.item(), SHAHID=Kind.SHAHID.item();
+    private static final Map<String, Kind> AUTHORED_NAMES = EnumSet.allOf(Kind.class).stream()
+            .collect(Collectors.toUnmodifiableMap(kind -> kind.nameKey, Function.identity()));
+    private static final Map<String, Kind> SPAWNER_KINDS = EnumSet.allOf(Kind.class).stream()
+            .collect(Collectors.toUnmodifiableMap(kind -> kind.spawnerMark, Function.identity()));
     private LbcSpecialEggs() { }
     public static void register() { }
     public static Kind kind(ItemStack stack) {
         for(var kind:Kind.values()) if(stack.is(kind.item())) return kind;
+        if (!(stack.getItem() instanceof SpawnEggItem)) return null;
+        var name = stack.get(DataComponents.CUSTOM_NAME);
+        var data = stack.get(DataComponents.ENTITY_DATA);
+        if (name == null || !(name.getContents() instanceof TranslatableContents translated) || data == null
+                || ItemData.intValue(stack, "imba", 0) != 1) return null;
+        var authored = AUTHORED_NAMES.get(translated.getKey());
+        return authored != null && authored.entityType == data.type() && legacyPayload(authored, data.getUnsafe())
+                ? authored : null;
+    }
+
+    private static boolean legacyPayload(Kind kind, CompoundTag data) {
+        var tags = data.getListOrEmpty("Tags");
+        var loot = data.getStringOr("DeathLootTable", "");
+        var equipment = data.getCompoundOrEmpty("equipment");
+        var main = equipment.getCompoundOrEmpty("mainhand").getCompoundOrEmpty("components");
+        var head = equipment.getCompoundOrEmpty("head");
+        var headModel = head.getCompoundOrEmpty("components").getStringOr("minecraft:item_model", "");
+        var item = data.getCompoundOrEmpty("Item").getStringOr("id", "");
+        return switch (kind) {
+            case STALIN -> tags.contains(StringTag.valueOf("stalin")) && tags.contains(StringTag.valueOf("lucky_mob"))
+                    && loot.equals("lbc:stalin") && main.getStringOr("minecraft:item_model", "").equals("lbc:ak47");
+            case TRANSFORMATOR -> tags.contains(StringTag.valueOf("transformator")) && tags.contains(StringTag.valueOf("lucky_mob"))
+                    && data.getBooleanOr("NoAI", false) && headModel.equals("lbc:transformator");
+            case ANT -> tags.contains(StringTag.valueOf("muravei")) && tags.contains(StringTag.valueOf("lucky_mob"))
+                    && (loot.equals("lbc:muravei") || loot.equals("lbc:ant_rewards")) && headModel.equals("lbc:muravei");
+            case FAT_SKELETON -> tags.contains(StringTag.valueOf("fat_skeleton"))
+                    && (loot.equals("lbc:fatskeleton") || loot.equals("lbc:fat_skeleton_rewards"));
+            case SLAB -> data.getBooleanOr("IsBaby", false) && loot.equals("minecraft:empty")
+                    && head.getStringOr("id", "").equals("minecraft:oak_slab");
+            case LOW_VEX -> loot.equals("lbc:vex_sword") && data.getFloatOr("Health", 0) == 1;
+            case SARVATRA_CREEPER -> loot.equals("lbc:creeper_wand") && data.getIntOr("ExplosionRadius", 0) == 1;
+            case LUCKY_PIG -> loot.equals("lbc:applepig");
+            case HONEY_BEE -> loot.equals("lbc:honey") && data.getBooleanOr("HasNectar", false);
+            case HELICOPTER, SHAHID, HOHOL -> item.equals("minecraft:repeating_command_block");
+            case MOM -> item.equals("skywars2:mom_drop");
+            case OTCHIM -> item.equals("skywars2:otchim_drop");
+        };
+    }
+
+    public static TypedEntityData<EntityType<?>> spawnerData(ItemStack stack, TypedEntityData<EntityType<?>> data,
+                                                             HolderLookup.Provider registries) {
+        data = LbcFakePlayer.spawnerData(stack, data, registries);
+        Kind kind = kind(stack);
+        if (kind == null || kind.entityType != data.type()) return data;
+        var payload = data.copyTagWithoutId();
+        var tags = payload.getListOrEmpty("Tags");
+        var marker = StringTag.valueOf(kind.spawnerMark);
+        if (!tags.contains(marker)) tags.add(marker);
+        payload.put("Tags", tags);
+        return TypedEntityData.of(data.type(), payload);
+    }
+
+    /** The spawner has no egg item or actor. The marker is consumed only after native publication. */
+    static void adoptFromSpawner(GameController game, Entity entity) {
+        if (!activeArena(game, entity) || entity.entityTags().isEmpty()) return;
+        for (var tag = entity.entityTags().iterator(); tag.hasNext();) {
+            Kind kind = SPAWNER_KINDS.get(tag.next());
+            if (kind == null || kind.entityType != entity.getType()) continue;
+            tag.remove();
+            adoptKind(game, entity, null, kind);
+            return;
+        }
+        Kind legacy = legacyLoadedKind(entity);
+        if (legacy != null) adoptKind(game, entity, null, legacy);
+    }
+
+    private static boolean activeArena(GameController game, Entity entity) {
+        return game.playing() && game.stage() != GameController.Stage.ENDING
+                && entity.level() == game.maps().level() && LbcDimensionItems.ordinary(entity.level());
+    }
+
+    private static Kind legacyLoadedKind(Entity entity) {
+        if (!(entity instanceof Mob mob)) return null;
+        var tags = mob.entityTags();
+        if (mob.getType() == EntityTypes.SKELETON && tags.contains("fat_skeleton") && !LbcCreatureDrops.managed(mob)
+                && hasLoot(mob, "lbc:fatskeleton", "lbc:fat_skeleton_rewards")) return Kind.FAT_SKELETON;
+        if (!tags.contains("lucky_mob")) return null;
+        if (mob.getType() == EntityTypes.ZOMBIFIED_PIGLIN && tags.contains("stalin") && !LbcStalin.managed(mob)
+                && hasLoot(mob, "lbc:stalin") && model(mob, EquipmentSlot.MAINHAND, "lbc:ak47")) return Kind.STALIN;
+        if (mob.getType() != EntityTypes.ZOMBIE) return null;
+        if (tags.contains("transformator") && !LbcTransformator.managed(mob) && mob.isNoAi()
+                && model(mob, EquipmentSlot.HEAD, "lbc:transformator")) return Kind.TRANSFORMATOR;
+        if (tags.contains("muravei") && !LbcAntDrops.managed(mob) && hasLoot(mob, "lbc:muravei", "lbc:ant_rewards")
+                && model(mob, EquipmentSlot.HEAD, "lbc:muravei")) return Kind.ANT;
         return null;
+    }
+
+    private static boolean hasLoot(Mob mob, String... tables) {
+        var key = mob.getLootTable().orElse(null);
+        if (key == null) return false;
+        String id = key.identifier().toString();
+        for (var table : tables) if (table.equals(id)) return true;
+        return false;
+    }
+
+    private static boolean model(Mob mob, EquipmentSlot slot, String expected) {
+        var model = mob.getItemBySlot(slot).get(DataComponents.ITEM_MODEL);
+        return model != null && model.toString().equals(expected);
     }
     public static boolean matches(ItemStack stack) { return kind(stack)!=null; }
     public static boolean allowed(GameController game,Player user) {
@@ -152,8 +270,15 @@ public final class LbcSpecialEggs {
     public static void adopt(GameController game,Entity entity,LivingEntity user,ItemStack stack) {
         LbcFakePlayer.adopt(entity,user,stack);
         if(game!=null){game.items().balance().adoptEgg(entity,user);LbcImbaFollowup.adopt(game,entity,user,stack);LbcImbaPlaceableItems.adopt(game,entity,user instanceof ServerPlayer player?player:null,stack);}
+        if (game != null) game.items().grimoireRooms().captureMonumentAuthor(entity, user);
         var kind=kind(stack);
-        if(game==null || kind==null) return;
+        if(game==null || kind==null || kind.entityType != entity.getType()) return;
+        if (!stack.is(kind.item()) && !activeArena(game, entity)) return;
+        adoptKind(game, entity, user, kind);
+        restoreAuthoredName(entity,stack);
+    }
+
+    private static void adoptKind(GameController game, Entity entity, LivingEntity user, Kind kind) {
         var author=user instanceof ServerPlayer player ? player : null;
         switch(kind) {
             case SLAB -> { if(entity instanceof Zombie zombie) game.items().slabDrops().adoptEgg(zombie,author); }
@@ -178,7 +303,6 @@ public final class LbcSpecialEggs {
                 }
             }
         }
-        restoreAuthoredName(entity,stack);
     }
     /** ENTITY_DATA recursively merges compounds; an omitted color must not inherit the red egg title. */
     private static void restoreAuthoredName(Entity entity,ItemStack stack) {

@@ -3,7 +3,7 @@ package me.skywars2.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import me.skywars2.game.LbcFakePlayer;
+import me.skywars2.game.LbcSpecialEggs;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
@@ -20,14 +20,14 @@ public abstract class SpawnEggSpawnerMixin {
     @WrapOperation(method="useOn",at=@At(value="INVOKE",target="Lnet/minecraft/world/level/Spawner;setEntityData(Lnet/minecraft/world/item/component/TypedEntityData;Lnet/minecraft/util/RandomSource;)V"))
     private void skywars2$namedOperatorEgg(Spawner spawner,TypedEntityData<EntityType<?>> data,RandomSource random,
             Operation<Void> original,@Local(argsOnly=true)UseOnContext context){
-        original.call(spawner,LbcFakePlayer.spawnerData(context.getItemInHand(),data,context.getLevel().registryAccess()),random);
+        original.call(spawner,LbcSpecialEggs.spawnerData(context.getItemInHand(),data,context.getLevel().registryAccess()),random);
     }
 
     @WrapOperation(method="useOn",at=@At(value="INVOKE",target="Lnet/minecraft/world/level/Spawner;setEntityId(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/util/RandomSource;)V"))
     private void skywars2$fullEgg(Spawner spawner,EntityType<?> type,RandomSource random,Operation<Void> original,
             @Local(argsOnly=true)UseOnContext context){
         var data=context.getItemInHand().get(DataComponents.ENTITY_DATA);
-        if(data!=null)spawner.setEntityData(LbcFakePlayer.spawnerData(context.getItemInHand(),data,context.getLevel().registryAccess()),random);
+        if(data!=null)spawner.setEntityData(LbcSpecialEggs.spawnerData(context.getItemInHand(),data,context.getLevel().registryAccess()),random);
         else original.call(spawner,type,random);
     }
 }

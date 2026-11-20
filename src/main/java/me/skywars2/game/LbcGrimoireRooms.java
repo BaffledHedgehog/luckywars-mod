@@ -11,17 +11,20 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.Marker;
+import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -34,6 +37,10 @@ public final class LbcGrimoireRooms {
     private static final String AGE="skywars2.grimoire_age.";
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final Set<String> ROOM_TAGS=Set.of("miniboss","room_reward","room_reward_4","room_reward_4_1","spawn_monument");
+    private static final Set<String> MONUMENT_TAGS = Set.of("slowraycast", "grimoire_dungeon", "spawn_monument");
+    private static final Set<String> DUNGEON_EXCLUSIONS = Set.of("dungeon_mob");
+    private static final ResourceKey<LootTable> GOLDEN_LOOT = ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("lbc:golden_skeleton"));
+    private static final ResourceKey<LootTable> TINY_LOOT = ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("lbc:tiny_skeleton"));
     private final GameController game;
     private final BossSpawn boss;
     private final SwordSpawn swords;
@@ -64,12 +71,47 @@ public final class LbcGrimoireRooms {
 
     /** Placement calls this after its complete native jigsaw transaction is accepted. */
     public void acceptedMarker(Entity marker){
-        if(marker.entityTags().contains("skywars2.grimoire_pending")||!(marker instanceof Marker)||!marker.entityTags().contains("grimoire_dungeon")
+        if(marker.entityTags().contains(LbcGrimoireDungeon.PENDING)||!(marker instanceof Marker)||!marker.entityTags().contains("grimoire_dungeon")
                 ||ROOM_TAGS.stream().noneMatch(marker.entityTags()::contains))return;
         marker.entityTags().add(MANAGED);game.items().markCurrentItemEpoch(marker);loaded(marker);
     }
+    /** Native egg placement runs this before ENTITY_LOAD, with the real hand user available. */
+    void captureMonumentAuthor(Entity entity, LivingEntity user) {
+        if (user instanceof ServerPlayer author && author.level() == entity.level()
+                && activeArena(entity) && game.canUseGameplayItems(author) && monument(entity)) {
+            bindEggSource(entity, author);
+        }
+    }
+    private boolean activeArena(Entity entity) {
+        return game.playing() && game.stage() != GameController.Stage.ENDING
+                && entity.level() == game.maps().level() && LbcDimensionItems.ordinary(entity.level());
+    }
+    private static boolean monument(Entity entity) {
+        return entity instanceof Marker && entity.entityTags().containsAll(MONUMENT_TAGS);
+    }
+    private static boolean legacyEggActor(Entity entity) {
+        if (monument(entity)) return true;
+        if (!(entity instanceof Skeleton skeleton) || entity.getType() != EntityTypes.SKELETON) return false;
+        var tags = entity.entityTags();
+        if (!tags.contains("lucky_mob") || !tags.contains("dungeon_mob")) return false;
+        boolean golden = tags.contains("golden_skeleton"), tiny = tags.contains("tiny_skeleton");
+        return golden != tiny && skeleton.getLootTable().filter((golden ? GOLDEN_LOOT : TINY_LOOT)::equals).isPresent();
+    }
+    private void bindEggSource(Entity entity, ServerPlayer author) {
+        if (game.items().spellSources().source(entity) != null) return;
+        var cause = author == null ? null : game.items().indirectKills().wildCause(author);
+        game.items().spellSources().bind(entity, new LbcSpellSource.Source(entity.getUUID(),
+                author == null ? null : author.getUUID(), game.items().epoch(), cause, DUNGEON_EXCLUSIONS, true, author == null,
+                entity instanceof LivingEntity living ? living : null));
+    }
     public void loaded(Entity entity){
-        if(entity.entityTags().contains("skywars2.grimoire_pending")||!entity.entityTags().contains(MANAGED))return;
+        if(entity.entityTags().contains(LbcGrimoireDungeon.PENDING))return;
+        if (!entity.entityTags().contains(MANAGED)) {
+            if (!legacyEggActor(entity) || !activeArena(entity)) return;
+            bindEggSource(entity, null);
+            entity.entityTags().add(MANAGED);
+            game.items().markCurrentItemEpoch(entity);
+        }
         if(!game.items().currentEpoch(entity)||entity.level()!=game.maps().level()){entity.discard();return;}
         actors.add(entity);game.items().timeStop().prepareFrozen(entity);
     }
@@ -106,7 +148,7 @@ public final class LbcGrimoireRooms {
         var level=game.maps().level();if(game.items().timeStop().stopped(level))return;
         for(var entity:List.copyOf(actors)){
             if(!live(entity)){actors.remove(entity);if(!entity.isRemoved())entity.discard();continue;}
-            if(entity.entityTags().contains("skywars2.grimoire_pending")||!level.hasChunkAt(entity.blockPosition()))continue;
+            if(entity.entityTags().contains(LbcGrimoireDungeon.PENDING)||!level.hasChunkAt(entity.blockPosition()))continue;
             if(entity instanceof LivingEntity living){
                 if(living.isAlive()&&entity.entityTags().contains("golden_skeleton")){
                     int phase=age(entity)+1;age(entity,phase>=200?0:phase);if(phase>=200)goldenPortal(living);

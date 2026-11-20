@@ -62,7 +62,10 @@ public final class LbcGrimoireBoss {
     private static Vec3 vector(CompoundTag state,String key){return new Vec3(state.getDoubleOr(key+"X",0),state.getDoubleOr(key+"Y",0),state.getDoubleOr(key+"Z",0));}
     private static void vector(CompoundTag state,String key,Vec3 v){state.putDouble(key+"X",v.x);state.putDouble(key+"Y",v.y);state.putDouble(key+"Z",v.z);}
     private LbcSpellSource.Source source(Entity entity){
-        var d=data(entity);if(d==null)return null;var author=id(d,"author");var emitter=id(d,"boss");if(author==null||emitter==null)return null;
+        var d=data(entity);if(d==null)return null;var author=id(d,"author");var emitter=id(d,"boss");
+        if(emitter==null)return null;
+        if(author==null)return d.getBooleanOr("unowned",false)
+                ?new LbcSpellSource.Source(emitter,null,d.getStringOr("epoch",""),null,EXCLUDED,true,true):null;
         return new LbcSpellSource.Source(emitter,author,d.getStringOr("epoch",""),
                 new LbcIndirectKills.Owner(author,d.getLongOr("order",0),true,false),EXCLUDED,true);
     }
@@ -75,8 +78,10 @@ public final class LbcGrimoireBoss {
     }
     /** Accepted dungeon continuations retain their original author/cause without resolving a player body. */
     public Warden spawn(ServerLevel level,Vec3 at,float yaw,LbcSpellSource.Source authority){
-        if(authority==null||authority.author()==null||authority.cause()==null||!game.items().currentEpoch(authority.epoch())
+        if(authority==null||!game.items().currentEpoch(authority.epoch())
                 ||!game.playing()||game.stage()==GameController.Stage.ENDING||game.items().timeStop().stopped(level)||!resident(level,at))return null;
+        boolean unowned=authority.author()==null&&authority.cause()==null&&authority.unownedMobs();
+        if(!unowned&&(authority.author()==null||authority.cause()==null))return null;
         var boss=EntityTypes.WARDEN.create(level,EntitySpawnReason.COMMAND);if(boss==null)return null;
         load(boss,"{Silent:true,PersistenceRequired:true,NoAI:true,CanPickUpLoot:false,DeathLootTable:\"lbc:grimoire_boss\"}");
         boss.setPos(at);boss.setYRot(yaw);boss.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);boss.setHealth(1000);
@@ -84,8 +89,11 @@ public final class LbcGrimoireBoss {
         boss.setCustomName(Component.translatable("grimoire_boss").withStyle(ChatFormatting.DARK_RED).withStyle(s->s.withItalic(false)));
         boss.addEffect(ItemEffectLevels.create(net.minecraft.world.effect.MobEffects.INVISIBILITY,-1,1,false,false));
         boss.entityTags().addAll(List.of(TAG,"grimoire_boss_hitbox","dungeon_mob"));game.items().markCurrentItemEpoch(boss);
-        var d=new CompoundTag();d.putString("author",authority.author().toString());d.putString("boss",boss.getStringUUID());d.putString("epoch",authority.epoch());
-        d.putLong("order",authority.cause().order());d.putInt("kind",0);d.putInt("phase",1);d.putInt("age",0);d.putInt("total",0);
+        var d=new CompoundTag();
+        if(unowned)d.putBoolean("unowned",true);
+        else {d.putString("author",authority.author().toString());d.putLong("order",authority.cause().order());}
+        d.putString("boss",boss.getStringUUID());d.putString("epoch",authority.epoch());
+        d.putInt("kind",0);d.putInt("phase",1);d.putInt("age",0);d.putInt("total",0);
         vector(d,"anchor",at);vector(d,"aim",Vec3.directionFromRotation(0,yaw));save(boss,d);
         if(!add(level,boss)){boss.discard();return null;}
         var visual=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);visual.setPos(at.add(0,6,0));visual.setYRot(yaw);

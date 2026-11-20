@@ -6,6 +6,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,6 +26,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -93,6 +97,89 @@ public final class EncounterEggChecks {
         String leaf(LbcSpecialEggs.Kind kind){return BuiltInRegistries.ITEM.getKey(kind.item()).getPath();}
         BlockHitResult hit(){return new BlockHitResult(Vec3.atCenterOf(pad).add(0,.5,0),Direction.UP,pad,false);}
         boolean use(ItemStack stack,InteractionHand hand){owner.setItemInHand(hand,stack);return owner.gameMode.useItemOn(owner,level,stack,hand,hit()).consumesAction();}
+        void spawnerEggs() {
+            for (var kind : LbcSpecialEggs.Kind.values()) {
+                var stack = kind.item().getDefaultInstance();
+                var original = stack.get(DataComponents.ENTITY_DATA);
+                var marked = LbcSpecialEggs.spawnerData(stack, original, level.registryAccess());
+                var intact = marked.copyTagWithoutId();
+                var tags = intact.getListOrEmpty("Tags");
+                require(tags.removeIf(tag -> tag instanceof StringTag string && string.value().startsWith("skywars2.spawner_egg.")),
+                        "every registered special egg carries its exact spawner identity: " + kind);
+                if (!original.contains("Tags")) intact.remove("Tags");
+                require(marked.type() == original.type() && intact.equals(original.copyTagWithoutId()),
+                        "all original native entity data and tags remain intact: " + kind);
+            }
+            var sources = Map.of(
+                    LbcSpecialEggs.Kind.STALIN, "zombified_piglin_spawn_egg__5892d1d6f7d2",
+                    LbcSpecialEggs.Kind.TRANSFORMATOR, "zombie_spawn_egg__81b8a4f4e773",
+                    LbcSpecialEggs.Kind.ANT, "zombie_spawn_egg__90bb4e784943",
+                    LbcSpecialEggs.Kind.FAT_SKELETON, "skeleton_spawn_egg__39ca33f3ccb3");
+            for (var source : sources.entrySet()) {
+                var raw = game.lbc().rollTable(level, origin, owner, "lbc:item_defs/minecraft/" + source.getValue()).getFirst();
+                require(BuiltInRegistries.ITEM.getKey(raw.getItem()).getNamespace().equals("minecraft") && LbcSpecialEggs.kind(raw) == source.getKey(),
+                        "public imba pool's actual raw vanilla egg resolves to its authored encounter: " + source.getKey());
+                var before = current();
+                require(use(raw.copy(), InteractionHand.MAIN_HAND), "raw canonical egg uses native block placement");
+                var direct = fresh(before).stream().filter(Mob.class::isInstance).findFirst().orElseThrow();
+                require(game.items().currentEpoch(direct), "direct raw template retains current encounter epoch: " + source.getKey());
+                requireDirectCause(source.getKey(), direct);
+                EggPresentationChecks.name(direct,raw);
+                direct.discard();
+                var fromOldSpawner = spawnFromSpawner(raw, false);
+                require(game.items().currentEpoch(fromOldSpawner) && LbcIndirectKills.playerSource(fromOldSpawner) == null,
+                        "a previously configured unmarked spawner adopts its ownerless native encounter: " + source.getKey());
+                fromOldSpawner.discard();
+            }
+            var vex = spawnFromSpawner(LbcSpecialEggs.Kind.LOW_VEX.item().getDefaultInstance(), true);
+            require(vex instanceof Vex mob && mob.getMaxHealth() == 1 && mob.getMainHandItem().isEmpty()
+                            && LbcCreatureDrops.managed(vex) && game.items().currentEpoch(vex),
+                    "real survival-configured spawner adopts tagless Low Vex and clears vanilla hands");
+            vex.discard();
+            var plain = spawnFromSpawner(new ItemStack(Items.ZOMBIE_SPAWN_EGG), true);
+            require(plain.getType() == EntityTypes.ZOMBIE && !game.items().currentEpoch(plain),
+                    "ordinary vanilla spawn from the same survival spawner retains vanilla lifecycle");
+            plain.discard();
+        }
+        Entity spawnFromSpawner(ItemStack egg, boolean configureByPlayer) {
+            set(pad, Blocks.SPAWNER.defaultBlockState());
+            var spawner = (SpawnerBlockEntity) level.getBlockEntity(pad);
+            try {
+                if (configureByPlayer) {
+                    var used = egg.copyWithCount(1);
+                    require(use(used, InteractionHand.MAIN_HAND) && used.isEmpty(), "survival player configures a real native spawner");
+                } else {
+                    spawner.setEntityData(egg.get(DataComponents.ENTITY_DATA), level.getRandom());
+                }
+                var data = spawner.saveWithFullMetadata(level.registryAccess());
+                var spawnData = data.getCompoundOrEmpty("SpawnData");
+                var entityData = spawnData.getCompoundOrEmpty("entity");
+                entityData.put("Pos", Vec3.CODEC.encodeStart(NbtOps.INSTANCE, origin.add(2,0,0)).getOrThrow());
+                spawnData.put("entity", entityData);
+                var range = new CompoundTag();
+                range.putInt("min_inclusive",0);
+                range.putInt("max_inclusive",15);
+                var spawnRules = new CompoundTag();
+                spawnRules.put("block_light_limit",range);
+                spawnRules.put("sky_light_limit",range.copy());
+                spawnData.put("custom_spawn_rules",spawnRules);
+                data.put("SpawnData",spawnData);
+                data.putShort("Delay",(short)0);
+                data.putShort("SpawnCount",(short)1);
+                spawner.loadWithComponents(net.minecraft.world.level.storage.TagValueInput.create(
+                        net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),data));
+                var before = current();
+                SpawnerBlockEntity.serverTick(level,pad,spawner.getBlockState(),spawner);
+                var spawned = fresh(before).stream().filter(Mob.class::isInstance).toList();
+                require(spawned.size() == 1, "one actual native BaseSpawner birth: " + egg.getHoverName().getString());
+                var actor = spawned.getFirst();
+                require(actor.entityTags().stream().noneMatch(tag -> tag.startsWith("skywars2.spawner_egg.")),
+                        "native body consumes its one-time creation marker");
+                return actor;
+            } finally {
+                set(pad, Blocks.STONE.defaultBlockState());
+            }
+        }
         Entity spawn(LbcSpecialEggs.Kind kind,InteractionHand hand){
             var before=current();var stack=egg(kind,2);require(use(stack,hand)&&stack.getCount()==1,"actual native clicked-face use spends exactly one "+kind);
             var actors=fresh(before).stream().filter(e->e instanceof Mob||e instanceof ItemEntity).toList();
@@ -149,7 +236,21 @@ public final class EncounterEggChecks {
                 case HELICOPTER->{var token=(ItemEntity)actor;require(saved(token).getIntOr("PickupDelay",0)==32767&&token.getItem().is(Items.REPEATING_COMMAND_BLOCK)&&LbcHelicopterEncounter.isTrigger(token.getItem())&&token.getOwner()==owner,"source unpickable helicopter token and actual summoner");return;}
                 default->throw new IllegalStateException();
             }
-            require(LbcIndirectKills.playerSource(actor)==owner,"existing causal/lifecycle adoption "+kind);
+            requireDirectCause(kind, actor);
+        }
+        void requireDirectCause(LbcSpecialEggs.Kind kind, Entity actor) {
+            if (kind == LbcSpecialEggs.Kind.FAT_SKELETON || kind == LbcSpecialEggs.Kind.LUCKY_PIG) {
+                var physical = kind == LbcSpecialEggs.Kind.FAT_SKELETON
+                        ? game.items().creatureDrops().owner(actor) : game.items().luckyPigs().owner(actor);
+                require(physical == actor && LbcSpellSource.unownedHazard(actor) && LbcIndirectKills.playerSource(actor) == null,
+                        "hostile egg retains its exact WILD body as physical source and grants no human credit: " + kind);
+                if (kind == LbcSpecialEggs.Kind.FAT_SKELETON) {
+                    require(actor.entityTags().contains("skywars2.creature_owner." + owner.getUUID()),
+                            "directly spawned fat skeleton retains the actual author for lifecycle metadata");
+                }
+            } else {
+                require(LbcIndirectKills.playerSource(actor) == owner, "existing causal/lifecycle adoption " + kind);
+            }
         }
         Cow cow(Vec3 at){var c=new Cow(EntityTypes.COW,level);c.setPos(at);c.setNoAi(true);c.setNoGravity(true);require(level.addFreshEntity(c),"native victim");owned.add(c);return c;}
         void reward(Mob actor,String table){
@@ -227,7 +328,7 @@ public final class EncounterEggChecks {
             game.items().timeStop().begin(level,200);
         }
         boolean step(){int now=game.server().getTickCount();if(now==lastTick)return false;lastTick=now;require(game.playing(),"actual match retained");
-            if(phase==0){if(!warm())return false;presentation();admission();families();offspring();nameFluids();capture();owned.forEach(Entity::discard);freeze();phase++;return false;}
+            if(phase==0){if(!warm())return false;presentation();admission();spawnerEggs();families();offspring();nameFluids();capture();owned.forEach(Entity::discard);freeze();phase++;return false;}
             require(frozen.stream().allMatch(e->!e.isRemoved()&&e.position().distanceTo(positions.get(e))<1e-8),"actual dimension Time Stop freezes all seven egg families");
             if(++wait<3)return false;game.items().timeStop().end(level);return true;
         }
