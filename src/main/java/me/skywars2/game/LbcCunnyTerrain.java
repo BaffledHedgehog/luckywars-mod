@@ -110,6 +110,8 @@ public final class LbcCunnyTerrain {
             if(game.items().timeStop().stopped(level)||game.items().timeStop().frozen(author))return false;
             if(lastStepTick!=game.server().getTickCount())return true;
             var head=ops.peek();
+            // Retry a deferred chunk on the next native tick, without spending this tick's shared budget again.
+            if(waitingChunk&&head!=null)return false;
             return !(head instanceof Grass g&&g.due>logicalTick||head instanceof Jungle j&&j.due>logicalTick);
         }
         public boolean snapshotIdle(){return true;}

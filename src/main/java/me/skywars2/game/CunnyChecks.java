@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
@@ -28,7 +30,7 @@ public final class CunnyChecks {
     public static void run(GameController game){start(game,false);}
     public static void runRewind(GameController game){start(game,true);}
     private static void start(GameController game,boolean rewind){require(running==null,"exclusive fixture");var f=new Fixture(game,rewind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{require(f.game==game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} (actual used hands, source prototypes, finite native outcomes and typed fair terrain/causal state)",f.rewind?"cunny-rewind":"cunny-native");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+(f.rewind?"cunny-rewind":"cunny-native"),error);}}
+    public static void tick(GameController game){if(running==null)return;var f=running;try{require(f.game==game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} (actual used hands, source prototypes, finite native outcomes and {})",f.rewind?"cunny-rewind":"cunny-native",f.rewind?"typed terrain/causal rewind":"fair cold chunk retry and native terrain");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+(f.rewind?"cunny-rewind":"cunny-native"),error);}}
     private static Object get(Object object,String name){for(var c=object.getClass();c!=null;c=c.getSuperclass())try{var f=c.getDeclaredField(name);f.setAccessible(true);return f.get(object);}catch(NoSuchFieldException ignored){}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}throw new IllegalStateException(name);}
     private static Object call(Object object,String name,Object...args){for(var c=object.getClass();c!=null;c=c.getSuperclass())for(var m:c.getDeclaredMethods())if(m.getName().equals(name)&&m.getParameterCount()==args.length)try{m.setAccessible(true);return m.invoke(object,args);}catch(InvocationTargetException error){throw new IllegalStateException(error.getCause());}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}throw new IllegalStateException(name);}
     private static Object op(String name,Object...args){try{for(var c:LbcCunnyTerrain.class.getDeclaredClasses())if(c.getSimpleName().equals(name)){var constructor=c.getDeclaredConstructors()[0];constructor.setAccessible(true);return constructor.newInstance(args);}}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}throw new IllegalStateException(name);}
@@ -46,6 +48,11 @@ public final class CunnyChecks {
         LbcCunny.State captured;LbcCunnyTerrain.View capturedTerrain;List<Double> expectedAttrs;int expectedCoins;long expectedDraw;
         long replayOwnerStarts,replayOtherStarts;
         Object terrainJob;BlockPos platform,sign,replayBlock,treeAt,growthGround;MapManager.BlockSnapshot replayExpected;Cow witness;List<Object> terrainTail;Marker growthField;
+        LbcStonekivi.Work coldJob, residentJob;
+        Object coldHead;
+        ChunkPos coldChunk;
+        CompletableFuture<?> heldLoad;
+        int coldLogicalTick;
         Fixture(GameController game,boolean rewind){
             this.game=game;this.rewind=rewind;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));level=owner.level();
             require(game.playing()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other)&&!game.vanity().busy()&&!game.vanity().hasSnapshot(),"two actual ordinary participants and exclusive coordinator");
@@ -248,6 +255,32 @@ public final class CunnyChecks {
             }return count;
         }
         @SuppressWarnings("unchecked") Object job(Object...ops){var result=call(game.items().cunnyTerrain(),"start",owner);var queue=(Deque<Object>)get(result,"ops");for(var op:ops)queue.add(op);return result;}
+        @SuppressWarnings("unchecked")
+        Map<ChunkPos,CompletableFuture<?>> coldTickets(){
+            return (Map<ChunkPos,CompletableFuture<?>>)get(coldJob,"tickets");
+        }
+        void beginColdWait(){
+            int x=(owner.blockPosition().getX()>>4)+32,z=owner.blockPosition().getZ()>>4;
+            for(int attempt=0;attempt<16&&level.getChunkSource().getChunkNow(x,z)!=null;attempt++)x+=8;
+            require(level.getChunkSource().getChunkNow(x,z)==null,"native cold wait starts outside resident chunks");
+            coldChunk=new ChunkPos(x,z);
+            var at=new BlockPos(x*16+8,level.getMaxY()-1,z*16+8);
+            // Schedule probes residency without publishing any blocks or generating a tree.
+            coldHead=op("Schedule",at,Blocks.STRUCTURE_VOID,1,net.minecraft.world.ticks.TickPriority.NORMAL);
+            coldJob=(LbcStonekivi.Work)job(coldHead);
+            heldLoad=new CompletableFuture<>();
+            coldTickets().put(coldChunk,heldLoad);
+            require(NativeChunkLoad.resident(level,owner.blockPosition()),"resident peer begins in the player's chunk");
+            residentJob=(LbcStonekivi.Work)job(op("Schedule",owner.blockPosition(),Blocks.STRUCTURE_VOID,1,net.minecraft.world.ticks.TickPriority.NORMAL));
+            next(-8);
+        }
+        void checkColdHead(long expectedVisits){
+            require((Long)get(coldJob,"visits")==expectedVisits&&!coldJob.ready(),
+                    "at most one cold head probe per native tick (expected "+expectedVisits+", got "+get(coldJob,"visits")+")");
+            require(((Deque<?>)get(coldJob,"ops")).peek()==coldHead&&coldTickets().get(coldChunk)==heldLoad
+                    &&!heldLoad.isDone()&&level.getChunkSource().getChunkNow(coldChunk.x(),coldChunk.z())==null,
+                    "same native cold operation and pending load retained without blocking or publication");
+        }
         @SuppressWarnings("unchecked") void rememberTemplate(BlockPos at,int kind){var rows=(List<List<Object>>)get(game.items().cunnyTerrain(),"templates");for(var cell:rows.get(kind))remember(at.offset((BlockPos)call(cell,"offset")));}
         void beginTerrain(){
             require(game.items().cunnyTerrain().ready(),"prepared four source templates and100 sign faces");
@@ -273,6 +306,32 @@ public final class CunnyChecks {
                 require(stage==-5?game.items().magic().suppressed(owner):game.items().magic().mechanismSuppressed(owner),"actual field remains during grass publication");
                 game.items().cunnyTerrain().stop();removeField(growthField);growthField=null;
                 if(stage==-5){startGrowth(true);return false;}
+                beginColdWait();return false;
+            }
+            if(stage==-8){
+                require(game.server().getTickCount()-when<40,"shared queue processes cold wait fixture");
+                if((Long)get(coldJob,"visits")==0)return false;
+                checkColdHead(1);
+                coldLogicalTick=(Integer)get(coldJob,"logicalTick");
+                next(-7);return false;
+            }
+            if(stage==-7){
+                int elapsed=game.server().getTickCount()-when;
+                require(elapsed<40,"next native frame rechecks the cold operation");
+                if((Long)get(coldJob,"visits")==1)return false;
+                checkColdHead(2);
+                int logicalSteps=(Integer)get(coldJob,"logicalTick")-coldLogicalTick;
+                require(logicalSteps>=1&&logicalSteps<=elapsed&&Boolean.TRUE.equals(get(residentJob,"closed")),
+                        "logical time advances at most once per tick and a resident peer finishes while the first job waits");
+                // Give the original operation a real native load after proving the wait with a held future.
+                require(coldTickets().remove(coldChunk,heldLoad),"held fixture load released");
+                next(-6);return false;
+            }
+            if(stage==-6){
+                require(game.server().getTickCount()-when<240,"real native residency resumes the original queued operation");
+                if(!Boolean.TRUE.equals(get(coldJob,"closed")))return false;
+                require(((Deque<?>)get(coldJob,"ops")).isEmpty()&&coldTickets().isEmpty(),
+                        "resumed cold head completes and releases its native ticket");
                 beginTerrain();return false;
             }
             if(stage==-2){
