@@ -3,6 +3,7 @@ package me.skywars2.game;
 import com.mojang.serialization.Codec;
 import java.io.*;
 import java.util.*;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.Identifier;
@@ -143,8 +144,15 @@ public final class LbcItemQueue {
     /** A newly pasted arena must not retain authoring debris or revive it from the dormant queue. */
     void clearRoundStart(ServerLevel level){
         if(closed)return;
-        var remove=new java.util.ArrayList<ItemEntity>();
-        for(var entity:level.getAllEntities())if(entity instanceof ItemEntity item)remove.add(item);
+        // A registered drop can be in a section whose chunk has not been made visible yet.
+        var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+        var sections=((ActorCheckpointAccess.Sections)manager).skywars2$sections();
+        var remove=new ArrayList<ItemEntity>();
+        for(long chunk:sections.getAllChunksWithExistingSections().toLongArray()) {
+            sections.getExistingSectionsInChunk(chunk).forEach(section->section.getEntities().forEach(entity->{
+                if(entity instanceof ItemEntity item&&!item.isRemoved())remove.add(item);
+            }));
+        }
         for(var item:remove){unloaded(item);item.discard();}
         var w=world(level);w.live.clear();w.order.clear();w.store.sleeping.clear();
         w.store.setDirty();w.scanBefore=Long.MAX_VALUE;

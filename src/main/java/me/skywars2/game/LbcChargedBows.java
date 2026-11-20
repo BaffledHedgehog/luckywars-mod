@@ -168,10 +168,11 @@ public final class LbcChargedBows {
         private void releaseAtomic(){for(var lease:atomicLeases.values())release(lease);atomicLeases.clear();atomicReady=false;}
         private void leaves(){
             var cells=new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
+            int minY=level.getMinY(),maxY=level.getMaxY();
             for(var point:leafCenters){if(jammed(level,point,true))continue;var center=BlockPos.containing(point);
-                if(center.getY()-5>=level.getMaxY()||center.getY()+7<level.getMinY())continue;
+                if(center.getY()-5>maxY||center.getY()+7<minY)continue;
                 for(var box:LEAF_VOLUMES)for(int x=box[0];x<=box[3];x++)for(int y=box[1];y<=box[4];y++)for(int z=box[2];z<=box[5];z++){
-                    int actualY=center.getY()+y;if(actualY>=level.getMinY()&&actualY<level.getMaxY())
+                    int actualY=center.getY()+y;if(actualY>=minY&&actualY<=maxY)
                         cells.add(BlockPos.asLong(center.getX()+x,actualY,center.getZ()+z));
                 }
             }

@@ -632,7 +632,7 @@ public final class MatchEvents {
         if(!level.getWorldBorder().isWithinBounds(new BlockPos(x,level.getMinY(),z))
                 ||level.getChunkSource().getChunkNow(x>>4,z>>4)==null)return null;
         int y=level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,x,z)-1;
-        if(y<level.getMinY()||y>=level.getMaxY())return null;
+        if(level.isOutsideBuildHeight(y))return null;
         var pos=new BlockPos(x,y,z);var state=level.getBlockState(pos);
         if(!state.getFluidState().isEmpty())return null;
         for(var box:state.getCollisionShape(level,pos).toAabbs())

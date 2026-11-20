@@ -68,7 +68,7 @@ public final class FeedbackNov9Checks {
         }
         void terrain(){
             var center=base.owner.blockPosition();int x=center.getX()+3,z=center.getZ()+3;
-            for(int y=base.level.getMinY();y<base.level.getMaxY();y++)base.set(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
+            for(int y=base.level.getMinY();y<=base.level.getMaxY();y++)base.set(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
             require(game.events().airdropSurface(x,z)==null,"empty resident column cannot receive a void airdrop");
             var ground=new BlockPos(x,Math.min(base.level.getMaxY()-2,center.getY()+30),z);
             base.set(ground,Blocks.STONE.defaultBlockState());
@@ -76,6 +76,12 @@ public final class FeedbackNov9Checks {
             base.set(ground.above(),Blocks.WATER.defaultBlockState());require(game.events().airdropSurface(x,z)==null,"fluid-only top is not treated as solid landing terrain");
             base.set(ground.above(),Blocks.AIR.defaultBlockState());
             base.set(ground,Blocks.STONE_SLAB.defaultBlockState());require(ground.equals(game.events().airdropSurface(x,z)),"partial-height real support is eligible");
+            var ceiling=new BlockPos(x,base.level.getMaxY(),z);
+            base.set(ceiling,Blocks.STONE.defaultBlockState());
+            require(ceiling.equals(game.events().airdropSurface(x,z)),"the highest native layer supplies valid solid airdrop ground");
+            base.set(ceiling,Blocks.WATER.defaultBlockState());
+            require(game.events().airdropSurface(x,z)==null,"water at the ceiling does not qualify as support");
+            base.set(ceiling,Blocks.AIR.defaultBlockState());
         }
         boolean step(){
             base.client.acknowledge();base.audience.acknowledge();int now=game.server().getTickCount();

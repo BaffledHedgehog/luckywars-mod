@@ -41,6 +41,8 @@ public final class ChargedBowChecks {
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ChefChecks.Fixture base;final ServerLevel level;final LbcChargedBows bows;
         final Vec3 eye;final BlockPos leaf,bedrock;
+        BlockPos ceilingLeaf;
+        MapManager.BlockSnapshot ceilingBefore;
         final java.util.Map<Integer,Integer> sampleTicks=new java.util.HashMap<>();
         final java.lang.reflect.Field payloadField;final LbcChargedBows.Payloads originalPayloads;
         RegenerationBeltChecks.ScheduledClient client;Cow witness;Marker marker;
@@ -153,7 +155,26 @@ public final class ChargedBowChecks {
                 case 41->{
                     if(game.items().exasperato().pendingSearches()!=0){require(sampleTicks.isEmpty(),"preflight may wait for chunks, but never publishes a partial long shot");return false;}
                     require(sampleTicks.size()==1&&sampleTicks.values().iterator().next()==700&&bows.pending()==0,"maximum700-block beam completes in a single actual native tick");
-                    base.owner.setXRot(0);next(5);
+                    var ceilingEye=new Vec3(eye.x,level.getMaxY()-6.5,eye.z);
+                    ceilingLeaf=BlockPos.containing(ceilingEye.add(0,7,3));
+                    ceilingBefore=game.maps().snapshot(level,ceilingLeaf);
+                    require(level.setBlock(ceilingLeaf,Blocks.STONE.defaultBlockState(),2),"native ceiling stone admitted");
+                    base.move(base.owner,ceilingEye.add(0,-base.owner.getEyeHeight(),0));
+                    base.owner.setYRot(0);base.owner.setXRot(0);
+                    var carrier=arrow(new ItemStack(Items.ARROW));carrier.setPos(ceilingEye);
+                    sampleTicks.clear();
+                    bows.release(base.owner,new ItemStack(LbcChargedBowItems.SHISHGUN),24,List.of(carrier));
+                    next(42);
+                }
+                case 42->{
+                    if(!idle())return false;
+                    require(sampleTicks.size()==1&&sampleTicks.values().iterator().next()==6
+                                    &&level.getBlockState(ceilingLeaf).is(Blocks.SPRUCE_LEAVES),
+                            "real Shishgun replaces ceiling stone in the same tick as its six samples");
+                    game.maps().restoreSnapshot(level,ceilingLeaf,ceilingBefore);
+                    ceilingBefore=null;
+                    base.move(base.owner,eye.add(0,-base.owner.getEyeHeight(),0));
+                    next(5);
                 }
                 case 5->{
                     if(!idle())return false;
@@ -210,7 +231,7 @@ public final class ChargedBowChecks {
         @Override public void close(){
             if(closed)return;closed=true;for(var item:craftDrops)item.discard();Throwable failure=null;
             for(Runnable action:List.<Runnable>of(()->base.owner.stopUsingItem(),()->game.items().timeStop().end(level),bows::stop,
-                    this::removeMarker,()->{try{payloadField.set(bows,originalPayloads);}catch(IllegalAccessException error){throw new IllegalStateException(error);}},()->{if(client!=null)client.close();},base::close))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+                    this::removeMarker,()->{if(ceilingBefore!=null)game.maps().restoreSnapshot(level,ceilingLeaf,ceilingBefore);},()->{try{payloadField.set(bows,originalPayloads);}catch(IllegalAccessException error){throw new IllegalStateException(error);}},()->{if(client!=null)client.close();},base::close))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             if(failure!=null)throw new IllegalStateException("Charged bow fixture restoration",failure);
         }
     }

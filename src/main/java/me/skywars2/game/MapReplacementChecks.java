@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -19,13 +20,17 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.phys.Vec3;
 
 /** Real lobby requests supersede both decoding and partially applied native map work. */
 public final class MapReplacementChecks {
@@ -75,7 +80,8 @@ public final class MapReplacementChecks {
         final List<String> heightMaps=new ArrayList<>();
         final BlockPos topBlock;
         Path heightFixture;
-        int phase;final List<net.minecraft.world.entity.item.ItemEntity> debris=new ArrayList<>();
+        int phase;
+        final List<ItemEntity> debris=new ArrayList<>(),hiddenDebris=new ArrayList<>();
         Scene(GameController game){
             checkStoredTerrain();
             this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
@@ -148,6 +154,60 @@ public final class MapReplacementChecks {
                 heightFixture=null;
             }
         }
+        @SuppressWarnings("unchecked")
+        void checkTopRespawnIsland() {
+            var maps=game.maps();
+            var spawn=maps.spawns().getFirst();
+            var feet=BlockPos.containing(spawn.position());
+            var previousFeet=maps.snapshot(feet);
+            var previousTop=maps.snapshot(topBlock);
+            var islands=(Map<BlockPos, Map<BlockPos,MapManager.BlockSnapshot>>)field(maps,"respawnIslands");
+            var previousIslands=Map.copyOf(islands);
+            try {
+                maps.captureRespawnIslands();
+                var island=islands.get(feet);
+                require(island!=null&&previousTop.equals(island.get(topBlock))
+                                &&island.keySet().stream().noneMatch(maps.level()::isOutsideBuildHeight),
+                        "native respawn-island capture includes the highest block without crossing the build limit");
+                // Prevent the lobby floor far below from qualifying as this spawn's landing.
+                maps.restoreSnapshot(feet,new MapManager.BlockSnapshot(Blocks.STONE.defaultBlockState(),null));
+                maps.restoreSnapshot(topBlock,MapManager.BlockSnapshot.air());
+                require(!maps.hasRespawnLanding(spawn)&&maps.restoreRespawnIsland(spawn)
+                                &&maps.level().getBlockState(topBlock).is(Blocks.DIAMOND_BLOCK),
+                        "native respawn-island restoration recovers the missing highest block");
+            } finally {
+                islands.clear();
+                islands.putAll(previousIslands);
+                maps.restoreSnapshot(feet,previousFeet);
+                maps.restoreSnapshot(topBlock,previousTop);
+            }
+        }
+        void checkTopMadokaRegion() {
+            var maps=game.maps();
+            var level=maps.level();
+            var legal=topBlock.below(5);
+            for(int x=(legal.getX()-5)>>4;x<=(legal.getX()+5)>>4;x++)
+                for(int z=(legal.getZ()-5)>>4;z<=(legal.getZ()+5)>>4;z++)level.getChunk(x,z);
+            var previousTop=maps.snapshot(topBlock);
+            try {
+                maps.restoreSnapshot(topBlock,new MapManager.BlockSnapshot(Blocks.GOLD_BLOCK.defaultBlockState(),null));
+                require(!maps.restoreMadokaRegion(level,net.minecraft.world.phys.Vec3.atCenterOf(legal.above()))
+                                &&level.getBlockState(topBlock).is(Blocks.GOLD_BLOCK),
+                        "Madoka rejects a box reaching maxY+1 without mutating the legal layer");
+                require(maps.restoreMadokaRegion(level,net.minecraft.world.phys.Vec3.atCenterOf(legal))
+                                &&level.getBlockState(topBlock).is(Blocks.DIAMOND_BLOCK),
+                        "Madoka actually restores the highest legal layer from the loaded pristine template");
+            } finally { maps.restoreSnapshot(topBlock,previousTop); }
+        }
+        void addDebris(ServerLevel world,Vec3 at,String name,List<ItemEntity> items) {
+            var stack=new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PAPER);
+            stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,Component.literal(name));
+            var item=new ItemEntity(world,at.x,at.y,at.z,stack);
+            item.setNoGravity(true);
+            item.setPickUpDelay(100);
+            require(world.addFreshEntity(item),"real debris added after the last native paste, before map readiness");
+            items.add(item);
+        }
         boolean tick() throws com.mojang.brigadier.exceptions.CommandSyntaxException, IOException {
             require(game.inLobby()&&game.server().getTickCount()-started<3600,"bounded lobby scene");
             if(phase==0){
@@ -161,10 +221,14 @@ public final class MapReplacementChecks {
                     &&field(game.maps(),"journalWait")!=null){
                 var at=game.maps().spawns().getFirst().position();
                 for(var world:List.of(game.maps().level(),Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED)))){
-                    var stack=new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PAPER);
-                    stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("Cubes load debris"));
-                    var item=new net.minecraft.world.entity.item.ItemEntity(world,at.x,at.y,at.z,stack);
-                    item.setNoGravity(true);item.setPickUpDelay(100);require(world.addFreshEntity(item),"real debris after the last native paste, before map readiness");debris.add(item);
+                    addDebris(world,at,"Cubes load debris",debris);
+                    // An item can be registered before its destination section becomes visible.
+                    // Leave this distant chunk unforced to keep that interval open across the journal gate.
+                    addDebris(world,new Vec3(2304.5,at.y,2304.5),"Cubes hidden load debris",hiddenDebris);
+                    var hidden=hiddenDebris.getLast();
+                    var manager=((ActorCheckpointAccess.LevelEntities)world).skywars2$manager();
+                    require(manager.isLoaded(hidden.getUUID())&&world.getEntity(hidden.getUUID())==null,
+                            "native registered debris is hidden from the visible index before cleanup in "+world.dimension());
                 }
             }
             if(phase==3){
@@ -184,6 +248,8 @@ public final class MapReplacementChecks {
                 require(game.selectedMapReady()&&game.config().mapId.equals(heightMaps.getFirst())
                                 &&game.maps().level().getBlockState(topBlock).is(Blocks.DIAMOND_BLOCK)&&game.maps().spawns().size()==1,
                         "a real saved map pastes its highest legal layer and becomes ready: "+field(game,"mapFailure"));
+                checkTopRespawnIsland();
+                checkTopMadokaRegion();
                 select(heightMaps.getLast());phase=5;return false;
             }
             if(phase==5){
@@ -207,7 +273,14 @@ public final class MapReplacementChecks {
                 select("8");phase=2;return false;
             }
             if(phase==2){
-                require(game.config().mapId.equals("8")&&debris.size()==2&&debris.stream().allMatch(net.minecraft.world.entity.Entity::isRemoved),"Cubes8 readiness follows removal of actual overworld and Imprinted debris");
+                require(game.config().mapId.equals("8")&&debris.size()==2&&debris.stream().allMatch(Entity::isRemoved),"Cubes8 readiness follows removal of actual overworld and Imprinted debris");
+                require(hiddenDebris.size()==2,"both Cubes8 worlds have a registered hidden-item witness");
+                for(var hidden:hiddenDebris){
+                    var manager=((ActorCheckpointAccess.LevelEntities)hidden.level()).skywars2$manager();
+                    require(hidden.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!manager.isLoaded(hidden.getUUID()),
+                            "Cubes8 readiness follows permanent native removal of hidden debris in "+hidden.level().dimension()
+                                    +" with reason "+hidden.getRemovalReason());
+                }
                 for(var world:List.of(game.maps().level(),Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED)))){
                     for(var entity:world.getAllEntities())require(!(entity instanceof net.minecraft.world.entity.item.ItemEntity),"no loose items after map loading");
                     require(game.itemQueue().active(world)==0&&game.itemQueue().dormant(world)==0,"no archived debris can revive after readiness");
@@ -248,7 +321,22 @@ public final class MapReplacementChecks {
             addedOutsideTicket=false;
         }
     }
-    public static void tick(GameController game){if(active==null)return;try{if(!active.tick())return;active=null;SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; startup and mode sweeps, manual cleanup boundaries, Cubes8 loose-item cleanup in both worlds, Imprinted mirror, native maxY acceptance/maxY+1 rejection, and original selection restored)");}catch(Throwable error){if(active!=null){active.restoreOutsideEntity();for(var item:active.debris)if(!item.isRemoved())item.discard();try{active.cleanupHeightFixture();}catch(IOException cleanup){error.addSuppressed(cleanup);}}active=null;SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);}}
+    public static void tick(GameController game){
+        var scene=active;
+        if(scene==null)return;
+        try {
+            if(!scene.tick())return;
+            active=null;
+            SkyWars2.LOGGER.info("[check] PASS map-replacement (actual rapid selections replace decoding and partial native writes; startup and mode sweeps, manual cleanup boundaries, Cubes8 visible/hidden loose-item cleanup in both worlds, Imprinted mirror, inclusive map/respawn/Madoka height limits, and original selection restored)");
+        } catch(Throwable error) {
+            scene.restoreOutsideEntity();
+            for(var item:scene.debris)if(!item.isRemoved())item.discard();
+            for(var item:scene.hiddenDebris)if(!item.isRemoved())item.discard();
+            try { scene.cleanupHeightFixture(); } catch(IOException cleanup) { error.addSuppressed(cleanup); }
+            active=null;
+            SkyWars2.LOGGER.error("[check] FAIL map-replacement",error);
+        }
+    }
     @SuppressWarnings("unchecked") public static void imprinted(GameController game){
         var level=game.maps().level();var target=Objects.requireNonNull(game.server().getLevel(LbcHedgehogDimensions.IMPRINTED));
         require(!game.maps().busy(),"copy completes before ready callback");

@@ -1039,7 +1039,7 @@ public final class MapManager {
             var cells = new HashMap<BlockPos, BlockSnapshot>();
             int lowX = center.getX() - 10, highX = center.getX() + 10;
             int lowY = Math.max(level.getMinY(), center.getY() - 20);
-            int highY = Math.min(level.getMaxY() - 1, center.getY() + 10);
+            int highY = Math.min(level.getMaxY(), center.getY() + 10);
             int lowZ = center.getZ() - 10, highZ = center.getZ() + 10;
             if (lowY <= highY) {
                 for (int chunkX = lowX >> 4; chunkX <= highX >> 4; chunkX++) {
@@ -1081,7 +1081,7 @@ public final class MapManager {
         var cells=new HashMap<BlockPos,BlockSnapshot>();
         for(var mutable:BlockPos.betweenClosed(feet.offset(-5,-5,-5),feet.offset(5,5,5))){
             var at=mutable.immutable();
-            if(at.getY()<level.getMinY()||at.getY()>=level.getMaxY()
+            if(level.isOutsideBuildHeight(at)
                     ||level.getChunkSource().getChunkNow(at.getX()>>4,at.getZ()>>4)==null)return false;
             var original=at;
             for(int i=pristineRotations.size()-1;i>=0;i--){var pivot=pristineRotations.get(i);
