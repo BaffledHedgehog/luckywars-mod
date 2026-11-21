@@ -11,6 +11,10 @@ its Fabric metadata. Map editing has the same runtime directory guard.
 Run `tools/check_map_editing_artifacts.py` with the production and test JARs
 to verify their shared files and test-only additions.
 
+Run `python tools/check_java_layout.py` after moving a Java class. It checks
+package paths, the checks source boundary, and class references in Fabric and
+Mixin registration. Use `--repo PATH` to inspect another checkout.
+
 ## Native mob navigation during rollback
 
 `MatchEntityRuntime` delegates the original mob body's navigation/control image to
