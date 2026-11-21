@@ -233,22 +233,39 @@ public final class LbcPozdmanBot {
         }
     }
     public boolean coinContact(Coin coin) {
+        return coinContact(coin,coin.position(),coin.position(),coinTargets(coin,Vec3.ZERO),new HashSet<>());
+    }
+    private List<LivingEntity> coinTargets(Coin coin,Vec3 movement){
         var state = actors.get(coin);
-        if (state == null) return false;
+        if(state==null)return List.of();
         var level = (ServerLevel)coin.level();
-        var shooter = coin.getOwner();
         var author = game.server().getPlayerList().getPlayer(state.owner);
         Entity teamSource = author == null ? coin : author;
-        var victims = level.getEntitiesOfClass(LivingEntity.class, coin.getBoundingBox().inflate(2),
-                target -> !target.entityTags().contains("akyla_devid") && coin.distanceToSqr(target) <= 4
+        // Include both directions of an axis: a block can bounce the coin back during this tick.
+        return level.getEntitiesOfClass(LivingEntity.class,coin.getBoundingBox().inflate(Math.abs(movement.x)+2,Math.abs(movement.y)+2,Math.abs(movement.z)+2),
+                target -> !target.entityTags().contains("akyla_devid")
                         && eligible(level, teamSource, target));
-        if (victims.isEmpty()) return false;
-
-        var type = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.FALLING_BLOCK);
-        var source = new DamageSource(type, coin, shooter == null ? coin : shooter);
-        var damage = game.items().indirectKills().captureDamage(source, state.cause);
+    }
+    private static boolean coinTouches(Entity target,Vec3 from,Vec3 to){
+        double dx=to.x-from.x,dy=to.y-from.y,dz=to.z-from.z;
+        double x=target.getX()-from.x,y=target.getY()-from.y,z=target.getZ()-from.z;
+        double length=dx*dx+dy*dy+dz*dz;
+        double t=length==0?0:Math.clamp((x*dx+y*dy+z*dz)/length,0,1);
+        x-=dx*t;y-=dy*t;z-=dz*t;
+        return x*x+y*y+z*z<=4;
+    }
+    private boolean coinContact(Coin coin,Vec3 from,Vec3 to,List<LivingEntity> candidates,Set<LivingEntity> attempted){
+        var state=actors.get(coin);if(state==null)return false;
+        var level=(ServerLevel)coin.level();var shooter=coin.getOwner();
+        var author=game.server().getPlayerList().getPlayer(state.owner);Entity teamSource=author==null?coin:author;
+        DamageSource damage=null;
         boolean success = false;
-        for (var target : victims) {
+        for (var target : candidates) {
+            if(!coinTouches(target,from,to)||!eligible(level,teamSource,target)||!attempted.add(target))continue;
+            if(damage==null){
+                var type=level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.FALLING_BLOCK);
+                damage=game.items().indirectKills().captureDamage(new DamageSource(type,coin,shooter==null?coin:shooter),state.cause);
+            }
             if (target.hurtServer(level, damage, 15)) {
                 success = true;
                 LbcDamage.mobContactEnchantments(level, target, damage);
@@ -267,9 +284,13 @@ public final class LbcPozdmanBot {
             remove(coin);return;
         }
         if(state.age>=100){remove(coin);return;}
-        LbcPhysicalObjects.step(coin,1,1,.8,1,(from,to)->false,(from,to)->false);
+        var candidates=coinTargets(coin,coin.getDeltaMovement().add(0,-.08,0));
+        Set<LivingEntity> attempted=new HashSet<>();
+        LbcPhysicalObjects.step(coin,1,1,.8,1,(from,to)->false,
+                (from,to)->coinContact(coin,from,to,candidates,attempted));
+        if(coin.isRemoved())return;
         state=state.frame(state.age+1,state.yaw+20);actors.put(coin,state);orient(coin,state);
-        if(coinContact(coin))return;
+        if(coinContact(coin,coin.position(),coin.position(),candidates,attempted))return;
         if(!coin.level().getBlockState(BlockPos.containing(coin.position().add(0,1,0))).is(AIRS))breakCoin(coin);
     }
     void breakCoin(Coin coin){LbcOverload.sound((ServerLevel)coin.level(),coin.position(),"minecraft:lbcsounds.bonk",.5f,1,0,0);remove(coin);}

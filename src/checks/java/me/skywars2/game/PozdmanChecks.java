@@ -62,6 +62,11 @@ public final class PozdmanChecks {
                 require(coin.isRemoved()&&Math.abs(f.other.getHealth()-(before-nativeDamage))<1e-6
                         &&f.other.getLastDamageSource().getEntity()==dolphin,
                         "falling coin matches native falling-block damage including difficulty scaling; control="+nativeDamage+", health="+before+"->"+f.other.getHealth());
+                var falling=service.spawnCoin(dolphin);require(falling!=null,"fast falling coin control");f.own(falling);
+                falling.setPos(f.other.position().add(0,2.5,0));falling.setDeltaMovement(0,-5,0);
+                f.other.setHealth(before);f.other.setInvulnerableTime(0);f.other.damageCooldownTime=0;service.coinTick(falling);
+                require(falling.isRemoved()&&Math.abs(f.other.getHealth()-(before-nativeDamage))<1e-6,
+                        "a fast falling coin cannot pass through the enemy between physical steps");
                 var allied=service.spawnCoin(dolphin);require(allied!=null,"allied coin control");f.own(allied);allied.setPos(f.owner.position());allied.setDeltaMovement(Vec3.ZERO);
                 before=f.owner.getHealth();service.coinTick(allied);require(!allied.isRemoved()&&f.owner.getHealth()==before,"coin preserves its own summoner");service.removed(allied);
             }finally{service.forget(f.owner);}
