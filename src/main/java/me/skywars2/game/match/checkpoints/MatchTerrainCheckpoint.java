@@ -69,21 +69,16 @@ public final class MatchTerrainCheckpoint {
         for(var holder:((ArenaChunkAccess)result.arenaLevel.getChunkSource().chunkMap).skywars2$visibleChunks().values())
             if(holder.getLatestChunk() instanceof LevelChunk chunk
                     &&result.arenaLevel.getChunkSource().getChunkNow(chunk.getPos().x(),chunk.getPos().z())==chunk)result.include(chunk);
-        // Actors outside the arena still have their own checkpoint, but cannot expand terrain ownership.
+        // Pride rewinds the match world, including terrain beyond the arena cleanup bounds.
         for(var body:MatchActorCheckpoint.currentBodies(game).values()){
-            if(body.isRemoved()||body.level()!=result.arenaLevel||!MapManager.insideArena(body.blockPosition()))continue;
+            if(body.isRemoved()||body.level()!=result.arenaLevel)continue;
             var pos=body.chunkPosition();var chunk=result.arenaLevel.getChunkSource().getChunkNow(pos.x(),pos.z());
             if(chunk==null)throw new IllegalStateException("Prepare actor destinations before terrain capture");
             result.include(chunk);
         }
         return result;
     }
-    private boolean owns(ServerLevel level,BlockPos pos){return arenaLevel==null||level==arenaLevel&&MapManager.insideArena(pos);}
-    private boolean ownsChunk(ServerLevel level,ChunkPos pos){
-        int limit=MapManager.OUTER_ARENA_LIMIT;
-        return arenaLevel==null||level==arenaLevel&&pos.getMaxBlockX()>=-limit&&pos.getMinBlockX()<=limit
-                &&pos.getMaxBlockZ()>=-limit&&pos.getMinBlockZ()<=limit;
-    }
+    private boolean owns(ServerLevel level){return arenaLevel==null||level==arenaLevel;}
 
     /** Explicit extension point for a future checkpoint owner's chunk-load boundary. */
     public void include(LevelChunk chunk) {
@@ -91,15 +86,14 @@ public final class MatchTerrainCheckpoint {
         if (active != null) throw new IllegalStateException("Cannot extend an active terrain restore");
         if (!(chunk.getLevel() instanceof ServerLevel level) || level.getServer() != server)
             throw new IllegalArgumentException("Chunk belongs to another server");
-        if(!ownsChunk(level,chunk.getPos()))return;
+        if(!owns(level))return;
         var key = new Key(level, chunk.getPos());
         if (images.containsKey(key)) return;
-        events.include(level,chunk.getPos(),p->owns(level,p));
+        events.include(level,chunk.getPos());
         var sections = new LevelChunkSection[chunk.getSectionsCount()];
         for (int i = 0; i < sections.length; i++) sections[i] = chunk.getSection(i).copy();
         var entities = new LinkedHashMap<BlockPos, CompoundTag>();
         for (var pos : chunk.getBlockEntitiesPos()) {
-            if(!owns(level,pos))continue;
             var nbt = chunk.getBlockEntityNbtForSaving(pos, level.registryAccess());
             if (nbt != null) entities.put(pos.immutable(), nbt.copy());
         }
@@ -108,8 +102,8 @@ public final class MatchTerrainCheckpoint {
         long blockClock = LbcTimeStopSchedules.containerClock(blocks, level.getGameTime());
         long fluidClock = LbcTimeStopSchedules.containerClock(fluids, level.getGameTime());
         images.put(key, new ChunkImage(key, sections, Map.copyOf(entities),
-                captureTicks(blocks, blockClock).stream().filter(t->owns(level,t.pos())).toList(), blockClock,
-                captureTicks(fluids, fluidClock).stream().filter(t->owns(level,t.pos())).toList(), fluidClock));
+                captureTicks(blocks, blockClock), blockClock,
+                captureTicks(fluids, fluidClock), fluidClock));
     }
 
     @SuppressWarnings("unchecked")
@@ -222,7 +216,6 @@ public final class MatchTerrainCheckpoint {
                         if (current.getBlockState(x, y, z) == state) continue;
                         pos.set((chunk.getPos().x() << 4) + x, chunk.getSectionYFromSectionIndex(sectionIndex) * 16 + y,
                                 (chunk.getPos().z() << 4) + z);
-                        if(!owns(level,pos))continue;
                         batch.changed(pos);
                         game.maps().restoreSnapshot(level, pos, new MapManager.BlockSnapshot(state, null),
                                 Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_SUPPRESS_DROPS
@@ -280,10 +273,7 @@ public final class MatchTerrainCheckpoint {
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
             }
             boolean biomes = false;
-            boolean wholeChunk=owns(level,new BlockPos(chunk.getPos().getMinBlockX(),0,chunk.getPos().getMinBlockZ()))
-                    &&owns(level,new BlockPos(chunk.getPos().getMaxBlockX(),0,chunk.getPos().getMaxBlockZ()));
             for (int i = 0; i < image.sections.length; i++) {
-                if(!wholeChunk)break;
                 var saved = image.sections[i];
                 var current = chunk.getSection(i);
                 boolean differs = false;
@@ -301,9 +291,8 @@ public final class MatchTerrainCheckpoint {
 
         private void restoreTicks(ChunkImage image, LevelChunk chunk) {
             var level = image.key.level;
-            int limit=arenaLevel==null?30_000_000:MapManager.OUTER_ARENA_LIMIT;
-            var box = new BoundingBox(Math.max(-limit,chunk.getPos().x() << 4), level.getMinY(),Math.max(-limit,chunk.getPos().z() << 4),
-                    Math.min(limit,(chunk.getPos().x() << 4) + 15),level.getMaxY(),Math.min(limit,(chunk.getPos().z() << 4) + 15));
+            var box = new BoundingBox(chunk.getPos().getMinBlockX(), level.getMinY(),chunk.getPos().getMinBlockZ(),
+                    chunk.getPos().getMaxBlockX(),level.getMaxY(),chunk.getPos().getMaxBlockZ());
             ((LevelChunkTicks<Block>) chunk.getBlockTicks()).unpack(level.getGameTime());
             ((LevelChunkTicks<Fluid>) chunk.getFluidTicks()).unpack(level.getGameTime());
             level.getBlockTicks().clearArea(box);
