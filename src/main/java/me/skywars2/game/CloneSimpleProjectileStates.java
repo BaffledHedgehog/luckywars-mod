@@ -27,9 +27,9 @@ final class CloneSimpleProjectileStates {
     }
     static LbcCloneSkills.ActorImage capture(GameController game,Entity actor) {
         if(protectedActor(actor)) return null;
-        if(actor instanceof LbcMusicStaff.Shot source){
-            int damage=source.damage;var weapon=source.weapon.copy();
-            return image(clone->{var shot=(LbcMusicStaff.Shot)clone;shot.damage=damage;shot.weapon=weapon.copy();},clone->game.items().musicStaff().unloaded(clone));
+        if(actor instanceof LbcMusicStaff.Shot){
+            // The native image restores the arrow's firing weapon and Staff 52 damage before installation.
+            return image(clone->{},clone->game.items().musicStaff().unloaded(clone));
         }
         if(actor instanceof LbcAir.Charge source) {
             var age=source.age;
