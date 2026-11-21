@@ -229,7 +229,9 @@ def execute(argv: list[str], timeout: int, code: str) -> None:
 
 def selected_cdn_source(clip_id: str, response, account_cookies: list[dict], now: int) -> dict | None:
     """Only share an independently usable media URL from the exact successful download."""
-    if response.status_code not in (200, 206) or response.history or any(
+    # Only the final successful resource URL is exported. A preceding redirect does
+    # not make that final cookie-free signed CDN address require server playback.
+    if response.status_code not in (200, 206) or any(
             name.lower() in ("cookie", "authorization", "proxy-authorization") for name in response.request.headers):
         return None
     url = response.request.url

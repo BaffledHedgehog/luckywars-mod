@@ -56,6 +56,7 @@ public final class SpecialToolChecks {
         var floor=BlockPos.containing(destination.add(0,-1,0));f.level.setBlock(floor,Blocks.AIR.defaultBlockState(),2|16|32);
         require(victim.hurtServer(f.level,f.level.damageSources().playerAttack(p),1),"accepted real native melee");
         require(p.position().distanceToSqr(destination)<1e-8,"lunge ends four blocks beyond the actual victim");
+        require(Math.abs(net.minecraft.util.Mth.wrapDegrees(p.getYRot()-180))<.001&&p.getXRot()==0,"Mortis turns the actual player camera back toward the struck victim");
         require(f.level.getBlockState(wall).isAir()&&f.level.getBlockState(floor).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.BLACK)),"passage destroyed, unsupported source floor glass");
         var regeneration=p.getEffect(MobEffects.REGENERATION);require(regeneration!=null&&regeneration.getDuration()==20&&regeneration.getAmplifier()==2,"source RegenIII for one second");
         require(f.base.recording.packets.stream().filter(k->k instanceof ClientboundSoundPacket).count()>=3,"all three source flap sounds emitted");
@@ -64,6 +65,7 @@ public final class SpecialToolChecks {
         victim.discard();remote.discard();reset(f);p.setItemInHand(InteractionHand.MAIN_HAND,loot(f,"mortis"));p.setYRot(90);
         victim=cow(f,f.at.add(-3,0,0),100);destination=victim.position().add(-4,0,0);
         require(victim.hurtServer(f.level,f.level.damageSources().playerAttack(p),1000)&&p.position().distanceToSqr(destination)<1e-8,"lethal hit and rotated lunge use the struck victim");
+        require(Math.abs(net.minecraft.util.Mth.wrapDegrees(p.getYRot()-270))<.001&&p.getXRot()==0,"lethal Mortis lunge also turns the camera by180 degrees");
         reset(f);p.setItemInHand(InteractionHand.MAIN_HAND,loot(f,"mortis"));var ward=cow(f,f.at.add(0,0,3),100);ward.entityTags().add("sin_greed_active");old=p.position();
         require(!ward.hurtServer(f.level,f.level.damageSources().playerAttack(p),1)&&p.position().equals(old),"Greed rejects hit and follow-through");reset(f);
     }

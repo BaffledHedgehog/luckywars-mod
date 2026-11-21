@@ -327,11 +327,18 @@ public final class GenieScriptRuntime implements AutoCloseable {
                     var data=new JsonObject();data.addProperty("type",name);data.addProperty("owner",owner.getUUID().toString());data.addProperty("tick",context.clock);
                     data.addProperty("hand",hand==null?source==owner.getOffhandItem()?"offhand":"mainhand":hand==InteractionHand.MAIN_HAND?"mainhand":"offhand");
                     data.add("target",target==null?JsonNull.INSTANCE:new JsonPrimitive(target.getUUID().toString()));
-                    if (name.equals("USE") || name.equals(GenieScriptItem.REPLACE_USE_EVENT)) {
-                        data.add("eye_position",vector(owner.getEyePosition()));
-                        data.add("look",vector(owner.getLookAngle()));
+                    data.add("eye_position",vector(owner.getEyePosition()));
+                    data.add("look",vector(owner.getLookAngle()));
+                    if(projectiles!=null){
+                        data.add("projectiles",projectiles);
+                        // Convenience aliases for single-shot scripts; volleys still expose
+                        // every individual body's authoritative position and velocity.
+                        if(!projectiles.isEmpty()){
+                            var first=projectiles.get(0).getAsJsonObject();
+                            data.add("position",first.get("position"));
+                            data.add("velocity",first.get("velocity"));
+                        }
                     }
-                    if(projectiles!=null)data.add("projectiles",projectiles);
                     memory.reserveValue(data);context.events.addLast(new Event(name,data,source.copy()));
                 }catch(RuntimeException error){if(context!=null)fail(context,error);else report(owner,error);}
             }

@@ -505,7 +505,12 @@ public final class LbcSummons {
             if(game.items().polymorph().suspended(mob))continue;
             var state=mobs.get(mob); if(state==null) continue;
             var owner=owner(mob);
-            if(!mob.isAlive() || mob.isRemoved() || !valid(owner) || mob.level()!=owner.level()
+            if(mob.isDeadOrDying()&&!mob.isRemoved()){
+                // Stop custom attacks now, but let LivingEntity.tickDeath publish the native
+                // death animation and remove its body after the normal twenty ticks.
+                orders.removed(mob);mobs.remove(mob);continue;
+            }
+            if(mob.isRemoved() || !valid(owner) || mob.level()!=owner.level()
                     || !game.items().currentEpoch(state.epoch)) { remove(mob); continue; }
             if(paused(mob)) { mob.setTarget(null); continue; }
             if(mob.getTarget()!=null && (!canAttack(mob,mob.getTarget())

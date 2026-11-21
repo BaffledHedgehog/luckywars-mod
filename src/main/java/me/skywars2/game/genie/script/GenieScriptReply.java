@@ -20,8 +20,12 @@ public sealed interface GenieScriptReply {
     }
 
     record Grant(String icon, String carrier, String name, String description, String answer, String twist,
-                 String program, List<NativeAbility> nativeAbilities) implements GenieScriptReply {
-        public Grant { nativeAbilities = List.copyOf(nativeAbilities); }
+                 String program, List<NativeAbility> nativeAbilities, String components) implements GenieScriptReply {
+        public Grant { nativeAbilities = List.copyOf(nativeAbilities); java.util.Objects.requireNonNull(components); }
+        public Grant(String icon, String carrier, String name, String description, String answer, String twist,
+                     String program, List<NativeAbility> nativeAbilities) {
+            this(icon,carrier,name,description,answer,twist,program,nativeAbilities,"{}");
+        }
     }
 
     static GenieScriptReply read(String reply, Collection<JsonObject> executions, JsonObject contract) {
@@ -40,7 +44,7 @@ public sealed interface GenieScriptReply {
         requireKeys(result, Set.of("decision", "item", "answer", "twist", "program", "receipt"));
         JsonObject item = object(result.get("item"));
         if (!item.keySet().containsAll(Set.of("icon", "name", "description"))
-                || !Set.of("icon", "name", "description", "carrier", "native_abilities").containsAll(item.keySet()))
+                || !Set.of("icon", "name", "description", "carrier", "native_abilities", "components").containsAll(item.keySet()))
             throw new IllegalArgumentException("unexpected wish item fields");
         JsonObject program = object(result.get("program"));
         JsonObject receipt = object(result.get("receipt"));
@@ -67,7 +71,8 @@ public sealed interface GenieScriptReply {
         if (item.has("carrier") && abilities.isEmpty()) throw new IllegalArgumentException("carrier requires a native ability");
         return new Grant(icon, item.has("carrier") ? text(item.get("carrier"), 256) : icon,
             text(item.get("name"), 128), text(item.get("description"), 512),
-            text(result.get("answer"), 512), text(result.get("twist"), 96), canonical, abilities);
+            text(result.get("answer"), 512), text(result.get("twist"), 96), canonical, abilities,
+            item.has("components") ? ScriptJson.canonical(object(item.get("components"))) : "{}");
     }
 
     private static List<NativeAbility> nativeAbilities(JsonElement value) {

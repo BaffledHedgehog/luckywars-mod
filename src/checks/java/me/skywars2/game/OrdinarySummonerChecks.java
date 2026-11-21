@@ -128,6 +128,12 @@ public final class OrdinarySummonerChecks {
         var converted=skeleton.convertTo(EntityTypes.STRAY,net.minecraft.world.entity.ConversionParams.single(skeleton,true,true),e->{});
         require(converted!=null&&skeleton.isRemoved()&&service.owner(converted)==p&&f.base.game.items().currentEpoch(converted),"native powder-snow conversion retains author/epoch");
         var convertedTarget=cow(f,converted.position().add(0,0,1),1);require(converted.doHurtTarget(f.level,convertedTarget)&&convertedTarget.getKillCredit()==p,"converted native melee retains kill credit");
+        converted.setHealth(1);converted.setInvulnerableTime(0);
+        require(converted.hurtServer(f.level,f.level.damageSources().playerAttack(p),1000),"real lethal summoned-mob hit");
+        service.tick();require(converted.isDeadOrDying()&&!converted.isRemoved(),"summon bookkeeping preserves the native death animation");
+        for(int tick=0;tick<19;tick++)f.level.tickNonPassenger(converted);
+        require(!converted.isRemoved(),"dead summon remains for nineteen native animation ticks");
+        f.level.tickNonPassenger(converted);require(converted.isRemoved(),"vanilla removes summon after its full death animation");
         reset(f);var rider=ghostRiderAfterFlight(f);
         var victim=cow(f,rider.position().add(0,0,12),100);rider.performRangedAttack(victim,1);
         var arrow=new ArrayList<AbstractArrow>();for(var e:f.level.getAllEntities())if(!f.base.before.contains(e)&&e instanceof AbstractArrow a)arrow.add(a);

@@ -86,7 +86,12 @@ public abstract class CubeInteractionMixin implements LbcUseInteractions.BlockIn
         if(context.getPlayer() instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.nexus(context.getLevel())
                 &&!me.skywars2.game.entities.LbcDimensionItems.allowed(owner,stack))return InteractionResult.FAIL;
         boolean custom=me.skywars2.game.entities.LbcDimensionItems.custom(stack);
-        var result = original.call(stack, context);
+        var game=me.skywars2.SkyWars2.game();
+        // This is after vanilla block interaction: chests still open, while a scripted
+        // replacement cannot accidentally place/consume its cake/block/egg carrier.
+        var scripted=game!=null&&context.getPlayer() instanceof ServerPlayer owner
+                ?game.items().genie().runtime().replaceUse(owner,context.getHand()):InteractionResult.PASS;
+        var result = scripted==InteractionResult.PASS?original.call(stack, context):scripted;
         // A successful client carrier use may suppress the offhand packet. Native block
         // interactions and block placement keep their own priority and do not start a shield.
         if ((item instanceof PolymerItem || custom) && !(item instanceof BlockItem) && context.getPlayer() instanceof ServerPlayer player) {

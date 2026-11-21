@@ -39,6 +39,7 @@ def check_cdn_source():
 
     good = {"clipId": clip, "url": url, "expiresAt": now + 3600}
     assert selected(response(headers={"User-Agent": "fixture-client"})) == good
+    assert selected(response(history=(object(),))) == good
     assert selected(response(origin + f"?x-expires={now + 42}"))["expiresAt"] == now + 42
     for invalid in (
         response(url.replace("https:", "http:")),
@@ -58,7 +59,6 @@ def check_cdn_source():
         response(url + "#private"),
         response(headers={"Cookie": "sessionid=fixture-only"}),
         response(headers={"Authorization": "fixture-only"}),
-        response(history=(object(),)),
     ):
         assert selected(invalid) is None
 

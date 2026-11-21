@@ -135,6 +135,7 @@ public final class LbcNukeEvent {
         game.items().markCurrentItemEpoch(marker);var state=new State(new Cause(author.getUUID(),game.items().indirectKills().wildCause(author),game.items().epoch()));
         actors.put(marker,state);sources.put(marker,state.cause);
         if(!author.level().addFreshEntity(marker)){actors.remove(marker);sources.remove(marker);return false;}
+        if(!zelensky&&!stooper(marker))warningBeacon(marker,state);
         game.items().timeStop().prepareFrozen(marker);return true;
 
         }finally{callbackDepth--;}
@@ -254,6 +255,28 @@ public final class LbcNukeEvent {
             int selected=site.level.getRandom().nextInt(16);LbcDropBlocks.setBlock(site.level,origin.above(2),PANES[selected].defaultBlockState(),false);
         });job.submit();
     }
+    /** The placed bomb is visible immediately; it must not wait behind terrain work. */
+    private void warningBeacon(Marker marker,State state){
+        var level=(ServerLevel)marker.level();var origin=marker.blockPosition();
+        if(!resident(level,origin.offset(-1,0,-1),origin.offset(1,2,1)))return;
+        game.items().indirectKills().trapChanges(level,state.cause.accepted,()->{
+            LbcDropBlocks.fill(level,origin.offset(-1,0,-1),origin.offset(1,0,1),Blocks.NETHERITE_BLOCK,true);
+            LbcDropBlocks.setBlock(level,origin.above(),Blocks.BEACON.defaultBlockState(),false);
+            LbcDropBlocks.setBlock(level,origin.above(2),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.RED).defaultBlockState(),false);
+        });
+    }
+    private void clearBeacon(Site site){
+        var origin=BlockPos.containing(site.at);
+        game.items().indirectKills().trapChanges(site.level,site.cause.accepted,()->{
+            for(int layer=0;layer<BASE.length;layer++){
+                int radius=layer+1;var expected=BASE[layer];
+                var from=origin.offset(-radius,-layer,-radius);var to=origin.offset(radius,-layer,radius);
+                if(resident(site.level,from,to))LbcDropBlocks.fill(site.level,from,to,Blocks.AIR,true,s->s.is(expected));
+            }
+            if(site.level.getBlockState(origin.above()).is(Blocks.BEACON))LbcDropBlocks.setBlock(site.level,origin.above(),Blocks.AIR.defaultBlockState(),true);
+            if(Arrays.stream(PANES).anyMatch(block->site.level.getBlockState(origin.above(2)).is(block)))LbcDropBlocks.setBlock(site.level,origin.above(2),Blocks.AIR.defaultBlockState(),true);
+        });
+    }
     private void detonate(){
         var base=new Site(game.server().overworld(),Vec3.ZERO,0,null);var selected=select(ARMED,base);
         var sites=new ArrayList<Site>();
@@ -261,6 +284,7 @@ public final class LbcNukeEvent {
             var state=actors.get(marker);sites.add(new Site((ServerLevel)marker.level(),marker.position(),marker.getYRot(),state.cause));
         }
         if(sites.isEmpty())return;detonations++;
+        for(var site:sites)clearBeacon(site);
         var job=new Job(game.items().epoch());job.detonation=true;
         // Each execute-at fork snapshots its position; later native kills cannot move later contexts.
         for(var site:sites)job.add(site.level,BlockPos.containing(site.at),BlockPos.containing(site.at),site.cause,()->appendMarker(job,site));

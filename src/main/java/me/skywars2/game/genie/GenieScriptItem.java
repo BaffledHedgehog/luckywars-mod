@@ -40,12 +40,18 @@ public final class GenieScriptItem {
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();tag.putString(STATE,encoded);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
     }
     public static ItemStack construct(ScriptRepository.Loaded code,String icon,String name,String description,int count){
+        return construct(code,icon,name,description,count,net.minecraft.core.component.DataComponentPatch.EMPTY);
+    }
+    public static ItemStack construct(ScriptRepository.Loaded code,String icon,String name,String description,int count,
+                                      net.minecraft.core.component.DataComponentPatch components){
         Objects.requireNonNull(code);if(count<1)throw new IllegalArgumentException("positive item count required");
         var type=BuiltInRegistries.ITEM.get(Identifier.parse(icon)).orElseThrow(()->new IllegalArgumentException("unknown item icon")).value();
         boolean replacesShot=code.program().handler(REPLACE_SHOT_EVENT)!=null;
         if(replacesShot&&!(type instanceof BowItem||type instanceof CrossbowItem))
             throw new IllegalArgumentException("SHOT_REPLACE requires a bow or crossbow");
         var stack=new ItemStack(type,count);if(stack.isEmpty())throw new IllegalArgumentException("item icon cannot be empty");
+        // Decode through native component codecs, then install the constructor's own identity below.
+        stack.applyComponents(components);
         GenieItems.describeGift(stack, name, description);
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();tag.putString(CODE,code.id());
         if(replacesShot)tag.putInt(REPLACE_SHOT,1);

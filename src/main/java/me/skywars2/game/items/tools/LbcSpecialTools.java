@@ -125,7 +125,8 @@ public final class LbcSpecialTools {
         // The old /tp lunges through the actual victim, ending four blocks beyond it.
         for(int i=0;i<=16;i++)if(!resident(level,BlockPos.containing(start.lerp(destination,i/16.0))))return;
         p.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,20,2,true,false),p);
-        p.teleportTo(destination.x,destination.y,destination.z);
+        // Legacy executes the lunge with yaw +180 and pitch zero, including the /tp rotation.
+        p.teleportTo(level,destination.x,destination.y,destination.z,Set.of(),p.getYRot()+180,0,true);
         var dust=new DustParticleOptions(0x4c0000,4);
         for(int n=-4;n<=4;n++){
             var at=destination.add(forward.scale(-n));level.sendParticles(dust,at.x,at.y,at.z,5,.5,1,.5,0);

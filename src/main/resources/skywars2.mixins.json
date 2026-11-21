@@ -588,6 +588,7 @@
     "mobs.SummonTargetAccess",
     "mobs.SyringeMobAccess$DeathLoot",
     "mobs.SyringeMobAccess$GhastPower",
+    "mobs.SyringeMobAccess$GhastPowerNbt",
     "mobs.SyringeMobAccess$CreeperRadius",
     "combat.PendingSwordAttackMixin",
     "advancements.ShishInteractionMixin",

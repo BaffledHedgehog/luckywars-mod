@@ -189,7 +189,10 @@ public final class GenieService implements AutoCloseable {
             if (error != null) { finishReward(wish, ItemStack.EMPTY, null, false); return; }
             ItemStack reward;
             try {
-                reward = GenieScriptItem.construct(code, grant.carrier(), grant.name(), grant.description(), 1);
+                var components=net.minecraft.core.component.DataComponentPatch.CODEC.parse(
+                        game.server().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),
+                        me.skywars2.game.genie.script.ScriptJson.parse(grant.components())).getOrThrow();
+                reward = GenieScriptItem.construct(code, grant.carrier(), grant.name(), grant.description(), 1,components);
                 if (!grant.nativeAbilities().isEmpty())
                     reward = game.items().tmt().genieAbilities().attach(reward, Identifier.parse(grant.icon()), grant.nativeAbilities());
             }

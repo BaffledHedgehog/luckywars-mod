@@ -16,6 +16,20 @@ public interface SyringeMobAccess {
         }
     }
     @Mixin(Ghast.class)
+    abstract class GhastPowerNbt {
+        @org.spongepowered.asm.mixin.Shadow private int explosionPower;
+        @org.spongepowered.asm.mixin.injection.Inject(method="readAdditionalSaveData",at=@org.spongepowered.asm.mixin.injection.At("RETURN"))
+        private void skywars2$readFullPower(net.minecraft.world.level.storage.ValueInput input,
+                org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci){
+            explosionPower=input.getIntOr("ExplosionPower",1);
+        }
+        @org.spongepowered.asm.mixin.injection.Inject(method="addAdditionalSaveData",at=@org.spongepowered.asm.mixin.injection.At("RETURN"))
+        private void skywars2$saveFullPower(net.minecraft.world.level.storage.ValueOutput output,
+                org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci){
+            output.putInt("ExplosionPower",explosionPower);
+        }
+    }
+    @Mixin(Ghast.class)
     interface GhastPower {
         @Accessor("explosionPower") int skywars2$syringePower();
         @Accessor("explosionPower") void skywars2$syringePower(int value);

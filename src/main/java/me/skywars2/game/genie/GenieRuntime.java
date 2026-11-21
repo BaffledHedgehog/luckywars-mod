@@ -299,7 +299,12 @@ public final class GenieRuntime {
         Vec3 origin=requestedOrigin;
         if(origin==null){
             origin=owner.getEyePosition();
-            if(body instanceof Mob)origin=origin.add(owner.getLookAngle().scale((owner.getBbWidth()+body.getBbWidth())*.5+.1)).add(0,-body.getBbHeight()*.5,0);
+            if(body instanceof Mob){
+                origin=origin.add(owner.getLookAngle().scale((owner.getBbWidth()+body.getBbWidth())*.5+.1));
+                // Large mobs (notably the dragon) must not have their feet placed under
+                // the floor just because their center is taller than the shooter's eye.
+                origin=new Vec3(origin.x,Math.max(owner.getY(),origin.y-body.getBbHeight()*.5),origin.z);
+            }
         }
         if(Math.abs(origin.x)>=30_000_000||Math.abs(origin.z)>=30_000_000)return null;
         var position=BlockPos.containing(origin);

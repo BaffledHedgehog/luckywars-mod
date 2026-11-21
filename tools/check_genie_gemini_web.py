@@ -100,12 +100,30 @@ class GeminiProtocolChecks(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(failure.exception.issue, "INVALID_PROPOSAL")
 
     async def test_wrong_confirmation_never_grants(self):
-        client = Client([GRANT, {"decision": "grant", "program_sha256": "wrong"}, {"decision": "reject"}])
+        client = Client([GRANT, {"decision": "grant", "program_sha256": "wrong"}, {"decision": "grant", "program_sha256": "wrong2"}])
         with self.assertRaises(worker.SessionFailure) as failure:
             await worker.wish(client, "model")
         self.assertEqual(failure.exception.issue, "INVALID_CONFIRMATION")
         self.assertIn(self.receipt["program_sha256"], client.calls[1][0])
         self.assertIn('"functions"', client.calls[1][0])
+
+    async def test_semantic_review_can_reject_a_syntactically_valid_grant(self):
+        client = Client([GRANT, {"decision": "reject"}])
+        result = await worker.wish(client, "model")
+        self.assertEqual(json.loads(result["reply"]), {"decision": "reject"})
+        self.assertNotIn("receipt", result)
+        self.assertIn("Original wish and constructor context", client.calls[1][0])
+        self.assertIn("NOT gameplay correctness", client.calls[1][0])
+        self.assertEqual(len(client.calls[1][1]["files"]), 3)
+
+    async def test_semantic_repair_gets_its_own_verified_hash(self):
+        repaired = copy.deepcopy(GRANT)
+        repaired["program"]["functions"]["main"]["code"] = [["CONST", False], ["RETURN"]]
+        expected = verify(repaired["program"], CONTRACT)
+        client = Client([GRANT, repaired, {"decision": "grant", "program_sha256": expected["program_sha256"]}])
+        result = await worker.wish(client, "model")
+        self.assertEqual(result["receipt"], expected)
+        self.assertNotEqual(expected["program_sha256"], self.receipt["program_sha256"])
 
     async def test_rejection_and_quota_do_not_retry_or_forge_grant(self):
         client = Client([{"decision": "reject"}])

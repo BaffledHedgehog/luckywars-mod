@@ -119,20 +119,36 @@ The successful decision literal is "grant", never "accept" or "allow".
 
         expected = {"decision": "grant", "program_sha256": receipt["program_sha256"]}
         confirmation_request = (
-            "The verifier accepted the following exact program:\n" + canonical(reply["program"])
+            prompt + "\n\nIndependently review this full proposal against the original wish, native item behavior, "
+            "contract and fairness requirements. The verifier proved syntax, NOT gameplay correctness. "
+            "Trace an actual activation, event fields, spawn clearance, effects, repetition and the implemented hidden catch. "
+            "Reject instant unavoidable killing of selected players or equivalent guaranteed victory; a nominal debuff does not balance it. "
+            "If inadmissible return only {\"decision\":\"reject\"}. If the implementation is broken, return the full repaired "
+            "five-field grant without receipt; it will be verified again. Only if it truly fulfills an admissible wish "
+            "with a meaningful catch, confirm the exact checked hash below.\nFull proposal:\n" + canonical(reply)
             + "\nVerifier output:\n" + canonical(receipt)
-            + "\nConfirm the verified program by returning only this JSON, with no extra fields:\n"
+            + "\nConfirmation JSON for an unchanged correct proposal:\n"
             + json.dumps(expected)
         )
+        revised = False
         for _ in range(2):
-            confirmation = await turn(confirmation_request)
+            confirmation = await turn(confirmation_request, files=attachments)
             try:
-                if parse(response_text(confirmation)) == expected:
+                reviewed = parse(response_text(confirmation))
+                if reviewed == {"decision": "reject"}:
+                    return {"reply": canonical(reviewed)}
+                if isinstance(reviewed, dict) and set(reviewed) == {"decision", "item", "answer", "twist", "program"}:
+                    proposal = confirmation
+                    revised = True
+                    break
+                if reviewed == expected:
                     break
             except (ValueError, TypeError, OverflowError, RecursionError):
                 pass
         else:
             raise SessionFailure("INVALID_CONFIRMATION")
+        if revised:
+            continue
         reply["receipt"] = receipt
         return {"reply": canonical(reply), "receipt": receipt}
     raise SessionFailure("INVALID_PROPOSAL")

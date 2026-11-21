@@ -40,6 +40,7 @@ final class GenieLaunchChecks {
     private final CompletableFuture<ScriptRepository.Loaded> replacement;
     private final CompletableFuture<ScriptRepository.Loaded> shot;
     private final CompletableFuture<ScriptRepository.Loaded> rifle;
+    private final CompletableFuture<ScriptRepository.Loaded> dragon;
     private Set<UUID> beforeReplacement;
     private ItemStack replacementBow;
     private ItemStack ordinaryCrossbow;
@@ -83,6 +84,12 @@ final class GenieLaunchChecks {
             ["load","event"],["const","look"],["get"],["const",32],["const",8],["call","combat.hitscan",4],
             ["put"],["drop"],["load","state"],["const","shots"],["load","state"],["const","shots"],["get"],["const",1],
             ["add"],["put"],["return"]]}}}
+            """);
+        dragon=game.items().genie().runtime().scripts().prepare("""
+            {"version":1,"state":{},"handlers":{"SHOT_REPLACE":"fire"},"functions":{"fire":{
+            "parameters":["event"],"code":[["LOAD","state"],["CONST","body"],["CONST","minecraft:ender_dragon"],
+            ["CONST",null],["LOAD","event"],["CONST","velocity"],["GET"],["CONST",200],
+            ["CALL","entity.launch",4],["PUT"],["RETURN"]]}}}
             """);
         for(String type:List.of("player","armor_stand","mannequin","fishing_bobber","item","not_a_native_entity"))reject(type,40,200);
         reject("warden",40,200);
@@ -246,9 +253,48 @@ final class GenieLaunchChecks {
                         "native crossbow discharge retains one real projectile, one wear and one SHOT");
             }finally{arrows.forEach(base::discard);}
             checkRifle();
+            checkDragon();
+            checkEgg();
             return true;
         }
         throw new IllegalStateException("unknown native launch phase");
+    }
+    private void checkDragon() {
+        var feet=base.resident(false);base.move(base.owner,feet);
+        var at=BlockPos.containing(feet);
+        for(var p:BlockPos.betweenClosed(at.offset(-9,0,-1),at.offset(9,9,19)))base.set(p.immutable(),Blocks.AIR.defaultBlockState());
+        for(var p:BlockPos.betweenClosed(at.offset(-9,-1,-1),at.offset(9,-1,19)))base.set(p.immutable(),Blocks.STONE.defaultBlockState());
+        var crossbow=GenieScriptItem.construct(dragon.join(),"crossbow","Dragon crossbow","Real dragon launcher.",1);
+        crossbow.set(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.ofNonEmpty(List.of(new ItemStack(Items.ARROW))));
+        base.owner.setItemInHand(InteractionHand.MAIN_HAND,crossbow);
+        base.owner.setYRot(0);base.owner.setXRot(0);var before=projectiles();
+        require(base.owner.gameMode.useItem(base.owner,base.level,crossbow,InteractionHand.MAIN_HAND).consumesAction(),"dragon crossbow discharge accepted");
+        for(int n=0;n<32&&!GenieScriptItem.state(crossbow).has("body");n++)game.items().genie().runtime().scripts().tick();
+        var id=GenieScriptItem.state(crossbow).get("body");
+        require(id!=null&&!id.isJsonNull(),"large native mob launches above the floor instead of being silently rejected");
+        var body=base.level.getEntity(UUID.fromString(id.getAsString()));
+        require(body!=null&&body.getType()==EntityTypes.ENDER_DRAGON&&body.getY()>=base.owner.getY()
+                &&body.getDeltaMovement().z>2,"real dragon entity inherits the crossbow's physical shot velocity");
+        base.own(body);require(projectiles().equals(before),"dragon replacement does not leave an ordinary arrow");
+        base.discard(body);
+    }
+    private void checkEgg() {
+        var at=BlockPos.containing(base.owner.position()).offset(3,0,0);base.set(at.below(),Blocks.STONE.defaultBlockState());
+        var patch=net.minecraft.core.component.DataComponentPatch.CODEC.parse(
+                base.level.registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),
+                com.google.gson.JsonParser.parseString("{\"minecraft:entity_data\":{\"id\":\"minecraft:ghast\",\"ExplosionPower\":200}}")).getOrThrow();
+        var egg=GenieScriptItem.construct(shot.join(),"ghast_spawn_egg","Power200 egg","Native NBT witness.",1,patch);
+        base.owner.setItemInHand(InteractionHand.MAIN_HAND,egg);
+        var before=new HashSet<UUID>();for(var e:base.level.getAllEntities())before.add(e.getUUID());
+        var hit=new net.minecraft.world.phys.BlockHitResult(Vec3.atCenterOf(at.below()).add(0,.5,0),Direction.UP,at.below(),false);
+        require(base.owner.gameMode.useItemOn(base.owner,base.level,egg,InteractionHand.MAIN_HAND,hit).consumesAction(),"native custom-component egg use on block");
+        var ghasts=base.level.getEntitiesOfClass(net.minecraft.world.entity.monster.Ghast.class,new net.minecraft.world.phys.AABB(at).inflate(8),e->!before.contains(e.getUUID()));
+        require(ghasts.size()==1&&ghasts.getFirst().getExplosionPower()==200,"custom egg spawns the requested actual Ghast power200, without signed-byte truncation");
+        var ghast=ghasts.getFirst();base.own(ghast);
+        var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,base.level.registryAccess());
+        ghast.saveWithoutId(output);var saved=output.buildResult();
+        require(saved.getIntOr("ExplosionPower",0)==200,"full Ghast explosion power survives native save");
+        base.discard(ghast);
     }
     private void use(int sequence, InteractionHand hand, float yaw) {
         base.client.acknowledge();
