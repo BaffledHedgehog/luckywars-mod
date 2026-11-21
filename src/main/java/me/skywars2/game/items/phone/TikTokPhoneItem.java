@@ -1,4 +1,4 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
@@ -14,8 +14,8 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 
 /** The real phone/passive remains authoritative; moving pixels exist only in recipient projection. */
-final class TikTokPhoneItem extends SimplePolymerItem {
-    TikTokPhoneItem(Properties properties){super(properties,Items.CARROT_ON_A_STICK,true);}
+public final class TikTokPhoneItem extends SimplePolymerItem {
+    public TikTokPhoneItem(Properties properties){super(properties,Items.CARROT_ON_A_STICK,true);}
     @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
         var game=SkyWars2.game();var playback=TikTokAccounts.playback();
         if(game==null||playback==null||!(player instanceof ServerPlayer owner)||game.items().actionsBlocked(owner))return InteractionResult.FAIL;

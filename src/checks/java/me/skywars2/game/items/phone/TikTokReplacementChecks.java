@@ -1,8 +1,10 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
+
+import me.skywars2.game.GameController;
 import me.skywars2.media.MediaPackets;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;

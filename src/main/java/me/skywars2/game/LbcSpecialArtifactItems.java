@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
+import me.skywars2.game.items.phone.TikTokPhoneItem;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;

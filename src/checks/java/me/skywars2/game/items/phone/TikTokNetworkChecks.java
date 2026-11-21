@@ -1,5 +1,9 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
+import me.skywars2.game.GameController;
+import me.skywars2.game.LbcSpecialArtifactItems;
+import me.skywars2.game.NetworkTransportChecks;
+import me.skywars2.game.WoolBucketChecks;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -59,7 +63,7 @@ public final class TikTokNetworkChecks {
             var header=ByteBuffer.allocate(16);while(header.hasRemaining())require(spectral.read(header)>=0,"spectral header");header.flip();
             require(header.getInt()==0x544b4131,"real spectral sidecar");spectralFrames=header.getInt();
             require(spectralFrames>0&&header.getInt()==20&&header.getInt()==88,"native spectral format");
-            phone=new ItemStack(LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item);f.owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,phone);
+            phone=new ItemStack(LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item);f.owner().setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,phone);
             try(var listener=new ServerSocket(0,1,InetAddress.getLoopbackAddress())){
                 sender=new Socket(listener.getInetAddress(),listener.getLocalPort());receiver=listener.accept();
             }
@@ -78,17 +82,17 @@ public final class TikTokNetworkChecks {
             sender.getOutputStream().write(wire.bytes());sentCrc.update(wire.bytes());protocolFrames[profile]+=wire.frames();
         }
         boolean step()throws Exception{
-            f.client.acknowledge();f.audience.acknowledge();require(game.server().getTickCount()-began<2000,"bounded offline sample");
+            f.client().acknowledge();f.audience().acknowledge();require(game.server().getTickCount()-began<2000,"bounded offline sample");
             if(frame<media.frames*2){
                 profile=frame/media.frames;int index=frame%media.frames;
                 var source=media.frame(index,false);
-                var proxy = TikTokPlayback.frameStack(f.owner, phone, TikTokPixels.encode(source.map()));
+                var proxy = TikTokPlayback.frameStack(f.owner(), phone, TikTokPixels.encode(source.map()));
                 require(proxy.get(net.minecraft.core.component.DataComponents.ITEM_MODEL).equals(TikTokPlayback.VIDEO_MODEL),"actual vanilla phone factory");
-                var video=NetworkTransportChecks.encode(f.owner,List.of(new ClientboundSetPlayerInventoryPacket(0,proxy)),true,256,false);
+                var video=NetworkTransportChecks.encode(f.owner(),List.of(new ClientboundSetPlayerInventoryPacket(0,proxy)),true,256,false);
                 long nanos=index*50_000_000L;int limit=profile==0?72:Math.min(72,voices.available(nanos,index));
-                List<Packet<?>> tones=limit>0?new ArrayList<>(TikTokAudio.spectralPackets(f.owner,spectral(index),index,limit)):List.of();
+                List<Packet<?>> tones=limit>0?new ArrayList<>(TikTokAudio.spectralPackets(f.owner(),spectral(index),index,limit)):List.of();
                 if(profile==1)voices.emitted(nanos,index,tones.size());soundEvents[profile]+=tones.size();
-                var audio=NetworkTransportChecks.encode(f.owner,tones.isEmpty()?List.of():List.of(new ClientboundBundlePacket(new ArrayList<>(tones.stream().map(p->(Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener>)p).toList()))),true,256,false);
+                var audio=NetworkTransportChecks.encode(f.owner(),tones.isEmpty()?List.of():List.of(new ClientboundBundlePacket(new ArrayList<>(tones.stream().map(p->(Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener>)p).toList()))),true,256,false);
                 videoBytes[profile]+=video.bytes().length;audioBytes[profile]+=audio.bytes().length;if(profile==0)frameBytes.add((long)video.bytes().length+audio.bytes().length);
                 send(video);send(audio);frame++;return false;
             }

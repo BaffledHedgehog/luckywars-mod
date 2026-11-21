@@ -24,7 +24,7 @@ public final class SmokeVolumeChecks {
     private SmokeVolumeChecks() { }
     private static Fixture running;
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Smoke volume: "+why);}
-    static List<Packet<?>> flatten(List<Packet<?>> packets){
+    public static List<Packet<?>> flatten(List<Packet<?>> packets){
         var out=new ArrayList<Packet<?>>();for(var p:packets){if(p instanceof ClientboundBundlePacket b)for(var q:b.subPackets())out.addAll(flatten(List.of(q)));else out.add(p);}return out;
     }
     static boolean shaderMarker(List<Packet<?>> packets){

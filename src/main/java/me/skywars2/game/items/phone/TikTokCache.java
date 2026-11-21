@@ -1,4 +1,4 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
 import com.google.gson.*;
 import java.io.IOException;

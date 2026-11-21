@@ -48,7 +48,7 @@ def audit(pack, vanilla, server, extra_jars=()):
     pack, vanilla, server = pack.resolve(), vanilla.resolve(), server.resolve()
     with zipfile.ZipFile(server) as runtime:
         movie = runtime.read('me/skywars2/game/LbcBadApple.class')
-        audio = runtime.read('me/skywars2/game/TikTokAudio.class')
+        audio = runtime.read('me/skywars2/game/items/phone/TikTokAudio.class')
     movie_retired = (b'lbc:badapple/black' in movie and b'lbc:badapple/white' in movie
                      and b'control_' not in movie and b'badapple/movie' not in movie)
     v1_retired = b'tiktok.v1.' not in audio and b'tiktok/v1/' not in audio

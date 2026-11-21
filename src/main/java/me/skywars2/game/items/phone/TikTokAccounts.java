@@ -1,5 +1,6 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
+import me.skywars2.game.SkyWarsCommandTree;
 import com.mojang.brigadier.CommandDispatcher;
 import java.io.IOException;
 import java.nio.file.Path;

@@ -52,8 +52,10 @@ public final class RegenerationBeltChecks {
         @Override public void send(net.minecraft.network.protocol.Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){packets.add(packet);if(packet instanceof net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket position)latestPosition=position;}
         @Override public void flushChannel(){}
     }
-    static final class ScheduledClient implements AutoCloseable {
-        List<net.minecraft.network.protocol.Packet<?>> packets(){return connection.packets;}
+    public static final class ScheduledClient implements AutoCloseable {
+        public List<net.minecraft.network.protocol.Packet<?>> packets(){return connection.packets;}
+        public net.minecraft.network.Connection connection(){return connection;}
+        public net.minecraft.server.network.ServerGamePacketListenerImpl listener(){return listener;}
         final GameController game;final ServerPlayer player;final net.minecraft.server.network.ServerGamePacketListenerImpl previous,listener;
         final ScheduledConnection connection=new ScheduledConnection();
         ScheduledClient(GameController game,ServerPlayer player){this.game=game;this.player=player;previous=player.connection;
@@ -79,7 +81,7 @@ public final class RegenerationBeltChecks {
             state.put("tickCount",timing.validation$listenerTicks());
             return state.toString();
         }
-        void acknowledge(){
+        public void acknowledge(){
             listener.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
             if(timing().validation$awaitingPosition()!=null){
                 var teleport=Objects.requireNonNull(connection.latestPosition,"actual emitted teleport packet survives measurement windows: "+diagnostics());

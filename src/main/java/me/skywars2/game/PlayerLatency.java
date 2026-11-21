@@ -41,7 +41,7 @@ public final class PlayerLatency {
     }
     private PlayerLatency(){}
     private static boolean realClient(ServerPlayer player){return !player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake");}
-    static int nextProbeId() {
+    public static int nextProbeId() {
         return NONCE.getAndUpdate(value -> value == Integer.MIN_VALUE ? -1 : value - 1);
     }
     static void request(ServerGamePacketListenerImpl listener){

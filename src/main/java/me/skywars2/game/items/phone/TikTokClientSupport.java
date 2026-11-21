@@ -1,5 +1,6 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
+import io.netty.channel.Channel;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -46,6 +47,14 @@ public final class TikTokClientSupport {
     private static void forget(UUID player, ServerGamePacketListenerImpl listener) {
         var peer = peers.get(player);
         if (peer != null && peer.listener == listener) peers.remove(player, peer);
+    }
+
+    public static boolean acknowledgeMedia(Channel channel, int id) {
+        return TikTokOutput.acknowledge(channel, id);
+    }
+
+    public static void detachMedia(Channel channel) {
+        TikTokOutput.detach(channel);
     }
 
     public static boolean enhanced(ServerPlayer player) {

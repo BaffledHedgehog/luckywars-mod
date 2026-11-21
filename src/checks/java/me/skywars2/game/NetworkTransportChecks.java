@@ -24,7 +24,7 @@ public final class NetworkTransportChecks {
         if (!value) throw new IllegalStateException("Network transport: " + why);
     }
 
-    record Wire(byte[] bytes, int flushes, int frames, Map<String, Integer> packetsByType,
+    public record Wire(byte[] bytes, int flushes, int frames, Map<String, Integer> packetsByType,
                 Map<String, Long> bytesByType) { }
 
     private static final class Counter extends ChannelOutboundHandlerAdapter {
@@ -77,7 +77,7 @@ public final class NetworkTransportChecks {
         }finally{player.connection=previous;}
     }
 
-    static Wire encode(ServerPlayer player, List<Packet<?>> packets, boolean optimized, int compression, boolean encrypted) {
+    public static Wire encode(ServerPlayer player, List<Packet<?>> packets, boolean optimized, int compression, boolean encrypted) {
         var connection = new Connection(PacketFlow.SERVERBOUND);
         var channel = new EmbeddedChannel();
         try {

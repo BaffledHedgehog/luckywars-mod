@@ -1,4 +1,4 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
 import java.io.IOException;
 import java.io.OutputStream;

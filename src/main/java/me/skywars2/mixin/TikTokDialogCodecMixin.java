@@ -1,7 +1,7 @@
 package me.skywars2.mixin;
 
 import io.netty.buffer.ByteBuf;
-import me.skywars2.game.TikTokDialogPayloads;
+import me.skywars2.game.items.phone.TikTokDialogPayloads;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import org.spongepowered.asm.mixin.*;

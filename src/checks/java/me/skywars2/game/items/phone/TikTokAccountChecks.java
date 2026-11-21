@@ -1,5 +1,7 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
+import me.skywars2.game.GameController;
+import me.skywars2.game.WoolBucketChecks;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -89,31 +91,31 @@ public final class TikTokAccountChecks {
     private static void nativeDialog(GameController game){
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var players=game.server().getPlayerList();
-            boolean ownerOp=players.isOp(f.owner.nameAndId()),otherOp=players.isOp(f.other.nameAndId());
+            boolean ownerOp=players.isOp(f.owner().nameAndId()),otherOp=players.isOp(f.other().nameAndId());
             Path credentials=net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("skywars2/tiktok/cookies.json");
             require(!Files.exists(credentials),"actual account stays unconfigured in offline fixture");
             try{
                 var dispatcher=game.server().getCommands().getDispatcher();
                 var node=dispatcher.getRoot().getChild("skywars").getChild("tiktok");
                 require(node!=null&&node.canUse(game.server().createCommandSourceStack())
-                        &&!node.canUse(f.other.createCommandSourceStack().withPermission(net.minecraft.server.permissions.PermissionSet.NO_PERMISSIONS)),"actual operator-only namespace/permission tree");
-                if(!ownerOp)players.op(f.owner.nameAndId());if(!otherOp)players.op(f.other.nameAndId());
-                dispatcher.execute("skywars tiktok import",f.owner.createCommandSourceStack());
-                var packet=f.client.packets().stream().filter(ClientboundShowDialogPacket.class::isInstance).map(ClientboundShowDialogPacket.class::cast).toList().getLast();
+                        &&!node.canUse(f.other().createCommandSourceStack().withPermission(net.minecraft.server.permissions.PermissionSet.NO_PERMISSIONS)),"actual operator-only namespace/permission tree");
+                if(!ownerOp)players.op(f.owner().nameAndId());if(!otherOp)players.op(f.other().nameAndId());
+                dispatcher.execute("skywars tiktok import",f.owner().createCommandSourceStack());
+                var packet=f.client().packets().stream().filter(ClientboundShowDialogPacket.class::isInstance).map(ClientboundShowDialogPacket.class::cast).toList().getLast();
                 var dialog=(MultiActionDialog)packet.dialog().value();
                 var id=((net.minecraft.server.dialog.action.CustomAll)dialog.actions().getFirst().action().orElseThrow()).id();
                 var invalid=new CompoundTag();invalid.putString("cookies","invalid fixture JSON");
                 var reply=new ServerboundCustomClickActionPacket(id,Optional.of(invalid));
-                int ownerPackets=f.client.packets().size();
-                f.audience.listener.handleCustomClickAction(reply);
-                require(f.client.packets().size()==ownerPackets&&!Files.exists(credentials),"another authorized operator cannot consume owner's personal nonce");
-                f.client.listener.handleCustomClickAction(reply);
-                require(f.client.packets().size()>ownerPackets&&!Files.exists(credentials),"real owner reply reaches native handler and rejects malformed JSON without saving");
+                int ownerPackets=f.client().packets().size();
+                f.audience().listener().handleCustomClickAction(reply);
+                require(f.client().packets().size()==ownerPackets&&!Files.exists(credentials),"another authorized operator cannot consume owner's personal nonce");
+                f.client().listener().handleCustomClickAction(reply);
+                require(f.client().packets().size()>ownerPackets&&!Files.exists(credentials),"real owner reply reaches native handler and rejects malformed JSON without saving");
                 var otherwiseValid=new CompoundTag();otherwiseValid.putString("cookies","[{\"domain\":\"tiktok.com\",\"name\":\"sessionid\",\"value\":\"synthetic-never-saved\"}]");
-                f.client.listener.handleCustomClickAction(new ServerboundCustomClickActionPacket(id,Optional.of(otherwiseValid)));
+                f.client().listener().handleCustomClickAction(new ServerboundCustomClickActionPacket(id,Optional.of(otherwiseValid)));
                 require(!Files.exists(credentials),"consumed native reply cannot replay a valid cookie import");
             }finally{
-                if(!ownerOp)players.deop(f.owner.nameAndId());if(!otherOp)players.deop(f.other.nameAndId());
+                if(!ownerOp)players.deop(f.owner().nameAndId());if(!otherOp)players.deop(f.other().nameAndId());
             }
         }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException("TikTok native command",error);}
     }
@@ -141,11 +143,11 @@ public final class TikTokAccountChecks {
         })){
             for(int i=0;i<20;i++)complete(cache,i);
             require(cache.sizeReady()==20&&jobs.get()==20,"one worker continuously fills all twenty slots");
-            require(WoolBucketChecks.read(cache,"pending")==null,"full queue stops preparation");
+            require(TikTokCheckFields.read(cache,"pending")==null,"full queue stops preparation");
             var first=cache.next("");var pinned=new HashSet<>(cache.ids());pinned.remove(first.id);
             cache.watched(first.id,pinned);require(cache.sizeReady()==19,"nineteen ready/playing clips remain");
             cache.tick(100,pinned);
-            var future=(java.util.concurrent.Future<?>)WoolBucketChecks.read(cache,"pending");
+            var future=(java.util.concurrent.Future<?>)TikTokCheckFields.read(cache,"pending");
             require(future!=null,"refill starts immediately after one clip is consumed");
             try{future.get(3,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception error){throw new IOException(error);}
             cache.tick(101,pinned);
@@ -154,8 +156,8 @@ public final class TikTokAccountChecks {
         }
     }
     private static void complete(TikTokCache cache,int tick)throws IOException{
-        if(WoolBucketChecks.read(cache,"pending")==null)cache.tick(tick,Set.of());
-        var future=(java.util.concurrent.Future<?>)WoolBucketChecks.read(cache,"pending");
+        if(TikTokCheckFields.read(cache,"pending")==null)cache.tick(tick,Set.of());
+        var future=(java.util.concurrent.Future<?>)TikTokCheckFields.read(cache,"pending");
         require(future!=null,"automatic queue preparation scheduled");
         try{future.get(3,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception error){throw new IOException(error);}
         cache.tick(tick,Set.of());

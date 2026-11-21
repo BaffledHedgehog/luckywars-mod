@@ -1,5 +1,7 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
+import me.skywars2.game.PlayerLatency;
+import me.skywars2.game.ServerNetworkTransport;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import java.util.concurrent.RejectedExecutionException;

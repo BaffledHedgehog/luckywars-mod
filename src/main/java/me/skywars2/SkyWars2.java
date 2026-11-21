@@ -97,7 +97,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         me.skywars2.game.LbcAntigravityDropItem.register();
         LbcCraftingRecipe.register();
         FullInvisibility.register();
-        me.skywars2.game.TikTokAccounts.register();
+        me.skywars2.game.items.phone.TikTokAccounts.register();
         me.skywars2.game.genie.GenieService.registerCommands();
         PolymerResourcePackUtils.addModAssets(MOD_ID);
         // Load the vanilla remote-slot implementation before the first player's inventory opens.

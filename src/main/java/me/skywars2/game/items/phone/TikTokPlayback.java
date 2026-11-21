@@ -1,5 +1,7 @@
-package me.skywars2.game;
+package me.skywars2.game.items.phone;
 
+import me.skywars2.game.LbcSpecialArtifactItems;
+import me.skywars2.game.TimeStopView;
 import java.util.*;
 import java.util.concurrent.*;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;

@@ -38,7 +38,7 @@ public final class WoolBucketChecks {
     private static String colorName(DyeColor color){return color.name().toLowerCase(Locale.ROOT);}
     private static List<BlockPos> cells(Vec3 position){var out=new ArrayList<BlockPos>();for(var p:BlockPos.betweenClosed(BlockPos.containing(position.add(-.5,-2.5,-.5)),BlockPos.containing(position.add(.5,-2.5,.5))))out.add(p.immutable());return out;}
 
-    static final class Fixture implements AutoCloseable {
+    public static final class Fixture implements AutoCloseable {
         final GameController game;final boolean rewind;final ServerPlayer owner,other;final ServerLevel level;
         final LbcBalance balance;final LbcThrownUtilities thrown;final MatchCoreCheckpoint core;
         final RegenerationBeltChecks.Snapshot saved,otherSaved;final RegenerationBeltChecks.ScheduledClient client,audience;
@@ -50,7 +50,7 @@ public final class WoolBucketChecks {
         Snowball wool,bucket;ItemEntity unrelated;Vec3 woolPosition,continuation,bucketTargetFeet;LbcIndirectKills.Owner cause;LbcThrownUtilities.Flight bucketFlight;
         List<BlockPos> footprint,nextFootprint;ItemStack oldHelmet,storedHelmet,storedInventory;Set<UUID> beforeDrops;
         int phase,when,beforeBells,beforeOwnerBells,woolAge,pickupBefore;float health,afterHealth;boolean stopped,restoring,closed;
-        Fixture(GameController game,boolean rewind){
+        public Fixture(GameController game,boolean rewind){
             this.game=game;this.rewind=rewind;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));level=owner.level();balance=game.items().balance();thrown=game.items().thrownUtilities();
             require(game.playing()&&game.allowDamage(owner)&&game.allowDamage(other)&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other)&&other.level()==level&&!game.balanceLegacy(),"two active ordinary native match participants");
             require(!game.maps().busy()&&!game.vanity().busy()&&!game.vanity().hasSnapshot()&&!game.items().timeStop().stopped(level)&&balance.trailActors().isEmpty()&&thrown.count()==0,"exclusive stable trail/projectile/coordinator scene");
@@ -72,7 +72,14 @@ public final class WoolBucketChecks {
         List<BlockPos> prepare(Vec3 at,boolean solid){var result=cells(at);require(result.size()==4,"source four-cell floor geometry "+at);var required=new ArrayList<BlockPos>(result);required.add(result.getFirst().west());for(var p:required)require(level.getChunkSource().getChunkNow(p.getX()>>4,p.getZ()>>4)!=null,"entire ordinary footprint and witness neighbor resident before setup "+p);for(var p:result)set(p,Blocks.AIR.defaultBlockState());if(solid)set(result.getFirst(),Blocks.STONE.defaultBlockState());set(result.getFirst().west(),Blocks.AIR.defaultBlockState());return result;}
         void verifyCells(List<BlockPos> positions,DyeColor color,boolean solid){for(int i=0;i<positions.size();i++)require(level.getBlockState(positions.get(i)).is(solid&&i==0?Blocks.STONE:Blocks.WOOL.pick(color)),"source AIR-only selected-color cell "+positions.get(i));require(level.getBlockState(positions.getFirst().west()).is(Blocks.AIR),"outside footprint neighbor remains AIR");}
         void park(Snowball actor,Vec3 at){actor.setPos(at);actor.setNoGravity(true);actor.setDeltaMovement(Vec3.ZERO);}
-        void prepareParticipants(){
+        public ServerPlayer owner(){return owner;}
+        public ServerPlayer other(){return other;}
+        public ServerLevel level(){return level;}
+        public RegenerationBeltChecks.ScheduledClient client(){return client;}
+        public RegenerationBeltChecks.ScheduledClient audience(){return audience;}
+        public void publishOwnerTimeStop(){TimeStopView.publish(owner,true);}
+
+        public void prepareParticipants(){
             game.server().tickRateManager().setFrozen(false);game.config().noBorders=true;game.config().lbcSkills=false;game.config().lbcLevelups=false;game.config().offhandWands=true;level.getGameRules().set(GameRules.NATURAL_HEALTH_REGENERATION,false,game.server());
             for(var p:List.of(owner,other)){p.stopUsingItem();p.removeAllEffects();p.getInventory().clearContent();p.getAbilities().invulnerable=false;p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);p.getAttribute(Attributes.ARMOR).setBaseValue(0);p.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(0);p.setHealth(1000);p.setInvulnerableTime(0);p.damageCooldownTime=0;p.entityTags().remove("strict_map_object");p.entityTags().remove("sin_greed_active");game.server().getScoreboard().removePlayerFromTeam(p.getScoreboardName());game.items().mana().noMagic(p,0);game.items().magic().inventoryChanged(p);}
             game.items().magic().flushCleansing();move(owner,home);move(other,home.add(12,0,0));

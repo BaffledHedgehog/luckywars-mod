@@ -1,7 +1,7 @@
 package me.skywars2.mixin;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.game.TikTokAccounts;
+import me.skywars2.game.items.phone.TikTokAccounts;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;

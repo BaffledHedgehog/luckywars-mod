@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
+import me.skywars2.game.items.phone.TikTokClientSupport;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +24,7 @@ public final class ServerNetworkTransport {
     private static final String MEDIA_TICKS="skywars2_media_ticks";
     private static final AttributeKey<Long> CLIENT_TICKS=AttributeKey.valueOf("skywars2:media_client_ticks");
     private static final ThreadLocal<Set<ServerCommonPacketListenerImpl>> GAME_FRAMES=new ThreadLocal<>();
-    static long mediaClientTicks(Channel channel){var value=channel.attr(CLIENT_TICKS).get();return value==null?-1:value;}
+    public static long mediaClientTicks(Channel channel){var value=channel.attr(CLIENT_TICKS).get();return value==null?-1:value;}
     private ServerNetworkTransport() { }
 
     /** Vanilla resumes socket flushing before Fabric END_SERVER_TICK callbacks.
@@ -67,7 +68,7 @@ public final class ServerNetworkTransport {
             if(pipeline.get(MEDIA_TICKS)==null&&pipeline.get("packet_handler")!=null)pipeline.addBefore("packet_handler",MEDIA_TICKS,new ChannelInboundHandlerAdapter(){
                 @Override public void channelRead(ChannelHandlerContext ctx,Object message)throws Exception{
                     if (message instanceof ServerboundPongPacket pong
-                            && TikTokOutput.acknowledge(ctx.channel(), pong.getId())) return;
+                            && TikTokClientSupport.acknowledgeMedia(ctx.channel(), pong.getId())) return;
                     if(message instanceof ServerboundClientTickEndPacket){
                         var count=ctx.channel().attr(CLIENT_TICKS);var previous=count.get();count.set(previous==null?0:previous+1);
                     }
@@ -82,6 +83,6 @@ public final class ServerNetworkTransport {
         if (pipeline.get(HANDLER) != null) pipeline.remove(HANDLER);
         if (pipeline.get(MEDIA_TICKS) != null) pipeline.remove(MEDIA_TICKS);
         pipeline.channel().attr(CLIENT_TICKS).set(null);
-        TikTokOutput.detach(pipeline.channel());
+        TikTokClientSupport.detachMedia(pipeline.channel());
     }
 }
