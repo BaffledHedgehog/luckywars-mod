@@ -33,7 +33,7 @@ final class LbcBalanceEggActors {
     }
     private void compressed(Marker marker,State state){
         var level=(ServerLevel)marker.level();var at=marker.position().add(0,.2,0);
-        game.items().indirectKills().capturedWorldChanges(level,state.cause,()->LbcDropBlocks.setBlock(level,BlockPos.containing(at),Blocks.REDSTONE_BLOCK.defaultBlockState(),false));
+        game.items().indirectKills().capturedWorldChanges(level,state.cause,()->LbcDropBlocks.setBlockPreservingInventory(level,BlockPos.containing(at),Blocks.REDSTONE_BLOCK.defaultBlockState(),false));
         var author=game.server().getPlayerList().getPlayer(state.cause.player());
         for(int tier=0;tier<4;tier++){double radius=new double[]{1,.8,1.2,.8}[tier],y=tier==1?.2:0;int fuse=60+tier*5;
             for(var offset:List.of(new Vec3(radius,y,0),new Vec3(-radius,y,0),new Vec3(0,y,radius),new Vec3(0,y,-radius))){var pos=at.add(offset);var tnt=new PrimedTnt(level,pos.x,pos.y,pos.z,author);tnt.setFuse(fuse);tnt.setNoGravity(true);tnt.setDeltaMovement(Vec3.ZERO);

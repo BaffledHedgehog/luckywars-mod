@@ -416,7 +416,8 @@ public final class LbcBedrock {
         var level = (ServerLevel) owner.level();
         game.items().indirectKills().trapChanges(owner, () -> {
             for (BlockPos pos : BlockPos.betweenClosed(center.offset(-2,-2,-2), center.offset(2,2,2)))
-                if (level.hasChunkAt(pos)) level.setBlock(pos, Blocks.BEDROCK.defaultBlockState(), blockFlags());
+                if (level.hasChunkAt(pos))
+                    LbcDropBlocks.setBlockPreservingInventory(level, pos, Blocks.BEDROCK.defaultBlockState(), blockFlags());
         });
         cubes.add(new Cube(level, center));
         sound(owner, "minecraft:block.stone.place", 1.0f, 1.0f);

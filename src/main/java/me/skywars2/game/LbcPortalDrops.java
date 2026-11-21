@@ -196,10 +196,10 @@ public final class LbcPortalDrops {
                 && Level.isInSpawnableBounds(base) && Level.isInSpawnableBounds(base.above(4));
     }
     private void column(ServerLevel level,BlockPos base,BlockPos exit,LivingEntity author) {
-        LbcDropBlocks.setBlock(level,base.below(),Blocks.BEDROCK.defaultBlockState(),false);
-        LbcDropBlocks.setBlock(level,base.above(4),Blocks.BEDROCK.defaultBlockState(),false);
+        LbcDropBlocks.setBlockPreservingInventory(level,base.below(),Blocks.BEDROCK.defaultBlockState(),false);
+        LbcDropBlocks.setBlockPreservingInventory(level,base.above(4),Blocks.BEDROCK.defaultBlockState(),false);
         var portal=base.above(3);
-        LbcDropBlocks.setBlock(level,portal,Blocks.END_GATEWAY.defaultBlockState(),false);
+        LbcDropBlocks.setBlockPreservingInventory(level,portal,Blocks.END_GATEWAY.defaultBlockState(),false);
         if(!level.isOutsideBuildHeight(portal) && level.getBlockEntity(portal) instanceof TheEndGatewayBlockEntity be) {
             be.setExitPosition(exit,true);
             var metadata=((StateAccess)be).skywars2$portalMetadata();metadata.remove("owner");

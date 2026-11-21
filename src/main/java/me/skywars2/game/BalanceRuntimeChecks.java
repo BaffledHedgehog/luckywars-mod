@@ -36,6 +36,7 @@ public final class BalanceRuntimeChecks {
         ItemEntity luckyToken;BlockPos luckyPos;boolean sawSpawner;
         boolean sawRainProducer;
         UUID eggActor;Vec3 nukeAt;long nukeBlasts;
+        BlockPos compressedCell;ItemStack compressedContents;
         EvokerFangs artifactFangs;
         PrimedTnt artifactTnt;
         AbstractArrow artifactArrow;
@@ -123,10 +124,15 @@ public final class BalanceRuntimeChecks {
                 require(game.vanity().requestRestoreForCheck(),"real complete coordinator rewind of native old TNT family");step++;return false;
             }
             if(step==8){if(game.vanity().busy()||!game.vanity().status().equals("IDLE"))return false;for(var entry:tntFuses.entrySet()){var body=(PrimedTnt)owner.level().getEntity(entry.getKey());require(body!=null&&body.getFuse()==entry.getValue()&&body.position().equals(tntPositions.get(entry.getKey())),"full coordinator restores original nonempty29 TNT fuses/body geometry");}
-                game.vanity().stop();game.items().timeStop().end(owner.level());cleanFresh();egg("lbc/omegatnt__b29a8435d113");at=now;step=11;return false;
+                game.vanity().stop();game.items().timeStop().end(owner.level());cleanFresh();compressedWithContents();at=now;step=11;return false;
             }
             if(step==11){var shells=owner.level().getEntitiesOfClass(PrimedTnt.class,owner.getBoundingBox().inflate(15),e->!before.contains(e));if(shells.isEmpty()){require(now-at<20,"actual compressed old egg callback resolves its native marker");return false;}
-                require(shells.size()==16&&shells.stream().allMatch(t->t.isNoGravity()&&game.items().spellSources().source(t)!=null&&t.getDeltaMovement().lengthSqr()<1e-12),"actual original compressed egg produces16 stationary no-gravity WILD native TNT");cleanFresh();egg("minecraft/pig_spawn_egg__091d3d7e2b95");
+                require(shells.size()==16&&shells.stream().allMatch(t->t.isNoGravity()&&game.items().spellSources().source(t)!=null&&t.getDeltaMovement().lengthSqr()<1e-12),"actual original compressed egg produces16 stationary no-gravity WILD native TNT");
+                var drops=owner.level().getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(compressedCell).inflate(1),
+                        item->!before.contains(item)&&ItemStack.isSameItemSameComponents(item.getItem(),compressedContents));
+                require(owner.level().getBlockState(compressedCell).is(Blocks.REDSTONE_BLOCK)&&drops.size()==1
+                        &&ItemStack.matches(drops.getFirst().getItem(),compressedContents),"compressed egg activation drops the exact displaced inventory once");
+                cleanFresh();egg("minecraft/pig_spawn_egg__091d3d7e2b95");
                 var pigs=owner.level().getEntitiesOfClass(net.minecraft.world.entity.animal.pig.Pig.class,owner.getBoundingBox().inflate(15),e->!before.contains(e));require(pigs.size()==1&&pigs.getFirst().entityTags().contains("fakepig"),"actual source fake pig entity_data egg");var pig=pigs.getFirst();eggActor=pig.getUUID();require(pig.hurtServer(owner.level(),owner.damageSources().playerAttack(owner),1),"actual native hurt starts source fake-pig HurtTime2 reaction");at=now;step=12;return false;
             }
             if(step==12){var piglins=owner.level().getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.ZombifiedPiglin.class,owner.getBoundingBox().inflate(18),e->!before.contains(e));
@@ -227,6 +233,19 @@ public final class BalanceRuntimeChecks {
             return artifactFangs.isRemoved()&&artifactTnt.isRemoved()&&owner.level().getBlockState(artifactLava).is(Blocks.BASALT);
         }
         List<Projectile> shoot(String leaf,ItemStack ammo){owner.setYRot(0);owner.setXRot(0);owner.setDeltaMovement(Vec3.ZERO);owner.setItemInHand(InteractionHand.MAIN_HAND,loot(leaf));owner.setItemInHand(InteractionHand.OFF_HAND,ammo.copy());var weapon=owner.getMainHandItem();var previous=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());owner.level().getAllEntities().forEach(previous::add);require(owner.gameMode.useItem(owner,owner.level(),weapon,InteractionHand.MAIN_HAND).consumesAction(),"actual original source native bow use "+leaf);require(Items.BOW.releaseUsing(weapon,owner.level(),owner,71980),"actual native successful original bow release "+leaf);owner.stopUsingItem();require(owner.getOffhandItem().isEmpty(),"one original ammo debit "+leaf);var outputs=new ArrayList<Projectile>();owner.level().getAllEntities().forEach(e->{if(!previous.contains(e)&&e instanceof Projectile p&&!p.isRemoved()&&p.getOwner()==owner)outputs.add(p);});return outputs;}
+        void compressedWithContents(){
+            egg("lbc/omegatnt__b29a8435d113");
+            var level=owner.level();
+            var markers=level.getEntitiesOfClass(Marker.class,owner.getBoundingBox().inflate(15),
+                    body->!before.contains(body)&&body.entityTags().contains("compressedtnt"));
+            require(markers.size()==1,"one actual compressed egg marker before its native tick");
+            compressedCell=BlockPos.containing(markers.getFirst().position().add(0,.2,0));
+            blocks.putIfAbsent(compressedCell,game.maps().snapshot(level,compressedCell));
+            level.setBlock(compressedCell,Blocks.BARREL.defaultBlockState(),818);
+            compressedContents=new ItemStack(Items.EMERALD,7);
+            compressedContents.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("Compressed egg witness"));
+            ((net.minecraft.world.Container)level.getBlockEntity(compressedCell)).setItem(8,compressedContents.copy());
+        }
         void egg(String leaf){var block=BlockPos.containing(origin).offset(6,-1,0);owner.level().setBlock(block,Blocks.STONE.defaultBlockState(),3);var source=loot(leaf);source.setCount(1);owner.setItemInHand(InteractionHand.MAIN_HAND,source);var context=new net.minecraft.world.item.context.UseOnContext(owner,InteractionHand.MAIN_HAND,new net.minecraft.world.phys.BlockHitResult(Vec3.atCenterOf(block),net.minecraft.core.Direction.UP,block,false));require(source.useOn(context).consumesAction(),"actual native original entity_data egg use "+leaf);require(owner.getMainHandItem().isEmpty(),"exact one original native egg debit "+leaf);}
         void cleanFresh(){var fresh=new ArrayList<Entity>();owner.level().getAllEntities().forEach(e->{if(!before.contains(e)&&e!=owner&&e.position().distanceToSqr(origin)<40000)fresh.add(e);});for(var e:fresh){game.items().entityUnloaded(e);e.discard();}owner.setPos(origin);owner.setYRot(0);owner.setXRot(0);owner.setDeltaMovement(Vec3.ZERO);}
         void presets(){require(LbcBalanceWiki.EFFECTS.length==81,"finite exact81 old Wiki outcomes");var first=LbcBalanceWiki.EFFECTS[0];var last=LbcBalanceWiki.EFFECTS[80];require(first.id().equals("absorption")&&first.seconds()==120&&first.amplifier()==0&&last.id().equals("wither")&&last.seconds()==30&&last.amplifier()==2,"independent source first/last Wiki presets");var exceptional=LbcBalanceWiki.EFFECTS[19];require(exceptional.id().equals("saturation")&&exceptional.amplifier()==3,"source exceptional saturation outcome retained");}

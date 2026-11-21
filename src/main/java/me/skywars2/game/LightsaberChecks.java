@@ -2,17 +2,20 @@ package me.skywars2.game;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.ScoreHolder;
 
 /** Production packet/use routing and actual canonical loot, with a scoped native service image. */
@@ -66,14 +69,29 @@ public final class LightsaberChecks {
             for (var pos : BlockPos.betweenClosed(at.offset(-4, -1, -4), at.offset(4, 0, 4)))
                 cells.put(pos.immutable(), game.maps().snapshot(level, pos));
             var terrain = game.items().indirectKills().captureTerrain(level, cells.keySet());
+            var paletteDrops = new ArrayList<ItemEntity>();
             try {
                 service.clear(); game.config().eventNovember = true;
                 game.items().mana().score(player, "november").set(0);
                 player.setItemInHand(InteractionHand.MAIN_HAND, table(game, player, LbcNovemberLightsaberItems.SELECTOR));
                 player.setYRot(90); player.setXRot(65);
+                var blue = at.offset(-2, 0, 1);
+                var red = at.offset(-2, 0, -1);
+                var displaced = java.util.Map.of(blue,new ItemStack(Items.EMERALD,3),red,new ItemStack(Items.REDSTONE,5));
+                level.setBlock(at.below(),Blocks.STONE.defaultBlockState(),818);
+                displaced.forEach((cell,goods)->{
+                    level.setBlock(cell,Blocks.BARREL.defaultBlockState(),818);
+                    ((net.minecraft.world.Container)level.getBlockEntity(cell)).setItem(7,goods.copy());
+                });
                 require(input(player, InteractionHand.MAIN_HAND), "actual selector use with nonzero pitch");
-                require(level.getBlockState(at.offset(-2, 0, 1)).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.BLUE))
-                        && level.getBlockState(at.offset(-2, 0, -1)).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.RED)), "feet origin local +1/-1 forward2, yaw90 and pitch forced0");
+                require(level.getBlockState(blue).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.BLUE))
+                        && level.getBlockState(red).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.RED)), "feet origin local +1/-1 forward2, yaw90 and pitch forced0");
+                displaced.forEach((cell,goods)->{
+                    var drops=level.getEntitiesOfClass(ItemEntity.class,new AABB(cell),item->item.getItem().is(goods.getItem()));
+                    paletteDrops.addAll(drops);
+                    require(drops.size()==1&&ItemStack.matches(drops.getFirst().getItem(),goods),
+                            "palette replacement drops the original container contents once at "+cell);
+                });
                 require(service.faction(player.getUUID()) == LbcNovemberLightsabers.Faction.UNDECIDED
                         && count(player, LbcNovemberLightsaberItems::selector) == 1, "palette use preserves all selectors and faction");
                 var jammer = new net.minecraft.world.entity.Marker(net.minecraft.world.entity.EntityTypes.MARKER, level);
@@ -141,6 +159,7 @@ public final class LightsaberChecks {
                 service.second(); require(count(player, LbcNovemberLightsaberItems::blade) == 1, "subsequent source phase cannot repeat acquisition");
             } finally {
                 game.items().timeStop().end(level);
+                paletteDrops.forEach(ItemEntity::discard);
                 for (var entry : cells.entrySet()) game.maps().restoreSnapshot(level, entry.getKey(), entry.getValue());
                 game.items().indirectKills().restoreTerrain(terrain);
             }

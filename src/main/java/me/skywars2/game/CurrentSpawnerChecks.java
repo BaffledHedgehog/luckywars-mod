@@ -4,6 +4,7 @@ import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.phys.AABB;
 
 /** Both source spawner variants pass through the genuine loose-item dispatcher and shared BaseSpawner factory. */
 public final class CurrentSpawnerChecks {
@@ -22,7 +24,10 @@ public final class CurrentSpawnerChecks {
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();
             for(boolean old:new boolean[]{false,true}){
-                var at=BlockPos.containing(f.home.add(old?2:-2,1,4));f.set(at,Blocks.AIR.defaultBlockState());
+                var at=BlockPos.containing(f.home.add(old?2:-2,1,4));f.set(at,Blocks.BARREL.defaultBlockState());
+                var goods=new ItemStack(Items.EMERALD,old?7:4);
+                goods.set(DataComponents.CUSTOM_NAME,Component.literal(old?"Old spawner barrel":"Current spawner barrel"));
+                ((net.minecraft.world.Container)f.level.getBlockEntity(at)).setItem(8,goods.copy());
                 ItemStack source=token(old);
                 if(!old){
                     var property=game.items().tmt().catalog().families().stream().flatMap(row->row.variants().stream())
@@ -34,6 +39,10 @@ public final class CurrentSpawnerChecks {
                 require(f.level.addFreshEntity(item),"actual token publication");
                 require(game.items().specialDrops().spawn(item),"actual loose-item dispatcher "+old);
                 require(item.isRemoved()&&f.level.getBlockEntity(at) instanceof SpawnerBlockEntity,"one real token debit/native spawner");
+                var drops=f.level.getEntitiesOfClass(ItemEntity.class,new AABB(at),
+                        drop->ItemStack.isSameItemSameComponents(drop.getItem(),goods));
+                drops.forEach(f::own);
+                require(drops.size()==1&&ItemStack.matches(drops.getFirst().getItem(),goods),"exact displaced inventory once "+old);
                 var spawner=(SpawnerBlockEntity)f.level.getBlockEntity(at);var output=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,f.level.registryAccess());spawner.getSpawner().save(output);var data=output.buildResult();
                 require(data.getIntOr("SpawnCount",-1)==1&&data.getIntOr("SpawnRange",-1)==(old?3:5)&&data.getIntOr("Delay",-1)==0,"native population/range/initial delay");
                 require(data.getIntOr("MinSpawnDelay",-1)==(old?100:80)&&data.getIntOr("MaxSpawnDelay",-1)==(old?101:100)&&data.getIntOr("RequiredPlayerRange",-1)==(old?100:50),"source-specific native clocks/player range");
@@ -41,6 +50,6 @@ public final class CurrentSpawnerChecks {
                 f.set(at,Blocks.AIR.defaultBlockState());
             }
         }
-        me.skywars2.SkyWars2.LOGGER.info("[check] PASS current-lucky-spawner (actual mixed TMT/current and ordinary old token dispatch, native BaseSpawner variants/source producer and one debit)");
+        me.skywars2.SkyWars2.LOGGER.info("[check] PASS current-lucky-spawner (actual mixed TMT/current and ordinary old token dispatch, native BaseSpawner variants, one debit and exact displaced inventory)");
     }
 }

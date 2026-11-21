@@ -70,7 +70,14 @@ final class LbcBalanceExtras {
             boolean current=luckySpawnerVariant(token.getItem())==2;
             var tag=TagParser.parseCompoundFully("{SpawnCount:1s,SpawnRange:"+(current?5:3)+"s,Delay:0s,MinSpawnDelay:"+(current?80:100)+"s,MaxSpawnDelay:"+(current?100:101)+"s,MaxNearbyEntities:1000s,RequiredPlayerRange:"+(current?50:100)+"s,SpawnData:{entity:{id:'minecraft:marker',Tags:['futureluckyblock','rc_1sec','skywars2.balance.lucky_marker']}}}");
             var cause=game.items().specialDrops().owner(token);var author=LbcIndirectKills.playerSource(cause);var pos=token.blockPosition();
-            game.items().indirectKills().worldChanges(level,cause,true,()->new BlockInput(Blocks.SPAWNER.defaultBlockState(),Set.of(),tag).place(level,pos,258));
+            game.items().indirectKills().worldChanges(level,cause,true,()->{
+                var contents=LbcDropBlocks.inventoryAt(level,pos,level.getBlockState(pos));
+                try {
+                    new BlockInput(Blocks.SPAWNER.defaultBlockState(),Set.of(),tag).place(level,pos,258);
+                } finally {
+                    if(contents!=null)contents.dropIfRemoved(level);
+                }
+            });
             var id=author==null?new UUID(0,0):author.getUUID();var authority=author==null?new LbcIndirectKills.Owner(id,0,true,false):game.items().indirectKills().wildCause(author);
             game.items().potionSpawnerDrops().admitSourceSpawner(level,pos,new LbcSpellSource.Source(UUID.randomUUID(),id,game.items().epoch(),authority,Set.of(),true));
             return true;

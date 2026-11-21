@@ -13,6 +13,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -179,8 +180,16 @@ public final class CorruptionChecks {
             for(int i=0;i<64&&area.getActiveEffects().isEmpty();i++)service.flight(ball);
             require(!area.getActiveEffects().isEmpty()&&outside.getActiveEffects().isEmpty()&&role.getActiveEffects().isEmpty(),"ball35-percent pulses reach radius6 and protect outside/technical targets");remove(area);remove(outside);remove(role);
             ball.age=399;service.flight(ball);require(ball.isRemoved(),"ball boundary expires at400 active ticks");clearActors();var falling=service.spawn(owner,center,false);falling.age=299;service.flight(falling);require(falling.isRemoved(),"falling drop boundary expires at300 active ticks");
-            var erode=BlockPos.containing(center.add(3,0,0));for(int x=-1;x<=1;x++)for(int y=-1;y<=2;y++)for(int z=-1;z<=1;z++)block(erode.offset(x,y,z),Blocks.AIR);block(erode,Blocks.STONE);
+            var erode=BlockPos.containing(center.add(3,0,0));for(int x=-1;x<=1;x++)for(int y=-1;y<=2;y++)for(int z=-1;z<=1;z++)block(erode.offset(x,y,z),Blocks.AIR);block(erode,Blocks.CHEST);
+            var packed=new ItemStack(Items.DIAMOND,9);
+            packed.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("acid drop chest"));
+            ((net.minecraft.world.Container)owner.level().getBlockEntity(erode)).setItem(0,packed.copy());
             falling=service.spawn(owner,Vec3.atCenterOf(erode).add(0,1,0),false);falling.setDeltaMovement(new Vec3(0,-2,0));service.flight(falling);require(falling.isRemoved()&&owner.level().getBlockState(erode).isAir(),"falling drop terminates once at wall and erodes source .3 cube");
+            var released=owner.level().getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(erode).inflate(1),
+                    item->ItemStack.isSameItemSameComponents(packed,item.getItem()));
+            require(released.stream().mapToInt(item->item.getItem().getCount()).sum()==9,
+                    "native acid droplet erodes the chest and ejects its contents exactly once");
+            released.forEach(Entity::discard);
             var instant=cow(at.add(10,0,0));instant.setHealth(3);instant.addEffect(new MobEffectInstance(MobEffects.INSTANT_DAMAGE,1,0),owner);instant.tick();require(instant.isDeadOrDying()&&instant.getKillCredit()==owner,"actual one-tick native instant damage inherits caster");remove(instant);
             instant=cow(at.add(11,0,0));instant.setHealth(4);instant.addEffect(new MobEffectInstance(MobEffects.INSTANT_DAMAGE,1,0),owner);require(instant.hurtServer(owner.level(),owner.damageSources().playerAttack(other),1),"later real hit before native instant damage");instant.tick();require(instant.isDeadOrDying()&&instant.getKillCredit()==other,"later accepted player hit overrides one-tick native effect author");remove(instant);
             var technical=cow(at.add(4,0,0));technical.entityTags().add("strict_map_object");service.applyDeath(owner,technical,120);require(service.deathRemaining(technical)==0,"technical roles reject death status");remove(technical);

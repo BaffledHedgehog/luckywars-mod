@@ -6,6 +6,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
@@ -13,10 +15,12 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
@@ -27,6 +31,9 @@ public final class PortalDropChecks {
     private static String stopEpoch;
     private static ItemEntity stopToken;
     private static int stopTick = Integer.MIN_VALUE;
+    private static final TicketType CONTAINER_WITNESS_TICKET = new TicketType(TicketType.NO_TIMEOUT,
+            TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+    private static final int CONTAINER_WITNESS_RADIUS = 2;
     private static void require(boolean ok, String message) {
         if (!ok) throw new IllegalStateException("Portal drops: " + message);
     }
@@ -51,8 +58,14 @@ public final class PortalDropChecks {
         final Map<BlockPos,Vec3> sourcePositions = new LinkedHashMap<>();
         final List<LbcPortalDrops.Plan> observed = new ArrayList<>();
         final Vec3 origin = new Vec3(-200.63, 270.7, -200.19);
+        final LbcPortalDrops.Plan first = LbcPortalDrops.plan(
+                new Vec3(-200.63, 250.7, -200.19), new Vec3(-220.5, 240, -220.5));
+        final LbcPortalDrops.Plan second = LbcPortalDrops.plan(
+                new Vec3(-205.17, 250.9, -205.83), new Vec3(-225.5, 240, -225.5));
+        final Set<ChunkPos> containerWitnessColumns = new HashSet<>();
         ItemEntity paused, unloaded;
-        int phase, wait, lastTick, initialObserved;
+        int phase = -1;
+        int wait, lastTick, initialObserved;
         boolean checkingSpread;
         State(GameController game) {
             this.game = game; level = game.maps().level(); noBorders = game.config().noBorders;
@@ -99,9 +112,21 @@ public final class PortalDropChecks {
             resident(BlockPos.containing(origin));
             alpha.teleportTo(level, origin.x + 30, origin.y, origin.z, Set.of(), 0, 0, true);
             beta.teleportTo(level, origin.x + 35, origin.y, origin.z, Set.of(), 0, 0, true);
-            presentation(); geometry(); spawnHeights(); guards();
-            game.command("give TestAlpha skywars2:random_portal_drop 1");
+            presentation();
+            for (var base : List.of(first.sourceBase(), first.remoteBase())) {
+                var chunk = ChunkPos.containing(base);
+                if (containerWitnessColumns.add(chunk)) {
+                    level.getChunkSource().addTicketWithRadius(
+                            CONTAINER_WITNESS_TICKET, chunk, CONTAINER_WITNESS_RADIUS);
+                }
+            }
             lastTick = game.server().getTickCount();
+        }
+
+        boolean containerWitnessReady(BlockPos base) {
+            return NativeChunkLoad.resident(level, base)
+                    && level.areEntitiesActuallyLoadedAndTicking(ChunkPos.containing(base))
+                    && level.isPositionEntityTicking(base);
         }
         void presentation() {
             for (var kind : LbcPortalDropItem.Kind.values()) {
@@ -257,8 +282,6 @@ public final class PortalDropChecks {
             vanillaActor.discard();
         }
         void geometry() {
-            var first = LbcPortalDrops.plan(new Vec3(-200.63, 250.7, -200.19), new Vec3(-220.5, 240, -220.5));
-            var second = LbcPortalDrops.plan(new Vec3(-205.17, 250.9, -205.83), new Vec3(-225.5, 240, -225.5));
             require(first.sourceBase().equals(new BlockPos(-201, 250, -201))
                     && first.remoteBase().equals(new BlockPos(-221, 240, -221))
                     && first.sourceExit().equals(first.remoteBase()) && first.remoteExit().equals(first.sourceBase()),
@@ -270,8 +293,35 @@ public final class PortalDropChecks {
                         remember(base.above(dy)); level.setBlock(base.above(dy), Blocks.AIR.defaultBlockState(), 818);
                     }
                 }
+                record BarrelContents(Container barrel, ItemStack goods) {}
+                var displaced = new LinkedHashMap<BlockPos, BarrelContents>();
+                if (plan == first) for (var base : List.of(plan.sourceBase(), plan.remoteBase())) {
+                    for (int dy : new int[]{-1, 3, 4}) {
+                        var cell = base.above(dy);
+                        var goods = new ItemStack(Items.PAPER, displaced.size() + 2);
+                        goods.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("Portal barrel " + cell));
+                        level.setBlock(cell, Blocks.BARREL.defaultBlockState(), 818);
+                        var barrel = (Container) level.getBlockEntity(cell);
+                        barrel.setItem(7, goods.copy());
+                        displaced.put(cell, new BarrelContents(barrel, goods));
+                    }
+                }
                 game.items().portalDrops().place(level, plan, alpha);
                 pair(plan);
+                for (var entry : displaced.entrySet()) {
+                    var cell = entry.getKey();
+                    var contents = entry.getValue();
+                    var visible = level.getEntitiesOfClass(ItemEntity.class, new AABB(cell));
+                    var drops = visible.stream()
+                            .filter(item -> ItemStack.isSameItemSameComponents(item.getItem(), contents.goods())).toList();
+                    actors.addAll(drops);
+                    require(drops.size() == 1 && ItemStack.matches(drops.getFirst().getItem(), contents.goods()),
+                            "paired portal drops the exact replaced container contents once at " + cell
+                                    + " expectedCount=" + contents.goods().getCount()
+                                    + " matchingCounts=" + drops.stream().map(item -> item.getItem().getCount()).toList()
+                                    + " visibleItems=" + visible.size() + " remainingBarrelSlot=" + contents.barrel().getItem(7)
+                                    + " entityTicking=" + containerWitnessReady(cell));
+                }
             }
             pair(first); pair(second); gatewayGuards(first); travel(first, false); travel(first, true); travel(second, false); travel(second, true);
             for (var source : List.of(new Vec3(-230.3, level.getMaxY()-3+.7, -230.6),
@@ -368,6 +418,17 @@ public final class PortalDropChecks {
             require(game.playing(), "actual match retained"); int now = game.server().getTickCount();
             if (now == lastTick) return false; lastTick = now;
             switch (phase) {
+                case -1 -> {
+                    boolean sourceReady = containerWitnessReady(first.sourceBase());
+                    boolean remoteReady = containerWitnessReady(first.remoteBase());
+                    require(++wait < 200, "native container entity columns became ready: source="
+                            + sourceReady + " remote=" + remoteReady);
+                    if (!sourceReady || !remoteReady) return false;
+                    geometry(); spawnHeights(); guards();
+                    game.command("give TestAlpha skywars2:random_portal_drop 1");
+                    wait = 0;
+                    phase++;
+                }
                 case 0 -> {
                     require(ItemStack.isSameItemSameComponents(alpha.getInventory().getItem(0), new ItemStack(LbcPortalDropItem.Kind.NORMAL.item())), "native give exact prototype");
                     alpha.getInventory().clearContent(); dispatch(false); phase++;
@@ -414,6 +475,10 @@ public final class PortalDropChecks {
             for (var entry : terrain.entrySet()) {
                 if (level.getBlockEntity(entry.getKey()) instanceof net.minecraft.world.Container container) container.clearContent();
                 game.maps().restoreSnapshot(level, entry.getKey(), entry.getValue());
+            }
+            for (var chunk : containerWitnessColumns) {
+                level.getChunkSource().removeTicketWithRadius(
+                        CONTAINER_WITNESS_TICKET, chunk, CONTAINER_WITNESS_RADIUS);
             }
             for (long key : forced) level.setChunkForced(net.minecraft.world.level.ChunkPos.getX(key), net.minecraft.world.level.ChunkPos.getZ(key), false);
             game.config().noBorders = noBorders; alphaState.restore(game); betaState.restore(game);

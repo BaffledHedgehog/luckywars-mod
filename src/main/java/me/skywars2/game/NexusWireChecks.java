@@ -26,6 +26,7 @@ public final class NexusWireChecks {
         RegenerationBeltChecks.ScheduledClient client;
         final ServerLevel original;ServerLevel nexus;Vec3 origin;ExperienceOrb paused;int phase,age,wait;
         net.minecraft.core.BlockPos gatewayPosition;
+        ContainerReplacementChecks gatewayChest;
         boolean closed;
         Fixture(GameController game){this.game=game;base=new ChefChecks.Fixture(game);wires=game.items().nexusWires();counters=new LbcSourceCounters(game);
             for(String name:List.of("swordcharged1","swordcharged2","swordcharged5","swordcharging1","swordcharging5"))savedCharges.put(name,counters.read(base.owner,name));
@@ -73,19 +74,32 @@ public final class NexusWireChecks {
                 var e=new ExperienceOrb(p.level(),p.position().add(8,0,0),Vec3.ZERO,7);owned.add(e);require(!wires.convert(e),"ordinary XP is not a Nexus producer");
                 base.move(p,base.at.add(-12,0,-12));p.getInventory().setItem(9,new ItemStack(LbcNexusWireItems.BLACK));base.mana.inventoryChanged(p);phase=8;wait=0;
             }else if(phase==8&&wait>=3){
-                require(p.getInventory().getItem(9).getCount()==1,"protected carried black wire remains intact");p.getInventory().setItem(9,ItemStack.EMPTY);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcNexusWireItems.BLACK));base.mana.inventoryChanged(p);phase=9;wait=0;
+                require(p.getInventory().getItem(9).getCount()==1,"protected carried black wire remains intact");
+                gatewayPosition=base.center.offset(0,3,0);
+                var column=ChunkPos.containing(gatewayPosition);
+                if(original.getChunkSource().getChunkNow(column.x(),column.z())==null
+                        || !original.areEntitiesActuallyLoadedAndTicking(column)
+                        || !original.isPositionEntityTicking(gatewayPosition)) {
+                    // The player already stands in an adjacent column. Let the ordinary native tracking load finish.
+                    require(wait<80,"native gateway witness column becomes visible and entity-ticking");
+                    return false;
+                }
+                p.getInventory().setItem(9,ItemStack.EMPTY);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcNexusWireItems.BLACK));base.mana.inventoryChanged(p);phase=9;wait=0;
             }else if(phase==9){
                 require(p.getMainHandItem().isEmpty()&&wires.pendingGateways().size()==1,"one black wire accepts one native gateway job");
                 var job=wires.pendingGateways().getFirst();var at=job.position;
                 require(at.getX()>=-2000&&at.getX()<=2000&&at.getY()>=0&&at.getY()<320&&at.getZ()>=-2000&&at.getZ()<=2000,"original current-world random portal coordinates");
-                gatewayPosition=base.center.offset(0,3,0);job.position=gatewayPosition;
+                job.position=gatewayPosition;
+                gatewayChest=new ContainerReplacementChecks(game,original,gatewayPosition,"black wire gateway");
                 require(!wires.captureReady(),"full save point waits for accepted terrain mutation");phase=10;wait=0;
             }else if(phase==10){
                 if(!wires.captureReady())return false;
                 require(wires.loadingChunks()==0&&original.getBlockEntity(gatewayPosition) instanceof net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity,"real gateway and released temporary load tickets");
+                gatewayChest.requireReleased();
                 var transition=((net.minecraft.world.level.block.EndGatewayBlock)net.minecraft.world.level.block.Blocks.END_GATEWAY).getPortalDestination(original,p,gatewayPosition);
                 require(transition!=null&&transition.position().equals(Vec3.atBottomCenterOf(new net.minecraft.core.BlockPos(1,15000000,1))),"native exact high-altitude exit");
-                require(p.teleport(transition)==p,"actual native gateway transfer");client.acknowledge();require(p.getY()==15000000,"gateway preserves intentionally extreme height");phase=11;wait=0;
+                require(p.teleport(transition)==p,"actual native gateway transfer");client.acknowledge();require(p.getY()==15000000,"gateway preserves intentionally extreme height");
+                gatewayChest.close();gatewayChest=null;phase=11;wait=0;
             }else if(phase==11){
                 if(p.level()!=nexus)return false;
                 require(p.getY()==2332&&p.getX()>=-4800&&p.getX()<=4800&&p.getZ()>=-4800&&p.getZ()<=4800,"source altitude entry uses actual random Nexus destination");
@@ -93,6 +107,7 @@ public final class NexusWireChecks {
             }return false;
         }
         @Override public void close(){if(closed)return;closed=true;try{owned.forEach(Entity::discard);wires.stop();
+                if(gatewayChest!=null)gatewayChest.close();
                 if(base.owner.level()!=original)transfer(original);base.owner.getInventory().clearContent();
                 for(var entry:savedCharges.entrySet()){String n=entry.getKey();int v=entry.getValue()==null?0:entry.getValue();if(n.endsWith("2"))game.items().terra().sourceCharges(base.owner,v);else game.items().electro().sourceCharge(base.owner,n.endsWith("5"),n.startsWith("swordcharging"),v);}
                 base.close();var p=base.owner;p.totalExperience=xp;p.experienceLevel=xpLevel;p.experienceProgress=xpProgress;p.takeXpDelay=xpDelay;

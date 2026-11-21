@@ -112,7 +112,11 @@ public final class LibraryDropChecks {
         }
         void nativeCases(){
             reset();var chest=center.offset(0,0,2);level.setBlock(chest,Blocks.CHEST.defaultBlockState(),818);var be=(net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(chest);require(be!=null,"native overwritten chest");be.setItem(0,new ItemStack(Items.NETHERITE_INGOT,17));
-            activate();geometry();reward();for(var e:level.getAllEntities())if(!existing.contains(e) && e instanceof ItemEntity i)require(!i.getItem().is(Items.NETHERITE_INGOT),"strict replacement ejects no container contents");
+            activate();geometry();reward();
+            int recovered=0;
+            for(var e:level.getAllEntities())if(!existing.contains(e) && e instanceof ItemEntity item
+                    && item.getItem().is(Items.NETHERITE_INGOT)) recovered+=item.getItem().getCount();
+            require(recovered==17,"strict bounded Library replacement ejects the native chest contents exactly once");
             var actors=List.copyOf(rewards());var before=beta.totalExperience;game.items().libraryDrop().stop();require(actors.stream().allMatch(Entity::isRemoved) && beta.totalExperience==before,"quiet cleanup discards native rewards without granting XP");
             for(int limit:List.of(0,1,2,3,8,9,24,25)){reset();level.getGameRules().set(GameRules.MAX_BLOCK_MODIFICATIONS,limit,game.server());activate();
                 require(level.getBlockState(center.offset(1,0,0)).is(Blocks.ENCHANTING_TABLE) && level.getBlockState(center.offset(1,2,0)).getValue(EndRodBlock.FACING)==Direction.DOWN,"setblock unaffected by fill gamerule "+limit);

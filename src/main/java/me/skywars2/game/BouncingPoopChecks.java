@@ -35,6 +35,24 @@ public final class BouncingPoopChecks {
             game.players().get(p.getUUID()).lbcSkill=0;for(var pos:BlockPos.betweenClosed(BlockPos.containing(f.at).offset(-5,0,-5),BlockPos.containing(f.at).offset(5,6,7)))f.level.setBlock(pos,Blocks.AIR.defaultBlockState(),2|16|32);}
         ItemStack held(InteractionHand hand,boolean raw){var s=LbcPursuitItems.BOUNCING_POOP.getDefaultInstance().copyWithCount(2);if(raw){var copy=new ItemStack(Items.SNOWBALL,2);copy.set(DataComponents.CUSTOM_DATA,s.get(DataComponents.CUSTOM_DATA));copy.set(DataComponents.ITEM_MODEL,s.get(DataComponents.ITEM_MODEL));copy.set(DataComponents.CUSTOM_NAME,s.get(DataComponents.CUSTOM_NAME));s=copy;}p.setItemInHand(hand,s);return s;}
         boolean input(InteractionHand hand,boolean raw){client.acknowledge();return raw?net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(p,f.level,hand).consumesAction():p.gameMode.useItem(p,f.level,p.getItemInHand(hand),hand).consumesAction();}
+        void containerContact() {
+            clear();
+            held(InteractionHand.MAIN_HAND,false);
+            require(input(InteractionHand.MAIN_HAND,false),"body launch over the native chest");
+            var shot=service.snapshot().getFirst();
+            var cell=BlockPos.containing(f.at.add(0,2,0));
+            var aboveLid=Vec3.atBottomCenterOf(cell).add(0,.965,0);
+            shot.setPos(aboveLid);
+            shot.setDeltaMovement(new Vec3(0,0,.4));
+            position(beta,aboveLid.add(0,0,.5));
+            beta.removeAllEffects();
+            try (var chest=new ContainerReplacementChecks(game,f.level,cell,"bouncing poop body contact")) {
+                service.tick();
+                require(shot.isRemoved() && f.level.getBlockState(cell).is(Blocks.DIRT) && beta.hasEffect(MobEffects.WITHER),
+                        "the projectile passes above the chest collision shape and applies its terminal body contact");
+                chest.requireReleased();
+            }
+        }
         void begin(){clear();require(service.count()==0,"exclusive actor index");
             var loot=game.lbc().rollTable(f.level,f.at,p,"lbc:ported/bouncing_poop");require(loot.size()==1&&loot.getFirst().is(LbcPursuitItems.BOUNCING_POOP)&&LbcBouncingPoop.matches(loot.getFirst()),"canonical native source leaf");
             for(var hand:InteractionHand.values())for(boolean raw:new boolean[]{false,true}){clear();var s=held(hand,raw);var other=hand==InteractionHand.MAIN_HAND?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND;p.setItemInHand(other,LbcPursuitItems.BOUNCING_POOP.getDefaultInstance().copyWithCount(7));
@@ -70,6 +88,7 @@ public final class BouncingPoopChecks {
                 position(beta,f.at.add(.5,2,.8));beta.removeAllEffects();phase=3;started=game.server().getTickCount();return false;}
             if(phase==3){if(!flight.isRemoved())return false;require(beta.hasEffect(MobEffects.NAUSEA)&&beta.hasEffect(MobEffects.WITHER),"actual one-cell body contact applies both native effects");
                 require(beta.getEffect(MobEffects.WITHER).getAmplifier()==ItemEffectLevels.create(MobEffects.WITHER,60,10).getAmplifier(),"shared Wither cap");
+                containerContact();
                 clear();game.config().lbcSkills=true;game.players().get(p.getUUID()).lbcSkill=9;held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"mega source skill launch");flight=service.snapshot().getFirst();require(LbcBouncingPoop.state(flight).getBooleanOr("mega",false),"attached accepted mega skill");
                 flight.setPos(f.at.add(0,2,0));flight.setYRot(0);flight.setXRot(0);flight.setDeltaMovement(new Vec3(0,0,.4));position(beta,f.at.add(.5,2,.8));beta.removeAllEffects();phase=4;started=game.server().getTickCount();return false;}
             if(phase==4){if(!flight.isRemoved())return false;require(beta.hasEffect(MobEffects.RESISTANCE)&&beta.getEffect(MobEffects.RESISTANCE).getAmplifier()==3,"source mega resistanceIV before native TNT explosion");

@@ -397,7 +397,7 @@ public final class LbcAcademy {
     public void stoneTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
         if(!player.isShiftKeyDown() || !trial(stack)) return;
         var center=BlockPos.containing(player.getEyePosition());
-        game.items().indirectKills().fillTrap(player,center.offset(-1,-1,-1),center.offset(1,2,1),Blocks.BEDROCK.defaultBlockState());
+        game.items().indirectKills().fillTrapPreservingInventory(player,center.offset(-1,-1,-1),center.offset(1,2,1),Blocks.BEDROCK.defaultBlockState());
         if(player.getRandom().nextFloat()<.2f) ready(player,hand,stack);
     }
     /** Бедроковое испытание (user): готовность сразу и сплошной куб 21³; проверяется используемая рука. */
@@ -495,7 +495,8 @@ public final class LbcAcademy {
             academy.spawned.removeIf(previous -> previous.getUUID().equals(entity.getUUID()));
             academy.spawned.add(entity);
         }
-        if (placing != null) {
+        if (placing != null && !(entity instanceof ItemEntity)) {
+            // An item ejected by native neighboring updates is not part of the school template.
             entity.entityTags().add(ENTITY_TAG); entity.entityTags().add(BUILDING_TAG);
             if (placing.token) {
                 singleUse.put(entity.getUUID(),placing);
@@ -591,9 +592,10 @@ public final class LbcAcademy {
         if (game.items().timeStop().stopped(part.level) || !resident(part)) { placements.addLast(part); return; }
         var bounds = new BoundingBox(origin.getX(), origin.getY()+part.row, origin.getZ(),
                 origin.getX()+size.getX()-1, origin.getY()+(part.token?part.row:size.getY()-1), origin.getZ()+size.getZ()-1);
+        var inventories = game.maps().gameplayInventories(part.level, bounds);
         placing = part;
         try {
-            game.maps().placeMapSlice(part.level, part.template, origin,
+            game.maps().placeGameplayMapSlice(part.level, part.template, origin,
                     new StructurePlaceSettings().setBoundingBox(bounds), part.seed);
             // Включает developer-проверки в лобби, которые обычный arena block callback не журналирует.
             // Журнал группирует точки по чанкам: двух диагональных углов недостаточно для четырёх чанков.
@@ -604,7 +606,10 @@ public final class LbcAcademy {
                     game.maps().recordBlockChange(new BlockPos(Math.min(bounds.maxX(), x*16+15), bounds.maxY(),
                             Math.min(bounds.maxZ(), z*16+15)));
                 }
-        } finally { placing = null; }
+        } finally {
+            placing = null;
+            for (var inventory : inventories) inventory.dropIfRemoved(part.level);
+        }
         // Claim a background row when it is written, including during overlapping construction.
         for (var pos : part.background) if ((!part.token || pos.getY() == origin.getY()+part.row)
                 && part.level.getBlockState(pos).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE))) {
@@ -663,9 +668,9 @@ public final class LbcAcademy {
     private boolean resident(ServerLevel level,BlockPos origin,net.minecraft.core.Vec3i size){
         if (size.getX()<=0 || size.getY()<=0 || size.getZ()<=0 || origin.getY()<level.getMinY()
                 || (long)origin.getY()+size.getY()-1>level.getMaxY()) return false;
-        // Native block updates can inspect neighbours just beyond the template boundary.
-        for (int x=(origin.getX()-1)>>4; x<=(origin.getX()+size.getX())>>4; x++)
-            for (int z=(origin.getZ()-1)>>4; z<=(origin.getZ()+size.getZ())>>4; z++)
+        // Comparator removal updates inspect the block beyond an adjacent conductor.
+        for (int x=(origin.getX()-2)>>4; x<=(origin.getX()+size.getX()+1)>>4; x++)
+            for (int z=(origin.getZ()-2)>>4; z<=(origin.getZ()+size.getZ()+1)>>4; z++)
                 if (level.getChunkSource().getChunkNow(x,z)==null) return false;
         return true;
     }

@@ -75,7 +75,7 @@ public final class LbcOrdinaryAccessories {
         if(fill)for(var pos:BlockPos.betweenClosed(from,to))
             if(!Level.isInSpawnableBounds(pos)||!level.hasChunkAt(pos)){fill=false;break;}
         // Guard only this STRICT fill against unavailable terrain; never load chunks or write a partial plane.
-        if(fill)game.items().indirectKills().trapChanges(owner,()->LbcDropBlocks.fill(level,from,to,Blocks.SLIME_BLOCK,true));
+        if(fill)game.items().indirectKills().trapChanges(owner,()->LbcDropBlocks.fillPreservingInventory(level,from,to,Blocks.SLIME_BLOCK,true));
         // Build first, then rescue above the plane. A delayed client must not retain its void-fall Y velocity.
         var relatives=Relative.union(Relative.direction(true,false,true),Relative.position(true,false,true),Relative.ROTATION);
         if(Level.isInSpawnableBounds(BlockPos.containing(owner.getX(),2,owner.getZ())))teleport(owner,0,2,0,0,0,relatives);

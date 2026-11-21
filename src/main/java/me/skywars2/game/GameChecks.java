@@ -6148,7 +6148,7 @@ public final class GameChecks {
                 var center=victim.blockPosition();
                 for(var pos:net.minecraft.core.BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,2,1)))
                         changes.put(pos.immutable(),level.getBlockState(pos));
-                try {
+                try (var chest=new ContainerReplacementChecks(game,level,center.offset(1,2,1),"yellow conductor dirt trap")) {
                         require(level.addFreshEntity(victim),"Conductor target spawns away from any conductive block");
                         level.setBlock(conductor,net.minecraft.world.level.block.Blocks.IRON_BLOCK.defaultBlockState(),3);
                         electro.damaged(owner,owner.damageSources().playerAttack(owner));
@@ -6163,6 +6163,7 @@ public final class GameChecks {
                         require(level.getBlockState(center).is(net.minecraft.world.level.block.Blocks.DIRT)
                                         && level.getBlockState(center.offset(1,2,1)).is(net.minecraft.world.level.block.Blocks.DIRT),
                                         "Conductor hit creates the source 3x4x3 dirt trap");
+                        chest.requireReleased();
                         require(electro.yellowCount()==0,"Conductive impact removes the short bolts");
                 } finally {
                         victim.discard();
@@ -7297,10 +7298,12 @@ public final class GameChecks {
                                         && wallData(wall).getIntOr("upgrade_available", 0) == 0,
                                         "Ordinary Wall Wand rejects 1499 mana without casting or opening its four-wall trial");
                         game.items().mana().set(owner, 1500);
-                        require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.MAIN_HAND)
-                                        && game.items().mana().get(owner) == 0
-                                        && level.getBlockState(target).is(net.minecraft.world.level.block.Blocks.BRICKS),
-                                        "Ordinary Wall Wand accepts exactly 1500 mana, charges once and preserves its solid hit block");
+                        var verticalTarget=target;
+                        checkWallBrewingStand(level, target.offset(0, 1, 2), target.offset(0, -1, -2), "vertical Wall", () ->
+                                require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.MAIN_HAND)
+                                                && game.items().mana().get(owner) == 0
+                                                && level.getBlockState(verticalTarget).is(net.minecraft.world.level.block.Blocks.BRICKS),
+                                                "Ordinary Wall Wand accepts exactly 1500 mana, charges once and preserves its solid hit block"));
                         int verticalBricks = 0;
                         for (int x = target.getX() - 2; x <= target.getX() + 2; x++)
                                 for (int y = target.getY() - 2; y <= target.getY() + 3; y++)
@@ -7397,9 +7400,10 @@ public final class GameChecks {
                                         if (level.getBlockState(new net.minecraft.core.BlockPos(x, target.getY(), z))
                                                         .is(net.minecraft.world.level.block.Blocks.BRICKS)) beforeHorizontal++;
                         game.items().mana().set(owner, 500);
-                        require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.MAIN_HAND)
-                                        && game.items().mana().get(owner) == 0,
-                                        "Academy horizontal cast charges exactly 500 mana");
+                        checkWallBrewingStand(level, target.offset(2, 0, 2), target.offset(2, 0, -2), "horizontal Wall", () ->
+                                require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.MAIN_HAND)
+                                                && game.items().mana().get(owner) == 0,
+                                                "Academy horizontal cast charges exactly 500 mana"));
                         int afterHorizontal = 0;
                         for (int x = target.getX() - 3; x <= target.getX() + 3; x++)
                                 for (int z = target.getZ() - 3; z <= target.getZ() + 3; z++)
@@ -7518,6 +7522,36 @@ public final class GameChecks {
                         game.config().offhandWands = oldOffhand;
                         owner.setNoGravity(oldNoGravity);
                         state.restore(game);
+                }
+        }
+
+        private static void checkWallBrewingStand(net.minecraft.server.level.ServerLevel level,
+                        net.minecraft.core.BlockPos brewing, net.minecraft.core.BlockPos protectedChest,
+                        String label, Runnable cast) {
+                level.setBlock(brewing, net.minecraft.world.level.block.Blocks.BREWING_STAND.defaultBlockState(), 818);
+                level.setBlock(protectedChest, net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState(), 818);
+                var stand = (net.minecraft.world.level.block.entity.BrewingStandBlockEntity) level.getBlockEntity(brewing);
+                var chest = (net.minecraft.world.level.block.entity.ChestBlockEntity) level.getBlockEntity(protectedChest);
+                require(stand!=null && chest!=null, "real brewing stand and non-matching chest in " + label);
+                var ingredient = new ItemStack(Items.NETHER_WART, 11);
+                ingredient.set(DataComponents.CUSTOM_NAME, Component.literal(label));
+                stand.setItem(3, ingredient.copy());
+                chest.setItem(0, ingredient.copy());
+                var area = new net.minecraft.world.phys.AABB(brewing).inflate(1);
+                try {
+                        cast.run();
+                        var drops = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, area,
+                                item -> ItemStack.isSameItemSameComponents(item.getItem(), ingredient));
+                        int count = drops.stream().mapToInt(item -> item.getItem().getCount()).sum();
+                        require(stand.isRemoved() && level.getBlockState(brewing).is(net.minecraft.world.level.block.Blocks.BRICKS)
+                                        && drops.size()==1 && count==ingredient.getCount(),
+                                label + " replaces its tag-matching brewing stand and releases exact inventory; count=" + count);
+                        require(level.getBlockEntity(protectedChest)==chest && ItemStack.matches(chest.getItem(0), ingredient),
+                                label + " preserves the non-matching chest and its inventory");
+                } finally {
+                        level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, area,
+                                item -> ItemStack.isSameItemSameComponents(item.getItem(), ingredient))
+                                .forEach(net.minecraft.world.entity.Entity::discard);
                 }
         }
 
@@ -7793,11 +7827,15 @@ public final class GameChecks {
                         placeData.putInt("bedrock_wand", 1); placeData.putInt("upgraded", 1); placeData.putInt("mode", 4);
                         placeCube.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(placeData));
                         owner.getInventory().setItem(0, placeCube);
-                        require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.MAIN_HAND)
-                                        && bedrock.cubeCount() == 1
-                                        && level.getBlockState(stoneWall).is(net.minecraft.world.level.block.Blocks.BEDROCK)
-                                        && level.getBlockState(stoneWall.offset(2, 2, 2)).is(net.minecraft.world.level.block.Blocks.BEDROCK),
-                                        "Academy mode four uses a solid ray target to create one free 5-cube");
+                        try (var cubeChest = new ContainerReplacementChecks(game, level, stoneWall.offset(2, 2, 2),
+                                        "Academy Bedrock mode-four cube")) {
+                                require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.MAIN_HAND)
+                                                && bedrock.cubeCount() == 1
+                                                && level.getBlockState(stoneWall).is(net.minecraft.world.level.block.Blocks.BEDROCK)
+                                                && level.getBlockState(stoneWall.offset(2, 2, 2)).is(net.minecraft.world.level.block.Blocks.BEDROCK),
+                                                "Academy mode four uses a solid ray target to create one free 5-cube");
+                                cubeChest.requireReleased();
+                        }
                         var removeCube = new ItemStack(LbcWands.ACADEMY_BEDROCK);
                         var removeCubeData = placeData.copy(); removeCubeData.putInt("mode", 5);
                         removeCube.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(removeCubeData));
@@ -22211,7 +22249,13 @@ public final class GameChecks {
                         owner.setShiftKeyDown(false);
                         var beforeBridge=new java.util.LinkedHashMap<net.minecraft.core.BlockPos,net.minecraft.world.level.block.state.BlockState>();
                         blocks.keySet().forEach(pos->beforeBridge.put(pos,level.getBlockState(pos)));
-                        require(wands.use(owner,net.minecraft.world.InteractionHand.OFF_HAND),"Academy stone bridge mode dispatches");
+                        var bridgeChestPos=center.offset(0,-1,1);
+                        try (var chest=new ContainerReplacementChecks(game,level,bridgeChestPos,"Academy Stone bridge")) {
+                                require(wands.use(owner,net.minecraft.world.InteractionHand.OFF_HAND)
+                                                && level.getBlockState(bridgeChestPos).is(net.minecraft.world.level.block.Blocks.CRYING_OBSIDIAN),
+                                                "Academy stone bridge mode dispatches and writes the first material");
+                                chest.requireReleased();
+                        }
                         int bridgeBlocks=0;
                         for(int dx=-3;dx<=3;dx++) for(int dz=0;dz<=32;dz++) {
                                 var pos=center.offset(dx,-1,dz);
@@ -22293,6 +22337,16 @@ public final class GameChecks {
                                         "A cleared replacement block no longer credits its former stone owner");
                         clearedCow.discard();
                         restoreChangedBlocks.run();
+                        var tinyWall=net.minecraft.core.BlockPos.containing(owner.getEyePosition().add(0,0,5));
+                        var tinyChestPos=tinyWall.offset(1,1,0);
+                        level.setBlockAndUpdate(tinyWall,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+                        try (var chest=new ContainerReplacementChecks(game,level,tinyChestPos,"tiny Stone ray terminal")) {
+                                require(LbcExtraGrimoires.cast(game,owner,net.minecraft.world.InteractionHand.MAIN_HAND,246)
+                                                && level.getBlockState(tinyChestPos).is(net.minecraft.world.level.block.Blocks.STONE),
+                                                "the real tiny Stone grimoire replaces the side of its wall-contact terminal cube");
+                                chest.requireReleased();
+                        }
+                        restoreChangedBlocks.run();
                         game.config().offhandWands=true;
                         // (user) Задание читается у используемого жезла независимо от второй руки.
                         for(var hand:net.minecraft.world.InteractionHand.values()) {
@@ -22303,10 +22357,13 @@ public final class GameChecks {
                                 trialWand.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(trialData));
                                 owner.setItemInHand(hand,trialWand); owner.setShiftKeyDown(true); mana.set(owner,10000);
                                 var trialCenter=net.minecraft.core.BlockPos.containing(owner.getEyePosition());
-                                require(wands.use(owner,hand) && mana.get(owner)==8000,"Stone meditation pays once in the used hand: "+hand);
-                                for(var pos:net.minecraft.core.BlockPos.betweenClosed(trialCenter.offset(-1,-1,-1),trialCenter.offset(1,2,1)))
-                                        require(level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.BEDROCK),
+                                try (var chest=new ContainerReplacementChecks(game,level,trialCenter.offset(1,2,1),"Stone meditation "+hand)) {
+                                        require(wands.use(owner,hand) && mana.get(owner)==8000,"Stone meditation pays once in the used hand: "+hand);
+                                        for(var pos:net.minecraft.core.BlockPos.betweenClosed(trialCenter.offset(-1,-1,-1),trialCenter.offset(1,2,1)))
+                                                require(level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.BEDROCK),
                                                         "Stone meditation keeps its full permanent 3x4x3 bedrock volume: "+hand);
+                                        chest.requireReleased();
+                                }
                                 owner.setShiftKeyDown(false); stone.stop(); restoreChangedBlocks.run();
                         }
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Items.AIR));

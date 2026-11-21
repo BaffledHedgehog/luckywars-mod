@@ -160,7 +160,7 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
         for(var display:level.getEntitiesOfClass(ItemDisplay.class,new AABB(point,point).inflate(maximum),d->d.entityTags().contains("wire_converter_frame"))){double distance=display.position().distanceToSqr(point);if(distance>=minimum*minimum&&distance<=maximum*maximum)return true;}return false;
     }
     private void clearCube(ServerLevel level,BlockPos center,LbcIndirectKills.Owner cause){game.items().indirectKills().capturedWorldChanges(level,cause,()->{
-        for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))if(!level.isOutsideBuildHeight(pos))LbcDropBlocks.setBlock(level,pos,Blocks.AIR.defaultBlockState(),true);
+        for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))if(!level.isOutsideBuildHeight(pos))LbcDropBlocks.setBlockPreservingInventory(level,pos,Blocks.AIR.defaultBlockState(),true);
     });}
     @Override public void createCage(ServerLevel level,Vec3 point,int color,LbcIndirectKills.Owner cause){
         if(restoring||!nexus(level)||color<1||color>4)return;

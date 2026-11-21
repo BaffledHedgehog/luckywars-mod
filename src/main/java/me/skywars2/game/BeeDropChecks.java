@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.bee.Bee;
 import net.minecraft.world.entity.animal.cow.Cow;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import java.util.*;
 
 /** Bounded actual-match native bee, loot, hive and sting fixtures; no participant is killed. */
@@ -81,7 +83,25 @@ public final class BeeDropChecks {
             for(int seed=1;seed<=32;seed++){int[] counts=new int[2];for(int l=0;l<2;l++){var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(level).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,origin).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,alpha).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.DAMAGE_SOURCE,alpha.damageSources().generic()).withLuck(l==0?0:10).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY);var rolled=table.getRandomItems(params,seed*0x9E3779B97F4A7C15L);for(var s:rolled){require(honey(s),"closed vanilla honey reward table");types.add(s.getItem());counts[l]+=s.getCount();}require(counts[l]>=1 && counts[l]<=(l==0?4:44),"native uniform rolls/bonus bounds");}require(counts[1]>=counts[0],"same seeded native luck adds bonus rolls");bonus|=counts[1]>counts[0];}require(bonus && types.size()==4,"native luck bonus and all four honey rewards");
             reset();var bees=batch();defaults(bees);for(var bee:bees)nativeDeath(bee); // seven independent actual deaths, not seven table-only rolls
         }
-        void containers(){reset();level.setBlock(center,Blocks.CHEST.defaultBlockState(),818);level.setBlock(center.above(),Blocks.CHEST.defaultBlockState(),818);var lower=(net.minecraft.world.Container)level.getBlockEntity(center);var upper=(net.minecraft.world.Container)level.getBlockEntity(center.above());require(lower!=null && upper!=null,"native displacement containers");lower.setItem(0,new ItemStack(Items.DIAMOND,7));upper.setItem(0,new ItemStack(Items.EMERALD,11));var before=baseline();defaults(batch());var loot=newItems(before);require(loot.stream().filter(i->i.getItem().is(Items.DIAMOND)).mapToInt(i->i.getItem().getCount()).sum()==0 && loot.stream().filter(i->i.getItem().is(Items.EMERALD)).mapToInt(i->i.getItem().getCount()).sum()==11,"native replace suppresses lower inventory, destroy spills upper: "+loot.stream().map(i->i.getItem().toString()).toList());require(loot.stream().anyMatch(i->i.getItem().is(Items.CHEST)),"destroy hive command emits old chest block loot");loot.forEach(Entity::discard);}
+        void containers() {
+            reset();
+            level.setBlock(center.above(),Blocks.CHEST.defaultBlockState(),818);
+            var upper=(net.minecraft.world.Container)level.getBlockEntity(center.above());
+            require(upper!=null,"native hive displacement chest");
+            upper.setItem(0,new ItemStack(Items.EMERALD,11));
+            try (var lower=new ContainerReplacementChecks(game,level,center,"bee drop fence")) {
+                var before=baseline();
+                defaults(batch());
+                var loot=newItems(before);
+                try {
+                    lower.requireReleased();
+                    require(loot.stream().filter(i->i.getItem().is(Items.EMERALD)).mapToInt(i->i.getItem().getCount()).sum()==11,
+                            "native destroy ejects the upper chest inventory exactly once");
+                    require(loot.stream().filter(i->i.getItem().is(Items.CHEST)).mapToInt(i->i.getItem().getCount()).sum()==1,
+                            "only native hive-cell destroy emits old chest block loot");
+                } finally { loot.forEach(Entity::discard); }
+            }
+        }
         void hives(){reset();var bees=batch();var hive=(BeehiveBlockEntity)level.getBlockEntity(center.above());require(hive!=null && hive.isEmpty(),"source new hive has no invented occupants");var source=bees.getFirst();var uuid=source.getUUID();hive.addOccupant(source);require(source.isRemoved() && hive.getOccupantCount()==1 && game.items().beeDrops().storedCount()>=1,"actual native entry stores bee and removes live instance");
             var occupants=hive.collectComponents().get(DataComponents.BEES);require(occupants!=null,"native hive-item Bees component");
             hive.emptyAllLivingFromHive(null,hive.getBlockState(),BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);capture();var released=game.items().beeDrops().snapshot().stream().filter(b->!b.isRemoved() && b.hasHive() && center.above().equals(b.getHivePos())).toList();require(hive.isEmpty() && released.size()==1,"native emergency exit creates one real bee");var bee=released.getFirst();require(!bee.getUUID().equals(uuid) && bee.hasNectar() && saved(bee,level).getStringOr("DeathLootTable","").equals("lbc:honey") && game.items().beeDrops().owner(bee)==alpha,"native UUID replacement retains nectar/deathloot/actual author");nativeDeath(bee);
@@ -90,15 +110,126 @@ public final class BeeDropChecks {
             hive.addOccupant(bees.get(1));alpha.teleportTo(level,origin.x,origin.y+1,origin.z+2,Set.of(),0,0,true);var mined=net.minecraft.stats.Stats.BLOCK_MINED.get(Blocks.BEEHIVE);int oldMined=alpha.getStats().getValue(mined);
             try{require(alpha.gameMode.destroyBlock(center.above()),"native player destroys occupied source hive");capture();var angry=game.items().beeDrops().snapshot().stream().filter(b->!b.isRemoved() && center.above().equals(b.getHivePos()) && b.getTarget()==alpha).toList();require(!angry.isEmpty(),"actual hive destruction releases native retaliation at thrower");nativeDeath(angry.getFirst());}finally{alpha.getStats().setValue(alpha,mined,oldMined);alpha.teleportTo(level,origin.x+20,origin.y,origin.z,Set.of(),0,0,true);}
         }
-        void multiFlag(){reset();beta.teleportTo(level,origin.x-1,origin.y,origin.z,Set.of(),0,0,true);var before=baseline();var both=drop(2);var data=both.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();data.putInt("library",1);both.getItem().set(DataComponents.CUSTOM_DATA,CustomData.of(data));
-            require(game.items().specialDrops().spawn(both) && both.getItem().getCount()==1,"Library plus bees one source debit");capture();require(mine.size()==7 && level.getBlockState(center).is(Blocks.OAK_FENCE) && level.getBlockState(center.above(3)).is(Blocks.OAK_WOOD),"source Library table replaced by later bee fence while Library roof remains");both.discard();
-            var rewards=new ArrayList<Entity>();for(var e:level.getAllEntities())if(!before.contains(e) && LbcLibraryDrop.managed(e))rewards.add(e);require(rewards.size()==3,"independent earlier Library rewards");rewards.forEach(Entity::discard);beta.teleportTo(level,origin.x+22,origin.y,origin.z,Set.of(),0,0,true);
+        long rewardExperience(AABB area) {
+            return level.getEntitiesOfClass(ExperienceOrb.class,area,Entity::isAlive).stream()
+                    .mapToLong(orb->((CoreEntityMerging.Orb)orb).skywars2$totalExperience()).sum();
+        }
+        void multiFlag() {
+            reset();
+            beta.teleportTo(level,origin.x-1,origin.y,origin.z,Set.of(),0,0,true);
+            var both=drop(2);
+            var library=game.items().libraryDrop();
+            var previous=library.snapshot();
+            var rewardAt=origin.add(0,1,0);
+            var area=new AABB(rewardAt,rewardAt).inflate(CoreEntityMerging.settings().experienceMergeRadius+1);
+            var column=net.minecraft.world.level.ChunkPos.containing(BlockPos.containing(rewardAt));
+            try {
+                require(level.areEntitiesActuallyLoadedAndTicking(column),"native Library reward column is visible and entity-ticking");
+                require(game.items().cageDrops().target(both)==beta,"native shared selector chooses the nearby recipient");
+                require(level.getEntitiesOfClass(ExperienceOrb.class,area,Entity::isAlive).stream().noneMatch(existing::contains),
+                        "only fixture-owned orbs can absorb the Library reward");
+                long xpBefore=rewardExperience(area);
+                var data=both.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+                data.putInt("library",1);
+                both.getItem().set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+                require(game.items().specialDrops().spawn(both) && both.getItem().getCount()==1,
+                        "Library plus bees one source debit");
+                require(!game.items().specialDrops().spawn(both) && both.getItem().getCount()==1,
+                        "both source flags share the duplicate-call guard");
+                capture();
+                require(mine.size()==7 && level.getBlockState(center).is(Blocks.OAK_FENCE)
+                                && level.getBlockState(center.above(3)).is(Blocks.OAK_WOOD),
+                        "source Library table replaced by later bee fence while Library roof remains");
+                var rewards=library.snapshot().stream().filter(e->!previous.contains(e) && !e.isRemoved()).toList();
+                int lapis=0,bottles=0,orbs=0;
+                for(var reward:rewards) {
+                    require(level.getEntity(reward.getUUID())==reward && game.items().currentEpoch(reward)
+                                    && reward.position().distanceToSqr(rewardAt)<1e-8,
+                            "new Library reward is a native visible body at the authored fractional position");
+                    if(reward instanceof ItemEntity item && ItemStack.matches(item.getItem(),new ItemStack(Items.LAPIS_LAZULI,32))) lapis++;
+                    else if(reward.getType()==EntityTypes.EXPERIENCE_BOTTLE) bottles++;
+                    else if(reward instanceof ExperienceOrb orb && ((CoreEntityMerging.Orb)orb).skywars2$totalExperience()==1395) orbs++;
+                    else throw new IllegalStateException("Unexpected Library reward "+reward);
+                }
+                long xpDelta=rewardExperience(area)-xpBefore;
+                require(lapis==1 && bottles==1 && orbs<=1 && xpDelta==1395,
+                        "Library publishes lapis32, a bottle and exactly1395 native XP through the combined dispatch"
+                                +" (lapis="+lapis+", bottles="+bottles+", new orbs="+orbs+", prior XP="+xpBefore+", XP delta="+xpDelta+")");
+            } finally {
+                both.discard();
+                library.snapshot().stream().filter(e->!previous.contains(e)).forEach(Entity::discard);
+                level.getEntitiesOfClass(ExperienceOrb.class,area,orb->!existing.contains(orb)).forEach(Entity::discard);
+                beta.teleportTo(level,origin.x+22,origin.y,origin.z,Set.of(),0,0,true);
+            }
         }
         Cow cow(Vec3 at){var cow=new Cow(EntityTypes.COW,level);cow.setPos(at);cow.setNoAi(true);cow.setNoGravity(true);require(level.addFreshEntity(cow),"native disposable sting victim");return cow;}
-        void stings(){reset();var bees=batch();for(var b:bees){b.setNoAi(true);b.setNoGravity(true);}var bee=bees.getFirst();var victim=cow(origin.add(0,4,0));try{victim.setHealth(1);int before=kills(alpha);require(bee.doHurtTarget(level,victim) && victim.isDeadOrDying() && victim.getKillCredit()==alpha && kills(alpha)==before+1,"actual native lethal sting credits actual thrower");}finally{victim.discard();}
-            int stingIndex=1;for(boolean outOfWorld:List.of(false,true))for(boolean newer:List.of(false,true)){var b=bees.get(stingIndex++);var target=cow(origin.add(0,4,0));try{require(b.doHurtTarget(level,target),"actual native nonlethal sting");if(level.getDifficulty()==net.minecraft.world.Difficulty.NORMAL || level.getDifficulty()==net.minecraft.world.Difficulty.HARD)require(target.hasEffect(net.minecraft.world.effect.MobEffects.POISON),"native sting accepts sourced poison");if(newer){target.setInvulnerableTime(0);target.damageCooldownTime=0;target.hurtServer(level,target.damageSources().playerAttack(beta),1);}target.setHealth(1);target.setInvulnerableTime(0);target.damageCooldownTime=0;int before=kills(newer?beta:alpha);target.hurtServer(level,outOfWorld?target.damageSources().fellOutOfWorld():target.damageSources().fall(),1000);require(target.isDeadOrDying() && target.getKillCredit()==(newer?beta:alpha) && kills(newer?beta:alpha)==before+1,"actual sting/poison fall/void attribution and newer attacker "+outOfWorld+"/"+newer);}finally{game.items().indirectKills().clear(target);target.discard();}}
+        void lethalSting(Bee bee, boolean helmet) {
+            var victim=cow(origin.add(0,4,0));
+            try {
+                victim.setHealth(1);
+                int alphaBefore=kills(alpha), betaBefore=kills(beta);
+                boolean admitted=game.items().beeDrops().canAffect(bee,victim);
+                boolean hit=bee.doHurtTarget(level,victim);
+                var policy=game.items().spellSources().source(bee);
+                var damage=victim.getLastDamageSource();
+                var credit=victim.getKillCredit();
+                int alphaDelta=kills(alpha)-alphaBefore, betaDelta=kills(beta)-betaBefore;
+                boolean physical=damage!=null && damage.is(net.minecraft.world.damagesource.DamageTypes.STING)
+                        && damage.getEntity()==bee && damage.getDirectEntity()==bee;
+                String outcome=" (admitted="+admitted+", hit="+hit+", hp="+victim.getHealth()
+                        +", effects="+victim.getActiveEffects()+", credit="+credit
+                        +", native damage attacker="+(damage==null?null:damage.getEntity())
+                        +", thrower="+game.items().beeDrops().owner(bee)
+                        +", policy="+policy+", tags="+bee.entityTags()
+                        +", alpha kills delta="+alphaDelta+", beta kills delta="+betaDelta+")";
+                SkyWars2.LOGGER.info("[check] Bee sting helmet={}: accepted={}, hp={}, physicalBee={}, beeCredit={}, wearerCredit={}, wearerKills={}, otherPlayerKills={}",
+                        helmet,hit,victim.getHealth(),physical,credit==bee,credit==alpha,alphaDelta,betaDelta);
+                require(admitted && hit && victim.isDeadOrDying() && bee.hasStung() && physical,
+                        "accepted native sting kills the target with Bee as the physical attacker"+outcome);
+                require(game.items().beeDrops().owner(bee)==alpha && policy!=null && policy.unownedMobs()
+                                && policy.helmetCredit()==helmet && Objects.equals(policy.author(),helmet?alpha.getUUID():null),
+                        "ordinary and helmet bees retain the correct source policy"+outcome);
+                require(credit==(helmet?alpha:bee) && alphaDelta==(helmet?1:0) && betaDelta==0,
+                        "native kill attribution follows the ordinary or helmet source policy"+outcome);
+            } finally { victim.discard(); }
+        }
+        void stings(){
+            reset();
+            var bees=batch();
+            for(var b:bees){b.setNoAi(true);b.setNoGravity(true);}
+            lethalSting(bees.getFirst(),false);
+            int stingIndex=1;
+            for(boolean outOfWorld:List.of(false,true))for(boolean newer:List.of(false,true)){
+                var bee=bees.get(stingIndex++);
+                var target=cow(origin.add(0,4,0));
+                try {
+                    require(bee.doHurtTarget(level,target) && target.getLastDamageSource().getEntity()==bee,
+                            "actual native nonlethal sting has the Bee source");
+                    if(level.getDifficulty()==net.minecraft.world.Difficulty.NORMAL || level.getDifficulty()==net.minecraft.world.Difficulty.HARD)
+                        require(target.hasEffect(net.minecraft.world.effect.MobEffects.POISON),"native sting accepts sourced poison");
+                    if(newer){
+                        target.setInvulnerableTime(0);target.damageCooldownTime=0;
+                        require(target.hurtServer(level,target.damageSources().playerAttack(beta),1),"actual newer player hit");
+                    }
+                    target.setHealth(1);target.setInvulnerableTime(0);target.damageCooldownTime=0;
+                    int alphaBefore=kills(alpha), betaBefore=kills(beta);
+                    boolean hit=target.hurtServer(level,outOfWorld?target.damageSources().fellOutOfWorld():target.damageSources().fall(),1000);
+                    require(hit && target.isDeadOrDying() && target.getKillCredit()==(newer?beta:bee)
+                                    && kills(alpha)==alphaBefore && kills(beta)==betaBefore+(newer?1:0),
+                            "actual sting/poison fall/void attribution and newer attacker "+outOfWorld+"/"+newer
+                                    +" (hit="+hit+", hp="+target.getHealth()+", credit="+target.getKillCredit()
+                                    +", thrower kills delta="+(kills(alpha)-alphaBefore)+", other kills delta="+(kills(beta)-betaBefore)+")");
+                } finally {game.items().indirectKills().clear(target);target.discard();}
+            }
             var guarded=bees.get(5);for(String tag:List.of("spectator","rcdenyalways","sauvojen_tuntija","strict_map_object","magic_academy","transformator")){var npc=cow(origin.add(0,4,0));npc.entityTags().add(tag);try{require(!guarded.doHurtTarget(level,npc) && npc.getHealth()==npc.getMaxHealth() && !npc.hasEffect(net.minecraft.world.effect.MobEffects.POISON),"role blocks native sting before damage/poison "+tag);}finally{npc.discard();}}
             var board=game.server().getScoreboard();var oldAlpha=alpha.getTeam();var oldBeta=beta.getTeam();require(board.getPlayerTeam("codex_bees_probe")==null,"fixture team available");var team=board.addPlayerTeam("codex_bees_probe");team.setAllowFriendlyFire(false);try{board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);require(!guarded.doHurtTarget(level,beta) && beta.getHealth()==1000 && !beta.hasEffect(net.minecraft.world.effect.MobEffects.POISON),"allied native sting blocked");require(guarded.doHurtTarget(level,alpha) && alpha.getHealth()<1000,"thrower retains native self retaliation");}finally{board.removePlayerTeam(team);if(oldAlpha!=null)board.addPlayerToTeam(alpha.getScoreboardName(),oldAlpha);if(oldBeta!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBeta);alpha.removeAllEffects();beta.removeAllEffects();alpha.setHealth(1000);beta.setHealth(1000);}
+            reset();
+            var helmet=new LbcSpellSource.Source(alpha.getUUID(),alpha.getUUID(),game.items().epoch(),
+                    game.items().indirectKills().wildCause(alpha),Set.of()).helmetLoot();
+            Bee helmetBee;
+            // The fixed bee token exercises the same accepted receipt as the armor trap producer.
+            try(var scope=game.items().spellSources().scope(helmet,level)){helmetBee=batch().getFirst();}
+            lethalSting(helmetBee,true);
         }
         void guards(){var stale=drop(2);stale.entityTags().add("skywars2.items.stale-fixture");require(!game.items().specialDrops().spawn(stale) && stale.getItem().getCount()==2,"stale token no debit");stale.discard();var fake=drop(2);fake.makeFakeItem();require(!game.items().specialDrops().spawn(fake),"native give visual guard");fake.discard();var remote=drop(2);int x=(center.getX()>>4)+128,z=(center.getZ()>>4)+128;while(level.getChunkSource().getChunkNow(x,z)!=null)x+=128;remote.setPos(x*16+8,origin.y,z*16+8);require(!game.items().specialDrops().spawn(remote) && remote.getItem().getCount()==2 && level.getChunkSource().getChunkNow(x,z)==null,"unresident native token neither loads nor debits");remote.discard();}
         boolean step(){require(game.playing(),"actual match retained");int now=game.server().getTickCount();if(now==lastTick)return false;lastTick=now;switch(phase){

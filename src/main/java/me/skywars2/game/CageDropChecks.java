@@ -206,15 +206,14 @@ public final class CageDropChecks {
             placeBeta();
         }
         void containers(){
-            // Native FillCommand strict passes818: includes256 (skip BE side effects) and32 (suppress drops).
-            // LevelChunk removes the old BE without preRemoveSideEffects, so this source fill loses its inventory.
+            // Bounded cage geometry retains the inventory even when its source fill is strict.
             var pos=center.east();level.setBlock(pos,Blocks.CHEST.defaultBlockState(),3);
             var chest=(net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(pos);
             var gem=new ItemStack(Items.DIAMOND,7);gem.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("cage replacement probe"));chest.setItem(0,gem.copy());
             int before=0;for(var e:level.getAllEntities())if(e instanceof ItemEntity item && ItemStack.isSameItemSameComponents(item.getItem(),gem))before+=item.getItem().getCount();
             batch(LbcCageDropItem.Kind.OBSIDIAN);
             int after=0;for(var e:level.getAllEntities())if(e instanceof ItemEntity item && ItemStack.isSameItemSameComponents(item.getItem(),gem))after+=item.getItem().getCount();
-            require(level.getBlockEntity(pos)==null && level.getBlockState(pos).is(Blocks.OBSIDIAN) && after==before,"source strict fill removes old container without inventory ejection");clear();
+            require(level.getBlockEntity(pos)==null && level.getBlockState(pos).is(Blocks.OBSIDIAN) && after==before+7,"actual strict cage fill conserves the removed container inventory exactly once");clear();
         }
         void residency(){
             var t=drop(LbcCageDropItem.Kind.ANVIL,2);var previous=beta.position();

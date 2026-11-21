@@ -85,7 +85,24 @@ public final class OpAnvilDropChecks {
         }
         void payload(LbcOpAnvilDropItem.Kind kind){var service=game.items().opAnvilDrops();require(service.snapshot().size()==1 && service.snapshotRewards().size()==2,"one actor/two native rewards");var actor=service.snapshot().getFirst();var p=actor.position();require(p.y==origin.y+5 && p.x==(kind==LbcOpAnvilDropItem.Kind.NORMAL?center.getX()+.5:origin.x) && p.z==(kind==LbcOpAnvilDropItem.Kind.NORMAL?center.getZ()+.5:origin.z),"source centered/fractional falling position");var data=saved(actor,level);require(actor.getBlockState().is(Blocks.ANVIL) && data.getIntOr("Time",0)==1 && data.getBooleanOr("DropItem",false) && !data.getBooleanOr("HurtEntities",true) && data.getIntOr("FallHurtMax",-1)==0 && data.getFloatOr("FallHurtAmount",-1)==0 && data.getDoubleOr("fall_distance",-1)==0 && actor.getDeltaMovement().equals(Vec3.ZERO) && service.owner(actor)==alpha,"native no-hurt summon defaults/source");int orb=0,book=0;for(var e:service.snapshotRewards()){require(e.position().equals(origin) && game.items().currentEpoch(e),"fractional reward epoch");if(e instanceof ExperienceOrb xp){orb++;require(xp.getValue()==1395 && xp.getDeltaMovement().equals(Vec3.ZERO),"one unsplit Value1395 summon orb");}else if(e instanceof ItemEntity item){book++;require(item.getItem().is(Items.ENCHANTED_BOOK) && item.getItem().getCount()==1 && saved(item,level).getIntOr("PickupDelay",-1)==10 && item.getDeltaMovement().y==.2 && !item.isNoGravity(),"native loot spawn book pickup/motion");if(kind==LbcOpAnvilDropItem.Kind.OLD)require(enchantments(item.getItem()).equals(expected(OLD)),"old dispatched book exact payload");}}require(orb==1 && book==1,"exact reward types");}
         void immediate(){presentation();bookTables();
-            for(var kind:LbcOpAnvilDropItem.Kind.values()){reset();for(int y=0;y<=6;y++)level.setBlock(center.above(y),Blocks.DIAMOND_BLOCK.defaultBlockState(),818);activate(kind);for(int y=0;y<6;y++)require(level.isEmptyBlock(center.above(y)),"exact six-cell clear "+kind);require(level.getBlockState(center.above(6)).is(Blocks.DIAMOND_BLOCK),"outside shaft sentinel");payload(kind);}
+            for(var kind:LbcOpAnvilDropItem.Kind.values()){
+                reset();
+                for(int y=0;y<=6;y++)level.setBlock(center.above(y),Blocks.DIAMOND_BLOCK.defaultBlockState(),818);
+                var chest = center.above(3);
+                var packed = new ItemStack(Items.DIAMOND, 11);
+                packed.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("op anvil shaft chest"));
+                level.setBlock(chest, Blocks.CHEST.defaultBlockState(), 818);
+                ((net.minecraft.world.Container) level.getBlockEntity(chest)).setItem(0, packed.copy());
+                activate(kind);
+                for(int y=0;y<6;y++)require(level.isEmptyBlock(center.above(y)),"exact six-cell clear "+kind);
+                require(level.getBlockState(center.above(6)).is(Blocks.DIAMOND_BLOCK),"outside shaft sentinel");
+                var dropped = level.getEntitiesOfClass(ItemEntity.class, new net.minecraft.world.phys.AABB(chest).inflate(1),
+                        item -> ItemStack.isSameItemSameComponents(packed, item.getItem()));
+                require(dropped.stream().mapToInt(item -> item.getItem().getCount()).sum() == 11,
+                        "all contents of the replaced shaft chest drop exactly once "+kind);
+                dropped.forEach(Entity::discard);
+                payload(kind);
+            }
             for(var kind:LbcOpAnvilDropItem.Kind.values()){reset();level.setBlock(center.above(),Blocks.DIAMOND_BLOCK.defaultBlockState(),818);var torch=center.offset(1,1,0);level.setBlock(torch,Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING,Direction.EAST),818);activate(kind);require(level.getBlockState(torch).is(kind==LbcOpAnvilDropItem.Kind.NORMAL?Blocks.WALL_TORCH:Blocks.AIR),"strict/ordinary native neighbour update "+kind);}
             reset();for(int y=0;y<6;y++)level.setBlock(center.above(y),Blocks.DIAMOND_BLOCK.defaultBlockState(),818);level.getGameRules().set(GameRules.MAX_BLOCK_MODIFICATIONS,5,game.server());try{activate(LbcOpAnvilDropItem.Kind.NORMAL);require(level.getBlockState(center).is(Blocks.DIAMOND_BLOCK),"fill6 limit rejection");payload(LbcOpAnvilDropItem.Kind.NORMAL);}finally{level.getGameRules().set(GameRules.MAX_BLOCK_MODIFICATIONS,oldLimit,game.server());}
             reset();var both=drop(LbcOpAnvilDropItem.Kind.NORMAL,2);var flags=both.getItem().get(DataComponents.CUSTOM_DATA).copyTag();flags.putInt("opanvil_old",1);both.getItem().set(DataComponents.CUSTOM_DATA,CustomData.of(flags));require(game.items().specialDrops().spawn(both) && both.getItem().getCount()==1 && game.items().opAnvilDrops().snapshot().size()==2 && game.items().opAnvilDrops().snapshotRewards().size()==4,"normal+old independent source branches share one debit");both.discard();

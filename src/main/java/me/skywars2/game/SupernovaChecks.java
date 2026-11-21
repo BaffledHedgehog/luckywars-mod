@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.MapValidationAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -78,13 +79,9 @@ public final class SupernovaChecks {
             game.items().timeStop().begin(owner.level(),200);clock=game.items().supernova().activeTicks();
         }
 
-        @SuppressWarnings("unchecked")
-        List<BoundingBox> mirrorFootprint(){
-            try {
-                var bounds=MapManager.class.getDeclaredField("imprintedBounds");
-                bounds.setAccessible(true);
-                return List.copyOf((List<BoundingBox>)bounds.get(game.maps()));
-            } catch(ReflectiveOperationException error) { throw new IllegalStateException(error); }
+        List<BoundingBox> mirrorFootprint() {
+            var nativeMap = (MapValidationAccess.Manager) (Object) game.maps();
+            return List.copyOf(nativeMap.validation$imprintedBounds());
         }
 
         void placeMirrorWitness(){

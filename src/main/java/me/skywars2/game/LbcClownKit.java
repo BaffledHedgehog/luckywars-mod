@@ -65,8 +65,8 @@ public final class LbcClownKit {
         if(!player.teleportTo(level,destination.x,destination.y,destination.z,Set.of(),yaw,pitch,true))return false;
         player.setDeltaMovement(velocity);player.setKnownMovement(known);
         game.items().indirectKills().trapChanges(level,player,false,()->{
-            LbcDropBlocks.setBlock(level,feet,Blocks.CHISELED_BOOKSHELF.defaultBlockState(),true);
-            LbcDropBlocks.setBlock(level,feet.above(),Blocks.BARREL.defaultBlockState().setValue(BarrelBlock.FACING,Direction.UP),true);
+            LbcDropBlocks.setBlockPreservingInventory(level,feet,Blocks.CHISELED_BOOKSHELF.defaultBlockState(),true);
+            LbcDropBlocks.setBlockPreservingInventory(level,feet.above(),Blocks.BARREL.defaultBlockState().setValue(BarrelBlock.FACING,Direction.UP),true);
         });
         LbcOverload.sound(player,origin,"minecraft:block.wood.place",1,1,0);
         level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.OAK_PLANKS.defaultBlockState()),true,false,

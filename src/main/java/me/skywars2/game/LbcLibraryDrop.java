@@ -83,22 +83,22 @@ public final class LbcLibraryDrop {
 
     private static void geometry(ServerLevel level, Vec3 p) {
         if (level.isDebug()) return;
-        LbcDropBlocks.fill(level, at(p,0,0,2), at(p,2,2,2), Blocks.BOOKSHELF, true);
-        LbcDropBlocks.fill(level, at(p,0,0,-2), at(p,2,2,-2), Blocks.BOOKSHELF, true);
-        LbcDropBlocks.fill(level, at(p,3,0,1), at(p,3,2,-1), Blocks.BOOKSHELF, true);
-        LbcDropBlocks.fill(level, at(p,-1,0,1), at(p,-1,2,-1), Blocks.BOOKSHELF, true);
-        LbcDropBlocks.fill(level, at(p,3,-1,2), at(p,-1,-1,-2), Blocks.OAK_PLANKS, true);
-        LbcDropBlocks.setBlock(level, at(p,1,0,0), Blocks.ENCHANTING_TABLE.defaultBlockState(), true);
-        LbcDropBlocks.fill(level, at(p,3,3,2), at(p,-1,3,-2), Blocks.OAK_WOOD, true);
-        LbcDropBlocks.setBlock(level, at(p,1,2,0), Blocks.END_ROD.defaultBlockState().setValue(EndRodBlock.FACING, Direction.DOWN), true);
-        LbcDropBlocks.fill(level, at(p,3,0,2), at(p,3,2,2), Blocks.OAK_WOOD, true);
-        LbcDropBlocks.fill(level, at(p,-1,0,2), at(p,-1,2,2), Blocks.OAK_WOOD, true);
-        LbcDropBlocks.fill(level, at(p,3,0,-2), at(p,3,2,-2), Blocks.OAK_WOOD, true);
-        LbcDropBlocks.fill(level, at(p,-1,0,-2), at(p,-1,2,-2), Blocks.OAK_WOOD, true);
-        LbcDropBlocks.fill(level, at(p,3,0,0), at(p,3,1,0), Blocks.AIR, true);
-        LbcDropBlocks.fill(level, at(p,1,0,2), at(p,1,1,2), Blocks.AIR, true);
-        LbcDropBlocks.fill(level, at(p,-1,0,0), at(p,-1,1,0), Blocks.AIR, true);
-        LbcDropBlocks.fill(level, at(p,1,0,-2), at(p,1,1,-2), Blocks.AIR, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,0,0,2), at(p,2,2,2), Blocks.BOOKSHELF, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,0,0,-2), at(p,2,2,-2), Blocks.BOOKSHELF, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,3,0,1), at(p,3,2,-1), Blocks.BOOKSHELF, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,-1,0,1), at(p,-1,2,-1), Blocks.BOOKSHELF, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,3,-1,2), at(p,-1,-1,-2), Blocks.OAK_PLANKS, true);
+        LbcDropBlocks.setBlockPreservingInventory(level, at(p,1,0,0), Blocks.ENCHANTING_TABLE.defaultBlockState(), true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,3,3,2), at(p,-1,3,-2), Blocks.OAK_WOOD, true);
+        LbcDropBlocks.setBlockPreservingInventory(level, at(p,1,2,0), Blocks.END_ROD.defaultBlockState().setValue(EndRodBlock.FACING, Direction.DOWN), true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,3,0,2), at(p,3,2,2), Blocks.OAK_WOOD, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,-1,0,2), at(p,-1,2,2), Blocks.OAK_WOOD, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,3,0,-2), at(p,3,2,-2), Blocks.OAK_WOOD, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,-1,0,-2), at(p,-1,2,-2), Blocks.OAK_WOOD, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,3,0,0), at(p,3,1,0), Blocks.AIR, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,1,0,2), at(p,1,1,2), Blocks.AIR, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,-1,0,0), at(p,-1,1,0), Blocks.AIR, true);
+        LbcDropBlocks.fillPreservingInventory(level, at(p,1,0,-2), at(p,1,1,-2), Blocks.AIR, true);
     }
 
     private void insert(ServerLevel level, Entity actor, CompoundTag preset, Vec3 pos) {

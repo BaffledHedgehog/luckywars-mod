@@ -126,7 +126,8 @@ public final class SauvojenChecks {
                 board.removePlayerTeam(team);if(oldOwnerTeam!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldOwnerTeam);if(oldBetaTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBetaTeam);
                 betaState.restore(game);clear();removeCows();
             }
-            for(double fraction:new double[]{.2,.8})try(var terrain=new Terrain(center,4)) {
+            for(double fraction:new double[]{.2,.8})try(var terrain=new Terrain(center,4);
+                    var chest=new ContainerReplacementChecks(game,level,center.offset(1,-1,0),"flying Stone cube")) {
                 Vec3 origin=new Vec3(center.getX()+fraction,center.getY()+fraction,center.getZ()-1.2);
                 terrain.set(center,Blocks.OBSIDIAN.defaultBlockState());
                 var victim=cow(new Vec3(center.getX()+fraction+.9,center.getY()+fraction-.6,center.getZ()+.5));
@@ -138,6 +139,7 @@ public final class SauvojenChecks {
                     boolean inside=cell.getX()>=lo.getX()&&cell.getX()<=hi.getX()&&cell.getY()>=lo.getY()&&cell.getY()<=hi.getY()&&cell.getZ()>=lo.getZ()&&cell.getZ()<=hi.getZ();
                     require(inside?level.getBlockState(cell).is(Blocks.STONE):level.getBlockState(cell).isAir(),"fractional source floor±1.5 strict entire cube and untouched outer volume "+fraction+" "+cell);
                 }
+                chest.requireReleased();
                 require(victim.getHealth()==victim.getMaxHealth(),"flying Stone placement has no donor direct damage payload");
                 require(level.getBlockState(BlockPos.containing(victim.getEyePosition())).is(Blocks.STONE),"real Stone target eye overlaps newly placed owned cube");
                 victim.setInvulnerableTime(0);victim.damageCooldownTime=0;

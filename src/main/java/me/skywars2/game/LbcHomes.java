@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -135,7 +134,7 @@ public final class LbcHomes {
             for (int z=(int)(((long)from.getZ()-1)>>4);z<=(int)(((long)to.getZ()+1)>>4);z++)
                 if (level.getChunkSource().getChunkNow(x,z)==null) return false;
         game.items().indirectKills().trapChanges(level,player,true,
-                ()->LbcDropBlocks.fill(level,from,to,Blocks.AIR,true));
+                ()->LbcDropBlocks.fillPreservingInventory(level,from,to,Blocks.AIR,true));
         return true;
     }
 
@@ -186,9 +185,9 @@ public final class LbcHomes {
                     home.marker.getZ(),5,0,1,0,0);
             Runnable writes=()-> {
                 if (!level.isOutsideBuildHeight(pos.below()) && !level.isDebug())
-                    new BlockInput(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE).defaultBlockState(),Set.of(),null)
-                            .place(level,pos.below(),818);
-                LbcDropBlocks.fill(level,pos.above(),pos.above(2),Blocks.AIR,true);
+                    LbcDropBlocks.setBlockPreservingInventory(level,pos.below(),
+                            Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE).defaultBlockState(),true);
+                LbcDropBlocks.fillPreservingInventory(level,pos.above(),pos.above(2),Blocks.AIR,true);
             };
             if (home.owner!=null) game.items().indirectKills().trapChanges(level,home.owner,true,writes);
             else writes.run();

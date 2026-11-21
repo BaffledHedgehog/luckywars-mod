@@ -156,7 +156,7 @@ public final class CorrosionDropChecks {
             require(skipped!=null && selected!=null,"deterministic seed probes cover both native mask branches");
             reset();put(center,Blocks.CHEST);((net.minecraft.world.Container)level.getBlockEntity(center)).setItem(0,gem.copy());put(center.above(),Blocks.BEDROCK);int before=count(gem);
             batch(LbcCorrosionDropItem.Kind.OLD,skipped);
-            require(level.getBlockState(center).isAir() && level.getBlockState(center.above()).isAir() && count(gem)==before,"old independent strict center removes skipped inventory without ejection");
+            require(level.getBlockState(center).isAir() && level.getBlockState(center.above()).isAir() && count(gem)==before+7,"old independent strict center ejects the inventory skipped by the random pass");
             reset();put(center,Blocks.CHEST);((net.minecraft.world.Container)level.getBlockEntity(center)).setItem(0,gem.copy());
             level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MAX_BLOCK_MODIFICATIONS,1,game.server());
             try{batch(LbcCorrosionDropItem.Kind.OLD,skipped);require(level.getBlockState(center).is(Blocks.CHEST),"old two-cell fill respects limit independently of random template");}

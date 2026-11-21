@@ -20,6 +20,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 /** Native encounter callbacks and real server ticks; no production clock is advanced by this fixture. */
 public final class ShishEncounterChecks {
@@ -93,7 +94,7 @@ public final class ShishEncounterChecks {
         final Set<Long> forced=new LinkedHashSet<>();final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
         final Set<Entity> owned=Collections.newSetFromMap(new IdentityHashMap<>());final Set<LbcWands.ElectroTrace> traces=Collections.newSetFromMap(new IdentityHashMap<>());
         final Map<String,Map<net.minecraft.world.scores.Objective,Integer>> globals=new LinkedHashMap<>();
-        Display.ItemDisplay crate;ItemStack egg,katana,yellow;net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball ball;
+        Display.ItemDisplay crate;ItemStack egg,katana,yellow,supplyContents;net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball ball;
         net.minecraft.world.entity.animal.cow.Cow victim;Vec3 yellowOrigin;boolean yellowIssued;
         ArmorStand convertedStand;Skeleton regularCyborg;Vec3 cyborgHome,wyvernTakeoff;
         int wyvernOwnerPackets,wyvernObserverPackets,scrollOwnerPackets,scrollObserverPackets;
@@ -120,6 +121,11 @@ public final class ShishEncounterChecks {
             require(net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.invoker().interact(owner,level,InteractionHand.MAIN_HAND,hit).consumesAction(),"actual source egg UseBlock callback consumes native action");require(held.getCount()==1&&ItemStack.isSameItemSameComponents(egg,held),"actual source egg exactly one debit, other components immutable");
             var supplies=game.items().shishEncounter().snapshot().stream().filter(Display.ItemDisplay.class::isInstance).map(Display.ItemDisplay.class::cast).toList();require(supplies.size()==1,"one actual native supply display from egg callback");crate=supplies.getFirst();owned.add(crate);DisplayTransformChecks.pose(crate,0,.5f,0,1,1,1);
             require(crate.position().equals(Vec3.atBottomCenterOf(anchor.above()))&&crate.entityTags().contains("supply_drop")&&crate.entityTags().contains("new"),"native clicked/adjacent spawn position and authored display tags");authority(crate);
+            var chest=crate.blockPosition().above();
+            supplyContents=new ItemStack(Items.DIAMOND,19);
+            supplyContents.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("supply crate impact chest"));
+            level.setBlock(chest,Blocks.CHEST.defaultBlockState(),818);
+            ((net.minecraft.world.Container)level.getBlockEntity(chest)).setItem(0,supplyContents.copy());
             require(score(crate,"supplyFall")==0,"beacon starts original zero counter, no accelerated fixture clock");fall=0;start=phase=game.server().getTickCount();game.items().timeStop().begin(level,100);stopOwned=true;stage=-1;require(game.items().timeStop().frozen(crate),"native TimeStop captures accepted beacon display");
         }
         int score(Entity entity,String objective){return game.items().mana().score(entity,objective).get();}
@@ -132,8 +138,32 @@ public final class ShishEncounterChecks {
             move(owner,origin);move(beta,origin.add(0,0,8));
         }
         void move(ServerPlayer player,Vec3 at){player.teleportTo(level,at.x,at.y,at.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);player.setKnownMovement(Vec3.ZERO);if(player==owner)client.ack();else other.ack();}
-        List<Entity> newEntities(Runnable action){var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(before::add);try{action.run();}finally{level.getAllEntities().forEach(e->{if(!before.contains(e))owned.add(e);});}return owned.stream().filter(e->!before.contains(e)).toList();}
+        List<Entity> newEntities(Runnable action) {
+            var before = Collections.newSetFromMap(new IdentityHashMap<Entity, Boolean>());
+            level.getAllEntities().forEach(before::add);
+            var published = new ArrayList<Entity>();
+            try {
+                action.run();
+            } finally {
+                for (var entity : level.getAllEntities()) {
+                    if (before.contains(entity)) continue;
+                    published.add(entity);
+                    owned.add(entity);
+                }
+            }
+            return published;
+        }
         net.minecraft.nbt.CompoundTag nbt(Entity entity){var out=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess());entity.saveWithoutId(out);return out.buildResult();}
+        void checkSupplyChest() {
+            var chest = crate.blockPosition().above();
+            require(level.getBlockState(chest).is(Blocks.BARRIER), "actual beacon landing replaces the upper chest cell");
+            var dropped = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                    new AABB(chest).inflate(1), item -> ItemStack.isSameItemSameComponents(supplyContents,item.getItem()));
+            owned.addAll(dropped);
+            require(dropped.stream().mapToInt(item -> item.getItem().getCount()).sum() == 19,
+                    "native beacon landing ejects all contents of the replaced chest exactly once");
+            dropped.forEach(Entity::discard);
+        }
         void opened(){
             require(level.getBlockState(crate.blockPosition()).is(Blocks.BARRIER)&&level.getBlockState(crate.blockPosition().above()).is(Blocks.BARRIER),"actual source150 placed two strict barrier cells");
             var outputs=game.items().shishEncounter().snapshot();owned.addAll(outputs);var interaction=outputs.stream().filter(e->e.getType()==EntityTypes.INTERACTION).findFirst().orElseThrow();authority(interaction);
@@ -321,7 +351,7 @@ public final class ShishEncounterChecks {
         void beginYellow(){reset();owner.setItemInHand(InteractionHand.MAIN_HAND,yellow.copy());equipmentUpdate(owner);require(owner.entityTags().contains("yellow_lightning_active")&&owner.entityTags().contains("yellow_lightning"),"actual equipment callback admits authored hotbar/weapon passive");yellowOrigin=origin;phase=game.server().getTickCount();stage=1;}
         boolean step(){client.ack();other.ack();int elapsed=game.server().getTickCount()-phase;require(game.server().getTickCount()-start<590,"bounded actual native tick timeout");
             if(stage==-1){if(elapsed<5)return false;require(score(crate,"supplyFall")==0&&crate.entityTags().contains("new"),"five real TimeStop ticks pause native pending supply clock");game.items().timeStop().end(level);stopOwned=false;phase=game.server().getTickCount();stage=0;return false;}
-            if(stage==0){int now=score(crate,"supplyFall");require(now>=fall&&now-fall<=2,"actual one-crate source scheduled tick plus one-second fanout");fall=now;if(crate.entityTags().contains("new")){require(elapsed<240,"actual native beacon reaches source200 without synthetic clock");return false;}require(now==200,"actual source200 opens once");opened();return false;}
+            if(stage==0){int now=score(crate,"supplyFall");require(now>=fall&&now-fall<=2,"actual one-crate source scheduled tick plus one-second fanout");if(fall<150&&now>=150)checkSupplyChest();fall=now;if(crate.entityTags().contains("new")){require(elapsed<240,"actual native beacon reaches source200 without synthetic clock");return false;}require(now==200,"actual source200 opens once");opened();return false;}
             if(stage==9){if(elapsed<2)return false;resumeCyborg();return false;}
             if(stage==4){
                 int cooldown=score(regularCyborg,"cyborgBossFly");

@@ -174,7 +174,7 @@ public final class LbcDefensiveArcanums {
                 ()->kills.trapChanges(world,cause,()->{
                     for(var pos:BlockPos.betweenClosed(first,last)){
                         if(world.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null)continue;
-                        if(!world.getBlockState(pos).isAir())world.setBlock(pos,Blocks.AIR.defaultBlockState(),STRICT_FLAGS);
+                        if(!world.getBlockState(pos).isAir())LbcDropBlocks.setBlockPreservingInventory(world,pos,Blocks.AIR.defaultBlockState(),STRICT_FLAGS);
                     }
                 }));
     }

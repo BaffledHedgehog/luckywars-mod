@@ -2,9 +2,14 @@ package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -15,9 +20,25 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.ComparatorBlock;
+import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity;
+import net.minecraft.world.level.block.entity.ComparatorBlockEntity;
+import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+import net.minecraft.world.level.block.entity.LecternBlockEntity;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
@@ -52,7 +73,7 @@ public final class AcademySingleUseChecks {
         final List<ScheduledTick<Fluid>> fluidTicks=new ArrayList<>();
         final Map<BlockPos,net.minecraft.world.level.block.state.BlockState> overlapBackground=new LinkedHashMap<>();
         final int alphaChallenge,betaChallenge,alphaProgress,betaProgress;
-        final boolean alphaGround,betaGround;
+        final boolean alphaGround,betaGround,testPlacementDrops;
         School first,second,normal,overlappingToken,overlappingBase;
         BlockPos edited,stray;
         ItemStack pendingBeta;
@@ -65,6 +86,7 @@ public final class AcademySingleUseChecks {
         }
         Fixture(GameController game,boolean stopIsolation) {
             this.game=game;level=game.maps().level();academy=game.items().academy();epoch=game.items().epoch();
+            testPlacementDrops=!stopIsolation;
             alpha=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             beta=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(game.playing() && alpha!=null && beta!=null && game.canUseGameplayItems(alpha)
@@ -118,7 +140,8 @@ public final class AcademySingleUseChecks {
                 player.teleportTo(level,base.getX()+6,base.getY()+2,base.getZ()+6,Set.of(),0,0,true);
                 game.players().get(player.getUUID()).lbcChallenge=0;
             }
-            first=build(base,true);second=build(base.offset(16,0,0),true);normal=build(base.offset(32,0,0),false);
+            first=testPlacementDrops ? buildOverInventories() : build(base,true);
+            second=build(base.offset(16,0,0),true);normal=build(base.offset(32,0,0),false);
             require(first.label.getText().getContents() instanceof TranslatableContents tr
                     && tr.getKey().equals(LbcAcademy.SINGLE_USE_WELCOME)
                     && tr.getFallback()!=null && tr.getFallback().equals("Single-use Academy of Magic"),"exact one-use label and human fallback");
@@ -131,6 +154,138 @@ public final class AcademySingleUseChecks {
             level.setBlock(edited,Blocks.GOLD_BLOCK.defaultBlockState(),818);
             level.setBlock(stray,Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE).defaultBlockState(),818);
         }
+        School buildOverInventories() {
+            int quiet = Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
+            var left = base.offset(5,1,4);
+            var leftState = Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING,Direction.NORTH)
+                    .setValue(ChestBlock.TYPE,ChestType.LEFT);
+            var right = left.relative(ChestBlock.getConnectedDirection(leftState));
+            level.setBlock(left,leftState,quiet);
+            level.setBlock(right,leftState.setValue(ChestBlock.TYPE,ChestType.RIGHT),quiet);
+            var joined = ChestBlock.getContainer((ChestBlock)Blocks.CHEST,leftState,level,left,true);
+            require(joined!=null && joined.getContainerSize()==54,"actual native double chest before assembly");
+            var firstHalf = (ChestBlockEntity)level.getBlockEntity(left);
+            var secondHalf = (ChestBlockEntity)level.getBlockEntity(right);
+            loadInventory(firstHalf,"{Items:[{Slot:0b,id:'minecraft:diamond_pickaxe',count:64,components:{'minecraft:damage':17}}]}");
+            var wide = firstHalf.getItem(0).copy();
+            require(wide.getCount()==64 && wide.getMaxStackSize()==1 && wide.getDamageValue()==17,"real old overstored tool slot");
+            var gems = new ItemStack(Items.AMETHYST_SHARD,7);
+            secondHalf.setItem(0,gems.copy());
+
+            var lazy = base.offset(5,1,6);
+            var untouched = base.offset(-1,1,8);
+            level.setBlock(lazy,Blocks.CHEST.defaultBlockState(),quiet);
+            level.setBlock(untouched,Blocks.CHEST.defaultBlockState(),quiet);
+            var loot = ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("minecraft:chests/igloo_chest"));
+            var unopened = (ChestBlockEntity)level.getBlockEntity(lazy);
+            var untouchedBox = (ChestBlockEntity)level.getBlockEntity(untouched);
+            unopened.setLootTable(loot,174329);
+            untouchedBox.setLootTable(loot,174329);
+
+            var shulkerPos = base.offset(6,1,6);
+            level.setBlock(shulkerPos,Blocks.SHULKER_BOX.defaultBlockState(),quiet);
+            var shulker = (ShulkerBoxBlockEntity)level.getBlockEntity(shulkerPos);
+            loadInventory(shulker,"{Items:[{Slot:9b,id:'minecraft:golden_pickaxe',count:36,components:{'minecraft:damage':11}}]}");
+            var packed = shulker.getItem(9).copy();
+            require(packed.getCount()==36 && packed.getMaxStackSize()==1 && packed.getDamageValue()==11,"real shulker stored slot starts intact");
+
+            var potPos = base.offset(7,1,4);
+            level.setBlock(potPos,Blocks.DECORATED_POT.defaultBlockState(),quiet);
+            var pot = (DecoratedPotBlockEntity)level.getBlockEntity(potPos);
+            loadInventory(pot,"{item:{id:'minecraft:brick',count:70}}");
+            var potItems = pot.getTheItem().copy();
+            require(potItems.is(Items.BRICK) && potItems.getCount()==70,"native pot loads the complete stored stack");
+
+            var shelfPos = base.offset(8,1,4);
+            level.setBlock(shelfPos,Blocks.CHISELED_BOOKSHELF.defaultBlockState(),quiet);
+            var shelf = (ChiseledBookShelfBlockEntity)level.getBlockEntity(shelfPos);
+            loadInventory(shelf,"{Items:[{Slot:0b,id:'minecraft:book',count:5}]}");
+            var shelfBooks = shelf.getItem(0).copy();
+            require(shelfBooks.is(Items.BOOK) && shelfBooks.getCount()==5 && shelf.getMaxStackSize()==1,
+                    "native chiseled shelf loads the full stack above its slot limit");
+
+            var jukeboxPos = base.offset(9,1,4);
+            level.setBlock(jukeboxPos,Blocks.JUKEBOX.defaultBlockState(),quiet);
+            var jukebox = (JukeboxBlockEntity)level.getBlockEntity(jukeboxPos);
+            var disc = new ItemStack(Items.MUSIC_DISC_13);
+            jukebox.setTheItem(disc.copy());
+            require(jukebox.getSongPlayer().isPlaying(),"native jukebox plays before the overwrite");
+
+            var lecternPos = base.offset(10,1,4);
+            level.setBlock(lecternPos,Blocks.LECTERN.defaultBlockState(),quiet);
+            var lectern = (LecternBlockEntity)level.getBlockEntity(lecternPos);
+            var lecternBook = new ItemStack(Items.WRITABLE_BOOK);
+            lecternBook.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("academy fixture book"));
+            require(LecternBlock.tryPlaceBook(null,level,lecternPos,level.getBlockState(lecternPos),lecternBook.copy()),
+                    "native interaction places a real book on the lectern");
+
+            // The terminal cell's old comparator signal must reach a diode two blocks away
+            // through a solid intermediary. Neither comparator nor intermediary is in the template.
+            var signalChest = base.offset(0,1,3);
+            var conductor = signalChest.west();
+            var comparatorPos = conductor.west();
+            level.setBlock(signalChest,Blocks.CHEST.defaultBlockState(),quiet);
+            ((ChestBlockEntity)level.getBlockEntity(signalChest)).setItem(0,new ItemStack(Items.COPPER_INGOT,64));
+            level.setBlock(conductor,Blocks.STONE.defaultBlockState(),quiet);
+            level.setBlock(comparatorPos.below(),Blocks.STONE.defaultBlockState(),quiet);
+            level.setBlock(comparatorPos,Blocks.COMPARATOR.defaultBlockState().setValue(ComparatorBlock.FACING,Direction.EAST)
+                    .setValue(ComparatorBlock.POWERED,true),quiet);
+            ((ComparatorBlockEntity)level.getBlockEntity(comparatorPos)).setOutputSignal(1);
+            require(!level.getBlockTicks().hasScheduledTick(comparatorPos,Blocks.COMPARATOR),"no preexisting comparator task");
+
+            require(unopened.getLootTable()==loot && untouchedBox.getLootTable()==loot,"loot tables stay ungenerated before any write");
+            School school;
+            long jukeboxStops;
+            try (var client = new RegenerationBeltChecks.ScheduledClient(game,alpha)) {
+                school = build(base,true);
+                jukeboxStops = SmokeVolumeChecks.flatten(client.packets()).stream()
+                        .filter(packet->packet instanceof ClientboundLevelEventPacket event
+                                && event.getType()==LevelEvent.SOUND_STOP_JUKEBOX_SONG && event.getPos().equals(jukeboxPos))
+                        .count();
+            }
+            require(firstHalf.isRemoved() && secondHalf.isRemoved() && unopened.isRemoved() && shulker.isRemoved(),
+                    "real token placement removed the actual physical inventory blocks");
+            require(pot.isRemoved() && shelf.isRemoved() && jukebox.isRemoved() && lectern.isRemoved(),
+                    "the same real token placement overwrites pot, shelf, jukebox, and lectern");
+            var drops = owned.stream().filter(ItemEntity.class::isInstance).map(ItemEntity.class::cast)
+                    .filter(item->!item.isRemoved()).toList();
+            int potCount = dropCount(drops,potItems), shelfCount = dropCount(drops,shelfBooks);
+            require(potCount==70 && shelfCount==5 && jukeboxStops==1,
+                    "committed overwrite recovers the complete pot/shelf stacks and emits one native jukebox stop"
+                            + " (pot="+potCount+", shelf="+shelfCount+", stop packets="+jukeboxStops+")");
+            require(dropCount(drops,disc)==1 && dropCount(drops,lecternBook)==1,
+                    "jukebox record and valid named lectern book each eject exactly once");
+            require(dropCount(drops,wide)==64 && dropCount(drops,gems)==7,
+                    "native token placement ejects both double chest halves exactly once, preserving tool count/components");
+            require(drops.stream().filter(item->item.getItem().is(Items.GOLDEN_APPLE)).mapToInt(item->item.getItem().getCount()).sum()==1
+                            && unopened.getLootTable()==null && level.getBlockEntity(untouched)==untouchedBox && untouchedBox.getLootTable()==loot,
+                    "removed lazy chest generates once and unwritten lazy chest stays untouched");
+            var boxes = drops.stream().map(ItemEntity::getItem).filter(item->item.is(Items.SHULKER_BOX)).toList();
+            require(boxes.size()==1 && boxes.getFirst().getCount()==1 && dropCount(drops,packed)==0,
+                    "replaced shulker emits exactly one packed box without duplicate loose contents");
+            var slots = NonNullList.withSize(27,ItemStack.EMPTY);
+            boxes.getFirst().getOrDefault(DataComponents.CONTAINER,ItemContainerContents.EMPTY).copyInto(slots);
+            require(ItemStack.matches(slots.get(9),packed),"packed shulker retains exact authored overstack without clamping");
+            require(level.getBlockTicks().hasScheduledTick(comparatorPos,Blocks.COMPARATOR),
+                    "actual overwrite queues the old chest comparator update through a solid block");
+            drops.forEach(Entity::discard);
+            return school;
+        }
+
+        private void loadInventory(net.minecraft.world.level.block.entity.BlockEntity container,String nbt) {
+            try {
+                container.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),
+                        TagParser.parseCompoundFully(nbt)));
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException error) {
+                throw new IllegalStateException(error);
+            }
+        }
+
+        private int dropCount(List<ItemEntity> drops,ItemStack stack) {
+            return drops.stream().filter(item->ItemStack.isSameItemSameComponents(item.getItem(),stack))
+                    .mapToInt(item->item.getItem().getCount()).sum();
+        }
+
         School build(BlockPos origin,boolean token) {
             Vec3 source=Vec3.atLowerCornerOf(origin.offset(6,token?1:0,6)).add(.25,.25,.75);
             var loot=game.lbc().rollTable(level,source,alpha,token?"lbc:ported/academy_token":"lbc:ported/magic_academy_drop");

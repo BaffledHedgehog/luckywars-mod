@@ -100,7 +100,7 @@ public final class LbcNexusWires {
             var future=loads.computeIfAbsent(chunk,c->level.getChunkSource().addTicketAndLoadWithRadius(GATEWAY_TICKET,c.pos(),0));
             if(!future.isDone()||level.getChunkSource().getChunkNow(chunk.pos().x(),chunk.pos().z())==null)continue;
             game.items().indirectKills().capturedWorldChanges(level,gateway.cause,()->{
-                LbcDropBlocks.setBlock(level,gateway.position,Blocks.END_GATEWAY.defaultBlockState(),false);
+                LbcDropBlocks.setBlockPreservingInventory(level,gateway.position,Blocks.END_GATEWAY.defaultBlockState(),false);
                 if(level.getBlockEntity(gateway.position) instanceof TheEndGatewayBlockEntity entity)entity.setExitPosition(new BlockPos(1,15000000,1),true);
             });it.remove();
         }

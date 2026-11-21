@@ -118,12 +118,20 @@ final class LbcWall {
         placeBricks(game,owner,cells);
     }
 
-    /** Сохраняется исходный #airs, включая жидкости/растения; твёрдые блоки и контейнеры не заменяются. */
+    /** Исходный #airs включает жидкости, растения и варочную стойку. */
     private static void placeBricks(GameController game,ServerPlayer owner,Iterable<BlockPos> cells) {
+        var level=owner.level();
+        var bricks=Blocks.BRICKS.defaultBlockState();
+        int flags=Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
+                | Block.UPDATE_SUPPRESS_DROPS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
         game.items().indirectKills().trapChanges(owner,()-> {
-            for(var pos:cells) if(owner.level().hasChunkAt(pos) && owner.level().getBlockState(pos).is(AIRS))
-                owner.level().setBlock(pos,Blocks.BRICKS.defaultBlockState(),Block.UPDATE_CLIENTS
-                        |Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS);
+            for(var pos:cells) {
+                if(!level.hasChunkAt(pos)) continue;
+                var old=level.getBlockState(pos);
+                if(!old.is(AIRS)) continue;
+                if(old.hasBlockEntity()) LbcDropBlocks.setBlockPreservingInventory(level,pos,bricks,flags);
+                else level.setBlock(pos,bricks,flags);
+            }
         });
         LbcOverload.sound(owner,"minecraft:block.stone.place",1,1,0);
     }

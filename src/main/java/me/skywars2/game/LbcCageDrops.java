@@ -159,22 +159,22 @@ public final class LbcCageDrops {
     private static void geometry(ServerLevel level, BlockPos center, LbcCageDropItem.Kind kind) {
         if (level.isDebug()) return;
         if (kind == LbcCageDropItem.Kind.OBSIDIAN) {
-            LbcDropBlocks.fill(level, center.offset(-1,-1,-1), center.offset(1,2,1), Blocks.OBSIDIAN, true);
-            LbcDropBlocks.fill(level, center, center.above(), Blocks.WATER, false);
-            LbcDropBlocks.fill(level, center.offset(1,1,0), center.offset(1,1,0), Blocks.GLASS, true);
-            LbcDropBlocks.fill(level, center.offset(0,1,1), center.offset(0,1,1), Blocks.GLASS, true);
-            LbcDropBlocks.fill(level, center.offset(-1,1,0), center.offset(-1,1,0), Blocks.GLASS, true);
-            LbcDropBlocks.fill(level, center.offset(0,1,-1), center.offset(0,1,-1), Blocks.GLASS, true);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(-1,-1,-1), center.offset(1,2,1), Blocks.OBSIDIAN, true);
+            LbcDropBlocks.fillPreservingInventory(level, center, center.above(), Blocks.WATER, false);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(1,1,0), center.offset(1,1,0), Blocks.GLASS, true);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(0,1,1), center.offset(0,1,1), Blocks.GLASS, true);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(-1,1,0), center.offset(-1,1,0), Blocks.GLASS, true);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(0,1,-1), center.offset(0,1,-1), Blocks.GLASS, true);
         } else {
-            LbcDropBlocks.fill(level, center.offset(-1,-1,-1), center.offset(1,-1,1), Blocks.STONE_BRICKS, false);
-            LbcDropBlocks.fill(level, center.offset(-1,0,-1), center.offset(1,3,1), Blocks.IRON_BARS, false);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(-1,-1,-1), center.offset(1,-1,1), Blocks.STONE_BRICKS, false);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(-1,0,-1), center.offset(1,3,1), Blocks.IRON_BARS, false);
             if (kind == LbcCageDropItem.Kind.LAVA) {
-                LbcDropBlocks.fill(level, center, center.above(2), Blocks.AIR, false);
-                LbcDropBlocks.fill(level, center.above(3), center.above(3), Blocks.LAVA, false);
+                LbcDropBlocks.fillPreservingInventory(level, center, center.above(2), Blocks.AIR, false);
+                LbcDropBlocks.fillPreservingInventory(level, center.above(3), center.above(3), Blocks.LAVA, false);
             } else {
                 // The shaft only opens upward; the old absolute255 pass could erase the floor.
                 if (center.getY() <= level.getMaxY())
-                    LbcDropBlocks.fill(level, center, new BlockPos(center.getX(),level.getMaxY(),center.getZ()), Blocks.AIR, false);
+                    LbcDropBlocks.fillPreservingInventory(level, center, new BlockPos(center.getX(),level.getMaxY(),center.getZ()), Blocks.AIR, false);
             }
         }
     }

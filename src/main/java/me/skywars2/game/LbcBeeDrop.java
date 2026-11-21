@@ -102,7 +102,11 @@ public final class LbcBeeDrop {
 
     private static void setBlock(ServerLevel level, BlockPos pos, BlockState state, boolean destroy) {
         if (level.isDebug() || level.isOutsideBuildHeight(pos)) return;
-        if (destroy) level.destroyBlock(pos,true);
+        if (!destroy) {
+            LbcDropBlocks.setBlockPreservingInventory(level,pos,state,false);
+            return;
+        }
+        level.destroyBlock(pos,true);
         var old = level.getBlockState(pos);
         if (new BlockInput(state,Set.of(),null).place(level,pos,258)) level.updateNeighboursOnBlockSet(pos,old);
     }

@@ -140,7 +140,7 @@ public final class LbcMagicBean {
     }
     private void grow(Bean bean,ServerLevel level){
         var marker=bean.marker;var origin=marker.position();var cell=BlockPos.containing(origin);
-        LbcDropBlocks.fill(level,cell.offset(-1,0,-1),cell.offset(1,0,1),Blocks.OAK_WOOD,true);
+        LbcDropBlocks.fillPreservingInventory(level,cell.offset(-1,0,-1),cell.offset(1,0,1),Blocks.OAK_WOOD,true);
         var random=level.getRandom();int x=cell.getX(),y=cell.getY(),z=cell.getZ();
         if(random.nextFloat()<.5f)x++;if(random.nextFloat()<.5f)x--;
         if(random.nextFloat()<.5f)z++;if(random.nextFloat()<.5f)z--;if(random.nextFloat()<.5f)y++;

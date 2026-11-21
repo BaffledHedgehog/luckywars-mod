@@ -1,13 +1,22 @@
 package me.skywars2.game;
 
+import java.util.Map;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Real one-step casts with misses measured from the native target's bounding box. */
@@ -42,8 +51,39 @@ public final class ProjectileSweepChecks {
                 }
             }
             directArcSamples(fixture, origin);
+            tinyTerraContainers(fixture, start);
         }
-        SkyWars2.LOGGER.info("[check] PASS projectile-sweep (real Electro, Terra, Volos and Doppel contacts on both flanks, out-of-range grazes, wall order and direct electric damage)");
+        SkyWars2.LOGGER.info("[check] PASS projectile-sweep (real Electro, Terra, Volos and Doppel contacts, out-of-range grazes, wall order, direct electric damage and both Tiny Terra container replacements)");
+    }
+
+    private static void tinyTerraContainers(WoolBucketChecks.Fixture fixture, BlockPos start) {
+        var wall = start.east(2);
+        var contents = Map.of(wall,new ItemStack(Items.DIAMOND,4),wall.above(),new ItemStack(Items.EMERALD,7));
+        for(var entry:contents.entrySet()){
+            var cell=entry.getKey();var goods=entry.getValue();
+            goods.set(DataComponents.CUSTOM_NAME,Component.literal("Tiny Terra container "+cell.getY()));
+            fixture.set(cell,Blocks.BARREL.defaultBlockState());
+            ((Container)fixture.level.getBlockEntity(cell)).setItem(8,goods.copy());
+        }
+        var owner=fixture.owner;
+        var eye=Vec3.atCenterOf(start);
+        fixture.move(owner,eye.subtract(0,owner.getEyeHeight(),0));
+        owner.setYRot(-90);owner.setXRot(0);
+        var wand=fixture.leaf("tiny_terra_wand");
+        owner.setItemInHand(InteractionHand.MAIN_HAND,wand);
+        fixture.game.items().mana().set(owner,10000);
+        require(owner.gameMode.useItem(owner,fixture.level,wand,InteractionHand.MAIN_HAND).consumesAction(),
+                "actual Tiny Terra main-hand ray reaches the two occupied cells");
+        require(fixture.level.getBlockState(wall).is(Blocks.MOSS_BLOCK)&&!fixture.level.getBlockState(wall.above()).is(Blocks.BARREL),
+                "native ray replaces the struck barrel and the barrel above it");
+        for(var entry:contents.entrySet()){
+            var goods=entry.getValue();
+            var drops=fixture.level.getEntitiesOfClass(ItemEntity.class,new AABB(entry.getKey()),
+                    item->ItemStack.isSameItemSameComponents(item.getItem(),goods));
+            drops.forEach(fixture::own);
+            require(drops.size()==1&&ItemStack.matches(drops.getFirst().getItem(),goods),
+                    "exact displaced Tiny Terra contents at "+entry.getKey());
+        }
     }
 
     private static void scenario(WoolBucketChecks.Fixture fixture, Shot shot, Vec3 origin, double gap, boolean expectHit, String description) {

@@ -92,8 +92,8 @@ public final class LbcNovemberLightsabers {
             var blue = BlockPos.containing(new LocalCoordinates(1, 0, 2).getPosition(source));
             var red = BlockPos.containing(new LocalCoordinates(-1, 0, 2).getPosition(source));
             game.items().indirectKills().worldChanges(player.level(), player, () -> {
-                LbcDropBlocks.setBlock(player.level(), blue, Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.BLUE).defaultBlockState(), false);
-                LbcDropBlocks.setBlock(player.level(), red, Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.RED).defaultBlockState(), false);
+                LbcDropBlocks.setBlockPreservingInventory(player.level(), blue, Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.BLUE).defaultBlockState(), false);
+                LbcDropBlocks.setBlockPreservingInventory(player.level(), red, Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.RED).defaultBlockState(), false);
             });
         }
         LbcPhantomArmor.used(player, InteractionResult.SUCCESS);

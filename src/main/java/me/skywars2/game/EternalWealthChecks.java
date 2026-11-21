@@ -3,7 +3,9 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -37,8 +39,18 @@ public final class EternalWealthChecks {
                 require(item instanceof eu.pb4.polymer.core.api.item.PolymerItem,"one native Polymer identity per variant");
             require(!net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(net.minecraft.resources.Identifier.parse("skywars2:greedstone_cursed_block")),"curse has no separate block registry identity: terrain uses ordinary Lucky Blocks");
             var token=new ItemEntity(base.owner.level(),base.at.x,base.at.y,base.at.z,new ItemStack(LbcEternalWealthItems.DROP));
+            var containerAt=token.blockPosition();
+            base.block(containerAt,Blocks.BARREL);
+            var goods=new ItemStack(Items.EMERALD,9);
+            goods.set(DataComponents.CUSTOM_NAME,Component.literal("Greedstone base barrel"));
+            ((net.minecraft.world.Container)base.owner.level().getBlockEntity(containerAt)).setItem(8,goods.copy());
             game.items().markCurrentItemEpoch(token);base.owner.level().addFreshEntity(token);
             require(game.items().specialDrops().spawn(token),"actual source dispatcher activates the airborne normal drop");
+            var displaced=base.owner.level().getEntitiesOfClass(ItemEntity.class,new AABB(containerAt),
+                    item->ItemStack.isSameItemSameComponents(item.getItem(),goods));
+            require(base.owner.level().getBlockState(containerAt).is(Blocks.GOLD_BLOCK)&&displaced.size()==1
+                    &&ItemStack.matches(displaced.getFirst().getItem(),goods),"actual frame base releases the exact replaced inventory once");
+            displaced.getFirst().discard();
             var frames=base.owner.level().getEntitiesOfClass(ItemFrame.class,new AABB(base.at,base.at).inflate(3),f->LbcEternalWealthItems.isStone(f.getItem()));
             require(frames.size()==1&&frames.getFirst().isInvisible(),"source invisible glow frame contains actual Greedstone");
             frames.getFirst().setItem(ItemStack.EMPTY);frames.getFirst().discard();

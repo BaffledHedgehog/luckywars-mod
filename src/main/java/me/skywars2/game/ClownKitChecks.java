@@ -19,6 +19,7 @@ import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -90,12 +91,22 @@ public final class ClownKitChecks {
         void grave(){
             clean();platform();
             for(boolean raw:new boolean[]{false,true})for(var hand:InteractionHand.values()){
-                position(p,f.at);var original=p.position();var block=BlockPos.containing(original);f.level.setBlock(block,Blocks.AIR.defaultBlockState(),2|16|32);f.level.setBlock(block.above(),Blocks.AIR.defaultBlockState(),2|16|32);
+                position(p,f.at);var original=p.position();var block=BlockPos.containing(original);f.level.setBlock(block,Blocks.AIR.defaultBlockState(),2|16|32);f.level.setBlock(block.above(),Blocks.CHEST.defaultBlockState(),2|16|32);
+                var contents = new ItemStack(Items.DIAMOND,17);
+                contents.set(DataComponents.CUSTOM_NAME,Component.literal("false grave chest"));
+                ((net.minecraft.world.Container)f.level.getBlockEntity(block.above())).setItem(0,contents.copy());
                 var s=held("false_grave",hand,raw);var opposite=hand==InteractionHand.MAIN_HAND?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND;p.setItemInHand(opposite,new ItemStack(Items.STICK,7));
                 var momentum=new Vec3(.21,.17,-.13);p.setDeltaMovement(momentum);p.setYRot(33);p.setXRot(-17);long balls=snowballs();int arrows=arrows().size();
                 require(input(hand,raw)&&s.getCount()==1&&p.getItemInHand(opposite).getCount()==7,"native/raw actual used-hand grave debit "+hand+" raw="+raw);
                 require(snowballs()==balls&&arrows().size()==arrows,"immediate grave never creates throw transport");
                 require(f.level.getBlockState(block).is(Blocks.CHISELED_BOOKSHELF)&&f.level.getBlockState(block.above()).is(Blocks.BARREL),"grave remains at old source command position");
+                var released = f.level.getEntitiesOfClass(ItemEntity.class,
+                        new net.minecraft.world.phys.AABB(block.above()).inflate(1),
+                        item -> ItemStack.isSameItemSameComponents(contents,item.getItem()));
+                actors.addAll(released);
+                require(released.stream().mapToInt(item -> item.getItem().getCount()).sum()==17,
+                        "native grave decoy ejects the complete replaced chest inventory once "+hand+" raw="+raw);
+                released.forEach(Entity::discard);
                 var dest=p.position();require(Math.abs(dest.x-original.x)<=15.01&&Math.abs(dest.z-original.z)<=15.01&&!BlockPos.containing(dest).equals(block)&&f.level.noCollision(p)&&f.level.getBlockState(p.blockPosition().below()).isSolid(),"real safe random destination within source15");
                 require(p.getDeltaMovement().distanceToSqr(momentum)<1e-10&&p.getYRot()==33&&p.getXRot()==-17,"momentum and free camera retained");client.acknowledge();
             }

@@ -1168,7 +1168,8 @@ for(double step=0;step<=distance;step+=.5) {
         if(!level.hasChunkAt(pos) || !level.isInValidBounds(pos)) return;
         var old=level.getBlockState(pos);
         // Нативные setblock flags 258, включая обновление соседей после успешной замены.
-        if(level.setBlock(pos,block.defaultBlockState(),Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS))
+        if(LbcDropBlocks.setBlockPreservingInventory(level,pos,block.defaultBlockState(),
+                Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS))
             level.updateNeighboursOnBlockSet(pos,old);
     }
     /** От блока дуга уходит по наружной нормали грани; попадание в существо сохраняет направление выстрела. */
@@ -1793,7 +1794,7 @@ for(int i=0;i<=100 && i<boundary;i++) {
                 game.items().trinkets().spawn(rocket);
             }
             case STONE -> {
-                game.items().indirectKills().fillTrap(player,BlockPos.containing(point.add(-1,-1,-1)),
+                game.items().indirectKills().fillTrapPreservingInventory(player,BlockPos.containing(point.add(-1,-1,-1)),
                         BlockPos.containing(point.add(1,1,1)),Blocks.STONE.defaultBlockState());
             }
             case TELEPORT -> {

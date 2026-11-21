@@ -118,7 +118,7 @@ public final class LbcShishEncounter {
         if(count<=150)particles(level,new DustParticleOptions(0x4cb2ff,.8f),at.add(0,60,0),30,0,16,0,0,true);
         if(count==100)sound(level,at,"minecraft:lbcsounds.supply_fall",5,1);
         if(count>=146&&count<=149)particles(level,ParticleTypes.CLOUD,at.add(0,(150-count)*30,0),200,.5,20,.5,0,true);
-        if(count==150){display.setItemStack(model(Items.REPEATING_COMMAND_BLOCK,"lbc:supply_crate"));particles(level,ParticleTypes.CLOUD,at.add(0,1,0),1000,2,1,2,0,true);game.items().indirectKills().trapChanges(level,state.authority.cause(),()->LbcDropBlocks.fill(level,display.blockPosition(),display.blockPosition().above(),Blocks.BARRIER,true));hurtAround(display,state,3,10);hurtAround(display,state,1,900);}
+        if(count==150){display.setItemStack(model(Items.REPEATING_COMMAND_BLOCK,"lbc:supply_crate"));particles(level,ParticleTypes.CLOUD,at.add(0,1,0),1000,2,1,2,0,true);game.items().indirectKills().trapChanges(level,state.authority.cause(),()->LbcDropBlocks.fillPreservingInventory(level,display.blockPosition(),display.blockPosition().above(),Blocks.BARRIER,true));hurtAround(display,state,3,10);hurtAround(display,state,1,900);}
         if(count==200)open(display,state);
         if(count<=200){supplyDue=1;supplyIssued=game.server().getTickCount();}
     }

@@ -74,7 +74,7 @@ public final class LbcFallingNetheriteDrops {
         level.sendParticles(ParticleTypes.SMOKE, kind == LbcFallingNetheriteDropItem.Kind.OLD, false,
                 token.getX(), token.getY() + 7, token.getZ(), 300, .3, 6, .3, 0);
         Runnable writes = () -> {
-            if (!level.isDebug()) LbcDropBlocks.fill(level, center, center.above(15), Blocks.AIR,
+            if (!level.isDebug()) LbcDropBlocks.fillPreservingInventory(level, center, center.above(15), Blocks.AIR,
                     kind == LbcFallingNetheriteDropItem.Kind.NORMAL);
         };
         if (cause instanceof ServerPlayer player) game.items().indirectKills().trapChanges(level, player, true, writes);

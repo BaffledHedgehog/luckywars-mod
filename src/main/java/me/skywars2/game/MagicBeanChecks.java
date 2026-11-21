@@ -115,7 +115,21 @@ public final class MagicBeanChecks {
         }
         void causality(){
             var marker=spawn(origin);var cow=new Cow(EntityTypes.COW,level);cow.setPos(center.getX()+.5,center.getY()-1,center.getZ()+.5);cow.setNoAi(true);cow.setNoGravity(true);require(level.addFreshEntity(cow),"native terrain suffocation witness");cows.add(cow);
-            var work=enqueue(marker);try(var script=new Draws(level,.75f,.75f,.75f,.75f,.75f,.5f)){execute(work);}
+            var chest=center.offset(1,0,-1);
+            var packed=new ItemStack(Items.DIAMOND,14);
+            packed.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("growing bean chest"));
+            level.setBlock(chest,Blocks.CHEST.defaultBlockState(),818);
+            ((ChestBlockEntity)level.getBlockEntity(chest)).setItem(0,packed.copy());
+            var work=enqueue(marker);try(var script=new Draws(level,.75f,.75f,.75f,.75f,.75f,.5f)){execute(work);
+                require(script.used==6 && script.total==6 && marker.position().equals(Vec3.atLowerCornerOf(center)),
+                        "overwriting a chest preserves the six native growth draws and exact movement");
+            }
+            require(level.getBlockState(chest).is(Blocks.OAK_WOOD),"growing trunk replaces the chest in the actual 3x3 footprint");
+            var dropped=level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(chest).inflate(1),
+                    item->ItemStack.isSameItemSameComponents(packed,item.getItem()));
+            require(dropped.stream().mapToInt(item->item.getItem().getCount()).sum()==14,
+                    "actual bean growth releases the complete old chest inventory once");
+            dropped.forEach(Entity::discard);
             require(level.getBlockState(BlockPos.containing(cow.getEyePosition())).is(Blocks.OAK_WOOD),"native witness eye is inside own bean wood");
             require(cow.hurtServer(level,cow.damageSources().inWall(),1)&&cow.getKillCredit()==owner,"actual native suffocation inherits bean wearer");clear();restoreBlocks();
         }

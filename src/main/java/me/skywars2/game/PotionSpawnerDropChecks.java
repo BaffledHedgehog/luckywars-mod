@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
@@ -99,7 +101,28 @@ public final class PotionSpawnerDropChecks {
         void presentation(){for(var kind:LbcPotionSpawnerDropItem.Kind.values()){var s=new ItemStack(kind.item());var data=s.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();require(data.size()==2 && data.getIntOr(kind==LbcPotionSpawnerDropItem.Kind.NORMAL?"badspawner":"badspawner_old",0)==1 && data.getIntOr("drop",0)==1,"source flags "+kind);if(kind==LbcPotionSpawnerDropItem.Kind.NORMAL)require(net.minecraft.resources.Identifier.parse("lbc:drop_trap").equals(s.get(DataComponents.ITEM_MODEL)) && net.minecraft.resources.Identifier.parse("lbc:tier_ff").equals(s.get(DataComponents.TOOLTIP_STYLE)) && s.getHoverName().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents name && name.getKey().equals("trap_potions") && !s.getHoverName().getStyle().isItalic() && s.getHoverName().getStyle().getColor().getValue()==0xffff55,"normal source presentation");else require(net.minecraft.resources.Identifier.parse("minecraft:barrier").equals(s.get(DataComponents.ITEM_MODEL)) && !s.has(DataComponents.CUSTOM_NAME) && !s.has(DataComponents.TOOLTIP_STYLE) && s.getOrDefault(DataComponents.LORE,net.minecraft.world.item.component.ItemLore.EMPTY).lines().isEmpty(),"plain legacy barrier presentation");if(kind==LbcPotionSpawnerDropItem.Kind.NORMAL){var lore=s.getOrDefault(DataComponents.LORE,net.minecraft.world.item.component.ItemLore.EMPTY).lines();require(lore.size()==1 && lore.getFirst().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents row && row.getKey().equals("trap_desc") && !lore.getFirst().getStyle().isItalic() && lore.getFirst().getStyle().getColor().getValue()==0xffffff,"source white nonitalic lore");}var loot=game.lbc().rollTable(level,origin,alpha,kind==LbcPotionSpawnerDropItem.Kind.NORMAL?"lbc:ported/potion_spawner_drop":"lbc:ported/potion_spawner_drop_old");require(loot.size()==1 && loot.getFirst().getCount()==1 && ItemStack.isSameItemSameComponents(s,loot.getFirst()),"complete public leaf "+kind);}}
         void guards(){var stale=drop(LbcPotionSpawnerDropItem.Kind.NORMAL,2);stale.entityTags().add("skywars2.items.stale-fixture");require(!game.items().specialDrops().spawn(stale) && stale.getItem().getCount()==2,"stale token no debit");stale.discard();var fake=drop(LbcPotionSpawnerDropItem.Kind.NORMAL,2);fake.makeFakeItem();require(!game.items().specialDrops().spawn(fake),"native give visual no activation");fake.discard();var remote=drop(LbcPotionSpawnerDropItem.Kind.NORMAL,2);int x=(producerPos.getX()>>4)+128,z=(producerPos.getZ()>>4)+128;while(level.getChunkSource().getChunkNow(x,z)!=null)x+=128;remote.setPos(x*16+8,origin.y,z*16+8);require(!game.items().specialDrops().spawn(remote) && remote.getItem().getCount()==2 && level.getChunkSource().getChunkNow(x,z)==null,"unresident token does not load or debit");remote.discard();}
         boolean step(){require(game.playing(),"actual match retained");int now=game.server().getTickCount();if(now==lastTick)return false;lastTick=now;switch(phase){
-            case 0->{presentation();guards();for(var kind:LbcPotionSpawnerDropItem.Kind.values())config(batch(kind),kind);nativeSemantics(producer);producer=persistence(producer);effects(producer);protections(producer);clearActors();level.setBlock(producerPos,Blocks.CHEST.defaultBlockState(),818);var c=(net.minecraft.world.Container)level.getBlockEntity(producerPos);c.setItem(0,new ItemStack(Items.DIAMOND,7));var t=drop(LbcPotionSpawnerDropItem.Kind.NORMAL,2);var data=t.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();data.putInt("badspawner_old",1);t.getItem().set(DataComponents.CUSTOM_DATA,CustomData.of(data));require(game.items().specialDrops().spawn(t) && t.getItem().getCount()==1,"both flags one debit");t.discard();producer=(SpawnerBlockEntity)level.getBlockEntity(producerPos);config(producer,LbcPotionSpawnerDropItem.Kind.OLD);require(level.getBlockEntity(producerPos) instanceof SpawnerBlockEntity,"native replace creates fresh producer payload");for(var e:level.getAllEntities())if(!existing.contains(e) && e instanceof ItemEntity item)require(!item.getItem().is(Items.DIAMOND),"native ordinary replace flags do not eject old container");level.setBlock(producerPos,Blocks.AIR.defaultBlockState(),818);stack=drop(LbcPotionSpawnerDropItem.Kind.NORMAL,2);phase++;}
+            case 0->{
+                presentation();guards();
+                for(var kind:LbcPotionSpawnerDropItem.Kind.values())config(batch(kind),kind);
+                nativeSemantics(producer);producer=persistence(producer);effects(producer);protections(producer);clearActors();
+                level.setBlock(producerPos,Blocks.CHEST.defaultBlockState(),818);
+                var goods=new ItemStack(Items.DIAMOND,7);
+                goods.set(DataComponents.CUSTOM_NAME,Component.literal("Potion spawner chest"));
+                ((net.minecraft.world.Container)level.getBlockEntity(producerPos)).setItem(0,goods.copy());
+                var t=drop(LbcPotionSpawnerDropItem.Kind.NORMAL,2);
+                var data=t.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+                data.putInt("badspawner_old",1);t.getItem().set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+                require(game.items().specialDrops().spawn(t)&&t.getItem().getCount()==1,"both flags one debit");t.discard();
+                require(level.getBlockEntity(producerPos) instanceof SpawnerBlockEntity,"native replace creates fresh producer payload");
+                producer=(SpawnerBlockEntity)level.getBlockEntity(producerPos);config(producer,LbcPotionSpawnerDropItem.Kind.OLD);
+                var displaced=level.getEntitiesOfClass(ItemEntity.class,new AABB(producerPos),
+                        item->!existing.contains(item)&&ItemStack.isSameItemSameComponents(item.getItem(),goods));
+                require(displaced.size()==1&&ItemStack.matches(displaced.getFirst().getItem(),goods),
+                        "native potion spawner releases the exact displaced chest contents once");
+                displaced.getFirst().discard();
+                level.setBlock(producerPos,Blocks.AIR.defaultBlockState(),818);
+                stack=drop(LbcPotionSpawnerDropItem.Kind.NORMAL,2);phase++;
+            }
             case 1->{require(stack.getItem().getCount()==1 && level.getBlockEntity(producerPos) instanceof SpawnerBlockEntity,"first actual tick creates producer and debits one");phase++;}
             case 2->{require(stack.isRemoved(),"next actual tick consumes final unit");producer=(SpawnerBlockEntity)level.getBlockEntity(producerPos);frozen=emit(producer,11);frozenPosition=frozen.position();delay(producer,0);game.items().timeStop().begin(level,200);paused=drop(LbcPotionSpawnerDropItem.Kind.OLD,2);phase++;}
             case 3->{require(paused.getItem().getCount()==2 && !frozen.isRemoved() && frozen.position().distanceTo(frozenPosition)<1e-8 && saved(producer).getIntOr("Delay",-1)==0,"native producer countdown, actor motion and pending debit freeze");if(++wait>=3){paused.discard();game.items().timeStop().end(level);clearActors();level.setBlock(producerPos,Blocks.AIR.defaultBlockState(),818);unloaded=drop(LbcPotionSpawnerDropItem.Kind.NORMAL,2);game.items().specialDrops().unloaded(unloaded);phase++;}}

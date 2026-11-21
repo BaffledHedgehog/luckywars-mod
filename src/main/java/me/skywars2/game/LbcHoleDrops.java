@@ -48,15 +48,15 @@ public final class LbcHoleDrops {
     private static void geometry(ServerLevel level, BlockPos center, LbcHoleDropItem.Kind kind) {
         if (level.isDebug()) return;
         boolean strict = kind == LbcHoleDropItem.Kind.NORMAL;
-        LbcDropBlocks.fill(level, center.offset(1, 0, 1), center.offset(-1, -15, -1), Blocks.AIR, strict);
-        LbcDropBlocks.fill(level, center.offset(1, -16, 1), center.offset(-1, -16, -1), Blocks.COBWEB, strict);
+        LbcDropBlocks.fillPreservingInventory(level, center.offset(1, 0, 1), center.offset(-1, -15, -1), Blocks.AIR, strict);
+        LbcDropBlocks.fillPreservingInventory(level, center.offset(1, -16, 1), center.offset(-1, -16, -1), Blocks.COBWEB, strict);
         if (strict) {
-            LbcDropBlocks.fill(level, center.offset(1, -18, 1), center.offset(-1, -18, -1), Blocks.OAK_LOG, true);
-            LbcDropBlocks.fill(level, center.offset(1, -19, 1), center.offset(-1, -19, -1), Blocks.COBBLESTONE, true);
-            LbcDropBlocks.fill(level, center.offset(1, -17, 1), center.offset(-1, -17, -1), Blocks.FIRE, true);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(1, -18, 1), center.offset(-1, -18, -1), Blocks.OAK_LOG, true);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(1, -19, 1), center.offset(-1, -19, -1), Blocks.COBBLESTONE, true);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(1, -17, 1), center.offset(-1, -17, -1), Blocks.FIRE, true);
         } else {
-            LbcDropBlocks.fill(level, center.offset(1, -18, 1), center.offset(-1, -18, -1), Blocks.SOUL_SOIL, false);
-            LbcDropBlocks.fill(level, center.offset(1, -17, 1), center.offset(-1, -17, -1), Blocks.SOUL_FIRE, false);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(1, -18, 1), center.offset(-1, -18, -1), Blocks.SOUL_SOIL, false);
+            LbcDropBlocks.fillPreservingInventory(level, center.offset(1, -17, 1), center.offset(-1, -17, -1), Blocks.SOUL_FIRE, false);
         }
     }
 }

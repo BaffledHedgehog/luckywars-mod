@@ -189,8 +189,8 @@ final class LbcAcidCorruption {
         if(c.age>=(c.ball?400:300))c.discard();
     }
     private static void erase(ServerLevel level,BlockPos p){
-        if(level.getBlockEntity(p) instanceof net.minecraft.world.Container container)container.clearContent();
-        level.setBlock(p,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE
+        LbcDropBlocks.setBlockPreservingInventory(level,p,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),
+                Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE
                 |Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE);
     }
     private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e);}

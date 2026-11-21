@@ -64,7 +64,7 @@ public final class LbcOpAnvilDrop {
         var level=(ServerLevel)token.level();var center=token.blockPosition();
         var cause=game.items().specialDrops().owner(token);
         game.items().indirectKills().worldChanges(level,cause,true,()->{
-            if(!level.isDebug())LbcDropBlocks.fill(level,center,BlockPos.containing(token.position().add(0,5,0)),
+            if(!level.isDebug())LbcDropBlocks.fillPreservingInventory(level,center,BlockPos.containing(token.position().add(0,5,0)),
                     Blocks.AIR,kind==LbcOpAnvilDropItem.Kind.NORMAL);
         });
         var fallingPos=token.position().add(0,5,0);

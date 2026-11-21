@@ -150,7 +150,7 @@ public final class HoleDropChecks {
                 var gem=new ItemStack(Items.DIAMOND,7);gem.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("hole replacement probe"));
                 ((net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(pos)).setItem(0,gem.copy());
                 int before=count(gem);batch(kind);
-                require(level.getBlockEntity(pos)==null && level.getBlockState(pos).isAir() && count(gem)==before,"native fill skips BE side effects/no inventory ejection "+kind);
+                require(level.getBlockEntity(pos)==null && level.getBlockState(pos).isAir() && count(gem)==before+7,"native bounded hole fill ejects the old inventory once "+kind);
             }
         }
         int count(ItemStack stack){int n=0;for(var e:level.getAllEntities())if(e instanceof ItemEntity item && ItemStack.isSameItemSameComponents(item.getItem(),stack))n+=item.getItem().getCount();return n;}

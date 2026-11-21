@@ -2049,13 +2049,39 @@ public final class MapManager {
         placeMapSlice(world,template,origin,settings,seed,MAP_WRITE_FLAGS);
     }
 
+    List<LbcDropBlocks.ContainerReplacement> gameplayInventories(ServerLevel world, BoundingBox bounds) {
+        var found = new ArrayList<LbcDropBlocks.ContainerReplacement>();
+        for (var pos : BlockPos.betweenClosed(bounds.minX(), bounds.minY(), bounds.minZ(),
+                bounds.maxX(), bounds.maxY(), bounds.maxZ())) {
+            if (world == level && lobbyOverlayActive && insideLobby(pos)) continue;
+            var inventory = LbcDropBlocks.inventoryAt(world, pos, world.getBlockState(pos));
+            if (inventory != null) found.add(inventory);
+        }
+        return found;
+    }
+
+    void placeGameplayMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
+                               StructurePlaceSettings settings, long seed) {
+        // Arena edits and the resulting neighbor changes belong in the ordinary terrain journal.
+        // Keep the temporary lobby overlay on its existing isolated placement path.
+        boolean gameplay = world != level || !lobbyOverlayActive;
+        int flags = gameplay ? Block.UPDATE_ALL | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS : MAP_WRITE_FLAGS;
+        placeMapSlice(world, template, origin, settings, seed, flags, gameplay);
+    }
+
     private void placeMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
                                StructurePlaceSettings settings,long seed,int writeFlags) {
-        placingMapSlice = true;
+        placeMapSlice(world, template, origin, settings, seed, writeFlags, false);
+    }
+
+    private void placeMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
+                               StructurePlaceSettings settings, long seed, int writeFlags, boolean journalGameplayWrites) {
+        boolean previousPlacement = placingMapSlice;
+        placingMapSlice = !journalGameplayWrites;
         try {
             template.placeInWorld(world, origin, origin, settings, RandomSource.create(seed), writeFlags);
         } finally {
-            placingMapSlice = false;
+            placingMapSlice = previousPlacement;
             try {
                 if (lobbyOverlayActive) {
                     for (BlockPos pos : List.copyOf(mapWritesUnderLobby)) {

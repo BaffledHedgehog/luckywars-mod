@@ -38,6 +38,14 @@ import java.util.function.BooleanSupplier;
 public final class LbcIndirectKills {
     /** Общий fill strict для ловушек с авторством последующего удушения от их блоков. */
     void fillTrap(ServerPlayer owner, BlockPos first, BlockPos last, BlockState state) {
+        fillTrap(owner, first, last, state, false);
+    }
+
+    void fillTrapPreservingInventory(ServerPlayer owner, BlockPos first, BlockPos last, BlockState state) {
+        fillTrap(owner, first, last, state, true);
+    }
+
+    private void fillTrap(ServerPlayer owner, BlockPos first, BlockPos last, BlockState state, boolean preserveInventory) {
         var level=game.items().spellSources().level(owner);
         int flags=net.minecraft.world.level.block.Block.UPDATE_CLIENTS | net.minecraft.world.level.block.Block.UPDATE_KNOWN_SHAPE
                 | net.minecraft.world.level.block.Block.UPDATE_SUPPRESS_DROPS
@@ -47,7 +55,9 @@ public final class LbcIndirectKills {
             if(!level.hasChunkAt(pos)) continue;
             var old=level.getBlockState(pos);
             if(old==state) continue;
-            if(level.setBlock(pos,state,flags) && state.isSuffocating(level,pos)
+            boolean written = preserveInventory && old.hasBlockEntity() ? LbcDropBlocks.setBlockPreservingInventory(level,pos,state,flags)
+                    : level.setBlock(pos,state,flags);
+            if(written && state.isSuffocating(level,pos)
                     && !old.isSuffocating(level,pos)) stonePlaced(level,pos,owner);
         }
     }

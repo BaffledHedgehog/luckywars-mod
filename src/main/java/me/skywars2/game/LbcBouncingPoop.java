@@ -113,7 +113,7 @@ public final class LbcBouncingPoop {
         var hits=level.getEntitiesOfClass(LivingEntity.class,sweep,e->target(d,e)
                 &&(e.getBoundingBox().inflate(.25).contains(before)||e.getBoundingBox().inflate(.25).clip(before,next).isPresent()));
         if(!hits.isEmpty()){
-            game.items().indirectKills().trapChanges(level,cause(d),()->LbcDropBlocks.setBlock(level,BlockPos.containing(next),Blocks.DIRT.defaultBlockState(),false));
+            game.items().indirectKills().trapChanges(level,cause(d),()->LbcDropBlocks.setBlockPreservingInventory(level,BlockPos.containing(next),Blocks.DIRT.defaultBlockState(),false));
             for(var hit:hits){if(hit instanceof ServerPlayer player&&!game.items().magic().rejectEffect(player,MobEffects.NAUSEA))hit.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,300,0),actor);
                 hit.addEffect(ItemEffectLevels.create(MobEffects.WITHER,60,10),actor);}
             sound(level,next);if(d.getBooleanOr("mega",false))mega(actor,d,next);retire(actor);continue;

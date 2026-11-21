@@ -108,6 +108,18 @@ public final class HomeDropChecks {
             if(!fixture.containsKey(pos))fixture.put(pos,game.maps().snapshot(pos));
             level.setBlock(pos,state,818);
         }
+        void requireContents(BlockPos pos, int count, String context) {
+            var contents = level.getEntitiesOfClass(ItemEntity.class, new net.minecraft.world.phys.AABB(pos).inflate(1),
+                    item -> item.getItem().is(Items.DIAMOND) && item.getItem().getHoverName().getString().equals(context));
+            int released = contents.stream().mapToInt(item -> item.getItem().getCount()).sum();
+            contents.forEach(Entity::discard);
+            require(released == count, "native home clearance ejects the exact inventory once: "+context);
+        }
+        ItemStack contents(int count, String context) {
+            var stack = new ItemStack(Items.DIAMOND,count);
+            stack.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal(context));
+            return stack;
+        }
         void arrivalClearance(){
             var fixture=new LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
             var scale=beta.getAttribute(Attributes.SCALE);double previousScale=scale.getBaseValue();var previousPose=beta.getPose();
@@ -117,14 +129,14 @@ public final class HomeDropChecks {
                 fixtureBlock(fixture,center.above(),Blocks.STONE.defaultBlockState());
                 fixtureBlock(fixture,center.above(2),Blocks.STONE.defaultBlockState());
                 fixtureBlock(fixture,center.above(3),Blocks.CHEST.defaultBlockState());
-                ((net.minecraft.world.Container)level.getBlockEntity(center.above(3))).setItem(0,new ItemStack(Items.DIAMOND,11));
+                ((net.minecraft.world.Container)level.getBlockEntity(center.above(3))).setItem(0,contents(11,"home arrival chest"));
                 fixtureBlock(fixture,center,Blocks.GOLD_BLOCK.defaultBlockState());
                 fixtureBlock(fixture,center.offset(1,2,0),Blocks.GOLD_BLOCK.defaultBlockState());
                 use(beta,InteractionHand.MAIN_HAND,firstMirror,true);
                 require(level.getBlockState(center.above()).isAir() && level.getBlockState(center.above(2)).isAir()
                         && level.getBlockState(center.above(3)).isAir(),"arrival clears fractional standing head cell Y+3 immediately");
                 require(level.getBlockState(center).is(Blocks.GOLD_BLOCK) && level.getBlockState(center.offset(1,2,0)).is(Blocks.GOLD_BLOCK),"default arrival preserves floor and adjacent cells outside hitbox");
-                for(var e:level.getAllEntities())require(!(e instanceof ItemEntity i && i.getItem().is(Items.DIAMOND) && i.position().distanceTo(origin)<4),"arrival strict clearance suppresses container ejection");
+                requireContents(center.above(3),11,"home arrival chest");
                 fixtureBlock(fixture,center.above(3),Blocks.STONE.defaultBlockState());
                 beta.setPose(Pose.CROUCHING);beta.refreshDimensions();
                 require(beta.getPose()==Pose.CROUCHING && beta.getBbHeight()<1.8f,"native crouched arrival fixture");
@@ -183,7 +195,7 @@ public final class HomeDropChecks {
                 case 3->{
                     wait++;if(wait<20)require(level.getBlockState(center.below()).isAir(),"no early support renewal");
                     if(wait==20){require(level.getBlockState(center.below()).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE)) && level.getBlockState(center.above()).isAir() && level.getBlockState(center.above(2)).isAir(),"native first renewal exactly20 ticks");
-                        level.setBlock(center.below(),Blocks.STONE.defaultBlockState(),818);level.setBlock(center.above(),Blocks.CHEST.defaultBlockState(),818);((net.minecraft.world.Container)level.getBlockEntity(center.above())).setItem(0,new ItemStack(Items.DIAMOND,7));level.setBlock(center.above(2),Blocks.STONE.defaultBlockState(),818);
+                        level.setBlock(center.below(),Blocks.STONE.defaultBlockState(),818);level.setBlock(center.above(),Blocks.CHEST.defaultBlockState(),818);((net.minecraft.world.Container)level.getBlockEntity(center.above())).setItem(0,contents(7,"home renewal chest"));level.setBlock(center.above(2),Blocks.STONE.defaultBlockState(),818);
                         game.items().timeStop().begin(level,200);paused=drop(origin.add(2,0,0),2);wait=0;phase++;}
                 }
                 case 4->{
@@ -193,7 +205,7 @@ public final class HomeDropChecks {
                 case 5->{
                     if(++wait<20)require(level.getBlockState(center.above()).is(Blocks.CHEST),"paused ticks do not advance renewal");
                     if(wait==20){require(level.getBlockState(center.below()).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE)) && level.getBlockState(center.above()).isAir() && level.getBlockState(center.above(2)).isAir(),"recurring support and two-cell clearance after20 active ticks");
-                        for(var e:level.getAllEntities())require(!(e instanceof ItemEntity i && i.getItem().is(Items.DIAMOND) && i.position().distanceTo(origin)<4),"strict clearance suppresses replaced container ejection");unloaded=drop(origin.add(2,0,0),1);game.items().specialDrops().unloaded(unloaded);phase++;}
+                        requireContents(center.above(),7,"home renewal chest");unloaded=drop(origin.add(2,0,0),1);game.items().specialDrops().unloaded(unloaded);phase++;}
                 }
                 case 6->{require(!unloaded.isRemoved() && game.items().homes().count()==1,"unloaded pending token cannot activate");unloaded.discard();
                     suppressor=new Marker(EntityTypes.MARKER,level);suppressor.setPos(first.position());suppressor.entityTags().add("stopper_magic");require(level.addFreshEntity(suppressor),"real antimagic marker admission");phase++;}

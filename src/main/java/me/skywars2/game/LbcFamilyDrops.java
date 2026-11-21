@@ -220,10 +220,10 @@ public final class LbcFamilyDrops {
     private void mom(ArmorStand mom){
         var level=(ServerLevel)mom.level();var target=nearestPlayer(level,mom.position());
         if(target!=null){var delta=target.getEyePosition().subtract(mom.position());mom.setYRot((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));mom.setXRot((float)-Math.toDegrees(Math.atan2(delta.y,Math.sqrt(delta.x*delta.x+delta.z*delta.z))));}
-        // Source setblock deliberately replaces the occupied block, without destroying drops.
+        // The source replaces this one cell with fire without dropping the old block itself.
         var source=game.items().spellSources().source(mom);var cell=mom.blockPosition();boolean resident=true;
         for(int x=(cell.getX()-1)>>4;x<=(cell.getX()+1)>>4;x++)for(int z=(cell.getZ()-1)>>4;z<=(cell.getZ()+1)>>4;z++)if(level.getChunkSource().getChunkNow(x,z)==null)resident=false;
-        if(resident)game.items().indirectKills().capturedWorldChanges(level,source==null?null:source.cause(),()->LbcDropBlocks.setBlock(level,cell,Blocks.FIRE.defaultBlockState(),false));
+        if(resident)game.items().indirectKills().capturedWorldChanges(level,source==null?null:source.cause(),()->LbcDropBlocks.setBlockPreservingInventory(level,cell,Blocks.FIRE.defaultBlockState(),false));
         int id=level.getRandom().nextInt(6);var sound=SoundEvent.createVariableRangeEvent(Identifier.parse(switch(id){case 1,3->"minecraft:entity.cow.death";case 4,5->"minecraft:entity.sheep.death";default->"minecraft:entity.pig.death";}));
         var packet=new net.minecraft.network.protocol.game.ClientboundSoundPacket(net.minecraft.core.Holder.direct(sound),SoundSource.MASTER,mom.getX(),mom.getY(),mom.getZ(),1,id==2||id==3||id==5?.5f:0f,level.getRandom().nextLong());
         for(var viewer:game.server().getPlayerList().getPlayers())viewer.connection.send(packet);

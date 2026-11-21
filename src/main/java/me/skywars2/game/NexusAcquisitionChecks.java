@@ -113,8 +113,21 @@ public final class NexusAcquisitionChecks {
         void cages(){
             require(base.other.level()==home&&game.items().magic().artifactActive(base.other),"real ordinary-world artifact inventory activation");
             require(nexus.getBlockState(nexusMag).is(LbcMagic.MAGIC_BEACON_BLOCK)&&nexus.getBlockState(nexusTech).is(LbcMagic.MECHANISM_BEACON_BLOCK)&&Vec3.atCenterOf(nexusMag).distanceToSqr(base.owner.position())<400&&Vec3.atCenterOf(nexusTech).distanceToSqr(base.owner.position())<400,"Nexus cages run amid actual native MAG/TECH blocks; native suppression indexes the ordinary map");
+            var chest=BlockPos.containing(origin).offset(-1,0,1);
+            var packed=new ItemStack(Items.DIAMOND,23);
+            packed.set(DataComponents.CUSTOM_NAME,Component.literal("nexus cage chest"));
+            nexus.setBlock(chest,Blocks.CHEST.defaultBlockState(),818);
+            ((net.minecraft.world.Container)nexus.getBlockEntity(chest)).setItem(0,packed.copy());
             for(int color=1;color<=4;color++){
-                var c=cage(color,origin);var adjacent=cage(color,origin.add(1,0,0));
+                var c=cage(color,origin);
+                if(color==1){
+                    require(nexus.getBlockState(chest).isAir(),"actual cage acquisition clears the old chest cell");
+                    var released=drops().stream().filter(item->ItemStack.isSameItemSameComponents(packed,item.getItem())).toList();
+                    require(released.stream().mapToInt(item->item.getItem().getCount()).sum()==23,
+                            "actual Nexus cage ejects the entire replaced chest inventory once");
+                    released.forEach(Entity::discard);
+                }
+                var adjacent=cage(color,origin.add(1,0,0));
                 var expected=c.reward.getItemStack().copy();expected.set(DataComponents.CUSTOM_NAME,Component.literal("Exact native cage "+color));
                 expected.enchant(base.owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).getOrThrow(net.minecraft.world.item.enchantment.Enchantments.MENDING),3);
                 expected.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE,true);c.reward.setItemStack(expected.copy());

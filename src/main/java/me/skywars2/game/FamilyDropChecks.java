@@ -102,6 +102,23 @@ public final class FamilyDropChecks {
             var remote=token(new ItemStack(LbcFamilyDropItems.Kind.MOM.item(),2),at);int x=(BlockPos.containing(at).getX()>>4)+128,z=(BlockPos.containing(at).getZ()>>4)+128;while(base.level.getChunkSource().getChunkNow(x,z)!=null)x+=128;
             remote.setPos(x*16+8,at.y,z*16+8);require(!game.items().specialDrops().spawn(remote)&&remote.getItem().getCount()==2&&base.level.getChunkSource().getChunkNow(x,z)==null,"unresident input cannot load/debit");game.items().specialDrops().unloaded(remote);remote.discard();
         }
+        void momInventory() {
+            var mom=drop(LbcFamilyDropItems.Kind.MOM,at);
+            var cell=mom.blockPosition();
+            var support=cell.below();
+            var before=game.maps().snapshot(base.level,support);
+            base.level.setBlock(support,Blocks.NETHERRACK.defaultBlockState(),818);
+            try (var chest=new ContainerReplacementChecks(game,base.level,cell,"Mom fire pulse")) {
+                ticks(20);
+                require(base.level.getBlockState(cell).is(Blocks.FIRE) && !mom.isRemoved(),
+                        "actual Mom pulse lights the occupied cell while retaining Mom");
+                chest.requireReleased();
+            } finally {
+                mom.discard();
+                ticks(1);
+                game.maps().restoreSnapshot(base.level,support,before);
+            }
+        }
         Allay birth(){
             var mom=drop(LbcFamilyDropItems.Kind.MOM,at.add(2.49,0,0));var dad=drop(LbcFamilyDropItems.Kind.OTCHIM,at);identity(mom,true);identity(dad,false);
             var otherMom=drop(LbcFamilyDropItems.Kind.MOM,at.add(8,0,0));var otherDad=drop(LbcFamilyDropItems.Kind.OTCHIM,at.add(-8,0,0));
@@ -182,7 +199,7 @@ public final class FamilyDropChecks {
         }
         public void close(){if(closed)return;closed=true;try{field(false);game.items().timeStop().end(base.level);game.server().tickRateManager().setFrozen(frozen);if(!keep){family.stop();for(var e:owned){game.items().specialDrops().unloaded(e);game.server().getScoreboard().resetAllPlayerScores(e);e.discard();}}}finally{try{base.close();}finally{eggStats.forEach((stat,n)->base.base.owner.getStats().setValue(base.base.owner,stat,n));advancements.forEach((a,done)->{for(var key:a.value().criteria().keySet())if(done.contains(key))base.base.owner.getAdvancements().award(a,key);else base.base.owner.getAdvancements().revoke(a,key);});game.items().indirectKills().restoreTerrain(provenance);attribution.close();random.restore(base.level.getRandom());playerRandom.restore(base.base.owner.getRandom());betaRandom.restore(base.beta.getRandom());}}}
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.guards();var child=f.birth();f.cycle(child);f.movement(child);f.clocks(child);var actors=f.family.snapshot();f.family.stop();require(f.family.snapshot().isEmpty()&&actors.stream().allMatch(Entity::isRemoved),"service stop removes native actors and references");}SkyWars2.LOGGER.info("[check] PASS family-drops (shared token admission/debit, native parents/cause, datapack local real birth lightning, native three-block cycle, quantized player-follow motion/no invented attack, TimeStop/freeze, ungated parents/chat/hand cycle; source movement MAG, native saved clock import, quiet cleanup)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.guards();f.momInventory();var child=f.birth();f.cycle(child);f.movement(child);f.clocks(child);var actors=f.family.snapshot();f.family.stop();require(f.family.snapshot().isEmpty()&&actors.stream().allMatch(Entity::isRemoved),"service stop removes native actors and references");}SkyWars2.LOGGER.info("[check] PASS family-drops (shared token admission/debit, native parents/cause, datapack local real birth lightning, native three-block cycle, quantized player-follow motion/no invented attack, TimeStop/freeze, ungated parents/chat/hand cycle; source movement MAG, native saved clock import, quiet cleanup)");}
     public static void source(GameController game){try(var f=new Fixture(game)){f.sources();}SkyWars2.LOGGER.info("[check] PASS family-drop-source (root-linked canonical tokens; actual Mom pig/Otchim snow-golem egg use; native item intermediate and shared dispatcher)");}
     public static void stopProbe(GameController game){require(retained==null,"exclusive retained stop probe");var f=new Fixture(game);try{f.drop(LbcFamilyDropItems.Kind.MOM,f.at);f.drop(LbcFamilyDropItems.Kind.OTCHIM,f.at.add(8,0,0));stopActors=f.family.snapshot();stopEpoch=game.items().epoch();stopToken=f.token(new ItemStack(LbcFamilyDropItems.Kind.MOM.item(),3),f.at.add(0,4,0));game.items().specialDrops().unloaded(stopToken);f.keep=true;f.base.retain=true;f.base.base.retain=true;retained=f;}finally{f.close();}SkyWars2.LOGGER.info("[check] PASS family-drops-stop-probe");}
     public static void cleanup(GameController game){require(retained!=null,"retained actual-stop fixture");try{require(!game.items().currentEpoch(stopEpoch)&&game.items().familyDrops().snapshot().isEmpty()&&stopActors.stream().allMatch(Entity::isRemoved),"actual match stop clears epoch/native parents/service");require(stopToken.getItem().getCount()==3&&!game.items().specialDrops().spawn(stopToken),"old pending token cannot replay or debit");}finally{for(var e:retained.owned){game.items().specialDrops().unloaded(e);game.server().getScoreboard().resetAllPlayerScores(e);e.discard();}retained.base.restore();retained=null;stopToken=null;stopActors=List.of();stopEpoch=null;}SkyWars2.LOGGER.info("[check] PASS family-drops-cleanup");}

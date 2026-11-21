@@ -72,7 +72,7 @@ public final class LbcEternalWealth {
     boolean ready(ItemEntity token){return token.level() instanceof ServerLevel level&&resident(level,token.blockPosition(),1,false);}
     boolean spawn(ItemEntity token){
         if(!(token.level() instanceof ServerLevel level)||!resident(level,token.blockPosition(),1,false))return false;
-        var at=token.blockPosition();LbcDropBlocks.setBlock(level,at,Blocks.GOLD_BLOCK.defaultBlockState(),false);
+        var at=token.blockPosition();LbcDropBlocks.setBlockPreservingInventory(level,at,Blocks.GOLD_BLOCK.defaultBlockState(),false);
         var frame=new ItemFrame(EntityTypes.GLOW_ITEM_FRAME,level,at.above(),net.minecraft.core.Direction.UP);
         frame.setInvisible(true);frame.setGlowingTag(true);frame.setItem(new ItemStack(LbcEternalWealthItems.STONE));
         game.items().markCurrentItemEpoch(frame);level.addFreshEntity(frame);

@@ -363,7 +363,7 @@ for(int i=0;i<=2;i++) {
             target.hurtServer(trace.level,damage,8);
             if(!game.items().currentEpoch(trace.epoch) || game.stage()==GameController.Stage.ENDING) return;
             var center=target.blockPosition();
-            game.items().indirectKills().fillTrap(trace.owner,center.offset(-1,-1,-1),center.offset(1,2,1),
+            game.items().indirectKills().fillTrapPreservingInventory(trace.owner,center.offset(-1,-1,-1),center.offset(1,2,1),
                     net.minecraft.world.level.block.Blocks.DIRT.defaultBlockState());
         }
     }

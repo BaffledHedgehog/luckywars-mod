@@ -101,8 +101,13 @@ public final class LbcPotionSpawnerDrops {
             enrich(entry.getCompoundOrEmpty("data").getCompoundOrEmpty("entity"),metadata);
         game.items().indirectKills().worldChanges(level,cause,true,()-> {
             var old=level.getBlockState(pos);
-            if(new BlockInput(Blocks.SPAWNER.defaultBlockState(),Set.of(),tag).place(level,pos,258))
-                level.updateNeighboursOnBlockSet(pos,old);
+            var contents=LbcDropBlocks.inventoryAt(level,pos,old);
+            try {
+                if(new BlockInput(Blocks.SPAWNER.defaultBlockState(),Set.of(),tag).place(level,pos,258))
+                    level.updateNeighboursOnBlockSet(pos,old);
+            } finally {
+                if(contents!=null)contents.dropIfRemoved(level);
+            }
         });
         return true;
     }

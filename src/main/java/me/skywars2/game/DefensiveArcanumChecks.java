@@ -130,9 +130,22 @@ public final class DefensiveArcanumChecks {
             mana.set(owner,500);service.tickPlayer(owner);require(owner.getHealth()==14&&mana.get(owner)==0,"mainhand actual four HP instant heal for500");
             hands(null,"healing_arcanum");owner.setHealth(10);service.tickPlayer(owner);require(owner.getHealth()==14&&mana.get(owner)==9500,"offhand independent healing");service.tickPlayer(owner);require(owner.getHealth()==18&&mana.get(owner)==9000,"no cooldown on successive dispatch");
             hands("healing_arcanum","healing_arcanum");owner.setHealth(10);service.tickPlayer(owner);require(owner.getHealth()==18&&mana.get(owner)==9000,"two hands independently heal and pay");
-            // Isolated assertion for the author's fresh-health versus stale-score decision.
-            hands("healing_arcanum","healing_arcanum");owner.setHealth(19);service.tickPlayer(owner);require(owner.getHealth()==20&&mana.get(owner)==9500,"each hand rechecks current missing HP");
-            mana.set(owner,1000);service.tickPlayer(owner);require(owner.getHealth()==20&&mana.get(owner)==1000,"full HP never pays");
+            // The match can leave a native maximum-health modifier when we replace its base value.
+            // Keep this case exactly one point below the effective maximum, so only one hand pays.
+            hands("healing_arcanum","healing_arcanum");
+            var healthAttribute = owner.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+            float maximum = owner.getMaxHealth();
+            owner.setHealth(maximum - 1);
+            require(owner.getHealth() == maximum - 1 && owner.getHealth() < maximum,
+                    "fixture starts exactly one HP below the effective native maximum "+maximum);
+            service.tickPlayer(owner);
+            require(owner.getHealth() == maximum && mana.get(owner) == 9500,
+                    "each hand rechecks current missing HP: max="+maximum+" health="+owner.getHealth()+" mana="+mana.get(owner));
+            SkyWars2.LOGGER.info("[check] defensive-arcanums healing boundary base={} effective={} modifiers={} one charge",
+                    healthAttribute.getBaseValue(), maximum, healthAttribute.getModifiers());
+            mana.set(owner,1000);
+            service.tickPlayer(owner);
+            require(owner.getHealth() == maximum && mana.get(owner) == 1000, "full HP never pays");
             hands("healing_arcanum",null);revokeHeal();owner.setHealth(1.01f);service.tickPlayer(owner);require(!healedAdv(),"above one HP does not grant source advancement");
             owner.setHealth(1);owner.addEffect(new MobEffectInstance(MobEffects.ABSORPTION,200,0));require(owner.getAbsorptionAmount()>0,"native absorption effect actually supplies hearts");service.tickPlayer(owner);require(!healedAdv(),"source health objective includes absorption in advancement admission");
             owner.removeEffect(MobEffects.ABSORPTION);owner.setAbsorptionAmount(0);owner.setHealth(1);service.tickPlayer(owner);require(healedAdv()&&owner.getHealth()==5,"at one HP grants actual healing advancement");
@@ -174,7 +187,13 @@ public final class DefensiveArcanumChecks {
             var prior=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());owner.level().getAllEntities().forEach(prior::add);service.tickPlayer(owner);
             for(var p:BlockPos.betweenClosed(center.offset(-1,0,-1),center.offset(1,2,1)))require(owner.level().getBlockState(p).isAir(),"dual strict 3x3x3 cell "+p);
             require(owner.level().getBlockState(floor).is(Blocks.DIRT)&&owner.level().getBlockState(outside).is(Blocks.DIRT),"nonsneaking floor and outside remain");
-            for(var e:owner.level().getAllEntities())require(prior.contains(e)||!(e instanceof net.minecraft.world.entity.item.ItemEntity),"strict removal suppresses block and chest inventory drops");
+            int released = 0;
+            for (var e : owner.level().getAllEntities()) {
+                if (prior.contains(e) || !(e instanceof net.minecraft.world.entity.item.ItemEntity item)) continue;
+                require(item.getItem().is(Items.DIAMOND), "strict removal still suppresses ordinary block drops");
+                released += item.getItem().getCount();
+            }
+            require(released == 37, "the native dual-barrier clear ejects the complete replaced chest inventory once");
             // Standing victim loses real support to this holder's dual-barrier terrain operation.
             var victim=cow(Vec3.atBottomCenterOf(floor.above()));victim.setOnGround(true);owner.setShiftKeyDown(true);service.tickPlayer(owner);game.items().indirectKills().finishSupportRemoval();
             require(owner.level().getBlockState(floor).isAir()&&game.items().indirectKills().altitudeAuthor(victim)==owner,"sneaking floor removal retains barrier holder cause");

@@ -8,6 +8,7 @@ import java.util.Objects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -158,6 +159,11 @@ public final class LbcTeleportGadgets {
             if(other!=player&&eligible(other)&&!suppressed(other)&&!paused(other)&&!LbcGreed.active(other))candidates.add(other);
         return candidates;
     }
+    private static void writeLegacySwapBlock(ServerLevel level,BlockPos pos,BlockState state,int flags){
+        if(level.getBlockState(pos)==state && level.getBlockEntity(pos)==null)return;
+        LbcDropBlocks.setBlockPreservingInventory(level,pos,state,flags);
+    }
+
     private boolean legacySwap(ServerPlayer player,ItemStack stack){
         var level=player.level();
         var origin=player.position();
@@ -170,16 +176,15 @@ public final class LbcTeleportGadgets {
                 platform.offset(-1,0,1),platform.offset(1,0,-1))){
             if(!level.hasChunkAt(corner)||!level.getWorldBorder().isWithinBounds(corner))return false;
         }
-        var obsidian=new MapManager.BlockSnapshot(Blocks.OBSIDIAN.defaultBlockState(),null);
         final int flags=net.minecraft.world.level.block.Block.UPDATE_CLIENTS
                 |net.minecraft.world.level.block.Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
         var cause=game.items().indirectKills().wildCause(player);
         game.items().indirectKills().capturedWorldChanges(level,cause,()->{
             for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){
-                game.maps().restoreSnapshot(level,platform.offset(x,0,z),obsidian,flags);
+                writeLegacySwapBlock(level,platform.offset(x,0,z),Blocks.OBSIDIAN.defaultBlockState(),flags);
                 if(!high)
                     for(int y=0;y<3;y++)
-                        game.maps().restoreSnapshot(level,clearFrom.offset(x,y,z),MapManager.BlockSnapshot.air(),flags);
+                        writeLegacySwapBlock(level,clearFrom.offset(x,y,z),Blocks.AIR.defaultBlockState(),flags);
             }
         });
         if(high)level.sendParticles(ParticleTypes.PORTAL,origin.x,platformY,origin.z,50,.2,.4,.2,.3);

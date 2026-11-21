@@ -18,6 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
@@ -125,7 +126,28 @@ public final class FallingNetheriteDropChecks {
             for(var kind:LbcFallingNetheriteDropItem.Kind.values()){
                 for(int y=0;y<16;y++)level.setBlock(center.above(y),Blocks.STONE.defaultBlockState(),818);
                 level.setBlock(center.below(),Blocks.STONE.defaultBlockState(),818);level.setBlock(center.above(16),Blocks.STONE.defaultBlockState(),818);
+                var chest = center.above(2);
+                var fire = center.above(4);
+                var lectern = center.above(7);
+                var packed = new ItemStack(Items.DIAMOND, 7);
+                packed.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("netherite shaft chest"));
+                var cooking = new ItemStack(Items.POTATO);
+                cooking.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("netherite shaft campfire"));
+                level.setBlock(chest, Blocks.CHEST.defaultBlockState(), 818);
+                ((net.minecraft.world.Container) level.getBlockEntity(chest)).setItem(0, packed.copy());
+                level.setBlock(fire, Blocks.CAMPFIRE.defaultBlockState(), 818);
+                ((net.minecraft.world.level.block.entity.CampfireBlockEntity) level.getBlockEntity(fire))
+                        .getItems().set(0, cooking.copy());
+                var book = new ItemStack(Items.WRITABLE_BOOK);
+                book.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("netherite shaft lectern"));
+                level.setBlock(lectern, Blocks.LECTERN.defaultBlockState(), 818);
+                require(LecternBlock.tryPlaceBook(null, level, lectern, level.getBlockState(lectern), book.copy())
+                                && level.getBlockState(lectern).getValue(LecternBlock.HAS_BOOK),
+                        "native book insertion into the lectern");
                 batch(kind);for(int y=0;y<16;y++)require(level.getBlockState(center.above(y)).isAir(),"exact sixteen shaft cells "+kind);
+                requireDropped(chest, packed, "shaft preserves the replaced chest contents "+kind);
+                requireDropped(fire, cooking, "shaft preserves the campfire's cooking item "+kind);
+                requireDropped(lectern, book, "shaft preserves the inserted lectern book "+kind);
                 require(level.getBlockState(center.below()).is(Blocks.STONE) && level.getBlockState(center.above(16)).is(Blocks.STONE),"shaft vertical bounds "+kind);clear();
                 level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MAX_BLOCK_MODIFICATIONS,15,game.server());
                 try{level.setBlock(center.above(5),Blocks.STONE.defaultBlockState(),818);batch(kind);
@@ -133,6 +155,12 @@ public final class FallingNetheriteDropChecks {
                 }finally{clear();level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MAX_BLOCK_MODIFICATIONS,maxBlocks,game.server());}
             }
             for(int y=-1;y<=16;y++)level.setBlock(center.above(y),Blocks.AIR.defaultBlockState(),818);
+        }
+        void requireDropped(BlockPos pos, ItemStack stack, String message) {
+            var drops = level.getEntitiesOfClass(ItemEntity.class, new net.minecraft.world.phys.AABB(pos).inflate(1),
+                    item -> ItemStack.isSameItemSameComponents(stack, item.getItem()));
+            require(drops.stream().mapToInt(item -> item.getItem().getCount()).sum() == stack.getCount(), message);
+            drops.forEach(Entity::discard);
         }
         void beginFall(){
             for(int y=-34;y<=16;y++)level.setBlock(center.above(y),Blocks.AIR.defaultBlockState(),818);

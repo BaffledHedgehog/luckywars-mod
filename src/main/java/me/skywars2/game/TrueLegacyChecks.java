@@ -164,8 +164,8 @@ public final class TrueLegacyChecks {
         var edgeSwap=oldSwap.copy();
         float yaw=player.getYRot(),pitch=player.getXRot(),otherYaw=other.getYRot(),otherPitch=other.getXRot();
         ItemStack held=player.getMainHandItem();
-        try {
-            level.setBlock(feet.offset(1,1,1),Blocks.STONE.defaultBlockState(),2);
+        try (var platformChest=new ContainerReplacementChecks(game,level,floor.offset(1,0,-1),"legacy swap platform");
+             var clearanceChest=new ContainerReplacementChecks(game,level,feet.offset(1,1,1),"legacy swap arrival clearance")) {
             player.setItemInHand(InteractionHand.MAIN_HAND,oldSwap);
             client.packets().clear();
             require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker()
@@ -177,6 +177,8 @@ public final class TrueLegacyChecks {
             for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)
                 require(level.getBlockState(floor.offset(x,0,z)).is(Blocks.OBSIDIAN),"legacy swap leaves the full 3x3 obsidian platform");
             require(level.getBlockState(feet.offset(1,1,1)).isAir(),"legacy swap opens the arrival volume");
+            platformChest.requireReleased();
+            clearanceChest.requireReleased();
         } finally {
             tiles.forEach((pos,image)->game.maps().restoreSnapshot(level,pos,image));
             player.teleportTo(level,origin.x,origin.y,origin.z,java.util.Set.of(),yaw,pitch,true);

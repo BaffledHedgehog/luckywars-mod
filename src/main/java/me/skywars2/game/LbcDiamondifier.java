@@ -94,28 +94,34 @@ public final class LbcDiamondifier {
     }
     private void pulse(Actor actor,Vec3 origin){
         var pos=BlockPos.containing(origin);
-        if(!actor.active){
-            if(!game.items().writeOwnedTerrain(actor.level,pos,Blocks.DIAMOND_BLOCK.defaultBlockState(),actor.cause))return;
-            actor.active=true;actor.writes++;
-        }
-        // raycasters_1s increments Lifetime by 20 BEFORE dispatch: only Lifetime=20 fills.
-        if(actor.lifetime>=15&&actor.lifetime<=25){var fill=new Fill(actor,pos);fills.add(fill);game.items().stonekivi().queuedWork(fill);}
-        actor.pulses++;actor.level.sendParticles(DUST,origin.x,origin.y,origin.z,30,1,1,1,0);
-        for(var entity:actor.level.getEntities(actor.body,new AABB(origin,origin).inflate(15),e->candidate(e,origin))){
-            if(entity.isRemoved())continue;var targetPosition=entity.position();var child=Vec3.atCenterOf(entity.blockPosition());
-            // Admission belongs to deletion: protected family parts must never seed a child.
-            if(!policy.deletion(entity,actor.cause))continue;
-            actor.consumed++;
-            boolean nearby=false;for(var other:actors.values())if(other.level==actor.level&&!other.body.isRemoved()&&other.body.position().distanceToSqr(targetPosition)<=9){nearby=true;break;}
-            if(!nearby)spawn(actor.level,child,actor.epoch,actor.cause);
-        }
-        if(!actor.level.getBlockState(pos).is(Blocks.DIAMOND_BLOCK)){
-            var stack=egg.get();if(!stack.isEmpty()){
-                var item=new ItemEntity(actor.level,origin.x,origin.y,origin.z,stack.copy());
-                game.items().markCurrentItemEpoch(item);game.items().spellSources().bind(item,new LbcSpellSource.Source(actor.body.getUUID(),actor.cause.player(),actor.epoch,actor.cause,Set.of(),true));
-                actor.level.addFreshEntity(item);
+        var contents=actor.active?null:LbcDropBlocks.inventoryAt(actor.level,pos,actor.level.getBlockState(pos));
+        try {
+            if(!actor.active){
+                if(!game.items().writeOwnedTerrain(actor.level,pos,Blocks.DIAMOND_BLOCK.defaultBlockState(),actor.cause))return;
+                actor.active=true;actor.writes++;
             }
-            retire(actor);
+            // raycasters_1s increments Lifetime by 20 BEFORE dispatch: only Lifetime=20 fills.
+            if(actor.lifetime>=15&&actor.lifetime<=25){var fill=new Fill(actor,pos);fills.add(fill);game.items().stonekivi().queuedWork(fill);}
+            actor.pulses++;actor.level.sendParticles(DUST,origin.x,origin.y,origin.z,30,1,1,1,0);
+            for(var entity:actor.level.getEntities(actor.body,new AABB(origin,origin).inflate(15),e->candidate(e,origin))){
+                if(entity.isRemoved())continue;var targetPosition=entity.position();var child=Vec3.atCenterOf(entity.blockPosition());
+                // Admission belongs to deletion: protected family parts must never seed a child.
+                if(!policy.deletion(entity,actor.cause))continue;
+                actor.consumed++;
+                boolean nearby=false;for(var other:actors.values())if(other.level==actor.level&&!other.body.isRemoved()&&other.body.position().distanceToSqr(targetPosition)<=9){nearby=true;break;}
+                if(!nearby)spawn(actor.level,child,actor.epoch,actor.cause);
+            }
+            if(!actor.level.getBlockState(pos).is(Blocks.DIAMOND_BLOCK)){
+                var stack=egg.get();if(!stack.isEmpty()){
+                    var item=new ItemEntity(actor.level,origin.x,origin.y,origin.z,stack.copy());
+                    game.items().markCurrentItemEpoch(item);game.items().spellSources().bind(item,new LbcSpellSource.Source(actor.body.getUUID(),actor.cause.player(),actor.epoch,actor.cause,Set.of(),true));
+                    actor.level.addFreshEntity(item);
+                }
+                retire(actor);
+            }
+        } finally {
+            // Publish after the sweep, so the opening pulse cannot eat this same replacement's contents.
+            if(contents!=null)contents.dropIfRemoved(actor.level);
         }
     }
     private boolean candidate(Entity entity,Vec3 origin){

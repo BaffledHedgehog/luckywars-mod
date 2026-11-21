@@ -206,7 +206,7 @@ for(double step=0;step<=distance;step+=.5) {
                     charge.discard(); // Повторное попадание в собственные созданные блоки исключено.
                     if(!(hit instanceof BlockHitResult wall) || sourceLevel(owner).hasChunkAt(wall.getBlockPos())) {
                         if(charge.lifetime==80) {
-                            game.items().indirectKills().fillTrap(owner,BlockPos.containing(to.add(-1.5,-1.5,-1.5)),
+                            game.items().indirectKills().fillTrapPreservingInventory(owner,BlockPos.containing(to.add(-1.5,-1.5,-1.5)),
                                     BlockPos.containing(to.add(1.5,1.5,1.5)),Blocks.STONE.defaultBlockState());
                             sourceSound(owner,to,"minecraft:block.stone.place",1,1,0);
                         } else impact(owner,to,false);
@@ -238,7 +238,7 @@ for(double step=0;step<=distance;step+=.5) {
         for(int i=0;i<BRIDGE.length;i++) {
             var a=BlockPos.containing(origin.add(left.scale(-1)).add(forward.scale(i*2)));
             var b=BlockPos.containing(origin.add(left).add(forward.scale(i*2+2.9)));
-            game.items().indirectKills().fillTrap(owner,a,b,BRIDGE[i].defaultBlockState());
+            game.items().indirectKills().fillTrapPreservingInventory(owner,a,b,BRIDGE[i].defaultBlockState());
         }
     }
     public void stop() { var pending=List.copyOf(charges); charges.clear(); pending.forEach(Entity::discard); }

@@ -227,7 +227,7 @@ public final class LbcCorrosionDrops {
 
         void finish() {
             if (kind == LbcCorrosionDropItem.Kind.OLD && !level.isDebug())
-                LbcDropBlocks.fill(level, center, center.above(), Blocks.AIR, true);
+                LbcDropBlocks.fillPreservingInventory(level, center, center.above(), Blocks.AIR, true);
             if (kind == LbcCorrosionDropItem.Kind.OLD)
                 level.sendParticles(ParticleTypes.LARGE_SMOKE, point.x, point.y, point.z, 5000, 1, 1, 1, 1);
             else level.sendParticles(DUST, point.x, point.y, point.z, 300, 1, 1, 1, 1);
