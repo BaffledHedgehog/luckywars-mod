@@ -76,6 +76,8 @@ public final class TikTokPlaybackChecks {
         byte[] shapedPixels;
         int shapedPhase;
         long firstGameDelay, lastSlowReceipt;
+        long pipelineStarted;int pipelineFrames,pipelineCursor;
+        final Map<Integer,Long> pipelineReceipts=new LinkedHashMap<>();
         CompletableFuture<LinkSample> link;
         private record LinkSample(int videoBytes,long gameDelay) {}
         Fixture(GameController game)throws Exception{
@@ -214,7 +216,7 @@ public final class TikTokPlaybackChecks {
                     && f.client().packets().indexOf(frame)<f.client().packets().indexOf(probes.getLast()),"two native Ping packets bracket the actual frame");
             var gamePacket=new ClientboundSystemChatPacket(Component.literal("gameplay after video"),false);
             f.owner().connection.send(gamePacket);
-            require(f.client().packets().contains(gamePacket)&&!output.frameReady(),"gameplay is admitted while video is still unacknowledged");
+            require(f.client().packets().contains(gamePacket)&&output.outstandingFrames()==1,"gameplay is admitted while video is still unacknowledged");
             var encoded=NetworkTransportChecks.encode(f.owner(),List.of(probes.getFirst(),frame,probes.getLast(),gamePacket),true,256,false);
             require(encoded.frames()==4,"native compressed game and media frames");
             var pending=new CompletableFuture<LinkSample>();
@@ -311,6 +313,31 @@ public final class TikTokPlaybackChecks {
                     require(output.offerVanillaFrame(frame,System.nanoTime()+1_000_000_000L,()->true,16)
                             && output.vanillaPixelStep()==8,
                             "a fast receipt after cooldown restores quality one step at a time");
+                    echoMediaReceipts=false;f.client().packets().clear();pipelineStarted=System.nanoTime();
+                }
+                case 8->{
+                    long now=System.nanoTime();
+                    var received=pipelineReceipts.entrySet().iterator();while(received.hasNext()){
+                        var receipt=received.next();if(receipt.getValue()>now)continue;
+                        channel.writeInbound(new ServerboundPongPacket(receipt.getKey()));received.remove();
+                    }
+                    var packets=f.client().packets();
+                    while(pipelineCursor<packets.size()){
+                        var packet=packets.get(pipelineCursor++);if(packet instanceof ClientboundPingPacket ping)pipelineReceipts.put(ping.getId(),now+180_000_000L);
+                    }
+                    if(now-pipelineStarted<3_000_000_000L){
+                        if(output.vanillaFrameReady()){
+                            var frame=new ClientboundSetPlayerInventoryPacket(1,TikTokPlayback.frameStack(f.owner(),authored,TikTokPixels.encode(shapedPixels,output.vanillaPixelStep())));
+                            if(output.offerVanillaFrame(frame,now+500_000_000L,()->true,output.vanillaPixelStep()))pipelineFrames++;
+                        }
+                        require(output.outstandingFrames()<=4,"video backlog bounded during delayed client receipts");
+                        return false;
+                    }
+                    if(output.outstandingFrames()>0)return false;
+                    for(int receipt:pipelineReceipts.keySet())channel.writeInbound(new ServerboundPongPacket(receipt));pipelineReceipts.clear();
+                    require(pipelineFrames>=30,"180ms client RTT must not impose stop-and-wait playback: frames="+pipelineFrames);
+                    echoMediaReceipts=true;
+                    SkyWars2.LOGGER.info("[check] TikTok pipeline: {} frames in3seconds at180ms receipt latency, at most4 outstanding",pipelineFrames);
                     return true;
                 }
                 default->throw new IllegalStateException("unexpected shaped link phase");
@@ -407,14 +434,15 @@ public final class TikTokPlaybackChecks {
             }
             if (phase == 11) {
                 if (now - windowStarted < 350_000_000L) return false;
-                require(channel.isWritable() && frames(f.client().packets()).size() == 1,
-                        "OS acceptance without a client receipt admits only one video frame");
+                var output = TikTokOutput.forPlayer(f.owner());
+                int pendingFrames=frames(f.client().packets()).size();
+                require(channel.isWritable()&&output!=null&&pendingFrames>=1&&pendingFrames<=4&&pendingFrames==output.outstandingFrames(),
+                        "OS acceptance without client receipts cannot exceed the bounded adaptive video window");
                 var noise = SmokeVolumeChecks.flatten(f.client().packets()).stream()
                         .filter(ClientboundSoundEntityPacket.class::isInstance).map(ClientboundSoundEntityPacket.class::cast)
                         .filter(p -> p.getSound().value().location().getPath().startsWith("tiktok.v2.noise_")).count();
                 require(noise > 0 && noise <= 6 * 16, "independent bounded audio window: " + noise);
-                var output = TikTokOutput.forPlayer(f.owner());
-                require(output != null && !output.frameReady() && !output.soundReady(), "both media lanes wait for actual receipt");
+                require(!output.frameReady() && !output.soundReady(), "both media lanes wait for actual receipt");
                 var foreign = new ServerboundPongPacket(123);
                 channel.writeInbound(foreign);
                 require(channel.readInbound() == foreign && !output.frameReady(), "unrelated Pong still reaches the game handler");

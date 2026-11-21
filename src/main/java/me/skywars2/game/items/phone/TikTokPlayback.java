@@ -61,6 +61,7 @@ public final class TikTokPlayback implements AutoCloseable {
     private final ExecutorService reader=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64),
             r->{var t=new Thread(r,"skywars-tiktok-frames");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
     private boolean closed;
+    private int preloadTick;
     private final TikTokSoundClock audioClock=new TikTokSoundClock(id->inFlight.merge(id,1,Integer::sum),this::release);
     private final TikTokClientClock clientClock=new TikTokClientClock(id->inFlight.merge(id,1,Integer::sum),this::release);
 
@@ -168,6 +169,14 @@ public final class TikTokPlayback implements AutoCloseable {
 
     void tick(){
         if(closed)return;
+        if(++preloadTick%10==0){
+          clientClock.retainPreloads(server.getPlayerList().getPlayers().stream().map(ServerPlayer::getUUID).collect(java.util.stream.Collectors.toSet()));
+          for(var player:server.getPlayerList().getPlayers()){
+            if(player.isAlive()&&TikTokClientSupport.mp4(player)&&player.getInventory().contains(TikTokPlayback::phone))
+                clientClock.preload(player,cache.upcoming(history.getOrDefault(player.connection,"")));
+            else clientClock.endPreload(player);
+          }
+        }
         long now=System.nanoTime();
         for(var view:views.values()){
             var player=view.player;
@@ -185,12 +194,14 @@ public final class TikTokPlayback implements AutoCloseable {
                 for(int slot:prior)if(!current.contains(slot))original(player,slot);
                 publish(player,current);
             }
-            if (view.enhanced || TimeStopView.frozen(player) || !view.output.vanillaFrameReady()) continue;
+            if (view.enhanced || TimeStopView.frozen(player)) continue;
             long serial=Math.max(0,now-view.started)/FRAME_NANOS;
             if (view.pending != null && view.pending.isDone()) {
+                boolean ready=view.output.vanillaFrameReady();
                 try {
                     var result = view.pending.get();
-                    if (serial - result.serial <= 2) publishFrame(player, view, result);
+                    if(!ready&&serial-result.serial<=1)continue;
+                    if (ready&&serial - result.serial <= 2) publishFrame(player, view, result);
                 } catch (ExecutionException | CancellationException ignored) {
                     // Failed or retired reads drop a frame.
                 } catch (InterruptedException interrupted) {
@@ -199,7 +210,8 @@ public final class TikTokPlayback implements AutoCloseable {
                 }
                 view.pending = null;
             }
-            // Prefetch at most one newer frame while the sent frame awaits its receipt.
+            // Keep one fresh frame prepared during the RTT, instead of waiting for
+            // every receipt before starting the next disk read and palette encode.
             if(view.pending==null&&serial!=view.lastRead){
                 view.lastRead=serial;int frame=(int)(serial%view.clip.frames);
                 int pixelStep=view.output.vanillaPixelStep();

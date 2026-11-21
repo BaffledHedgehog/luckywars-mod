@@ -36,10 +36,53 @@ final class TikTokClientClock implements AutoCloseable {
         }
     }
     private final ConcurrentMap<UUID,Stream> streams=new ConcurrentHashMap<>();
+    private static final class Warm {
+        final ServerGamePacketListenerImpl listener;final java.util.List<String> ids;
+        final ConcurrentMap<String,MediaPackets.Link> ready=new ConcurrentHashMap<>();
+        final long created=System.nanoTime();volatile boolean active=true;
+        Warm(ServerPlayer player,java.util.List<TikTokMedia> clips){listener=player.connection;ids=clips.stream().map(c->c.id).toList();}
+    }
+    private final ConcurrentMap<UUID,Warm> warming=new ConcurrentHashMap<>();
     private final Consumer<String> pin,release;
     private final TikTokVelocityRelay relay = TikTokVelocityRelay.configured();
     private final ScheduledExecutorService clock=Executors.newSingleThreadScheduledExecutor(r->{var t=new Thread(r,"skywars-media-20hz");t.setDaemon(true);t.setPriority(Thread.MIN_PRIORITY);return t;});
     TikTokClientClock(Consumer<String> pin,Consumer<String> release){this.pin=pin;this.release=release;clock.scheduleAtFixedRate(this::pulse,0,50,TimeUnit.MILLISECONDS);}
+    void preload(ServerPlayer player,java.util.List<TikTokMedia> clips){
+        if(!TikTokClientSupport.mp4(player)||!net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(player,MediaPackets.Prefetch.TYPE))return;
+        var previous=warming.get(player.getUUID());var ids=clips.stream().map(c->c.id).toList();
+        if(previous!=null&&previous.listener==player.connection&&previous.ids.equals(ids)&&System.nanoTime()-previous.created<60_000_000_000L)return;
+        if(previous!=null)previous.active=false;
+        var warm=new Warm(player,clips);warming.put(player.getUUID(),warm);
+        if(clips.isEmpty()){warm.listener.send(new ClientboundCustomPayloadPacket(new MediaPackets.Prefetch(java.util.List.of())));return;}
+        for(var clip:clips){
+            String cdn=clip.cdnSource().map(source->source.uri().toASCIIString()).orElse("");
+            if(relay==null){if(!cdn.isEmpty())publishWarm(warm,clip.id,new MediaPackets.Link(UUID.randomUUID(),cdn,"",false));continue;}
+            pin.accept(clip.id);
+            relay.prepare(clip,true,true).whenComplete((delivery,error)->{
+                try{
+                    if(error==null)publishWarm(warm,clip.id,new MediaPackets.Link(UUID.randomUUID(),cdn,delivery.uri().toASCIIString(),delivery.mp4()));
+                    else if(!cdn.isEmpty())publishWarm(warm,clip.id,new MediaPackets.Link(UUID.randomUUID(),cdn,"",false));
+                }finally{release.accept(clip.id);}
+            });
+        }
+    }
+    private void publishWarm(Warm warm,String clip,MediaPackets.Link link){
+        synchronized(warm){
+            if(!warm.active)return;warm.ready.put(clip,link);
+            var player=warm.listener.player;var output=TikTokOutput.forPlayer(player);
+            if(player.connection!=warm.listener||output==null||!output.activeFor(player))return;
+            var ready=warm.ids.stream().map(warm.ready::get).filter(java.util.Objects::nonNull).toList();
+            warm.listener.send(new ClientboundCustomPayloadPacket(new MediaPackets.Prefetch(ready)));
+        }
+    }
+    void retainPreloads(java.util.Set<UUID> online){
+        warming.entrySet().removeIf(entry->{if(online.contains(entry.getKey()))return false;entry.getValue().active=false;return true;});
+    }
+    void endPreload(ServerPlayer player){
+        var warm=warming.remove(player.getUUID());if(warm==null)return;warm.active=false;
+        if(warm.listener==player.connection&&net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(player,MediaPackets.Prefetch.TYPE))
+            warm.listener.send(new ClientboundCustomPayloadPacket(new MediaPackets.Prefetch(java.util.List.of())));
+    }
     void play(ServerPlayer player, TikTokMedia clip, long now, TikTokOutput output) {
         if (!output.activeFor(player) || !TikTokClientSupport.enhanced(player)) return;
         var previous=streams.get(player.getUUID());
@@ -221,6 +264,6 @@ final class TikTokClientClock implements AutoCloseable {
             finally{release.accept(s.clip.id);}
         }
     }
-    void clear(){for(var s:streams.values())stop(s.player,s.listener);}
+    void clear(){for(var s:streams.values())stop(s.player,s.listener);for(var warm:warming.values())endPreload(warm.listener.player);warming.clear();}
     @Override public void close(){clear();if(relay!=null)relay.close();clock.shutdownNow();try{clock.awaitTermination(2,TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();}}
 }

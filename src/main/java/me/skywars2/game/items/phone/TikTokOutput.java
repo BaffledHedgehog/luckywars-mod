@@ -2,6 +2,8 @@ package me.skywars2.game.items.phone;
 
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
@@ -24,13 +26,15 @@ final class TikTokOutput {
 
     private final Channel channel;
     private final ServerGamePacketListenerImpl listener;
-    private final Window frames = new Window(1);
+    private final Window frames = new Window(4);
     private final Window sound = new Window(SOUND_WINDOW);
     private volatile int pixelStep = 1;
     private volatile long videoBackoffUntil;
-    // Single outstanding frame. Bracket only vanilla frames, whose encoded size is high.
-    private int beforeFrame;
-    private long beforeFrameAck;
+    private volatile int frameLimit=1;
+    // Event-loop-owned timings: each outstanding frame has its own bracket.
+    private record FrameTiming(int before,long acknowledged){}
+    private final Map<Integer,FrameTiming> frameTimings=new HashMap<>();
+    private final Map<Integer,Integer> beforeFrames=new HashMap<>();
     private long upgradeAfter;
 
     private static final class Window {
@@ -92,26 +96,27 @@ final class TikTokOutput {
     }
 
     private boolean acknowledge(int id) {
-        if (id < 0 && beforeFrame == id) {
-            beforeFrame = 0;
-            beforeFrameAck = System.nanoTime();
+        var receipt=beforeFrames.remove(id);
+        if(receipt!=null){
+            frameTimings.put(receipt,new FrameTiming(id,System.nanoTime()));
             return true;
         }
         if (!frames.acknowledge(id)) return sound.acknowledge(id);
-        if (beforeFrameAck != 0) {
+        var timing=frameTimings.remove(id);
+        if(timing!=null){
+            beforeFrames.remove(timing.before);
             long now = System.nanoTime();
-            adaptVideo(now, now - beforeFrameAck);
+            if(timing.acknowledged!=0)adaptVideo(now,now-timing.acknowledged);
         }
-        beforeFrame = 0;
-        beforeFrameAck = 0;
         return true;
     }
 
     private void adaptVideo(long now, long frameDelay) {
         // The two probes travel with the same RTT. The gap measures how long
         // the frame occupied client delivery, rather than the player's ping.
+        frameLimit=frameDelay<=FAST_FRAME_NANOS?4:frameDelay<=SLOW_FRAME_NANOS?2:1;
         if (frameDelay > SLOW_FRAME_NANOS) {
-            if (pixelStep == TikTokPixels.MAX_STEP) videoBackoffUntil = now + QUALITY_HOLD_NANOS;
+            if (pixelStep == TikTokPixels.MAX_STEP) videoBackoffUntil = now + Math.min(250_000_000L,frameDelay-SLOW_FRAME_NANOS);
             pixelStep = Math.min(TikTokPixels.MAX_STEP, pixelStep * (frameDelay > 2 * SLOW_FRAME_NANOS ? 4 : 2));
             upgradeAfter = now + QUALITY_HOLD_NANOS;
         } else if (frameDelay <= FAST_FRAME_NANOS && pixelStep > 1 && now - upgradeAfter >= 0) {
@@ -139,6 +144,8 @@ final class TikTokOutput {
     boolean frameReady() {
         return ready(frames);
     }
+
+    int outstandingFrames(){return frames.receipts.length-frames.remaining;}
 
     int vanillaPixelStep() { return pixelStep; }
 
@@ -173,7 +180,7 @@ final class TikTokOutput {
     }
 
     private boolean writable(Window window) {
-        return window.remaining > 0 && active() && channel.isWritable();
+        return window.remaining > 0 && (window!=frames||outstandingFrames()<frameLimit) && active() && channel.isWritable();
     }
 
     private boolean offer(Window window, Packet<?> packet, long expires, BooleanSupplier valid, int frameStep) {
@@ -184,8 +191,9 @@ final class TikTokOutput {
                 if (!writable(window) || expires - System.nanoTime() <= 0 || !valid.getAsBoolean()) return;
                 int receipt = window.reserve();
                 if (frameStep > 0) {
-                    beforeFrame = PlayerLatency.nextProbeId();
-                    listener.send(new ClientboundPingPacket(beforeFrame));
+                    int before=PlayerLatency.nextProbeId();
+                    frameTimings.put(receipt,new FrameTiming(before,0));beforeFrames.put(before,receipt);
+                    listener.send(new ClientboundPingPacket(before));
                 }
                 listener.send(packet);
                 // Each Ping follows its own media write in TCP order. A Pong for an

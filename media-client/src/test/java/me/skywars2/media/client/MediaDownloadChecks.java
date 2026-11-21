@@ -36,6 +36,7 @@ public final class MediaDownloadChecks {
         }
         require(MediaDownload.publicAddress(InetAddress.ofLiteral("1.1.1.1")), "global IPv4");
         require(MediaDownload.publicAddress(InetAddress.ofLiteral("2606:4700:4700::1111")), "global IPv6");
+        MediaPreloadChecks.run();
         System.out.println("MediaDownloadChecks passed");
     }
 

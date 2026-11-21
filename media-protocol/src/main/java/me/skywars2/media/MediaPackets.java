@@ -23,6 +23,7 @@ public final class MediaPackets {
         PayloadTypeRegistry.clientboundPlay().register(Frame.TYPE,Frame.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Stop.TYPE,Stop.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Link.TYPE,Link.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(Prefetch.TYPE,Prefetch.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestSegment.TYPE, RequestSegment.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Segment.TYPE, Segment.CODEC);
         registered=true;
@@ -91,6 +92,20 @@ public final class MediaPackets {
         }
 
         @Override public Type<Link> type() { return TYPE; }
+    }
+
+    /** Optional hints only; receiving these must never start playback or sound. */
+    public record Prefetch(java.util.List<Link> clips) implements CustomPacketPayload {
+        public static final Type<Prefetch> TYPE=new Type<>(Identifier.parse("skywars2:media/prefetch_v1"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,Prefetch> CODEC=new StreamCodec<>(){
+            public Prefetch decode(RegistryFriendlyByteBuf b){
+                int count=b.readVarInt();if(count<0||count>3)throw new IllegalArgumentException("media_prefetch_bounds");
+                var clips=new java.util.ArrayList<Link>();for(int i=0;i<count;i++)clips.add(Link.CODEC.decode(b));return new Prefetch(clips);
+            }
+            public void encode(RegistryFriendlyByteBuf b,Prefetch p){b.writeVarInt(p.clips.size());for(var clip:p.clips)Link.CODEC.encode(b,clip);}
+        };
+        public Prefetch{clips=java.util.List.copyOf(clips);if(clips.size()>3)throw new IllegalArgumentException("media_prefetch_bounds");}
+        @Override public Type<Prefetch> type(){return TYPE;}
     }
 
     public record Fallback(UUID session, boolean relayFailed) implements CustomPacketPayload {

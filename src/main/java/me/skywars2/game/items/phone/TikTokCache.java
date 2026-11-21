@@ -88,6 +88,12 @@ final class TikTokCache implements AutoCloseable {
         for(int i=0;i<list.size();i++)if(list.get(i).id.equals(previous))return list.get((i+1)%list.size());
         return list.getFirst();
     }
+    List<TikTokMedia> upcoming(String previous){
+        var list=List.copyOf(clips);if(list.isEmpty())return List.of();
+        int start=0;for(int i=0;i<list.size();i++)if(list.get(i).id.equals(previous)){start=(i+1)%list.size();break;}
+        var result=new ArrayList<TikTokMedia>();for(int i=0;i<Math.min(3,list.size());i++)result.add(list.get((start+i)%list.size()));
+        return List.copyOf(result);
+    }
 
     void importCookies(String json) throws IOException {
         String normalized=TikTokCookies.normalize(json);

@@ -41,6 +41,7 @@ public final class MediaClient implements ClientModInitializer {
     private static MediaPackets.Frame pending;
     private static MediaPackets.Link pausedLink;
     private static MediaDownload downloads;
+    private static MediaPreloads preloads;
     private static boolean decoding,paused,announced;
     private static DynamicTexture texture;
     private record Decoded(Session owner,long serial,NativeImage image){}
@@ -73,6 +74,9 @@ public final class MediaClient implements ClientModInitializer {
         SpecialModelRenderers.ID_MAPPER.put(Identifier.parse("skywars2:phone_video"),PhoneRenderer.Unbaked.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Frame.TYPE,(p,c)->receive(p));
         ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Link.TYPE,(p,c)->receive(p));
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Prefetch.TYPE,(p,c)->{synchronized(LOCK){
+            if(mp4Tools.isPresent()&&ensureDownloads())preloads.update(p.clips());
+        }});
         ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Segment.TYPE,(p,c)->receive(p));
         ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Stop.TYPE,(p,c)->{synchronized(LOCK){
             retire(p.session());
@@ -87,7 +91,7 @@ public final class MediaClient implements ClientModInitializer {
     }
     public static Identifier texture(){synchronized(LOCK){return texture!=null&&session!=null?TEXTURE:null;}}
     private static void retire(UUID id){retired.add(id);while(retired.size()>32)retired.remove(retired.iterator().next());}
-    private static void reset(){synchronized(LOCK){close(false);pausedLink=null;retired.clear();paused=false;announced=false;}}
+    private static void reset(){synchronized(LOCK){close(false);if(preloads!=null)preloads.close();pausedLink=null;retired.clear();paused=false;announced=false;}}
     private static void close(boolean keepIdentity){
         if(session!=null){session.active=false;session.timeline.close();
             var movie=session.mp4;
@@ -184,6 +188,7 @@ public final class MediaClient implements ClientModInitializer {
         Path cache = Minecraft.getInstance().gameDirectory.toPath().resolve("skywars2-phone-cache");
         try {
             downloads = new MediaDownload(cache, relayOrigin);
+            preloads = new MediaPreloads(downloads);
             return true;
         } catch (IllegalArgumentException invalid) { return false; }
     }
@@ -286,7 +291,7 @@ public final class MediaClient implements ClientModInitializer {
             if (!awaitLinkedPlayback(selected)) return;
             if (!selected.link.cdn().isEmpty()) {
                 if(mp4Tools.isPresent()){
-                    try(var transfer=downloads.direct(URI.create(selected.link.cdn()))){
+                    try(var transfer=movieDownload(selected.link.cdn(),true)){
                         LOGGER.info("Phone playback route: direct TikTok CDN, local MP4 decode");
                         playMovie(selected, transfer);
                         return;
@@ -303,7 +308,7 @@ public final class MediaClient implements ClientModInitializer {
             }
             if (selected.link.relayMp4()) {
                 LOGGER.info("Phone playback route: MP4 via Velocity, local decode");
-                try (var transfer = downloads.fallback(URI.create(selected.link.relay()))) {
+                try (var transfer = movieDownload(selected.link.relay(),false)) {
                     playMovie(selected, transfer);
                 }
                 return;
@@ -328,7 +333,11 @@ public final class MediaClient implements ClientModInitializer {
         }
     }
 
-    private static void playMovie(Session selected, MediaDownload.Transfer transfer)
+    private static MediaSegmentQueue.Download movieDownload(String uri,boolean direct){
+        var ready=preloads.take(uri);
+        return ready!=null?ready:direct?downloads.direct(URI.create(uri)):downloads.fallback(URI.create(uri));
+    }
+    private static void playMovie(Session selected, MediaSegmentQueue.Download transfer)
             throws IOException, ExecutionException, InterruptedException {
         if (mp4Tools.isEmpty()) throw new IOException("MP4 decoder unavailable");
         Path file = transfer.file().toCompletableFuture().get();
@@ -476,7 +485,7 @@ public final class MediaClient implements ClientModInitializer {
         s.volume=mc.options.getFinalSoundSourceVolume(SoundSource.RECORDS);
         var engine=((MediaSoundAccess.Manager)mc.getSoundManager()).skywars2$engine();
         var access=((MediaSoundAccess.Engine)engine).skywars2$channels();
-        access.createHandle(Library.Pool.STREAMING).thenAccept(handle->{
+        PhoneAudioChannels.acquire(access).thenAccept(handle->{
             synchronized (LOCK) {
                 if (session != s || !s.active) {
                     if (handle != null) handle.execute(channel -> channel.stop());
@@ -510,6 +519,16 @@ public final class MediaClient implements ClientModInitializer {
                     }
                 }
             });
+        }).exceptionally(failure->{
+            synchronized(LOCK){
+                if(session==s&&s.active){
+                    s.opening=false;s.audioRetryAt=System.nanoTime()+1_000_000_000L;
+                    if(!s.timeline.running())s.timeline.start(System.nanoTime());
+                    s.silent=true;
+                }
+            }
+            LOGGER.warn("Phone audio allocation failed; will retry ({})",failure.getClass().getSimpleName());
+            return null;
         });
     }
 }

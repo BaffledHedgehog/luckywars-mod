@@ -141,7 +141,12 @@ public final class LbcTrollBox {
             case 4,5->{for(var player:game.server().getPlayerList().getPlayers())if(role(player)&&!player.level().dimension().equals(LbcHedgehogDimensions.NEXUS)&&target(event,player)){
                 var job=new Placement(new Event(player.level(),event.source),player.position(),player.getUUID(),number==4,player.getRandom().nextLong());placements.add(job);game.items().stonekivi().queuedWork(job);
             }
-                if(number==5)for(var player:game.server().getPlayerList().getPlayers())LbcOverload.sound(player,new Vec3(0,1000000,0),"minecraft:lbcsounds.backrooms",.5f,1,Double.MAX_VALUE,.5f);
+                if(number==5)for(var player:game.server().getPlayerList().getPlayers()){
+                    // Personal soundtrack: the general sound helper broadcasts to every nearby viewer.
+                    var music=Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Identifier.parse("minecraft:lbcsounds.backrooms")));
+                    player.connection.send(new ClientboundSoundPacket(music,net.minecraft.sounds.SoundSource.MASTER,
+                            0,10_000_000,0,1_000_000_000f,1,player.getRandom().nextLong()));
+                }
             }
             case 6->abyss=event;
             default->throw new IllegalArgumentException("Troll Box source result");

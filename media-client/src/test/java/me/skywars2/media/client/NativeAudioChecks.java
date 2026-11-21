@@ -38,6 +38,15 @@ public final class NativeAudioChecks {
             var fresh=new MediaTimeline();for(int i=20;i<24;i++)fresh.offer(i,new byte[9600]);fresh.start(System.nanoTime());
             recovered.execute(c->{c.attachBufferStream(new PcmStream(fresh,48000,2));c.play();if(!c.playing())throw new AssertionError("re-primed native PCM plays");});
             access.clear();fresh.close();
+            int occupied=0;
+            while(occupied<64&&access.createHandle(Library.Pool.STREAMING).join()!=null)occupied++;
+            if(occupied==0||occupied==64)throw new AssertionError("bounded exhausted native music pool");
+            var fallback=PhoneAudioChannels.acquire(access).get(2,TimeUnit.SECONDS);
+            if(fallback==null)throw new AssertionError("phone must start while all native music sources are occupied");
+            var fallbackTimeline=new MediaTimeline();for(int i=0;i<8;i++)fallbackTimeline.offer(i,new byte[9600]);fallbackTimeline.start(System.nanoTime());
+            fallback.execute(c->{c.attachBufferStream(new PcmStream(fallbackTimeline,48000,2));c.play();if(!c.playing())throw new AssertionError("ordinary native source plays streaming stereo immediately");});
+            access.clear();fallbackTimeline.close();
+            System.out.println("PASS phone starts immediately with all "+occupied+" native music sources occupied");
             System.out.println("PASS native OpenAL null output: real4buffer stereo queue,50ms cap,play/pause/stop/live mute/volume,independent video lifetime and session cleanup,stopped-handle recovery");
         }finally{library.cleanup();}
     }
