@@ -152,6 +152,7 @@ public final class LbcNukeEvent {
             actors.put(marker,new State(cause,true));sources.put(marker,cause);
             if(!level.addFreshEntity(marker)){actors.remove(marker);sources.remove(marker);return false;}
             game.items().timeStop().prepareFrozen(marker);
+            if(!stooper(marker))warningBeacon(marker,actors.get(marker));
             for(var p:game.server().getPlayerList().getPlayers()){
                 p.connection.send(new ClientboundSetTitleTextPacket(Component.literal(" ")));
                 p.connection.send(new ClientboundSetSubtitleTextPacket(author.getDisplayName().copy().withStyle(ChatFormatting.RED).append(Component.translatable("nuke_activated").withStyle(ChatFormatting.DARK_RED))));

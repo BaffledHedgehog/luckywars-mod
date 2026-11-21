@@ -262,7 +262,11 @@ public final class SauvojenMeditation {
             int until=Math.min(job.size(),job.cursor+1024);worked=true;
             terrain(t,job.lo,job.hi,()->{
                 while(job.cursor<until){BlockPos cell=job.position();
-                    if(phase==620)t.level.destroyBlock(cell,true,t.owner);
+                    if(phase==620){
+                        // destroyBlock leaves the legacy fluid behind (and may reject pure water).
+                        t.level.destroyBlock(cell,true,t.owner);
+                        if(!t.level.getBlockState(cell).isAir())t.level.setBlock(cell,Blocks.AIR.defaultBlockState(),STRICT);
+                    }
                     else {boolean air=job.cursor<20181;t.level.setBlock(cell,(air?Blocks.AIR:Blocks.LAVA).defaultBlockState(),
                             air?STRICT:Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE);}
                     job.cursor++;

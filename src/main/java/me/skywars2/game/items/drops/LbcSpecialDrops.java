@@ -45,7 +45,7 @@ import me.skywars2.game.world.terrain.LbcMagicBean;
 public final class LbcSpecialDrops {
     private final GameController game;
     private static final String OWNER = "skywars2.special_drop_owner.";
-    private record Pending(String epoch, LivingEntity owner) { }
+    private record Pending(String epoch, LivingEntity owner,int activated) { }
     private final Map<ItemEntity, Pending> pending = new IdentityHashMap<>();
     private final Map<java.util.UUID, LivingEntity> authors = new java.util.HashMap<>();
     private final Map<ItemEntity, Integer> lastAttempt = new IdentityHashMap<>();
@@ -77,7 +77,7 @@ public final class LbcSpecialDrops {
                 token.entityTags().removeIf(tag -> tag.startsWith(OWNER));
                 token.entityTags().add(OWNER + cause.getUUID());
             }
-            pending.putIfAbsent(token, new Pending(game.items().epoch(), cause));
+            pending.putIfAbsent(token, new Pending(game.items().epoch(), cause,0));
         }
     }
 
@@ -108,6 +108,18 @@ public final class LbcSpecialDrops {
     public void unloaded(Entity entity) {
         pending.remove(entity);
         lastAttempt.remove(entity);
+    }
+    /** The first five real activations own the pickup grace period, even if preparation is delayed. */
+    public boolean blocksPickup(ItemEntity token){
+        if(!active(token)||stale(token)||!recognized(token.getItem()))return false;
+        if(!pending.containsKey(token))loaded(token);
+        var entry=pending.get(token);
+        if(entry==null)return false;
+        if(entry.activated()>=5)return lastAttempt.getOrDefault(token,Integer.MIN_VALUE)==game.server().getTickCount();
+        // Native entity/player collisions can precede END_SERVER_TICK dispatch.
+        spawn(token);
+        return token.isRemoved()||pending.getOrDefault(token,entry).activated()<5
+                ||lastAttempt.getOrDefault(token,Integer.MIN_VALUE)==game.server().getTickCount();
     }
 
     private boolean stale(ItemEntity token) {
@@ -364,7 +376,10 @@ public final class LbcSpecialDrops {
         if(debit)consume(token);
         return true;
     }
-    private static void consume(ItemEntity token){
+    private void consume(ItemEntity token){
+        var entry=pending.get(token);
+        if(entry!=null)pending.put(token,new Pending(entry.epoch(),entry.owner(),Math.min(5,entry.activated()+1)));
+        if(LbcTmtAbilities.reusable(token.getItem()))return;
         var remaining = token.getItem().copy();
         remaining.shrink(1);
         if (remaining.isEmpty()) token.discard(); else token.setItem(remaining);

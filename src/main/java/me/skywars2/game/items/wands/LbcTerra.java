@@ -84,7 +84,7 @@ import me.skywars2.game.skills.clone.LbcCloneSkills;
 /** Полёт Terra и его Polymer-модель; расход и бонусы каста остаются в общем LbcWands. */
 public final class LbcTerra {
     public static final EntityType<TerraProjectile> TYPE = registerType();
-    public static final Item SWORD = registerSword("skywars2:terra_sword", "terra_sword", "lbc:terrasword", 25);
+    public static final Item SWORD = registerSword("skywars2:terra_sword", "terra_sword", "lbc:terrasword", 0);
     public static final Item TRUE_SWORD = registerSword("skywars2:true_terra_sword", "true_terra", "lbc:terrasword_true", 9000);
     public static final Item RAZOR = registerSword("skywars2:terra_razorpine", "razorterra", "lbc:terra_razorpine", 0);
     private static final CompoundTag SWORD_FLAG = flag("terrasword"), TRUE_SWORD_FLAG = flag("true_terra");

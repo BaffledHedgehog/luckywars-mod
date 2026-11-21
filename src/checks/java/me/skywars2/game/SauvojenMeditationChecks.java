@@ -217,7 +217,11 @@ public final class SauvojenMeditationChecks {
                 // Interior edge, excluded corner and destroy drops use real world writes.
                 base.owner.level().setBlock(c.offset(10,24,3),Blocks.STONE.defaultBlockState(),Block.UPDATE_CLIENTS);
                 base.owner.level().setBlock(c.offset(10,24,4),Blocks.STONE.defaultBlockState(),Block.UPDATE_CLIENTS);
+                base.owner.level().setBlock(c.offset(0,2,0),Blocks.WATER.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+                base.owner.level().setBlock(c.offset(1,2,0),Blocks.LAVA.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+                base.owner.level().setBlock(c.offset(-1,2,0),Blocks.OAK_FENCE.defaultBlockState().setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED,true),Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
                 require(complete(t),"ruby resident phase");
+                for(int x=-1;x<=1;x++)require(base.owner.level().getBlockState(c.offset(x,2,0)).isAir(),"ruby clears source fluids and the fluid left by a waterlogged block");
                 require(base.owner.level().getBlockState(c.offset(10,24,3)).isAir(),"ruby inclusive upper narrow edge");
                 require(base.owner.level().getBlockState(c.offset(10,24,4)).is(Blocks.STONE),"ruby excluded corner retained");
                 int cells=0;for(int x=-10;x<=10;x++)cells+=(SauvojenMeditation.rubyHalfWidth(x)*2+1)*25;

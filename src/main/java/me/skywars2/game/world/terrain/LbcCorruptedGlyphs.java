@@ -89,9 +89,17 @@ public final class LbcCorruptedGlyphs {
         var pos=owner.level().getBlockState(clicked).getCollisionShape(owner.level(),clicked).isEmpty()?clicked:clicked.relative(context.getClickedFace());
         var at=Vec3.atBottomCenterOf(pos);
         if(!owner.level().hasChunkAt(pos)||game.items().magic().suppressedAt(owner.level(),at))return InteractionResult.FAIL;
-        if(spawn(owner,at,kind)==null)return InteractionResult.FAIL;
-        context.getItemInHand().consume(1,owner);
-        return InteractionResult.SUCCESS;
+        // Publication/advancement callbacks may normalize inventory slots. Reserve the real
+        // source before they can copy it, and return the debited source to native use-on.
+        var stack=owner.getItemInHand(context.getHand());
+        if(kind(stack)!=kind)return InteractionResult.FAIL;
+        int before=stack.getCount();
+        stack.consume(1,owner);
+        if(spawn(owner,at,kind)==null){
+            if(stack.getCount()<before)stack.grow(1);
+            return InteractionResult.FAIL;
+        }
+        return InteractionResult.SUCCESS.heldItemTransformedTo(stack);
     }
     public static final class Glyph {
         public final ServerPlayer owner;public final Display.ItemDisplay display;public final Kind kind;public final String epoch;

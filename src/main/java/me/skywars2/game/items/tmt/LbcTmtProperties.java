@@ -89,6 +89,7 @@ final class LbcTmtProperties {
         var nativeData=stack.get(DataComponents.CUSTOM_DATA);if(nativeData!=null)data.merge(nativeData.copyTag());
         LbcTmtAbilities.write(data,abilities);
         data.putInt("tmt_texture_seed",random.nextInt(Integer.MAX_VALUE));
+        data.putInt("tmt_consumable",random.nextInt(5)==0?1:0);
         stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
         if(base==4){
             var animation=pick(random,domains.animations);var sound=pick(random,domains.sounds);

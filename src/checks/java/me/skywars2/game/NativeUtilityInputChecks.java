@@ -44,7 +44,50 @@ public final class NativeUtilityInputChecks {
             }
         }
         Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);used=f.owner.getStats().getValue(net.minecraft.stats.Stats.ITEM_USED.get(LbcImbaPlaceableItems.NUCLEAR_BOMB));for(var e:f.level.getAllEntities())before.add(e.getUUID());require(game.items().nukeEvent().markerCount()==0&&game.items().nukeEvent().jobCount()==0,"exclusive nuclear fixture");}
-        void begin(){f.prepareParticipants();presentation();nuclear();}
+        void begin(){f.prepareParticipants();presentation();nuclear();ordinaryNuclear();groundCrossbows();swordWear();}
+        void groundCrossbows(){
+            var at=f.owner.blockPosition().offset(3,0,0);
+            var minigun=me.skywars2.game.items.weapons.ranged.LbcProjectileWeaponItems.Kind.MINIGUN_CROSSBOW.item;
+            var blaze=me.skywars2.game.items.weapons.ranged.LbcProjectileWeaponItems.Kind.BLAZE_CROSSBOW.item;
+            var ghast=me.skywars2.game.items.weapons.ranged.LbcProjectileWeaponItems.Kind.GHAST_CROSSBOW.item;
+            f.set(at.below(),Blocks.NETHERRACK.defaultBlockState());f.set(at,Blocks.FIRE.defaultBlockState());
+            require(f.level.getBlockState(at).is(Blocks.FIRE),"supported native fire fixture");
+            var fire=new net.minecraft.world.entity.item.ItemEntity(f.level,at.getX()+.5,at.getY(),at.getZ()+.5,minigun.getDefaultInstance());
+            require(f.level.addFreshEntity(fire),"native minigun ground fire actor");f.own(fire);fire.tick();
+            require(fire.getItem().is(blaze),"native item tick crafts Blaze before typed fire immunity");fire.discard();
+            var blast=new net.minecraft.world.entity.item.ItemEntity(f.level,at.getX()+.5,at.getY(),at.getZ()+.5,minigun.getDefaultInstance());
+            require(f.level.addFreshEntity(blast),"native minigun explosion actor");f.own(blast);
+            blast.hurtServer(f.level,f.level.damageSources().explosion(null,f.owner),4);
+            require(!blast.isRemoved()&&blast.getItem().is(ghast),"actual native explosion crafts Ghast before item protection");blast.discard();
+            var nearby=new net.minecraft.world.entity.item.ItemEntity(f.level,at.getX()+.5,at.getY(),at.getZ()+.5,minigun.getDefaultInstance());
+            require(f.level.addFreshEntity(nearby),"native minigun fuse actor");f.own(nearby);
+            var tnt=new net.minecraft.world.entity.item.PrimedTnt(f.level,at.getX()+3,at.getY(),at.getZ(),f.owner);tnt.setFuse(2);
+            require(f.level.addFreshEntity(tnt),"native TNT fuse2 witness");f.own(tnt);nearby.tick();
+            require(nearby.getItem().is(ghast),"legacy seven-block fuse2 ground craft");nearby.discard();tnt.discard();
+        }
+        void swordWear(){
+            var models=java.util.Set.of("anal_whip","banhammer","blazefire_sword","cyberkatana","death_skythe","fartus","lightsaber_empty","piston_sword","shit_katana","techrunner_katana","terrasword","vex_sword");
+            int seen=0;
+            for(var item:net.minecraft.core.registries.BuiltInRegistries.ITEM){
+                var stack=item.getDefaultInstance();var model=stack.get(net.minecraft.core.component.DataComponents.ITEM_MODEL);
+                if(model!=null&&model.getNamespace().equals("lbc")&&models.contains(model.getPath())){
+                    seen++;require(stack.getMaxDamage()!=25,"no leaked carrot durability on "+model);
+                }
+            }
+            require(seen>=8,"audit registered legacy sword carriers");
+            require(f.leaf("terra_sword").getMaxDamage()==0&&f.leaf("true_terra_sword").getMaxDamage()==9000,"canonical Terra swords preserve their distinct wear policies");
+        }
+        void ordinaryNuclear(){
+            f.owner.setGameMode(GameType.SURVIVAL);
+            var hit=pad();var expected=hit.getLocation().relative(hit.getDirection(),.01);
+            rememberNuke(expected);touchedNuke=true;
+            var stack=f.loot("lbc:nuke").copyWithCount(2);f.owner.setItemInHand(InteractionHand.MAIN_HAND,stack);
+            require(stack.is(me.skywars2.game.entities.projectiles.LbcCrocodildoItems.NUKE),"public ordinary nuclear loot identity");
+            require(f.owner.gameMode.useItemOn(f.owner,f.level,stack,InteractionHand.MAIN_HAND,hit).consumesAction()&&stack.getCount()==1,"public ordinary nuke native placement/debit");
+            var origin=BlockPos.containing(expected);
+            require(f.level.getBlockState(origin.above()).is(Blocks.BEACON)&&f.level.getBlockState(origin).is(Blocks.NETHERITE_BLOCK),"ordinary public nuke creates immediate visible netherite beacon");
+            game.items().nukeEvent().stop();nukeFrame.forEach(f::set);nukeFrame.clear();
+        }
         void presentation(){var params=new LootParams.Builder(f.level).withParameter(LootContextParams.ORIGIN,f.home).withOptionalParameter(LootContextParams.THIS_ENTITY,f.owner).create(LootContextParamSets.CHEST);var ops=game.server().reloadableRegistries().lookup().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
             var provider=(net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)(Object)f.owner.connection;
             for(var source:sources()){var stack=f.leaf(source.id);require(stack.is(source.item)&&stack.getCount()==1,"canonical identity/quantity "+source.id);var defaults=new ItemStack(source.item);

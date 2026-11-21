@@ -13,16 +13,19 @@ import net.minecraft.world.level.ChunkPos;
 
 /** Native ordered events for the terrain owner's included chunks. No event callbacks during replay. */
 public final class MatchBlockEvents {
-    private record Image(List<BlockEventData> queue,List<BlockEventData> deferred,Set<Long> chunks) { }
+    private record Image(List<BlockEventData> queue,List<BlockEventData> deferred,Set<Long> chunks,java.util.function.Predicate<net.minecraft.core.BlockPos> admitted) { }
     private final Map<ServerLevel,Image> images=new LinkedHashMap<>();
     private static BlockEventData copy(BlockEventData e){return new BlockEventData(e.pos().immutable(),e.block(),e.paramA(),e.paramB());}
     public void include(ServerLevel level,ChunkPos chunk) {
+        include(level,chunk,p->true);
+    }
+    public void include(ServerLevel level,ChunkPos chunk,java.util.function.Predicate<net.minecraft.core.BlockPos> admitted) {
         var image=images.computeIfAbsent(level,l->{var access=(TerrainCheckpointEventsAccess)l;
-            return new Image(access.skywars2$events().stream().map(MatchBlockEvents::copy).toList(),
-                    access.skywars2$deferred().stream().map(MatchBlockEvents::copy).toList(),new LinkedHashSet<>());});
+            return new Image(access.skywars2$events().stream().filter(e->admitted.test(e.pos())).map(MatchBlockEvents::copy).toList(),
+                    access.skywars2$deferred().stream().filter(e->admitted.test(e.pos())).map(MatchBlockEvents::copy).toList(),new LinkedHashSet<>(),admitted);});
         image.chunks.add(chunk.pack());
     }
-    private static boolean owned(Image image,BlockEventData event){return image.chunks.contains(ChunkPos.pack(event.pos()));}
+    private static boolean owned(Image image,BlockEventData event){return image.admitted.test(event.pos())&&image.chunks.contains(ChunkPos.pack(event.pos()));}
     public void restore() {
         for(var entry:images.entrySet()) {
             var access=(TerrainCheckpointEventsAccess)entry.getKey();var image=entry.getValue();

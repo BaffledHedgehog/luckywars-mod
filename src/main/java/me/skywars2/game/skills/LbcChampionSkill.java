@@ -10,12 +10,9 @@ import me.skywars2.game.entities.LbcDimensionItems;
 import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -26,8 +23,6 @@ public final class LbcChampionSkill {
     public static final Identifier ARMOR=Identifier.parse("minecraft:7374yg374g347g37gh34");
     public static final Identifier TOUGHNESS=Identifier.parse("minecraft:7374yg3274g347g37gh34");
     public static final Identifier ATTACK=Identifier.parse("minecraft:g8wu4g8k4wug84khu84hu48h");
-    private static final TagKey<DamageType> ARROWS=TagKey.create(Registries.DAMAGE_TYPE,
-            Identifier.parse("minecraft:arrow_only"));
     private final GameController game;
     private final Predicate<ServerPlayer> ownerAdmission;
     private final BiPredicate<ServerPlayer,LivingEntity> targetAdmission;
@@ -43,9 +38,9 @@ public final class LbcChampionSkill {
                 &&!game.items().wands().inputTimeStopped(player)&&!game.items().timeStop().frozen(player)
                 &&!game.items().timeStop().stopped(player.level());
     }
-    /** Outgoing accepted non-arrow hits, including owner-attributed magic and summoned damage. */
+    /** Stance changes belong to genuine melee, never attributed spells or summons. */
     public void damaged(LivingEntity victim,DamageSource source){
-        if(source.is(ARROWS))return;
+        if(!melee(source))return;
         var owner=LbcManaVampireSkill.owner(game,source);
         if(owner==null||owner==victim||!admitted(owner)||owner.level()!=victim.level()
                 ||!LbcDimensionItems.ordinary(victim.level())||!targetAdmission.test(owner,victim))return;
@@ -58,11 +53,16 @@ public final class LbcChampionSkill {
     }
     /** Existing native entity_hurt_player criterion owns acceptance, including shield/resistance. */
     public void incoming(ServerPlayer player,DamageSource source,float original,float actual,boolean blocked){
-        if(!admitted(player))return;
+        if(!melee(source)||!admitted(player))return;
         remove(player,Attributes.ARMOR,ARMOR);remove(player,Attributes.ARMOR_TOUGHNESS,TOUGHNESS);
         add(player,Attributes.ATTACK_DAMAGE,ATTACK,6);
         LbcOverload.sound(player.level(),player.position(),"minecraft:entity.wolf.growl",1,2,0,0);
         player.level().sendParticles(ParticleTypes.CRIT,player.getX(),player.getY()+1,player.getZ(),20,.5,1,.5,0);
+    }
+    private static boolean melee(DamageSource source){
+        return me.skywars2.game.combat.DirectionalKnockback.melee(source)
+                &&source.getDirectEntity() instanceof LivingEntity
+                &&source.getDirectEntity()==source.getEntity();
     }
     private static void add(ServerPlayer p,Holder<Attribute> type,Identifier id,double amount){
         var attribute=p.getAttribute(type);

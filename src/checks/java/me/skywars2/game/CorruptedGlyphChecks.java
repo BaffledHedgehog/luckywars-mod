@@ -85,10 +85,37 @@ public final class CorruptedGlyphChecks {
                 var stack=new ItemStack(LbcCorruptedGlyphs.DUST,2);var data=new CompoundTag();data.putString("glyphkind",kind.name().toLowerCase(java.util.Locale.ROOT));
                 stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.setItemInHand(InteractionHand.MAIN_HAND,stack);
                 var hit=new BlockHitResult(at,Direction.UP,origin.below(),false);
-                require(stack.useOn(new UseOnContext(owner,InteractionHand.MAIN_HAND,hit)).consumesAction()&&stack.getCount()==1&&service.count()==1,"native "+kind+" placement/consume");
+                require(owner.gameMode.useItemOn(owner,owner.level(),stack,InteractionHand.MAIN_HAND,hit).consumesAction()
+                        &&owner.getMainHandItem().getCount()==1&&stack.getCount()==1&&service.count()==1,"native game-mode "+kind+" placement/consume");
                 var glyph=service.snapshot().getFirst();
                 require(glyph.kind==kind&&glyph.owner==owner&&glyph.display.position().equals(at),"placer ownership and exact centered position");
                 service.forget(owner);require(glyph.display.isRemoved()&&service.count()==0,"owner cleanup");
+            }
+            // Real one-count canonical loot and network input, including a repeated stale client click.
+            blocks.putIfAbsent(origin.below(),game.maps().snapshot(owner.level(),origin.below()));
+            owner.level().setBlock(origin.below(),Blocks.STONE.defaultBlockState(),2|16|32);
+            for(var hand:InteractionHand.values()){
+                var packetStack=game.lbc().rollTable(owner.level(),at,owner,"lbc:corrupted_dust").getFirst().copyWithCount(1);
+                // Reproduce a held-slot normalization after the packet already captured its source.
+                owner.setItemInHand(hand,packetStack.copy());
+                var hit=new BlockHitResult(at,Direction.UP,origin.below(),false);
+                require(owner.gameMode.useItemOn(owner,owner.level(),packetStack,hand,hit).consumesAction()
+                        &&owner.getItemInHand(hand).isEmpty()&&service.count()==1,"stale packet source cannot refund a consumed powder "+hand);
+                service.forget(owner);
+            }
+            try(var client=new RegenerationBeltChecks.ScheduledClient(game,owner)){
+                int sequence=1;
+                for(var hand:InteractionHand.values())for(int trial=0;trial<16;trial++){
+                    var stack=game.lbc().rollTable(owner.level(),at,owner,"lbc:corrupted_dust").getFirst().copyWithCount(1);
+                    owner.setItemInHand(hand,stack);owner.setItemInHand(hand==InteractionHand.MAIN_HAND?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+                    client.acknowledge();
+                    var hit=new BlockHitResult(at,Direction.UP,origin.below(),false);
+                    owner.connection.handleUseItemOn(new net.minecraft.network.protocol.game.ServerboundUseItemOnPacket(hand,hit,sequence++));
+                    require(owner.getItemInHand(hand).isEmpty()&&service.count()==1,"single canonical powder spent through actual network "+hand+" "+trial);
+                    owner.connection.handleUseItemOn(new net.minecraft.network.protocol.game.ServerboundUseItemOnPacket(hand,hit,sequence++));
+                    require(service.count()==1,"stale client powder cannot place another glyph");
+                    service.forget(owner);
+                }
             }
             // A resident flat native-navigation fixture; every touched block is restored below.
             for(int x=-18;x<=18;x++)for(int y=-1;y<=2;y++)for(int z=-10;z<=10;z++){
@@ -173,7 +200,14 @@ public final class CorruptedGlyphChecks {
                 game.config().gameMode=mode;game.beginMatchMode(mode);board.addPlayerToTeam(friend.getScoreboardName(),allied);board.addPlayerToTeam(role.getScoreboardName(),allied);board.addPlayerToTeam(other.getScoreboardName(),enemy);
                 glyph=service.spawn(owner,at,LbcCorruptedGlyphs.Kind.BELIAL);service.pulse(glyph);
                 require(friend.getTeam()==null&&role.getTeam()==allied&&owner.getTeam()==allied,"Belial removes friendly mob team and protects caster/technical role");
-                require(mode<3?other.getTeam()==null:other.getTeam()==enemy,"Belial foreign player team leave only in source modes1/2");service.forget(owner);
+                require(mode<3?other.getTeam()==null:other.getTeam()==enemy,"Belial foreign player team leave only in source modes1/2");
+                if(mode<3){
+                    for(var player:List.of(owner,other)){player.getAbilities().invulnerable=false;player.setInvulnerableTime(0);player.damageCooldownTime=0;}
+                    require(other.hurtServer(owner.level(),other.damageSources().playerAttack(owner),1),"teamless target can receive native melee");
+                    owner.setInvulnerableTime(0);owner.damageCooldownTime=0;
+                    require(owner.hurtServer(owner.level(),owner.damageSources().playerAttack(other),1),"teamless player can damage former opponents");
+                }
+                service.forget(owner);
             }
             board.addPlayerToTeam(other.getScoreboardName(),allied);glyph=service.spawn(owner,at,LbcCorruptedGlyphs.Kind.BELIAL);service.pulse(glyph);
             require(owner.getTeam()==allied&&other.getTeam()==allied,"Belial protects allied player teams");

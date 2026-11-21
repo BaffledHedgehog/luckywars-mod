@@ -220,9 +220,12 @@ public final class CombatStanceSkillChecks {
         void champion(){
             select(29);magicPolicy();select(33);hit(other,other.damageSources().playerAttack(owner));defense();hit(other,other.damageSources().playerAttack(owner));defense();
             hit(owner,owner.damageSources().playerAttack(other));offense();hit(other,other.damageSources().arrow(arrow(),owner));offense();
-            hit(other,other.damageSources().indirectMagic(owner,owner));defense();
+            hit(other,other.damageSources().indirectMagic(owner,owner));offense();
             owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,200,4),owner);hit(owner,owner.damageSources().playerAttack(other));offense();owner.removeAllEffects();
             hit(other,other.damageSources().playerAttack(owner));defense();
+            hit(owner,owner.damageSources().arrow(arrow(),other));defense();
+            hit(owner,owner.damageSources().indirectMagic(other,other));defense();
+            hit(owner,owner.damageSources().onFire());defense();
             var jammer=new Marker(EntityTypes.MARKER,level);jammer.setPos(owner.position());jammer.entityTags().addAll(Set.of("stopper","stopper_magic"));require(level.addFreshEntity(jammer),"actual ordinary jammer actor");game.items().magic().loaded(jammer);
             try{require(game.items().magic().suppressed(owner)&&game.items().magic().mechanismSuppressed(owner),"Champion positive MAG and TECH");hit(owner,owner.damageSources().playerAttack(other));offense();hit(other,other.damageSources().playerAttack(owner));defense();}
             finally{game.items().magic().unloaded(jammer);jammer.discard();}

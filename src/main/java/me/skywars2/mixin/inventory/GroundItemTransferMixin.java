@@ -67,6 +67,8 @@ public final class GroundItemTransferMixin {
                 at = @At("HEAD"), cancellable = true)
         private static void skywars2$legalGroundInsertion(Container destination, ItemEntity entity,
                 CallbackInfoReturnable<Boolean> cir) {
+            var game=me.skywars2.SkyWars2.game();
+            if(game!=null&&game.items().specialDrops().blocksPickup(entity)){cir.setReturnValue(false);return;}
             var source = entity.getItem();
             if (source.getCount() <= source.getMaxStackSize()) return;
             int remaining = source.getCount();

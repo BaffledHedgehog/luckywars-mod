@@ -17,5 +17,6 @@ public abstract class LobbyItemPickupMixin {
     private void skywars2$lockPickup(Player player, CallbackInfo ci) {
         var game = SkyWars2.game();
         if (player instanceof ServerPlayer serverPlayer && game != null && game.inventoryLocked(serverPlayer)) ci.cancel();
+        else if(game!=null&&game.items().specialDrops().blocksPickup((ItemEntity)(Object)this))ci.cancel();
     }
 }

@@ -285,6 +285,19 @@ public final class LbcOverload {
                         heardAt.x,heardAt.y,heardAt.z,heardVolume,pitch,seed));
         }
     }
+    /** A single listener, with the same distance/minimum-volume rules as vanilla playsound. */
+    public static void personalSound(ServerPlayer viewer,Vec3 position,String id,float volume,float pitch,float minVolume){
+        var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id)));
+        var viewpoint=LbcFpvDrone.viewpoint(viewer);
+        var offset=position.subtract(viewpoint);
+        double range=sound.value().getRange(volume);
+        if(offset.lengthSqr()>range*range){
+            if(minVolume<=0)return;
+            position=viewpoint.add(offset.normalize().scale(2));volume=minVolume;
+        }
+        viewer.connection.send(new ClientboundSoundPacket(sound,SoundSource.MASTER,
+                position.x,position.y,position.z,volume,pitch,viewer.getRandom().nextLong()));
+    }
     private static void sendSound(ServerPlayer viewer,ServerPlayer source,String id,float volume,float pitch) {
         sendSound(viewer,source,source.position(),id,volume,pitch);
     }

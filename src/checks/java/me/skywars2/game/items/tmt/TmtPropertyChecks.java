@@ -99,14 +99,22 @@ public final class TmtPropertyChecks {
                 require(food.nutrition()==20&&food.saturation()==20&&food.canAlwaysEat()&&use.consumeSeconds()==2&&use.hasConsumeParticles()&&use.onConsumeEffects().isEmpty(),"source apple replaces consumable, retains 20/20 always-edible two-second food");
             }
         }
-        for(int i=0;i<64;i++){
+        int consumables=0;
+        for(int i=0;i<512;i++){
             long seed=7L+31L*i;
             var a=generator.generate(net.minecraft.util.RandomSource.create(seed),n->new ItemStack(BASES[n]),writes);
             var b=generator.generate(net.minecraft.util.RandomSource.create(seed),n->new ItemStack(BASES[n]),writes);
             require(ItemStack.matches(a,b),"explicit RNG is reproducible without world-global scratch state");
             require(a.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY).modifiers().size()>=1,"at least one attribute");
             require(a.getOrDefault(DataComponents.LORE,ItemLore.EMPTY).lines().size()==6,"persistent six-line name/lore metadata");
+            boolean consumable=me.skywars2.game.items.ItemData.intValue(a,"tmt_consumable",-1)==1;
+            if(consumable)consumables++;
+            var used=a.copyWithCount(2);used.consume(1,null);
+            require(used.getCount()==(consumable?1:2),"generated consumption policy owns the native debit");
+            var inventory=a.copyWithCount(2);var moved=inventory.split(1);
+            require(moved.getCount()==1&&inventory.getCount()==1,"reusable items still split normally during inventory transfer");
         }
+        require(consumables>=75&&consumables<=130,"deterministic generation is near20percent consumable: "+consumables);
         me.skywars2.SkyWars2.LOGGER.info("[check] PASS tmt-properties (native component codecs, non-ability source property families, deterministic branches; attributes={} enchantments={} names={} sounds={} animations={} slots={})",domains.attributes().size(),domains.enchantments().size(),domains.names().size(),domains.sounds().size(),domains.animations().size(),domains.slots().size());
     }
 

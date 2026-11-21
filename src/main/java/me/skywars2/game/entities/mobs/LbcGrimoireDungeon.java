@@ -47,6 +47,7 @@ public final class LbcGrimoireDungeon {
     public boolean ready(ItemEntity token){return matches(token.getItem())&&!token.isRemoved()&&token.level()==game.maps().level()&&game.playing()
             &&!game.items().hasStaleItemEpoch(token)&&!game.items().timeStop().stopped((ServerLevel)token.level());}
     public int pending(){return pending;}
+    public boolean placingStructure(){return placing!=null;}
     /** Invoked from the native entity-add callback while a native structure slice is being placed. */
     public void capture(Entity actor){if(placing!=null&&actor.level()==placing.level){
         actor.entityTags().add(PENDING);placing.entities.add(actor);game.items().spellSources().capture(actor);
@@ -63,11 +64,28 @@ public final class LbcGrimoireDungeon {
         final ServerLevel level;final BlockPos origin;final LbcSpellSource.Source source;final String epoch;
         final Set<Entity> entities=Collections.newSetFromMap(new IdentityHashMap<>());
         final CompletableFuture<?> preparation;
+        final CompletableFuture<StructureStart> generated;
         final MapLighting.Update lighting;
         StructureStart start;List<ChunkPos> chunks;int cursor;boolean closed,writesDone;
+        long maxChunkNanos,writeNanos;
         Job(ServerLevel level,BlockPos origin,LbcSpellSource.Source source){
             this.level=level;this.origin=origin;this.source=source;epoch=game.items().epoch();lighting=new MapLighting.Update(level);
-            var futures=new ArrayList<CompletableFuture<?>>();futures.add(game.maps().prepareSpellTemplates(TEMPLATES));
+            var templates=game.maps().prepareSpellTemplates(TEMPLATES);
+            var futures=new ArrayList<CompletableFuture<?>>();futures.add(templates);
+            // Native generation uses registry/template data and a detached height accessor, not live chunks.
+            var holder=level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(STRUCTURE).orElseThrow();
+            var generator=level.getChunkSource().getGenerator();var randomState=level.getChunkSource().randomState();
+            var registries=level.registryAccess();var dimension=level.dimension();var seed=level.getSeed();
+            var manager=level.getStructureTemplateManager();
+            var height=net.minecraft.world.level.LevelHeightAccessor.create(level.getMinY(),level.getHeight());
+            var sourceChunk=new ChunkPos(origin.getX()>>4,origin.getZ()>>4);
+            generated=templates.thenCompose(ignored->game.maps().computeFromSnapshot(()->{
+                var result=holder.value().generate(holder,dimension,registries,generator,generator.getBiomeSource(),
+                        randomState.createClimateSampler(SamplerContext.EMPTY_UNCACHED),randomState,manager,seed,sourceChunk,0,height,biome->true);
+                if(!result.isValid())throw new IllegalStateException("Native dungeon jigsaw generation failed");
+                return result;
+            }));
+            futures.add(generated);
             // max_distance_from_center=128, plus one chunk for native processors/jigsaw junctions.
             int x=origin.getX()>>4,z=origin.getZ()>>4;
             for(int dx=-9;dx<=9;dx++)for(int dz=-9;dz<=9;dz++)futures.add(game.maps().prepareChunk(level,new ChunkPos(x+dx,z+dz)));
@@ -75,11 +93,7 @@ public final class LbcGrimoireDungeon {
         }
         @Override public boolean ready(){return preparation.isDone();}
         private void generate(){
-            var holder=level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(STRUCTURE).orElseThrow(()->new IllegalStateException("Missing native dungeon structure"));
-            var generator=level.getChunkSource().getGenerator();var randomState=level.getChunkSource().randomState();
-            start=holder.value().generate(holder,level.dimension(),level.registryAccess(),generator,generator.getBiomeSource(),randomState.createClimateSampler(SamplerContext.EMPTY_UNCACHED),randomState,
-                    level.getStructureTemplateManager(),level.getSeed(),new ChunkPos(origin.getX()>>4,origin.getZ()>>4),0,level,biome->true);
-            if(!start.isValid())throw new IllegalStateException("Native dungeon jigsaw generation failed");
+            start=generated.join();
             var bounds=start.getBoundingBox();chunks=ChunkPos.rangeClosed(new ChunkPos(bounds.minX()>>4,bounds.minZ()>>4),new ChunkPos(bounds.maxX()>>4,bounds.maxZ()>>4)).toList();
             for(var pos:chunks)if(level.getChunkSource().getChunkNow(pos.x(),pos.z())==null)throw new IllegalStateException("Native dungeon exceeds prepared footprint");
         }
@@ -94,10 +108,11 @@ public final class LbcGrimoireDungeon {
                     var pos=chunks.get(cursor++);var min=new BlockPos(pos.x()*16,level.getMinY(),pos.z()*16);lighting.changed(min);
                     var box=new BoundingBox(pos.x()*16,level.getMinY(),pos.z()*16,pos.x()*16+15,level.getMaxY()+1,pos.z()*16+15);
                     placing=this;
+                    long chunkStart=System.nanoTime();
                     try(var scope=game.items().spellSources().scope(source,level)){
                         Runnable nativePlace=()->start.placeInChunk(level,level.structureManager(),level.getChunkSource().getGenerator(),level.getRandom(),box,pos);
                         if(source!=null)game.items().indirectKills().trapChanges(level,source.cause(),nativePlace);else nativePlace.run();
-                    }finally{placing=null;}
+                    }finally{placing=null;long elapsed=System.nanoTime()-chunkStart;writeNanos+=elapsed;maxChunkNanos=Math.max(maxChunkNanos,elapsed);}
                     if(System.nanoTime()>=deadline)return false;
                 }
                 if(!writesDone){lighting.finishWrites();writesDone=true;}
@@ -107,7 +122,7 @@ public final class LbcGrimoireDungeon {
                 }
                 for(var player:game.server().getPlayerList().getPlayers())player.sendSystemMessage(Component.translatable("shadow_citadel").withStyle(net.minecraft.ChatFormatting.DARK_RED,net.minecraft.ChatFormatting.BOLD));
                 for(float[] sound:new float[][]{{100,1},{10,.5f},{1,1.5f}})LbcOverload.sound(level,net.minecraft.world.phys.Vec3.atLowerCornerOf(origin),"minecraft:ambient.cave",sound[0],sound[1],0,0);
-                SkyWars2.LOGGER.info("Native grimoire dungeon placed {} pieces in {} chunks",start.getPieces().size(),chunks.size());
+                SkyWars2.LOGGER.info("Native grimoire dungeon placed {} pieces in {} chunks; writeMs={} maxChunkMs={}",start.getPieces().size(),chunks.size(),writeNanos/1e6,maxChunkNanos/1e6);
                 finish();return true;
             }catch(RuntimeException error){SkyWars2.LOGGER.error("Native grimoire dungeon placement failed",error);cancel();return true;}
         }

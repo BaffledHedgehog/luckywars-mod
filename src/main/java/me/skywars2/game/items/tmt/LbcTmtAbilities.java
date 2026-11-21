@@ -19,7 +19,11 @@ public final class LbcTmtAbilities {
     public static final String SLOTS="tmt_abilities",ACTIVE="tmt_active_ability";
     public static final String NATIVE="tmt_native_item";
     private static final List<String> PARAMETERS=List.of("upgraded","mode","type");
-    private static final List<String> IDENTITY=List.of(SLOTS,ACTIVE,"tmt_item","tmt_texture_seed",LbcTmtTriggers.SCHEMA);
+    private static final List<String> IDENTITY=List.of(SLOTS,ACTIVE,"tmt_item","tmt_texture_seed","tmt_consumable",LbcTmtTriggers.SCHEMA);
+    /** Only newly generated, explicitly reusable TMT items opt in. Inventory splits remain native. */
+    public static boolean reusable(ItemStack stack){
+        return LbcTmtItems.matches(stack)&&ItemData.intValue(stack,"tmt_consumable",-1)==0;
+    }
     // Captured source stacks retain ACTIVE as context. Runtime reentry is never a serialized lock.
     private static final ThreadLocal<java.util.Map<ItemStack,CustomData>> SCOPES=new ThreadLocal<>();
     private static final ThreadLocal<java.util.ArrayDeque<Runnable>> AFTER_SCOPES=new ThreadLocal<>();

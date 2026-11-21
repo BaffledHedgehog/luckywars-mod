@@ -83,7 +83,7 @@ public final class TrollBoxChecks {
             if(result==5){
                 for(var packets:List.of(f.client().packets().subList(beforeOwner,f.client().packets().size()),f.audience().packets().subList(beforeOther,f.audience().packets().size()))){
                     var music=packets.stream().filter(p->p instanceof net.minecraft.network.protocol.game.ClientboundSoundPacket sound&&sound.getSound().value().location().toString().equals("minecraft:lbcsounds.backrooms")).map(net.minecraft.network.protocol.game.ClientboundSoundPacket.class::cast).toList();
-                    require(music.size()==1&&music.getFirst().getY()==10_000_000&&music.getFirst().getVolume()==1_000_000_000f,"exactly one personal world-wide stereo Backrooms track per viewer");
+                    require(music.size()==1&&music.getFirst().getVolume()==2,"one personal Backrooms track at volume2");
                 }
             }
         }
@@ -95,7 +95,7 @@ public final class TrollBoxChecks {
         void clear(){service.stop();if(f.stopped)f.thaw();f.owner.removeAllEffects();f.other.removeAllEffects();f.owner.getInventory().clearContent();f.other.getInventory().clearContent();cleanupEntities();f.terrain.forEach((at,state)->game.maps().restoreSnapshot(f.level,at,state,2|16|32));f.move(f.owner,origin);f.move(f.other,origin.add(12,0,0));}
         void nextOutcome(){clear();if(++variant==2){variant=0;number++;}if(number<=6)use(number,variant);next(10);}
         Entity power(){return service.snapshot().stream().filter(e->e.entityTags().contains("movingpower")).findFirst().orElse(null);}
-        void hunter(){var body=service.snapshot().stream().filter(WitherSkeleton.class::isInstance).map(WitherSkeleton.class::cast).findFirst().orElseThrow();require(body.isSilent()&&body.getMaxHealth()==20&&body.getAttributeBaseValue(Attributes.ATTACK_DAMAGE)==8&&body.hasEffect(MobEffects.INVISIBILITY)&&body.hasEffect(MobEffects.SPEED),"actual native hunter attributes/equipment/status");require(service.owner(body)==f.owner&&game.items().spellSources().source(body).author().equals(f.owner.getUUID()),"causal hunter owner");}
+        void hunter(){var body=service.snapshot().stream().filter(WitherSkeleton.class::isInstance).map(WitherSkeleton.class::cast).findFirst().orElseThrow();require(body.isSilent()&&body.getMaxHealth()==20&&body.getAttributeBaseValue(Attributes.ATTACK_DAMAGE)==8&&body.hasEffect(MobEffects.INVISIBILITY)&&body.hasEffect(MobEffects.SPEED),"actual native hunter attributes/equipment/status");require(service.owner(body)==null&&game.items().spellSources().source(body).author()==null&&game.items().spellSources().source(body).cause()==null&&game.items().spellSources().source(body).unownedMobs(),"hunter is WILD and gives no apocalypse-owner kill credit");}
         void stones(){for(var at:BlockPos.betweenClosed(new BlockPos(-3,307,-3),new BlockPos(3,313,3)))f.set(at,Blocks.STONE.defaultBlockState());}
         boolean step(){
             require(!game.vanity().status().startsWith("FAILED"),"native coordinator failed: "+game.vanity().status());

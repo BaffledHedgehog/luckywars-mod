@@ -17,6 +17,9 @@ public abstract class TypedItemDamageMixin {
     private void skywars2$protectTypedStack(ServerLevel level, DamageSource source, float amount,
                                           CallbackInfoReturnable<Boolean> cir) {
         if (source.is(DamageTypes.FELL_OUT_OF_WORLD)) return;
+        if(me.skywars2.game.items.weapons.ranged.LbcGroundCrossbowCrafts.hurt((ItemEntity)(Object)this,source)){
+            cir.setReturnValue(false);return;
+        }
         var data = ((ItemEntity) (Object) this).getItem().get(DataComponents.CUSTOM_DATA);
         // Numeric artifact types and string clock types share presence semantics.
         // Read on damage so replacement, merging and loading need no cached entity flag.

@@ -15,9 +15,11 @@ import me.skywars2.game.items.tmt.LbcTmtAbilities;
 public final class LbcSwordTools {
     private static final Set<Identifier> CARROT_WEAR_MODELS = Set.of(
             Identifier.parse("lbc:anal_whip"), Identifier.parse("lbc:cyberkatana"),
+            Identifier.parse("lbc:banhammer"), Identifier.parse("lbc:blazefire_sword"),
+            Identifier.parse("lbc:death_skythe"), Identifier.parse("lbc:fartus"),
             Identifier.parse("lbc:lightsaber_empty"), Identifier.parse("lbc:piston_sword"),
             Identifier.parse("lbc:shit_katana"), Identifier.parse("lbc:techrunner_katana"),
-            Identifier.parse("lbc:terra_razorpine"), Identifier.parse("lbc:vex_sword"),
+            Identifier.parse("lbc:terra_razorpine"), Identifier.parse("lbc:terrasword"), Identifier.parse("lbc:vex_sword"),
             Identifier.parse("lbc:vexsword"));
 
     private LbcSwordTools(){}

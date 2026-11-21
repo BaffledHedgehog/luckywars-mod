@@ -3,6 +3,9 @@
   "package": "me.skywars2.mixin",
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "items.TmtConsumptionMixin",
+    "items.GroundCrossbowCraftMixin",
+    "terrain.GrimoirePlacementMixin",
     "loot.TinyWandItemAccess",
     "terrain.BlockPlacementAccess",
     "genie.GenieProjectileMixin$Fireball",

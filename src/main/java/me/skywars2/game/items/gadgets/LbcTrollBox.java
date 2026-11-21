@@ -142,10 +142,7 @@ public final class LbcTrollBox {
                 var job=new Placement(new Event(player.level(),event.source),player.position(),player.getUUID(),number==4,player.getRandom().nextLong());placements.add(job);game.items().stonekivi().queuedWork(job);
             }
                 if(number==5)for(var player:game.server().getPlayerList().getPlayers()){
-                    // Personal soundtrack: the general sound helper broadcasts to every nearby viewer.
-                    var music=Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Identifier.parse("minecraft:lbcsounds.backrooms")));
-                    player.connection.send(new ClientboundSoundPacket(music,net.minecraft.sounds.SoundSource.MASTER,
-                            0,10_000_000,0,1_000_000_000f,1,player.getRandom().nextLong()));
+                    LbcOverload.personalSound(player,player.position(),"minecraft:lbcsounds.backrooms",2,1,.2f);
                 }
             }
             case 6->abyss=event;
@@ -224,7 +221,8 @@ public final class LbcTrollBox {
         try{body.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),TagParser.parseCompoundFully(HUNTER_DATA)));}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
         body.setPos(target.position().add(0,6,0));var spread=LbcBloodConfuse.spreadDestination(level,target.position(),level.getRandom());if(spread!=null)body.setPos(spread);
-        body.entityTags().addAll(List.of(ACTOR,HUNTER,"tp_skel_ar"));var source=event.source;
+        body.entityTags().addAll(List.of(ACTOR,HUNTER,"tp_skel_ar"));
+        var source=new LbcSpellSource.Source(body.getUUID(),null,event.source.epoch(),null,Set.of(),true,true,body);
         var accepted=new Event(level,source);hunters.put(body.getUUID(),new Hunter(body,accepted));game.items().spellSources().bind(body,source);game.items().markCurrentItemEpoch(body);game.items().timeStop().prepareFrozen(body);
         try(var scope=game.items().spellSources().scope(source,level)){if(!level.addFreshEntity(body)){hunters.remove(body.getUUID());body.discard();}}
     }
@@ -286,7 +284,11 @@ public final class LbcTrollBox {
                 var part=walls.get(slice);var origin=BlockPos.containing(at).offset(WALL_OFFSETS[offset][0],-1,WALL_OFFSETS[offset][1]);var bounds=part.bounds().moved(origin.getX(),origin.getY(),origin.getZ());
                 for(int x=bounds.minX()>>4;x<=bounds.maxX()>>4;x++)for(int z=bounds.minZ()>>4;z<=bounds.maxZ()>>4;z++)if(event.level.getChunkSource().getChunkNow(x,z)==null){game.maps().prepareChunk(event.level,new net.minecraft.world.level.ChunkPos(x,z));return false;}
                 var settings=new StructurePlaceSettings().setKnownShape(true).setIgnoreEntities(false).setBoundingBox(bounds).addProcessor(new BlockRotProcessor(.995f));
-                game.items().indirectKills().capturedWorldChanges(event.level,event.source.cause(),()->game.maps().placeMapSlice(event.level,part.template(),origin,settings,seed+offset));
+                // The apocalypse has a lifecycle author, but its structure mobs are unowned hazards.
+                var hazard=new LbcSpellSource.Source(event.source.emitter(),null,event.source.epoch(),null,Set.of(),true,true);
+                try(var hazards=game.items().spellSources().scope(hazard,event.level)){
+                    game.items().indirectKills().capturedWorldChanges(event.level,null,()->game.maps().placeMapSlice(event.level,part.template(),origin,settings,seed+offset));
+                }
                 if(++slice==walls.size()){slice=0;if(++offset==WALL_OFFSETS.length)return finish();}return false;
             }
         }finally{callbacks--;}}

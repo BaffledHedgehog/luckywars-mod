@@ -98,6 +98,9 @@ import me.skywars2.game.world.terrain.LbcDropBlocks;
 /** Native, tick-budgeted placement of the imported SkyWars structure manifests. */
 public final class MapManager {
     public static final int OUTER_ARENA_LIMIT = 500;
+    public static boolean insideArena(BlockPos pos){
+        return Math.abs((long)pos.getX())<=OUTER_ARENA_LIMIT&&Math.abs((long)pos.getZ())<=OUTER_ARENA_LIMIT;
+    }
     private static final String MAP_RESOURCE_ROOT = "/skywars2/maps/";
     private static final int TILE_XZ = 8;
     private static final int TILE_Y = 8;
@@ -1100,7 +1103,8 @@ public final class MapManager {
                     original=new BlockPos(original.getX(),original.getZ()-start,start+319-original.getY());
                 }
             }
-            originals.put(at,original);cells.put(at,BlockSnapshot.air());
+            if(insideArena(at))originals.put(at,original);
+            cells.put(at,BlockSnapshot.air());
         }
         var blocks=level.registryAccess().lookupOrThrow(Registries.BLOCK);
         for(var placement:pristinePlacements){
@@ -1371,7 +1375,7 @@ public final class MapManager {
 
     /** Records a server-thread block mutation in the arena for eventual cleanup. */
     public void recordBlockChange(BlockPos pos) {
-        if (pos == null) return;
+        if (pos == null || !insideArena(pos)) return;
         // Loader writes are already covered by its persisted recovery envelope.
         // Native flow and player edits in LOBBY/LOADING still need their own bounds.
         if (applyingMapWork || placingMapSlice) return;
@@ -1666,7 +1670,14 @@ public final class MapManager {
         addClearWork(boxes,protectLobby,null);
     }
     private void addClearWork(List<BoundingBox> boxes, boolean protectLobby,ServerLevel target) {
-        for (BoundingBox box : boxes) {
+        for (BoundingBox requested : boxes) {
+            var box=requested;
+            if(target==null||target==level){
+                int minX=Math.max(-OUTER_ARENA_LIMIT,box.minX()),maxX=Math.min(OUTER_ARENA_LIMIT,box.maxX());
+                int minZ=Math.max(-OUTER_ARENA_LIMIT,box.minZ()),maxZ=Math.min(OUTER_ARENA_LIMIT,box.maxZ());
+                if(minX>maxX||minZ>maxZ)continue;
+                box=new BoundingBox(minX,box.minY(),minZ,maxX,box.maxY(),maxZ);
+            }
             for (int y = box.minY(); y <= box.maxY(); y += TILE_Y) {
                 for (int x = box.minX(); x <= box.maxX(); x += TILE_XZ) {
                     for (int z = box.minZ(); z <= box.maxZ(); z += TILE_XZ) {
