@@ -180,9 +180,13 @@ public final class LbcSpecialFireballs {
     /** Use the actual snowball's position, rotation and velocity, including any native throw spread. */
     public List<Entity> convert(Snowball ball){
         int kind=variant(ball.getItem());if(kind==0||ball.isRemoved()||!(ball.getOwner() instanceof ServerPlayer p)||!active(ball)||frozen(ball))return List.of();
-        var direction=Vec3.directionFromRotation(ball.getXRot(),ball.getYRot());var at=ball.position().add(direction.scale(kind==3||kind==6||kind==7||kind==8?0:1.5));
+        var motion=ball.getDeltaMovement();
+        // Native projectile rotations use different yaw/pitch signs from camera rotations.
+        // Offset along the real throw vector so the body starts ahead, never mirrored sideways.
+        var direction=motion.lengthSqr()>1e-12?motion.normalize():p.getLookAngle();
+        var at=ball.position().add(direction.scale(kind==3||kind==6||kind==7||kind==8?0:1.5));
         if(!resident(p.level(),at)||!resident(p.level(),at.add(0,0,3)))return List.of();
-        var result=new ArrayList<Entity>();var motion=ball.getDeltaMovement();
+        var result=new ArrayList<Entity>();
         switch(kind){
             case 1->{var fire=new SmallFireball(EntityTypes.SMALL_FIREBALL,p.level());fire.entityTags().add("can_deleted");result.add(insert(p,fire,at,scaled(motion,10000,.0006),false));}
             case 2,5->{var fire=new LargeFireball(p.level(),p,Vec3.ZERO,kind==5?127:2);fire.setNoGravity(true);fire.setPermanentlyInvulnerable(kind==5);result.add(insert(p,fire,at,scaled(motion,100000,.00000075),false));}

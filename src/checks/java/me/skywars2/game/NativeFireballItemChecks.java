@@ -84,11 +84,27 @@ public final class NativeFireballItemChecks {
         f.clear();f.owner.setGameMode(GameType.CREATIVE);var free=new ItemStack(LbcSpecialFireballItems.entries().getFirst().item(),2);f.owner.setItemInHand(InteractionHand.MAIN_HAND,free);
         try{require(f.owner.gameMode.useItem(f.owner,f.owner.level(),free,InteractionHand.MAIN_HAND).consumesAction()&&free.getCount()==2&&f.service.trackedCount()==1,"native creative use retains ammunition");}finally{f.owner.setGameMode(GameType.SURVIVAL);f.clear();}
     }
+    static void alignedSpawns(SpecialFireballChecks.Fixture f){
+        float yaw=f.owner.getYRot(),pitch=f.owner.getXRot();
+        try{
+            for(float facing:new float[]{-180,-135,-90,-45,0,45,90,135})for(float elevation:new float[]{-60,0,60})for(var hand:InteractionHand.values()){
+                f.clear();f.owner.setYRot(facing);f.owner.setXRot(elevation);
+                var stack=new ItemStack(LbcSpecialFireballItems.entries().getFirst().item());
+                f.owner.setItemInHand(hand,stack);
+                var origin=new net.minecraft.world.phys.Vec3(f.owner.getX(),f.owner.getEyeY()-.1f,f.owner.getZ());
+                require(f.owner.gameMode.useItem(f.owner,f.owner.level(),stack,hand).consumesAction(),"native angled throw");
+                var body=f.service.snapshot().getFirst();var offset=body.position().subtract(origin);
+                require(Math.abs(offset.lengthSqr()-2.25)<1e-6
+                        &&offset.normalize().dot(body.getDeltaMovement().normalize())>.9999999,
+                        "spawn follows actual throw, never mirrored projectile rotation: yaw="+facing+" pitch="+elevation+" hand="+hand);
+            }
+        }finally{f.clear();f.owner.setYRot(yaw);f.owner.setXRot(pitch);}
+    }
     public static void run(GameController game){
         boolean levelups=game.config().lbcLevelups;var stats=new LinkedHashMap<Item,Integer>();
         try(var f=new SpecialFireballChecks.Fixture(game)){
             game.config().lbcLevelups=false;f.initialize();for(var entry:LbcSpecialFireballItems.entries())stats.put(entry.item(),f.owner.getStats().getValue(Stats.ITEM_USED.get(entry.item())));
-            try{presentation(game,f);launches(game,f);}finally{for(var entry:stats.entrySet())f.owner.getStats().setValue(f.owner,Stats.ITEM_USED.get(entry.getKey()),entry.getValue());}
+            try{presentation(game,f);launches(game,f);alignedSpawns(f);}finally{for(var entry:stats.entrySet())f.owner.getStats().setValue(f.owner,Stats.ITEM_USED.get(entry.getKey()),entry.getValue());}
         }finally{game.config().lbcLevelups=levelups;}
         ImbaPearlChecks.run(game);
         SkyWars2.LOGGER.info("[check] PASS native-fireball-items (eight canonical native prototypes, seeded source counts/all components, ready wrappers/Polymer, both actual hands, immediate1/33/17 final bodies/no snowball or pending tick, creator/epoch/fuse/pearl ledger, sole debit/stat, frozen and creative input)");

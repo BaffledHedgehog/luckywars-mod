@@ -74,7 +74,7 @@ public final class SpecialFireballChecks {
                 var ball=source(kind,at,velocity);var output=service.convert(ball);require(ball.isRemoved(),"source replaced after successful launch");
                 var first=output.getFirst();require(first.getClass()==(kind==0?SmallFireball.class:kind==3?PrimedTnt.class:kind==1||kind==4?LargeFireball.class:DragonFireball.class),"exact vanilla runtime type "+FLAGS[kind]);
                 require(service.owner(first)==owner&&game.items().currentEpoch(first),"native owner and current epoch "+FLAGS[kind]);
-                var position=at.add(0,0,kind==2||kind==5?0:1.5);require(first.position().distanceToSqr(position)<1e-12,"source local launch offset");
+                var position=at.add(velocity.normalize().scale(kind==2||kind==5?0:1.5));require(first.position().distanceToSqr(position)<1e-12,"launch offset follows real motion independently of projectile rotation");
                 double read=kind==0||kind==3?10000:100000,write=kind==0||kind==3?.0006:kind==1||kind==4?.00000075:.0000005;
                 var expected=new Vec3(Math.floor(velocity.x*read)*write,Math.floor(velocity.y*read)*write,Math.floor(velocity.z*read)*write);
                 require(first.getDeltaMovement().distanceToSqr(expected)<1e-20,"source signed floor/scaling "+FLAGS[kind]);
