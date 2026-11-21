@@ -177,6 +177,17 @@ public final class LbcReactiveArtifacts {
         }
         clouds.add(cloud);updateSmoke(false);
     }
+    /** A landed grenade still owns its smoke, even when the legacy source has no native carrier. */
+    void clearGrenades(ServerPlayer caster,Vec3 center,double radiusSquared){
+        for(var cloud:List.copyOf(clouds)){
+            if(cloud.visual==0||cloud.level!=caster.level()||cloud.owner.getUUID().equals(caster.getUUID())
+                    ||caster.isAlliedTo(cloud.owner))continue;
+            var carrier=cloud.carrier;
+            if(carrier!=null&&!carrier.isRemoved()&&!game.items().wands().validRoleTarget(carrier,false))continue;
+            var at=carrier==null?cloud.center:carrier.position();
+            if(at.distanceToSqr(center)<=radiusSquared)removeCloud(cloud);
+        }
+    }
     private static MobEffectInstance smokeLayer(MobEffectInstance value,int amplifier){for(var node=value;node!=null;node=((EffectLayers.Access)node).skywars2$layerHidden())if(node.getAmplifier()==amplifier){var copy=new MobEffectInstance(node);((EffectLayers.Access)copy).skywars2$layerHidden(null);return copy;}return null;}
     /** Native addEffect observer retains unrelated same-amplifier layers while smoke owns its short layer. */
     public void externalBlindness(LivingEntity target,MobEffectInstance grant){if(applying||!grant.is(MobEffects.BLINDNESS)||!target.canBeAffected(grant))return;var state=blind.get(target);if(state==null||grant.getAmplifier()!=state.amplifier)return;if(state.baseline==null)state.baseline=smokeLayer(grant,state.amplifier);else EffectLayers.merge(state.baseline,grant);}

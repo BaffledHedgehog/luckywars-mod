@@ -14,6 +14,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -22,6 +23,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -45,6 +47,7 @@ public final class LbcDanmaku {
     public static final Item ITEM=item(false), ACADEMY=item(true);
     public static final Item GRIMOIRE=grimoireItem();
     private static final String TAG="skywars2.danmaku";
+    private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mobs"));
     private static final int BOMB_PULSE_INTERVAL = 10;
     private final GameController game;
     private final LbcMana mana;
@@ -406,7 +409,8 @@ public final class LbcDanmaku {
         var candidates = targets.computeIfAbsent(owner, player -> {
             var eligible = new ArrayList<LivingEntity>();
             for (var candidate : game.items().lifetimes().loadedTargets()) {
-                if (candidate.level() == level && game.items().wands().target(player, candidate)) eligible.add(candidate);
+                if (candidate.level() == level && candidate.getType().builtInRegistryHolder().is(MOBS)
+                        && game.items().wands().target(player, candidate)) eligible.add(candidate);
             }
             return eligible;
         });
@@ -498,6 +502,8 @@ public final class LbcDanmaku {
         double radius = b.radius();
         double radiusSquared = radius * radius;
         game.items().wands().clearDanmakuRays(b.owner, center, radius);
+        game.items().sauvojen().meditation().clearTraces(level, center, radiusSquared);
+        game.items().reactiveArtifacts().clearGrenades(b.owner, center, radiusSquared);
         DamageSource source = null;
         boolean hit = false;
         float amount = (b.fast ? 2f : 1f) * (game.balanceLegacy() ? 1f : .5f);
@@ -521,7 +527,12 @@ public final class LbcDanmaku {
     private boolean hostileProjectile(ServerPlayer p,Entity e){
         if(managed(e)){var owner=owner(e);return owner!=null&&owner!=p&&!p.isAlliedTo(owner)&&cards.stream().anyMatch(c->c.display==e);}
         if(!game.items().wands().validRoleTarget(e,false)||LbcGreed.active(e)||p.isAlliedTo(e))return false;
-        if(!(e instanceof Projectile)&&!e.entityTags().contains("mob_projectile")&&!e.entityTags().contains("slowraycast")&&!e.entityTags().contains("raycast")&&!(e instanceof net.minecraft.world.entity.item.FallingBlockEntity)&&!(e instanceof net.minecraft.world.entity.item.PrimedTnt)&&!((e.entityTags().contains("magic")||e.entityTags().contains("mecha"))&&(e instanceof Display||e instanceof net.minecraft.world.entity.Marker||e instanceof net.minecraft.world.entity.AreaEffectCloud)))return false;
+        var tags=e.entityTags();
+        boolean raycaster=e instanceof Display||e instanceof net.minecraft.world.entity.Marker||e instanceof net.minecraft.world.entity.AreaEffectCloud
+                ||e instanceof net.minecraft.world.entity.Interaction&&tags.contains(SauvojenMeditation.TAG);
+        if(!(e instanceof Projectile)&&!tags.contains("mob_projectile")&&!tags.contains("slowraycast")&&!tags.contains("raycast")
+                &&!(e instanceof net.minecraft.world.entity.item.FallingBlockEntity)&&!(e instanceof net.minecraft.world.entity.item.PrimedTnt)
+                &&!(raycaster&&(tags.contains("magic")||tags.contains("mecha"))))return false;
         var source=LbcIndirectKills.playerSource(e);return source!=p&&(source==null||!p.isAlliedTo(source));
     }
     private void remove(Card c){cards.remove(c);c.display.discard();}

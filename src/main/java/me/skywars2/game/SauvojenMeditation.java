@@ -50,14 +50,18 @@ public final class SauvojenMeditation {
     enum Kind { TERRA,TERRA_RAY,WEB,AIR,ACID_RING,ACID_BALLER,ACID_BALL,SCARE }
     static final class Hazard {
         final Kind kind; Vec3 at,direction; int age; float yaw;
-        Entity actor; UUID uuid; TrialWarningVisual warning;
+        Entity actor; UUID uuid; TrialWarningVisual warning; Hazard partner;
         Hazard(Kind kind,Vec3 at,Vec3 direction){this.kind=kind;this.at=at;this.direction=direction;}
         void close(){if(actor!=null)actor.discard();actor=null;if(warning!=null)warning.close();}
     }
+    private record WebEdge(Hazard from,Hazard to) { }
+    private record WebWarning(Hazard terminal,TrialWarningVisual visual) { }
     static final class Trial {
         final ServerPlayer owner; final ItemStack stack; final ServerLevel level; final String epoch;
         final LbcIndirectKills.Owner cause; final List<Hazard> hazards=new ArrayList<>();
-        final List<TrialWarningVisual> warnings=new ArrayList<>(),webWarnings=new ArrayList<>();
+        final List<TrialWarningVisual> warnings=new ArrayList<>();
+        final Map<WebEdge,WebWarning> webWarnings=new LinkedHashMap<>();
+        boolean webPruned;
         int remaining=620; int ticks;
         int webQueries,webEdges,webSamples;
         TerrainJob terrain;long terrainNanos,maxTerrainNanos;int terrainTurns;
@@ -127,6 +131,8 @@ public final class SauvojenMeditation {
             if(!valid(t.owner)||t.owner.level()!=t.level||!game.items().currentEpoch(t.epoch)) {finish(t,null);continue;}
             if(t.owner.getMainHandItem()!=t.stack||!participating(t.stack)){finish(t,"sauvojen_wand_meditate_no_wand");continue;}
             if(game.maps().busy()||game.items().timeStop().stopped(t.level)||t.owner.entityTags().contains("time_stopped"))continue;
+            // The sphere runs just before this phase. Native unload cleanup runs on the next tick.
+            for(var h:List.copyOf(t.hazards))if(h.actor!=null&&h.actor.isRemoved())retire(t,h);
             t.warnings.removeIf(TrialWarningVisual::tick);
             // Legacy stopper pauses countdown; already emitted helpers retain their own local suppression.
             if(!game.items().magic().suppressed(t.owner)){
@@ -137,8 +143,9 @@ public final class SauvojenMeditation {
             }
             for(var h:List.copyOf(t.hazards)){
                 if(trials.get(t.owner)!=t)break;
+                if(h.actor==null&&h.uuid!=null)continue; // A paired face may have retired earlier in this step.
                 if(!resident(t.level,h.at)||game.items().magic().suppressedAt(t.level,h.at)||step(t,h)){
-                    t.hazards.remove(h);h.close();
+                    retire(t,h);
                 }
             }
             t.ticks++;
@@ -293,7 +300,10 @@ public final class SauvojenMeditation {
         var h=add(t,Kind.SCARE,t.owner.position().add(direction.scale(10)),Vec3.ZERO);
         var interaction=new Interaction(EntityTypes.INTERACTION,t.level);interaction.setPos(h.at);interaction.setWidth(4);interaction.setHeight(4);
         interaction.entityTags().add("scare_picture");own(t,h,interaction);
-        var face=add(t,Kind.SCARE,h.at,Vec3.ZERO);model(t,face,"scare_face_"+(r.nextInt(10)+1),5);
+        if(interaction.isRemoved())return;
+        var face=add(t,Kind.SCARE,h.at,Vec3.ZERO);h.partner=face;face.partner=h;
+        model(t,face,"scare_face_"+(r.nextInt(10)+1),5);
+        if(face.actor.isRemoved()){retire(t,h);return;}
         face.actor.setGlowingTag(true);((Display)face.actor).setGlowColorOverride(0);
         ((Display)face.actor).setTransformation(new com.mojang.math.Transformation(new Vector3f(0,1.25f,0),new Quaternionf(),new Vector3f(5),new Quaternionf()));
         face.actor.setYRot(yaw(t.owner.getEyePosition().subtract(h.at)));face.actor.setXRot(pitch(t.owner.getEyePosition().subtract(h.at)));
@@ -407,10 +417,14 @@ public final class SauvojenMeditation {
         Block replacement=next;terrain(t,p,p,()->t.level.setBlockAndUpdate(p,replacement.defaultBlockState()));
     }
     void webDamage(Trial t){
-        t.webWarnings.forEach(TrialWarningVisual::close);t.webWarnings.clear();
+        t.webWarnings.values().forEach(warning->warning.visual.close());
         if(t.hazards.stream().anyMatch(h->h.kind==Kind.WEB))
             sound(t,t.owner.position(),"minecraft:entity.firework_rocket.twinkle",1,1);
-        webLines(t,true);for(var h:List.copyOf(t.hazards))if(h.kind==Kind.WEB){t.hazards.remove(h);h.close();}}
+        webLines(t,true);
+        t.webWarnings.clear();
+        for(var h:List.copyOf(t.hazards))if(h.kind==Kind.WEB){t.hazards.remove(h);h.close();}
+        t.webPruned=false;
+    }
     /** Complete source graph; collision sampling is independent of the bounded visual budget. */
     int webLines(Trial t,boolean damage){
         var webs=t.hazards.stream().filter(h->h.kind==Kind.WEB).toList();if(webs.isEmpty())return 0;
@@ -427,8 +441,12 @@ public final class SauvojenMeditation {
         for(int i=1;i<webs.size();i++){
             var h=webs.get(i);
             int sourcePulses = 0;
-            for(var target:active){edges++;
+            for(var target:active){
+                var warned=t.webPruned&&damage?t.webWarnings.get(new WebEdge(h,target)):null;
+                if(t.webPruned&&damage&&warned==null)continue;
+                edges++;
                 Vec3 aim=target.at.subtract(h.at);double distance=aim.length();Vec3 direction=aim.normalize();
+                double limitDistance=warned==null?distance:Math.min(distance,h.at.distanceTo(warned.visual.end()));
                 double step=damage?.5:.2;int limit=damage?201:1000;
                 // Compute continuous interception once, then retain the exact source sample boundary.
                 double fraction=game.items().magic().suppressionFraction(t.level,h.at,target.at);
@@ -436,18 +454,18 @@ public final class SauvojenMeditation {
                 double suppression=Double.isFinite(fraction)?fraction*distance:Double.POSITIVE_INFINITY;
                 var greed=LbcGreed.firstHit(t.level,h.at,target.at.add(direction.scale(step)),.15);
                 double greedDistance=greed==null?Double.POSITIVE_INFINITY:h.at.distanceTo(greed.getLocation());
-                Vec3 last=null;int samples=0;
-                for(int j=0;j<limit&&j*step<=distance;j++){
+                Vec3 last=null;int samples=0;Hazard terminal=null;
+                for(int j=0;j<limit&&j*step<=limitDistance;j++){
                     double travel=j*step;Vec3 point=h.at.add(direction.scale(travel));
                     if(!resident(t.level,point)||travel>=suppression||travel+step>=greedDistance)break;
                     last=point;samples++;t.webSamples++;
                     if(damage&&contact(t,point,false,candidates))break;
-                    boolean terminal=false;for(var node:active)if(node.at.distanceToSqr(point)<=(damage?.25:.09)){terminal=true;break;}
-                    if(terminal)break;
+                    for(var node:active)if(node.at.distanceToSqr(point)<=(damage?.25:.09)){terminal=node;break;}
+                    if(terminal!=null)break;
                 }
                 if(last!=null&&!damage){
                     var warning=TrialWarningVisual.beam(game,t.level,t.epoch,h.at,last,false,20);
-                    t.warnings.add(warning);t.webWarnings.add(warning);
+                    t.warnings.add(warning);t.webWarnings.put(new WebEdge(h,target),new WebWarning(terminal,warning));
                 }
                 if(last!=null&&damage){
                     int count=Math.min(samples,visualSamples);
@@ -553,8 +571,31 @@ public final class SauvojenMeditation {
     public void unloaded(Entity actor){
         if(!actor.entityTags().contains(TAG))return;
         for(var t:trials.values())for(var h:List.copyOf(t.hazards))if(h.actor==actor){
-            // Never keep an invisible damaging helper after its actual actor is removed/unloaded.
-            t.hazards.remove(h);h.close();
+            retire(t,h);
+        }
+    }
+    private void retire(Trial t,Hazard hazard) {
+        if(!t.hazards.remove(hazard))return;
+        if(hazard.kind==Kind.WEB){
+            t.webPruned=true;
+            t.webWarnings.entrySet().removeIf(entry->{
+                var edge=entry.getKey();var warning=entry.getValue();
+                if(edge.from!=hazard&&edge.to!=hazard&&warning.terminal!=hazard)return false;
+                warning.visual.close();t.warnings.remove(warning.visual);return true;
+            });
+        }
+        var partner=hazard.partner;
+        if(partner!=null&&t.hazards.remove(partner))partner.close();
+        hazard.close();
+    }
+    /** These legacy raycasters are simulated without a native entity. */
+    void clearTraces(ServerLevel level,Vec3 center,double radiusSquared){
+        for(var t:trials.values())if(t.level==level)for(var hazard:List.copyOf(t.hazards)){
+            if(hazard.at.distanceToSqr(center)>radiusSquared)continue;
+            switch(hazard.kind){
+                case TERRA_RAY,ACID_RING,ACID_BALL->retire(t,hazard);
+                default->{}
+            }
         }
     }
     public void stop(){for(var t:List.copyOf(trials.values()))finish(t,null);terraTicker=0;}

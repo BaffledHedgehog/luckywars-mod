@@ -16,12 +16,14 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
@@ -257,6 +259,177 @@ public final class DanmakuChecks {
             shot=card(origin,new Vec3(0,0,1),false);var display=shot.display;danmaku.unloaded(display);require(danmaku.cards().isEmpty()&&display.isRemoved(),"native unload retires owned card");
             shot=card(origin,new Vec3(0,0,1),false);display=shot.display;danmaku.forget(owner);require(danmaku.cards().isEmpty()&&display.isRemoved(),"owner retirement clears own card");
         }
+        void playerOnlyHoming() {
+            var level = owner.level();
+            var board = game.server().getScoreboard();
+            var players = List.of(owner, other);
+            var oldMana = List.of(mana.get(owner), mana.get(other));
+            var mobs = net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
+                    Identifier.parse("minecraft:mobs"));
+            move(owner, at.add(-2, 11, 3));
+            move(other, at.add(2, 11, 3));
+
+            var unexpected = new ArrayList<LivingEntity>();
+            for (var entity : level.getAllEntities()) {
+                if (entity instanceof LivingEntity living && entity != owner && entity != other
+                        && entity.getType().builtInRegistryHolder().is(mobs)
+                        && players.stream().anyMatch(player -> game.items().wands().target(player, entity))) {
+                    unexpected.add(living);
+                }
+            }
+            require(unexpected.isEmpty(), "player-only homing starts before any eligible mob is published "+unexpected);
+            for (var player : players) {
+                require(game.allowDamage(player) && level.getEntity(player.getUUID()) == player
+                        && level.players().contains(player) && game.items().lifetimes().loadedTargets().contains(player),
+                        "each real match participant is present in both native and cached target catalogs "+player.getScoreboardName());
+            }
+
+            try {
+                for (boolean upgraded : new boolean[] {false, true}) {
+                    for (var player : players) {
+                        board.addPlayerToTeam(player.getScoreboardName(), team);
+                        player.setShiftKeyDown(false);
+                        player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                        player.setItemInHand(InteractionHand.MAIN_HAND, loot(upgraded ? "academy_danmaku_staff" : "danmaku_staff"));
+                        mana.set(player, cost());
+                        require(player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND)
+                                        .consumesAction() && danmaku.remaining(player) == 20 && mana.get(player) == 0,
+                                "both actual Gohei holders use the native paid main-hand route");
+                    }
+
+                    danmaku.tick();
+                    var batch = danmaku.cards();
+                    var homing = batch.stream().filter(card -> card.homing).toList();
+                    for (var player : players) {
+                        var origin = player.getEyePosition().add(0, -.5, 0);
+                        require(homing.stream().filter(card -> card.owner == player && card.age == 1
+                                        && card.display.position().distanceToSqr(origin) < 1e-14).count() == (upgraded ? 8 : 4),
+                                "with no eligible target, only the authored homing cards wait for a target");
+                        if (!upgraded) {
+                            require(batch.stream().filter(card -> card.owner == player && !card.homing
+                                            && card.display.position().distanceToSqr(origin) > 1).count() == 5,
+                                    "ordinary straight cards move independently beside waiting homing cards");
+                        }
+                    }
+
+                    board.removePlayerFromTeam(owner.getScoreboardName(), team);
+                    board.removePlayerFromTeam(other.getScoreboardName(), team);
+                    if (oldOwnerTeam != null) board.addPlayerToTeam(owner.getScoreboardName(), oldOwnerTeam);
+                    if (oldOtherTeam != null) board.addPlayerToTeam(other.getScoreboardName(), oldOtherTeam);
+                    require(!owner.isAlliedTo(other) && game.items().wands().target(owner, other)
+                            && game.items().wands().target(other, owner), "native FFA teams allow both eligible opposing holders");
+
+                    var positions = new IdentityHashMap<LbcDanmaku.Card, Vec3>();
+                    var directions = new IdentityHashMap<LbcDanmaku.Card, Vec3>();
+                    for (var card : homing) {
+                        var opponent = card.owner == owner ? other : owner;
+                        var end = card.display.position();
+                        var aim = card.direction;
+                        for (int i = 0; i < 3; i++) {
+                            aim = ProjectileSteering.turn(aim, opponent.getEyePosition().subtract(end), Math.atan(.06));
+                            end = end.add(aim.scale(.4));
+                        }
+                        positions.put(card, end);
+                        directions.put(card, aim);
+                    }
+                    danmaku.tick();
+                    for (var card : homing) {
+                        require(card.age == 2 && !card.display.isRemoved()
+                                        && card.display.position().distanceToSqr(positions.get(card)) < 1e-14
+                                        && card.direction.distanceToSqr(directions.get(card)) < 1e-14,
+                                "same native homing card resumes toward the only opposing Gohei holder upgraded="+upgraded
+                                        +" actual="+card.display.position()+" expected="+positions.get(card));
+                    }
+                    clear();
+                }
+            } finally {
+                clear();
+                for (int i = 0; i < players.size(); i++) {
+                    var player = players.get(i);
+                    mana.set(player, oldMana.get(i));
+                    player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                }
+                move(owner, at);
+                move(other, at.add(0, 20, 0));
+            }
+        }
+
+        void homingOpponent() {
+            var level = owner.level();
+            var board = game.server().getScoreboard();
+            var origin = at.add(.5, 11.5, .5);
+            var initial = new Vec3(0, 0, 1);
+            var wall = BlockPos.containing(origin).offset(0, 0, 2);
+            var far = cow(origin.add(6, 34, 2));
+            var stand = new ArmorStand(EntityTypes.ARMOR_STAND, level);
+            stand.setPos(origin.add(2, 0, 2));
+            stand.setNoGravity(true);
+            add(stand);
+            board.removePlayerFromTeam(owner.getScoreboardName(), team);
+            board.removePlayerFromTeam(other.getScoreboardName(), team);
+            if (oldOwnerTeam != null) board.addPlayerToTeam(owner.getScoreboardName(), oldOwnerTeam);
+            if (oldOtherTeam != null) board.addPlayerToTeam(other.getScoreboardName(), oldOtherTeam);
+            try {
+                move(other, origin.add(-3, 0, 4));
+                require(game.allowDamage(other) && !owner.isAlliedTo(other)
+                        && game.items().wands().target(owner, other), "connected hostile player retains actual match admission and team");
+                var mobs = net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
+                        Identifier.parse("minecraft:mobs"));
+                require(!stand.getType().builtInRegistryHolder().is(mobs) && other.getType().builtInRegistryHolder().is(mobs)
+                        && far.getType().builtInRegistryHolder().is(mobs), "native authored homing selector distinguishes player and stand");
+                var indexed = game.items().lifetimes().loadedTargets();
+                require(indexed.contains(other) && indexed.contains(stand) && indexed.contains(far),
+                        "native index sees the connected opponent, excluded stand and distant eligible mob");
+                require(stand.distanceToSqr(origin) < other.distanceToSqr(origin)
+                        && other.distanceToSqr(origin) < far.distanceToSqr(origin), "deterministic projectile-relative ordering");
+
+                requireHomingTrajectory(origin, initial, other,
+                        "homing ignores untagged closer armour stand and pursues the nearest eligible player instead of a distant mob");
+                clear();
+
+                var nearMob = cow(origin.add(3, 0, 1));
+                try {
+                    requireHomingTrajectory(origin, initial, nearMob,
+                            "a genuinely closer eligible mob still wins over the opposing player");
+                } finally {
+                    nearMob.discard();
+                    clear();
+                }
+
+                for (int x = -1; x <= 1; x++)
+                    level.setBlock(wall.offset(x, 0, 0), Blocks.STONE.defaultBlockState(), 818);
+                var shot = requireHomingTrajectory(origin, initial, other,
+                        "source aim can see a valid opponent behind a wall until solid terrain stops the card");
+                danmaku.tick();
+                require(shot.display.isRemoved(), "steered homing card cannot travel through the solid wall");
+                clear();
+            } finally {
+                for (int x = -1; x <= 1; x++)
+                    level.setBlock(wall.offset(x, 0, 0), Blocks.AIR.defaultBlockState(), 818);
+                board.addPlayerToTeam(owner.getScoreboardName(), team);
+                board.addPlayerToTeam(other.getScoreboardName(), team);
+                move(other, at.add(0, 20, 0));
+                far.discard();
+                stand.discard();
+                clear();
+            }
+        }
+
+        LbcDanmaku.Card requireHomingTrajectory(Vec3 origin, Vec3 initial, LivingEntity target, String message) {
+            var end = origin;
+            var aim = initial;
+            for (int i = 0; i < 3; i++) {
+                aim = ProjectileSteering.turn(aim, target.getEyePosition().subtract(end), Math.atan(.06));
+                end = end.add(aim.scale(.4));
+            }
+            var shot = card(origin, initial, true);
+            danmaku.tick();
+            require(shot.age == 1 && shot.display.position().distanceToSqr(end) < 1e-14
+                    && shot.direction.distanceToSqr(aim) < 1e-14,
+                    message+" pos="+shot.display.position()+" expected="+end);
+            return shot;
+        }
+
         /** Exercise a tie that breaks after the first substep, then a dense search with a distant winner. */
         void homingSearch() {
             var origin = at.add(0, 11, 0);
@@ -452,7 +625,7 @@ public final class DanmakuChecks {
         }
         boolean step(){
             require(game.playing()&&game.items().currentEpoch(epoch),"active fixture match and epoch");long now=owner.level().getGameTime();if(now==last)return false;last=now;
-            if(phase==0){projectiles();homingSearch();bridges();bombs();counters();phase=1;pattern=0;startPattern();return false;}
+            if(phase==0){playerOnlyHoming();projectiles();homingOpponent();homingSearch();bridges();bombs();counters();phase=1;pattern=0;startPattern();return false;}
             if(phase==1){if(!patternTick())return false;if(++pattern<6){startPattern();return false;}phase=2;move(owner,at);held(loot("danmaku_staff"),InteractionHand.MAIN_HAND);trial=owner.getMainHandItem();require(academy.interact(owner,InteractionHand.MAIN_HAND,normal)&&LbcAcademy.trial(trial),"real Academy assigns ordinary Danmaku trial");return false;}
             if(phase==2){trials();phase=3;return false;}
             require(phase==3&&academy.interact(owner,InteractionHand.MAIN_HAND,school),"native token-school promotion callback");var stack=owner.getMainHandItem();var expected=loot("academy_danmaku_staff");

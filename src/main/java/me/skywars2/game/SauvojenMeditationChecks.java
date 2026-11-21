@@ -472,6 +472,115 @@ public final class SauvojenMeditationChecks {
                 require(psycho.effectValue(base.owner,"lookback")==7,"fear lifecycle preserves unrelated custom status");
             }finally{picture.discard();psycho.clearStatus(base.owner,"scared");psycho.clearStatus(base.owner,"lookback");service.stop();}
         }
+        void bombPurge(){
+            var owner=base.owner;
+            var danmaku=game.items().danmaku();
+            var psycho=game.items().psycho();
+            int savedCharge=base.mana.score(owner,"danmaku_score").get();
+            int savedVolley=base.mana.score(owner,"danmaku").get();
+            var failures=new ArrayList<String>();
+            try{
+                for(boolean fast:new boolean[]{false,true}){
+                    String source=fast?"Hakurei bomb":"Gohai spellcard";
+                    require(danmaku.bombs().isEmpty(),"exclusive "+source+" publication");
+                    var t=admit();
+                    var center=owner.position();
+                    t.remaining=520;
+                    require(service.phase(t),"actual first lightning-network phase");
+                    var webs=t.hazards.stream().filter(h->h.kind==SauvojenMeditation.Kind.WEB).toList();
+                    require(webs.size()==4,"real first phase publishes four network beacons");
+                    t.warnings.forEach(TrialWarningVisual::close);
+                    t.warnings.clear();
+                    var line=center.add(0,1.9,0);
+                    relocate(webs.get(0),line.add(-6,0,0));
+                    relocate(webs.get(1),line);
+                    relocate(webs.get(2),line.add(6,0,0));
+                    relocate(webs.get(3),line.add(6,0,10));
+                    require(service.webLines(t,false)==6,"actual controlled positions warn six native links");
+                    var cow=new Cow(EntityTypes.COW,t.level);
+                    cow.setNoAi(true);cow.setNoGravity(true);cow.setPos(line.add(-3,-.4,0));
+                    require(t.level.addFreshEntity(cow),"native victim outside both spheres");
+                    spawned.add(cow);
+                    float health=cow.getHealth();
+                    require(service.webLines(t,true)==6&&cow.getHealth()<health&&service.count()==1,
+                            "the live middle beacon can damage the native witness without ending the trial");
+                    cow.setHealth(health);cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
+
+                    t.remaining=300;
+                    require(service.phase(t),"actual authored acid ring phase");
+                    var ring=t.hazards.stream().filter(h->h.kind==SauvojenMeditation.Kind.ACID_RING).findFirst().orElseThrow();
+                    relocate(ring,center.add(0,0,-1));
+                    owner.setYRot(0);owner.setXRot(-90);
+                    service.blind(t);
+                    var nearScare=t.hazards.stream().filter(h->h.kind==SauvojenMeditation.Kind.SCARE).toList();
+                    require(nearScare.size()==2,"phase publishes native face and gaze interaction");
+                    for(var h:nearScare)relocate(h,center.add(0,0,1.25));
+                    service.blind(t);
+                    var farScare=t.hazards.stream().filter(h->h.kind==SauvojenMeditation.Kind.SCARE&&!nearScare.contains(h)).toList();
+                    require(farScare.size()==2,"independent live face pair");
+                    for(var h:farScare)relocate(h,center.add(0,0,-8));
+                    var face=nearScare.stream().map(h->h.actor).filter(net.minecraft.world.entity.Display.class::isInstance).findFirst().orElseThrow();
+                    var gaze=nearScare.stream().map(h->h.actor).filter(net.minecraft.world.entity.Interaction.class::isInstance).findFirst().orElseThrow();
+                    var gazePosition=center.add(0,0,-3);
+                    owner.setPos(gazePosition);owner.setXRot(0);
+                    var eye=owner.getEyePosition();
+                    require(!gaze.getBoundingBox().contains(eye)
+                                    &&gaze.getBoundingBox().clip(eye,eye.add(owner.getLookAngle().scale(100))).isPresent()
+                                    &&service.looking(t),"native gaze enters the first actual scare hitbox from outside");
+                    owner.setPos(center);
+                    var farBodies=farScare.stream().map(h->h.actor).toList();
+                    var beacon=webs.get(1).actor;
+                    var outside=List.of(webs.get(0).actor,webs.get(2).actor,webs.get(3).actor);
+                    var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(EntityTypes.ARROW,t.level);
+                    arrow.setOwner(owner);arrow.setPos(center);
+                    var interaction=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,t.level);
+                    interaction.setPos(center.add(1,0,0));
+                    require(t.level.addFreshEntity(arrow)&&t.level.addFreshEntity(interaction),"native own projectile and unrelated Interaction controls");
+                    spawned.add(arrow);spawned.add(interaction);
+
+                    var item=game.lbc().rollTable(t.level,center,owner,fast?"lbc:bomb_item":"lbc:ported/danmaku_staff").getFirst();
+                    owner.setItemInHand(InteractionHand.OFF_HAND,item);
+                    if(!fast)base.mana.score(owner,"danmaku_score").set(100);
+                    require(owner.gameMode.useItem(owner,t.level,item,InteractionHand.OFF_HAND).consumesAction(),
+                            "actual native held "+source+" while original Keeper remains in main hand");
+                    var bomb=danmaku.bombs().getFirst();
+                    require(bomb.fast==fast&&bomb.owner==owner&&bomb.display.position().equals(center)&&owner.getMainHandItem()==t.stack,
+                            "source-specific actual sphere and original trial identity");
+                    owner.setPos(gazePosition);
+                    for(int tick=0;tick<10&&bomb.radius()<2;tick++)danmaku.tick();
+                    require(bomb.radius()==2&&beacon.isRemoved()&&face.isRemoved(),"actual "+source+" removes both nearby visible hazards");
+                    require(outside.stream().noneMatch(Entity::isRemoved)&&farBodies.stream().noneMatch(Entity::isRemoved)
+                                    &&!arrow.isRemoved()&&!interaction.isRemoved(),"outside actors, own projectile and unrelated interaction survive");
+                    int fear=psycho.effectValue(owner,"scared");
+                    boolean staleGaze=service.looking(t);
+                    service.blind(t);
+                    if(!gaze.isRemoved()||staleGaze||psycho.effectValue(owner,"scared")!=fear)
+                        failures.add(source+" left gaze/fear: gazeRemoved="+gaze.isRemoved()+" visible="+staleGaze
+                                +" fear="+fear+"->"+psycho.effectValue(owner,"scared"));
+                    if(t.hazards.contains(ring))failures.add(source+" left the actorless acid ring");
+                    owner.setPos(center);
+                    t.remaining=420;
+                    service.tick(); // Same game tick as the sphere, before the generic ENTITY_UNLOAD queue drains.
+                    if(cow.getHealth()!=health)failures.add(source+" discharged a removed or undeclared lightning line: "
+                            +health+"->"+cow.getHealth());
+                    require(service.count()==1,"discharging the remaining network keeps the trial");
+                    danmaku.forget(owner);service.stop();psycho.clearEffects(owner);
+                    cow.discard();arrow.discard();interaction.discard();
+                }
+                require(failures.isEmpty(),"sphere and same-tick trial cleanup: "+failures);
+            }finally{
+                danmaku.forget(owner);service.stop();psycho.clearEffects(owner);
+                owner.removeEffect(net.minecraft.world.effect.MobEffects.LEVITATION);
+                owner.removeEffect(net.minecraft.world.effect.MobEffects.DARKNESS);
+                owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                base.mana.score(owner,"danmaku_score").set(savedCharge);
+                base.mana.score(owner,"danmaku").set(savedVolley);
+            }
+        }
+        void relocate(SauvojenMeditation.Hazard hazard,Vec3 at){
+            hazard.at=at;
+            if(hazard.actor!=null)hazard.actor.setPos(at);
+        }
         void alliedBlast(){
             var other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));require(other!=null,"actual allied native blast participant");
             var state=new GameChecks.WandThirdPlayerState(other,base.mana);var indirect=new Attribution(game,List.of(other));
@@ -515,7 +624,7 @@ public final class SauvojenMeditationChecks {
         }
     }
     public static void run(GameController game){
-        try(var f=new Fixture(game)){f.admission();f.ruby();f.stone();f.fire();f.hazards();f.independent();f.webGraph();f.warningLifetime();f.fear();f.alliedBlast();}
+        try(var f=new Fixture(game)){f.admission();f.ruby();f.stone();f.fire();f.hazards();f.independent();f.webGraph();f.warningLifetime();f.fear();f.bombPurge();f.alliedBlast();}
         SkyWars2.LOGGER.info("[check] PASS sauvojen-meditation (native stack/readiness,8725ruby,47x19x47 explicit stone,42510lava/20181air, complete6/120warning displays+diagonal damage+bounded damage packets, native warning geometry/lifetime/TimeStop/cleanup, one source twinkle, canonical fear/decay/105 threshold/Greed, ownerless WILD damage and TNT with separate kill credit, per-participant state and cleanup)");
     }
 }

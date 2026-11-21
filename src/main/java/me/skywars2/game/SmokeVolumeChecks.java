@@ -3,15 +3,20 @@ package me.skywars2.game;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Real world physics, legacy public particles and the full native smoke lifetime. */
@@ -45,6 +50,7 @@ public final class SmokeVolumeChecks {
             }
             f.move(f.owner,Vec3.atBottomCenterOf(origin.above()).add(-3,0,0));
             f.move(f.other,Vec3.atBottomCenterOf(origin.above()).add(3,0,0));
+            bombCleanup();
             game.config().lbcLevelups=true;game.config().ranked=false;
             var profile=game.players().get(f.owner.getUUID());Arrays.fill(profile.levelups,0);profile.levelups[0]=30;
             profile.lbcKit=profile.lbcSkill=profile.lbcChallengeKit=0;
@@ -63,6 +69,76 @@ public final class SmokeVolumeChecks {
             smoke.grenadeSmoke(f.other,carrier.position(),true);
             require(smoke.cloudCount()==2&&!shaderMarker(f.client.packets()),"old smoke remains its separate particle implementation");
             next(0);
+        }
+        void bombCleanup(){
+            var danmaku=game.items().danmaku();
+            require(danmaku.bombs().isEmpty(),"exclusive native spheres for the smoke probe");
+            var center=f.owner.position();var otherPosition=f.other.position();
+            var board=game.server().getScoreboard();
+            var charge=game.items().mana().score(f.owner,"danmaku_score");int previousCharge=charge.get();
+            var volley=game.items().mana().score(f.owner,"danmaku");int previousVolley=volley.get();
+            var failures=new ArrayList<String>();
+            f.move(f.other,center.add(10,0,0));
+            try{
+                for(boolean fast:new boolean[]{false,true}){
+                    String source=fast?"Hakurei bomb":"Gohai spellcard";
+                    var nearby=center.add(.75,0,0);var outside=center.add(8,0,0);
+                    smoke.grenadeSmoke(f.other,nearby,false);
+                    var hostile=grenadeCarrier(nearby);
+                    smoke.grenadeSmoke(f.other,center.add(-.75,0,0),true);
+                    smoke.grenadeSmoke(f.other,outside,false);
+                    var remote=grenadeCarrier(outside);
+                    var ordinary=new AreaEffectCloud(EntityTypes.AREA_EFFECT_CLOUD,f.level);
+                    ordinary.setPos(center.add(0,0,.5));ordinary.setRadius(1);
+                    require(f.level.addFreshEntity(ordinary),"ordinary native effect cloud inside the sphere");
+                    f.own(ordinary);
+                    try{
+                        var blindness=f.owner.getEffect(MobEffects.BLINDNESS);
+                        require(smoke.cloudCount()==3&&blindness!=null&&blindness.getAmplifier()==1,
+                                "actual hostile landed sources apply Blindness II before the sphere");
+                        var item=f.loot(fast?"lbc:bomb_item":"lbc:ported/danmaku_staff");
+                        f.owner.setItemInHand(InteractionHand.MAIN_HAND,item);
+                        f.owner.setShiftKeyDown(!fast);charge.set(fast?0:100);
+                        require(f.owner.gameMode.useItem(f.owner,f.level,item,InteractionHand.MAIN_HAND).consumesAction(),
+                                "actual native "+source+" activates while blind");
+                        var bomb=danmaku.bombs().getFirst();
+                        require(bomb.fast==fast&&bomb.display.position().equals(center),"exact native "+source+" origin");
+                        for(int tick=0;tick<10&&bomb.radius()<2;tick++)danmaku.tick();
+                        require(bomb.radius()==2&&!remote.isRemoved()&&!ordinary.isRemoved(),
+                                "only the radius-two sphere reaches both hostile near emitters");
+                        smoke.tick(); // Production runs this later in the same game tick.
+                        if(!hostile.isRemoved()||smoke.cloudCount()!=1||f.owner.hasEffect(MobEffects.BLINDNESS))
+                            failures.add(source+" carrierRemoved="+hostile.isRemoved()+" clouds="+smoke.cloudCount()
+                                    +" blindness="+f.owner.hasEffect(MobEffects.BLINDNESS));
+
+                        int before=smoke.cloudCount();
+                        smoke.grenadeSmoke(f.owner,center.add(0,0,-.75),false);
+                        var own=grenadeCarrier(center.add(0,0,-.75));
+                        var allies=board.addPlayerTeam("smoke_purge_fixture");
+                        try{
+                            board.addPlayerToTeam(f.owner.getScoreboardName(),allies);
+                            board.addPlayerToTeam(f.other.getScoreboardName(),allies);
+                            smoke.grenadeSmoke(f.other,center.add(0,0,.75),true);
+                            danmaku.tick();smoke.tick();
+                            require(!own.isRemoved()&&!remote.isRemoved()&&!ordinary.isRemoved()&&smoke.cloudCount()==before+2,
+                                    "own and allied landed smoke survive the same active sphere");
+                        }finally{board.removePlayerTeam(allies);}
+                    }finally{
+                        ordinary.discard();danmaku.forget(f.owner);smoke.stop();
+                        f.owner.setShiftKeyDown(false);f.owner.setItemInHand(InteractionHand.MAIN_HAND,net.minecraft.world.item.ItemStack.EMPTY);
+                    }
+                }
+                require(failures.isEmpty(),"sphere cleanup of landed modern and old smoke: "+failures);
+            }finally{
+                charge.set(previousCharge);volley.set(previousVolley);f.move(f.other,otherPosition);
+            }
+        }
+        ItemEntity grenadeCarrier(Vec3 at){
+            var model=Identifier.parse("lbc:smokegrenade");
+            var matches=f.level.getEntitiesOfClass(ItemEntity.class,new AABB(at,at).inflate(.4),
+                    e->model.equals(e.getItem().get(DataComponents.ITEM_MODEL)));
+            require(matches.size()==1,"one actual visual and physical grenade carrier at "+at);
+            return matches.getFirst();
         }
         boolean step(){
             f.client.acknowledge();f.audience.acknowledge();int now=game.server().getTickCount(),elapsed=now-when;
