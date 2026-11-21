@@ -76,6 +76,12 @@ final class GenieConfig {
     static Path fallbackPath() { return folder().resolve("openai-fallback.json"); }
 
     static GenieHostedChatTransport hostedChat() throws IOException {
+        Path remote = folder().resolve("chatgpt-remote.json");
+        if (Files.isRegularFile(remote)) {
+            var settings = readConfiguration(remote);
+            return new GenieHostedChatTransport(new GenieRemoteChatTransport(settings.get("url").getAsString(),
+                    settings.get("token").getAsString(), settings.get("certificateSha256").getAsString()));
+        }
         Path runtime = FabricLoader.getInstance().getGameDir().resolve("runtime/tiktok").toAbsolutePath().normalize();
         Path driver = runtime.resolve("python/playwright/driver");
         Path node = environmentPath("SKYWARS2_GENIE_CHATGPT_NODE", driver.resolve("node"));

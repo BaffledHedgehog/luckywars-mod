@@ -6,6 +6,8 @@ import { setTimeout as sleep } from 'node:timers/promises';
 const origin = 'https://chatgpt.com';
 const modelButton = '[aria-label="Select ChatGPT model"]';
 const family = '[data-model-selection-label="gpt-5-6-thinking"]';
+const sol = 'getByRole("menuitemradio",{name:"GPT-5.6 Sol",exact:true})';
+const modelSubmenu = 'getByRole("menuitem",{name:"Select model",exact:true})';
 const slider = '[data-reasoning-slider]';
 const chat = 'getByRole("button",{name:"Chat",exact:true})';
 const composer = 'getByRole("textbox",{name:"Ask ChatGPT",exact:true})';
@@ -46,7 +48,7 @@ export async function runWish(browser, request, signal, timing = {}) {
     const projection = `p=>({...p,replies:p.replies?.slice(-1).map(r=>({message:r.message,length:r.text.length,closed:r.text.trimEnd().endsWith('}')})),executions:p.executions?.filter(r=>r?.ok===true&&typeof r.verifier==='string'&&typeof r.program_sha256==='string'&&typeof r.contract_sha256==='string'&&JSON.stringify(r).length<700).slice(-32)})`;
     const step = async (command, stage = command.split(' ', 1)[0]) => {
         signal?.throwIfAborted();
-        try { return await browser(command, signal); }
+        try { return await browser(command, signal, stage); }
         catch { throw new ChatStepError(`Chat ${stage} failed`); }
     };
     const evaluate = async expression => evaluation(await step(`eval ${expression} --max all`));
@@ -62,15 +64,43 @@ export async function runWish(browser, request, signal, timing = {}) {
         const opened = await step('tab new');
         ownTab = /\btab (\d+)\b/.exec(opened)?.[1];
         if (!ownTab) throw new Error('could not identify owned Chat tab');
-        await step(`goto ${origin}/?model=gpt-5-6-thinking`);
+        await step(`goto ${origin}/`);
         await step(`wait ${modelButton}:not(:disabled) --timeout 16000`);
 
+        const modernModel = async configure => {
+            let current = root(await read());
+            if (!current.modelMenuOpen) await step(`click ${modelButton}`, 'open model menu');
+            current = root(await read());
+            if (!current.solSelected) {
+                await step(`click ${modelSubmenu}`, 'open model family submenu');
+                current = root(await read());
+            }
+            if (configure && !current.solSelected) {
+                await step(`click ${sol}`, 'select GPT-5.6 Sol');
+                current = root(await read());
+            }
+            if (!current.solSelected && !current.exactModel) throw new Error('GPT-5.6 Sol is unavailable');
+            if (current.modelMenuOpen) await step(`click ${modelButton}`, 'close model family menu');
+            current = root(await read());
+            for (let attempts = 0; configure && current.selectedEffort !== 'medium' && attempts < 4; attempts++) {
+                if (!current.modelMenuOpen) await step(`click ${modelButton}`, 'open reasoning menu');
+                await evaluate(`(()=>{const control=document.querySelector('${slider}');control?.focus();return {focused:document.activeElement===control}})()`);
+                await step(`press ${['instant', 'low'].includes(current.selectedEffort) ? 'ArrowRight' : 'ArrowLeft'}`);
+                current = root(await read());
+            }
+            if (current.modelMenuOpen) await step(`click ${modelButton}`, 'close reasoning menu');
+            // Family was checked in its native submenu; no action above changes family.
+            return { ...current, exactModel: current.selectedEffort === 'medium' };
+        };
         let page = root(await read());
         if (page.chat !== 'true') {
             await step(`click ${chat}`, 'select Chat mode');
             page = root(await read());
         }
-        if (!page.exactModel) {
+        if (page.modernModelPicker) {
+            page = await modernModel(true);
+            if (!page.exactModel) throw new Error('GPT-5.6 Sol Medium required');
+        } else if (!page.exactModel) {
             await step(`click ${modelButton}`, 'open model menu');
             const choices = await evaluate(`(()=>{const node=document.querySelector('${family}');return {selected:node?.getAttribute('aria-checked')==='true'||node?.getAttribute('data-state')==='checked'}})()`);
             if (!choices.selected) await step(`click ${family}`, 'select GPT-5.6 family');
@@ -87,13 +117,22 @@ export async function runWish(browser, request, signal, timing = {}) {
             const controls = await evaluate(`(()=>({open:document.querySelector('${modelButton}')?.getAttribute('data-state')==='open'}))()`);
             if (controls.open) await step(`click ${modelButton}`, 'close model menu');
         }
-        const ready = root(await read());
+        const checkedRoot = async () => {
+            let current = root(await read());
+            // The modern composer only names the effort while closed. Verify the actual
+            // selected family in its native menu before attachment and again before send.
+            if (current.modernModelPicker && !current.exactModel) {
+                current = await modernModel(false);
+            }
+            return current;
+        };
+        const ready = await checkedRoot();
         if (!ready.exactModel || ready.chat !== 'true' || ready.work === 'true') throw new Error('GPT-5.6 Medium Chat required');
 
         // Only fixed paths built by the caller are uploaded. Wish text is a quoted fill argument.
         await step(`upload ${attach} ${request.files.map(path => JSON.stringify(path.replaceAll('\\', '/'))).join(' ')}`);
         await step(`fill ${composer} ${JSON.stringify(request.prompt)}`);
-        const submitPage = root(await read());
+        const submitPage = await checkedRoot();
         if (!submitPage.exactModel || submitPage.chat !== 'true' || submitPage.work === 'true') throw new Error('Chat mode changed');
         for (;;) {
             const button = await evaluate(`(()=>{const button=document.querySelector('${send}');return {active:!!button&&!button.disabled}})()`);
@@ -111,7 +150,16 @@ export async function runWish(browser, request, signal, timing = {}) {
         let observedMessage;
         let observedLength;
         for (;;) {
-            await pause(timing.interval ?? 750);
+            await pause(timing.interval ?? (request.observeConversation ? 1500 : 750));
+            if (request.observeConversation) {
+                const state = await request.observeConversation(signal);
+                if (state?.observation && readyReply(state.observation.reply, state.observation.executions)) {
+                    completed = true;
+                    return state.observation;
+                }
+                if (state?.generating) continue; // Server-side generation has no arbitrary wish deadline.
+                throw new ChatStepError('Chat verifier witness check failed');
+            }
             page = await read();
             const now = clock();
             const current = route(page.url);

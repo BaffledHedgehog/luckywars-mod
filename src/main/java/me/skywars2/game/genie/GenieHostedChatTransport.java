@@ -20,6 +20,7 @@ final class GenieHostedChatTransport implements GenieScriptModel.Transport {
     private static final int MAX_REPLY_BYTES = 4_194_304;
     private static final String STATUS_PREFIX = "GENIE_HOSTED_";
     private final Path node, playwright, chromium, profile, requests;
+    private final GenieRemoteChatTransport remote;
 
     enum Issue {
         AUTH_REQUIRED("Открой авторизованную сессию ChatGPT для джина."),
@@ -46,10 +47,17 @@ final class GenieHostedChatTransport implements GenieScriptModel.Transport {
         this.chromium = chromium;
         this.profile = profile;
         this.requests = requests;
+        this.remote = null;
+    }
+
+    GenieHostedChatTransport(GenieRemoteChatTransport remote) {
+        this.node = this.playwright = this.chromium = this.profile = this.requests = null;
+        this.remote = java.util.Objects.requireNonNull(remote);
     }
 
     @Override public GenieScriptModel.Observation run(String prompt, String knowledge, String contract, byte[] verifier)
             throws IOException, InterruptedException {
+        if (remote != null) return remote.run(prompt, knowledge, contract, verifier);
         var reply = invoke(prompt, knowledge, contract, verifier, null);
         var witnesses = new ArrayList<JsonObject>();
         for (var execution : reply.getAsJsonArray("executions")) witnesses.add(execution.getAsJsonObject());
@@ -57,6 +65,11 @@ final class GenieHostedChatTransport implements GenieScriptModel.Transport {
     }
 
     void connect(String importedState) throws IOException, InterruptedException {
+        if (remote != null) {
+            if (importedState != null) throw new Unavailable(Issue.INVALID_BROWSER_STATE);
+            remote.connect();
+            return;
+        }
         var reply = invoke(null, null, null, null, importedState);
         if (!ready(reply)) throw new Unavailable(Issue.UNAVAILABLE);
     }

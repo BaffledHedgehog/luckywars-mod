@@ -44,13 +44,17 @@ function scenario(options = {}) {
         },
         evaluate: async expression => {
             if (typeof expression === 'function') return options.challenge ?? false;
+            if (sent && options.forbidResponseDOM) assert.fail('HTTP-backed replies must not depend on DOM rendering');
             if (expression.includes('const button=')) return { active: true };
             if (expression.includes("getAttribute('aria-checked')")) return { selected: false };
             if (expression.includes('document.activeElement')) return { focused: true };
             if (expression.includes('open:document.querySelector')) return { open: menuOpen };
             if (!sent || options.waitForReload && !reloaded) {
                 return { url, selected, chat: String(chat), work: String(!chat),
-                    exactModel: !options.wrongModel && selected.endsWith('Medium'), replies: [] };
+                    exactModel: !options.wrongModel && selected.endsWith('Medium') && (!options.modern || options.solSelected && (menuOpen || options.drafted)), replies: [],
+                    modernModelPicker: !!options.modern, modelMenuOpen: menuOpen,
+                    modelChoicesVisible: !options.nested || !!options.submenu,
+                    solSelected: !!options.solSelected, selectedEffort: selected.endsWith('Medium') ? 'medium' : 'high' };
             }
             if (expression.includes('text.slice(')) {
                 const [, a, b] = /text\.slice\((\d+),(\d+)\)/.exec(expression);
@@ -63,6 +67,11 @@ function scenario(options = {}) {
         },
         locator: selector => ({
             waitFor: async () => { if (options.loggedOut) throw new Error('model is absent'); },
+            evaluate: async () => {
+                assert.ok(selector.includes('Send'));
+                assert.equal(sent, false, 'the native submit handler runs once');
+                sent = true; url = conversation; events.push('submit'); options.cancelOnSend?.abort();
+            },
             click: async () => {
                 if (selector.includes('Send')) {
                     assert.equal(sent, false, 'the accepted turn is never submitted twice');
@@ -71,6 +80,7 @@ function scenario(options = {}) {
                     events.push('submit');
                     options.cancelOnSend?.abort();
                 } else if (selector.includes('Select ChatGPT model')) {
+                    assert.ok(!options.modern || !options.drafted, 'the real composer locks model selection once text is entered');
                     menuOpen = !menuOpen;
                     events.push('model menu');
                 } else if (selector.includes('gpt-5-6-thinking')) {
@@ -80,8 +90,15 @@ function scenario(options = {}) {
         }),
         getByRole: (role, input) => {
             assert.equal(input.exact, true);
-            if (role === 'textbox' && input.name === 'Ask ChatGPT') return textBox;
-            if (input.name === 'Log in') return { isVisible: async () => !!options.loggedOut };
+            if (role === 'textbox' && input.name === 'Ask ChatGPT') return { ...textBox,
+                fill: async text => { options.drafted = true; await textBox.fill(text); } };
+            if (input.name === 'Log in') return { first: () => ({ isVisible: async () => !!options.loggedOut }) };
+            if (role === 'menuitem' && input.name === 'Select model') return { click: async () => {
+                options.submenu = true; events.push('model submenu');
+            } };
+            if (role === 'menuitemradio' && input.name === 'GPT-5.6 Sol') return { click: async () => {
+                options.solSelected = true; events.push('sol model');
+            } };
             if (role === 'button' && input.name === 'Chat') return { click: async () => { chat = true; events.push('chat mode'); } };
             if (role === 'button' && input.name === 'Stop') return { click: async () => { events.push('stop'); } };
             assert.fail(`Unexpected role: ${role}/${input.name}`);
@@ -132,6 +149,32 @@ assert.deepEqual(await probeHostedChat(probe.context, request.adapter, undefined
 assert.ok(probe.events.includes('medium effort'));
 assert.equal(probe.events.at(-1), 'close');
 assert.ok(!probe.events.some(e => ['submit', 'fill', 'input files', 'chooser files'].includes(Array.isArray(e) ? e[0] : e)));
+
+const modern = scenario({ controls: true, modern: true });
+assert.deepEqual(await probeHostedChat(modern.context, request.adapter, undefined, modern.timing), { ready: true });
+assert.ok(modern.events.includes('sol model') && modern.events.includes('medium effort'));
+assert.ok(!modern.events.includes('submit'));
+const nested = scenario({ controls: true, modern: true, nested: true });
+assert.deepEqual(await probeHostedChat(nested.context, request.adapter, undefined, nested.timing), { ready: true });
+assert.ok(nested.events.includes('model submenu') && nested.events.includes('sol model'));
+const modernWish = scenario({ controls: true, modern: true });
+assert.equal((await runHostedWish(modernWish.context, request, undefined, modernWish.timing)).reply, reply);
+assert.equal(modernWish.events.filter(e => e === 'submit').length, 1);
+assert.ok(!modernWish.events.slice(modernWish.events.findIndex(e => Array.isArray(e) && e[0] === 'fill')).includes('model menu'),
+    'read the explicit locked model label after filling; never click the disabled picker');
+
+const payloads = [{ name: 'contract.json', mimeType: 'application/json', buffer: Buffer.from('{}') }];
+const buffered = scenario();
+await runHostedWish(buffered.context, { ...request, filePayloads: payloads }, undefined, buffered.timing);
+assert.deepEqual(buffered.events.find(e => e[0] === 'input files'), ['input files', payloads]);
+
+const httpBacked = scenario({ forbidResponseDOM: true });
+let observed = 0;
+assert.deepEqual(await runHostedWish(httpBacked.context, { ...request,
+    observeConversation: async () => ++observed < 3 ? { generating: true } : { generating: false, observation: { reply, executions: [receipt] } }
+}, undefined, httpBacked.timing), { reply, executions: [receipt] });
+assert.equal(httpBacked.events.filter(e => e === 'submit').length, 1);
+assert.ok(!httpBacked.events.includes('reload'));
 
 for (const [options, status] of [
     [{ redirect: 'https://auth.openai.com/log-in' }, 'AUTH_REQUIRED'],

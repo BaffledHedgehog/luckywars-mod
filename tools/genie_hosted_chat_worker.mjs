@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runWish } from './genie_chat_worker.mjs';
 
 const origin = 'https://chatgpt.com';
-const entry = origin + '/?model=gpt-5-6-thinking';
+const entry = origin + '/';
 const model = '[aria-label="Select ChatGPT model"]';
 const family = '[data-model-selection-label="gpt-5-6-thinking"]';
 const send = 'main button[aria-label="Send"]';
@@ -48,7 +48,7 @@ async function checkInterruption(page, response) {
 
 async function loginVisible(page) {
     const name = { name: 'Log in', exact: true };
-    return await page.getByRole('button', name).isVisible() || await page.getByRole('link', name).isVisible();
+    return await page.getByRole('button', name).first().isVisible() || await page.getByRole('link', name).first().isVisible();
 }
 
 async function interruptible(signal, action) {
@@ -68,16 +68,16 @@ async function interruptible(signal, action) {
     }
 }
 
-async function upload(page, files) {
+async function upload(page, files, payloads) {
     const target = page.getByLabel('Attach files', { exact: true });
     const isFileInput = await target.evaluate(node => node.localName === 'input' && node.type === 'file');
     if (isFileInput) {
-        await target.setInputFiles(files, actionTimeout);
+        await target.setInputFiles(payloads ?? files, actionTimeout);
     } else {
         const [chooser] = await Promise.all([
             page.waitForEvent('filechooser', actionTimeout), target.click(actionTimeout)
         ]);
-        await chooser.setFiles(files, actionTimeout);
+        await chooser.setFiles(payloads ?? files, actionTimeout);
     }
 }
 
@@ -97,7 +97,8 @@ async function runHosted(context, request, probe, signal, timing) {
     let page;
     let failure;
     let submitted = false;
-    const browser = async (command, actionSignal) => {
+    const browser = async (command, actionSignal, stage) => {
+        request.onStep?.(stage);
         try {
             return await interruptible(actionSignal, async boundary => {
                 if (command === 'tab new' && !page) {
@@ -142,16 +143,28 @@ async function runHosted(context, request, probe, signal, timing) {
                         }
                         throw new HostedChatError('PROBE_READY');
                     }
-                    await upload(page, request.files);
+                    await upload(page, request.files, request.filePayloads);
                 } else if (command === fillCommand) await page.getByRole('textbox', { name: 'Ask ChatGPT', exact: true })
                     .fill(request.prompt, actionTimeout);
                 else if (command === `click ${chat}`) await page.getByRole('button', { name: 'Chat', exact: true }).click(actionTimeout);
                 else if (command === `click ${stop}`) await page.getByRole('button', { name: 'Stop', exact: true }).click(actionTimeout);
                 else if (command === `click ${JSON.stringify(send)}`) {
                     submitted = true;
-                    await page.locator(send).click(actionTimeout);
+                    // The enabled native submit handler needs no pointer layout or
+                    // navigation wait. Those waits can time out on a busy hosted renderer
+                    // after the request has already been dispatched; never resubmit it.
+                    await page.locator(send).evaluate(button => {
+                        if (button.disabled) throw new Error('Submit control is disabled');
+                        button.click();
+                    }, null, actionTimeout);
                 } else if (command === `click ${model}`) await page.locator(model).click(actionTimeout);
                 else if (command === `click ${family}`) await page.locator(family).click(actionTimeout);
+                else if (command === 'click getByRole("menuitemradio",{name:"GPT-5.6 Sol",exact:true})') {
+                    await page.getByRole('menuitemradio', { name: 'GPT-5.6 Sol', exact: true }).click(actionTimeout);
+                }
+                else if (command === 'click getByRole("menuitem",{name:"Select model",exact:true})') {
+                    await page.getByRole('menuitem', { name: 'Select model', exact: true }).click(actionTimeout);
+                }
                 else if (command === 'press ArrowLeft' || command === 'press ArrowRight') await page.keyboard.press(command.slice(6));
                 else if (command === 'reload') {
                     const response = await page.reload({ waitUntil: 'domcontentloaded', timeout: 20_000 });

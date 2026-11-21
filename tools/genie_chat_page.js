@@ -9,7 +9,16 @@
     const main = document.querySelector("main");
     if (!main) return {ready: false};
     const model = document.querySelector('[aria-label="Select ChatGPT model"]');
-    const selected = model?.innerText.replace(/\s+/g, " ").trim() ?? "";
+    const effort = model?.getAttribute?.("data-selected-reasoning-effort");
+    const modernModelPicker = effort != null;
+    const modelChoices = modernModelPicker ? [...document.querySelectorAll('[role="menuitemradio"]')].filter(node =>
+        node.textContent.trim() === "GPT-5.6 Sol") : [];
+    const solSelected = modelChoices.some(node =>
+        node.textContent.trim() === "GPT-5.6 Sol" && node.getAttribute("aria-checked") === "true");
+    const renderedModel = model?.innerText.replace(/\s+/g, " ").trim() ?? "";
+    const explicitFamilyAndEffort = /\b5\.6 Medium$/.test(renderedModel);
+    const selected = modernModelPicker ? `${solSelected ? "GPT-5.6 Sol" : "Other"} ${effort}`
+        : model?.innerText.replace(/\s+/g, " ").trim() ?? "";
     const mode = (label) => {
         const button = [...main.querySelectorAll("button")].find(e => e.innerText.trim() === label);
         return button ? button.getAttribute("aria-pressed") : null;
@@ -40,7 +49,12 @@
         ready: Boolean(model),
         url: location.href,
         selected,
-        exactModel: /\b5\.6 Medium$/.test(selected),
+        exactModel: modernModelPicker ? (solSelected || explicitFamilyAndEffort) && effort === "medium" : explicitFamilyAndEffort,
+        modernModelPicker,
+        modelMenuOpen: model?.getAttribute?.("data-state") === "open",
+        selectedEffort: effort,
+        solSelected,
+        modelChoicesVisible: modelChoices.some(node => node.getClientRects().length > 0),
         chat: mode("Chat"),
         work: mode("Work"),
         generating,
