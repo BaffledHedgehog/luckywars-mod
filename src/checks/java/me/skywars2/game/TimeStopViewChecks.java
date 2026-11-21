@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.SignedEffectVisuals;
+import me.skywars2.game.effects.time.TimeStopView;
+import me.skywars2.game.items.wands.LbcMusicStaff;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundPostEffectsPacket;
@@ -10,6 +13,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import me.skywars2.game.effects.time.LbcTimeStop;
 
 /** Actual player clock use and native packet send interception, not a policy-only mock. */
 public final class TimeStopViewChecks {

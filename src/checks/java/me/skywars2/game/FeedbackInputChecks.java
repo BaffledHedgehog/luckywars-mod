@@ -3,6 +3,13 @@ package me.skywars2.game;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.commands.SkyWarsFeedbackCommands;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.LbcStaticCharge;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.items.gadgets.LbcClockFragments;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.players.inventory.LbcUseInteractions;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -22,6 +29,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.effects.time.LbcPersonalStasis;
 
 /** Real accepted packets, native crafting clicks and public combat/mining entry points. */
 final class FeedbackInputChecks {

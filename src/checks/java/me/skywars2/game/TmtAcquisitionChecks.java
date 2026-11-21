@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.loot.LbcAllItemPools;
+import me.skywars2.game.items.loot.LootTestCatalog;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtComponents;
+import me.skywars2.game.items.tmt.LbcTmtItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;

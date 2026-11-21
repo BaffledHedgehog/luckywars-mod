@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.bots.LbcWtf;
+import me.skywars2.game.match.events.LbcApocalypseEvents;
+import me.skywars2.game.match.events.LbcRuneGlobals;
 import me.skywars2.validation.mixin.ChefValidationAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffects;

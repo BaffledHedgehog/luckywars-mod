@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.util.List;
 import java.util.Optional;
+
+import me.skywars2.game.items.wands.LbcElectro;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;

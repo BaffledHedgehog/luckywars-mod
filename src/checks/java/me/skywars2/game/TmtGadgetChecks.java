@@ -2,6 +2,17 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.gadgets.LbcGayradar;
+import me.skywars2.game.items.gadgets.LbcTrollBox;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtComponents;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtNativeThrows;
+import me.skywars2.game.items.tools.LbcSteampunkRocket;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchSpellCheckpoint;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.stats.Stats;

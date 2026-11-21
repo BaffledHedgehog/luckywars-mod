@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.core.config.LbcSourceConfig;
+import me.skywars2.game.effects.SignedEffectVisuals;
+
 import java.nio.file.Files;
 import net.minecraft.resources.Identifier;
 import net.minecraft.core.component.DataComponents;
@@ -8,6 +11,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.ItemStack;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Scoped checks on actual running-match fixtures. */
 public final class FeedbackBatchChecks {

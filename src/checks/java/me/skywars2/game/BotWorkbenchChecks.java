@@ -6,6 +6,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.*;
+import me.skywars2.game.entities.bots.LbcBotCrafting;
 
 /** A physically occluded table, finite ingredients and the actual native crafting menu. */
 final class BotWorkbenchChecks {

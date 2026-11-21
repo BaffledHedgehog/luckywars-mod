@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.armor.LbcArmorSets;
+import me.skywars2.game.items.loot.LbcAllItemPools;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcStonekivi;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -168,7 +173,7 @@ public final class ArmorSetChecks {
             var oldAttribute = new net.minecraft.world.entity.ai.attributes.AttributeInstance(Attributes.MAX_HEALTH, ignored -> {});
             oldAttribute.replaceFrom(maxHealth);
             float oldHealth = owner.getHealth();
-            var equipment = (me.skywars2.mixin.ArmorReserveMixin.Equipment) owner;
+            var equipment = (me.skywars2.mixin.inventory.ArmorReserveMixin.Equipment) owner;
             try {
                 empty();
                 equipment.skywars2$refreshArmorReserveEquipment();

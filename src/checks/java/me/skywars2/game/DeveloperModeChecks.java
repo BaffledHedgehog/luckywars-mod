@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.core.config.GameConfig;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import java.util.*;

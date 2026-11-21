@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.LbcItemQueue;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.item.ItemEntity;

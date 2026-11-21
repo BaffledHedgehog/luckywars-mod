@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -16,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import me.skywars2.game.entities.mobs.summons.LbcSummons;
 
 /** Real beacon pulses qualify source-assigned Vex/cultists independently of their caster's position. */
 public final class SuppressionSummonChecks {

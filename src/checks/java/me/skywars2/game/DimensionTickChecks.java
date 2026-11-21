@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.items.weapons.ranged.LbcErecto;
+import me.skywars2.game.items.weapons.ranged.LbcImbaCrossbows;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
@@ -27,6 +34,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.gui.hud.AttributeHud;
 
 /** Actual ordinary-dimension player ticks, native fire immunity, End escalation and emitted HUD packets. */
 public final class DimensionTickChecks {

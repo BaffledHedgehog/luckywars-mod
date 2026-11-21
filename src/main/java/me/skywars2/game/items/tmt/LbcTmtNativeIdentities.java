@@ -1,0 +1,52 @@
+package me.skywars2.game.items.tmt;
+
+import me.skywars2.game.LbcItems;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.effects.magic.LbcOverload;
+import me.skywars2.game.entities.mobs.LbcHelicopterEncounter;
+import me.skywars2.game.entities.mobs.LbcHelicopterTriggerItem;
+import me.skywars2.game.entities.projectiles.LbcCrocodildo;
+import me.skywars2.game.entities.projectiles.LbcCrocodildoItems;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.drops.LbcKapusta;
+import me.skywars2.game.items.drops.LbcKapustaItem;
+import me.skywars2.game.items.drops.LbcNpcDropItems;
+import me.skywars2.game.items.wands.LbcElectro;
+import me.skywars2.game.items.weapons.melee.LbcMeleeItems;
+import me.skywars2.game.items.weapons.melee.LbcNovemberLightsaberItems;
+import me.skywars2.game.items.weapons.melee.LbcMeleeItems.Kind;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+
+/** Normalize only audited native identities into their existing owner's source predicates. */
+public final class LbcTmtNativeIdentities {
+    private LbcTmtNativeIdentities(){}
+
+    /** Blade color is presentation; the native kill owner uses the player's actual faction. */
+    static net.minecraft.world.item.Item canonical(ItemStack source){
+        if(LbcAcademy.recognizedDrop(source))return LbcAcademy.singleUseDrop(source)?LbcAcademy.TOKEN:LbcNpcDropItems.ACADEMY;
+        if(LbcHelicopterEncounter.isTrigger(source))return LbcHelicopterTriggerItem.TOKEN;
+        if(LbcCrocodildo.trigger(source))return LbcCrocodildoItems.TOKEN;
+        if(LbcKapusta.jack(source))return LbcKapustaItem.JACK;
+        return LbcNovemberLightsaberItems.blade(source)?LbcNovemberLightsaberItems.JEDI:null;
+    }
+
+    /** Mutates the catalog's private copy; never the native prototype or a physical inventory item. */
+    public static void normalize(ItemStack source,CompoundTag privateData){
+        if(source.isEmpty())return;
+        // Both native owners already accept their registered item OR this exact flag.
+        if(source.is(LbcItems.ICE_SWORD))privateData.putInt("icesword",1);
+        if(source.is(LbcItems.ROCKET_BOOTS))privateData.putInt("explosive_feets",1);
+        if(source.is(LbcElectro.BLOCKER))privateData.putInt("electroblocker",1);
+        // Registration intentionally leaves presentation/flags to the four ported loot leaves.
+        // Their source tags contain overload:1, never mage:1. The mana owner counts actual slots.
+        if(source.is(LbcOverload.HELMET)||source.is(LbcOverload.CHESTPLATE)
+                ||source.is(LbcOverload.LEGGINGS)||source.is(LbcOverload.BOOTS))privateData.putInt("overload",1);
+    }
+
+    /** This is a native ShieldItem/component contract, not the hylian sword's passive flag. */
+    public static boolean hylianShield(ItemStack source){
+        return !source.isEmpty()&&(source.is(LbcMeleeItems.Kind.HYLIAN_SHIELD.item)
+                ||ItemData.intValue(source,"hylianshield",0)==1);
+    }
+}

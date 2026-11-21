@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+import me.skywars2.game.world.terrain.BlackHoleErosion;
+
 /** Explicit native cursor boundaries; no wall-clock throughput claim. Restored by the owning fixture. */
 final class BlackHoleErosionChecks {
     private BlackHoleErosionChecks(){}

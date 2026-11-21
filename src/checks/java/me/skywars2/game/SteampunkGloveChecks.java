@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.tools.LbcSteampunkGlove;
+import me.skywars2.game.items.wands.LbcFartus;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityTypes;

@@ -1,6 +1,13 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcErosionSuppression;
+import me.skywars2.game.gui.GameMenus;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.food.LbcOreshek;
+import me.skywars2.game.items.gadgets.LbcSpecialArtifactItems;
+import me.skywars2.game.skills.LbcInventorySkills;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;

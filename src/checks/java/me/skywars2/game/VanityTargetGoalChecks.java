@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
-import me.skywars2.mixin.MobGoalCheckpointAccess;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.mixin.mobs.MobGoalCheckpointAccess;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;

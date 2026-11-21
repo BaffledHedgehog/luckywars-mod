@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;

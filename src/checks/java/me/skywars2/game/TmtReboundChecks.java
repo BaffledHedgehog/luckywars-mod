@@ -2,6 +2,14 @@ package me.skywars2.game;
 
 import java.util.*;
 import java.util.function.Predicate;
+
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.gadgets.LbcModeScroll;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtCatalog;
+import me.skywars2.game.items.tmt.LbcTmtComponents;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;

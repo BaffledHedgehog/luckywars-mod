@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;

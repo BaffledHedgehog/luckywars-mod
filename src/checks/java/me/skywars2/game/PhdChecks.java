@@ -2,6 +2,18 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.effects.time.LbcPersonalStasis;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.food.LbcPhdCrafting;
+import me.skywars2.game.items.food.LbcPills;
+import me.skywars2.game.items.tools.LbcCraftingRecipe;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.match.checkpoints.MatchEntityState;
+import me.skywars2.game.modes.legacy.LbcLegacyEffects;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;

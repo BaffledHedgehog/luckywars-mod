@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.weapons.ranged.LbcSpecialFireballItems;
+import me.skywars2.game.items.weapons.ranged.LbcSpecialFireballs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.*;
 import net.minecraft.stats.Stats;
@@ -73,7 +75,7 @@ public final class NativeFireballItemChecks {
                 require(actors.stream().allMatch(e->f.service.owner(e)==f.owner&&game.items().currentEpoch(e)&&e.tickCount==0),"actual creator/epoch before first actor tick "+entry.id());
                 require(actors.stream().allMatch(e->kind==0?e instanceof SmallFireball:kind==3?e instanceof PrimedTnt:kind==1||kind==4?e instanceof LargeFireball:kind==6?e instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl:kind==7?e instanceof net.minecraft.world.entity.projectile.arrow.Arrow:e instanceof DragonFireball),"exact native body family "+entry.id());
                 if(kind==3)require(actors.stream().allMatch(e->((PrimedTnt)e).getFuse()==100),"source TNT fuse starts at100 before any tick");
-                if(kind==7)require(actors.stream().allMatch(e->((me.skywars2.mixin.ShulkerBowMixin.ArrowAccess)e).skywars2$baseDamage()==1
+                if(kind==7)require(actors.stream().allMatch(e->((me.skywars2.mixin.projectiles.ShulkerBowMixin.ArrowAccess)e).skywars2$baseDamage()==1
                         &&((net.minecraft.world.entity.projectile.arrow.Arrow)e).pickup==net.minecraft.world.entity.projectile.arrow.AbstractArrow.Pickup.CREATIVE_ONLY),"source impulse dart damage and creative-only pickup");
             }
             f.clear();var held=new ItemStack(entry.item(),2);f.owner.setItemInHand(InteractionHand.MAIN_HAND,held);

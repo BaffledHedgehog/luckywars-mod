@@ -2,9 +2,10 @@ package me.skywars2.validation.mixin;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-import me.skywars2.game.ContentGallery;
-import me.skywars2.game.LbcExoperso;
-import me.skywars2.game.MatchEvents;
+
+import me.skywars2.game.gui.gallery.ContentGallery;
+import me.skywars2.game.items.wands.LbcExoperso;
+import me.skywars2.game.match.events.MatchEvents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
@@ -43,7 +44,7 @@ public final class GameCheckAccess {
         @Accessor("pendingAirdrops") Map<Chicken, ServerLevel> validation$pending();
     }
 
-    @Mixin(targets = "me.skywars2.game.ContentGallery$Catalog", remap = false)
+    @Mixin(targets = "me.skywars2.game.gui.gallery.ContentGallery$Catalog", remap = false)
     public interface GalleryCatalog {
         @Accessor("rolls") Map<?, LootTable> validation$rolls();
     }

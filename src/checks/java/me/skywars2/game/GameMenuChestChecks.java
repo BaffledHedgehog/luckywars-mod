@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.gui.GameMenus;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;

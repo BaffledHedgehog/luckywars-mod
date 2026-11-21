@@ -24,6 +24,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import me.skywars2.game.gui.GameMenus;
+import me.skywars2.game.items.tools.LbcReforgeMachineItem;
+import me.skywars2.game.items.tools.LbcRerollCrafting;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.effects.time.LbcTimeStop;
+
 /** Real native clicked dispatch, with temporary native loot tables and seeded chance checks. */
 public final class RerollMachineChecks {
     private RerollMachineChecks() { }

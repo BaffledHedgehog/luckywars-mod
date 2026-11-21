@@ -2,11 +2,13 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.gadgets.LbcSpecialArtifactItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
+import me.skywars2.game.items.gadgets.LbcTotems;
 
 /** Independent source/default/carrier oracles and real native death protection in both hands. */
 public final class NativeSpecialArtifactChecks {

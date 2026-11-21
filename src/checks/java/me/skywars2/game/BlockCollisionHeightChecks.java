@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.LinkedHashMap;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.level.block.Blocks;

@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.entities.projectiles.ProjectileLifetimes;
+import me.skywars2.game.items.wands.LbcPrism;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;

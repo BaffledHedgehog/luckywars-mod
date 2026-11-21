@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.loot.LbcLooseRewards;
+import me.skywars2.game.items.tools.LbcMultiplierTablets;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

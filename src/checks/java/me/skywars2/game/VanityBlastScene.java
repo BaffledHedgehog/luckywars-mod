@@ -2,6 +2,15 @@ package me.skywars2.game;
 
 import java.util.*;
 import java.util.function.Consumer;
+
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.items.wands.LbcExasperato;
+import me.skywars2.game.items.wands.LbcExoperso;
+import me.skywars2.game.items.wands.LbcGaycaster;
+import me.skywars2.game.match.checkpoints.MatchBlastCheckpoint;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;

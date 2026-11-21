@@ -3,7 +3,19 @@ package me.skywars2.game;
 import java.lang.reflect.Field;
 import java.util.*;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.ShulkerBowMixin;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.entities.projectiles.LbcClouds;
+import me.skywars2.game.entities.projectiles.LbcProjectileLevelups;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.modes.bedwars.LbcBedwarsRoleGuards;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.skills.LbcMachinegunSkill;
+import me.skywars2.game.skills.levelups.LbcResolvedLevelups;
+import me.skywars2.mixin.projectiles.ShulkerBowMixin;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -23,6 +35,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Native menu/shot/scheduler checks; scripted source choices supplement actual installed gameplay owners. */
 public final class RemainingLevelupChecks {

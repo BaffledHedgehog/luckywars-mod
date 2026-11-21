@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import com.google.gson.JsonParser;
+
+import me.skywars2.game.world.maps.MapEditing;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;

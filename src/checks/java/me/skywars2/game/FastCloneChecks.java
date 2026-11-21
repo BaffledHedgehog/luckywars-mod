@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.food.LbcKfcRewards;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
@@ -46,7 +47,7 @@ final class FastCloneChecks {
             require(family.size()==128,"both holders get all64 copies exactly once, not48 or one holder's32: "+family.size());
             require(game.items().cloneSkills().operationCount()-operations==64,"one successful native operation per original");
             for(int i=0;i<originals.size();i++){
-                var original=originals.get(i);require(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)original).skywars2$isInGround(),"original already reached its real block before the old end-of-tick scanner");
+                var original=originals.get(i);require(((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)(Object)original).skywars2$isInGround(),"original already reached its real block before the old end-of-tick scanner");
                 String label=prefix+"."+i;var copies=family.stream().filter(e->e.entityTags().contains(label)).toList();require(copies.size()==2,"one exact copied family for source"+i);
                 for(var body:copies){require(body.entityTags().contains("doubled"),"completed marker prevents any same-frame repeat");require(body instanceof Arrow arrow&&arrow.getOwner()==original.getOwner(),"self/other/NPC/unowned physical shooter remains unchanged");}
             }

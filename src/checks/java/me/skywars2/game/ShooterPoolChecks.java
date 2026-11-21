@@ -4,6 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.loot.LbcAllItemPools;
+import me.skywars2.game.items.loot.LootTestCatalog;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -27,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Acquisition checks use published native loot and the existing Reforge work queue. */
 public final class ShooterPoolChecks {

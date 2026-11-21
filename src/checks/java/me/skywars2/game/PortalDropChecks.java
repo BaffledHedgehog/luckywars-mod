@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.drops.LbcPortalDropItem;
+import me.skywars2.game.items.drops.LbcPortalDrops;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.maps.NativeChunkLoad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;

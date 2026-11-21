@@ -3,6 +3,13 @@ package me.skywars2.game;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.items.wands.LbcConsuming;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.match.checkpoints.MatchQueuedWorkCheckpoint;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.BlockAreaWork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerPlayer;

@@ -2,9 +2,10 @@ package me.skywars2.validation.mixin;
 
 import java.util.Map;
 import java.util.Set;
-import me.skywars2.game.LbcBolts;
-import me.skywars2.game.LbcHoming;
-import me.skywars2.game.LbcIndirectKills;
+
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.entities.projectiles.LbcHoming;
+import me.skywars2.game.items.wands.LbcBolts;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;

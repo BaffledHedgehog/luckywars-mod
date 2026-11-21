@@ -1,7 +1,12 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.CombatCheckpointAccess;
+import me.skywars2.game.academy.SauvojenMeditation;
+import me.skywars2.game.academy.TrialWarningVisual;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.EffectTerrain;
+import me.skywars2.mixin.combat.CombatCheckpointAccess;
 import me.skywars2.validation.mixin.FixtureAccess;
 import me.skywars2.validation.mixin.GameCheckAccess;
 import net.minecraft.core.BlockPos;
@@ -20,6 +25,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
+import me.skywars2.game.entities.mobs.LbcPsycho;
+import me.skywars2.game.entities.projectiles.LbcDanmaku;
 
 /** Synchronous native trial checks. Terrain is snapshotted and restored, including explicit template air. */
 public final class SauvojenMeditationChecks {

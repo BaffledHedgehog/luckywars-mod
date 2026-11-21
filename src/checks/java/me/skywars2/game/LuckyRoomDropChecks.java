@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.drops.LbcLuckyRoomDropItem;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;

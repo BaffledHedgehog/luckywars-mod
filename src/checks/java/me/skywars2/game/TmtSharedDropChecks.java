@@ -2,6 +2,16 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.entities.mobs.LbcHelicopterTriggerItem;
+import me.skywars2.game.entities.projectiles.LbcCrocodildoItems;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.drops.LbcNpcDropItems;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtCatalog;
+import me.skywars2.game.items.tmt.LbcTmtDrops;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.match.checkpoints.MatchAcademyCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;

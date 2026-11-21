@@ -4,6 +4,7 @@ import me.skywars2.validation.mixin.BotValidationAccess;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;

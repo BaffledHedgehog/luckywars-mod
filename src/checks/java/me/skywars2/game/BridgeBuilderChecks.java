@@ -5,6 +5,20 @@ import java.lang.reflect.*;
 import java.security.MessageDigest;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.projectiles.LbcDanmaku;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.gadgets.LbcBridgeBuilder;
+import me.skywars2.game.items.gadgets.LbcBridgeBuilderItem;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.match.checkpoints.MatchWorldCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchWorldRandomCheckpoint;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,6 +36,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.modes.bedwars.LbcBedwarsArena;
 
 /** DRAFT ONLY. Native input/whole-owner checks plus explicitly separate source-kernel fixtures.
  * Independent oracle is decoded from read-only source NBT by Python, never the service's prepared cells. */
@@ -133,11 +148,11 @@ public final class BridgeBuilderChecks {
             var template=source.get(kind);if(prefill)for(var p:BlockPos.betweenClosed(at,at.offset(template.x-1,template.y-1,template.z-1)))block(p,Blocks.DIRT.defaultBlockState());
             template.cells.forEach((pos,state)->expected.put(at.offset(pos),state));
         }
-        Object op(String name,Object... args){try{var type=Class.forName("me.skywars2.game.LbcBridgeBuilder$"+name);var ctor=type.getDeclaredConstructors()[0];ctor.setAccessible(true);return ctor.newInstance(args);}catch(ReflectiveOperationException e){throw new IllegalStateException("Scoped source node "+name,e);}}
+        Object op(String name,Object... args){try{var type=Class.forName("me.skywars2.game.items.gadgets.LbcBridgeBuilder$"+name);var ctor=type.getDeclaredConstructors()[0];ctor.setAccessible(true);return ctor.newInstance(args);}catch(ReflectiveOperationException e){throw new IllegalStateException("Scoped source node "+name,e);}}
         /** Supporting generation only. Real input/debit is checked separately; the source phase is controlled explicitly. */
         void kernelGeneration(Vec3 at,int lifetime){
             require(get(actor,"pending")==null,"no accepted generation replaced by kernel fixture");marker.setPos(at);set(actor,"lifetime",lifetime);
-            try{var type=Class.forName("me.skywars2.game.LbcBridgeBuilder$Generation");var ctor=type.getDeclaredConstructors()[0];ctor.setAccessible(true);generation=ctor.newInstance(service,actor,at,lifetime);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
+            try{var type=Class.forName("me.skywars2.game.items.gadgets.LbcBridgeBuilder$Generation");var ctor=type.getDeclaredConstructors()[0];ctor.setAccessible(true);generation=ctor.newInstance(service,actor,at,lifetime);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
             set(actor,"pending",generation);game.items().stonekivi().queuedWork((LbcStonekivi.Work)generation);
         }
         @SuppressWarnings("unchecked") ArrayDeque<Object> ops(){return (ArrayDeque<Object>)get(generation,"ops");}

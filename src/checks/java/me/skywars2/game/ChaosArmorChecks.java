@@ -1,6 +1,19 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.projectiles.LbcProjectileLevelups;
+import me.skywars2.game.items.armor.LbcChaosArmor;
+import me.skywars2.game.items.drops.LbcPotionSpawnerDrops;
+import me.skywars2.game.items.loot.LbcAllItemPools;
+import me.skywars2.game.items.loot.LootTestCatalog;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;

@@ -6,15 +6,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import me.skywars2.game.GameController;
-import me.skywars2.game.LbcElectro;
-import me.skywars2.game.LbcFrost;
-import me.skywars2.game.LbcHoming;
-import me.skywars2.game.LbcIndirectKills;
 import me.skywars2.game.LbcItems;
-import me.skywars2.game.LbcMana;
-import me.skywars2.game.LbcOrdinaryAccessories;
-import me.skywars2.game.LbcPsycho;
-import me.skywars2.game.LbcQuiver;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.LbcFrost;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.entities.mobs.LbcPsycho;
+import me.skywars2.game.entities.projectiles.LbcHoming;
+import me.skywars2.game.items.trinkets.LbcOrdinaryAccessories;
+import me.skywars2.game.items.wands.LbcElectro;
+import me.skywars2.game.items.weapons.ranged.LbcQuiver;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -126,7 +126,7 @@ public final class ItemFixtureAccess {
         @Accessor("shocks") IdentityHashMap<LivingEntity, ?> validation$shocks();
     }
 
-    @Mixin(targets = "me.skywars2.game.LbcAcidCorruption", remap = false)
+    @Mixin(targets = "me.skywars2.game.items.wands.LbcAcidCorruption", remap = false)
     public interface Corruption {
         @Accessor("deaths") Map<LivingEntity, ?> validation$deaths();
     }

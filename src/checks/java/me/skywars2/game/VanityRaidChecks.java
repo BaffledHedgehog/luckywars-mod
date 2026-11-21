@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import java.util.*;
+
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.NbtOps;

@@ -1,0 +1,171 @@
+package me.skywars2.game.items.drops;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import me.skywars2.game.GameController;
+import me.skywars2.game.GameController.Stage;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.combat.LbcSpellSource.Scope;
+import me.skywars2.game.combat.LbcSpellSource.Source;
+
+/** The special-drop dispatcher owns activation/debit; this service owns only native TNT. */
+public final class LbcTntDrops {
+    private static final String TNT = "skywars2.tnt_drop";
+    // Preserve the source emission order as well as its exact thirteen velocities.
+    private static final double[][] VELOCITIES = {
+            {0, 0}, {0, .1}, {0, -.1}, {.1, 0}, {.1, .1}, {.1, -.1},
+            {-.1, 0}, {-.1, .1}, {-.1, -.1}, {.2, 0}, {-.2, 0}, {0, .2}, {0, -.2}
+    };
+    private final GameController game;
+    private final Set<PrimedTnt> tracked = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Map<PrimedTnt, LivingEntity> causes = new IdentityHashMap<>();
+
+    public LbcTntDrops(GameController game) { this.game = game; }
+
+    /** Emit the payload without consuming the item or scheduling another activation. */
+    public boolean spawn(ItemEntity token) {
+        if (token.isRemoved() || token.getAge() >= 5999 || !LbcTntDropItem.matches(token.getItem())
+                || !game.playing() || game.stage() == GameController.Stage.ENDING
+                || token.level() != game.maps().level() || !(token.level() instanceof ServerLevel level)
+                || game.items().timeStop().stopped(level)) return false;
+        for (var tag : token.entityTags()) {
+            if (tag.startsWith("skywars2.items.") && !game.items().currentEpoch(tag)) return false;
+        }
+        var at = token.position().add(0, .1, 0);
+        var pos = BlockPos.containing(at);
+        if (level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null) return false;
+        try (var scope = game.items().spellSources().lootScope(token)) {
+            var source = game.items().spellSources().current();
+            for (var velocity : VELOCITIES) {
+                emit(level, at, null, null, new net.minecraft.world.phys.Vec3(velocity[0],1,velocity[1]), 70, source);
+            }
+        }
+        return true;
+    }
+
+    /** Native TNT emission shared by drop formations and Malevich overflow; one lifecycle and explosion policy. */
+    PrimedTnt spawnActor(ServerLevel level,net.minecraft.world.phys.Vec3 at,LivingEntity owner,
+            net.minecraft.world.phys.Vec3 velocity,int fuse){
+        return emit(level,at,owner,null,velocity,fuse,null);
+    }
+    public PrimedTnt spawnWildActor(ServerLevel level, net.minecraft.world.phys.Vec3 at,
+            net.minecraft.world.phys.Vec3 velocity, int fuse, LbcSpellSource.Source source) {
+        return emit(level, at, null, null, velocity, fuse, source.hostileLoot());
+    }
+
+    /** Keep an offline creator's native UUID, rather than transferring ownership to the current holder. */
+    public PrimedTnt spawnRecordedActor(ServerLevel level,net.minecraft.world.phys.Vec3 at,java.util.UUID creator,
+            net.minecraft.world.phys.Vec3 velocity,int fuse){
+        LivingEntity owner=creator==null?null:game.server().getPlayerList().getPlayer(creator);
+        if(owner==null&&creator!=null&&level.getEntity(creator) instanceof LivingEntity living)owner=living;
+        return emit(level,at,owner,creator,velocity,fuse,null);
+    }
+    private PrimedTnt emit(ServerLevel level,net.minecraft.world.phys.Vec3 at,LivingEntity owner,java.util.UUID creator,
+            net.minecraft.world.phys.Vec3 velocity,int fuse,LbcSpellSource.Source trapSource){
+        if(!game.playing()||game.stage()==GameController.Stage.ENDING||level!=game.maps().level()
+                ||level.getChunkSource().getChunkNow(net.minecraft.util.Mth.floor(at.x)>>4,net.minecraft.util.Mth.floor(at.z)>>4)==null)return null;
+        // Exact native class keeps the existing TNT discovery cache, reflection and chain propagation.
+        var tnt=new PrimedTnt(level,at.x,at.y,at.z,owner);tnt.setFuse(fuse);tnt.setDeltaMovement(velocity);
+        if(owner==null&&creator!=null){
+            var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess());
+            tnt.saveWithoutId(output);var data=output.buildResult();
+            data.put("owner",net.minecraft.core.UUIDUtil.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,creator).getOrThrow());
+            tnt.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),data));
+        }
+        if (trapSource != null) game.items().spellSources().bind(tnt, trapSource);
+        tnt.entityTags().add(TNT);game.items().markCurrentItemEpoch(tnt);causes.put(tnt,owner);tracked.add(tnt);
+        game.items().timeStop().prepareFrozen(tnt);
+        if(level.addFreshEntity(tnt))return tnt;
+        tracked.remove(tnt);causes.remove(tnt);tnt.discard();return null;
+    }
+
+    public static boolean managed(Entity entity) {
+        return entity instanceof PrimedTnt && entity.entityTags().contains(TNT);
+    }
+
+    public static boolean wild(Entity entity) {
+        return managed(entity) && entity.entityTags().contains(LbcSpellSource.WILD_LOOT);
+    }
+
+    /** Called before native insertion; preserve chain physics and its native randomized fuse. */
+    public void inheritChain(Entity source, Entity spawned) {
+        if (!managed(source) || !active((PrimedTnt) source) || !(spawned instanceof PrimedTnt child)) return;
+        child.entityTags().add(TNT);
+        game.items().markCurrentItemEpoch(child);
+        if (!wild(source)) causes.put(child, ((PrimedTnt) source).getOwner());
+    }
+
+    /** The native owner hook checks reflection first, then this nonrecursive causal fallback. */
+    public LivingEntity retainedOwner(Entity entity) {
+        return entity instanceof PrimedTnt tnt ? causes.get(tnt) : null;
+    }
+
+    private boolean active(PrimedTnt tnt) {
+        return game.playing() && game.stage() != GameController.Stage.ENDING
+                && tnt.level() == game.maps().level() && game.items().currentEpoch(tnt);
+    }
+
+    public void loaded(Entity entity) {
+        if (!managed(entity)) return;
+        var tnt = (PrimedTnt) entity;
+        // Native saving preserves fuse, velocity, owner UUID and the match epoch tag.
+        if (!active(tnt)) tnt.discard();
+        else {
+            if (!causes.containsKey(tnt)) causes.put(tnt, tnt.getOwner());
+            tracked.add(tnt);
+            game.items().timeStop().prepareFrozen(tnt);
+        }
+    }
+
+    public void unloaded(Entity entity) {
+        tracked.remove(entity);
+        // Native TNT discards before explode(). Its synchronous explosion/chain callbacks
+        // still need the retained cause; reclaim it on the next service tick instead.
+    }
+
+    public void tick() {
+        for (var tnt : List.copyOf(tracked)) {
+            if (tnt.isRemoved()) tracked.remove(tnt);
+            else if (!active(tnt)) {
+                tracked.remove(tnt);
+                tnt.discard();
+            }
+        }
+        causes.keySet().removeIf(tnt -> !tracked.contains(tnt) || tnt.isRemoved() || !active(tnt));
+    }
+
+    /** Applied before native exposure, damage and knockback; damage scaling remains shared. */
+    public boolean explosionTarget(Entity source, Entity target) {
+        if (!managed(source)) return true;
+        var tnt = (PrimedTnt) source;
+        if (!active(tnt) || !game.items().wands().validTarget(target)) return false;
+        return !(tnt.getOwner() instanceof ServerPlayer owner)
+                || target == owner || game.items().wands().projectileTarget(owner, target);
+    }
+
+    public boolean allowDamage(LivingEntity victim, DamageSource source) {
+        return explosionTarget(source.getDirectEntity(), victim);
+    }
+
+    public void stop() {
+        var detached = List.copyOf(tracked);
+        tracked.clear();
+        for (var tnt : detached) if (!tnt.isRemoved()) tnt.discard();
+        causes.clear();
+    }
+
+    public int trackedCount() { return tracked.size(); }
+    public List<PrimedTnt> snapshot() { return List.copyOf(tracked); }
+}

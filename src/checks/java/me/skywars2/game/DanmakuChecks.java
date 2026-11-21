@@ -1,6 +1,15 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.entities.projectiles.LbcDanmaku;
+import me.skywars2.game.entities.projectiles.ProjectileSteering;
+import me.skywars2.game.items.wands.LbcElectro;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,6 +41,7 @@ import net.minecraft.world.ticks.ScheduledTick;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import me.skywars2.game.entities.projectiles.LbcHoming;
 
 /** Real native input/loot and Academy callbacks; successive clicks use actual server ticks. */
 public final class DanmakuChecks {

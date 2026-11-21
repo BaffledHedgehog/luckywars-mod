@@ -2,6 +2,12 @@ package me.skywars2.game;
 
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.items.wands.LbcVoidArcanum;
+import me.skywars2.game.match.checkpoints.MatchValueSnapshot;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.presentation.effects.BlackHoleVisuals;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -44,6 +50,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.*;
+import me.skywars2.game.entities.projectiles.ProjectileLifetimes;
 
 /** Bounded native fixture; explicit service calls below test boundaries without elapsed-time claims. */
 public final class VoidArcanumChecks {
@@ -59,7 +66,7 @@ public final class VoidArcanumChecks {
         int queries,visits;
 
         EntityWalk(ServerLevel level) {
-            var nativeManager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+            var nativeManager=((me.skywars2.mixin.entities.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
             manager=nativeManager;original=nativeManager.getEntityGetter();
             try {
                 getter=nativeManager.getClass().getDeclaredField("entityGetter");getter.setAccessible(true);
@@ -462,7 +469,7 @@ public final class VoidArcanumChecks {
                 require(level.getChunkSource().getChunkNow(coldX,coldZ)==null
                         &&!level.areEntitiesLoaded(ChunkPos.pack(coldX,coldZ)),
                         "cold section is absent before visibility churn");
-                var manager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+                var manager=((me.skywars2.mixin.entities.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
                 int tick=game.server().getTickCount();
                 first.setPos(cold);
                 require(manager.isLoaded(first.getUUID())&&level.getEntity(first.getUUID())==null&&!first.isRemoved(),

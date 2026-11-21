@@ -2,6 +2,15 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.mobs.summons.LbcSpecialEggs;
+import me.skywars2.game.items.drops.LbcFamilyDropItems;
+import me.skywars2.game.items.drops.LbcFamilyDrops;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.match.checkpoints.MatchSpellCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;

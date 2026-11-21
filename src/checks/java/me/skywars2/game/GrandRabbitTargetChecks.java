@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.skills.witch.LbcWitchGluttony;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -30,7 +31,7 @@ final class GrandRabbitTargetChecks {
             rabbit=spawn(f.home);family=spawn(f.home.add(.25,0,0));family.setNoAi(true);family.setNoGravity(true);familyHp=family.getHealth();
             service=(Cow)body(new Cow(EntityTypes.COW,f.level),f.home.add(.5,0,0));service.entityTags().add("strict_map_object");
             game.items().witchGluttony().loaded(rabbit);game.items().witchGluttony().loaded(rabbit);
-            require(((me.skywars2.mixin.SummonTargetAccess)rabbit).skywars2$summonTargets().getAvailableGoals().stream().filter(g->g.getGoal().getClass().getSimpleName().equals("GrandRabbitTarget")).count()==1,"publication/reload installs exactly one native target goal");next();
+            require(((me.skywars2.mixin.mobs.SummonTargetAccess)rabbit).skywars2$summonTargets().getAvailableGoals().stream().filter(g->g.getGoal().getClass().getSimpleName().equals("GrandRabbitTarget")).count()==1,"publication/reload installs exactly one native target goal");next();
         }
         Rabbit spawn(Vec3 at){var actor=game.items().witchGluttony().spawn(LbcWitchGluttony.Kind.RABBIT,f.level,at,0,0,f.owner.getUUID(),game.items().epoch(),game.items().indirectKills().wildCause(f.owner));require(actor instanceof Rabbit,"actual source native rabbit spawn");return (Rabbit)actor;}
         Mob body(Mob mob,Vec3 at){mob.setPos(at);mob.setNoAi(true);mob.setNoGravity(true);mob.setSilent(true);mob.setPersistenceRequired();mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);mob.setHealth(1000);require(f.level.addFreshEntity(mob),"actual native target publication");f.owned.add(mob.getUUID());return mob;}

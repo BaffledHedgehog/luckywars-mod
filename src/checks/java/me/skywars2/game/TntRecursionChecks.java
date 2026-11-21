@@ -2,6 +2,18 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.entities.projectiles.LbcDeltaTnt;
+import me.skywars2.game.entities.projectiles.LbcFunnyTnt;
+import me.skywars2.game.items.gadgets.LbcImbaRecursionItems;
+import me.skywars2.game.items.wands.LbcExoperso;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.items.weapons.ranged.LbcSpecialFireballs;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;

@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.match.ranked.SynchroRanked;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.*;
 import net.minecraft.server.level.ServerPlayer;

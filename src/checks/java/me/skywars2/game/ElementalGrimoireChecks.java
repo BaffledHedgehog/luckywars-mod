@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.items.wands.LbcElementalGrimoires;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcTerra;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.Connection;

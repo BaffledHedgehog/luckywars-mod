@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.weapons.melee.LbcMeleeItems;
+import me.skywars2.game.items.weapons.melee.LbcPendingSwords;
+import me.skywars2.game.skills.witch.LbcGreed;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;

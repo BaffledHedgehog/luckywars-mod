@@ -2,6 +2,15 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.drops.LbcEternalWealth;
+import me.skywars2.game.items.gadgets.LbcCursedPumpkin;
+import me.skywars2.game.items.gadgets.LbcCursedPumpkinItems;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.players.inventory.LbcInventoryHazards;
+import me.skywars2.game.world.terrain.LbcMalevich;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;

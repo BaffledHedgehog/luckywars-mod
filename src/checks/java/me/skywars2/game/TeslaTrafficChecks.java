@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.InteractionHand;

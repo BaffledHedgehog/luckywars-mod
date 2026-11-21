@@ -3,6 +3,8 @@ package me.skywars2.game;
 import java.lang.reflect.Field;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.food.LbcOreshek;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;

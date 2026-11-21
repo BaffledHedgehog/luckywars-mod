@@ -24,6 +24,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import me.skywars2.game.items.tools.LbcTinyReforge;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.effects.time.LbcTimeStop;
+
 /** Real native clicked dispatch, with temporary native loot tables and seeded chance checks. */
 public final class TinyReforgeChecks {
     private TinyReforgeChecks() { }

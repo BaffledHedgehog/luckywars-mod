@@ -2,6 +2,12 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtComponents;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.weapons.firearms.LbcMagnum;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -20,6 +26,7 @@ import net.minecraft.world.item.component.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.combat.LbcIndirectKills;
 
 /** Real Magnum ammo intake and LbcItems' scheduled burst; never calls Magnum.tick manually. */
 public final class TmtMagnumAmmoChecks {

@@ -1,11 +1,18 @@
 package me.skywars2.game;
 
 import java.util.List;
+
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtTools;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
+import me.skywars2.game.items.tools.LbcImbaAxe;
+import me.skywars2.game.items.tools.LbcImbaHoe;
+import me.skywars2.game.items.wands.LbcStonekivi;
 
 /** Actual game-mode block destruction and player contact, not manufactured tool-use events. */
 public final class TmtToolChecks {

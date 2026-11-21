@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.items.weapons.firearms.LbcAk47;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;

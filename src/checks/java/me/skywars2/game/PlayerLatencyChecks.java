@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.net.PlayerLatency;
 import net.minecraft.network.protocol.common.ClientboundPingPacket;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;

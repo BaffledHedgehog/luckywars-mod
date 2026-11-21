@@ -1,6 +1,14 @@
 package me.skywars2.game;
 
 import java.util.*;
+
+import me.skywars2.game.items.gadgets.LbcImbaNativeItems;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtAmmoPayloads;
+import me.skywars2.game.items.tmt.LbcTmtBlockUses;
+import me.skywars2.game.items.tmt.LbcTmtComponents;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtRanged;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;

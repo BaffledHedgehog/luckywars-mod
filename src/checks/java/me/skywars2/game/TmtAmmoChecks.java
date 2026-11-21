@@ -3,6 +3,15 @@ package me.skywars2.game;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import me.skywars2.game.combat.LbcBeamAmmo;
+import me.skywars2.game.entities.projectiles.LbcHomingArrows;
+import me.skywars2.game.items.gadgets.LbcImbaNativeItems;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtAmmoPayloads;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtRanged;
+import me.skywars2.game.items.weapons.ranged.LbcShulkerBow;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;

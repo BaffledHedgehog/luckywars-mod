@@ -4,6 +4,9 @@ import me.skywars2.validation.mixin.BotValidationAccess;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.bots.LbcBotActions;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -14,6 +17,8 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import me.skywars2.game.entities.bots.LbcBotCrafting;
+import me.skywars2.game.entities.bots.LbcBotDefense;
 
 /** Native Carpet controls, ordinary HP and real starter loot, followed by isolated interaction regressions. */
 final class BotRevisionChecks {
@@ -118,7 +123,7 @@ final class BotRevisionChecks {
                     if((now-at)%20==0)SkyWars2.LOGGER.info("[check] Native crossbow frame={} phase={} ammo={} targetHealth={} targetAbsorption={} targetDamage={} arrows={}",now-at,phase,
                             bot.getInventory().countItem(Items.ARROW),base.other.getHealth(),base.other.getAbsorptionAmount(),base.other.getLastDamageSource(),
                             base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(24),arrow->arrow.getOwner()==bot).stream()
-                                    .map(arrow->arrow.position()+"/ground="+((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()+"/block="+((BotValidationAccess.Arrow)(Object)arrow).skywars2$validationLastState()).toList());
+                                    .map(arrow->arrow.position()+"/ground="+((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()+"/block="+((BotValidationAccess.Arrow)(Object)arrow).skywars2$validationLastState()).toList());
                     if(bot.isUsingItem()&&startedUse<0)startedUse=now;
                     if(CrossbowItem.isCharged(bot.getMainHandItem())){sawCharge=true;require(bot.getInventory().countItem(Items.ARROW)==0,"last ammunition really loads into crossbow");}
                     for(var arrow:base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(20),e->e.getOwner()==bot)){sawShot=true;base.owned.add(arrow.getUUID());}
@@ -166,7 +171,7 @@ final class BotRevisionChecks {
                             base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(32)).stream()
                                     .map(arrow->arrow.position()+"/"+arrow.getDeltaMovement()+"/owner="+(arrow.getOwner()==bot)).toList(),game.carpetBots().diagnostics(bot));
                     for(var arrow:base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(32),e->e.getOwner()==bot)){
-                        if(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()&&reflectionMisses.add(arrow.getUUID()))
+                        if(((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()&&reflectionMisses.add(arrow.getUUID()))
                             SkyWars2.LOGGER.info("[check] Native grounded miss before thorns learning pos={} block={}",arrow.position(),((BotValidationAccess.Arrow)(Object)arrow).skywars2$validationLastState());
                     }
                     var state=state();if(state==null||!state.skywars2$validationDefense().thorns(base.other))return false;
@@ -248,7 +253,7 @@ final class BotRevisionChecks {
                     if(now-at<40){var ai=state();var defense=ai==null?null:ai.skywars2$validationDefense();SkyWars2.LOGGER.info("[check] Cover frame={} arrowOwner={} alive={} time={} arrow={} {} {}",now-at,defended.getOwner()==base.other,defended.isAlive(),LbcBotActions.impactTime(bot,defended),defended.position(),defense==null?null:defense.diagnostics(),game.carpetBots().diagnostics(bot));}
                     require(bot.getHealth()==botHealth,"legal wall intercepts the real incoming arrow: arrow="+defended.position()+" motion="+defended.getDeltaMovement()+" "+game.carpetBots().diagnostics(bot));
                     if(game.carpetBots().observation(bot).placements()<2)return false;
-                    boolean grounded=((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)defended).skywars2$isInGround();
+                    boolean grounded=((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)(Object)defended).skywars2$isInGround();
                     if(!grounded)return false;
                     require(bot.getInventory().countItem(Items.COBBLESTONE)==14,"two real cover blocks are debited from the finite owned stack");
                     if(defenseOnly)return true;

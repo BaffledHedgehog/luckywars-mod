@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import io.netty.buffer.Unpooled;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -32,7 +35,7 @@ public final class AcademyInteractionChecks {
             try{
                 ClientboundSetEntityDataPacket.STREAM_CODEC.encode(buffer,raw);
                 var wire=ClientboundSetEntityDataPacket.STREAM_CODEC.decode(buffer);
-                int width=me.skywars2.mixin.AcademyInteractionMixin.Data.skywars2$width().id(),height=me.skywars2.mixin.AcademyInteractionMixin.Data.skywars2$height().id();
+                int width=me.skywars2.mixin.academy.AcademyInteractionMixin.Data.skywars2$width().id(),height=me.skywars2.mixin.academy.AcademyInteractionMixin.Data.skywars2$height().id();
                 require(wire.packedItems().stream().anyMatch(v->v.id()==width&&v.value().equals(0f))
                         &&wire.packedItems().stream().anyMatch(v->v.id()==height&&v.value().equals(0f)),"native encoded client metadata has no pickable area");
                 require(teacher.getBoundingBox().getXsize()>1&&teacher.getBoundingBox().getYsize()>2,"authoritative teacher bounds stay intact for upgrading");

@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.presentation.effects.BlackHoleVisuals;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;

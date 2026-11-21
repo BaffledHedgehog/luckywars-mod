@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import me.skywars2.SkyWars2;
-import me.skywars2.game.LbcLoadouts;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;

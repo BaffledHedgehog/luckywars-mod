@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.ArrayList;
 import java.util.List;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.LbcPolymorph;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -25,8 +26,8 @@ public final class PolymorphWandChecks {
         require(level.getEntity(entity.getUUID())==null&&level.getEntity(entity.getId())==null,"original absent from native UUID/id lookup");
         var game=SkyWars2.game();require(!game.items().wands().validRoleTarget(entity,false,true),"offworld body excluded from cached gameplay targets");
         if(entity instanceof net.minecraft.world.entity.LivingEntity)require(!game.items().lifetimes().loadedTargets().contains(entity),"offworld body removed from shared homing snapshot");
-        var manager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
-        var storage=((me.skywars2.mixin.ActorCheckpointAccess.Sections)manager).skywars2$sections();
+        var manager=((me.skywars2.mixin.entities.ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
+        var storage=((me.skywars2.mixin.entities.ActorCheckpointAccess.Sections)manager).skywars2$sections();
         for(long chunk:storage.getAllChunksWithExistingSections().toLongArray())storage.getExistingSectionsInChunk(chunk)
                 .forEach(section->section.getEntities().forEach(actor->require(actor!=entity,"original absent from every native section")));
         try{var field=net.minecraft.server.level.ServerLevel.class.getDeclaredField("entityTickList");field.setAccessible(true);

@@ -13,16 +13,27 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.ActorCheckpointAccess;
-import me.skywars2.mixin.ArenaChunkAccess;
-import me.skywars2.mixin.RandomCheckpointAccess;
-import me.skywars2.mixin.ScoreboardCheckpointAccess;
-import me.skywars2.mixin.TerrainCheckpointEventsAccess;
-import me.skywars2.mixin.TerrainCheckpointTicksAccess;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchAuthorityCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchBlastCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchQueuedWorkCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchSpellCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchTerrainCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchWorldCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchWorldRandomCheckpoint;
+import me.skywars2.mixin.arena.ArenaChunkAccess;
+import me.skywars2.mixin.entities.ActorCheckpointAccess;
+import me.skywars2.mixin.players.ScoreboardCheckpointAccess;
+import me.skywars2.mixin.terrain.TerrainCheckpointEventsAccess;
+import me.skywars2.mixin.terrain.TerrainCheckpointTicksAccess;
+import me.skywars2.mixin.world.RandomCheckpointAccess;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.ticks.LevelChunkTicks;
+import me.skywars2.game.combat.MatchDamageSources;
 
 /** Capture-only measurements on the actual resident match. Never restores or constructs a test arena. */
 public final class VanitySnapshotPerfChecks {

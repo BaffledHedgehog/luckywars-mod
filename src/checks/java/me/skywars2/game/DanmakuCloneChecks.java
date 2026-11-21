@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.projectiles.LbcDanmaku;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;

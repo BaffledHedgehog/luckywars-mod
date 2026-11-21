@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import me.skywars2.game.*;
 import me.skywars2.game.genie.script.*;
+import me.skywars2.game.items.tmt.LbcTmtTriggers;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -89,7 +90,7 @@ public final class GenieScriptRuntime implements AutoCloseable {
     public CompletableFuture<ScriptRepository.Loaded> prepare(String source){mainThread();return repository().prepare(source);}
     private boolean admitted(ServerPlayer owner){
         return owner.isAlive()&&!owner.isRemoved()&&!game.balanceLegacy()&&!game.isObserver(owner)
-            &&me.skywars2.game.LbcDimensionItems.ordinary(owner)
+            &&me.skywars2.game.entities.LbcDimensionItems.ordinary(owner)
             &&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner)
             &&(game.canUseGameplayItems(owner)||game.stage().name().equals("ENDING"));
     }

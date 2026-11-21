@@ -8,6 +8,25 @@ import java.lang.reflect.*;
 import java.nio.file.*;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.entities.mobs.LbcSheep;
+import me.skywars2.game.gui.GameMenus;
+import me.skywars2.game.gui.LbcCases;
+import me.skywars2.game.gui.LbcCosmetics;
+import me.skywars2.game.gui.OriginalGuiDesign;
+import me.skywars2.game.gui.loadouts.LbcSourceUnlocks;
+import me.skywars2.game.items.loot.LbcDropRequests;
+import me.skywars2.game.items.tools.LbcMidas;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.items.weapons.melee.LbcChargedSwords;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.match.checkpoints.MatchValueSnapshot;
+import me.skywars2.game.match.checkpoints.MatchWorldCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchWorldRandomCheckpoint;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -25,6 +44,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Native GUI/economy, causal cosmetic bodies and whole-coordinator checks. No client/audio claim. */
 public final class CaseCosmeticChecks {

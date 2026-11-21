@@ -1,6 +1,12 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcPendingCombat;
+import me.skywars2.game.effects.time.LbcTimeStopSchedules;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.weapons.melee.LbcMeleeItems;
+import me.skywars2.game.world.maps.MapManager;
 import me.skywars2.validation.mixin.FixtureAccess;
 import me.skywars2.validation.mixin.ItemFixtureAccess;
 import net.minecraft.core.BlockPos;

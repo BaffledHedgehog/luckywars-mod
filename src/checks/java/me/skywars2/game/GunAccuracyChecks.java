@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.weapons.ranged.LbcGunAccuracy;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.Connection;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import me.skywars2.game.items.weapons.ranged.LbcRifleZoom;
 
 /** Actual item-use traces verify the accuracy policy reaches each native gun engine. */
 public final class GunAccuracyChecks {

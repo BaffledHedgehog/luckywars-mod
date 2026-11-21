@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.entities.bots.LbcWtf;
+import me.skywars2.game.entities.mobs.LbcPolymorph;
+import me.skywars2.game.match.events.LbcApocalypseEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

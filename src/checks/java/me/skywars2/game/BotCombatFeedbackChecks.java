@@ -4,6 +4,8 @@ import me.skywars2.validation.mixin.BotValidationAccess;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.bots.LbcBotActions;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -12,6 +14,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.entities.bots.LbcBotDefense;
 
 /** Actual scheduled Carpet combat, mining and expiring defense, with ordinary finite resources. */
 final class BotCombatFeedbackChecks {

@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.modes.bedwars.LbcBedwars;
+import me.skywars2.game.modes.bedwars.LbcBedwarsArena;
+import me.skywars2.game.modes.bedwars.LbcBedwarsAuxiliaries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,6 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Operator-only scenes use the real mode3 owner, native players and normally ticking coordinator. */
 public final class BedwarsChecks {

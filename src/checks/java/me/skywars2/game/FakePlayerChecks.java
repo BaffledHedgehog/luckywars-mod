@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.LbcFakePlayer;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.ChatFormatting;

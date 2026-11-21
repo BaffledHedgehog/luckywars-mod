@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import java.util.List;
+
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtSelfAbilities;
+import me.skywars2.game.items.wands.LbcFartus;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -14,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Actual shared self/jump owners, with independent siblings and no fabricated accepted hit. */
 public final class TmtSelfChecks {

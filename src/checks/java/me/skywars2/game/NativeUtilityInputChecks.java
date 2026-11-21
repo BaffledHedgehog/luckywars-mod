@@ -5,6 +5,11 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.gadgets.LbcBadAppleItem;
+import me.skywars2.game.items.gadgets.LbcBridgeBuilderItem;
+import me.skywars2.game.items.gadgets.LbcImbaPlaceableItems;
+import me.skywars2.game.items.tools.LbcRewardToolItems;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +21,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.parameters.*;
 import net.minecraft.world.phys.*;
+import me.skywars2.game.match.events.LbcNukeEvent;
 
 /** Independent canonical/vanilla oracle, actual native marker-egg placement and shared owner checks. */
 public final class NativeUtilityInputChecks {

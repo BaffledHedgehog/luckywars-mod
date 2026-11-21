@@ -2,6 +2,12 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.academy.TrialWarningVisual;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.drones.LbcFpvDrone;
+import me.skywars2.game.entities.projectiles.ProjectileLifetimes;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.skills.LbcPlanetoidSkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
@@ -9,6 +15,7 @@ import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.entities.mobs.LbcGrimoireBoss;
 
 /** Invoke inside the ordinary isolated two-client real-match fixture after selecting/unlocking skill21. */
 public final class PlanetoidSkillChecks {

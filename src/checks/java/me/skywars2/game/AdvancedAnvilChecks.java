@@ -1,7 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.EnchantmentRulesMixin;
+import me.skywars2.game.items.drops.LbcSlabDropItem;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.mixin.enchantments.EnchantmentRulesMixin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;

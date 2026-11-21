@@ -2,6 +2,14 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.items.gadgets.LbcImbaPlaceableItems;
+import me.skywars2.game.items.gadgets.LbcImbaTerrainUtilities;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.LbcMysticalTree;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;

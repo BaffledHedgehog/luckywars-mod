@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.drops.LbcCageDropItem;
+import me.skywars2.game.items.drops.LbcCageDrops;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.stats.Stats;
@@ -12,6 +14,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.entities.bots.LbcBotSurvival;
 
 /** Five real cage producers against ordinary Carpet bodies using only the generated starter inventory. */
 final class BotCageChecks {

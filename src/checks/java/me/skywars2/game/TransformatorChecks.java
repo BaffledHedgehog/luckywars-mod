@@ -1,7 +1,14 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.ActorCheckpointAccess;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.mobs.LbcTransformator;
+import me.skywars2.game.items.drops.LbcNpcDropItems;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.mixin.entities.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;

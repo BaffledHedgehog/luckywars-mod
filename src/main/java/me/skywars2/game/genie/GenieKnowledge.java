@@ -4,11 +4,11 @@ import com.google.gson.*;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import me.skywars2.game.AttributePolicy;
-import me.skywars2.game.GenieNative;
-import me.skywars2.game.LbcSauvojen;
-import me.skywars2.game.LbcSummons;
-import me.skywars2.game.SkyWarsFeedbackCommands;
+
+import me.skywars2.game.commands.SkyWarsFeedbackCommands;
+import me.skywars2.game.entities.mobs.summons.LbcSummons;
+import me.skywars2.game.items.wands.LbcSauvojen;
+import me.skywars2.game.players.attributes.AttributePolicy;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;

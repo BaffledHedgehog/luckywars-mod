@@ -3,6 +3,8 @@ package me.skywars2.game;
 import java.util.concurrent.CompletableFuture;
 import me.skywars2.game.genie.*;
 import me.skywars2.game.genie.script.*;
+import me.skywars2.game.items.tmt.LbcTmtTriggers;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.*;

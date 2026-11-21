@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.genie.GenieScriptItem;
 import me.skywars2.game.genie.script.ScriptRepository;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ServerboundClientTickEndPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;

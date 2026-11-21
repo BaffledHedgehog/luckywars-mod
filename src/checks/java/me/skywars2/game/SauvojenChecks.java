@@ -1,6 +1,17 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.projectiles.LbcClouds;
+import me.skywars2.game.items.wands.LbcAir;
+import me.skywars2.game.items.wands.LbcBlind;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcRuby;
+import me.skywars2.game.items.wands.LbcSauvojen;
+import me.skywars2.game.items.wands.LbcStone;
+import me.skywars2.game.items.wands.LbcTeleport;
+import me.skywars2.game.items.wands.LbcTerra;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;

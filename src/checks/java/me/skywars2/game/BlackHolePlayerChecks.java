@@ -1,7 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.BlackHoleDeathProtectionAccess;
+import me.skywars2.game.effects.BlackHoleDamage;
+import me.skywars2.game.items.armor.LbcNanobotArmor;
+import me.skywars2.mixin.combat.BlackHoleDeathProtectionAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;

@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.mobs.LbcHelicopterEncounter;
+import me.skywars2.game.entities.mobs.LbcHelicopterTriggerItem;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
@@ -276,8 +281,8 @@ public final class HelicopterEncounterChecks {
             if(terminalTagged.isEmpty()||terminalVerified||now==terminalTick)return;
             require(now==terminalTick+1,"terminal witnesses execute on first real native physics frame");
             for(var arrow:terminalTagged)require(arrow.isRemoved(),"tagged native boss/normal/spectral/embedded/payload arrow retires on impact "+arrow.getClass().getSimpleName()+" pos="+arrow.position());
-            require(!terminalPlain.isRemoved()&&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)terminalPlain).skywars2$isInGround(),"ordinary untagged arrow remains embedded with native pickup item");
-            require(!terminalAir.isRemoved()&&!((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)terminalAir).skywars2$isInGround(),"terminal tag never deletes an airborne arrow");
+            require(!terminalPlain.isRemoved()&&((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)(Object)terminalPlain).skywars2$isInGround(),"ordinary untagged arrow remains embedded with native pickup item");
+            require(!terminalAir.isRemoved()&&!((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)(Object)terminalAir).skywars2$isInGround(),"terminal tag never deletes an airborne arrow");
             require(level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(128,308,30,134,313,35),item->ItemStack.isSameItemSameComponents(item.getItem(),terminalDrop)).size()==1,"actual119 impact publishes its one source drop before terminal cleanup");
             terminalPlain.discard();terminalAir.discard();terminalVerified=true;
         }

@@ -1,0 +1,41 @@
+package me.skywars2.game.items.tmt;
+
+import me.skywars2.game.items.drops.LbcBucksTrader;
+import me.skywars2.game.items.gadgets.LbcBridgeBuilder;
+import me.skywars2.game.items.gadgets.LbcBridgeBuilderItem;
+import me.skywars2.game.items.gadgets.LbcGayradar;
+import me.skywars2.game.items.gadgets.LbcKillButton;
+import me.skywars2.game.items.gadgets.LbcThrownUtilities;
+import me.skywars2.game.items.gadgets.LbcThrownUtilityItems;
+import me.skywars2.game.items.gadgets.LbcTrollBox;
+import me.skywars2.game.items.gadgets.LbcWoolTrailItems;
+import me.skywars2.game.items.tools.LbcSteampunkRocket;
+import me.skywars2.game.modes.legacy.LbcBalanceExtras;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+
+/** Native utility factories own permission, source capture and debit, including immediate RMB consumables. */
+public final class LbcTmtNativeThrows {
+    private LbcTmtNativeThrows(){}
+    public static Item canonical(ItemStack stack){
+        if(LbcWoolTrailItems.ordinary(stack))return LbcWoolTrailItems.tokens().get(net.minecraft.world.item.DyeColor.LIME);
+        if(LbcGayradar.matches(stack))return LbcGayradar.TOKEN;
+        if(LbcSteampunkRocket.matches(stack))return LbcSteampunkRocket.TOKEN;
+        if(LbcTrollBox.matches(stack))return LbcTrollBox.TOKEN;
+        if(LbcKillButton.matches(stack))return LbcKillButton.TOKEN;
+        if(LbcBucksTrader.matches(stack))return LbcBucksTrader.TOKEN;
+        var color=LbcBalanceExtras.woolColor(stack);
+        if(color!=null)return LbcWoolTrailItems.tokens().get(color);
+        var thrown=LbcThrownUtilities.kind(stack);
+        if(thrown!=null)return switch(thrown){
+            case RUCHKA->LbcThrownUtilityItems.RUCHKA;
+            case HONEW->LbcThrownUtilityItems.HONEW;
+            case THROWABLE_METAL_PIPE->LbcThrownUtilityItems.THROWABLE_METAL_PIPE;
+            case BUCKET->LbcThrownUtilityItems.BUCKET_PROJECTILE;
+            case PUMPKIN->LbcThrownUtilityItems.THROWABLE_PUMPKIN;
+        };
+        return LbcBridgeBuilder.recognized(stack)?LbcBridgeBuilderItem.TOKEN:null;
+    }
+    static boolean matches(ItemStack stack){return canonical(stack)!=null;}
+    static boolean wool(ItemStack stack){return LbcBalanceExtras.woolColor(stack)!=null;}
+}

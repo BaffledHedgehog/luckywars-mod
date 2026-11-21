@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.weapons.firearms.LbcMagnum;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;

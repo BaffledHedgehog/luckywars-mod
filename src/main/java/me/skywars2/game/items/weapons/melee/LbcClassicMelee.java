@@ -1,0 +1,126 @@
+package me.skywars2.game.items.weapons.melee;
+
+import net.minecraft.core.registries.Registries;
+import me.skywars2.game.GameController;
+import me.skywars2.game.GameController.Stage;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.magic.LbcOverload;
+import me.skywars2.game.entities.LbcDimensionItems;
+import me.skywars2.game.items.wands.LbcFartus;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.phys.AABB;
+
+/** Source accepted-hit passives on ordinary vanilla sword stacks; all effect state stays native. */
+public final class LbcClassicMelee {
+    private static final TagKey<DamageType> ARROW_ONLY=TagKey.create(Registries.DAMAGE_TYPE,Identifier.parse("minecraft:arrow_only"));
+    private static final TagKey<EntityType<?>> MONSTERS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:monsters"));
+    private static final CompoundTag HYLIAN=new CompoundTag();
+    static {HYLIAN.putInt("hylian",1);}
+    private final GameController game;
+    private int phase;
+    public LbcClassicMelee(GameController game){this.game=game;}
+    public static void register(){LbcMeleeItems.register();LbcEvolutionSwordItem.register();LbcOnePunchGloveItem.register();}
+
+    private boolean admitted(ServerPlayer owner){
+        return owner!=null&&owner.isAlive()&&!owner.isRemoved()&&owner.level()==game.maps().level()
+                &&game.canUseGameplayItems(owner)&&!game.isObserver(owner)&&game.stage()!=GameController.Stage.ENDING
+                &&game.items().wands().validRoleTarget(owner,false)&&!game.items().actionsBlocked(owner)
+                &&!game.items().wands().inputTimeStopped(owner)&&!game.items().timeStop().stopped(owner.level());
+    }
+    private boolean magic(ServerPlayer owner){
+        return !owner.entityTags().contains("nomagic_active")&&!game.items().magic().suppressed(owner)
+                &&!game.items().magic().suppressedAt(owner.level(),owner.getEyePosition());
+    }
+
+    /** Called after accepted positive, unblocked native damage, including fatal and attributed indirect hits. */
+    public void damaged(LivingEntity victim,DamageSource source){
+        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)
+                ||!game.items().wands().validRoleTarget(victim,true))return;
+        var dimension=owner.level().dimension().identifier();
+        if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
+        selfEffects(owner);
+    }
+    /** Source TMT swords-group self branches; no invented victim or accepted-damage notification. */
+    public void sourceSelf(ServerPlayer owner){
+        if(!admitted(owner)||!LbcDimensionItems.ordinary(owner))return;
+        selfEffects(owner);
+    }
+    private void selfEffects(ServerPlayer owner){
+        var data=LbcFartus.data(owner.getMainHandItem());
+        if(LbcEvolutionSwordItem.matches(owner.getMainHandItem())&&!game.items().magic().mechanismSuppressed(owner))
+            LbcEvolutionSwordItem.grow(owner.getMainHandItem());
+        boolean feeding=data.getIntOr("feeding",0)==1,vampire=data.getIntOr("vampire",0)==1,guardian=data.getIntOr("seaguardian",0)==1;
+        if(!feeding&&!vampire&&!guardian)return;
+        // Source Feeding deliberately precedes and bypasses all magic suppression checks.
+        if(feeding){
+            // Native /effect gives instantaneous effects the supplied duration directly, so source "1" is one tick.
+            owner.addEffect(ItemEffectLevels.create(MobEffects.SATURATION,1,127,false,false,false),owner);
+            LbcOverload.sound(owner,"minecraft:entity.generic.eat",1,1,0);
+            LbcOverload.sound(owner,"minecraft:entity.player.burp",1,1,0);
+            game.items().mana().score(owner,"food_count").add(1);
+        }
+        if(!vampire&&!guardian||!magic(owner))return;
+        if(vampire)
+            owner.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,20,4,false,false,false),owner);
+        if(guardian){
+            // The actual swimming flag is authoritative; this path must not consume a random draw.
+            if(owner.isSwimming())guardian(owner,true);
+            else if(owner.getRandom().nextInt(4)==0)guardian(owner,false);
+        }
+    }
+    /** Hylian's equipped passive continues under active-input stun/ice; accepted-hit admission above is unchanged. */
+    public void tick(){
+        var level=game.maps().level();
+        if(level==null||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
+        phase=(phase+1)%5;
+        for(var owner:game.server().getPlayerList().getPlayers()){
+            if(!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner)
+                    ||game.isObserver(owner)||!game.items().wands().validRoleTarget(owner,false)
+                    ||game.items().wands().inputTimeStopped(owner)||game.items().timeStop().stopped(level))continue;
+            var dimension=level.dimension().identifier();
+            if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))continue;
+            // One Punch follows the native health criterion without a stale dummy score or stack replacement.
+            if(LbcOnePunchGloveItem.matches(owner.getMainHandItem()))
+                LbcOnePunchGloveItem.updateDamage(owner.getMainHandItem(),net.minecraft.util.Mth.ceil(owner.getHealth()+owner.getAbsorptionAmount()));
+            if(phase!=0)continue;
+            var data=owner.getMainHandItem().get(DataComponents.CUSTOM_DATA);
+            if(owner.getMainHandItem().isEmpty()||data==null||!data.matchedBy(HYLIAN)
+                    ||game.items().magic().beaconSuppressed(owner.position()))continue;
+            var at=owner.position();
+            // Witnesses are a tag/range presence test, not harm targets: retain own/allied/technical monsters.
+            boolean nearby=!level.getEntitiesOfClass(Entity.class,new AABB(at,at).inflate(8),
+                    entity->entity.getType().builtInRegistryHolder().is(MONSTERS)&&entity.position().distanceToSqr(at)<=49).isEmpty();
+            if(nearby)owner.addEffect(ItemEffectLevels.create(MobEffects.STRENGTH,40,2),owner);
+        }
+    }
+    public void stop(){phase=0;}
+    private void guardian(ServerPlayer owner,boolean swimming){
+        var level=owner.level();var origin=owner.position();
+        var targets=level.getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(7),entity->{
+            double distance=entity.position().distanceToSqr(origin);
+            return distance>=.0001&&distance<=49&&game.items().wands().target(owner,entity);
+        });
+        for(var target:targets){
+            // Native addEffect retains the source owner and shared signed amplifier/layer policy.
+            target.addEffect(ItemEffectLevels.create(MobEffects.MINING_FATIGUE,swimming?1200:400,127),owner);
+            if(swimming)target.addEffect(ItemEffectLevels.create(MobEffects.WEAKNESS,200,1),owner);
+            else target.addEffect(ItemEffectLevels.create(MobEffects.WATER_BREATHING,40,1),owner);
+        }
+        if(swimming)owner.addEffect(ItemEffectLevels.create(MobEffects.WATER_BREATHING,200,2),owner);
+        LbcOverload.sound(owner,"minecraft:entity.elder_guardian.curse",1,1,0);
+        for(var target:targets)if(target instanceof ServerPlayer viewer)
+            level.sendParticles(viewer,ParticleTypes.ELDER_GUARDIAN,true,false,origin.x,origin.y,origin.z,10,5,5,5,1);
+    }
+}

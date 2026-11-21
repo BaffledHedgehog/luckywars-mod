@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.items.drops.LbcTntDropItem;
+import me.skywars2.game.items.drops.LbcTntDrops;
+import me.skywars2.game.items.wands.LbcElectro;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;

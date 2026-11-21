@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.projectiles.LbcClouds;
+import me.skywars2.game.items.wands.LbcTesla;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;

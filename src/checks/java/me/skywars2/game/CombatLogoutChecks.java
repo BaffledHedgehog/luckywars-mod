@@ -2,7 +2,14 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.CombatCheckpointAccess;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.entities.bots.LbcCarpetBots;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehog;
+import me.skywars2.game.match.checkpoints.MatchCombatCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchValueSnapshot;
+import me.skywars2.game.match.combat.CombatLogout;
+import me.skywars2.mixin.combat.CombatCheckpointAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;

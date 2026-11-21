@@ -17,6 +17,15 @@ import java.util.Map;
 import java.util.Set;
 import jdk.jfr.Recording;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.bots.LbcCarpetBots;
+import me.skywars2.game.entities.projectiles.LbcHoming;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcSauvojen;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.net.metrics.ServerTickMetrics;
+import me.skywars2.game.world.maps.MapManager;
 import me.skywars2.validation.mixin.FixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,6 +47,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.ScoreHolder;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** A native, offline stress check. The runner owns a disposable server save. */
 final class SauvojenStressChecks {

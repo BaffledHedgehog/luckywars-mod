@@ -1,6 +1,12 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.ShadowAbsorption;
+import me.skywars2.game.effects.time.LbcPersonalStasis;
+import me.skywars2.game.items.LbcAccessoryItems;
+import me.skywars2.game.items.trinkets.LbcRegenerationBelt;
+import me.skywars2.game.items.wands.LbcFartus;
 import me.skywars2.validation.mixin.GameCheckAccess;
 import me.skywars2.validation.mixin.ItemFixtureAccess;
 import me.skywars2.validation.mixin.NativeFixtureAccess;

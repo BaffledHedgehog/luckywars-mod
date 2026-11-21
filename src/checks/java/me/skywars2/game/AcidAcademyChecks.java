@@ -1,8 +1,14 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.AcademyCheckpointAccess;
-import me.skywars2.mixin.ActorCheckpointAccess;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.entities.projectiles.LbcClouds;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.match.checkpoints.MatchValueSnapshot;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.mixin.academy.AcademyCheckpointAccess;
+import me.skywars2.mixin.entities.ActorCheckpointAccess;
 import me.skywars2.validation.mixin.FixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;

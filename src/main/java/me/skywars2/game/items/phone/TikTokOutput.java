@@ -1,13 +1,14 @@
 package me.skywars2.game.items.phone;
 
-import me.skywars2.game.PlayerLatency;
-import me.skywars2.game.ServerNetworkTransport;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
-import me.skywars2.mixin.MediaTransportAccess;
+
+import me.skywars2.game.net.PlayerLatency;
+import me.skywars2.game.net.ServerNetworkTransport;
+import me.skywars2.mixin.transport.MediaTransportAccess;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundPingPacket;
 import net.minecraft.server.level.ServerPlayer;

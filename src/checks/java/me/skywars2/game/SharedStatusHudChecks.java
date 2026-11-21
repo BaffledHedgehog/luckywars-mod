@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.skills.witch.LbcGreed;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
@@ -8,6 +9,8 @@ import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import java.util.*;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.entities.mobs.LbcPsycho;
 
 /** Actual shared actionbar packets from native status state, without compatibility-score bridges. */
 public final class SharedStatusHudChecks {

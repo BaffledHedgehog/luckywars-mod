@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.summons.LbcSummonerItems;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
+import me.skywars2.game.entities.mobs.summons.LbcSummons;
 
 /** Real seven-family items, native passenger trees/AI attacks and causal cleanup. */
 public final class OrdinarySummonerChecks {
@@ -178,7 +181,7 @@ public final class OrdinarySummonerChecks {
             if (elapsed == 0) return false;
             var service = game.items().summons();
             if (phase == 0) {
-                var manager = ((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)f.level).skywars2$manager();
+                var manager = ((me.skywars2.mixin.entities.ActorCheckpointAccess.LevelEntities)f.level).skywars2$manager();
                 require(!mob.isRemoved() && manager.isLoaded(uuid) && f.level.getEntity(uuid) == null,
                         "deferred native tracking callback preserves the same registered summon");
                 require(service.owner(mob) == f.base.owner && service.snapshot().contains(mob)

@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.drops.LbcCreatureDropItem;
+import me.skywars2.game.items.drops.LbcCreatureDrops;
+import me.skywars2.game.items.weapons.melee.LbcVexSword;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;

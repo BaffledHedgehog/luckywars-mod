@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.gadgets.LbcImbaFollowupItems;
+import me.skywars2.game.items.wands.LbcIceWand;
+import me.skywars2.game.players.inventory.LbcUseInteractions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.Packet;
@@ -23,6 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import me.skywars2.game.entities.mobs.LbcShishEncounter;
 
 /** Native projectile collisions, real entity-interact packets, and actual tracking ticks. */
 public final class IceCrystalInputChecks {

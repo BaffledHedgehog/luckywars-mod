@@ -2,6 +2,22 @@ package me.skywars2.game;
 
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.LbcSoulless;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogItems;
+import me.skywars2.game.items.drops.LbcKapustaItem;
+import me.skywars2.game.items.gadgets.LbcBridgeBuilderItem;
+import me.skywars2.game.items.gadgets.LbcImbaNativeItems;
+import me.skywars2.game.items.gadgets.LbcPursuitItems;
+import me.skywars2.game.items.gadgets.LbcThrownUtilityItems;
+import me.skywars2.game.items.gadgets.LbcWoolTrailItems;
+import me.skywars2.game.items.tools.LbcSteampunkRocket;
+import me.skywars2.game.items.weapons.firearms.LbcAk47;
+import me.skywars2.game.items.weapons.firearms.LbcLaserMinigun;
+import me.skywars2.game.items.weapons.ranged.LbcGunAccuracy;
+import me.skywars2.game.items.weapons.ranged.LbcImbaCrossbows;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals;
+import me.skywars2.game.skills.kits.LbcClownItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -17,6 +33,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import java.util.*;
+import me.skywars2.game.items.weapons.ranged.LbcRifleZoom;
 
 /** Native telemetry contract: no shots/resources/RNG, private wire geometry and real scope lifecycle. */
 public final class WeaponSpreadChecks {

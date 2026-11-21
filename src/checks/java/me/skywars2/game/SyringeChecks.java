@@ -1,7 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.SyringeMobAccess;
+import me.skywars2.game.entities.mobs.summons.LbcSummonerItems;
+import me.skywars2.game.items.food.LbcKfcRewards;
+import me.skywars2.game.items.food.LbcSyringe;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.mixin.mobs.SyringeMobAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.InteractionHand;
@@ -15,6 +19,7 @@ import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.*;
 import java.util.*;
+import me.skywars2.game.entities.mobs.summons.LbcSummons;
 
 /** Native equipment, exact reversible stats, special damage/AI, conversions, persistence and pool closure. */
 public final class SyringeChecks {

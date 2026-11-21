@@ -7,7 +7,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "build/verification/vanity-schedule-2026-11-03"
 HARNESS = r'''
-package me.skywars2.game;
+package me.skywars2.game.match.checkpoints;
 public final class VanityScheduleProbe {
     private static void require(boolean value,String why){if(!value)throw new AssertionError(why);}
     public static void main(String[] args){
@@ -56,9 +56,9 @@ def main():
     classes = OUT / "schedule-classes"
     classes.mkdir(exist_ok=True)
     subprocess.run([str(java_home / "bin/javac.exe"), "-d", str(classes),
-                    str(ROOT / "src/main/java/me/skywars2/game/VanityCheckpointSchedule.java"), str(source)], check=True)
+                    str(ROOT / "src/main/java/me/skywars2/game/match/checkpoints/VanityCheckpointSchedule.java"), str(source)], check=True)
     result = subprocess.run([str(java_home / "bin/java.exe"), "-cp", str(classes),
-                             "me.skywars2.game.VanityScheduleProbe"], check=True, text=True, capture_output=True)
+                             "me.skywars2.game.match.checkpoints.VanityScheduleProbe"], check=True, text=True, capture_output=True)
     print(result.stdout.strip())
     (OUT / "schedule-results.json").write_text(json.dumps({"passed": True, "output": result.stdout.strip()}, indent=2)+"\n", encoding="utf-8")
 

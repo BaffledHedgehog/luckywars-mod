@@ -1,0 +1,805 @@
+package me.skywars2.game.items.wands;
+
+import com.google.gson.JsonParser;
+import com.mojang.serialization.Dynamic;
+
+import me.skywars2.game.GameController;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.match.checkpoints.MatchAuthorityCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchQueuedWorkCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchSpellCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchQueuedWorkCheckpoint.Graph;
+import me.skywars2.game.match.checkpoints.MatchQueuedWorkCheckpoint.Image;
+import me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.IdentityImage;
+import me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.maps.MapManager.TemplateSlice;
+import me.skywars2.game.world.terrain.BlockAreaWork;
+import me.skywars2.game.world.terrain.BlockAreaWork.Bounds;
+import me.skywars2.game.world.terrain.BlockAreaWork.Checkpoint;
+import net.minecraft.SharedConstants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.skeleton.Skeleton;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.scores.ScoreHolder;
+
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.effects.magic.LbcOverload;
+import me.skywars2.game.items.gadgets.LbcModeScroll;
+import me.skywars2.game.presentation.projectiles.LbcParticleBatch;
+import me.skywars2.game.skills.LbcPlanetoidSkill;
+
+/** Consuming and its two independent donor scrolls share the existing terrain work queue. */
+public final class LbcConsuming {
+    public static final String TRIAL_ACTOR="skywars2.consuming.trial_actor";
+    private static final net.minecraft.core.particles.DustParticleOptions NORMAL_DUST=dust(.424f,.251f,.647f,2);
+    private static final net.minecraft.core.particles.DustParticleOptions END_DUST=dust(0,0,0,4);
+    private static final net.minecraft.core.particles.DustParticleOptions AREA_DUST=dust(.5f,0,.5f,4);
+    private static final net.minecraft.core.particles.DustColorTransitionOptions PART_DUST=
+            new net.minecraft.core.particles.DustColorTransitionOptions(rgb(.494f,.282f,.482f),rgb(.294f,.082f,.282f),2);
+    private static int rgb(float r,float g,float b) { return net.minecraft.util.ARGB.colorFromFloat(1,r,g,b)&0xffffff; }
+    private static net.minecraft.core.particles.DustParticleOptions dust(float r,float g,float b,float scale) {
+        return new net.minecraft.core.particles.DustParticleOptions(rgb(r,g,b),scale);
+    }
+    private static final Identifier MEDITATION=Identifier.parse("lbc:meditation");
+    private static final Identifier END_AIR=Identifier.parse("lbc:air11x11");
+    private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
+    private final GameController game;
+    private final List<Partition> partitions=new ArrayList<>();
+    private final List<Area> areas=new ArrayList<>();
+    private final List<SilenceErase> silences=new ArrayList<>();
+    private IdentityHashMap<Entity,Owned> summons=new IdentityHashMap<>();
+    private IdentityHashMap<LbcStonekivi.Work,Owned> work=new IdentityHashMap<>();
+    private IdentityHashMap<ServerPlayer,Terrain> terrain=new IdentityHashMap<>();
+    private int callbackDepth;
+    private boolean rewinding;
+    private final class Terrain {
+        ServerPlayer owner;
+        final BlockAreaWork scan;
+        final Map<BlockPos,net.minecraft.world.level.block.state.BlockState> portals=new java.util.LinkedHashMap<>();
+        Terrain(ServerPlayer owner) {
+            this.owner=owner;
+            scan=new BlockAreaWork(owner.level(),state->!state.isAir(),(pos,state)-> {
+                game.items().indirectKills().supportRemoved(this.owner,pos);
+                return Blocks.AIR.defaultBlockState();
+            },FLAGS,true);
+        }
+    }
+    private CompletableFuture<Prepared> preparation;
+    private Prepared prepared;
+    private record Spawn(CompoundTag data,Vec3 offset) { }
+    private record Prepared(Map<Identifier,List<MapManager.TemplateSlice>> templates,List<Spawn> spawns) { }
+    private static class Owned {
+        ServerPlayer owner; final ServerLevel level; final String epoch;
+        boolean cancelled;
+        Owned(ServerPlayer owner,String epoch) { this.owner=owner; this.level=owner.level(); this.epoch=epoch; }
+    }
+    private static final class Partition extends Owned {
+        Vec3 point,direction; int age;
+        Partition(ServerPlayer owner,String epoch,Vec3 point,Vec3 direction) {
+            super(owner,epoch); this.point=point; this.direction=direction;
+        }
+    }
+    private static final class Area extends Owned {
+        Vec3 point; int age;
+        Area(ServerPlayer owner,String epoch,Vec3 point) { super(owner,epoch); this.point=point; }
+    }
+
+    /** Bounded event guard: accepts delayed native gravity/drop spawns until terrain settles. */
+    private static final class SilenceErase extends Owned {
+        final Vec3 center;
+        int pending=2,settle=40;
+        SilenceErase(ServerPlayer owner,String epoch,Vec3 center) { super(owner,epoch); this.center=center; }
+        boolean contains(Entity entity) { return entity.level()==level && entity.position().distanceToSqr(center)<=48*48; }
+    }
+
+    public LbcConsuming(GameController game) { this.game=game; }
+    public void prepare() {
+        callbackDepth++;try{
+        prepared=null;
+        var fixer=game.server().getFixerUpper();
+        var spawns=game.maps().computeFromSnapshot(()-> {
+            try(var input=LbcConsuming.class.getResourceAsStream("/skywars2/consuming_presets.json")) {
+                if(input==null) throw new IllegalStateException("Missing consuming presets");
+                var json=JsonParser.parseReader(new InputStreamReader(input,StandardCharsets.UTF_8)).getAsJsonObject();
+                int version=json.get("originalDataVersion").getAsInt();
+                var data=new java.util.HashMap<String,CompoundTag>();
+                for(var entry:json.getAsJsonObject("presets").entrySet()) {
+                    var tag=TagParser.parseCompoundFully(entry.getValue().getAsString());
+                    data.put(entry.getKey(),(CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),version,
+                            SharedConstants.getCurrentVersion().dataVersion().version()).getValue());
+                }
+                var result=new ArrayList<Spawn>();
+                for(var entry:json.getAsJsonArray("spawns")) {
+                    var spawn=entry.getAsJsonObject(); var offset=spawn.getAsJsonArray("offset");
+                    result.add(new Spawn(data.get(spawn.get("preset").getAsString()),new Vec3(
+                            offset.get(0).getAsDouble(),offset.get(1).getAsDouble(),offset.get(2).getAsDouble())));
+                }
+                return List.copyOf(result);
+            } catch(Exception error) { throw new IllegalStateException("Invalid consuming presets",error); }
+        });
+        preparation=game.maps().prepareSpellTemplates(List.of(MEDITATION,END_AIR)).thenCombine(spawns,Prepared::new);
+
+        }finally{callbackDepth--;}
+    }
+    public boolean ready() {
+        callbackDepth++;try{
+        if(prepared==null && preparation!=null && preparation.isDone()) {
+            try { prepared=preparation.join(); }
+            catch(java.util.concurrent.CompletionException error) {
+                me.skywars2.SkyWars2.LOGGER.error("Consuming preparation failed",error); preparation=null;
+            }
+        }
+        return prepared!=null;
+
+        }finally{callbackDepth--;}
+    }
+    private boolean valid(Owned state) {
+        return !state.cancelled && game.items().currentEpoch(state.epoch) && valid(state.owner) && state.level==state.owner.level();
+    }
+    private boolean valid(ServerPlayer owner) {
+        return owner!=null && owner.isAlive() && !owner.isRemoved() && owner.level()==game.maps().level()
+                && game.canUseGameplayItems(owner) && !game.isObserver(owner) && game.stage()!=GameController.Stage.ENDING;
+    }
+    private boolean paused(ServerPlayer owner) {
+        return game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped");
+    }
+    private boolean castable(ServerPlayer owner) {
+        return valid(owner) && !paused(owner) && !game.items().frost().isFrozen(owner)
+                && !game.items().magic().suppressed(owner)
+                && !game.items().magic().suppressedAt(owner.level(),owner.getEyePosition());
+    }
+    public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean upgraded) {
+        callbackDepth++;try{
+        if(!castable(owner) || !ready()) return false;
+        int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,4):1;
+        if(upgraded && owner.isShiftKeyDown()) {
+            mode=LbcModeScroll.next(mode,4); var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+            owner.sendSystemMessage(Component.translatable(switch(mode) {
+                case 2->"mode_silence"; case 3->"mode_the_end"; case 4->"mode_avarice"; default->"mode_default";
+            })); return true;
+        }
+        int price=game.items().mana().score(ScoreHolder.forNameOnly("consuming_wand_mana_use"),"lbc.math").get();
+        if(!game.items().mana().trySpendWand(owner,price)) return false;
+        if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
+            trial(owner); game.items().academy().ready(owner,hand,stack); flushTerrain();
+        } else castMode(owner,mode);
+        game.items().wands().wandCasted(owner); return true;
+
+        }finally{callbackDepth--;}
+    }
+
+    void castMode(ServerPlayer owner,int mode) {
+        callbackDepth++;try{
+        if(mode==2) silence(owner);
+        else if(mode==3) theEnd(owner);
+        else if(mode==4) avarice(owner);
+        else normal(owner);
+        flushTerrain();
+
+        }finally{callbackDepth--;}
+    }
+
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        callbackDepth++;try{
+        if(mode==2)silence(owner,origin,false);
+        else if(mode==3)theEnd(owner,origin,direction,true);
+        else if(mode==4)avarice(owner,origin,direction.normalize());
+        else throw new IllegalArgumentException("Detached consuming mode "+mode);
+        flushTerrain();
+
+        }finally{callbackDepth--;}
+    }
+
+    private void normal(ServerPlayer owner) {
+        callbackDepth++;try{
+        Vec3 start=owner.getEyePosition(),direction=owner.getLookAngle().normalize(),end=start;
+        double suppression=game.items().magic().suppressionFraction(owner.level(),start,start.add(direction.scale(50)));
+        for(int sample=0;sample<51;sample++) {
+            Vec3 point=start.add(direction.scale(sample));
+            if(!owner.level().hasChunkAt(BlockPos.containing(point)) || sample>0 && sample/50.0>=suppression) break;
+            end=point; erase(owner,point,1);
+            owner.level().sendParticles(NORMAL_DUST,true,false,point.x,point.y,point.z,2,.05,.05,.05,0);
+            LbcOverload.sound(owner,point,"minecraft:entity.wither.shoot",.01f,1,25,.01f);
+            if(point.distanceToSqr(owner.position())>49) partitions.add(new Partition(owner,game.items().epoch(),point,
+                    Vec3.directionFromRotation(owner.getRandom().nextFloat()*360-180,owner.getRandom().nextFloat()*360-180)));
+        }
+        hits(owner,start,end,Vec3.ZERO,1,2,2);
+
+        }finally{callbackDepth--;}
+    }
+    private boolean traversable(ServerPlayer owner,Vec3 point) {
+        return owner.level().hasChunkAt(BlockPos.containing(point)) && !game.items().magic().suppressedAt(owner.level(),point);
+    }
+    private boolean target(ServerPlayer owner,Entity entity) {
+        return entity instanceof LivingEntity && game.items().wands().target(owner,entity)
+                && !entity.entityTags().contains("strict_map_object")
+                && !game.items().magic().suppressedAt(owner.level(),entity.position());
+    }
+    private boolean projectileTarget(ServerPlayer owner,Entity entity) {
+        return entity instanceof LivingEntity && game.items().wands().projectileTarget(owner,entity)
+                && !game.items().magic().suppressedAt(owner.level(),entity.position());
+    }
+    private void hits(ServerPlayer owner,Vec3 from,Vec3 to,Vec3 padding,double spacing,float damage,int limit) {
+        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.CONSUMING),owner);
+        var eligible=new IdentityHashMap<Entity,Boolean>();
+        LbcDamage.hurtSegment(owner.level(),source,from,to,padding,spacing,damage,limit,
+                entity->entity.isAlive() && eligible.computeIfAbsent(entity,candidate->projectileTarget(owner,candidate)),false);
+    }
+    private void erase(ServerPlayer owner,Vec3 point,double half) {
+        var first=BlockPos.containing(point.x-half,point.y-half,point.z-half);
+        var last=BlockPos.containing(point.x+half,point.y+half,point.z+half);
+        var batch=terrain.computeIfAbsent(owner,Terrain::new);
+        var bounds=new BlockAreaWork.Bounds(first.getX(),first.getY(),first.getZ(),last.getX(),last.getY(),last.getZ());
+        batch.scan.include(bounds);
+        batch.portals.keySet().removeIf(bounds::contains);
+    }
+    private void flushTerrain() {
+        callbackDepth++;try{
+        for(var entry:terrain.entrySet())queue(entry.getKey(),new TerrainWork(entry.getValue()));
+        terrain.clear();
+
+        }finally{callbackDepth--;}
+    }
+    private void queue(ServerPlayer owner,LbcStonekivi.Work child) {
+        var state=new Owned(owner,game.items().epoch());var wrapper=new WrapperWork(state,child);
+        work.put(wrapper,state);game.items().stonekivi().queuedWork(wrapper);
+    }
+    private void template(ServerPlayer owner,Identifier id,BlockPos origin) {
+        for(var part:prepared.templates.getOrDefault(id,List.of())) {
+            var bounds=part.bounds();
+            int minX=origin.getX()+bounds.minX(),maxX=origin.getX()+bounds.maxX();
+            int minZ=origin.getZ()+bounds.minZ(),maxZ=origin.getZ()+bounds.maxZ();
+            for(int x=minX>>4;x<=maxX>>4;x++) for(int z=minZ>>4;z<=maxZ>>4;z++) {
+                var box=new BoundingBox(Math.max(minX,x*16),origin.getY()+bounds.minY(),Math.max(minZ,z*16),
+                        Math.min(maxX,x*16+15),origin.getY()+bounds.maxY(),Math.min(maxZ,z*16+15));
+                queue(owner,new TemplateWork(owner,part,origin,box));
+            }
+        }
+    }
+    private void theEnd(ServerPlayer owner) {
+        theEnd(owner,owner.getEyePosition(),owner.getLookAngle(),false);
+    }
+    private void theEnd(ServerPlayer owner,Vec3 origin,Vec3 aim,boolean detached) {
+        Vec3 start=detached?origin:origin.add(aim.normalize().scale(8));
+        float yaw=detached?(float)Math.toDegrees(Math.atan2(-aim.x,aim.z)):owner.getYRot();
+        float pitch=detached?(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance())):owner.getXRot();
+        for(int angle:detached?new int[]{0}:new int[]{0,20,-20,-10,10}) {
+            Vec3 direction=Vec3.directionFromRotation(pitch,yaw+angle);
+            Vec3 end=start;
+            var level=owner.level();
+            double suppression=game.items().magic().suppressionFraction(level,start,start.add(direction.scale(400)));
+            // Pair overlapping clouds along each ray, preserving the total
+            // count and the spatial mean and variance on each axis.
+            try(var particles=game.balanceLegacy()?null:new LbcParticleBatch.Group(level,END_DUST,2,2,2,0,true,2.00001,2)){
+                for(int sample=0;sample<201;sample++) {
+                    Vec3 point=start.add(direction.scale(sample*2));
+                    if(!level.hasChunkAt(BlockPos.containing(point)) || sample>0 && sample/200.0>=suppression) break;
+                    end=point;
+                    erase(owner,Vec3.atLowerCornerOf(BlockPos.containing(point)),5);
+                    if(particles==null)level.sendParticles(END_DUST,true,false,point.x,point.y,point.z,4,2,2,2,0);
+                    else particles.add(point,4);
+                    LbcOverload.sound(owner,point,"minecraft:entity.wither.shoot",.01f,0,0);
+                    BlockPos portal=BlockPos.containing(point.subtract(direction.scale(4)));
+                    boolean nether=owner.getRandom().nextInt(20)==0,ender=owner.getRandom().nextInt(20)==0;
+                    if(nether || ender) terrain.get(owner).portals.put(portal,(ender?Blocks.END_PORTAL:Blocks.NETHER_PORTAL).defaultBlockState());
+                }
+            }
+            endHits(owner,start,end);
+        }
+    }
+    /** The End's source distance selector is a sphere around each sample, with two attempts per sample. */
+    private void endHits(ServerPlayer owner,Vec3 start,Vec3 end) {
+        Vec3 delta=end.subtract(start); double length=delta.length();
+        Vec3 direction=length>1e-9?delta.scale(1/length):Vec3.ZERO;
+        int samples=(int)Math.floor(length/2+1e-6)+1;
+        int[] attempts=new int[samples];
+        var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.CONSUMING),owner);
+        for(var entity:game.items().lifetimes().loadedTargets()) {
+            if(entity.level()!=owner.level() || !projectileTarget(owner,entity)) continue;
+            Vec3 offset=entity.position().subtract(start);
+            double projection=offset.dot(direction),perpendicular=offset.lengthSqr()-projection*projection;
+            if(perpendicular>25) continue;
+            double span=Math.sqrt(Math.max(0,25-perpendicular));
+            int first=Math.max(0,(int)Math.ceil((projection-span)/2-1e-6));
+            int last=Math.min(samples-1,(int)Math.floor((projection+span)/2+1e-6));
+            if(length<1e-9) { first=0; last=offset.lengthSqr()<=25?0:-1; }
+            for(int sample=first;sample<=last && entity.isAlive();sample++) if(attempts[sample]<2) {
+                attempts[sample]++; entity.hurtServer(owner.level(),damage,6);
+            }
+        }
+    }
+    /** Broad source effects include allies and dropped/projectile entities while preserving technical actors. */
+    private boolean ordinary(Entity entity) {
+        if(entity==null || entity.isRemoved() || entity instanceof ServerPlayer || entity.isSpectator()) return false;
+        var tags=entity.entityTags();
+        return !tags.contains("spectator") && !tags.contains("strict_map_object") && !tags.contains("core_marker") && !tags.contains("map_object")
+                && !tags.contains("rcdenyalways") && !tags.contains("sauvojen_tuntija") && !tags.contains("magic_academy")
+                && !tags.contains("transformator")
+                && (!(entity instanceof net.minecraft.world.entity.Marker
+                    || entity instanceof net.minecraft.world.entity.Display
+                    || entity instanceof net.minecraft.world.entity.Interaction
+                    || entity instanceof net.minecraft.world.entity.AreaEffectCloud)
+                    || tags.stream().noneMatch(tag->tag.startsWith("swrg.")));
+    }
+    private DamageSource damage(ServerPlayer owner,net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type) {
+        return new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner);
+    }
+    private void silence(ServerPlayer owner) {
+        silence(owner,owner.getEyePosition(),true);
+    }
+    private void silence(ServerPlayer owner,Vec3 center,boolean ownerEffects) {
+        callbackDepth++;try{
+        if(ownerEffects){
+            owner.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,60,30));
+            owner.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,1200));
+        }
+        var stop=new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(null,null);
+        for(var player:game.server().getPlayerList().getPlayers()) player.connection.send(stop);
+        var erasure=new SilenceErase(owner,game.items().epoch(),center);
+        silences.add(erasure);
+        queue(owner,new SilenceTerrainWork(erasure));
+        partitions.removeIf(part->part.level==owner.level() && part.point.distanceToSqr(center)<=48*48);
+        areas.removeIf(area->area.level==owner.level() && area.point.distanceToSqr(center)<=48*48);
+        game.items().transformSpellOrigins(owner.level(),point->point.distanceToSqr(center)<=48*48?null:point);
+        var doomed=new ArrayList<Entity>(); Entity hedgehog=null;
+        for(var entity:owner.level().getEntities((Entity)null,new AABB(center,center).inflate(48))) {
+            if(entity.position().distanceToSqr(center)>48*48) continue;
+            if(entity.entityTags().contains("god_hedgehog")) { if(hedgehog==null) hedgehog=entity; continue; }
+            if(ordinary(entity)) doomed.add(entity);
+        }
+        queue(owner,new SilenceDisposeWork(erasure,doomed));
+        var outside=damage(owner,DamageTypes.OUTSIDE_BORDER);
+        for(var player:owner.level().players()) if(player.position().distanceToSqr(center)<=48*48
+                && target(owner,player) && game.items().mana().hudValue(player,"void_resistance")<=0)
+            player.hurtServer(owner.level(),outside,20);
+        if(ownerEffects && hedgehog!=null) owner.hurtServer(owner.level(),new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.OUTSIDE_BORDER),hedgehog),10_000_000_000f);
+
+        }finally{callbackDepth--;}
+    }
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        for(var partition:partitions)if(partition.level==level)partition.point=transform.apply(partition.point);
+        for(var area:areas)if(area.level==level)area.point=transform.apply(area.point);
+    }
+    private void avarice(ServerPlayer owner) {
+        avarice(owner,owner.getEyePosition(),owner.getLookAngle().normalize());
+    }
+    private void avarice(ServerPlayer owner,Vec3 start,Vec3 direction) {
+        callbackDepth++;try{
+        Vec3 limit=start.add(direction.scale(140));
+        double suppression=game.items().magic().suppressionFraction(owner.level(),start,limit);
+        if(Double.isFinite(suppression)) limit=start.lerp(limit,suppression);
+        var hit=game.items().wands().firstHit(owner,start,limit,entity->entity instanceof LivingEntity
+                && (entity instanceof ServerPlayer || ordinary(entity)),true);
+        Vec3 end=hit==null?limit:hit.getLocation();
+        var particle=dust(.667f,.459f,.941f,1);
+        double distance=start.distanceTo(end);
+        try (var trail = new LbcParticleBatch.Group(owner.level(), particle, .05, 0, true, .71,
+                game.balanceLegacy() ? 1 : 3)) {
+            for (int sample = 0; sample <= 200 && sample * .7 <= distance + 1e-6; sample++) {
+                Vec3 point = start.add(direction.scale(sample * .7));
+                if (!owner.level().hasChunkAt(BlockPos.containing(point))) break;
+                trail.add(point);
+                LbcOverload.sound(owner,point,"minecraft:block.deepslate.break",.2f,1,25,1);
+            }
+        }
+        if(hit==null || !traversable(owner,end)) return;
+        Vec3 impact=hit instanceof BlockHitResult?end.subtract(direction.scale(.7)):end;
+        if(!owner.level().hasChunkAt(BlockPos.containing(impact))) return;
+        var entities=new ArrayList<Entity>();
+        for(var entity:owner.level().getAllEntities()) if(ordinary(entity)) entities.add(entity);
+        for(var part:partitions) if(part.level==owner.level()) part.point=impact;
+        for(var area:areas) if(area.level==owner.level()) area.point=impact;
+        game.items().transformSpellOrigins(owner.level(),point->impact);
+        queue(owner,new AvariceWork(owner,impact,entities));
+
+        }finally{callbackDepth--;}
+    }
+    /** Exact body preset; persistent native spell authorship leaves converted mobs alive after caster death. */
+    public boolean summonVoidMan(ServerPlayer owner,Vec3 position){
+        callbackDepth++;try{
+            if(!valid(owner)||!ready()||prepared.spawns.isEmpty()||!owner.level().hasChunkAt(BlockPos.containing(position)))return false;
+            var mob=new Skeleton(net.minecraft.world.entity.EntityTypes.SKELETON,owner.level());
+            mob.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),prepared.spawns.getFirst().data.copy()));
+            mob.setPos(position);game.items().markCurrentItemEpoch(mob);mob.entityTags().add("skywars2.godclaw.voidman");
+            var source=game.items().spellSources().hostile(mob,owner,java.util.Set.of());
+            if(owner.level().addFreshEntity(mob)){
+                game.items().spellSources().bind(mob,new LbcSpellSource.Source(source.emitter(),source.author(),source.epoch(),source.cause(),source.excluded(),true));return true;
+            }
+            mob.discard();return false;
+        }finally{callbackDepth--;}
+    }
+    public void trial(ServerPlayer owner) {
+        callbackDepth++;try{
+        if(!valid(owner) || !ready()) return;
+        Vec3 origin=owner.getEyePosition();
+        template(owner,MEDITATION,BlockPos.containing(origin).offset(-23,-16,-23));
+        for(var spawn:prepared.spawns) {
+            var position=origin.add(spawn.offset);
+            if(!owner.level().hasChunkAt(BlockPos.containing(position))) continue;
+            var mob=new Skeleton(net.minecraft.world.entity.EntityTypes.SKELETON,owner.level());
+            mob.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),spawn.data.copy()));
+            mob.setPos(position); game.items().markCurrentItemEpoch(mob); mob.entityTags().add(TRIAL_ACTOR);
+            summons.put(mob,new Owned(owner,game.items().epoch()));
+            if(!owner.level().addFreshEntity(mob)) { summons.remove(mob); mob.discard(); }
+        }
+        owner.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,400,1,false,false));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,400,1,false,false));
+
+        }finally{callbackDepth--;}
+    }
+    public boolean useScroll(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean destroyer) {
+        callbackDepth++;try{
+        if(!castable(owner)) return false;
+        if(!castScroll(owner,destroyer))return false;
+        stack.shrink(1);return true;
+
+        }finally{callbackDepth--;}
+    }
+    boolean castScroll(ServerPlayer owner,boolean destroyer){
+        callbackDepth++;try{
+        Vec3 start=owner.getEyePosition(),direction=owner.getLookAngle().normalize();
+        if(destroyer) {
+            double suppression=game.items().magic().suppressionFraction(owner.level(),start,start.add(direction.scale(200)));
+            for(int sample=0;sample<201;sample++) {
+                Vec3 point=start.add(direction.scale(sample));
+                if(!owner.level().hasChunkAt(BlockPos.containing(point)) || sample>0 && sample/200.0>=suppression) break;
+                int distance=sample+1;
+                double half=distance<=5?.5:distance<=10?1:distance<=20?1.5:distance<=40?2:distance<=80?3:distance<=100?4:5;
+                // Source Distance 5 performs both fills; their union is the larger cube.
+                if(distance<=200) erase(owner,point,distance==5?1:half);
+                owner.level().sendParticles(ParticleTypes.SOUL_FIRE_FLAME,true,false,point.x,point.y,point.z,2,1,1,1,.01);
+            }
+        } else {
+            Vec3 limit=start.add(direction.scale(200));
+            var hit=game.items().wands().firstHit(owner,start,limit);
+            if(hit==null || !traversable(owner,hit.getLocation())) return false;
+            areas.add(new Area(owner,game.items().epoch(),hit.getLocation().add(0,1,0)));
+            double distance=start.distanceTo(hit.getLocation());
+            for(int sample=0;sample<=200 && sample<=distance;sample++) {
+                Vec3 particle=start.add(direction.scale(sample));
+                owner.level().sendParticles(ParticleTypes.LANDING_OBSIDIAN_TEAR,true,false,particle.x,particle.y,particle.z,1,0,0,0,.01);
+            }
+            Vec3 impact=hit.getLocation();
+            owner.level().sendParticles(ParticleTypes.PORTAL,impact.x,impact.y,impact.z,100,1,1,1,2);
+            LbcOverload.sound(owner,impact,"minecraft:block.portal.travel",1,0,0);
+        }
+        flushTerrain(); return true;
+
+        }finally{callbackDepth--;}
+    }
+    public void tick() {
+        callbackDepth++;try{
+        if(rewinding)return;
+        silences.removeIf(state->!valid(state) || state.pending==0 && !paused(state.owner) && --state.settle<=0);
+        partitions.removeIf(part->!valid(part) || game.items().magic().suppressedAt(part.level,part.point));
+        areas.removeIf(area->!valid(area) || game.items().magic().suppressedAt(area.level,area.point));
+        for(var part:partitions) {
+            if(paused(part.owner)) continue;
+            if(++part.age<60) continue;
+            if(!traversable(part.owner,part.point)) { part.cancelled=true; continue; }
+            erase(part.owner,part.point,1); hits(part.owner,part.point,part.point,Vec3.ZERO,1,2,3);
+            // Local spatial query avoids visiting every loaded mob for each active partition.
+            for(var target:part.level.getEntitiesOfClass(LivingEntity.class,new AABB(part.point,part.point).inflate(8),
+                    candidate->part.point.distanceToSqr(candidate.position())<=64
+                            && game.items().lifetimes().target(part.owner,candidate) && target(part.owner,candidate))) {
+                part.direction=target.getEyePosition().subtract(part.point).normalize(); break;
+            }
+            part.level.sendParticles(PART_DUST,true,false,part.point.x,part.point.y,part.point.z,1,.1,.1,.1,0);
+            part.point=part.point.add(part.direction.scale(.4));
+        }
+        partitions.removeIf(part->part.cancelled || part.age>=100);
+        for(var area:areas) {
+            if(paused(area.owner)) continue;
+            if(++area.age%5!=0) continue;
+            float yaw=area.owner.getRandom().nextFloat()*360-180,pitch=area.owner.getRandom().nextFloat()*180-90;
+            Vec3 point=area.point;
+            try(var particles=new LbcParticleBatch.Group(area.level,AREA_DUST,.1,0,true)){
+            for(int remaining=149;remaining>=0;remaining--) {
+                if(!area.level.hasChunkAt(BlockPos.containing(point))) break;
+                erase(area.owner,point,.51);
+                if(area.owner.getRandom().nextFloat()<.4f)
+                    particles.add(point);
+                point=point.add(Vec3.directionFromRotation(pitch,yaw).scale(.5));
+                if(remaining<=50) { yaw+=10; pitch+=1; }
+                else if(remaining<=100) { yaw+=5; pitch-=.2f; }
+                else yaw+=1;
+            }}
+            area.level.sendParticles(ParticleTypes.PORTAL,area.point.x,area.point.y,area.point.z,30,1,1,1,3);
+        }
+        areas.removeIf(area->area.age>=6000);
+        for(var entry:List.copyOf(summons.entrySet())) if(entry.getKey().isRemoved() || !valid(entry.getValue())) {
+            entry.getKey().discard(); summons.remove(entry.getKey());
+        }
+        flushTerrain();
+
+        }finally{callbackDepth--;}
+    }
+    public ServerPlayer owner(Entity entity) {
+        if(entity instanceof Projectile projectile) return owner(projectile.getOwner());
+        var state=summons.get(entity); return state!=null && valid(state)?state.owner:null;
+    }
+    /** Испытание остаётся враждебным к вызвавшему игроку, но не атакует его союзников и служебные роли. */
+    public boolean canTrialTarget(Entity source,Entity target) {
+        var caster=owner(source);
+        return caster==null || target==null || target==caster || game.items().wands().target(caster,target);
+    }
+    public boolean canTrialProjectileTarget(Entity source,Entity target) {
+        var caster=owner(source);
+        return caster==null || target==null || target==caster || game.items().wands().projectileTarget(caster,target);
+    }
+    /** Called before item services adopt a native entity, including deferred FallingBlockEntity spawns. */
+    public boolean eraseLoaded(Entity entity) {
+        callbackDepth++;try{
+        if(rewinding)return false;
+        if(silences.isEmpty() || !ordinary(entity) || entity.entityTags().contains("god_hedgehog")) return false;
+        for(var state:silences) if(valid(state) && state.contains(entity)) {
+            game.items().mobgun().dispose(entity);
+            return true;
+        }
+        return false;
+
+        }finally{callbackDepth--;}
+    }
+    public int silenceEraseCount() { return silences.size(); }
+    public void loaded(Entity entity) {
+        callbackDepth++;try{
+        if(rewinding)return;
+        if(!entity.entityTags().contains(TRIAL_ACTOR)) return;
+        var state=summons.get(entity);
+        if(state==null || !valid(state)) { summons.remove(entity); entity.discard(); }
+
+        }finally{callbackDepth--;}
+    }
+    public void unloaded(Entity entity) {
+        callbackDepth++;try{
+        if(rewinding)return;
+        // Remove ownership before native discard: unload may re-enter through entity removal.
+        if(summons.remove(entity)!=null && !entity.isRemoved()) entity.discard();
+
+        }finally{callbackDepth--;}
+    }
+    public int count() { return partitions.size()+areas.size()+summons.size()+work.size()+silences.size(); }
+    record SilenceView(ServerPlayer owner,String epoch,Vec3 center,int pending,int settle){}
+    List<SilenceView> silenceSnapshot(){return silences.stream().map(e->new SilenceView(e.owner,e.epoch,e.center,e.pending,e.settle)).toList();}
+    public record PartitionView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
+    public record AreaView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
+    public List<PartitionView> partitionSnapshot() { return partitions.stream().map(part->new PartitionView(part.owner,part.epoch,part.point,part.age)).toList(); }
+    public List<AreaView> areaSnapshot() { return areas.stream().map(area->new AreaView(area.owner,area.epoch,area.point,area.age)).toList(); }
+    public List<Entity> summonSnapshot() { return List.copyOf(summons.keySet()); }
+    public int pendingWorkCount() { return work.size(); }
+    public void forget(ServerPlayer owner) {
+        callbackDepth++;try{
+        partitions.removeIf(part->part.owner==owner); areas.removeIf(area->area.owner==owner);
+        silences.removeIf(state->state.owner==owner);
+        for(var entry:List.copyOf(work.entrySet())) if(entry.getValue().owner==owner) entry.getKey().cancel();
+        for(var entry:List.copyOf(summons.entrySet())) if(entry.getValue().owner==owner) {
+            entry.getKey().discard(); summons.remove(entry.getKey());
+        }
+
+        }finally{callbackDepth--;}
+    }
+    public void stop() {
+        callbackDepth++;try{
+        rewinding=false;partitions.clear(); areas.clear(); terrain.clear(); silences.clear();
+        for(var job:List.copyOf(work.keySet())) job.cancel();
+        for(var entity:List.copyOf(summons.keySet())) entity.discard(); summons.clear();
+
+        }finally{callbackDepth--;}
+    }
+    private final class WrapperWork implements LbcStonekivi.Work {
+        final Owned state;final LbcStonekivi.Work child;
+        WrapperWork(Owned state,LbcStonekivi.Work child){this.state=state;this.child=child;}
+        @Override public boolean step(){callbackDepth++;try{
+            if(!valid(state)){cancel();return true;}if(paused(state.owner))return false;
+            if(child.step()){work.remove(this);return true;}return false;
+        }finally{callbackDepth--;}}
+        @Override public void cancel(){callbackDepth++;try{state.cancelled=true;child.cancel();work.remove(this);}finally{callbackDepth--;}}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var owner=new OwnedImage(state,graph.links);graph.capture(child);
+            return owner::prepare;
+        }
+    }
+    private final class TerrainWork implements LbcStonekivi.Work {
+        final Terrain batch;
+        TerrainWork(Terrain batch){this.batch=batch;}
+        @Override public boolean step(){callbackDepth++;try{
+            var owner=batch.owner;var scan=batch.scan;
+            try{scan.step(game,owner,512,System.nanoTime()+500_000);}finally{game.items().indirectKills().finishSupportRemoval();}
+            if(scan.hasWork())return false;
+            var placements=batch.portals.entrySet().iterator();long deadline=System.nanoTime()+500_000;
+            for(int count=0;count<32&&placements.hasNext()&&System.nanoTime()<deadline;count++){
+                var placement=placements.next();if(!owner.level().hasChunkAt(placement.getKey()))return false;
+                game.items().indirectKills().trapChanges(owner,()->owner.level().setBlock(placement.getKey(),placement.getValue(),FLAGS));placements.remove();
+            }
+            return batch.portals.isEmpty();
+        }finally{callbackDepth--;}}
+        @Override public void cancel(){batch.scan.clear();batch.portals.clear();}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();var image=new TerrainImage(batch,graph.links);return image::prepare;}
+    }
+    private final class TemplateWork implements LbcStonekivi.Work {
+        ServerPlayer owner;final MapManager.TemplateSlice part;final BlockPos origin;final BoundingBox box;
+        TemplateWork(ServerPlayer owner,MapManager.TemplateSlice part,BlockPos origin,BoundingBox box){this.owner=owner;this.part=part;this.origin=origin.immutable();this.box=box;}
+        @Override public boolean step(){callbackDepth++;try{
+            if(!owner.level().hasChunkAt(new BlockPos(box.minX(),box.minY(),box.minZ())))return false;
+            game.items().indirectKills().trapChanges(owner,()->game.maps().placeMapSlice(owner.level(),part.template(),origin,
+                    new StructurePlaceSettings().setIgnoreEntities(true).setKnownShape(true).setBoundingBox(box),0));return true;
+        }finally{callbackDepth--;}}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var ref=graph.links.key(owner);return links->{var current=(ServerPlayer)links.get(ref);return ()->owner=current;};
+        }
+    }
+    private final class SilenceTerrainWork implements LbcStonekivi.Work {
+        final SilenceErase erasure;final BlockAreaWork scan;
+        SilenceTerrainWork(SilenceErase erasure){
+            this.erasure=erasure;var center=erasure.center;
+            scan=new BlockAreaWork(erasure.level,state->!state.isAir(),(pos,state)->{
+                if(Vec3.atCenterOf(pos).distanceToSqr(center)>48*48)return null;
+                game.items().indirectKills().supportRemoved(erasure.owner,pos);return Blocks.AIR.defaultBlockState();
+            },FLAGS,true);
+            var first=BlockPos.containing(center.add(-48,-48,-48));var last=BlockPos.containing(center.add(48,48,48));
+            scan.move(new BlockAreaWork.Bounds(first.getX(),first.getY(),first.getZ(),last.getX(),last.getY(),last.getZ()),true);
+        }
+        @Override public boolean step(){callbackDepth++;try{
+            try{scan.step(game,erasure.owner,512,System.nanoTime()+500_000);}finally{game.items().indirectKills().finishSupportRemoval();}
+            if(scan.hasWork())return false;erasure.pending--;return true;
+        }finally{callbackDepth--;}}
+        @Override public void cancel(){scan.clear();erasure.cancelled=true;}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var state=new OwnedImage(erasure,graph.links);var blocks=scan.checkpoint();
+            return links->{var owner=state.prepare(links);return ()->{owner.run();blocks.restore();};};
+        }
+    }
+    /** Only the unprocessed suffix may mutate native bodies; a historical prefix remains inert. */
+    private static List<MatchDamageSources.Ref> bodyList(List<Entity> entities,int cursor,MatchSpellCheckpoint.Links links){
+        var refs=new ArrayList<MatchDamageSources.Ref>();
+        for(int i=0;i<entities.size();i++){var ref=links.key(entities.get(i));
+            if(i>=cursor&&ref.historical()!=null)throw new IllegalStateException("Pending consuming target requires its canonical native body owner");refs.add(ref);}
+        return List.copyOf(refs);
+    }
+    private final class SilenceDisposeWork implements LbcStonekivi.Work {
+        final SilenceErase erasure;final List<Entity> doomed;int cursor;
+        SilenceDisposeWork(SilenceErase erasure,List<Entity> doomed){this.erasure=erasure;this.doomed=doomed;}
+        @Override public boolean step(){callbackDepth++;try{
+            long deadline=System.nanoTime()+500_000;
+            for(int count=0;count<32&&cursor<doomed.size()&&System.nanoTime()<deadline;count++){
+                var entity=doomed.get(cursor++);
+                if(entity.level()!=erasure.owner.level()||!ordinary(entity)||entity.entityTags().contains("god_hedgehog"))continue;
+                game.items().mobgun().dispose(entity);
+            }
+            if(cursor<doomed.size())return false;erasure.pending--;return true;
+        }finally{callbackDepth--;}}
+        @Override public void cancel(){doomed.clear();erasure.cancelled=true;}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var state=new OwnedImage(erasure,graph.links);int savedCursor=cursor;var refs=bodyList(doomed,cursor,graph.links);
+            return links->{var owner=state.prepare(links);var bodies=refs.stream().map(links::get).toList();
+                return ()->{owner.run();doomed.clear();doomed.addAll(bodies);cursor=savedCursor;};};
+        }
+    }
+    private final class AvariceWork implements LbcStonekivi.Work {
+        ServerPlayer owner;final Vec3 impact;final List<Entity> entities;int cursor;
+        AvariceWork(ServerPlayer owner,Vec3 impact,List<Entity> entities){this.owner=owner;this.impact=impact;this.entities=entities;}
+        @Override public boolean step(){callbackDepth++;try{
+            if(!owner.level().hasChunkAt(BlockPos.containing(impact)))return false;
+            long deadline=System.nanoTime()+500_000;
+            for(int count=0;count<32&&cursor<entities.size()&&System.nanoTime()<deadline;count++){
+                var entity=entities.get(cursor++);if(entity.level()!=owner.level()||!ordinary(entity))continue;
+                entity.teleportTo(impact.x,impact.y,impact.z);if(entity instanceof LivingEntity living)game.items().indirectKills().displaced(living,owner);
+            }
+            if(cursor<entities.size())return false;
+            var generic=damage(owner,DamageTypes.GENERIC);
+            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(impact,impact).inflate(3),
+                    candidate->target(owner,candidate)&&candidate.position().distanceToSqr(impact)<=9))target.hurtServer(owner.level(),generic,20);
+            return true;
+        }finally{callbackDepth--;}}
+        @Override public void cancel(){entities.clear();}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var ref=graph.links.key(owner);int savedCursor=cursor;var refs=bodyList(entities,cursor,graph.links);
+            return links->{var current=(ServerPlayer)links.get(ref);var bodies=refs.stream().map(links::get).toList();
+                return ()->{owner=current;entities.clear();entities.addAll(bodies);cursor=savedCursor;};};
+        }
+    }
+    private final class OwnedImage {
+        final Owned state;final MatchDamageSources.Ref owner;final boolean cancelled;
+        final Vec3 point,direction;final int age,pending,settle;
+        OwnedImage(Owned state,MatchSpellCheckpoint.Links links){
+            this.state=state;owner=links.key(state.owner);cancelled=state.cancelled;
+            if(state.getClass()!=Owned.class&&state.getClass()!=Partition.class&&state.getClass()!=Area.class&&state.getClass()!=SilenceErase.class)throw new IllegalStateException("Unreviewed consuming state");
+            point=state instanceof Partition part?part.point:state instanceof Area area?area.point:null;
+            direction=state instanceof Partition part?part.direction:null;age=state instanceof Partition part?part.age:state instanceof Area area?area.age:0;
+            pending=state instanceof SilenceErase erasure?erasure.pending:0;settle=state instanceof SilenceErase erasure?erasure.settle:0;
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            MatchAuthorityCheckpoint.world(game,state.level);var current=(ServerPlayer)links.get(owner);
+            return ()->{state.owner=current;state.cancelled=cancelled;
+                if(state instanceof Partition part){part.point=point;part.direction=direction;part.age=age;}
+                if(state instanceof Area area){area.point=point;area.age=age;}
+                if(state instanceof SilenceErase erasure){erasure.pending=pending;erasure.settle=settle;}};
+        }
+    }
+    private final class TerrainImage {
+        final Terrain batch;final MatchDamageSources.Ref owner;final BlockAreaWork.Checkpoint scan;
+        final Map<BlockPos,net.minecraft.world.level.block.state.BlockState> portals;
+        TerrainImage(Terrain batch,MatchSpellCheckpoint.Links links){this.batch=batch;owner=links.key(batch.owner);scan=batch.scan.checkpoint();portals=new java.util.LinkedHashMap<>(batch.portals);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var current=(ServerPlayer)links.get(owner);return ()->{batch.owner=current;scan.restore();batch.portals.clear();batch.portals.putAll(portals);};}
+    }
+    public void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish consuming cast/terrain/disposal/teleport callbacks before checkpointing");}
+    private void preparationBoundary(){if(preparation!=null&&!preparation.isDone())throw new IllegalStateException("Finish read-only consuming resource preparation before checkpointing");}
+    public void prepareFrozen(){checkpointBoundary();rewinding=true;}
+    public void publishFrozen(){checkpointBoundary();rewinding=false;}
+    public void cancelFrozen(){checkpointBoundary();rewinding=false;}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
+    public final class Checkpoint {
+        final List<Partition> savedPartitions=List.copyOf(partitions);final List<Area> savedAreas=List.copyOf(areas);final List<SilenceErase> savedSilences=List.copyOf(silences);
+        final List<OwnedImage> states=new ArrayList<>();final List<TerrainImage> batches=new ArrayList<>();
+        final MatchSpellCheckpoint.IdentityImage<Entity,Owned> savedSummons;
+        final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Terrain> savedTerrain;
+        final IdentityHashMap<LbcStonekivi.Work,Owned> savedWork;
+        final CompletableFuture<Prepared> resourceFuture=preparation;final Prepared corpus=prepared;
+        @SuppressWarnings("unchecked") Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();preparationBoundary();if(rewinding)throw new IllegalStateException("Publish consuming native bodies before capture");
+            for(var state:savedPartitions)states.add(new OwnedImage(state,graph.links));for(var state:savedAreas)states.add(new OwnedImage(state,graph.links));
+            for(var state:savedSilences)states.add(new OwnedImage(state,graph.links));
+            summons.forEach((body,state)->{if(graph.links.key(body).historical()!=null)throw new IllegalStateException("Consuming summon requires its canonical native body owner");states.add(new OwnedImage(state,graph.links));});
+            savedSummons=new MatchSpellCheckpoint.IdentityImage<>(summons,graph.links);savedTerrain=new MatchSpellCheckpoint.IdentityImage<>(terrain,graph.links);
+            terrain.values().forEach(batch->batches.add(new TerrainImage(batch,graph.links)));savedWork=(IdentityHashMap<LbcStonekivi.Work,Owned>)work.clone();
+            savedWork.forEach((job,state)->{if(!(job instanceof WrapperWork wrapper)||wrapper.state!=state)throw new IllegalStateException("Unreviewed consuming wrapper ownership");states.add(new OwnedImage(state,graph.links));graph.capture(job);});
+        }
+        @SuppressWarnings("unchecked")
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();preparationBoundary();if(preparation!=resourceFuture)throw new IllegalStateException("Consuming resource cache lifecycle changed outside its owner");
+            var actors=states.stream().map(image->image.prepare(links)).toList();var terrainPlans=batches.stream().map(image->image.prepare(links)).toList();
+            var currentSummons=savedSummons.restore(links);var currentTerrain=savedTerrain.restore(links);var currentWork=(IdentityHashMap<LbcStonekivi.Work,Owned>)savedWork.clone();
+            return ()->{actors.forEach(Runnable::run);terrainPlans.forEach(Runnable::run);partitions.clear();partitions.addAll(savedPartitions);areas.clear();areas.addAll(savedAreas);
+                silences.clear();silences.addAll(savedSilences);summons=currentSummons;terrain=currentTerrain;work=currentWork;prepared=corpus;};
+        }
+    }
+
+
+    public void planetoid(ServerPlayer holder) {
+        for(var part:partitions)if(valid(part)&&LbcPlanetoidSkill.near(game,holder,part.level,part.point))
+            part.direction=LbcPlanetoidSkill.direction(holder,part.point,82);
+    }
+
+}

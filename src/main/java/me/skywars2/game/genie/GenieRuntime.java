@@ -6,7 +6,10 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.util.Prediction;
 import me.skywars2.game.*;
-import me.skywars2.mixin.ActorCheckpointAccess;
+import me.skywars2.game.combat.WeaponEnchantments;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtTriggers;
+import me.skywars2.mixin.entities.ActorCheckpointAccess;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.*;
@@ -127,7 +130,7 @@ public final class GenieRuntime {
         catch(RuntimeException invalid){return null;}
     }
     public boolean admitted(ServerPlayer owner){return game.playing()&&!game.balanceLegacy()&&!game.isObserver(owner)&&owner.isAlive()
-            &&me.skywars2.game.LbcDimensionItems.ordinary(owner)&&game.canUseGameplayItems(owner)
+            &&me.skywars2.game.entities.LbcDimensionItems.ordinary(owner)&&game.canUseGameplayItems(owner)
             &&!game.items().actionsBlocked(owner)&&!GenieNative.stopped(game,owner);}
     public net.minecraft.world.InteractionResult replaceUse(ServerPlayer owner,InteractionHand hand) {
         var stack=owner.getItemInHand(hand);

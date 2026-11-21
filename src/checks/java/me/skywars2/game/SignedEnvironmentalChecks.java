@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
+import me.skywars2.game.effects.SignedEnvironmentalEffects;
+
 /** Root suite entry: native effect guards/damage/air, plus full signed endpoint math. */
 public final class SignedEnvironmentalChecks {
     private SignedEnvironmentalChecks() {}

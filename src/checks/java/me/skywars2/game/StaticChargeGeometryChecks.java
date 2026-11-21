@@ -4,6 +4,7 @@ import com.mojang.math.Transformation;
 import io.netty.buffer.Unpooled;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.LbcStaticCharge;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;

@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.core.config.LbcSourceConfig;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.wands.LbcMusicStaff;
+import me.skywars2.game.presentation.LbcTooltipScores;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.*;

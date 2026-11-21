@@ -2,6 +2,14 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtCatalog;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtTriggers;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.players.attributes.GroundJumpEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -27,6 +35,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.scores.ScoreHolder;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Real native costs, projectiles, input boundaries and persistent private trigger definitions. */
 public final class TmtTriggerChecks {

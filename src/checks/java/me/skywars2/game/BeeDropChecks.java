@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.entities.CoreEntityMerging;
+import me.skywars2.game.items.drops.LbcBeeDrop;
+import me.skywars2.game.items.drops.LbcBeeDropItem;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -24,6 +29,7 @@ import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import java.util.*;
+import me.skywars2.game.items.drops.LbcLibraryDrop;
 
 /** Bounded actual-match native bee, loot, hive and sting fixtures; no participant is killed. */
 public final class BeeDropChecks {

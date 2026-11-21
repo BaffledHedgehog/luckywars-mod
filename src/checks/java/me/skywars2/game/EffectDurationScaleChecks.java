@@ -1,12 +1,15 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.effects.ShadowAbsorption;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
+import me.skywars2.game.effects.OwnedEffectLayers;
 
 /** Synchronous actual-native checks, selected by the isolated match runner. */
 public final class EffectDurationScaleChecks {

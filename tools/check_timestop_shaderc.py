@@ -7,28 +7,24 @@ import argparse
 import ctypes
 import hashlib
 import json
-import os
 from pathlib import Path
 import re
 import zipfile
 
 
 def limit_resources():
-    """Keep this quick native check at idle CPU/low IO priority on two logical cores."""
+    """Keep this quick native check at idle CPU and low I/O priority."""
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
     native = ctypes.WinDLL("ntdll")
     handle, number = ctypes.c_void_p, ctypes.c_ulong
     kernel.GetCurrentProcess.restype = handle
     kernel.SetPriorityClass.argtypes = [handle, number]
-    kernel.SetProcessAffinityMask.argtypes = [handle, ctypes.c_size_t]
     kernel.SetProcessInformation.argtypes = [handle, ctypes.c_int, handle, number]
     native.NtSetInformationProcess.argtypes = [handle, ctypes.c_int, handle, number]
     native.NtSetInformationProcess.restype = ctypes.c_long
     process = kernel.GetCurrentProcess()
-    cores = os.cpu_count() or 1
-    affinity = (1 << (cores - 1)) | (1 << max(0, cores - 3))
     memory, io = number(4), number(1)
-    if not (kernel.SetPriorityClass(process, 0x40) and kernel.SetProcessAffinityMask(process, affinity)
+    if not (kernel.SetPriorityClass(process, 0x40)
             and kernel.SetProcessInformation(process, 0, ctypes.byref(memory), ctypes.sizeof(memory))
             and native.NtSetInformationProcess(process, 33, ctypes.byref(io), ctypes.sizeof(io)) == 0):
         raise OSError("Could not apply CPU/IO/memory limits")

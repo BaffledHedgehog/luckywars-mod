@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.magic.LbcOverload;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtNativeIdentities;
+import me.skywars2.game.items.weapons.melee.LbcMeleeItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.entities.mobs.bobs.LbcAimbobRewards;
 
 /** Operator fixture: real damage/jump input and ordinary scheduled native equipment owners. */
 public final class TmtNativeIdentityChecks {

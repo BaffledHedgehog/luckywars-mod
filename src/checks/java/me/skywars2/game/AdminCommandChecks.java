@@ -5,6 +5,11 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.gui.LbcCases;
+import me.skywars2.game.gui.loadouts.LbcSourceUnlocks;
+import me.skywars2.game.items.loot.LbcDropRequests;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.players.SavedAdvancements;
 import net.minecraft.resources.Identifier;
 
 /** Real dispatcher, native ownership projections, offline file reload and failed durable commits. */

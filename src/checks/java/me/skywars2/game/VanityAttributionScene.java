@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
-import me.skywars2.mixin.CombatCheckpointAccess;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.mixin.combat.CombatCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;

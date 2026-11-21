@@ -3,8 +3,9 @@ package me.skywars2.game;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import me.skywars2.mixin.CombatCheckpointAccess;
-import me.skywars2.mixin.EntityRuntimeCheckpointAccess;
+
+import me.skywars2.mixin.combat.CombatCheckpointAccess;
+import me.skywars2.mixin.entities.EntityRuntimeCheckpointAccess;
 import me.skywars2.validation.mixin.ItemFixtureAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

@@ -5,6 +5,8 @@ import carpet.patches.EntityPlayerMPFake;
 import carpet.patches.FakeClientConnection;
 import carpet.patches.NetHandlerPlayServerFake;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.bots.LbcCarpetBots;
+import me.skywars2.game.world.maps.MapManager;
 import me.skywars2.validation.mixin.BotValidationAccess;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;

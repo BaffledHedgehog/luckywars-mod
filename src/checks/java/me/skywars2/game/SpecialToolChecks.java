@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.gadgets.LbcHalloweenWind;
+import me.skywars2.game.items.tools.LbcNativeToolItems;
+import me.skywars2.game.items.tools.LbcSpecialTools;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.weapons.melee.LbcSoulhunter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -16,6 +21,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Real native damage/death callbacks, item input, terrain writes, ownership and match stop. */
 public final class SpecialToolChecks {

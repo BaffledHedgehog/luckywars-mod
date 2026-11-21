@@ -1,6 +1,13 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.LbcDimensionItems;
+import me.skywars2.game.items.armor.LbcGlassArmor;
+import me.skywars2.game.items.loot.LootTestCatalog;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -21,6 +28,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
+import me.skywars2.game.combat.LbcIndirectKills;
 
 /** Bounded synchronous proof of the source loot family and actual native incoming Glass criterion. */
 public final class GlassArmorChecks {

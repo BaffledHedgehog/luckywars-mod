@@ -2,7 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.BedwarsProtectionMixin;
+import me.skywars2.game.match.events.NuclearTerrain;
+import me.skywars2.game.modes.bedwars.LbcBedwarsArena;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.mixin.arena.BedwarsProtectionMixin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;

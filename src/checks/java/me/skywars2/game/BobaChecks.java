@@ -13,6 +13,13 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.IdentityHashMap;
 
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.maps.MapRotation;
+import me.skywars2.game.world.terrain.BobaRegionPhysics;
+import me.skywars2.game.world.terrain.LbcBoba;
+
 /** Native-input components for the asynchronous map fixture; the caller owns exact restoration. */
 public final class BobaChecks {
     private BobaChecks(){}

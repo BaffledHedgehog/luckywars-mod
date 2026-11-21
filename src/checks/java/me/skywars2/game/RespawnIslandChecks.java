@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.projectiles.ProjectileSteering;
+import me.skywars2.game.world.maps.MapManager;
 import me.skywars2.validation.mixin.MapValidationAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -17,6 +19,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.entities.projectiles.LbcDanmaku;
 
 /** Explicit native match fixture. Preparation precedes the genuine match-start capture. */
 public final class RespawnIslandChecks {

@@ -1,7 +1,13 @@
 package me.skywars2.game;
 
 import java.util.List;
-import me.skywars2.mixin.ActorCheckpointAccess;
+
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.ShadowAbsorption;
+import me.skywars2.game.effects.SignedEffectVisuals;
+import me.skywars2.game.effects.SignedGlowVisuals;
+import me.skywars2.game.modes.legacy.VanillaExpansionRules;
+import me.skywars2.mixin.entities.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityTypes;
@@ -32,7 +38,7 @@ final class TrueLegacyVanillaChecks {
         require(target.getHealth()==9,"native32-bit instant-heal shift behavior retained");
         if(target.getAttribute(Attributes.ATTACK_DAMAGE)==null){
             var attack=new net.minecraft.world.entity.ai.attributes.AttributeInstance(Attributes.ATTACK_DAMAGE,a->target.getAttributes().getAttributesToUpdate().add(a));
-            ((me.skywars2.mixin.GlyphAiMixin.AttributeAccess)target.getAttributes()).skywars2$glyphAttributes().put(Attributes.ATTACK_DAMAGE,attack);
+            ((me.skywars2.mixin.mobs.GlyphAiMixin.AttributeAccess)target.getAttributes()).skywars2$glyphAttributes().put(Attributes.ATTACK_DAMAGE,attack);
         }
         target.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(10);target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,200,1));
         require(target.getAttributeValue(Attributes.ATTACK_DAMAGE)==2,"WeaknessII uses native-8 damage instead of modern0.75 multiplier");

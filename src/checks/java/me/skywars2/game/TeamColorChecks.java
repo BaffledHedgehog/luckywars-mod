@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.players.teams.LbcTeamColors;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;

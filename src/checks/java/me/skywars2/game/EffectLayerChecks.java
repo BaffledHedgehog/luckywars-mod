@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import io.netty.buffer.Unpooled;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.effects.ShadowAbsorption;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;

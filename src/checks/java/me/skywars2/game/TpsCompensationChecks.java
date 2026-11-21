@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.lang.reflect.Field;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.net.metrics.TpsCompensation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;

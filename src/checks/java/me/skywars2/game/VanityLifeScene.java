@@ -2,6 +2,15 @@ package me.skywars2.game;
 
 import java.lang.reflect.*;
 import java.util.*;
+
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.items.gadgets.LbcTotems;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.match.checkpoints.MatchQueuedWorkCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.world.terrain.LbcMagicBean;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

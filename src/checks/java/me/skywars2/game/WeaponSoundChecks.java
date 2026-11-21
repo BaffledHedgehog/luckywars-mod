@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.LbcHelicopterTriggerItem;
+import me.skywars2.game.items.weapons.firearms.LbcMagnum;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.Connection;
@@ -27,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import me.skywars2.game.entities.mobs.LbcHelicopterEncounter;
 
 /** Explicit live-match native item input / outbound packet regression, without a client audio claim. */
 public final class WeaponSoundChecks {

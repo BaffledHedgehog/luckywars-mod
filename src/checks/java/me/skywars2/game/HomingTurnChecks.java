@@ -5,7 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.ActorCheckpointAccess;
+import me.skywars2.game.entities.projectiles.LbcDanmaku;
+import me.skywars2.game.entities.projectiles.ProjectileSteering;
+import me.skywars2.game.items.wands.LbcSauvojen;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.mixin.entities.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
@@ -23,6 +27,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.entities.projectiles.LbcHoming;
+import me.skywars2.game.entities.projectiles.ProjectileLifetimes;
 
 /** Actual native flights near a player, a logical card and invariant checks of the shared angular step. */
 final class HomingTurnChecks {

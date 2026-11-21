@@ -16,7 +16,7 @@ public final class SkyWarsMixinPlugin implements IMixinConfigPlugin {
     @Override public List<String> getMixins(){return null;}
     @Override public void preApply(String target,ClassNode node,String mixin,IMixinInfo info){}
     @Override public void postApply(String target,ClassNode node,String mixin,IMixinInfo info){
-        if(!mixin.equals("me.skywars2.mixin.PolymerMiningCadenceMixin"))return;
+        if(!mixin.equals("me.skywars2.mixin.terrain.PolymerMiningCadenceMixin"))return;
         var field=node.fields.stream().filter(f->f.desc.equals("I")&&f.name.endsWith("polymer$blockBreakingCooldown")).toList();
         var bridge=node.methods.stream().filter(m->m.name.endsWith("skywars2$elapsedCooldown")&&m.desc.equals("(I)I")).toList();
         if(field.size()!=1||bridge.size()!=1)throw new IllegalStateException("Unsupported Polymer mining layout");

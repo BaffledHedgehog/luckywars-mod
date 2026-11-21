@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import java.util.stream.Stream;
+
+import me.skywars2.game.entities.mob_ai.MatchFishSchools;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.goal.*;

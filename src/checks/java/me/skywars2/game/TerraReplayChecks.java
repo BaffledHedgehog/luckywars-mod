@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.items.wands.LbcTerra;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchSpellCheckpoint;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;

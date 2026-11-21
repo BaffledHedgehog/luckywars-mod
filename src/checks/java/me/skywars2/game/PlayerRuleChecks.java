@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.world.terrain.LbcCorruptedGlyphs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +16,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Real native creative damage and signed mana regeneration, with participant restoration. */
 public final class PlayerRuleChecks {

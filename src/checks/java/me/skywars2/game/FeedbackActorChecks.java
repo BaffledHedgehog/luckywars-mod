@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.effects.LbcStaticCharge;
+import me.skywars2.game.items.drops.LbcNpcDropItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -13,6 +17,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.CustomData;
+import me.skywars2.game.entities.mobs.LbcTransformator;
+import me.skywars2.game.items.drops.LbcChaosTrapActors;
+import me.skywars2.game.presentation.effects.LbcRadarDisplays;
 
 /** Native trap payload, private radar transport, real potion cloud and actual damage callbacks. */
 final class FeedbackActorChecks {

@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.CoreEntityMerging;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.skills.levelups.LbcSourceCounters;
+import me.skywars2.game.world.nexus.LbcNexusWireItems;
+import me.skywars2.game.world.nexus.LbcNexusWires;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;

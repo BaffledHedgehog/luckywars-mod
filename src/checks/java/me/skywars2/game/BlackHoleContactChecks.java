@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import me.skywars2.game.effects.BlackHoleDamage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityTypes;

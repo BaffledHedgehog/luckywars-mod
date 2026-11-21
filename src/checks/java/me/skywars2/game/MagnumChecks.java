@@ -1,6 +1,13 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.EnchantmentRules;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.projectiles.LbcClouds;
+import me.skywars2.game.items.weapons.firearms.LbcMagnum;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -31,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import me.skywars2.game.combat.LbcIndirectKills;
 
 /** Explicit live Magnum checks; shares player snapshots and native cow fixtures with GameChecks. */
 public final class MagnumChecks {

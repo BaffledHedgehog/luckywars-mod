@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import java.util.List;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.match.checkpoints.MatchEntityRuntime;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.core.BlockPos;
@@ -33,7 +34,7 @@ public final class RiptideVelocityChecks {
             f.initialize();var player=f.owner;var level=player.level();var cell=BlockPos.containing(player.position());
             var saved=game.maps().snapshot(level,cell);var provider=(PacketContextProvider)f.recording;
             var runtime=new MatchEntityRuntime(player);var flagKey=livingFlags();byte flags=player.getEntityData().get(flagKey);
-            var combat=(me.skywars2.mixin.CombatCheckpointAccess.Living)(Object)player;var spin= combat.skywars2$spin();
+            var combat=(me.skywars2.mixin.combat.CombatCheckpointAccess.Living)(Object)player;var spin= combat.skywars2$spin();
             try{
                 level.setBlock(cell,Blocks.WATER.defaultBlockState(),2|16|32);player.doTick();
                 require(player.isInWaterOrRain(),"real native wet admission");player.setOnGround(false);

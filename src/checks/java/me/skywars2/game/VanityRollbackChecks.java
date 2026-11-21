@@ -2,6 +2,20 @@ package me.skywars2.game;
 
 import java.util.List;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.bots.LbcWtf;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.items.drops.LbcEternalWealth;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.items.wands.LbcVoidArcanum;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.VanityCheckpointSchedule;
+import me.skywars2.game.skills.witch.LbcWitchClaims;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.nexus.LbcNexusCombat;
+import me.skywars2.game.world.nexus.LbcNexusEcology;
+import me.skywars2.game.world.nexus.LbcNexusTools;
+import me.skywars2.game.world.terrain.LbcDropBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,6 +26,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.world.nexus.LbcNexusAcquisition;
+import me.skywars2.game.world.nexus.LbcNexusPulsar;
 
 /** Real coordinator capture/rewind across native ticks; no direct calls to component restore methods. */
 public final class VanityRollbackChecks {

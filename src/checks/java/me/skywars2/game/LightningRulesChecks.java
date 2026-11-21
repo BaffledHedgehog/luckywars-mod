@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -21,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import me.skywars2.game.items.wands.LbcBolts;
 
 /** Actual vanilla lightning ticks and native wand casts; no simulated damage policy. */
 public final class LightningRulesChecks {

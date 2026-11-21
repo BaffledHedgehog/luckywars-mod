@@ -3,6 +3,9 @@ package me.skywars2.game;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import me.skywars2.game.match.checkpoints.MatchPoiMemory;
+import me.skywars2.game.match.checkpoints.MatchPoiStorage;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;

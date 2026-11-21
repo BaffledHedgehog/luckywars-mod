@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.players.PlayerStore;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import java.lang.reflect.Field;
 import java.util.*;
+import me.skywars2.game.effects.time.LbcTimeStop;
 
 /** Native Player.attack, Mob.doHurtTarget and actual outbound PvP motion packets. */
 public final class AttackKnockbackChecks {

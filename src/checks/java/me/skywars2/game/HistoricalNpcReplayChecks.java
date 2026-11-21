@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.items.wands.LbcSauvojen;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -37,7 +41,7 @@ public final class HistoricalNpcReplayChecks {
             require(npc.isRemoved()&&f.level.getEntity(npc.getUUID())==null,"historical emitter never resurrects with the live attack");
             require(f.level.getEntity(watcher.getUUID())==watcher&&watcher.getTargetUnchecked()==npc&&watcher.getTarget()==null,"native stale raw target is preserved as historical while vanilla sanitization returns no live target");
             require(f.level.getEntity(shot.getUUID())==shot&&!shot.isRemoved()&&shot.position().equals(pose),"same live canonical charge and pose restored");
-            var nativeOwner=((me.skywars2.mixin.BedwarsRoleGuardMixin.ProjectileOwner)shot).skywars2$owner();
+            var nativeOwner=((me.skywars2.mixin.arena.BedwarsRoleGuardMixin.ProjectileOwner)shot).skywars2$owner();
             require(shot.getOwner()==null&&nativeOwner!=null&&nativeOwner.getUUID().equals(npc.getUUID()),"unresolved native Owner UUID preserved without promoting it to a live dependency");
             var policy=game.items().spellSources().source(shot);require(policy!=null&&policy.author()==null&&policy.nativeEmitter()==npc&&game.items().spellSources().nativeMobSource(shot)==npc,"typed policy keeps exact historical native identity");
             require(f.level.getEntity(target.getUUID())==target&&target.getHealth()==hp,"canonical native victim and HP restored");

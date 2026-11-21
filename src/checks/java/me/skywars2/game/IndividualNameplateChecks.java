@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.gui.LbcCosmetics;
+import me.skywars2.game.gui.hud.LbcNameplates;
+import me.skywars2.game.gui.loadouts.LbcSourceUnlocks;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;

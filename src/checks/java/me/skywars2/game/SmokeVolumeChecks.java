@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.items.trinkets.LbcReactiveArtifacts;
+import me.skywars2.game.presentation.effects.SmokeVisuals;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -18,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.entities.projectiles.LbcDanmaku;
 
 /** Real world physics, legacy public particles and the full native smoke lifetime. */
 public final class SmokeVolumeChecks {

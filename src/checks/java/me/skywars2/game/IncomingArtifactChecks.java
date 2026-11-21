@@ -1,6 +1,15 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.items.LbcAccessoryItems;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtTriggers;
+import me.skywars2.game.items.trinkets.LbcIncomingArtifacts;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.skills.witch.LbcGreed;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;

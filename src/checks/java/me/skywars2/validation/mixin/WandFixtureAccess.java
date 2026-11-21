@@ -2,12 +2,13 @@ package me.skywars2.validation.mixin;
 
 import java.util.ArrayDeque;
 import java.util.Set;
-import me.skywars2.game.LbcBlaze;
-import me.skywars2.game.LbcBlind;
-import me.skywars2.game.LbcDuplicating;
-import me.skywars2.game.LbcElectro;
-import me.skywars2.game.LbcExasperato;
-import me.skywars2.game.LbcTerra;
+
+import me.skywars2.game.items.wands.LbcBlaze;
+import me.skywars2.game.items.wands.LbcBlind;
+import me.skywars2.game.items.wands.LbcElectro;
+import me.skywars2.game.items.wands.LbcExasperato;
+import me.skywars2.game.items.wands.LbcTerra;
+import me.skywars2.game.skills.clone.LbcDuplicating;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.phys.Vec3;

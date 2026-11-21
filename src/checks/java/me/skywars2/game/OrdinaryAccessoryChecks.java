@@ -1,7 +1,19 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.CombatCheckpointAccess;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.LbcAccessoryItems;
+import me.skywars2.game.items.loot.LbcAllItemPools;
+import me.skywars2.game.items.trinkets.LbcOrdinaryAccessories;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.match.checkpoints.MatchValueSnapshot;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.mixin.combat.CombatCheckpointAccess;
 import me.skywars2.validation.mixin.GameCheckAccess;
 import me.skywars2.validation.mixin.ItemFixtureAccess;
 import me.skywars2.validation.mixin.NativeFixtureAccess;

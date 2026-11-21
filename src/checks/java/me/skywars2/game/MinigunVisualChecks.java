@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import eu.pb4.polymer.virtualentity.api.data.DisplayEntityData;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.weapons.firearms.LbcLaserMinigun;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;

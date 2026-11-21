@@ -1,0 +1,720 @@
+package me.skywars2.game.world.nexus;
+
+import java.nio.file.Files;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import me.skywars2.SkyWars2;
+import me.skywars2.game.ChefChecks;
+import me.skywars2.game.GameController;
+import me.skywars2.game.WoolBucketChecks;
+import me.skywars2.game.ChefChecks.Fixture;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.items.gadgets.LbcImbaTerrainUtilities;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.items.weapons.ranged.LbcChargedBows;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchWorldRandomCheckpoint;
+import me.skywars2.game.modes.bedwars.LbcBedwarsRoleGuards;
+import me.skywars2.game.skills.LbcExpansionSkill;
+import me.skywars2.game.skills.LbcGodClawSkill;
+import me.skywars2.game.skills.clone.LbcDuplicating;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.maps.NativeChunkLoad;
+import me.skywars2.game.world.nexus.LbcNexusAcquisition;
+import me.skywars2.game.world.nexus.LbcNexusClone;
+import me.skywars2.game.world.nexus.LbcNexusEcology;
+import me.skywars2.game.world.nexus.LbcNexusPulsar;
+import me.skywars2.game.world.terrain.LbcCunnyTerrain;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ChunkResult;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Marker;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.storage.SerializableChunkData;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.RegenerationBeltChecks;
+
+/** Native Stonekivi scheduling, with both full chunk columns journaled before admission resumes. */
+public final class NexusCloneChecks {
+    private static Fixture running;
+    private NexusCloneChecks() { }
+    private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Nexus clone: "+why);}
+    public static void run(GameController game){
+        require(running==null,"exclusive scheduled fixture");running=new Fixture(game);
+        try{running.init();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw new IllegalStateException(error);}
+    }
+    public static void tick(GameController game){
+        if(game==null||running==null)return;
+        try{if(!running.observe())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS nexus-clone (native uniform biomes, full save and packet height, async/full-height Stonekivi MOVE, failed and timed-out destination loads release the capture barrier without writes, one alternate destination and independent late completion, two-world TimeStop, source deduplication, exact chest stack and AIR replacement, UUID/entity/passenger delta, whole-family player/marker/shop/footprint exclusions, callback3centers/16trees and scoped restoration)");}
+        catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL nexus-clone",error);}
+    }
+
+    /** Replace only the service's view of a request. The native future is never mutated. */
+    private static final class ResidentRecovery implements AutoCloseable {
+        final GameController game;
+        final ServerLevel level;
+        final ChunkPos chunk;
+        final BlockPos pos;
+        final LbcNexusAcquisition acquisition;
+        final LbcNexusEcology ecology;
+        final LbcNexusPulsar pulsar;
+        final LbcNexusEcology.Actor one,two;
+        final LbcChargedBows bows;
+        final LbcCunnyTerrain cunny;
+        final LbcExpansionSkill expansion;
+        final LbcGodClawSkill claw;
+        final LbcImbaTerrainUtilities imba;
+        Object clear,wave,cunnyJob,imbaJob;
+        LbcStonekivi.Work beam;
+
+        private static final Class<?>[] CELL={BlockPos.class};
+        private static final Class<?>[] WORLD_CELL={ServerLevel.class,BlockPos.class};
+
+        ResidentRecovery(GameController game,ServerLevel level,ChunkPos chunk){
+            this.game=game;this.level=level;this.chunk=chunk;this.pos=chunk.getBlockAt(8,64,8);
+            acquisition=new LbcNexusAcquisition(game);
+            ecology=acquisition.ecology();
+            pulsar=new LbcNexusPulsar(game,(world,cell)->true);
+            bows=new LbcChargedBows(game,(owner,weapon,family)->null);
+            cunny=new LbcCunnyTerrain(game);
+            expansion=new LbcExpansionSkill(game,(owner,world,cell)->true);
+            claw=new LbcGodClawSkill(game,(LbcGodClawSkill.Policy)WoolBucketChecks.read(game.items().godClaw(),"policy"));
+            imba=new LbcImbaTerrainUtilities(game,(owner,kind,origin)->true);
+            one=actor();
+            two=actor();
+        }
+
+        private LbcNexusEcology.Actor actor(){
+            return new LbcNexusEcology.Actor(UUID.randomUUID(),level,LbcNexusEcology.Kind.TREE,null,null,Vec3.atCenterOf(pos),0,0,null);
+        }
+
+        private static Object construct(Class<?> owner,String type,Class<?>[] parameterTypes,Object... arguments)
+                throws ReflectiveOperationException {
+            var nested=Arrays.stream(owner.getDeclaredClasses()).filter(c->c.getSimpleName().equals(type)).findFirst().orElseThrow();
+            var constructor=nested.getDeclaredConstructor(parameterTypes);
+            constructor.setAccessible(true);
+            return constructor.newInstance(arguments);
+        }
+
+        private static Object invoke(Object receiver,String name,Class<?>[] parameterTypes,Object... arguments)
+                throws ReflectiveOperationException {
+            var method=receiver.getClass().getDeclaredMethod(name,parameterTypes);
+            method.setAccessible(true);
+            return method.invoke(receiver,arguments);
+        }
+
+        @SuppressWarnings("unchecked")
+        void exercise(net.minecraft.server.level.ServerPlayer author) throws ReflectiveOperationException {
+            require(level.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null,"recovery starts in a cold native chunk");
+            var failed=CompletableFuture.completedFuture(ChunkResult.error("native unsuccessful chunk result"));
+            require(!failed.isCompletedExceptionally() && !failed.isCancelled(),"native failure is a normal future completion");
+            clear=construct(LbcNexusAcquisition.class,"Clear",
+                    new Class<?>[]{ServerLevel.class,BlockPos.class,LbcIndirectKills.Owner.class},level,pos,null);
+            var acquisitions=(Map<Object,CompletableFuture<?>>)WoolBucketChecks.read(acquisition,"loading");
+            require(!requestClear(),"acquisition waits for cold terrain");
+            var acquisitionKey=acquisitions.keySet().iterator().next();
+            acquisitions.put(acquisitionKey,failed);
+            require(!requestClear() && acquisitions.get(acquisitionKey)!=failed,
+                    "acquisition replaces a normally failed request without losing its cleanup");
+
+            var ecologyLoads=(Map<Object,Object>)WoolBucketChecks.read(ecology,"chunks");
+            require(!requestTree(one) && !requestTree(two),"two ecology actors share the same cold lease");
+            var ecologyKey=ecologyLoads.keySet().iterator().next();
+            var failedView=construct(LbcNexusEcology.class,"Loading",new Class<?>[]{CompletableFuture.class},failed);
+            var failedUsers=(Set<UUID>)WoolBucketChecks.read(failedView,"actors");
+            failedUsers.add(one.id);failedUsers.add(two.id);
+            ecologyLoads.put(ecologyKey,failedView);
+            require(!requestTree(one),"ecology waits without moving either actor");
+            var retried=ecologyLoads.get(ecologyKey);
+            require(retried!=failedView && ((Set<?>)WoolBucketChecks.read(retried,"actors")).equals(Set.of(one.id,two.id)),
+                    "ecology retries native errors without dropping either waiter");
+
+            wave=construct(LbcNexusPulsar.class,"Wave",new Class<?>[]{int.class,int.class,BlockPos.class},
+                    0,0,pos.west());
+            var pulsarLoads=(Map<?,?>)WoolBucketChecks.read(pulsar,"chunks");
+            require(!requestWave() && pulsar.pendingChunks()==0 && pulsar.loadingChunks()==1,
+                    "Pulsar's neighbor probe is the only holder of its cold chunk");
+            var load=pulsarLoads.values().iterator().next();
+            var futureField=load.getClass().getDeclaredField("future");
+            futureField.setAccessible(true);
+            for(var failure:List.of(failed,new CompletableFuture<>())){
+                if(failure!=failed)failure.cancel(false);
+                futureField.set(load,failure);
+                require(!requestWave() && pulsarLoads.containsValue(load) && futureField.get(load)!=failure
+                                && ((Integer)WoolBucketChecks.read(load,"users"))==1,
+                        "Pulsar replaces errors and cancellations while retaining its lone probe");
+            }
+            require(ticketCount()==3,"one native ticket per Nexus service after replacement");
+            terrainRetries(author,failed);
+            duplicatingFailure(author,failed);
+        }
+
+        @SuppressWarnings("unchecked")
+        private void duplicatingFailure(net.minecraft.server.level.ServerPlayer author,CompletableFuture<?> failed)
+                throws ReflectiveOperationException {
+            var foreign=game.server().getLevel(LbcHedgehogDimensions.NEXUS);
+            require(foreign!=null && foreign.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null,
+                    "Duplicating's foreign source has no resident data");
+            var duplicate=new LbcDuplicating(game);
+            var job=construct(LbcDuplicating.class,"Job",
+                    new Class<?>[]{LbcDuplicating.class,net.minecraft.server.level.ServerPlayer.class},duplicate,author);
+            var origin=Vec3.atCenterOf(pos);
+            var target=author.blockPosition();
+            var old=level.getBlockState(target);
+            var clone=construct(LbcDuplicating.class,"Clone",
+                    new Class<?>[]{LbcDuplicating.class,ServerLevel.class,Vec3.class,Vec3.class,ServerLevel.class,Vec3.class},
+                    duplicate,foreign,origin,origin,level,Vec3.atCenterOf(target));
+            var loads=(Map<ServerLevel,Map<ChunkPos,CompletableFuture<?>>>)WoolBucketChecks.read(job,"loading");
+            var requests=new HashMap<ChunkPos,CompletableFuture<?>>();
+            loads.put(foreign,requests);
+            var signature=new Class<?>[]{job.getClass(),long.class,int[].class};
+            requests.put(chunk,new CompletableFuture<>());
+            require(!(boolean)invoke(clone,"step",signature,job,Long.MAX_VALUE,new int[]{1}),
+                    "cross-world clone waits while its source request is undecided");
+            requests.put(chunk,failed);
+            require((boolean)invoke(clone,"step",signature,job,Long.MAX_VALUE,new int[]{1})
+                            && (Integer)WoolBucketChecks.read(clone,"write")==0 && level.getBlockState(target).equals(old),
+                    "failed source ends the clone before writing a partial snapshot");
+        }
+
+        @SuppressWarnings("unchecked")
+        private void terrainRetries(net.minecraft.server.level.ServerPlayer author,CompletableFuture<?> failed)
+                throws ReflectiveOperationException {
+            var point=Vec3.atCenterOf(pos);
+            beam=(LbcStonekivi.Work)construct(LbcChargedBows.class,"BeamWork",
+                    new Class<?>[]{LbcChargedBows.class,ServerLevel.class,Vec3.class,LbcIndirectKills.Owner.class,int.class,int.class},
+                    bows,level,point,null,0,2);
+            require(!requestBeam() && !beam.ready(),"cold railgun work parks in the shared queue");
+            var bowLoads=(Map<?,?>)WoolBucketChecks.read(bows,"loading");
+            var bowLoad=bowLoads.values().iterator().next();
+            var future=bowLoad.getClass().getDeclaredField("future");
+            future.setAccessible(true);
+            future.set(bowLoad,failed);
+            require(beam.ready() && !requestBeam() && future.get(bowLoad)!=failed,
+                    "a native error wakes the charged bow scheduler and rearms its retained request");
+
+            cunnyJob=construct(LbcCunnyTerrain.class,"Job",
+                    new Class<?>[]{LbcCunnyTerrain.class,net.minecraft.server.level.ServerPlayer.class},cunny,author);
+            expectRetry(cunnyJob,"tickets",CELL,new Object[]{pos},failed,"Cunny terrain");
+            expectRetry(claw,"loading",WORLD_CELL,new Object[]{level,pos},failed,"God Claw");
+
+            require(!(boolean)invoke(expansion,"resident",WORLD_CELL,level,pos),"Expansion waits for cold terrain");
+            var expansionLoads=(Map<Object,Object>)WoolBucketChecks.read(expansion,"loading");
+            var expansionKey=expansionLoads.keySet().iterator().next();
+            var failedExpansion=construct(LbcExpansionSkill.class,"Load",
+                    new Class<?>[]{CompletableFuture.class,int.class},failed,0);
+            expansionLoads.put(expansionKey,failedExpansion);
+            require(!(boolean)invoke(expansion,"resident",WORLD_CELL,level,pos)
+                            && expansionLoads.get(expansionKey)!=failedExpansion,
+                    "Expansion replaces a normally failed chunk result");
+
+            imbaJob=construct(LbcImbaTerrainUtilities.class,"Job",
+                    new Class<?>[]{LbcImbaTerrainUtilities.class,long.class,net.minecraft.server.level.ServerPlayer.class,
+                            LbcImbaTerrainUtilities.Kind.class,Vec3.class,LbcIndirectKills.Owner.class},
+                    imba,1L,author,LbcImbaTerrainUtilities.Kind.DIRTER,point,null);
+            expectRetry(imbaJob,"tickets",CELL,new Object[]{pos},failed,"terrain utility");
+            require(ticketCount()==8,"every construction reuses exactly one native ticket");
+        }
+
+        @SuppressWarnings("unchecked")
+        private void expectRetry(Object receiver,String field,Class<?>[] signature,Object[] arguments,
+                                 CompletableFuture<?> failed,String description) throws ReflectiveOperationException {
+            require(!(boolean)invoke(receiver,"resident",signature,arguments),description+" waits for cold terrain");
+            var requests=(Map<Object,CompletableFuture<?>>)WoolBucketChecks.read(receiver,field);
+            var key=requests.keySet().iterator().next();
+            requests.put(key,failed);
+            require(!(boolean)invoke(receiver,"resident",signature,arguments) && requests.get(key)!=failed,
+                    description+" replaces a normally failed chunk result");
+        }
+
+        private boolean requestBeam() throws ReflectiveOperationException {
+            return (boolean)invoke(bows,"resident",new Class<?>[]{beam.getClass(),BlockPos.class},beam,pos);
+        }
+
+        boolean complete() throws ReflectiveOperationException {
+            if(level.getChunkSource().getChunkNow(chunk.x(),chunk.z())==null)return false;
+            require(requestClear() && requestTree(one) && requestTree(two) && requestWave(),
+                    "all three Nexus requests can use the now resident chunk");
+            require(beam.ready() && requestBeam()
+                            && (boolean)invoke(cunnyJob,"resident",CELL,pos)
+                            && (boolean)invoke(imbaJob,"resident",CELL,pos)
+                            && (boolean)invoke(expansion,"resident",WORLD_CELL,level,pos)
+                            && (boolean)invoke(claw,"resident",WORLD_CELL,level,pos),
+                    "all five recovered construction requests can resume on real resident terrain");
+            invoke(ecology,"release",new Class<?>[]{UUID.class},one.id);
+            require(ecology.loadingChunks()==1 && ticketCount()==8,"one ecology waiter cannot release another's lease");
+            invoke(ecology,"release",new Class<?>[]{UUID.class},two.id);
+            invoke(pulsar,"release",new Class<?>[]{wave.getClass()},wave);
+            close();
+            require(acquisition.loadingChunks()==0 && ecology.loadingChunks()==0 && pulsar.loadingChunks()==0
+                            && ticketCount()==0,"finishing the recovered work releases all eight native service tickets");
+            SkyWars2.LOGGER.info("[check] Native chunk error recovery: eight requests including a parked bow job and two shared ecology waiters");
+            return true;
+        }
+
+        private long ticketCount(){
+            var storage=(net.minecraft.world.level.TicketStorage)WoolBucketChecks.read(level.getChunkSource(),"ticketStorage");
+            var types=Set.of("skywars2:nexus_acquisition","skywars2:nexus_ecology","skywars2:nexus_pulsar",
+                    "skywars2:charged_bow","skywars2:cunny_terrain","skywars2:expansion","skywars2:god_claw",
+                    "skywars2:imba_terrain_utilities");
+            return storage.getTickets(chunk.pack()).stream().filter(ticket->types.contains(String.valueOf(
+                    net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE.getKey(ticket.getType())))).count();
+        }
+
+        private boolean requestClear() throws ReflectiveOperationException {
+            return (boolean)invoke(acquisition,"resident",new Class<?>[]{clear.getClass()},clear);
+        }
+        private boolean requestTree(LbcNexusEcology.Actor actor) throws ReflectiveOperationException {
+            return (boolean)invoke(ecology,"resident",new Class<?>[]{LbcNexusEcology.Actor.class,double.class},actor,0.0);
+        }
+        private boolean requestWave() throws ReflectiveOperationException {
+            return (boolean)invoke(pulsar,"resident",new Class<?>[]{ServerLevel.class,BlockPos.class,wave.getClass()},level,pos,wave);
+        }
+
+        @Override public void close(){
+            acquisition.stop();
+            pulsar.stop();
+            if(beam!=null)beam.cancel();
+            if(cunnyJob instanceof LbcStonekivi.Work work)work.cancel();
+            if(imbaJob instanceof LbcStonekivi.Work work)work.cancel();
+            expansion.stop();
+            claw.stop();
+        }
+    }
+
+    /** Keep the witness independent of reusable island destinations and their disk palettes. */
+    private static final class FreshNexusColumn implements AutoCloseable {
+        private final ServerLevel level;
+        private ChunkPos pos;
+        private CompletableFuture<?> load;
+
+        FreshNexusColumn(ServerLevel level){this.level=level;}
+
+        void start(){
+            var root=level.getServer().getWorldPath(LevelResource.ROOT);
+            var region=DimensionType.getStorageFolder(level.dimension(),root).resolve("region");
+            var cache=level.getChunkSource();
+            for(int offset=0;offset<16;offset++){
+                int x=128+offset,z=-129;
+                var candidate=new ChunkPos(x*32+16,z*32+16);
+                if(!Files.notExists(region.resolve("r."+x+"."+z+".mca"))
+                        ||cache.getChunkNow(candidate.x(),candidate.z())!=null)continue;
+                pos=candidate;
+                load=cache.addTicketAndLoadWithRadius(TicketType.FORCED,pos,0);
+                return;
+            }
+            throw new IllegalStateException("No fresh reserved Nexus region for the biome fixture");
+        }
+
+        boolean finish(){
+            if(load==null||!load.isDone())return false;
+            require(!load.isCancelled()&&!NativeChunkLoad.failed(load),"owned cold Nexus chunk finishes native generation");
+            var chunk=level.getChunkSource().getChunkNow(pos.x(),pos.z());
+            if(chunk==null)return false;
+            verify(chunk);
+            close();
+            return true;
+        }
+
+        private void verify(LevelChunk chunk){
+            require(chunk.getPersistedStatus()==ChunkStatus.FULL&&chunk.getMinY()==0&&chunk.getMaxY()==2031
+                    &&chunk.getSections().length==127,"authored Nexus retains the full 2032-block height");
+            var factory=level.palettedContainerFactory();
+            var biome=level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(
+                    ResourceKey.create(Registries.BIOME,Identifier.parse("minecraft:nexus")));
+            var original=new LevelChunkSection(factory);
+            original.fillBiomesFromNoise((x,y,z)->biome,0,0,0);
+            var uniform=new LevelChunkSection(factory.createForBlockStates(),new PalettedContainer<>(biome,factory.biomeStrategy()));
+            int sectionCount=chunk.getSections().length;
+            int originalBytes=sectionCount*original.getSerializedSize(),compactBytes=sectionCount*uniform.getSerializedSize();
+            Set<Object> uniquePalettes=Collections.newSetFromMap(new IdentityHashMap<>());
+            int maxBits=0;
+            for(var section:chunk.getSections()){
+                require(section.hasOnlyAir()&&uniquePalettes.add(section.getBiomes()),"generated air sections own distinct biome palettes");
+                maxBits=Math.max(maxBits,section.getBiomes().bitsPerEntry());
+                for(int x=0;x<4;x++)for(int y=0;y<4;y++)for(int z=0;z<4;z++)
+                    require(section.getNoiseBiome(x,y,z).equals(biome),"every generated quart cell uses the authored Nexus biome");
+            }
+
+            int wireBytes;
+            var packet=new ClientboundLevelChunkPacketData(chunk).getReadBuffer();
+            try{
+                wireBytes=packet.readableBytes();
+                var decoded=new LevelChunkSection(factory);
+                for(int i=0;i<sectionCount;i++){
+                    decoded.read(packet);
+                    require(decoded.hasOnlyAir()&&decoded.getNoiseBiome(0,0,0).equals(biome)
+                            &&decoded.getNoiseBiome(3,3,3).equals(biome),"native client decodes every section through the ceiling");
+                }
+                require(packet.readableBytes()==0,"full native chunk packet contains exactly 127 section records");
+            }finally{packet.release();}
+
+            var file=SerializableChunkData.copyOf(level,chunk).write();
+            var roundTrip=SerializableChunkData.parse(level,factory,file);
+            require(roundTrip!=null&&roundTrip.chunkStatus()==ChunkStatus.FULL&&roundTrip.minSectionY()==0,
+                    "native storage round trip retains Nexus full status and floor");
+            var savedSections=roundTrip.sectionData().stream().filter(section->section.chunkSection()!=null).toList();
+            require(savedSections.size()==sectionCount,"native storage preserves 127 terrain and biome sections");
+            for(int i=0;i<sectionCount;i++){
+                var saved=savedSections.get(i);
+                require(saved.y()==i&&saved.chunkSection().getNoiseBiome(3,3,3).equals(biome)
+                        &&saved.chunkSection().getBiomes().bitsPerEntry()==0,"saved section position and uniform biome at "+i);
+            }
+            SkyWars2.LOGGER.info("[check] Nexus native biome column={} sections={} cells={} paletteBits={} wireBytes={} stockWireBytes={} compactWireBytes={}",
+                    pos,sectionCount,sectionCount*64,maxBits,wireBytes,originalBytes,compactBytes);
+            require(maxBits==0&&wireBytes==compactBytes&&originalBytes-compactBytes>=1270,
+                    "fresh native Nexus column should be compact: bits="+maxBits+", wire="+wireBytes+", expected="+compactBytes);
+        }
+
+        @Override public void close(){
+            if(pos==null)return;
+            level.getChunkSource().removeTicketWithRadius(TicketType.FORCED,pos,0);
+            pos=null;
+        }
+    }
+
+    private static final class BoundarySeat extends Cow {
+        BoundarySeat(ServerLevel level) { super(EntityTypes.COW, level); }
+        @Override protected void positionRider(Entity passenger, Entity.MoveFunction move) {
+            move.accept(passenger, getX(), level().getMaxY() + 1.5, getZ());
+        }
+    }
+    private record RetainedRide(Entity mount, Entity passenger, String exclusion) {}
+
+    private static final class Fixture implements AutoCloseable {
+        final GameController game;
+        final ChefChecks.Fixture base;
+        final MatchCoreCheckpoint originalCore;
+        final MatchWorldRandomCheckpoint originalRandom;
+        final LbcIndirectKills.Checkpoint originalLedger;
+        final ServerLevel source,destination;
+        final ChunkPos sourceChunk=new ChunkPos(2048,2048);
+        final ResidentRecovery recovery;
+        final FreshNexusColumn freshNexus;
+        final Map<BlockPos,MapManager.BlockSnapshot> sourceOriginal=new LinkedHashMap<>(),destinationOriginal=new LinkedHashMap<>();
+        final Map<BlockPos,MapManager.BlockSnapshot> sample=new LinkedHashMap<>();
+        final Map<UUID,Vec3> positions=new LinkedHashMap<>();
+        final Map<UUID,Entity> originalBodies=new LinkedHashMap<>();
+        final Map<UUID,Vec3> lastSourcePositions=new LinkedHashMap<>();
+        final List<RetainedRide> retainedRides = new ArrayList<>();
+        final Set<UUID> owned=new LinkedHashSet<>(),destinationBefore=new HashSet<>();
+        final LbcNexusClone clone;
+        final LbcNexusClone failedClone;
+        final LbcNexusClone stalledClone;
+        final CompletableFuture<?> pendingSource=new CompletableFuture<>();
+        final CompletableFuture<ChunkResult<?>> stalledFirstDestination=new CompletableFuture<>();
+        final CompletableFuture<ChunkResult<?>> stalledSecondDestination=new CompletableFuture<>();
+        final List<ChunkPos> attemptedDestinations=new ArrayList<>();
+        RegenerationBeltChecks.ScheduledClient client,audience;
+        CompletableFuture<?> sourceLoad;
+        LbcNexusClone.View view;
+        LbcIndirectKills.Owner cause;
+        Marker marker;
+        Cow vehicle,passenger;
+        UUID itemId;
+        BlockPos chest,airProbe;
+        Vec3 playerPosition,delta;
+        List<Vec3> centers=List.of(),trees=List.of();
+        int stage,when,callbacks,lastCompleted,retryTick;
+        int sourceContainerItems;
+        boolean closed,sourceCaptured,destinationCaptured,sourceStopped,destinationStopped,sawProgress;
+        boolean freshNexusVerified;
+
+        Fixture(GameController game){
+            this.game=game;
+            originalCore=new MatchCoreCheckpoint(game);originalRandom=new MatchWorldRandomCheckpoint(game);
+            originalLedger=game.items().indirectKills().checkpoint(new MatchDamageSources(game,List.of()));
+            base=new ChefChecks.Fixture(game);source=base.owner.level();destination=game.server().getLevel(LbcHedgehogDimensions.NEXUS);
+            require(destination!=null&&source!=destination,"ordinary source and native Nexus");
+            recovery=new ResidentRecovery(game,source,sourceChunk);
+            freshNexus=new FreshNexusColumn(destination);
+            require(!game.items().timeStop().stopped(destination),"no borrowed Nexus TimeStop");
+            failedClone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
+                throw new IllegalStateException("Failed destination must never receive terrain or a completion callback");
+            },(level,chunk)->level==source?pendingSource:CompletableFuture.completedFuture(
+                    ChunkResult.error("controlled destination load failure")),20);
+            stalledClone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
+                throw new IllegalStateException("Stalled destinations must never receive terrain or a completion callback");
+            },(level,chunk)->{
+                if(level==source)return sourceLoad;
+                attemptedDestinations.add(chunk);
+                return attemptedDestinations.size()==1?stalledFirstDestination:stalledSecondDestination;
+            },5);
+            clone=new LbcNexusClone(game,(level,tx,ty,tz,roots,forest,owner)->{
+                require(level==destination&&owner==cause,"completion retains native dimension and exact causal owner");
+                require(view!=null&&tx-8==view.targetMin().getX()&&ty-8==view.targetMin().getY()&&tz-8==view.targetMin().getZ(),"callback source target geometry");
+                callbacks++;centers=List.copyOf(roots);trees=List.copyOf(forest);
+                for(var entry:originalBodies.entrySet()){
+                    var old=entry.getValue();var moved=destination.getEntity(entry.getKey());
+                    SkyWars2.LOGGER.info("[check] nexus-clone transfer uuid={} type={} passenger={} baseline={} lastSource={} oldPosition={} oldLevel={} oldRemoved={} oldMotion={} actual={} expected={} delta={} sourceChunk={} targetMin={}",entry.getKey(),old.getType(),old==passenger,positions.get(entry.getKey()),lastSourcePositions.get(entry.getKey()),old.position(),old.level().dimension(),old.isRemoved(),old.getDeltaMovement(),moved==null?null:moved.position(),positions.get(entry.getKey()).add(delta),delta,sourceChunk,view.targetMin());
+                }
+            });
+        }
+        void begin(int next){stage=next;when=game.server().getTickCount();}
+        void init() throws ReflectiveOperationException {
+            base.init();client=new RegenerationBeltChecks.ScheduledClient(game,base.owner);audience=new RegenerationBeltChecks.ScheduledClient(game,base.other);
+            game.config().noBorders=true;base.owner.getAbilities().invulnerable=true;
+            require(failedClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null)
+                    &&!failedClone.captureReady(),"failed transfer enters the actual shared scheduler");
+            recovery.exercise(base.owner);
+            sourceLoad=game.maps().prepareChunk(source,sourceChunk);freshNexus.start();begin(0);
+            SkyWars2.LOGGER.info("[check] START nexus-clone (real ticks; reserved source {},{})",sourceChunk.x(),sourceChunk.z());
+        }
+        AABB box(ServerLevel level,ChunkPos chunk){return new AABB(chunk.getMinBlockX(),level.getMinY(),chunk.getMinBlockZ(),chunk.getMinBlockX()+16,level.getMaxY(),chunk.getMinBlockZ()+16);}
+        List<Entity> entities(ServerLevel level,ChunkPos chunk){var area=box(level,chunk);return level.getEntities((Entity)null,area,e->area.contains(e.position()));}
+        boolean ready(CompletableFuture<?> future,ServerLevel level,ChunkPos chunk){
+            require(!future.isCompletedExceptionally()&&!future.isCancelled(),"native async chunk load succeeds");
+            return future.isDone()&&level.getChunkSource().getChunkNow(chunk.x(),chunk.z())!=null;
+        }
+        /** Empty sections need no per-cell snapshots; AIR is restored by clearing the owned column first. */
+        Map<BlockPos,MapManager.BlockSnapshot> column(ServerLevel level,ChunkPos chunk){
+            var result=new LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
+            var nativeChunk=level.getChunkSource().getChunkNow(chunk.x(),chunk.z());require(nativeChunk!=null,"only inspect already resident native chunks");
+            var sections=nativeChunk.getSections();
+            for(int s=0;s<sections.length;s++){
+                var section=sections[s];if(section.hasOnlyAir())continue;int y0=nativeChunk.getSectionYFromSectionIndex(s)<<4;
+                for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++)if(!section.getBlockState(x,y,z).isAir()){
+                    var pos=new BlockPos(chunk.getMinBlockX()+x,y0+y,chunk.getMinBlockZ()+z);result.put(pos,game.maps().snapshot(level,pos));
+                }
+            }
+            return result;
+        }
+        void restoreColumn(ServerLevel level,ChunkPos chunk,Map<BlockPos,MapManager.BlockSnapshot> original){
+            int flags=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
+            for(var pos:column(level,chunk).keySet())game.maps().restoreSnapshot(level,pos,MapManager.BlockSnapshot.air(),flags);
+            original.forEach((pos,image)->game.maps().restoreSnapshot(level,pos,image,flags));
+        }
+        void seed(){
+            sourceOriginal.putAll(column(source,sourceChunk));sourceCaptured=true;
+            require(sourceOriginal.isEmpty(),"reserved full-height source chunk is genuinely AIR before fixture writes");
+            require(entities(source,sourceChunk).isEmpty(),"no foreign source actors");
+            int x=sourceChunk.getMinBlockX(),z=sourceChunk.getMinBlockZ();
+            chest=new BlockPos(x+5,Math.min(100,source.getMaxY()-12),z+5);
+            source.setBlock(new BlockPos(x+1,source.getMinY()+1,z+1),Blocks.BEDROCK.defaultBlockState(),2);
+            source.setBlock(new BlockPos(x+14,source.getMaxY()-2,z+14),Blocks.GOLD_BLOCK.defaultBlockState(),2);
+            source.setBlock(chest.below(),Blocks.STONE.defaultBlockState(),2);source.setBlock(chest,Blocks.CHEST.defaultBlockState(),2);
+            require(source.getBlockEntity(chest) instanceof Container,"real source chest block entity");
+            ((Container)source.getBlockEntity(chest)).setItem(4,new ItemStack(Items.DIAMOND,7));
+            sourceContainerItems=0;var nativeInventory=(Container)source.getBlockEntity(chest);
+            for(int slot=0;slot<nativeInventory.getContainerSize();slot++)sourceContainerItems+=nativeInventory.getItem(slot).getCount();
+            require(sourceContainerItems==7,"native pre-MOVE container count is seven");
+            sample.putAll(column(source,sourceChunk));
+            playerPosition=new Vec3(x+12.5,chest.getY()+4,z+12.5);base.move(base.owner,playerPosition);client.acknowledge();
+            var riderPosition = new Vec3(x + 11.5, chest.getY() + 4, z + 4.5);
+            require(base.other.level() == source && !base.other.isPassenger(), "independent native rider starts in the source world");
+            base.move(base.other, riderPosition);
+            audience.acknowledge();
+            game.items().timeStop().begin(source,2000);sourceStopped=true;
+            game.items().timeStop().begin(destination,2000);destinationStopped=true;
+            marker=new Marker(EntityTypes.MARKER,source);marker.setPos(x+10.5,chest.getY()+4,z+10.5);publish(marker);
+            vehicle=cow(new Vec3(x+3.5,chest.getY()+4,z+3.5));passenger=cow(vehicle.position());
+            require(passenger.startRiding(vehicle,true,true),"native passenger family mounted");
+            retainRide(cow(riderPosition.add(0, -1, 0)), base.other, "player passenger");
+            var markerMount = cow(new Vec3(x + 6.5, chest.getY() + 4, z + 12.5));
+            var markerPassenger = new Marker(EntityTypes.MARKER, source);
+            markerPassenger.setPos(markerMount.position());
+            publish(markerPassenger);
+            retainRide(markerMount, markerPassenger, "marker passenger");
+            var shop = cow(new Vec3(x + 13.5, chest.getY() + 4, z + 8.5));
+            LbcBedwarsRoleGuards.markShop(shop);
+            retainRide(shop, cow(shop.position()), "shop riding root");
+            var edge = new BoundarySeat(source);
+            edge.setNoAi(true);
+            edge.setNoGravity(true);
+            edge.setPos(x + 4.5, chest.getY() + 4, z + 10.5);
+            publish(edge);
+            var outside = cow(edge.position());
+            retainRide(edge, outside, "passenger above the source footprint");
+            require(box(source, sourceChunk).contains(edge.position()) && outside.getY() > source.getMaxY() + 1,
+                    "boundary control is a native passenger outside the copied footprint");
+            var item=new ItemEntity(source,x+7.5,chest.getY()+4,z+7.5,new ItemStack(Items.EMERALD,13));
+            item.setNoGravity(true);item.setDeltaMovement(Vec3.ZERO);item.setPickUpDelay(32767);publish(item);itemId=item.getUUID();
+            for(var entity:List.of(vehicle,passenger,item)){positions.put(entity.getUUID(),entity.position());originalBodies.put(entity.getUUID(),entity);}
+            cause=game.items().indirectKills().wildCause(base.owner);
+            require(clone.request(source,Vec3.atCenterOf(chest),cause),"native clone accepts while both worlds are stopped");
+            require(!clone.request(source,Vec3.atCenterOf(chest.offset(9,0,9)),cause),"whole source chunk is deduplicated");
+            require(clone.pending()==1&&!clone.captureReady()&&clone.sourceInFlight(source,sourceChunk),"accepted construction holds its capture barrier");
+            view=clone.snapshot().getFirst();
+            require(view.sourceLevel()==source&&view.sourceChunk().equals(sourceChunk)&&view.destination()==destination&&view.count()==256*source.getHeight()&&view.completed()==0,"native full-height source footprint");
+            delta=new Vec3(view.targetMin().getX()-x,view.targetMin().getY()-source.getMinY(),view.targetMin().getZ()-z);
+            require(destination.getChunkSource().getChunkNow(view.destinationChunk().x(),view.destinationChunk().z())==null,
+                    "random native destination starts cold with only the transfer's ticket");
+            begin(1);
+        }
+        void publish(Entity entity){require(source.addFreshEntity(entity),"owned native actor published");owned.add(entity.getUUID());}
+        Cow cow(Vec3 pos){var cow=new Cow(EntityTypes.COW,source);cow.setPos(pos);cow.setNoAi(true);cow.setNoGravity(true);cow.setDeltaMovement(Vec3.ZERO);publish(cow);return cow;}
+        void retainRide(Entity mount, Entity rider, String exclusion) {
+            require(rider.startRiding(mount, true, true), "native riding family created for " + exclusion);
+            mount.positionRider(rider);
+            retainedRides.add(new RetainedRide(mount, rider, exclusion));
+        }
+        BlockPos target(BlockPos pos){return pos.offset((int)delta.x,(int)delta.y,(int)delta.z);}
+        void hold(){require(clone.pending()==1&&!clone.captureReady()&&clone.snapshot().getFirst().completed()==0&&callbacks==0,"native scheduler does not write through either TimeStop");}
+
+        boolean observe() throws ReflectiveOperationException {
+            int elapsed=game.server().getTickCount()-when;require(game.playing()&&elapsed<1200,"bounded real-tick phase "+stage+" completed="+lastCompleted+" loads="+clone.pendingStatus());
+            if(stage==0){
+                if(elapsed==0)return false;
+                require(!pendingSource.isDone()&&failedClone.captureReady()&&!failedClone.sourceInFlight(source,sourceChunk),
+                        "a completed native failure releases the transfer while the other load remains pending");
+                if(!freshNexusVerified)freshNexusVerified=freshNexus.finish();
+                if(freshNexusVerified&&ready(sourceLoad,source,sourceChunk)&&recovery.complete()){
+                    require(stalledClone.request(source,Vec3.atCenterOf(sourceChunk.getBlockAt(8,64,8)),null),
+                            "stalled destination request enters the actual shared scheduler");
+                    begin(6);
+                }
+                return false;
+            }
+            if(stage==6){
+                if(!stalledClone.captureReady()){
+                    var current=stalledClone.snapshot().getFirst();
+                    require(current.completed()==0&&stalledClone.sourceInFlight(source,sourceChunk),
+                            "waiting or retrying still reserves the source without writing");
+                    if(attemptedDestinations.size()==2&&!stalledFirstDestination.isDone()){
+                        require(!attemptedDestinations.getFirst().equals(current.destinationChunk())
+                                        &&attemptedDestinations.getLast().equals(current.destinationChunk()),
+                                "retry uses a different Nexus chunk");
+                        stalledFirstDestination.complete(ChunkResult.error("late result from discarded destination"));
+                        retryTick=game.server().getTickCount();
+                    }
+                    return false;
+                }
+                require(attemptedDestinations.size()==2&&stalledFirstDestination.isDone()&&!stalledSecondDestination.isDone()
+                                &&game.server().getTickCount()-retryTick>=5&&!stalledClone.sourceInFlight(source,sourceChunk),
+                        "one alternate attempt then release, independently of a late old result or still-pending current result");
+                seed();
+                return false;
+            }
+            if(stage==1){
+                hold();
+                var target=view.destinationChunk();
+                if(destination.getChunkSource().getChunkNow(target.x(),target.z())==null)return false;
+                // Retain the already-loaded column for inspection after the production transfer releases its own ticket.
+                game.maps().prepareChunk(destination,target);
+                destinationOriginal.putAll(column(destination,view.destinationChunk()));destinationCaptured=true;
+                for(var entity:entities(destination,view.destinationChunk()))destinationBefore.add(entity.getUUID());
+                require(destinationBefore.isEmpty(),"random destination has no foreign actors");
+                airProbe=target(chest.offset(3,0,0));require(source.getBlockState(chest.offset(3,0,0)).isAir(),"AIR probe source is empty");
+                destination.setBlock(airProbe,Blocks.IRON_BLOCK.defaultBlockState(),2);begin(2);return false;
+            }
+            if(stage==2){
+                hold();require(destination.getBlockState(airProbe).is(Blocks.IRON_BLOCK)&&source.getBlockState(chest).is(Blocks.CHEST),"both frozen footprints retain original content");
+                if(elapsed<3)return false;
+                game.items().timeStop().end(source);sourceStopped=false;begin(3);return false;
+            }
+            if(stage==3){
+                hold();if(elapsed<3)return false;
+                game.items().timeStop().begin(source,2000);sourceStopped=true;
+                game.items().timeStop().end(destination);destinationStopped=false;begin(4);return false;
+            }
+            if(stage==4){
+                hold();if(elapsed<3)return false;
+                for (var ride : retainedRides) {
+                    require(source.getEntity(ride.mount().getUUID()) == ride.mount()
+                                    && source.getEntity(ride.passenger().getUUID()) == ride.passenger()
+                                    && ride.passenger().getVehicle() == ride.mount(),
+                            "native source family reached residency before MOVE: " + ride.exclusion());
+                }
+                for(var id:positions.keySet())positions.put(id,Objects.requireNonNull(source.getEntity(id)).position());
+                game.items().timeStop().end(source);sourceStopped=false;begin(5);return false;
+            }
+            if(clone.pending()!=0){
+                var current=clone.snapshot().getFirst();require(!clone.captureReady()&&current.completed()>=lastCompleted,"construction barrier remains closed through monotonic native progress");
+                sawProgress|=current.completed()>0;lastCompleted=current.completed();
+                require(callbacks==0&&source.getEntity(itemId)!=null&&source.getEntity(vehicle.getUUID())!=null,"native entity transfer waits for the entire terrain MOVE");
+                for(var id:positions.keySet())lastSourcePositions.put(id,Objects.requireNonNull(source.getEntity(id)).position());
+                return false;
+            }
+            verify();return true;
+        }
+        void verify(){
+            game.items().timeStop().begin(source,2000);sourceStopped=true;
+            game.items().timeStop().begin(destination,2000);destinationStopped=true;
+            require(sawProgress&&clone.captureReady()&&!clone.sourceInFlight(source,sourceChunk)&&clone.snapshot().isEmpty()&&callbacks==1,"one fully completed native operation releases its construction barrier");
+            require(column(source,sourceChunk).isEmpty(),"entire full-height source becomes AIR without container drops");
+            for (var ride : retainedRides) {
+                var mount = ride.mount();
+                var rider = ride.passenger();
+                require(source.getEntity(mount.getUUID()) == mount && source.getEntity(rider.getUUID()) == rider
+                                && destination.getEntity(mount.getUUID()) == null && destination.getEntity(rider.getUUID()) == null
+                                && rider.getVehicle() == mount && mount.getPassengers().contains(rider),
+                        "both original native bodies stay mounted in the source for " + ride.exclusion());
+            }
+            require(destination.getBlockState(airProbe).isAir(),"source AIR overwrites pre-existing destination blocks");
+            for(var entry:sample.entrySet())require(destination.getBlockState(target(entry.getKey())).equals(entry.getValue().state()),"full-height translated distinct native block "+entry.getKey());
+            require(destination.getBlockEntity(target(chest)) instanceof Container,"container moves as an actual native block entity");
+            var inventory=(Container)destination.getBlockEntity(target(chest));int diamonds=0;
+            for(int i=0;i<inventory.getContainerSize();i++){var stack=inventory.getItem(i);require(stack.isEmpty()||i==4&&stack.is(Items.DIAMOND)&&stack.getCount()==7,"exact chest slot/stack, no duplicated inventory");diamonds+=stack.getCount();}
+            require(diamonds==sourceContainerItems&&source.getBlockEntity(chest)==null,"native container item count is conserved only at destination");
+            for(var entry:positions.entrySet()){
+                var moved=destination.getEntity(entry.getKey());require(moved!=null&&source.getEntity(entry.getKey())==null,"native entity UUID moved once across dimensions");
+                var old=originalBodies.get(entry.getKey());var expected=entry.getValue().add(delta);
+                require(moved.position().distanceToSqr(expected)<1e-8,"entity uses exact chunk-minimum delta, never absolute origin; uuid="+entry.getKey()+" type="+moved.getType()+" passenger="+(entry.getKey().equals(passenger.getUUID()))+" sourceOrigin="+entry.getValue()+" lastSource="+lastSourcePositions.get(entry.getKey())+" oldPosition="+old.position()+" oldLevel="+old.level().dimension()+" oldRemoved="+old.isRemoved()+" actual="+moved.position()+" expected="+expected+" difference="+moved.position().subtract(expected)+" delta="+delta+" sourceChunk="+sourceChunk+" targetMin="+view.targetMin());
+            }
+            var movedVehicle=destination.getEntity(vehicle.getUUID());var movedPassenger=destination.getEntity(passenger.getUUID());
+            require(movedPassenger.getVehicle()==movedVehicle&&movedVehicle.getPassengers().contains(movedPassenger),"native passenger links survive cross-world transfer");
+            var movedItem=destination.getEntity(itemId);require(movedItem instanceof ItemEntity item&&item.getItem().is(Items.EMERALD)&&item.getItem().getCount()==13,"actual thirteen-item entity stack retained");
+            var destinationItems=entities(destination,view.destinationChunk()).stream().filter(e->e instanceof ItemEntity).map(e->(ItemEntity)e).toList();
+            require(destinationItems.size()==1&&destinationItems.getFirst().getUUID().equals(itemId)&&entities(source,sourceChunk).stream().noneMatch(e->e instanceof ItemEntity),"one native item stack, no container drops or duplicate source items");
+            require(base.owner.level()==source&&base.owner.position().distanceToSqr(playerPosition)<1e-8&&source.getEntity(marker.getUUID())==marker&&destination.getEntity(marker.getUUID())==null,"players and source marker stay behind; playerLevel="+base.owner.level().dimension()+", source="+source.dimension()+", playerPos="+base.owner.position()+", expected="+playerPosition+", marker="+source.getEntity(marker.getUUID())+", markerRef="+marker+", markerRemoved="+marker.isRemoved()+", markerLevel="+marker.level().dimension());
+            require(centers.size()==3&&trees.size()==16,"completion supplies exactly three red centers and sixteen tree roots without seeding ecology");
+            for(var center:centers){var pos=BlockPos.containing(center);require(new ChunkPos(pos.getX()>>4,pos.getZ()>>4).equals(view.destinationChunk()),"center stays in translated chunk");}
+            for(int i=0;i<trees.size();i++)require(trees.get(i).equals(new Vec3(view.targetMin().getX()+8.5,destination.getMinY()+(destination.getHeight()-1)*i/15.0+.5,view.targetMin().getZ()+8.5)),"sixteen full-height source tree roots");
+        }
+        @Override public void close(){
+            if(closed)return;closed=true;boolean wasFrozen=game.server().tickRateManager().isFrozen();game.server().tickRateManager().setFrozen(true);
+            Throwable failure=null;
+            for(Runnable action:List.<Runnable>of(
+                    clone::stop,
+                    failedClone::stop,
+                    stalledClone::stop,
+                    recovery::close,
+                    freshNexus::close,
+                     () -> {
+                         if (retainedRides.isEmpty()) return;
+                         base.other.stopRiding();
+                         if (base.other.level() != source) {
+                             var at = base.at.add(12, 0, -12);
+                             base.other.teleportTo(source, at.x, at.y, at.z, Set.of(), 0, 0, true);
+                             audience.acknowledge();
+                         }
+                     },
+                    ()->{for(var level:List.of(source,destination))for(var id:owned){var entity=level.getEntity(id);if(entity!=null){if(entity instanceof LivingEntity living)game.items().indirectKills().clear(living);entity.discard();}}},
+                    ()->{if(sourceCaptured)restoreColumn(source,sourceChunk,sourceOriginal);},
+                    ()->{if(destinationCaptured)restoreColumn(destination,view.destinationChunk(),destinationOriginal);},
+                    ()->{if(sourceStopped)game.items().timeStop().end(source);if(destinationStopped)game.items().timeStop().end(destination);},
+                    base::close,
+                    originalCore::restoreFrozen,
+                    ()->require(originalLedger.restoreFrozen(id->game.server().getPlayerList().getPlayer(id)).isEmpty(),"original native causal ledger restored"),
+                    originalRandom::restoreFrozen,
+                    ()->{if(client!=null)client.close();if(audience!=null)audience.close();})){
+                try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+            }
+            game.server().tickRateManager().setFrozen(wasFrozen);if(failure!=null)throw new IllegalStateException("Nexus clone fixture restoration",failure);
+        }
+    }
+}

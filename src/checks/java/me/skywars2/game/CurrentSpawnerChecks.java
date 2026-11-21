@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
 import java.util.*;
+
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

@@ -2,6 +2,13 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.items.weapons.melee.LbcChargedSwords;
+import me.skywars2.game.items.weapons.melee.LbcMeleeItems;
+import me.skywars2.game.match.events.LbcPozdmanBot;
+import me.skywars2.game.world.terrain.LbcBlockModels;
+import me.skywars2.game.world.terrain.LbcConsumedBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import net.minecraft.core.*;

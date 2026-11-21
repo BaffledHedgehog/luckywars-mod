@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.world.maps.MapManager;
+
 /** Live checks of native dropped-item damage; no production state is installed by this suite. */
 public final class TypedItemChecks {
     private static final BlockPos BASE = new BlockPos(96, 260, 96);

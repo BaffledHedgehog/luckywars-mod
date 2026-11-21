@@ -2,7 +2,8 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.ArenaChunkAccess;
+import me.skywars2.game.world.maps.MapLighting;
+import me.skywars2.mixin.arena.ArenaChunkAccess;
 import me.skywars2.validation.mixin.NativeFixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;

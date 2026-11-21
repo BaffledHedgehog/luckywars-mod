@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.items.tools.LbcCraftingRecipe;
+import me.skywars2.game.items.weapons.melee.LbcMeleeItems;
+import me.skywars2.game.items.weapons.melee.LbcMetalPipe;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

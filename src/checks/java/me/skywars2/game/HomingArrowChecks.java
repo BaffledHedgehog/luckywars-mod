@@ -2,7 +2,14 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.WandProjectileMixin.ArrowAccess;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.entities.projectiles.LbcHomingArrows;
+import me.skywars2.game.items.gadgets.LbcImbaNativeItems;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -85,7 +92,7 @@ public final class HomingArrowChecks {
         Arrow spawn(){var body=new Arrow(level,owner,prototype.copyWithCount(1),weapon.copy());body.setPos(home);body.setDeltaMovement(Vec3.ZERO);body.setBaseDamage(7.25);body.setCritArrow(true);
             ((ArrowAccess)body).skywars2$setPierceLevel((byte)3);body.entityTags().add("fixture_homing_metadata");own(body);require(level.addFreshEntity(body),"actual original native arrow publication");
             require(service.state(body)!=null&&service.state(body).age()==0&&body.isNoGravity(),"source color activates typed state/noGravity on native load");
-            require(ItemStack.matches(body.getPickupItemStackOrigin(),expected)&&ItemStack.matches(body.getWeaponItem(),weapon)&&body.getOwner()==owner&&body.isCritArrow()&&((me.skywars2.mixin.ShulkerBowMixin.ArrowAccess)body).skywars2$baseDamage()==7.25&&body.getPierceLevel()==3&&body.entityTags().contains("fixture_homing_metadata"),"color-only conversion preserves exact ammo/effects/name/data/native owner/weapon/crit/pierce/tags");return body;}
+            require(ItemStack.matches(body.getPickupItemStackOrigin(),expected)&&ItemStack.matches(body.getWeaponItem(),weapon)&&body.getOwner()==owner&&body.isCritArrow()&&((me.skywars2.mixin.projectiles.ShulkerBowMixin.ArrowAccess)body).skywars2$baseDamage()==7.25&&body.getPierceLevel()==3&&body.entityTags().contains("fixture_homing_metadata"),"color-only conversion preserves exact ammo/effects/name/data/native owner/weapon/crit/pierce/tags");return body;}
         void field(boolean tech,Vec3 at){var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(at);remember(marker.blockPosition());remember(marker.blockPosition().above());marker.entityTags().add(tech?"stopper":"stopper_magic");own(marker);fields.add(marker);require(level.addFreshEntity(marker),"native suppression control");game.items().magic().loaded(marker);}
         void removeFields(){for(var marker:fields){game.items().magic().unloaded(marker);marker.discard();for(var p:List.of(marker.blockPosition(),marker.blockPosition().above())){var state=terrain.get(p);if(state!=null){game.maps().restoreSnapshot(level,p,state,2);game.items().magic().blockChanged(p,level.getBlockState(p));}}}fields.clear();}
         void begin(){setup();prototype();field(false,home);require(game.items().magic().suppressedAt(level,home)&&!game.items().magic().mechanismSuppressedAt(level,home),"positive MAG-only control");arrow=spawn();next(0);}

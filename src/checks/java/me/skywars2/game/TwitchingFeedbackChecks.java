@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.*;
+import me.skywars2.game.entities.mobs.LbcPsycho;
 
 /** Measures actual hand consumption and native presentation through the real status scheduler. */
 final class TwitchingFeedbackChecks {

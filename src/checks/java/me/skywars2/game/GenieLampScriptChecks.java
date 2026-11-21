@@ -9,8 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
+
+import me.skywars2.game.commands.SkyWarsFeedbackCommands;
+import me.skywars2.game.entities.mobs.summons.LbcSummons;
 import me.skywars2.game.genie.*;
 import me.skywars2.game.genie.script.*;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.wands.LbcSauvojen;
 import me.skywars2.validation.mixin.GenieFixtureAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.ChatFormatting;
@@ -27,6 +32,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.GameType;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Native lamp packets and inventory publication. The model observation is injected at the browser boundary. */
 final class GenieLampScriptChecks implements AutoCloseable {

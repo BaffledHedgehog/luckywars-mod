@@ -4,10 +4,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import me.skywars2.game.combat.MatchDamageSources;
 import me.skywars2.game.genie.GenieScriptItem;
 import me.skywars2.game.genie.GenieScriptRuntime;
 import me.skywars2.game.genie.script.ScriptRepository;
-import me.skywars2.mixin.CombatCheckpointAccess;
+import me.skywars2.game.items.weapons.ranged.LbcProjectileWeaponItems;
+import me.skywars2.game.match.checkpoints.MatchCombatCheckpoint;
+import me.skywars2.mixin.combat.CombatCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;

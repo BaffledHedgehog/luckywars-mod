@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.wands.LbcElementalGrimoires;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
@@ -9,6 +10,8 @@ import net.minecraft.world.entity.Marker;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import java.util.*;
+import me.skywars2.game.items.wands.LbcConsuming;
+import me.skywars2.game.skills.clone.LbcDuplicating;
 
 /** Actual consumed terrain-book input; the full shared wand suites exercise the terrain work. */
 public final class TerrainGrimoireChecks {

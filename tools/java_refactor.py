@@ -9,6 +9,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from hashlib import sha256
 import json
+from itertools import groupby
 import os
 from pathlib import Path
 from queue import Empty, Queue
@@ -213,26 +214,37 @@ class PreparedEdit:
 
     def write(self) -> None:
         touched = [path.relative_to(self.root).as_posix() for path in self.initial]
-        require(not git(self.root, "status", "--porcelain=v1", "--", *touched),
-                "A file from the WorkspaceEdit is no longer clean")
+        clean_worktree(self.root)
+        tracked = set(git(self.root, "ls-files", "-z").split("\0"))
         for path, expected in self.initial.items():
             current = path.read_bytes() if path.is_file() else None
             require(current == expected, f"Source changed after hash validation: {path}")
             if expected is not None:
-                git(self.root, "ls-files", "--error-unmatch", "--", path.relative_to(self.root).as_posix())
+                require(path.relative_to(self.root).as_posix() in tracked, f"Source is not tracked: {path}")
         indexed = {path for path, original in self.initial.items() if original is not None}
         try:
-            for op in self.operations:
-                if op.kind == "rename":
-                    if op.path in indexed:
-                        git(self.root, "mv", "--", op.path.relative_to(self.root).as_posix(),
-                            op.payload.relative_to(self.root).as_posix())
-                        indexed.remove(op.path)
-                        indexed.add(op.payload)
+            def rename_directory(op):
+                return op.payload.parent if op.kind == "rename" and op.payload.name == op.path.name else None
+
+            for destination, consecutive in groupby(self.operations, key=rename_directory):
+                operations = list(consecutive)
+                if destination is not None and len(operations) > 1 and all(op.path in indexed for op in operations):
+                    paths = [op.path.relative_to(self.root).as_posix() for op in operations]
+                    git(self.root, "mv", "--", *paths, destination.relative_to(self.root).as_posix())
+                    indexed.difference_update(op.path for op in operations)
+                    indexed.update(op.payload for op in operations)
+                    continue
+                for op in operations:
+                    if op.kind == "rename":
+                        if op.path in indexed:
+                            git(self.root, "mv", "--", op.path.relative_to(self.root).as_posix(),
+                                op.payload.relative_to(self.root).as_posix())
+                            indexed.remove(op.path)
+                            indexed.add(op.payload)
+                        else:
+                            op.path.rename(op.payload)  # A prior CreateFile is not tracked yet.
                     else:
-                        op.path.rename(op.payload)  # A prior CreateFile is not tracked yet.
-                else:
-                    atomic_bytes(op.path, op.payload)
+                        atomic_bytes(op.path, op.payload)
             actual = {path: path.read_bytes() if path.is_file() else None for path in self.final}
             require(actual == self.final, "Applied worktree content differs from the JDT preview")
         except (OSError, ValueError, subprocess.CalledProcessError):
@@ -241,7 +253,9 @@ class PreparedEdit:
                     path.unlink(missing_ok=True)
                 else:
                     atomic_bytes(path, original)
-            git(self.root, "reset", "--quiet", "HEAD", "--", *touched)
+            pathspec = b"".join(path.encode("utf-8") + b"\0" for path in touched)
+            subprocess.run(["git", "reset", "--quiet", "HEAD", "--pathspec-from-file=-", "--pathspec-file-nul"],
+                           cwd=self.root, input=pathspec, check=True)
             raise
 
 
@@ -549,6 +563,7 @@ def requested_groups(args, root: Path) -> list[MoveGroup]:
     destinations = set()
     groups = []
     roots = [root / name for name in source_roots(args, root)]
+    tracked = set(git(root, "ls-files", "-z").split("\0"))
     for group in batch:
         files = [worktree_path(root, Path(name)) for name in group["sources"]]
         require(bool(files) and len({p.parent for p in files}) == 1,
@@ -563,7 +578,7 @@ def requested_groups(args, root: Path) -> list[MoveGroup]:
                     f"Duplicate batch source or destination: {file} -> {target}")
             require(file.suffix == ".java" and file.is_file()
                     and any(file.is_relative_to(source) for source in roots), f"Invalid Java source: {file}")
-            git(root, "ls-files", "--error-unmatch", "--", file.relative_to(root).as_posix())
+            require(file.relative_to(root).as_posix() in tracked, f"Source is not tracked: {file}")
             seen.add(file)
             destinations.add(target)
         groups.append(MoveGroup(files, destination))
@@ -596,6 +611,9 @@ def plan(args, root: Path) -> None:
     with client:
         client.initialize(project)
         for index, group in enumerate(groups):
+            if len(groups) > 1:
+                print(f"JDT move {index + 1}/{len(groups)}: {group.destination.relative_to(root)}",
+                      file=sys.stderr, flush=True)
             shadow_group = MoveGroup([view / path.relative_to(root) for path in group.sources],
                                      view / group.destination.relative_to(root))
             edit = request_move(client, view, links, shadow_group)
@@ -614,7 +632,8 @@ def plan(args, root: Path) -> None:
                     }})
                     symbols = client.request("textDocument/documentSymbol", {"textDocument": {"uri": uri}})
                     client.send(method="textDocument/didClose", params={"textDocument": {"uri": uri}})
-                    require(any(symbol.get("name") == path.stem for symbol in symbols or []),
+                    require(any(symbol.get("name", "").split("<", 1)[0].split("(", 1)[0].strip() == path.stem
+                                for symbol in symbols or []),
                             f"JDT has not indexed the moved declaration: {path} ({symbols})")
     require(clean_worktree(root) == head, "Worktree changed while JDT was planning the move")
     source_links = {alias: root / path.relative_to(view) for alias, path in links.items()}
@@ -663,21 +682,29 @@ def diagnose(args, root: Path) -> None:
     diagnostics = {}
     with client:
         client.initialize(project)
-        for file in sorted(wanted):
-            client.send(method="textDocument/didOpen", params={"textDocument": {
-                "uri": file.as_uri(), "languageId": "java", "version": 1,
-                "text": file.read_bytes().decode("utf-8-sig"),
-            }})
-        deadline = monotonic() + args.timeout
-        while wanted - diagnostics.keys():
-            message = client.receive(deadline)
-            if message.get("method") == "textDocument/publishDiagnostics":
+        ordered = sorted(wanted)
+        batch_size = 120
+        for start in range(0, len(ordered), batch_size):
+            active = set(ordered[start:start + batch_size])
+            for file in sorted(active):
+                client.send(method="textDocument/didOpen", params={"textDocument": {
+                    "uri": file.as_uri(), "languageId": "java", "version": 1,
+                    "text": file.read_bytes().decode("utf-8-sig"),
+                }})
+            deadline = monotonic() + args.timeout
+            while active - diagnostics.keys():
+                message = client.receive(deadline)
+                if message.get("method") != "textDocument/publishDiagnostics":
+                    continue
                 params = message["params"]
                 if params.get("version") not in {None, 1}:
                     continue
                 file = within_links(root, params["uri"], links)
-                if file in wanted:
+                if file in active:
                     diagnostics[file] = params["diagnostics"]
+            for file in sorted(active):
+                client.send(method="textDocument/didClose", params={"textDocument": {"uri": file.as_uri()}})
+            print(f"JDT reconciled {len(diagnostics)}/{len(ordered)} worktree files", file=sys.stderr, flush=True)
     errors = {file.relative_to(root).as_posix(): records for file, records in diagnostics.items()
               if any(record.get("severity", 1) == 1 for record in records)}
     dump_json(output, {"files": {file.relative_to(root).as_posix(): records

@@ -2,6 +2,13 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ShadowAbsorption;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.items.weapons.ranged.LbcChargedBowItems;
+import me.skywars2.game.match.events.LbcSupernova;
+import me.skywars2.game.modes.legacy.LbcBalanceItems;
+import me.skywars2.game.presentation.effects.AtlasGlitchSignal;
+import me.skywars2.game.world.maps.MapManager;
 import me.skywars2.validation.mixin.MapValidationAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;

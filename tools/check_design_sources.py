@@ -592,7 +592,7 @@ def check_looper_artifact_source(project: Path, source_manifest: Path) -> int:
                      source_text, re.MULTILINE):
         raise AssertionError("Source Looper function no longer removes only unresolved_artifact")
 
-    implementation = (project / "src/main/java/me/skywars2/game/LbcSkills.java").read_text(encoding="utf-8-sig")
+    implementation = (project / "src/main/java/me/skywars2/game/skills/LbcSkills.java").read_text(encoding="utf-8-sig")
     key_list = re.search(r"ARTIFACT_KEYS\s*=\s*List\.of\((.*?)\);", implementation, re.DOTALL)
     if key_list is None:
         raise AssertionError("LbcSkills does not declare the explicit ARTIFACT_KEYS list")

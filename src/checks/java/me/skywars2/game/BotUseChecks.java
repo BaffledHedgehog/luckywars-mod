@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.tmt.LbcTmtExtraUses;
+import me.skywars2.game.items.weapons.melee.LbcSoulhunter;
+import me.skywars2.game.modes.legacy.LbcBalanceItems;
+import me.skywars2.game.world.nexus.LbcNexusToolItems;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;

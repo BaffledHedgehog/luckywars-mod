@@ -1,9 +1,10 @@
 package me.skywars2.game.items.phone;
 
 import me.skywars2.game.GameController;
-import me.skywars2.game.LbcSpecialArtifactItems;
 import me.skywars2.game.NetworkTransportChecks;
 import me.skywars2.game.WoolBucketChecks;
+import me.skywars2.game.items.gadgets.LbcSpecialArtifactItems;
+
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;

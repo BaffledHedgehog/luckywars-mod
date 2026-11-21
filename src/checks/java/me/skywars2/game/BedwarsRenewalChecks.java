@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.match.events.LbcSupernova;
+import me.skywars2.game.modes.bedwars.LbcBedwars;
+import me.skywars2.game.modes.bedwars.LbcBedwarsAuxiliaries;
+import me.skywars2.game.modes.bedwars.LbcBedwarsShop;
+import me.skywars2.game.modes.legacy.LbcBalanceItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;

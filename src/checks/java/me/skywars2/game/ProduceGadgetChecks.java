@@ -2,6 +2,16 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.drops.LbcKapusta;
+import me.skywars2.game.items.drops.LbcKapustaItem;
+import me.skywars2.game.items.gadgets.LbcPumpkinator;
+import me.skywars2.game.items.gadgets.LbcPumpkinatorItem;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -15,6 +25,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.*;
+import me.skywars2.game.modes.bedwars.LbcBedwarsArena;
+import me.skywars2.game.skills.clone.LbcCloneSkills;
 
 /** Operator checks drive real item inputs, resident terrain work and the whole native rewind coordinator. */
 public final class ProduceGadgetChecks {

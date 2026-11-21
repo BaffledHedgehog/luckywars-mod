@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.drops.LbcEternalWealth;
+import me.skywars2.game.items.drops.LbcEternalWealthItems;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.world.terrain.LbcDropBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;

@@ -3,6 +3,12 @@ package me.skywars2.game;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.drops.LbcBucksTrader;
+import me.skywars2.game.items.trinkets.LbcTrinkets;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;

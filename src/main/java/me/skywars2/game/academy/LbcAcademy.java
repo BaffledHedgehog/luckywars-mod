@@ -1,0 +1,704 @@
+package me.skywars2.game.academy;
+
+import eu.pb4.polymer.core.api.item.SimplePolymerItem;
+import me.skywars2.game.GameController;
+import me.skywars2.game.entities.mobs.LbcSheep;
+import me.skywars2.game.entities.mobs.LbcSoulless;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogItems;
+import me.skywars2.game.entities.projectiles.LbcDanmaku;
+import me.skywars2.game.items.drops.LbcChaosRewardItems;
+import me.skywars2.game.items.gadgets.LbcHalloweenWind;
+import me.skywars2.game.items.wands.LbcAir;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcMusicStaff;
+import me.skywars2.game.items.wands.LbcRuby;
+import me.skywars2.game.items.wands.LbcTerra;
+import me.skywars2.game.items.wands.LbcWands;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import me.skywars2.game.effects.magic.LbcOverload;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.gadgets.LbcModeScroll;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.match.checkpoints.MatchAcademyCheckpoint;
+
+/** Постройка Academy и событийные испытания уже перенесённых жезлов. */
+public final class LbcAcademy {
+    private static final Identifier TEMPLATE = Identifier.parse("lbc:magic_academy");
+    private static final String ENTITY_TAG = "skywars2.academy";
+    private static final String BUILDING_TAG = "skywars2.academy.building";
+    public static final String SINGLE_USE_WELCOME = "welcome_to_single_use_academy";
+    private static final String SINGLE_PANEL = "skywars2.academy.single_panel";
+    private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
+    public static final Item TOKEN = registerToken();
+    private enum Wand {
+        MUSIC("music_staff",LbcMusicStaff.ITEM,LbcMusicStaff.ACADEMY,"a","upgrade_condition_music_staff","upgrade_succesful_music_staff"),
+        SAUVOJEN("sauvojen_wand",LbcWands.SAUVOJEN,LbcWands.ACADEMY_SAUVOJEN,"x","upgrade_condition_sauvojen_wand","upgrade_succesful_sauvojen_wand"),
+        HEDGEHOG("baffledhedgehog",LbcHedgehogItems.WAND,LbcHedgehogItems.ACADEMY,"s","upgrade_condition_baffledhedgehog","upgrade_succesful_baffledhedgehog"),
+        SHEEP("sheepwand",LbcSheep.ITEM,LbcSheep.ACADEMY_ITEM,"x","upgrade_condition_sheepwand","upgrade_succesful_sheepwand"),
+        DANMAKU("danmaku_staff",LbcDanmaku.ITEM,LbcDanmaku.ACADEMY,"s","upgrade_condition_danmaku_staff","upgrade_succesful_danmaku_staff"),
+        ACID("stacid",LbcWands.ACID_WAND,LbcWands.ACADEMY_ACID_WAND,"a","upgrade_condition_stacid","upgrade_succesful_stacid"),
+        SOULLESS("soulcorrupter",LbcSoulless.WAND,LbcSoulless.ACADEMY_WAND,"a","upgrade_condition_soulcorrupter","upgrade_succesful_soulcorrupter"),
+        VEX_WIND("vex_wand",LbcHalloweenWind.WIND,LbcHalloweenWind.ACADEMY_WIND,"a","upgrade_condition_vex","upgrade_succesful_vex"),
+        FARTUS("fartus_nadristailo",LbcFartus.ITEM,LbcFartus.ACADEMY,"x","upgrade_condition_fartus_nadristailo","upgrade_succesful_fartus_nadristailo"),
+        ICE("ice_wand",LbcWands.ICE,LbcWands.ACADEMY_ICE,"ss","upgrade_condition_ice","upgrade_succesful_ice"),
+        CORRUPTION("corrupter",LbcWands.CORRUPTION,LbcWands.ACADEMY_CORRUPTION,"c","upgrade_condition_corrupter","upgrade_succesful_corrupter"),
+        ACID_CORRUPTION("acidcorrupt_wand",LbcWands.ACID_CORRUPTION,LbcWands.ACADEMY_ACID_CORRUPTION,"ss","upgrade_condition_acidcorrupt","upgrade_succesful_acidcorrupt"),
+        ERECTO("erecto_wand",LbcWands.ERECTO,LbcWands.ACADEMY_ERECTO,"ss","upgrade_condition_erecto","upgrade_succesful_erecto"),
+        TESLA("lightningwand",LbcWands.TESLA,LbcWands.ACADEMY_TESLA,"a","upgrade_condition_lightningwand","upgrade_succesful_lightningwand"),
+        AWAKENED_ACID("acidacid_wand", LbcWands.AWAKENED_ACID, LbcWands.ACADEMY_AWAKENED_ACID, "ss", "upgrade_condition_acidacid", "upgrade_succesful_acidacid"),
+        GAYCASTER("gaycaster", LbcWands.GAYCASTER, LbcWands.ACADEMY_GAYCASTER, "s", "upgrade_condition_gaycaster", "upgrade_succesful_gaycaster"),
+        PRISM("prisma", LbcWands.PRISM, LbcWands.ACADEMY_PRISM, "ss", "upgrade_condition_prisma", "upgrade_succesful_prisma"),
+        CAUSTIC("acidwand", LbcWands.CAUSTIC, LbcWands.ACADEMY_CAUSTIC, "c", "upgrade_condition_acid", "upgrade_succesful_acid"),
+        OMEGA("omegaflag", LbcWands.OMEGA, LbcWands.ACADEMY_OMEGA, "b", "upgrade_condition_omegaflag", "upgrade_succesful_omegaflag"),
+        ADVANCED_ENDER("advancedteleport", LbcWands.ADVANCED_ENDER, LbcWands.ACADEMY_ADVANCED_ENDER, "s", "upgrade_condition_advancedteleport", "upgrade_succesful_advancedteleport"),
+        SNOW("snow_wand", LbcWands.SNOW, LbcWands.ACADEMY_SNOW, "b", "upgrade_condition_snow", "upgrade_succesful_snow"),
+        ENDER("enderwand", LbcWands.ENDER, LbcWands.ACADEMY_ENDER, "a", "upgrade_condition_enderwand", "upgrade_succesful_enderwand"),
+        BAD_WIKI("badwiki", LbcWands.BAD_WIKI, LbcWands.ACADEMY_BAD_WIKI, "a", "upgrade_condition_badwiki", "upgrade_succesful_badwiki"),
+        NEUTRAL("neutralmage", LbcWands.NEUTRAL, LbcWands.ACADEMY_NEUTRAL, "a", "upgrade_condition_neutralmage", "upgrade_succesful_neutralmage"),
+        BLOOD("bloodmagic", LbcWands.BLOOD, LbcWands.ACADEMY_BLOOD, "a", "upgrade_condition_bloodmagic", "upgrade_succesful_bloodmagic"),
+        CONFUSE("foxusing", LbcWands.CONFUSE, LbcWands.ACADEMY_CONFUSE, "a", "upgrade_condition_foxusing", "upgrade_succesful_foxusing"),
+        EVOKER("evocator", LbcWands.EVOKER, LbcWands.ACADEMY_EVOKER, "b", "upgrade_condition_evocator", "upgrade_succesful_evocator"),
+        BASS("bassboost", LbcWands.BASS, LbcWands.ACADEMY_BASS, "b", "upgrade_condition_bassboost", "upgrade_succesful_bassboost"),
+        LIFESTEALER("lifestealer", LbcWands.LIFESTEALER, LbcWands.ACADEMY_LIFESTEALER, "a", "upgrade_condition_lifestealer", "upgrade_succesful_lifestealer"),
+        FIRE("stfire", LbcWands.FIRE_WAND, LbcWands.ACADEMY_FIRE, "a", "upgrade_condition_stfire", "upgrade_succesful_stfire"),
+        BLAZE("fallingstars", LbcWands.BLAZE_WAND, LbcWands.ACADEMY_BLAZE, "a", "upgrade_condition_fallingstars", "upgrade_succesful_fallingstars"),
+        FIREBLAZE("fireblaze_wand", LbcWands.FIREBLAZE, LbcWands.ACADEMY_FIREBLAZE, "s", "upgrade_condition_fireblaze", "upgrade_succesful_fireblaze"),
+        FALLING_STARS("truefallingstars", LbcWands.FALLING_STARS_WAND, LbcWands.ACADEMY_FALLING_STARS, "a", "upgrade_condition_truefallingstars", "upgrade_succesful_truefallingstars"),
+        LIGHTNING_BOLTS("lightning_bolts", LbcWands.LIGHTNING_BOLTS_WAND, LbcWands.ACADEMY_LIGHTNING_BOLTS, "s", "upgrade_condition_lightning_bolt", "upgrade_succesful_lightning_bolt"),
+        BOLTBOLT("boltbolt_wand", LbcWands.BOLTBOLT, LbcWands.ACADEMY_BOLTBOLT, "ss", "upgrade_condition_boltbolt", "upgrade_succesful_boltbolt"),
+        CONSUMING("consuming_wand", LbcWands.CONSUMING, LbcWands.ACADEMY_CONSUMING, "x", "upgrade_condition_consuming", "upgrade_succesful_consuming"),
+        DUPLICATING("dublicating_wand", LbcWands.DUPLICATING, LbcWands.ACADEMY_DUPLICATING, "ss", "upgrade_condition_dublicating", "upgrade_succesful_dublicating"),
+        EXAHOMING("exahoming_wand", LbcWands.EXAHOMING, LbcWands.ACADEMY_EXAHOMING, "x", "upgrade_condition_exahoming", "upgrade_succesful_exahoming"),
+        STONE("ststone", LbcWands.STONE_WAND, LbcWands.ACADEMY_STONE, "a", "upgrade_condition_ststone", "upgrade_succesful_ststone"),
+        BEDROCK("bedrock_wand", LbcWands.BEDROCK, LbcWands.ACADEMY_BEDROCK, "ss", "upgrade_condition_bedrock", "upgrade_succesful_bedrock"),
+        WALL("wall", LbcWands.WALL, LbcWands.ACADEMY_WALL, "a", "upgrade_condition_wall", "upgrade_succesful_wall"),
+        STONEKIVI("stonekivi_wand", LbcWands.STONEKIVI, LbcWands.ACADEMY_STONEKIVI, "x", "upgrade_condition_stonekivi", "upgrade_succesful_stonekivi"),
+        PSYCHOWAND("psychowand", LbcWands.PSYCHOWAND, LbcWands.ACADEMY_PSYCHOWAND, "b", "upgrade_condition_psychowand", "upgrade_succesful_psychowand"),
+        PSYCHOBLIND("psychoblind_wand", LbcWands.PSYCHOBLIND, LbcWands.ACADEMY_PSYCHOBLIND, "ss", "upgrade_condition_psychoblind", "upgrade_succesful_psychoblind"),
+        BLIND("stblind", LbcWands.BLIND_WAND, LbcWands.ACADEMY_BLIND, "b", "upgrade_condition_stblind", "upgrade_succesful_stblind"),
+        AIR("stair", LbcWands.AIR_WAND, LbcWands.ACADEMY_AIR, "s", "upgrade_condition_stair", "upgrade_succesful_stair"),
+        TELEPORT("stteleport", LbcWands.TELEPORT_WAND, LbcWands.ACADEMY_TELEPORT, "a", "upgrade_condition_stteleport", "upgrade_succesful_stteleport"),
+        RUBY("struby", LbcWands.RUBY_WAND, LbcWands.ACADEMY_RUBY, "b", "upgrade_condition_struby", "upgrade_succesful_struby"),
+        EXOPERSO("exoperso", LbcWands.EXOPERSO, LbcWands.ACADEMY_EXOPERSO, "s", "upgrade_condition_exoperso", "upgrade_succesful_exoperso"),
+        TERRA("stterra", LbcWands.TERRA, LbcWands.ACADEMY_TERRA, "a", "upgrade_condition_stterra", "upgrade_succesful_stterra"),
+        ELECTRO("stelectro", LbcWands.ELECTRO, LbcWands.ACADEMY_ELECTRO, "a", "upgrade_condition_stelectro", "upgrade_succesful_stelectro"),
+        EXASPERATO("exasperato", LbcWands.EXASPERATO, LbcWands.ACADEMY_EXASPERATO, "x", "upgrade_condition_exasperato", "upgrade_succesful_exasperato");
+        final String key, flag, tier, conditionKey, successKey;
+        final Item base, upgraded;
+        Wand(String key, Item base, Item upgraded, String tier, String conditionKey, String successKey) {
+            this.key = key; this.flag = key.equals("exasperato") ? "exasperato_wand" : key;
+            this.base = base; this.upgraded = upgraded; this.tier = tier;
+            this.conditionKey=conditionKey; this.successKey=successKey;
+        }
+    }
+    /** Shared reverse progression: downgrades use the same native pairs as Academy upgrades. */
+    public static Item baseWandItem(Item upgraded){for(var wand:Wand.values())if(wand.upgraded==upgraded)return wand.base;return upgraded;}
+    private static final class WandItems {
+        static final java.util.Set<Item> VALUES=java.util.Arrays.stream(Wand.values())
+                .flatMap(wand->java.util.stream.Stream.of(wand.base,wand.upgraded)).collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+    public static java.util.Set<Item> wandItems(){return WandItems.VALUES;}
+    private static Item registerToken() {
+        var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:academy_token"));
+        var data = new CompoundTag(); data.putInt("academy_token", 1);
+        return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(
+                new Item.Properties().setId(key).overrideDescription("academy_token")
+                        .component(DataComponents.ITEM_MODEL, Identifier.parse("lbc:advancement_icon/academy"))
+                        .component(DataComponents.CUSTOM_DATA, CustomData.of(data)), Items.PAPER, true));
+    }
+    public static void register() { }
+    private static CompoundTag flag(String name) { var tag = new CompoundTag(); tag.putInt(name, 1); return tag; }
+    private static CompoundTag data(ItemStack stack) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+    }
+    private static Wand wand(ItemStack stack) {
+        var tag = data(stack);
+        for (var wand : Wand.values())
+            if (stack.is(wand.base) || stack.is(wand.upgraded) || tag.getIntOr(wand.flag, 0) == 1) return wand;
+        return null;
+    }
+    public static boolean trial(ItemStack stack) {
+        var tag = data(stack);
+        return tag.getIntOr("upgradable", 0) == 1 && tag.getIntOr("upgraded", 0) != 1;
+    }
+    /** Pure admission for a player deciding whether another teacher visit is useful. */
+    public boolean canStudy(ItemStack stack){
+        if(stack.isEmpty())return false;
+        var wand=wand(stack);if(wand==null||stack.is(wand.upgraded))return false;
+        var tag=data(stack);
+        return tag.getIntOr("upgraded",0)!=1&&tag.getIntOr("pissed_by_madoka_sob_sob_sob_sob_sob",0)!=1
+                &&(tag.getIntOr("upgradable",0)!=1||tag.getIntOr("upgrade_available",0)==1);
+    }
+    public boolean acceptsStudent(Entity target){
+        var academy=singleUse.get(target.getUUID());
+        return target.isAlive()&&!target.isRemoved()&&target.entityTags().contains("magic_academy")
+                &&!target.entityTags().contains(BUILDING_TAG)&&(academy==null||!academy.spent);
+    }
+    private final GameController game;
+    private static final Set<Integer> TRANSPARENT=java.util.concurrent.ConcurrentHashMap.newKeySet();
+    public static boolean transparentInteraction(Entity entity){return entity instanceof net.minecraft.world.entity.Interaction&&entity.entityTags().contains("magic_academy");}
+    public static java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> transparentMetadata(int id,
+            java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> fields){
+        if(!TRANSPARENT.contains(id))return fields;
+        var width=me.skywars2.mixin.academy.AcademyInteractionMixin.Data.skywars2$width();
+        var height=me.skywars2.mixin.academy.AcademyInteractionMixin.Data.skywars2$height();
+        var result=new java.util.ArrayList<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>>();
+        for(var value:fields)if(value.id()!=width.id()&&value.id()!=height.id())result.add(value);
+        result.add(new net.minecraft.network.syncher.SynchedEntityData.DataValue<>(width.id(),net.minecraft.network.syncher.EntityDataSerializers.FLOAT,0f));
+        result.add(new net.minecraft.network.syncher.SynchedEntityData.DataValue<>(height.id(),net.minecraft.network.syncher.EntityDataSerializers.FLOAT,0f));
+        return java.util.List.copyOf(result);
+    }
+    public static void publishInteraction(Entity entity){if(transparentInteraction(entity))TRANSPARENT.add(entity.getId());}
+
+    private static boolean teachingItem(ItemStack stack) {
+        return wand(stack)!=null || LbcChaosRewardItems.book(stack)
+                || data(stack).getIntOr("staff",0)==1 || data(stack).getIntOr("magicwand",0)==1;
+    }
+    /** A wand click belongs exclusively to the teacher, including rejected/finished upgrades. */
+    public boolean tryUse(ServerPlayer player,InteractionHand hand){
+        if(LbcModeScroll.scrolling()
+                ||!active(player)||game.items().actionsBlocked(player)
+                ||!teachingItem(player.getItemInHand(hand)))return false;
+        // Promotion may already have discarded a single-use teacher. The rest
+        // of this click still belongs to the academy, even without its hitbox.
+        if(lastInteractions.getOrDefault(player.getUUID(),Long.MIN_VALUE)==player.level().getGameTime())return true;
+        var from=player.getEyePosition();var to=from.add(player.getLookAngle().scale(player.entityInteractionRange()));
+        var wall=player.level().clip(new net.minecraft.world.level.ClipContext(from,to,net.minecraft.world.level.ClipContext.Block.OUTLINE,
+                net.minecraft.world.level.ClipContext.Fluid.NONE,player));
+        double nearest=from.distanceToSqr(wall.getLocation());Entity selected=null;
+        for(var target:entities)if(transparentInteraction(target)&&!target.isRemoved()&&target.level()==player.level()){
+            var box=target.getBoundingBox();var hit=box.contains(from)?java.util.Optional.of(from):box.clip(from,to);
+            if(hit.isPresent()&&from.distanceToSqr(hit.get())<=nearest){nearest=from.distanceToSqr(hit.get());selected=target;}
+        }
+        if(selected==null)return false;
+        interact(player,hand,selected);
+        return true;
+    }
+    private final Set<ItemEntity> drops = new LinkedHashSet<>();
+    private final Set<Entity> entities = new HashSet<>();
+    private final Map<UUID, Long> lastInteractions = new HashMap<>();
+    private final ArrayDeque<Placement> placements = new ArrayDeque<>();
+    private final Map<UUID,Placement> singleUse = new HashMap<>();
+    private final Map<GlobalPos,Placement> panelOwners = new HashMap<>();
+    private final Set<GlobalPos> pendingWhite = new HashSet<>();
+    private boolean wasStopped;
+    // Источники одной серии ссылаются на один счётчик: 85 TNT не дают 85 очков за одну цель.
+    private final Map<Entity, BlastTrial> blastSources = new IdentityHashMap<>();
+    private Placement placing;
+    private static final class Placement {
+        final StructureTemplate template;
+        final ServerLevel level;
+        final BlockPos origin;
+        final Vec3 source;
+        final String epoch;
+        final boolean token;
+        final Set<Entity> spawned = new HashSet<>();
+        final Set<GlobalPos> panels = new HashSet<>();
+        final List<BlockPos> background;
+        boolean spent;
+        final long seed;
+        int row;
+        Placement(StructureTemplate template, ServerLevel level, BlockPos origin, Vec3 source,
+                  String epoch, boolean token, long seed) {
+            this.template = template; this.level = level; this.origin = origin; this.source = source;
+            this.epoch = epoch; this.token = token; this.seed = seed;
+            this.background = template.filterBlocks(origin,new StructurePlaceSettings(),
+                    Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE)).stream().map(block -> block.pos().immutable()).toList();
+        }
+    }
+    public static final class BlastTrial {
+        final UUID owner;
+        final Wand wand;
+        final InteractionHand hand;
+        final Vec3 origin;
+        public final Set<UUID> targets = new HashSet<>();
+        public boolean completed;
+        public BlastTrial(ServerPlayer owner) { this(owner,Wand.EXASPERATO,InteractionHand.MAIN_HAND,null); }
+        BlastTrial(ServerPlayer owner,Wand wand,InteractionHand hand,Vec3 origin) {
+            this.owner=owner.getUUID(); this.wand=wand; this.hand=hand; this.origin=origin;
+        }
+    }
+    public LbcAcademy(GameController game) { this.game = game; }
+    /** Разбор старой NBT/DFU выполняем при загрузке ресурсов, до первого токена в бою. */
+    public void prepare() { game.server().getStructureTemplateManager().get(TEMPLATE); }
+
+    /** Съедаем также offhand callback: нажатие по NPC не должно одновременно кастовать жезл. */
+    public boolean interact(ServerPlayer player, InteractionHand hand, Entity target) {
+        if (!target.entityTags().contains("magic_academy")) return false;
+        if(!teachingItem(player.getItemInHand(hand)))return false;
+        if(hand!=InteractionHand.MAIN_HAND)return true;
+        var academy = singleUse.get(target.getUUID());
+        if (target.isRemoved() || !target.isAlive() || academy != null && academy.spent) return true;
+        if (target.entityTags().contains(BUILDING_TAG)) return true;
+        if (hand != InteractionHand.MAIN_HAND || !active(player) || target.level() != player.level()
+                || game.items().frost().isFrozen(player) || player.entityTags().contains("time_stopped")
+                || game.items().timeStop().stopped(player.level())) return true;
+        String dimension = player.level().dimension().identifier().toString();
+        if (dimension.equals("minecraft:nexus") || dimension.equals("minecraft:imprinted")) return true;
+        // interaction_at + interaction одного клиентского клика могут прийти в одном тике.
+        long now = player.level().getGameTime();
+        if (lastInteractions.getOrDefault(player.getUUID(), Long.MIN_VALUE) == now) return true;
+        lastInteractions.put(player.getUUID(), now);
+        var stack = player.getMainHandItem(); var wand = wand(stack);
+        if(LbcChaosRewardItems.book(stack)){
+            boolean upgraded=data(stack).getIntOr("upgraded",0)==1;
+            LbcChaosRewardItems.academy(game,player,hand);
+            if(!upgraded&&data(stack).getIntOr("upgraded",0)==1){
+                if(academy!=null)consume(academy);
+                game.lbc().academyPromoted(player);
+            }
+            return true;
+        }
+        if (wand == null) return true; // Остальным жезлам пока не обещаем несуществующие улучшения.
+        var tag = data(stack);
+        if (tag.getIntOr("pissed_by_madoka_sob_sob_sob_sob_sob", 0) == 1) return true;
+        player.sendSystemMessage(Component.translatable("magic_academy_root").withStyle(ChatFormatting.GREEN));
+        if (tag.getIntOr("upgraded", 0) == 1 || stack.is(wand.upgraded)) {
+            player.sendSystemMessage(Component.translatable("already_upgraded"));
+        } else if (tag.getIntOr("upgrade_available", 0) == 1) {
+            tag.putInt("upgraded", 1); tag.putInt("mode", 1);
+            var upgraded = stack.transmuteCopy(wand.upgraded);
+            upgraded.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            upgraded.set(DataComponents.TOOLTIP_STYLE, Identifier.parse("lbc:tier_" + wand.tier));
+            if(wand==Wand.FARTUS){
+                var presentations=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/academy_fartus_wand");
+                if(presentations.isEmpty())throw new IllegalStateException("Missing qualified Fartus presentation");
+                var presentation=presentations.getFirst();
+                upgraded.set(DataComponents.LORE,presentation.getOrDefault(DataComponents.LORE,ItemLore.EMPTY));
+                upgraded.set(DataComponents.ITEM_MODEL,presentation.get(DataComponents.ITEM_MODEL));
+                upgraded.set(DataComponents.ATTRIBUTE_MODIFIERS,presentation.get(DataComponents.ATTRIBUTE_MODIFIERS));
+            }else if(wand==Wand.MUSIC){
+                var presentation=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/academy_music_staff").getFirst();
+                upgraded.set(DataComponents.LORE,presentation.getOrDefault(DataComponents.LORE,ItemLore.EMPTY));
+                upgraded.set(DataComponents.ITEM_MODEL,presentation.get(DataComponents.ITEM_MODEL));
+            }else{
+                upgraded.set(DataComponents.LORE, stack.getOrDefault(DataComponents.LORE, ItemLore.EMPTY)
+                        .withLineAdded(Component.translatable("upgraded_item").withStyle(style ->
+                                style.withColor(ChatFormatting.GREEN).withItalic(false))));
+            }
+            player.setItemInHand(hand, upgraded);
+            if (academy != null) consume(academy);
+            game.lbc().academyPromoted(player);
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+            player.sendSystemMessage(Component.translatable(wand.successKey).withStyle(ChatFormatting.YELLOW));
+        } else if (tag.getIntOr("upgradable", 0) == 1) {
+            player.sendSystemMessage(Component.translatable("no_conditions"));
+        } else {
+            tag.putInt("upgradable", 1); stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            player.getInventory().setChanged();
+            player.sendSystemMessage(Component.translatable(wand.conditionKey).withStyle(ChatFormatting.YELLOW));
+        }
+        return true;
+    }
+
+    public void ready(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        if (!active(player) || player.getItemInHand(hand) != stack || !trial(stack)) return;
+        var tag = data(stack); tag.putInt("upgrade_available", 1); tag.putInt("upgradable", 0);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag)); player.getInventory().setChanged();
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP),
+                net.minecraft.sounds.SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2, 1,
+                player.getRandom().nextLong()));
+        player.sendSystemMessage(Component.translatable("can_upgrade").withStyle(ChatFormatting.AQUA));
+    }
+    public boolean terraTrial(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        if (!player.isShiftKeyDown() || !trial(stack)) return false;
+        // В исходнике концентрация заменяет обычный выстрел, но сохраняет расход маны.
+        if (player.level().getBlockState(BlockPos.containing(player.position().add(0, -1, 0))).is(Blocks.GRASS_BLOCK)) {
+            LbcTerra.growVegetation(player.level(), player.blockPosition(), LbcTerra.Kind.ACADEMY);
+            player.level().sendParticles(ParticleTypes.HAPPY_VILLAGER, player.getX(), player.getY()+1,
+                    player.getZ(), 10, .3, .6, .3, 0);
+            if (player.getRandom().nextFloat() < .2f) ready(player, hand, stack);
+        } else player.sendSystemMessage(Component.translatable("not_on_grass"));
+        return true;
+    }
+    /** One cast must affect at least fifteen eligible mobs; use the casting hand. */
+    public void lifestealerCast(ServerPlayer player, InteractionHand hand, ItemStack stack, int targets) {
+        if (targets >= 15 && wand(stack) == Wand.LIFESTEALER && trial(stack)) ready(player, hand, stack);
+    }
+    public void electroTrial(ServerPlayer player, InteractionHand hand, ItemStack stack) { ready(player, hand, stack); }
+    /** Пять запусков с заданием дают готовность Exoperso; счётчик принадлежит используемому жезлу. */
+    public void exopersoTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!trial(stack)) return;
+        var tag=data(stack); int progress=tag.getIntOr("score",0)+1;
+        tag.putInt("score",progress); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+        player.getInventory().setChanged();
+        if(progress>=5) ready(player,hand,stack);
+    }
+    /** Медитация Ruby заменяет выстрел; союзников притягивает, но служебные роли остаются исключены (user). */
+    public boolean rubyTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return false;
+        var level=player.level(); var origin=player.getEyePosition();
+        LbcOverload.sound(player,origin,"minecraft:block.amethyst_cluster.break",1,1,0);
+        var center=BlockPos.containing(origin);
+        var targets=level.getEntitiesOfClass(LivingEntity.class,new net.minecraft.world.phys.AABB(origin,origin).inflate(5.5),
+                target->target.position().distanceToSqr(origin)<=5.5*5.5
+                        && !target.entityTags().contains("strict_map_object") && game.items().wands().target(player,target,true));
+        game.items().indirectKills().trapChanges(player,()-> {
+            game.maps().placeLoadedTemplate(player,LbcRuby.MEDITATION,center.offset(-5,-5,-5),.96f);
+            for(var pos:BlockPos.betweenClosed(center,center.above()))
+                if(level.hasChunkAt(pos)) level.setBlock(pos,Blocks.BEDROCK.defaultBlockState(),
+                        net.minecraft.world.level.block.Block.UPDATE_CLIENTS
+                                |net.minecraft.world.level.block.Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS);
+        });
+        for(var target:targets) {
+            target.teleportTo(player.getX(),player.getY(),player.getZ());
+            target.setYRot(player.getYRot()); target.setXRot(player.getXRot());
+            game.items().indirectKills().displaced(target,player);
+        }
+        if(game.items().mana().hudValue(player,"void_resistance")<=0)
+            player.hurtServer(level,new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                    .getOrThrow(net.minecraft.world.damagesource.DamageTypes.OUTSIDE_BORDER)),6);
+        ready(player,hand,stack);
+        return true;
+    }
+    /** Медитация телепорта тратит обычную ману и добавляет пять импульсов shock самому владельцу. */
+    public void teleportTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return;
+        game.items().electro().shock(player,player,5);
+        if(player.getRandom().nextFloat()<.35f) ready(player,hand,stack);
+    }
+    /** (user) Испытание засчитывает реальное попадание взрыва дальше 80 блоков, а не возраст ракеты. */
+    public BlastTrial airTrial(ServerPlayer player,LbcAir.Charge charge) {
+        if(!charge.trial || charge.trialOwner!=player || charge.trialHand==null || charge.origin==null) return null;
+        var stack=player.getItemInHand(charge.trialHand);
+        return active(player) && wand(stack)==Wand.AIR && trial(stack)
+                ? new BlastTrial(player,Wand.AIR,charge.trialHand,charge.origin) : null;
+    }
+    /** Испытание слепоты: шанс 3% за попадание в ещё не ослеплённую цель, у используемой руки. */
+    public void blindTrial(ServerPlayer player,InteractionHand hand,boolean previouslyBlind) {
+        var stack=player.getItemInHand(hand);
+        if(!previouslyBlind && wand(stack)==Wand.BLIND && trial(stack) && player.getRandom().nextFloat()<.03f)
+            ready(player,hand,stack);
+    }
+    /** (user) Постоянный бедрок и шанс 20% сохраняются как часть каменной медитации. */
+    public void stoneTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return;
+        var center=BlockPos.containing(player.getEyePosition());
+        game.items().indirectKills().fillTrapPreservingInventory(player,center.offset(-1,-1,-1),center.offset(1,2,1),Blocks.BEDROCK.defaultBlockState());
+        if(player.getRandom().nextFloat()<.2f) ready(player,hand,stack);
+    }
+    /** Бедроковое испытание (user): готовность сразу и сплошной куб 21³; проверяется используемая рука. */
+    public boolean bedrockTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return false;
+        ready(player,hand,stack);
+        var center=player.blockPosition();
+        game.items().indirectKills().fillTrap(player,center.offset(-10,-10,-10),center.offset(10,10,10),Blocks.BEDROCK.defaultBlockState());
+        return true;
+    }
+    /** Четыре отдельные кирпичные стороны ищутся вокруг игрока от ног до глаз. */
+    public void wallTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!trial(stack)) return;
+        var level=player.level();
+        var eyes=BlockPos.containing(player.getEyePosition());
+        int feet=player.blockPosition().getY();
+        var probe=new BlockPos.MutableBlockPos();
+        for(var direction:Direction.Plane.HORIZONTAL) {
+            var side=direction.getClockWise();
+            boolean found=false;
+            for(int distance=1;distance<=9&&!found;distance++) {
+                // Distinct sides use non-overlapping strips. A near diagonal or
+                // a brick shared at the origin cannot satisfy two directions.
+                int width=distance==1?0:1;
+                for(int offset=-width;offset<=width&&!found;offset++) {
+                    int x=eyes.getX()+direction.getStepX()*distance+side.getStepX()*offset;
+                    int z=eyes.getZ()+direction.getStepZ()*distance+side.getStepZ()*offset;
+                    if(!level.hasChunkAt(probe.set(x,eyes.getY(),z))) continue;
+                    for(int y=eyes.getY();y>=feet&&!found;y--)
+                        found=level.getBlockState(probe.set(x,y,z)).is(Blocks.BRICKS);
+                }
+            }
+            if(!found) return;
+        }
+        ready(player,hand,stack);
+    }
+    /** Испытание завершается после постановки слоёв, если живой противник действительно оказался внутри блока. */
+    public void stonekiviTrial(ServerPlayer owner,InteractionHand hand,ItemStack stack,BlockPos impact) {
+        if(!trial(stack)) return;
+        var airs=net.minecraft.tags.TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
+        var center=Vec3.atCenterOf(impact);
+        var targets=owner.level().getEntitiesOfClass(ServerPlayer.class,new net.minecraft.world.phys.AABB(center,center).inflate(10),
+                player->game.items().wands().target(owner,player) && player.position().distanceToSqr(center)<=100
+                        && !player.level().getBlockState(player.blockPosition()).is(airs));
+        if(!targets.isEmpty()) ready(owner,hand,stack);
+    }
+    /** Медитация огня сохраняет исходные лаву 3×3 и шанс 5% на один Shift+ПКМ. */
+    public void fireTrial(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return;
+        var level=player.level();
+        var center=BlockPos.containing(player.getEyePosition());
+        game.items().indirectKills().worldChanges(level,player,()-> {
+            for(var pos:BlockPos.betweenClosed(center.offset(-1,0,-1),center.offset(1,0,1)))
+                if(level.hasChunkAt(pos)) level.setBlockAndUpdate(pos,Blocks.LAVA.defaultBlockState());
+        });
+        if(player.getRandom().nextFloat()<.05f) ready(player,hand,stack);
+    }
+    public BlastTrial blastTrial(ServerPlayer owner, boolean enabled) {
+        return enabled && active(owner) && trial(owner.getMainHandItem()) && wand(owner.getMainHandItem()) == Wand.EXASPERATO
+                ? new BlastTrial(owner) : null;
+    }
+    public void blastSource(Entity source, BlastTrial trial) { if (source != null && trial != null) blastSources.put(source, trial); }
+    /** Мгновенный взрыв не попадает в ENTITY_UNLOAD: его временный источник освобождается явно. */
+    public void blastFinished(Entity source) { blastSources.remove(source); }
+    public void inheritBlast(Entity source, Entity spawned) { blastSource(spawned, blastSources.get(source)); }
+    /** Роль и расстояние фиксируются до урона; положительный результат проверяется в AFTER_DAMAGE/AFTER_DEATH. */
+    public void beforeDamage(LivingEntity victim,DamageSource damage) {
+        var trial=blastSources.get(damage.getDirectEntity());
+        if(trial==null || trial.completed || trial.wand!=Wand.AIR) return;
+        var owner=game.server().getPlayerList().getPlayer(trial.owner);
+        if(owner!=null && victim.position().distanceToSqr(trial.origin)>80*80
+                && game.items().lifetimes().target(owner,victim)) trial.targets.add(victim.getUUID());
+    }
+    public void damaged(LivingEntity victim, DamageSource damage) {
+        var trial = blastSources.get(damage.getDirectEntity());
+        if (trial == null || trial.completed) return;
+        var owner = game.server().getPlayerList().getPlayer(trial.owner);
+        if(owner==null) return;
+        if(trial.wand==Wand.AIR) {
+            if(!trial.targets.remove(victim.getUUID())) return;
+        } else if(!trial.targets.add(victim.getUUID()) || trial.targets.size()<10) return;
+        var stack=owner.getItemInHand(trial.hand);
+        if (wand(stack)==trial.wand && trial(stack)) {
+            ready(owner, trial.hand, stack);
+            trial.completed = true;
+        }
+    }
+
+    public boolean loaded(Entity entity) {
+        if (stale(entity)) { entity.discard(); return true; }
+        if(transparentInteraction(entity)){publishInteraction(entity);entities.add(entity);}
+        var academy = singleUse.get(entity.getUUID());
+        if (academy != null) {
+            if (academy.spent) { entity.discard(); return true; }
+            academy.spawned.removeIf(previous -> previous.getUUID().equals(entity.getUUID()));
+            academy.spawned.add(entity);
+        }
+        if (placing != null && !(entity instanceof ItemEntity)) {
+            // An item ejected by native neighboring updates is not part of the school template.
+            entity.entityTags().add(ENTITY_TAG); entity.entityTags().add(BUILDING_TAG);
+            if (placing.token) {
+                singleUse.put(entity.getUUID(),placing);
+                if (entity.entityTags().contains("magic_academy")) entity.entityTags().add(SINGLE_PANEL);
+                if (entity instanceof net.minecraft.world.entity.Display.TextDisplay label) {
+                    label.setText(Component.translatableWithFallback(SINGLE_USE_WELCOME,"Single-use Academy of Magic")
+                            .withStyle(label.getText().getStyle()));
+                    // A short title belongs at the panel's centre, just in front of its inner face.
+                    // The ordinary welcome keeps its source position and multi-line layout.
+                    label.setPos(placing.origin.getX()+6,placing.origin.getY()+2.25,placing.origin.getZ()+9.97);
+                    entity.entityTags().add(SINGLE_PANEL);
+                }
+            }
+            game.items().markCurrentItemEpoch(entity); entities.add(entity); placing.spawned.add(entity); return true;
+        }
+        if (entity.entityTags().contains(ENTITY_TAG)) {
+            for (var previous : Set.copyOf(entities)) if (previous.getUUID().equals(entity.getUUID())) {
+                if (!previous.entityTags().contains(BUILDING_TAG)) entity.entityTags().remove(BUILDING_TAG);
+                entities.remove(previous);
+            }
+            for (var part : placements) {
+                boolean owned = part.spawned.removeIf(previous -> previous.getUUID().equals(entity.getUUID()));
+                if (owned) part.spawned.add(entity);
+            }
+            entities.add(entity); return true;
+        }
+        if (entity instanceof ItemEntity item && isDrop(item.getItem()) && !LbcTmtItems.matches(item.getItem()) && item.level() == game.maps().level()) {
+            game.items().markCurrentItemEpoch(item);
+            drops.add(item); return true;
+        }
+        return false;
+    }
+    private static boolean isDrop(ItemStack stack) {
+        var tag = stack.get(DataComponents.CUSTOM_DATA);
+        return stack.is(TOKEN) || tag != null && (tag.matchedBy(TOKEN_DATA) || tag.matchedBy(BUILDING_DATA));
+    }
+    public static boolean recognizedDrop(ItemStack stack){return isDrop(stack);}
+    public static boolean singleUseDrop(ItemStack stack){return stack.is(TOKEN)||ItemData.intValue(stack,"academy_token",0)==1;}
+    private record DropPlan(StructureTemplate template,ServerLevel level,BlockPos origin,boolean token){}
+    /** Readiness has no RNG, template scan, queue mutation or debit. */
+    private DropPlan planDrop(ItemEntity item){
+        if(MatchAcademyCheckpoint.frozen(this)||item.isRemoved()||item.getAge()>=5999||!isDrop(item.getItem())||stale(item)||item.level()!=game.maps().level()
+                ||game.maps().busy()||game.stage()==GameController.Stage.ENDING||game.items().timeStop().stopped(game.maps().level()))return null;
+        boolean token=singleUseDrop(item.getItem());if(token&&!item.onGround())return null;
+        if(!game.playing()&&!(item.getOwner() instanceof ServerPlayer p&&active(p)))return null;
+        var template=game.server().getStructureTemplateManager().get(TEMPLATE).orElse(null);if(template==null)return null;
+        var origin=item.blockPosition().offset(-6,token?-1:0,-6);var level=(ServerLevel)item.level();
+        return resident(level,origin,template.getSize())?new DropPlan(template,level,origin,token):null;
+    }
+    public boolean readyDrop(ItemEntity item){return planDrop(item)!=null;}
+    /** Same native placement owner for ordinary and composed loose items. */
+    public boolean spawnDrop(ItemEntity item,boolean debit){
+        var plan=planDrop(item);if(plan==null)return false;
+        var part=new Placement(plan.template(),plan.level(),plan.origin(),item.position(),game.items().epoch(),plan.token(),item.getRandom().nextLong());
+        if(plan.token())placements.addLast(part);else placements.addFirst(part);
+        drops.remove(item);
+        if(plan.token()){
+            plan.level().sendParticles(ParticleTypes.WITCH,item.getX(),item.getY(),item.getZ(),350,5,5,5,1);
+            plan.level().playSound(null,item.getX(),item.getY(),item.getZ(),net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT,net.minecraft.sounds.SoundSource.MASTER,1,1);
+        }
+        if(debit){
+            if(plan.token())item.discard();
+            else{var remaining=item.getItem().copy();remaining.shrink(1);if(remaining.isEmpty())item.discard();else{item.setItem(remaining);drops.add(item);}}
+        }
+        return true;
+    }
+    public void unloaded(Entity entity) {
+        TRANSPARENT.remove(entity.getId());
+        drops.remove(entity);
+        // Keep the small ownership record through chunk unload: completion and stop must still close it.
+        if (entity.getRemovalReason() != null && entity.getRemovalReason().shouldDestroy()) entities.remove(entity);
+    }
+    private boolean active(ServerPlayer player) {
+        return player.isAlive() && !player.isRemoved() && player.level() == game.maps().level() && game.canUseGameplayItems(player);
+    }
+    public void tick() {
+        boolean stopped = game.items().timeStop().stopped(game.maps().level());
+        if (wasStopped && !stopped) for (var cell : Set.copyOf(pendingWhite)) repaint(cell);
+        wasStopped = stopped;
+        // Удалённый TNT взрывается до следующего END_SERVER_TICK: очищаем только после damage callbacks.
+        blastSources.keySet().removeIf(Entity::isRemoved);
+        for(var item:List.copyOf(drops)){
+            if(item.isRemoved()||item.getAge()>=5999||!isDrop(item.getItem())||LbcTmtItems.matches(item.getItem())){drops.remove(item);continue;}
+            if(stale(item)){item.discard();drops.remove(item);continue;}
+            if(spawnDrop(item,true))break; // One ordinary building admission per tick, as before.
+        }
+        if (placements.isEmpty() || game.maps().busy()) return;
+        var part = placements.removeFirst(); var size = part.template.getSize(); var origin = part.origin;
+        if (!game.items().currentEpoch(part.epoch) || part.level != game.maps().level()
+                || game.stage() == GameController.Stage.ENDING) {
+            part.spawned.forEach(Entity::discard); return;
+        }
+        if (game.items().timeStop().stopped(part.level) || !resident(part)) { placements.addLast(part); return; }
+        var bounds = new BoundingBox(origin.getX(), origin.getY()+part.row, origin.getZ(),
+                origin.getX()+size.getX()-1, origin.getY()+(part.token?part.row:size.getY()-1), origin.getZ()+size.getZ()-1);
+        var inventories = game.maps().gameplayInventories(part.level, bounds);
+        placing = part;
+        try {
+            game.maps().placeGameplayMapSlice(part.level, part.template, origin,
+                    new StructurePlaceSettings().setBoundingBox(bounds), part.seed);
+            // Включает developer-проверки в лобби, которые обычный arena block callback не журналирует.
+            // Журнал группирует точки по чанкам: двух диагональных углов недостаточно для четырёх чанков.
+            for (int x = bounds.minX() >> 4; x <= bounds.maxX() >> 4; x++)
+                for (int z = bounds.minZ() >> 4; z <= bounds.maxZ() >> 4; z++) {
+                    game.maps().recordBlockChange(new BlockPos(Math.max(bounds.minX(), x*16), bounds.minY(),
+                            Math.max(bounds.minZ(), z*16)));
+                    game.maps().recordBlockChange(new BlockPos(Math.min(bounds.maxX(), x*16+15), bounds.maxY(),
+                            Math.min(bounds.maxZ(), z*16+15)));
+                }
+        } finally {
+            placing = null;
+            for (var inventory : inventories) inventory.dropIfRemoved(part.level);
+        }
+        // Claim a background row when it is written, including during overlapping construction.
+        for (var pos : part.background) if ((!part.token || pos.getY() == origin.getY()+part.row)
+                && part.level.getBlockState(pos).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE))) {
+            var cell = GlobalPos.of(part.level.dimension(),pos);
+            if (part.token) { part.panels.add(cell); panelOwners.put(cell,part); }
+            else panelOwners.remove(cell);
+            pendingWhite.remove(cell);
+        }
+        part.row=part.token?part.row+1:size.getY();
+        if (part.row < size.getY()) placements.addLast(part);
+        else {
+            part.spawned.forEach(entity -> entity.entityTags().remove(BUILDING_TAG));
+            // Native placement can fail to create an actor. Never send a player into that incomplete acquisition.
+            if (!part.token && part.spawned.stream().anyMatch(entity -> !entity.isRemoved()
+                    && entity.entityTags().contains("magic_academy"))) {
+                var nearest = part.level.getNearestPlayer(part.source.x, part.source.y, part.source.z, 12,
+                        p -> p instanceof ServerPlayer player && active(player) && !game.isObserver(player)
+                                && game.items().wands().validTarget(player));
+                if (nearest instanceof ServerPlayer player)
+                    player.teleportTo(part.level, part.source.x, part.source.y+1, part.source.z-2,
+                            Set.of(), player.getYRot(), player.getXRot(), false);
+            }
+        }
+    }
+    /** Commit before removing entities: another player's click must see the same spent state. */
+    private void consume(Placement academy) {
+        academy.spent = true;
+        for (var entity : Set.copyOf(academy.spawned)) if (entity.entityTags().contains(SINGLE_PANEL)
+                && !entity.isRemoved()) entity.discard();
+        for (var cell : academy.panels) if (panelOwners.get(cell) == academy) repaint(cell);
+    }
+    private void repaint(GlobalPos cell) {
+        var academy = panelOwners.get(cell);
+        if (academy == null || !academy.spent || !game.items().currentEpoch(academy.epoch)) { pendingWhite.remove(cell); return; }
+        var level = academy.level; var pos = cell.pos();
+        if (game.items().timeStop().stopped(level) || level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null) {
+            pendingWhite.add(cell); return;
+        }
+        if (level.getBlockState(pos).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE))) level.setBlock(pos,Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE).defaultBlockState(),
+                net.minecraft.world.level.block.Block.UPDATE_CLIENTS|net.minecraft.world.level.block.Block.UPDATE_KNOWN_SHAPE);
+        pendingWhite.remove(cell); panelOwners.remove(cell);
+    }
+    public void chunkLoaded(net.minecraft.world.level.chunk.LevelChunk chunk) {
+        if (pendingWhite.isEmpty()) return;
+        for (var cell : Set.copyOf(pendingWhite)) if (cell.dimension().equals(chunk.getLevel().dimension())
+                && chunk.getPos().equals(new net.minecraft.world.level.ChunkPos(cell.pos().getX()>>4,cell.pos().getZ()>>4))) repaint(cell);
+    }
+    private boolean stale(Entity entity) {
+        for (var tag : entity.entityTags())
+            if (tag.startsWith("skywars2.items.") && !game.items().currentEpoch(tag)) return true;
+        return false;
+    }
+    private boolean resident(Placement part) {
+        return resident(part.level,part.origin,part.template.getSize());
+    }
+    private boolean resident(ServerLevel level,BlockPos origin,net.minecraft.core.Vec3i size){
+        if (size.getX()<=0 || size.getY()<=0 || size.getZ()<=0 || origin.getY()<level.getMinY()
+                || (long)origin.getY()+size.getY()-1>level.getMaxY()) return false;
+        // Comparator removal updates inspect the block beyond an adjacent conductor.
+        for (int x=(origin.getX()-2)>>4; x<=(origin.getX()+size.getX()+1)>>4; x++)
+            for (int z=(origin.getZ()-2)>>4; z<=(origin.getZ()+size.getZ()+1)>>4; z++)
+                if (level.getChunkSource().getChunkNow(x,z)==null) return false;
+        return true;
+    }
+    public int pendingCount() { return placements.size(); }
+    public int ownedCount() { return entities.size(); }
+    public int pendingRow() { return placements.isEmpty() ? -1 : placements.peekFirst().row; }
+    public void stop() {
+        TRANSPARENT.clear();
+        drops.clear(); placements.clear(); lastInteractions.clear(); blastSources.clear();
+        singleUse.clear(); panelOwners.clear(); pendingWhite.clear(); wasStopped = false;
+        var old = Set.copyOf(entities); entities.clear(); old.forEach(Entity::discard);
+    }
+}

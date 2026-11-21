@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.match.events.NuclearTerrain;
 import net.minecraft.world.phys.Vec3;
 
 /** Inspect radial shells and directional sectors rather than equating a crater with a block count. */

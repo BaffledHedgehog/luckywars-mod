@@ -1,6 +1,12 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.items.armor.LbcPhantomArmor;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcStonekivi;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleTypes;
@@ -18,6 +24,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import java.util.*;
+import me.skywars2.game.effects.OwnedEffectLayers;
 
 /** Source acquisition, real native effect ownership and accepted melee, followed by real registered player ticks. */
 public final class PhantomArmorChecks {

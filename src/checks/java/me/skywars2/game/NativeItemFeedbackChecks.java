@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.List;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.loot.LbcAllItemPools;
+import me.skywars2.game.presentation.LbcArmorTooltips;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;

@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import me.skywars2.SkyWars2;
-import me.skywars2.game.SkyWarsCommandTree;
+import me.skywars2.game.commands.SkyWarsCommandTree;
 import me.skywars2.game.genie.script.ScriptJson;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
@@ -40,6 +40,7 @@ import net.minecraft.server.dialog.body.PlainMessage;
 import net.minecraft.server.dialog.input.SingleOptionInput;
 import net.minecraft.server.dialog.input.TextInput;
 import net.minecraft.server.level.ServerPlayer;
+import me.skywars2.game.GameController;
 
 /** Owner-only configuration, with a blank key field and a single-use reply bound to the login. */
 final class GenieApiDialog implements AutoCloseable {

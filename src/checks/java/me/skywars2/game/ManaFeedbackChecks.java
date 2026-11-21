@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import com.mojang.datafixers.util.Either;
+
+import me.skywars2.game.commands.SkyWarsFeedbackCommands;
+import me.skywars2.game.entities.bots.LbcWtf;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.presentation.LbcTooltipScores;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -8,6 +13,7 @@ import net.minecraft.network.chat.contents.ScoreContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Scoped fixture checks; caller owns player/score snapshots. No configuration file is rewritten. */
 public final class ManaFeedbackChecks {

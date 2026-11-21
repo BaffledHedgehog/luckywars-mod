@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.bots.LbcWtf;
 import me.skywars2.validation.mixin.ChefValidationAccess;
 import me.skywars2.validation.mixin.NativeFixtureAccess;
 import net.minecraft.core.BlockPos;

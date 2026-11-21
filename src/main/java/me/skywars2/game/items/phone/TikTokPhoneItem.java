@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import me.skywars2.game.GameController;
 
 /** The real phone/passive remains authoritative; moving pixels exist only in recipient projection. */
 public final class TikTokPhoneItem extends SimplePolymerItem {

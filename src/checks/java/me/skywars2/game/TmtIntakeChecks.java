@@ -2,6 +2,13 @@ package me.skywars2.game;
 
 import java.util.List;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.food.LbcPills;
+import me.skywars2.game.items.gadgets.LbcTouhouCollectibles;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtCatalog;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.world.nexus.LbcNexusWireItems;
+import me.skywars2.game.world.nexus.LbcNexusWires;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.inventory.AbstractCraftingMenu;

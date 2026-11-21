@@ -1,6 +1,15 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ShadowAbsorption;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.entities.mobs.LbcSoulless;
+import me.skywars2.game.items.armor.LbcNyauwuCrafting;
+import me.skywars2.game.items.loot.LootTestCatalog;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,6 +19,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.item.*;
 import java.util.*;
+import me.skywars2.game.items.armor.LbcNyauwuArmor;
 
 /** Bounded native source-loot, reforge, mana and armor checks using restored live fixtures. */
 public final class MageNyauwuChecks {

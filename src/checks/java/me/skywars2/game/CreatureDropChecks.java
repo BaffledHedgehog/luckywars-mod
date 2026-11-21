@@ -1,7 +1,12 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.CreatureDropMixin;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.items.drops.LbcCreatureDropItem;
+import me.skywars2.game.items.drops.LbcCreatureDrops;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.mixin.mobs.CreatureDropMixin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;

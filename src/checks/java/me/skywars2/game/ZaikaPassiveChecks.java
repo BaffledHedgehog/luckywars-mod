@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.items.gadgets.LbcSpecialArtifactItems;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.items.wands.LbcFartus;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.ComponentSerialization;

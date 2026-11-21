@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.wands.LbcIceMaterials;
+import me.skywars2.game.players.PlayerStore;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,6 +20,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import me.skywars2.game.effects.LbcFrost;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Synchronous native boundary fixture; pulseShard bypasses elapsed cadence only. */
 public final class IceMaterialChecks {

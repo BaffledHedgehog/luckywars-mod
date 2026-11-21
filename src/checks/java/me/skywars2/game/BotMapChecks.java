@@ -4,12 +4,14 @@ import me.skywars2.validation.mixin.BotValidationAccess;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.gamerules.GameRules;
+import me.skywars2.game.entities.bots.LbcBotSurvival;
 
 /** Actual loaded island, original spawn/chest markers and the active mode's native loot. */
 final class BotMapChecks {

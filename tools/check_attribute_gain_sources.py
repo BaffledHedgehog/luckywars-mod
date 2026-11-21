@@ -11,7 +11,7 @@ def verify(project: Path, source: Path) -> int:
     assert "random value 1..26" in dispatcher, "source uniform draw bounds"
     rows = re.findall(r"matches (\d+) run function lbc:other/attributes/(\w+)", dispatcher)
     assert [int(i) for i, _ in rows] == list(range(1, 27)), "complete uniform source pool"
-    native = (project / "src/main/java/me/skywars2/game/LbcAttributeGains.java").read_text(encoding="utf-8")
+    native = (project / "src/main/java/me/skywars2/game/players/attributes/LbcAttributeGains.java").read_text(encoding="utf-8")
     assert "nextInt(26)+1" in native, "native uniform draw bounds"
     cases = re.findall(r"case (\d+) -> LbcAttributeChanges.change\(player, Attributes\.(\w+), (\d+), (-?\d+), ([.\d]+)\);", native)
     assert len(cases) == 26, "complete native pool without duplicate/unrecognized cases"

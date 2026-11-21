@@ -7,6 +7,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtTriggers;
+import me.skywars2.game.items.trinkets.LbcTrinkets;
+import me.skywars2.game.items.weapons.ranged.LbcErecto;
+import me.skywars2.game.items.weapons.ranged.LbcImbaCrossbows;
+import me.skywars2.game.items.weapons.ranged.LbcMadokaBow;
+import me.skywars2.game.items.weapons.ranged.LbcShulkerBow;
+import me.skywars2.game.skills.LbcMachinegunSkill;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
@@ -22,6 +32,7 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.items.wands.LbcWands;
 
 /** Actual native crossbow publication, debit, terminal branches and codec contexts. */
 public final class TmtRangedChecks {

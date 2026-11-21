@@ -2,7 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.skills.levelups.LbcManaLevelups;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Actual loadout application, native attributes and scoreboard resource layers. */
 public final class ManaLevelupChecks {

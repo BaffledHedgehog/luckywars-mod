@@ -6,6 +6,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import com.google.gson.JsonPrimitive;
+
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogItems;
+import me.skywars2.game.entities.projectiles.LbcBouncingPoop;
 import me.skywars2.game.genie.GenieScriptItem;
 import me.skywars2.game.genie.GenieScriptRuntime;
 import me.skywars2.game.genie.script.ScriptRepository;

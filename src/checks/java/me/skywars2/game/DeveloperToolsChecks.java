@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.commands.DeveloperTools;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.permissions.PermissionSet;

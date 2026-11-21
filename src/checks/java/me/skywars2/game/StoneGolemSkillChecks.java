@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.skills.LbcStoneGolemSkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
@@ -67,7 +69,7 @@ public final class StoneGolemSkillChecks {
                     if(skill.charge(f.owner)<2)return false;
                     require(skill.layers(f.owner)==1,"nonempty partial recharge");
                     savedLayers=skill.layers(f.owner);savedCharge=skill.charge(f.owner);savedPhase=skill.phase(f.owner.level());
-                    f.block(f.center.offset(-4,0,-4),me.skywars2.game.LbcMagic.MAGIC_BEACON_BLOCK);require(game.items().magic().suppressed(f.owner),"actual MAG field at Golem");begin(9);
+                    f.block(f.center.offset(-4,0,-4),me.skywars2.game.effects.magic.LbcMagic.MAGIC_BEACON_BLOCK);require(game.items().magic().suppressed(f.owner),"actual MAG field at Golem");begin(9);
                 }
                 case 9->{
                     require(skill.layers(f.owner)==savedLayers&&skill.charge(f.owner)==savedCharge,"MAG blocks recharge and preserves existing layers");if(elapsed<22)return false;

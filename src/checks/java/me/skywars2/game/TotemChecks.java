@@ -1,6 +1,12 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.items.gadgets.LbcSpecialArtifactItems;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtRuntime;
+import me.skywars2.game.items.tmt.LbcTmtTotems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -24,6 +30,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
+import me.skywars2.game.items.gadgets.LbcTotems;
+import me.skywars2.game.items.tmt.LbcTmtCatalog;
 
 /** Actual native lethal hits/hand selection/effect restoration, hostile mobs, wild statuses/lava and debt expiry. */
 public final class TotemChecks {

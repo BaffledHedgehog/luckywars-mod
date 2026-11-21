@@ -3,6 +3,18 @@ package me.skywars2.game;
 import java.lang.reflect.Method;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.CrossbowBlastBlocks;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.items.gadgets.LbcImbaNativeItems;
+import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.items.weapons.ranged.LbcErecto;
+import me.skywars2.game.items.weapons.ranged.LbcImbaCrossbows;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.presentation.projectiles.LbcParticleBatch;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.maps.NativeChunkLoad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustColorTransitionOptions;
@@ -39,6 +51,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.match.checkpoints.LbcVanityRollback;
 
 /** Actual native use/draw/volley callbacks; no nearby-arrow substitution or second ammunition debit. */
 public final class ImbaCrossbowChecks {

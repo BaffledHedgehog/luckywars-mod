@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.match.events.LbcNukeEvent;
+import me.skywars2.game.match.events.NuclearTerrain;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.LbcDropBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Blocks;
@@ -54,7 +58,7 @@ public final class NuclearPointChecks {
         void nativeReference(){
             String property="skywars2.disableExplosionCache",previous=System.getProperty(property);var level=base.owner.level();
             try{
-                var constructor=Arrays.stream(Class.forName("me.skywars2.game.LbcNukeEvent$BlastSource").getDeclaredConstructors()).filter(c->c.getParameterCount()==3).findFirst().orElseThrow();constructor.setAccessible(true);
+                var constructor=Arrays.stream(Class.forName("me.skywars2.game.match.events.LbcNukeEvent$BlastSource").getDeclaredConstructors()).filter(c->c.getParameterCount()==3).findFirst().orElseThrow();constructor.setAccessible(true);
                 var calculate=net.minecraft.world.level.ServerExplosion.class.getDeclaredMethod("calculateExplodedPositions");calculate.setAccessible(true);
                 var source=(Entity)constructor.newInstance(level,null,true);require(LbcNukeEvent.cacheableNativeBlast(source),"actual reviewed marker source");
                 for(float power:new float[]{16,25})for(long seed:new long[]{47,991,917458}){

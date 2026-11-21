@@ -100,7 +100,7 @@ def main():
                     pitch=tail[4] if len(tail)>4 else '1',minVolume=tail[5] if len(tail)>5 else '0',command=line))
     dump(out/'legacy_playsound.json',legacy)
     native=[]; sources=ROOT/'src/main/java/me/skywars2/game'
-    for p in sorted(sources.glob('Lbc*.java')):
+    for p in sorted(sources.rglob('Lbc*.java')):
         lines=p.read_text(encoding='utf-8').splitlines()
         for i,line in enumerate(lines):
             if re.search(r'LbcOverload\.sound\(|\.playSound\(|new (?:[\w.]+\.)?ClientboundSoundPacket\(',line):
@@ -129,7 +129,7 @@ def main():
         for key,value in json.loads(p.read_text(encoding='utf-8-sig')).items():
             definitions[p.parent.name+':'+key]=value
     custom=sorted({x['event'] for x in legacy if 'lbcsounds.' in x['event']})
-    custom += sorted(set(re.findall(r'"(minecraft:lbcsounds\.[\w.]+)"(?!\s*\+)', '\n'.join(p.read_text(encoding='utf-8') for p in sources.glob('Lbc*.java'))))-set(custom))
+    custom += sorted(set(re.findall(r'"(minecraft:lbcsounds\.[\w.]+)"(?!\s*\+)', '\n'.join(p.read_text(encoding='utf-8') for p in sources.rglob('Lbc*.java'))))-set(custom))
     def inspect(event,seen):
         if event in seen:return {'event':event,'cycle':True}
         definition=definitions.get(event)

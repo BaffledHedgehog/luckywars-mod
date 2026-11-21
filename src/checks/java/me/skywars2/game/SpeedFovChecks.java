@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.weapons.firearms.LbcMagnum;
+import me.skywars2.game.items.weapons.ranged.LbcRifleZoom;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;

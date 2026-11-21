@@ -2,11 +2,14 @@ package me.skywars2.game;
 
 import java.util.List;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMagic;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.items.trinkets.LbcReactiveArtifacts;
+import me.skywars2.game.items.wands.LbcMusicStaff;
 
 /** Actual field inventories, native music arrows, and both grenade cloud variants. */
 final class SmokeStaffSuppressionChecks {

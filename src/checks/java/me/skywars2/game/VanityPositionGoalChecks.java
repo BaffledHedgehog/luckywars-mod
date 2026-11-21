@@ -2,6 +2,8 @@ package me.skywars2.game;
 
 import java.lang.reflect.Field;
 import java.util.*;
+
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.PathfinderMob;

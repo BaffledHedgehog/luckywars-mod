@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.items.tools.LbcNativeToolItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;

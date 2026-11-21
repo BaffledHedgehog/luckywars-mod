@@ -1,6 +1,17 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.LbcParasite;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.items.armor.LbcDefensiveArcanums;
+import me.skywars2.game.items.wands.LbcBabylon;
+import me.skywars2.game.items.wands.LbcIceMaterials;
+import me.skywars2.game.items.wands.LbcKiuas;
+import me.skywars2.game.items.wands.LbcTanner;
+import me.skywars2.game.items.wands.LbcVoidArcanum;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -35,6 +46,7 @@ import net.minecraft.world.phys.Vec3;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import me.skywars2.game.items.wands.LbcBabylonEffects;
 
 /** Synchronous native dispatch boundaries; no claim that explicit calls advance server time. */
 public final class BabylonChecks {
@@ -211,7 +223,7 @@ public final class BabylonChecks {
                 trident.setDeltaMovement(new Vec3(0, 0, 3));
                 trident.setNoGravity(true);
                 trident.tick();
-                require(!trident.isRemoved() && ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)trident).skywars2$isInGround(),
+                require(!trident.isRemoved() && ((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)trident).skywars2$isInGround(),
                         "the source trident keeps its native block embedding");
                 for (int tick = 0; tick < 8; tick++) trident.tick();
                 int beforeTridents = owner.getInventory().countItem(Items.TRIDENT);

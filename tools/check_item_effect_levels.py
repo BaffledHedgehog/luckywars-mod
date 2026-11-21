@@ -11,7 +11,7 @@ def main():
     factories = 0
     snapshots = []
     errors = []
-    for path in sorted(SOURCES.glob("Lbc*.java")):
+    for path in sorted(SOURCES.rglob("Lbc*.java")):
         if path.name.endswith("Checks.java"):
             continue
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
@@ -26,11 +26,11 @@ def main():
                 snapshots.append(f"{path.name}:{number}: duration-only extension")
             else:
                 errors.append(f"{path.name}:{number}: item grants must use ItemEffectLevels.create")
-    policy = (SOURCES / "ItemEffectLevels.java").read_text(encoding="utf-8")
+    policy = (SOURCES / "effects/ItemEffectLevels.java").read_text(encoding="utf-8")
     for effect in ("REGENERATION", "POISON", "WITHER", "RESISTANCE", "BLINDNESS", "DARKNESS"):
         if f"MobEffects.{effect}" not in policy:
             errors.append(f"Missing item policy for {effect}")
-    hooks = (ROOT / "src/main/java/me/skywars2/mixin/ItemEffectLevelsMixin.java").read_text(encoding="utf-8")
+    hooks = (ROOT / "src/main/java/me/skywars2/mixin/effects/ItemEffectLevelsMixin.java").read_text(encoding="utf-8")
     for native in ("PotionContents.class", "ApplyStatusEffectsConsumeEffect.class"):
         if native not in hooks:
             errors.append(f"Missing native item path {native}")

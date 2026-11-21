@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.List;
 import java.util.Objects;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.presentation.effects.AtlasGlitchSignal;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;

@@ -1,6 +1,13 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogItems;
+import me.skywars2.game.entities.projectiles.ProjectileLifetimes;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.events.LbcApocalypseEvents;
+import me.skywars2.game.skills.witch.LbcGreed;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -32,6 +39,8 @@ import java.util.Set;
 import java.util.Map;
 import java.util.IdentityHashMap;
 import java.util.HashMap;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogSpikes;
+import me.skywars2.game.items.trinkets.LbcReactiveArtifacts;
 
 /** Native collision admission and accepted hurt are separate assertions, including native owner departure. */
 public final class ProjectileSelfHitChecks {

@@ -2,6 +2,16 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.bots.LbcWtf;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.gadgets.LbcClockFragments;
+import me.skywars2.game.items.gadgets.LbcImbaNativeItems;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtComponents;
+import me.skywars2.game.items.tmt.LbcTmtContinuous;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.weapons.melee.LbcNovemberLightsaberItems;
+import me.skywars2.game.items.weapons.melee.LbcNovemberLightsabers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

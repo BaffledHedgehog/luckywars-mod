@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.CoreEntityMerging;
+import me.skywars2.game.items.drops.LbcUltraponos;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -239,7 +242,7 @@ public final class CoreEntityMergeChecks {
 
         void duplicateUuidTests(){
             var world=owner.level();
-            var manager=((me.skywars2.mixin.ActorCheckpointAccess.LevelEntities)world).skywars2$manager();
+            var manager=((me.skywars2.mixin.entities.ActorCheckpointAccess.LevelEntities)world).skywars2$manager();
             var cold=new Vec3(2304.5,at().y,2304.5);
             var column=ChunkPos.containing(BlockPos.containing(cold));
             require(world.getChunkSource().getChunkNow(column.x(),column.z())==null&&!world.areEntitiesLoaded(column.pack()),

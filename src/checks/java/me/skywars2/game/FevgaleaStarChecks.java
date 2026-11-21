@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.wands.LbcFevgaleaStar;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.items.wands.SauvojenStars;
 import me.skywars2.validation.mixin.FixtureAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;

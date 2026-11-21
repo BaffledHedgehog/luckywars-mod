@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.items.wands.LbcSauvojen;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.phys.Vec3;

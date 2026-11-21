@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import me.skywars2.SkyWars2;
-import me.skywars2.game.ItemData;
+import me.skywars2.game.items.ItemData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.*;
@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.Level;
+import me.skywars2.game.GameController;
 
 /** Both lamp views use inert vanilla carriers, so neither predicts a throw on the client. */
 public final class GenieItems {

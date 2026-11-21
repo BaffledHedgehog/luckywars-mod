@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.weapons.ranged.LbcInfiniteAmmo;
+import me.skywars2.game.items.weapons.ranged.LbcProjectileWeaponItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;

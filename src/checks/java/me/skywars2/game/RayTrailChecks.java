@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.List;
 import java.util.function.Predicate;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.wands.LbcWall;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -16,6 +17,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.entities.mobs.summons.LbcSummons;
+import me.skywars2.game.items.wands.LbcBlind;
+import me.skywars2.game.items.wands.LbcExasperato;
+import me.skywars2.game.items.wands.LbcTeleport;
 
 final class RayTrailChecks {
     private RayTrailChecks() {}

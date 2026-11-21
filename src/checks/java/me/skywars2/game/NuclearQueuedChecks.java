@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.match.checkpoints.MatchBlastCheckpoint;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.LbcDropBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.world.entity.Entity;

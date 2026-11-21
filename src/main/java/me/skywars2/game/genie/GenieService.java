@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import me.skywars2.game.*;
 import me.skywars2.game.genie.script.GenieScriptReply;
 import me.skywars2.game.genie.script.ScriptRepository;
+import me.skywars2.game.items.ItemData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;

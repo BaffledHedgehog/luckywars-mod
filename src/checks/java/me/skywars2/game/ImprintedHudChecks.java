@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.gui.hud.LbcHudIconChecks;
+import me.skywars2.game.gui.hud.LbcHudIcons;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -10,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Actual HUD packets and independent native Imprinted arrivals, without a Troll Box event. */
 public final class ImprintedHudChecks {

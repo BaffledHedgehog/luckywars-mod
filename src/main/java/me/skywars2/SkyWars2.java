@@ -15,6 +15,33 @@ import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import me.skywars2.game.*;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.commands.DeveloperTools;
+import me.skywars2.game.core.config.GameConfig;
+import me.skywars2.game.effects.FullInvisibility;
+import me.skywars2.game.entities.CoreEntityMerging;
+import me.skywars2.game.entities.mobs.summons.LbcStand;
+import me.skywars2.game.gui.GameMenus;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.drops.LbcHomeItems;
+import me.skywars2.game.items.drops.LbcHomes;
+import me.skywars2.game.items.drops.LbcLuckyRoomDropItem;
+import me.skywars2.game.items.drops.LbcPortalDropItem;
+import me.skywars2.game.items.drops.LbcPortalDrops;
+import me.skywars2.game.items.tools.LbcCraftingRecipe;
+import me.skywars2.game.items.wands.LbcElectro;
+import me.skywars2.game.items.wands.LbcTerra;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.events.MatchEvents;
+import me.skywars2.game.modes.legacy.LbcBalanceItems;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.players.inventory.LbcUseInteractions;
+import me.skywars2.game.presentation.effects.AtlasGlitchSignal;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.nexus.LbcNexusCombat;
+import me.skywars2.game.world.nexus.LbcNexusToolItems;
+import me.skywars2.game.world.nexus.LbcNexusTools;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
@@ -28,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import me.skywars2.game.modes.bedwars.LbcBedwarsAuxiliaries;
 
 /** Fabric wiring. Match state and behavior live in GameController. */
 public final class SkyWars2 implements DedicatedServerModInitializer {
@@ -45,26 +73,26 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         var auxiliary=game.bedwars().auxiliaries();
         if(hit!=null&&auxiliary.open(owner,hand,owner.level(),hit.getBlockPos()))return InteractionResult.SUCCESS;
         if(auxiliary.useZombie(owner,hand,hit==null?null:hit.getBlockPos(),hit==null?null:hit.getDirection()))return InteractionResult.SUCCESS;
-        if(me.skywars2.game.LbcBedwarsAuxiliaries.chestItem(owner.getItemInHand(hand))&&!game.bedwars().canUse(owner))return InteractionResult.FAIL;
+        if(me.skywars2.game.modes.bedwars.LbcBedwarsAuxiliaries.chestItem(owner.getItemInHand(hand))&&!game.bedwars().canUse(owner))return InteractionResult.FAIL;
         return InteractionResult.PASS;
     }
     private static InteractionResult seasonalUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
         if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.PASS;
         var stack=owner.getItemInHand(hand);
-        if(me.skywars2.game.LbcKapusta.jack(stack))return game.vanity().blocked(owner)?InteractionResult.FAIL:
+        if(me.skywars2.game.items.drops.LbcKapusta.jack(stack))return game.vanity().blocked(owner)?InteractionResult.FAIL:
                 game.items().kapusta().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-        if(me.skywars2.game.LbcNovemberLightsaberItems.selector(stack)){
+        if(me.skywars2.game.items.weapons.melee.LbcNovemberLightsaberItems.selector(stack)){
             if(game.vanity().blocked(owner))return InteractionResult.FAIL;
             return game.items().lightsabers().use(owner,hand);
         }
-        if(me.skywars2.game.ItemData.intValue(stack,"pozdman_bot",0)==1){
+        if(me.skywars2.game.items.ItemData.intValue(stack,"pozdman_bot",0)==1){
             if(game.vanity().blocked(owner))return InteractionResult.FAIL;
             return game.items().pozdmanBot().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
     }
     private static InteractionResult touhouUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
-        if(game==null||!(player instanceof ServerPlayer owner)||!me.skywars2.game.LbcTouhouCollectibles.consumable(owner.getItemInHand(hand)))return InteractionResult.PASS;
+        if(game==null||!(player instanceof ServerPlayer owner)||!me.skywars2.game.items.gadgets.LbcTouhouCollectibles.consumable(owner.getItemInHand(hand)))return InteractionResult.PASS;
         return game.items().touhouCollectibles().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
     }
     private static InteractionResult nexusToolUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
@@ -84,17 +112,17 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         LbcHomes.registerTicket();
         MatchEvents.registerAirdropTicket();
         LbcPortalDrops.registerTicket();
-        me.skywars2.game.LbcBlaze.registerTrialTicket();
+        me.skywars2.game.items.wands.LbcBlaze.registerTrialTicket();
         LbcItems.register();
-        me.skywars2.game.TrueLegacyRules.registerItemProjection();
+        me.skywars2.game.modes.legacy.TrueLegacyRules.registerItemProjection();
         LbcPortalDropItem.register();
         LbcLuckyRoomDropItem.register();
-        me.skywars2.game.LbcPisaDropItem.register();
-        me.skywars2.game.LbcUltraponosDropItem.register();
-        me.skywars2.game.LbcReactiveItems.register();
-        me.skywars2.game.LbcNpcDropItems.register();
-        me.skywars2.game.LbcStalinDropItem.register();
-        me.skywars2.game.LbcAntigravityDropItem.register();
+        me.skywars2.game.items.drops.LbcPisaDropItem.register();
+        me.skywars2.game.items.drops.LbcUltraponosDropItem.register();
+        me.skywars2.game.items.gadgets.LbcReactiveItems.register();
+        me.skywars2.game.items.drops.LbcNpcDropItems.register();
+        me.skywars2.game.entities.mobs.LbcStalinDropItem.register();
+        me.skywars2.game.items.drops.LbcAntigravityDropItem.register();
         LbcCraftingRecipe.register();
         FullInvisibility.register();
         me.skywars2.game.items.phone.TikTokAccounts.register();
@@ -146,23 +174,23 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             }
         });
         ServerTickEvents.START_SERVER_TICK.register(server -> {
-            me.skywars2.game.LbcAcceptedHits.clear();
-            me.skywars2.game.TpsCompensation.beginTick(server);
-            me.skywars2.game.SignedEnvironmentalEffects.beginTick();
+            me.skywars2.game.combat.LbcAcceptedHits.clear();
+            me.skywars2.game.net.metrics.TpsCompensation.beginTick(server);
+            me.skywars2.game.effects.SignedEnvironmentalEffects.beginTick();
         });
-        ServerTickEvents.END_SERVER_TICK.register(server -> me.skywars2.game.ServerNetworkTransport.endTick(server,()->{
+        ServerTickEvents.END_SERVER_TICK.register(server -> me.skywars2.game.net.ServerNetworkTransport.endTick(server,()->{
             if (game != null) {
                 game.tick();
                 if (nativeChecks != null) nativeChecks.tick(game);
                 game.items().psycho().audioMaintenance();
             }
-            me.skywars2.game.SignedEnvironmentalEffects.tick();
-            me.skywars2.game.SignedEffectVisuals.tick(server);
-            me.skywars2.game.WeaponSpreadVisuals.tick(server);
+            me.skywars2.game.effects.SignedEnvironmentalEffects.tick();
+            me.skywars2.game.effects.SignedEffectVisuals.tick(server);
+            me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals.tick(server);
             if(game!=null)game.vanity().tick();
             if(game!=null)game.itemQueue().endTick();
             AtlasGlitchSignal.tick(server);
-            me.skywars2.game.PlayerLatency.tick(server);
+            me.skywars2.game.net.PlayerLatency.tick(server);
         }));
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;
@@ -193,36 +221,36 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && level == game.maps().level()) game.items().magic().chunkUnloaded(chunk);
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-            me.skywars2.game.SignedEnvironmentalEffects.clear();
-            me.skywars2.game.SignedEffectVisuals.stop(server);
+            me.skywars2.game.effects.SignedEnvironmentalEffects.clear();
+            me.skywars2.game.effects.SignedEffectVisuals.stop(server);
             if (game != null) { game.shutdown(); game = null; }
             AtlasGlitchSignal.stop(server);
-            me.skywars2.game.WeaponSpreadVisuals.stop();
-            me.skywars2.game.PlayerLatency.stop();
+            me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals.stop();
+            me.skywars2.game.net.PlayerLatency.stop();
         });
-        ServerPlayerEvents.JOIN.register(player -> { if (game != null) { game.items().mana().initializeResources(player); game.join(player); } me.skywars2.game.SignedEffectVisuals.joined(player); });
+        ServerPlayerEvents.JOIN.register(player -> { if (game != null) { game.items().mana().initializeResources(player); game.join(player); } me.skywars2.game.effects.SignedEffectVisuals.joined(player); });
         ServerPlayerEvents.LEAVE.register(player -> {
             AtlasGlitchSignal.leaving(player);
-            me.skywars2.game.PlayerLatency.forget(player);
-            me.skywars2.game.WeaponSpreadVisuals.forget(player);
+            me.skywars2.game.net.PlayerLatency.forget(player);
+            me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals.forget(player);
             FullInvisibility.cameraChanging(player, null);
-            me.skywars2.game.SignedEffectVisuals.clear(player);
+            me.skywars2.game.effects.SignedEffectVisuals.clear(player);
             if (game != null) game.leave(player);
         });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, player, alive) -> {
-            me.skywars2.game.WeaponSpreadVisuals.forget(oldPlayer);
-            me.skywars2.game.WeaponSpreadVisuals.forget(player);
+            me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals.forget(oldPlayer);
+            me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals.forget(player);
             // 26.3 assigns the listener after PlayerList.respawn returns; callbacks teleport now.
             player.connection.player = player;
             // При респауне объект игрока заменяется, а UUID остаётся: старый доступ камеры не переносится.
             FullInvisibility.cameraChanging(oldPlayer, null);
             if (game != null) { game.items().fpvDrone().forget(oldPlayer); game.items().fpvDrone().forget(player); game.respawned(player); }
-            me.skywars2.game.SignedEffectVisuals.joined(player);
+            me.skywars2.game.effects.SignedEffectVisuals.joined(player);
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damage) -> {
             if(game!=null)game.items().radar().forget(entity);
             if(game!=null&&entity instanceof ServerPlayer player)game.items().fpvDrone().forget(player);
-            me.skywars2.game.LbcAcceptedHits.lethal(entity,damage);
+            me.skywars2.game.combat.LbcAcceptedHits.lethal(entity,damage);
             if (game != null) game.items().specialTools().died(entity,damage);
             if (game != null) game.items().exoperso().died(entity, damage);
             if (game != null) game.items().helicopterEncounter().died(entity, damage);
@@ -232,9 +260,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && entity instanceof ServerPlayer player) { game.items().steampunkHook().reset(player);game.items().steampunkGlove().reset(player);game.died(player, damage); }
         });
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity,source,baseDamage,damage,blocked) ->
-                me.skywars2.game.LbcAcceptedHits.nonlethal(entity,source,damage,blocked));
+                me.skywars2.game.combat.LbcAcceptedHits.nonlethal(entity,source,damage,blocked));
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, damage, amount) -> {
-            if(me.skywars2.game.LbcDimensionItems.nexus(entity.level())
+            if(me.skywars2.game.entities.LbcDimensionItems.nexus(entity.level())
                     &&damage.is(net.minecraft.tags.DamageTypeTags.IS_FALL))return false;
             if(game!=null&&LbcDamage.isElectricalContact(damage)&&game.items().fpvDrone().tryShortCircuit(entity))return false;
             boolean allowed=game==null ? LbcDamage.allowDamage(entity,damage) : game.items().allowDamage(entity,damage);
@@ -242,17 +270,17 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
-            if(player instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.nexus(level)){
+            if(player instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.nexus(level)){
                 if(game!=null&&(game.vanity().blocked(owner)||game.items().actionsBlocked(owner)||game.isObserver(owner)))return InteractionResult.FAIL;
                 var tool=nexusToolUse(owner,hand);
                 if(tool!=InteractionResult.PASS)return tool;
-                return me.skywars2.game.LbcDimensionItems.allowed(owner,owner.getItemInHand(hand))?InteractionResult.PASS:InteractionResult.FAIL;
+                return me.skywars2.game.entities.LbcDimensionItems.allowed(owner,owner.getItemInHand(hand))?InteractionResult.PASS:InteractionResult.FAIL;
             }
             if(game!=null&&player instanceof ServerPlayer owner
-                    &&!me.skywars2.game.LbcUseInteractions.forcedUse(owner)
-                    &&!me.skywars2.game.LbcUseInteractions.shieldHandoff(owner,hand)
+                    &&!me.skywars2.game.players.inventory.LbcUseInteractions.forcedUse(owner)
+                    &&!me.skywars2.game.players.inventory.LbcUseInteractions.shieldHandoff(owner,hand)
                     &&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTmtItems.matches(owner.getItemInHand(hand))&&!me.skywars2.game.LbcTmtItems.active(owner.getItemInHand(hand))){
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.tmt.LbcTmtItems.matches(owner.getItemInHand(hand))&&!me.skywars2.game.items.tmt.LbcTmtItems.active(owner.getItemInHand(hand))){
                 if(game.vanity().blocked(owner)||!game.items().tmt().admitted(owner))return InteractionResult.FAIL;
                 return game.items().genie().runtime().replaceUse(owner,hand);
             }
@@ -261,13 +289,13 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
             if(game!=null&&player instanceof ServerPlayer owner){
-                if(me.skywars2.game.LbcCunnyItems.nahida(owner.getItemInHand(hand)))return game.vanity().blocked(owner)?InteractionResult.FAIL:InteractionResult.PASS;
-                if(me.skywars2.game.LbcCunnyItems.slab(owner.getItemInHand(hand))||me.skywars2.game.ItemData.intValue(owner.getItemInHand(hand),"cunny_slab",0)==1){
+                if(me.skywars2.game.world.terrain.LbcCunnyItems.nahida(owner.getItemInHand(hand)))return game.vanity().blocked(owner)?InteractionResult.FAIL:InteractionResult.PASS;
+                if(me.skywars2.game.world.terrain.LbcCunnyItems.slab(owner.getItemInHand(hand))||me.skywars2.game.items.ItemData.intValue(owner.getItemInHand(hand),"cunny_slab",0)==1){
                     if(game.vanity().blocked(owner))return InteractionResult.FAIL;
                     return game.items().useCunny(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
                 }
             }
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.ItemData.intValue(owner.getItemInHand(hand),"mellstroy_mask",0)==1){
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.ItemData.intValue(owner.getItemInHand(hand),"mellstroy_mask",0)==1){
                 if(game.vanity().blocked(owner))return InteractionResult.FAIL;
                 return game.items().useMellstroy(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             }
@@ -278,23 +306,23 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                 var scripted=game.items().genie().runtime().replaceUse(owner,hand);
                 if(scripted!=InteractionResult.PASS)return scripted;
             }
-            if(game!=null){var utility=me.skywars2.game.LbcImbaTerrainUtilityItems.legacyAir(level,player,hand);if(utility!=InteractionResult.PASS)return utility;}
+            if(game!=null){var utility=me.skywars2.game.items.gadgets.LbcImbaTerrainUtilityItems.legacyAir(level,player,hand);if(utility!=InteractionResult.PASS)return utility;}
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useItem(owner, hand)) return InteractionResult.SUCCESS;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcWoolTrailItems.matches(player.getItemInHand(hand))
-                    &&!me.skywars2.game.LbcWoolTrailItems.allowed(game,owner,hand))return InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcThrownUtilities.matches(player.getItemInHand(hand)))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.gadgets.LbcWoolTrailItems.matches(player.getItemInHand(hand))
+                    &&!me.skywars2.game.items.gadgets.LbcWoolTrailItems.allowed(game,owner,hand))return InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.gadgets.LbcThrownUtilities.matches(player.getItemInHand(hand)))
                 return game.items().thrownUtilities().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcGodDice.matches(player.getItemInHand(hand)))
-                return me.skywars2.game.LbcGodDice.use(game,owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcWhiteArrows.matches(player.getItemInHand(hand)))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.gadgets.LbcGodDice.matches(player.getItemInHand(hand)))
+                return me.skywars2.game.items.gadgets.LbcGodDice.use(game,owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.entities.projectiles.LbcWhiteArrows.matches(player.getItemInHand(hand)))
                 return game.items().whiteArrows().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTeleportGadgets.matches(player.getItemInHand(hand)))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.gadgets.LbcTeleportGadgets.matches(player.getItemInHand(hand)))
                 return game.items().teleportGadgets().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcBouncingPoop.matches(player.getItemInHand(hand)))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.entities.projectiles.LbcBouncingPoop.matches(player.getItemInHand(hand)))
                 return game.items().bouncingPoop().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcClownKit.matches(player.getItemInHand(hand)))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.skills.kits.LbcClownKit.matches(player.getItemInHand(hand)))
                 return game.items().clownKit().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.LbcDeus.matches(player.getItemInHand(hand))||me.skywars2.game.LbcSteampunkHook.matches(player.getItemInHand(hand))||me.skywars2.game.LbcKitUtilities.matches(player.getItemInHand(hand))))
+            if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.items.weapons.melee.LbcDeus.matches(player.getItemInHand(hand))||me.skywars2.game.items.tools.LbcSteampunkHook.matches(player.getItemInHand(hand))||me.skywars2.game.items.gadgets.LbcKitUtilities.matches(player.getItemInHand(hand))))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){
                 var eye=player.getEyePosition();var end=eye.add(player.getViewVector(1).scale(player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.BLOCK_INTERACTION_RANGE)));
@@ -306,31 +334,31 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                 }
                 return InteractionResult.PASS;
             }
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcShishEncounter.matches(player.getItemInHand(hand)))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.entities.mobs.LbcShishEncounter.matches(player.getItemInHand(hand)))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcMetalPipe.divider(player.getItemInHand(hand)))
+            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.items.weapons.melee.LbcMetalPipe.divider(player.getItemInHand(hand)))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.LbcBigBob.matches(player.getItemInHand(hand))
-                    ||me.skywars2.game.LbcUniwand.matches(player.getItemInHand(hand))||me.skywars2.game.LbcBoba.matches(player.getItemInHand(hand))||me.skywars2.game.LbcImbaRunes.matches(player.getItemInHand(hand))||me.skywars2.game.LbcChaosRewardItems.matches(player.getItemInHand(hand))))
+            if(player instanceof ServerPlayer owner&&!me.skywars2.game.entities.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.entities.mobs.bobs.LbcBigBob.matches(player.getItemInHand(hand))
+                    ||me.skywars2.game.items.wands.LbcUniwand.matches(player.getItemInHand(hand))||me.skywars2.game.world.terrain.LbcBoba.matches(player.getItemInHand(hand))||me.skywars2.game.items.gadgets.LbcImbaRunes.matches(player.getItemInHand(hand))||me.skywars2.game.items.drops.LbcChaosRewardItems.matches(player.getItemInHand(hand))))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             // Authored raw spell leaves retain their vanilla carrier, so enter the same two-hand dispatcher here.
-            if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.LbcLibrarySpells.matchesRawRaycast(player.getItemInHand(hand))||me.skywars2.game.LbcRewardTools.matches(player.getItemInHand(hand))||me.skywars2.game.LbcLooseRewards.luckyWand(player.getItemInHand(hand))||me.skywars2.game.LbcFpvDrone.matches(player.getItemInHand(hand))||me.skywars2.game.LbcWitchGluttony.matches(player.getItemInHand(hand))||me.skywars2.game.LbcWitchIndolence.matches(player.getItemInHand(hand))||me.skywars2.game.LbcWitchClaims.matches(player.getItemInHand(hand))||me.skywars2.game.LbcWitchLust.matches(player.getItemInHand(hand))))
+            if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.items.wands.LbcLibrarySpells.matchesRawRaycast(player.getItemInHand(hand))||me.skywars2.game.items.tools.LbcRewardTools.matches(player.getItemInHand(hand))||me.skywars2.game.items.loot.LbcLooseRewards.luckyWand(player.getItemInHand(hand))||me.skywars2.game.entities.drones.LbcFpvDrone.matches(player.getItemInHand(hand))||me.skywars2.game.skills.witch.LbcWitchGluttony.matches(player.getItemInHand(hand))||me.skywars2.game.skills.witch.LbcWitchIndolence.matches(player.getItemInHand(hand))||me.skywars2.game.skills.witch.LbcWitchClaims.matches(player.getItemInHand(hand))||me.skywars2.game.skills.witch.LbcWitchLust.matches(player.getItemInHand(hand))))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcHedgehogSpikes.legacyThrow(player.getItemInHand(hand))!=0)
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogSpikes.legacyThrow(player.getItemInHand(hand))!=0)
                 return game.items().hedgehogSpikes().useLegacy(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             // Original accessory/reforge stacks keep their vanilla carrier and enter the native two-hand dispatcher.
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcPendingCombat.isPiston(player.getItemInHand(hand)))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.combat.LbcPendingCombat.isPiston(player.getItemInHand(hand)))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcPopit.matches(player.getItemInHand(hand)))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.gadgets.LbcPopit.matches(player.getItemInHand(hand)))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcChargedSwords.matches(player.getItemInHand(hand))
-                    &&!player.getItemInHand(hand).is(me.skywars2.game.LbcChargedSwords.TRIPLE)&&!player.getItemInHand(hand).is(me.skywars2.game.LbcChargedSwords.BLAZE))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.weapons.melee.LbcChargedSwords.matches(player.getItemInHand(hand))
+                    &&!player.getItemInHand(hand).is(me.skywars2.game.items.weapons.melee.LbcChargedSwords.TRIPLE)&&!player.getItemInHand(hand).is(me.skywars2.game.items.weapons.melee.LbcChargedSwords.BLAZE))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcFevgaleaStar.isSword(player.getItemInHand(hand))
-                    &&!player.getItemInHand(hand).is(me.skywars2.game.LbcFevgaleaStar.SWORD))
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.items.wands.LbcFevgaleaStar.isSword(player.getItemInHand(hand))
+                    &&!player.getItemInHand(hand).is(me.skywars2.game.items.wands.LbcFevgaleaStar.SWORD))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if (game != null && player instanceof ServerPlayer owner && (me.skywars2.game.LbcSpecialTools.isLegacyScythe(player.getItemInHand(hand)) || me.skywars2.game.LbcSpecialTools.isLegacyHammer(player.getItemInHand(hand))))
+            if (game != null && player instanceof ServerPlayer owner && (me.skywars2.game.items.tools.LbcSpecialTools.isLegacyScythe(player.getItemInHand(hand)) || me.skywars2.game.items.tools.LbcSpecialTools.isLegacyHammer(player.getItemInHand(hand))))
                 return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.canUseMenus(serverPlayer)
@@ -360,13 +388,13 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     && !player.getItemInHand(hand).is(LbcStand.HOMING_LIGHTNING))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner
-                    && me.skywars2.game.LbcMobgun.isMobgun(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcMobgun.ITEM))
+                    && me.skywars2.game.items.weapons.firearms.LbcMobgun.isMobgun(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.weapons.firearms.LbcMobgun.ITEM))
                 return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner
-                    && me.skywars2.game.LbcWands.isLifestealer(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcWands.LIFESTEALER)
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcWands.ACADEMY_LIFESTEALER))
+                    && me.skywars2.game.items.wands.LbcWands.isLifestealer(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.wands.LbcWands.LIFESTEALER)
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.wands.LbcWands.ACADEMY_LIFESTEALER))
                 return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             // Старые стеки из перековки используют тот же ввод, что и нативная Polymer-винтовка.
             if (game != null && player instanceof ServerPlayer owner && LbcShooters.isKfcGun(player.getItemInHand(hand))
@@ -384,23 +412,23 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && player instanceof ServerPlayer owner && LbcShooters.isBossHelicopter(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcShooters.BOSS_HELICOPTER))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
-            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcGovnomet.isGovnomet(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcGovnomet.ITEM))
+            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.entities.projectiles.LbcGovnomet.isGovnomet(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.entities.projectiles.LbcGovnomet.ITEM))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
-            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcMagnum.isMagnum(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcMagnum.ITEM))
+            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.items.weapons.firearms.LbcMagnum.isMagnum(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.weapons.firearms.LbcMagnum.ITEM))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
-            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcAk47.isAk47(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcAk47.ITEM))
+            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.items.weapons.firearms.LbcAk47.isAk47(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.weapons.firearms.LbcAk47.ITEM))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
-            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcHohlopitek.isItem(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcHohlopitek.ITEM))
+            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.entities.mobs.LbcHohlopitek.isItem(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.entities.mobs.LbcHohlopitek.ITEM))
                 return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
-            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcLaserMinigun.isMinigun(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcLaserMinigun.ITEM))
+            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.items.weapons.firearms.LbcLaserMinigun.isMinigun(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.weapons.firearms.LbcLaserMinigun.ITEM))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
-            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcKfcRewards.isCultus(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcKfcRewards.PENIS_CULTUS))
+            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.items.food.LbcKfcRewards.isCultus(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.food.LbcKfcRewards.PENIS_CULTUS))
                 return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if(game!=null && player instanceof ServerPlayer owner && LbcElectro.isAnyKatana(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcElectro.CYBERKATANA)
@@ -411,9 +439,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     && !player.getItemInHand(hand).is(LbcTerra.RAZOR))
                 return game.items().terra().useRazor(serverPlayer,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer
-                    && me.skywars2.game.LbcTerra.isSword(player.getItemInHand(hand))
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcTerra.SWORD)
-                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcTerra.TRUE_SWORD))
+                    && me.skywars2.game.items.wands.LbcTerra.isSword(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.wands.LbcTerra.SWORD)
+                    && !player.getItemInHand(hand).is(me.skywars2.game.items.wands.LbcTerra.TRUE_SWORD))
                 return game.items().terra().useSword(serverPlayer, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer
                     && (LbcItems.isDynamite(player.getItemInHand(hand)) || LbcItems.isNanobot(player.getItemInHand(hand))
@@ -423,9 +451,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
-            if(player instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.ordinary(level))
-                me.skywars2.game.LbcTmtTriggers.input(owner,me.skywars2.game.LbcTmtTriggers.Input.LEFT_CLICK);
-            if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
+            if(player instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.ordinary(level))
+                me.skywars2.game.items.tmt.LbcTmtTriggers.input(owner,me.skywars2.game.items.tmt.LbcTmtTriggers.Input.LEFT_CLICK);
+            if(player instanceof ServerPlayer owner&&!me.skywars2.game.entities.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
@@ -436,18 +464,18 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
-            if(player instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.nexus(level))
+            if(player instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.nexus(level))
                 return game!=null&&(game.items().actionsBlocked(owner)||game.isObserver(owner))?InteractionResult.FAIL:InteractionResult.PASS;
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
             var bw=bedwarsUse(player,hand,hit);if(bw!=InteractionResult.PASS)return bw;
             // Air-use abilities run from UseItemCallback. Fabric invokes this callback
             // before the clicked block can open its menu or handle its own interaction.
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useBlock(owner, hand, hit)) return InteractionResult.SUCCESS;
-            if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
+            if(player instanceof ServerPlayer owner&&!me.skywars2.game.entities.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
-            if(game!=null){var slab=me.skywars2.game.LbcLegacySlabs.legacyUseOn(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(slab!=InteractionResult.PASS)return slab;}
-            if(game!=null){var utility=me.skywars2.game.LbcImbaTerrainUtilityItems.legacyBlock(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(utility!=InteractionResult.PASS){
+            if(game!=null){var slab=me.skywars2.game.modes.legacy.LbcLegacySlabs.legacyUseOn(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(slab!=InteractionResult.PASS)return slab;}
+            if(game!=null){var utility=me.skywars2.game.items.gadgets.LbcImbaTerrainUtilityItems.legacyBlock(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(utility!=InteractionResult.PASS){
                 if(player instanceof ServerPlayer owner)LbcUseInteractions.shieldAfter(owner.gameMode,owner,level,hand,utility);
                 return utility;
             }}
@@ -468,29 +496,29 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
-            if(player instanceof ServerPlayer owner&&me.skywars2.game.LbcDimensionItems.nexus(level)){
+            if(player instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.nexus(level)){
                 if(game!=null&&(game.vanity().blocked(owner)||game.items().actionsBlocked(owner)||game.isObserver(owner)))return InteractionResult.FAIL;
                 if(game!=null){var cage=game.items().nexusAcquisition().use(owner,hand,entity);if(cage!=InteractionResult.PASS)return cage;}
-                return me.skywars2.game.LbcDimensionItems.allowed(owner,owner.getItemInHand(hand))?InteractionResult.PASS:InteractionResult.FAIL;
+                return me.skywars2.game.entities.LbcDimensionItems.allowed(owner,owner.getItemInHand(hand))?InteractionResult.PASS:InteractionResult.FAIL;
             }
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().interact(owner,hand,entity))return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner)LbcUseInteractions.entityPress(owner,hand,entity);
-            if(me.skywars2.game.LbcBedwars.shopRole(entity))return game!=null&&player instanceof ServerPlayer owner&&hand==net.minecraft.world.InteractionHand.MAIN_HAND&&game.bedwars().shop().open(owner,entity)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            if(me.skywars2.game.modes.bedwars.LbcBedwars.shopRole(entity))return game!=null&&player instanceof ServerPlayer owner&&hand==net.minecraft.world.InteractionHand.MAIN_HAND&&game.bedwars().shop().open(owner,entity)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
             if(game!=null&&player instanceof ServerPlayer owner){var result=game.items().nexusAcquisition().use(owner,hand,entity);if(result!=InteractionResult.PASS)return result;}
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useEntity(owner, entity)) return InteractionResult.SUCCESS;
-            if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
+            if(player instanceof ServerPlayer owner&&!me.skywars2.game.entities.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             // Matching-mob spawn eggs reach vanilla offspring interaction before Item.useOn.
-            if (me.skywars2.game.LbcSpecialEggs.matches(player.getItemInHand(hand))
-                    && !me.skywars2.game.LbcSpecialEggs.allowed(game,player)) return InteractionResult.FAIL;
+            if (me.skywars2.game.entities.mobs.summons.LbcSpecialEggs.matches(player.getItemInHand(hand))
+                    && !me.skywars2.game.entities.mobs.summons.LbcSpecialEggs.allowed(game,player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) {
                 game.spectators().watch(serverPlayer, entity); return InteractionResult.SUCCESS;
             }
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().shishEncounter().interact(owner,entity,hand))return InteractionResult.SUCCESS;
             // A summon order takes priority over feeding, sitting, mounting or opening a mob UI.
             if(game!=null && player instanceof ServerPlayer serverPlayer && player.isShiftKeyDown()
-                    && me.skywars2.game.LbcSummons.commandItem(player.getItemInHand(hand)))
+                    && me.skywars2.game.entities.mobs.summons.LbcSummons.commandItem(player.getItemInHand(hand)))
                 return game.items().wands().use(serverPlayer,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
                     && entity.entityTags().contains("swrg.quickstart")) {
@@ -504,7 +532,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             if (game != null && game.developerTools().gallery().protectEntity(entity)) return InteractionResult.FAIL;
-            if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
+            if(player instanceof ServerPlayer owner&&!me.skywars2.game.entities.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if(game==null)return InteractionResult.PASS;
             if(game.items().actionsBlocked(player)||player instanceof ServerPlayer observer&&game.isObserver(observer))return InteractionResult.FAIL;
             if(player instanceof ServerPlayer serverPlayer&&game.items().attackIceCrystal(serverPlayer,entity))return InteractionResult.SUCCESS;
@@ -512,7 +540,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
             DeveloperTools.registerCommands(dispatcher);
-            me.skywars2.game.BulkPlayerCommand.register(dispatcher);
+            me.skywars2.game.commands.BulkPlayerCommand.register(dispatcher);
             var root = Commands.literal("skywars").executes(ctx -> {
                 if (game != null) game.menus().open(ctx.getSource().getPlayerOrException()); return 1;
             });
@@ -556,7 +584,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                         ctx.getSource().sendSuccess(() -> text("settings.saved", "lbcUnlock", id), false);
                         return 1;
                     }))));
-            me.skywars2.game.SkyWarsCommandTree.add(dispatcher,Commands.literal("settings").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+            me.skywars2.game.commands.SkyWarsCommandTree.add(dispatcher,Commands.literal("settings").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                     .executes(ctx -> {
                         if (game == null) { ctx.getSource().sendFailure(text("message.starting")); return 0; }
                         ctx.getSource().sendSuccess(() -> game.settingsSummary(), false);
@@ -599,9 +627,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                                         }
                                     }))));
             dispatcher.register(root);
-            me.skywars2.game.SkyWarsFeedbackCommands.register(dispatcher);
-            me.skywars2.game.ServerTickMetrics.register(dispatcher);
-            me.skywars2.game.PlayerLatency.register(dispatcher);
+            me.skywars2.game.commands.SkyWarsFeedbackCommands.register(dispatcher);
+            me.skywars2.game.net.metrics.ServerTickMetrics.register(dispatcher);
+            me.skywars2.game.net.PlayerLatency.register(dispatcher);
         });
         LOGGER.info("SkyWars game cycle registered");
     }

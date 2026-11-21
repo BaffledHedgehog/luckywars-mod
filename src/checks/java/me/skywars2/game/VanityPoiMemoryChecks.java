@@ -2,7 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import java.util.concurrent.*;
-import me.skywars2.mixin.PoiCheckpointAccess;
+
+import me.skywars2.game.match.checkpoints.MatchPoiMemory;
+import me.skywars2.mixin.world.PoiCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;

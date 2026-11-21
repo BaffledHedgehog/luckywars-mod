@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.modes.bedwars.LbcBedwars;
+import me.skywars2.game.modes.bedwars.LbcBedwarsArena;
+import me.skywars2.game.modes.bedwars.LbcBedwarsHarm;
+import me.skywars2.game.modes.bedwars.LbcBedwarsRoleGuards;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
@@ -41,7 +46,7 @@ public final class BedwarsRoleChecks {
             var attacker=new Zombie(EntityTypes.ZOMBIE,level);attacker.setPos(owner.position().add(4,0,0));attacker.setNoAi(true);require(level.addFreshEntity(attacker),"actual native allied attacker");actors.add(attacker);board.addPlayerToTeam(attacker.getStringUUID(),owner.getTeam());
             require(!attacker.doHurtTarget(level,friend)&&friend.getHealth()==friendHealth,"actual native allied mob attack cannot damage its teammate");
             var arrow=new Arrow(EntityTypes.ARROW,level);arrow.setOwner(owner);arrow.setPos(owner.getEyePosition());actors.add(arrow);
-            var hit=(me.skywars2.mixin.BedwarsRoleGuardMixin.ProjectileOwner)(Object)arrow;
+            var hit=(me.skywars2.mixin.arena.BedwarsRoleGuardMixin.ProjectileOwner)(Object)arrow;
             require(!hit.skywars2$canHit(teammate)&&!hit.skywars2$canHit(friend)&&hit.skywars2$canHit(enemy),"actual native ordinary arrow collision excludes allied player/mob before impact payloads");
             require(!teammate.hurtServer(level,teammate.damageSources().arrow(arrow,owner),1)&&teammate.getHealth()==health,"ordinary native arrow damage also rejects a direct/server bypass of collision");
             require(!teammate.addEffect(new MobEffectInstance(MobEffects.POISON,60),owner)&&!teammate.addEffect(new MobEffectInstance(MobEffects.HUNGER,60),owner),"ordinary harmful status/resource grants reject before application");

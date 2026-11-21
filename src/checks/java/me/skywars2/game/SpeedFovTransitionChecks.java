@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.weapons.firearms.LbcMagnum;
+import me.skywars2.game.items.weapons.firearms.LbcMinigunMovement;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.Connection;
@@ -29,6 +32,7 @@ import net.minecraft.world.level.GameType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import me.skywars2.game.items.weapons.ranged.LbcRifleZoom;
 
 /** Native equipment transitions and ordered outbound snapshots; no physical client rendering claim. */
 public final class SpeedFovTransitionChecks {

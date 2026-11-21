@@ -2,8 +2,9 @@ package me.skywars2.game.genie;
 
 import com.google.gson.JsonObject;
 import java.util.*;
-import me.skywars2.game.ItemData;
+
 import me.skywars2.game.genie.script.*;
+import me.skywars2.game.items.ItemData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;

@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import io.netty.buffer.Unpooled;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.entities.mobs.LbcPsycho;
+import me.skywars2.game.items.weapons.ranged.LbcErecto;
+import me.skywars2.game.players.inventory.LbcInventoryHazards;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.PacketListener;

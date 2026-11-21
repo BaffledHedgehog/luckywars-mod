@@ -2,12 +2,16 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.SignedEffectVisuals;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.presentation.effects.BlackHoleVisuals;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.*;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.modes.legacy.LbcLegacyEffects;
 
 /** Native dimension projection, body reactions and per-viewer black-hole retirement. */
 public final class FeedbackRegressionChecks {

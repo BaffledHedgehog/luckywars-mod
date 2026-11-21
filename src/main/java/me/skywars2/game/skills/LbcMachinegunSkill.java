@@ -1,0 +1,196 @@
+package me.skywars2.game.skills;
+
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import me.skywars2.game.GameController;
+import me.skywars2.game.entities.projectiles.LbcProjectileLevelups;
+import me.skywars2.game.items.weapons.ranged.LbcGunAccuracy;
+import me.skywars2.game.items.weapons.ranged.LbcImbaCrossbows;
+import me.skywars2.game.items.weapons.ranged.LbcInfiniteAmmo;
+import me.skywars2.game.items.weapons.ranged.LbcRangedShots;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.phys.Vec3;
+
+/** Actual native bow draws, with one unfinished burst per owner and no catch-up debt. */
+public final class LbcMachinegunSkill {
+    public static final String TAG="skywars2.machinegun";
+    public static final int DELIVERY_BUDGET=128;
+    private static final long DELIVERY_NANOS=4_000_000;
+    public static final int BURSTS_PER_ADDITIONAL_ARROW=20;
+    private final GameController game;
+    private final Map<UUID,Draw> draws=new HashMap<>();
+    private final ArrayDeque<Draw> lanes=new ArrayDeque<>();
+
+    private static final class Draw {
+        final ServerPlayer owner;
+        final ItemStack bow;
+        final InteractionHand hand;
+        final int slot;
+        int callbackTick=Integer.MIN_VALUE,remaining;
+        Draw(ServerPlayer owner,ItemStack bow){
+            this.owner=owner;this.bow=bow;hand=owner.getUsedItemHand();slot=owner.getInventory().getSelectedSlot();
+        }
+    }
+    public LbcMachinegunSkill(GameController game){this.game=game;}
+
+    public static int interval(int progress){return progress>=19?1:20-Math.max(0,progress);}
+    public static int arrowsPerBurst(int progress){return arrowsPerBurst(progress,BURSTS_PER_ADDITIONAL_ARROW);}
+    /** User: slower growth, one extra arrow after twenty saturated completed bursts. */
+    public static int arrowsPerBurst(int progress,int burstsPerAdditionalArrow){
+        return (int)Math.min(Integer.MAX_VALUE,1L+Math.max(0L,(long)progress-19)/Math.max(1,burstsPerAdditionalArrow));
+    }
+    /** Retain the initial linear growth for the entire native draw. */
+    public static double speed(int charge){return (Math.max(0L,(long)charge)+200)*.005;}
+    /** Actual accepted arrows, rather than elapsed draw ticks, narrow the next shot. */
+    public static int spread(int shots){return 2000-20*Math.clamp(shots,0,100);}
+    public static double component(double direction,int charge,int jitter){
+        return (Math.floor(direction*speed(charge)*10000)+jitter)*.0001;
+    }
+    public int charge(ServerPlayer p){return game.items().mana().score(p,"bow_charge").get();}
+    public int progress(ServerPlayer p){return game.items().mana().score(p,"bow_charge_sub").get();}
+    public int shots(ServerPlayer p){return Math.max(0,game.items().mana().score(p,"machinegun_shots").get());}
+    public boolean overridesAim(ServerPlayer p,InteractionHand hand){return game.playing()&&game.lbc().hasSkill(p,14)&&p.isUsingItem()
+            &&p.getUsedItemHand()==hand&&p.getUseItem().getItem() instanceof BowItem&&shots(p)>0;}
+    public double aimDegrees(ServerPlayer p){return LbcGunAccuracy.additiveDegrees(spread(shots(p))*.0001,speed(charge(p)));}
+    public int pending(ServerPlayer p){var draw=draws.get(p.getUUID());return draw==null?0:draw.remaining;}
+    private boolean paused(ServerPlayer p){return game.server().tickRateManager().isFrozen()
+            ||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(p.level())
+            ||game.items().timeStop().frozen(p)||p.entityTags().contains("time_stopped");}
+    private boolean valid(Draw draw){var p=draw.owner;
+        return game.lbc().hasSkill(p,14)&&p.isUsingItem()&&p.getUsedItemHand()==draw.hand
+                &&p.getUseItem()==draw.bow&&p.getItemInHand(draw.hand)==draw.bow&&!draw.bow.isEmpty()
+                &&draw.bow.getItem() instanceof BowItem
+                &&(draw.hand!=InteractionHand.MAIN_HAND||p.getInventory().getSelectedSlot()==draw.slot);
+    }
+
+    /** Called from LivingEntity.updateUsingItem with the actual used stack, in either hand. */
+    public void usingBow(ServerPlayer p,ItemStack bow){
+        if(MatchPlayerCheckpoint.restoring(p))return;
+        if(!(bow.getItem() instanceof BowItem)||!game.lbc().hasSkill(p,14)){clear(p);return;}
+        var draw=draws.get(p.getUUID());
+        if(draw!=null&&!valid(draw)){clear(p);draw=null;}
+        if(draw==null){draw=new Draw(p,bow);draws.put(p.getUUID(),draw);lanes.addLast(draw);}
+        if(!valid(draw)){clear(p);return;}
+        int now=game.server().getTickCount();
+        if(paused(p)||draw.callbackTick==now)return;
+        draw.callbackTick=now;
+        var score=game.items().mana().score(p,"bow_charge");
+        int q=score.get()==Integer.MAX_VALUE?Integer.MAX_VALUE:Math.max(0,score.get())+1;score.set(q);
+        int interval=interval(progress(p));
+        if(draw.remaining==0&&Math.floorMod(q,interval)==interval-1&&ammo(p)!=null){
+            draw.remaining=arrowsPerBurst(progress(p));
+        }
+    }
+
+    /** Fair owner lanes bound CPU and entity publication; unfinished bursts suppress new debt. */
+    public void tick(){
+        if(lanes.isEmpty())return;
+        int budget=DELIVERY_BUDGET,visits=lanes.size();
+        var deferred=new java.util.HashSet<Draw>();
+        long start=System.nanoTime();
+        while(budget>0&&visits-->0&&!lanes.isEmpty()){
+            var draw=lanes.removeFirst();
+            if(draws.get(draw.owner.getUUID())!=draw)continue;
+            if(!valid(draw)){clear(draw.owner);continue;}
+            lanes.addLast(draw);
+            if(!paused(draw.owner)&&draw.remaining>0&&!deferred.contains(draw)){
+                int reserved=LbcImbaCrossbows.reserveShot(draw.owner,draw.bow);
+                if(reserved<0)deferred.add(draw);
+                else if(shoot(draw.owner)){
+                    draw.remaining--;budget--;
+                    if(draw.remaining==0){var s=game.items().mana().score(draw.owner,"bow_charge_sub");
+                        if(s.get()<Integer.MAX_VALUE)s.set(Math.max(0,s.get())+1);}
+                }else{
+                    LbcImbaCrossbows.releaseUnusedShot(draw.owner,reserved);
+                    draw.remaining=0;
+                }
+            }
+            if(visits==0&&budget>0&&lanes.stream().anyMatch(d->d.remaining>0&&!deferred.contains(d)&&!paused(d.owner)))visits=lanes.size();
+            if(System.nanoTime()-start>=DELIVERY_NANOS)break;
+        }
+    }
+    private ItemStack weapon(ServerPlayer p){
+        if(p.isUsingItem()&&p.getUseItem().getItem() instanceof BowItem)return p.getUseItem();
+        for(var hand:InteractionHand.values())if(p.getItemInHand(hand).getItem() instanceof BowItem)return p.getItemInHand(hand);
+        return ItemStack.EMPTY;
+    }
+    private ItemStack ammo(ServerPlayer p){return ammo(p,weapon(p));}
+    private ItemStack ammo(ServerPlayer p,ItemStack weapon){
+        if(!(weapon.getItem() instanceof BowItem bow))return null;
+        // Native held-first selection, without the creative fallback's fabricated normal arrow.
+        var held=ProjectileWeaponItem.getHeldProjectile(p,bow.getSupportedHeldProjectiles());
+        if(!held.isEmpty()&&held.getItem() instanceof ArrowItem)return held;
+        for(int slot=0;slot<p.getInventory().getContainerSize();slot++){
+            var stack=p.getInventory().getItem(slot);
+            if(!stack.isEmpty()&&stack.getItem() instanceof ArrowItem&&bow.getAllSupportedProjectiles().test(stack))return stack;
+        }
+        return null;
+    }
+    private boolean shoot(ServerPlayer p){
+        var weapon=weapon(p);var ammo=ammo(p,weapon);if(ammo==null)return false;
+        var fired=weapon.copy();
+        int q=charge(p),spread=spread(shots(p));var random=p.getRandom();var direction=p.getLookAngle();
+        // q is nonnegative for real draws: spread is at most 2000 and nextInt cannot overflow.
+        var motion=spread==0?direction.scale(speed(q)):new Vec3(component(direction.x,q,random.nextInt(spread*2+1)-spread),
+                component(direction.y,q,random.nextInt(spread*2+1)-spread),
+                component(direction.z,q,random.nextInt(spread*2+1)-spread));
+        var arrow=((ArrowItem)ammo.getItem()).createArrow(p.level(),ammo,p,fired);double damage=2;
+        arrow.setPos(p.getEyePosition());arrow.entityTags().add(TAG);arrow.entityTags().add("killedarrow");
+        arrow.setBaseDamage(damage);arrow.setDeltaMovement(motion);
+        boolean replacement=LbcRangedShots.replacesNative(game,p,fired);
+        if(!replacement){
+            game.items().projectileLevelups().beforePublish(p,arrow,LbcProjectileLevelups.Launch.MACHINEGUN);
+            LbcShooters.orient(arrow);game.items().markCurrentItemEpoch(arrow);
+            game.items().timeStop().prepareFrozen(arrow);
+            if(!p.level().addFreshEntity(arrow))return false;
+            arrow.applyOnProjectileSpawned(p.level(),ammo.copyWithCount(1));
+            game.items().lifetimes().track(arrow);
+        }
+        var accepted=game.items().mana().score(p,"machinegun_shots");if(accepted.get()<Integer.MAX_VALUE)accepted.add(1);
+        if(random.nextBoolean()&&!LbcInfiniteAmmo.conserves(ammo)){ammo.shrink(1);p.getInventory().setChanged();}
+        List<Projectile> volley=List.of(arrow);
+        if(replacement)LbcRangedShots.acceptedReplacement(game,p,p.getUsedItemHand(),weapon,fired,volley);
+        else LbcRangedShots.accepted(game,p,p.getUsedItemHand(),weapon,fired,volley);
+        return true;
+    }
+    public static boolean managed(Entity actor){return actor!=null&&actor.entityTags().contains(TAG);}
+    public boolean loaded(Entity actor){
+        if(!managed(actor))return false;
+        if(!game.playing()||actor.level()!=game.maps().level()||!game.items().currentEpoch(actor)){actor.discard();return true;}
+        if(actor instanceof AbstractArrow arrow)game.items().lifetimes().track(arrow);
+        game.items().timeStop().prepareFrozen(actor);return true;
+    }
+    /** Narrow native-arrow tick hook also covers arrows restored by full match rewind. */
+    public void arrowTick(AbstractArrow arrow){
+        if(!managed(arrow)||arrow.isRemoved())return;
+        if(!game.playing()||!game.items().currentEpoch(arrow)||arrow.level()!=game.maps().level()){arrow.discard();return;}
+        if(game.items().timeStop().stopped((net.minecraft.server.level.ServerLevel)arrow.level())
+                ||game.items().timeStop().frozen(arrow))return;
+        if(!((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())game.items().lifetimes().advance(arrow,arrow.tickCount);
+    }
+    public void clear(ServerPlayer p){
+        if(MatchPlayerCheckpoint.restoring(p))return;
+        var draw=draws.remove(p.getUUID());
+        if(draw==null&&!game.lbc().hasSkill(p,14))return;
+        if(draw!=null)lanes.remove(draw);
+        game.items().mana().score(p,"bow_charge").set(0);game.items().mana().score(p,"bow_charge_sub").set(0);game.items().mana().score(p,"machinegun_shots").set(0);
+    }
+    public void clear(){for(var draw:java.util.List.copyOf(draws.values()))clear(draw.owner);
+        for(var p:game.server().getPlayerList().getPlayers())game.items().mana().score(p,"machinegun_shots").set(0);}
+    /** Core restores canonical scoreboard phase; short unfinished emissions may be canceled. */
+    public void clearTransient(){draws.clear();lanes.clear();}
+}

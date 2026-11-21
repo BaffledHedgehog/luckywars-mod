@@ -3,6 +3,12 @@ package me.skywars2.game;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.items.weapons.ranged.LbcSpecialFireballs;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -10,6 +16,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import me.skywars2.game.items.tmt.LbcTmtRuntime;
+import me.skywars2.game.items.tmt.LbcTmtUseProfiles;
 
 /** Actual input in Nexus follows the selected native owner, while ordinary spell policy remains intact. */
 public final class TmtExtraUseChecks {

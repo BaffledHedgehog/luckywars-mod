@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import me.skywars2.game.world.maps.MapEditing;
 import net.minecraft.server.level.ServerPlayer;
 
 /** Registered only by the test-server artifact. */

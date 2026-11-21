@@ -1,6 +1,10 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.entities.projectiles.LbcClouds;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustColorTransitionOptions;
@@ -21,6 +25,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
+import me.skywars2.game.items.wands.LbcAwakenedAcid;
 
 /** Actual native menus/casts, shared acid payloads, rifle counter and lifecycle boundaries. */
 public final class AwakenedAcidChecks {

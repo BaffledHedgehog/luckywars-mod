@@ -1,6 +1,13 @@
 package me.skywars2.game;
 
 import java.util.*;
+
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.LbcSpellSource;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.entities.mobs.summons.LbcStand;
+import me.skywars2.game.skills.witch.LbcWitchStatistics;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +22,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.items.trinkets.LbcIndolenceFingers;
+import me.skywars2.game.skills.witch.LbcWitchIndolence;
+import me.skywars2.game.skills.witch.LbcWitchLust;
+import me.skywars2.game.skills.witch.LbcWitchPassives;
 
 /** Actual hand flight, native finger rebirth/payment, deferred Wrath death and managed Lust child. */
 final class VanityAuthorityScene {

@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import com.google.gson.JsonParser;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;

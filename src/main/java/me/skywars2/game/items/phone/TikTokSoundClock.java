@@ -1,11 +1,12 @@
 package me.skywars2.game.items.phone;
 
-import me.skywars2.game.TimeStopView;
 import java.util.UUID;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+
+import me.skywars2.game.effects.time.TimeStopView;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;

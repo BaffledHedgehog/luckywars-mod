@@ -2,6 +2,13 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.gadgets.LbcKitUtilityItems;
+import me.skywars2.game.items.gadgets.LbcMechanicalItems;
+import me.skywars2.game.items.gadgets.LbcPursuitItems;
+import me.skywars2.game.items.tools.LbcMultiplierTablets;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.skills.kits.LbcClownItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.item.Item;

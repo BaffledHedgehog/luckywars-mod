@@ -3,6 +3,10 @@ package me.skywars2.game;
 import java.util.HashSet;
 import java.util.List;
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtSelfAbilities;
+import me.skywars2.game.items.wands.LbcWands;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +20,8 @@ import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.scores.ScoreHolder;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.items.tmt.LbcTmtRuntime;
 
 /** Native registered transports, real input/debit/food and player-tick fanout guard. */
 public final class TmtCarrierChecks {

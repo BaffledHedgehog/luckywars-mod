@@ -1,12 +1,12 @@
 package me.skywars2.game.items.phone;
 
-import me.skywars2.game.SkyWarsCommandTree;
 import com.mojang.brigadier.CommandDispatcher;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.commands.SkyWarsCommandTree;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;

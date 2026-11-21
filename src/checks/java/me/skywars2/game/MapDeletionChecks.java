@@ -3,6 +3,8 @@ package me.skywars2.game;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.world.maps.MapEditing;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.nbt.*;
 import net.minecraft.server.level.ServerPlayer;
 import java.nio.charset.StandardCharsets;

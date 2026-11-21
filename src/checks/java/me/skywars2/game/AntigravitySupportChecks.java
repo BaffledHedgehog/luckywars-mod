@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import io.netty.buffer.Unpooled;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.items.drops.LbcAntigravity;
+import me.skywars2.game.items.drops.LbcAntigravityDropItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;

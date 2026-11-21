@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.bobs.LbcBigBob;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.items.food.LbcOreshek;
+import me.skywars2.game.modes.legacy.LbcLegacyEffects;
+
 import java.util.*;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;

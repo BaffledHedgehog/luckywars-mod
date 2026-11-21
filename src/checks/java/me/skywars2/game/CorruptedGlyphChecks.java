@@ -22,6 +22,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.LbcCorruptedGlyphs;
+
 /** Bounded native placement/owned field fixture; run within a started two-participant match. */
 public final class CorruptedGlyphChecks {
     private CorruptedGlyphChecks(){}

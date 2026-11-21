@@ -2,6 +2,12 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.effects.BlackHoleDamage;
+import me.skywars2.game.entities.drones.LbcFpvDrone;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -140,8 +146,8 @@ public final class SymbioteSkillChecks {
             var accepted=a.getLastDamageSource();require(accepted==b.getLastDamageSource(),"one transferred source per distribution");
             var sources=new MatchDamageSources(game,List.of(a,b,owner,other));var image=sources.capture(accepted);
             require(image.wrapped()!=null&&image.wrapped().wrapped()!=null&&image.wrapped().wrapped().original()==captured,"captured/transfer/original source graph includes parent");
-            ((me.skywars2.mixin.CombatCheckpointAccess.Source)accepted).skywars2$cause(null);
-            ((me.skywars2.mixin.CombatCheckpointAccess.Source)image.wrapped().original()).skywars2$cause(null);
+            ((me.skywars2.mixin.combat.CombatCheckpointAccess.Source)accepted).skywars2$cause(null);
+            ((me.skywars2.mixin.combat.CombatCheckpointAccess.Source)image.wrapped().original()).skywars2$cause(null);
             var pending=new HashSet<UUID>();sources.restore(id->id.equals(owner.getUUID())?owner:id.equals(other.getUUID())?other:id.equals(a.getUUID())?a:id.equals(b.getUUID())?b:null,pending);
             require(pending.isEmpty()&&accepted.getEntity()==other&&accepted.getDirectEntity()==null
                     &&image.wrapped().original().getEntity()==other&&image.wrapped().original().getDirectEntity()==null,"canonical parent graph restores indirect identities");

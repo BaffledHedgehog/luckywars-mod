@@ -5,6 +5,7 @@ import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.food.LbcKfcFood;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.HashedStack;

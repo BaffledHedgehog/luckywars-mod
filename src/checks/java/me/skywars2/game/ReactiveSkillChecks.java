@@ -2,6 +2,14 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.BlackHoleDamage;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.gui.GameMenus;
+import me.skywars2.game.gui.loadouts.LbcLoadouts;
+import me.skywars2.game.items.gadgets.LbcReactiveSkills;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.LbcSurfaceTeleport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Scoped native admission, health accounting, source selection and teleport wire checks. */
 public final class ReactiveSkillChecks {

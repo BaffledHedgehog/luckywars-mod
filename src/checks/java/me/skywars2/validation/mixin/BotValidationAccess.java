@@ -3,17 +3,19 @@ package me.skywars2.validation.mixin;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import me.skywars2.game.LbcBotCrafting;
-import me.skywars2.game.LbcBotDefense;
-import me.skywars2.game.LbcBotSurvival;
-import me.skywars2.game.LbcCarpetBots;
-import me.skywars2.game.LbcChefBrain;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+
+import me.skywars2.game.entities.bots.LbcBotCrafting;
+import me.skywars2.game.entities.bots.LbcBotDefense;
+import me.skywars2.game.entities.bots.LbcBotSurvival;
+import me.skywars2.game.entities.bots.LbcCarpetBots;
+import me.skywars2.game.entities.bots.LbcChefBrain;
 
 /** Exposed to the native Carpet fixtures only in the test-server artifact. */
 public final class BotValidationAccess {
@@ -24,7 +26,7 @@ public final class BotValidationAccess {
         @Accessor("states") Map<UUID,?> skywars2$validationStates();
     }
 
-    @Mixin(targets="me.skywars2.game.LbcCarpetBots$State",remap=false)
+    @Mixin(targets="me.skywars2.game.entities.bots.LbcCarpetBots$State",remap=false)
     public interface State {
         @Accessor("brain") LbcChefBrain skywars2$validationBrain();
         @Accessor("survival") LbcBotSurvival skywars2$validationSurvival();

@@ -2,6 +2,16 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogItems;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtComponents;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtPassiveQueries;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.modes.legacy.LbcBalance;
+import me.skywars2.game.modes.legacy.LbcBalancePassive;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;

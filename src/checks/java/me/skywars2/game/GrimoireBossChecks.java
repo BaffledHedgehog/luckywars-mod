@@ -2,6 +2,10 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.mobs.LbcGrimoireBoss;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.presentation.projectiles.LbcBeamGeometry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -20,6 +24,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.academy.TrialWarningVisual;
 
 /** Native, independently callable encounter fixtures. Registration/run ownership stays in GameChecks. */
 public final class GrimoireBossChecks {

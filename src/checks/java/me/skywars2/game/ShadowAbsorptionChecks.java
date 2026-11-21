@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ShadowAbsorption;
+import me.skywars2.game.skills.witch.LbcGreed;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.core.component.DataComponents;
@@ -20,6 +22,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
+import me.skywars2.game.effects.time.LbcTimeStop;
 
 /** Native-entity tests for the absorption ledger, invoked by the existing isolated check runner. */
 public final class ShadowAbsorptionChecks {

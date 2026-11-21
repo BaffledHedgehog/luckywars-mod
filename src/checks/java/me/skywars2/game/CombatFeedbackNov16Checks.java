@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.items.armor.LbcOverloadArmor;
+import me.skywars2.game.items.weapons.firearms.LbcLaserMinigun;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -17,6 +20,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.items.weapons.melee.LbcChargedSwords;
 
 /** Native damage criteria, real mana consumers and the actual landing surface. */
 public final class CombatFeedbackNov16Checks {

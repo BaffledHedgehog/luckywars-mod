@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.items.weapons.ranged.LbcShooters;
+import me.skywars2.game.skills.levelups.LbcSourceCounters;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -18,6 +21,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.items.wands.LbcElectro;
 
 /** Actual authority tick, native inventory/components/effects, and the existing mutable counter owners. */
 public final class WitchEnvyChecks {

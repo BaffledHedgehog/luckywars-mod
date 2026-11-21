@@ -2,6 +2,13 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.CoreEntityMerging;
+import me.skywars2.game.items.gadgets.LbcTouhouCollectibles;
+import me.skywars2.game.items.gadgets.LbcTouhouItems;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.skills.LbcHakureiSkill;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;

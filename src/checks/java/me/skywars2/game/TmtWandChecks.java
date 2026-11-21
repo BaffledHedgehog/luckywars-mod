@@ -3,6 +3,10 @@ package me.skywars2.game;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.wands.LbcWands;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -16,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.scores.ScoreHolder;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Internal TMT common-wand composition. Existing owners, real held stack and real native projectiles. */
 public final class TmtWandChecks {

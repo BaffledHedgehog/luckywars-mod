@@ -2,6 +2,9 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.weapons.ranged.LbcChargedBowItems;
+import me.skywars2.game.items.weapons.ranged.LbcImbaCrossbows;
+import me.skywars2.game.items.weapons.ranged.LbcProjectileWeaponItems;
 import net.minecraft.world.item.*;
 
 /** The complete native carrier/default/codec oracle also covers the eight related shared-factory users. */

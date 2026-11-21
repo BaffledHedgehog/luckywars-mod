@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.world.terrain.LbcBlockModels;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.*;
@@ -74,7 +75,7 @@ public final class CubeUseAuditChecks {
             noteClient=state.getBlock() instanceof eu.pb4.polymer.core.api.block.PolymerBlock polymer&&polymer.getPolymerBlockState(state,f.owner.connection.getPacketContext()).is(Blocks.NOTE_BLOCK);
             f.owner.stopUsingItem();f.owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
             f.prepareParticipants();f.owner.setShiftKeyDown(crouch);f.owner.getFoodData().setFoodLevel(0);
-            for(var key:List.copyOf(((me.skywars2.mixin.PlayerCheckpointAccess.Cooldowns)f.owner.getCooldowns()).skywars2$cooldowns().keySet()))f.owner.getCooldowns().removeCooldown(key);
+            for(var key:List.copyOf(((me.skywars2.mixin.players.PlayerCheckpointAccess.Cooldowns)f.owner.getCooldowns()).skywars2$cooldowns().keySet()))f.owner.getCooldowns().removeCooldown(key);
             f.set(at,state);f.set(at.above(),test.water?Blocks.WATER.defaultBlockState():Blocks.AIR.defaultBlockState());f.set(at.above(2),Blocks.AIR.defaultBlockState());
             f.owner.setItemInHand(hand,test.stack.copy());f.owner.setItemInHand(hand==InteractionHand.MAIN_HAND?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND,new ItemStack(Items.STICK,7));
             f.owner.getInventory().setItem(9,new ItemStack(Items.ARROW,64));

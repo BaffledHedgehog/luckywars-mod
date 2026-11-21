@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.weapons.firearms.LbcMobgun;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.nbt.CompoundTag;

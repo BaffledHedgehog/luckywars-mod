@@ -2,6 +2,16 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.gadgets.LbcImbaNativeItems;
+import me.skywars2.game.items.tools.LbcImbaPickaxe;
+import me.skywars2.game.items.tools.LbcImbaToolItems;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchRandomState;
+import me.skywars2.game.players.inventory.LbcInventoryHazards;
+import me.skywars2.game.world.maps.MapManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
@@ -69,7 +79,7 @@ public final class ImbaMiningAmmoChecks {
         List<Projectile> projectiles(Set<UUID> before){var result=new ArrayList<Projectile>();for(var e:level.getAllEntities())if(!before.contains(e.getUUID())&&e instanceof Projectile p&&p.getOwner()==owner){owned.add(e.getUUID());result.add(p);}return result;}
         void startAmmo(){owner.stopUsingItem();owner.getInventory().clearContent();move(owner,home);move(other,home.add(12,0,0));bow=new ItemStack(Items.BOW);selected=infinite.copyWithCount(3);owner.setItemInHand(InteractionHand.MAIN_HAND,bow);owner.setItemInHand(InteractionHand.OFF_HAND,selected);beforeShot=entities();require(owner.gameMode.useItem(owner,level,bow,InteractionHand.MAIN_HAND).consumesAction()&&owner.isUsingItem(),"actual native BowItem begins with source arrow selected in offhand");next(30);}
         void verifyArrow(AbstractArrow arrow,ItemStack ammo,boolean free){require(arrow.getOwner()==owner,"actual native projectile retains shooter");var actual=arrow.getPickupItemStackOrigin().copyWithCount(1);actual.remove(DataComponents.INTANGIBLE_PROJECTILE);var expected=ammo.copyWithCount(1);expected.remove(DataComponents.INTANGIBLE_PROJECTILE);require(ItemStack.matches(actual,expected),"actual selected ammunition components survive native projectile creation");require(arrow.pickup==(free?AbstractArrow.Pickup.CREATIVE_ONLY:AbstractArrow.Pickup.ALLOWED),"free native ammunition cannot produce survival pickup duplicates");if(free){
-                var wall=BlockPos.containing(home.add(0,owner.getEyeHeight(),2));block(wall,Blocks.STONE.defaultBlockState());arrow.setPos(Vec3.atCenterOf(wall).add(0,0,-1));arrow.setDeltaMovement(new Vec3(0,0,1));arrow.tick();require(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround(),"actual native free arrow embeds in fixture block before pickup attempt");for(int i=0;i<9;i++)arrow.tick();int before=inventoryAmmo(ammo);arrow.playerTouch(owner);require(!arrow.isRemoved()&&inventoryAmmo(ammo)==before,"actual survival touch of embedded free arrow adds no ammunition");block(wall,Blocks.AIR.defaultBlockState());
+                var wall=BlockPos.containing(home.add(0,owner.getEyeHeight(),2));block(wall,Blocks.STONE.defaultBlockState());arrow.setPos(Vec3.atCenterOf(wall).add(0,0,-1));arrow.setDeltaMovement(new Vec3(0,0,1));arrow.tick();require(((me.skywars2.mixin.projectiles.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround(),"actual native free arrow embeds in fixture block before pickup attempt");for(int i=0;i<9;i++)arrow.tick();int before=inventoryAmmo(ammo);arrow.playerTouch(owner);require(!arrow.isRemoved()&&inventoryAmmo(ammo)==before,"actual survival touch of embedded free arrow adds no ammunition");block(wall,Blocks.AIR.defaultBlockState());
             }discard(arrow);}
         int inventoryAmmo(ItemStack prototype){int total=0;var expected=prototype.copyWithCount(1);for(int i=0;i<owner.getInventory().getContainerSize();i++){var stack=owner.getInventory().getItem(i);if(!stack.isEmpty()&&ItemStack.matches(stack.copyWithCount(1),expected))total+=stack.getCount();}return total;}
         void paidBowCases(){

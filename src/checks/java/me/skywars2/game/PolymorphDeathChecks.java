@@ -3,6 +3,7 @@ package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
+import me.skywars2.game.entities.mobs.LbcPolymorph;
 
 /** A real remaining-life death/respawn scenario, not a scoped fake death. */
 public final class PolymorphDeathChecks {

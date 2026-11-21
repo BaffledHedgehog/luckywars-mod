@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.academy.LbcAcademy;
+import me.skywars2.game.items.wands.LbcEnderWiki;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.LbcSurfaceTeleport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -20,6 +25,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
+import me.skywars2.game.presentation.LbcColors;
 
 /** Native instant casts, harmful-effect attribution, resident surface selection and real Academy/stop fixtures. */
 public final class EnderWikiChecks {

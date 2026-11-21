@@ -2,7 +2,17 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.ActorCheckpointAccess;
+import me.skywars2.game.effects.magic.LbcMagic;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.gui.GameMenus;
+import me.skywars2.game.items.gadgets.LbcImbaRunes;
+import me.skywars2.game.items.wands.LbcExasperato;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.TeleportMomentum;
+import me.skywars2.mixin.entities.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.component.DataComponents;

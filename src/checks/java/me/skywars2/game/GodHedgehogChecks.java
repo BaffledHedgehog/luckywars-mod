@@ -1,7 +1,15 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.ActorCheckpointAccess;
+import me.skywars2.game.academy.TrialWarningVisual;
+import me.skywars2.game.combat.LbcDamage;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.entities.bots.LbcWtf;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcGodHedgehog;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogItems;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.mixin.entities.ActorCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;

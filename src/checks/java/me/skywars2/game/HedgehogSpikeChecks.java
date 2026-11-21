@@ -19,7 +19,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import java.lang.reflect.Field;
 import java.util.*;
-import me.skywars2.game.LbcHedgehogItems.SpikeKind;
+
+import me.skywars2.game.entities.LbcDimensionItems;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogSpikes;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogItems.SpikeKind;
+import me.skywars2.game.skills.witch.LbcGreed;
+import me.skywars2.game.world.maps.MapManager;
 
 /** Real native arrow contacts and consumed items; dimension transport is observed on the cloned actor. */
 public final class HedgehogSpikeChecks {

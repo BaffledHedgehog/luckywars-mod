@@ -1,6 +1,11 @@
 package me.skywars2.game;
 
 import java.util.*;
+
+import me.skywars2.game.combat.MatchDamageSources;
+import me.skywars2.game.entities.mob_ai.MatchMobGoals;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.*;
 import net.minecraft.world.entity.*;

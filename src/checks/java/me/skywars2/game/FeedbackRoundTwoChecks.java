@@ -2,6 +2,11 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehog;
+import me.skywars2.game.items.tools.LbcMultiplierTablets;
+import me.skywars2.game.items.wands.LbcElectro;
+import me.skywars2.game.match.GameRaidCleanup;
+import me.skywars2.game.presentation.projectiles.LbcFadingBeams;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -110,9 +115,9 @@ public final class FeedbackRoundTwoChecks {
             f.owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);f.other.removeAllEffects();f.move(f.other,f.home.add(12,0,0));
         }
         void raid(){
-            for(var level:game.server().getAllLevels())require(((me.skywars2.mixin.LobbyRaidCleanupMixin)level.getRaids()).skywars2$raids().isEmpty(),"exclusive native raid fixture");
+            for(var level:game.server().getAllLevels())require(((me.skywars2.mixin.arena.LobbyRaidCleanupMixin)level.getRaids()).skywars2$raids().isEmpty(),"exclusive native raid fixture");
             var raid=new net.minecraft.world.entity.raid.Raid(f.owner.blockPosition(),f.level.getDifficulty());
-            var bar=(ServerBossEvent)WoolBucketChecks.read(raid,"raidEvent");var raids=((me.skywars2.mixin.LobbyRaidCleanupMixin)f.level.getRaids()).skywars2$raids();
+            var bar=(ServerBossEvent)WoolBucketChecks.read(raid,"raidEvent");var raids=((me.skywars2.mixin.arena.LobbyRaidCleanupMixin)f.level.getRaids()).skywars2$raids();
             raids.put(0x4f013,raid);bar.addPlayer(f.owner);int before=f.client.packets().size();
             GameRaidCleanup.clear(game);boolean[] removed={false};
             for(var packet:f.client.packets().subList(before,f.client.packets().size()))if(packet instanceof ClientboundBossEventPacket event)

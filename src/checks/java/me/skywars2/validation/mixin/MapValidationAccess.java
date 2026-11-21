@@ -7,11 +7,12 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import me.skywars2.game.BoundsJournalWriter;
+
 import me.skywars2.game.GameController;
-import me.skywars2.game.GameMenus;
-import me.skywars2.game.MapManager;
-import me.skywars2.game.PlayerStore;
+import me.skywars2.game.gui.GameMenus;
+import me.skywars2.game.players.PlayerStore;
+import me.skywars2.game.world.maps.MapManager;
+import me.skywars2.game.world.terrain.BoundsJournalWriter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;

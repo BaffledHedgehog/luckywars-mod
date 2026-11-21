@@ -2,6 +2,13 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.items.food.LbcKfcRewards;
+import me.skywars2.game.items.wands.LbcSauvojen;
+import me.skywars2.game.items.wands.LbcTerra;
+import me.skywars2.game.items.wands.LbcWands;
+import me.skywars2.game.items.weapons.melee.LbcChargedSwords;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.skills.LbcChampionSkill;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +23,7 @@ import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Actual native damage/criterion, scheduled shield warmup and instant potion qualification. */
 public final class CombatStanceSkillChecks {

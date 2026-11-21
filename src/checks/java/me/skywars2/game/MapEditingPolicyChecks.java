@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.world.maps.MapEditing;
 import net.minecraft.server.permissions.PermissionSet;
 import java.nio.file.Path;
 

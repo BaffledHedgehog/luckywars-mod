@@ -2,6 +2,14 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.LbcReactiveDefense;
+import me.skywars2.game.effects.LbcReactiveOffense;
+import me.skywars2.game.entities.mobs.LbcSheep;
+import me.skywars2.game.items.trinkets.LbcReactiveTrinkets;
+import me.skywars2.game.items.trinkets.LbcTrinkets;
+import me.skywars2.game.items.wands.LbcPrism;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.game.world.maps.MapManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
@@ -21,6 +29,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.entities.mobs.LbcPolymorph;
 
 /** Real native criterion inputs, source loot/recipient projection and normally ticking typed actors. */
 public final class ReactiveTrinketChecks {

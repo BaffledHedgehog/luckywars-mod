@@ -1,6 +1,13 @@
 package me.skywars2.game;
 
 import java.util.List;
+
+import me.skywars2.game.items.ItemData;
+import me.skywars2.game.items.food.LbcOreshek;
+import me.skywars2.game.items.tmt.LbcTmtAbilities;
+import me.skywars2.game.items.tmt.LbcTmtItems;
+import me.skywars2.game.items.tmt.LbcTmtSelfAbilities;
+import me.skywars2.game.items.tools.LbcImbaAxeItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -8,6 +15,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import me.skywars2.game.effects.magic.LbcMana;
+import me.skywars2.game.items.tmt.LbcTmtUseProfiles;
 
 /** Native predicate identity stays local to the callback; the real transport is never replaced. */
 public final class TmtNativeUseChecks {

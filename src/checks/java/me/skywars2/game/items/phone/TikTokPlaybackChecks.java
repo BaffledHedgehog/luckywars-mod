@@ -1,12 +1,12 @@
 package me.skywars2.game.items.phone;
 
 import me.skywars2.game.GameController;
-import me.skywars2.game.LbcSpecialArtifactItems;
 import me.skywars2.game.NetworkTransportChecks;
-import me.skywars2.game.ServerNetworkTransport;
 import me.skywars2.game.SmokeVolumeChecks;
-import me.skywars2.game.TimeStopView;
 import me.skywars2.game.WoolBucketChecks;
+import me.skywars2.game.effects.time.TimeStopView;
+import me.skywars2.game.items.gadgets.LbcSpecialArtifactItems;
+import me.skywars2.game.net.ServerNetworkTransport;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;

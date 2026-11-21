@@ -1,6 +1,15 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.ShadowAbsorption;
+import me.skywars2.game.entities.LbcDimensionItems;
+import me.skywars2.game.items.armor.LbcFleshArmor;
+import me.skywars2.game.items.loot.LbcAllItemPools;
+import me.skywars2.game.items.loot.LootTestCatalog;
+import me.skywars2.game.items.wands.LbcBolts;
+import me.skywars2.game.items.wands.LbcFartus;
+import me.skywars2.game.items.wands.LbcStonekivi;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;

@@ -1,7 +1,9 @@
 package me.skywars2.game;
 
 import java.util.*;
-import me.skywars2.mixin.CombatCheckpointAccess;
+
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.mixin.combat.CombatCheckpointAccess;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;

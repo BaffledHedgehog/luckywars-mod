@@ -5,8 +5,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import me.skywars2.SkyWars2;
-import me.skywars2.mixin.EntityRuntimeCheckpointAccess;
-import me.skywars2.mixin.MobGoalCheckpointAccess;
+import me.skywars2.game.combat.LbcIndirectKills;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.entities.mob_ai.MatchMobGoals;
+import me.skywars2.game.items.armor.LbcGlassArmor;
+import me.skywars2.game.items.wands.LbcIceWand;
+import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchCoreCheckpoint;
+import me.skywars2.game.match.checkpoints.MatchPlayerCheckpoint;
+import me.skywars2.mixin.entities.EntityRuntimeCheckpointAccess;
+import me.skywars2.mixin.mobs.MobGoalCheckpointAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
@@ -173,7 +181,7 @@ public final class VanityActorChecks {
             distantPearl=add(new ThrownEnderpearl(EntityTypes.ENDER_PEARL,game.server().getLevel(Level.NETHER)),new Vec3(.5,200,.5));
             distantPearl.setOwner(gamma);distantPearl.setDeltaMovement(Vec3.ZERO);enderpearl(distantPearl).skywars2$runtimeTicketTimer(41L);
             hook=add(new FishingHook(gamma,base.owner.level(),2,3),at.add(0,2,-2));hook.setDeltaMovement(Vec3.ZERO);
-            ((me.skywars2.mixin.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(gamma);
+            ((me.skywars2.mixin.entities.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(gamma);
             fishing(hook).skywars2$runtimeLife(123);fishing(hook).skywars2$runtimeNibble(17);fishing(hook).skywars2$runtimeTimeUntilLured(67);fishing(hook).skywars2$runtimeTimeUntilHooked(29);fishing(hook).skywars2$runtimeFishAngle(.75F);
             tnt=add(new PrimedTnt(base.owner.level(),at.x+6,at.y,at.z,null),at.add(6,0,0));tnt.setFuse(120);tnt.setDeltaMovement(Vec3.ZERO);
             var stack=new ItemStack(Items.EMERALD,23);stack.set(DataComponents.CUSTOM_NAME,Component.literal("Saved actor item"));
@@ -196,7 +204,7 @@ public final class VanityActorChecks {
             npcSource=game.items().indirectKills().nativeMobDamage(new LbcIceWand.ImpactSource(types.getOrThrow(net.minecraft.world.damagesource.DamageTypes.FREEZE),skeleton,gamma),skeleton);
             require(gamma.hurtServer(gamma.level(),npcSource,1),"genuine NPC subclass damage before native player respawn");
             gamma.setLastHurtMob(cow);gamma.getCombatTracker().recordDamage(historicSource,.75F);
-            var access=(me.skywars2.mixin.CombatCheckpointAccess.Living)cow;
+            var access=(me.skywars2.mixin.combat.CombatCheckpointAccess.Living)cow;
             access.skywars2$spin(cow.getMainHandItem());access.skywars2$climb(java.util.Optional.of(base.center.above(2)));access.skywars2$position(base.center.above());
             combatTime=cow.level().getGameTime();var recent=new it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap<Entity>();recent.defaultReturnValue(-123);
             recent.put(gamma,combatTime-4);recent.put(skeleton,combatTime-9);access.skywars2$kinetic(recent);
@@ -204,13 +212,13 @@ public final class VanityActorChecks {
         }
         void mutate() {
             for(var source:List.of(npcSource,LbcIndirectKills.originalDamage(npcSource))){
-                var link=(me.skywars2.mixin.CombatCheckpointAccess.Source)source;link.skywars2$direct(base.other);link.skywars2$cause(base.other);
+                var link=(me.skywars2.mixin.combat.CombatCheckpointAccess.Source)source;link.skywars2$direct(base.other);link.skywars2$cause(base.other);
             }
             cow.setLastHurtByPlayer(base.other,1);cow.setLastHurtByMob(base.other);cow.setLastHurtMob(base.other);gamma.setLastHurtMob(base.other);
-            var combat=(me.skywars2.mixin.CombatCheckpointAccess.Living)cow;combat.skywars2$spin(new ItemStack(Items.DIRT,64));combat.skywars2$climb(java.util.Optional.empty());
+            var combat=(me.skywars2.mixin.combat.CombatCheckpointAccess.Living)cow;combat.skywars2$spin(new ItemStack(Items.DIRT,64));combat.skywars2$climb(java.util.Optional.empty());
             if(combat.skywars2$kinetic()!=null)combat.skywars2$kinetic().clear();
             cow.getCombatTracker().recordDamage(cow.damageSources().generic(),99);gamma.getCombatTracker().recordDamage(gamma.damageSources().generic(),99);
-            hook.setOwner(base.other);((me.skywars2.mixin.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(base.other);
+            hook.setOwner(base.other);((me.skywars2.mixin.entities.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(base.other);
             fishing(hook).skywars2$runtimeLife(900);fishing(hook).skywars2$runtimeNibble(1);fishing(hook).skywars2$runtimeTimeUntilLured(2);fishing(hook).skywars2$runtimeTimeUntilHooked(3);fishing(hook).skywars2$runtimeFishAngle(2F);
             pearl.setOwner(base.other);enderpearl(pearl).skywars2$runtimeTicketTimer(1L);
             distantPearl.setOwner(base.other);enderpearl(distantPearl).skywars2$runtimeTicketTimer(2L);unowned.setOwner(gamma);
@@ -234,17 +242,17 @@ public final class VanityActorChecks {
         }
         void verify() {
             var level=base.owner.level();
-            var combat=(me.skywars2.mixin.CombatCheckpointAccess.Living)cow;
+            var combat=(me.skywars2.mixin.combat.CombatCheckpointAccess.Living)cow;
             require(cow.getLastHurtByPlayer()==gamma&&cow.getLastHurtByMob()==gamma&&cow.getLastHurtMob()==gamma&&cow.getKillCredit()==gamma
                     &&combat.skywars2$memory()==73&&gamma.getLastHurtByMob()==skeleton&&gamma.getLastHurtMob()==cow,"native hurt-by/attack/kill-credit references use current actual bodies");
             require(cow.getLastDamageSource(Integer.MAX_VALUE)==combatSource&&combatSource.getEntity()==gamma&&combatSource.getDirectEntity()==gamma
                     &&LbcIndirectKills.isWildCaptured(combatSource)&&LbcIndirectKills.originalDamage(combatSource) instanceof LbcGlassArmor.ShardDamage
                     &&LbcIndirectKills.originalDamage(combatSource).getEntity()==gamma,"exact nested WILD shard classes/accepted causes and all source references preserved");
-            var history=(me.skywars2.mixin.CombatCheckpointAccess.Tracker)cow.getCombatTracker();
+            var history=(me.skywars2.mixin.combat.CombatCheckpointAccess.Tracker)cow.getCombatTracker();
             require(history.skywars2$entries().size()==2&&history.skywars2$entries().get(0).source()==combatSource&&history.skywars2$entries().get(1).source()==positionSource
                     &&history.skywars2$entries().get(1).damage()==2.25F&&history.skywars2$entries().get(1).fallDistance()==7.5F
                     &&positionSource.sourcePositionRaw().equals(new Vec3(1.25,2.5,3.75))&&history.skywars2$combat()&&history.skywars2$taking(),"native combat entries/position/fall values and flags restored without extra hits");
-            var playerHistory=(me.skywars2.mixin.CombatCheckpointAccess.Tracker)gamma.getCombatTracker();
+            var playerHistory=(me.skywars2.mixin.combat.CombatCheckpointAccess.Tracker)gamma.getCombatTracker();
             require(playerHistory.skywars2$entries().getFirst().source()==npcSource&&LbcIndirectKills.npcSource(npcSource)
                     &&npcSource.getDirectEntity()==skeleton&&npcSource.getEntity()==skeleton
                     &&LbcIndirectKills.originalDamage(npcSource) instanceof LbcIceWand.ImpactSource

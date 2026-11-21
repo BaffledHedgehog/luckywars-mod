@@ -1,5 +1,9 @@
 package me.skywars2.game;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.items.trinkets.LbcInfinity;
+import me.skywars2.game.items.wands.LbcFartus;
+
 import java.util.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -12,6 +16,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
+import me.skywars2.game.effects.magic.LbcMana;
 /** Synchronous native Infinity outcomes; real300tick cadence is intentionally a separate async qualification. */
 public final class InfinityChecks {
     private InfinityChecks(){}

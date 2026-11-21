@@ -2,6 +2,13 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.game.effects.EffectLayers;
+import me.skywars2.game.effects.ItemEffectLevels;
+import me.skywars2.game.effects.LbcParasite;
+import me.skywars2.game.effects.LbcParasitePenalties;
+import me.skywars2.game.effects.ShadowAbsorption;
+import me.skywars2.game.effects.SignedEnvironmentalEffects;
+import me.skywars2.game.items.food.LbcPills;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -9,6 +16,7 @@ import net.minecraft.world.effect.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import me.skywars2.game.effects.magic.LbcMana;
 
 /** Bounded native skill-19 admission, persisted-layer and permanent-attribute fixtures. */
 public final class ParasiteChecks {

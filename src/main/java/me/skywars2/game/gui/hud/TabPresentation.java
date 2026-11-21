@@ -1,0 +1,98 @@
+package me.skywars2.game.gui.hud;
+
+import java.util.*;
+
+import me.skywars2.game.net.metrics.ServerTickMetrics;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.*;
+import net.minecraft.network.protocol.game.ClientboundTabListPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+
+/** A fixed-format LIST component aligns heart sprites and ping without changing player names. */
+public final class TabPresentation {
+    static final Identifier HEART_FONT=Identifier.parse("skywars2:tab_hearts");
+    static final Style HEART_STYLE=Style.EMPTY.withFont(new FontDescription.Resource(HEART_FONT)).withColor(ChatFormatting.WHITE).withBold(false).withItalic(false).withoutShadow();
+    private static final int[] ADVANCES=advances();
+    private static final String DIGITS="0123456789.-";
+    private static final int[] NUMBER_ADVANCES=numberAdvances();
+    private static final int NUMBER_CELL=Arrays.stream(NUMBER_ADVANCES).max().orElseThrow();
+    private static final Map<ServerGamePacketListenerImpl,Component> HEADERS=new IdentityHashMap<>();
+    private static final Map<UUID,Component> NAMES=new HashMap<>();
+    private static boolean namesDirty=true;
+    private static MinecraftServer owner;private static long sampled;private static Component header;
+    private TabPresentation(){}
+    private static int[] advances(){
+        try(var in=TabPresentation.class.getResourceAsStream("/skywars2/tab_heart_metrics.json")){
+            var rows=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(Objects.requireNonNull(in),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("glyphs");
+            int[] result=new int[rows.size()];for(int i=0;i<result.length;i++)result[i]=rows.get(i).getAsJsonObject().get("advance").getAsInt();return result;
+        }catch(java.io.IOException error){throw new IllegalStateException("Cannot load TAB heart metrics",error);}
+    }
+    private static int[] numberAdvances(){
+        try(var in=TabPresentation.class.getResourceAsStream("/skywars2/tab_heart_metrics.json")){
+            var rows=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(Objects.requireNonNull(in),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("numbers");
+            int[] result=new int[rows.size()];for(int i=0;i<result.length;i++)result[i]=rows.get(i).getAsJsonObject().get("advance").getAsInt();return result;
+        }catch(java.io.IOException error){throw new IllegalStateException("Cannot load TAB number metrics",error);}
+    }
+    private static void glyph(StringBuilder text,int index){text.append((char)(0xE000+index));}
+    private static void space(StringBuilder text,int pixels){while(pixels!=0){int step=Math.max(-16,Math.min(16,pixels));text.append((char)(0xE200+step+16));pixels-=step;}}
+    private static Component spacing(int width){var text=new StringBuilder();space(text,width);return Component.literal(text.toString()).setStyle(HEART_STYLE);}
+    private static Component number(String value,int color){var text=new StringBuilder();for(int i=0;i<value.length();i++){int digit=DIGITS.indexOf(value.charAt(i));if(digit<0)throw new IllegalArgumentException(value);text.append((char)(0xE100+digit));space(text,NUMBER_CELL-NUMBER_ADVANCES[digit]);}return Component.literal(text.toString()).setStyle(HEART_STYLE.withColor(color));}
+    private static String healthNumber(int score){return Integer.toString(score/2+score%2);}
+    private static int heartWidth(int score){if(score<=0)return 0;int slots=Math.max(score,20)/2,step=Math.min(86/slots,9);return step<=3?healthNumber(score).length()*NUMBER_CELL:(Math.max((score+1)/2,slots)-1)*step+9;}
+    public static Component score(int health,int ping){
+        var result=hearts(health).copy().append(spacing(90-heartWidth(health)+4));String value=ping<0?"-":Integer.toString(ping);
+        int color=ping<0?0xAAAAAA:ping<150?0x55FF55:ping<300?0xFFFF55:0xFF5555;
+        return result.append(spacing((5-value.length())*NUMBER_CELL)).append(number(value,color));
+    }
+    static Component hearts(int score){
+        if(score<=0)return Component.empty();int full=(score+1)/2,slots=Math.max(score,20)/2,step=Math.min(86/slots,9);
+        if(step<=3)return number(healthNumber(score),0x00FF00);
+        var text=new StringBuilder();int count=Math.max(full,slots);
+        for(int i=0;i<count;i++){
+            glyph(text,0);int end=ADVANCES[0];
+            if(i<full){space(text,-end);int fill=i*2+1<score?(i>=10?3:1):(i>=10?4:2);glyph(text,fill);end=ADVANCES[fill];}
+            space(text,(i==count-1?9:step)-end);
+        }
+        return Component.literal(text.toString()).setStyle(HEART_STYLE);
+    }
+    public static void tick(MinecraftServer server){
+        if(owner!=server){stop();owner=server;}
+        long now=System.nanoTime();boolean resample=header==null||now-sampled>=1_000_000_000L;
+        if(resample){
+            sampled=now;double target=server.tickRateManager().isFrozen()?0:server.tickRateManager().tickrate();double value=ServerTickMetrics.tps(60_000_000_000L,now,target);
+            var color=target<=0?ChatFormatting.GRAY:value>=target*.9?ChatFormatting.GREEN:value>=target*.75?ChatFormatting.YELLOW:ChatFormatting.RED;
+            header=Component.literal("TPS: ").withStyle(ChatFormatting.AQUA).append(Component.literal(String.format(Locale.ROOT,"%.1f",value)).withStyle(color));
+        }
+        HEADERS.keySet().removeIf(c->c.player.connection!=c||server.getPlayerList().getPlayer(c.player.getUUID())!=c.player);
+        for(var player:server.getPlayerList().getPlayers()){var c=player.connection;if(c!=null&&c.hasClientLoaded()&&!header.equals(HEADERS.get(c))){c.send(new ClientboundTabListPacket(header,Component.empty()));HEADERS.put(c,header);}}
+        // Team mutations can happen many times during one round transition. Publish
+        // their final names together; the slow fallback also catches external aliases.
+        if(namesDirty||resample){
+            namesDirty=false;var players=server.getPlayerList().getPlayers();
+            var present=new HashSet<UUID>();for(var player:players)present.add(player.getUUID());
+            NAMES.keySet().retainAll(present);publishNames(server,players,false);
+        }
+    }
+    static void namesChanged(){namesDirty=true;}
+    public static void refreshNames(MinecraftServer server,Collection<ServerPlayer> players){
+        if(owner!=server){stop();owner=server;}
+        publishNames(server,players,true);
+    }
+    private static void publishNames(MinecraftServer server,Collection<ServerPlayer> players,boolean force){
+        var changed=new ArrayList<ServerPlayer>();
+        for(var player:new LinkedHashSet<>(players)){
+            if(player.connection==null)continue;var id=player.getUUID();var name=player.getTabListDisplayName();
+            if(force||!NAMES.containsKey(id)||!Objects.equals(NAMES.get(id),name)){
+                NAMES.put(id,name==null?null:LbcNameplates.frozen(name));changed.add(player);
+            }
+        }
+        if(!changed.isEmpty())server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(
+                EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),changed));
+    }
+    public static void forget(ServerPlayer player){HEADERS.keySet().removeIf(c->c.player==player);NAMES.remove(player.getUUID());namesDirty=true;}
+    public static void stop(){HEADERS.clear();NAMES.clear();namesDirty=true;owner=null;sampled=0;header=null;}
+}

@@ -1,6 +1,9 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.entities.mobs.LbcLuckyPigDropItem;
+import me.skywars2.game.entities.mobs.LbcLuckyPigs;
+import me.skywars2.game.items.drops.LbcScareDropItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
