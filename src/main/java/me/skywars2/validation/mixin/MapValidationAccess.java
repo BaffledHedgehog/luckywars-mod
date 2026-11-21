@@ -35,6 +35,7 @@ public final class MapValidationAccess {
         @Accessor("lobbyVisible") Map<BlockPos, ?> validation$lobbyVisible();
         @Accessor("preparation") CompletableFuture<?> validation$preparation();
         @Accessor("respawnIslands") Map<BlockPos, Map<BlockPos, ?>> validation$respawnIslands();
+        @Accessor("spawns") void validation$spawns(List<MapManager.Spawn> spawns);
         @Accessor("imprintedBounds") List<BoundingBox> validation$imprintedBounds();
         @Accessor("work") Queue<?> validation$work();
         @Invoker("flushChangedBlockBounds") void validation$flushChangedBlockBounds();
@@ -49,6 +50,12 @@ public final class MapValidationAccess {
     @Mixin(targets = "me.skywars2.game.GameController$Participant", remap = false)
     public interface Participant {
         @Accessor("spawn") MapManager.Spawn validation$assignedSpawn();
+        @Accessor("lives") int validation$lives();
+        @Accessor("lives") void validation$lives(int lives);
+        @Accessor("awaitingRespawn") boolean validation$awaitingRespawn();
+        @Accessor("awaitingRespawn") void validation$awaitingRespawn(boolean awaiting);
+        @Accessor("disconnected") boolean validation$disconnected();
+        @Accessor("disconnected") void validation$disconnected(boolean disconnected);
     }
 
     @Mixin(value = GameMenus.class, remap = false)

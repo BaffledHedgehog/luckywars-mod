@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import me.skywars2.mixin.ActorCheckpointAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
@@ -22,7 +23,6 @@ import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +74,7 @@ public final class ProjectileLifetimes {
     }
 
     private final GameController game;
-    private final Set<LivingEntity> targets = new LinkedHashSet<>();
+    private final Int2ObjectLinkedOpenHashMap<LivingEntity> targets = new Int2ObjectLinkedOpenHashMap<>();
     private final IdentityHashMap<LivingEntity,ServerLevel> radarLocations = new IdentityHashMap<>();
     private final IdentityHashMap<ServerLevel,WorldIndex<LivingEntity>> radarWorlds = new IdentityHashMap<>();
     private final IdentityHashMap<Projectile,ServerLevel> projectileLocations = new IdentityHashMap<>();
@@ -109,7 +109,7 @@ public final class ProjectileLifetimes {
             for (var entity : world.getAllEntities()) {
                 if (entity instanceof Projectile projectile) projectileLocation(projectile, world);
                 if (entity instanceof LivingEntity living) {
-                    if (arena) targets.add(living);
+                    if (arena) targets.put(living.getId(), living);
                     else if (radarWorld && !(living instanceof ServerPlayer)) radarLocation(living, world);
                 }
             }
@@ -125,7 +125,13 @@ public final class ProjectileLifetimes {
         if (!(entity instanceof LivingEntity living) || game.items().polymorph().detached(entity)) return;
         if (entity.level() == game.maps().level()) {
             radarLocation(living, null);
-            if (targets.add(living)) targetRevision++;
+            int id = living.getId();
+            // Respawn publishes another object with the same network ID before the old unload drains.
+            // Like the native lookup, publish that replacement at the end of the current target order.
+            if (targets.get(id) != living) {
+                targets.putAndMoveToLast(id, living);
+                targetRevision++;
+            }
         } else if (!(living instanceof ServerPlayer) && entity.level() instanceof ServerLevel level) {
             radarLocation(living, LbcDimensionItems.ordinary(level) ? level : null);
         }
@@ -146,7 +152,12 @@ public final class ProjectileLifetimes {
     }
 
     private void removeTarget(LivingEntity entity) {
-        if (targets.remove(entity)) targetRevision++;
+        // Entity.equals compares the network ID, which the retired and replacement bodies still share.
+        int id = entity.getId();
+        if (targets.get(id) == entity) {
+            targets.remove(id);
+            targetRevision++;
+        }
         radarLocation(entity, null);
     }
 
@@ -200,7 +211,7 @@ public final class ProjectileLifetimes {
     /** Общий неизменяемый снимок загруженных целей: самонаведение не сканирует мир заново. */
     List<LivingEntity> loadedTargets() {
         if(snapshotRevision!=targetRevision) {
-            targetSnapshot=List.copyOf(targets);
+            targetSnapshot=List.copyOf(targets.values());
             targetRanks=null;
             snapshotRevision=targetRevision;
         }
@@ -503,7 +514,7 @@ public final class ProjectileLifetimes {
     }
     double livingRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction,java.util.function.Predicate<Entity> selection){
         double extent=0;
-        for(var candidate:targets) if(candidate.level()==owner.level()&&selection.test(candidate)) {
+        for(var candidate:targets.values()) if(candidate.level()==owner.level()&&selection.test(candidate)) {
             var box=candidate.getBoundingBox();
             double length=box.getCenter().subtract(from).dot(direction)+box.getSize()*2+1;
             if(length>extent && (box.contains(from) || box.clip(from,from.add(direction.scale(length))).isPresent()))
@@ -597,7 +608,7 @@ public final class ProjectileLifetimes {
                     links.key(r.projectile),links.key(r.owner),r.terrain,r.scanPosition,r.scanDirection,r.nextReview,
                     r.targetIndex,r.targetRevision,r.age,r.queued)).toList();
             ordered=queue.stream().filter(r->tracked.get(r.projectile)==r&&!links.omitted(r.projectile)).map(r->links.key(r.projectile)).toList();
-            liveTargets=targets.stream().map(links::key).toList();snapshot=targetSnapshot.stream().map(links::key).toList();
+            liveTargets=targets.values().stream().map(links::key).toList();snapshot=targetSnapshot.stream().map(links::key).toList();
             offArenaRadar=radarLocations.keySet().stream().filter(entity->!entity.isRemoved()&&!links.omitted(entity)).map(links::key).toList();
         }
         Runnable prepare(MatchSpellCheckpoint.Links links){
@@ -610,7 +621,9 @@ public final class ProjectileLifetimes {
             var restoredSnapshot=snapshot.stream().map(ref->(LivingEntity)links.get(ref)).toList();
             var restoredRadar=offArenaRadar.stream().map(ref->(LivingEntity)links.get(ref)).toList();
             return ()->{tracked.clear();tracked.putAll(restored);queue.clear();queue.addAll(restoredQueue);
-                targets.clear();targets.addAll(restoredTargets);targetSnapshot=restoredSnapshot;targetRanks=null;
+                targets.clear();
+                for (var target : restoredTargets) targets.put(target.getId(), target);
+                targetSnapshot=restoredSnapshot;targetRanks=null;
                 radarWorlds.clear();radarLocations.clear();
                 for(var living:restoredRadar)if(living.level() instanceof ServerLevel level&&level!=game.maps().level()&&LbcDimensionItems.ordinary(level))radarLocation(living,level);
                 targetRevision=revision;snapshotRevision=snapshotVersion;serial=sequence;stopped=false;};

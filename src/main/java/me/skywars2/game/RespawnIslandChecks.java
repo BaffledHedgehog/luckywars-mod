@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.MapValidationAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
@@ -15,7 +16,6 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.phys.Vec3;
-import java.lang.reflect.Field;
 import java.util.*;
 
 /** Explicit native match fixture. Preparation precedes the genuine match-start capture. */
@@ -26,17 +26,8 @@ public final class RespawnIslandChecks {
     private static void require(boolean ok,String why) {
         if(!ok)throw new IllegalStateException("Respawn island: "+why);
     }
-    private static Field field(Class<?> type,String name) {
-        try {var f=type.getDeclaredField(name);f.setAccessible(true);return f;}
-        catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
-    }
-    private static Object read(Object owner,String name) {
-        try{return field(owner.getClass(),name).get(owner);}
-        catch(IllegalAccessException error){throw new IllegalStateException(error);}
-    }
-    private static void write(Object owner,String name,Object value) {
-        try{field(owner.getClass(),name).set(owner,value);}
-        catch(IllegalAccessException error){throw new IllegalStateException(error);}
+    private static Map<UUID, ?> participants(GameController game) {
+        return ((MapValidationAccess.Controller) (Object) game).validation$participants();
     }
     public static void prepare(GameController game) {
         require(fixture==null&&preparedFixtures.isEmpty()&&!game.playing()&&!game.maps().busy()&&!game.maps().spawns().isEmpty(),"prepared map before playing, no earlier fixture");
@@ -47,14 +38,13 @@ public final class RespawnIslandChecks {
         } catch(RuntimeException|Error failure){close(game);throw failure;}
         SkyWars2.LOGGER.info("[check] PASS respawn-island-prepare");
     }
-    @SuppressWarnings("unchecked") public static void run(GameController game) {
+    public static void run(GameController game) {
         require(fixture==null&&!preparedFixtures.isEmpty()&&game.playing(),"prepare first, then start a real match");
         try {
-            var participants=(Map<UUID,Object>)read(game,"participants");
-            for(var entry:participants.entrySet()) {
+            for(var entry:participants(game).entrySet()) {
                 var player=game.server().getPlayerList().getPlayer(entry.getKey());
                 if(player==null||!game.allowDamage(player))continue;
-                var spawn=(MapManager.Spawn)read(entry.getValue(),"spawn");
+                var spawn=((MapValidationAccess.Participant) entry.getValue()).validation$assignedSpawn();
                 for(var prepared:preparedFixtures)if(prepared.spawn.equals(spawn)){fixture=prepared;break;}
                 if(fixture!=null)break;
             }
@@ -80,7 +70,8 @@ public final class RespawnIslandChecks {
     }
     private static void close(GameController game) {
         if(fixture==null&&preparedFixtures.isEmpty()) {
-            if(game.inLobby())require(((Map<?,?>)read(game.maps(),"respawnIslands")).isEmpty(),"normal match stop cleared cached islands");
+            var nativeMap = (MapValidationAccess.Manager) (Object) game.maps();
+            if(game.inLobby())require(nativeMap.validation$respawnIslands().isEmpty(),"normal match stop cleared cached islands");
             return;
         }
         var old=fixture;fixture=null;
@@ -97,6 +88,7 @@ public final class RespawnIslandChecks {
     private static final class Fixture {
         final GameController game;
         final MapManager maps;
+        final MapValidationAccess.Manager nativeMap;
         final MapManager.Spawn spawn;
         final BlockPos center,barrel,far;
         final BlockPos lowerCorner,upperCorner,outsideCorner;
@@ -106,14 +98,17 @@ public final class RespawnIslandChecks {
         Map<BlockPos,MapManager.BlockSnapshot> original;
         MapManager.BlockSnapshot originalBarrel;
         GameChecks.WandThirdPlayerState saved;
-        Object participant;
+        MapValidationAccess.Participant participant;
         UUID victim;
         int lives,deaths,round,phase,ticks,wait;
         boolean awaiting,disconnected,running;
+        ServerPlayer retiredTarget;
+        boolean indexedOnPublication;
         List<MapManager.Spawn> selectableSpawns;
         BlockPos air;
         Fixture(GameController game,MapManager.Spawn spawn) {
             this.game=game;maps=game.maps();this.spawn=spawn;
+            nativeMap = (MapValidationAccess.Manager) (Object) maps;
             center=BlockPos.containing(spawn.position());barrel=center.offset(7,-4,7);
             near=List.of(center.offset(7,-3,0),center.offset(-7,-3,0),center.offset(0,-3,7));
             far=center.offset(25,-3,0);
@@ -151,19 +146,21 @@ public final class RespawnIslandChecks {
                 require(maps.level().addFreshEntity(marker),"native chest marker created");markers.add(marker);
             }
         }
-        @SuppressWarnings("unchecked") void begin() {
+        void begin() {
             require(maps.spawns().contains(spawn),"prepared map remains selected");
-            var participants=(Map<UUID,Object>)read(game,"participants");
-            for(var entry:participants.entrySet())if(spawn.equals(read(entry.getValue(),"spawn"))) {
+            for (var entry : participants(game).entrySet()) {
+                var candidate = (MapValidationAccess.Participant) entry.getValue();
+                if (!spawn.equals(candidate.validation$assignedSpawn())) continue;
                 var p=game.server().getPlayerList().getPlayer(entry.getKey());
-                if(p!=null&&game.allowDamage(p)){participant=entry.getValue();victim=entry.getKey();break;}
+                if(p!=null&&game.allowDamage(p)){participant=candidate;victim=entry.getKey();break;}
             }
             require(participant!=null,"prepared original spawn assigned to a live participant");
             // This scene verifies exact cached terrain/NBT restoration across three real deaths.
             // Pin its destination rather than relying on the removed assigned-island respawn policy.
-            selectableSpawns=maps.spawns();write(maps,"spawns",List.of(spawn));
-            var cache=(Map<BlockPos,Map<BlockPos,MapManager.BlockSnapshot>>)read(maps,"respawnIslands");
-            original=cache.get(center);
+            selectableSpawns=maps.spawns();nativeMap.validation$spawns(List.of(spawn));
+            @SuppressWarnings("unchecked") // The native map stores package-private BlockSnapshot values.
+            var cached = (Map<BlockPos, MapManager.BlockSnapshot>) nativeMap.validation$respawnIslands().get(center);
+            original = cached;
             require(original!=null&&originalBarrel.equals(original.get(barrel)),"genuine start capture retains deliberate unmarked barrel NBT");
             require(original.containsKey(lowerCorner) && original.containsKey(upperCorner)
                     && !original.containsKey(outsideCorner), "section traversal clips exactly at the island corners");
@@ -176,9 +173,9 @@ public final class RespawnIslandChecks {
                     &&!original.containsKey(p)&&maps.level().getBlockState(p).isAir()&&p.getY()>center.getY()+3){air=p;break;}
             require(air!=null,"source-air cell available inside captured volume");
             saved=new GameChecks.WandThirdPlayerState(player(),game.items().mana());
-            lives=(Integer)read(participant,"lives");awaiting=(Boolean)read(participant,"awaitingRespawn");
-            disconnected=(Boolean)read(participant,"disconnected");deaths=game.players().get(victim).deaths;
-            write(participant,"lives",3);running=true;phase=-1;
+            lives=participant.validation$lives();awaiting=participant.validation$awaitingRespawn();
+            disconnected=participant.validation$disconnected();deaths=game.players().get(victim).deaths;
+            participant.validation$lives(3);running=true;phase=-1;
         }
         ServerPlayer player(){return game.server().getPlayerList().getPlayer(victim);}
         void sentinel(BlockPos pos){var c=container(pos);c.clearContent();c.setItem(0,new ItemStack(Items.BARRIER,19));c.setChanged();}
@@ -209,14 +206,27 @@ public final class RespawnIslandChecks {
                 if(round==1)set(near.getFirst(),Blocks.AIR.defaultBlockState());
                 sentinel(far);
                 var old=player();
+                if (round == 0) {
+                    retiredTarget = old;
+                    require(game.items().lifetimes().loadedTargets().stream().anyMatch(target -> target == old),
+                            "original live body occupied the native homing index before replacement");
+                }
                 old.connection.handleClientCommand(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
                 old.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
                 require(player()!=old&&player()!=null&&player().isAlive(),"native PlayerList replacement created by packet");
+                if (round == 0) {
+                    var replacement = player();
+                    require(replacement.getId() == retiredTarget.getId()
+                                    && replacement.level().getEntity(replacement.getUUID()) == replacement,
+                            "native respawn reuses the old integer ID but publishes a new canonical ServerPlayer");
+                    indexedOnPublication = game.items().lifetimes().loadedTargets().stream()
+                            .anyMatch(target -> target == replacement);
+                }
                 phase=1;return false;
             }
             if(++wait<2||game.awaitingRespawn(victim))return false;
             var p=player();
-            require(spawn.equals(read(participant,"spawn")),"participant assigned spawn remains unchanged");
+            require(spawn.equals(participant.validation$assignedSpawn()),"participant assigned spawn remains unchanged");
             require(container(far).getItem(0).is(Items.BARRIER)&&container(far).getItem(0).getCount()==19,"marked chest outside18 remains untouched");
             if(round==0) {
                 double dx=p.getX()-spawn.position().x,dz=p.getZ()-spawn.position().z;
@@ -230,6 +240,7 @@ public final class RespawnIslandChecks {
                         "terrain outside the capture stays untouched after a real respawn");
                 require(maps.level().getBlockState(air).is(Blocks.GOLD_BLOCK),"masked clone preserves new block in original air");
                 requireRefilled();
+                checkHomingTarget(p);
                 SkyWars2.LOGGER.info("[check] PASS respawn-island-restored");
             } else if(round==1) {
                 require(maps.hasRespawnLanding(spawn)&&p.gameMode()==GameType.SURVIVAL,"surviving landing supports remaining life");
@@ -259,8 +270,58 @@ public final class RespawnIslandChecks {
                 require(nonempty,"local category chest generated ordinary loot");
             }
         }
+        private void checkHomingTarget(ServerPlayer replacement) {
+            var level = maps.level();
+            var index = game.items().lifetimes().loadedTargets();
+            boolean indexedAfterUnload = index.stream().anyMatch(target -> target == replacement);
+            boolean oldBodyRetained = index.stream().anyMatch(target -> target == retiredTarget);
+            require(replacement.level() == level && level.getEntity(victim) == replacement && game.allowDamage(replacement),
+                    "replacement remains the active canonical player after two real unload-drain ticks");
+            require(indexedOnPublication && indexedAfterUnload && !oldBodyRetained,
+                    "native respawn registers its new homing target before the delayed old-body unload"
+                    + " indexedOnPublication=" + indexedOnPublication + " indexedAfterUnload=" + indexedAfterUnload
+                    + " staleBody=" + oldBodyRetained);
+
+            var caster = level.players().stream().filter(player -> player != replacement && game.allowDamage(player)
+                    && game.items().wands().target(player, replacement)).findFirst().orElseThrow();
+            var initial = new Vec3(1, 0, 0);
+            Vec3 origin = null;
+            for (int y = 3; y <= 8 && origin == null; y++) {
+                var candidate = replacement.getEyePosition().add(0, y, 0);
+                boolean air = true;
+                for (var cell : BlockPos.betweenClosed(BlockPos.containing(candidate.subtract(0, 1, 0)),
+                        BlockPos.containing(candidate.add(2, 0, 0)))) {
+                    if (!level.hasChunkAt(cell) || !level.getBlockState(cell).isAir()) { air = false; break; }
+                }
+                if (air) origin = candidate;
+            }
+            require(origin != null, "resident air exists above the native respawn landing");
+            var expected = origin;
+            var direction = initial;
+            for (int i = 0; i < 3; i++) {
+                direction = ProjectileSteering.turn(direction, replacement.getEyePosition().subtract(expected), Math.atan(.06));
+                expected = expected.add(direction.scale(.4));
+            }
+            var danmaku = game.items().danmaku();
+            require(danmaku.count() == 0 && danmaku.remaining(caster) == 0 && danmaku.remaining(replacement) == 0,
+                    "isolated actual post-respawn homing track");
+            boolean skills = game.config().lbcSkills;
+            game.config().lbcSkills = false;
+            try {
+                var card = danmaku.card(caster, origin, initial, true);
+                require(card != null && !card.display.isRemoved(), "actual managed Gohei card is admitted");
+                danmaku.tick();
+                require(card.age == 1 && card.display.position().distanceToSqr(expected) < 1e-14
+                                && card.direction.distanceToSqr(direction) < 1e-14,
+                        "Gohei takes three exact homing steps toward the fresh respawned player");
+            } finally {
+                danmaku.forget(caster);
+                game.config().lbcSkills = skills;
+            }
+            SkyWars2.LOGGER.info("[check] native respawn replaced same-ID homing target, survives old-body drain and guides exact card");
+        }
         void close() {
-            if(selectableSpawns!=null){write(maps,"spawns",selectableSpawns);selectableSpawns=null;}
+            if(selectableSpawns!=null){nativeMap.validation$spawns(selectableSpawns);selectableSpawns=null;}
             before.forEach(maps::restoreSnapshot);
             if(saved!=null) {
                 var current=player();
@@ -268,7 +329,7 @@ public final class RespawnIslandChecks {
                     current.connection.handleClientCommand(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
                     current.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());current=player();
                 }
-                write(participant,"lives",lives);write(participant,"awaitingRespawn",awaiting);write(participant,"disconnected",disconnected);
+                participant.validation$lives(lives);participant.validation$awaitingRespawn(awaiting);participant.validation$disconnected(disconnected);
                 game.players().get(victim).deaths=deaths;game.players().save();
                 if(current!=null)restorePlayer(saved,current,game);
             }
