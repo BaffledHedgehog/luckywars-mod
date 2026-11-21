@@ -71,18 +71,17 @@ async def wish(client, model):
 
     contract = parse(Path("contract.json").read_text(encoding="utf-8"))
     prompt = Path("prompt.txt").read_text(encoding="utf-8")
-    chat = client.start_chat(model=model)
-
     async def turn(message, **options):
         try:
-            return await chat.send_message(message, temporary=True, **options)
+            # Temporary-chat continuation can replay an earlier turn. Each turn owns
+            # its explicit context, rather than trusting a remote conversation cursor.
+            return await client.generate_content(message, model=model, temporary=True, **options)
         except UsageLimitExceededError:
             raise
         except Exception as error:
             raise SessionFailure(request_issue(error) or "WISH_REQUEST_FAILED") from error
 
-    proposal = await turn(
-        prompt + """
+    instructions = prompt + """
 
 For this web session, use the server verifier tool through the following protocol.
 In your first reply send either {"decision":"reject"} or the proposed grant JSON
@@ -90,31 +89,39 @@ with decision, item, answer, twist and program. Omit receipt until the server
 validates the exact proposal and sends the verifier output back to this chat.
 If validation fails, correct the proposal and return the complete corrected JSON.
 After a verified grant, confirm it by echoing the program SHA-256 supplied by the verifier.
-""",
-        files=[Path(name) for name in ("game_knowledge.json", "contract.json", "verify_genie_program.py")],
-    )
+The successful decision literal is "grant", never "accept" or "allow".
+"""
+    attachments = [Path(name) for name in ("game_knowledge.json", "contract.json", "verify_genie_program.py")]
+    proposal = await turn(instructions, files=attachments)
     for attempt in range(3):
         raw = response_text(proposal)
         try:
             reply = parse(raw)
             if reply == {"decision": "reject"}:
                 return {"reply": raw}
-            if set(reply) != {"decision", "item", "answer", "twist", "program"} or reply["decision"] != "grant":
+            if not isinstance(reply, dict) or set(reply) != {"decision", "item", "answer", "twist", "program"}:
                 raise ValueError("Expected the five proposed grant fields, without a receipt.")
+            if reply["decision"] != "grant":
+                raise ValueError('decision must be the literal "grant" (or {"decision":"reject"} alone), '
+                                 'not ' + json.dumps(reply["decision"], ensure_ascii=True))
             receipt = verify(reply["program"], contract)
         except (ValueError, TypeError, KeyError, OverflowError, RecursionError) as error:
             if attempt == 2:
                 raise SessionFailure("INVALID_PROPOSAL") from error
             proposal = await turn(
-                "The verifier rejected the proposal. Return the complete revised grant JSON, without a receipt. "
+                instructions + "\n\nYour previous proposal was:\n" + raw
+                + "\n\nThe verifier rejected that proposal. Return the complete revised grant JSON, without a receipt. "
                 "Check each instruction array against its exact width in contract.json. Error: "
                 + json.dumps(str(error)[:500], ensure_ascii=True),
+                files=attachments,
             )
             continue
 
         expected = {"decision": "grant", "program_sha256": receipt["program_sha256"]}
         confirmation_request = (
-            "The verifier accepted the exact program. Confirm by returning only this JSON:\n"
+            "The verifier accepted the following exact program:\n" + canonical(reply["program"])
+            + "\nVerifier output:\n" + canonical(receipt)
+            + "\nConfirm the verified program by returning only this JSON, with no extra fields:\n"
             + json.dumps(expected)
         )
         for _ in range(2):

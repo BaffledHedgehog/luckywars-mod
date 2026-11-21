@@ -49,6 +49,9 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
 
         final String hint;
         SessionIssue(String hint) { this.hint = hint; }
+        boolean retryableRefresh() {
+            return this == NETWORK_TIMEOUT || this == NETWORK_ERROR || this == ACCESS_TEMPORARILY_UNAVAILABLE;
+        }
     }
 
     static final class SessionFailure extends IOException {
@@ -191,8 +194,12 @@ final class GenieGeminiWebTransport implements GenieScriptModel.Transport {
             }
         } catch (SessionFailure failure) {
             if (maintenance == worker) {
-                SkyWars2.LOGGER.info("Gemini web session refresh requires a fresh import ({})", failure.issue);
-                worker.shutdown();
+                if (failure.issue.retryableRefresh()) {
+                    SkyWars2.LOGGER.warn("Gemini web session refresh temporarily failed ({}); retrying next minute", failure.issue);
+                } else {
+                    SkyWars2.LOGGER.info("Gemini web session refresh requires a fresh import ({})", failure.issue);
+                    worker.shutdown();
+                }
             }
         } catch (InterruptedException canceled) {
             Thread.currentThread().interrupt();
