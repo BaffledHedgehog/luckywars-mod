@@ -23,5 +23,5 @@ public final class LbcCrocodildoItems {
             p.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(this));return InteractionResult.SUCCESS;
         }
     });
-    public static void register(){}
+    public static void register(){LbcCrocodildo.registerTicket();}
 }

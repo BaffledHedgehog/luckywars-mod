@@ -13,10 +13,13 @@ import me.skywars2.game.items.tmt.LbcTmtAbilities;
 import me.skywars2.game.items.tmt.LbcTmtItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
@@ -34,7 +37,7 @@ public final class BossProjectileChecks {
     static final class Scene implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;final Set<UUID> original=new HashSet<>();final Set<Long> forced=new HashSet<>();
         final NativeMeleeChecks.NativeStats stats;int phase,when,start;boolean closed;Display.BlockDisplay jack;LivingEntity boss;ItemEntity foreign;
-        Vec3 jackAt,bossAt;int savedAge,ownerMusicFrom,otherMusicFrom;Set<UUID> rewardIds;
+        Vec3 jackAt,bossAt;LivingEntity fallingBomb;double bombStartY;int savedAge,ownerMusicFrom,otherMusicFrom;Set<UUID> rewardIds;
         Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);stats=new NativeMeleeChecks.NativeStats(f.owner,List.of(LbcKapustaItem.JACK,LbcCrocodildoItems.NUKE,LbcTmtItems.prototype(0).getItem()));f.level.getAllEntities().forEach(e->original.add(e.getUUID()));}
         void next(int p){phase=p;when=game.server().getTickCount();}
         void force(Vec3 at){var p=BlockPos.containing(at);int x=p.getX()>>4,z=p.getZ()>>4;if(f.level.setChunkForced(x,z,true))forced.add(net.minecraft.world.level.ChunkPos.pack(x,z));f.level.getChunk(x,z);}
@@ -61,10 +64,18 @@ public final class BossProjectileChecks {
             require(result.getHealth()==200&&result.getMaxHealth()==200,"real200HP and no hidden sentinel");DisplayTransformChecks.pose((net.minecraft.world.entity.Display)result.getPassengers().getFirst(),0,1,0,15,15,15);return result;
         }
         void markMusic(){ownerMusicFrom=f.client.packets().size();otherMusicFrom=f.audience.packets().size();}
+        List<net.minecraft.server.level.Ticket> flightTickets(Vec3 position){
+            var cell=BlockPos.containing(position);
+            var storage=((NativeFixtureAccess.Chunks)(Object)f.level.getChunkSource()).skywars2$validationTicketStorage();
+            return storage.getTickets(net.minecraft.world.level.ChunkPos.pack(cell.getX()>>4,cell.getZ()>>4)).stream()
+                    .filter(ticket->Identifier.parse("skywars2:crocodildo_flight").equals(BuiltInRegistries.TICKET_TYPE.getKey(ticket.getType()))).toList();
+        }
         MusicTraffic musicTraffic(RegenerationBeltChecks.ScheduledClient client,int from){
             var wire=client.packets();var packets=SmokeVolumeChecks.flatten(wire.subList(from,wire.size()));
-            long starts=packets.stream().filter(p->p instanceof ClientboundSoundPacket sound
-                    &&CROCODILDO_MUSIC.equals(sound.getSound().value().location())).count();
+            var music=packets.stream().filter(p->p instanceof ClientboundSoundPacket sound
+                    &&CROCODILDO_MUSIC.equals(sound.getSound().value().location())).map(p->(ClientboundSoundPacket)p).toList();
+            for(var sound:music)require(sound.getVolume()==1000&&sound.getSource()==net.minecraft.sounds.SoundSource.MASTER,"world-wide music uses requested volume1000 and MASTER category");
+            long starts=music.size();
             long stops=packets.stream().filter(p->p instanceof ClientboundStopSoundPacket stop
                     &&CROCODILDO_MUSIC.equals(stop.getName())).count();
             return new MusicTraffic(starts,stops);
@@ -104,7 +115,11 @@ public final class BossProjectileChecks {
                 if(elapsed<3)return false;
                 requireMusic(0,1,"empty restored encounter stays silent on later native ticks");
                 markMusic();boss=spawn();requireMusic(1,0,"a subsequent encounter starts one fresh track");
-                bossAt=new Vec3(f.home.x,f.level.getMaxY()+250,f.home.z);boss.setPos(f.home.add(0,25,0));boss.setNoGravity(true);
+                bossAt=new Vec3(boss.getX(),f.level.getMaxY()-2,boss.getZ());
+                var cell=BlockPos.containing(bossAt);var column=new net.minecraft.world.level.ChunkPos(cell.getX()>>4,cell.getZ()>>4);
+                game.maps().prepareChunk(f.level,column);
+                if(forced.remove(column.pack()))f.level.setChunkForced(column.x(),column.z(),false);
+                boss.setPos(f.home.add(0,25,0));boss.setNoGravity(true);
                 savedAge=game.items().crocodildo().age(boss);f.pause();next(2);return false;
             }
             if(phase==2){
@@ -133,14 +148,33 @@ public final class BossProjectileChecks {
                 boss.setPos(bossAt);f.thaw();next(3);return false;
             }
             if(phase==3){
+                boss.setPos(bossAt); // Hold only the bomber's test route; the bomb must fall naturally.
                 if(elapsed==1)requireMusic(1,1,"first actual thawed encounter tick starts exactly one replacement track");
                 var pig=game.items().crocodildo().bodies().stream().filter(e->e.getType()==EntityTypes.PIG).findFirst().orElse(null);if(pig==null){require(elapsed<110,"native five-second active bombing cadence");return false;}
                 requireMusic(1,1,"later active encounter ticks never duplicate the restored track");
-                // The actual falling-bomb owner handles landing next tick; no parallel blast implementation.
-                DisplayTransformChecks.pose((net.minecraft.world.entity.Display)pig.getPassengers().getFirst(),0,-.4f,0,3,3,3);boss.setPos(bossAt);pig.setPos(bossAt);pig.setNoGravity(true);pig.setOnGround(true);f.own(pig);rewardIds=rewards();foreign=new ItemEntity(f.level,bossAt.x,bossAt.y,bossAt.z,new ItemStack(Items.EMERALD));f.own(foreign);require(f.level.addFreshEntity(foreign),"foreign unprotected item witness");next(4);return false;}
+                require(boss.isInvisible()&&boss.hasEffect(MobEffects.INVISIBILITY),"boss hitbox remains hidden after real native ticks and rewind");
+                require(pig.isInvisible()&&pig.hasEffect(MobEffects.INVISIBILITY)&&pig instanceof Mob mob&&!mob.isNoAi()&&!pig.isNoGravity(),"legacy invisible bomb retains native travel and gravity");
+                DisplayTransformChecks.pose((net.minecraft.world.entity.Display)pig.getPassengers().getFirst(),0,-.4f,0,3,3,3);
+                fallingBomb=pig;bombStartY=pig.getY();f.own(pig);
+                for(var player:List.of(f.owner,f.other))require(Math.hypot(player.getX()-pig.getX(),player.getZ()-pig.getZ())>128,"bomb falls horizontally outside both native player simulation ranges");
+                var tickets=flightTickets(pig.position());require(tickets.size()==1&&tickets.getFirst().getTicketLevel()==31,"boss and bomb share exactly one native simulation lease");
+                var floor=pig.blockPosition().below(6);for(int x=-4;x<=4;x++)for(int z=-4;z<=4;z++)f.set(floor.offset(x,0,z),Blocks.STONE.defaultBlockState());
+                bossAt=pig.position().add(0,3,0);boss.setPos(bossAt);rewardIds=rewards();
+                foreign=new ItemEntity(f.level,bossAt.x,bossAt.y,bossAt.z,new ItemStack(Items.EMERALD));f.own(foreign);require(f.level.addFreshEntity(foreign),"foreign unprotected item witness");next(30);return false;}
+            if(phase==30){
+                boss.setPos(bossAt);
+                require(elapsed<30,"native bomb falls and detonates on the supported pad");
+                if(!fallingBomb.isRemoved()){
+                    require(fallingBomb.isInvisible(),"pig stays invisible throughout actual descent");
+                    if(elapsed>=8)require(fallingBomb.getY()<bombStartY-.5,"native gravity moves the bomb without forced landing");
+                    return false;
+                }
+                require(fallingBomb.getY()<bombStartY-2,"bomb reached terrain through native movement");next(4);return false;
+            }
             if(phase==4){if(boss.isAlive()){require(elapsed<5,"first nuclear damage is immediate on landing");return false;}
                 require(boss.getLastDamageSource()!=null&&boss.getLastDamageSource().getEntity()==boss,"self-nuke has real NPC cause, never token dropper");verifyReward(rewardIds);rewardIds=rewards();require(!rewardIds.isEmpty(),"immediate reward before later nuclear work");next(5);return false;}
             if(phase==5){if(!game.items().nukeEvent().captureReady()){require(elapsed<300,"shared nuclear waves/terrain/cleanup drain on scheduler");return false;}
+                require(flightTickets(bossAt).isEmpty(),"death and bomb impact release their final native simulation lease");
                 require(rewards().containsAll(rewardIds),"all rewards survive every shared nuclear wave AND explicit final entity cleanup");require(foreign.isRemoved(),"foreign nearby drops were not accidentally protected");
                 boss=spawn();boss.setPos(f.home.add(0,25,0));boss.setNoGravity(true);var marker=new Marker(EntityTypes.MARKER,f.level);marker.setPos(boss.position());marker.entityTags().add("stopper");f.own(marker);require(f.level.addFreshEntity(marker),"native TECH marker");game.items().magic().loaded(marker);rewardIds=rewards();next(6);return false;}
             if(phase==6){if(boss.isAlive()){require(elapsed<5,"TECH ordinary death");return false;}verifyReward(rewardIds);

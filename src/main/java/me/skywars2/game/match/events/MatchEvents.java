@@ -629,7 +629,8 @@ public final class MatchEvents {
         double centerX = spawns.stream().mapToDouble(spawn -> spawn.position().x).average().orElse(0.0);
         double centerZ = spawns.stream().mapToDouble(spawn -> spawn.position().z).average().orElse(0.0);
         var level = maps.level();
-        var loot = ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("swrg:chests/center_0"));
+        var loot = MapManager.chestLootTable(controller.gameMode(),"center",false);
+        if(loot==null)return;
         for (int i = 0; i < 10; i++) {
             var floor=airdropGround(centerX,centerZ);
             if(floor==null)break; // A fully destroyed arena must never receive a guaranteed void drop.

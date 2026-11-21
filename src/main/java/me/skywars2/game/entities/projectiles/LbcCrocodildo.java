@@ -13,6 +13,8 @@ import me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -24,11 +26,14 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.BossEvent;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 import me.skywars2.game.effects.magic.LbcOverload;
 import me.skywars2.game.effects.time.TimeStopView;
@@ -43,6 +48,10 @@ public final class LbcCrocodildo {
     private static final String BODY="skywars2.crocodildo",VISUAL=BODY+".visual",BOMB=BODY+".bomb";
     private static final Identifier MUSIC=Identifier.parse("minecraft:lbcsounds.crocodildo");
     private static final Holder<SoundEvent> SOUND=Holder.direct(SoundEvent.createVariableRangeEvent(MUSIC));
+    private static final TicketType FLIGHT_TICKET=new TicketType(TicketType.NO_TIMEOUT,
+            TicketType.FLAG_LOADING|TicketType.FLAG_SIMULATION|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+    private record Column(ServerLevel level,ChunkPos pos){}
+    private final Map<Column,Integer> flightColumns=new HashMap<>();
     private final GameController game;
     private final Set<Actor> actors=new LinkedHashSet<>();
     private final Set<ItemEntity> pending=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -51,12 +60,26 @@ public final class LbcCrocodildo {
     private int depth,lastTick=Integer.MIN_VALUE;private boolean frozen;
     private static final class Actor {
         LivingEntity body,source;Display.ItemDisplay visual;final String epoch;final boolean bomb;
-        int age;boolean terminal;
+        int age;boolean terminal;Column column;
         Actor(LivingEntity body,Display.ItemDisplay visual,String epoch,boolean bomb,LivingEntity source){
             this.body=body;this.visual=visual;this.epoch=epoch;this.bomb=bomb;this.source=source;
         }
     }
     public LbcCrocodildo(GameController game){this.game=game;}
+    public static void registerTicket(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:crocodildo_flight"),FLIGHT_TICKET);}
+    private void holdFlight(Actor actor){
+        var next=new Column((ServerLevel)actor.body.level(),actor.body.chunkPosition());
+        if(next.equals(actor.column))return;
+        // FULL terrain residency alone does not run vanilla gravity. Share level31 per column.
+        if(flightColumns.merge(next,1,Integer::sum)==1)next.level.getChunkSource().addTicketWithRadius(FLIGHT_TICKET,next.pos,2);
+        releaseFlight(actor);actor.column=next;
+    }
+    private void releaseFlight(Actor actor){
+        var old=actor.column;if(old==null)return;actor.column=null;
+        int remaining=flightColumns.get(old)-1;
+        if(remaining>0)flightColumns.put(old,remaining);
+        else{flightColumns.remove(old);old.level.getChunkSource().removeTicketWithRadius(FLIGHT_TICKET,old.pos,2);}
+    }
     public static boolean trigger(ItemStack stack){return ItemData.intValue(stack,"crocodildo_boss",0)==1&&ItemData.intValue(stack,"drop",0)==1;}
     public static boolean managed(Entity e){return e!=null&&(e.entityTags().contains(BODY)||e.entityTags().contains(BOMB)||e.entityTags().contains(VISUAL));}
     public static boolean visual(Entity e){return e!=null&&e.entityTags().contains(VISUAL);}
@@ -88,11 +111,11 @@ public final class LbcCrocodildo {
             if(inward.lengthSqr()==0)inward=new Vec3(0,0,1);
             var at=p.add(0,80,0).subtract(inward.scale(150));if(!level.hasChunkAt(BlockPos.containing(at)))return false;
             var body=EntityTypes.TURTLE.create(level,EntitySpawnReason.COMMAND);if(body==null)return false;
-            load(body,"{NoAI:true,Silent:true,PersistenceRequired:true,DeathLootTable:'minecraft:empty'}");
+            load(body,"{Silent:true,PersistenceRequired:true,DeathLootTable:'minecraft:empty'}");
             body.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);body.setHealth(200);body.getAttribute(Attributes.SCALE).setBaseValue(10);
-            body.setInvisible(true);body.setCustomName(Component.translatable("crocodilo").withStyle(ChatFormatting.DARK_RED,ChatFormatting.BOLD));
+            hideHitbox(body);body.setCustomName(Component.translatable("crocodilo").withStyle(ChatFormatting.DARK_RED,ChatFormatting.BOLD));
             var d=presentation(level,false);body.setPos(at);d.setPos(at);body.setYRot((float)Math.toDegrees(Math.atan2(-inward.x,inward.z)));body.entityTags().addAll(List.of(BODY,"crocodildo"));
-            var actor=new Actor(body,d,game.items().epoch(),false,body);actors.add(actor);prepare(body);prepare(d);
+            var actor=new Actor(body,d,game.items().epoch(),false,body);actors.add(actor);holdFlight(actor);prepare(body);prepare(d);
             if(!level.addFreshEntity(body)||!level.addFreshEntity(d)){retire(actor);return false;}d.startRiding(body,true,true);
             if(debit){var remaining=token.getItem().copy();remaining.shrink(1);if(remaining.isEmpty())token.discard();else token.setItem(remaining);}
             bar(actor);if(bars.size()==1)updateMusic();
@@ -100,12 +123,18 @@ public final class LbcCrocodildo {
         }finally{depth--;}
     }
     private void prepare(Entity e){game.items().markCurrentItemEpoch(e);game.items().timeStop().prepareFrozen(e);}
+    private static void hideHitbox(LivingEntity body){
+        // LivingEntity rebuilds its invisible flag from active effects on later native ticks.
+        body.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,-1,0,false,false));
+        body.setInvisible(true);
+    }
     private void bomb(Actor boss){
         var level=(ServerLevel)boss.body.level();var p=boss.body.position().add(0,-3,0);if(!level.hasChunkAt(BlockPos.containing(p)))return;
         var pig=EntityTypes.PIG.create(level,EntitySpawnReason.COMMAND);if(pig==null)return;
-        load(pig,"{NoAI:true,Silent:true,Invulnerable:true,PersistenceRequired:true,DeathLootTable:'minecraft:empty'}");
-        pig.setInvisible(true);pig.setPos(p);pig.entityTags().addAll(List.of(BOMB,"nuke_pig","mob_projectile"));var d=presentation(level,true);d.setPos(p);
-        var actor=new Actor(pig,d,boss.epoch,true,boss.body);actors.add(actor);prepare(pig);prepare(d);
+        // Keep vanilla travel enabled, as in legacy: NoAI also disables native falling.
+        load(pig,"{Silent:true,Invulnerable:true,PersistenceRequired:true,DeathLootTable:'minecraft:empty'}");
+        hideHitbox(pig);pig.setPos(p);pig.entityTags().addAll(List.of(BOMB,"nuke_pig","mob_projectile"));var d=presentation(level,true);d.setPos(p);
+        var actor=new Actor(pig,d,boss.epoch,true,boss.body);actors.add(actor);holdFlight(actor);prepare(pig);prepare(d);
         if(!level.addFreshEntity(pig)||!level.addFreshEntity(d)){retire(actor);return;}d.startRiding(pig,true,true);
         LbcOverload.sound(level,p,"minecraft:lbcsounds.drop_bomb",SoundSource.HOSTILE,10,0,200,0);
     }
@@ -117,6 +146,7 @@ public final class LbcCrocodildo {
                 if(!live(a.epoch)||a.body.level()!=game.maps().level()){retire(a);continue;}
                 if(a.body.isRemoved()&&a.body.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)continue;
                 if(a.body.isRemoved()){retire(a);continue;}
+                holdFlight(a);
                 if(!resident(a.body)||stopped(a.body))continue;
                 if(!a.body.isAlive()){died(a.body);continue;}
                 var level=(ServerLevel)a.body.level();
@@ -141,7 +171,7 @@ public final class LbcCrocodildo {
     }
     public void died(LivingEntity body){
         if(frozen||!body.isDeadOrDying())return;var a=actors.stream().filter(x->x.body==body&&!x.bomb&&!x.terminal).findFirst().orElse(null);if(a==null)return;
-        a.terminal=true;actors.remove(a);a.visual.discard();closeBar(body.getUUID());
+        a.terminal=true;actors.remove(a);releaseFlight(a);a.visual.discard();closeBar(body.getUUID());
         if(!live(a.epoch))return;var level=(ServerLevel)body.level();
         for(var stack:game.lbc().rollTable(level,body.position(),null,"lbc:64_nukes")){
             var drop=LbcBossLoot.protect(new ItemEntity(level,body.getX(),body.getY(),body.getZ(),stack));prepare(drop);level.addFreshEntity(drop);
@@ -162,11 +192,15 @@ public final class LbcCrocodildo {
     }
     private void updateMusic(){
         if(bars.isEmpty())return;
-        musicListeners.removeIf(listener->!listener.isAcceptingMessages());
+        musicListeners.removeIf(listener->{
+            if(!listener.isAcceptingMessages())return true;
+            if(listener.player.level()==game.maps().level())return false;
+            listener.send(new ClientboundStopSoundPacket(MUSIC,SoundSource.MASTER));return true;
+        });
         for(var player:game.server().getPlayerList().getPlayers()){
             var listener=player.connection;
-            if(listener!=null&&listener.isAcceptingMessages()&&!TimeStopView.frozen(player)&&musicListeners.add(listener))
-                listener.send(new ClientboundSoundPacket(SOUND,SoundSource.MASTER,player.getX(),player.getY(),player.getZ(),1,1,0));
+            if(player.level()==game.maps().level()&&listener!=null&&listener.isAcceptingMessages()&&!TimeStopView.frozen(player)&&musicListeners.add(listener))
+                listener.send(new ClientboundSoundPacket(SOUND,SoundSource.MASTER,player.getX(),player.getY(),player.getZ(),1000,1,0));
         }
     }
     private void stopMusic(){
@@ -176,7 +210,7 @@ public final class LbcCrocodildo {
         musicListeners.clear();
     }
     private void closeBar(UUID id){var bar=bars.remove(id);if(bar!=null)bar.removeAllPlayers();if(bars.isEmpty())stopMusic();}
-    private void retire(Actor a){actors.remove(a);a.terminal=true;if(!a.bomb)closeBar(a.body.getUUID());a.visual.discard();if(!a.body.isRemoved())a.body.discard();}
+    private void retire(Actor a){actors.remove(a);releaseFlight(a);a.terminal=true;if(!a.bomb)closeBar(a.body.getUUID());a.visual.discard();if(!a.body.isRemoved())a.body.discard();}
     public void loaded(Entity e){
         if(frozen||MatchActorCheckpoint.restoring(e))return;
         if(e instanceof ItemEntity item&&trigger(item.getItem())&&!LbcTmtItems.matches(item.getItem())){
@@ -189,18 +223,18 @@ public final class LbcCrocodildo {
             if(a.body==e||a.visual==e)found=true;}
         if(found)prepare(e);else e.discard();
     }
-    public void unloaded(Entity e){if(e instanceof ItemEntity item)pending.remove(item);}
+    public void unloaded(Entity e){if(e instanceof ItemEntity item)pending.remove(item);for(var a:actors)if(a.body==e)releaseFlight(a);}
     public void stop(){for(var a:List.copyOf(actors))retire(a);pending.clear();for(var b:bars.values())b.removeAllPlayers();bars.clear();stopMusic();}
     public List<LivingEntity> bodies(){return actors.stream().map(a->a.body).toList();}
     public List<Entity> polymorphVisuals(Entity body){return actors.stream().filter(a->a.body==body).map(a->(Entity)a.visual).toList();}
     public int age(Entity body){return actors.stream().filter(a->a.body==body).mapToInt(a->a.age).findFirst().orElse(-1);}
     public boolean captureReady(){return depth==0&&!frozen;}
     public void checkpointBoundary(){if(depth!=0)throw new IllegalStateException("Finish Crocodildo callback before checkpoint");}
-    public void prepareFrozen(){checkpointBoundary();frozen=true;for(var b:bars.values())b.removeAllPlayers();bars.clear();actors.clear();pending.clear();}
+    public void prepareFrozen(){checkpointBoundary();frozen=true;for(var b:bars.values())b.removeAllPlayers();bars.clear();for(var a:actors)releaseFlight(a);actors.clear();pending.clear();}
     public void publishFrozen(){
         checkpointBoundary();frozen=false;lastTick=Integer.MIN_VALUE;
         stopMusic();
-        for(var a:actors)if(!a.bomb&&resident(a.body))bar(a);
+        for(var a:actors)if(!a.body.isRemoved()){holdFlight(a);if(!a.bomb&&resident(a.body))bar(a);}
         updateMusic();
     }
     public void cancelFrozen(){frozen=false;if(bars.isEmpty())stopMusic();}
@@ -219,7 +253,7 @@ public final class LbcCrocodildo {
         var picture=new CloneEncounterStates.Presentation(a.visual);var epoch=a.epoch;boolean bomb=a.bomb;int age=a.age;var source=a.source;
         return CloneComplexProjectileStates.image(clone->{
             var d=(Display.ItemDisplay)picture.create((ServerLevel)clone.level());d.setPos(clone.position());
-            var copy=new Actor((LivingEntity)clone,d,epoch,bomb,source==original?(LivingEntity)clone:source);copy.age=age;actors.add(copy);prepare(d);
+            var copy=new Actor((LivingEntity)clone,d,epoch,bomb,source==original?(LivingEntity)clone:source);copy.age=age;actors.add(copy);holdFlight(copy);prepare(d);
             if(!((ServerLevel)clone.level()).addFreshEntity(d)||!d.startRiding(clone,true,true))throw new IllegalStateException("Crocodildo clone visual publication");
         },clone->{for(var copy:List.copyOf(actors))if(copy.body==clone)retire(copy);});
     }

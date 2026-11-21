@@ -164,6 +164,8 @@ final class AirdropSimulationChecks {
                         &&chicken.getPassengers().getFirst() instanceof MinecartChest,"stage prepared the real mounted airdrop in the chosen column");
                 flights.add(new Flight(chicken,(MinecartChest)chicken.getPassengers().getFirst()));
             }
+            var expectedLoot=MapManager.chestLootTable(game.gameMode(),"center",false);
+            for(var flight:flights)require(expectedLoot.equals(flight.chest.getContainerLootTable()),"airdrop uses the active mode's center table: mode="+game.gameMode());
             wave=List.copyOf(flights);owned.addAll(wave);
             require(wave.size()==10&&controlled.draws==20,"ten native graphs use their real supported-position callback");
             when=game.server().getTickCount();
@@ -179,6 +181,12 @@ final class AirdropSimulationChecks {
                 require(arena.getEntity(chicken.getUUID())==chicken&&arena.getEntity(flight.chest.getUUID())==flight.chest
                         &&flight.chest.getVehicle()==chicken&&!chicken.isNoAi()&&!chicken.isNoGravity(),
                         "same normal chicken and mounted native chest were published");
+                if(game.gameMode()==2){
+                    boolean lucky=false;
+                    for(int slot=0;slot<flight.chest.getContainerSize();slot++)
+                        lucky|=Identifier.parse("skywars2:lucky_block").equals(BuiltInRegistries.ITEM.getKey(flight.chest.getItem(slot).getItem()));
+                    require(lucky,"each Lucky SkyWars airdrop materializes actual lucky blocks");
+                }
             }
             if(wave.stream().anyMatch(flight->flight.chicken.tickCount<4||flight.startY-flight.chicken.getY()<.5)){
                 require(now-when<35,"published normal chickens hover without native simulation: ticks="+wave.getFirst().chicken.tickCount
