@@ -20,6 +20,8 @@ CHECKS = re.compile(
     r"(?:\$[^/]*)?\.class\Z"
 )
 VALIDATION_CONFIG = "skywars2.validation.mixins.json"
+# This fixture helper intentionally has no command/scenario of its own.
+FIXTURE_HELPERS = {"me/skywars2/game/items/phone/TikTokCheckFields.class"}
 TEST_ENTRYPOINTS = {
     "skywars2:map-editing": ["me.skywars2.game.MapAuthoringBackend"],
     "skywars2:test-checks": ["me.skywars2.game.NativeCheckBackend"],
@@ -47,7 +49,7 @@ def entries(path: Path) -> dict[str, bytes]:
 
 
 def test_only(name: str) -> bool:
-    return (name == VALIDATION_CONFIG
+    return (name == VALIDATION_CONFIG or name in FIXTURE_HELPERS
             or (name.startswith("me/skywars2/validation/") and name.endswith(".class"))
             or AUTHORING.fullmatch(name) is not None
             or CHECKS.fullmatch(name) is not None)

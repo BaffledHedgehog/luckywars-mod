@@ -18,7 +18,7 @@ SOURCE_ROOTS = (
 )
 TYPE_KINDS = {"class", "interface", "enum", "record"}
 OWN_PACKAGE = "me.skywars2."
-TEST_TYPE = re.compile(r"MapAuthoring.*|MapDeletion.*|.*Checks|Vanity.*Scene|NativeCheckBackend")
+TEST_TYPE = re.compile(r"MapAuthoring.*|MapDeletion.*|.*Checks|Vanity.*Scene|NativeCheckBackend|TikTokCheckFields")
 JAVA_NAME = r"(?:[^\W\d]|\$)(?:\w|\$)*"
 TOKEN = re.compile(
     r'(?P<ignored>\s+|//[^\r\n]*|/\*.*?\*/)'
