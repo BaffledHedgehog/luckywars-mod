@@ -87,8 +87,8 @@ public final class LbcLuckyPigs {
         return true;
     }
 
-    void adoptEgg(Pig actor, LivingEntity cause) { prepare(actor,cause); }
-    void adoptFakeEgg(Pig actor,LivingEntity cause){actor.entityTags().add(FAKE);prepare(actor,cause);bindFake(actor,cause);}
+    public void adoptEgg(Pig actor, LivingEntity cause) { prepare(actor,cause); }
+    public void adoptFakeEgg(Pig actor,LivingEntity cause){actor.entityTags().add(FAKE);prepare(actor,cause);bindFake(actor,cause);}
     private void bindFake(Entity actor,LivingEntity cause){
         if(LbcSpellSource.unownedHazard(actor)||LbcSpellSource.unownedHazard(cause)){
             actor.entityTags().add("skywars2.unowned_hazard");
@@ -233,7 +233,7 @@ public final class LbcLuckyPigs {
             }
     }
 
-    MatchQueuedWorkCheckpoint.Image fakeCheckpoint(MatchSpellCheckpoint.Links links){
+    public MatchQueuedWorkCheckpoint.Image fakeCheckpoint(MatchSpellCheckpoint.Links links){
         var bolts=fakeBolts.stream().map(links::key).toList();var timers=new IdentityHashMap<>(fakeTimers);var sites=new IdentityHashMap<ServerLevel,List<FakeSite>>();fakeSites.forEach((level,values)->sites.put(level,List.copyOf(values)));
         return current->{var rebound=bolts.stream().map(ref->(LightningBolt)current.get(ref)).toList();return ()->{fakeBolts.clear();fakeBolts.addAll(rebound);fakeTimers.clear();fakeTimers.putAll(timers);fakeSites.clear();sites.forEach((level,values)->fakeSites.put(level,new java.util.ArrayList<>(values)));};};
     }

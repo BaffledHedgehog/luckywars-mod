@@ -40,8 +40,8 @@ public final class LbcCursedPumpkin {
     private boolean ordinary(Entity actor){return LbcDimensionItems.ordinary(actor.level());}
     private boolean eligible(ServerPlayer p){return p.isAlive()&&!p.isRemoved()&&!p.isSpectator()&&!game.isObserver(p)
             &&game.canUseGameplayItems(p)&&ordinary(p)&&!paused(p)&&!game.items().actionsBlocked(p);}
-    static ItemStack get(ServerPlayer p,int slot){return slot<36?p.getInventory().getItem(slot):p.getItemBySlot(EQUIPMENT[slot-36]);}
-    static void set(ServerPlayer p,int slot,ItemStack stack){if(slot<36)p.getInventory().setItem(slot,stack);else p.setItemSlot(EQUIPMENT[slot-36],stack);}
+    public static ItemStack get(ServerPlayer p,int slot){return slot<36?p.getInventory().getItem(slot):p.getItemBySlot(EQUIPMENT[slot-36]);}
+    public static void set(ServerPlayer p,int slot,ItemStack stack){if(slot<36)p.getInventory().setItem(slot,stack);else p.setItemSlot(EQUIPMENT[slot-36],stack);}
     public void inventoryChanged(ServerPlayer p){if(!restoring)dirty.add(p.getUUID());}
     public void loaded(Entity actor){
         if(restoring)return;
@@ -151,14 +151,15 @@ public final class LbcCursedPumpkin {
     public void clear(){holders.clear();dirty.clear();dropped.clear();cursors.clear();phases.clear();restoring=false;}
     public void prepareFrozen(){restoring=true;holders.clear();dirty.clear();dropped.clear();cursors.clear();phases.clear();}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint{
-        final Set<UUID> savedHolders=Set.copyOf(holders),savedDirty=Set.copyOf(dirty);
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint{
+        public final Set<UUID> savedHolders=Set.copyOf(holders);
+        final Set<UUID> savedDirty=Set.copyOf(dirty);
         final Map<ServerLevel,Integer> clocks=new IdentityHashMap<>(phases);
         final Map<UUID,Long> progress=Map.copyOf(cursors);
         // Native discard precedes the queued unload notification, which may run after capture.
-        final List<UUID> items=dropped.values().stream().filter(item->!item.isRemoved()).map(Entity::getUUID).toList();
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public final List<UUID> items=dropped.values().stream().filter(item->!item.isRemoved()).map(Entity::getUUID).toList();
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var restored=new LinkedHashMap<UUID,ItemEntity>();var missing=new LinkedHashSet<UUID>();
             for(var id:items)if(lookup.apply(id) instanceof ItemEntity item)restored.put(id,item);else missing.add(id);
             return new MatchFieldCheckpoint.Plan(Set.copyOf(missing),()->{holders.clear();holders.addAll(savedHolders);dirty.clear();dirty.addAll(savedDirty);phases.clear();phases.putAll(clocks);dropped.clear();dropped.putAll(restored);cursors.clear();cursors.putAll(progress);});

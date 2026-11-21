@@ -14,8 +14,8 @@ import net.minecraft.world.item.component.CustomData;
 /** Bounded, persistent TMT property slots. Native owners run against the actual held stack. */
 public final class LbcTmtAbilities {
     private LbcTmtAbilities(){}
-    static final String SLOTS="tmt_abilities",ACTIVE="tmt_active_ability";
-    static final String NATIVE="tmt_native_item";
+    public static final String SLOTS="tmt_abilities",ACTIVE="tmt_active_ability";
+    public static final String NATIVE="tmt_native_item";
     private static final List<String> PARAMETERS=List.of("upgraded","mode","type");
     private static final List<String> IDENTITY=List.of(SLOTS,ACTIVE,"tmt_item","tmt_texture_seed",LbcTmtTriggers.SCHEMA);
     // Captured source stacks retain ACTIVE as context. Runtime reentry is never a serialized lock.
@@ -23,8 +23,8 @@ public final class LbcTmtAbilities {
     private static final ThreadLocal<java.util.ArrayDeque<Runnable>> AFTER_SCOPES=new ThreadLocal<>();
     private static final ThreadLocal<java.util.Map<ItemStack,net.minecraft.world.item.Item>> NATIVE_SCOPES=new ThreadLocal<>();
     private static final java.util.concurrent.atomic.AtomicInteger NATIVE_DEPTH=new java.util.concurrent.atomic.AtomicInteger();
-    static boolean active(ItemStack stack){var scopes=SCOPES.get();return scopes!=null&&scopes.containsKey(stack);}
-    static ItemStack enchantmentSource(net.minecraft.server.level.ServerPlayer player){
+    public static boolean active(ItemStack stack){var scopes=SCOPES.get();return scopes!=null&&scopes.containsKey(stack);}
+    public static ItemStack enchantmentSource(net.minecraft.server.level.ServerPlayer player){
         var scopes=SCOPES.get();if(scopes==null)return ItemStack.EMPTY;
         for(var source:scopes.keySet()){
             for(int slot=0;slot<player.getInventory().getContainerSize();slot++)
@@ -34,7 +34,7 @@ public final class LbcTmtAbilities {
         return ItemStack.EMPTY;
     }
     /** Inventory refunds preserve the full item; projectile captures deliberately use ordinary copy(). */
-    static ItemStack outerCopy(ItemStack stack){
+    public static ItemStack outerCopy(ItemStack stack){
         return outerCopy(stack,scopeSource(stack));
     }
     private static ItemStack scopeSource(ItemStack stack){
@@ -55,7 +55,7 @@ public final class LbcTmtAbilities {
     /** Physical inventory drops cannot retain a borrowed property's temporary source view. */
     public static ItemStack physicalDrop(ItemStack stack){var source=scopeSource(stack);return source==null?stack:outerCopy(stack,source);}
     /** Native shots accepted inside a property finish after the outer held state is restored. */
-    static void afterScopes(Runnable action){
+    public static void afterScopes(Runnable action){
         var scopes=SCOPES.get();
         if(scopes==null||scopes.isEmpty()){action.run();return;}
         var pending=AFTER_SCOPES.get();
@@ -97,7 +97,7 @@ public final class LbcTmtAbilities {
     public static List<Ability> parseSlots(CustomData data){return read(data.copyTag());}
 
     /** Last occurrence wins without giving repeat draws a second execution slot. */
-    static void write(CompoundTag root,List<Ability> rolls) {
+    public static void write(CompoundTag root,List<Ability> rolls) {
         if(rolls.size()>7)throw new IllegalArgumentException("Too many TMT ability rolls");
         var unique=new LinkedHashMap<String,Ability>();
         for(var ability:rolls){unique.remove(ability.id);unique.put(ability.id,ability);}
@@ -117,7 +117,7 @@ public final class LbcTmtAbilities {
         root.remove(NATIVE);
         root.remove(ACTIVE);root.put(SLOTS,list);
     }
-    static List<Ability> read(ItemStack stack) {
+    public static List<Ability> read(ItemStack stack) {
         if(stack.isEmpty()||ItemData.intValue(stack,"tmt_item",0)!=1)return List.of();
         return ((CachedSlots)(Object)stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)).skywars2$tmtSlots();
     }
@@ -134,7 +134,7 @@ public final class LbcTmtAbilities {
     }
 
     /** No hand replacement or copied-item execution. Only this callback's property parameters are projected. */
-    static boolean invoke(ItemStack stack,String id,BooleanSupplier action) {
+    public static boolean invoke(ItemStack stack,String id,BooleanSupplier action) {
         if(stack.isEmpty()||active(stack))return false;
         var originalData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY);
         var slots=read(stack);Ability selected=null;

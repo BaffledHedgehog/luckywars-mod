@@ -12,13 +12,15 @@ import net.minecraft.world.item.crafting.CraftingInput;
 public final class LbcBotCrafting {
     final ServerPlayer player;
     final LbcBotToolCrafting tools;
-    int first,second=1,next,stage=-1,a,b,crafted,pairCursor;
+    int first, second=1, next;
+    public int stage=-1;
+    int a, b, crafted, pairCursor;
     final ItemStack[] observed=new ItemStack[36];
     final BitSet changed=new BitSet(36),pairs=new BitSet(36*36);
     boolean searched;
     LbcBotCrafting(ServerPlayer player,LbcChefBrain.Driver driver,LbcBotSurvival survival){this.player=player;tools=new LbcBotToolCrafting(player,driver,survival);}
-    boolean active(){return stage>=0||tools.active();}
-    boolean prepared(){return tools.prepared();}
+    public boolean active(){return stage>=0||tools.active();}
+    public boolean prepared(){return tools.prepared();}
     private int inventorySlot(int index){
         for(int i=0;i<player.inventoryMenu.slots.size();i++){
             var slot=player.inventoryMenu.slots.get(i);

@@ -29,18 +29,18 @@ public final class GameBuilds {
     // Weak player-body keys retire disconnected/replaced bodies without a polling task.
     private final Map<ServerPlayer, Session> sessions = new WeakHashMap<>();
     private record Session(String token, int saveSlot, String epoch) {}
-    record Build(String name, int kit, int skill, int lbcKit, int lbcSkill,
+    public record Build(String name, int kit, int skill, int lbcKit, int lbcSkill,
                  int challenge, int challengeKit, int[] levelups, int[] trinkets,
                  int sound, int cage, int suffix, int winEffect, int killEffect) {}
 
-    GameBuilds(GameController game, PlayerStore players) { this.game = game; this.players = players; }
+    public GameBuilds(GameController game, PlayerStore players) { this.game = game; this.players = players; }
 
     private boolean allowed(ServerPlayer player) {
         return game.server().getPlayerList().getPlayer(player.getUUID()) == player
                 && game.canUseMenus(player) && !game.items().actionsBlocked(player);
     }
 
-    static Build[] read(PlayerStore.Profile profile) {
+    public static Build[] read(PlayerStore.Profile profile) {
         if (profile.savedBuilds == null || profile.savedBuilds.isBlank()) return new Build[SLOTS];
         var records = JSON.fromJson(profile.savedBuilds, Build[].class);
         return records == null ? new Build[SLOTS] : Arrays.copyOf(records, SLOTS);

@@ -106,8 +106,8 @@ public final class LbcMysticalTree {
     public int count(){return actors.size();}
     public record View(Marker body,long steps,long writes,long random,int cursor,boolean terminal,Direction direction,int length,LbcIndirectKills.Owner cause){}
     public List<View> views(){return actors.values().stream().map(a->new View(a.body,a.steps,a.writes,a.random,a.pending==null?-1:a.pending.cursor,a.pending!=null&&a.pending.terminal,a.pending==null?null:a.pending.direction,a.pending==null?0:a.pending.length,a.cause)).toList();}
-    static boolean cloneRecognizes(Entity entity){return managed(entity);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity entity){return managed(entity);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var actor=actors.get(source.getUUID());if(actor==null)return null;long random=actor.random,steps=actor.steps,writes=actor.writes;var pending=actor.pending;var pose=source.position();int cursor=pending==null?0:pending.cursor;
         return new LbcCloneSkills.ActorImage(){public void install(Entity ignored,Entity clone,Map<Entity,Entity> relatives){var copy=new Actor((Marker)clone,actor.epoch,actor.cause,random);copy.steps=steps;copy.writes=writes;copy.lastPulse=game.server().getTickCount();actors.put(clone.getUUID(),copy);if(pending!=null){var segment=new Segment(copy,pending.origin.add(clone.position().subtract(pose)),pending.direction,pending.length,pending.terminal);segment.cursor=cursor;copy.pending=segment;work.add(segment);game.items().stonekivi().queuedWork(segment);}}public void rollback(Entity clone){var copy=actors.get(clone.getUUID());if(copy!=null)retire(copy);}};
     }
@@ -115,7 +115,7 @@ public final class LbcMysticalTree {
     public void prepareFrozen(){checkpointBoundary();restoring=true;actors.clear();work.clear();lastTick=Integer.MIN_VALUE;}
     public void publishFrozen(){restoring=false;}
     public void cancelFrozen(){stop();}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
         checkpointBoundary();record Saved(Actor actor,MatchDamageSources.Ref body,Marker dormant,long random,long steps,long writes,Segment pending){}
         var saved=actors.values().stream().map(a->new Saved(a,a.body.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK?null:graph.links.key(a.body),a.body,a.random,a.steps,a.writes,a.pending)).toList();var queued=List.copyOf(work);queued.forEach(graph::capture);
         return links->{var bodies=new IdentityHashMap<Actor,Marker>();for(var image:saved){MatchAuthorityCheckpoint.world(game,image.actor.level);bodies.put(image.actor,image.body==null?image.dormant:(Marker)links.get(image.body));}return ()->{actors.clear();for(var image:saved){var a=image.actor;a.body=bodies.get(a);a.random=image.random;a.steps=image.steps;a.writes=image.writes;a.pending=image.pending;a.lastPulse=game.server().getTickCount();actors.put(a.body.getUUID(),a);}work.clear();work.addAll(queued);};};

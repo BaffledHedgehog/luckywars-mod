@@ -15,9 +15,9 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 /** A reversible exclusive Goal lease. Ordinary running goals and Brain are paused, never removed. */
-final class LbcGlyphAi extends Goal {
+public final class LbcGlyphAi extends Goal {
     final Mob mob;
-    LbcCorruptedGlyphs.Glyph glyph;
+    public LbcCorruptedGlyphs.Glyph glyph;
     private final LivingEntity oldTarget;
     private final boolean oldAggressive;
     private final Path oldPath;
@@ -27,7 +27,7 @@ final class LbcGlyphAi extends Goal {
     private AttributeInstance addedAttack;
     private LivingEntity opponent;
     private int replan,attackCooldown;
-    LbcGlyphAi(Mob mob,LbcCorruptedGlyphs.Glyph glyph){
+    public LbcGlyphAi(Mob mob,LbcCorruptedGlyphs.Glyph glyph){
         this.mob=mob;this.glyph=glyph;oldTarget=mob.getTargetUnchecked();oldAggressive=mob.isAggressive();
         oldPath=mob.getNavigation().getPath();oldSpeed=((GlyphAiMixin.NavigationAccess)mob.getNavigation()).skywars2$glyphSpeed();
         oldBrainTarget=mob.getBrain().getMemoryInternal(MemoryModuleType.ATTACK_TARGET);
@@ -36,11 +36,11 @@ final class LbcGlyphAi extends Goal {
     }
     @Override public boolean canUse(){return opponent!=null&&opponent.isAlive();}
     @Override public boolean requiresUpdateEveryTick(){return true;}
-    void target(LivingEntity target){
+    public void target(LivingEntity target){
         opponent=target;mob.setTarget(target);mob.setAggressive(true);
         if(oldBrainTarget!=null)mob.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET,target);
     }
-    void combat(LivingEntity target){
+    public void combat(LivingEntity target){
         target(target);
         if(!mob.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE)){
             var map=mob.getAttributes();
@@ -57,7 +57,7 @@ final class LbcGlyphAi extends Goal {
             attackCooldown=20;mob.swingForAttack(InteractionHand.MAIN_HAND);mob.doHurtTarget((ServerLevel)mob.level(),opponent);
         }
     }
-    void field(Vec3 center,boolean unholy){
+    public void field(Vec3 center,boolean unholy){
         mob.setTarget(null);mob.setAggressive(false);
         if(oldBrainTarget!=null)mob.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         if(unholy&&mob.position().distanceToSqr(center)<2.25){mob.getNavigation().stop();return;}
@@ -77,7 +77,7 @@ final class LbcGlyphAi extends Goal {
         }
         if(best==null)mob.getNavigation().stop();else mob.getNavigation().moveTo(best,1.0);
     }
-    void restore(){
+    public void restore(){
         mob.getNavigation().stop();mob.setTarget(oldTarget!=null&&oldTarget.isAlive()?oldTarget:null);mob.setAggressive(oldAggressive);
         if(oldBrainTarget!=null){
             if(oldBrainTarget.isEmpty())mob.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);

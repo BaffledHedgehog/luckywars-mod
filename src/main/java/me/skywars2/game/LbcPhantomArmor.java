@@ -47,7 +47,7 @@ public final class LbcPhantomArmor {
                 &&!owner.isAlliedTo(other)&&game.canUseGameplayItems(other)&&!game.isObserver(other)
                 &&game.items().wands().validRoleTarget(other,false);
     }
-    void pulse(ServerPlayer owner){
+    public void pulse(ServerPlayer owner){
         ensureEpoch();
         if(!eligible(owner)||!full(owner)){game.items().ownedEffects().withdraw(owner,EFFECT_OWNER);return;}
         if(paused(owner))return;

@@ -4,7 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /** Exact snapshots of config and profiles, including identity of their mutable containers. */
-final class MatchValueSnapshot {
+public final class MatchValueSnapshot {
     private record ArrayValue(int[] original, int[] values) {
         ArrayValue(int[] value) {
             this(value, value == null ? null : value.clone());
@@ -36,14 +36,14 @@ final class MatchValueSnapshot {
     private final Object original;
     private final Runnable restoreValues;
 
-    MatchValueSnapshot(GameConfig config) {
+    public MatchValueSnapshot(GameConfig config) {
         original = config;
         var saved = new GameConfig();
         copyConfig(config, saved);
         restoreValues = () -> copyConfig(saved, config);
     }
 
-    MatchValueSnapshot(PlayerStore.Profile profile) {
+    public MatchValueSnapshot(PlayerStore.Profile profile) {
         original = profile;
         var saved = new PlayerStore.Profile();
         copyProfileValues(profile, saved);
@@ -66,7 +66,7 @@ final class MatchValueSnapshot {
         };
     }
 
-    Object restore() {
+    public Object restore() {
         restoreValues.run();
         return original;
     }

@@ -45,13 +45,13 @@ public final class LbcStalin {
     private final Map<ZombifiedPiglin,State> actors=new LinkedHashMap<>();
     // Retain causes through the synchronous native death callback and terrain consequences.
     private final Map<Entity,LivingEntity> authors=new WeakHashMap<>();
-    LbcStalin(GameController game) {this.game=game;}
+    public LbcStalin(GameController game) {this.game=game;}
     public static boolean managed(Entity entity) {return entity!=null && entity.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity entity) {return authors.get(entity);}
     private static boolean resident(ServerLevel level,BlockPos pos) {
         return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;
     }
-    boolean ready(ItemEntity token) {
+    public boolean ready(ItemEntity token) {
         if(token.isRemoved() || token.getAge()>=5999 || !LbcStalinDropItem.isTrigger(token.getItem())
                 || !(token.level() instanceof ServerLevel level) || level!=game.maps().level()
                 || !game.playing() || game.stage()==GameController.Stage.ENDING) return false;
@@ -64,7 +64,7 @@ public final class LbcStalin {
         return true;
     }
     /** Dispatcher owns debit; source summon keeps fractional token XYZ and adds only .5Y. */
-    void spawn(ItemEntity token) {
+    public void spawn(ItemEntity token) {
         if(!ready(token)) return;
         var level=(ServerLevel)token.level();var actor=new Actor(level);
         try {
@@ -77,14 +77,14 @@ public final class LbcStalin {
         game.items().timeStop().prepareFrozen(actor);
     }
     /** Attach only encounter state; native egg placement and its distinct equipment remain intact. */
-    void adoptEgg(ZombifiedPiglin actor,LivingEntity author) {
+    public void adoptEgg(ZombifiedPiglin actor,LivingEntity author) {
         actor.entityTags().addAll(List.of(ACTOR,"stalin","lucky_mob"));
         game.items().markCurrentItemEpoch(actor);
         if(author!=null) authors.put(actor,author);
         actors.put(actor,new State(actor,game.items().epoch()));
         game.items().timeStop().prepareFrozen(actor);
     }
-    void tick() {
+    public void tick() {
         for(var state:List.copyOf(actors.values())) {
             var actor=state.actor;var level=(ServerLevel)actor.level();
             if(!game.items().currentEpoch(state.epoch) || !game.playing() || game.stage()==GameController.Stage.ENDING
@@ -104,7 +104,7 @@ public final class LbcStalin {
                 && !game.items().magic().mechanismSuppressedAt((ServerLevel)actor.level(),actor.position());
     }
     /** Missing timer is distinct from zero: source pre2 initializes it only once injured. */
-    void pulse(ZombifiedPiglin actor) {
+    public void pulse(ZombifiedPiglin actor) {
         if(!active(actor)) return;
         var state=actors.get(actor);
         if((int)actor.getHealth()<=495) {
@@ -146,7 +146,7 @@ public final class LbcStalin {
         targets.sort(Comparator.comparingDouble(entity->entity.position().distanceToSqr(actor.position())));
         return targets;
     }
-    LivingEntity aimTarget(ZombifiedPiglin actor) {
+    public LivingEntity aimTarget(ZombifiedPiglin actor) {
         var targets=aimTargets(actor);return targets.isEmpty()?null:targets.getFirst();
     }
     void shot(ZombifiedPiglin actor) {
@@ -167,7 +167,7 @@ public final class LbcStalin {
         LbcAk47.sound(actor,actor.position(),"minecraft:lbcsounds.shot",.5f,1,200,.05f);
     }
     /** Testable deterministic direction; null retains source no-aim/no-ray. */
-    void shot(ZombifiedPiglin actor,Vec3 direction) {
+    public void shot(ZombifiedPiglin actor,Vec3 direction) {
         if(!active(actor)) return;
         if(direction!=null) game.items().ak47().nativeRay(actor,direction,this::mob);
         LbcAk47.sound(actor,actor.position(),"minecraft:lbcsounds.shot",.5f,1,200,.05f);
@@ -188,7 +188,7 @@ public final class LbcStalin {
         // Native tracking can stop while the same entity is still registered.
         if(entity.getRemovalReason()!=null&&managed(entity)&&entity instanceof ZombifiedPiglin actor)terminal(actor);
     }
-    void stop() {for(var actor:List.copyOf(actors.keySet())) terminal(actor);authors.clear();}
-    List<View> snapshot() {return actors.values().stream().map(s->new View(s.actor,s.ticks,s.cooldown)).toList();}
-    int activeCount() {return actors.size();}
+    public void stop() {for(var actor:List.copyOf(actors.keySet())) terminal(actor);authors.clear();}
+    public List<View> snapshot() {return actors.values().stream().map(s->new View(s.actor,s.ticks,s.cooldown)).toList();}
+    public int activeCount() {return actors.size();}
 }

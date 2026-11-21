@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Awakened staff input and source rifle counter; shared native acid owns all projectile work. */
-final class LbcAwakenedAcid {
+public final class LbcAwakenedAcid {
     private static final String[] MODES={"mode_default","mode_caust","mode_gatling","mode_rifle"};
     private final GameController game;
     private record Rifle(ItemStack stack,InteractionHand hand,String epoch){}
@@ -42,8 +42,8 @@ final class LbcAwakenedAcid {
         }
     }
     private int cadence;
-    LbcAwakenedAcid(GameController game){this.game=game;}
-    boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
+    public LbcAwakenedAcid(GameController game){this.game=game;}
+    public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
@@ -101,7 +101,7 @@ final class LbcAwakenedAcid {
         LbcOverload.sound(owner,origin,"minecraft:entity.item.break",1,2,0);
     }
 
-    boolean scriptCast(ServerPlayer owner, ItemStack weapon, Vec3 origin, Vec3 aim, int mode, boolean ignited) {
+    public boolean scriptCast(ServerPlayer owner, ItemStack weapon, Vec3 origin, Vec3 aim, int mode, boolean ignited) {
         if (mode==4) {
             directedRifles.computeIfAbsent(owner,ignored->new ArrayDeque<>())
                     .addLast(new DirectedRifle(owner.level(),game.items().epoch(),origin,aim,weapon,ignited));
@@ -115,18 +115,18 @@ final class LbcAwakenedAcid {
         return !game.items().clouds().awakenedAcid(owner,origin,aim,mode==2?1:0,ignited,true,weapon).isRemoved();
     }
 
-    int pending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"acid_rifle"));}
-    void addPlayerCounter(ServerPlayer owner){
+    public int pending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"acid_rifle"));}
+    public void addPlayerCounter(ServerPlayer owner){
         game.items().mana().score(owner,"acid_rifle").add(1);
         rifles.putIfAbsent(owner,new Rifle(ItemStack.EMPTY,InteractionHand.MAIN_HAND,game.items().epoch()));
     }
     /** Raw consumable grants enter the same rifle owner/cadence as ordinary casts. */
-    void adoptRawFoodStatuses(ServerPlayer owner){
+    public void adoptRawFoodStatuses(ServerPlayer owner){
         if(pending(owner)>0&&!game.items().magic().rejectCustomEffect(owner))
             rifles.putIfAbsent(owner,new Rifle(ItemStack.EMPTY,InteractionHand.MAIN_HAND,game.items().epoch()));
     }
 
-    void tick(){
+    public void tick(){
         boolean release=++cadence%5==0;
         for(var entry:List.copyOf(rifles.entrySet())){
             var owner=entry.getKey();var rifle=entry.getValue();
@@ -166,7 +166,7 @@ final class LbcAwakenedAcid {
         }
     }
 
-    void cancelDirectedRifles(){directedRifles.clear();}
-    void clear(ServerPlayer owner){rifles.remove(owner);directedRifles.remove(owner);game.items().mana().score(owner,"acid_rifle").set(0);}
-    void stop(){for(var owner:List.copyOf(rifles.keySet()))clear(owner);cancelDirectedRifles();cadence=0;}
+    public void cancelDirectedRifles(){directedRifles.clear();}
+    public void clear(ServerPlayer owner){rifles.remove(owner);directedRifles.remove(owner);game.items().mana().score(owner,"acid_rifle").set(0);}
+    public void stop(){for(var owner:List.copyOf(rifles.keySet()))clear(owner);cancelDirectedRifles();cadence=0;}
 }

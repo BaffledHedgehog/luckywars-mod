@@ -20,7 +20,7 @@ public final class LbcNexusEcology {
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private static final int[][] TREE_AXES={{-1,0,0},{1,0,0},{0,0,1},{0,0,-1},{0,-1,0},{0,1,0}};
     private static final int[][] SPREAD_AXES={{0,1,0},{0,-1,0},{0,0,1},{0,0,-1},{1,0,0},{-1,0,0}};
-    enum Kind {
+    public enum Kind {
         CENTER("center_cube"),TREE("nexus_tree"),SPREAD("explose_wired");
         final String tag;
         Kind(String tag){this.tag=tag;}
@@ -38,9 +38,9 @@ public final class LbcNexusEcology {
         void finishTree(ServerLevel level,Vec3 position,LbcIndirectKills.Owner cause);
         void clearSpreadDisplays(ServerLevel level,Vec3 position);
     }
-    static final class Actor {
-        final UUID id;final ServerLevel level;final Kind kind;final LbcIndirectKills.Owner cause;
-        Entity body;Vec3 position;int born;long lifetime;Step pending;
+    public static final class Actor {
+        public final UUID id;public final ServerLevel level;public final Kind kind;public final LbcIndirectKills.Owner cause;
+        public Entity body;public Vec3 position;int born;public long lifetime;Step pending;
         Actor(UUID id,ServerLevel level,Kind kind,LbcIndirectKills.Owner cause,Entity body,Vec3 position,int born,long lifetime,Step pending){
             this.id=id;this.level=level;this.kind=kind;this.cause=cause;this.body=body;this.position=position;this.born=born;this.lifetime=lifetime;this.pending=pending;
         }
@@ -63,8 +63,8 @@ public final class LbcNexusEcology {
 
     LbcNexusEcology(GameController game,CellPolicy policy,Callbacks callbacks){this.game=game;this.policy=Objects.requireNonNull(policy);this.callbacks=Objects.requireNonNull(callbacks);}
     public static void register(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:nexus_ecology"),TICKET);}
-    List<Actor> snapshot(){return List.copyOf(actors.values());}
-    int count(){return actors.size();}
+    public List<Actor> snapshot(){return List.copyOf(actors.values());}
+    public int count(){return actors.size();}
     int count(Kind kind){int count=0;for(var a:actors.values())if(a.kind==kind)count++;return count;}
     int loadedCount(){int count=0;for(var a:actors.values())if(a.body!=null&&!a.body.isRemoved())count++;return count;}
     int unloadedCount(){return count()-loadedCount();}
@@ -77,8 +77,8 @@ public final class LbcNexusEcology {
     private static void tag(Entity entity,String key,String value){entity.entityTags().add(TAG+"."+key+"."+value);}
     private void install(Actor actor){actors.put(actor.id,actor);queue.addLast(actor.id);}
 
-    Actor center(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){return create(level,point,cause,Kind.CENTER);}
-    Actor tree(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){return create(level,point,cause,Kind.TREE);}
+    public Actor center(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){return create(level,point,cause,Kind.CENTER);}
+    public Actor tree(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){return create(level,point,cause,Kind.TREE);}
     Actor spread(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){return create(level,point,cause,Kind.SPREAD);}
     private Actor create(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,Kind kind){
         if(restoring||!nexus(level)||level.isOutsideBuildHeight(BlockPos.containing(point)))return null;

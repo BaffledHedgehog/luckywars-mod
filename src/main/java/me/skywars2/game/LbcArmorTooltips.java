@@ -10,16 +10,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 
 /** Client tooltip grouping only; native enchantment slots and equipped effects remain authoritative. */
-final class LbcArmorTooltips {
+public final class LbcArmorTooltips {
     private LbcArmorTooltips(){}
 
-    static boolean aimbobBoots(ItemInstance stack){
+    public static boolean aimbobBoots(ItemInstance stack){
         var attributes=stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
         return attributes!=null&&attributes.modifiers().stream()
                 .anyMatch(entry->entry.modifier().id().toString().equals("minecraft:aimbob_boots"));
     }
 
-    static void groupFeet(ItemStack projected){
+    public static void groupFeet(ItemStack projected){
         var lore=projected.get(DataComponents.LORE);
         if(lore==null)return;
         var lines=lore.lines();var rows=new ArrayList<Component>();
@@ -44,7 +44,7 @@ final class LbcArmorTooltips {
         projected.set(DataComponents.LORE,new ItemLore(List.copyOf(out)));
     }
 
-    static boolean key(Component line,String key){
+    public static boolean key(Component line,String key){
         return line.getContents() instanceof TranslatableContents text&&text.getKey().equals(key)
                 ||line.getSiblings().stream().anyMatch(child->key(child,key));
     }

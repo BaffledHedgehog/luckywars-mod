@@ -39,14 +39,14 @@ import java.util.Set;
 public final class LbcExasperato {
     public static final String EXPLOSIVE = "skywars2.wand.exasperato";
     public static final EntityType<Charge> TYPE = registerType();
-    static final TicketType IMPACT_TICKET = new TicketType(0, TicketType.FLAG_LOADING | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+    public static final TicketType IMPACT_TICKET = new TicketType(0, TicketType.FLAG_LOADING | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private static final Vec3[] ORDINARY_OFFSETS = ordinaryOffsets();
     private static final int ORDINARY_LIGHTNING = 50;
     private static final int ORDINARY_REACH = 7 + 8; // Last source plus the diameter of a power-four blast.
     private final GameController game;
     private final NativeChunkLoad.Leases impactLeases = new NativeChunkLoad.Leases(IMPACT_TICKET);
-    NativeChunkLoad.Leases.Area impactArea(ServerLevel level) { return impactLeases.area(level); }
-    java.util.Map<ChunkPos,NativeChunkLoad.Leases.Lease> impactLeaseSnapshot(ServerLevel level) {
+    public NativeChunkLoad.Leases.Area impactArea(ServerLevel level) { return impactLeases.area(level); }
+    public java.util.Map<ChunkPos,NativeChunkLoad.Leases.Lease> impactLeaseSnapshot(ServerLevel level) {
         return impactLeases.snapshot(level);
     }
     private final Set<Charge> charges = new LinkedHashSet<>();
@@ -128,7 +128,7 @@ public final class LbcExasperato {
     private final SearchQueue searches=new SearchQueue();
     private boolean searching,searchRewind;
     /** Implementations contain reviewed immutable accepted-cast data; no captured mutable player/future. */
-    interface ReplayableRay {
+    public interface ReplayableRay {
         boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state);
         boolean target(Entity entity);
         void trail(Vec3 from,Vec3 to);
@@ -146,15 +146,15 @@ public final class LbcExasperato {
         default MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){return ignored->()->{};}
     }
     /** The original request identity survives replay; its completion bit belongs to Search, not a JDK future. */
-    static final class RayTicket {
+    public static final class RayTicket {
         private final Search search;
         private RayTicket(Search search){this.search=search;}
-        boolean done(){return LbcExasperato.done(search);}
-        void cancel(){LbcExasperato.complete(search,null);}
+        public boolean done(){return LbcExasperato.done(search);}
+        public void cancel(){LbcExasperato.complete(search,null);}
     }
-    enum RayMode { SPELL, TERRAIN, PHASED, TECHNOLOGY }
+    public enum RayMode { SPELL, TERRAIN, PHASED, TECHNOLOGY }
     /** Original recursive sample count, without a second scheduler or mutable cursor in the caller. */
-    void replayableSamples(ServerPlayer owner,Vec3 from,Vec3 direction,int advances,ReplayableRay replay){
+    public void replayableSamples(ServerPlayer owner,Vec3 from,Vec3 direction,int advances,ReplayableRay replay){
         double step=replay.sampleStep();
         if(!(step>0)||!Double.isFinite(step)||advances<0)throw new IllegalArgumentException("Discrete ray bounds");
         var search=new Search(owner,game.items().epoch(),from,direction.normalize(),advances*step,false,null,false,false,replay::target);
@@ -162,11 +162,11 @@ public final class LbcExasperato {
         if(direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
     }
     /** Typed form of searchTool; custom source predicates and finite-miss policy are accepted once. */
-    void replayableTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,boolean blocksOnly,ReplayableRay replay,boolean finishAtRange){
+    public void replayableTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,boolean blocksOnly,ReplayableRay replay,boolean finishAtRange){
         replayableTool(owner,from,direction,range,blocksOnly,replay,finishAtRange,false);
     }
     /** Physical tools share the same custom geometry queue while selecting the existing TECH admission. */
-    void replayableTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,boolean blocksOnly,ReplayableRay replay,boolean finishAtRange,boolean technology){
+    public void replayableTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,boolean blocksOnly,ReplayableRay replay,boolean finishAtRange,boolean technology){
         direction=direction.normalize();double reach=range;
         if(!Double.isFinite(reach)){
             reach=loadedRayExtent(owner,from,direction,true,blocksOnly);
@@ -178,7 +178,7 @@ public final class LbcExasperato {
         if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
     }
     /** Native collision/shield/target policies are identical to the corresponding original loaded-ray APIs. */
-    void replayableLoaded(ServerPlayer owner,Vec3 from,Vec3 direction,RayMode mode,double maxRange,ReplayableRay replay){
+    public void replayableLoaded(ServerPlayer owner,Vec3 from,Vec3 direction,RayMode mode,double maxRange,ReplayableRay replay){
         direction=direction.normalize();boolean walls=mode!=RayMode.PHASED,blocks=mode==RayMode.TERRAIN,tech=mode==RayMode.TECHNOLOGY;
         double reach=Math.min(maxRange,loadedRayExtent(owner,from,direction,walls,blocks));
         var search=new Search(owner,game.items().epoch(),from,direction,reach,walls,replay::trail,blocks,tech,tech?replay::target:null);
@@ -189,7 +189,7 @@ public final class LbcExasperato {
     }
     private static boolean done(Search s){return s.replay==null?s.result.isDone():s.finished;}
     private static void complete(Search s,net.minecraft.world.phys.HitResult hit){try(var castOrigin=WandCastOrigin.scope(s.owner,s.borrowedWand)){if(done(s))return;if(s.replay==null)s.result.complete(hit);else{s.finished=true;s.replay.complete(hit);}}}
-    void replayableSpell(ServerPlayer owner,Vec3 from,Vec3 direction,double range,ReplayableRay replay){
+    public void replayableSpell(ServerPlayer owner,Vec3 from,Vec3 direction,double range,ReplayableRay replay){
         var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,replay::trail,false,false,replay::target);search.blockRule=replay::block;search.shieldBlockable=false;search.replay=replay;
         if(range>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
     }
@@ -235,10 +235,10 @@ public final class LbcExasperato {
     private boolean blastAdvancing,blastRewind;private int nativeBlasts;
 
     /** Only owner retention differs from vanilla; block resistance/calculator semantics do not. */
-    static final class NativeBlastSource extends PrimedTnt {
+    public static final class NativeBlastSource extends PrimedTnt {
         private final LivingEntity author;
         private final boolean cachedBlocks,nuclear;
-        NativeBlastSource(ServerLevel level,Vec3 at,LivingEntity author,boolean cachedBlocks){this(level,at,author,cachedBlocks,false);}
+        public NativeBlastSource(ServerLevel level,Vec3 at,LivingEntity author,boolean cachedBlocks){this(level,at,author,cachedBlocks,false);}
         NativeBlastSource(ServerLevel level,Vec3 at,LivingEntity author,boolean cachedBlocks,boolean nuclear){super(level,at.x,at.y,at.z,nuclear?null:author);this.author=nuclear?null:author;this.cachedBlocks=cachedBlocks;this.nuclear=nuclear;}
         @Override public LivingEntity getOwner(){return author;}
     }
@@ -252,28 +252,28 @@ public final class LbcExasperato {
         PolymerEntityUtils.registerType(type);
         return type;
     }
-    static void register() {
+    public static void register() {
         Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:exasperato_impact"),IMPACT_TICKET);
     }
 
     /** Нативный owner позволяет электрощиту отражать заряд без отдельного адаптера. */
     public static final class Charge extends Projectile implements PolymerEntity {
-        int age;
-        int mode;
-        int lifetime;
-        boolean academyTrial;
-        Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
+        public int age;
+        public int mode;
+        public int lifetime;
+        public boolean academyTrial;
+        public Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
         @Override public boolean shouldBeSaved() { return false; }
         @Override public boolean isPushedByFluid() { return false; }
     }
 
-    LbcExasperato(GameController game) { this.game=game; }
+    public LbcExasperato(GameController game) { this.game=game; }
     public int count() { charges.removeIf(Entity::isRemoved); return charges.size(); }
     public int pendingSearches() { return searches.size(); }
     /** Teleportit observes resident virtual rays through their canonical scheduler, without spawning probes. */
-    boolean hostileRayNear(ServerPlayer observer,double radius){
+    public boolean hostileRayNear(ServerPlayer observer,double radius){
         double reach=radius*radius;
         for(var search:searches){
             if(search.finished||search.blocksOnly||search.level!=observer.level()
@@ -286,21 +286,21 @@ public final class LbcExasperato {
         return false;
     }
     public int mushroomCount() { return game.items().nuclearVisuals().count(); }
-    boolean pendingNuclearTerrain(){return blasts.stream().anyMatch(batch->batch.nuclear);}
+    public boolean pendingNuclearTerrain(){return blasts.stream().anyMatch(batch->batch.nuclear);}
     public int pendingBlasts() {
         int remaining=pendingShortBlasts();
         for(var batch:blasts) remaining+=batch.offsets.length-batch.next;
         return remaining;
     }
-    List<Charge> snapshot() { charges.removeIf(Entity::isRemoved); return List.copyOf(charges); }
-    void loaded(Entity entity) {
+    public List<Charge> snapshot() { charges.removeIf(Entity::isRemoved); return List.copyOf(charges); }
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || !(charge.getOwner() instanceof ServerPlayer)
                     || charge.level()!=game.maps().level()) charge.discard();
             else charges.add(charge);
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof Charge charge) {
             charges.remove(charge);
             // Переход в скрытую секцию не всегда ставит removed: незагруженный заряд не должен ждать возврата чанка.
@@ -312,7 +312,7 @@ public final class LbcExasperato {
         cast(owner,LbcAcademy.trial(owner.getMainHandItem()));
     }
 
-    void cast(ServerPlayer owner,boolean academyTrial) {
+    public void cast(ServerPlayer owner,boolean academyTrial) {
         if(owner.level()!=game.maps().level() || !game.canUseGameplayItems(owner)) return;
         Charge charge=TYPE.create(owner.level(),net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if(charge==null) return;
@@ -469,7 +469,7 @@ public final class LbcExasperato {
         return searchSpell(owner,from,direction,Double.POSITIVE_INFINITY,blocksOnly,blocks,targets,trail);
     }
     /** Finite source beams also render through empty sky; unbounded spells keep their natural extent. */
-    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchSpell(ServerPlayer owner,
+    public java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchSpell(ServerPlayer owner,
             Vec3 from,Vec3 direction,double range,boolean blocksOnly,
             java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,
             java.util.function.Predicate<Entity> targets,java.util.function.BiConsumer<Vec3,Vec3> trail){
@@ -492,11 +492,11 @@ public final class LbcExasperato {
         return search.result;
     }
     /** Dedicated Nexus tools share exact collision and CPU scheduling without ordinary-wand admission. */
-    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchNexusTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,
+    public java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchNexusTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,
             java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,java.util.function.Predicate<Entity> targets){
         return searchNexusTool(owner,from,direction,range,blocks,targets,null);
     }
-    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchNexusTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,
+    public java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchNexusTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,
             java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,java.util.function.Predicate<Entity> targets,
             java.util.function.BiConsumer<Vec3,Vec3> trail){
         var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,trail,false,false,targets);
@@ -515,7 +515,7 @@ public final class LbcExasperato {
     }
 
     /** Ограничиваем работу, а не дальность: каждый незавершённый луч продолжится в следующих тиках. */
-    void tickSearchesWhileMapStopped(){searchTick();}
+    public void tickSearchesWhileMapStopped(){searchTick();}
     private void searchTick() {
         if(searchRewind)return;if(searching)throw new IllegalStateException("Reentrant ray advance");searching=true;try {
         if(!game.server().tickRateManager().runsNormally()||game.items().wands().legacyTimeStopped()) return;
@@ -608,7 +608,7 @@ public final class LbcExasperato {
                 && !owner.isRemoved() && game.canUseGameplayItems(owner) && game.stage()!=GameController.Stage.ENDING;
     }
 
-    void tick() {
+    public void tick() {
         batch.addAll(charges);
         try {
             for(var charge:batch) {
@@ -636,7 +636,7 @@ public final class LbcExasperato {
     }
 
     /** Один нативный взрыв неделим; бюджет проверяется между взрывами, до следующего. */
-    void blastTick() {
+    public void blastTick() {
         if(blastRewind)return;if(blastAdvancing)throw new IllegalStateException("Reentrant blast queue advance");blastAdvancing=true;try{
         rapidTick();
         if(blasts.isEmpty())return;
@@ -752,12 +752,12 @@ public final class LbcExasperato {
     }
 
     /** The source's instant radius100 creeper, using the existing round-robin CPU budget. */
-    void queueCosmos(ServerLevel level,Vec3 position,ServerPlayer author,String epoch) {
+    public void queueCosmos(ServerLevel level,Vec3 position,ServerPlayer author,String epoch) {
         var burst=new BlastBatch(author,level,position,epoch);
         burst.cosmos=true; burst.radius=100; burst.offsets=new Vec3[]{Vec3.ZERO};
         blasts.addLast(burst);
     }
-    int pendingCosmos() {
+    public int pendingCosmos() {
         int count=0; for(var batch:blasts) if(batch.cosmos) count+=batch.offsets.length-batch.next;
         return count;
     }
@@ -808,7 +808,7 @@ public final class LbcExasperato {
         nuclearBurst(owner,origin,null,false);
     }
     /** Exoperso использует ту же очередь 32 взрывов без потери серий и копии движка взрыва. */
-    void exopersoBurst(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit) {
+    public void exopersoBurst(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit) {
         nuclearBurst(owner,origin,sourceInit,true);
     }
     /** The ritual prepares geometry during its countdown; block application and native waves share one deadline. */
@@ -922,7 +922,7 @@ public final class LbcExasperato {
         }
     }
 
-    void instantBlast(ServerPlayer owner,Vec3 at,float radius) {
+    public void instantBlast(ServerPlayer owner,Vec3 at,float radius) {
         instantBlast(owner,owner.level(),at,radius,game.items().epoch());
     }
 
@@ -942,10 +942,10 @@ public final class LbcExasperato {
     /** Идеи Paper/Moonrise: готовые лучи, локальные чтения и кэш сопротивления.
      * (user) Точная случайная форма кратера не обязательна: сила каждого луча равна radius.
      * Меняется только поиск блоков; native damage, owner, loot и применение разрушений остаются снаружи. */
-    record BlastHeightBounds(int minY,int maxY) {}
+    public record BlastHeightBounds(int minY,int maxY) {}
     private static final BlastHeightBounds FULL_BLAST_HEIGHT=new BlastHeightBounds(Integer.MIN_VALUE,Integer.MAX_VALUE);
     /** Conservative resident section envelope; never generates chunks or changes ray arithmetic. */
-    static BlastHeightBounds blastHeightBounds(ServerLevel level,Vec3 point,float power,boolean residentOnly){
+    public static BlastHeightBounds blastHeightBounds(ServerLevel level,Vec3 point,float power,boolean residentOnly){
         if(!(power>=8&&power<=64)||Boolean.getBoolean("skywars2.disableExplosionBounds"))return FULL_BLAST_HEIGHT;
         int reach=(int)Math.ceil(power*2);var center=BlockPos.containing(point);
         int minX=(center.getX()-reach)>>4,maxX=(center.getX()+reach)>>4;
@@ -966,7 +966,7 @@ public final class LbcExasperato {
         return bottom<=top?new BlastHeightBounds(bottom,top):FULL_BLAST_HEIGHT;
     }
     private static long optimizedBlockSearches;
-    static long optimizedBlockSearches(){return optimizedBlockSearches;}
+    public static long optimizedBlockSearches(){return optimizedBlockSearches;}
     public static List<BlockPos> explosionBlocks(net.minecraft.world.level.ServerExplosion blast,
             net.minecraft.world.level.ExplosionDamageCalculator calculator) {
         optimizedBlockSearches++;
@@ -1007,7 +1007,7 @@ public final class LbcExasperato {
                 :BlastRayTrace.trace(origin,blast.radius(),level.getRandom(),nativeShape,view);
     }
 
-    void instantBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch) {
+    public void instantBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch) {
         instantBlast(owner,level,at,radius,epoch,null);
     }
     private void instantBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch,
@@ -1015,19 +1015,19 @@ public final class LbcExasperato {
         nativeBlast(owner,level,at,radius,epoch,false,sourceInit);
     }
 
-    void itemBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch,boolean protectedDamage,
+    public void itemBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch,boolean protectedDamage,
             LbcIndirectKills.Owner cause) {
         nativeBlast(owner,level,at,radius,epoch,protectedDamage,null,false,false,false,cause);
     }
 
     /** Короткие fuse=1/2 были способом выдать защиту, не игровой задержкой. Сущность миру не нужна. */
-    void protectedBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,
+    public void protectedBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,
             java.util.function.Consumer<PrimedTnt> sourceInit) {
         nativeBlast(owner,level,at,radius,game.items().epoch(),true,sourceInit);
     }
 
     /** Encounter fuse0 bursts are native and unprotected, in their actual encounter dimension. */
-    void encounterBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,
+    public void encounterBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,
             java.util.function.Consumer<PrimedTnt> sourceInit) {
         nativeBlast(owner,level,at,radius,game.items().epoch(),false,sourceInit,true);
     }
@@ -1129,7 +1129,7 @@ public final class LbcExasperato {
         return offsets.toArray(Vec3[]::new);
     }
 
-    int pendingShortBlasts() {
+    public int pendingShortBlasts() {
         int count=0;
         for(var burst:rapidBlasts) count+=burst.offsets.length-burst.next;
         return count;
@@ -1144,7 +1144,7 @@ public final class LbcExasperato {
         return tnt.getOwner() instanceof ServerPlayer owner && game.items().currentEpoch(tnt)
                 && game.items().wands().projectileTarget(owner,target);
     }
-    void stop() {
+    public void stop() {
         for(var search:searches) {if(search.replay==null)search.result.cancel(false);else complete(search,null);}
         searches.clear();searchRewind=false;game.items().nuclearVisuals().stop();clearBlasts();blastRewind=false;
         var detached=List.copyOf(charges); charges.clear();
@@ -1154,35 +1154,35 @@ public final class LbcExasperato {
         blasts.forEach(BlastBatch::cancelPreparation);blasts.clear();
         rapidBlasts.forEach(BlastBatch::cancelPreparation);rapidBlasts.clear();
     }
-    void searchBoundary(){if(searching)throw new IllegalStateException("Finish ray callbacks before capture/replay");}
-    void prepareSearchCheckpoint(){searchRewind=true;searches.clear();}
-    void cancelSearchCheckpoint(){searchRewind=false;}
-    SearchCheckpoint checkpointSearches(MatchSpellCheckpoint.Links links){return new SearchCheckpoint(links);}
-    final class SearchCheckpoint {
+    public void searchBoundary(){if(searching)throw new IllegalStateException("Finish ray callbacks before capture/replay");}
+    public void prepareSearchCheckpoint(){searchRewind=true;searches.clear();}
+    public void cancelSearchCheckpoint(){searchRewind=false;}
+    public SearchCheckpoint checkpointSearches(MatchSpellCheckpoint.Links links){return new SearchCheckpoint(links);}
+    public final class SearchCheckpoint {
         private record Image(Search original,MatchDamageSources.Ref owner,Vec3 position,Vec3 direction,double remaining,boolean finished,boolean started,MatchQueuedWorkCheckpoint.Image terminal) { }
         private final List<Image> images;
         private final java.util.Map<java.util.UUID,Integer> turns;
         SearchCheckpoint(MatchSpellCheckpoint.Links links){var list=new ArrayList<Image>();for(var s:searches){if(s.replay==null)throw new IllegalStateException("Missing typed continuation for opaque ray completion");list.add(new Image(s,links.key(s.owner),s.position,s.direction,s.remaining,s.finished,s.started,s.replay.checkpoint(links)));}images=List.copyOf(list);turns=searches.turns();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var terminalPlans=images.stream().map(image->image.terminal.prepare(links)).toList();var owners=new java.util.IdentityHashMap<Search,ServerPlayer>();for(var image:images){MatchAuthorityCheckpoint.world(game,image.original.level);if(!(links.get(image.owner) instanceof ServerPlayer p))throw new IllegalStateException("Restore current ray author bodies first");owners.put(image.original,p);}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var terminalPlans=images.stream().map(image->image.terminal.prepare(links)).toList();var owners=new java.util.IdentityHashMap<Search,ServerPlayer>();for(var image:images){MatchAuthorityCheckpoint.world(game,image.original.level);if(!(links.get(image.owner) instanceof ServerPlayer p))throw new IllegalStateException("Restore current ray author bodies first");owners.put(image.original,p);}
             return ()->{terminalPlans.forEach(Runnable::run);searches.clear();for(var image:images){var s=image.original;s.owner=owners.get(s);s.position=image.position;s.direction=image.direction;s.remaining=image.remaining;s.finished=image.finished;s.started=image.started;searches.addLast(s);}searches.restoreTurns(turns);searchRewind=false;};}
     }
 
 
-    void blastBoundary(){if(nativeBlasts!=0||blastAdvancing||!batch.isEmpty())throw new IllegalStateException("Finish explosive callbacks before checkpointing");}
-    void prepareBlastCheckpoint(){blastRewind=true;clearBlasts();}
-    void cancelBlastCheckpoint(){blastRewind=false;}
-    BlastCheckpoint checkpointBlasts(MatchBlastCheckpoint.Graph graph){return new BlastCheckpoint(graph);}
-    final class BlastCheckpoint {
+    public void blastBoundary(){if(nativeBlasts!=0||blastAdvancing||!batch.isEmpty())throw new IllegalStateException("Finish explosive callbacks before checkpointing");}
+    public void prepareBlastCheckpoint(){blastRewind=true;clearBlasts();}
+    public void cancelBlastCheckpoint(){blastRewind=false;}
+    public BlastCheckpoint checkpointBlasts(MatchBlastCheckpoint.Graph graph){return new BlastCheckpoint(graph);}
+    public final class BlastCheckpoint {
         private record Actor(MatchDamageSources.Ref key,int age,int mode,int life,boolean trial){}
         private record Burst(BlastBatch original,MatchDamageSources.Ref owner,Vec3[] offsets,float radius,boolean protectedDamage,boolean cosmos,int next,java.util.function.Consumer<PrimedTnt> init,boolean nuclear,NuclearTerrain.Shape terrain,LbcIndirectKills.Owner terrainCause,NuclearTerrain.Occlusion walls,boolean rapid,long preparationSeed,boolean lightningPublished,LbcAcademy.BlastTrial rapidTrial){}
         private final List<Actor> actors;private final List<Burst> queue;
         BlastCheckpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.mode,c.lifetime,c.academyTrial)).toList();queue=java.util.stream.Stream.concat(blasts.stream(),rapidBlasts.stream()).map(b->{graph.binding(b.sourceInit);return new Burst(b,graph.links.key(b.owner),b.offsets.clone(),b.radius,b.protectedDamage,b.cosmos,b.next,b.sourceInit,b.nuclear,b.terrain==null?null:b.terrain.copy(),b.terrainCause,b.walls==null?null:b.walls.copy(),b.rapid,b.preparationSeed,b.lightningPublished,b.rapidTrial);}).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exasperato charges first");bodies.add(c);}var owners=new java.util.IdentityHashMap<BlastBatch,ServerPlayer>();for(var b:queue){MatchAuthorityCheckpoint.world(game,b.original.level);var owner=links.get(b.owner);if(owner!=null&&!(owner instanceof ServerPlayer))throw new IllegalStateException("Restore current burst authors first");owners.put(b.original,(ServerPlayer)owner);}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exasperato charges first");bodies.add(c);}var owners=new java.util.IdentityHashMap<BlastBatch,ServerPlayer>();for(var b:queue){MatchAuthorityCheckpoint.world(game,b.original.level);var owner=links.get(b.owner);if(owner!=null&&!(owner instanceof ServerPlayer))throw new IllegalStateException("Restore current burst authors first");owners.put(b.original,(ServerPlayer)owner);}
             return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.mode=a.mode;c.lifetime=a.life;c.academyTrial=a.trial;}clearBlasts();for(var b:queue){var live=b.original;live.owner=owners.get(live);live.offsets=b.offsets.clone();live.radius=b.radius;live.protectedDamage=b.protectedDamage;live.cosmos=b.cosmos;live.rapid=b.rapid;live.preparationSeed=b.preparationSeed;live.lightningPublished=b.lightningPublished;live.rapidTrial=b.rapidTrial;live.cancelPreparation();live.next=b.next;live.sourceInit=b.init;live.nuclear=b.nuclear;live.terrain=b.terrain==null?null:b.terrain.copy();live.terrainCause=b.terrainCause;live.walls=live.terrain==null?(b.walls==null?null:b.walls.copy()):live.terrain.walls;(live.rapid?rapidBlasts:blasts).addLast(live);}blastRewind=false;};}
     }
 
     /** Charge state has no Search/RayTicket link; searches are separate accepted virtual casts. */
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!(source instanceof Charge c)||c.academyTrial)return null;
         int age=c.age,mode=c.mode,life=c.lifetime;
         return CloneComplexProjectileStates.image(e->{var n=(Charge)e;n.age=age;n.mode=mode;n.lifetime=life;

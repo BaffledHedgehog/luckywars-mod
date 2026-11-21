@@ -17,7 +17,7 @@ public final class LbcManaLevelups {
         if(selected.contains(32)){mana=0;maximum=0;regeneration=0;}
         return new Values(mana,maximum,regeneration);
     }
-    static void apply(GameController game,ServerPlayer player,Set<Integer> selected){
+    public static void apply(GameController game,ServerPlayer player,Set<Integer> selected){
         var mana=game.items().mana();var before=new Values(mana.get(player),mana.maximum(player),mana.baseRegen(player));
         var after=resolve(before,selected);
         if(after.equals(before))return;
@@ -26,7 +26,7 @@ public final class LbcManaLevelups {
         mana.score(player,"levelup_manamax_delta").set(after.maximum()-before.maximum());
         mana.score(player,"levelup_manaregen_delta").set(after.regeneration()-before.regeneration());
     }
-    static void clear(GameController game,ServerPlayer player){
+    public static void clear(GameController game,ServerPlayer player){
         var mana=game.items().mana();int amount=mana.hudValue(player,"levelup_mana_delta");
         int maximum=mana.hudValue(player,"levelup_manamax_delta"),regeneration=mana.hudValue(player,"levelup_manaregen_delta");
         if(amount!=0)mana.set(player,mana.get(player)-amount);
@@ -35,7 +35,7 @@ public final class LbcManaLevelups {
         resetLedger(game,player);
     }
     /** An explicit full resource reset drops the old layer without debiting the new base. */
-    static void resetLedger(GameController game,ServerPlayer player){
+    public static void resetLedger(GameController game,ServerPlayer player){
         var mana=game.items().mana();
         if(mana.hudValue(player,"levelup_mana_delta")!=0)mana.score(player,"levelup_mana_delta").set(0);
         if(mana.hudValue(player,"levelup_manamax_delta")!=0)mana.score(player,"levelup_manamax_delta").set(0);

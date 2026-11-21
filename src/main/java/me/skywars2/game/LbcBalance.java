@@ -148,7 +148,7 @@ public final class LbcBalance {
         sound(p,"minecraft:entity.evoker.prepare_attack",1.5f,2);
     }
     /** Cooldowns and cached equipment are values; entities remain with the shared summon/ray owners. */
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
         long artifactDelay=Math.max(0,nextArtifactPulse-game.maps().level().getGameTime());
         var savedClocks=new LinkedHashMap<>(clocks);var saved=new LinkedHashMap<UUID,int[]>();cooldowns.forEach((id,values)->saved.put(id,values.clone()));var equipment=passive.image();var rayImage=rays.checkpoint(links);var extraImage=extras.checkpoint(links);var explosiveImage=explosive.checkpoint(links);var eggImage=eggs.checkpoint(links);var pigImage=game.items().luckyPigs().fakeCheckpoint(links);
         return current->{var rayPlan=rayImage.prepare(current);var extraPlan=extraImage.prepare(current);var explosivePlan=explosiveImage.prepare(current);var eggPlan=eggImage.prepare(current);var pigPlan=pigImage.prepare(current);return ()->{nextArtifactPulse=game.maps().level().getGameTime()+artifactDelay;clocks.clear();clocks.putAll(savedClocks);cooldowns.clear();saved.forEach((id,values)->cooldowns.put(id,values.clone()));passive.restore(equipment);rayPlan.run();extraPlan.run();explosivePlan.run();eggPlan.run();pigPlan.run();};};

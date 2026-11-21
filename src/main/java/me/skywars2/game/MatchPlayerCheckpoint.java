@@ -47,7 +47,7 @@ public final class MatchPlayerCheckpoint {
     private final Map<Identifier,Object> cooldowns;
     private final int cooldownTick;
 
-    MatchPlayerCheckpoint(GameController game,ServerPlayer player) {
+    public MatchPlayerCheckpoint(GameController game,ServerPlayer player) {
         if(!game.server().isSameThread()||game.server().getPlayerList().getPlayer(player.getUUID())!=player||!game.playing())
             throw new IllegalStateException("Capture a current match player on the native server thread");
         MatchPlayerViews.validateMenu(player);
@@ -61,7 +61,7 @@ public final class MatchPlayerCheckpoint {
         var cd=(PlayerCheckpointAccess.Cooldowns)player.getCooldowns();cooldownTick=cd.skywars2$tick();cooldowns=new LinkedHashMap<>(cd.skywars2$cooldowns());
     }
 
-    UUID id() { return id; }
+    public UUID id() { return id; }
     ServerPlayer retainedBody(){return capturedBody;}
     boolean observer(){return observer;}
     /** Restore the private data referenced by accepted continuations, without a native player registration. */
@@ -78,7 +78,7 @@ public final class MatchPlayerCheckpoint {
             retainedBody.inventoryMenu.setCarried(cursor.copy());
         }finally{if(previous==null)RESTORING.remove();else RESTORING.set(previous);}
     }
-    ServerPlayer restoreFrozen() {
+    public ServerPlayer restoreFrozen() {
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen()||!game.playing()||!game.items().currentEpoch(epoch)||game.maps().busy())
             throw new IllegalStateException("Restore the original match on a frozen native server thread");
         var player=game.server().getPlayerList().getPlayer(id);

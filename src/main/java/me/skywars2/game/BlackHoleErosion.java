@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /** A bounded sphere cursor, always relative to the live hole rather than old world positions. */
-final class BlackHoleErosion {
+public final class BlackHoleErosion {
     private static final int MAX_RADIUS = 24;
     private static final int[][] OFFSETS = createOffsets();
     private static final int[] CORE = OFFSETS[3];
@@ -29,14 +29,14 @@ final class BlackHoleErosion {
     private long pass;
     private boolean completed;
 
-    BlackHoleErosion(ServerLevel level, long seed, boolean noisy) {
+    public BlackHoleErosion(ServerLevel level, long seed, boolean noisy) {
         this.level = Objects.requireNonNull(level);
         this.seed = seed;
         this.noisy = noisy;
     }
 
     /** Refresh geometry without restarting an unfinished pass, even when the hole moves. */
-    void move(Vec3 next, double radius, int clock) {
+    public void move(Vec3 next, double radius, int clock) {
         Objects.requireNonNull(next);
         if (!Double.isFinite(radius) || radius < 0 || radius > MAX_RADIUS
                 || !Double.isFinite(next.x) || !Double.isFinite(next.y) || !Double.isFinite(next.z))
@@ -63,14 +63,14 @@ final class BlackHoleErosion {
         if (moved || resized) coreCursor = 0;
     }
 
-    boolean hasWork() { return center != null && (cursor < offsets.length || coreCursor < CORE.length); }
+    public boolean hasWork() { return center != null && (cursor < offsets.length || coreCursor < CORE.length); }
 
     /** Candidate count, including cheap masked/air/unresident skips; never stores an old-position queue. */
-    int queuedBlockCount() {
+    public int queuedBlockCount() {
         return center == null ? 0 : offsets.length - cursor + CORE.length - coreCursor;
     }
 
-    void clear() {
+    public void clear() {
         center = null;
         offsets = EMPTY;
         cursor = 0;
@@ -79,7 +79,7 @@ final class BlackHoleErosion {
     }
 
     /** Returns inspected candidates (not writes), respecting both the allowance and the CPU deadline. */
-    int step(int allowance, long deadline, BiConsumer<BlockPos, BlockState> erase) {
+    public int step(int allowance, long deadline, BiConsumer<BlockPos, BlockState> erase) {
         if (allowance <= 0 || !hasWork() || System.nanoTime() >= deadline) return 0;
         Objects.requireNonNull(erase);
         // At most five sections per axis for radius24, including arbitrary fractional centers.
@@ -179,7 +179,7 @@ final class BlackHoleErosion {
     }
 
     /** Copy relative scan progress, never the effects of an earlier terrain pass. */
-    BlackHoleErosion copyTranslated(Vec3 offset) {
+    public BlackHoleErosion copyTranslated(Vec3 offset) {
         var copy=new BlackHoleErosion(level,seed,noisy);
         copy.center=center==null?null:center.add(offset);copy.radiusSquared=radiusSquared;
         copy.guaranteedCoreSquared=guaranteedCoreSquared;copy.offsets=offsets.clone();

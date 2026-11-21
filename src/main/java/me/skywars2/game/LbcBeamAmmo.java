@@ -40,7 +40,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     private boolean shulker,madoka;
     private Vec3 previous;
     private boolean worldVariants=true;
-    boolean precise;
+    public boolean precise;
     private int lastNativeTick=Integer.MIN_VALUE;
 
     private static final class Carrier {
@@ -77,7 +77,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         }
         return carriers.isEmpty()?null:new LbcBeamAmmo(game,owner,weapon,carriers);
     }
-    static LbcBeamAmmo captureExplosive(GameController game,ServerPlayer owner,ItemStack weapon,AbstractArrow arrow){
+    public static LbcBeamAmmo captureExplosive(GameController game,ServerPlayer owner,ItemStack weapon,AbstractArrow arrow){
         var payload=(LbcBeamAmmo)capture(game,owner,weapon,List.of(arrow));
         if(payload!=null)payload.worldVariants=false;
         return payload;
@@ -92,7 +92,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         shulker=magical&&ItemData.intValue(weapon,"shulker_new",0)==1;
         madoka=magical&&LbcMadokaBow.matches(weapon);
     }
-    LbcBeamAmmo copy(){
+    public LbcBeamAmmo copy(){
         var copied=new ArrayList<Carrier>();
         for(var carrier:carriers){
             var old=carrier.context;var context=new Arrow(carrier.level,owner,carrier.ammo.copy(),carrier.weapon.copy());
@@ -108,8 +108,8 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         var result=new LbcBeamAmmo(game,owner,weapon,copied);result.previous=previous;result.worldVariants=worldVariants;result.precise=precise;result.lastNativeTick=lastNativeTick;
         result.shulker=shulker;result.madoka=madoka;return result;
     }
-    ItemStack acceptedWeapon(){return carriers.getFirst().weapon;}
-    void reassignNativeOwner(ServerPlayer owner,LbcIndirectKills.Owner cause){
+    public ItemStack acceptedWeapon(){return carriers.getFirst().weapon;}
+    public void reassignNativeOwner(ServerPlayer owner,LbcIndirectKills.Owner cause){
         this.owner=owner;
         for(var carrier:carriers){
             carrier.context.setOwner(owner);
@@ -118,19 +118,19 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         }
     }
     /** One real actor tick; native contact alone selects the damage recipient. */
-    boolean nativeTarget(Entity target){return game.items().wands().projectileTarget(owner,target);}
-    void markTraits(int mask){for(var c:carriers)game.items().trinketArrows().mark(c.context,mask);}
-    void nativeFlight(Entity actor,LbcIndirectKills.Owner cause){
+    public boolean nativeTarget(Entity target){return game.items().wands().projectileTarget(owner,target);}
+    public void markTraits(int mask){for(var c:carriers)game.items().trinketArrows().mark(c.context,mask);}
+    public void nativeFlight(Entity actor,LbcIndirectKills.Owner cause){
         if(lastNativeTick==game.server().getTickCount()||actor.level()!=owner.level()||!game.items().currentEpoch(epoch))return;
         lastNativeTick=game.server().getTickCount();sampleTargets((ServerLevel)actor.level(),actor.position(),cause,false,List.of(),false);
     }
-    void nativeContact(Entity actor,LivingEntity target,Vec3 point,LbcIndirectKills.Owner cause){
+    public void nativeContact(Entity actor,LivingEntity target,Vec3 point,LbcIndirectKills.Owner cause){
         if(!game.items().currentEpoch(epoch)||!game.items().wands().projectileTarget(owner,target))return;
         nativeFlight(actor,cause);
         for(var carrier:carriers)if(carrier.contacts.add(target.getUUID())){carrier.context.setPos(point);contact((ServerLevel)actor.level(),carrier,target,cause);}
     }
 
-    void explosionContact(Entity actor,LivingEntity target,LbcIndirectKills.Owner cause){
+    public void explosionContact(Entity actor,LivingEntity target,LbcIndirectKills.Owner cause){
         if(!game.items().currentEpoch(epoch))return;
         // Each accepted blast has its own damage result, including a hit by a
         // later shell from the same arrow. Apply the exact source's payload again.
@@ -139,7 +139,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         contact((ServerLevel)actor.level(),carrier,target,cause);
     }
 
-    void explosionTerminal(Entity actor,LbcIndirectKills.Owner cause){
+    public void explosionTerminal(Entity actor,LbcIndirectKills.Owner cause){
         if(!game.items().currentEpoch(epoch))return;
         var level=(ServerLevel)actor.level();
         var point=actor.position();
@@ -161,13 +161,13 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     private static boolean tntVariant(int variant){
         return switch(variant){case 101,102,103,111,112,113,300,301,302,303,304->true;default->false;};
     }
-    void nativeGround(Entity actor,Vec3 point,LbcIndirectKills.Owner cause){
+    public void nativeGround(Entity actor,Vec3 point,LbcIndirectKills.Owner cause){
         nativeFlight(actor,cause);blockContact((ServerLevel)actor.level(),point,cause);
         var hit=new net.minecraft.world.phys.BlockHitResult(point,net.minecraft.core.Direction.getApproximateNearest(actor.getDeltaMovement().reverse()),net.minecraft.core.BlockPos.containing(point),false);
         for(var carrier:carriers)if(carrier.traitsActive){game.items().trinketArrows().hit(carrier.context,hit);carrier.traitsActive=!carrier.context.isRemoved();}
     }
     /** Native attachment codec image; detached contexts are never published or globally indexed. */
-    net.minecraft.nbt.CompoundTag save(){
+    public net.minecraft.nbt.CompoundTag save(){
         var tag=new net.minecraft.nbt.CompoundTag();var ops=owner.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
         tag.putString("owner",owner.getUUID().toString());tag.putString("epoch",epoch);tag.put("weapon",ItemStack.CODEC.encodeStart(ops,weapon).getOrThrow());
         tag.putBoolean("world",worldVariants);tag.putBoolean("precise",precise);tag.putInt("frame",game.server().getTickCount());tag.putBoolean("native_this_tick",lastNativeTick==game.server().getTickCount());
@@ -184,7 +184,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     static LbcBeamAmmo load(GameController game,ServerLevel level,net.minecraft.nbt.CompoundTag tag){
         return load(game,level,tag,null);
     }
-    static LbcBeamAmmo load(GameController game,ServerLevel level,net.minecraft.nbt.CompoundTag tag,ServerPlayer reflector){
+    public static LbcBeamAmmo load(GameController game,ServerLevel level,net.minecraft.nbt.CompoundTag tag,ServerPlayer reflector){
         var ownerId=UUID.fromString(tag.getStringOr("owner",""));var owner=game.server().getPlayerList().getPlayer(ownerId);
         if(owner==null)owner=MatchOfflinePlayers.find(ownerId);
         if(owner==null)owner=reflector;
@@ -232,7 +232,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         sampleTargets(level,point,cause,railgun,targets,false);
     }
     /** Mechanical sniper: one arrow-width segment query per tick, shared by every sample/carrier. */
-    void lineSegment(ServerLevel level,Vec3 from,Vec3 to,LbcIndirectKills.Owner cause){
+    public void lineSegment(ServerLevel level,Vec3 from,Vec3 to,LbcIndirectKills.Owner cause){
         if(owner==null||!game.items().currentEpoch(epoch))return;
         var targets=level.getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(1),target->
                 target!=owner&&target.isAlive()&&!target.isSpectator()&&!(target instanceof Creeper)

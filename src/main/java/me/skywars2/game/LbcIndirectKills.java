@@ -37,11 +37,11 @@ import java.util.function.BooleanSupplier;
 /** Автор отложенного урона: храним причину, а нативный DamageSource оставляем прежним. */
 public final class LbcIndirectKills {
     /** Общий fill strict для ловушек с авторством последующего удушения от их блоков. */
-    void fillTrap(ServerPlayer owner, BlockPos first, BlockPos last, BlockState state) {
+    public void fillTrap(ServerPlayer owner, BlockPos first, BlockPos last, BlockState state) {
         fillTrap(owner, first, last, state, false);
     }
 
-    void fillTrapPreservingInventory(ServerPlayer owner, BlockPos first, BlockPos last, BlockState state) {
+    public void fillTrapPreservingInventory(ServerPlayer owner, BlockPos first, BlockPos last, BlockState state) {
         fillTrap(owner, first, last, state, true);
     }
 
@@ -61,15 +61,15 @@ public final class LbcIndirectKills {
                     && !old.isSuffocating(level,pos)) stonePlaced(level,pos,owner);
         }
     }
-    record Owner(UUID player,long order,boolean friendlyFire,boolean projectile,net.minecraft.world.item.ItemStack enchantmentWeapon,boolean weaponAction) {
-        Owner(UUID player,long order,boolean friendlyFire,boolean projectile){this(player,order,friendlyFire,projectile,WeaponEnchantments.retained(player,order));}
+    public record Owner(UUID player,long order,boolean friendlyFire,boolean projectile,net.minecraft.world.item.ItemStack enchantmentWeapon,boolean weaponAction) {
+        public Owner(UUID player,long order,boolean friendlyFire,boolean projectile){this(player,order,friendlyFire,projectile,WeaponEnchantments.retained(player,order));}
         private Owner(UUID player,long order,boolean friendlyFire,boolean projectile,WeaponEnchantments.Capture capture){
             this(player,order,friendlyFire,projectile,capture.item(),capture.action());
         }
         Owner(UUID player,long order,boolean friendlyFire,boolean projectile,net.minecraft.world.item.ItemStack enchantmentWeapon){
             this(player,order,friendlyFire,projectile,enchantmentWeapon,WeaponEnchantments.itemAction(player));
         }
-        Owner(UUID player,long order,boolean friendlyFire,boolean projectile,net.minecraft.world.item.ItemStack enchantmentWeapon,boolean weaponAction){
+        public Owner(UUID player,long order,boolean friendlyFire,boolean projectile,net.minecraft.world.item.ItemStack enchantmentWeapon,boolean weaponAction){
             this.player=player;this.order=order;this.friendlyFire=friendlyFire;this.projectile=projectile;
             this.enchantmentWeapon=enchantmentWeapon.copyWithCount(1);this.weaponAction=weaponAction;WeaponEnchantments.remember(this);
         }
@@ -80,13 +80,13 @@ public final class LbcIndirectKills {
         @Override public int hashCode(){return java.util.Objects.hash(player,order,friendlyFire,projectile);}
     }
     private record TrapFrame(Owner owner, ServerLevel level, Map<BlockPos,BlockState> candidates) { }
-    static final class Fall {
+    public static final class Fall {
         final Owner owner;
         final boolean levitation;
-        int grace = 2;
+        public int grace = 2;
         Fall(Owner owner, boolean levitation) { this.owner=owner; this.levitation=levitation; }
     }
-    record Status(Owner owner, MobEffectInstance effect) { }
+    public record Status(Owner owner, MobEffectInstance effect) { }
     private record Support(Owner owner, ServerLevel level) { }
     private record Hazard(Owner owner, BlockState state) { }
     // Flowing water fills dense vertical bands, which collide under BlockPos's linear hash.
@@ -153,7 +153,7 @@ public final class LbcIndirectKills {
         @Override public boolean is(net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){return original.is(type);}
         @Override public float getFoodExhaustion(){return original.getFoodExhaustion();}
     }
-    DamageSource transferDamage(DamageSource source){
+    public DamageSource transferDamage(DamageSource source){
         // Capture historical projectile/spell authority while its original direct actor is present.
         var cause=babylonCause(source);
         return captureDamage(new TransferredDamage(source),cause);
@@ -170,7 +170,7 @@ public final class LbcIndirectKills {
         @Override public boolean is(net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){return original.is(type);}
         @Override public float getFoodExhaustion(){return original.getFoodExhaustion();}
     }
-    static boolean npcSource(DamageSource source){
+    public static boolean npcSource(DamageSource source){
         for(var value=source;value!=null;value=checkpointWrappedSource(value))if(value instanceof NativeMobDamage)return true;
         return false;
     }
@@ -183,7 +183,7 @@ public final class LbcIndirectKills {
                 ||actor instanceof net.minecraft.world.entity.player.Player)return null;
         return state.skywars2$mob().matches(actor)?actor:null;
     }
-    DamageSource nativeMobDamage(DamageSource source,LivingEntity mob){return npcSource(source)?source:new NativeMobDamage(source,mob);}
+    public DamageSource nativeMobDamage(DamageSource source,LivingEntity mob){return npcSource(source)?source:new NativeMobDamage(source,mob);}
     public void withCause(LivingEntity target,Owner cause,Runnable action){
         var previousTarget=causeTarget;var previousCause=activeCause;causeTarget=target;activeCause=cause;
         try{action.run();}finally{causeTarget=previousTarget;activeCause=previousCause;}
@@ -198,7 +198,7 @@ public final class LbcIndirectKills {
     public DamageSource captureDamage(DamageSource source,Owner cause){return cause==null||npcSource(source)?source:new CapturedDamage(source,cause);}
     public DamageSource captureDamage(DamageSource source,Owner cause,Entity attacker){return cause==null||npcSource(source)?source:new CapturedDamage(source,cause,attacker);}
     /** Preserve source-specific behavior when native attribution has wrapped a damage source. */
-    static DamageSource originalDamage(DamageSource source){
+    public static DamageSource originalDamage(DamageSource source){
         while(true){
             if(source instanceof CapturedDamage captured){if(captured.getEntity()!=captured.original.getEntity())break;source=captured.original;}
             else if(source instanceof TransferredDamage transferred)source=transferred.original;
@@ -220,22 +220,22 @@ public final class LbcIndirectKills {
             statuses.computeIfAbsent(target,k->new HashMap<>()).put(effect.getEffect(),new Status(cause,active));
     }
     /** Preserve accepted native effect causes across a legitimate replacement-player respawn. */
-    java.util.Map<Holder<MobEffect>,Owner> effectCauses(LivingEntity target){
+    public java.util.Map<Holder<MobEffect>,Owner> effectCauses(LivingEntity target){
         var result=new java.util.HashMap<Holder<MobEffect>,Owner>();var active=statuses.get(target);
         if(active!=null)active.forEach((type,status)->{if(target.getEffect(type)==status.effect)result.put(type,status.owner);});
         return java.util.Map.copyOf(result);
     }
     /** Immutable pre-suspension causes; no effect instance or live actor identity is shared. */
-    record SuspendedEffectCauses(Map<Holder<MobEffect>,Owner> effects,Owner pendingMana) {
+    public record SuspendedEffectCauses(Map<Holder<MobEffect>,Owner> effects,Owner pendingMana) {
         SuspendedEffectCauses {effects=Map.copyOf(effects);}
     }
-    SuspendedEffectCauses suspendEffectCauses(LivingEntity target){
+    public SuspendedEffectCauses suspendEffectCauses(LivingEntity target){
         var pending=pendingMana.get(target);
         return new SuspendedEffectCauses(effectCauses(target),
                 pending!=null&&target.getEffect(pending.effect.getEffect())==pending.effect?pending.owner:null);
     }
     /** Rebind only accepted restored instances, after native effects and owned leases have resumed. */
-    void resumeEffectCauses(LivingEntity target,SuspendedEffectCauses saved,Map<Holder<MobEffect>,MobEffectInstance> restored){
+    public void resumeEffectCauses(LivingEntity target,SuspendedEffectCauses saved,Map<Holder<MobEffect>,MobEffectInstance> restored){
         saved.effects.forEach((type,owner)->{
             var effect=restored.get(type);
             if(effect!=null&&target.getEffect(type)==effect)
@@ -255,7 +255,7 @@ public final class LbcIndirectKills {
     private record SupportCandidates(ServerLevel level,AABB blocks,java.util.List<LivingEntity> entities,SupportCandidates previous) { }
     private SupportCandidates supportCandidates;
 
-    LbcIndirectKills(GameController game) { this.game=game; }
+    public LbcIndirectKills(GameController game) { this.game=game; }
     private Owner owner(ServerPlayer player) { return owner(player,false); }
     private Owner owner(ServerPlayer player,boolean friendlyFire) {
         var source=game.items().spellSources().current();if(source!=null&&(player==null||java.util.Objects.equals(source.author(),player.getUUID())))return source.cause();
@@ -270,7 +270,7 @@ public final class LbcIndirectKills {
         if(source instanceof TransferredDamage transferred)return enchantmentWeapon(transferred.original);
         return GenieCombat.spellWeapon(source);
     }
-    net.minecraft.world.item.ItemStack damageWeapon(DamageSource source){
+    public net.minecraft.world.item.ItemStack damageWeapon(DamageSource source){
         if(LbcSpellSource.unownedHazard(source.getDirectEntity())||game.items().spellSources().lootProjectile(source.getDirectEntity()))return net.minecraft.world.item.ItemStack.EMPTY;
         Owner cause=source instanceof CapturedDamage captured?captured.cause:source instanceof InheritedKill inherited?inherited.cause:null;
         if(cause!=null&&cause.weaponAction()&&source.getEntity() instanceof ServerPlayer player&&player.getUUID().equals(cause.player()))
@@ -287,7 +287,7 @@ public final class LbcIndirectKills {
     }
 
     /** The accepted death already settled this player without changing the physical damage source. */
-    ServerPlayer creditedKiller(LivingEntity victim) {
+    public ServerPlayer creditedKiller(LivingEntity victim) {
         var cause = lootOwner(victim);
         return cause == null ? null : game.server().getPlayerList().getPlayer(cause.player());
     }
@@ -298,7 +298,7 @@ public final class LbcIndirectKills {
     }
 
     /** A confirmed weapon use owns the loot enchantments, including an explicitly unenchanted source. */
-    net.minecraft.world.item.ItemStack boundLootWeapon(LivingEntity victim, DamageSource source) {
+    public net.minecraft.world.item.ItemStack boundLootWeapon(LivingEntity victim, DamageSource source) {
         var credited = lootOwner(victim);
         if (credited != null && credited.weaponAction()) return credited.enchantmentWeapon();
 
@@ -313,7 +313,7 @@ public final class LbcIndirectKills {
     }
 
     /** WILD totem Wither keeps its author and allegiance policy through real effect ticks. */
-    void wildEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
+    public void wildEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
         var player=cause==null?null:game.server().getPlayerList().getPlayer(cause.player);
         if(target.addEffect(effect,player)&&cause!=null){
             var active=target.getEffect(effect.getEffect());
@@ -322,7 +322,7 @@ public final class LbcIndirectKills {
     }
 
     /** Deferred Frost processing retains the original impact's order, rather than becoming a new hit. */
-    Owner wildCause(ServerPlayer player){return owner(player,true);}
+    public Owner wildCause(ServerPlayer player){return owner(player,true);}
     /** Encoded potion/arrow statuses retain the same accepted cause as their actual native carrier. */
     public Owner carrierEffectCause(LivingEntity target,Entity source){
         if(causeTarget==target&&activeCause!=null)return activeCause;
@@ -337,19 +337,19 @@ public final class LbcIndirectKills {
         InheritedKill(LivingEntity target,Owner cause){super(target.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC_KILL));this.cause=cause;}
     }
     /** Explicit execution intent is distinct from ordinary, even enormous, damage. */
-    boolean inheritedExecution(LivingEntity target,Owner cause){return game.items().wtf().erase(target)||inheritedKill(target,cause);}
-    boolean inheritedKill(LivingEntity target,Owner cause){return target.hurtServer((ServerLevel)target.level(),new InheritedKill(target,cause),Float.MAX_VALUE);}
-    void manaLost(LivingEntity target,Owner cause){if(cause!=null)manaDebts.put(target,newer(manaDebts.get(target),cause));}
-    Owner coldCause(ServerPlayer player,boolean projectile){return fresh(player,false,projectile);}
-    Owner itemCause(ServerPlayer player, boolean friendlyFire, boolean projectile, net.minecraft.world.item.ItemStack weapon) {
+    public boolean inheritedExecution(LivingEntity target,Owner cause){return game.items().wtf().erase(target)||inheritedKill(target,cause);}
+    public boolean inheritedKill(LivingEntity target,Owner cause){return target.hurtServer((ServerLevel)target.level(),new InheritedKill(target,cause),Float.MAX_VALUE);}
+    public void manaLost(LivingEntity target,Owner cause){if(cause!=null)manaDebts.put(target,newer(manaDebts.get(target),cause));}
+    public Owner coldCause(ServerPlayer player,boolean projectile){return fresh(player,false,projectile);}
+    public Owner itemCause(ServerPlayer player, boolean friendlyFire, boolean projectile, net.minecraft.world.item.ItemStack weapon) {
         return new Owner(player.getUUID(), ++order, friendlyFire, projectile, weapon, true);
     }
-    Owner restoreColdCause(UUID player,long stamp,boolean projectile){
+    public Owner restoreColdCause(UUID player,long stamp,boolean projectile){
         if(stamp<=0)return new Owner(player,++order,false,projectile,WeaponEnchantments.snapshot(player));
         order=Math.max(order,stamp);
         return new Owner(player,stamp,false,projectile);
     }
-    void coldEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
+    public void coldEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
         var player=cause==null?null:game.server().getPlayerList().getPlayer(cause.player);
         if(target.addEffect(effect,player)&&cause!=null&&target!=player&&effect.is(MobEffects.BLINDNESS)){
             var active=target.getEffect(effect.getEffect());
@@ -457,7 +457,7 @@ public final class LbcIndirectKills {
                 || game.items().wands().projectileTarget(player,target);
     }
     /** A duration-only grant preserves the existing cause instead of becoming a fresh self-cast. */
-    void extendEffectDuration(LivingEntity target,MobEffectInstance effect) {
+    public void extendEffectDuration(LivingEntity target,MobEffectInstance effect) {
         if(target.getEffect(effect.getEffect())!=effect || effect.isInfiniteDuration()
                 || effect.getDuration()==Integer.MAX_VALUE) return;
         var effects=statuses.get(target);
@@ -546,7 +546,7 @@ public final class LbcIndirectKills {
         supportRemoved(level,owner(player),pos);
     }
     /** The write scope already owns the cause, even if its author has since left. */
-    void supportRemoved(ServerLevel level,Owner owner,BlockPos pos) {
+    public void supportRemoved(ServerLevel level,Owner owner,BlockPos pos) {
         var state=level.getBlockState(pos);
         if(state.getCollisionShape(level,pos).isEmpty()) return;
         var area=new AABB(pos).inflate(.001, .0625, .001).expandTowards(0,4,0);
@@ -651,7 +651,7 @@ public final class LbcIndirectKills {
         return hazards.computeIfAbsent(level, ignored -> new Object2ObjectOpenCustomHashMap<>(HAZARD_POSITIONS));
     }
     /** Opaque rollback token: only exact terrain cells and potentially touched support leases. */
-    static final class TerrainProvenance {
+    public static final class TerrainProvenance {
         private final ServerLevel level;
         private final java.util.Set<BlockPos> cells;
         private final Map<BlockPos,Owner> stoneBefore=new HashMap<>();
@@ -666,7 +666,7 @@ public final class LbcIndirectKills {
             this.cells=java.util.Collections.unmodifiableSet(new java.util.HashSet<>(cells));
         }
     }
-    TerrainProvenance captureTerrain(ServerLevel level,java.util.Collection<BlockPos> cells){
+    public TerrainProvenance captureTerrain(ServerLevel level,java.util.Collection<BlockPos> cells){
         var saved=new TerrainProvenance(level,cells);
         var oldStone=stone.get(level);var oldHazards=hazards.get(level);
         for(var pos:saved.cells){
@@ -694,7 +694,7 @@ public final class LbcIndirectKills {
         return saved;
     }
     /** Run after trapChanges finally: that finalizer can itself republish suffocation ownership. */
-    void restoreTerrain(TerrainProvenance saved){
+    public void restoreTerrain(TerrainProvenance saved){
         var oldStone=stone.get(saved.level);if(oldStone!=null){saved.cells.forEach(oldStone::remove);if(oldStone.isEmpty())stone.remove(saved.level);}
         var oldHazards=hazards.get(saved.level);if(oldHazards!=null){saved.cells.forEach(oldHazards::remove);if(oldHazards.isEmpty())hazards.remove(saved.level);}
         if(!saved.stoneBefore.isEmpty())stone.computeIfAbsent(saved.level,ignored->new HashMap<>()).putAll(saved.stoneBefore);
@@ -731,7 +731,7 @@ public final class LbcIndirectKills {
                 source instanceof Projectile || source instanceof net.minecraft.world.entity.LightningBolt),writes);
     }
     /** Moving terrain effects retain the original cast order across their child columns. */
-    void capturedWorldChanges(ServerLevel level,Owner source,Runnable writes){blockWrites(level,source,writes);}
+    public void capturedWorldChanges(ServerLevel level,Owner source,Runnable writes){blockWrites(level,source,writes);}
     private void blockWrites(ServerLevel level, Owner source, Runnable writes) {
         var previous=hazardWriter; var previousLevel=hazardLevel;
         hazardWriter=source; hazardLevel=level;
@@ -741,7 +741,7 @@ public final class LbcIndirectKills {
         }
     }
     /** A continuing native effect keeps its original influence order when creating terrain hazards. */
-    void effectWorldChanges(LivingEntity target,Holder<MobEffect> effect,Runnable writes){
+    public void effectWorldChanges(LivingEntity target,Holder<MobEffect> effect,Runnable writes){
         var entries=statuses.get(target);var status=entries==null?null:entries.get(effect);
         var cause=status!=null&&status.effect==target.getEffect(effect)?status.owner:null;
         blockWrites((ServerLevel)target.level(),cause,writes);
@@ -773,7 +773,7 @@ public final class LbcIndirectKills {
         return owner==null || owner==target || (cause.friendlyFire ? game.items().wands().target(owner,target,true)
                 : cause.projectile ? game.items().wands().projectileTarget(owner,target) : game.items().wands().target(owner,target));
     }
-    void clearHunger(ServerPlayer target){hungerDebts.remove(target);}
+    public void clearHunger(ServerPlayer target){hungerDebts.remove(target);}
     private Owner environmentOwner(LivingEntity target, DamageSource source) {
         if(source.is(DamageTypes.STARVE)&&target instanceof ServerPlayer p)return hungerDebts.get(p);
         if(target==altitudeTarget && source.is(DamageTypes.DROWN)) return altitudeCause;
@@ -942,7 +942,7 @@ public final class LbcIndirectKills {
     }
 
     /** Existing accepted policy only: unlike attribution capture, this query never allocates an order. */
-    Owner policyCause(Entity target,DamageSource source){
+    public Owner policyCause(Entity target,DamageSource source){
         if(causeTarget==target&&activeCause!=null)return activeCause;
         if(source instanceof CapturedDamage captured)return captured.cause;
         if(source instanceof TransferredDamage transferred)return policyCause(target,transferred.original);
@@ -1015,7 +1015,7 @@ public final class LbcIndirectKills {
         falls.put(target,new Fall(cause,false));
     }
     /** Repeated sustained forces retain their original causal order. */
-    void displaced(LivingEntity target,Owner cause) {
+    public void displaced(LivingEntity target,Owner cause) {
         if(cause==null) return;
         var accepted=newer(laterAttacks.get(target),cause);
         laterAttacks.put(target,accepted);
@@ -1146,10 +1146,10 @@ public final class LbcIndirectKills {
         } finally { effectTarget=previous; tickingEffect=previousEffect; }
     }
 
-    record LogoutHit(DamageSource source,UUID player) { }
+    public record LogoutHit(DamageSource source,UUID player) { }
     private record LogoutDamage(DamageSource source, UUID player, Owner owner) {}
     private record AbsorptionHit(LogoutDamage damage, CombatEntry preceding, int tick) {}
-    record LogoutAbsorptionImage(MatchDamageSources.Image source, UUID player, Owner owner, int after, int tick) {}
+    public record LogoutAbsorptionImage(MatchDamageSources.Image source, UUID player, Owner owner, int after, int tick) {}
 
     private static List<CombatEntry> combatEntries(ServerPlayer player) {
         return ((CombatCheckpointAccess.Tracker) player.getCombatTracker()).skywars2$entries();
@@ -1184,16 +1184,16 @@ public final class LbcIndirectKills {
         logoutAttacks.put(author, author.tickCount);
     }
 
-    Integer checkpointLogoutAttack(ServerPlayer player) {
+    public Integer checkpointLogoutAttack(ServerPlayer player) {
         return logoutAttacks.get(player);
     }
 
-    void restoreLogoutAttack(ServerPlayer player, Integer tick) {
+    public void restoreLogoutAttack(ServerPlayer player, Integer tick) {
         if (tick == null) logoutAttacks.remove(player);
         else logoutAttacks.put(player, tick);
     }
 
-    void recordLogoutAbsorption(ServerPlayer target, DamageSource source) {
+    public void recordLogoutAbsorption(ServerPlayer target, DamageSource source) {
         var damage = logoutDamage(target, source);
         if (damage == null) return;
         recordLogoutAttack(target, damage);
@@ -1216,7 +1216,7 @@ public final class LbcIndirectKills {
         return 0;
     }
 
-    List<LogoutAbsorptionImage> checkpointLogoutAbsorption(ServerPlayer target, MatchDamageSources sources) {
+    public List<LogoutAbsorptionImage> checkpointLogoutAbsorption(ServerPlayer target, MatchDamageSources sources) {
         var hits = logoutAbsorption.get(target);
         if (hits == null) return List.of();
         var entries = combatEntries(target);
@@ -1224,7 +1224,7 @@ public final class LbcIndirectKills {
                 hit.damage.player, hit.damage.owner, after(entries, hit.preceding), hit.tick)).toList();
     }
 
-    void restoreLogoutAbsorption(ServerPlayer target, List<LogoutAbsorptionImage> saved) {
+    public void restoreLogoutAbsorption(ServerPlayer target, List<LogoutAbsorptionImage> saved) {
         if (saved.isEmpty()) {
             logoutAbsorption.remove(target);
             return;
@@ -1239,7 +1239,7 @@ public final class LbcIndirectKills {
     }
 
     /** Merge accepted absorption with the native HP history without changing vanilla combat tracking. */
-    LogoutHit logoutHit(ServerPlayer target) {
+    public LogoutHit logoutHit(ServerPlayer target) {
         target.getCombatTracker().recheckStatus();
         var entries = combatEntries(target);
         var hits = logoutAbsorption.getOrDefault(target, List.of());
@@ -1276,7 +1276,7 @@ public final class LbcIndirectKills {
         // Taking part in combat is sufficient for a forfeit. Kill credit still requires incoming damage.
         return new LogoutHit(newerMob == null ? target.damageSources().genericKill() : newerMob, null);
     }
-    void settleLogoutHit(ServerPlayer target,LogoutHit hit){
+    public void settleLogoutHit(ServerPlayer target,LogoutHit hit){
         if(hit.player()==null)mobImpact(target,hit.source());
         else{
             target.setLastHurtByPlayer(hit.player(),100);
@@ -1289,12 +1289,12 @@ public final class LbcIndirectKills {
         pendingMana.remove(target); manaDrains.remove(target); manaDebts.remove(target);
         burning.remove(target); hungerDebts.remove(target); logoutAbsorption.remove(target); logoutAttacks.remove(target);
     }
-    Owner hazardOwner(ServerLevel level, BlockPos pos) {
+    public Owner hazardOwner(ServerLevel level, BlockPos pos) {
         var cells = hazards.get(level);
         var hazard = cells == null ? null : cells.get(pos);
         return hazard == null ? null : hazard.owner;
     }
-    static boolean unownedDamage(DamageSource source){
+    public static boolean unownedDamage(DamageSource source){
         return npcSource(source)||LbcSpellSource.unownedHazard(source.getDirectEntity())||LbcSpellSource.unownedHazard(source.getEntity());
     }
     /** Settle accepted NPC attribution before native death and VIP receipts. */
@@ -1321,8 +1321,8 @@ public final class LbcIndirectKills {
         hazards.clear(); burning.clear(); arrivals.clear(); hungerDebts.clear(); logoutAbsorption.clear(); logoutAttacks.clear();
     }
     /** GLOBAL causal ledger image; native effects/bodies/terrain stay with their canonical owners. */
-    Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
+    public final class Checkpoint {
         private record Falling(Owner owner,boolean levitation,int grace) { }
         private record Effect(Holder<MobEffect> type,boolean active,MobEffectInstance detached) { }
         private record Applied(Owner owner,Effect effect) { }
@@ -1369,7 +1369,7 @@ public final class LbcIndirectKills {
         }
         private void level(ServerLevel world){if(game.server().getLevel(world.dimension())!=world)throw new IllegalStateException("Reconcile causal terrain dimensions before ledger replay");}
         /** After canonical bodies/effects/terrain. Missing saved victims defer the whole install. */
-        java.util.Set<UUID> restoreFrozen(java.util.function.Function<UUID,Entity> lookup){
+        public java.util.Set<UUID> restoreFrozen(java.util.function.Function<UUID,Entity> lookup){
             stable(true);var pending=new java.util.LinkedHashSet<UUID>();var victims=new HashMap<MatchDamageSources.Ref,LivingEntity>();
             kinds.forEach((ref,type)->{var current=MatchDamageSources.resolve(ref,lookup,pending);if(current!=null){if(!(current instanceof LivingEntity victim)||current.getClass()!=type)throw new IllegalStateException("Restore captured victim bodies before causal ledgers");victims.put(ref,victim);}});
             stoneImage.keySet().forEach(this::level);hazardImage.keySet().forEach(this::level);supportImage.values().forEach(v->level(v.level));arrivalImage.values().forEach(v->level(v.level));
@@ -1389,7 +1389,7 @@ public final class LbcIndirectKills {
             order=sequence;return java.util.Set.of();
         }
         /** Reconnect installs this victim's saved causal rows after its real native body/effects, never the old global ledger. */
-        void restorePlayerFrozen(ServerPlayer realCurrent){
+        public void restorePlayerFrozen(ServerPlayer realCurrent){
             stable(true);
             if(game.server().getPlayerList().getPlayer(realCurrent.getUUID())!=realCurrent||realCurrent.isRemoved())
                 throw new IllegalStateException("Restore causal player rows only on the real current online body");
@@ -1440,7 +1440,7 @@ public final class LbcIndirectKills {
         if(effect==null){effect=image.active?target.getEffect(image.type):EffectLayers.copy(image.detached);if(effect==null)throw new IllegalStateException("Missing active clone causal effect");aliases.put(image,effect);}
         return new Status(status.owner,effect);
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof LivingEntity target))return null;
         var fall=falls.get(target);var map=statuses.get(target);var aliases=new java.util.IdentityHashMap<MobEffectInstance,CloneEffect>();
         var effects=new HashMap<Holder<MobEffect>,CloneStatus>();if(map!=null)map.forEach((type,status)->effects.put(type,cloneStatusImage(target,status,aliases)));

@@ -296,7 +296,7 @@ public final class LbcTrollBox {
     public LivingEntity owner(Entity actor){var h=hunters.get(actor.getUUID());if(h!=null)return author(h.event);var p=powers.get(actor.getUUID());return p==null?null:author(p.event);}
     public List<Entity> snapshot(){var result=new ArrayList<Entity>();for(var hunter:hunters.values())result.add(hunter.body);for(var power:powers.values())result.add(power.body);return List.copyOf(result);}
     boolean cloneRecognizes(Entity body){return hunters.containsKey(body.getUUID())||powers.containsKey(body.getUUID());}
-    LbcCloneSkills.ActorImage cloneImage(Entity original){
+    public LbcCloneSkills.ActorImage cloneImage(Entity original){
         var hunter=hunters.get(original.getUUID());var power=powers.get(original.getUUID());if(hunter==null&&power==null)return null;
         var event=hunter!=null?hunter.event:power.event;int age=power==null?0:power.age;
         return new LbcCloneSkills.ActorImage(){
@@ -313,12 +313,12 @@ public final class LbcTrollBox {
     }
     public void removed(Entity actor){if(restoring||MatchActorCheckpoint.restoring(actor)||actor.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)return;hunters.remove(actor.getUUID());powers.remove(actor.getUUID());playerFrames.remove(actor.getUUID());}
     public boolean captureReady(){return callbacks==0&&!restoring;}
-    void checkpointBoundary(){if(callbacks!=0||restoring&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Finish Troll Box native callbacks before capture/replay");}
+    public void checkpointBoundary(){if(callbacks!=0||restoring&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Finish Troll Box native callbacks before capture/replay");}
     public void prepareFrozen(){checkpointBoundary();restoring=true;hunters.clear();powers.clear();eyes.clear();playerFrames.clear();}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();playerFrames.clear();}
     public void cancelFrozen(){restoring=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         record Body(MatchDamageSources.Ref body,Event event,int age){}
         final Event savedHunter=hunter,savedDark=darkness,savedPower=powerfall,savedAbyss=abyss;
         final String savedEpoch=epoch;final int dark=darkClock,gravity=gravityLeft,hclock=hunterClock,pclock=powerClock;
@@ -326,7 +326,7 @@ public final class LbcTrollBox {
         final PowerFrame savedFrame=powerFrame;
         final List<Body> hunterBodies=new ArrayList<>(),powerBodies=new ArrayList<>();
         Checkpoint(MatchSpellCheckpoint.Links links){for(var value:hunters.values())hunterBodies.add(new Body(links.key(value.body),value.event,0));for(var value:powers.values())powerBodies.add(new Body(links.key(value.body),value.event,value.age));}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var nextHunters=new LinkedHashMap<UUID,Hunter>();for(var body:hunterBodies){var actor=(LivingEntity)links.get(body.body);nextHunters.put(actor.getUUID(),new Hunter(actor,body.event));}
             var nextPowers=new LinkedHashMap<UUID,Power>();for(var body:powerBodies){var actor=links.get(body.body);var value=new Power(actor,body.event);value.age=body.age;nextPowers.put(actor.getUUID(),value);}
             return ()->{epoch=savedEpoch;hunter=savedHunter;darkness=savedDark;powerfall=savedPower;abyss=savedAbyss;darkClock=dark;gravityLeft=gravity;hunterClock=hclock;powerClock=pclock;

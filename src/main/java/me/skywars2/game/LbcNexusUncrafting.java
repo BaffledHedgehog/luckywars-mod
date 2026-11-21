@@ -31,7 +31,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Fixed source selectors and bounded native, per-unit disassembly transactions. */
-final class LbcNexusUncrafting {
+public final class LbcNexusUncrafting {
     static final int UNIT_BUDGET=64, VISIT_BUDGET=256;
     static final long NANOS_BUDGET=1_000_000;
     private final GameController game;
@@ -166,10 +166,10 @@ final class LbcNexusUncrafting {
         target.level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,target.position.x,target.position.y+.76,target.position.z,1,0,0,0,.1);
     }
 
-    int pending(){return pending.size();}
-    int pendingUnits(){int units=0;for(var target:pending)units+=target.remaining;return units;}
-    int tableCount(){return items.size();}
-    int effectTableCount(){return effects.size();}
+    public int pending(){return pending.size();}
+    public int pendingUnits(){int units=0;for(var target:pending)units+=target.remaining;return units;}
+    public int tableCount(){return items.size();}
+    public int effectTableCount(){return effects.size();}
     void stop(){pending.clear();frozen=false;lastTick=Integer.MIN_VALUE;}
     /** Uncommitted work is cancelled; committed bodies belong to the native world checkpoint. */
     void prepareFrozen(){stop();frozen=true;}

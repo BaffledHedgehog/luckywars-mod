@@ -23,14 +23,14 @@ import net.minecraft.world.phys.*;
 /** Input routing only. All costs, suppression, payloads and output factories remain native. */
 public final class LbcTmtTriggers {
     private LbcTmtTriggers(){}
-    static final String KEY="tmt_inputs",SCHEMA="tmt_input_schema";
+    public static final String KEY="tmt_inputs",SCHEMA="tmt_input_schema";
     public enum Input { JUMP, RIGHT_CLICK, LEFT_CLICK, SNEAK, TICK, SHOT, EAT, THROW, SPRINT, SNEAK_PRESS, HIT, BLOCK_USE, HURT, MINING }
-    enum Action { USE, SELF, MELEE, INCOMING, JUMP, SHOT, CONSUME, BLOCK, MINING }
+    public enum Action { USE, SELF, MELEE, INCOMING, JUMP, SHOT, CONSUME, BLOCK, MINING }
     private record Selection(ItemStack source,Action action,Set<String> ids){}
     private static final ThreadLocal<Selection> selection=new ThreadLocal<>();
     private static final ThreadLocal<Integer> dispatchDepth=ThreadLocal.withInitial(()->0);
     private static final ThreadLocal<ServerPlayer> inputOwner=new ThreadLocal<>();
-    static ItemStack enchantmentSource(ServerPlayer player){
+    public static ItemStack enchantmentSource(ServerPlayer player){
         var active=selection.get();return inputOwner.get()==player&&active!=null?active.source:ItemStack.EMPTY;
     }
     private static final ThreadLocal<Input> origin=new ThreadLocal<>();
@@ -53,7 +53,7 @@ public final class LbcTmtTriggers {
 
     static boolean bound(LbcTmtAbilities.Ability property){return ((ItemData.IntReader)(Object)property.data()).skywars2$contains(KEY);}
     public static boolean modern(ItemStack stack){return LbcTmtItems.matches(stack)&&ItemData.intValue(stack,SCHEMA,0)==1;}
-    static List<Input> inputs(ItemStack carrier){
+    public static List<Input> inputs(ItemStack carrier){
         var result=new ArrayList<>(List.of(Input.JUMP,Input.RIGHT_CLICK,Input.LEFT_CLICK,Input.SNEAK,Input.TICK,
                 Input.SPRINT,Input.SNEAK_PRESS,Input.HIT,Input.BLOCK_USE,Input.HURT,Input.MINING));
         var type=LbcTmtItems.vanillaCarrier(carrier);
@@ -67,7 +67,7 @@ public final class LbcTmtTriggers {
                 ||carrier==Items.WIND_CHARGE||carrier==Items.EXPERIENCE_BOTTLE
                 ||carrier==Items.SPLASH_POTION||carrier==Items.LINGERING_POTION||carrier==Items.TRIDENT;
     }
-    static EnumSet<Action> actions(LbcTmtCatalog.Family family){
+    public static EnumSet<Action> actions(LbcTmtCatalog.Family family){
         var result=EnumSet.noneOf(Action.class);
         if(family.id().startsWith("native/component/"))return result;
         for(var action:Action.values())if(family.events().contains(LbcTmtCatalog.Event.valueOf(action.name())))result.add(action);
@@ -79,7 +79,7 @@ public final class LbcTmtTriggers {
         return result;
     }
     private static boolean flag(LbcTmtAbilities.Ability property,String key){return ((ItemData.IntReader)(Object)property.data()).skywars2$readInt(key,0)==1;}
-    static boolean compatible(LbcTmtCatalog.Family family,ItemStack carrier){
+    public static boolean compatible(LbcTmtCatalog.Family family,ItemStack carrier){
         return !actions(family).contains(Action.SHOT)||inputs(carrier).contains(Input.SHOT);
     }
     static List<LbcTmtAbilities.Ability> assign(net.minecraft.util.RandomSource random,ItemStack carrier,LbcTmtCatalog catalog,List<LbcTmtAbilities.Ability> draws){
@@ -96,7 +96,7 @@ public final class LbcTmtTriggers {
         return List.copyOf(result);
     }
     /** Structural serialization uses read(); native callbacks only see their selected private slots. */
-    static List<LbcTmtAbilities.Ability> effective(ItemStack stack){
+    public static List<LbcTmtAbilities.Ability> effective(ItemStack stack){
         var all=LbcTmtAbilities.read(stack);var selected=selection.get();
         String captured=ItemData.stringValue(stack,LbcTmtAbilities.ACTIVE,"");
         if(LbcTmtAbilities.active(stack)&&!captured.isEmpty())return all.stream().filter(a->a.id().equals(captured)).toList();
@@ -121,7 +121,7 @@ public final class LbcTmtTriggers {
     static void shot(ItemStack fired,List<LbcTmtAbilities.Ability> properties,Runnable callback){
         selected(fired,Action.SHOT,properties,()->{callback.run();return null;});
     }
-    static List<LbcTmtAbilities.Ability> nativeShotAbilities(ItemStack weapon){
+    public static List<LbcTmtAbilities.Ability> nativeShotAbilities(ItemStack weapon){
         var properties=LbcTmtAbilities.read(weapon);
         var current=selection.get();
         if(current!=null&&current.action==Action.SHOT&&sameSource(weapon,current.source))
@@ -132,7 +132,7 @@ public final class LbcTmtTriggers {
         return ability.inputs().get(action)==input;
     }
     public static void input(ServerPlayer owner,Input input){input(owner,input,null,null,null);}
-    static void hurtInput(ServerPlayer owner,DamageSource source){
+    public static void hurtInput(ServerPlayer owner,DamageSource source){
         input(owner,Input.HURT,source.getEntity(),null,null,null,LbcIncomingArtifacts.isReactiveBlast(source));
     }
     public static void useItemInput(ServerPlayer owner,InteractionHand hand){
@@ -143,7 +143,7 @@ public final class LbcTmtTriggers {
                 ||projectile.isRemoved()||projectile.getOwner()!=owner||owner.level().getEntity(projectile.getUUID())!=projectile)return;
         acceptedCarrier(owner,Input.THROW,hand,physical,source,null,null);
     }
-    static void consumed(ServerPlayer owner,ItemStack source){
+    public static void consumed(ServerPlayer owner,ItemStack source){
         if(!modern(source))return;
         var used=owner.getUsedItemHand();
         // Native instant consumption does not set the active hand. Check the actual stack identity.
@@ -270,7 +270,7 @@ public final class LbcTmtTriggers {
         else if(type==Items.CROSSBOW&&weapon.has(DataComponents.CHARGED_PROJECTILES)&&!weapon.get(DataComponents.CHARGED_PROJECTILES).isEmpty())weapon.getItem().use(owner.level(),owner,hand);
     }
     static int shotCharge(int ordinary){var current=selection.get();return current!=null&&current.action==Action.SHOT&&origin.get()!=Input.SHOT?20:ordinary;}
-    static void tick(GameController game){
+    public static void tick(GameController game){
         for(var owner:game.server().getPlayerList().getPlayers()){
             if(!game.items().tmt().admitted(owner)||game.items().timeStop().stopped(owner.level()))continue;
             boolean sneaking=owner.isShiftKeyDown();
@@ -292,7 +292,7 @@ public final class LbcTmtTriggers {
             if(text.startsWith(label(input)+" → "+actionLabel(action)+": "))return true;
         return false;
     }
-    static boolean canCycle(GameController game,ItemStack stack){
+    public static boolean canCycle(GameController game,ItemStack stack){
         return LbcTmtAbilities.read(stack).stream().anyMatch(a->LbcModeScroll.supports(game,LbcTmtComponents.source(game,a)));
     }
     public static boolean tryCycle(ServerPlayer owner,ItemStack stack,InteractionHand hand){

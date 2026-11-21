@@ -19,13 +19,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 
 /** Load the same UUID file as the native player list, with the old world path as a fallback. */
-record SavedAdvancements(Path current, Path legacy) {
-    static SavedAdvancements of(MinecraftServer server) {
+public record SavedAdvancements(Path current, Path legacy) {
+    public static SavedAdvancements of(MinecraftServer server) {
         return new SavedAdvancements(server.getWorldPath(LevelResource.PLAYER_ADVANCEMENTS_DIR),
                 server.getWorldPath(LevelResource.ROOT).resolve("advancements"));
     }
 
-    Entry read(UUID uuid) throws IOException {
+    public Entry read(UUID uuid) throws IOException {
         String name = uuid + ".json";
         var file = current.resolve(name);
         var original = readBytes(file);
@@ -52,10 +52,10 @@ record SavedAdvancements(Path current, Path legacy) {
         }
     }
 
-    record Entry(Path file, byte[] original, JsonObject data) {
+    public record Entry(Path file, byte[] original, JsonObject data) {
         private static final com.google.gson.Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-        AdvancementProgress progress(String id, AdvancementRequirements requirements) throws IOException {
+        public AdvancementProgress progress(String id, AdvancementRequirements requirements) throws IOException {
             var raw = data.get(id);
             var progress = raw == null ? new AdvancementProgress() : AdvancementProgress.CODEC.parse(JsonOps.INSTANCE, raw)
                     .result().orElseThrow(() -> new IOException("Invalid saved advancement " + id));
@@ -63,12 +63,12 @@ record SavedAdvancements(Path current, Path legacy) {
             return progress;
         }
 
-        void put(String id, AdvancementProgress progress) {
+        public void put(String id, AdvancementProgress progress) {
             if (progress.hasProgress()) data.add(id, AdvancementProgress.CODEC.encodeStart(JsonOps.INSTANCE, progress).getOrThrow());
             else data.remove(id);
         }
 
-        void save(PlayerStore profiles, boolean profileChanged) throws IOException {
+        public void save(PlayerStore profiles, boolean profileChanged) throws IOException {
             write((GSON.toJson(data) + "\n").getBytes(StandardCharsets.UTF_8));
             if (!profileChanged) return;
             try {

@@ -103,11 +103,11 @@ public final class LbcFoodLifecycle {
         if(data.getIntOr("halloween_chorus",0)==1)chorus(p);
         if(data.getIntOr("bad_apple",0)==1)badApple(p);
     }
-    void countTmtFood(ServerPlayer player,ItemStack stack){
+    public void countTmtFood(ServerPlayer player,ItemStack stack){
         if(admitted(player)&&countsAsFood(stack))game.items().mana().score(player,"food_count").add(1);
     }
     /** Capture after every private callback restored its counters, before the sole native debit. */
-    void finishTmtTraits(ServerPlayer player,ItemStack stack){
+    public void finishTmtTraits(ServerPlayer player,ItemStack stack){
         var frame=finishing.peek();
         if(frame!=null&&frame.player==player&&frame.stack==stack&&frame.retainTmt)frame.replacement=stack.copy();
     }
@@ -241,8 +241,8 @@ public final class LbcFoodLifecycle {
     public int actorCount(){return actors.size();}
 
     public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
-    static boolean cloneRecognizes(Entity actor){return actor instanceof Pumpkin;}
-    LbcCloneSkills.ActorImage cloneImage(Entity actor){
+    public static boolean cloneRecognizes(Entity actor){return actor instanceof Pumpkin;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity actor){
         if(!(actor instanceof Pumpkin pumpkin)||!live(pumpkin.accepted))return null;var accepted=pumpkin.accepted;
         return CloneComplexProjectileStates.image(level->new Pumpkin(level,accepted),clone->{actors.put(clone,accepted);causes.put(clone,accepted);},this::unloaded);
     }

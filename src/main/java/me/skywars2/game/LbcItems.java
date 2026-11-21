@@ -174,7 +174,7 @@ public final class LbcItems {
         reactiveArtifacts.damaged(victim,source);
     }
     /** The legacy player_hurt_entity criterion includes contacts whose HP damage was resisted. */
-    void outgoingHit(LivingEntity victim, DamageSource source) {
+    public void outgoingHit(LivingEntity victim, DamageSource source) {
         if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->LbcChaosRewardItems.damaged(game,victim,source));
         else LbcChaosRewardItems.damaged(game,victim,source);
         if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->{specialTools.melee(victim,source);cursedPumpkin.damaged(victim,source);});
@@ -197,7 +197,7 @@ public final class LbcItems {
         pendingSwords.damaged(victim,source);
     }
     /** Private item actions only: no fabricated damage receipt, player skill or kill event. */
-    void tmtMelee(ServerPlayer owner,LivingEntity victim,DamageSource source){
+    public void tmtMelee(ServerPlayer owner,LivingEntity victim,DamageSource source){
         if(!wands.projectileTarget(owner,victim,true))return;
         LbcChaosRewardItems.damaged(game,victim,source);specialTools.melee(victim,source);
         cursedPumpkin.damaged(victim,source);heldMeleeOwners(victim,source);heldMeleeTail(victim,source);
@@ -593,7 +593,7 @@ public final class LbcItems {
         return type.equalsIgnoreCase("rocket_armor") || type.equalsIgnoreCase("rocketarmor") || type.equalsIgnoreCase("rocket");
     }
 
-    void startRocketKit(ServerPlayer player) {
+    public void startRocketKit(ServerPlayer player) {
         var state=new RocketState(player);
         state.jumps=0;
         state.initialCharging=true;
@@ -684,16 +684,16 @@ public final class LbcItems {
         return state;
     }
 
-    Integer scriptRocketJumps(ServerPlayer player) {
+    public Integer scriptRocketJumps(ServerPlayer player) {
         var state = scriptRocketState(player);
         return state == null ? null : state.jumps;
     }
 
-    Integer scriptRocketCooldown(ServerPlayer player) {
+    public Integer scriptRocketCooldown(ServerPlayer player) {
         return scriptRocketState(player) == null ? null : rocketCooldownTicks(player);
     }
 
-    void scriptRocketJumps(ServerPlayer player, int count) {
+    public void scriptRocketJumps(ServerPlayer player, int count) {
         var state = scriptRocketState(player);
         if (state == null) return;
         state.jumps = Math.max(0, count);
@@ -707,7 +707,7 @@ public final class LbcItems {
         rocketHud(state);
     }
 
-    void scriptRocketCooldown(ServerPlayer player, int ticks) {
+    public void scriptRocketCooldown(ServerPlayer player, int ticks) {
         var state = scriptRocketState(player);
         if (state == null) return;
         scheduleRocketCharge(state, game.server().getTickCount(), Math.max(0, ticks));
@@ -886,9 +886,9 @@ public final class LbcItems {
                         : Component.translatable("ready").withStyle(ChatFormatting.GREEN));
     }
     /** One shared actionbar; observers with a player camera see that target's live HUD. */
-    void invalidateHud(ServerPlayer viewer) { hudStates.remove(viewer.getUUID()); }
+    public void invalidateHud(ServerPlayer viewer) { hudStates.remove(viewer.getUUID()); }
 
-    void refreshHud(ServerPlayer viewer) {
+    public void refreshHud(ServerPlayer viewer) {
         if(!LbcDimensionItems.ordinary(viewer)||game.lbc().hidesKnowledge(viewer)) { clearHud(viewer); return; }
         ServerPlayer source=viewer;
         if(game.isObserver(viewer)) {
@@ -1392,10 +1392,10 @@ public final class LbcItems {
     public String epoch() { return entityEpochTag; }
     public boolean currentEpoch(String value) { return entityEpochTag.equals(value); }
     public boolean currentEpoch(Entity entity) { return entity.entityTags().contains(entityEpochTag); }
-    boolean debugItemUseWindow() {
+    public boolean debugItemUseWindow() {
         return game.inLobby() || game.stage() == GameController.Stage.LOADING;
     }
-    boolean debugItemUseWindowOrCountdown() {
+    public boolean debugItemUseWindowOrCountdown() {
         return debugItemUseWindow() || game.stage() == GameController.Stage.COUNTDOWN;
     }
     public LbcClouds clouds() { return clouds; }
@@ -1407,9 +1407,9 @@ public final class LbcItems {
     public LbcBadApple badApple(){return badApple;}
     public LbcBridgeBuilder bridgeBuilder(){return bridgeBuilder;}
     public LbcImbaAxe imbaAxe(){return imbaAxe;}
-    LbcMellstroy mellstroy(){return mellstroy;}
-    LbcMellstroyCrafting mellstroyCrafting(){return mellstroyCrafting;}
-    LbcCunny cunny(){return cunny;}
+    public LbcMellstroy mellstroy(){return mellstroy;}
+    public LbcMellstroyCrafting mellstroyCrafting(){return mellstroyCrafting;}
+    public LbcCunny cunny(){return cunny;}
     public LbcCunnyTerrain cunnyTerrain(){return cunnyTerrain;}
     public LbcImbaTerrainUtilities imbaTerrainUtilities(){return imbaTerrainUtilities;}
     public LbcWhiteArrows whiteArrows(){return whiteArrows;}
@@ -1434,11 +1434,11 @@ public final class LbcItems {
     public LbcPhoenixSkill phoenix(){return phoenix;}
     public LbcCosmetics cosmetics(){return cosmetics;}
     /** Shared admitted terrain write for the existing native paint/cosmetic producers. */
-    boolean writeOwnedTerrain(ServerLevel level,net.minecraft.core.BlockPos pos,net.minecraft.world.level.block.state.BlockState wanted,LbcIndirectKills.Owner cause){
+    public boolean writeOwnedTerrain(ServerLevel level,net.minecraft.core.BlockPos pos,net.minecraft.world.level.block.state.BlockState wanted,LbcIndirectKills.Owner cause){
         return writeOwnedTerrain(level,pos,wanted,cause,false);
     }
     /** Strict source fills also suppress native on-place side effects such as powered TNT ignition. */
-    boolean writeOwnedTerrain(ServerLevel level,net.minecraft.core.BlockPos pos,net.minecraft.world.level.block.state.BlockState wanted,LbcIndirectKills.Owner cause,boolean strict){
+    public boolean writeOwnedTerrain(ServerLevel level,net.minecraft.core.BlockPos pos,net.minecraft.world.level.block.state.BlockState wanted,LbcIndirectKills.Owner cause,boolean strict){
         if(!level.hasChunkAt(pos)||!level.isInValidBounds(pos)||!LbcBedwarsRoleGuards.publication(level))return false;
         var arena=LbcBedwarsArena.at(level);if(arena!=null&&!arena.allowsType(level,pos,wanted))return false;
         indirectKills.capturedWorldChanges(level,cause,()->{
@@ -1576,8 +1576,8 @@ public final class LbcItems {
     public LbcRuby ruby() { return ruby; }
     public LbcConsuming consuming() { return consuming; }
     public LbcPrism prism() { return prism; }
-    LbcAwakenedAcid awakenedAcid() { return awakenedAcid; }
-    LbcErecto erecto() { return erecto; }
+    public LbcAwakenedAcid awakenedAcid() { return awakenedAcid; }
+    public LbcErecto erecto() { return erecto; }
     public LbcFartus fartus() { return fartus; }
     public LbcHalloweenWind halloweenWind() { return halloweenWind; }
     public LbcSoulhunter soulhunter() { return soulhunter; }
@@ -1667,20 +1667,20 @@ public final class LbcItems {
     public LbcWtf wtf() { return wtf; }
     public LbcBabylon babylon() { return babylon; }
     public LbcBabylonEffects babylonEffects() { return babylonEffects; }
-    LbcDefensiveArcanums defensiveArcanums() { return defensiveArcanums; }
-    LbcVoidArcanum voidArcanum() { return voidArcanum; }
+    public LbcDefensiveArcanums defensiveArcanums() { return defensiveArcanums; }
+    public LbcVoidArcanum voidArcanum() { return voidArcanum; }
     public void voidArcanumHandsSwapped(ServerPlayer player) { voidArcanum.handSwapped(player); }
-    LbcIceWand iceWand() { return iceWand; }
+    public LbcIceWand iceWand() { return iceWand; }
     LbcIceMaterials iceMaterials() { return iceMaterials; }
     public boolean iceCrystalHitbox(Entity target){return iceWand.clickable(target);}
     public net.minecraft.world.InteractionResult interactIceCrystal(ServerPlayer player,InteractionHand hand,Entity target,Vec3 hit){return iceWand.interact(player,hand,target,hit);}
     public boolean attackIceCrystal(ServerPlayer player,Entity target) { return iceWand.attack(player,target); }
-    LbcAcidCorruption acidCorruption() { return acidCorruption; }
+    public LbcAcidCorruption acidCorruption() { return acidCorruption; }
     public LbcCorruptedGlyphs corruptedGlyphs() { return corruptedGlyphs; }
-    LbcGaycasterAcademy gaycasterAcademy() { return gaycasterAcademy; }
+    public LbcGaycasterAcademy gaycasterAcademy() { return gaycasterAcademy; }
     public LbcAdvancedSnow advancedSnow() { return advancedSnow; }
     public LbcEnderWiki enderWiki() { return enderWiki; }
-    LbcLibraryRandom libraryRandom() { return libraryRandom; }
+    public LbcLibraryRandom libraryRandom() { return libraryRandom; }
     public LbcNeutral neutral() { return neutral; }
     public LbcBloodConfuse bloodConfuse() { return bloodConfuse; }
     public LbcEvokerBass evokerBass() { return evokerBass; }
@@ -1861,7 +1861,7 @@ public final class LbcItems {
     }
 
     /** Массовые заклинания затрагивают и лёгкие снаряды, у которых нет отдельной native entity. */
-    void transformSpellOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+    public void transformSpellOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
         kapusta.transformOrigins(level,transform);pumpkinator.transformOrigins(level,transform);
         danmaku.transformOrigins(level,transform);consuming.transformOrigins(level,transform);
         wands.transformOrigins(level,transform);
@@ -2030,7 +2030,7 @@ public final class LbcItems {
     public int pendingThrowCount() { return pendingThrows.size(); }
 
     /** Cast-тринкет использует тот же native TNT и трекер, что уже перенесённый динамит. */
-    void castWandDynamite(ServerPlayer player) {
+    public void castWandDynamite(ServerPlayer player) {
         // Высота тринкета не зависит от origin конкретного жезла или наклона взгляда.
         Vec3 position=player.getEyePosition().add(0,.5,0), direction=player.getLookAngle();
         var tnt=new PrimedTnt(player.level(),position.x,position.y,position.z,player);
@@ -2053,7 +2053,7 @@ public final class LbcItems {
 
     private static String newEntityEpochTag() { return "skywars2.items." + UUID.randomUUID(); }
 
-    boolean hasStaleItemEpoch(Entity entity) {
+    public boolean hasStaleItemEpoch(Entity entity) {
         if(LbcNexusTools.persistentCell(entity)||LbcNexusWires.persistentDrop(entity))return false;
         for (String tag : entity.entityTags()) {
             if (tag.startsWith("skywars2.items.") && !tag.equals(entityEpochTag)) return true;
@@ -2061,7 +2061,7 @@ public final class LbcItems {
         return false;
     }
 
-    void markCurrentItemEpoch(Entity entity) {
+    public void markCurrentItemEpoch(Entity entity) {
         entity.entityTags().add(entityEpochTag);
         spellSources.capture(entity);
     }
@@ -2244,7 +2244,7 @@ public final class LbcItems {
                 &&!wands.timeStopped()&&!player.isUsingItem();
     }
 
-    void twitchItemAction(ServerPlayer player,InteractionHand hand) {
+    public void twitchItemAction(ServerPlayer player,InteractionHand hand) {
         if(!acceptsMouseAction(player))return;
         var stack=player.getItemInHand(hand);
         if(!stack.isItemEnabled(player.level().enabledFeatures()))return;
@@ -2550,7 +2550,7 @@ public final class LbcItems {
     }
 
     /** Only gameplay counts/deadlines; published HUD caches and tick clocks are never incremented. */
-    void addPlayerCounters(ServerPlayer player) {
+    public void addPlayerCounters(ServerPlayer player) {
         addTurnCurse(player,1);
         var rocket=rockets.get(player.getUUID());
         if(rocket!=null) {
@@ -2562,7 +2562,7 @@ public final class LbcItems {
     }
 
     /** Pop-It removes only the turn curse; rotation history retains its existing match lifetime. */
-    void clearTurnCurse(ServerPlayer player) {
+    public void clearTurnCurse(ServerPlayer player) {
         turnCurses.remove(player.getUUID());
         mana.score(player,"skill_issue").set(0);
     }
@@ -2854,20 +2854,20 @@ public final class LbcItems {
     }
 
     /** Private resident state only; native attributes, inventory and scores remain canonical. */
-    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
-    void prepareResidentFrozen(){
+    public ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    public void prepareResidentFrozen(){
         genie.prepareResidentFrozen();
         turnCurses.clear();rotations.clear();rockets.clear();rechargingRockets.clear();nanoTraps.clear();originalNanoAttributes.clear();rocketCraftDrops.clear();
         tickBatch.clear();rocketBatch.clear();markerBatch.clear();nearbyTraps.clear();hudStates.clear();
     }
-    void publishResidentFrozen(){
+    public void publishResidentFrozen(){
         int now=game.server().getTickCount();
         for(var state:rockets.values())if(!state.retainedOffline&&state.restoredChargeDelay>=0){
             state.nextCharge=now+state.restoredChargeDelay;state.restoredChargeDelay=-1;
         }
         for(var player:game.server().getPlayerList().getPlayers())invalidateHud(player);
     }
-    final class ResidentCheckpoint {
+    public final class ResidentCheckpoint {
         private final me.skywars2.game.genie.GenieRuntime.Snapshot genieState=genie.runtime().snapshot();
         private record CurseImage(MatchDamageSources.Ref owner,int remaining){}
         private record RocketImage(MatchDamageSources.Ref owner,int jumps,boolean charging,long delay,boolean initialCharging){}
@@ -2884,7 +2884,7 @@ public final class LbcItems {
             traps=nanoTraps.stream().filter(e->!e.isRemoved()).map(links::key).toList();
             crafts=rocketCraftDrops.stream().filter(e->!e.isRemoved()).map(links::key).toList();
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var nextCurses=new HashMap<UUID,TurnCurse>();var nextRockets=new HashMap<UUID,RocketState>();var charging=new LinkedHashSet<RocketState>();
             for(var saved:curses){var player=(ServerPlayer)links.get(saved.owner);var value=new TurnCurse(player);value.remaining=saved.remaining;
                 value.retainedOffline=MatchOfflinePlayers.retained(player);nextCurses.put(player.getUUID(),value);}

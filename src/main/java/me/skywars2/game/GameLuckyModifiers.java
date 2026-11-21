@@ -9,7 +9,7 @@ public final class GameLuckyModifiers {
     private int current;
     private boolean committed;
 
-    GameLuckyModifiers(GameController game) {
+    public GameLuckyModifiers(GameController game) {
         this.game = game;
         syncConfig();
         // A saved scoreboard is not a live match. Never resurrect its previous category.
@@ -26,16 +26,16 @@ public final class GameLuckyModifiers {
     }
 
     public int current() { return current; }
-    record Checkpoint(int current, boolean committed) { }
-    Checkpoint checkpoint() { return new Checkpoint(current, committed); }
-    void restore(Checkpoint image) { current = image.current; committed = image.committed; }
+    public record Checkpoint(int current, boolean committed) { }
+    public Checkpoint checkpoint() { return new Checkpoint(current, committed); }
+    public void restore(Checkpoint image) { current = image.current; committed = image.committed; }
 
     /** Only LuckyWars resolves this selector. Other modes start neutral without consuming randomness. */
     public int startMatch() {
         return startMatch(game.gameMode());
     }
     /** Explicit startup context also permits isolated source-policy checks without opening a mode. */
-    int startMatch(int mode) {
+    public int startMatch(int mode) {
         if (committed) return current;
         if (mode == 2) return commit(game.config().luckyModifier);
         current = 1;

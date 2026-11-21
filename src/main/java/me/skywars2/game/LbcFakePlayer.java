@@ -144,7 +144,7 @@ public final class LbcFakePlayer implements PolymerEntity {
         return TypedEntityData.of(data.type(), payload);
     }
 
-    static void adopt(Entity actor, LivingEntity user, ItemStack egg) {
+    public static void adopt(Entity actor, LivingEntity user, ItemStack egg) {
         if (!matches(actor) || !matches(egg)) return;
         var name = egg.get(DataComponents.CUSTOM_NAME);
         capture((Villager) actor, name == null ? actor.getCustomName() : name, user instanceof ServerPlayer player ? player : null);
@@ -218,11 +218,11 @@ public final class LbcFakePlayer implements PolymerEntity {
     }
 
     // Package-visible snapshot query for server-side checks, never an accessible Mob container.
-    static ItemStack copiedSlot(Villager actor, int index) {
+    public static ItemStack copiedSlot(Villager actor, int index) {
         return PolymerEntity.get(actor) instanceof LbcFakePlayer fake ? fake.snapshot.slot(index).copy() : ItemStack.EMPTY;
     }
 
-    static int selectedSlot(Villager actor) {
+    public static int selectedSlot(Villager actor) {
         return PolymerEntity.get(actor) instanceof LbcFakePlayer fake ? fake.snapshot.selected() : -1;
     }
 

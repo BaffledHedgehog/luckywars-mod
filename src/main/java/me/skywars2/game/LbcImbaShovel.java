@@ -47,7 +47,7 @@ public final class LbcImbaShovel {
         return usedAt(owner,stack,owner.getEyePosition(),owner.getYRot(),owner.getXRot());
     }
     /** Accepted action pose stays fixed while its queued terrain work advances. */
-    boolean usedAt(ServerPlayer owner,ItemStack stack,Vec3 eye,float yaw,float pitch){
+    public boolean usedAt(ServerPlayer owner,ItemStack stack,Vec3 eye,float yaw,float pitch){
         if(!matches(stack)||!admitted(owner)||!policy.allowsActivation(owner))return false;
         game.items().stonekivi().queuedWork(new Stroke(owner,eye,yaw,pitch));return true;
     }

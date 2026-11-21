@@ -17,7 +17,7 @@ import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.ScoreboardSaveData;
 
 /** Native codec value image plus original identity handles; no replacement scoreboard. */
-final class MatchScoreboardCheckpoint {
+public final class MatchScoreboardCheckpoint {
     private record PlayerImage(Object original, Map<Objective, Score> scores) { }
     private final ServerScoreboard board;
     private final Tag packed;
@@ -26,7 +26,7 @@ final class MatchScoreboardCheckpoint {
     private final Map<String, PlayerImage> players = new LinkedHashMap<>();
     private final Set<Objective> tracked;
 
-    MatchScoreboardCheckpoint(MinecraftServer server) {
+    public MatchScoreboardCheckpoint(MinecraftServer server) {
         if (!server.isSameThread()) throw new IllegalStateException("Server thread required");
         board = server.getScoreboard();
         var access = (ScoreboardCheckpointAccess) board;
@@ -40,7 +40,7 @@ final class MatchScoreboardCheckpoint {
                 new PlayerImage(info, new LinkedHashMap<>(((ScoreboardCheckpointAccess.Player) info).skywars2$scores()))));
     }
 
-    void restore(MinecraftServer server) {
+    public void restore(MinecraftServer server) {
         if (!server.isSameThread() || server.getScoreboard() != board || !server.tickRateManager().isFrozen())
             throw new IllegalStateException("Restore the original scoreboard on a frozen server thread");
         var ops = server.registryAccess().createSerializationContext(NbtOps.INSTANCE);

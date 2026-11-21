@@ -5,10 +5,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
 /** Actual boss rewards, protected before publication rather than a delayed area search. */
-final class LbcBossLoot {
+public final class LbcBossLoot {
     private static final String TAG="skywars2.boss_reward";
     private LbcBossLoot(){}
-    static ItemEntity protect(ItemEntity item){
+    public static ItemEntity protect(ItemEntity item){
         // Entity has no public invulnerability setter in this target. One creation-time
         // native round trip preserves all stack/owner properties; no per-tick NBT work.
         var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,item.registryAccess());
@@ -18,5 +18,5 @@ final class LbcBossLoot {
         item.setGlowingTag(true);item.setUnlimitedLifetime();item.setDeltaMovement(Vec3.ZERO);
         return item;
     }
-    static boolean protectedReward(Entity entity){return entity instanceof ItemEntity&&entity.entityTags().contains(TAG);}
+    public static boolean protectedReward(Entity entity){return entity instanceof ItemEntity&&entity.entityTags().contains(TAG);}
 }

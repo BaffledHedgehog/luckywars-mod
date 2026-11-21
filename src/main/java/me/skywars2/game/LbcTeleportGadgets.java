@@ -31,7 +31,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Native teleport charges and accepted IMBA continuations share the existing map/work/checkpoint owners. */
 public final class LbcTeleportGadgets {
-    static final Identifier CHARGE_SOUND=Identifier.parse("minecraft:lbcsounds.swap_charge");
+    public static final Identifier CHARGE_SOUND=Identifier.parse("minecraft:lbcsounds.swap_charge");
     static final Identifier SUCCESS_SOUND=Identifier.parse("minecraft:lbcsounds.swap_go");
     static final String FAILURE_KEY="lbc.swapper.charge_failed";
     private final GameController game;
@@ -289,7 +289,7 @@ public final class LbcTeleportGadgets {
         }
     }
     public void checkpointBoundary(){if(advancing||callbacks!=0)throw new IllegalStateException("Finish teleport gadget callbacks before checkpoint");}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();var saved=frozen();var accepted=List.copyOf(pads);accepted.forEach(graph::capture);
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();var saved=frozen();var accepted=List.copyOf(pads);accepted.forEach(graph::capture);
         return links->()->{restoreFrozen(saved);pads.clear();pads.addAll(accepted);};}
     public void prepareFrozen(){checkpointBoundary();restoring=true;cancelChargesForRewind();imbaDelays.clear();pads.clear();}
     public void cancelFrozen(){checkpointBoundary();restoring=false;}

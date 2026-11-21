@@ -49,24 +49,24 @@ public final class LbcDropRequests {
         SkyWarsCommandTree.add(dispatcher, request);
     }
 
-    static String earnedKey(int id) {
+    public static String earnedKey(int id) {
         if (id < 1 || id > 3) throw new IllegalArgumentException("Request ID must be 1, 2 or 3");
         return "swrg:rewards/drop_" + id;
     }
 
-    static String fulfilledKey(int id) { return earnedKey(id) + "_requested"; }
+    public static String fulfilledKey(int id) { return earnedKey(id) + "_requested"; }
 
-    static List<Integer> pending(PlayerStore.Profile profile) {
+    public static List<Integer> pending(PlayerStore.Profile profile) {
         var result = new ArrayList<Integer>();
         for (int id = 1; id <= 3; id++)
             if (profile.legacyUnlocks.contains(earnedKey(id)) && !profile.legacyUnlocks.contains(fulfilledKey(id))) result.add(id);
         return List.copyOf(result);
     }
 
-    static boolean validName(String name) { return name != null && name.matches("[A-Za-z0-9_]{1,16}"); }
+    public static boolean validName(String name) { return name != null && name.matches("[A-Za-z0-9_]{1,16}"); }
 
     /** Resolve only existing canonical profiles; ambiguous historical names require correction first. */
-    static UUID resolve(Map<UUID, PlayerStore.Profile> profiles, String name) {
+    public static UUID resolve(Map<UUID, PlayerStore.Profile> profiles, String name) {
         if (!validName(name)) throw new IllegalArgumentException("Invalid player name");
         UUID found = null;
         for (var entry : profiles.entrySet()) if (name.equalsIgnoreCase(entry.getValue().username)) {

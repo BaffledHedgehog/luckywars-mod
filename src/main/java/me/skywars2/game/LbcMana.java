@@ -41,7 +41,7 @@ public final class LbcMana {
     public static final Item MANA_POTION=registerPotion("skywars2:mana_potion",Items.POTION);
     public static final Item MANA_SPLASH_POTION=registerPotion("skywars2:mana_splash_potion",Items.SPLASH_POTION);
     public static final Item MANA_LINGERING_POTION=registerPotion("skywars2:mana_lingering_potion",Items.LINGERING_POTION);
-    static final List<String> POTION_TIMERS=List.of("effect_boost_mana","effect_add_manamax","effect_add_manaregen","effect_add_mana","effect_remove_mana");
+    public static final List<String> POTION_TIMERS=List.of("effect_boost_mana","effect_add_manamax","effect_add_manaregen","effect_add_mana","effect_remove_mana");
     private static final int[] STAT_EFFECT_ORDER={3,1,2,4};
     private static final class Drink extends PotionItem implements PolymerItem {
         Drink(Properties p) { super(p); }
@@ -68,7 +68,7 @@ public final class LbcMana {
         return Registry.register(BuiltInRegistries.ITEM,key,proxy==Items.POTION ? new Drink(properties)
                 : proxy==Items.SPLASH_POTION ? new Splash(properties) : new Lingering(properties));
     }
-    static void register() { LbcOverload.register(); LbcTooltipScores.register(); }
+    public static void register() { LbcOverload.register(); LbcTooltipScores.register(); }
     private static final CompoundTag BELT=flag("manabelt"), MAGE=flag("mage"), OVERLOAD=flag("overload");
     private static final EquipmentSlot[] ARMOR={EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET};
     private static final int[] ARMOR_REGEN={4,6,7,4};
@@ -82,7 +82,7 @@ public final class LbcMana {
     private final Set<LivingEntity> pendingPotions=new LinkedHashSet<>();
     private final Set<LivingEntity> statEffects=new LinkedHashSet<>();
 
-    LbcMana(GameController game) { this.game=game; this.sourceConfig=new LbcSourceConfig(game.server()); this.overload=new LbcOverload(game,this); }
+    public LbcMana(GameController game) { this.game=game; this.sourceConfig=new LbcSourceConfig(game.server()); this.overload=new LbcOverload(game,this); }
     public LbcSourceConfig sourceConfig(){return sourceConfig;}
     /** Absence, rather than a numeric sentinel, distinguishes a new player's resource entries. */
     public void initializeResources(ServerPlayer player){
@@ -101,7 +101,7 @@ public final class LbcMana {
         var data=stack.get(DataComponents.CUSTOM_DATA); return !stack.isEmpty() && data!=null && data.matchedBy(flag);
     }
     /** Один bridge для ресурсов и кастомных таймеров; не создаёт отдельный account JSON на каждый тик. */
-    ScoreAccess score(net.minecraft.world.scores.ScoreHolder entity,String name) {
+    public ScoreAccess score(net.minecraft.world.scores.ScoreHolder entity,String name) {
         if(entity instanceof ServerPlayer player)initializeResources(player);
         var board=game.server().getScoreboard(); var objective=board.getObjective(name);
         if(objective==null) objective=board.addObjective(name,LbcWitchStatistics.criterion(name),Component.literal(name),ObjectiveCriteria.RenderType.INTEGER,false,null);
@@ -139,7 +139,7 @@ public final class LbcMana {
     }
     private final java.util.Map<ServerPlayer,LbcIndirectKills.Owner> reverseOwners=new java.util.WeakHashMap<>();
     /** A repeated plague is a new player action; duration-only extensions retain the old cause. */
-    void applyReverse(ServerPlayer owner,ServerPlayer target,int seconds){
+    public void applyReverse(ServerPlayer owner,ServerPlayer target,int seconds){
         if(seconds<=0||game.items().magic().rejectCustomDebuff(target))return;
         reverse(target,(int)Math.min(Integer.MAX_VALUE,(long)reverse(target)+seconds));
         reverseOwners.put(target,game.items().indirectKills().wildCause(owner));
@@ -163,14 +163,14 @@ public final class LbcMana {
         set(p,0);
     }
 
-    void setPotionCounter(ServerPlayer player, String name, int ticks) {
+    public void setPotionCounter(ServerPlayer player, String name, int ticks) {
         if (ticks > 0 && (game.items().magic().rejectCustomEffect(player)
                 || name.equals("effect_remove_mana") && LbcParasite.active(player))) return;
         write(player, name, Math.max(0, ticks));
         if (ticks > 0) statEffects.add(player);
     }
     /** Active potion timers are native player counters, separate from mana resources. */
-    void addPlayerCounters(ServerPlayer player) {
+    public void addPlayerCounters(ServerPlayer player) {
         if(game.items().magic().rejectCustomEffect(player)) return;
         for(String name:POTION_TIMERS) {
             int remaining=hudValue(player,name);
@@ -253,7 +253,7 @@ public final class LbcMana {
         return p.isAlive() && !p.isRemoved() && p.level()==game.maps().level() && !p.entityTags().contains("spectator")
                 && (!(p instanceof ServerPlayer player) || visible(player));
     }
-    void consumePotion(LivingEntity p) {
+    public void consumePotion(LivingEntity p) {
         if(!pendingPotions.contains(p) || !effectActor(p) || p.entityTags().contains("time_stopped")) return;
         if(p instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) {
             clearEffects(p); p.removeEffect(MobEffects.RAID_OMEN); return;
@@ -271,7 +271,7 @@ public final class LbcMana {
         p.removeEffect(MobEffects.RAID_OMEN);
     }
     /** Permanent resource changes run before regen. Only the destructive potion pauses under Greed. */
-    void tickPotions(LivingEntity p) {
+    public void tickPotions(LivingEntity p) {
         if(game.items().polymorph().masked(p))return;
         if(!statEffects.contains(p) || !effectActor(p) || p.entityTags().contains("time_stopped")) return;
         if(p instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) { clearEffects(p); return; }
@@ -299,7 +299,7 @@ public final class LbcMana {
         if(roll<=8) score(p,"manamax").add(-1000);
         if(roll<=6) score(p,"manaregen").add(-1);
     }
-    void loaded(LivingEntity p) {
+    public void loaded(LivingEntity p) {
         if(p instanceof ServerPlayer player)initializeResources(player);
         if(LbcParasite.active(p))clearDebuffs(p);
         effectsChanged(p);
@@ -332,7 +332,7 @@ public final class LbcMana {
         }
         return result;
     }
-    void tickPlayer(ServerPlayer p) {
+    public void tickPlayer(ServerPlayer p) {
         if(game.items().polymorph().masked(p))return;
         game.items().bolts().observeStatus(p);
         if(LbcParasite.active(p))clearDebuffs(p);
@@ -376,13 +376,13 @@ public final class LbcMana {
         set(p,mana);
         game.items().indirectKills().manaRecovered(p);
     }
-    void hitRegeneration(ServerPlayer p) {
+    public void hitRegeneration(ServerPlayer p) {
         int gain=(int)Math.max(Integer.MIN_VALUE,Math.min(Integer.MAX_VALUE,(long)regeneration(p)*70));
         if(reverse(p)<=0)regenerate(p,gain);
         game.items().armorSets().nyauwu().refreshSpeed(p);
     }
     /** Source void resistance returns players below y=0 to y=320, then spends one second. */
-    void voidProtectionSecond(ServerPlayer p) {
+    public void voidProtectionSecond(ServerPlayer p) {
         int remaining=hudValue(p,"void_resistance");
         if(remaining<=0||!visible(p)||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(p.level())
                 ||game.items().timeStop().frozen(p)||p.entityTags().contains("time_stopped")||LbcGreed.active(p))return;
@@ -390,7 +390,7 @@ public final class LbcMana {
         score(p,"void_resistance").set(remaining-1);
         award(p,"lbc:true_advancements/potions/effect_void_resistance");
     }
-    void secondPlayer(ServerPlayer p) {
+    public void secondPlayer(ServerPlayer p) {
         voidProtectionSecond(p);
         if(visible(p) && !p.entityTags().contains("time_stopped")) {
             if(reverse(p)>0) reverse(p,reverse(p)-1);
@@ -399,13 +399,13 @@ public final class LbcMana {
                 award(p,"lbc:true_advancements/potions/effect_no_magic");
         }
     }
-    void award(LivingEntity entity,String id) {
+    public void award(LivingEntity entity,String id) {
         if(!(entity instanceof ServerPlayer p)) return;
         var advancement=game.server().getAdvancements().get(net.minecraft.resources.Identifier.parse(id));
         if(advancement!=null && !p.getAdvancements().getOrStartProgress(advancement).isDone())
             for(String criterion:advancement.value().criteria().keySet()) p.getAdvancements().award(advancement,criterion);
     }
-    void tick() {
+    public void tick() {
         if(game.balanceLegacy())return;
         for(var p:game.server().getPlayerList().getPlayers()) {
             tickPlayer(p);
@@ -417,13 +417,13 @@ public final class LbcMana {
         }
     }
     /** Source HUD содержит glyph/числа, без языковой подписи; literal section-sign separators сохранены. */
-    // Upkeep uses the stored base rate; the plague flips only the applied and displayed rate.
+    public // Upkeep uses the stored base rate; the plague flips only the applied and displayed rate.
     int effectiveRegeneration(ServerPlayer p) {
         int value=hudValue(p,"manaregen_visual");
         return reverse(p)>0?(int)Math.max(Integer.MIN_VALUE,Math.min(Integer.MAX_VALUE,-(long)value)):value;
     }
 
-    int activeRegeneration(ServerPlayer player) {
+    public int activeRegeneration(ServerPlayer player) {
         return !game.balanceLegacy() && active(player) && noMagic(player) == 0
                 ? effectiveRegeneration(player) : 0;
     }
@@ -460,13 +460,13 @@ public final class LbcMana {
         int value=hudValue(p,objective); if(value<=0) return;
         hud.append(Component.literal("  "+glyph+" ")).append(Component.literal(Integer.toString(value)).withStyle(color));
     }
-    void forget(ServerPlayer p) { write(p,"falltimer",0); gear.remove(p.getUUID()); dirty.remove(p.getUUID()); clearEffects(p); overload.reset(p); }
-    void stop() {
+    public void forget(ServerPlayer p) { write(p,"falltimer",0); gear.remove(p.getUUID()); dirty.remove(p.getUUID()); clearEffects(p); overload.reset(p); }
+    public void stop() {
         gear.clear(); dirty.clear(); pendingPotions.clear(); reverseOwners.clear();
         for(var p:List.copyOf(statEffects)) for(String timer:POTION_TIMERS) write(p,timer,0);
         statEffects.clear(); for(var p:game.server().getPlayerList().getPlayers()) { write(p,"falltimer",0); clearEffects(p); overload.reset(p); }
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof LivingEntity living)||source instanceof ServerPlayer)return null;
         boolean pending=pendingPotions.contains(living),stats=statEffects.contains(living);
         var timers=CloneRemainingStatusStates.scores(game,source,POTION_TIMERS.subList(1,POTION_TIMERS.size()));

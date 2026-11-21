@@ -8,11 +8,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 
 /** Shared source display-object movement; callers own contacts, actors and lifetime. */
-final class LbcPhysicalObjects {
+public final class LbcPhysicalObjects {
     private LbcPhysicalObjects(){}
-    @FunctionalInterface interface Segment { boolean stop(Vec3 from,Vec3 to); }
+    @FunctionalInterface
+    public interface Segment { boolean stop(Vec3 from,Vec3 to); }
     /** Both callbacks run before movement. Return true to retain the caller's contact position/velocity. */
-    static void step(Entity actor,double halfExtent,double bounce,double friction,double airFriction,
+    public static void step(Entity actor,double halfExtent,double bounce,double friction,double airFriction,
             Segment beforeClip,Segment beforeMove){
         var level=(ServerLevel)actor.level();var velocity=actor.getDeltaMovement().add(0,-.08,0);
         int n=Math.max(1,(int)Math.ceil(Math.max(Math.abs(velocity.x),Math.max(Math.abs(velocity.y),Math.abs(velocity.z)))/.5));

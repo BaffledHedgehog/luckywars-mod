@@ -47,10 +47,10 @@ public final class GenieCombat {
     private static final Map<DamageSource, Weapon> MELEE = new WeakHashMap<>();
     private static final Map<ServerPlayer, Weapon> SPINS = new WeakHashMap<>();
 
-    record SpinImage(String epoch, InteractionHand hand, ItemStack snapshot) {}
+    public record SpinImage(String epoch, InteractionHand hand, ItemStack snapshot) {}
 
     private GenieCombat() {}
-    static void register() {}
+    public static void register() {}
 
     public static void beganMelee(ServerPlayer owner, InteractionHand hand, ItemStack stack, DamageSource source) {
         if (!GenieRuntime.matches(stack)) return;
@@ -78,12 +78,12 @@ public final class GenieCombat {
         if (game != null) SPINS.put(owner, capture(game, owner, hand, stack, stack));
     }
 
-    static SpinImage checkpointSpin(ServerPlayer owner, ItemStack stack) {
+    public static SpinImage checkpointSpin(ServerPlayer owner, ItemStack stack) {
         var weapon = spinWeapon(owner, stack);
         return weapon == null ? null : new SpinImage(weapon.epoch(), weapon.hand(), weapon.snapshot().copy());
     }
 
-    static void restoreSpin(ServerPlayer owner, SpinImage image, ItemStack stack) {
+    public static void restoreSpin(ServerPlayer owner, SpinImage image, ItemStack stack) {
         clearSpin(owner);
         if (image == null || stack == null || stack.isEmpty()) return;
         SPINS.put(owner, new Weapon(owner.getUUID(), image.epoch(), image.hand() == InteractionHand.OFF_HAND,
@@ -95,7 +95,7 @@ public final class GenieCombat {
         return stack != null && owner.isAutoSpinAttack() && weapon != null && weapon.physical().get() == stack ? weapon : null;
     }
 
-    static void launched(GameController game, ServerPlayer owner, InteractionHand hand, ItemStack physical,
+    public static void launched(GameController game, ServerPlayer owner, InteractionHand hand, ItemStack physical,
                          ItemStack snapshot, Iterable<? extends Entity> bodies) {
         if (!GenieRuntime.matches(snapshot)) return;
         var weapon = capture(game, owner, hand, physical, snapshot);
@@ -108,18 +108,18 @@ public final class GenieCombat {
         return body instanceof TraceableEntity trace ? trace.getOwner() == owner : LbcBouncingPoop.thrownBy(body, owner);
     }
 
-    static void castProjectile(GameController game, ServerPlayer owner, Projectile shot, ItemStack stack) {
+    public static void castProjectile(GameController game, ServerPlayer owner, Projectile shot, ItemStack stack) {
         if (!stack.isEmpty()) shot.setAttached(SPELL, new Weapon(owner.getUUID(), game.items().epoch(), false, stack.copyWithCount(1)));
     }
 
     // A spell effect can carry enchants without admitting a second input event for the same script.
-    static ItemStack spellWeapon(DamageSource source) {
+    public static ItemStack spellWeapon(DamageSource source) {
         if (!(source.getEntity() instanceof ServerPlayer owner)
                 || !(source.getDirectEntity() instanceof Projectile shot) || shot.getOwner() != owner) return ItemStack.EMPTY;
         return spellWeapon(shot, owner);
     }
 
-    static ItemStack spellWeapon(Projectile shot, ServerPlayer owner) {
+    public static ItemStack spellWeapon(Projectile shot, ServerPlayer owner) {
         var weapon = acceptedSpellWeapon(shot,owner);
         return weapon == null ? ItemStack.EMPTY : weapon.snapshot().copy();
     }
@@ -131,12 +131,12 @@ public final class GenieCombat {
         return game != null && weapon.epoch().equals(game.items().epoch()) ? weapon : null;
     }
 
-    static void inheritSpellWeapon(Projectile parent, Projectile child, ServerPlayer owner) {
+    public static void inheritSpellWeapon(Projectile parent, Projectile child, ServerPlayer owner) {
         var weapon=acceptedSpellWeapon(parent,owner);
         if (weapon!=null) child.setAttached(SPELL,weapon);
     }
 
-    static void accepted(GameController game, LivingEntity victim, DamageSource actual) {
+    public static void accepted(GameController game, LivingEntity victim, DamageSource actual) {
         var source = LbcIndirectKills.originalDamage(actual);
         if (!(source.getEntity() instanceof ServerPlayer owner) || actual.getEntity() != owner) return;
         Entity body = source.getDirectEntity();

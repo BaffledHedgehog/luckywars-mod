@@ -25,7 +25,7 @@ public final class LbcGreed {
             }
         }
     }
-    static net.minecraft.world.phys.EntityHitResult firstHit(net.minecraft.server.level.ServerLevel level,net.minecraft.world.phys.Vec3 from,net.minecraft.world.phys.Vec3 to,double padding) {
+    public static net.minecraft.world.phys.EntityHitResult firstHit(net.minecraft.server.level.ServerLevel level,net.minecraft.world.phys.Vec3 from,net.minecraft.world.phys.Vec3 to,double padding) {
         net.minecraft.world.phys.EntityHitResult nearest=null; double distance=Double.POSITIVE_INFINITY;
         for(var player:level.players()) if(active(player) && player.isAlive()) {
             var box=player.getBoundingBox().inflate(padding);

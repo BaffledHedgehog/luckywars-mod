@@ -99,27 +99,27 @@ public final class LbcTimeStop {
     }
     private record Hit(LivingEntity target,ServerLevel level,DamageSource source,float amount,String epoch) { }
 
-    LbcTimeStop(GameController game) { this.game=game; }
+    public LbcTimeStop(GameController game) { this.game=game; }
     public boolean stopped(ServerLevel level) { return stops.containsKey(level); }
-    int remaining(ServerLevel level) { return stops.getOrDefault(level,0); }
-    int cooldownTicks(ServerPlayer player) {
+    public int remaining(ServerLevel level) { return stops.getOrDefault(level,0); }
+    public int cooldownTicks(ServerPlayer player) {
         return cooldownTicks(new ClockHolder(player.getUUID(),Clock.STAND));
     }
-    int ordinaryCooldownTicks(ServerPlayer player) {
+    public int ordinaryCooldownTicks(ServerPlayer player) {
         return cooldownTicks(new ClockHolder(player.getUUID(),Clock.ORDINARY));
     }
     private int cooldownTicks(ClockHolder holder) {
         var cooldown=cooldowns.get(holder);return cooldown==null?0:cooldown.ticks;
     }
-    void reduceSourceCooldown(ServerPlayer player,int seconds) {
+    public void reduceSourceCooldown(ServerPlayer player,int seconds) {
         var holder=new ClockHolder(player.getUUID(),Clock.ORDINARY);
         int ticks=cooldownTicks(holder), current=(int)(((long)ticks+19)/20);
         int remaining=(int)Math.clamp((long)ticks-((long)current-seconds)*20,0,Integer.MAX_VALUE);
         if(remaining==0)cooldowns.remove(holder);
         else cooldowns.computeIfAbsent(holder, key->new Cooldown(player.level(),0)).ticks=remaining;
     }
-    int pendingDamageCount() { return hits.values().stream().mapToInt(ArrayDeque::size).sum(); }
-    void addPlayerCounters(ServerPlayer player) {
+    public int pendingDamageCount() { return hits.values().stream().mapToInt(ArrayDeque::size).sum(); }
+    public void addPlayerCounters(ServerPlayer player) {
         addPlayerCooldown(player,Clock.ORDINARY,20);
         addPlayerCooldown(player,Clock.STAND,1);
     }
@@ -128,7 +128,7 @@ public final class LbcTimeStop {
         cooldown.ticks=(int)Math.min(Integer.MAX_VALUE,(long)cooldown.ticks+ticks);
     }
 
-    static boolean isOrdinaryClock(ItemStack stack) {
+    public static boolean isOrdinaryClock(ItemStack stack) {
         return ItemData.intValue(stack,"time_stopper",0)==1 && ItemData.intValue(stack,"magicwand",0)==1
                 && ItemData.intValue(stack,"spellwithcooldown",0)==1;
     }
@@ -143,7 +143,7 @@ public final class LbcTimeStop {
         return useClock(player,hand,Clock.STAND);
     }
 
-    boolean useOrdinaryClock(ServerPlayer player,InteractionHand hand) {
+    public boolean useOrdinaryClock(ServerPlayer player,InteractionHand hand) {
         return useClock(player,hand,Clock.ORDINARY);
     }
 
@@ -184,7 +184,7 @@ public final class LbcTimeStop {
     }
 
     /** Продление не переснимает нулевой Motion и не нормализует повторно очередь scheduled ticks. */
-    void begin(ServerLevel level,int ticks) {
+    public void begin(ServerLevel level,int ticks) {
         if(rewinding!=null)throw new IllegalStateException("Finish the Time Stop checkpoint transaction before starting a stop");
         if(ticks<=0) throw new IllegalArgumentException("Time stop duration must be positive");
         boolean first=!stopped(level);
@@ -341,7 +341,7 @@ public final class LbcTimeStop {
                 data.belowZeroRetrogen(),data.upgradeData(),Map.of(),data.packedTicks(),data.postProcessingSections(),
                 false,data.sectionData(),data.entities(),data.blockEntities(),data.structureData());
     }
-    int contactCount() { return contactLeases.size(); }
+    public int contactCount() { return contactLeases.size(); }
     private int presentationFuse() { return 32000-Math.floorMod(game.server().getTickCount(),1000); }
     public List<SynchedEntityData.DataValue<?>> tntPresentation(Entity entity,List<SynchedEntityData.DataValue<?>> values) {
         if(!(entity instanceof PrimedTnt) || !frozen(entity)) return values;
@@ -368,7 +368,7 @@ public final class LbcTimeStop {
             player.connection.resetPosition(); player.connection.resetFlyingTicks();
         }
     }
-    void end(ServerLevel level) {
+    public void end(ServerLevel level) {
         if(stops.remove(level)==null) return;
         ordinaryStops.remove(level);
         // Presentation may precede the body's first frozen physics tick (join/immunity loss).
@@ -442,7 +442,7 @@ public final class LbcTimeStop {
             if(System.nanoTime()>=deadline) break;
         }
     }
-    void forget(ServerPlayer player) {
+    public void forget(ServerPlayer player) {
         TimeStopView.clear(player);
         var state=frozen.remove(player); if(state!=null) restore(player,state);
         exemptions.remove(player);
@@ -450,7 +450,7 @@ public final class LbcTimeStop {
         cooldowns.remove(new ClockHolder(player.getUUID(),Clock.STAND));
         for(var casters:touhouCasters.values())casters.remove(player.getUUID());
     }
-    void stop() {
+    public void stop() {
         rewinding=null; // Match/service cancellation must not leave the next stop permanently gated.
         // Match/epoch cancellation restores physics but must not replay an old stop's presentation.
         trails.clear();
@@ -460,8 +460,8 @@ public final class LbcTimeStop {
     }
 
     /** Independent private-state image. Body values and native tick payloads stay with canonical owners. */
-    Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
+    public final class Checkpoint {
         private record Lease(ServerLevel level,BlockPos pos,BlockState previous,int holders) { }
         private record Cell(ServerLevel level,BlockPos pos,int lease) { }
         private record Body(MatchDamageSources.Ref ref,Class<?> type,ServerLevel level,Vec3 position,Vec3 velocity,float yaw,float pitch,boolean noGravity,int corrected,int presented,int lease) { }
@@ -502,7 +502,7 @@ public final class LbcTimeStop {
             if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)||requireFrozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Time Stop checkpoints require the same stable match/native thread and a frozen restore");
         }
         /** FIRST phase: before canonical terrain ticks and actor/player bodies. Never end()/thaw/replay. */
-        void prepareFrozen(){
+        public void prepareFrozen(){
             stable(true);if(rewinding!=null||replaying!=null)throw new IllegalStateException("Time Stop checkpoint transaction already active");clocks.validate();validateContacts();
             for(var lease:leases)chunk(lease); // Entire loaded-contact preflight precedes writes.
             rewinding=this;
@@ -516,7 +516,7 @@ public final class LbcTimeStop {
         }
         private int stamp(int saved){return saved==Integer.MIN_VALUE?saved:saved+(game.server().getTickCount()-tick);}
         /** LAST link phase. Missing player/actor UUIDs defer the WHOLE install without losing hits. */
-        Set<UUID> finishFrozen(java.util.function.Function<UUID,Entity> lookup){
+        public Set<UUID> finishFrozen(java.util.function.Function<UUID,Entity> lookup){
             stable(true);if(rewinding!=this)throw new IllegalStateException("Prepare this Time Stop image before restoring its links");clocks.validate();
             var pending=new java.util.LinkedHashSet<UUID>();sources.missing(lookup,pending);
             var resolved=new HashMap<MatchDamageSources.Ref,Entity>();
@@ -547,7 +547,7 @@ public final class LbcTimeStop {
             return Set.of();
         }
         /** A cancelled partial transaction still needs its caller's trusted baseline restore before resume. */
-        void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel a checkpoint on its frozen native server thread");if(rewinding==this)rewinding=null;}
+        public void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel a checkpoint on its frozen native server thread");if(rewinding==this)rewinding=null;}
     }
     private void validateContacts(){
         var holders=new IdentityHashMap<Contact,Integer>();for(var state:frozen.values())if(state.contact!=null)holders.merge(state.contact,1,Integer::sum);

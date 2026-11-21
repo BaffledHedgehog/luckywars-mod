@@ -91,7 +91,7 @@ public final class LbcProjectileLevelups {
             EntityTypes.WIND_CHARGE,EntityTypes.BREEZE_WIND_CHARGE);
     public static boolean gravityBody(Entity e){return e instanceof Projectile || GRAVITY_TYPES.contains(e.getType());}
     /** Use actual native control, never a summoned mob's or trap's statistical kill author. */
-    Entity projectileOwner(Entity e){
+    public Entity projectileOwner(Entity e){
         return game.items().spellSources().projectileController(e);
     }
     /** Loaded admission also covers direct addFreshEntity producers and late native ownership. */

@@ -138,8 +138,8 @@ public final class LbcFunnyTnt {
         actor.body=(Marker)body;family.put(body.getUUID(),(Marker)body);game.items().timeStop().prepareFrozen(body);
     }
     public void unloaded(Entity body){if(sourceMarker(body))family.remove(body.getUUID());}
-    static boolean cloneRecognizes(Entity body){return managed(body);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity body){return managed(body);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var original=actors.get(source.getUUID());if(original==null)return null;
         long age=original.age,pulses=original.pulses,writes=original.writes,random=original.random;
         Vec3 sourcePose=source.position(),fillOrigin=original.pending==null?null:original.pending.origin;
@@ -157,7 +157,7 @@ public final class LbcFunnyTnt {
     public void prepareFrozen(){checkpointBoundary();restoring=true;actors.clear();family.clear();fills.clear();}
     public void publishFrozen(){checkpointBoundary();restoring=false;lastTick=game.server().getTickCount();}
     public void cancelFrozen(){stop();}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
         checkpointBoundary();record Saved(Actor actor,MatchDamageSources.Ref body,Marker inactiveBody,long age,long pulses,long writes,long random,Fill pending){}
         // Region-owned unloaded markers have no captured native body to resolve. Keep their
         // inactive identity and scalar continuation; the normal UUID load hook rebinds them.

@@ -130,22 +130,22 @@ public final class AttributeHud {
     }
 
     // Package-private методы дают GameChecks доступ к реальному состоянию этой панели.
-    boolean shown(ServerPlayer player) {
+    public boolean shown(ServerPlayer player) {
         State state = states.get(player.getUUID());
         return state != null && state.shown;
     }
 
-    int idleTicks(ServerPlayer player) {
+    public int idleTicks(ServerPlayer player) {
         State state = states.get(player.getUUID());
         return state == null ? 0 : state.idleTicks;
     }
 
-    List<Component> displayedLines(ServerPlayer player) {
+    public List<Component> displayedLines(ServerPlayer player) {
         State state = states.get(player.getUUID());
         return state == null || !state.shown ? List.of() : List.copyOf(state.lines);
     }
 
-    List<String> displayedAttributeKeys(ServerPlayer player) {
+    public List<String> displayedAttributeKeys(ServerPlayer player) {
         State state = states.get(player.getUUID());
         if (state == null || !state.shown || state.snapshot == null) return List.of();
         List<String> result = new ArrayList<>();
@@ -155,7 +155,7 @@ public final class AttributeHud {
         return List.copyOf(result);
     }
 
-    boolean displays(ServerPlayer player, Holder<Attribute> holder) {
+    public boolean displays(ServerPlayer player, Holder<Attribute> holder) {
         State state = states.get(player.getUUID());
         if (state == null || !state.shown || state.snapshot == null) return false;
         for (int i = 0; i < attributes.size(); i++) {

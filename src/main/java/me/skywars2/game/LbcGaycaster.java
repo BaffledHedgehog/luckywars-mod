@@ -28,14 +28,14 @@ import net.minecraft.world.scores.ScoreHolder;
 import java.util.List;
 
 /** Ordinary source ray: local colour state, shared resident CPU queue and existing effect owners. */
-final class LbcGaycaster {
+public final class LbcGaycaster {
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<Block> FIRE_AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs_to_fire"));
     private static final net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> MOBS=
             TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final String[] CRITERIA={"r","o","y","g","c","b","p"};
     private LbcGaycaster(){}
-    static boolean target(GameController game,ServerPlayer owner,Entity entity){
+    public static boolean target(GameController game,ServerPlayer owner,Entity entity){
         return entity instanceof LivingEntity&&entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,entity)
                 &&!game.items().magic().suppressedAt(owner.level(),entity.position())
                 &&!entity.entityTags().contains("nomagic_active");
@@ -52,22 +52,22 @@ final class LbcGaycaster {
         cast(game,owner);
         game.items().wands().wandCasted(owner);return true;
     }
-    static void cast(GameController game,ServerPlayer owner){
+    public static void cast(GameController game,ServerPlayer owner){
         Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle();
         LbcOverload.sound(owner,origin,"minecraft:lbcsounds.laser_mg_shot",1,0,0);
         LbcOverload.sound(owner,origin,"minecraft:item.trident.return",1,0,0);
         // Sample cursor belongs to this cast, including simultaneous hands and different casters.
         game.items().exasperato().replayableSpell(owner,origin,direction,125,new LbcRainbowRay(game,owner,origin,direction,0,0));
     }
-    static int hue(double distance){return (-20+5*Mth.floor((distance+1e-6)*2))%360;}
-    static DustParticleOptions dust(int hue,float size){return new DustParticleOptions(Mth.hsvToRgb(Math.floorMod(hue,360)/360f,.75f,1),size);}
+    public static int hue(double distance){return (-20+5*Mth.floor((distance+1e-6)*2))%360;}
+    public static DustParticleOptions dust(int hue,float size){return new DustParticleOptions(Mth.hsvToRgb(Math.floorMod(hue,360)/360f,.75f,1),size);}
     /** Source boundary overlaps are retained: block red320..329 and blue/purple278. */
     static boolean band(int hue,int color,boolean block){
         return switch(color){case 0->hue>=0&&hue<=20||hue>=(block?320:330)&&hue<=359;
             case 1->hue>=21&&hue<=72;case 2->hue>=73&&hue<=124;case 3->hue>=125&&hue<=175;
             case 4->hue>=176&&hue<=226;case 5->hue>=227&&hue<=278;case 6->hue>=278&&hue<=329;default->false;};
     }
-    static void impact(GameController game,ServerPlayer owner,Vec3 point,Vec3 direction,int hue,LivingEntity direct){
+    public static void impact(GameController game,ServerPlayer owner,Vec3 point,Vec3 direction,int hue,LivingEntity direct){
         if(game.items().magic().suppressedAt(owner.level(),point))return;
         var nearby=direct==null?owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(1.5),
                 e->e.position().distanceToSqr(point)<=2.25&&target(game,owner,e)):
@@ -125,10 +125,10 @@ final class LbcGaycaster {
         }
         owner.level().sendParticles(dust(hue,2),true,false,point.x,point.y,point.z,20,.3,.3,.3,0);
     }
-    static DamageSource damage(ServerPlayer owner,net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){
+    public static DamageSource damage(ServerPlayer owner,net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){
         return new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner);
     }
-    static void particles(ServerPlayer owner,net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double x,double y,double z,double speed){
+    public static void particles(ServerPlayer owner,net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double x,double y,double z,double speed){
         owner.level().sendParticles(particle,true,false,point.x,point.y,point.z,count,x,y,z,speed);
     }
 }

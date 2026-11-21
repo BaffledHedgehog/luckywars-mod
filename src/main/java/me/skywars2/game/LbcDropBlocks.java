@@ -18,22 +18,22 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /** Native fill semantics shared by terrain drops; each source fill keeps its own updates. */
-final class LbcDropBlocks {
+public final class LbcDropBlocks {
     private LbcDropBlocks() { }
 
     private static final int STRICT = Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
     private static final int DEFERRED = Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
     /** Same flags, neighbour-shape resolution and deferred updates as native /fill replace. */
-    static void fill(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict) {
+    public static void fill(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict) {
         fill(level, from, to, block, strict, state -> true);
     }
     /** Source replace predicates share the same fill limits and native update semantics. */
-    static void fill(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict,
+    public static void fill(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict,
             Predicate<BlockState> replace) {
         fill(level, from, to, block, strict, replace, false);
     }
 
-    static void fillPreservingInventory(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict) {
+    public static void fillPreservingInventory(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict) {
         fill(level, from, to, block, strict, state -> true, true);
     }
 
@@ -59,16 +59,16 @@ final class LbcDropBlocks {
     }
 
     /** Native /setblock has no fill-volume gamerule check, even for a one-cell write. */
-    static void setBlock(ServerLevel level, BlockPos pos, BlockState state, boolean strict) {
+    public static void setBlock(ServerLevel level, BlockPos pos, BlockState state, boolean strict) {
         setBlock(level, pos, state, strict, false);
     }
 
-    static void setBlockPreservingInventory(ServerLevel level, BlockPos pos, BlockState state, boolean strict) {
+    public static void setBlockPreservingInventory(ServerLevel level, BlockPos pos, BlockState state, boolean strict) {
         setBlock(level, pos, state, strict, true);
     }
 
     /** For gameplay that uses native setBlock flags directly instead of command shape resolution. */
-    static boolean setBlockPreservingInventory(ServerLevel level, BlockPos pos, BlockState state, int flags) {
+    public static boolean setBlockPreservingInventory(ServerLevel level, BlockPos pos, BlockState state, int flags) {
         var contents = inventoryAt(level, pos, level.getBlockState(pos));
         try { return level.setBlock(pos, state, flags); }
         finally { if (contents != null) contents.dropIfRemoved(level); }
@@ -90,7 +90,7 @@ final class LbcDropBlocks {
         finally { if (contents != null) contents.dropIfRemoved(level); }
     }
 
-    static ContainerReplacement inventoryAt(ServerLevel level, BlockPos pos, BlockState state) {
+    public static ContainerReplacement inventoryAt(ServerLevel level, BlockPos pos, BlockState state) {
         if (!state.hasBlockEntity()) return null;
         var block = level.getBlockEntity(pos);
         return block instanceof Container || block instanceof CampfireBlockEntity || block instanceof LecternBlockEntity
@@ -98,8 +98,8 @@ final class LbcDropBlocks {
     }
 
     /** Keeps the original native block entity until the write commits. Its lazy loot is still unopened. */
-    record ContainerReplacement(BlockPos position, BlockState state, BlockEntity entity) {
-        void dropIfRemoved(ServerLevel level) {
+    public record ContainerReplacement(BlockPos position, BlockState state, BlockEntity entity) {
+        public void dropIfRemoved(ServerLevel level) {
             if (!entity.isRemoved()) return;
             if (entity instanceof ShulkerBoxBlockEntity) {
                 // Native block loot stores the original slots and unopened loot metadata in the box itself.

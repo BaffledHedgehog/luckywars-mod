@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 
 /** Essential sustained auras. All accepted terrain fills finish before capture; native values stay canonical. */
-final class MatchAuraCheckpoint {
+public final class MatchAuraCheckpoint {
     private final GameController game;
     private final String epoch;
     private final MatchSpellCheckpoint.Links links;
@@ -20,12 +20,12 @@ final class MatchAuraCheckpoint {
     private Set<UUID> pendingOwners=Set.of();
 
     /** Real current bodies only. A player still in its login world waits for its canonical player image. */
-    static ServerPlayer current(GameController game,UUID id,ServerLevel level){
+    public static ServerPlayer current(GameController game,UUID id,ServerLevel level){
         var player=game.server().getPlayerList().getPlayer(id);
         return player!=null&&!player.isRemoved()&&player.level()==level?player:null;
     }
 
-    MatchAuraCheckpoint(GameController game,MatchDamageSources sources){
+    public MatchAuraCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);
         if(game.items().blaze().terrainCount()!=0||game.items().kiuas().queuedBlockCount()!=0||game.items().tanner().queuedBlockCount()!=0)
             throw new IllegalStateException("Finish original Blaze/Kiuas/Sun/Tanner fills before taking aura essentials");
@@ -48,12 +48,12 @@ final class MatchAuraCheckpoint {
         game.items().spellSources().checkpointBoundary();
     }
     /** Rollback only. No source curse, native blaze, charge counter or held aura is stopped. */
-    void prepareFrozen(){
+    public void prepareFrozen(){
         stable(true);blaze.resetReplay();kiu.resetReplay();tanner.resetReplay();
         game.items().blaze().prepareAuraFrozen();game.items().kiuas().prepareAuraFrozen();game.items().tanner().prepareAuraFrozen();
         prepared=true;installed=false;published=false;pendingOwners=Set.of();
     }
-    Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){
+    public Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){
         stable(true);if(!prepared)prepareFrozen();if(!installed){var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;}
         var fire=blaze.prepare(links);var sun=kiu.prepare(links);var earth=tanner.prepare(links);
         fire.run();sun.run();earth.run();installed=true;published=false;
@@ -61,7 +61,7 @@ final class MatchAuraCheckpoint {
         pendingOwners=Set.copyOf(owners);return pendingOwners;
     }
     /** Rebuild completed spatial coverage without enqueuing or executing any fill or activation. */
-    Set<UUID> publishFrozen(){
+    public Set<UUID> publishFrozen(){
         stable(true);if(published)return pendingOwners;if(!installed)throw new IllegalStateException("Install aura essentials before spatial publication");
         game.items().blaze().publishAuraFrozen();game.items().kiuas().publishAuraFrozen();game.items().tanner().publishAuraFrozen();
         prepared=!pendingOwners.isEmpty();published=true;return pendingOwners;

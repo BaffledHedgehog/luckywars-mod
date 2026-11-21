@@ -22,7 +22,7 @@ public final class LbcKillButton {
             LbcUtilityItemPrototypes.properties("skywars2:kill_button","/data/lbc/loot_table/item_defs/lbc/kill_button__37566676de11.json",Items.SNOWBALL,16)));
     private LbcKillButton(){}
     public static void register(){}
-    static boolean matches(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"kill_rand",0)==1;}
+    public static boolean matches(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"kill_rand",0)==1;}
     private static boolean admitted(GameController game,ServerPlayer owner){
         return game.playing()&&game.stage()!=GameController.Stage.ENDING&&!game.maps().busy()
                 &&owner.isAlive()&&!owner.isRemoved()&&!owner.isSpectator()&&!game.isObserver(owner)

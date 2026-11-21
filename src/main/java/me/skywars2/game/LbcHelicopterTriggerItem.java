@@ -22,7 +22,7 @@ public final class LbcHelicopterTriggerItem {
     public static final Item TOKEN = create();
     private LbcHelicopterTriggerItem() { }
 
-    static void register() {
+    public static void register() {
         DefaultItemComponentEvents.MODIFY.register(context -> context.modify(TOKEN,
                 builder -> builder.set(DataComponents.ITEM_MODEL, Identifier.parse("lbc:drop_boss"))));
     }

@@ -69,7 +69,7 @@ public final class LbcLaserMinigun {
             this.origin=origin; this.yaw=yaw; this.pitch=pitch;
         }
     }
-    LbcLaserMinigun(GameController game) { this.game=game; }
+    public LbcLaserMinigun(GameController game) { this.game=game; }
     public static void register() { }
     private static CompoundTag flag() { var flag=new CompoundTag(); flag.putInt("laser_minigun",1); return flag; }
     private static Item registerItem() {
@@ -224,8 +224,8 @@ public final class LbcLaserMinigun {
                 position.x,position.y,position.z,count,0,0,0,.3);
     }
     /** Legacy main-hand ^-.3 ^-.2 ^.5; the already-correct offhand mirrors only lateral offset. */
-    static Vec3 muzzle(ServerPlayer owner) { return muzzle(owner,InteractionHand.MAIN_HAND); }
-    static Vec3 muzzle(ServerPlayer owner,InteractionHand hand) {
+    public static Vec3 muzzle(ServerPlayer owner) { return muzzle(owner,InteractionHand.MAIN_HAND); }
+    public static Vec3 muzzle(ServerPlayer owner,InteractionHand hand) {
         // Use the actual command basis, including its native Mth angle quantization at steep pitch.
         return new net.minecraft.commands.arguments.coordinates.LocalCoordinates(
                 hand==InteractionHand.MAIN_HAND?-.3:.3,-.2,.5)
@@ -288,7 +288,7 @@ public final class LbcLaserMinigun {
     }
     public void purify(ServerPlayer owner) { state(owner).spread=0; }
     /** KFC increments source counters even when there is no currently scheduled spool tick. */
-    void addPlayerCounters(ServerPlayer owner) {
+    public void addPlayerCounters(ServerPlayer owner) {
         var state=state(owner); state.spin++; state.grace++; state.sound++; state.spread++; state.shots++;
     }
     public int spin(ServerPlayer owner) { var state=states.get(owner.getUUID()); return state==null?0:state.spin; }
@@ -305,8 +305,8 @@ public final class LbcLaserMinigun {
                 && path.length()==15 && path.charAt(14)>='1' && path.charAt(14)<='8' ? path.charAt(14)-'0' : 1;
     }
     public int visualCount() { return beams.size(); }
-    record BeamView(Vec3 origin,float yaw,float pitch,double length,int life) { }
-    List<BeamView> beamSnapshot() {
+    public record BeamView(Vec3 origin,float yaw,float pitch,double length,int life) { }
+    public List<BeamView> beamSnapshot() {
         return beams.stream().map(beam->new BeamView(beam.origin,beam.yaw,beam.pitch,beam.lengthScale/2,beam.life)).toList();
     }
     public void forget(ServerPlayer owner) {

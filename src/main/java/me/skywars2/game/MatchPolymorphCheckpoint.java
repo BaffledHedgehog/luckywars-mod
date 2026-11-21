@@ -5,7 +5,7 @@ import java.util.function.Function;
 import net.minecraft.world.entity.Entity;
 
 /** Essential reversible forms; separate per-form links let offline humans wait without stopping other players. */
-final class MatchPolymorphCheckpoint {
+public final class MatchPolymorphCheckpoint {
     private final GameController game;
     private final LbcPolymorph service;
     private final String epoch;
@@ -14,7 +14,7 @@ final class MatchPolymorphCheckpoint {
     private final Set<LbcPolymorph.FormCheckpoint> installed=Collections.newSetFromMap(new IdentityHashMap<>());
     private Set<UUID> pending=Set.of();
     private boolean prepared;
-    MatchPolymorphCheckpoint(GameController game,MatchDamageSources sources){
+    public MatchPolymorphCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;service=game.items().polymorph();epoch=game.items().epoch();stable(false);
         forms=service.checkpointForms(sources);transientActors=service.transientCheckpointActors();installed.addAll(forms);prepared=true;
     }

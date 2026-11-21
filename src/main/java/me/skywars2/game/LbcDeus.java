@@ -227,8 +227,8 @@ public final class LbcDeus {
     public void reset(ServerPlayer player){game.items().mana().score(player,CLOCK).set(0);frames.remove(player.getUUID());}
     public void forget(ServerPlayer player){reset(player);}
     public void stop(){for(var player:game.server().getPlayerList().getPlayers())reset(player);frames.clear();}
-    List<Vec3> snapshotLastPath(ServerPlayer player){var f=frames.get(player.getUUID());return f==null?List.of():f.path;}
-    List<UUID> snapshotLastHits(ServerPlayer player){var f=frames.get(player.getUUID());return f==null?List.of():f.hits;}
-    Map<UUID,Vec3> snapshotLastTangents(ServerPlayer player){var f=frames.get(player.getUUID());return f==null?Map.of():f.tangents;}
-    List<UUID> snapshotLastAccepted(ServerPlayer player){var f=frames.get(player.getUUID());return f==null?List.of():f.accepted;}
+    public List<Vec3> snapshotLastPath(ServerPlayer player){var f=frames.get(player.getUUID());return f==null?List.of():f.path;}
+    public List<UUID> snapshotLastHits(ServerPlayer player){var f=frames.get(player.getUUID());return f==null?List.of():f.hits;}
+    public Map<UUID,Vec3> snapshotLastTangents(ServerPlayer player){var f=frames.get(player.getUUID());return f==null?Map.of():f.tangents;}
+    public List<UUID> snapshotLastAccepted(ServerPlayer player){var f=frames.get(player.getUUID());return f==null?List.of():f.accepted;}
 }

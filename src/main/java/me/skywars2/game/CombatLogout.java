@@ -12,7 +12,7 @@ public final class CombatLogout {
     private static final Map<ServerPlayer,UUID> active=new IdentityHashMap<>();
     private CombatLogout() { }
     public static boolean active(ServerPlayer player){return active.containsKey(player);}
-    static UUID killer(ServerPlayer player){return active.get(player);}
+    public static UUID killer(ServerPlayer player){return active.get(player);}
     public static void recordAbsorbedHit(ServerPlayer player, DamageSource source) {
         var game = SkyWars2.game();
         if (game != null && game.allowDamage(player)) {
@@ -20,7 +20,7 @@ public final class CombatLogout {
         }
     }
 
-    static void forfeit(GameController game,ServerPlayer player){
+    public static void forfeit(GameController game,ServerPlayer player){
         if(active(player)||!game.allowDamage(player)||!player.isAlive()||player.isRemoved())return;
         var hit=game.items().indirectKills().logoutHit(player);if(hit==null)return;
         active.put(player,hit.player());

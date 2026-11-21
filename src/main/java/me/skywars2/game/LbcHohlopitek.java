@@ -109,16 +109,16 @@ public final class LbcHohlopitek {
         }
     }
     private int completing;private boolean advancing;
-    void checkpointBoundary(){if(completing!=0||advancing)throw new IllegalStateException("Finish bomber callbacks before checkpoint");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(completing!=0||advancing)throw new IllegalStateException("Finish bomber callbacks before checkpoint");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Integer> phaseImage;
         final Map<LbcExasperato.RayTicket,MatchDamageSources.Ref> requests=new LinkedHashMap<>();
         @SuppressWarnings("unchecked") Checkpoint(MatchSpellCheckpoint.Links links){
             phaseImage=new MatchSpellCheckpoint.IdentityImage<>((IdentityHashMap<ServerPlayer,Integer>)phases,links);
             rays.forEach((ticket,owner)->requests.put(ticket,links.key(owner)));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var restored=phaseImage.restore(links);var pending=new LinkedHashMap<LbcExasperato.RayTicket,ServerPlayer>();
             requests.forEach((ticket,ref)->pending.put(ticket,(ServerPlayer)links.get(ref)));
             return ()->{phases.clear();phases.putAll(restored);rays.clear();rays.putAll(pending);};

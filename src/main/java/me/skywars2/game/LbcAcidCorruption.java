@@ -45,7 +45,7 @@ import net.minecraft.world.scores.ScoreHolder;
 import java.util.*;
 
 /** Native hard-acid emitters and the source delayed-death counter, without marker scans. */
-final class LbcAcidCorruption {
+public final class LbcAcidCorruption {
     static final EntityType<Charge> TYPE=registerType();
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final DustColorTransitionOptions BALL=new DustColorTransitionOptions(0x030003,0x03660d,4);
@@ -54,16 +54,16 @@ final class LbcAcidCorruption {
             MobEffects.INSTANT_DAMAGE,MobEffects.MINING_FATIGUE,MobEffects.NAUSEA,MobEffects.POISON,MobEffects.SLOWNESS,
             MobEffects.UNLUCK,MobEffects.WEAKNESS,MobEffects.WITHER);
     private static final int[] DURATIONS={200,400,600,1,600,600,200,400,600,400,200},AMPLIFIERS={0,0,10,0,10,0,3,2,100,1,4};
-    static void register(){}
+    public static void register(){}
     private static EntityType<Charge> registerType(){
         var key=ResourceKey.create(Registries.ENTITY_TYPE,Identifier.parse("skywars2:hard_acid"));
         var type=Registry.register(BuiltInRegistries.ENTITY_TYPE,key,EntityType.Builder.<Charge>of(Charge::new,MobCategory.MISC)
                 .sized(.1f,.1f).clientTrackingRange(4).updateInterval(1).build(key));
         PolymerEntityUtils.registerType(type);return type;
     }
-    static final class Charge extends Projectile implements PolymerEntity {
-        boolean ball;int age;
-        LbcIndirectKills.Owner terrainCause;
+    public static final class Charge extends Projectile implements PolymerEntity {
+        public boolean ball;public int age;
+        public LbcIndirectKills.Owner terrainCause;
         Charge(EntityType<? extends Charge> type,Level level){super(type,level);}
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder){}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
@@ -78,9 +78,9 @@ final class LbcAcidCorruption {
     private final GameController game;
     private final Set<Charge> charges=new LinkedHashSet<>();
     private final Map<LivingEntity,LbcIndirectKills.Owner> deaths=new WeakHashMap<>();
-    LbcAcidCorruption(GameController game){this.game=game;}
-    List<Charge> snapshot(){return List.copyOf(charges);}
-    boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
+    public LbcAcidCorruption(GameController game){this.game=game;}
+    public List<Charge> snapshot(){return List.copyOf(charges);}
+    public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();int mode=Mth.clamp(data.getIntOr("mode",1),1,4);
@@ -109,7 +109,7 @@ final class LbcAcidCorruption {
         rayAt(owner,mode,owner.getEyePosition(),owner.getLookAngle());
     }
     /** Reverse intentionally resolves at the owner; other helper rays use the detached pose. */
-    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 from,Vec3 direction){
+    public void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 from,Vec3 direction){
         if(mode==2){sacrifice(owner);return;}
         rayAt(owner,mode,from,direction.normalize());
     }
@@ -138,12 +138,12 @@ final class LbcAcidCorruption {
             game.items().mana().applyReverse(owner,target,30);
     }
     private boolean wild(Entity e){return game.items().wands().validTarget(e)&&!game.items().magic().suppressedAt((ServerLevel)e.level(),e.position());}
-    Charge spawn(ServerPlayer owner,Vec3 at,boolean ball){
+    public Charge spawn(ServerPlayer owner,Vec3 at,boolean ball){
         var c=new Charge(TYPE,owner.level());c.setOwner(owner);c.ball=ball;c.setPos(at);c.setDeltaMovement(ball?Vec3.ZERO:new Vec3(0,-.5,0));
         c.entityTags().addAll(List.of(ball?"hard_acid_ball":"hard_acid","slowraycast",game.items().epoch()));
         game.items().timeStop().prepareFrozen(c);if(!owner.level().addFreshEntity(c))c.discard();return c;
     }
-    void sacrifice(ServerPlayer owner){
+    public void sacrifice(ServerPlayer owner){
         double health=0;var victims=new ArrayList<LivingEntity>();
         owner.level().getAllEntities().forEach(e->{if(e instanceof LivingEntity l&&!(e instanceof ServerPlayer)&&game.items().wands().validTarget(e)&&(owner.isAlliedTo(e)||LbcWtf.managed(e)&&game.items().summons().friendly(owner,e)))victims.add(l);});
         for(var victim:victims){
@@ -157,7 +157,7 @@ final class LbcAcidCorruption {
         int duration=(int)Math.min(Integer.MAX_VALUE,Math.floor(health/10)*20);
         if(duration>0)owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,duration,4),owner);
     }
-    void flight(Charge c){
+    public void flight(Charge c){
         if(c.isRemoved())return;var level=(ServerLevel)c.level();
         if(!(c.getOwner() instanceof ServerPlayer owner)||!owner.isAlive()||owner.isRemoved()||!game.canUseGameplayItems(owner)
                 ||!game.items().currentEpoch(c)||!level.hasChunkAt(c.blockPosition())){c.discard();return;}
@@ -195,12 +195,12 @@ final class LbcAcidCorruption {
     }
     private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e);}
     void debuff(ServerPlayer owner,LivingEntity target,int index){target.addEffect(ItemEffectLevels.create(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]),owner);}
-    void adoptRawFoodStatuses(ServerPlayer player){
+    public void adoptRawFoodStatuses(ServerPlayer player){
         if(deathRemaining(player)>0&&!deaths.containsKey(player)&&!game.items().magic().rejectCustomDebuff(player))
             deaths.put(player,game.items().indirectKills().wildCause(player));
     }
-    int deathRemaining(LivingEntity target){return Math.max(0,game.items().mana().hudValue(target,"delayed_death"));}
-    void applyDeath(ServerPlayer owner,LivingEntity target,int seconds){
+    public int deathRemaining(LivingEntity target){return Math.max(0,game.items().mana().hudValue(target,"delayed_death"));}
+    public void applyDeath(ServerPlayer owner,LivingEntity target,int seconds){
         if(!recordDeath(target,seconds,game.items().indirectKills().wildCause(owner),false))return;
         target.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,20,0),owner);
         if(target instanceof ServerPlayer p)for(int i=0;i<4;i++)p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
@@ -209,13 +209,13 @@ final class LbcAcidCorruption {
         var at=target.position();((ServerLevel)target.level()).sendParticles(new DustParticleOptions(0x2a4957,1),true,false,at.x,at.y+4,at.z,100,.3,4,.3,0);
     }
     /** Source poison arrow assigns its scaled marker duration to the existing seconds counter. */
-    void arrowDeath(LivingEntity target,int seconds,LbcIndirectKills.Owner cause){recordDeath(target,seconds,cause,true);}
+    public void arrowDeath(LivingEntity target,int seconds,LbcIndirectKills.Owner cause){recordDeath(target,seconds,cause,true);}
     private boolean recordDeath(LivingEntity target,int seconds,LbcIndirectKills.Owner cause,boolean replace){
         if(seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         game.items().mana().score(target,"delayed_death").set(replace?seconds:(int)Math.min(Integer.MAX_VALUE,(long)deathRemaining(target)+seconds));
         deaths.put(target,cause);return true;
     }
-    void tick(){
+    public void tick(){
         for(var entry:List.copyOf(deaths.entrySet())){
             var target=entry.getKey();if(target==null||game.items().polymorph().masked(target))continue;if(!target.isAlive()||target.isRemoved()||deathRemaining(target)==0){clear(target);continue;}
             if(target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p)){clear(target);continue;}
@@ -226,13 +226,13 @@ final class LbcAcidCorruption {
             else if(target instanceof ServerPlayer p&&(remaining-1)%10==0)p.sendSystemMessage(Component.translatable("delayed_death").append(Integer.toString(remaining-1)).append(Component.translatable("delayed_death_2")).withStyle(net.minecraft.ChatFormatting.DARK_RED));
         }
     }
-    void clear(LivingEntity target){deaths.remove(target);game.items().mana().score(target,"delayed_death").set(0);}
-    void loaded(Entity e){if(e instanceof Charge c){c.entityTags().remove("magic");c.entityTags().remove("mecha");if(game.playing()&&game.items().currentEpoch(c))charges.add(c);else c.discard();}}
-    void unloaded(Entity e){if(e instanceof Charge c)charges.remove(c);}
-    void forget(ServerPlayer owner){clear(owner);for(var c:List.copyOf(charges))if(c.getOwner()==owner)c.discard();}
-    void stop(){for(var target:List.copyOf(deaths.keySet()))clear(target);for(var c:List.copyOf(charges))c.discard();charges.clear();}
+    public void clear(LivingEntity target){deaths.remove(target);game.items().mana().score(target,"delayed_death").set(0);}
+    public void loaded(Entity e){if(e instanceof Charge c){c.entityTags().remove("magic");c.entityTags().remove("mecha");if(game.playing()&&game.items().currentEpoch(c))charges.add(c);else c.discard();}}
+    public void unloaded(Entity e){if(e instanceof Charge c)charges.remove(c);}
+    public void forget(ServerPlayer owner){clear(owner);for(var c:List.copyOf(charges))if(c.getOwner()==owner)c.discard();}
+    public void stop(){for(var target:List.copyOf(deaths.keySet()))clear(target);for(var c:List.copyOf(charges))c.discard();charges.clear();}
 
-    LbcCloneSkills.ActorImage cloneStatusImage(Entity actor) {
+    public LbcCloneSkills.ActorImage cloneStatusImage(Entity actor) {
         if(!(actor instanceof LivingEntity living)||!deaths.containsKey(living))return null;
         var cause=deaths.get(living);int remaining=deathRemaining(living);
         return new LbcCloneSkills.ActorImage() {

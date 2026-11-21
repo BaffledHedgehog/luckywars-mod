@@ -61,18 +61,18 @@ public final class LbcStone {
                 .sized(.1f,.1f).clientTrackingRange(8).updateInterval(1).build(key));
         PolymerEntityUtils.registerType(type); return type;
     }
-    static void register() { }
+    public static void register() { }
     /** Нативный Projectile хранит owner и velocity, поэтому электроотражение не требует адаптера. */
     public static final class Charge extends Projectile implements PolymerEntity {
-        int age;
-        int lifetime=200;
+        public int age;
+        public int lifetime=200;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
         @Override public boolean shouldBeSaved() { return false; }
         @Override public boolean isPushedByFluid() { return false; }
     }
-    LbcStone(GameController game) { this.game=game; }
+    public LbcStone(GameController game) { this.game=game; }
     /** DFU и чтение NBT прогреваются при загрузке ресурсов, а не при первом попадании в бою. */
     public void prepare() {
         var templates=game.server().getStructureTemplateManager();
@@ -80,15 +80,15 @@ public final class LbcStone {
         templates.get(SPIKES);
     }
     public int count() { return charges.size(); }
-    List<Charge> snapshot() { return List.copyOf(charges); }
-    void loaded(Entity entity) {
+    public List<Charge> snapshot() { return List.copyOf(charges); }
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
                     || !(charge.getOwner() instanceof ServerPlayer))) charge.discard();
             else charges.add(charge);
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof Charge charge) {
             charges.remove(charge);
             if(!charge.isRemoved()) charge.discard();
@@ -106,7 +106,7 @@ public final class LbcStone {
             default -> ray(owner,mode==4);
         }
     }
-    boolean scriptCast(ServerPlayer owner, Vec3 origin, Vec3 aim, int mode) {
+    public boolean scriptCast(ServerPlayer owner, Vec3 origin, Vec3 aim, int mode) {
         var level = sourceLevel(owner);
         if (!game.canUseGameplayItems(owner) || level != game.maps().level()) return false;
         if (mode == 2 && game.items().magic().suppressedAt(level, owner.getEyePosition())) return false;
@@ -152,7 +152,7 @@ public final class LbcStone {
         sourceLevel(owner).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BEDROCK.defaultBlockState()),
                 owner.getX(),owner.getY()+1,owner.getZ(),30,.3,.6,.4,0);
     }
-    void ray(ServerPlayer owner,boolean spike) {rayAt(owner,owner.getEyePosition(),owner.getLookAngle(),spike);}
+    public void ray(ServerPlayer owner,boolean spike) {rayAt(owner,owner.getEyePosition(),owner.getLookAngle(),spike);}
     private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction,boolean spike) {
         Vec3 end=from.add(direction.scale(150));
         double boundary=game.items().magic().suppressionFraction(sourceLevel(owner),from,end);
@@ -173,7 +173,7 @@ for(double step=0;step<=distance;step+=.5) {
                 && (!(hit instanceof BlockHitResult wall) || sourceLevel(owner).hasChunkAt(wall.getBlockPos()))) impact(owner,end,spike);
     }
     /** Проверка по всему отрезку за тик; частота частиц не задаёт геометрию попадания. */
-    void tick() {
+    public void tick() {
         batch.addAll(charges);
         try {
             for(var charge:batch) {

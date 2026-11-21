@@ -21,7 +21,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 /** Native case transaction and source strip owner. Draft: no public exposure before qualification. */
-final class LbcCases {
+public final class LbcCases {
     private static final Gson JSON = new Gson();
     private static final String[] ROOTS = {"case0/main", "case1/select", "case2/select", "case3/select", "case4/select"};
     private static final int[] COINS = {0, 20, 50, 100, 1000};
@@ -32,22 +32,22 @@ final class LbcCases {
     private record Decoded(String serialized, Pending pending) {}
     private final Map<UUID, Decoded> decoded = new HashMap<>();
 
-    LbcCases(GameController game) { this.game = game; }
+    public LbcCases(GameController game) { this.game = game; }
 
     /** Complete native token descriptor; no serialized ItemStack/NBT or live server references. */
-    record Token(String table, long seed, int output, String family, int value, int tier) {}
-    record Payout(String unlock, int coins, int memcoins, String message, boolean manualClaim) {}
-    record Pending(int version, int kind, List<Token> strip, int phase, int timer,
+    public record Token(String table, long seed, int output, String family, int value, int tier) {}
+    public record Payout(String unlock, int coins, int memcoins, String message, boolean manualClaim) {}
+    public record Pending(int version, int kind, List<Token> strip, int phase, int timer,
                    Payout payout, boolean paid) {
-        Pending { strip = List.copyOf(strip); }
+        public Pending { strip = List.copyOf(strip); }
     }
-    record View(int kind, int page, int phase, int timer, List<ItemStack> strip,
+    public record View(int kind, int page, int phase, int timer, List<ItemStack> strip,
                 int winnerSlot, boolean paid) {}
 
-    boolean hasPending(ServerPlayer player) { return !profile(player).casePending.isEmpty(); }
+    public boolean hasPending(ServerPlayer player) { return !profile(player).casePending.isEmpty(); }
 
     /** A repeated click resumes the existing opening regardless of which case was clicked. */
-    boolean open(ServerPlayer player, int kind) {
+    public boolean open(ServerPlayer player, int kind) {
         if (kind < 0 || kind >= ROOTS.length || !game.canUseMenus(player)
                 || game.vanity().blocked(player) || game.items().timeStop().stopped(player.level())) return false;
         if (hasPending(player)) { hydrate(player, read(player)); active.add(player.getUUID()); return true; }
@@ -79,7 +79,7 @@ final class LbcCases {
     }
 
     /** Exactly one invocation per server tick; UI refresh never advances this owner. */
-    void tick() {
+    public void tick() {
         for (UUID id : List.copyOf(active)) {
             var player = game.server().getPlayerList().getPlayer(id);
             if (player == null) { active.remove(id); icons.remove(id); decoded.remove(id); continue; }
@@ -150,7 +150,7 @@ final class LbcCases {
     }
 
     /** Nine source backing slots0..8, mapped by GameMenus to menu9..17. Pure cache read. */
-    View renderView(ServerPlayer player) {
+    public View renderView(ServerPlayer player) {
         if (!hasPending(player)) return null;
         var state = read(player);
         var cached = icons.get(player.getUUID());
@@ -164,7 +164,7 @@ final class LbcCases {
         return new View(state.kind(),5100+100*state.kind(),state.phase(),state.timer(),List.copyOf(visible),2,state.paid());
     }
 
-    void onJoin(ServerPlayer player) {
+    public void onJoin(ServerPlayer player) {
         var profile = profile(player);
         var before = new MatchValueSnapshot(profile);
         try {
@@ -174,16 +174,16 @@ final class LbcCases {
         if (hasPending(player)) { hydrate(player,read(player)); active.add(player.getUUID()); }
     }
 
-    void onLeave(ServerPlayer player) { active.remove(player.getUUID()); icons.remove(player.getUUID()); decoded.remove(player.getUUID()); }
+    public void onLeave(ServerPlayer player) { active.remove(player.getUUID()); icons.remove(player.getUUID()); decoded.remove(player.getUUID()); }
 
     /** Invoke after whole coordinator restored profiles AND native tags/advancements/RNG. */
-    void restored() {
+    public void restored() {
         active.clear(); icons.clear(); decoded.clear();
         for (var player : game.server().getPlayerList().getPlayers()) restored(player);
     }
 
     /** Delayed rollback login already restored canonical ownership; never import future tags. */
-    void restored(ServerPlayer player) {
+    public void restored(ServerPlayer player) {
         active.remove(player.getUUID()); icons.remove(player.getUUID()); decoded.remove(player.getUUID());
         LbcSourceUnlocks.publish(player,profile(player));
         if (hasPending(player)) { hydrate(player,read(player)); active.add(player.getUUID()); }
@@ -308,7 +308,7 @@ final class LbcCases {
         };
     }
     private static int range(int n,int max,int tier) { if(n<1||n>max)throw new IllegalStateException("Out-of-range case token");return tier; }
-    static String unlock(Token token) {
+    public static String unlock(Token token) {
         return switch(token.family()) {
             case "rewardkit" -> "swrg.kit"+token.value();
             case "rewardskill" -> "swrg.skill"+token.value();

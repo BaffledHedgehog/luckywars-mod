@@ -86,7 +86,7 @@ public final class LbcRewardTools {
         }
     }
     /** Full stacks/components transfer exactly once. Failure never consumes the glove. */
-    static boolean steal(GameController game,ServerPlayer player,InteractionHand hand,LivingEntity target){
+    public static boolean steal(GameController game,ServerPlayer player,InteractionHand hand,LivingEntity target){
         if(target==player||!target.isAlive()||!game.items().wands().validRoleTarget(target,false)||LbcGreed.active(target)
                 ||game.items().magic().suppressedAt(player.level(),target.position())
                 ||target instanceof ServerPlayer guarded&&game.items().inventoryHazards().protectedInventory(guarded))return false;
@@ -113,7 +113,7 @@ public final class LbcRewardTools {
         return true;
     }
     private static void changed(GameController game,ServerPlayer p){p.getInventory().setChanged();game.items().magic().inventoryChanged(p);p.containerMenu.broadcastChanges();}
-    static ItemStack substitute(){var result=new ItemStack(Items.REPEATING_COMMAND_BLOCK);
+    public static ItemStack substitute(){var result=new ItemStack(Items.REPEATING_COMMAND_BLOCK);
         result.set(DataComponents.CUSTOM_NAME,Component.translatable("what?").withStyle(s->s.withItalic(false)));
         result.set(DataComponents.LORE,new ItemLore(List.of(Component.translatable("what?.lore.1"),Component.translatable("what?.lore.2"))));
         result.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:trusi"));result.set(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_f"));return result;

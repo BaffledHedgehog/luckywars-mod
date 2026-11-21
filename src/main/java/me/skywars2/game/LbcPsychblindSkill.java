@@ -32,7 +32,7 @@ public final class LbcPsychblindSkill {
         boolean target(ServerPlayer player,LivingEntity candidate);
     }
     public static final class Doppel extends Projectile implements PolymerEntity {
-        boolean gathering=true;
+        public boolean gathering=true;
         int advancedTick=Integer.MIN_VALUE;
         Doppel(EntityType<? extends Doppel> type,Level level){super(type,level);}
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder){}
@@ -47,7 +47,7 @@ public final class LbcPsychblindSkill {
                         .sized(.1f,.1f).clientTrackingRange(8).updateInterval(1).build(key));
         PolymerEntityUtils.registerType(type);return type;
     }
-    static void register(){}
+    public static void register(){}
     private final GameController game;
     private final Policy policy;
     private final LinkedHashSet<UUID> owners=new LinkedHashSet<>();
@@ -55,7 +55,7 @@ public final class LbcPsychblindSkill {
     private Dispatcher queued;
     private boolean restoring;
     private int lastTick=Integer.MIN_VALUE;
-    LbcPsychblindSkill(GameController game,Policy policy){this.game=game;this.policy=Objects.requireNonNull(policy);}
+    public LbcPsychblindSkill(GameController game,Policy policy){this.game=game;this.policy=Objects.requireNonNull(policy);}
 
     private boolean admitted(ServerPlayer p){
         return p!=null&&p.isAlive()&&game.playing()&&!game.maps().busy()
@@ -233,8 +233,8 @@ public final class LbcPsychblindSkill {
     public void loaded(Entity e){if(e instanceof Doppel d)bodies.add(d);}
     public void unloaded(Entity e){if(e instanceof Doppel d)bodies.remove(d);}
     public int count(){return bodies.size();}
-    static boolean cloneRecognizes(Entity e){return e instanceof Doppel;}
-    LbcCloneSkills.ActorImage cloneImage(Entity original){
+    public static boolean cloneRecognizes(Entity e){return e instanceof Doppel;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original){
         if(!(original instanceof Doppel d)||!bodies.contains(d))return null;
         boolean gathering=d.gathering;
         return CloneComplexProjectileStates.image(clone->{var n=(Doppel)clone;
@@ -247,15 +247,15 @@ public final class LbcPsychblindSkill {
     }
     public void prepareFrozen(){checkpointBoundary();restoring=true;if(queued!=null)queued.cancel();owners.clear();bodies.clear();}
     public void publishFrozen(){checkpointBoundary();restoring=false;lastTick=game.server().getTickCount();}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Body(MatchDamageSources.Ref ref,boolean gathering){}
         private final List<UUID> selected=List.copyOf(owners);
         private final List<Body> actors;
         Checkpoint(MatchSpellCheckpoint.Links links){
             actors=bodies.stream().map(d->new Body(links.key(d),d.gathering)).toList();
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();
             var restored=new LinkedHashMap<Doppel,Boolean>();
             for(var image:actors)restored.put((Doppel)links.get(image.ref),image.gathering);

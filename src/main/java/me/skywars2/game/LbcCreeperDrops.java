@@ -44,7 +44,7 @@ public final class LbcCreeperDrops {
     public LbcCreeperDrops(GameController game) { this.game = game; }
 
     /** Single native egg actor: retain radius, reward and native AI instead of spawning the trap's ring. */
-    void adoptEgg(Creeper creeper, LivingEntity owner) {
+    public void adoptEgg(Creeper creeper, LivingEntity owner) {
         creeper.entityTags().add(CREEPER);
             creeper.entityTags().add("skywars2.players_only_trap");
         game.items().markCurrentItemEpoch(creeper);

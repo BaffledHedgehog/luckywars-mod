@@ -121,8 +121,8 @@ public final class LbcPendingSwords {
         @Override public boolean shouldBeSaved(){return false;}
     }
     private void fang(ServerPlayer owner,int stage){var forward=owner.getLookAngle();var up=Vec3.directionFromRotation(owner.getXRot()-90,owner.getYRot());var fang=game.items().evokerBass().spawnOwned(owner,owner.position().add(up.scale(.5)).add(forward.scale(stage*1.5)));if(fang!=null)fang.entityTags().add(FANG);}
-    int queuedCasts(){return casts.size();}
-    List<Arrow> arrowSnapshot(){return List.copyOf(arrows);}
+    public int queuedCasts(){return casts.size();}
+    public List<Arrow> arrowSnapshot(){return List.copyOf(arrows);}
     /** Old source A/S variants are one item; preserve all components except the canonical tooltip tier. */
     public static void canonicalizeAntimagic(net.minecraft.world.item.ItemStack stack){
         var key=net.minecraft.core.component.DataComponents.TOOLTIP_STYLE;
@@ -147,6 +147,6 @@ public final class LbcPendingSwords {
     public void unloaded(Entity entity){if(entity instanceof Arrow arrow&&arrows.remove(arrow)&&!arrow.isRemoved())arrow.discard();}
     public void forget(ServerPlayer owner){casts.removeIf(c->c.owner==owner);attacks.remove(owner);for(var arrow:List.copyOf(arrows))if(arrow.getOwner()==owner)unloaded(arrow);}
     public void stop(){casts.clear();attacks.clear();for(var arrow:List.copyOf(arrows))unloaded(arrow);producing=false;ticks=0;}
-    static boolean cloneRecognizes(Entity entity){return entity instanceof EpicArrow;}
-    LbcCloneSkills.ActorImage cloneImage(Entity entity){return entity instanceof EpicArrow?CloneComplexProjectileStates.image(EpicArrow::new,clone->arrows.add((Arrow)clone),this::unloaded):null;}
+    public static boolean cloneRecognizes(Entity entity){return entity instanceof EpicArrow;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity entity){return entity instanceof EpicArrow?CloneComplexProjectileStates.image(EpicArrow::new,clone->arrows.add((Arrow)clone),this::unloaded):null;}
 }

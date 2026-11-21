@@ -31,7 +31,7 @@ public final class LbcTmtShotCompletion {
     public static void run(ItemStack weapon,Runnable nativeAction){call(weapon,()->{nativeAction.run();return null;});}
 
     /** Return ownership to the native shoot hook immediately; dispatch after the actual outer action. */
-    static void afterNativeAction(Runnable continuation){
+    public static void afterNativeAction(Runnable continuation){
         Objects.requireNonNull(continuation);var frame=ACTIVE.get();
         if(frame==null)LbcTmtAbilities.afterScopes(continuation);else frame.accepted.addLast(continuation);
     }

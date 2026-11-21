@@ -38,11 +38,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /** One startup allocation per opaque cube; Polymer owns vanilla-state remapping and pack generation. */
-final class LbcBlockModels {
+public final class LbcBlockModels {
     /** Predict the exact allocated note state, with the authored item model unchanged. */
-    static class CubeItem extends PolymerBlockItem {
+    public static class CubeItem extends PolymerBlockItem {
         private final BlockItemStateProperties prediction;
-        CubeItem(Block block,Item.Properties properties){
+        public CubeItem(Block block,Item.Properties properties){
             super(block,properties,Items.NOTE_BLOCK,true);
             var state=PolymerBlockUtils.getPolymerBlockState(block.defaultBlockState(),null);
             var value=BlockItemStateProperties.EMPTY;
@@ -57,8 +57,8 @@ final class LbcBlockModels {
         @Override public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state,ServerPlayer player,
                 InteractionHand hand,ItemStack stack,ServerLevel level,BlockHitResult hit){return false;}
     }
-    abstract static class Cube extends Block implements PolymerTexturedBlock {
-        Cube(Properties properties){super(properties);}
+    public abstract static class Cube extends Block implements PolymerTexturedBlock {
+        public Cube(Properties properties){super(properties);}
         @Override public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state,ServerPlayer player,
                 InteractionHand hand,ItemStack stack,ServerLevel level,BlockHitResult hit){
             // The client's interactive note block consumes a non-crouched click before item prediction.
@@ -83,7 +83,7 @@ final class LbcBlockModels {
             }
         }
     }
-    record Allocation(Identifier serverBlock, Identifier model, BlockState clientState) {}
+    public record Allocation(Identifier serverBlock, Identifier model, BlockState clientState) {}
     private static final Map<Identifier,Allocation> ALLOCATIONS=new LinkedHashMap<>();
     private static final Map<String,String> MODELS=new LinkedHashMap<>();
     private static final Map<String,byte[]> TEXTURES=new LinkedHashMap<>();
@@ -107,7 +107,7 @@ final class LbcBlockModels {
     }
     private LbcBlockModels() {}
 
-    static BlockState fullCube(Identifier serverBlock,Identifier model){
+    public static BlockState fullCube(Identifier serverBlock,Identifier model){
         var previous=ALLOCATIONS.get(serverBlock);
         if(previous!=null){
             if(!previous.model().equals(model))throw new IllegalStateException("Conflicting block model for "+serverBlock);
@@ -133,7 +133,7 @@ final class LbcBlockModels {
         me.skywars2.SkyWars2.LOGGER.info("Custom cube palette: {} -> {} ({})",serverBlock,state,model);
         return state;
     }
-    static List<Allocation> allocations(){return List.copyOf(ALLOCATIONS.values());}
+    public static List<Allocation> allocations(){return List.copyOf(ALLOCATIONS.values());}
     static void model(Identifier model,String json){
         MODELS.put("assets/"+model.getNamespace()+"/models/"+model.getPath()+".json",json);
     }

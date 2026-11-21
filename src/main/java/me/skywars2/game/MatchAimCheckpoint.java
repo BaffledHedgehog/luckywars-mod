@@ -5,7 +5,7 @@ import java.util.function.Function;
 import net.minecraft.world.entity.Entity;
 
 /** Reusable scope macro-state; only the actual login body and its restored native hand can resume a row. */
-final class MatchAimCheckpoint {
+public final class MatchAimCheckpoint {
     private final GameController game;
     private final String epoch;
     private final LbcRifleZoom service;
@@ -13,7 +13,7 @@ final class MatchAimCheckpoint {
     private final Set<LbcRifleZoom.ScopeCheckpoint> installed=Collections.newSetFromMap(new IdentityHashMap<>());
     private Set<UUID> pending=Set.of();
     private boolean prepared;
-    MatchAimCheckpoint(GameController game,MatchDamageSources sources){this.game=game;epoch=game.items().epoch();service=game.items().rifleZoom();stable(false);rows=service.checkpointScopes(sources);installed.addAll(rows);prepared=true;}
+    public MatchAimCheckpoint(GameController game,MatchDamageSources sources){this.game=game;epoch=game.items().epoch();service=game.items().rifleZoom();stable(false);rows=service.checkpointScopes(sources);installed.addAll(rows);prepared=true;}
     private MatchAimCheckpoint(GameController game,String epoch,List<LbcRifleZoom.ScopeCheckpoint> rows){this.game=game;this.epoch=epoch;service=game.items().rifleZoom();this.rows=List.copyOf(rows);stable(false);}
     private void stable(boolean frozen){
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore scope state on the same stable frozen match thread");

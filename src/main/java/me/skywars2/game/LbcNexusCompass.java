@@ -37,12 +37,12 @@ public final class LbcNexusCompass {
     private final java.util.concurrent.atomic.AtomicReference<List<Vec3>> pendingWrite=new java.util.concurrent.atomic.AtomicReference<>();
     private final java.util.concurrent.atomic.AtomicBoolean writing=new java.util.concurrent.atomic.AtomicBoolean();
     /** Called once after a complete native chunk move, never during a cell write. */
-    void appendedIsland(int x,int y,int z){
+    public void appendedIsland(int x,int y,int z){
         var updated=new ArrayList<>(destinations);updated.add(new Vec3(x+5,y+321,z+5));
         destinations=List.copyOf(updated);persistDestinations();
     }
-    List<Vec3> checkpointDestinations(){return destinations;}
-    void restoreDestinations(List<Vec3> saved){destinations=List.copyOf(saved);persistDestinations();}
+    public List<Vec3> checkpointDestinations(){return destinations;}
+    public void restoreDestinations(List<Vec3> saved){destinations=List.copyOf(saved);persistDestinations();}
     private void persistDestinations(){pendingWrite.set(destinations);startWriter();}
     private void startWriter(){
         if(!writing.compareAndSet(false,true))return;

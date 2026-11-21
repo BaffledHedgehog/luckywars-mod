@@ -25,16 +25,16 @@ public final class SynchroRanked {
     private HolderGetter.Provider resolver;
     private final Map<LootTable,Identifier> tableIds=new IdentityHashMap<>();
     private final SynchroLuckyDraws lucky=new SynchroLuckyDraws(this);
-    record State(boolean enabled,long seed,Map<UUID,Map<Identifier,Long>> positions){}
-    SynchroRanked(GameController game){this.game=game;}
-    void begin(){begin(game.config().synchroRanked,java.util.concurrent.ThreadLocalRandom.current().nextLong());}
-    void begin(boolean enabled,long seed){this.enabled=enabled;this.seed=seed;positions.clear();}
-    void clear(){enabled=false;seed=0;positions.clear();}
+    public record State(boolean enabled,long seed,Map<UUID,Map<Identifier,Long>> positions){}
+    public SynchroRanked(GameController game){this.game=game;}
+    public void begin(){begin(game.config().synchroRanked,java.util.concurrent.ThreadLocalRandom.current().nextLong());}
+    public void begin(boolean enabled,long seed){this.enabled=enabled;this.seed=seed;positions.clear();}
+    public void clear(){enabled=false;seed=0;positions.clear();}
     public boolean enabled(){return enabled;}
-    State checkpoint(){var copy=new HashMap<UUID,Map<Identifier,Long>>();positions.forEach((id,counters)->copy.put(id,Map.copyOf(counters)));return new State(enabled,seed,Map.copyOf(copy));}
-    void restore(State state){enabled=state.enabled;seed=state.seed;positions.clear();state.positions.forEach((id,counters)->positions.put(id,new HashMap<>(counters)));}
-    long position(UUID player,Identifier pool){return positions.getOrDefault(player,Map.of()).getOrDefault(pool,0L);}
-    int counterCount(){return positions.values().stream().mapToInt(Map::size).sum();}
+    public State checkpoint(){var copy=new HashMap<UUID,Map<Identifier,Long>>();positions.forEach((id,counters)->copy.put(id,Map.copyOf(counters)));return new State(enabled,seed,Map.copyOf(copy));}
+    public void restore(State state){enabled=state.enabled;seed=state.seed;positions.clear();state.positions.forEach((id,counters)->positions.put(id,new HashMap<>(counters)));}
+    public long position(UUID player,Identifier pool){return positions.getOrDefault(player,Map.of()).getOrDefault(pool,0L);}
+    public int counterCount(){return positions.values().stream().mapToInt(Map::size).sum();}
     public static void prepare(LootTable table,LootContext context){
         var state=(SynchroLootContext)context;if(state.skywars2$synchroPrepared())return;
         var game=SkyWars2.game();RandomSource random=null;

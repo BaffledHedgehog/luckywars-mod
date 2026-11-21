@@ -30,7 +30,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.*;
 
 /** Native mask ownership; the shared ray queue owns all traversal and replay cursors. */
-final class LbcMellstroy {
+public final class LbcMellstroy {
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final EquipmentSlot[] ARMOR={EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET};
@@ -46,24 +46,24 @@ final class LbcMellstroy {
     private long casinos,wins,losses,rays,samples,attempts,walls;
 
     record Wearer(ServerLevel level,String epoch,int music) {}
-    record Counters(long casinos,long wins,long losses,long rays,long samples,long attempts,long walls) {}
+    public record Counters(long casinos,long wins,long losses,long rays,long samples,long attempts,long walls) {}
     /** Immutable identities only; active ray positions are captured by Exasperato's SearchCheckpoint. */
-    record State(Map<UUID,Wearer> wearers,List<UUID> dirty,Map<UUID,LbcExasperato.RayTicket> pending,
+    public record State(Map<UUID,Wearer> wearers,List<UUID> dirty,Map<UUID,LbcExasperato.RayTicket> pending,
                  Set<UUID> listeners,MatchRandomState random,Counters counters) {
-        State {wearers=Collections.unmodifiableMap(new LinkedHashMap<>(wearers));dirty=List.copyOf(dirty);
+        public State {wearers=Collections.unmodifiableMap(new LinkedHashMap<>(wearers));dirty=List.copyOf(dirty);
             pending=Collections.unmodifiableMap(new LinkedHashMap<>(pending));listeners=Set.copyOf(listeners);}
     }
 
-    LbcMellstroy(GameController game){this(game,RandomSource.create());}
+    public LbcMellstroy(GameController game){this(game,RandomSource.create());}
     LbcMellstroy(GameController game,RandomSource random){this.game=game;this.random=Objects.requireNonNull(random);}
-    static boolean mask(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"mellstroy_mask",0)==1;}
-    void inventoryChanged(ServerPlayer player){if(!restoring)dirty.add(player.getUUID());}
+    public static boolean mask(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"mellstroy_mask",0)==1;}
+    public void inventoryChanged(ServerPlayer player){if(!restoring)dirty.add(player.getUUID());}
     /** Same-tick loot producers can resolve their already-dirtied owner before consulting the cache. */
     boolean luckyEquipped(ServerPlayer player){
         if(!restoring&&!paused(player)&&dirty.remove(player.getUUID()))refresh(player);
         return equipped(player);
     }
-    boolean equipped(ServerPlayer player){var wearer=wearers.get(player.getUUID());return wearer!=null&&wearer.level==player.level()
+    public boolean equipped(ServerPlayer player){var wearer=wearers.get(player.getUUID());return wearer!=null&&wearer.level==player.level()
             &&game.items().currentEpoch(wearer.epoch)&&admitted(player);}
     private boolean admitted(ServerPlayer p){return !restoring&&game.playing()&&p.isAlive()&&!p.isRemoved()
             &&LbcDimensionItems.ordinary(p)&&game.canUseGameplayItems(p)&&!game.isObserver(p);}
@@ -83,7 +83,7 @@ final class LbcMellstroy {
         remove(player);int selected=random.nextInt(2);wearers.put(player.getUUID(),new Wearer(player.level(),game.items().epoch(),selected));
         stopMusic(player);playMusic(player,selected);
     }
-    void tick(){
+    public void tick(){
         if(restoring||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
         int budget=Math.min(32,dirty.size());
         while(budget-->0){var id=dirty.removeFirst();var p=game.server().getPlayerList().getPlayer(id);
@@ -159,7 +159,7 @@ final class LbcMellstroy {
 
     /** Source scoreboard multiplication and division are signed 32-bit operations, in that order. */
     static int casinoBalance(int balance,boolean win){return win?Math.floorDiv(balance*5,2):0;}
-    boolean use(ServerPlayer player,InteractionHand hand){
+    public boolean use(ServerPlayer player,InteractionHand hand){
         if(hand!=InteractionHand.MAIN_HAND||!mask(player.getItemInHand(hand))||!admitted(player)||paused(player))return false;
         checkpointBoundary();var profile=game.players().get(player.getUUID());var before=new MatchValueSnapshot(profile);
         var rng=MatchRandomState.capture(random);int oldCoins=profile.coins,oldMemcoins=profile.memcoins;
@@ -189,17 +189,17 @@ final class LbcMellstroy {
     private void stopAllMusic(){for(var id:List.copyOf(listeners)){var p=game.server().getPlayerList().getPlayer(id);if(p!=null)stopMusic(p);}listeners.clear();}
     private void cancelRay(UUID owner){var ray=pending.remove(owner);if(ray!=null)ray.cancel();}
     private void remove(ServerPlayer player){if(wearers.remove(player.getUUID())!=null)stopMusic(player);cancelRay(player.getUUID());}
-    void forget(ServerPlayer player){if(restoring||MatchPlayerCheckpoint.restoring(player))return;dirty.remove(player.getUUID());remove(player);}
-    void stop(){checkpointBoundary();stopAllMusic();for(var ray:List.copyOf(pending.values()))ray.cancel();pending.clear();wearers.clear();dirty.clear();}
-    Counters counters(){return new Counters(casinos,wins,losses,rays,samples,attempts,walls);}
-    void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Mellstroy sample before checkpoint/replay");}
-    State state(){checkpointBoundary();return new State(wearers,List.copyOf(dirty),pending,listeners,MatchRandomState.capture(random),counters());}
-    void prepareFrozen(){checkpointBoundary();restoring=true;stopAllMusic();wearers.clear();dirty.clear();pending.clear();}
-    void cancelFrozen(){checkpointBoundary();restoring=false;}
-    void publishFrozen(){checkpointBoundary();boolean publish=restoring;restoring=false;if(publish)for(var entry:wearers.entrySet()){
+    public void forget(ServerPlayer player){if(restoring||MatchPlayerCheckpoint.restoring(player))return;dirty.remove(player.getUUID());remove(player);}
+    public void stop(){checkpointBoundary();stopAllMusic();for(var ray:List.copyOf(pending.values()))ray.cancel();pending.clear();wearers.clear();dirty.clear();}
+    public Counters counters(){return new Counters(casinos,wins,losses,rays,samples,attempts,walls);}
+    public void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Mellstroy sample before checkpoint/replay");}
+    public State state(){checkpointBoundary();return new State(wearers,List.copyOf(dirty),pending,listeners,MatchRandomState.capture(random),counters());}
+    public void prepareFrozen(){checkpointBoundary();restoring=true;stopAllMusic();wearers.clear();dirty.clear();pending.clear();}
+    public void cancelFrozen(){checkpointBoundary();restoring=false;}
+    public void publishFrozen(){checkpointBoundary();boolean publish=restoring;restoring=false;if(publish)for(var entry:wearers.entrySet()){
         var p=game.server().getPlayerList().getPlayer(entry.getKey());if(p!=null&&admitted(p)&&p.level()==entry.getValue().level)playMusic(p,entry.getValue().music);}}
-    void restore(State state){checkpointBoundary();wearers.clear();wearers.putAll(state.wearers);dirty.clear();dirty.addAll(state.dirty);
+    public void restore(State state){checkpointBoundary();wearers.clear();wearers.putAll(state.wearers);dirty.clear();dirty.addAll(state.dirty);
         pending.clear();pending.putAll(state.pending);listeners.clear();listeners.addAll(state.listeners);state.random.restore(random);
         var c=state.counters;casinos=c.casinos;wins=c.wins;losses=c.losses;rays=c.rays;samples=c.samples;attempts=c.attempts;walls=c.walls;}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){var saved=state();return current->()->restore(saved);}
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){var saved=state();return current->()->restore(saved);}
 }

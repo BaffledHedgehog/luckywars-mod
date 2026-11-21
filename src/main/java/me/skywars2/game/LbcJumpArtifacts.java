@@ -47,7 +47,7 @@ public final class LbcJumpArtifacts {
         apply(owner,current,old);
     }
     /** The same native payload for exactly one rebound property, without replaying other inventory artifacts. */
-    void propertyJump(ServerPlayer owner,net.minecraft.world.item.component.CustomData source){
+    public void propertyJump(ServerPlayer owner,net.minecraft.world.item.component.CustomData source){
         if(!admitted(owner)||!LbcDimensionItems.ordinary(owner))return;
         var data=(ItemData.IntReader)(Object)source;int type=data.skywars2$readInt("type",0);if(type<1||type>3)return;
         int bit=1<<type;apply(owner,data.skywars2$readInt("mystical",0)==3?bit:0,data.skywars2$readInt("mystical_old",0)==3?bit:0);

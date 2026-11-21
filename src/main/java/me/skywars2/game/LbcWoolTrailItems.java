@@ -29,7 +29,7 @@ public final class LbcWoolTrailItems {
     private LbcWoolTrailItems(){}
     public static void register(){LbcBalanceExtras.register();}
     public static Map<DyeColor,Item> tokens(){return TOKENS;}
-    static boolean ordinary(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"projegadget",0)==1&&ItemData.intValue(stack,"most",0)==1;}
+    public static boolean ordinary(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"projegadget",0)==1&&ItemData.intValue(stack,"most",0)==1;}
     public static boolean matches(ItemStack stack){
         return !stack.isEmpty()&&(ordinary(stack)||ItemData.intValue(stack,"wool",0)==1&&ItemData.intValue(stack,"projegadget",0)==1);
     }

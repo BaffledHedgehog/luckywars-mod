@@ -58,8 +58,8 @@ public final class LbcBedwarsAuxiliaries {
     public final class SharedContainer extends SimpleContainer {
         final int team;final String epoch;
         SharedContainer(int team){super(54);this.team=team;epoch=policy.epoch();}
-        boolean current(){return Objects.equals(epoch,policy.epoch())&&storage.get(team)==this;}
-        void validate(ServerPlayer player,boolean current){
+        public boolean current(){return Objects.equals(epoch,policy.epoch())&&storage.get(team)==this;}
+        public void validate(ServerPlayer player,boolean current){
             if(current&&(!current()||policy.team(player)!=team))throw new IllegalStateException("Restore canonical BedWars team storage before its viewers");
         }
         @Override public boolean stillValid(net.minecraft.world.entity.player.Player player){return player instanceof ServerPlayer p&&current()&&policy.active()&&policy.team(p)==team;}
@@ -262,17 +262,17 @@ public final class LbcBedwarsAuxiliaries {
     }
     public void prepareFrozen(){if(publishing||!playerBreaks.isEmpty())throw new IllegalStateException("BedWars checkpoint during native publication/break");restoring=true;}
     public void publishFrozen(){restoring=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){if(publishing||!playerBreaks.isEmpty())throw new IllegalStateException("BedWars checkpoint during native publication/break");return new Checkpoint(links);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){if(publishing||!playerBreaks.isEmpty())throw new IllegalStateException("BedWars checkpoint during native publication/break");return new Checkpoint(links);}
+    public final class Checkpoint {
         final List<Generation> gens=generators.stream().map(Generation::new).toList();final Map<ServerLevel,Long> time=new IdentityHashMap<>(clocks);
-        final List<Output> queued=outputs.stream().map(Output::new).toList();final Map<Site,Chest> sites=new LinkedHashMap<>(chests);final Map<UUID,Child> children=new LinkedHashMap<>(zombies);
-        final List<Site> displayQueue=List.copyOf(pendingDisplays);final Map<Integer,EnumMap<LbcBedwarsShop.Beacon,Integer>> buffs=new LinkedHashMap<>();final Set<UUID> recipients=Set.copyOf(effectRecipients);
-        final Map<UUID,MatchDamageSources.Ref> bodies=new LinkedHashMap<>();final String savedEpoch=epoch;final int savedCursor=cursor,savedSeconds=seconds;
+        public final List<Output> queued=outputs.stream().map(Output::new).toList();final Map<Site,Chest> sites=new LinkedHashMap<>(chests);final Map<UUID,Child> children=new LinkedHashMap<>(zombies);
+        final List<Site> displayQueue=List.copyOf(pendingDisplays);public final Map<Integer,EnumMap<LbcBedwarsShop.Beacon,Integer>> buffs=new LinkedHashMap<>();final Set<UUID> recipients=Set.copyOf(effectRecipients);
+        public final Map<UUID,MatchDamageSources.Ref> bodies=new LinkedHashMap<>();final String savedEpoch=epoch;final int savedCursor=cursor,savedSeconds=seconds;
         Checkpoint(MatchSpellCheckpoint.Links links){beacons.forEach((team,map)->buffs.put(team,new EnumMap<>(map)));for(var site:sites.entrySet())if(site.getValue().display!=null){var e=site.getKey().level.getEntity(site.getValue().display);if(e!=null)bodies.put(e.getUUID(),links.key(e));}for(var id:children.keySet())for(var level:game.server().getAllLevels()){var e=level.getEntity(id);if(e!=null)bodies.put(id,links.key(e));}}
-        Runnable prepare(MatchSpellCheckpoint.Links links){for(var body:bodies.values())links.get(body);return ()->{generators.clear();byId.clear();for(var old:gens){var g=new Generation(old);generators.add(g);byId.put(g.marker.id,g);}clocks.clear();clocks.putAll(time);outputs.clear();queued.forEach(q->outputs.addLast(new Output(q)));chests.clear();chests.putAll(sites);pendingDisplays.clear();pendingDisplays.addAll(displayQueue);zombies.clear();zombies.putAll(children);beacons.clear();buffs.forEach((team,map)->beacons.put(team,new EnumMap<>(map)));effectRecipients.clear();effectRecipients.addAll(recipients);epoch=savedEpoch;cursor=savedCursor;seconds=savedSeconds;};}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){for(var body:bodies.values())links.get(body);return ()->{generators.clear();byId.clear();for(var old:gens){var g=new Generation(old);generators.add(g);byId.put(g.marker.id,g);}clocks.clear();clocks.putAll(time);outputs.clear();queued.forEach(q->outputs.addLast(new Output(q)));chests.clear();chests.putAll(sites);pendingDisplays.clear();pendingDisplays.addAll(displayQueue);zombies.clear();zombies.putAll(children);beacons.clear();buffs.forEach((team,map)->beacons.put(team,new EnumMap<>(map)));effectRecipients.clear();effectRecipients.addAll(recipients);epoch=savedEpoch;cursor=savedCursor;seconds=savedSeconds;};}
     }
     public List<Generator> generators(){return generators.stream().filter(g->!g.retired).map(g->g.marker).toList();}
-    int team(ServerPlayer player){return policy.team(player);}
-    int pendingOutputs(){return outputs.size();}
-    int beaconSeconds(int team,LbcBedwarsShop.Beacon kind){return beacons.getOrDefault(team,new EnumMap<>(LbcBedwarsShop.Beacon.class)).getOrDefault(kind,0);}
+    public int team(ServerPlayer player){return policy.team(player);}
+    public int pendingOutputs(){return outputs.size();}
+    public int beaconSeconds(int team,LbcBedwarsShop.Beacon kind){return beacons.getOrDefault(team,new EnumMap<>(LbcBedwarsShop.Beacon.class)).getOrDefault(kind,0);}
 }

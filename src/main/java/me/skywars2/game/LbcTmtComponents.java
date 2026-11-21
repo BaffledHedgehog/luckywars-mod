@@ -18,19 +18,19 @@ import net.minecraft.world.item.component.CustomData;
 /** Private native payload components, separate from generated stats, equipment and appearance. */
 public final class LbcTmtComponents {
     private LbcTmtComponents(){}
-    static final String KEY="tmt_native_components";
+    public static final String KEY="tmt_native_components";
     private static final ThreadLocal<java.util.IdentityHashMap<ItemStack,Scope>> ACTIVE=new ThreadLocal<>();
     private static final List<DataComponentType<?>> PAYLOADS=List.of(DataComponents.ENTITY_DATA,DataComponents.BUCKET_ENTITY_DATA,
             DataComponents.BLOCK_ENTITY_DATA,DataComponents.BLOCK_STATE,DataComponents.POTION_CONTENTS,
             DataComponents.POTION_DURATION_SCALE,DataComponents.FIREWORKS,DataComponents.CONTAINER,DataComponents.CONTAINER_LOOT,DataComponents.BLOCKS_ATTACKS,DataComponents.TOOL);
     private static final List<DataComponentType<?>> PRESENTATION=List.of(DataComponents.ITEM_MODEL,DataComponents.CUSTOM_MODEL_DATA,
             DataComponents.ITEM_NAME,DataComponents.CUSTOM_NAME,DataComponents.LORE,DataComponents.TOOLTIP_STYLE);
-    static Item nativeItem(CustomData data){
+    public static Item nativeItem(CustomData data){
         var id=Identifier.tryParse(((ItemData.IntReader)(Object)data).skywars2$readString(LbcTmtAbilities.NATIVE,""));
         return id==null?Items.AIR:BuiltInRegistries.ITEM.getValue(id);
     }
     /** Only non-default authored payload differences need storage; normal native prototypes remain compact. */
-    static void capture(GameController game,ItemStack source,CompoundTag data){capture(game,source,source.getItem(),data);}
+    public static void capture(GameController game,ItemStack source,CompoundTag data){capture(game,source,source.getItem(),data);}
     static void capture(GameController game,ItemStack source,Item nativeItem,CompoundTag data){capture(game.server().registryAccess(),source,nativeItem,data);}
     private static void capture(net.minecraft.core.RegistryAccess registries,ItemStack source,Item nativeItem,CompoundTag data){
         var defaults=nativeItem.getDefaultInstance();var patch=DataComponentPatch.builder();boolean changed=false;
@@ -48,7 +48,7 @@ public final class LbcTmtComponents {
     private static void change(DataComponentPatch.Builder builder,DataComponentType type,Object value){if(value==null)builder.remove(type);else builder.set(type,value);}
     @SuppressWarnings({"rawtypes","unchecked"})
     private static void set(ItemStack stack,DataComponentType type,Object value){if(value==null)stack.remove(type);else stack.set(type,value);}
-    static ItemStack source(GameController game,LbcTmtAbilities.Ability property){return source(game.server().registryAccess(),property);}
+    public static ItemStack source(GameController game,LbcTmtAbilities.Ability property){return source(game.server().registryAccess(),property);}
     private static ItemStack source(net.minecraft.core.RegistryAccess registries,LbcTmtAbilities.Ability property){
         var item=nativeItem(property.data());if(item==Items.AIR)return ItemStack.EMPTY;
         var result=item.getDefaultInstance().copyWithCount(1);var patch=patch(registries,property.data());

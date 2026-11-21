@@ -59,9 +59,9 @@ public final class LbcTeleport {
     public static void register() { }
 
     public static final class Charge extends Projectile implements PolymerEntity {
-        int age;
-        int sourceLifetime;boolean flyingStyle;
-        int mode;
+        public int age;
+        public int sourceLifetime;public boolean flyingStyle;
+        public int mode;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -69,13 +69,13 @@ public final class LbcTeleport {
         @Override public boolean isPushedByFluid() { return false; }
     }
 
-    LbcTeleport(GameController game) { this.game=game; }
+    public LbcTeleport(GameController game) { this.game=game; }
     public int count() { return charges.size(); }
-    List<Charge> snapshot() { return List.copyOf(charges); }
+    public List<Charge> snapshot() { return List.copyOf(charges); }
     public int cloudCount() { return clouds.size(); }
-    List<Arrow> cloudSnapshot() { return List.copyOf(clouds); }
+    public List<Arrow> cloudSnapshot() { return List.copyOf(clouds); }
 
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
                     || !(charge.getOwner() instanceof ServerPlayer))) { cleanup(charge); return; }
@@ -88,7 +88,7 @@ public final class LbcTeleport {
             clouds.add(arrow);
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof Charge charge) { charges.remove(charge); cleanup(charge); }
         if(entity instanceof Arrow arrow && arrow.entityTags().contains(CLOUD)) {
             clouds.remove(arrow);
@@ -104,11 +104,11 @@ public final class LbcTeleport {
     void emitAt(ServerPlayer owner,InteractionHand hand,int mode,Vec3 origin,Vec3 direction){
         castAt(owner,hand,mode,ItemStack.EMPTY,origin,direction,200);
     }
-    Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction){
+    public Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction){
         return castAt(owner,hand,0,ItemStack.EMPTY,origin,direction,60);
     }
     Charge sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){return castAt(owner,InteractionHand.MAIN_HAND,0,ItemStack.EMPTY,origin,direction,60);}
-    void castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction){
+    public void castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction){
         castAt(owner,hand,mode,stack,origin,direction,0);
     }
     private Charge castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction,int lifetime){
@@ -130,7 +130,7 @@ public final class LbcTeleport {
     private void castCloud(ServerPlayer owner) { castRideableArrow(owner,.5,false); }
 
     /** One native carrier for Teleport cloud and Boltbolt racer; steering precedes native physics. */
-    void castRideableArrow(ServerPlayer owner,double speed,boolean racer) {
+    public void castRideableArrow(ServerPlayer owner,double speed,boolean racer) {
         Vec3 origin=owner.position().add(0,.01,0);
         if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(origin))) return;
         Arrow arrow=new Arrow(EntityTypes.ARROW,sourceLevel(owner));
@@ -150,7 +150,7 @@ public final class LbcTeleport {
         owner.startRiding(arrow,true,true);
     }
 
-    void tick() {
+    public void tick() {
         if(!charges.isEmpty()) {
             batch.addAll(charges);
             try {
@@ -321,7 +321,7 @@ public final class LbcTeleport {
         return projectile==null || !projectile.entityTags().contains(CLOUD);
     }
 
-    void forget(ServerPlayer owner) {
+    public void forget(ServerPlayer owner) {
         for(Arrow arrow:List.copyOf(clouds)) if(arrow.getOwner()==owner) removeCloud(arrow);
     }
 

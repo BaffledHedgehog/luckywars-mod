@@ -17,7 +17,7 @@ public final class ManualVisualTracking {
     private final GameController game;
     private final Map<ElementHolder,ServerLevel> holders=new WeakHashMap<>();
     private final Map<ServerGamePacketListenerImpl,Boolean> pending=new IdentityHashMap<>();
-    ManualVisualTracking(GameController game){this.game=game;}
+    public ManualVisualTracking(GameController game){this.game=game;}
 
     public void attach(ElementHolder holder,ServerLevel level,Supplier<Vec3> position) {
         new ManualAttachment(holder,level,position);holders.put(holder,level);
@@ -32,7 +32,7 @@ public final class ManualVisualTracking {
             if(pending.containsKey(connection))pending.put(connection,true);
         });
     }
-    void tick() {
+    public void tick() {
         if(pending.isEmpty())return;
         for(var iterator=pending.entrySet().iterator();iterator.hasNext();) {
             var reset=iterator.next();var connection=reset.getKey();var player=connection.player;
@@ -56,5 +56,5 @@ public final class ManualVisualTracking {
             iterator.remove();
         }
     }
-    void stop(){pending.clear();holders.clear();}
+    public void stop(){pending.clear();holders.clear();}
 }

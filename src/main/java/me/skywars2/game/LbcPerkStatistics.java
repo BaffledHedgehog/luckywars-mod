@@ -28,7 +28,7 @@ import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 
 /** Native, durable counters; legacy name keys remain readable for offline players. */
-final class LbcPerkStatistics {
+public final class LbcPerkStatistics {
     private static final Path FILE = Path.of("config", "luckywars", "perk-statistics.json");
     private static final Identifier LEGACY = Identifier.parse("stats:stats");
     private static final Map<MinecraftServer, LbcPerkStatistics> STORES = new WeakHashMap<>();
@@ -67,11 +67,11 @@ final class LbcPerkStatistics {
     }
 
     /** Call during server startup. Any failed read/write leaves command storage intact. */
-    static void initialize(MinecraftServer server) {
+    public static void initialize(MinecraftServer server) {
         get(server);
     }
 
-    static LbcPerkStatistics get(MinecraftServer server) {
+    public static LbcPerkStatistics get(MinecraftServer server) {
         var existing = STORES.get(server);
         if (existing != null) return existing;
         try {
@@ -85,7 +85,7 @@ final class LbcPerkStatistics {
         }
     }
 
-    static boolean importCurrentStorage(MinecraftServer server) throws IOException {
+    public static boolean importCurrentStorage(MinecraftServer server) throws IOException {
         if(server.getCommandStorage().get(LEGACY).isEmpty())return false;
         var store=get(server);
         store.migrateLegacy(server.getCommandStorage().get(LEGACY),
@@ -124,12 +124,12 @@ final class LbcPerkStatistics {
     }
 
     /** IDs are native one-based selections. Pass accepted choices once per match start. */
-    void recordPicks(String receipt, String playerName, Map<String, List<Integer>> choices) {
+    public void recordPicks(String receipt, String playerName, Map<String, List<Integer>> choices) {
         record(receipt, playerName, choices, "pick");
     }
 
     /** Use the same match-start choices, including for offline winners. */
-    void recordWins(String receipt, String playerName, Map<String, List<Integer>> choices) {
+    public void recordWins(String receipt, String playerName, Map<String, List<Integer>> choices) {
         record(receipt, playerName, choices, "win");
     }
 
@@ -169,7 +169,7 @@ final class LbcPerkStatistics {
     }
 
     /** Runtime disk failures retain pending counters for the next accepted event or shutdown. */
-    void flush() {
+    public void flush() {
         if(batchDepth>0)return;
         awaitWrites();if(!dirty)return;
         try {
@@ -183,8 +183,8 @@ final class LbcPerkStatistics {
     /** One durable write for the accepted players of the same match, including exceptional exits. */
     Batch batch(){batchDepth++;return new Batch(false);}
     /** Match-start counters are immediately visible; only the immutable disk image is deferred. */
-    Batch batchDeferred(){batchDepth++;return new Batch(true);}
-    final class Batch implements AutoCloseable {
+    public Batch batchDeferred(){batchDepth++;return new Batch(true);}
+    public final class Batch implements AutoCloseable {
         private boolean closed;private final boolean deferred;
         Batch(boolean deferred){this.deferred=deferred;}
         @Override public void close(){if(!closed){closed=true;if(--batchDepth==0){if(deferred)flushDeferred();else flush();}}}
@@ -217,7 +217,7 @@ final class LbcPerkStatistics {
         synchronized(diskLock){queuedSnapshot=null;pending=java.util.concurrent.CompletableFuture.completedFuture(null);}
     }
 
-    static String value(MinecraftServer server, String playerName, String path) {
+    public static String value(MinecraftServer server, String playerName, String path) {
         return get(server).value(playerName, path);
     }
 

@@ -134,6 +134,6 @@ public final class LbcMoiseiBoots {
         unloaded.values().removeIf(owner.getUUID()::equals);clear(owner);
     }
     public void stop(){for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();unloaded.clear();}
-    List<Entity> snapshot(){return List.copyOf(actors.keySet());}
-    long spawned(){return spawned;}
+    public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    public long spawned(){return spawned;}
 }

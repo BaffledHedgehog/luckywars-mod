@@ -14,20 +14,20 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.*;
 
 /** Bootstrap the finite utility items from their one canonical authored loot definition. */
-final class LbcUtilityItemPrototypes {
+public final class LbcUtilityItemPrototypes {
     private LbcUtilityItemPrototypes(){}
-    static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum){
+    public static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum){
         return properties(nativeId,resource,carrier,maximum,java.util.Set.of());
     }
     /** Registry-bound components are applied by the canonical loot table after world registries load. */
-    static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents){
+    public static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents){
         return properties(nativeId,resource,carrier,maximum,lootComponents,false);
     }
-    static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents,boolean nativeDefaults){
+    public static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents,boolean nativeDefaults){
         return properties(nativeId,resource,carrier,maximum,lootComponents,nativeDefaults,false);
     }
     /** Same canonical reader; holder-dependent food/enchantment components bind after registries are ready. */
-    static Item.Properties deferredProperties(String nativeId,String resource,Item carrier,int maximum){
+    public static Item.Properties deferredProperties(String nativeId,String resource,Item carrier,int maximum){
         return deferredProperties(nativeId,resource,carrier,maximum,java.util.Set.of());
     }
     static Item.Properties deferredProperties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents){

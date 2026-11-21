@@ -187,9 +187,9 @@ public final class LbcMagic {
     private final BlockPos.MutableBlockPos scanPos = new BlockPos.MutableBlockPos();
     private boolean stopping;
 
-    LbcMagic(GameController game) { this.game = game; colors = new LbcColors(game); }
+    public LbcMagic(GameController game) { this.game = game; colors = new LbcColors(game); }
     public LbcColors colors() { return colors; }
-    static void register() { PolymerBlockUtils.registerBlockEntity(BEACON_DATA); }
+    public static void register() { PolymerBlockUtils.registerBlockEntity(BEACON_DATA); }
 
     private static CompoundTag artifactData(int type) {
         var tag = new CompoundTag(); tag.putInt("mystical", 1); tag.putInt("type", type); return tag;
@@ -355,7 +355,7 @@ public final class LbcMagic {
     }
 
     /** Один пересчёт dirty-снимка; очистка после клика выполняется до маны/кастомных эффектов этого тика. */
-    void flushCleansing() {
+    public void flushCleansing() {
         if (!dirtyInventories.isEmpty()) {
             var ids = List.copyOf(dirtyInventories); dirtyInventories.clear();
             for (UUID id : ids) { var player = game.server().getPlayerList().getPlayer(id); if (player != null) refresh(player); }
@@ -403,7 +403,7 @@ public final class LbcMagic {
     }
 
     /** Источники-игроки используют UUID-набор, блоки — индекс чанков; старые marker пока поддерживаются для совместимости. */
-    boolean luckyEffectWarded(ServerLevel level,Vec3 at) {
+    public boolean luckyEffectWarded(ServerLevel level,Vec3 at) {
         for(var id:explosionArtifacts) {
             var player=game.server().getPlayerList().getPlayer(id);
             if(player!=null && player.level()==level && interceptorHolder(player,NO_EXPLOSIONS) && player.distanceToSqr(at)<=144) return true;
@@ -414,17 +414,17 @@ public final class LbcMagic {
         return suppressedAt(owner.level(),owner.position());
     }
     /** Тот же фильтр для отложенных лучей без marker: артефакт и маяк проверяются в точке луча. */
-    boolean suppressedAt(ServerLevel level,Vec3 position) {
+    public boolean suppressedAt(ServerLevel level,Vec3 position) {
         return artifactSuppressedAt(level,position) || level==game.maps().level() && beaconSuppressed(position);
     }
     /** Free source accessories can use artifact-only admission without acquiring a new beacon gate. */
-    boolean artifactSuppressedAt(ServerLevel level,Vec3 position) {
+    public boolean artifactSuppressedAt(ServerLevel level,Vec3 position) {
         var area = new AABB(position, position).inflate(RADIUS + 1e-6);
         return !activeArtifacts.isEmpty() && !level.getEntitiesOfClass(ServerPlayer.class, area, player -> game.canUseGameplayItems(player)
                 && artifactActive(player) && position.distanceToSqr(player.position()) <= RADIUS_SQUARED).isEmpty();
     }
     /** Home markers use the source artifact's 25-block deletion radius; beacon suppression stays 20. */
-    boolean homeMarkerSuppressedAt(ServerLevel level, Vec3 position) {
+    public boolean homeMarkerSuppressedAt(ServerLevel level, Vec3 position) {
         if (level == game.maps().level() && beaconSuppressed(position)) return true;
         for (var id : activeArtifacts) {
             var holder = game.server().getPlayerList().getPlayer(id);
@@ -434,7 +434,7 @@ public final class LbcMagic {
         return false;
     }
     /** Ближайшая граница подавления на луче: один проход по известным источникам вместо опроса каждого шага. */
-    double suppressionFraction(ServerLevel level,Vec3 from,Vec3 to) {
+    public double suppressionFraction(ServerLevel level,Vec3 from,Vec3 to) {
         double nearest=Double.POSITIVE_INFINITY;
         for(var id:activeArtifacts) {
             var player=game.server().getPlayerList().getPlayer(id);
@@ -460,7 +460,7 @@ public final class LbcMagic {
         return t>=0 && t<=1 ? t : Double.POSITIVE_INFINITY;
     }
     /** Rasengan's original three admission radii; released blasts do not acquire a new magic gate. */
-    boolean rasenganSuppressed(ServerLevel level,Vec3 feet) {
+    public boolean rasenganSuppressed(ServerLevel level,Vec3 feet) {
         if(level==game.maps().level()){
             for(var beacon:loadedBeacons)if(!beacon.mechanism&&beacon.center.distanceToSqr(feet)<=24*24)return true;
             for(var marker:legacyMarkers)if(!marker.isRemoved()&&marker.level()==level
@@ -530,7 +530,7 @@ public final class LbcMagic {
         return false;
     }
     /** Комната теряет метку целиком, если сфера маяка касается её объёма (user). */
-    boolean beaconIntersects(AABB bounds) {
+    public boolean beaconIntersects(AABB bounds) {
         for(var beacon:loadedBeacons) if(!beacon.mechanism && bounds.distanceToSqr(beacon.center)<=RADIUS_SQUARED) return true;
         for(var marker:legacyMarkers) if(!marker.isRemoved() && marker.entityTags().contains("stopper_magic") && bounds.distanceToSqr(marker.position())<=RADIUS_SQUARED) return true;
         return false;
@@ -699,11 +699,11 @@ public final class LbcMagic {
     public int trackedFallingCount() { return falling.size(); }
 
     /** Обходим меньший набор: редкие стрелы либо локальные области носителей, используя индекс Minecraft. */
-    void tickArrows() {
+    public void tickArrows() {
         intercept(IS_ARROW, arrowArtifacts, arrows, 16, NO_ARROWS);
     }
     /** Full Shulker armor invokes the same noarrows operation every active tick. */
-    void eraseArmorArrows(ServerPlayer player) {
+    public void eraseArmorArrows(ServerPlayer player) {
         if(stopping || arrows.isEmpty() || !interceptorHolder(player,NO_ARROWS))return;
         var at=player.position();
         for(var arrow:player.level().getEntities((Entity)null,new AABB(at,at).inflate(16),
@@ -713,7 +713,7 @@ public final class LbcMagic {
         }
     }
     /** Исходный players_2t: очищаем всю группу unstable, включая криперов и фейерверки. */
-    void tickExplosions() {
+    public void tickExplosions() {
         intercept(IS_UNSTABLE, explosionArtifacts, unstable, 24, NO_EXPLOSIONS);
     }
     private void intercept(Predicate<Entity> matches, Set<UUID> holders, Set<Entity> indexed, int radius, int ability) {
@@ -798,7 +798,7 @@ public final class LbcMagic {
     public int pendingLiquidCount() { return dirtyLiquids.size(); }
 
     /** Источник выполнял три fill каждые пять тиков; (user) теперь область сферическая. */
-    void tickLiquids() {
+    public void tickLiquids() {
         if (stopping || game.stage() == GameController.Stage.ENDING || liquidArtifacts.isEmpty()) return;
         var level = game.maps().level();
         for (var id : List.copyOf(liquidArtifacts)) {
@@ -916,7 +916,7 @@ public final class LbcMagic {
     }
 
     /** Цветной блок читается только для учтённых носителей, два раза за пульс без обхода области. */
-    void tickColors() {
+    public void tickColors() {
         if (stopping || game.stage() == GameController.Stage.ENDING) return;
         for (var entry : List.copyOf(artifactTypes.entrySet())) {
             if ((entry.getValue() & COLORS) == 0) continue;
@@ -928,7 +928,7 @@ public final class LbcMagic {
         }
     }
     /** Пять тиков исходного dispatcher: посещаем только учтённых носителей, не сканируем их инвентарь повторно. */
-    void tickPassives() {
+    public void tickPassives() {
         if (stopping || game.stage() == GameController.Stage.ENDING || artifactTypes.isEmpty()) return;
         for (var entry : List.copyOf(artifactTypes.entrySet())) {
             int types = entry.getValue();
@@ -994,7 +994,7 @@ public final class LbcMagic {
         // Нативное слияние сохраняет приоритет сильного эффекта и скрытые более слабые эффекты.
         player.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,duration,1));
     }
-    void pulse() {
+    public void pulse() {
         var level = game.maps().level();
         // Legacy eggs are migrated once to the same persistent native carrier and shared scan/index.
         for (var marker : List.copyOf(legacyMarkers)) {

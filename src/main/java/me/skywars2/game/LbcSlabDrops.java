@@ -41,7 +41,7 @@ public final class LbcSlabDrops {
         if(!level.addFreshEntity(zombie)){tracked.remove(zombie);zombie.discard();}return true;
     }
     /** Egg equipment intentionally differs from the ordinary dropped slab; do not replace its payload. */
-    void adoptEgg(Zombie actor,ServerPlayer author){prepare(actor,author);}
+    public void adoptEgg(Zombie actor,ServerPlayer author){prepare(actor,author);}
     private void prepare(Zombie actor,ServerPlayer author){actor.entityTags().add(ACTOR);actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().removeIf(t->t.startsWith(OWNER));actor.entityTags().add(OWNER+author.getUUID());}game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
     public static boolean managed(Entity actor){return actor instanceof Zombie && actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){

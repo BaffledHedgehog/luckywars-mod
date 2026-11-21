@@ -20,10 +20,10 @@ public final class LbcLooseRewards {
     private final Set<ItemEntity> copiers=new LinkedHashSet<>();
     private static boolean tracked(ItemStack stack){return LbcTmtLooseRewards.present(stack);}
     private int lastTick=Integer.MIN_VALUE;
-    LbcLooseRewards(GameController game){this.game=game;}
+    public LbcLooseRewards(GameController game){this.game=game;}
     public static boolean luckyWand(ItemStack stack){return ItemData.intValue(stack,"luckyblockwand",0)==1;}
     public static boolean copier(ItemStack stack){return LbcTmtLooseRewards.copier(stack);}
-    static ItemStack copyStack(ItemStack donor){return donor.copy();}
+    public static ItemStack copyStack(ItemStack donor){return donor.copy();}
     private boolean paused(Entity actor){return !game.server().tickRateManager().runsNormally()
             ||game.items().timeStop().frozen(actor)||game.items().timeStop().stopped((ServerLevel)actor.level())
             ||actor.entityTags().contains("time_stopped");}
@@ -50,7 +50,7 @@ public final class LbcLooseRewards {
     public void unloaded(Entity actor){copiers.remove(actor);}
     public int count(){return copiers.size();}
     /** Frozen body replay suppresses ENTITY_LOAD; rebuild only this derived index, never epoch tags. */
-    void reindexRestored(java.util.Collection<? extends Entity> bodies){
+    public void reindexRestored(java.util.Collection<? extends Entity> bodies){
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())
             throw new IllegalStateException("Reindex restored loose rewards on the frozen native thread");
         stop();
@@ -74,7 +74,7 @@ public final class LbcLooseRewards {
         if(game.stage()==GameController.Stage.ENDING||!LbcDimensionItems.ordinary(item.level())||paused(item))return false;
         try(var source=game.items().spellSources().scope(item)){return LbcTmtLooseRewards.work(this,item,mode);}
     }
-    boolean copy(ItemEntity item){
+    public boolean copy(ItemEntity item){
         if(LbcTmtLooseRewards.outer(item.getItem()))return tmt(item,LbcTmtLooseRewards.COPIERS);
         if(item.isRemoved()||!copier(item.getItem())||!game.playing()||!game.items().currentEpoch(item)){
             copiers.remove(item);return false;
@@ -100,7 +100,7 @@ public final class LbcLooseRewards {
         return true;
     }
     /** The shared loaded-item index and native tick own all dropped-tablet work. */
-    boolean tablet(ItemEntity item){
+    public boolean tablet(ItemEntity item){
         if(LbcTmtLooseRewards.outer(item.getItem()))return tmt(item,LbcTmtLooseRewards.TABLETS);
         int kind=LbcMultiplierTablets.kind(item.getItem());
         if(item.isRemoved()||kind<2||kind>4||!game.playing()||!game.items().currentEpoch(item)){

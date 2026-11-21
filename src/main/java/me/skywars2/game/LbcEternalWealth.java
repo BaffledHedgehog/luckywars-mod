@@ -27,7 +27,7 @@ import net.minecraft.world.phys.*;
 
 /** Р’РµС‡РЅРѕРµ Р±РѕРіР°С‚СЃС‚РІРѕ: СЂРµР°Р»СЊРЅС‹Рµ Р±Р»РѕРєРё, РЅР°С‚РёРІРЅС‹Рµ С‚РµР»Р° РѕС‡Р°РіРѕРІ Рё РѕРґРёРЅ РѕР±С‰РёР№ РІР»Р°РґРµР»РµС† СѓСЂРѕРЅР°. */
 public final class LbcEternalWealth {
-    static final String TAG="skywars2.eternal_wealth";
+    public static final String TAG="skywars2.eternal_wealth";
     private static final TagKey<Block> SOLID=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:solid"));
     private static final TagKey<Block> FLUIDS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:fluids"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
@@ -48,14 +48,14 @@ public final class LbcEternalWealth {
     private final Set<UUID> dirty=new HashSet<>(),carriers=new HashSet<>();
     private boolean restoring;
     private int lastTick=Integer.MIN_VALUE,playerPhase;
-    LbcEternalWealth(GameController game){this.game=game;}
+    public LbcEternalWealth(GameController game){this.game=game;}
     public void inventoryChanged(ServerPlayer player){dirty.add(player.getUUID());}
     public static boolean managed(Entity entity){return entity.entityTags().contains(TAG);}
     public int count(){return actors.size();}
     public int fields(){return (int)actors.values().stream().filter(a->a.kind==Kind.FIELD).count();}
     public int diamonds(){return (int)actors.values().stream().filter(a->a.kind==Kind.DIAMOND).count();}
-    List<Marker> snapshot(){return List.copyOf(actors.keySet());}
-    boolean captureReady(){return actors.values().stream().noneMatch(a->a.kind==Kind.PENDING);}
+    public List<Marker> snapshot(){return List.copyOf(actors.keySet());}
+    public boolean captureReady(){return actors.values().stream().noneMatch(a->a.kind==Kind.PENDING);}
     private boolean suppressed(ServerLevel level,Vec3 at){return game.items().magic().suppressedAt(level,at);}
     private boolean admitted(ServerPlayer p){return p!=null&&p.isAlive()&&!p.isRemoved()&&!game.isObserver(p)
             &&game.canUseGameplayItems(p)&&LbcDimensionItems.ordinary(p)&&game.items().wands().validRoleTarget(p,false)
@@ -96,7 +96,7 @@ public final class LbcEternalWealth {
     }
     private static void setValue(Marker marker,String key,String text){String prefix=TAG+"."+key+".";marker.entityTags().removeIf(t->t.startsWith(prefix));marker.entityTags().add(prefix+text);}
     private static String value(Marker marker,String key,String fallback){String prefix=TAG+"."+key+".";for(var tag:marker.entityTags())if(tag.startsWith(prefix))return tag.substring(prefix.length());return fallback;}
-    void loaded(Entity entity){
+    public void loaded(Entity entity){
         if(restoring||!(entity instanceof Marker marker)||!managed(marker)||actors.containsKey(marker))return;
         try{
             var kind=Kind.valueOf(value(marker,"kind",""));
@@ -106,7 +106,7 @@ public final class LbcEternalWealth {
             actors.put(marker,actor);
         }catch(IllegalArgumentException invalid){marker.discard();}
     }
-    void unloaded(Entity entity){if(entity instanceof Marker marker)actors.remove(marker);}
+    public void unloaded(Entity entity){if(entity instanceof Marker marker)actors.remove(marker);}
     private void remove(Actor actor){actors.remove(actor.body);actor.body.discard();}
     private void intake(ServerPlayer player){
         if(!admitted(player)||suppressed(player.level(),player.position())||game.items().magic().rejectCustomEffect(player))return;
@@ -170,7 +170,7 @@ public final class LbcEternalWealth {
         remove(pending);
     }
     /** РћР±СЉРµРґРёРЅРµРЅРёРµ С‡РµС‚С‹СЂС‘С… РёСЃС…РѕРґРЅС‹С… fill: РєСѓР± 7Ві Рё РїРѕ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРјСѓ СЃР»РѕСЋ РІРґРѕР»СЊ РєР°Р¶РґРѕР№ РѕСЃРё. */
-    static boolean inMask(int x,int y,int z){return Math.abs(x)<=4&&Math.abs(y)<=4&&Math.abs(z)<=4
+    public static boolean inMask(int x,int y,int z){return Math.abs(x)<=4&&Math.abs(y)<=4&&Math.abs(z)<=4
             &&(Math.abs(x)<=3?0:1)+(Math.abs(y)<=3?0:1)+(Math.abs(z)<=3?0:1)<=1;}
     private void fill(Actor actor){
         var level=(ServerLevel)actor.body.level();var center=actor.body.blockPosition();
@@ -260,14 +260,14 @@ public final class LbcEternalWealth {
         removed.forEach(this::remove);
     }
     private static void maskCells(BlockPos center,Set<Long> output){for(int x=-4;x<=4;x++)for(int y=-4;y<=4;y++)for(int z=-4;z<=4;z++)if(inMask(x,y,z))output.add(center.offset(x,y,z).asLong());}
-    void stop(){for(var actor:List.copyOf(actors.values()))actor.body.discard();actors.clear();dirty.clear();carriers.clear();restoring=false;playerPhase=0;}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    void prepareFrozen(){restoring=true;actors.clear();dirty.clear();carriers.clear();}
-    void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();for(var p:game.server().getPlayerList().getPlayers())inventoryChanged(p);}
-    final class Checkpoint {
+    public void stop(){for(var actor:List.copyOf(actors.values()))actor.body.discard();actors.clear();dirty.clear();carriers.clear();restoring=false;playerPhase=0;}
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public void prepareFrozen(){restoring=true;actors.clear();dirty.clear();carriers.clear();}
+    public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();for(var p:game.server().getPlayerList().getPlayers())inventoryChanged(p);}
+    public final class Checkpoint {
         private final List<Image> images=actors.values().stream().map(a->new Image(a.body.getUUID(),a.cause,a.kind,a.age)).toList();
         private final int phase=playerPhase;
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var pending=new LinkedHashSet<UUID>();var rebuilt=new LinkedHashMap<Marker,Actor>();
             for(var image:images){var entity=lookup.apply(image.id());if(!(entity instanceof Marker marker)){pending.add(image.id());continue;}
                 var actor=new Actor(marker,image.cause(),image.kind(),image.age());rebuilt.put(marker,actor);}

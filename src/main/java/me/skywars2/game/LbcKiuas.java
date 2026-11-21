@@ -68,10 +68,10 @@ public final class LbcKiuas {
 
     public static boolean isCurse(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==111;}
     /** Ordinary Kiuas arrows reuse the ordered source tag conversion without a held-arcanum mana charge. */
-    void arrowTerrain(ServerPlayer owner,net.minecraft.world.phys.Vec3 point,boolean ground) {
+    public void arrowTerrain(ServerPlayer owner,net.minecraft.world.phys.Vec3 point,boolean ground) {
         arrowTerrain(owner.level(),owner,point,ground,game.items().indirectKills().coldCause(owner,true));
     }
-    void arrowTerrain(ServerLevel level,ServerPlayer owner,Vec3 point,boolean ground,LbcIndirectKills.Owner cause){
+    public void arrowTerrain(ServerLevel level,ServerPlayer owner,Vec3 point,boolean ground,LbcIndirectKills.Owner cause){
         checkpointCallbacks++;try {
             var center=BlockPos.containing(point);int radius=ground?15:1;
             var newFire=new ArrayList<BlockPos>();
@@ -123,7 +123,7 @@ public final class LbcKiuas {
         if(cause!=null){tag.putString("owner",cause.player().toString());tag.putLong("order",cause.order());tag.putBoolean("projectile",cause.projectile());}
         target.setAttached(CURSE,tag);
     }
-    void loaded(Entity entity){
+    public void loaded(Entity entity){
         checkpointCallbacks++;try {
             if(!(entity instanceof LivingEntity target))return;if(LbcParasite.active(target)){clearCurse(target);return;}var tag=target.getAttached(CURSE);if(tag==null)return;
             if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clearCurse(target);return;}
@@ -132,11 +132,11 @@ public final class LbcKiuas {
             if(game.items().mana().hudValue(target,"effect_kiuaskivi")>0)cursed.put(target,cause);else clearCurse(target);
         }finally{checkpointCallbacks--;}
     }
-    void unloaded(Entity entity){
+    public void unloaded(Entity entity){
         checkpointCallbacks++;try {    if(entity instanceof LivingEntity target)cursed.remove(target);
         }finally{checkpointCallbacks--;}
     }
-    void adoptRawFoodStatuses(ServerPlayer player){
+    public void adoptRawFoodStatuses(ServerPlayer player){
         if(game.items().mana().hudValue(player,"effect_kiuaskivi")<=0||game.items().magic().rejectCustomDebuff(player))return;
         var cause=cursed.computeIfAbsent(player,p->game.items().indirectKills().wildCause(player));saveCurse(player,cause);
     }
@@ -192,7 +192,7 @@ public final class LbcKiuas {
         return data==null?0:data.matchedBy(SUN_FLAG)?2:data.matchedBy(KIUAS_FLAG)?1:0;
     }
     public static boolean isKiuaskivi(ItemStack stack) { return (kind(stack)&1)!=0; }
-    LbcKiuas(GameController game,LbcMana mana) {
+    public LbcKiuas(GameController game,LbcMana mana) {
         this.game=game;
         for(var value:Map.of("kiuaskivi_mana_activate",1000,"kiuaskivi_mana_tick",10,"kiuaskivi_mana_tick_sec",200,
                 "sun_arcanum_mana_activate",1500,"sun_arcanum_mana_tick",100,"sun_arcanum_mana_tick_sec",400).entrySet())
@@ -224,9 +224,9 @@ public final class LbcKiuas {
         return new PreparedSunPattern(pattern,Map.copyOf(shifts));
     }
     public int count() { return auras.size(); }
-    int activeKinds(ServerPlayer player){var aura=auras.get(player.getUUID());if(aura==null)return 0;
+    public int activeKinds(ServerPlayer player){var aura=auras.get(player.getUUID());if(aura==null)return 0;
         return (aura.mainActive||aura.offActive?1:0)|(aura.mainSunActive||aura.offSunActive?2:0);}
-    int queuedBlockCount() { return auras.values().stream().mapToInt(a->a.small.queuedBlockCount()+a.large.queuedBlockCount()+a.sun.queuedBlockCount()+a.sunChanged.size()).sum(); }
+    public int queuedBlockCount() { return auras.values().stream().mapToInt(a->a.small.queuedBlockCount()+a.large.queuedBlockCount()+a.sun.queuedBlockCount()+a.sunChanged.size()).sum(); }
 
     public void tick() {
         checkpointCallbacks++;try {
@@ -368,13 +368,13 @@ public final class LbcKiuas {
         aura.sunChanged.clear();
     }
 
-    static BlockState kiuResult(BlockState state) {
+    public static BlockState kiuResult(BlockState state) {
         // Preserve both fills in their original order: the second predicate sees the first fill's result.
         var result=state.is(TO_AIR)?Blocks.AIR.defaultBlockState():state;
         return result.is(TO_FIRE)?Blocks.FIRE.defaultBlockState():result;
     }
     /** Preserve the ordered classification, but admit new fire only at a supported live position. */
-    static BlockState kiuResult(ServerLevel level,BlockPos pos,BlockState state) {
+    public static BlockState kiuResult(ServerLevel level,BlockPos pos,BlockState state) {
         var result=kiuResult(state);
         if(!result.is(Blocks.FIRE)||state.is(Blocks.FIRE))return result;
         if(fireSupported(level,pos)){
@@ -384,7 +384,7 @@ public final class LbcKiuas {
         // The first conversion still removes water/snow even when the second cannot ignite it.
         return state.is(TO_AIR)?Blocks.AIR.defaultBlockState():state;
     }
-    static boolean fireSupported(ServerLevel level,BlockPos pos) {
+    public static boolean fireSupported(ServerLevel level,BlockPos pos) {
         if(!resident(level,pos))return false;
         // Native fire checks support and flammability, never another fire cell as support.
         // Preflight neighbours so vanilla's local check cannot synchronously load a chunk.
@@ -469,9 +469,9 @@ public final class LbcKiuas {
         }finally{checkpointCallbacks--;}
     }
 
-    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Kiuas aura callbacks before checkpointing");}
+    public void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Kiuas aura callbacks before checkpointing");}
     /** Rollback only: keep curse/native authorities intact while discarding future fill metadata. */
-    void prepareAuraFrozen(){
+    public void prepareAuraFrozen(){
         checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();
     }
     void clearFutureTerrain(){
@@ -481,18 +481,18 @@ public final class LbcKiuas {
         }
         index.clear();work.clear();scheduled.clear();
     }
-    void publishAuraFrozen(){
+    public void publishAuraFrozen(){
         checkpointBoundary();index.clear();
         for(var aura:auras.values()){
             aura.chunks.clear();aura.kiuasIndexed=false;aura.sunIndexed=false;aura.indexedSmallBounds=null;aura.indexedSunBounds=null;reindex(aura);
         }
         checkpointRestoring=false;
     }
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
         checkpointBoundary();if(queuedBlockCount()!=0)throw new IllegalStateException("Finish Kiuas/Sun terrain before taking aura essentials");
         return new Checkpoint(links);
     }
-    final class Checkpoint {
+    public final class Checkpoint {
         private record AuraImage(Aura original,UUID owner,ServerLevel ownerLevel,int mainKind,int offKind,boolean mainActive,boolean offActive,boolean mainSunActive,boolean offSunActive,
                 boolean paused,boolean maintaining,int mainRemaining,int offRemaining,BlockAreaWork.Bounds small,BlockAreaWork.Bounds large,
                 BlockAreaWork.Bounds sun,BlockPos origin) { }
@@ -515,11 +515,11 @@ public final class LbcKiuas {
             curses.addAll(current.curses);for(var image:previous.curses)if(image.player!=null&&!previous.cursePlayers.contains(image.player))curses.add(image);
             installed.addAll(current.installed);cursePlayers.addAll(current.cursePlayers);baseInstalled=true;
         }
-        Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
-        void resetReplay(){installed.clear();cursePlayers.clear();baseInstalled=false;}
-        Set<UUID> pendingPlayers(){var pending=new HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);
+        public Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
+        public void resetReplay(){installed.clear();cursePlayers.clear();baseInstalled=false;}
+        public Set<UUID> pendingPlayers(){var pending=new HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);
             for(var image:curses)if(image.player!=null&&!cursePlayers.contains(image.player))pending.add(image.player);return Set.copyOf(pending);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();if(sunPattern!=pattern&&saved.stream().anyMatch(image->image.origin!=null))throw new IllegalStateException("Reconcile the prepared Sun corpus before aura replay");
             var plans=new java.util.ArrayList<Runnable>();
             for(var image:curses){
@@ -575,7 +575,7 @@ public final class LbcKiuas {
         }
         boolean hasWork() { return small.hasWork() || large.hasWork() || sun.hasWork(); }
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof LivingEntity target)||!cursed.containsKey(target))return null;
         var cause=cursed.get(target);var timer=CloneRemainingStatusStates.scores(game,source,java.util.List.of("effect_kiuaskivi"));
         return new LbcCloneSkills.ActorImage(){

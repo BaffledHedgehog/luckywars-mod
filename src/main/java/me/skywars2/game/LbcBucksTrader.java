@@ -84,7 +84,7 @@ public final class LbcBucksTrader {
         return result.getFirst();
     }
     /** Exact native predicates retain the complete chosen input, including nested/private components. */
-    static MerchantOffer offer(ItemStack buy,ItemStack sell){
+    public static MerchantOffer offer(ItemStack buy,ItemStack sell){
         if(buy.isEmpty()||sell.isEmpty())throw new IllegalArgumentException("Empty bucks offer");
         var cost=new ItemCost(buy.getItem().builtInRegistryHolder(),buy.getCount(),DataComponentExactPredicate.allOf(buy.getComponents()),buy.copy());
         return new MerchantOffer(cost,Optional.empty(),sell.copy(),1,Integer.MAX_VALUE,1,0);

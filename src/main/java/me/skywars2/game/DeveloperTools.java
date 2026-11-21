@@ -111,8 +111,8 @@ public final class DeveloperTools {
     }
     public void giveTools(ServerPlayer player){if(!authorized(player))return;for(int i=0;i<player.getInventory().getContainerSize();i++)if(isTools(player.getInventory().getItem(i)))return;give(player,new ItemStack(ITEM));}
     private static void give(ServerPlayer player,ItemStack stack){if(!player.getInventory().add(stack))player.drop(stack,false,net.minecraft.util.Prediction.SERVER_ONLY);}
-    static boolean isTools(ItemStack stack){var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();return stack.is(ITEM)||data.getBooleanOr("developer_menu",false)||data.getIntOr("developer_menu",0)==1;}
-    static MarkerKind kind(ItemStack stack){
+    public static boolean isTools(ItemStack stack){var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();return stack.is(ITEM)||data.getBooleanOr("developer_menu",false)||data.getIntOr("developer_menu",0)==1;}
+    public static MarkerKind kind(ItemStack stack){
         String nativeKind=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getStringOr("developer_marker","");
         for(var kind:MarkerKind.values())if(kind.name().equals(nativeKind))return kind;
         var entity=stack.get(DataComponents.ENTITY_DATA);if(entity==null||entity.type()!=EntityTypes.MARKER&&entity.type()!=EntityTypes.VILLAGER)return null;
@@ -140,7 +140,7 @@ public final class DeveloperTools {
         }
         return result;
     }
-    Entity place(ServerPlayer player,MarkerKind kind,Vec3 at,ItemStack stack){
+    public Entity place(ServerPlayer player,MarkerKind kind,Vec3 at,ItemStack stack){
         if(!authorized(player))return null;
         if(kind==MarkerKind.DELETE){for(var entity:mapMarkers(player))if(entity.position().distanceToSqr(at)<=9)entity.discard();if(!player.isCreative())stack.shrink(1);return null;}
         Entity entity;

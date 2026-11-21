@@ -10,9 +10,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 
 /** Match choices and their active effects. Profile/menu IDs remain the player's original picks. */
-final class LbcResolvedLevelups {
+public final class LbcResolvedLevelups {
     /** Zero means not rolled; every nonzero outcome is a real, installed upgrade. */
-    record Image(int randomOutcome, int firstStat, int secondStat, long effectiveMask) {
+    public record Image(int randomOutcome, int firstStat, int secondStat, long effectiveMask) {
         Image {
             if (randomOutcome < 0 || randomOutcome > 44 || randomOutcome != 0 && !contains(REAL_MASK, randomOutcome)
                     || firstStat < -1 || firstStat >= 21
@@ -29,13 +29,13 @@ final class LbcResolvedLevelups {
     private final Map<UUID, Image> images = new HashMap<>();
     private boolean restoring;
 
-    LbcResolvedLevelups(GameController game) { this(game, RandomSource.create()); }
+    public LbcResolvedLevelups(GameController game) { this(game, RandomSource.create()); }
     LbcResolvedLevelups(GameController game, RandomSource random) {
         this.game = game;
         this.random = java.util.Objects.requireNonNull(random);
     }
-    boolean rebuilding() { return restoring; }
-    Image image(UUID player) { thread(); return images.getOrDefault(player, EMPTY); }
+    public boolean rebuilding() { return restoring; }
+    public Image image(UUID player) { thread(); return images.getOrDefault(player, EMPTY); }
 
     private void thread() {
         if (!game.server().isSameThread()) throw new IllegalStateException("Resolve levelups on the server thread");
@@ -44,10 +44,10 @@ final class LbcResolvedLevelups {
         thread();
         if (restoring) throw new IllegalStateException("Do not mutate choices while restoring canonical bodies");
     }
-    static boolean contains(long mask, int id) { return id > 0 && id <= 44 && (mask & 1L << id) != 0; }
+    public static boolean contains(long mask, int id) { return id > 0 && id <= 44 && (mask & 1L << id) != 0; }
 
     /** Only raw picks pass the ordinary gate. A resolved Tatam result bypasses that result's gate. */
-    long resolve(ServerPlayer player, int[] raw, int limit, boolean enabled, IntPredicate allowedRaw) {
+    public long resolve(ServerPlayer player, int[] raw, int limit, boolean enabled, IntPredicate allowedRaw) {
         mutable();
         UUID id = player.getUUID();
         Image before = images.getOrDefault(id, EMPTY);
@@ -85,17 +85,17 @@ final class LbcResolvedLevelups {
         return effective;
     }
 
-    long mask(ServerPlayer player) {
+    public long mask(ServerPlayer player) {
         thread();
         return restoring ? 0 : images.getOrDefault(player.getUUID(), EMPTY).effectiveMask();
     }
-    boolean has(ServerPlayer player, int id) { return contains(mask(player), id); }
-    static Set<Integer> ids(long mask) {
+    public boolean has(ServerPlayer player, int id) { return contains(mask(player), id); }
+    public static Set<Integer> ids(long mask) {
         var result = new HashSet<Integer>();
         for (int id = 1; id <= 44; id++) if (contains(mask, id)) result.add(id);
         return Set.copyOf(result);
     }
-    void applyRandomStats(ServerPlayer player) {
+    public void applyRandomStats(ServerPlayer player) {
         mutable();
         var image = images.getOrDefault(player.getUUID(), EMPTY);
         if (!contains(image.effectiveMask(), 1)) return;
@@ -105,16 +105,16 @@ final class LbcResolvedLevelups {
     }
 
     /** Attribute/resource removal, death and role cleanup remove activity, never the match choices. */
-    void deactivate(ServerPlayer player) {
+    public void deactivate(ServerPlayer player) {
         thread();
         if (restoring) return;
         images.computeIfPresent(player.getUUID(), (id, image) -> new Image(
                 image.randomOutcome(), image.firstStat(), image.secondStat(), 0));
     }
     /** Actual full leave. Ordinary respawn/body replacement must never call this. */
-    void forget(UUID player) { mutable(); images.remove(player); }
+    public void forget(UUID player) { mutable(); images.remove(player); }
     /** Full match start/end/reset, including stop/cancel; never same-match map replacement. */
-    void resetMatch() { mutable(); images.clear(); }
+    public void resetMatch() { mutable(); images.clear(); }
     /** Clone adapters copy scalars, never re-run source selection or consume RNG. */
     void copy(UUID source, UUID target) {
         mutable();
@@ -122,8 +122,8 @@ final class LbcResolvedLevelups {
         if (image == null) images.remove(target); else images.put(target, image);
     }
 
-    Checkpoint checkpoint() { thread(); return new Checkpoint(); }
-    final class Checkpoint {
+    public Checkpoint checkpoint() { thread(); return new Checkpoint(); }
+    public final class Checkpoint {
         private final String epoch = game.items().epoch();
         private final Map<UUID, Image> saved;
         private final MatchRandomState rng;
@@ -138,7 +138,7 @@ final class LbcResolvedLevelups {
             this.rng = rng;
         }
         /** Recaptured points inherit only actual pending offline rows, keeping the current RNG. */
-        Checkpoint withPending(Checkpoint previous, Set<UUID> pending) {
+        public Checkpoint withPending(Checkpoint previous, Set<UUID> pending) {
             thread();
             var merged = new HashMap<>(saved);
             for (var id : pending) {
@@ -154,25 +154,25 @@ final class LbcResolvedLevelups {
                 throw new IllegalStateException("Restore levelup choices in their stable frozen match");
         }
         /** Block loadout reapplication while native player bodies/modifiers are reconstructed. */
-        void prepareFrozen() { frozen(); restoring = true; prepared = true; installed = false; }
-        void restoreFrozen() {
+        public void prepareFrozen() { frozen(); restoring = true; prepared = true; installed = false; }
+        public void restoreFrozen() {
             frozen();
             if (!prepared) throw new IllegalStateException("Prepare levelup choices before scalar restore");
             images.clear(); images.putAll(saved); rng.restore(random); installed = true;
         }
         /** A delayed login restores one saved row without rewinding other players or the RNG. */
-        void restorePlayerFrozen(UUID id) {
+        public void restorePlayerFrozen(UUID id) {
             frozen();
             var image = saved.get(id);
             if (image == null) images.remove(id); else images.put(id, image);
         }
         /** Native body checkpoints already restored modifiers/resources; publication writes none. */
-        void publishFrozen() {
+        public void publishFrozen() {
             frozen();
             if (!installed) throw new IllegalStateException("Install levelup choices before publication");
             restoring = false; prepared = false;
         }
         // Stop may run after its match epoch was invalidated; releasing this scalar gate is safe.
-        void cancelFrozen() { thread(); restoring = false; prepared = false; installed = false; }
+        public void cancelFrozen() { thread(); restoring = false; prepared = false; installed = false; }
     }
 }

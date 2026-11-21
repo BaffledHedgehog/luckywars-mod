@@ -186,8 +186,8 @@ public final class LbcMadokaBow {
     public void clear(){for(var job:List.copyOf(restoreJobs))if(!job.isRemoved())job.discard();restoreJobs.clear();
         for(var arrow:List.copyOf(arrows))if(!arrow.isRemoved())arrow.discard();arrows.clear();}
     public void reindexRestored(Iterable<Entity> restored){arrows.clear();restoreJobs.clear();for(var entity:restored)loaded(entity);}
-    static boolean cloneRecognizes(Entity entity){return recognizes(entity);}
-    LbcCloneSkills.ActorImage cloneImage(Entity original){
+    public static boolean cloneRecognizes(Entity entity){return recognizes(entity);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original){
         if(!recognizes(original)||!current(original))return null;
         // Native snapshot copies all tags/arrow components. Only this owner's identity index is rebuilt.
         return CloneComplexProjectileStates.image(this::loaded,this::unloaded);

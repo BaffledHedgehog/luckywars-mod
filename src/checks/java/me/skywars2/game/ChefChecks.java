@@ -86,13 +86,13 @@ public final class ChefChecks {
             player.getStats().setValue(player,Stats.ENTITY_KILLED.get(EntityTypes.COW),cowKills);game.items().magic().inventoryChanged(player);
         }
     }
-    static final class Fixture implements AutoCloseable {
-        final GameController game;final LbcWtf service;final LbcMana mana;final ServerPlayer owner,other;
-        final Saved saved,otherSaved;final MatchValueSnapshot config;final Vec3 at;final BlockPos center;
+    public static final class Fixture implements AutoCloseable {
+        final GameController game;final LbcWtf service;final LbcMana mana;public final ServerPlayer owner,other;
+        final Saved saved,otherSaved;final MatchValueSnapshot config;public final Vec3 at;public final BlockPos center;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final List<Cow> cows=new ArrayList<>();
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final net.minecraft.world.scores.PlayerTeam team;
         final BoundingBox bounds;final List<ScheduledTick<Block>> blockTicks=new ArrayList<>();final List<ScheduledTick<Fluid>> fluidTicks=new ArrayList<>();boolean closed;
-        Fixture(GameController game){
+        public Fixture(GameController game){
             this.game=game;service=game.items().wtf();mana=game.items().mana();owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(owner!=null&&other!=null&&game.playing()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two active participants");
             require(service.pendingCount()==0&&!game.items().timeStop().stopped(owner.level()),"no unrelated Chef, fountain or dimension Time Stop work");
@@ -102,7 +102,7 @@ public final class ChefChecks {
             bounds=new BoundingBox(center.getX()-16,center.getY()-4,center.getZ()-16,center.getX()+16,center.getY()+12,center.getZ()+16);
             team=game.server().getScoreboard().addPlayerTeam("chef_fixture");team.setAllowFriendlyFire(false);
         }
-        void init(){
+        public void init(){
             for(var p:BlockPos.betweenClosed(center.offset(-16,-4,-16),center.offset(16,12,16))){require(owner.level().hasChunkAt(p),"all possible test terrain resident");blocks.put(p.immutable(),game.maps().snapshot(owner.level(),p));}
             for(int x=bounds.minX()>>4;x<=bounds.maxX()>>4;x++)for(int z=bounds.minZ()>>4;z<=bounds.maxZ()>>4;z++){
                 var chunk=owner.level().getChunk(x,z);
@@ -123,8 +123,8 @@ public final class ChefChecks {
             }
             move(owner,at.add(-12,0,-12));move(other,at.add(12,0,-12));game.items().magic().flushCleansing();
         }
-        void block(BlockPos p,Block type){require(blocks.containsKey(p),"fixture writes only snapshotted terrain");owner.level().setBlock(p,type.defaultBlockState(),2);}
-        void move(ServerPlayer player,Vec3 pos){player.teleportTo(player.level(),pos.x,pos.y,pos.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);}
+        public void block(BlockPos p,Block type){require(blocks.containsKey(p),"fixture writes only snapshotted terrain");owner.level().setBlock(p,type.defaultBlockState(),2);}
+        public void move(ServerPlayer player,Vec3 pos){player.teleportTo(player.level(),pos.x,pos.y,pos.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);}
         Cow cow(Vec3 pos){var c=new Cow(EntityTypes.COW,owner.level());c.setPos(pos);c.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);c.setHealth(20);c.setNoAi(true);c.setNoGravity(true);owner.level().addFreshEntity(c);cows.add(c);return c;}
         LbcWtf.Chef spawn(ServerPlayer author,Cow target){var c=service.spawn(author,target);require(c!=null&&!c.isRemoved(),"native Chef created");require(blocks.containsKey(c.blockPosition()),"spawn inside saved terrain");return c;}
         void clear(){for(var c:service.snapshot()){c.discard();service.unloaded(c);}require(service.count()==0,"all fixture Chefs retired");}

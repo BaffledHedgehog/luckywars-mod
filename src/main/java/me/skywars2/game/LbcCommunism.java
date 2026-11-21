@@ -63,7 +63,7 @@ public final class LbcCommunism {
     }
     public void ownershipObjectiveRemoved(){ownershipScores.clear();scoreCohorts.clear();}
     /** Canonical score ownership plus native controller/summon authority, independent of distance. */
-    List<Entity> controlledActors(UUID id){
+    public List<Entity> controlledActors(UUID id){
         var result=identitySet();result.addAll(controlled.getOrDefault(id,Set.of()));
         var player=game.server().getPlayerList().getPlayer(id);
         var objective=game.server().getScoreboard().getObjective("lbcID2");
@@ -74,13 +74,13 @@ public final class LbcCommunism {
         result.removeIf(actor->{var current=owners.get(actor);return current!=null&&!current.equals(id);});
         return List.copyOf(result);
     }
-    void reindexOwnership(Collection<Entity> bodies){
+    public void reindexOwnership(Collection<Entity> bodies){
         resident.clear();ownershipScores.clear();scoreCohorts.clear();controlled.clear();
         owners.forEach((actor,id)->controlled.computeIfAbsent(id,key->identitySet()).add(actor));
         for(var actor:bodies)loaded(actor);
     }
 
-    LbcCommunism(GameController game){this.game=game;}
+    public LbcCommunism(GameController game){this.game=game;}
     private static Item create(){
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:communism"));
         var flags=new CompoundTag();flags.putInt("communism",1);flags.putInt("raycastspell",1);
@@ -98,11 +98,11 @@ public final class LbcCommunism {
         });
     }
     public static void register(){}
-    static boolean matches(ItemStack stack){return !stack.isEmpty()&&(stack.is(ITEM)||LbcFartus.data(stack).getIntOr("communism",0)==1);}
-    ServerPlayer owner(Entity entity){var id=owners.get(entity);return id==null?null:game.server().getPlayerList().getPlayer(id);}
-    void removed(Entity entity){removeOwner(entity);removeScore(entity);resident.remove(entity.getScoreboardName(),entity);}
+    public static boolean matches(ItemStack stack){return !stack.isEmpty()&&(stack.is(ITEM)||LbcFartus.data(stack).getIntOr("communism",0)==1);}
+    public ServerPlayer owner(Entity entity){var id=owners.get(entity);return id==null?null:game.server().getPlayerList().getPlayer(id);}
+    public void removed(Entity entity){removeOwner(entity);removeScore(entity);resident.remove(entity.getScoreboardName(),entity);}
     public void converted(Entity original,Entity converted){var id=owners.get(original);removed(original);loaded(converted);if(id!=null)putOwner(converted,id);}
-    void stop(){owners.clear();controlled.clear();resident.clear();ownershipScores.clear();scoreCohorts.clear();}
+    public void stop(){owners.clear();controlled.clear();resident.clear();ownershipScores.clear();scoreCohorts.clear();}
     /** One native team/AI owner bridge shared by the ray and authority subjugation. */
     private void control(ServerPlayer p,Entity target,boolean leave){
         var board=game.server().getScoreboard();
@@ -116,13 +116,13 @@ public final class LbcCommunism {
         if(target.entityTags().contains("sauvojen_tuntija"))p.entityTags().add("friendly_tuntija");
     }
     /** lbcr:podchinenie keeps its distinct counter payload; historical projectile causes are not rebound. */
-    void subjugate(ServerPlayer p,Entity target,boolean leave,boolean copyId){
+    public void subjugate(ServerPlayer p,Entity target,boolean leave,boolean copyId){
         if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return;
         control(p,target,leave);copyScore(p,target,"team_number");if(copyId)copyScore(p,target,"lbcID2");
         if(!(target instanceof Player))game.items().spellSources().controllerChanged(target,p);
     }
     /** Exact nonplayer lbcr:podchinenie cell, reused by authority actor producers. */
-    void subjugateAt(ServerPlayer p,net.minecraft.server.level.ServerLevel level,Vec3 at,java.util.function.Predicate<Entity> allowed){
+    public void subjugateAt(ServerPlayer p,net.minecraft.server.level.ServerLevel level,Vec3 at,java.util.function.Predicate<Entity> allowed){
         var cell=new AABB(at,at.add(1,1,1));
         for(var e:level.getEntities((Entity)null,cell,e->!(e instanceof Player)&&e.getType().builtInRegistryHolder().is(MOBS)
                 &&e.position().distanceToSqr(at)<=225&&game.items().wands().validRoleTarget(e,false,true)&&!LbcGreed.active(e)
@@ -134,7 +134,7 @@ public final class LbcCommunism {
         var value=objective==null?null:board.getPlayerScoreInfo(from,objective);
         if(value!=null)board.getOrCreatePlayerScore(to,objective,true).set(value.value());
     }
-    boolean use(ServerPlayer p,InteractionHand hand){
+    public boolean use(ServerPlayer p,InteractionHand hand){
         if(!matches(p.getItemInHand(hand))||!game.items().mana().visible(p)||!game.items().wands().validTarget(p)
                 ||game.items().actionsBlocked(p)||game.items().magic().suppressed(p)||game.items().timeStop().stopped(p.level())
                 ||p.entityTags().contains("nomagic_active")||p.entityTags().contains("time_stopped")||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
@@ -158,15 +158,15 @@ public final class LbcCommunism {
         }
         return true;
     }
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private final Map<MatchDamageSources.Ref,UUID> image=new LinkedHashMap<>();
         Checkpoint(MatchSpellCheckpoint.Links links){owners.forEach((actor,id)->image.put(links.key(actor),id));}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=new WeakHashMap<Entity,UUID>();image.forEach((ref,id)->restored.put(links.get(ref),id));
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var restored=new WeakHashMap<Entity,UUID>();image.forEach((ref,id)->restored.put(links.get(ref),id));
             return ()->{owners.clear();controlled.clear();restored.forEach((actor,id)->putOwner(actor,id));};}
     }
 
-    LbcCloneSkills.ActorImage cloneImage(Entity source){var owner=owners.get(source);if(owner==null)return null;
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){var owner=owners.get(source);if(owner==null)return null;
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){putOwner(clone,owner);}
             public void rollback(Entity clone){removeOwner(clone);}

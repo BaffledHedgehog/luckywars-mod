@@ -41,7 +41,7 @@ public final class FevgaleaStarChecks {
     private static boolean unbatched(GameController game) {
         return game.balanceLegacy()||Boolean.getBoolean("skywars2.checkUnbatchedFevgalea");
     }
-    static void verifyBeamPackets(GameController game, List<ClientboundLevelParticlesPacket> packets,
+    public static void verifyBeamPackets(GameController game, List<ClientboundLevelParticlesPacket> packets,
                                   Vec3 origin, Vec3 direction, int samples, String label) {
         int particles=packets.stream().mapToInt(ClientboundLevelParticlesPacket::count).sum();
         SkyWars2.LOGGER.info("[check] Fevgalea {} beam: {} packets for {} sparks",label,packets.size(),particles);

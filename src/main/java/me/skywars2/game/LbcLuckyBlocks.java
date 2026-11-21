@@ -112,7 +112,7 @@ public final class LbcLuckyBlocks {
     public static Item item(Kind kind){return ITEMS[kind.ordinal()];}
 
     /** Balance toggles after map placement, so update existing visible blocks once at the boundary. */
-    static void legacyPresentationChanged(MinecraftServer server,boolean active){
+    public static void legacyPresentationChanged(MinecraftServer server,boolean active){
         var lucky=(LuckyBlock)block(Kind.NORMAL);
         for(var level:server.getAllLevels()){
             var tracking=(ArenaChunkAccess)level.getChunkSource().chunkMap;

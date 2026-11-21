@@ -53,12 +53,12 @@ public final class SignedEnvironmentalEffects {
                 !game.server().tickRateManager().runsNormally()||game.items().wands().timeStopped()
                 ||game.items().timeStop().frozen(target)||target instanceof LivingEntity living&&game.items().frost().isFrozen(living)));
     }
-    static boolean terrainPaused(Entity target) { return paused(target); }
+    public static boolean terrainPaused(Entity target) { return paused(target); }
     static void cancelTerrain(LivingEntity source) { EffectTerrain.cancel(source); }
     static long terrainTickNanos() { return EffectTerrain.tickNanos(); }
     static long terrainVisited() { return EffectTerrain.visited(); }
     static long terrainWrites() { return EffectTerrain.writes(); }
-    static int queuedTerrain() { return EffectTerrain.queued(); }
+    public static int queuedTerrain() { return EffectTerrain.queued(); }
     public static void beginTick() { EffectTerrain.beginTick(); }
     public static boolean breathes(LivingEntity e) {
         return level(e,MobEffects.WATER_BREATHING)>0||level(e,MobEffects.CONDUIT_POWER)>0||level(e,MobEffects.BREATH_OF_THE_NAUTILUS)>0;
@@ -147,7 +147,7 @@ public final class SignedEnvironmentalEffects {
             if(remaining>0)spawns.addLast(new SpawnJob(job.level,job.at,job.negative,remaining,job.source,job.author));
         }
     }
-    static void discardQueuedForRollback(){spawns.clear();EffectTerrain.clear();}
+    public static void discardQueuedForRollback(){spawns.clear();EffectTerrain.clear();}
     public static void clear() { spawns.clear();EffectTerrain.clear();authors.clear();offspringOwners.clear(); }
     public static long queuedSpawns() { long n=0;for(var job:spawns)n+=job.remaining;return n; }
     public static void removed(ServerLevel level,LivingEntity mob,int amplifier,Entity.RemovalReason reason,MobEffect effect) {
@@ -185,7 +185,7 @@ public final class SignedEnvironmentalEffects {
     public static void tickWebs() {
         EffectTerrain.tick();
     }
-    static LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static LbcCloneSkills.ActorImage cloneImage(Entity source){
         var active=new HashMap<Holder<MobEffect>,ServerPlayer>();
         if(source instanceof LivingEntity living){var map=authors.get(living);if(map!=null)map.forEach((type,a)->{if(living.getEffect(type)==a.effect)active.put(type,a.player);});}
         var offspring=offspringOwners.get(source);if(active.isEmpty()&&offspring==null)return null;

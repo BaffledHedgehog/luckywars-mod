@@ -167,8 +167,8 @@ public final class LbcDiamondifier {
         if(actor==null||!game.items().currentEpoch(actor.epoch)){body.discard();return;}actor.body=(Marker)body;game.items().timeStop().prepareFrozen(body);
     }
     public void unloaded(Entity body){/* Accepted scalar state remains until native body rebind. */}
-    static boolean cloneRecognizes(Entity body){return managed(body);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity body){return managed(body);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var original=actors.get(source.getUUID());if(original==null)return null;
         int age=original.lifetime;boolean active=original.active;long pulses=original.pulses,consumed=original.consumed,writes=original.writes;
         return new LbcCloneSkills.ActorImage(){
@@ -183,7 +183,7 @@ public final class LbcDiamondifier {
     public void prepareFrozen(){checkpointBoundary();restoring=true;actors.clear();fills.clear();phases.clear();}
     public void publishFrozen(){checkpointBoundary();restoring=false;lastTick=game.server().getTickCount();}
     public void cancelFrozen(){stop();}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
         checkpointBoundary();record Saved(Actor actor,MatchDamageSources.Ref body,int lifetime,boolean active,long pulses,long consumed,long writes){}
         var all=Collections.newSetFromMap(new IdentityHashMap<Actor,Boolean>());all.addAll(actors.values());for(var fill:fills)all.add(fill.actor);
         var saved=all.stream().map(a->new Saved(a,actors.containsKey(a.body.getUUID())?graph.links.key(a.body):null,a.lifetime,a.active,a.pulses,a.consumed,a.writes)).toList();

@@ -24,7 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 /** Bootstrap catalog of native direct-use inputs; the ordinary native owners execute every effect. */
-final class LbcTmtUseProfiles {
+public final class LbcTmtUseProfiles {
     static final String NATIVE_ITEM="tmt_native_item";
     private static final String PREFIX="native_use/";
     private static final Set<String> SERVICE=Set.of("accessory","arcanum","arcanumt","arcanum2t","arcanum5t",
@@ -35,10 +35,10 @@ final class LbcTmtUseProfiles {
             "upgradable","upgrade_available","mana","mode","type","upgraded","spellid","spellcount",
             "cooltype","phd","drop","imba","tmt","tmt_item","tmt_texture_seed");
 
-    record Family(String id,List<LbcTmtAbilities.Ability> variants) {
+    public record Family(String id,List<LbcTmtAbilities.Ability> variants) {
         Family { variants=List.copyOf(variants);if(variants.isEmpty())throw new IllegalArgumentException("Empty native use family"); }
     }
-    record Domains(int registeredItems,int canonicalPrototypes,int admittedPrototypes,int variants,
+    public record Domains(int registeredItems,int canonicalPrototypes,int admittedPrototypes,int variants,
                    List<String> unrecognizedItems,List<String> excludedExistingItems,List<String> missingNativeItems,
                    List<String> legacyOwnerGaps) {
         Domains { unrecognizedItems=List.copyOf(unrecognizedItems);excludedExistingItems=List.copyOf(excludedExistingItems);
@@ -111,8 +111,8 @@ final class LbcTmtUseProfiles {
                 List.copyOf(rejected),List.copyOf(existing),List.copyOf(missing),gaps);
     }
 
-    List<Family> families(){return families;}
-    Domains domains(){return domains;}
+    public List<Family> families(){return families;}
+    public Domains domains(){return domains;}
     LbcTmtAbilities.Ability draw(RandomSource random) {
         if(families.isEmpty())throw new IllegalStateException("No recognized native TMT use families");
         var family=families.get(random.nextInt(families.size()));

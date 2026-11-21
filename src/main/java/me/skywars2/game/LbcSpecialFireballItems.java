@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 
 /** Canonical throwable identities delegate their final native payload to the shared special-projectile factory. */
 public final class LbcSpecialFireballItems {
-    record Entry(String id,String definition,Item item){}
+    public record Entry(String id,String definition,Item item){}
     private static final List<Entry> ENTRIES=List.of(
             entry("throwable_small_fireball","smallfireball__5403050a24bc"),
             entry("throwable_large_fireball","bigfireball__58955493346d"),
@@ -26,7 +26,7 @@ public final class LbcSpecialFireballItems {
             entry("impulse_dart","impulsedart__c82cc92e3e6e"));
     private LbcSpecialFireballItems(){}
     public static void register(){for(var entry:ENTRIES)net.minecraft.world.level.block.DispenserBlock.registerProjectileBehavior(entry.item());}
-    static List<Entry> entries(){return ENTRIES;}
+    public static List<Entry> entries(){return ENTRIES;}
     private static Entry entry(String id,String definition){
         return entry(id,"lbc",definition);
     }

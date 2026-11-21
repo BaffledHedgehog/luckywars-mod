@@ -38,7 +38,7 @@ import java.util.Set;
 public final class LbcBloodConfuse {
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private final GameController game;
-    LbcBloodConfuse(GameController game){this.game=game;}
+    public LbcBloodConfuse(GameController game){this.game=game;}
 
     public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean blood,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||owner.entityTags().contains("time_stopped")
@@ -73,7 +73,7 @@ public final class LbcBloodConfuse {
     private void particles(ServerPlayer owner,Vec3 at,ParticleOptions type,int count,double dx,double dy,double dz,double speed){
         owner.level().sendParticles(type,true,false,at.x,at.y+1,at.z,count,dx,dy,dz,speed);
     }
-    void blood(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
+    public void blood(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         Vec3 at=owner.position();
         LbcOverload.sound(owner,at,"minecraft:entity.ender_dragon.growl",1,2,0);
         particles(owner,at,new BlockParticleOption(ParticleTypes.BLOCK,Blocks.REDSTONE_BLOCK.defaultBlockState()),1500,8,8,8,0);
@@ -101,7 +101,7 @@ public final class LbcBloodConfuse {
             }
         }
     }
-    void confuse(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,int mode){
+    public void confuse(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,int mode){
         Vec3 at=owner.position();int before=Mth.floor(at.y);
         switch(mode){
             case 1->{effect(owner,owner,MobEffects.INVISIBILITY,200,0,false);
@@ -142,7 +142,7 @@ public final class LbcBloodConfuse {
             game.items().academy().ready(owner,hand,stack);
     }
     /** Conditional distribution of vanilla's single-target spread, without repeated void scans/chunk loads. */
-    static Vec3 spreadDestination(ServerLevel level,Vec3 center,net.minecraft.util.RandomSource random){
+    public static Vec3 spreadDestination(ServerLevel level,Vec3 center,net.minecraft.util.RandomSource random){
         int max=level.dimension()==Level.NETHER?120:level.getMaxY()+1;
         double weight=0;Vec3 chosen=null;
         for(int x=Mth.floor(center.x-10);x<Math.ceil(center.x+10);x++)for(int z=Mth.floor(center.z-10);z<Math.ceil(center.z+10);z++){

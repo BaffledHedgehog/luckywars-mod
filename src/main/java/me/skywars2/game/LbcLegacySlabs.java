@@ -34,7 +34,7 @@ public final class LbcLegacySlabs {
             Blocks.POLISHED_BASALT,Blocks.SOUL_SAND,Blocks.SOUL_SOIL,Blocks.BONE_BLOCK,Blocks.BLACKSTONE,Blocks.NETHER_GOLD_ORE,Blocks.NETHER_QUARTZ_ORE,Blocks.FIRE_CORAL_BLOCK};
     private static final int[][] SIDES={{1,0,0},{-1,0,0},{0,0,1},{0,0,-1}},SIX={{1,0,0},{-1,0,0},{0,0,1},{0,0,-1},{0,1,0},{0,-1,0}};
     private static final EntityType<?>[] CREATURES={EntityTypes.PIGLIN,EntityTypes.PIGLIN_BRUTE,EntityTypes.MAGMA_CUBE,EntityTypes.GHAST,EntityTypes.PIGLIN,EntityTypes.WITHER_SKELETON,EntityTypes.BLAZE,EntityTypes.HOGLIN,EntityTypes.ZOMBIFIED_PIGLIN};
-    enum Kind { BLOOD, DOWN, CENTRAL }
+    public enum Kind { BLOOD, DOWN, CENTRAL }
     private final GameController game;
     private LinkedHashMap<UUID,Actor> actors=new LinkedHashMap<>();
     private Map<ServerLevel,Integer> sourceLevels=new IdentityHashMap<>();
@@ -218,9 +218,9 @@ public final class LbcLegacySlabs {
     public List<Entity> snapshot(){return actors.values().stream().map(a->(Entity)a.body).toList();}
     LivingEntity owner(Entity entity){var actor=entity==null?null:actors.get(entity.getUUID());return actor==null||actor.source.author()==null?null:game.server().getPlayerList().getPlayer(actor.source.author());}
     LbcIndirectKills.Owner cause(Entity entity){var actor=entity==null?null:actors.get(entity.getUUID());return actor==null?null:actor.source.cause();}
-    record View(UUID body,Kind kind,Vec3 position,LbcSpellSource.Source source){}
-    List<View> views(){return actors.values().stream().map(a->new View(a.body.getUUID(),a.kind,a.body.position(),a.source)).toList();}
-    static List<Block> palette(){return List.of(PALETTE);}
+    public record View(UUID body,Kind kind,Vec3 position,LbcSpellSource.Source source){}
+    public List<View> views(){return actors.values().stream().map(a->new View(a.body.getUUID(),a.kind,a.body.position(),a.source)).toList();}
+    public static List<Block> palette(){return List.of(PALETTE);}
     public void loaded(Entity entity){
         if(restoring||MatchActorCheckpoint.restoring(entity)||!managed(entity))return;
         var actor=actors.get(entity.getUUID());if(actor==null||!(entity instanceof Marker marker)||!game.items().currentEpoch(actor.source.epoch())){entity.discard();return;}
@@ -229,7 +229,7 @@ public final class LbcLegacySlabs {
     public void unloaded(Entity entity){}
     public void removed(Entity entity){if(restoring||MatchActorCheckpoint.restoring(entity))return;var reason=entity.getRemovalReason();if(reason!=null&&reason.shouldDestroy()){var actor=actors.get(entity.getUUID());if(actor!=null)unindex(actor);}}
     boolean cloneRecognizes(Entity entity){return actors.containsKey(entity.getUUID());}
-    LbcCloneSkills.ActorImage cloneImage(Entity entity){
+    public LbcCloneSkills.ActorImage cloneImage(Entity entity){
         var actor=actors.get(entity.getUUID());if(actor==null)return null;
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){index(new Actor((Marker)clone,actor.kind,actor.source));game.items().spellSources().bind(clone,actor.source);}
@@ -241,13 +241,13 @@ public final class LbcLegacySlabs {
     public void prepareFrozen(){checkpointBoundary();restoring=true;actors=new LinkedHashMap<>();sourceLevels=new IdentityHashMap<>();rays=Collections.newSetFromMap(new IdentityHashMap<>());pending=null;}
     public void publishFrozen(){checkpointBoundary();restoring=false;lastTick=game.server().getTickCount();}
     public void cancelFrozen(){checkpointBoundary();restoring=false;}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         private record Image(Actor actor,MatchDamageSources.Ref body){}
         final List<Image> images;final Set<Ray> accepted=Set.copyOf(rays);final Frame work=pending;
         final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){images=actors.values().stream().map(a->new Image(a,graph.links.key(a.body))).toList();if(work!=null)graph.capture(work);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var restored=new LinkedHashMap<UUID,Actor>();var plans=new ArrayList<Runnable>();
             for(var image:images){var body=(Marker)links.get(image.body);MatchAuthorityCheckpoint.world(game,(ServerLevel)body.level());restored.put(body.getUUID(),image.actor);plans.add(()->image.actor.body=body);}
             return ()->{plans.forEach(Runnable::run);actors=restored;sourceLevels=new IdentityHashMap<>();for(var actor:actors.values())sourceLevels.merge((ServerLevel)actor.body.level(),1,Integer::sum);rays=Collections.newSetFromMap(new IdentityHashMap<>());rays.addAll(accepted);pending=work;lastTick=clock.last(game);};

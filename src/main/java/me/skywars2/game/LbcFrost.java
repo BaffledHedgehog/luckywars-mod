@@ -68,8 +68,8 @@ public final class LbcFrost {
     private int statusCallbacks,secondOffset,restoredPhase;
     private boolean statusRestoring;
 
-    LbcFrost(GameController game) { this.game = game; }
-    static void register() { }
+    public LbcFrost(GameController game) { this.game = game; }
+    public static void register() { }
 
     private boolean eligible(LivingEntity entity) {
         if(game.items().polymorph().masked(entity))return false;
@@ -81,7 +81,7 @@ public final class LbcFrost {
     }
 
     /** Общая исходная область Ice Sword / Snow Pearl: все недавно раненые чужие цели вокруг владельца. */
-    void hitTargets(ServerPlayer owner) {
+    public void hitTargets(ServerPlayer owner) {
         if (!game.canUseGameplayItems(owner) || owner.level() != level()) return;
         for (var target : level().getEntitiesOfClass(LivingEntity.class,
                 new AABB(owner.position(), owner.position()).inflate(7), entity ->
@@ -111,20 +111,20 @@ public final class LbcFrost {
     }
 
     /** Ice Wand adds cold only while thawed; another hit never refreshes an existing freeze. */
-    boolean iceHit(LivingEntity entity,ServerPlayer source,LbcIndirectKills.Owner accepted){
+    public boolean iceHit(LivingEntity entity,ServerPlayer source,LbcIndirectKills.Owner accepted){
         if(!eligible(entity))return false;
         if(!isFrozen(entity))add(entity,source,true,accepted);
         return isFrozen(entity);
     }
 
     /** Shattering uses the same native block restoration as a normal thaw. */
-    boolean shatter(LivingEntity entity){
+    public boolean shatter(LivingEntity entity){
         if(!isFrozen(entity))return false;
         clear(entity);entity.removeEffect(MobEffects.SLOWNESS);return true;
     }
 
     /** Source Runic Ice Shard pulse; frozen holders retain the resistance reward. */
-    void runicShard(ServerPlayer player){
+    public void runicShard(ServerPlayer player){
         statusCallbacks++;try {if(statusRestoring)return;
             if(!eligible(player))return;
             var state=affected.computeIfAbsent(player,State::new);
@@ -143,7 +143,7 @@ public final class LbcFrost {
     }
 
     /** Snow-cloud source: +2 cold (initial Slowness multiplier), cooldown2, no frozen refresh. */
-    boolean snow(LivingEntity entity,ServerPlayer source){
+    public boolean snow(LivingEntity entity,ServerPlayer source){
         statusCallbacks++;try {if(statusRestoring)return false;
             if(!eligible(entity)||source==null||!game.canUseGameplayItems(source))return false;
             var state=affected.computeIfAbsent(entity,State::new);
@@ -156,7 +156,7 @@ public final class LbcFrost {
     }
 
     /** Existing frost counters retain their native stored units (seconds for both timers). */
-    void addPlayerCounters(ServerPlayer player) {
+    public void addPlayerCounters(ServerPlayer player) {
         var state=affected.get(player);
         if(state==null || !eligible(player)) return;
         if(state.cold>0) state.cold++;
@@ -165,7 +165,7 @@ public final class LbcFrost {
         save(state);
     }
 
-    void adoptRawFoodStatuses(ServerPlayer player){
+    public void adoptRawFoodStatuses(ServerPlayer player){
         statusCallbacks++;try {if(statusRestoring)return;
             if(!eligible(player))return;var mana=game.items().mana();
             int cold=mana.hudValue(player,"cold"),cooldown=mana.hudValue(player,"cold_cd"),duration=mana.hudValue(player,"frozen");
@@ -213,7 +213,7 @@ public final class LbcFrost {
         game.items().indirectKills().coldEffect(entity,ItemEffectLevels.create(effect,ticks,amplifier,false,false,false),source);
     }
 
-    void tick() {
+    public void tick() {
         statusCallbacks++;try {
             if(statusRestoring)return;
             // Cold без frozen требует только секундной обработки; инвентарь здесь не читается.
@@ -236,7 +236,7 @@ public final class LbcFrost {
     }
 
     /** Общая секундная точка входа пригодится и предметам, ускоряющим исходный tick1s. */
-    void second() {
+    public void second() {
         statusCallbacks++;try {
             if(statusRestoring)return;
             batch.addAll(affected.values());
@@ -352,7 +352,7 @@ public final class LbcFrost {
         state.entity.setAttached(DATA, tag);
     }
 
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         statusCallbacks++;try {
             if(statusRestoring)return;
             if (!(entity instanceof LivingEntity living)) return;
@@ -380,7 +380,7 @@ public final class LbcFrost {
         }finally{statusCallbacks--;}
     }
 
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         statusCallbacks++;try {
             if(statusRestoring)return;
             if (!(entity instanceof LivingEntity living)) return;
@@ -407,7 +407,7 @@ public final class LbcFrost {
         }finally{statusCallbacks--;}
     }
 
-    void stop() {
+    public void stop() {
         statusCallbacks++;try {
             for (var state : List.copyOf(affected.values())) clear(state.entity);
             for (var entry : List.copyOf(ice.entrySet())) restore(entry.getKey(), entry.getValue().original);
@@ -416,13 +416,13 @@ public final class LbcFrost {
         }finally{statusCallbacks--;}
     }
 
-    void checkpointBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish Frost status callbacks before checkpointing");}
+    public void checkpointBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish Frost status callbacks before checkpointing");}
     /** Native bodies/effects and terrain are restored by their owners; never thaw or restore blocks here. */
-    void prepareFrozen(){checkpointBoundary();statusRestoring=true;affected.clear();frozen.clear();ice.clear();batch.clear();}
-    void publishFrozen(){checkpointBoundary();secondOffset=Math.floorMod(restoredPhase-game.server().getTickCount(),20);statusRestoring=false;}
-    void cancelFrozen(){checkpointBoundary();statusRestoring=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void prepareFrozen(){checkpointBoundary();statusRestoring=true;affected.clear();frozen.clear();ice.clear();batch.clear();}
+    public void publishFrozen(){checkpointBoundary();secondOffset=Math.floorMod(restoredPhase-game.server().getTickCount(),20);statusRestoring=false;}
+    public void cancelFrozen(){checkpointBoundary();statusRestoring=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record StateImage(State original,MatchDamageSources.Ref entity,int cold,int cooldown,int frozen,LbcIndirectKills.Owner cause,
                 BlockPos anchor,List<BlockPos> cells,ListTag saved) { }
         private record IceImage(Ice original,CompoundTag block,Set<UUID> owners) { }
@@ -436,7 +436,7 @@ public final class LbcFrost {
                     state.anchor==null?null:state.anchor.immutable(),List.copyOf(state.cells),state.savedIce.copy())).toList();
             ice.forEach((pos,block)->blocks.put(pos.immutable(),new IceImage(block,block.original.copy(),Set.copyOf(block.owners))));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var plans=new ArrayList<Runnable>();
             for(var image:states){var entity=(LivingEntity)links.get(image.entity);boolean offline=MatchOfflinePlayers.retained(entity);var saved=image.saved.copy();
                 plans.add(()->{var state=image.original;state.entity=entity;state.retainedOffline=offline;state.cold=image.cold;state.cooldown=image.cooldown;
@@ -451,11 +451,11 @@ public final class LbcFrost {
     public int cold(LivingEntity entity) { var state = affected.get(entity); return state == null ? 0 : state.cold; }
     public int cooldown(LivingEntity entity) { var state = affected.get(entity); return state == null ? 0 : state.cooldown; }
     public int frozenSeconds(LivingEntity entity) { var state = affected.get(entity); return state == null ? 0 : state.frozen; }
-    void suspendForm(LivingEntity entity){
+    public void suspendForm(LivingEntity entity){
         statusCallbacks++;try {if(statusRestoring)return;    var state=affected.get(entity);if(state!=null&&state.anchor!=null)thaw(state,false);
         }finally{statusCallbacks--;}
     }
-    void resumeForm(LivingEntity entity){
+    public void resumeForm(LivingEntity entity){
         if(LbcParasite.active(entity)){clear(entity);return;}
         statusCallbacks++;try {if(statusRestoring)return;    var state=affected.get(entity);if(state!=null&&state.frozen>0&&entity.level()==level()){
             state.anchor=entity.blockPosition();captureIce(state);frozen.add(state);hold(state);save(state);
@@ -466,7 +466,7 @@ public final class LbcFrost {
     public int trackedCount() { return affected.size(); }
     public int iceBlockCount() { return ice.size(); }
     private ServerLevel level() { return game.maps().level(); }
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof LivingEntity living))return null;var state=affected.get(living);if(state==null)return null;
         int cold=state.cold,cooldown=state.cooldown,seconds=state.frozen;var cause=state.source;var anchor=state.anchor;
         var cells=List.copyOf(state.cells);var saved=state.savedIce.copy();

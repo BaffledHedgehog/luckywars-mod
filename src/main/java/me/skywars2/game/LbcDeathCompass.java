@@ -43,7 +43,7 @@ public final class LbcDeathCompass {
                 .min(java.util.Comparator.comparingInt((GlobalPos pos)->pos.dimension()==player.level().dimension()?0:1)
                         .thenComparingDouble(pos->{double x=pos.pos().getX()+.5-player.getX(),z=pos.pos().getZ()+.5-player.getZ();return x*x+z*z;}));
     }
-    static boolean matchingDeath(ServerPlayer player){
+    public static boolean matchingDeath(ServerPlayer player){
         // Native command integer results floor Pos; the source deliberately ignores death Y and dimension.
         var death=deathTarget(player);
         return death.isPresent()&&Mth.floor(player.getX())==death.get().pos().getX()
@@ -101,7 +101,7 @@ public final class LbcDeathCompass {
     }
     /** Single-entity vanilla spreadplayers: square samples, first two-air floor, tag/liquid checks and 10000 tries.
      * Cache resident column scans only within this synchronous command; no terrain loads or fallback location. */
-    static boolean spread(ServerLevel level,Entity entity,int maxHeight,RandomSource random){
+    public static boolean spread(ServerLevel level,Entity entity,int maxHeight,RandomSource random){
         return spread(level,entity,maxHeight,random,false);
     }
     private static boolean spread(ServerLevel level,Entity entity,int maxHeight,RandomSource random,boolean avoidPlayers){
@@ -125,7 +125,7 @@ public final class LbcDeathCompass {
         }
         return false;
     }
-    static int spawnY(ServerLevel level,int x,int z,int maxHeight){
+    public static int spawnY(ServerLevel level,int x,int z,int maxHeight){
         if(maxHeight<level.getMinY()||!Level.isInSpawnableBounds(new BlockPos(x,0,z))
                 ||level.getChunkSource().getChunkNow(x>>4,z>>4)==null)return Integer.MIN_VALUE;
         var pos=new BlockPos.MutableBlockPos(x,maxHeight+1,z);

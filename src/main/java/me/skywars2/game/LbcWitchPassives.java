@@ -216,16 +216,16 @@ public final class LbcWitchPassives {
     private void removeAuthority(ServerPlayer p){if(managed.remove(p)){removeModifiers(p);p.entityTags().remove("sin_greed_active");}}
     void reconciled(ServerPlayer p){managed.remove(p);removeModifiers(p);p.entityTags().remove("sin_greed_active");}
     public void forget(ServerPlayer p){removeAuthority(p);if(hearted.remove(p)!=null)p.entityTags().remove("sin_greed_have_heart");}
-    int count(){return managed.size()+hearted.size();}
+    public int count(){return managed.size()+hearted.size();}
     public void stop(){for(var p:List.copyOf(managed))removeAuthority(p);for(var e:List.copyOf(hearted.keySet()))e.entityTags().remove("sin_greed_have_heart");hearted.clear();lastTick=Integer.MIN_VALUE;phaseOffset=0;}
-    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish passive authority callbacks first");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish passive authority callbacks first");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private final List<MatchDamageSources.Ref> players;
         private final Map<MatchDamageSources.Ref,String> hearts=new LinkedHashMap<>();
         private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,phaseOffset);
         Checkpoint(MatchSpellCheckpoint.Links links){players=managed.stream().map(links::key).toList();hearted.forEach((entity,epoch)->hearts.put(links.key(entity),epoch));}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var next=Collections.newSetFromMap(new IdentityHashMap<ServerPlayer,Boolean>());
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var next=Collections.newSetFromMap(new IdentityHashMap<ServerPlayer,Boolean>());
             for(var ref:players){if(!(links.get(ref) instanceof ServerPlayer p))throw new IllegalStateException("Restore passive authority players first");next.add(p);}
             var targets=new WeakHashMap<Entity,String>();hearts.forEach((ref,epoch)->targets.put(links.get(ref),epoch));
             return ()->{managed.clear();managed.addAll(next);hearted.clear();hearted.putAll(targets);lastTick=clock.last(game);phaseOffset=clock.offset(game);};}

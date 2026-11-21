@@ -12,13 +12,13 @@ import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 
 /** Native player-side actor ledgers. Bodies and UUID relationships have separate owners. */
-final class MatchPlayerLinks {
+public final class MatchPlayerLinks {
     private record Image(ServerPlayer original,Set<UUID> pearls,UUID fishing) { }
     private final GameController game;
     private final Map<UUID,Image> images=new LinkedHashMap<>();
     private final Set<ServerPlayer> bodies=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
-    MatchPlayerLinks(GameController game,Function<UUID,Entity> actors) {
+    public MatchPlayerLinks(GameController game,Function<UUID,Entity> actors) {
         this.game=game;
         for(var player:game.server().getPlayerList().getPlayers()) {
             var pearls=new LinkedHashSet<UUID>();
@@ -36,12 +36,12 @@ final class MatchPlayerLinks {
     }
     private static void require(boolean ok,String message){if(!ok)throw new IllegalStateException(message);}
     /** Clear old removed player bodies as well as current sessions and later newcomers. */
-    void clear() {
+    public void clear() {
         bodies.addAll(game.server().getPlayerList().getPlayers());
         for(var player:bodies)clear(player);
     }
     private static void clear(ServerPlayer player){player.getEnderPearls().clear();player.fishing=null;}
-    void restore(Function<UUID,Entity> actors,Set<UUID> pending) {
+    public void restore(Function<UUID,Entity> actors,Set<UUID> pending) {
         clear();
         for(var entry:images.entrySet()) {
             var image=entry.getValue();var player=game.server().getPlayerList().getPlayer(entry.getKey());

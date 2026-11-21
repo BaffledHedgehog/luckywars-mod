@@ -77,7 +77,7 @@ public final class LbcAcceptedHits {
             projectileFeedback(game, shooter);
     }
 
-    static void projectileFeedback(GameController game, ServerPlayer shooter) {
+    public static void projectileFeedback(GameController game, ServerPlayer shooter) {
         if (projectileFeedbackActive(game) && game.server().getPlayerList().getPlayer(shooter.getUUID()) == shooter
                 && shooter.connection != null) {
             shooter.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND, 0));

@@ -29,7 +29,7 @@ import net.minecraft.world.ticks.ScheduledTick;
  * not the complete Vanity checkpoint: actors, core state and private ability queues
  * must be captured by its caller before that authority can be enabled.
  */
-final class MatchTerrainCheckpoint {
+public final class MatchTerrainCheckpoint {
     private record Key(ServerLevel level, ChunkPos pos) { }
     private record ChunkImage(Key key, LevelChunkSection[] sections,
                               Map<BlockPos, CompoundTag> entities,
@@ -41,10 +41,10 @@ final class MatchTerrainCheckpoint {
     private final MatchBlockEvents events = new MatchBlockEvents();
     private Restore active;
 
-    MatchTerrainCheckpoint(MinecraftServer server) { this.server = server; }
+    public MatchTerrainCheckpoint(MinecraftServer server) { this.server = server; }
 
     /** No getChunk/generation or native queue mutation while taking the snapshot. */
-    static MatchTerrainCheckpoint captureLoaded(MinecraftServer server) {
+    public static MatchTerrainCheckpoint captureLoaded(MinecraftServer server) {
         var result = new MatchTerrainCheckpoint(server);
         result.thread();
         for (var level : server.getAllLevels())
@@ -66,7 +66,7 @@ final class MatchTerrainCheckpoint {
     }
 
     /** Explicit extension point for a future checkpoint owner's chunk-load boundary. */
-    void include(LevelChunk chunk) {
+    public void include(LevelChunk chunk) {
         thread();
         if (active != null) throw new IllegalStateException("Cannot extend an active terrain restore");
         if (!(chunk.getLevel() instanceof ServerLevel level) || level.getServer() != server)
@@ -90,7 +90,7 @@ final class MatchTerrainCheckpoint {
     }
 
     @SuppressWarnings("unchecked")
-    static <T> List<ScheduledTick<T>> captureTicks(LevelChunkTicks<T> container, long clock) {
+    public static <T> List<ScheduledTick<T>> captureTicks(LevelChunkTicks<T> container, long clock) {
         var result = new ArrayList<>(container.getAll().toList());
         var pending = ((TerrainCheckpointTicksAccess<T>) container).skywars2$pendingTicks();
         if (pending != null) {
@@ -100,7 +100,7 @@ final class MatchTerrainCheckpoint {
         return List.copyOf(result);
     }
 
-    int chunks() { return images.size(); }
+    public int chunks() { return images.size(); }
     /** Reuse the match loader's existing resident tickets; map teardown owns their release. */
     void retain(GameController game){
         thread();for(var key:images.keySet())game.maps().prepareChunk(key.level,key.pos);
@@ -124,7 +124,7 @@ final class MatchTerrainCheckpoint {
      * chunks from a half-restored world. The caller may rewind level gameTime first;
      * otherwise remaining tick delays are rebased to the current native timeline.
      */
-    Restore restore(GameController game) {
+    public Restore restore(GameController game) {
         thread();
         if (game.server() != server) throw new IllegalArgumentException("Different checkpoint server");
         if (active != null) throw new IllegalStateException("Terrain restore already active");
@@ -144,7 +144,7 @@ final class MatchTerrainCheckpoint {
         if (!server.isSameThread()) throw new IllegalStateException("Checkpoint access requires server thread");
     }
 
-    final class Restore implements AutoCloseable {
+    public final class Restore implements AutoCloseable {
         private final GameController game;
         private final List<ChunkImage> work;
         private final Map<ServerLevel, MapLighting.Update> lighting = new LinkedHashMap<>();
@@ -154,12 +154,12 @@ final class MatchTerrainCheckpoint {
         private boolean writesDone, complete, closed;
 
         private Restore(GameController game, List<ChunkImage> work) { this.game = game; this.work = work; }
-        long visited() { return visited; }
-        long changed() { return changed; }
+        public long visited() { return visited; }
+        public long changed() { return changed; }
         boolean complete() { return complete; }
 
         /** Budget counts examined cells, including unchanged cells; no unbounded scan. */
-        boolean step(int cellBudget) {
+        public boolean step(int cellBudget) {
             var arena=game.bedwars().arena();
             if(!arena.active())return stepNative(cellBudget);
             boolean[] result={false};

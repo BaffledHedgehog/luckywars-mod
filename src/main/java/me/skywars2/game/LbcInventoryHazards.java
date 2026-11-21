@@ -30,7 +30,7 @@ import java.util.UUID;
 /** Source carried hazards: live physical inventory predicates, native damage and native consequence actors. */
 public final class LbcInventoryHazards {
     /** Opaque native provenance is written only by an actual tracked producer's successful pickup path. */
-    static final String ORIGIN="skywars2_inventory_hazard_origin";
+    public static final String ORIGIN="skywars2_inventory_hazard_origin";
     public static final String MANAGED="skywars2_inventory_hazard_actor";
     private static final CompoundTag LIQUID=tag("liquidvoid",1),INSTANT=tag("instantitem",1),BOMB=tag("penis_bomb",1);
     private static final net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> UNHOLY=
@@ -46,12 +46,12 @@ public final class LbcInventoryHazards {
     public LbcInventoryHazards(GameController game){this.game=game;}
     private static CompoundTag tag(String key,int value){var result=new CompoundTag();result.putInt(key,value);return result;}
     private static boolean matches(ItemStack stack,CompoundTag predicate){var data=stack.get(DataComponents.CUSTOM_DATA);return !stack.isEmpty()&&data!=null&&data.matchedBy(predicate);}
-    static void recordProducer(ItemStack stack,UUID producer,String epoch){var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();var origin=new CompoundTag();origin.putString("producer",producer.toString());origin.putString("epoch",epoch);data.put(ORIGIN,origin);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));}
+    public static void recordProducer(ItemStack stack,UUID producer,String epoch){var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();var origin=new CompoundTag();origin.putString("producer",producer.toString());origin.putString("epoch",epoch);data.put(ORIGIN,origin);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));}
     private Origin origin(ItemStack stack){var data=stack.get(DataComponents.CUSTOM_DATA);if(data==null)return null;var value=data.copyTag().getCompound(ORIGIN).orElse(null);if(value==null)return null;try{var origin=new Origin(UUID.fromString(value.getStringOr("producer","")),value.getStringOr("epoch",""));return game.items().currentEpoch(origin.epoch)?origin:null;}catch(IllegalArgumentException ignored){return null;}}
     private LivingEntity producer(Origin origin){if(origin==null||!game.items().currentEpoch(origin.epoch))return null;var player=game.server().getPlayerList().getPlayer(origin.producer);if(player!=null)return player;var level=game.maps().level();var entity=level==null?null:level.getEntity(origin.producer);return entity instanceof LivingEntity living?living:null;}
     /** Shared carried-item provenance survives native pickup, splitting and later throws. */
-    LivingEntity producerOf(ItemStack stack){return producer(origin(stack));}
-    UUID producerIdOf(ItemStack stack){var value=origin(stack);return value==null?null:value.producer;}
+    public LivingEntity producerOf(ItemStack stack){return producer(origin(stack));}
+    public UUID producerIdOf(ItemStack stack){var value=origin(stack);return value==null?null:value.producer;}
     private LbcIndirectKills.Owner cause(Origin origin,boolean wild){return producer(origin) instanceof ServerPlayer player?(wild?game.items().indirectKills().wildCause(player):game.items().indirectKills().coldCause(player,false)):null;}
     /** Reflection and native TNT chains can transfer authority after the carried payload was emitted. */
     private Actor authority(Entity actor){
@@ -187,7 +187,7 @@ public final class LbcInventoryHazards {
     /** Native chain children serialize vanilla state; unsupported reload must not resurrect a detached cast. */
     public void loaded(Entity entity){if((entity instanceof PrimedTnt||entity instanceof LightningBolt)&&entity.entityTags().contains(MANAGED)&&!actors.containsKey(entity))entity.discard();}
     public void stop(){phase=0;for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();for(var work:List.copyOf(multicasts.keySet()))work.cancel();}
-    int count(){return actors.size();}
-    List<Entity> snapshot(){return List.copyOf(actors.keySet());}
-    int pendingMulticastCount(){return multicasts.size();}
+    public int count(){return actors.size();}
+    public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    public int pendingMulticastCount(){return multicasts.size();}
 }

@@ -34,12 +34,13 @@ public final class WoolBucketChecks {
     public static void runRewind(GameController game){start(game,true);}
     private static void start(GameController game,boolean rewind){require(running==null,"exclusive fixture");var f=new Fixture(game,rewind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
     public static void tick(GameController game){if(running==null)return;var f=running;try{require(f.game==game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} (17 native source prototypes/inputs; shared AIR-only trails, native bucket inventory/damage/audio; TimeStop, causal clone and native coordinator replay)",f.rewind?"wool-bucket-rewind":"wool-bucket");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+(f.rewind?"wool-bucket-rewind":"wool-bucket"),error);}}
-    static Object read(Object target,String name){for(Class<?> c=target.getClass();c!=null;c=c.getSuperclass())try{Field f=c.getDeclaredField(name);f.setAccessible(true);return f.get(target);}catch(NoSuchFieldException ignored){}catch(IllegalAccessException error){throw new IllegalStateException(error);}throw new IllegalStateException(name);}
+    public static Object read(Object target,String name){for(Class<?> c=target.getClass();c!=null;c=c.getSuperclass())try{Field f=c.getDeclaredField(name);f.setAccessible(true);return f.get(target);}catch(NoSuchFieldException ignored){}catch(IllegalAccessException error){throw new IllegalStateException(error);}throw new IllegalStateException(name);}
     private static String colorName(DyeColor color){return color.name().toLowerCase(Locale.ROOT);}
     private static List<BlockPos> cells(Vec3 position){var out=new ArrayList<BlockPos>();for(var p:BlockPos.betweenClosed(BlockPos.containing(position.add(-.5,-2.5,-.5)),BlockPos.containing(position.add(.5,-2.5,.5))))out.add(p.immutable());return out;}
 
     public static final class Fixture implements AutoCloseable {
-        final GameController game;final boolean rewind;final ServerPlayer owner,other;final ServerLevel level;
+        final GameController game;final boolean rewind;public final ServerPlayer owner;
+        final ServerPlayer other;public final ServerLevel level;
         final LbcBalance balance;final LbcThrownUtilities thrown;final MatchCoreCheckpoint core;
         final RegenerationBeltChecks.Snapshot saved,otherSaved;final RegenerationBeltChecks.ScheduledClient client,audience;
         final SauvojenMeditationChecks.Attribution attribution;final MatchRandomState random,otherRandom;final boolean frozen,regen;

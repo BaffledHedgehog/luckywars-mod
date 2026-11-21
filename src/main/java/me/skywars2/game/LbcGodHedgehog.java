@@ -374,36 +374,36 @@ public final class LbcGodHedgehog {
     }
     public int count(){return encounters.size()+actors.size()+lasers.size()+blastChildren.size();}
     public List<Entity> snapshot(){var list=new ArrayList<Entity>();for(var e:encounters)if(!e.boss.isRemoved())list.add(e.boss);for(var a:actors)if(a.body()!=null)list.add(a.body());return List.copyOf(list);}
-    int pendingBlasts(){return lasers.stream().mapToInt(l->101-l.cursor).sum();}
-    int actorCount(){return actors.size();}
-    List<TrialWarningVisual> warningSnapshot(){return actors.stream().filter(a->a.warning!=null).map(a->a.warning).toList();}
-    void phaseForCheck(int phase){activeTicker=phase;}
+    public int pendingBlasts(){return lasers.stream().mapToInt(l->101-l.cursor).sum();}
+    public int actorCount(){return actors.size();}
+    public List<TrialWarningVisual> warningSnapshot(){return actors.stream().filter(a->a.warning!=null).map(a->a.warning).toList();}
+    public void phaseForCheck(int phase){activeTicker=phase;}
     /** Explicit source-age boundaries for native fixtures; these do not advance elapsed server time. */
-    Entity eaterBoundary(Entity boss,Vec3 at,Vec3 direction,int age){
+    public Entity eaterBoundary(Entity boss,Vec3 at,Vec3 direction,int age){
         enterCheckpointCallback();try {
             var e=find(boss);if(e==null)return null;int previous=actors.size();seed(e,at,direction);if(actors.size()==previous)return null;var a=actors.getLast();a.age=age;return a.body();
         }finally{leaveCheckpointCallback();}
     }
-    Entity whiteBoundary(Entity boss,Vec3 at,Vec3 direction,int age){
+    public Entity whiteBoundary(Entity boss,Vec3 at,Vec3 direction,int age){
         enterCheckpointCallback();try {
             var e=find(boss);if(e==null)return null;var a=white(e,at,direction,age);return a==null?null:a.body();
         }finally{leaveCheckpointCallback();}
     }
-    void laserBoundary(Entity boss,Vec3 at,Vec3 direction){
+    public void laserBoundary(Entity boss,Vec3 at,Vec3 direction){
         enterCheckpointCallback();try {
         var e=find(boss);if(e!=null)lasers.add(new Laser(e,at,direction));
         }finally{leaveCheckpointCallback();}
     }
 
-    void checkpointBoundary(){if(checkpointCallbacks!=0||!spawning.isEmpty())throw new IllegalStateException("Finish God Hedgehog native callbacks before checkpointing");}
+    public void checkpointBoundary(){if(checkpointCallbacks!=0||!spawning.isEmpty())throw new IllegalStateException("Finish God Hedgehog native callbacks before checkpointing");}
     private void enterCheckpointCallback(){checkpointCallbacks++;}
     private void leaveCheckpointCallback(){checkpointCallbacks--;}
-    void prepareFrozen(){
+    public void prepareFrozen(){
         checkpointBoundary();checkpointRestoring=true;
         for(var actor:actors){if(actor.warning!=null)actor.warning.close();actor.warning=null;}
         encounters.clear();actors.clear();lasers.clear();blastSources.clear();blastChildren.clear();spawning.clear();
     }
-    void publishFrozen(){
+    public void publishFrozen(){
         checkpointBoundary();
         for(var actor:actors)if(actor.kind==1&&actor.age<40&&actor.warning==null){
             var from=actor.point.add(0,.2,0);
@@ -411,9 +411,9 @@ public final class LbcGodHedgehog {
         }
         checkpointRestoring=false;
     }
-    void cancelFrozen(){checkpointBoundary();checkpointRestoring=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void cancelFrozen(){checkpointBoundary();checkpointRestoring=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record EncounterImage(Encounter original,MatchDamageSources.Ref boss,boolean retired,boolean active,int hiddenTicks){}
         private record ActorImage(Actor original,MatchDamageSources.Ref body,Vec3 point,Vec3 direction,int age){}
         private record LaserImage(Laser original,int cursor){}
@@ -433,7 +433,7 @@ public final class LbcGodHedgehog {
             for(var child:blastChildren)if(!blastSources.containsKey(child))throw new IllegalStateException("God Hedgehog child has no accepted encounter source");
             savedSources=List.copyOf(sources);
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var plans=new ArrayList<Runnable>();
             for(var image:savedEncounters){var e=image.original;var body=links.get(image.boss);
                 if(body!=e.boss)throw new IllegalStateException("Restore the same native God Hedgehog boss");
@@ -450,9 +450,9 @@ public final class LbcGodHedgehog {
         }
     }
 
-    static boolean cloneRecognizes(Entity e){return !cloneActorRecognizes(e)&&(managed(e)||e instanceof LbcGodHedgehog.Boss);}
-    static boolean cloneProtected(Entity e){return false;}
-    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+    public static boolean cloneRecognizes(Entity e){return !cloneActorRecognizes(e)&&(managed(e)||e instanceof LbcGodHedgehog.Boss);}
+    public static boolean cloneProtected(Entity e){return false;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original) {
         var encounter=find(original);if(encounter==null||encounter.retired)return null;
         if(original instanceof Boss){var author=encounter.author;var cause=encounter.cause;var epoch=encounter.epoch;
             int hiddenTicks = encounter.hiddenTicks;
@@ -470,8 +470,8 @@ public final class LbcGodHedgehog {
         return null;
     }
 
-    static boolean cloneActorRecognizes(Entity source){return source instanceof Visual||source instanceof RayBody;}
-    LbcCloneSkills.ActorImage cloneActorImage(Entity source){
+    public static boolean cloneActorRecognizes(Entity source){return source instanceof Visual||source instanceof RayBody;}
+    public LbcCloneSkills.ActorImage cloneActorImage(Entity source){
         var actor=actors.stream().filter(a->a.body()==source).findFirst().orElse(null);if(actor==null)return null;
         var encounter=actor.encounter;var point=actor.point;var direction=actor.direction;var origin=source.position();int kind=actor.kind,age=actor.age;
         return new LbcCloneSkills.ActorImage(){
@@ -487,7 +487,7 @@ public final class LbcGodHedgehog {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var actor:actors)if(actor.body()!=null&&!actor.body().isRemoved()&&game.items().currentEpoch(actor.encounter.epoch)
                 &&!game.items().timeStop().frozen(actor.body())&&!actor.body().entityTags().contains("time_stopped")
                 &&LbcPlanetoidSkill.near(game,holder,actor.encounter.level,actor.point)){

@@ -7,12 +7,12 @@ import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.util.StringDecomposer;
 
 /** Assign the resource pack's no-shadow marker to custom actionbar glyphs only. */
-final class LbcHudIcons {
-    static final int COLOR = 0x4E5C24;
+public final class LbcHudIcons {
+    public static final int COLOR = 0x4E5C24;
 
     private LbcHudIcons() { }
 
-    static MutableComponent mark(Component component) {
+    public static MutableComponent mark(Component component) {
         MutableComponent result;
         if (component.getContents() instanceof PlainTextContents literal &&
                 literal.text().codePoints().anyMatch(LbcHudIcons::isIcon)) {

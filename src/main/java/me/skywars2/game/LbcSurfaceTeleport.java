@@ -9,12 +9,12 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 /** Finite resident-column search using vanilla spreadplayers' ground/two-air/ceiling rules. */
-final class LbcSurfaceTeleport {
+public final class LbcSurfaceTeleport {
     private LbcSurfaceTeleport(){}
-    static Vec3 destination(ServerLevel level,Vec3 center,int radius,int ceiling,RandomSource random){
+    public static Vec3 destination(ServerLevel level,Vec3 center,int radius,int ceiling,RandomSource random){
         return destination(level,center,radius,ceiling,random,at->true);
     }
-    static Vec3 destination(ServerLevel level,Vec3 center,int radius,int ceiling,RandomSource random,java.util.function.Predicate<Vec3> accept){
+    public static Vec3 destination(ServerLevel level,Vec3 center,int radius,int ceiling,RandomSource random,java.util.function.Predicate<Vec3> accept){
         int minX=Mth.floor(center.x-radius),minZ=Mth.floor(center.z-radius);
         int width=(int)Math.ceil(center.x+radius)-minX,depth=(int)Math.ceil(center.z+radius)-minZ;
         int count=width*depth,index=random.nextInt(count),step;

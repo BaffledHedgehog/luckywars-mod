@@ -26,7 +26,7 @@ public final class LbcReactiveOffense {
                          int acidCount,int bassCount,int soulCount){
         outgoing(attacker,victim,source,blocked,acidCount,bassCount,soulCount,null);
     }
-    void outgoing(ServerPlayer attacker,LivingEntity victim,DamageSource source,boolean blocked,
+    public void outgoing(ServerPlayer attacker,LivingEntity victim,DamageSource source,boolean blocked,
                          int acidCount,int bassCount,int soulCount,Runnable existing){
         if(blocked||source==null||LbcDamage.isArrowDamage(source)||source.getEntity()!=attacker
                 ||(!game.playing()&&!game.items().debugItemUseWindow())||restoring
@@ -134,15 +134,15 @@ public final class LbcReactiveOffense {
     void checkpointBoundary(){
         if(!game.server().isSameThread()||callbacks!=0)throw new IllegalStateException("Capture reactive offense between native callbacks");
     }
-    void prepareFrozen(){checkpointBoundary();restoring=true;for(var soul:List.copyOf(souls))soul.cancel();}
-    void publishFrozen(){checkpointBoundary();for(var soul:souls)soul.lastTick=game.server().getTickCount();restoring=false;}
-    void cancelFrozen(){checkpointBoundary();stop();}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void prepareFrozen(){checkpointBoundary();restoring=true;for(var soul:List.copyOf(souls))soul.cancel();}
+    public void publishFrozen(){checkpointBoundary();for(var soul:souls)soul.lastTick=game.server().getTickCount();restoring=false;}
+    public void cancelFrozen(){checkpointBoundary();stop();}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         private final List<Soul> saved=List.copyOf(souls);
         private final int bassClock=game.items().evokerBass().checkpointClock();
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){saved.forEach(graph::capture);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();saved.forEach(s->MatchAuthorityCheckpoint.world(game,s.level));
             return ()->{souls.clear();souls.addAll(saved);game.items().evokerBass().restoreClock(bassClock);};
         }

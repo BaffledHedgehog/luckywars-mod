@@ -10,7 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 public final class VanillaExpansionRules {
     private VanillaExpansionRules(){}
     public static boolean enabled(){var game=SkyWars2.game();return game==null||!game.balanceLegacy();}
-    static void changed(GameController game){
+    public static void changed(GameController game){
         boolean rebuilding=game.server().tickRateManager().isFrozen();
         if(!rebuilding)SignedEnvironmentalEffects.clear();
         SignedEffectVisuals.stop(game.server());

@@ -36,7 +36,7 @@ public final class LbcCarpetBots {
     private final Map<UUID,State> states=new LinkedHashMap<>();
     private final Map<UUID,ServerPlayer> pendingDeaths=new LinkedHashMap<>();
     public LbcCarpetBots(GameController game){this.game=game;}
-    void damaged(ServerPlayer player,net.minecraft.world.damagesource.DamageSource source){
+    public void damaged(ServerPlayer player,net.minecraft.world.damagesource.DamageSource source){
         var state=states.get(player.getUUID());
         if(state==null||state.player!=player)return;
         if(source.is(net.minecraft.world.damagesource.DamageTypes.THORNS)
@@ -47,9 +47,9 @@ public final class LbcCarpetBots {
                 &&shot.getOwner() instanceof net.minecraft.world.entity.LivingEntity attacker&&attacker!=player&&!player.isAlliedTo(attacker))
             state.defense.rangedDamage(attacker,shot);
     }
-    static boolean bot(ServerPlayer player){return CARPET_LOADED&&player.getGameProfile().name().regionMatches(true,0,"bot",0,3)
+    public static boolean bot(ServerPlayer player){return CARPET_LOADED&&player.getGameProfile().name().regionMatches(true,0,"bot",0,3)
             &&CarpetInput.fake(player);}
-    static boolean disconnectFake(ServerPlayer player, Component reason) {
+    public static boolean disconnectFake(ServerPlayer player, Component reason) {
         if (!CARPET_LOADED || !CarpetInput.fake(player)) return false;
         CarpetInput.disconnect(player, reason);
         return true;
@@ -90,12 +90,12 @@ public final class LbcCarpetBots {
     public void reset(){for(var state:List.copyOf(states.values()))state.close();states.clear();
         // Death transport belongs to the native body, even if a match ends before its next tick.
         pendingDeaths.entrySet().removeIf(e->game.server().getPlayerList().getPlayer(e.getKey())!=e.getValue());}
-    void prepareCheckpoint(){for(var state:List.copyOf(states.values()))state.crafting.cancel();}
+    public void prepareCheckpoint(){for(var state:List.copyOf(states.values()))state.crafting.cancel();}
     public boolean managed(ServerPlayer player){return bot(player)&&states.containsKey(player.getUUID());}
-    int count(){return states.size();}
-    record Observation(int attempts,int hits,int looted,int placements,int foods){}
-    Observation observation(ServerPlayer player){var s=states.get(player.getUUID());return s==null?new Observation(0,0,0,0,0):new Observation(s.attempts,s.hits,s.looted,s.placements,s.foods);}
-    String diagnostics(ServerPlayer player){var state=states.get(player.getUUID());return state==null?"inactive":state.diagnostics();}
+    public int count(){return states.size();}
+    public record Observation(int attempts,int hits,int looted,int placements,int foods){}
+    public Observation observation(ServerPlayer player){var s=states.get(player.getUUID());return s==null?new Observation(0,0,0,0,0):new Observation(s.attempts,s.hits,s.looted,s.placements,s.foods);}
+    public String diagnostics(ServerPlayer player){var state=states.get(player.getUUID());return state==null?"inactive":state.diagnostics();}
 
     /** Only linked when Fabric has loaded the optional Carpet mod. */
     private static final class CarpetInput {

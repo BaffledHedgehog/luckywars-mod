@@ -32,7 +32,7 @@ public final class LbcProjectileWeaponItems {
     private LbcProjectileWeaponItems(){}
     public static void register(){LbcLegacyRanged.register();Kind.values();}
     static Item bow(Item.Properties properties){return new NativeBow(properties);}
-    static List<Item> items(){
+    public static List<Item> items(){
         var out=new ArrayList<Item>();for(var kind:Kind.values())out.add(kind.item);
         out.add(LbcChargedBowItems.RAILGUN);out.add(LbcChargedBowItems.SHISHGUN);
         for(var kind:LbcImbaCrossbows.Kind.values())out.add(kind.item);return List.copyOf(out);

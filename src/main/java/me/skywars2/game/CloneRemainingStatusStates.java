@@ -7,7 +7,7 @@ import java.util.Map;
 import net.minecraft.world.entity.Entity;
 
 /** Remaining explicit target images and real native gameplay producer indexes. */
-final class CloneRemainingStatusStates {
+public final class CloneRemainingStatusStates {
     private CloneRemainingStatusStates(){}
     static boolean recognizes(Entity source){return LbcPendingCombat.cloneRecognizes(source)||LbcQuiver.cloneRecognizes(source)||LbcIncomingArtifacts.managed(source);}
     static boolean recognizesGameplay(Entity source){return recognizes(source);}
@@ -30,10 +30,10 @@ final class CloneRemainingStatusStates {
     }
     private static void add(List<LbcCloneSkills.ActorImage> images,LbcCloneSkills.ActorImage image){if(image!=null)images.add(image);}
     /** Read existing owner-defined clocks only; never materialize source score entries. */
-    static Map<String,Integer> scores(GameController game,Entity source,List<String> names){
+    public static Map<String,Integer> scores(GameController game,Entity source,List<String> names){
         var result=new LinkedHashMap<String,Integer>();var board=game.server().getScoreboard();
         for(var name:names){var objective=board.getObjective(name);var value=objective==null?null:board.getPlayerScoreInfo(source,objective);if(value!=null)result.put(name,value.value());}
         return Map.copyOf(result);
     }
-    static void installScores(GameController game,Entity target,Map<String,Integer> values){values.forEach((name,value)->game.items().mana().score(target,name).set(value));}
+    public static void installScores(GameController game,Entity target,Map<String,Integer> values){values.forEach((name,value)->game.items().mana().score(target,name).set(value));}
 }

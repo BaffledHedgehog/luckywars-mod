@@ -95,17 +95,17 @@ public final class LbcIncomingArtifacts {
         criteria++;
         apply(owner,source.getEntity(),a,false,isReactiveBlast(source));
     }
-    void propertyIncoming(ServerPlayer owner,Entity attacker,net.minecraft.world.item.component.CustomData property){
+    public void propertyIncoming(ServerPlayer owner,Entity attacker,net.minecraft.world.item.component.CustomData property){
         if(!admitted(owner,true))return;
         var d=(ItemData.IntReader)(Object)property;int type=d.skywars2$readInt("type",0);if(type<1||type>6)return;
         int current=d.skywars2$readInt("mystical",0)==4?1<<type:0,old=d.skywars2$readInt("mystical_old",0)==4?1<<type:0;
         apply(owner,attacker,new Admission(owner,true,current,old,true),true,false);
     }
-    static boolean isReactiveBlast(DamageSource source){
+    public static boolean isReactiveBlast(DamageSource source){
         return source.is(DamageTypeTags.IS_EXPLOSION)&&source.getDirectEntity() instanceof PrimedTnt tnt
                 &&tnt.entityTags().contains(REACTIVE_TNT);
     }
-    static boolean isReactiveExplosionProperty(net.minecraft.world.item.component.CustomData property){
+    public static boolean isReactiveExplosionProperty(net.minecraft.world.item.component.CustomData property){
         var data=(ItemData.IntReader)(Object)property;
         return data.skywars2$readInt("mystical",0)==4&&data.skywars2$readInt("type",0)==2;
     }
@@ -204,13 +204,13 @@ public final class LbcIncomingArtifacts {
         if(inventory(p,"gaara",false)&&magicHit(p)&&p.distanceToSqr(victim)<=100)sand(p,p.getRandom().nextInt(3)+1);
         if(inventory(p,"gaara_old",false))volley(p,true);
     }
-    void propertyMelee(ServerPlayer owner,LivingEntity victim,net.minecraft.world.item.component.CustomData property){
+    public void propertyMelee(ServerPlayer owner,LivingEntity victim,net.minecraft.world.item.component.CustomData property){
         if(!admitted(owner,true)||!game.items().wands().validRoleTarget(victim,true))return;
         var data=(ItemData.IntReader)(Object)property;
         if(data.skywars2$readInt("gaara",0)==1&&magicHit(owner)&&owner.distanceToSqr(victim)<=100)sand(owner,owner.getRandom().nextInt(3)+1);
         if(data.skywars2$readInt("gaara_old",0)==1)volley(owner,true);
     }
-    void sand(ServerPlayer p,int branch){
+    public void sand(ServerPlayer p,int branch){
         switch(branch){case 1->volley(p,false);case 2->wall(p);case 3->cages(p);default->throw new IllegalArgumentException("sand branch");}
         for(int i=0;i<2;i++)LbcOverload.sound(p,"minecraft:block.sand.place",1,1,0);
     }
@@ -312,9 +312,9 @@ public final class LbcIncomingArtifacts {
         try{actor.load(TagValueInput.create(ProblemReporter.DISCARDING,actor.registryAccess(),TagParser.parseCompoundFully(snbt)));}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
     }
-    void trackWild(ServerPlayer p,Entity actor){actor.entityTags().add(WILD);track(p,actor);}
+    public void trackWild(ServerPlayer p,Entity actor){actor.entityTags().add(WILD);track(p,actor);}
     public static boolean wild(Entity actor){return managed(actor)&&actor.entityTags().contains(WILD);}
-    void track(ServerPlayer p,Entity actor){
+    public void track(ServerPlayer p,Entity actor){
         if(!game.playing()||game.stage()==GameController.Stage.ENDING||actor.level()!=game.maps().level()){actor.discard();return;}
         actor.entityTags().add(ACTOR);game.items().markCurrentItemEpoch(actor);actors.put(actor,p.getUUID());
         game.items().timeStop().prepareFrozen(actor);if(!p.level().addFreshEntity(actor))actors.remove(actor);
@@ -406,7 +406,7 @@ public final class LbcIncomingArtifacts {
         }
         @Override public void cancel(){cancelled=true;terrain.remove(this);}
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity source){var author=actors.get(source);if(author==null)return null;
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){var author=actors.get(source);if(author==null)return null;
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){actors.put(clone,author);}
             public void rollback(Entity clone){actors.remove(clone);}

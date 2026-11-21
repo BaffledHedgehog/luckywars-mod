@@ -33,7 +33,7 @@ public final class LbcFeedbackDrops {
     }
 
     /** Filter before choosing the nearest player: an immune player does not consume the selection. */
-    ServerPlayer target(ItemEntity token) {
+    public ServerPlayer target(ItemEntity token) {
         ServerPlayer nearest = null;
         double distance = Double.POSITIVE_INFINITY;
         if (!(token.level() instanceof ServerLevel level)) return null;

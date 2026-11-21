@@ -18,9 +18,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 /** Source Champion stances live entirely in native transient modifiers and player checkpoints. */
 public final class LbcChampionSkill {
-    static final Identifier ARMOR=Identifier.parse("minecraft:7374yg374g347g37gh34");
-    static final Identifier TOUGHNESS=Identifier.parse("minecraft:7374yg3274g347g37gh34");
-    static final Identifier ATTACK=Identifier.parse("minecraft:g8wu4g8k4wug84khu84hu48h");
+    public static final Identifier ARMOR=Identifier.parse("minecraft:7374yg374g347g37gh34");
+    public static final Identifier TOUGHNESS=Identifier.parse("minecraft:7374yg3274g347g37gh34");
+    public static final Identifier ATTACK=Identifier.parse("minecraft:g8wu4g8k4wug84khu84hu48h");
     private static final TagKey<DamageType> ARROWS=TagKey.create(Registries.DAMAGE_TYPE,
             Identifier.parse("minecraft:arrow_only"));
     private final GameController game;

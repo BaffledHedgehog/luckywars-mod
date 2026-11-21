@@ -39,7 +39,7 @@ public final class LbcSoulhunter {
     private final GameController game;
     private final LbcMana mana;
     private final Map<ServerPlayer,Integer> seconds=new HashMap<>();
-    LbcSoulhunter(GameController game,LbcMana mana){this.game=game;this.mana=mana;}
+    public LbcSoulhunter(GameController game,LbcMana mana){this.game=game;this.mana=mana;}
     public static void register(){}
     private static Item registerMace(){
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:soulhunter_mace"));
@@ -133,7 +133,7 @@ public final class LbcSoulhunter {
         p.level().sendParticles(ParticleTypes.GUST_EMITTER_LARGE,true,false,at.x,at.y,at.z,1,0,0,0,0);
         LbcOverload.sound(p,at,"minecraft:entity.breeze.wind_burst",1,1,0);motion(p,new Vec3(0,1.2,0),false);
     }
-    void tickPlayer(ServerPlayer p){
+    public void tickPlayer(ServerPlayer p){
         if(!allowed(p))return;
         int stamina=Math.max(0,Math.min(60,mana.hudValue(p,"mace_1")));
         if(p.isSprinting()&&!p.onGround()&&holding(p)&&!p.entityTags().contains("unstamined")){
@@ -146,7 +146,7 @@ public final class LbcSoulhunter {
             mana.score(p,"mace_1").set(stamina+1);if(stamina+1==60)p.entityTags().remove("unstamined");
         }
     }
-    void second(ServerPlayer p){if(owner(p)&&!paused(p))for(var name:new String[]{"mace_2","mace_3","mace_4"}){
+    public void second(ServerPlayer p){if(owner(p)&&!paused(p))for(var name:new String[]{"mace_2","mace_3","mace_4"}){
         var score=mana.score(p,name);if(score.get()>0)score.set(score.get()-1);
     }}
     public void tick(){for(var p:game.server().getPlayerList().getPlayers())if(owner(p)&&!paused(p)){

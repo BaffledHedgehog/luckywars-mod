@@ -77,7 +77,7 @@ public final class LbcPumpkinator {
         long bits;long value;do{actor.random+=0x9e3779b97f4a7c15L;bits=mix(actor.random)>>>1;value=bits%bound;}while(bits-value+(bound-1)<0);
         return (int)value;
     }
-    static boolean explosionSeed(long seed){return (mix(seed+0x9e3779b97f4a7c15L)>>>1)%100==0;}
+    public static boolean explosionSeed(long seed){return (mix(seed+0x9e3779b97f4a7c15L)>>>1)%100==0;}
     public void tick(){
         int tick=game.server().getTickCount();
         if(restoring||lastTick==tick||!game.playing()||game.maps().busy()||game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally())return;
@@ -135,14 +135,14 @@ public final class LbcPumpkinator {
             actor.aim=LbcPlanetoidSkill.direction(holder,actor.point,82);
     }
     /** A source marker travels with native map transforms; the lowered dispatch remains relative. */
-    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
         checkpointBoundary();callbacks++;try{actors.values().removeIf(actor->{
             if(actor.level!=level)return false;var point=transform.apply(actor.point);
             if(point==null)return true;actor.point=point;return false;
         });}finally{callbacks--;}
     }
-    record CloneResult(int scanned,int operations,int bodies){}
-    CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
+    public record CloneResult(int scanned,int operations,int bodies){}
+    public CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
         int count=CloneVirtualAbilityStates.count(skill),seen=0,made=0,operations=0;
         if(restoring||skill!=15&&skill!=17||bodyBudget<count)return new CloneResult(0,0,0);
         int available=Math.min(scanBudget,actors.size());long accepted=sequence;
@@ -161,7 +161,7 @@ public final class LbcPumpkinator {
     public void prepareFrozen(){checkpointBoundary();restoring=true;actors.clear();}
     public void publishFrozen(){checkpointBoundary();restoring=false;lastTick=game.server().getTickCount();}
     public void cancelFrozen(){stop();}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
         checkpointBoundary();record Saved(Actor actor,Vec3 point,Vec3 aim,long random,long pulses,long explosions,long writes,int mask){}
         var saved=actors.values().stream().map(a->new Saved(a,a.point,a.aim,a.random,a.pulses,a.explosions,a.writes,a.mask)).toList();long ids=sequence,cursor=cloneCursor;
         return resolved->{checkpointBoundary();for(var image:saved)MatchAuthorityCheckpoint.world(game,image.actor.level);

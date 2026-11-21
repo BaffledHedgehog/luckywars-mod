@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
 /** Normalize only audited native identities into their existing owner's source predicates. */
-final class LbcTmtNativeIdentities {
+public final class LbcTmtNativeIdentities {
     private LbcTmtNativeIdentities(){}
 
     /** Blade color is presentation; the native kill owner uses the player's actual faction. */
@@ -17,7 +17,7 @@ final class LbcTmtNativeIdentities {
     }
 
     /** Mutates the catalog's private copy; never the native prototype or a physical inventory item. */
-    static void normalize(ItemStack source,CompoundTag privateData){
+    public static void normalize(ItemStack source,CompoundTag privateData){
         if(source.isEmpty())return;
         // Both native owners already accept their registered item OR this exact flag.
         if(source.is(LbcItems.ICE_SWORD))privateData.putInt("icesword",1);
@@ -30,7 +30,7 @@ final class LbcTmtNativeIdentities {
     }
 
     /** This is a native ShieldItem/component contract, not the hylian sword's passive flag. */
-    static boolean hylianShield(ItemStack source){
+    public static boolean hylianShield(ItemStack source){
         return !source.isEmpty()&&(source.is(LbcMeleeItems.Kind.HYLIAN_SHIELD.item)
                 ||ItemData.intValue(source,"hylianshield",0)==1);
     }

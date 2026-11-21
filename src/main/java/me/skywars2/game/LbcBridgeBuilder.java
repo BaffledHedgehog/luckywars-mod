@@ -27,28 +27,28 @@ public final class LbcBridgeBuilder {
             id("most_column_3"),id("most_column_4"),id("most_column_5"),id("most_column_6")};
     private static final MapManager.BlockSnapshot CHISELED=cell(Blocks.CHISELED_QUARTZ_BLOCK),
             BRICKS=cell(Blocks.QUARTZ_BRICKS),PILLAR=cell(Blocks.QUARTZ_PILLAR),LANTERN=cell(Blocks.SEA_LANTERN);
-    interface Policy {
+    public interface Policy {
         boolean launch(LivingEntity author,ServerLevel level,Vec3 origin);
         /** Canonical mode/protected-role checks, native journal and capturedWorldChanges belong here.
          * Return actual changed-cell success; recursive source supports depend on this result. */
         boolean write(LivingEntity author,ServerLevel level,BlockPos at,MapManager.BlockSnapshot state,LbcIndirectKills.Owner cause);
     }
     record Cell(BlockPos relative,MapManager.BlockSnapshot snapshot) { }
-    record View(UUID actor,int lifetime,boolean dormant,boolean pending,Vec3 position,int queued,long visits,long writes) { }
+    public record View(UUID actor,int lifetime,boolean dormant,boolean pending,Vec3 position,int queued,long visits,long writes) { }
     private final GameController game;private final Policy policy;
     private volatile List<List<Cell>> templates=List.of();
     private CompletableFuture<?> preparation;
     private LinkedHashMap<UUID,Actor> actors=new LinkedHashMap<>();
     private Set<UUID> acceptedProjectiles=new HashSet<>();
     private int callbacks,lastTick=Integer.MIN_VALUE;private boolean restoring;
-    LbcBridgeBuilder(GameController game,Policy policy){this.game=game;this.policy=policy;}
+    public LbcBridgeBuilder(GameController game,Policy policy){this.game=game;this.policy=policy;}
     private static Identifier id(String path){return Identifier.fromNamespaceAndPath("lbc",path);}
     private static MapManager.BlockSnapshot cell(net.minecraft.world.level.block.Block block){return new MapManager.BlockSnapshot(block.defaultBlockState(),null);}
-    static boolean recognized(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"most_imba",0)==1;}
-    static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(ACTOR);}
+    public static boolean recognized(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"most_imba",0)==1;}
+    public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(ACTOR);}
 
     /** Decode the exact seven existing native templates once; no placement-time NBT/IO. */
-    void prepare(){
+    public void prepare(){
         if(preparation!=null)return;
         var blocks=game.server().registryAccess().lookupOrThrow(Registries.BLOCK);
         preparation=game.maps().prepareSpellTemplates(List.of(TEMPLATES)).thenAccept(parts->{
@@ -74,7 +74,7 @@ public final class LbcBridgeBuilder {
             templates=List.copyOf(decoded);
         });
     }
-    boolean ready(){return templates.size()==7;}
+    public boolean ready(){return templates.size()==7;}
     private final class Actor {
         Marker body;LivingEntity author;final LbcIndirectKills.Owner cause;final String epoch;
         int lifetime;Generation pending;
@@ -109,7 +109,7 @@ public final class LbcBridgeBuilder {
         }finally{callbacks--;}
     }
     private boolean nearby(Marker marker){for(var player:((ServerLevel)marker.level()).players())if(!player.isSpectator()&&player.distanceToSqr(marker)<=40_000)return true;return false;}
-    void tick(){
+    public void tick(){
         if(restoring)return;callbacks++;try{
             int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
             if(!actors.isEmpty())game.items().cloneSkills().beforeOwnedStep(actors.values().stream().map(a->a.body).toList());
@@ -266,24 +266,24 @@ public final class LbcBridgeBuilder {
         var forward=new Vec3(f*h,i,g*h);var vertical=new Vec3(f*j,k,g*j);var lateral=forward.cross(vertical).scale(-1);
         return origin.add(lateral.scale(left)).add(vertical.scale(up)).add(forward.scale(forwards));
     }
-    int count(){return actors.size();}
-    List<Entity> snapshot(){return actors.values().stream().map(a->(Entity)a.body).toList();}
-    List<View> views(){return actors.values().stream().map(a->new View(a.body.getUUID(),a.lifetime,!nearby(a.body),a.pending!=null,a.body.position(),a.pending==null?0:a.pending.ops.size(),a.pending==null?0:a.pending.visits,a.pending==null?0:a.pending.writes)).toList();}
+    public int count(){return actors.size();}
+    public List<Entity> snapshot(){return actors.values().stream().map(a->(Entity)a.body).toList();}
+    public List<View> views(){return actors.values().stream().map(a->new View(a.body.getUUID(),a.lifetime,!nearby(a.body),a.pending!=null,a.body.position(),a.pending==null?0:a.pending.ops.size(),a.pending==null?0:a.pending.visits,a.pending==null?0:a.pending.writes)).toList();}
     private LivingEntity currentAuthor(Actor actor){
         if(actor.author instanceof ServerPlayer player){var current=game.server().getPlayerList().getPlayer(player.getUUID());if(current!=null)return current;}
         return actor.author;
     }
-    LivingEntity owner(Entity entity){var actor=entity==null?null:actors.get(entity.getUUID());return actor==null?null:currentAuthor(actor);}
+    public LivingEntity owner(Entity entity){var actor=entity==null?null:actors.get(entity.getUUID());return actor==null?null:currentAuthor(actor);}
     LbcIndirectKills.Owner cause(Entity entity){var actor=entity==null?null:actors.get(entity.getUUID());return actor==null?null:actor.cause;}
-    void loaded(Entity entity){
+    public void loaded(Entity entity){
         if(restoring||MatchActorCheckpoint.restoring(entity))return;
         if(!restoring&&entity instanceof Snowball ball&&recognized(ball.getItem())&&ball.getOwner() instanceof LivingEntity author){launch(ball,author);return;}
         if(!managed(entity))return;
         var actor=actors.get(entity.getUUID());if(actor==null||!(entity instanceof Marker marker)||!game.items().currentEpoch(actor.epoch)){entity.discard();return;}
         actor.body=marker;game.items().timeStop().prepareFrozen(marker);
     }
-    void unloaded(Entity entity){/* Retained UUID entry is rebound without a second launch. */}
-    void removed(Entity entity){
+    public void unloaded(Entity entity){/* Retained UUID entry is rebound without a second launch. */}
+    public void removed(Entity entity){
         if(restoring||MatchActorCheckpoint.restoring(entity))return;
         // Destroyed native inputs cannot reload. Chunk/dimension unload keeps its UUID admission
         // so a surviving snowball never creates a second logical builder when it returns.
@@ -297,13 +297,13 @@ public final class LbcBridgeBuilder {
         // through its queue adapter; only match epoch teardown cancels its writes.
         if(discard&&!actor.body.isRemoved())actor.body.discard();
     }
-    void stop(){for(var actor:List.copyOf(actors.values())){if(actor.pending!=null)actor.pending.cancel();remove(actor,true);}acceptedProjectiles.clear();lastTick=Integer.MIN_VALUE;restoring=false;}
-    void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Bridge Builder native quantum before capture/replay");}
-    void prepareFrozen(){checkpointBoundary();restoring=true;actors=new LinkedHashMap<>();acceptedProjectiles=new HashSet<>();}
-    void publishFrozen(){checkpointBoundary();restoring=false;lastTick=game.server().getTickCount();}
-    void cancelFrozen(){checkpointBoundary();restoring=false;}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void stop(){for(var actor:List.copyOf(actors.values())){if(actor.pending!=null)actor.pending.cancel();remove(actor,true);}acceptedProjectiles.clear();lastTick=Integer.MIN_VALUE;restoring=false;}
+    public void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Bridge Builder native quantum before capture/replay");}
+    public void prepareFrozen(){checkpointBoundary();restoring=true;actors=new LinkedHashMap<>();acceptedProjectiles=new HashSet<>();}
+    public void publishFrozen(){checkpointBoundary();restoring=false;lastTick=game.server().getTickCount();}
+    public void cancelFrozen(){checkpointBoundary();restoring=false;}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         private record Image(Actor actor,MatchDamageSources.Ref body,MatchDamageSources.Ref author,int lifetime,Generation pending) { }
         final List<Image> saved=new ArrayList<>();final Set<UUID> projectiles=Set.copyOf(acceptedProjectiles);
         final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
@@ -311,17 +311,17 @@ public final class LbcBridgeBuilder {
             saved.add(new Image(actor,graph.links.key(actor.body),graph.links.key(currentAuthor(actor)),actor.lifetime,actor.pending));
             if(actor.pending!=null)graph.capture(actor.pending);
         }}
-        Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=new LinkedHashMap<UUID,Actor>();var plans=new ArrayList<Runnable>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=new LinkedHashMap<UUID,Actor>();var plans=new ArrayList<Runnable>();
             for(var image:saved){var body=(Marker)links.get(image.body);var author=(LivingEntity)links.get(image.author);var actor=image.actor;
                 restored.put(body.getUUID(),actor);plans.add(()->{actor.body=body;actor.author=author;actor.lifetime=image.lifetime;actor.pending=image.pending;});}
             return ()->{plans.forEach(Runnable::run);actors=restored;acceptedProjectiles=new HashSet<>(projectiles);lastTick=clock.last(game);};
         }
     }
-    boolean cloneRecognizes(Entity entity){return actors.containsKey(entity.getUUID());}
+    public boolean cloneRecognizes(Entity entity){return actors.containsKey(entity.getUUID());}
     /** Logical marker is the single x2/x4 family boundary. Its retained vanilla transport must
      * be excluded from cloning, otherwise one activation would multiply twice. */
-    boolean protectedCloneActor(Entity entity){return acceptedProjectiles.contains(entity.getUUID());}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public boolean protectedCloneActor(Entity entity){return acceptedProjectiles.contains(entity.getUUID());}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var actor=actors.get(source.getUUID());if(actor==null)return null;
         // A native body copy forks FUTURE generation. Already accepted terrain belongs to its
         // original causal producer and is never replayed merely by cloning the marker.

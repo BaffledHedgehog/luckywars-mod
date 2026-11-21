@@ -45,7 +45,7 @@ public final class LbcWhiteArrows {
     }
     /** Existing boss ray semantics: pass walls, exact hitbox contacts, 21 .125 samples and 2.5 motion.
      * Callers retain their own target policy and execution ownership; this is the only tracing code. */
-    static Vec3 traceStep(ServerLevel level,Vec3 from,Vec3 direction,Predicate<Entity> target,Consumer<LivingEntity> execute,Predicate<Vec3> resident){
+    public static Vec3 traceStep(ServerLevel level,Vec3 from,Vec3 direction,Predicate<Entity> target,Consumer<LivingEntity> execute,Predicate<Vec3> resident){
         var to=from.add(direction.scale(2.5));
         for(var entity:level.getEntities((Entity)null,new AABB(from,to).inflate(1e-7),target))
             if(entity instanceof LivingEntity living&&LbcBeamGeometry.intersects(living.getBoundingBox(),from,to))execute.accept(living);
@@ -95,15 +95,15 @@ public final class LbcWhiteArrows {
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
     public void cancelFrozen(){stop();}
     public void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish white-arrow ray callbacks before replay");}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
         checkpointBoundary();record Saved(Shot shot,MatchDamageSources.Ref author,Vec3 point,int age,int mask){}
         var saved=shots.values().stream().map(s->new Saved(s,links.key(s.author),s.point,s.age,s.mask)).toList();
         long ids=sequence,cursor=turn,cloner=cloneCursor,launches=launched,frames=steps,executions=kills;
         return resolved->{checkpointBoundary();var plans=new ArrayList<Runnable>();for(var image:saved){var owner=(ServerPlayer)resolved.get(image.author);MatchAuthorityCheckpoint.world(game,image.shot.level);plans.add(()->{var shot=image.shot;shot.author=owner;shot.point=image.point;shot.age=image.age;shot.mask=image.mask;shot.lastStepTick=game.server().getTickCount();});}
             return ()->{plans.forEach(Runnable::run);shots.clear();for(var image:saved)shots.put(image.shot.id,image.shot);sequence=ids;turn=cursor;cloneCursor=cloner;launched=launches;steps=frames;kills=executions;};};
     }
-    record CloneResult(int scanned,int operations,int bodies){}
-    CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
+    public record CloneResult(int scanned,int operations,int bodies){}
+    public CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
         int count=CloneVirtualAbilityStates.count(skill),seen=0,made=0,operations=0;if(restoring||skill!=15&&skill!=17||bodyBudget<count)return new CloneResult(0,0,0);
         int available=Math.min(scanBudget,shots.size());long accepted=sequence;
         while(seen<available&&!shots.isEmpty()&&bodyBudget-made>=count&&System.nanoTime()<deadline){

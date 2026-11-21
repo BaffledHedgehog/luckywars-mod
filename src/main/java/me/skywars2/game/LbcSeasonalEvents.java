@@ -29,18 +29,19 @@ import org.joml.Vector3f;
 
 /** Manual seasonal lifecycle. Native bodies/scores own state; this loaded-body set is derived only. */
 public final class LbcSeasonalEvents {
-    static final String SCREAMER="screamer_halloween", WIND="particle_wind";
+    public static final String SCREAMER="screamer_halloween";
+    static final String WIND="particle_wind";
     private final GameController game;
     private final Set<Entity> actors=new LinkedHashSet<>();
-    LbcSeasonalEvents(GameController game){this.game=game;}
+    public LbcSeasonalEvents(GameController game){this.game=game;}
     public void loaded(Entity actor){
         if((actor instanceof Display.ItemDisplay&&actor.entityTags().contains(SCREAMER)
                 ||actor instanceof Marker&&actor.entityTags().contains(WIND))&&game.items().currentEpoch(actor))actors.add(actor);
     }
     public void unloaded(Entity actor){actors.remove(actor);}
-    void reindexRestored(Collection<Entity> bodies){actors.clear();for(var actor:bodies)loaded(actor);}
+    public void reindexRestored(Collection<Entity> bodies){actors.clear();for(var actor:bodies)loaded(actor);}
     public void stop(){for(var actor:List.copyOf(actors))actor.discard();actors.clear();}
-    int count(){return actors.size();}
+    public int count(){return actors.size();}
     private void insert(Entity actor,Vec3 at){
         actor.setPos(at);game.items().markCurrentItemEpoch(actor);
         if(actor instanceof Mob){actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);}
@@ -110,7 +111,7 @@ public final class LbcSeasonalEvents {
         game.players().save();screamer(player,1+player.getRandom().nextInt(7));
     }
     /** Exactly the seven reachable source outcomes, not the unused 8..16 functions. No ownership from the visitor. */
-    void screamer(ServerPlayer player,int outcome){
+    public void screamer(ServerPlayer player,int outcome){
         if(outcome<1||outcome>7)throw new IllegalArgumentException("Halloween outcome 1..7");
         var level=player.level();var at=player.position();var random=player.getRandom();
         LbcOverload.notifySound(player,"lbcsounds.s"+outcome,SoundSource.MASTER,1,1);
@@ -146,7 +147,7 @@ public final class LbcSeasonalEvents {
         if(board.getObjective("tournament_kills")==null)board.addObjective("tournament_kills",ObjectiveCriteria.KILL_COUNT_PLAYERS,Component.translatable("kills").withStyle(ChatFormatting.RED),ObjectiveCriteria.RenderType.INTEGER,true,null);
         if(board.getObjective("tournament_wins")==null)board.addObjective("tournament_wins",ObjectiveCriteria.DUMMY,Component.translatable("wins").withStyle(ChatFormatting.GOLD),ObjectiveCriteria.RenderType.INTEGER,false,null);
     }
-    void settingsChanged(){
+    public void settingsChanged(){
         var board=game.server().getScoreboard();
         if(game.config().eventTournament){objectives();if(!game.playing()){board.setDisplayObjective(DisplaySlot.SIDEBAR,board.getObjective("tournament_kills"));board.setDisplayObjective(DisplaySlot.LIST,board.getObjective("tournament_wins"));}}
         else{for(var slot:List.of(DisplaySlot.SIDEBAR,DisplaySlot.LIST)){var shown=board.getDisplayObjective(slot);if(shown!=null&&shown.getName().startsWith("tournament_"))board.setDisplayObjective(slot,null);}MatchSettings.sync(game);}
@@ -157,7 +158,7 @@ public final class LbcSeasonalEvents {
         // The common finish transaction saves profiles after all seasonal recipients.
         LbcSourceUnlocks.publish(player,profile);
     }
-    void finished(List<UUID> winners){
+    public void finished(List<UUID> winners){
         if(game.config().eventHalloween&&!winners.isEmpty()){
             int roll=1+game.maps().level().getRandom().nextInt(100),amount=roll<=70?100:roll<=99?250:1500;
             for(var id:winners){game.players().get(id).memcoins+=amount;var player=game.server().getPlayerList().getPlayer(id);

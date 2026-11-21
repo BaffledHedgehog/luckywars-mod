@@ -15,7 +15,8 @@ import net.minecraft.world.phys.*;
 /** Perception and ordinary survival inputs. Every block/item action still belongs to its native owner. */
 public final class LbcBotSurvival {
     final ServerPlayer player;final LbcChefBrain.Driver driver;final LbcChefBrain brain;final Consumer<Vec3> destination;
-    Vec3 safe,climbGoal,landing;BlockPos cage,water;Direction exit;int waterAt,cageAt;String decision="idle";boolean cageCovered,cageRain,escapeWater,cageSwimming,cageRoofAbandoned,hasSafe;
+    public Vec3 safe,climbGoal,landing;public BlockPos cage,water;public Direction exit;int waterAt,cageAt;String decision="idle";boolean cageCovered, cageRain, escapeWater, cageSwimming, cageRoofAbandoned;
+    public boolean hasSafe;
     private boolean obsidianCage,returningToCage;
     private record EscapeWarning(Object source,Vec3 center,double radius){}
     int nextLandingSearch,nextWarning,surfaceWarnings,combatClimbUntil;EscapeWarning warning;Vec3 warningGoal;
@@ -27,7 +28,7 @@ public final class LbcBotSurvival {
     private Vec3 poolLanding;
     private int poolLandingUntil;
     final LbcBotShelter blastShelter;boolean placementWaiting;
-    String diagnostics(){
+    public String diagnostics(){
         if(cage==null||exit==null)return "cage=none water="+water+" poolLanding="+poolLanding+" climb="+climbGoal+" landing="+landing+" warning="+warningGoal+" surfaceWarnings="+surfaceWarnings+" blastCover="+blastShelter.diagnostics()+" wet="+player.isInWater()+" burning="+player.isOnFire();
         var upper=cage.above().relative(exit);var lower=cage.relative(exit);
         var ray=player.level().clip(new net.minecraft.world.level.ClipContext(player.getEyePosition(),Vec3.atCenterOf(upper),net.minecraft.world.level.ClipContext.Block.OUTLINE,net.minecraft.world.level.ClipContext.Fluid.NONE,player));
@@ -35,7 +36,7 @@ public final class LbcBotSurvival {
         return "cage="+cage+" exit="+exit+" decision="+decision+" roof="+player.level().getBlockState(cage.above(cageRain?3:2))+" upper="+player.level().getBlockState(upper)+" lower="+player.level().getBlockState(lower)+" upperRay="+ray.getType()+"/"+ray.getBlockPos()+" actualRay="+actual.getType()+"/"+actual.getBlockPos()+" water="+water+" rain="+cageRain+" covered="+cageCovered+" swimExit="+escapeWater+" swimming="+player.isSwimming();
     }
     LbcBotSurvival(ServerPlayer player,LbcChefBrain.Driver driver,LbcChefBrain brain,Consumer<Vec3> destination){this.player=player;this.driver=driver;this.brain=brain;this.destination=destination;safe=player.position();hasSafe=brain.grounded();blastShelter=new LbcBotShelter(player,driver,this);}
-    ItemStack find(Item wanted){for(int i=0;i<36;i++){var s=player.getInventory().getItem(i);if(s.is(wanted))return s;}return ItemStack.EMPTY;}
+    public ItemStack find(Item wanted){for(int i=0;i<36;i++){var s=player.getInventory().getItem(i);if(s.is(wanted))return s;}return ItemStack.EMPTY;}
     boolean aimUse(ItemStack item,Vec3 aim){
         return aimUse(item,aim,null);
     }

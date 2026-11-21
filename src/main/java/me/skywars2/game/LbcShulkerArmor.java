@@ -20,8 +20,8 @@ import java.util.function.BooleanSupplier;
 
 /** Worn source Shulker armor, with shared projectile, interception and surface-search owners. */
 public final class LbcShulkerArmor {
-    static final Identifier SPEED=Identifier.parse("minecraft:shulker_armor");
-    static final Identifier JUMP=Identifier.parse("skywars2:shulker_no_jump");
+    public static final Identifier SPEED=Identifier.parse("minecraft:shulker_armor");
+    public static final Identifier JUMP=Identifier.parse("skywars2:shulker_no_jump");
     private static final EquipmentSlot[] SLOTS={EquipmentSlot.FEET,EquipmentSlot.LEGS,EquipmentSlot.CHEST,EquipmentSlot.HEAD};
     private final GameController game;
     private final Set<UUID> slowed=new HashSet<>();
@@ -36,7 +36,7 @@ public final class LbcShulkerArmor {
                 &&!game.items().wands().inputTimeStopped(p)&&!game.items().timeStop().stopped(p.level());
     }
     private static boolean piece(ServerPlayer p,EquipmentSlot slot){return LbcFartus.data(p.getItemBySlot(slot)).getIntOr("shulkshell",0)==1;}
-    static boolean full(ServerPlayer p){for(var slot:SLOTS)if(!piece(p,slot))return false;return true;}
+    public static boolean full(ServerPlayer p){for(var slot:SLOTS)if(!piece(p,slot))return false;return true;}
     private boolean magic(ServerPlayer p){return !game.items().magic().beaconSuppressed(p.position());}
     public void tick(){
         if(!game.playing()||game.maps().level()==null||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
@@ -59,7 +59,7 @@ public final class LbcShulkerArmor {
             }
         }
     }
-    void shoot(ServerPlayer p){
+    public void shoot(ServerPlayer p){
         if(!admitted(p)||!piece(p,EquipmentSlot.HEAD)||!magic(p))return;
         ServerPlayer nearest=null;double best=Double.POSITIVE_INFINITY;
         for(var target:p.level().players())if(target!=p&&game.items().wands().target(p,target)){
@@ -77,7 +77,7 @@ public final class LbcShulkerArmor {
         attempts.push(new Attempt(p,admitted(p)&&piece(p,EquipmentSlot.CHEST)&&magic(p)));
         try{return hurt.getAsBoolean();}finally{attempts.pop();}
     }
-    void chestTeleport(ServerPlayer p){
+    public void chestTeleport(ServerPlayer p){
         if(!admitted(p)||!piece(p,EquipmentSlot.CHEST)||!magic(p))return;
         performChestTeleport(p);
     }

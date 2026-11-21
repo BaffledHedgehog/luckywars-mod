@@ -57,7 +57,7 @@ public final class MatchBoundViews {
         size=isMount()?mountInventory((LivingEntity)entity).getContainerSize():0;
     }
     boolean isMount(){return kind==HorseInventoryMenu.class||kind==NautilusInventoryMenu.class;}
-    static Container mountInventory(LivingEntity entity){
+    public static Container mountInventory(LivingEntity entity){
         if(entity instanceof AbstractHorse)return ((BoundViewCheckpointAccess.Horse)entity).skywars2$inventory();
         if(entity instanceof AbstractNautilus)return ((BoundViewCheckpointAccess.Nautilus)entity).skywars2$inventory();
         throw new IllegalStateException("Unsupported native inventory mount");

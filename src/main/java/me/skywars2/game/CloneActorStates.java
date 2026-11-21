@@ -10,9 +10,9 @@ import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.EntityTypes;
 
 /** Reviewed body factories plus independent overlays owned by the original mechanics. */
-final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
+public final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
     private final GameController game;
-    CloneActorStates(GameController game){this.game=game;}
+    public CloneActorStates(GameController game){this.game=game;}
     public boolean completeCoverage(){return true;}
     public boolean protectedActor(Entity e){
         return LbcCosmetics.managed(e)&&e instanceof net.minecraft.world.entity.Display||game.items().rainbowAura().protectedActor(e)||LbcBedwars.shopRole(e)||e.entityTags().contains("skywars2.bedwars.chest_visual")

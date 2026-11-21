@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /** The displaced Protection belongs to the actual stack, including copies and serialized stacks. */
-final class LbcErosionSuppression {
+public final class LbcErosionSuppression {
     private static final String SAVED="skywars2:erosion_suppression";
     private static final EquipmentSlot[] ARMOR={EquipmentSlot.FEET,EquipmentSlot.LEGS,EquipmentSlot.CHEST,EquipmentSlot.HEAD};
     private final GameController game;
@@ -30,14 +30,14 @@ final class LbcErosionSuppression {
     private final Map<ServerPlayer,Set<ItemStack>> parked=new IdentityHashMap<>();
     private boolean changing;
 
-    LbcErosionSuppression(GameController game,Predicate<ServerPlayer> eligible){this.game=game;this.eligible=eligible;}
+    public LbcErosionSuppression(GameController game,Predicate<ServerPlayer> eligible){this.game=game;this.eligible=eligible;}
     private static boolean erosion(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("erosion",0)==1;}
     private static CompoundTag saved(ItemStack stack){return LbcFartus.data(stack).getCompound(SAVED).orElse(null);}
     private static boolean same(ItemStack stack,CompoundTag original){return erosion(stack)
             &&original.getStringOr("item","").equals(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());}
-    static boolean parked(ItemStack stack){return saved(stack)!=null;}
+    public static boolean parked(ItemStack stack){return saved(stack)!=null;}
     /** Skill8 upgrades canonical Protection without temporarily undoing antimagic suppression. */
-    static boolean upgradeParkedProtection(ItemStack stack){
+    public static boolean upgradeParkedProtection(ItemStack stack){
         var original=saved(stack);if(original==null||!same(stack,original))return false;
         int protection=original.getIntOr("protection",0);
         original.putInt("protection",protection==Integer.MAX_VALUE?Integer.MAX_VALUE:protection+1);
@@ -50,7 +50,7 @@ final class LbcErosionSuppression {
     private static void data(ItemStack stack,CompoundTag value){if(value.isEmpty())stack.remove(DataComponents.CUSTOM_DATA);else stack.set(DataComponents.CUSTOM_DATA,CustomData.of(value));}
 
     /** Never transfer a displaced level onto an output whose item or armor-family identity changed. */
-    boolean recover(ItemStack stack,ServerLevel level){
+    public boolean recover(ItemStack stack,ServerLevel level){
         var original=saved(stack);if(original==null)return false;
         int amount=original.getIntOr("protection",0);
         boolean same=same(stack,original);
@@ -75,7 +75,7 @@ final class LbcErosionSuppression {
     private static void changed(ServerPlayer player){player.getInventory().setChanged();player.containerMenu.broadcastChanges();}
 
     /** Four live equipment references and only previously parked identities; no whole-inventory polling. */
-    void tick(ServerPlayer player){
+    public void tick(ServerPlayer player){
         if(changing)return;changing=true;
         try{
             boolean blocked=jammed(player),changed=false;
@@ -102,7 +102,7 @@ final class LbcErosionSuppression {
         return recover(stack,player.level());
     }
     /** Event-only recovery includes cursor, crafting and open-container stacks after an actual move/copy. */
-    void inventoryChanged(ServerPlayer player){
+    public void inventoryChanged(ServerPlayer player){
         if(changing)return;changing=true;
         try{
             boolean blocked=jammed(player),changed=false;
@@ -120,7 +120,7 @@ final class LbcErosionSuppression {
             if(changed)changed(player);
         }finally{changing=false;}
     }
-    void loaded(Entity entity){
+    public void loaded(Entity entity){
         if(entity instanceof ServerPlayer player){inventoryChanged(player);return;}
         if(!(entity.level() instanceof ServerLevel level))return;
         if(entity instanceof ItemEntity item){
@@ -130,7 +130,7 @@ final class LbcErosionSuppression {
         }else if(entity instanceof LivingEntity living)for(var slot:EquipmentSlot.values())recover(living.getItemBySlot(slot),level);
     }
     /** Lifecycle cleanup is unconditional, including a wearer still inside a beacon. */
-    void forget(ServerPlayer player){
+    public void forget(ServerPlayer player){
         if(changing)return;changing=true;
         try{
             boolean changed=false;var tracked=parked.remove(player);
@@ -142,5 +142,5 @@ final class LbcErosionSuppression {
             if(changed)changed(player);
         }finally{changing=false;}
     }
-    void stop(){for(var player:List.copyOf(parked.keySet()))forget(player);for(var player:game.server().getPlayerList().getPlayers())forget(player);parked.clear();}
+    public void stop(){for(var player:List.copyOf(parked.keySet()))forget(player);for(var player:game.server().getPlayerList().getPlayers())forget(player);parked.clear();}
 }

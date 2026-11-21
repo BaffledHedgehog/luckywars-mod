@@ -46,7 +46,7 @@ public final class LbcClassicMelee {
         selfEffects(owner);
     }
     /** Source TMT swords-group self branches; no invented victim or accepted-damage notification. */
-    void sourceSelf(ServerPlayer owner){
+    public void sourceSelf(ServerPlayer owner){
         if(!admitted(owner)||!LbcDimensionItems.ordinary(owner))return;
         selfEffects(owner);
     }

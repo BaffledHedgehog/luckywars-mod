@@ -113,7 +113,7 @@ public final class LbcNexusPulsar {
     }
 
     /** Delays are independent start deadlines, in active world ticks, supplied by the caller. */
-    void start(ServerLevel level, BlockPos origin, LbcIndirectKills.Owner owner, int[] delays) {
+    public void start(ServerLevel level, BlockPos origin, LbcIndirectKills.Owner owner, int[] delays) {
         if (restoring) return;
         if (delays.length != COLORS.length) throw new IllegalArgumentException("Pulsar needs five delays");
         for (int delay : delays) if (delay < 0) throw new IllegalArgumentException("Negative Pulsar delay");
@@ -277,13 +277,13 @@ public final class LbcNexusPulsar {
     }
 
     public void stop() { clear(); }
-    void prepareFrozen() { restoring = true; clear(); }
-    void publishFrozen() { restoring = false; lastTick = game.server().getTickCount(); }
-    Checkpoint checkpoint() { return new Checkpoint(); }
+    public void prepareFrozen() { restoring = true; clear(); }
+    public void publishFrozen() { restoring = false; lastTick = game.server().getTickCount(); }
+    public Checkpoint checkpoint() { return new Checkpoint(); }
 
-    final class Checkpoint {
+    public final class Checkpoint {
         private final List<Pulse> images = pulses.stream().map(Pulse::new).toList();
-        MatchFieldCheckpoint.Plan prepare(Function<UUID, Entity> lookup) {
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID, Entity> lookup) {
             // No body or online owner is required: accepted effects survive their source player's exit.
             var restored = images.stream().map(Pulse::new).toList();
             return new MatchFieldCheckpoint.Plan(Set.of(), () -> {
@@ -296,14 +296,14 @@ public final class LbcNexusPulsar {
                 }
             });
         }
-        int count() { return images.size(); }
+        public int count() { return images.size(); }
     }
 
-    int count() { return pulses.size(); }
-    int loadingChunks() { return chunks.size(); }
-    int pendingChunks() { return pending.size(); }
-    long age() { return pulses.isEmpty() ? -1 : pulses.peekFirst().age; }
-    int frontierSize(int phase) {
+    public int count() { return pulses.size(); }
+    public int loadingChunks() { return chunks.size(); }
+    public int pendingChunks() { return pending.size(); }
+    public long age() { return pulses.isEmpty() ? -1 : pulses.peekFirst().age; }
+    public int frontierSize(int phase) {
         int count = 0;
         for (var pulse : pulses) {
             var wave = pulse.waves.get(phase);
@@ -311,7 +311,7 @@ public final class LbcNexusPulsar {
         }
         return count;
     }
-    int visitedSize(int phase) {
+    public int visitedSize(int phase) {
         int count = 0;
         for (var pulse : pulses) count += pulse.waves.get(phase).visited.size();
         return count;

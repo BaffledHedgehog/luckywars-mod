@@ -59,7 +59,7 @@ public final class LbcCosmetics {
         if(id==0)return true;if(id<0)return false;
         String key=unlockKey(kind,id);return key!=null&&policy.has(player,key);
     }
-    static String unlockKey(Kind kind,int id){
+    public static String unlockKey(Kind kind,int id){
         if(id<=0)return null;
         return switch(kind){
             case SOUND -> id<=13?"swrg.sound"+id:null;
@@ -69,7 +69,7 @@ public final class LbcCosmetics {
             case KILL -> id==1?"lbc:true_advancements/event/soulcorrupt_wand_upgraded":id==2?"lbc:true_advancements/event/soulhunter_mace":id==3?"swrg:rewards/turnir/killer":null;
         };
     }
-    int choice(ServerPlayer p,Kind kind){
+    public int choice(ServerPlayer p,Kind kind){
         if(game.balanceLegacy()&&(kind==Kind.SUFFIX||kind==Kind.WIN||kind==Kind.KILL))return 0;
         var profile=game.players().get(p.getUUID());int id=switch(kind){case SOUND->profile.killSound;case CAGE->profile.cage;case SUFFIX->profile.suffix;case WIN->profile.winEffect;case KILL->profile.killEffect;};
         return unlocked(p,kind,id)?id:0;
@@ -133,9 +133,9 @@ public final class LbcCosmetics {
         public DropBody { if(sourceAgeBucket<0||sourceAgeBucket>1)throw new IllegalArgumentException("Original native death body age must be 0 or 1"); }
     }
     /** Native die admission precedes AFTER_DEATH cleanup/awaitingRespawn; no scope survives a checkpoint. */
-    record AcceptedKill(ServerPlayer killer,LivingEntity victim,ServerLevel level,Vec3 killerAt,Vec3 victimAt,
+    public record AcceptedKill(ServerPlayer killer,LivingEntity victim,ServerLevel level,Vec3 killerAt,Vec3 victimAt,
                         int selected,LbcIndirectKills.Owner cause,String epoch){}
-    AcceptedKill acceptKill(ServerPlayer killer,LivingEntity victim){
+    public AcceptedKill acceptKill(ServerPlayer killer,LivingEntity victim){
         if(restoring||!policy.kill(killer,victim))return null;int id=choice(killer,Kind.KILL);if(id==0)return null;
         return new AcceptedKill(killer,victim,(ServerLevel)victim.level(),killer.position(),victim.position(),id,
                 game.items().indirectKills().wildCause(killer),game.items().epoch());
@@ -145,7 +145,7 @@ public final class LbcCosmetics {
     public void killed(ServerPlayer killer,LivingEntity victim,List<DropBody> originalBodies){
         killed(acceptKill(killer,victim),originalBodies);
     }
-    void killed(AcceptedKill accepted,List<DropBody> originalBodies){
+    public void killed(AcceptedKill accepted,List<DropBody> originalBodies){
         if(accepted==null||restoring||!policy.active(accepted.epoch))return;
         var killer=accepted.killer;var victim=accepted.victim;int id=accepted.selected;
         var level=accepted.level;var at=accepted.victimAt;var cause=accepted.cause;
@@ -393,7 +393,7 @@ public final class LbcCosmetics {
     /** Keep only harmless, already accepted death visuals across the real gameplay-epoch retirement. */
     record EndingVisual(ServerPlayer author,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause,
                         Effect effect,int age,int selected,boolean impact,long rng,int delay,List<DropBody> drops){}
-    void beginCelebration(){
+    public void beginCelebration(){
         boundary();
         for(var job:jobs)if(switch(job.effect){case DROPS,SOUL,BLOOD,HAMMER->true;default->false;})job.postgame=true;
     }
@@ -411,15 +411,15 @@ public final class LbcCosmetics {
             job.due=game.server().getTickCount()+image.delay;job.postgame=true;enqueue(job);
         }
     }
-    void boundary(){if(callbacks!=0)throw new IllegalStateException("Finish cosmetic native quantum before capture/replay");}
-    void prepareFrozen(){boundary();restoring=true;jobs=new LinkedHashSet<>();nativeActors=new LinkedHashMap<>();midas.prepareFrozen();}
-    void publishFrozen(){boundary();restoring=false;midas.publishFrozen();refreshSuffixes(game.server().getPlayerList().getPlayers());}
-    void cancelFrozen(){boundary();stop();restoring=false;midas.publishFrozen();}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){boundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void boundary(){if(callbacks!=0)throw new IllegalStateException("Finish cosmetic native quantum before capture/replay");}
+    public void prepareFrozen(){boundary();restoring=true;jobs=new LinkedHashSet<>();nativeActors=new LinkedHashMap<>();midas.prepareFrozen();}
+    public void publishFrozen(){boundary();restoring=false;midas.publishFrozen();refreshSuffixes(game.server().getPlayerList().getPlayers());}
+    public void cancelFrozen(){boundary();stop();restoring=false;midas.publishFrozen();}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){boundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         final Set<Job> saved;final LbcMidas.Checkpoint gold;final List<MatchDamageSources.Ref> bodies;
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){saved=new LinkedHashSet<>(jobs);saved.forEach(graph::capture);gold=midas.checkpoint(graph);bodies=nativeActors.values().stream().filter(e->!e.isRemoved()).map(graph.links::key).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var next=new LinkedHashMap<UUID,Entity>();for(var ref:bodies){var entity=links.get(ref);next.put(entity.getUUID(),entity);}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var next=new LinkedHashMap<UUID,Entity>();for(var ref:bodies){var entity=links.get(ref);next.put(entity.getUUID(),entity);}
             return ()->{jobs=new LinkedHashSet<>(saved);nativeActors=next;gold.prepare().run();};}
     }
 }

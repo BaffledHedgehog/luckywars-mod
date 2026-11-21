@@ -36,7 +36,7 @@ public final class MatchPoiStorage {
         var worker=worker(storage);
         synchronized(REGISTRY_LOCK){return !RESTORES.containsKey(worker);}
     }
-    MatchPoiStorage(ServerLevel level){
+    public MatchPoiStorage(ServerLevel level){
         this.level=level;requireThread(false);
         if(!MatchMobGoals.enabled())throw new IllegalStateException("POI checkpoint storage belongs to the unfinished native goal experiment");
         if(!captureReady(level))throw new IllegalStateException("Native POI storage is not ready for a new point");
@@ -70,8 +70,8 @@ public final class MatchPoiStorage {
         else cold.computeIfAbsent(pos,key->storage.read(key).thenApply(value->value.map(CompoundTag::copy)));
         // read() is queued before the intercepted native store on the same FOREGROUND executor.
     }
-    boolean knownAtCapture(ChunkPos pos){return known.contains(pos.pack());}
-    synchronized Restore beginRestoreFrozen(){
+    public boolean knownAtCapture(ChunkPos pos){return known.contains(pos.pack());}
+    public synchronized Restore beginRestoreFrozen(){
         requireThread(true);validate();
         if(mode!=Mode.RECORDING)throw new IllegalStateException("POI point is not recording");
         synchronized(REGISTRY_LOCK){
@@ -80,7 +80,7 @@ public final class MatchPoiStorage {
         }
         mode=Mode.RESTORING;restoring=new Restore();restoring.start();return restoring;
     }
-    final class Restore {
+    public final class Restore {
         private final CompletableFuture<Void> completion=new CompletableFuture<>();
         private CompletableFuture<Void> io;
         private int phase;
@@ -94,7 +94,7 @@ public final class MatchPoiStorage {
                 }
             });
         }
-        boolean tickFrozen(){
+        public boolean tickFrozen(){
             requireThread(true);validate();
             synchronized(MatchPoiStorage.this){
                 requireActive();if(phase==2)return true;if(!io.isDone())return false;io.join();
@@ -117,7 +117,7 @@ public final class MatchPoiStorage {
                 owner.tick(()->false);return MatchPoiMemory.ready(level);
             }
         }
-        boolean resumeFrozen(){
+        public boolean resumeFrozen(){
             requireThread(true);
             synchronized(MatchPoiStorage.this){
                 requireActive();if(phase!=2)throw new IllegalStateException("Finish POI storage phases before resuming writes");
@@ -127,7 +127,7 @@ public final class MatchPoiStorage {
         }
         private void requireActive(){if(mode!=Mode.RESTORING||restoring!=this)throw new CancellationException("POI restore owner was disposed");}
     }
-    synchronized CompletableFuture<Void> closeAsync(){
+    public synchronized CompletableFuture<Void> closeAsync(){
         requireThread(false);if(closing!=null)return closing;
         mode=Mode.CLOSED;
         synchronized(REGISTRY_LOCK){var set=OWNERS.get(worker);if(set!=null){set.remove(this);if(set.isEmpty())OWNERS.remove(worker);}tracking=!OWNERS.isEmpty()||!RESTORES.isEmpty();}

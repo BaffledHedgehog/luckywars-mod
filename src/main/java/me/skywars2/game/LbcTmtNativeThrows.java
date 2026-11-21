@@ -4,9 +4,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /** Native utility factories own permission, source capture and debit, including immediate RMB consumables. */
-final class LbcTmtNativeThrows {
+public final class LbcTmtNativeThrows {
     private LbcTmtNativeThrows(){}
-    static Item canonical(ItemStack stack){
+    public static Item canonical(ItemStack stack){
         if(LbcWoolTrailItems.ordinary(stack))return LbcWoolTrailItems.tokens().get(net.minecraft.world.item.DyeColor.LIME);
         if(LbcGayradar.matches(stack))return LbcGayradar.TOKEN;
         if(LbcSteampunkRocket.matches(stack))return LbcSteampunkRocket.TOKEN;

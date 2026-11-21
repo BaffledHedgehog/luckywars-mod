@@ -25,11 +25,11 @@ public final class LbcImbaPlaceableItems {
     public static void register(){}
     private static Item register(String id,Item item){return Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+id),item);}
     private static Item.Properties properties(String id,String definition){return LbcUtilityItemPrototypes.properties("skywars2:"+id,"/data/lbc/loot_table/item_defs/"+definition+".json",Items.PANDA_SPAWN_EGG,64);}
-    static boolean tagged(ItemStack stack,String flag){var data=stack.get(DataComponents.ENTITY_DATA);return data!=null&&data.type()==EntityTypes.MARKER&&data.getUnsafe().getListOrEmpty("Tags").contains(StringTag.valueOf(flag));}
-    static LbcImbaTerrainUtilities.Kind templateKind(ItemStack stack){return tagged(stack,"end_portal")?LbcImbaTerrainUtilities.Kind.END_PORTAL:tagged(stack,"nether_portal")?LbcImbaTerrainUtilities.Kind.NETHER_PORTAL:null;}
+    public static boolean tagged(ItemStack stack,String flag){var data=stack.get(DataComponents.ENTITY_DATA);return data!=null&&data.type()==EntityTypes.MARKER&&data.getUnsafe().getListOrEmpty("Tags").contains(StringTag.valueOf(flag));}
+    public static LbcImbaTerrainUtilities.Kind templateKind(ItemStack stack){return tagged(stack,"end_portal")?LbcImbaTerrainUtilities.Kind.END_PORTAL:tagged(stack,"nether_portal")?LbcImbaTerrainUtilities.Kind.NETHER_PORTAL:null;}
     static Item legacyTarget(ItemStack stack){return tagged(stack,"end_portal")?END_PORTAL:tagged(stack,"nether_portal")?NETHER_PORTAL:tagged(stack,"mystical_tree")?MYSTICAL_TREE:tagged(stack,"railroad")?RAILROAD:crystal(stack)?END_CRYSTAL:null;}
     private static boolean crystal(ItemStack stack){var data=stack.get(DataComponents.ENTITY_DATA);return data!=null&&data.type()==EntityTypes.END_CRYSTAL&&ItemData.intValue(stack,"imba",0)==1;}
-    static void adopt(GameController game,Entity entity,ServerPlayer player,ItemStack stack){
+    public static void adopt(GameController game,Entity entity,ServerPlayer player,ItemStack stack){
         if(player==null||!crystal(stack)||entity.getType()!=EntityTypes.END_CRYSTAL)return;
         game.items().spellSources().bind(entity,new LbcSpellSource.Source(entity.getUUID(),player.getUUID(),game.items().epoch(),game.items().indirectKills().wildCause(player),java.util.Set.of(),true));
         game.items().markCurrentItemEpoch(entity);game.items().timeStop().prepareFrozen(entity);

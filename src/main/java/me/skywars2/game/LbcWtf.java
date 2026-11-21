@@ -44,7 +44,7 @@ public final class LbcWtf {
         return net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.ITEM,key,
                 new eu.pb4.polymer.core.api.item.SimplePolymerItem(properties,Items.WOODEN_SWORD,true));
     }
-    static ItemStack sword(){return new ItemStack(SWORD);}
+    public static ItemStack sword(){return new ItemStack(SWORD);}
     private static final ResolvableProfile CHEF_PROFILE=chefProfile();
     private static ResolvableProfile chefProfile(){
         // A static native skin patch resolves from the server pack without a Mojang lookup.
@@ -72,7 +72,7 @@ public final class LbcWtf {
         final ServerLevel level;final Vec3 position;final String epoch;int age;
         Fountain(ServerLevel level,Vec3 position,String epoch){this.level=level;this.position=position;this.epoch=epoch;}
     }
-    LbcWtf(GameController game){this.game=game;}
+    public LbcWtf(GameController game){this.game=game;}
     LbcItems gameItems(){return game.items();}
     public static void register(){
         net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE,
@@ -81,23 +81,23 @@ public final class LbcWtf {
     public static boolean managed(Entity entity){return entity instanceof Chef;}
     public static ServerPlayer owner(Entity entity){return entity instanceof Chef chef?chef.owner:null;}
     public static final class Chef extends Mannequin {
-        LivingEntity target;
-        ServerPlayer owner;
+        public LivingEntity target;
+        public ServerPlayer owner;
         boolean retainedOwner,retainedTarget;
         final LbcWtf service;
         final LbcIndirectKills.Owner cause;
-        final LbcChefBrain brain;
-        final LbcChefSurvival survival;
+        public final LbcChefBrain brain;
+        public final LbcChefSurvival survival;
         int stasis,attackDelay,combatJumpWait;
         private ChunkKey ticket;
         private Vec3 previousTarget;
-        static final int HAND_INTERVAL=6;
+        public static final int HAND_INTERVAL=6;
         private int handChanged=-HAND_INTERVAL,aimUntil=-1;
         private Vec3 actionAim;
         private int sentAimYaw=256,sentAimPitch=256,sentAimHead=256;
-        Vec3 lastActionPoint;
-        double lastActionError,lastHeadActionError;
-        int actionSerial;
+        public Vec3 lastActionPoint;
+        public double lastActionError,lastHeadActionError;
+        public int actionSerial;
         float damage;
         Chef(LbcWtf service,ServerPlayer owner,LivingEntity target){
             this(service,owner,target,owner.level(),service.game.items().indirectKills().coldCause(owner,true));
@@ -132,8 +132,8 @@ public final class LbcWtf {
             ((me.skywars2.mixin.GlyphAiMixin.AttributeAccess)map).skywars2$glyphAttributes().put(type,instance);
             instance.setBaseValue(base);
         }
-        boolean metadataDescriptionHidden(){return getDescription()==null;}
-        ItemStack combatWeapon(){return sword();}
+        public boolean metadataDescriptionHidden(){return getDescription()==null;}
+        public ItemStack combatWeapon(){return sword();}
         boolean equip(ItemStack stack){
             if(ItemStack.isSameItemSameComponents(getMainHandItem(),stack))return true;
             if(tickCount-handChanged<HAND_INTERVAL)return false;
@@ -188,7 +188,7 @@ public final class LbcWtf {
                 // Keep vanilla hurt cooldown, animation, sound and responsible attacker, but never enter death.
             }finally{service.leaveCheckpointCallback();}
         }
-        void receive(float accepted){
+        public void receive(float accepted){
             service.enterCheckpointCallback();try {    damage+=accepted;if(damage>=20){
                 damage=0;stasis=200;halt();survival.cancel();brain.reset();setNoGravity(false);
                 setPose(net.minecraft.world.entity.Pose.SWIMMING);
@@ -264,7 +264,7 @@ public final class LbcWtf {
             lookAt(at);
         }
         /** An action waits for the actual camera ray, rather than merely requesting a turn. */
-        boolean aimAction(Vec3 at){
+        public boolean aimAction(Vec3 at){
             actionAim=at;aimUntil=tickCount+2;
             Vec3 offset=at.subtract(getEyePosition());
             float yaw=offset.horizontalDistanceSqr()<1.0e-8?getYRot():(float)Math.toDegrees(Math.atan2(-offset.x,offset.z));
@@ -337,7 +337,7 @@ public final class LbcWtf {
     private boolean livingOwner(ServerPlayer owner){return owner.isAlive()&&game.canUseGameplayItems(owner)
             &&owner.level()==game.maps().level();}
     private boolean eligible(ServerPlayer owner){return livingOwner(owner)&&!game.items().actionsBlocked(owner);}
-    Chef spawn(ServerPlayer owner,LivingEntity target){
+    public Chef spawn(ServerPlayer owner,LivingEntity target){
         enterCheckpointCallback();try {
             if(!eligible(owner)||target==null||!target.isAlive()||target.level()!=owner.level()
                     ||!labelTarget(owner,target))return null;
@@ -351,7 +351,7 @@ public final class LbcWtf {
             return chef;
         }finally{leaveCheckpointCallback();}
     }
-    void step(Chef chef){
+    public void step(Chef chef){
         enterCheckpointCallback();try {
             if(checkpointRestoring||chef.retainedOwner||chef.retainedTarget)return;
             if(game.items().polymorph().suspended(chef))return;
@@ -448,9 +448,9 @@ public final class LbcWtf {
         if(count>1)tickets.put(key,count-1);
         else {tickets.remove(key);key.level.getChunkSource().removeTicketWithRadius(CHEF_TICKET,key.pos,3);}
     }
-    int pinnedChunks(){return tickets.size();}
+    public int pinnedChunks(){return tickets.size();}
     /** Explicit erasure/transformation bypasses infinite HP, knock and all death/drop callbacks. */
-    boolean erase(Entity entity){if(!(entity instanceof Chef chef)||chef.service!=this)return false;remove(chef);return true;}
+    public boolean erase(Entity entity){if(!(entity instanceof Chef chef)||chef.service!=this)return false;remove(chef);return true;}
     private void remove(Chef chef){
         enterCheckpointCallback();try {    unpin(chef.ticket);chef.ticket=null;chefs.remove(chef);chef.brain.reset();chef.survival.clear();if(!chef.isRemoved())chef.discard();
         }finally{leaveCheckpointCallback();}
@@ -481,23 +481,23 @@ public final class LbcWtf {
         enterCheckpointCallback();try {    for(var chef:List.copyOf(chefs))remove(chef);fountains.clear();checkpointRestoring=false;publicationHands.clear();
         }finally{leaveCheckpointCallback();}
     }
-    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Chef native callbacks before checkpointing");}
+    public void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Chef native callbacks before checkpointing");}
     void enterCheckpointCallback(){checkpointCallbacks++;}
     void leaveCheckpointCallback(){checkpointCallbacks--;}
     /** Rollback-only release: neither remove(), survival.cancel() nor water/food/native body actions run. */
-    void prepareFrozen(){
+    public void prepareFrozen(){
         checkpointBoundary();checkpointRestoring=true;
         for(var key:List.copyOf(tickets.keySet()))key.level.getChunkSource().removeTicketWithRadius(CHEF_TICKET,key.pos,3);
         tickets.clear();for(var chef:chefs){chef.ticket=null;chef.brain.resetForCheckpoint();}
         chefs.clear();fountains.clear();publicationHands.clear();
     }
-    void publishFrozen(){
+    public void publishFrozen(){
         checkpointBoundary();publicationHands.forEach((chef,age)->chef.handChanged=chef.tickCount-age);publicationHands.clear();
         checkpointRestoring=false;for(var chef:chefs)pin(chef,chef.position());
     }
-    void cancelFrozen(){checkpointBoundary();publicationHands.clear();checkpointRestoring=false;for(var chef:chefs)pin(chef,chef.position());}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void cancelFrozen(){checkpointBoundary();publicationHands.clear();checkpointRestoring=false;for(var chef:chefs)pin(chef,chef.position());}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Image(Chef original,MatchDamageSources.Ref body,MatchDamageSources.Ref owner,MatchDamageSources.Ref target,ServerLevel level,
                 float damage,int stasis,int attackDelay,int jumpWait,int handAge,net.minecraft.world.entity.Pose pose,
                 List<ItemStack> tools,Set<BlockPos> placed,LbcChefSurvival.Checkpoint survival) { }
@@ -507,7 +507,7 @@ public final class LbcWtf {
             saved=chefs.stream().map(c->new Image(c,links.key(c),links.key(c.owner),links.key(c.target),(ServerLevel)c.level(),c.damage,c.stasis,
                     c.attackDelay,c.combatJumpWait,c.tickCount-c.handChanged,c.getPose(),c.brain.tools(),c.brain.checkpointPlaced(),c.survival.checkpoint())).toList();
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var plans=new ArrayList<Runnable>();
             for(var image:saved){var chef=(Chef)links.get(image.body);var owner=(ServerPlayer)links.get(image.owner);var target=(LivingEntity)links.get(image.target);
                 if(chef!=image.original||chef.service!=LbcWtf.this||chef.isRemoved()||chef.level()!=image.level||chef.getPose()!=image.pose)
@@ -526,12 +526,12 @@ public final class LbcWtf {
     public int count(){return chefs.size();}
     public int fountainCount(){return fountains.size();}
     public int pendingCount(){return chefs.size()+fountains.size();}
-    int stasis(Chef chef){return chef.stasis;}
-    float damageCount(Chef chef){return chef.damage;}
-    List<ItemStack> tools(Chef chef){var tools=new ArrayList<>(chef.brain.tools());tools.addAll(chef.survival.supplies());return List.copyOf(tools);}
-    List<Chef> snapshot(){return List.copyOf(chefs);}
+    public int stasis(Chef chef){return chef.stasis;}
+    public float damageCount(Chef chef){return chef.damage;}
+    public List<ItemStack> tools(Chef chef){var tools=new ArrayList<>(chef.brain.tools());tools.addAll(chef.survival.supplies());return List.copyOf(tools);}
+    public List<Chef> snapshot(){return List.copyOf(chefs);}
 
-    LbcCloneSkills.ActorImage cloneImage(Chef source) {
+    public LbcCloneSkills.ActorImage cloneImage(Chef source) {
         var owner=source.owner;var target=source.target;var cause=source.cause;
         float damage=source.damage;int stasis=source.stasis,delay=source.attackDelay,jump=source.combatJumpWait;
         int handAge=source.tickCount-source.handChanged;

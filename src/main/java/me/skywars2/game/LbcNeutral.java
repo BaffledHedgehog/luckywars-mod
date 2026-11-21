@@ -49,9 +49,9 @@ public final class LbcNeutral {
     }
     private final GameController game;
     private final Set<Projectile> projectiles=new LinkedHashSet<>();
-    LbcNeutral(GameController game){this.game=game;}
+    public LbcNeutral(GameController game){this.game=game;}
     public static boolean managed(Entity e){return e instanceof Projectile&&e.entityTags().contains(PROJECTILE);}
-    List<Projectile> snapshot(){return List.copyOf(projectiles);}
+    public List<Projectile> snapshot(){return List.copyOf(projectiles);}
     private boolean active(ServerPlayer p){return game.items().mana().visible(p)&&!game.items().actionsBlocked(p)
             &&!p.entityTags().contains("time_stopped")&&!game.items().timeStop().stopped(p.level())
             &&!game.items().magic().suppressed(p)&&!game.items().magic().suppressedAt(p.level(),p.getEyePosition());}
@@ -95,7 +95,7 @@ public final class LbcNeutral {
         // Its source function has neither mana debit nor cast_wand/mage hooks.
         return true;
     }
-    void cast(ServerPlayer p,int mode){
+    public void cast(ServerPlayer p,int mode){
         int[] sides=mode==3?new int[]{0}:mode==4?new int[]{-1,0,1}:new int[]{0,1,-1};
         Vec3 forward=p.getLookAngle(),left=Vec3.directionFromRotation(0,p.getYRot()-90);
         for(int i=0;i<sides.length;i++){
@@ -121,13 +121,13 @@ public final class LbcNeutral {
     private static CompoundTag parse(String value){try{return TagParser.parseCompoundFully(value);}catch(Exception e){throw new IllegalStateException(e);}}
     private static void load(Entity entity,CompoundTag tag){entity.load(TagValueInput.create(ProblemReporter.DISCARDING,entity.registryAccess(),tag));}
     public boolean canAffect(Projectile shot,Entity target){return shot.getOwner() instanceof ServerPlayer p&&game.items().currentEpoch(shot)&&game.items().wands().projectileTarget(p,target);}
-    void loaded(Entity e){if(managed(e)){if(game.playing()&&game.items().currentEpoch(e))projectiles.add((Projectile)e);else e.discard();}}
-    void unloaded(Entity e){if(e instanceof Projectile p&&projectiles.remove(p)&&!p.isRemoved())p.discard();}
-    void forget(ServerPlayer p){for(var shot:List.copyOf(projectiles))if(shot.getOwner()==p)unloaded(shot);}
-    void tick(){for(var shot:List.copyOf(projectiles))if(shot.isRemoved()||!game.playing()||!game.items().currentEpoch(shot)||!shot.level().hasChunkAt(shot.blockPosition()))unloaded(shot);}
-    void stop(){for(var shot:List.copyOf(projectiles))unloaded(shot);}
+    public void loaded(Entity e){if(managed(e)){if(game.playing()&&game.items().currentEpoch(e))projectiles.add((Projectile)e);else e.discard();}}
+    public void unloaded(Entity e){if(e instanceof Projectile p&&projectiles.remove(p)&&!p.isRemoved())p.discard();}
+    public void forget(ServerPlayer p){for(var shot:List.copyOf(projectiles))if(shot.getOwner()==p)unloaded(shot);}
+    public void tick(){for(var shot:List.copyOf(projectiles))if(shot.isRemoved()||!game.playing()||!game.items().currentEpoch(shot)||!shot.level().hasChunkAt(shot.blockPosition()))unloaded(shot);}
+    public void stop(){for(var shot:List.copyOf(projectiles))unloaded(shot);}
 
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!managed(source))return null;
         return CloneComplexProjectileStates.image(e->projectiles.add((Projectile)e),e->projectiles.remove(e));
     }

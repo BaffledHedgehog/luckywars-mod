@@ -42,17 +42,17 @@ public final class LbcTooltipScores {
         if(text.getContents() instanceof TranslatableContents translated)for(Object argument:translated.getArgs())if(argument instanceof Component part&&dynamic(part))return true;
         return text.getSiblings().stream().anyMatch(LbcTooltipScores::dynamic);
     }
-    static Component resolve(GameController game,ServerPlayer recipient,Component text){
+    public static Component resolve(GameController game,ServerPlayer recipient,Component text){
         return resolve(game,recipient,text,java.util.Map.of());
     }
-    static java.util.Map<String,String> priceAliases(String itemId){
+    public static java.util.Map<String,String> priceAliases(String itemId){
         return switch(itemId){
             case "skywars2:academy_wall_wand"->java.util.Map.of("wall_wand_mana_use","academy_wall_wand_mana_use");
             case "skywars2:academy_hedgehog_wand"->java.util.Map.of("baffled_wand_mana_use","academy_baffled_wand_mana_use");
             default->java.util.Map.of();
         };
     }
-    static Component resolve(GameController game,ServerPlayer recipient,Component text,java.util.Map<String,String> aliases){
+    public static Component resolve(GameController game,ServerPlayer recipient,Component text,java.util.Map<String,String> aliases){
         MutableComponent result;
         if(text.getContents() instanceof ScoreContents score){
             String name=score.name().map(selector->selector.source(),literal->literal);

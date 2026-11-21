@@ -25,18 +25,18 @@ import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 
 /** The original native jigsaw structure, placed through the existing accepted terrain dispatcher. */
 public final class LbcGrimoireDungeon {
-    static final String PENDING="skywars2.grimoire_pending";
-    static final Identifier STRUCTURE=Identifier.parse("lbc:grimoire_dungeon");
+    public static final String PENDING="skywars2.grimoire_pending";
+    public static final Identifier STRUCTURE=Identifier.parse("lbc:grimoire_dungeon");
     private static final List<Identifier> TEMPLATES=List.of("balcony","center_1","dead_end","road_1","room_1","room_2","tower_1","tower_2","tower_3","tower_4","tower_5","tower_6","tower_middle","tower_stairs","tower_top","wall")
             .stream().map(n->Identifier.parse("lbc:grimoire_dungeon/"+n)).toList();
     private final GameController game;
     private Job placing;
     private int pending;
-    LbcGrimoireDungeon(GameController game){this.game=game;}
+    public LbcGrimoireDungeon(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){if(stack.isEmpty())return false;var data=LbcFartus.data(stack);return data.getIntOr("grimoire_dungeon",0)==1&&data.getIntOr("drop",0)==1;}
     public boolean ready(ItemEntity token){return matches(token.getItem())&&!token.isRemoved()&&token.level()==game.maps().level()&&game.playing()
             &&!game.items().hasStaleItemEpoch(token)&&!game.items().timeStop().stopped((ServerLevel)token.level());}
-    int pending(){return pending;}
+    public int pending(){return pending;}
     /** Invoked from the native entity-add callback while a native structure slice is being placed. */
     public void capture(Entity actor){if(placing!=null&&actor.level()==placing.level){
         actor.entityTags().add(PENDING);placing.entities.add(actor);game.items().spellSources().capture(actor);

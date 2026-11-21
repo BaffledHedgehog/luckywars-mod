@@ -13,9 +13,9 @@ import java.util.function.Predicate;
 import java.util.function.BiFunction;
 
 /** Очередь обработки области по загруженным секциям без загрузки чанков. */
-final class BlockAreaWork {
-    record Bounds(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-        boolean contains(BlockPos pos) {
+public final class BlockAreaWork {
+    public record Bounds(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        public boolean contains(BlockPos pos) {
             return pos.getX() >= minX && pos.getX() <= maxX && pos.getY() >= minY && pos.getY() <= maxY
                     && pos.getZ() >= minZ && pos.getZ() <= maxZ;
         }
@@ -24,7 +24,7 @@ final class BlockAreaWork {
             return intersection(other.minX, other.minY, other.minZ, other.maxX, other.maxY, other.maxZ);
         }
 
-        Bounds intersection(int x1, int y1, int z1, int x2, int y2, int z2) {
+        public Bounds intersection(int x1, int y1, int z1, int x2, int y2, int z2) {
             int xMin = Math.max(minX, x1), yMin = Math.max(minY, y1), zMin = Math.max(minZ, z1);
             int xMax = Math.min(maxX, x2), yMax = Math.min(maxY, y2), zMax = Math.min(maxZ, z2);
             return xMin <= xMax && yMin <= yMax && zMin <= zMax
@@ -41,18 +41,18 @@ final class BlockAreaWork {
     private final LinkedHashMap<Long, SectionScan> scans = new LinkedHashMap<>();
     private Bounds bounds;
 
-    Bounds bounds() { return bounds; }
+    public Bounds bounds() { return bounds; }
 
-    BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
+    public BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
                   BiFunction<BlockPos, BlockState, BlockState> replacement, int writeFlags) {
         this(level,eligible,replacement,writeFlags,false);
     }
-    BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
+    public BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
                   BiFunction<BlockPos, BlockState, BlockState> replacement, int writeFlags, boolean retainUnloaded) {
         this(level,eligible,replacement,writeFlags,retainUnloaded,false);
     }
     /** Ранняя фильтрация подходит живой ауре, которая повторно получает block/chunk events. */
-    BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
+    public BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
                   BiFunction<BlockPos, BlockState, BlockState> replacement, int writeFlags,
                   boolean retainUnloaded, boolean filterOnEnqueue) {
         this.level = level;
@@ -64,9 +64,9 @@ final class BlockAreaWork {
     }
 
     /** Completed coverage only: no writes, rescan or pending-work replay. */
-    void resetBounds(Bounds completed){scans.clear();bounds=completed;}
+    public void resetBounds(Bounds completed){scans.clear();bounds=completed;}
 
-    void move(Bounds next, boolean rescan) {
+    public void move(Bounds next, boolean rescan) {
         Bounds previous = bounds;
         bounds = next;
         scans.values().removeIf(scan -> {
@@ -81,7 +81,7 @@ final class BlockAreaWork {
         enqueueDifference(next, previous);
     }
 
-    void add(Bounds region) {
+    public void add(Bounds region) {
         if (region == null) return;
         Bounds clipped = region.intersection(region.minX, level.getMinY(), region.minZ,
                 region.maxX, level.getMaxY(), region.maxZ);
@@ -105,7 +105,7 @@ final class BlockAreaWork {
     }
 
     /** Неизменяемый каст объединяет точные области: перекрытия обходятся один раз, промежутки не сканируются. */
-    void include(Bounds region) {
+    public void include(Bounds region) {
         if(region==null) return;
         bounds=bounds==null ? region : new Bounds(Math.min(bounds.minX,region.minX),Math.min(bounds.minY,region.minY),
                 Math.min(bounds.minZ,region.minZ),Math.max(bounds.maxX,region.maxX),Math.max(bounds.maxY,region.maxY),
@@ -113,19 +113,19 @@ final class BlockAreaWork {
         add(region);
     }
 
-    void add(BlockPos pos) {
+    public void add(BlockPos pos) {
         add(new Bounds(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ()));
     }
 
-    boolean hasWork() { return !scans.isEmpty(); }
+    public boolean hasWork() { return !scans.isEmpty(); }
 
-    int queuedBlockCount() {
+    public int queuedBlockCount() {
         int count = 0;
         for (SectionScan scan : scans.values()) count += scan.positions.cardinality();
         return count;
     }
 
-    void clear() { scans.clear(); bounds = null; }
+    public void clear() { scans.clear(); bounds = null; }
 
     private boolean hasEligibleBlocks(net.minecraft.world.level.chunk.LevelChunkSection section) {
         // maybeHas консервативен: старый state может остаться в палитре после замены всех клеток.
@@ -134,11 +134,11 @@ final class BlockAreaWork {
     }
 
     /** Один section batch; retainUnloaded сохраняет принятую работу, не загружая чанк. */
-    int step(GameController game, ServerPlayer owner, int allowance, long deadline) {
+    public int step(GameController game, ServerPlayer owner, int allowance, long deadline) {
         return step(game,owner,null,allowance,deadline);
     }
     /** Sustained/deferred work keeps its original author, policy and causal order. */
-    int step(GameController game, ServerPlayer owner,LbcIndirectKills.Owner cause,int allowance,long deadline) {
+    public int step(GameController game, ServerPlayer owner,LbcIndirectKills.Owner cause,int allowance,long deadline) {
         if (scans.isEmpty() || allowance <= 0) return 0;
         var entry = scans.firstEntry();
         SectionScan scan = entry.getValue();
@@ -229,12 +229,12 @@ final class BlockAreaWork {
         }
     }
     /** Independent pending section order/bitmaps; immutable predicates/configuration stay with this worker. */
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         private record Scan(long key,int x,int y,int z,BitSet cells) { }
         private final Bounds region=bounds;
         private final java.util.List<Scan> image=scans.entrySet().stream().map(e->new Scan(e.getKey(),e.getValue().x,e.getValue().y,e.getValue().z,(BitSet)e.getValue().positions.clone())).toList();
-        void restore(){scans.clear();for(var saved:image){var scan=new SectionScan(saved.x,saved.y,saved.z);scan.positions.or(saved.cells);scans.put(saved.key,scan);}bounds=region;}
+        public void restore(){scans.clear();for(var saved:image){var scan=new SectionScan(saved.x,saved.y,saved.z);scan.positions.or(saved.cells);scans.put(saved.key,scan);}bounds=region;}
     }
 
 }

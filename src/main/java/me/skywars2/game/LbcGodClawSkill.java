@@ -38,7 +38,7 @@ public final class LbcGodClawSkill {
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     public static void register(){net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:god_claw"),TICKET);}
-    static final BlockState CONSUMED=LbcConsumedBlock.BLOCK.defaultBlockState();
+    public static final BlockState CONSUMED=LbcConsumedBlock.BLOCK.defaultBlockState();
     private static final List<Holder<Attribute>> ATTRIBUTES=List.of(Attributes.ARMOR,Attributes.ARMOR_TOUGHNESS,
             Attributes.ATTACK_DAMAGE,Attributes.ATTACK_KNOCKBACK,Attributes.ATTACK_SPEED,Attributes.BURNING_TIME,
             Attributes.EXPLOSION_KNOCKBACK_RESISTANCE,Attributes.FALL_DAMAGE_MULTIPLIER,Attributes.JUMP_STRENGTH,
@@ -231,10 +231,10 @@ public final class LbcGodClawSkill {
     public void stop(){releaseTickets();owners.clear();positions.clear();turn=0;restoring=false;lastTick=Integer.MIN_VALUE;}
     public void prepareFrozen(){restoring=true;releaseTickets();owners.clear();positions.clear();}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         final List<State> saved=owners.values().stream().map(State::new).toList();final int savedTurn=turn;
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var restored=new LinkedHashMap<UUID,State>();
             for(var s:saved)restored.put(s.owner,new State(s));
             return new MatchFieldCheckpoint.Plan(Set.of(),()->{
@@ -246,6 +246,6 @@ public final class LbcGodClawSkill {
             });
         }
     }
-    int frontier(ServerPlayer p){var s=owners.get(p.getUUID());return s==null?0:s.current.size()+s.next.size();}
-    boolean active(ServerPlayer p){var s=owners.get(p.getUUID());return s!=null&&s.active;}
+    public int frontier(ServerPlayer p){var s=owners.get(p.getUUID());return s==null?0:s.current.size()+s.next.size();}
+    public boolean active(ServerPlayer p){var s=owners.get(p.getUUID());return s!=null&&s.active;}
 }

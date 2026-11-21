@@ -22,7 +22,7 @@ public final class LbcChefBrain {
     private static long budgetTick=Long.MIN_VALUE;
     private static long deadline;
     private static int budget=GLOBAL_NODES,probes;
-    static void beginTick(long tick){if(tick!=budgetTick){budgetTick=tick;budget=GLOBAL_NODES;probes=0;
+    public static void beginTick(long tick){if(tick!=budgetTick){budgetTick=tick;budget=GLOBAL_NODES;probes=0;
         deadline=System.nanoTime()+12_000_000L;}}
     private final net.minecraft.world.entity.LivingEntity chef;
     private final Driver driver;
@@ -123,9 +123,9 @@ public final class LbcChefBrain {
     });}
     LbcChefBrain(net.minecraft.world.entity.LivingEntity actor,Driver driver){this.chef=actor;this.driver=driver;level=(ServerLevel)actor.level();}
     List<ItemStack> tools(){return tools.stream().map(ItemStack::copy).toList();}
-    int searchCount(){return searches;}
-    int resetCount(){return resets;}
-    String diagnostics(){return "path="+path.size()+" next="+path.peek()+" search="+(search==null?"none":
+    public int searchCount(){return searches;}
+    public int resetCount(){return resets;}
+    public String diagnostics(){return "path="+path.size()+" next="+path.peek()+" search="+(search==null?"none":
             "actions expanded="+search.expanded+" open="+search.open.size()+" best="+search.best.spot)
             +" goal="+goal+" stuck="+stuck+" replan="+replan+" takeoff="+runwayPhase+" pillar="+pillarLaunched
             +" mining="+mining+" dig="+progress+" pose="+chef.getPose()+" eye="+chef.getEyePosition()+" yaw="+chef.getYRot()+" pitch="+chef.getXRot()+" head="+chef.getYHeadRot()+" action="+driver.actionSerial()+" probes="+probes+" searches="+searches+" ground="+chef.onGround()+" velocity="+chef.getDeltaMovement()+" resets="+resets+" lastReset="+lastReset+" placement="+lastPlacement;}
@@ -140,7 +140,7 @@ public final class LbcChefBrain {
     void restoreCheckpointResources(List<ItemStack> palette,Set<BlockPos> owned){
         tools=palette.stream().map(ItemStack::copy).toList();placed.clear();placed.addAll(owned);resetForCheckpoint();
     }
-    void reset(){reset("external");}
+    public void reset(){reset("external");}
     private void reset(String why){lastReset=why+" step="+path.peek()+" at="+chef.position();resets++;
         path.clear();search=null;progressStep=null;clearMining();placementWaiting=false;replan=0;stuck=0;clearTakeoff();}
     private void clearTakeoff(){airborneJump=false;preparingJump=null;runway=null;flightAim=null;runwayPhase=0;runwayRetreats=0;

@@ -61,9 +61,9 @@ public final class NuclearVisuals {
         int availableAt;
     }
 
-    NuclearVisuals(GameController game) { this.game=game; }
+    public NuclearVisuals(GameController game) { this.game=game; }
     public int count() { return effects.size(); }
-    int clock() { return clock; }
+    public int clock() { return clock; }
 
     /** Общий вход для будущих legacy nuclear-маркеров; разрушения и урон остаются у вызывающего. */
     public void show(ServerLevel level,Vec3 origin,float radius,boolean cancelInAntimagic) {
@@ -270,33 +270,33 @@ public final class NuclearVisuals {
         // Карантин сохраняется между матчами, пока тот же клиент подключён.
     }
 
-    List<ItemDisplayElement> displays(ServerPlayer player) {
+    public List<ItemDisplayElement> displays(ServerPlayer player) {
         var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(var slot:slots) if(slot.display!=null && !slot.retiring) result.add(slot.display);
         return List.copyOf(result);
     }
-    List<Vec3> origins(ServerPlayer player) {
+    public List<Vec3> origins(ServerPlayer player) {
         var result=new ArrayList<Vec3>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(var slot:slots) if(slot.effect!=null && !slot.retiring) result.add(slot.effect.origin);
         return List.copyOf(result);
     }
 
-    List<ItemDisplayElement> fadeDisplays(ServerPlayer player) {
+    public List<ItemDisplayElement> fadeDisplays(ServerPlayer player) {
         var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(var slot:slots) if(slot.fade!=null) result.add(slot.fade);
         return List.copyOf(result);
     }
 
-    List<Vec3> fadingOrigins(ServerPlayer player) {
+    public List<Vec3> fadingOrigins(ServerPlayer player) {
         var result=new ArrayList<Vec3>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(var slot:slots) if(slot.fade!=null) result.add(slot.effect.origin);
         return List.copyOf(result);
     }
 
-    record SlotFrame(int slot,Vec3 origin,int fixedAge,int stagedAt,int mainRemovedAt,int availableAt,
+    public record SlotFrame(int slot,Vec3 origin,int fixedAge,int stagedAt,int mainRemovedAt,int availableAt,
                      boolean retiring,boolean natural,boolean mainPresent,boolean fadePresent) {}
 
-    List<SlotFrame> frames(ServerPlayer player) {
+    public List<SlotFrame> frames(ServerPlayer player) {
         var result=new ArrayList<SlotFrame>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(int index=0;index<slots.length;index++) {
             var slot=slots[index];

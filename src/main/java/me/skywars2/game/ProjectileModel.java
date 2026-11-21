@@ -11,17 +11,17 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.phys.Vec3;
 
 /** A native projectile owns physics; its recipient-tracked display owns only the authored model. */
-final class ProjectileModel {
+public final class ProjectileModel {
     private final Projectile body;
     private final ElementHolder holder=new ElementHolder();
     private final ItemDisplayElement display;
-    ProjectileModel(Projectile body,Identifier model){
+    public ProjectileModel(Projectile body,Identifier model){
         this.body=body;var stack=new ItemStack(Items.STICK);stack.set(DataComponents.ITEM_MODEL,model);
         display=new ItemDisplayElement(stack);display.setItemDisplayContext(ItemDisplayContext.FIXED);
         display.setInterpolationDuration(1);display.setTeleportDuration(1);display.setShadowRadius(0);display.setShadowStrength(0);
         holder.addElement(display);sync(body.position());new EntityAttachment(holder,body,false);
     }
-    void sync(Vec3 visible){
+    public void sync(Vec3 visible){
         var motion=body.getDeltaMovement();
         if(motion.lengthSqr()>1e-12){
             display.setYaw((float)-Math.toDegrees(Math.atan2(motion.x,motion.z)));
@@ -31,6 +31,6 @@ final class ProjectileModel {
         display.setTeleportDuration(stepped?0:1);display.setAlwaysSyncAbsolutePosition(stepped);
         display.setOffset(visible.subtract(body.position()));holder.tick();
     }
-    ItemDisplayElement display(){return display;}
-    void close(){holder.destroy();}
+    public ItemDisplayElement display(){return display;}
+    public void close(){holder.destroy();}
 }

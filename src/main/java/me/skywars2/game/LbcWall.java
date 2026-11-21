@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.LinkedHashSet;
 
 /** Мгновенные кирпичные формы Wall: без сущностей и постоянного tick-обработчика. */
-final class LbcWall {
+public final class LbcWall {
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<Block> BRICKS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:bricks"));
     private static final BlockParticleOption PARTICLES=new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BRICKS.defaultBlockState());
@@ -65,7 +65,7 @@ final class LbcWall {
             game.items().mana().award(owner, "lbc:true_advancements/staffs/wall");
     }
 
-    static void scriptCast(GameController game, ServerPlayer owner, Vec3 origin, Vec3 direction,
+    public static void scriptCast(GameController game, ServerPlayer owner, Vec3 origin, Vec3 direction,
                            boolean upgraded, int mode) {
         float yaw = direction.horizontalDistanceSqr() < 1e-12 ? owner.getYRot()
                 : (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
@@ -169,7 +169,7 @@ final class LbcWall {
         LbcOverload.sound(owner,"minecraft:block.stone.place",1,1,0);
     }
     /** Shish Wall captures pose and facing at cast time, even if its long ray finishes later. */
-    static void shishTerminal(GameController game,ServerPlayer owner,BlockHitResult hit,Vec3 direction,int mode,float yaw) {
+    public static void shishTerminal(GameController game,ServerPlayer owner,BlockHitResult hit,Vec3 direction,int mode,float yaw) {
         Vec3 point=hit.getLocation().add(direction.scale(1e-4));
         switch(mode) {
             case 2 -> horizontal(game,owner,point.add(direction.scale(.5)));

@@ -16,14 +16,14 @@ import net.minecraft.world.phys.Vec3;
 
 /** Native legacy destinations: the map itself is the actual Overworld. */
 public final class LbcHedgehogDimensions {
-    static final ResourceKey<Level> NEXUS=key("minecraft:nexus"), IMPRINTED=key("minecraft:imprinted");
-    static final String RETURN_COUNTER="imprinted_return";
+    public static final ResourceKey<Level> NEXUS=key("minecraft:nexus"), IMPRINTED=key("minecraft:imprinted");
+    public static final String RETURN_COUNTER="imprinted_return";
     static final int RETURN_TICKS=45*20;
     private final GameController game;
     public LbcHedgehogDimensions(GameController game){this.game=game;}
     private static ResourceKey<Level> key(String id){return ResourceKey.create(Registries.DIMENSION,Identifier.parse(id));}
     public boolean teleport(LivingEntity target,ServerPlayer owner){return teleport(target,owner,owner.getRandom().nextInt(4)+1);}
-    ServerLevel destination(ServerLevel from,int roll){
+    public ServerLevel destination(ServerLevel from,int roll){
         if(roll<1||roll>4)throw new IllegalArgumentException("Hedgehog dimension roll must be 1..4");
         var origin=from.dimension();
         if(origin.equals(Level.OVERWORLD))return world(switch(roll){case 1->Level.NETHER;case 2->Level.END;case 3->NEXUS;default->IMPRINTED;});
@@ -41,7 +41,7 @@ public final class LbcHedgehogDimensions {
         if(to.dimension().equals(IMPRINTED))mana.score(player,RETURN_COUNTER).set(RETURN_TICKS);
         else if(mana.hudValue(player,RETURN_COUNTER)>0)mana.score(player,RETURN_COUNTER).set(0);
     }
-    void tickReturns(){
+    public void tickReturns(){
         if(!game.server().tickRateManager().runsNormally())return;
         var mana=game.items().mana();
         for(var player:game.server().getPlayerList().getPlayers()){
@@ -72,15 +72,15 @@ public final class LbcHedgehogDimensions {
             }
         }
     }
-    boolean teleport(LivingEntity target,ServerPlayer owner,int roll){
+    public boolean teleport(LivingEntity target,ServerPlayer owner,int roll){
         return transfer(target,owner,roll)!=null;
     }
     /** Timed dimension shifting supplies the source world's RNG; the destination engine stays shared. */
-    boolean teleport(LivingEntity target,ServerPlayer owner,int roll,net.minecraft.util.RandomSource random){
+    public boolean teleport(LivingEntity target,ServerPlayer owner,int roll,net.minecraft.util.RandomSource random){
         return transfer(target,owner,roll,random)!=null;
     }
     /** Actual native arrival also exists when its destination section is not entity-visible. */
-    LivingEntity transfer(LivingEntity target,ServerPlayer owner,int roll){
+    public LivingEntity transfer(LivingEntity target,ServerPlayer owner,int roll){
         return owner==null?null:transfer(target,owner,roll,owner.getRandom());
     }
     private LivingEntity transfer(LivingEntity target,ServerPlayer owner,int roll,net.minecraft.util.RandomSource random){
@@ -90,13 +90,13 @@ public final class LbcHedgehogDimensions {
         return transferTo(target,owner,from,destination(from,roll),random);
     }
     /** Oreshek calls the same Nexus transfer directly, without another dimension roll. */
-    boolean nexus(LivingEntity target,ServerPlayer owner,net.minecraft.util.RandomSource random){
+    public boolean nexus(LivingEntity target,ServerPlayer owner,net.minecraft.util.RandomSource random){
         if(target==null||owner==null||!game.canUseGameplayItems(owner)||!game.items().wands().validTarget(target)
                 ||!(target.level() instanceof ServerLevel from))return false;
         return transferTo(target,owner,from,world(NEXUS),random)!=null;
     }
     /** Source altitude entry is environmental, independent of a usable item or a spell owner. */
-    boolean heightNexus(ServerPlayer player){
+    public boolean heightNexus(ServerPlayer player){
         return transferTo(player,player,player.level(),world(NEXUS),player.getRandom())!=null;
     }
     private LivingEntity transferTo(LivingEntity target,ServerPlayer owner,ServerLevel from,ServerLevel destination,

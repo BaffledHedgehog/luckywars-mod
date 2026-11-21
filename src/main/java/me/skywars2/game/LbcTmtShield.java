@@ -9,14 +9,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 
 /** Authored native shield blocking components; physical carrier use and damage remain native. */
-final class LbcTmtShield {
+public final class LbcTmtShield {
     private LbcTmtShield(){}
     private static Item selected(ItemStack stack){
         var selected=LbcTmtAbilities.nativePredicatesActive()?LbcTmtAbilities.nativePredicateItem(stack):null;
         return selected==null?stack.getItem():selected;
     }
     /** Source predicate. The sword's hylian flag is deliberately unrelated. */
-    static boolean candidate(ItemStack stack){
+    public static boolean candidate(ItemStack stack){
         if(stack.isEmpty()||!stack.has(DataComponents.BLOCKS_ATTACKS))return false;
         var item=selected(stack);
         // Energy is a SimplePolymerItem using generic Item.use, not a ShieldItem.
@@ -31,7 +31,7 @@ final class LbcTmtShield {
             &&(ItemData.intValue(stack,"hylianshield",0)==1||ItemData.intValue(stack,"lightsaber",0)==1||LbcElectro.isShield(stack));}
 
     /** Run at generation/rehydration with the existing sustained-component applier. */
-    static void apply(GameController game,ItemStack stack){
+    public static void apply(GameController game,ItemStack stack){
         if(!sustained(stack))return;
         for(var property:LbcTmtAbilities.read(stack)){
             var source=LbcTmtComponents.source(game,property);if(!candidate(source))continue;

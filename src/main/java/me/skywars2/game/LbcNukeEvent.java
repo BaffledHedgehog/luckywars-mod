@@ -123,7 +123,7 @@ public final class LbcNukeEvent {
         }finally{callbackDepth--;}
     }
     /** Source nuke_eoe: immediate strict beacon and a separate globally REPLACE'd nuke1 deadline. */
-    boolean startPlaced(ServerPlayer author,Vec3 at){
+    public boolean startPlaced(ServerPlayer author,Vec3 at){
         if(rewinding||author==null||!author.isAlive()||!game.canUseGameplayItems(author)||game.isObserver(author)
                 ||!live(game.items().epoch())||!LbcDimensionItems.ordinary(author)||paused(author.level())||!author.level().hasChunkAt(BlockPos.containing(at)))return false;
         callbackDepth++;try{
@@ -294,7 +294,7 @@ public final class LbcNukeEvent {
     }
 
     /** Native ammo already owns admission and may legitimately have no player author. */
-    boolean arrowBurst(ServerLevel level,Vec3 at,float yaw,LbcIndirectKills.Owner accepted){
+    public boolean arrowBurst(ServerLevel level,Vec3 at,float yaw,LbcIndirectKills.Owner accepted){
         if(!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
                 ||!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
         if(generation==0)prepare();
@@ -303,7 +303,7 @@ public final class LbcNukeEvent {
         pointBurst(new Site(level,at,yaw,cause));return true;
     }
     /** Hostile encounter bombs reuse the complete normal nuclear engine and their actual NPC cause. */
-    boolean encounterBurst(ServerLevel level,Vec3 at,LivingEntity emitter){
+    public boolean encounterBurst(ServerLevel level,Vec3 at,LivingEntity emitter){
         if(emitter==null||rewinding||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
                 ||!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
         if(generation==0)prepare();
@@ -542,7 +542,7 @@ public final class LbcNukeEvent {
         }finally{callbackDepth--;}
     }
     public int pointPendingTicks(){return pendingEoe;}
-    boolean pendingDetonation(){return jobs.stream().anyMatch(job->job.detonation&&!job.cancelled);}
+    public boolean pendingDetonation(){return jobs.stream().anyMatch(job->job.detonation&&!job.cancelled);}
     public int markerCount(){return actors.size();}public int pendingTicks(){return pending;}public int jobCount(){return jobs.size();}
     public long warnings(){return warnings;}public long schedules(){return schedules;}public long detonations(){return detonations;}
     public long centers(){return centers;}public long blasts(){return blasts;}public long beacons(){return beacons;}
@@ -551,14 +551,14 @@ public final class LbcNukeEvent {
     public List<View> snapshot(){return actors.entrySet().stream().map(e->new View(e.getKey().getUUID(),e.getValue().cause.author,
             e.getKey().level().dimension().identifier().toString(),e.getKey().position(),e.getValue().lifetime,e.getValue().activated,e.getValue().cause.epoch)).toList();}
 
-    boolean captureReady(){return callbackDepth==0&&executingCause==null&&!preparing&&jobs.isEmpty()&&!rewinding;}
-    void checkpointBoundary(){if(callbackDepth!=0||executingCause!=null)throw new IllegalStateException("Finish nuclear callbacks/preparation before checkpointing");}
-    void cancelFutureTerrainForRollback(){checkpointBoundary();preparationToken++;preparing=false;for(var job:List.copyOf(jobs))job.cancel();}
-    void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;stagedClock=null;}
-    void publishFrozen(){checkpointBoundary();if(stagedClock!=null){lastTick=stagedClock.last(game);cadenceOffset=stagedPhase-game.server().getTickCount();}stagedClock=null;rewinding=false;}
-    void cancelFrozen(){checkpointBoundary();stagedClock=null;rewinding=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete nuclear terrain/bursts before capture");return new Checkpoint(links);}
-    final class Checkpoint {
+    public boolean captureReady(){return callbackDepth==0&&executingCause==null&&!preparing&&jobs.isEmpty()&&!rewinding;}
+    public void checkpointBoundary(){if(callbackDepth!=0||executingCause!=null)throw new IllegalStateException("Finish nuclear callbacks/preparation before checkpointing");}
+    public void cancelFutureTerrainForRollback(){checkpointBoundary();preparationToken++;preparing=false;for(var job:List.copyOf(jobs))job.cancel();}
+    public void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;stagedClock=null;}
+    public void publishFrozen(){checkpointBoundary();if(stagedClock!=null){lastTick=stagedClock.last(game);cadenceOffset=stagedPhase-game.server().getTickCount();}stagedClock=null;rewinding=false;}
+    public void cancelFrozen(){checkpointBoundary();stagedClock=null;rewinding=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete nuclear terrain/bursts before capture");return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Value(State original,int lifetime,boolean activated){}
         private record Source(MatchDamageSources.Ref entity,Cause cause){}
         private record Picture(MatchDamageSources.Ref marker,Cause cause,int age){}
@@ -582,7 +582,7 @@ public final class LbcNukeEvent {
             for(var cause:sources.values())if(cause.npc!=null)npcSources.put(cause,links.key(cause.npc));
             for(var visual:visuals)if(visual.cause.npc!=null)npcSources.put(visual.cause,links.key(visual.cause.npc));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var restored=registry.restore(links);
             var rebased=new HashMap<Cause,Cause>();npcSources.forEach((cause,ref)->rebased.put(cause,new Cause(cause.author,cause.accepted,cause.epoch,(LivingEntity)links.get(ref))));
             var nextSources=new ArrayList<Map.Entry<Entity,Cause>>();for(var source:lineage)nextSources.add(Map.entry(links.get(source.entity),rebased.getOrDefault(source.cause,source.cause)));

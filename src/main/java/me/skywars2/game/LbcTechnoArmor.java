@@ -57,7 +57,7 @@ public final class LbcTechnoArmor {
         pulse(p,phase);
     }
     /** The same source two/five/ten/twenty-tick phases, with independent player pause admission. */
-    void pulse(ServerPlayer p,int phase){
+    public void pulse(ServerPlayer p,int phase){
         if(!admitted.test(p))return;
         // Author: this is a physical air filter and neither jammer disables cleansing.
         if(phase%2==0&&piece(p,EquipmentSlot.HEAD,"reactive")){
@@ -128,7 +128,7 @@ public final class LbcTechnoArmor {
     static final class SelfWaterDamage extends DamageSource{
         SelfWaterDamage(ServerPlayer p){super(p.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRIC),p,p);}
     }
-    static boolean selfShortCircuit(LivingEntity victim,DamageSource damage){
+    public static boolean selfShortCircuit(LivingEntity victim,DamageSource damage){
         var original=LbcIndirectKills.originalDamage(damage);return original instanceof SelfWaterDamage&&original.getEntity()==victim;
     }
     void water(ServerPlayer p){

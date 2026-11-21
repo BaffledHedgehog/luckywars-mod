@@ -89,12 +89,12 @@ public final class LbcOverload {
     private boolean active(ServerPlayer p) {
         return mana.visible(p) && !p.entityTags().contains("time_stopped") && !game.items().magic().suppressed(p);
     }
-    static boolean isCrux(ItemStack stack) {
+    public static boolean isCrux(ItemStack stack) {
         var data=stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(CRUX) || data!=null && data.matchedBy(CRUX_DATA);
     }
     /** Источник выдаёт один Crux до регенерации; переполнение положительного cap перевооружает выдачу. */
-    void beforeRegen(ServerPlayer p) {
+    public void beforeRegen(ServerPlayer p) {
         if(!active(p) || mana.noMagic(p)>0) return;
         int value=mana.get(p);
         if(value<=0 && !p.entityTags().contains("obtained_crux")) {
@@ -127,17 +127,17 @@ public final class LbcOverload {
         mana.inventoryChanged(p); p.inventoryMenu.broadcastChanges();
         return true;
     }
-    static int debtStage(int value) {
+    public static int debtStage(int value) {
         return value>=0 ? 0 : value>=-5000 ? 1 : value>=-10000 ? 2 : value>=-15000 ? 3 : value>=-20000 ? 4 : 5;
     }
-    double debtDamage(ServerPlayer p,boolean helmet) {
+    public double debtDamage(ServerPlayer p,boolean helmet) {
         int value=mana.get(p), max=mana.maximum(p);
         // Failed scoreboard /= zero leaves its already-copied numerator intact; do not throw or clamp mana.
         int quotient=max==0 ? value : Math.floorDiv(value,max);
         int difference=Mth.floor(p.getMaxHealth())-quotient;
         return difference*(helmet ? .045 : .1);
     }
-    void afterRegen(ServerPlayer p) {
+    public void afterRegen(ServerPlayer p) {
         if(!active(p) || mana.noMagic(p)>0) return;
         int stage=debtStage(mana.get(p)); if(stage==0) return;
         int mask=mana.overloadArmor(p); boolean helmet=(mask&1)!=0;
@@ -186,7 +186,7 @@ public final class LbcOverload {
         ray(p,origin,yaw,pitch,bendYaw,bendPitch,big ? 31 : full ? 61 : 31,amount,big);
     }
     /** Одна нативная spatial query на луч вместо селектора на каждой точке; изгиб/лимиты source сохранены. */
-    void ray(ServerPlayer p,Vec3 origin,float yaw,float pitch,float bendYaw,float bendPitch,int points,double amount,boolean big) {
+    public void ray(ServerPlayer p,Vec3 origin,float yaw,float pitch,float bendYaw,float bendPitch,int points,double amount,boolean big) {
         if(points<=0 || big && amount<0) return; // Big-ray macro cannot instantiate a negative /damage.
         var level=p.level();
         double radius=big ? 34 : 22;
@@ -232,31 +232,31 @@ public final class LbcOverload {
     }
     public void clearEffects(ServerPlayer p) { armor.clear(p); }
     public void reset(ServerPlayer p) { clearEffects(p); p.entityTags().remove("obtained_crux"); }
-    static void notifySound(ServerPlayer player,String id,SoundSource category,float volume,float pitch) {
+    public static void notifySound(ServerPlayer player,String id,SoundSource category,float volume,float pitch) {
         var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id)));
         player.connection.send(new ClientboundSoundPacket(sound,category,player.getX(),player.getY(),player.getZ(),volume,pitch,player.getRandom().nextLong()));
     }
     /** Preserve a source playsound @s selector independently of the sound's audible range. */
-    static void selfSound(ServerPlayer player,String id,float volume,float pitch) {
+    public static void selfSound(ServerPlayer player,String id,float volume,float pitch) {
         player.connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id))),
                 SoundSource.MASTER,player.getX(),player.getY(),player.getZ(),volume,pitch,player.getRandom().nextLong()));
     }
 
     /** @a выбирает всех, но native playsound затем отсекает другое измерение и неслышимую дистанцию. */
-    static void sound(ServerPlayer p,String id,float volume,float pitch,double radius) {
+    public static void sound(ServerPlayer p,String id,float volume,float pitch,double radius) {
         sound(p,p.position(),id,volume,pitch,radius);
     }
-    static void sound(ServerPlayer p,Vec3 position,String id,float volume,float pitch,double radius) {
+    public static void sound(ServerPlayer p,Vec3 position,String id,float volume,float pitch,double radius) {
         sound(p,position,id,volume,pitch,radius,0);
     }
     /** Аналог minVolume у playsound: радиус selector и слышимость — разные ограничения. */
-    static void sound(ServerPlayer p,Vec3 position,String id,float volume,float pitch,double radius,float minVolume) {
+    public static void sound(ServerPlayer p,Vec3 position,String id,float volume,float pitch,double radius,float minVolume) {
         sound(p.level(),position,id,volume,pitch,radius,minVolume,p.getRandom().nextLong());
     }
-    static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,float volume,float pitch,double radius,float minVolume) {
+    public static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,float volume,float pitch,double radius,float minVolume) {
         sound(level,position,id,volume,pitch,radius,minVolume,level.getRandom().nextLong());
     }
-    static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,SoundSource category,float volume,float pitch,double radius,float minVolume) {
+    public static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,SoundSource category,float volume,float pitch,double radius,float minVolume) {
         sound(level,position,id,volume,pitch,radius,minVolume,level.getRandom().nextLong(),category);
     }
     private static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,float volume,float pitch,double radius,float minVolume,long seed) {

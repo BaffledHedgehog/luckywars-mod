@@ -21,18 +21,18 @@ import net.minecraft.world.level.Level;
 
 /** Source crossbows share native draw, successful-volley hooks and the existing Erecto traces. */
 public final class LbcImbaCrossbows {
-    enum Kind {
+    public enum Kind {
         QUICK("imba_quick_crossbow","d33ed6f281fa",null),
         FAST("imba_fast_crossbow","9edfe7cdf94b","imba_fast_crossbow"),
         SHOTGUN("imba_shotgun","5a9a22e48f9c","imba_shotgun"),
         SNIPER("imba_sniper_crossbow","1e5550f8a752","imba_sniper_crossbow"),
         SUPER("imba_super_shotgun","9ba94abb5b06","imba_super_shotgun"),
         GATLING("imba_gatlingator","e3ca7ba5ed19","imba_gatlingator");
-        final String id,definition,flag;Item item;
+        public final String id,definition,flag;public Item item;
         Kind(String id,String suffix,String flag){this.id=id;definition="/data/lbc/loot_table/item_defs/minecraft/crossbow__"+suffix+".json";this.flag=flag;}
         boolean continuous(){return this==FAST||this==GATLING;}
         boolean beam(){return beamPaths()>0;}
-        int beamPaths(){return switch(this){case SNIPER->1;case SUPER->32;case GATLING->4;default->0;};}
+        public int beamPaths(){return switch(this){case SNIPER->1;case SUPER->32;case GATLING->4;default->0;};}
     }
     static {for(var kind:Kind.values())kind.item=register(kind);}
     private LbcImbaCrossbows(){}
@@ -42,7 +42,7 @@ public final class LbcImbaCrossbows {
         for(var kind:Kind.values())if(stack.is(kind.item)||kind.flag!=null&&ItemData.intValue(stack,kind.flag,0)==1)return kind;
         return null;
     }
-    static Item legacyTarget(ItemStack stack){var kind=kind(stack);return kind==null?null:kind.item;}
+    public static Item legacyTarget(ItemStack stack){var kind=kind(stack);return kind==null?null:kind.item;}
     public static boolean isBeam(ItemStack stack){var kind=kind(stack);return kind!=null&&kind.beam();}
     static boolean allowed(GameController game,ServerPlayer player){return game.playing()&&game.canUseGameplayItems(player)
             &&LbcDimensionItems.ordinary(player.level())&&!game.items().actionsBlocked(player)

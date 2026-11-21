@@ -79,7 +79,7 @@ public final class LbcDamage {
 
     private LbcDamage() { }
     /** Один spatial query на отрезок; кратность старых шагов вычисляется по пересечению native AABB. */
-    static void hurtSegment(net.minecraft.server.level.ServerLevel level, DamageSource damage,
+    public static void hurtSegment(net.minecraft.server.level.ServerLevel level, DamageSource damage,
             net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 to,
             net.minecraft.world.phys.Vec3 padding, double spacing, float amount, int targetLimit,
             java.util.function.Predicate<net.minecraft.world.entity.Entity> target, boolean includeOwner) {
@@ -94,7 +94,7 @@ public final class LbcDamage {
         hurtSegment(level,damage,from,to,padding,spacing,amount,targetLimit,target,includeOwner,null,acceptedHit);
     }
     /** Source payloads may apply after a sampled hit even when native damage is rejected. */
-    static void hurtSegment(net.minecraft.server.level.ServerLevel level, DamageSource damage,
+    public static void hurtSegment(net.minecraft.server.level.ServerLevel level, DamageSource damage,
             net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 to,
             net.minecraft.world.phys.Vec3 padding, double spacing, float amount, int targetLimit,
             java.util.function.Predicate<net.minecraft.world.entity.Entity> target, boolean includeOwner,
@@ -105,12 +105,12 @@ public final class LbcDamage {
     private enum Sweep { LINE, ARROW, PHANTOM_ARROW }
 
     /** A virtual mob attack supplies the defensive enchantment callback normally run by native contact. */
-    static void mobContactEnchantments(ServerLevel level, Entity target, DamageSource damage) {
+    public static void mobContactEnchantments(ServerLevel level, Entity target, DamageSource damage) {
         if (damage.getEntity() instanceof Mob attacker && attacker.isAlive())
             EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, damage, null);
     }
 
-    static void hurtArc(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to,
+    public static void hurtArc(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to,
             double spacing, float amount, int targetLimit, Predicate<Entity> target, boolean includeOwner,
             boolean throughBlocks, ServerPlayer shooter, Consumer<Entity> acceptedHit) {
         hurtSegment(level, damage, from, to, Vec3.ZERO, spacing, amount, targetLimit, target, includeOwner,
@@ -118,7 +118,7 @@ public final class LbcDamage {
     }
 
     /** Mechanical crossbows keep their terrain penetration and old centerline sample count. */
-    static void hurtPiercingBeam(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to,
+    public static void hurtPiercingBeam(ServerLevel level, DamageSource damage, Vec3 from, Vec3 to,
             double spacing, float amount, int targetLimit, Predicate<Entity> target, ServerPlayer shooter) {
         hurtSegment(level, damage, from, to, Vec3.ZERO, spacing, amount, targetLimit, target, false,
                 true, null, null, Sweep.PHANTOM_ARROW, shooter);

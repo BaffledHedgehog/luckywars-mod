@@ -66,7 +66,7 @@ public final class LbcDuplicating {
             super(parent.owner,parent.epoch); this.parent=parent; this.center=parent.point; this.point=point; this.pitch=pitch; this.yaw=yaw; expand=parent.mode==2;
         }
     }
-    LbcDuplicating(GameController game) { this.game=game; }
+    public LbcDuplicating(GameController game) { this.game=game; }
     public void prepare() { }
     public boolean ready() { return true; }
     private boolean valid(ServerPlayer owner) {
@@ -101,7 +101,7 @@ public final class LbcDuplicating {
         game.items().wands().wandCasted(owner); return true;
     }
 
-    void castMode(ServerPlayer owner,int mode) {
+    public void castMode(ServerPlayer owner,int mode) {
         enterCheckpointCallback();try {
             if(mode==3) queue(new Divide(owner));
             else {
@@ -113,7 +113,7 @@ public final class LbcDuplicating {
             }
         }finally{leaveCheckpointCallback();}
     }
-    void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
+    public void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
         enterCheckpointCallback();try {
             direction=direction.normalize();
             if(mode==3)queue(new Divide(owner,origin,direction));
@@ -389,7 +389,7 @@ public final class LbcDuplicating {
         clone(job,local(seed.point,seed.pitch,seed.yaw,ax,ay,az),local(seed.point,seed.pitch,seed.yaw,bx,by,bz),
                 local(seed.point,seed.pitch,seed.yaw,tx,ty,tz));
     }
-    void applyShuffle(ServerPlayer owner,Vec3 point,float pitch,float yaw,Vec3 center,boolean expand) {
+    public void applyShuffle(ServerPlayer owner,Vec3 point,float pitch,float yaw,Vec3 center,boolean expand) {
         enterCheckpointCallback();try {
             var parent=new MarkerState(owner,game.items().epoch(),center,Vec3.ZERO,expand?2:1,1);
             seed(new Seed(parent,point,pitch,yaw));
@@ -443,7 +443,7 @@ public final class LbcDuplicating {
         crossClone(job,nexus,point,pitch,yaw,8,-8,8,5,-5,5,5,-5,-5);
         crossClone(job,nexus,point,pitch,yaw,-8,8,-8,-5,5,-5,5,5,-5);
     }
-    void applyExpandSources(ServerPlayer owner,Vec3 point,float pitch,float yaw) {
+    public void applyExpandSources(ServerPlayer owner,Vec3 point,float pitch,float yaw) {
         enterCheckpointCallback();try {
             var job=new Job(owner); expandSources(job,point,pitch,yaw); queue(job);
         }finally{leaveCheckpointCallback();}
@@ -479,8 +479,8 @@ public final class LbcDuplicating {
             if(!divider && layer!=center) job.operations.add(new Clone(job.level,point.add(-half,-half,-half),point.add(half,half,half),job.level,point.add(center,layer,center),shared));
         }
     }
-    final class Divide extends Job {
-        final Vec3 start,direction; int sample;
+    public final class Divide extends Job {
+        public final Vec3 start,direction; int sample;
         Divide(ServerPlayer owner) {this(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
         Divide(ServerPlayer owner,Vec3 origin,Vec3 look) {
             super(owner); start=origin; direction=look;
@@ -602,7 +602,7 @@ public final class LbcDuplicating {
         }
     }
     /** Source divider_cd is scoreboard-owned; food must enroll newly positive entries for ticking. */
-    void addPlayerCounters(ServerPlayer owner) {
+    public void addPlayerCounters(ServerPlayer owner) {
         if(game.items().mana().hudValue(owner,"divider_cd")>0) dividerTimers.putIfAbsent(owner,0);
     }
 
@@ -679,8 +679,8 @@ public final class LbcDuplicating {
         }finally{leaveCheckpointCallback();}
     }
     /** Pause producers only. Existing shared jobs retain their original native step and chunk waits. */
-    void beginCheckpointDrain(){checkpointBoundary();checkpointDraining=true;}
-    void endCheckpointDrain(){checkpointBoundary();checkpointDraining=game.supernovaMapTransition();}
+    public void beginCheckpointDrain(){checkpointBoundary();checkpointDraining=true;}
+    public void endCheckpointDrain(){checkpointBoundary();checkpointDraining=game.supernovaMapTransition();}
     private int checkpointWrites(Job job){
         if(job.cancelled)return 0;
         int pending=job.operations.size();
@@ -689,15 +689,15 @@ public final class LbcDuplicating {
         for(var dimension:job.loading.values())for(var future:dimension.values())if(!future.isDone())pending++;
         return pending;
     }
-    int pendingCheckpointWrites(){
+    public int pendingCheckpointWrites(){
         checkpointBoundary();int pending=0;for(var job:jobs)pending+=checkpointWrites(job);return pending;
     }
-    void rebindRetained(ServerPlayer player){
+    public void rebindRetained(ServerPlayer player){
         checkpointBoundary();
         for(var marker:markers)if(marker.retainedOwner&&marker.owner.getUUID().equals(player.getUUID())){marker.owner=player;marker.retainedOwner=false;}
         for(var old:List.copyOf(dividerTimers.keySet()))if(old!=player&&old.getUUID().equals(player.getUUID())){var phase=dividerTimers.remove(old);dividerTimers.put(player,phase);}
     }
-    boolean captureReady(){return checkpointDraining&&pendingCheckpointWrites()==0;}
+    public boolean captureReady(){return checkpointDraining&&pendingCheckpointWrites()==0;}
     void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Duplicating native callbacks before checkpointing");}
     private void enterCheckpointCallback(){checkpointCallbacks++;game.items().stonekivi().beginNativeWork();}
     private void leaveCheckpointCallback(){game.items().stonekivi().endNativeWork();checkpointCallbacks--;}
@@ -710,17 +710,17 @@ public final class LbcDuplicating {
         markers.clear();dividerTimers.clear();
     }
     /** Rollback-only discard: capture acquisition must NEVER call this to make pending writes disappear. */
-    void prepareCheckpointRestore(){
+    public void prepareCheckpointRestore(){
         checkpointBoundary();
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())
             throw new IllegalStateException("Discard future Duplicating work on the frozen native thread");
         enterCheckpointCallback();try{checkpointDraining=true;discardFutureCheckpointWork();}finally{leaveCheckpointCallback();}
     }
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
         checkpointBoundary();if(!captureReady())throw new IllegalStateException("Drain original Duplicating writes before taking its essentials");
         return new Checkpoint(links);
     }
-    final class Checkpoint {
+    public final class Checkpoint {
         private record MarkerImage(MarkerState original,MatchDamageSources.Ref owner,Vec3 point,int age,boolean cancelled,Long erosionSeed,int cloneMask,Vec3 direction) { }
         private final List<MarkerImage> saved;
         private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Integer> timers;
@@ -728,7 +728,7 @@ public final class LbcDuplicating {
             saved=markers.stream().map(marker->new MarkerImage(marker,links.key(marker.owner),marker.point,marker.age,marker.cancelled,marker.erosionSeed,marker.cloneMask,marker.direction)).toList();
             timers=new MatchSpellCheckpoint.IdentityImage<>(dividerTimers,links);
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var timerValues=timers.restore(links);var plans=new ArrayList<Runnable>();
             for(var image:saved){var current=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.original.level);
                 plans.add(()->{var marker=image.original;marker.owner=current;marker.retainedOwner=MatchOfflinePlayers.retained(current);marker.point=image.point;marker.age=image.age;marker.cancelled=image.cancelled;marker.erosionSeed=image.erosionSeed;marker.cloneMask=image.cloneMask;marker.direction=image.direction;
@@ -738,11 +738,11 @@ public final class LbcDuplicating {
             }finally{leaveCheckpointCallback();}};
         }
     }
-    record MarkerView(ServerPlayer owner,String epoch,ServerLevel level,Vec3 point,int age,int lifetime,int mode) { }
+    public record MarkerView(ServerPlayer owner,String epoch,ServerLevel level,Vec3 point,int age,int lifetime,int mode) { }
     record SeedView(ServerPlayer owner,Vec3 point,boolean expand) { }
-    List<MarkerView> markerSnapshot() { return markers.stream().map(state->new MarkerView(state.owner,state.epoch,state.level,state.point,state.age,state.lifetime,state.mode)).toList(); }
-    List<SeedView> seedSnapshot() { return List.of(); }
-    int pendingWorkCount() { return (int)jobs.stream().filter(job->job instanceof HoleTerrain terrain?terrain.ready():job instanceof LiveShuffle live?live.ready():!job.held || !job.operations.isEmpty()).count(); }
+    public List<MarkerView> markerSnapshot() { return markers.stream().map(state->new MarkerView(state.owner,state.epoch,state.level,state.point,state.age,state.lifetime,state.mode)).toList(); }
+    public List<SeedView> seedSnapshot() { return List.of(); }
+    public int pendingWorkCount() { return (int)jobs.stream().filter(job->job instanceof HoleTerrain terrain?terrain.ready():job instanceof LiveShuffle live?live.ready():!job.held || !job.operations.isEmpty()).count(); }
 
     int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
@@ -772,7 +772,7 @@ public final class LbcDuplicating {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         if(checkpointDraining)return;
         for(var marker:markers)if(valid(marker)&&LbcPlanetoidSkill.near(game,holder,marker.level,marker.point))
             marker.direction=LbcPlanetoidSkill.direction(holder,marker.point,82);

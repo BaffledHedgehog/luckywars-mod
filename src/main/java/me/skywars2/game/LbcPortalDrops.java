@@ -64,7 +64,7 @@ public final class LbcPortalDrops {
     private final Map<java.util.UUID,ServerPlayer> authors=new HashMap<>();
     private int lastTick=Integer.MIN_VALUE;
     // Native fixtures snapshot only these two small columns before their first write.
-    java.util.function.Consumer<Plan> beforePlace;
+    public java.util.function.Consumer<Plan> beforePlace;
 
     public LbcPortalDrops(GameController game) { this.game=game; }
     public static void registerTicket() {
@@ -152,7 +152,7 @@ public final class LbcPortalDrops {
         release(job);job.candidate=null;return false;
     }
     /** Exact SpreadPlayersCommand.Position.getSpawnY, operating only on a resident column. */
-    static int spawnY(ServerLevel level,BlockPos column,int maxHeight) {
+    public static int spawnY(ServerLevel level,BlockPos column,int maxHeight) {
         var pos=new BlockPos.MutableBlockPos(column.getX(),maxHeight+1,column.getZ());
         boolean air2=level.getBlockState(pos).isAir();pos.move(0,-1,0);
         boolean air1=level.getBlockState(pos).isAir();
@@ -180,7 +180,7 @@ public final class LbcPortalDrops {
         job.tickets.clear();
     }
     /** Pair preflight avoids partial build-height writes; source supports and arrival Y stay unchanged. */
-    void place(ServerLevel level,Plan plan,LivingEntity author) {
+    public void place(ServerLevel level,Plan plan,LivingEntity author) {
         if(level.isDebug() || !fits(level,plan.sourceBase) || !fits(level,plan.remoteBase))return;
         if(beforePlace!=null)beforePlace.accept(plan);
         Runnable writes=()-> {

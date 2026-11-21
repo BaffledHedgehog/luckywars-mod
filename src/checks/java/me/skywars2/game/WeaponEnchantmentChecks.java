@@ -18,10 +18,10 @@ import net.minecraft.world.item.enchantment.*;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 /** Actual table/anvil, native hurt and deterministic entity-loot boundaries for custom weapons. */
-final class WeaponEnchantmentChecks {
+public final class WeaponEnchantmentChecks {
     private WeaponEnchantmentChecks(){}
     private static void require(boolean value,String message){if(!value)throw new IllegalStateException("Weapon enchantments: "+message);}
-    static void run(GameController game,ServerPlayer player,BlockPos center){
+    public static void run(GameController game,ServerPlayer player,BlockPos center){
         var registry=player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         var all=registry.listElements().toList();
         for(int type=0;type<5;type++){

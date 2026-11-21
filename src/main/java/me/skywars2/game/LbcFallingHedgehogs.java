@@ -28,7 +28,7 @@ public final class LbcFallingHedgehogs {
     public LbcFallingHedgehogs(GameController game){this.game=game;}
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(TAG);}
     public int trackedCount(){return actors.size();}
-    List<Silverfish> snapshot(){return List.copyOf(actors);}
+    public List<Silverfish> snapshot(){return List.copyOf(actors);}
 
     private LbcIndirectKills.Owner cause(Entity actor){
         UUID author=null;long order=0;
@@ -77,7 +77,7 @@ public final class LbcFallingHedgehogs {
         for(var player:game.alivePlayers())if(game.lbc().hasSkill(player,13)&&!paused(player))spawn(player);
     }
 
-    Silverfish spawn(ServerPlayer owner){
+    public Silverfish spawn(ServerPlayer owner){
         if(!game.lbc().hasSkill(owner,13)||game.server().tickRateManager().isFrozen()
                 ||!game.server().tickRateManager().runsNormally()||paused(owner)||suppressed(owner.level(),owner.position()))return null;
         var level=owner.level();
@@ -100,7 +100,7 @@ public final class LbcFallingHedgehogs {
         return actor;
     }
 
-    void impact(Silverfish actor){
+    public void impact(Silverfish actor){
         if(!actors.contains(actor)||!live(actor)||paused(actor))return;
         var level=(ServerLevel)actor.level();var at=actor.position();var accepted=source(actor);
         if(!resident(level,at))return;

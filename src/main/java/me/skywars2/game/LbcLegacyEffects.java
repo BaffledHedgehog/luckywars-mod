@@ -18,7 +18,7 @@ public final class LbcLegacyEffects {
             MobEffects.LEVITATION,MobEffects.MINING_FATIGUE,MobEffects.NAUSEA,MobEffects.OOZING,
             MobEffects.POISON,MobEffects.SLOWNESS,MobEffects.UNLUCK,MobEffects.WEAKNESS,
             MobEffects.WEAVING,MobEffects.WIND_CHARGED,MobEffects.WITHER);
-    static final List<String> RANDOM_COUNTERS=List.of("cold","cold_cd","delayed_death","effect_big_explosion",
+    public static final List<String> RANDOM_COUNTERS=List.of("cold","cold_cd","delayed_death","effect_big_explosion",
             "effect_evoker","effect_evokerarrow","effect_explosion","effect_firebreak","effect_gravity_curse",
             "effect_hedgehog_boom","effect_kiuaskivi","effect_lightarrow","effect_lightning_bolt","effect_nuking",
             "effect_remove_mana","effect_small_explosion","effect_snus","effect_stand_arrow_hit","effect_traps",
@@ -148,7 +148,7 @@ public final class LbcLegacyEffects {
         }
     }
     /** Source players_2t: independent5% rolls for amplifier>=1, not a new private duration. */
-    void ambientReactions(ServerPlayer p){
+    public void ambientReactions(ServerPlayer p){
         if(!admitted(p)||game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("legacy"),"lbc.math").get()==1)return;
         if(SignedEffectVisuals.level(p,MobEffects.HUNGER)>1&&p.level().getRandom().nextFloat()<.05f)reaction(p,false);
         if(SignedEffectVisuals.level(p,MobEffects.NAUSEA)>1&&p.level().getRandom().nextFloat()<.05f)reaction(p,true);
@@ -171,7 +171,7 @@ public final class LbcLegacyEffects {
     }
     private void vacuum(ServerPlayer p){vacuumAt(p.level(),p.position(),p.getYRot(),p.getXRot(),game.items().indirectKills().wildCause(p));}
     /** Shared WILD non-player pull; visual children remain with their canonical ability owner. */
-    void vacuumAt(net.minecraft.server.level.ServerLevel level,net.minecraft.world.phys.Vec3 origin,float yaw,float pitch,LbcIndirectKills.Owner cause){
+    public void vacuumAt(net.minecraft.server.level.ServerLevel level,net.minecraft.world.phys.Vec3 origin,float yaw,float pitch,LbcIndirectKills.Owner cause){
         if(!level.hasChunkAt(net.minecraft.core.BlockPos.containing(origin)))return;
         var displacedCause=cause==null?null:new LbcIndirectKills.Owner(cause.player(),cause.order(),true,cause.projectile());
         var transform=(java.util.function.UnaryOperator<net.minecraft.world.phys.Vec3>)(point->point.distanceToSqr(origin)<=10000?origin:point);
@@ -186,7 +186,7 @@ public final class LbcLegacyEffects {
         game.items().transformSpellOrigins(level,transform);
     }
     private boolean magicBeacon(ServerPlayer p){return p.level()==game.maps().level()&&game.items().magic().beaconSuppressed(p.position());}
-    boolean explosionSuppressed(net.minecraft.world.entity.LivingEntity p){
+    public boolean explosionSuppressed(net.minecraft.world.entity.LivingEntity p){
         var level=(net.minecraft.server.level.ServerLevel)p.level();
         if(game.items().magic().mechanismSuppressedAt(level,p.position()))return true;
         // The source queries raw type2 inventory even when an artifact's own active behavior is suppressed.
@@ -195,11 +195,11 @@ public final class LbcLegacyEffects {
                 if((LbcTmtInventory.mysticalTypes(data,1)&(1<<2))!=0)return true;}
         return false;
     }
-    void resetWitch(net.minecraft.world.entity.LivingEntity p){game.items().mana().score(p,"dmg_dealt").set(1);
+    public void resetWitch(net.minecraft.world.entity.LivingEntity p){game.items().mana().score(p,"dmg_dealt").set(1);
         for(var objective:List.of("food_count","lolidefecation","sleep_time","greed_prestige"))game.items().mana().score(p,objective).set(0);
         p.entityTags().add("have_mom");p.entityTags().remove("greed_cursed");}
     private void snus(ServerPlayer p){snus(p,game.items().indirectKills().wildCause(p));game.items().mana().award(p,"lbc:true_advancements/potions/snus");}
-    void snus(net.minecraft.world.entity.LivingEntity p,LbcIndirectKills.Owner cause){
+    public void snus(net.minecraft.world.entity.LivingEntity p,LbcIndirectKills.Owner cause){
         var text=Component.empty().append(p.getDisplayName().copy().withStyle(ChatFormatting.GREEN)).append(Component.translatable("snus.used"));
         for(var viewer:game.server().getPlayerList().getPlayers())viewer.sendSystemMessage(text);
         for(var effect:List.of(MobEffects.REGENERATION,MobEffects.POISON,MobEffects.WITHER,MobEffects.SATURATION,

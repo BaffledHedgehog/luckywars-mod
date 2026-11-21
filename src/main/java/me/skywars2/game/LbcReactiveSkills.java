@@ -90,14 +90,14 @@ public final class LbcReactiveSkills {
             if(danger&&teleport(player,5))projectileTeleports++;
         }
     }
-    boolean airborneEnemyProjectile(ServerPlayer observer,Entity entity){
+    public boolean airborneEnemyProjectile(ServerPlayer observer,Entity entity){
         if(entity==observer||entity.isRemoved()||!entity.isAlive()||entity.position().distanceToSqr(observer.position())>16
                 ||!(entity instanceof Projectile||entity.getType().builtInRegistryHolder().is(PROJECTILES))
                 ||entity.entityTags().contains("time_stopped")||game.items().timeStop().frozen(entity)
                 ||entity instanceof AbstractArrow arrow&&((WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())return false;
         return !LbcTeams.allied(game,observer,entity);
     }
-    boolean teleport(ServerPlayer player,int radius){
+    public boolean teleport(ServerPlayer player,int radius){
         int ceiling=player.level().dimension().equals(Level.NETHER)?120:player.level().getMaxY()+1;
         var destination=LbcSurfaceTeleport.destination(player.level(),player.position(),radius,ceiling,player.getRandom());
         if(destination==null)return false;

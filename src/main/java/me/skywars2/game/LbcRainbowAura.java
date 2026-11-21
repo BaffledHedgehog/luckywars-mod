@@ -408,12 +408,12 @@ public final class LbcRainbowAura {
     /** No resource subtraction or native body disposal here: whole coordinator owns those images. */
     public void prepareFrozen(){restoring=true;if(queued!=null)queued.cancel();owners.clear();spawning.clear();}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         private final List<State> saved=owners.values().stream().map(State::new).toList();
         private final int savedTurn=turn;
-        Set<UUID> actorIds(){var ids=new LinkedHashSet<UUID>();for(var s:saved)for(var g:s.grams)if(g!=null)ids.add(g.actor);return Set.copyOf(ids);}
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public Set<UUID> actorIds(){var ids=new LinkedHashSet<UUID>();for(var s:saved)for(var g:s.grams)if(g!=null)ids.add(g.actor);return Set.copyOf(ids);}
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var pending=new LinkedHashSet<UUID>();
             for(var s:saved)for(var g:s.grams)if(g!=null){var e=lookup.apply(g.actor);
                 if(!(e instanceof Display.ItemDisplay)||e.level()!=s.level)pending.add(g.actor);}

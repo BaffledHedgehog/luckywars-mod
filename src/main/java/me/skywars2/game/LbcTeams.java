@@ -3,10 +3,10 @@ package me.skywars2.game;
 import net.minecraft.world.entity.Entity;
 
 /** Current native teams and physical summon controllers, independent of statistical kill credit. */
-final class LbcTeams {
+public final class LbcTeams {
     private LbcTeams(){}
 
-    static boolean allied(GameController game,Entity first,Entity second){
+    public static boolean allied(GameController game,Entity first,Entity second){
         if(first==null||second==null)return false;
         if(first==second||first.isAlliedTo(second))return true;
         var a=teamActor(game,first);var b=teamActor(game,second);

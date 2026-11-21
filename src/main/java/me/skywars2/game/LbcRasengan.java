@@ -35,7 +35,7 @@ public final class LbcRasengan {
                 &&LbcDimensionItems.ordinary(p)&&!game.items().actionsBlocked(p);
     }
     /** Real private TMT input reuses the cast body; it needs no disposable snowball/tick workaround. */
-    boolean use(ServerPlayer p,net.minecraft.world.InteractionHand hand){
+    public boolean use(ServerPlayer p,net.minecraft.world.InteractionHand hand){
         var stack=p.getItemInHand(hand);
         if(!LbcTmtAbilities.active(stack)||ItemData.intValue(stack,"rasengan",0)!=1||ItemData.intValue(stack,"gadget",0)!=1
                 ||!active(p)||game.items().wands().inputTimeStopped(p)||game.items().timeStop().frozen(p)
@@ -60,7 +60,7 @@ public final class LbcRasengan {
         }
     }
     /** (user) Repeated source cells accumulated knockback; damage occurs once per point. */
-    static ExplosionDamageCalculator blastCalculator(int cell){
+    public static ExplosionDamageCalculator blastCalculator(int cell){
         if(cell<0||cell>=26)throw new IllegalArgumentException("Rasengan cell "+cell);
         int multiplier=cell<8?1:cell<11?2:6;
         return new ExplosionDamageCalculator(){
@@ -99,7 +99,7 @@ public final class LbcRasengan {
                     Component.translatable("killed_by_rasengan").withStyle(ChatFormatting.AQUA,ChatFormatting.BOLD));
         }
     }
-    static boolean blast(DamageSource source){return LbcIndirectKills.originalDamage(source) instanceof BlastDamage;}
+    public static boolean blast(DamageSource source){return LbcIndirectKills.originalDamage(source) instanceof BlastDamage;}
     public int pendingCount(){return pending.size();}
     public void unloaded(Entity entity){pending.remove(entity);}
     public void forget(ServerPlayer p){pending.removeIf(ball->ball.getOwner()==p);}

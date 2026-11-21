@@ -387,8 +387,8 @@ public final class LbcSupernova {
     public void settle(){if(!acceptNewWork.getAsBoolean()){releaseTickets();for(var p:points)p.candidate=null;}}
     public void prepareFrozen(){releaseTickets();points.clear();arenaSearch=null;anchors=0;startedTerrain=false;katanas.clear();craftDirty.clear();retired.clear();deferredBenefits.clear();core=null;restoring=true;}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
-    Checkpoint checkpoint(){if(!captureReady())throw new IllegalStateException("Drain accepted Supernova terrain before capture");return new Checkpoint();}
-    final class Checkpoint {
+    public Checkpoint checkpoint(){if(!captureReady())throw new IllegalStateException("Drain accepted Supernova terrain before capture");return new Checkpoint();}
+    public final class Checkpoint {
         final Phase savedPhase=phase;final UUID savedEvent=event,savedOwner=owner,savedRoot=root;
         final ServerLevel savedLevel=level;final Vec3 savedOrigin=origin;final LbcIndirectKills.Owner savedCause=cause;
         final int savedClock=clock,savedDelay=delay;final boolean savedIntent=mapIntent,savedBlock=blockDrops,savedEntity=entityDrops,savedMob=mobDrops,rootLoaded=core!=null&&!core.isRemoved();
@@ -400,7 +400,7 @@ public final class LbcSupernova {
         final Set<UUID> cancelled=Set.copyOf(retired);
         final Map<UUID,BenefitLease> leases=new LinkedHashMap<>();
         { deferredBenefits.forEach((id,lease)->leases.put(id,lease.copy())); }
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var missing=new LinkedHashSet<UUID>();var restored=new ArrayList<Point>();
             Marker body=savedRoot!=null&&lookup.apply(savedRoot) instanceof Marker m?m:null;if(rootLoaded&&body==null)missing.add(savedRoot);
             for(var image:actors){var p=new Point(image.id(),image.position());p.settled=image.settled();if(lookup.apply(p.id) instanceof Marker m)p.body=m;else if(image.loaded())missing.add(p.id);restored.add(p);}

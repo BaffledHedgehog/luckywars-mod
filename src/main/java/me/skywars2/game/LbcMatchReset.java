@@ -7,7 +7,7 @@ import java.util.*;
 import net.minecraft.server.level.ServerPlayer;
 
 /** Exact raw legacy operands at whole-match boundaries; native services own their resident cleanup. */
-final class LbcMatchReset {
+public final class LbcMatchReset {
     private static final Set<String> TAGS;
     private static final Map<String,Integer> SCORES;
     static {
@@ -21,7 +21,7 @@ final class LbcMatchReset {
         }catch(java.io.IOException error){throw new ExceptionInInitializerError(error);}
     }
     private LbcMatchReset(){}
-    static void player(GameController game,ServerPlayer player){
+    public static void player(GameController game,ServerPlayer player){
         player.entityTags().removeAll(TAGS);
         var board=game.server().getScoreboard();
         for(var entry:SCORES.entrySet()){
@@ -30,5 +30,5 @@ final class LbcMatchReset {
                 board.getOrCreatePlayerScore(player,objective,true).set(entry.getValue());
         }
     }
-    static void all(GameController game){for(var player:game.server().getPlayerList().getPlayers())player(game,player);}
+    public static void all(GameController game){for(var player:game.server().getPlayerList().getPlayers())player(game,player);}
 }

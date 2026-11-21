@@ -45,7 +45,7 @@ public final class LbcIndolenceFingers {
     private final List<Cost> costs=new ArrayList<>();
     private boolean advancing;
     private int lastTick=Integer.MIN_VALUE;
-    LbcIndolenceFingers(GameController game){this.game=game;}
+    public LbcIndolenceFingers(GameController game){this.game=game;}
     private boolean live(){return game.playing()&&game.stage()!=GameController.Stage.ENDING;}
     private List<? extends Entity> select(ServerLevel level,Vec3 at,String literal){try{
         var selector=selectors.get(literal);if(selector==null){selector=new EntitySelectorParser(new StringReader(literal),true).parse();selectors.put(literal,selector);}
@@ -54,7 +54,7 @@ public final class LbcIndolenceFingers {
     private static boolean resident(ServerLevel level,Vec3 at){var pos=BlockPos.containing(at);return level.getWorldBorder().isWithinBounds(pos)&&level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
     private boolean holder(ServerPlayer p){return p!=null&&p.isAlive()&&!p.isRemoved()&&!game.isObserver(p)&&game.canUseGameplayItems(p)&&LbcDimensionItems.ordinary(p)&&p.entityTags().contains("sin_indolence");}
     /** Called by the successful Indolence claim after its shared authority/debit step. */
-    List<Skeleton> acquired(ServerPlayer owner){
+    public List<Skeleton> acquired(ServerPlayer owner){
         if(!live()||!holder(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner))return List.of();
         // The source selector is global, unbounded, and includes markers/items/displays too.
         var positions=select(owner.level(),owner.position(),"@e[type=!minecraft:player,sort=random,limit=20]");
@@ -79,7 +79,7 @@ public final class LbcIndolenceFingers {
     List<Skeleton> fingers(ServerLevel level,Vec3 at){return select(level,at,"@e[type=minecraft:skeleton,tag=indolence_finger]").stream().filter(Skeleton.class::isInstance).map(Skeleton.class::cast).toList();}
     private List<ItemStack> claws(ServerPlayer p){return game.lbc().rollTable(p.level(),p.position(),p,"lbc:ported/indolence_claw");}
     private static void give(ServerPlayer p,ItemStack stack){if(!p.getInventory().add(stack)&&!stack.isEmpty())p.drop(stack,false,net.minecraft.util.Prediction.SERVER_ONLY);}
-    void reward(ServerPlayer p){
+    public void reward(ServerPlayer p){
         for(var entry:ARMOR.entrySet())try{p.setItemSlot(entry.getKey(),new ItemParser(p.registryAccess()).parse(new StringReader(entry.getValue())).createItemStack(1));}
         catch(CommandSyntaxException error){throw new IllegalStateException("Source Indolence armor "+entry.getKey(),error);}
         give(p,new ItemStack(Items.BOW));give(p,new ItemStack(Items.ARROW,64));giveClaw(p);
@@ -89,7 +89,7 @@ public final class LbcIndolenceFingers {
     private List<Skeleton> available(ServerPlayer p){return fingers(p.level(),p.position()).stream().filter(e->e.isAlive()&&!e.isRemoved()
             &&!consumed.contains(e.getUUID())&&LbcDimensionItems.ordinary(e.level())).toList();}
     /** Native death still happens; only the existing participant's life debit is waived. */
-    boolean prepareDeath(ServerPlayer p){
+    public boolean prepareDeath(ServerPlayer p){
         if(!live()||game.isObserver(p)||!p.entityTags().contains("sin_indolence")||!LbcDimensionItems.ordinary(p)||available(p).isEmpty()){
             p.entityTags().remove("indolence_active");rebirths.remove(p.getUUID());return false;
         }
@@ -98,9 +98,9 @@ public final class LbcIndolenceFingers {
                 game.items().ownedEffects().suspend(p),output.buildResult(),p.getAbsorptionAmount(),game.items().indirectKills().effectCauses(p)));
         p.entityTags().add("indolence_active");return true;
     }
-    boolean fingerSpawn(ServerPlayer p){return pending(p)&&!available(p).isEmpty();}
+    public boolean fingerSpawn(ServerPlayer p){return pending(p)&&!available(p).isEmpty();}
     private boolean pending(ServerPlayer p){var saved=rebirths.get(p.getUUID());return saved!=null&&game.items().currentEpoch(saved.epoch())&&p.entityTags().contains("sin_indolence");}
-    void respawned(ServerPlayer p){
+    public void respawned(ServerPlayer p){
         if(!live()||!game.allowDamage(p))return;
         if(pending(p)){if(paused(p.level()))ready.add(p.getUUID());else reborn(p);}
         else {rebirths.remove(p.getUUID());p.entityTags().remove("indolence_active");if(holder(p))giveClaw(p);}
@@ -120,7 +120,7 @@ public final class LbcIndolenceFingers {
         if(finger!=null){p.entityTags().add("kill_one_skeleton");costs.add(new Cost(finger,p,game.server().getTickCount()));}
         game.items().invalidateHud(p);
     }
-    void forget(ServerPlayer p){rebirths.remove(p.getUUID());ready.remove(p.getUUID());p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");}
+    public void forget(ServerPlayer p){rebirths.remove(p.getUUID());ready.remove(p.getUUID());p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");}
     public void tick(){if(advancing)throw new IllegalStateException("Reentrant authority advance");advancing=true;try{
         int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;
         for(var id:List.copyOf(ready)){var p=game.server().getPlayerList().getPlayer(id);if(p==null||!live()||!pending(p)){ready.remove(id);rebirths.remove(id);}
@@ -145,11 +145,11 @@ public final class LbcIndolenceFingers {
         if(source==null||!live()||!game.items().currentEpoch(source.epoch())){e.discard();return;}actors.put(e,source);game.items().spellSources().bind(e,source);game.items().timeStop().prepareFrozen(e);}
     public void unloaded(Entity e){var source=actors.remove(e);if(source!=null&&e.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(e.getUUID(),source);}
     public void stop(){for(var p:game.server().getPlayerList().getPlayers()){p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");}for(var e:List.copyOf(actors.keySet()))e.discard();actors.clear();unloaded.clear();rebirths.clear();ready.clear();costs.clear();consumed.clear();lastTick=Integer.MIN_VALUE;}
-    List<Entity> snapshot(){return List.copyOf(actors.keySet());}
-    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish finger/rebirth callbacks first");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    public void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish finger/rebirth callbacks first");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
     private static Rebirth copyRebirth(Rebirth r){return new Rebirth(r.epoch,r.effects.stream().map(EffectLayers::copy).toList(),OwnedEffectLayers.copyCheckpoint(r.owned),r.shadow.copy(),r.absorption,new HashMap<>(r.causes));}
-    final class Checkpoint {
+    public final class Checkpoint {
         private record Payment(UUID finger,UUID player,ServerLevel level,int born,int left) { }
         private final MatchSpellCheckpoint.IdentityImage<Entity,LbcSpellSource.Source> image;
         private final Map<UUID,LbcSpellSource.Source> asleep=new HashMap<>(unloaded);
@@ -158,13 +158,13 @@ public final class LbcIndolenceFingers {
         private final List<Payment> payments=costs.stream().map(c->new Payment(c.finger,c.player,c.level,c.born,c.left)).toList();
         private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
         Checkpoint(MatchSpellCheckpoint.Links links){image=new MatchSpellCheckpoint.IdentityImage<>(actors,links);rebirths.forEach((id,r)->births.put(id,copyRebirth(r)));}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=image.restore(links);var records=new HashMap<UUID,Rebirth>();births.forEach((id,r)->records.put(id,copyRebirth(r)));
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var restored=image.restore(links);var records=new HashMap<UUID,Rebirth>();births.forEach((id,r)->records.put(id,copyRebirth(r)));
             var queue=new ArrayList<Cost>();for(var payment:payments){MatchAuthorityCheckpoint.world(game,payment.level);queue.add(new Cost(payment.finger,payment.player,payment.level,clock.time(payment.born,game),payment.left));}
             return ()->{actors=restored;unloaded.clear();unloaded.putAll(asleep);rebirths.clear();rebirths.putAll(records);ready.clear();ready.addAll(readyImage);consumed.clear();consumed.addAll(spent);costs.clear();costs.addAll(queue);lastTick=clock.last(game);};}
     }
 
-    static boolean cloneRecognizes(Entity e){return e.entityTags().contains(MANAGED);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity e){return e.entityTags().contains(MANAGED);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var state=actors.get(source);if(state==null)return null;
         var payments=costs.stream().filter(c->c.finger.equals(source.getUUID())).map(c->new Cost(c.finger,c.player,c.level,c.born,c.left)).toList();
         return new LbcCloneSkills.ActorImage(){

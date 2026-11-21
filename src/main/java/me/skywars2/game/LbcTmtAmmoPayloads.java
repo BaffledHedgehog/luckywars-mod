@@ -32,7 +32,7 @@ public final class LbcTmtAmmoPayloads {
         public final String family;
         private final ItemStack source;
         public final int color,variant,amp;
-        final List<MobEffectInstance> effects;
+        public final List<MobEffectInstance> effects;
         Payload(String family,ItemStack source){
             if(family==null||family.isBlank()||family.length()>128||!supported(source))throw new IllegalArgumentException("Invalid TMT ammo payload");
             this.family=family;this.source=source.copyWithCount(1);
@@ -57,8 +57,8 @@ public final class LbcTmtAmmoPayloads {
         Entry(Payload payload){this.payload=payload;}
         Entry(Payload payload,int age,boolean terminal,int reactive,int ageTick){this.payload=payload;this.age=age;this.terminal=terminal;lastReactiveTick=reactive;lastAgeTick=ageTick;}
         Entry copy(){return new Entry(payload,age,terminal,lastReactiveTick,lastAgeTick);}
-        boolean expired(){return payload.amp>=101&&age>=300;}
-        void advance(int now){if(lastAgeTick!=now){if(age<Integer.MAX_VALUE)age++;lastAgeTick=now;}}
+        public boolean expired(){return payload.amp>=101&&age>=300;}
+        public void advance(int now){if(lastAgeTick!=now){if(age<Integer.MAX_VALUE)age++;lastAgeTick=now;}}
     }
     private static final Codec<Entry> ENTRY_CODEC=RecordCodecBuilder.create(i->i.group(
             PAYLOAD_CODEC.fieldOf("payload").forGetter((Entry e)->e.payload),
@@ -69,15 +69,15 @@ public final class LbcTmtAmmoPayloads {
     ).apply(i,Entry::new));
     public static final class State {
         public final List<Entry> entries;
-        LbcIndirectKills.Owner cause;
+        public LbcIndirectKills.Owner cause;
         private int loadedFrame=Integer.MIN_VALUE;
         private State(List<Entry> entries){this.entries=List.copyOf(entries);}
         private State(List<Entry> entries,int frame){this(entries);loadedFrame=frame;}
         private State(List<Entry> entries,int frame,java.util.Optional<LbcIndirectKills.Owner> cause){this(entries,frame);this.cause=cause.orElse(null);}
         public State copy(){var result=new State(entries.stream().map(Entry::copy).toList());result.loadedFrame=loadedFrame;result.cause=cause;return result;}
         /** A saved once-this-tick marker is relative to the capture frame, not the new server tick number. */
-        void rebase(int now){if(loadedFrame!=Integer.MIN_VALUE){rebase(loadedFrame,now);loadedFrame=Integer.MIN_VALUE;}}
-        void rebase(int frame,int now){for(var e:entries){e.lastReactiveTick=e.lastReactiveTick==frame?now:Integer.MIN_VALUE;e.lastAgeTick=e.lastAgeTick==frame?now:Integer.MIN_VALUE;}}
+        public void rebase(int now){if(loadedFrame!=Integer.MIN_VALUE){rebase(loadedFrame,now);loadedFrame=Integer.MIN_VALUE;}}
+        public void rebase(int frame,int now){for(var e:entries){e.lastReactiveTick=e.lastReactiveTick==frame?now:Integer.MIN_VALUE;e.lastAgeTick=e.lastAgeTick==frame?now:Integer.MIN_VALUE;}}
         public boolean hasVariant(int value){for(var entry:entries)if(entry.payload.variant==value)return true;return false;}
     }
     private static final Codec<List<Entry>> ENTRIES_CODEC=ENTRY_CODEC.listOf().validate(entries->entries.size()<=MAX_PAYLOADS

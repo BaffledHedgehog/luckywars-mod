@@ -10,14 +10,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 /** Central source-specific admission and terminal intent, shared by both territory conversions. */
-final class LbcImbaFollowup {
+public final class LbcImbaFollowup {
     private LbcImbaFollowup(){}
-    static boolean admitted(GameController game,Entity target){
+    public static boolean admitted(GameController game,Entity target){
         return game.items().wands().validRoleTarget(target,false)&&!LbcGreed.active(target)
                 &&!(target instanceof Display)&&!(target instanceof Interaction)
                 &&(LbcWtf.managed(target)||!game.items().cloneSkills().protectedFamilyActor(target));
     }
-    static boolean erase(GameController game,Entity target,LbcIndirectKills.Owner cause){
+    public static boolean erase(GameController game,Entity target,LbcIndirectKills.Owner cause){
         if(!admitted(game,target))return false;
         if(target instanceof LivingEntity living){game.items().indirectKills().inheritedExecution(living,cause);return !living.isAlive()||living.isRemoved();}
         target.discard();return true;
@@ -33,7 +33,7 @@ final class LbcImbaFollowup {
         if(!game.items().writeOwnedTerrain(level,at,Blocks.RAW_GOLD_BLOCK.defaultBlockState(),cause))return false;
         game.items().cosmetics().midas().launch(player,level,at,cause,true,-1);stack.consume(1,player);player.inventoryMenu.broadcastChanges();return true;
     }
-    static void adopt(GameController game,Entity entity,LivingEntity user,ItemStack stack){
+    public static void adopt(GameController game,Entity entity,LivingEntity user,ItemStack stack){
         if(!(user instanceof ServerPlayer owner)||!LbcFusedTnt.managed(entity)&&!stack.is(LbcImbaFollowupItems.SUPER_GHAST)
                 &&!(entity instanceof net.minecraft.world.entity.monster.Ghast&&ItemData.intValue(stack,"imba",0)==1))return;
         game.items().spellSources().bind(entity,new LbcSpellSource.Source(entity.getUUID(),owner.getUUID(),game.items().epoch(),game.items().indirectKills().wildCause(owner),Set.of(),true));

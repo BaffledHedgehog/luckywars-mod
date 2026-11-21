@@ -47,8 +47,8 @@ public final class MatchActorCheckpoint {
     private MatchRaids raids;
 
     private MatchActorCheckpoint(GameController game) {this.game=game;epoch=game.items().epoch();}
-    static MatchActorCheckpoint captureRegistered(GameController game) {return captureRegistered(game,Set.of());}
-    static MatchActorCheckpoint captureRegistered(GameController game,Set<UUID> omitted) {
+    public static MatchActorCheckpoint captureRegistered(GameController game) {return captureRegistered(game,Set.of());}
+    public static MatchActorCheckpoint captureRegistered(GameController game,Set<UUID> omitted) {
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy())throw new IllegalStateException("Capture a stable native match on its server thread");
         var result=new MatchActorCheckpoint(game);result.omitted=Set.copyOf(omitted);
         var registered=result.registered();result.damageSources=new MatchDamageSources(game,registered,omitted);
@@ -85,8 +85,8 @@ public final class MatchActorCheckpoint {
         result.views=new MatchPlayerViews(game);
         return result;
     }
-    int size(){return images.size();}
-    static Map<UUID,Entity> currentBodies(GameController game){
+    public int size(){return images.size();}
+    public static Map<UUID,Entity> currentBodies(GameController game){
         var result=new LinkedHashMap<UUID,Entity>();
         for(var actor:new MatchActorCheckpoint(game).registered())result.put(actor.getUUID(),actor);
         for(var player:game.server().getPlayerList().getPlayers())result.put(player.getUUID(),player);
@@ -135,10 +135,10 @@ public final class MatchActorCheckpoint {
         try{action.run();}finally{if(previous==null)RESTORING.remove();else RESTORING.set(previous);}
     }
     /** No death/drop/status triggers. Native managers remove/register the same original instances. */
-    void prepareViewsFrozen() {validate();views.prepareFrozen();}
-    void restoreBodiesFrozen(){restoreBodiesFrozen(Set.of());}
+    public void prepareViewsFrozen() {validate();views.prepareFrozen();}
+    public void restoreBodiesFrozen(){restoreBodiesFrozen(Set.of());}
     /** Omitted saved transient bodies stay retired; no native load/AI/spawn callback recreates them. */
-    void restoreBodiesFrozen(Set<UUID> omittedTransientActors) {
+    public void restoreBodiesFrozen(Set<UUID> omittedTransientActors) {
         var next=Set.copyOf(omittedTransientActors);
         if(!images.keySet().containsAll(next))throw new IllegalArgumentException("Only captured native actors may be omitted");
         validate(next);if(raids!=null)raids.validate();views.prepareFrozen();omitted=next;bodiesRestored=false;
@@ -194,24 +194,24 @@ public final class MatchActorCheckpoint {
         for(var passenger:actor.getPassengers())((ActorCheckpointAccess.Body)passenger).skywars2$vehicle(null);
         ((ActorCheckpointAccess.Body)actor).skywars2$passengers(ImmutableList.of());
     }
-    MatchDamageSources damageSources(){return damageSources;}
+    public MatchDamageSources damageSources(){return damageSources;}
     /** Canonical current body lookup for other checkpoint owners; no gameplay visibility selector. */
-    Entity resolve(UUID id) {
+    public Entity resolve(UUID id) {
         if(!bodiesRestored)throw new IllegalStateException("Restore native bodies before resolving checkpoint references");
         if(id==null||omitted.contains(id))return null;
         var player=game.server().getPlayerList().getPlayer(id);if(player!=null)return player;
         var image=images.get(id);return image!=null&&!image.actor.isRemoved()?image.actor:null;
     }
     /** Finish camera links only after the native post-respawn chunk/entity pairing. */
-    Set<UUID> finishViewsFrozen(){return finishViewsFrozen(Set.of());}
+    public Set<UUID> finishViewsFrozen(){return finishViewsFrozen(Set.of());}
     Set<UUID> finishViewsFrozen(Set<UUID> intentionallyAbsent) {
         validate();var absent=absentPolicy(intentionallyAbsent);if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before views");
         var pending=pendingExcept(absent);MatchDamageSources.withAbsent(absent,()->{views.finishBoundViews(this::resolve,pending);views.restoreCameras(this::resolve,pending);});return Set.copyOf(pending);
     }
     /** Player bodies may be restored between phases; missing/offline UUIDs remain explicit pending links. */
-    Set<UUID> restoreLinksFrozen(){return restoreLinksFrozen(Set.of());}
+    public Set<UUID> restoreLinksFrozen(){return restoreLinksFrozen(Set.of());}
     /** Only offline captured players and this restore's omitted actors may remain intentionally absent. */
-    Set<UUID> restoreLinksFrozen(Set<UUID> intentionallyAbsent) {
+    public Set<UUID> restoreLinksFrozen(Set<UUID> intentionallyAbsent) {
         validate();var absent=absentPolicy(intentionallyAbsent);if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before links");
         var current=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Entity,Boolean>());current.addAll(registered());
         for(var image:images.values())if(!omitted.contains(image.uuid)&&(!current.contains(image.actor)||image.actor.level()!=image.state.level))throw new IllegalStateException("Actor body left its restored native registry before links");

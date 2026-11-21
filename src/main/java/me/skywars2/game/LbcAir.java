@@ -52,25 +52,25 @@ public final class LbcAir {
     public static void register() { }
 
     public static final class Charge extends Projectile implements PolymerEntity {
-        int age;
-        int sourceLifetime;boolean flyingStyle,emitterStyle;
-        int mode;
-        InteractionHand trialHand;
-        Vec3 origin;
-        ServerPlayer trialOwner;
-        boolean trial;
-        Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
+        public int age;
+        public int sourceLifetime;public boolean flyingStyle,emitterStyle;
+        public int mode;
+        public InteractionHand trialHand;
+        public Vec3 origin;
+        public ServerPlayer trialOwner;
+        public boolean trial;
+        public Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
         @Override public boolean shouldBeSaved() { return false; }
         @Override public boolean isPushedByFluid() { return false; }
     }
 
-    LbcAir(GameController game) { this.game=game; }
+    public LbcAir(GameController game) { this.game=game; }
     public int count() { return charges.size(); }
-    List<Charge> snapshot() { return List.copyOf(charges); }
+    public List<Charge> snapshot() { return List.copyOf(charges); }
 
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
                     || !(charge.getOwner() instanceof ServerPlayer))) { cleanup(charge); return; }
@@ -78,7 +78,7 @@ public final class LbcAir {
             if(charge.sourceLifetime==0) game.items().lifetimes().track(charge,true);
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof Charge charge) { charges.remove(charge); cleanup(charge); }
     }
 
@@ -105,11 +105,11 @@ public final class LbcAir {
             spawn(owner,hand,mode,ItemStack.EMPTY,origin,Vec3.directionFromRotation(pitch,yaw),200);
         }else spawn(owner,hand,mode,ItemStack.EMPTY,origin,direction,200);
     }
-    Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction) {
+    public Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction) {
         return spawn(owner,hand,0,ItemStack.EMPTY,origin,direction,120);
     }
     Charge sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){var charge=spawn(owner,InteractionHand.MAIN_HAND,0,ItemStack.EMPTY,origin,direction,120);if(charge!=null)charge.emitterStyle=true;return charge;}
-    static HitResult forecastContact(Charge charge,Vec3 end,Entity ignored){
+    public static HitResult forecastContact(Charge charge,Vec3 end,Entity ignored){
         var game=SkyWars2.game();
         if(game==null)return null;
         var sources=game.items().spellSources();
@@ -142,7 +142,7 @@ public final class LbcAir {
 
     private double speed(int mode) { return switch(mode) { case 2 -> 6.3; case 3 -> 1.6; default -> 1; }; }
 
-    void tick() {
+    public void tick() {
         if(charges.isEmpty()) return;
         batch.addAll(charges);
         try {
@@ -220,7 +220,7 @@ for(double d=0;d<=distance+1e-7;d+=step) {
         if(nearest!=null) charge.setDeltaMovement(nearest.getEyePosition().subtract(at).normalize().scale(1.6));
     }
 
-    static final int EMITTER_TNT_COUNT = 3;
+    public static final int EMITTER_TNT_COUNT = 3;
 
     private void detonate(Charge charge,ServerPlayer owner,Vec3 point) {
         if(!validOwner(owner) || !game.items().currentEpoch(charge) || !sourceLevel(owner).hasChunkAt(BlockPos.containing(point))) return;
@@ -266,7 +266,7 @@ for(double d=0;d<=distance+1e-7;d+=step) {
         for(Charge charge:List.copyOf(charges)) cleanup(charge);
         charges.clear(); batch.clear();
     }
-    Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.items().spellSources().authorPlayer(source),origin,direction);}}
+    public Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.items().spellSources().authorPlayer(source),origin,direction);}}
     private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
         if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
         else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);

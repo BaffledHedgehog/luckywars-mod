@@ -76,7 +76,7 @@ public final class LbcGrimoireRooms {
         marker.entityTags().add(MANAGED);game.items().markCurrentItemEpoch(marker);loaded(marker);
     }
     /** Native egg placement runs this before ENTITY_LOAD, with the real hand user available. */
-    void captureMonumentAuthor(Entity entity, LivingEntity user) {
+    public void captureMonumentAuthor(Entity entity, LivingEntity user) {
         if (user instanceof ServerPlayer author && author.level() == entity.level()
                 && activeArena(entity) && game.canUseGameplayItems(author) && monument(entity)) {
             bindEggSource(entity, author);
@@ -193,7 +193,7 @@ public final class LbcGrimoireRooms {
                 .setValue(HugeMushroomBlock.UP,false).setValue(HugeMushroomBlock.WEST,false);
     }
     /** Closed source 1..12 reward table; native BEs own loot generation and spawner clocks. */
-    void reward(Entity marker,Vec3 at,int choice){
+    public void reward(Entity marker,Vec3 at,int choice){
         var level=(ServerLevel)marker.level();var pos=BlockPos.containing(at);
         switch(choice){
             case 1->{block(level,pos.below(),Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.RED).defaultBlockState(),null);
@@ -212,7 +212,7 @@ public final class LbcGrimoireRooms {
             default->throw new IllegalArgumentException("Dungeon reward "+choice);
         }
     }
-    LivingEntity spawnMiniboss(Entity marker,Vec3 at,boolean golden){return (LivingEntity)spawn(marker,at,golden?GOLDEN:TINY);}
+    public LivingEntity spawnMiniboss(Entity marker,Vec3 at,boolean golden){return (LivingEntity)spawn(marker,at,golden?GOLDEN:TINY);}
     private static void announce(ServerLevel level,Vec3 at){
         level.sendParticles(new ShriekParticleOption(5),at.x,at.y+1,at.z,20,1,1,1,0);
         LbcOverload.sound(level,at,"minecraft:block.sculk_shrieker.shriek",2,1,0,0);
@@ -246,5 +246,5 @@ public final class LbcGrimoireRooms {
         for(int i=0;i<11;i++)swords.spawn(victim,at,random.nextInt(360001)*.001f-180,random.nextInt(70001)*.001f-60,true);
         ((ServerLevel)victim.level()).sendParticles(new ItemParticleOption(ParticleTypes.ITEM,Items.BONE),at.x,at.y-.4,at.z,10,.5,.5,.5,0);
     }
-    int actors(){return actors.size();}
+    public int actors(){return actors.size();}
 }

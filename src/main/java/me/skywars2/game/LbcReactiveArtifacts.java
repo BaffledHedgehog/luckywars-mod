@@ -106,7 +106,7 @@ public final class LbcReactiveArtifacts {
         for(int slot=0;slot<=40;slot++){var stack=owner.getInventory().getItem(slot);if(stack.isEmpty())continue;var data=LbcFartus.data(stack);if(data.getIntOr("tmt_item",0)==1){int masks=LbcTmtInventory.mysticalTypes(data,2);current|=masks&0x7e;old|=(masks>>>16)&0x7e;}else{int type=data.getIntOr("type",0);if(type<1||type>6)continue;if(data.getIntOr("mystical",0)==2)current|=1<<type;if(data.getIntOr("mystical_old",0)==2)old|=1<<type;}}
         apply(owner,victim,current,old);
     }
-    void propertyMelee(ServerPlayer owner,LivingEntity victim,DamageSource source,net.minecraft.world.item.component.CustomData property){
+    public void propertyMelee(ServerPlayer owner,LivingEntity victim,DamageSource source,net.minecraft.world.item.component.CustomData property){
         if(producing||!admitted(owner)||source.is(ARROWS)||!game.items().wands().projectileTarget(owner,victim,true))return;
         var data=(ItemData.IntReader)(Object)property;int type=data.skywars2$readInt("type",0);if(type<1||type>6)return;
         apply(owner,victim,data.skywars2$readInt("mystical",0)==2?1<<type:0,data.skywars2$readInt("mystical_old",0)==2?1<<type:0);
@@ -162,10 +162,10 @@ public final class LbcReactiveArtifacts {
             }
         }
     }
-    void grenadeSmoke(ServerPlayer owner,Vec3 at,boolean old){
+    public void grenadeSmoke(ServerPlayer owner,Vec3 at,boolean old){
         grenadeSmoke(owner,at,old,null);
     }
-    void grenadeSmoke(ServerPlayer owner,Vec3 at,boolean old,BlockHitResult hit){
+    public void grenadeSmoke(ServerPlayer owner,Vec3 at,boolean old,BlockHitResult hit){
         if(!valid(owner))return;
         var cloud=new Cloud(owner,game.items().epoch(),at,5,1,1200,old?2:1);
         if(!old){
@@ -178,7 +178,7 @@ public final class LbcReactiveArtifacts {
         clouds.add(cloud);updateSmoke(false);
     }
     /** A landed grenade still owns its smoke, even when the legacy source has no native carrier. */
-    void clearGrenades(ServerPlayer caster,Vec3 center,double radiusSquared){
+    public void clearGrenades(ServerPlayer caster,Vec3 center,double radiusSquared){
         for(var cloud:List.copyOf(clouds)){
             if(cloud.visual==0||cloud.level!=caster.level()||cloud.owner.getUUID().equals(caster.getUUID())
                     ||caster.isAlliedTo(cloud.owner))continue;
@@ -232,7 +232,7 @@ public final class LbcReactiveArtifacts {
         for(var mob:mobs)reduce(mob);
     }
     public boolean canTarget(Mob mob,LivingEntity target){return target==null||!reduced.contains(mob)||mob.distanceToSqr(target)<=9;}
-    int cloudCount(){return clouds.size();}
+    public int cloudCount(){return clouds.size();}
     private boolean carrierPresent(Cloud cloud){
         var old=cloud.carrier;if(old==null||!old.isRemoved())return true;
         if(old.getRemovalReason()!=Entity.RemovalReason.UNLOADED_TO_CHUNK)return false;
@@ -248,7 +248,7 @@ public final class LbcReactiveArtifacts {
         cloud.carrier=fresh;return true;
     }
     /** Celebration pauses gameplay graphs but native physical grenades can still move. */
-    void tickEnding(){
+    public void tickEnding(){
         if(!game.server().tickRateManager().runsNormally())return;
         for(var cloud:List.copyOf(clouds))if(cloud.visual==1){
             if(!cloud.epoch.equals(game.items().epoch())||!carrierPresent(cloud)){removeCloud(cloud);continue;}
@@ -271,7 +271,7 @@ public final class LbcReactiveArtifacts {
     public void clearEffects(ServerPlayer player){removeOwnedSmoke(player);updateSmoke(false);blind.remove(player);var range=player.getAttribute(Attributes.FOLLOW_RANGE);if(reduced.remove(player)&&range!=null)range.removeModifier(RANGE);}
     public void forget(ServerPlayer owner){attacks.remove(owner);removeOwnedSmoke(owner);updateSmoke(false);}
     public void stop(){smokeVisuals.stop();for(var cloud:List.copyOf(clouds))removeCloud(cloud);attacks.clear();for(var entry:List.copyOf(blind.entrySet()))restoreBlindness(entry.getKey(),entry.getValue());blind.clear();for(var mob:reduced){var range=mob.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.removeModifier(RANGE);}reduced.clear();producing=false;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof LivingEntity target))return null;var state=blind.get(target);boolean range=reduced.contains(target);
         if(state==null&&!range)return null;var baseline=state==null||state.baseline==null?null:EffectLayers.copy(state.baseline);
         int amp=state==null?0:state.amplifier,last=state==null?0:state.lastTick;

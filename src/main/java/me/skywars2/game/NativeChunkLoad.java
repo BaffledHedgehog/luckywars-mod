@@ -14,30 +14,30 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 
-final class NativeChunkLoad {
+public final class NativeChunkLoad {
     private NativeChunkLoad() {}
 
     /** A FULL ticket can exist before the chunk data becomes available without blocking. */
-    static boolean resident(ServerLevel level, BlockPos pos) {
+    public static boolean resident(ServerLevel level, BlockPos pos) {
         return level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) != null;
     }
 
     /** Vanilla can report a failed load as a successful future containing an error result. */
-    static boolean failed(CompletableFuture<?> future) {
+    public static boolean failed(CompletableFuture<?> future) {
         if (!future.isDone()) return false;
         return future.isCompletedExceptionally()
                 || future.getNow(null) instanceof ChunkResult<?> result && !result.isSuccess();
     }
 
-    enum Residency { WAITING, READY, FAILED }
+    public enum Residency { WAITING, READY, FAILED }
 
     /** Limits new cold submissions. Completed and released requests stop occupying capacity. */
-    static final class ColdRequests {
+    public static final class ColdRequests {
         private final int perTick, maxPending;
         private final Set<Leases.Lease> pending = new LinkedHashSet<>();
         private int tick = Integer.MIN_VALUE, started;
 
-        ColdRequests(int perTick, int maxPending) {
+        public ColdRequests(int perTick, int maxPending) {
             this.perTick = perTick;
             this.maxPending = maxPending;
         }
@@ -55,23 +55,24 @@ final class NativeChunkLoad {
     }
 
     /** A service owns one native ticket type. Its overlapping footprints share each ticket. */
-    static final class Leases {
+    public static final class Leases {
         private final TicketType type;
         private final Map<ServerLevel, Map<ChunkPos, Lease>> leases = new IdentityHashMap<>();
 
-        Leases(TicketType type) { this.type = type; }
+        public Leases(TicketType type) { this.type = type; }
 
-        Area area(ServerLevel level) { return new Area(level); }
+        public Area area(ServerLevel level) { return new Area(level); }
 
-        Map<ChunkPos, Lease> snapshot(ServerLevel level) {
+        public Map<ChunkPos, Lease> snapshot(ServerLevel level) {
             var resident = leases.get(level);
             return resident == null ? Map.of() : Map.copyOf(resident);
         }
 
-        static final class Lease {
-            CompletableFuture<?> load;
+        public static final class Lease {
+            public CompletableFuture<?> load;
             ColdRequests coldRequests;
-            int holders = 1, retryTick = Integer.MIN_VALUE;
+            int holders = 1;
+            public int retryTick = Integer.MIN_VALUE;
 
             Lease(CompletableFuture<?> load, ColdRequests coldRequests) {
                 replaceLoad(load, coldRequests);
@@ -89,19 +90,19 @@ final class NativeChunkLoad {
             }
         }
 
-        final class Area implements AutoCloseable {
+        public final class Area implements AutoCloseable {
             private final ServerLevel level;
             private final Set<ChunkPos> held = new LinkedHashSet<>();
 
             private Area(ServerLevel level) { this.level = level; }
 
-            boolean empty() { return held.isEmpty(); }
+            public boolean empty() { return held.isEmpty(); }
 
-            Residency resident(Vec3 point, int reach) {
+            public Residency resident(Vec3 point, int reach) {
                 return resident(point, reach, null);
             }
 
-            Residency resident(Vec3 point, int reach, ColdRequests coldRequests) {
+            public Residency resident(Vec3 point, int reach, ColdRequests coldRequests) {
                 var pos = BlockPos.containing(point);
                 var result = Residency.READY;
                 var wanted = new LinkedHashSet<ChunkPos>();
@@ -135,7 +136,7 @@ final class NativeChunkLoad {
                 return result;
             }
 
-            void hold(ChunkPos chunk) { acquire(chunk, null); }
+            public void hold(ChunkPos chunk) { acquire(chunk, null); }
 
             private Lease acquire(ChunkPos chunk, ColdRequests coldRequests) {
                 var chunks = leases.computeIfAbsent(level, ignored -> new LinkedHashMap<>());

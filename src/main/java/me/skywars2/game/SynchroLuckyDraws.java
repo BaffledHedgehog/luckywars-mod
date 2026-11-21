@@ -14,13 +14,13 @@ import net.minecraft.world.level.storage.loot.entries.*;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 /** Canonical lucky outcomes are shared; personal bonuses/filters never reweight the base chain. */
-final class SynchroLuckyDraws {
+public final class SynchroLuckyDraws {
     private final SynchroRanked owner;
     private final Map<String,Model> models=new HashMap<>();
-    record Draw(String family,long index,String outcome,boolean bonus,boolean skipped){}
+    public record Draw(String family,long index,String outcome,boolean bonus,boolean skipped){}
     private static final ThreadLocal<Consumer<Draw>> OBSERVER=new ThreadLocal<>();
-    record Observation(Consumer<Draw> previous) implements AutoCloseable {public void close(){if(previous==null)OBSERVER.remove();else OBSERVER.set(previous);}}
-    static Observation observe(Consumer<Draw> observer){var previous=OBSERVER.get();OBSERVER.set(observer);return new Observation(previous);}
+    public record Observation(Consumer<Draw> previous) implements AutoCloseable {public void close(){if(previous==null)OBSERVER.remove();else OBSERVER.set(previous);}}
+    public static Observation observe(Consumer<Draw> observer){var previous=OBSERVER.get();OBSERVER.set(observer);return new Observation(previous);}
     private void observe(String family,LootContext context,Outcome outcome,boolean bonus,boolean skipped){var observer=OBSERVER.get();if(observer==null)return;var source=context.getOptional(LootContextParams.THIS_ENTITY);long index=source==null?-1:owner.position(source.getUUID(),Identifier.parse("lbc:native_lucky/"+family))-(bonus?0:1);observer.accept(new Draw(family,index,outcome.name,bonus,skipped));}
     private record Outcome(String name,LootPoolEntryContainer admission,LootTable emission,boolean forbidden,LootTable phone){}
     private record Ticket(Outcome outcome,LootPoolEntry ticket){}

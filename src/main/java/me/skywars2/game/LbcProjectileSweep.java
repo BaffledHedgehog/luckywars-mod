@@ -11,20 +11,20 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /** Entity contact for simulated projectiles whose movement is a swept segment. */
-final class LbcProjectileSweep {
+public final class LbcProjectileSweep {
     private static final double HALF_ARROW = EntityTypes.ARROW.getDimensions().width() / 2.0;
 
     private LbcProjectileSweep() {}
 
-    static AABB arrowBounds(AABB box) {
+    public static AABB arrowBounds(AABB box) {
         return box.inflate(HALF_ARROW);
     }
 
-    static Vec3 entry(AABB box, Vec3 from, Vec3 to) {
+    public static Vec3 entry(AABB box, Vec3 from, Vec3 to) {
         return box.contains(from) ? from : box.clip(from, to).orElse(null);
     }
 
-    static Vec3 arrowContact(ServerLevel level, Entity source, AABB body, Vec3 from, Vec3 to, boolean throughBlocks) {
+    public static Vec3 arrowContact(ServerLevel level, Entity source, AABB body, Vec3 from, Vec3 to, boolean throughBlocks) {
         var point = entry(arrowBounds(body), from, to);
         if (point == null || throughBlocks) return point;
 
@@ -41,7 +41,7 @@ final class LbcProjectileSweep {
         return point != null ? point : arrowContact(level, source, body, from, to, throughBlocks);
     }
 
-    static EntityHitResult first(ServerLevel level, Entity source, Vec3 from, Vec3 to, Predicate<Entity> target, boolean throughBlocks) {
+    public static EntityHitResult first(ServerLevel level, Entity source, Vec3 from, Vec3 to, Predicate<Entity> target, boolean throughBlocks) {
         double nearestDistance = Double.POSITIVE_INFINITY;
         EntityHitResult nearest = null;
         for (var entity : level.getEntities(source, arrowBounds(new AABB(from, to)), target)) {
@@ -56,7 +56,7 @@ final class LbcProjectileSweep {
         return nearest;
     }
 
-    static List<EntityHitResult> all(ServerLevel level, Entity source, Vec3 from, Vec3 to, Predicate<Entity> target) {
+    public static List<EntityHitResult> all(ServerLevel level, Entity source, Vec3 from, Vec3 to, Predicate<Entity> target) {
         var hits = new ArrayList<EntityHitResult>();
         for (var entity : level.getEntities(source, arrowBounds(new AABB(from, to)), target)) {
             var point = contact(level, source, entity, from, to, false);

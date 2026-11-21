@@ -120,16 +120,16 @@ public final class LbcHomingArrows {
     private static long randomBits(long value){value=(value^(value>>>30))*0xbf58476d1ce4e5b9L;
         value=(value^(value>>>27))*0x94d049bb133111ebL;return value^(value>>>31);}
     public void stop(){for(var arrow:List.copyOf(flights.keySet()))arrow.discard();flights.clear();targets.clear();}
-    static boolean cloneRecognizes(Entity entity){return isManaged(entity);}
-    LbcCloneSkills.ActorImage cloneImage(Entity original){var saved=flights.get(original);if(saved==null)return null;
+    public static boolean cloneRecognizes(Entity entity){return isManaged(entity);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original){var saved=flights.get(original);if(saved==null)return null;
         return CloneComplexProjectileStates.image(clone->{if(clone instanceof AbstractArrow arrow)install(arrow,
                 new Flight(saved.age(),saved.rng()^clone.getUUID().getMostSignificantBits()^clone.getUUID().getLeastSignificantBits()));},this::unloaded);}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Image(MatchDamageSources.Ref body,Flight state){}
         private final List<Image> images;
         Checkpoint(MatchSpellCheckpoint.Links links){images=flights.entrySet().stream().map(e->new Image(links.key(e.getKey()),e.getValue())).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=new LinkedHashMap<AbstractArrow,Flight>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var restored=new LinkedHashMap<AbstractArrow,Flight>();
             for(var image:images)restored.put((AbstractArrow)links.get(image.body()),image.state());
             return ()->{flights.clear();targets.clear();restored.forEach(LbcHomingArrows.this::install);};}
     }

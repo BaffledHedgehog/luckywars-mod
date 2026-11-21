@@ -34,9 +34,9 @@ public final class LbcEvokerBass {
     private final GameController game;
     private final Set<EvokerFangs> fangs=new LinkedHashSet<>();
     private int clock;
-    LbcEvokerBass(GameController game) { this.game=game; }
+    public LbcEvokerBass(GameController game) { this.game=game; }
     static boolean managed(Entity entity) { return entity instanceof EvokerFangs && entity.entityTags().contains(FANG); }
-    List<EvokerFangs> snapshot() { return List.copyOf(fangs); }
+    public List<EvokerFangs> snapshot() { return List.copyOf(fangs); }
 
     public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean evoker,boolean academy) {
         if(!game.items().mana().visible(owner) || game.items().actionsBlocked(owner)
@@ -64,13 +64,13 @@ public final class LbcEvokerBass {
         game.items().wands().wandCasted(owner);return true;
     }
     /** Free source trinket proc: the ordinary effect and rhythm, without wand input/cost hooks. */
-    void trinketCast(ServerPlayer owner) {
+    public void trinketCast(ServerPlayer owner) {
         try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)) {
             bass(owner,InteractionHand.MAIN_HAND,owner.getMainHandItem(),owner.getRandom().nextInt(4)+1,false);
         }
     }
-    int checkpointClock(){return clock;}
-    void restoreClock(int value){clock=value;}
+    public int checkpointClock(){return clock;}
+    public void restoreClock(int value){clock=value;}
     private List<LivingEntity> mobs(ServerPlayer owner,double radius) {
         return owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(owner.position(),owner.position()).inflate(radius),
                 e->e.getType().builtInRegistryHolder().is(MOBS)&&e.position().distanceToSqr(owner.position())<=radius*radius
@@ -80,13 +80,13 @@ public final class LbcEvokerBass {
         spawnOwned(owner,position);
     }
     /** Shared native fang producer; callers may mark their own formation without losing its owner or lifecycle. */
-    EvokerFangs spawnLegacyOwned(ServerPlayer owner,Vec3 position){
+    public EvokerFangs spawnLegacyOwned(ServerPlayer owner,Vec3 position){
         if(!owner.level().hasChunkAt(BlockPos.containing(position)))return null;
         var fang=new EvokerFangs(owner.level(),position.x,position.y,position.z,0,0,owner);
         fang.entityTags().add(FANG);fang.entityTags().add("skywars2.balance.old_fang");game.items().markCurrentItemEpoch(fang);
         if(owner.level().addFreshEntity(fang)){fangs.add(fang);return fang;}return null;
     }
-    EvokerFangs spawnOwned(ServerPlayer owner,Vec3 position) {
+    public EvokerFangs spawnOwned(ServerPlayer owner,Vec3 position) {
         if(!owner.level().hasChunkAt(BlockPos.containing(position)) || game.items().magic().suppressedAt(owner.level(),position))return null;
         var fang=new EvokerFangs(owner.level(),position.x,position.y,position.z,0,0,owner);
         fang.entityTags().add(FANG);fang.entityTags().add("magic");game.items().markCurrentItemEpoch(fang);
@@ -94,15 +94,15 @@ public final class LbcEvokerBass {
         return null;
     }
     /** Quiver's original producer is beacon-only and admits its caster as a victim. */
-    EvokerFangs spawnQuiverOwned(ServerPlayer owner,Vec3 position) {return spawnQuiverOwned(owner.level(),owner,position);}
-    EvokerFangs spawnQuiverOwned(net.minecraft.server.level.ServerLevel level,ServerPlayer owner,Vec3 position) {
+    public EvokerFangs spawnQuiverOwned(ServerPlayer owner,Vec3 position) {return spawnQuiverOwned(owner.level(),owner,position);}
+    public EvokerFangs spawnQuiverOwned(net.minecraft.server.level.ServerLevel level,ServerPlayer owner,Vec3 position) {
         if(!level.hasChunkAt(BlockPos.containing(position)) || level==game.maps().level()&&game.items().magic().beaconSuppressed(position))return null;
         var fang=new EvokerFangs(level,position.x,position.y,position.z,0,0,owner);
         fang.entityTags().add(FANG);fang.entityTags().add("skywars2.quiver.fang");fang.entityTags().add("magic");
         game.items().markCurrentItemEpoch(fang);
         if(level.addFreshEntity(fang)){fangs.add(fang);return fang;}return null;
     }
-    void evoker(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
+    public void evoker(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         if(mode==1)for(var mob:mobs(owner,17)) {
             if(mob.position().distanceToSqr(owner.position())<2.25)continue;
             var at=mob.position();spawn(owner,at);spawn(owner,at.add(1.2,0,0));spawn(owner,at.add(-1.2,0,0));spawn(owner,at.add(0,0,1.2));spawn(owner,at.add(0,0,-1.2));
@@ -154,7 +154,7 @@ public final class LbcEvokerBass {
         var source=owner.damageSources().indirectMagic(fang,owner);
         if(victim.hurtServer((net.minecraft.server.level.ServerLevel)victim.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
     }
-    void bass(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean academy) {
+    public void bass(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean academy) {
         Holder<MobEffect> effect=switch(mode){case 1->MobEffects.WEAKNESS;case 2->MobEffects.SLOWNESS;case 3->MobEffects.BLINDNESS;default->MobEffects.MINING_FATIGUE;};
         int duration=switch(mode){case 2->240;case 4->180;default->160;};
         for(var mob:owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(25),e->e.distanceToSqr(owner)<=625&&e.distanceToSqr(owner)>=.0001)) {
@@ -195,10 +195,10 @@ public final class LbcEvokerBass {
         if(!game.items().timeStop().stopped(game.maps().level()))clock++;
         for(var fang:List.copyOf(fangs))if(fang.isRemoved()||!game.playing()||!game.items().currentEpoch(fang))unloaded(fang);
     }
-    void loaded(Entity e){if(managed(e)){if(game.playing()&&game.items().currentEpoch(e))fangs.add((EvokerFangs)e);else e.discard();}}
-    void unloaded(Entity e){if(e instanceof EvokerFangs f&&fangs.remove(f)&&!f.isRemoved())f.discard();}
-    void forget(ServerPlayer p){for(String n:List.of("bass_combo","bass_combo_ticker","bass_combo_len"))score(p,n,0);for(var f:List.copyOf(fangs))if(f.getOwner()==p)unloaded(f);}
+    public void loaded(Entity e){if(managed(e)){if(game.playing()&&game.items().currentEpoch(e))fangs.add((EvokerFangs)e);else e.discard();}}
+    public void unloaded(Entity e){if(e instanceof EvokerFangs f&&fangs.remove(f)&&!f.isRemoved())f.discard();}
+    public void forget(ServerPlayer p){for(String n:List.of("bass_combo","bass_combo_ticker","bass_combo_len"))score(p,n,0);for(var f:List.copyOf(fangs))if(f.getOwner()==p)unloaded(f);}
     public void stop(){for(var f:List.copyOf(fangs))unloaded(f);for(var p:game.server().getPlayerList().getPlayers())for(String n:List.of("bass_combo","bass_combo_ticker","bass_combo_len"))score(p,n,0);clock=0;}
 
-    void cancelTransient(){for(var fang:List.copyOf(fangs))unloaded(fang);}
+    public void cancelTransient(){for(var fang:List.copyOf(fangs))unloaded(fang);}
 }

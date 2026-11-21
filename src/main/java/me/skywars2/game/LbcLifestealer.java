@@ -49,7 +49,7 @@ public final class LbcLifestealer {
     private final ArrayList<Charge> batch=new ArrayList<>();
 
     public static final class Charge extends Projectile implements PolymerEntity {
-        int age,lifetime=40;
+        public int age,lifetime=40;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -64,9 +64,9 @@ public final class LbcLifestealer {
         PolymerEntityUtils.registerType(type); return type;
     }
     public static void register() { }
-    LbcLifestealer(GameController game) { this.game=game; }
+    public LbcLifestealer(GameController game) { this.game=game; }
     public int count() { return charges.size(); }
-    List<Charge> snapshot() { return List.copyOf(charges); }
+    public List<Charge> snapshot() { return List.copyOf(charges); }
 
     public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy) {
         if(!valid(owner) || paused(owner) || game.items().magic().suppressed(owner)
@@ -87,7 +87,7 @@ public final class LbcLifestealer {
         return true;
     }
 
-    void spawn(ServerPlayer owner) {
+    public void spawn(ServerPlayer owner) {
         Vec3 origin=owner.getEyePosition().add(owner.getLookAngle());
         LbcOverload.sound(owner,origin,"minecraft:entity.cat.hiss",1,2,0);
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
@@ -126,7 +126,7 @@ public final class LbcLifestealer {
                 && !game.items().magic().suppressedAt(owner.level(),candidate.position());
     }
 
-    void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy) {
+    public void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy) {
         Vec3 center=owner.position();
         int strength=strength(owner),accepted=0;
         var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
@@ -223,15 +223,15 @@ public final class LbcLifestealer {
         return game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")
                 || game.items().frost().isFrozen(owner);
     }
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || !(charge.getOwner() instanceof ServerPlayer owner)
                     || !valid(owner) || owner.level()!=charge.level()) { remove(charge); return; }
             charges.add(charge);
         }
     }
-    void unloaded(Entity entity) { if(entity instanceof Charge charge) remove(charge); }
-    void forget(ServerPlayer owner) { for(var charge:List.copyOf(charges)) if(charge.getOwner()==owner) remove(charge); }
+    public void unloaded(Entity entity) { if(entity instanceof Charge charge) remove(charge); }
+    public void forget(ServerPlayer owner) { for(var charge:List.copyOf(charges)) if(charge.getOwner()==owner) remove(charge); }
     private void remove(Charge charge) { charges.remove(charge); if(!charge.isRemoved()) charge.discard(); }
     public void stop() { for(var charge:List.copyOf(charges)) remove(charge); charges.clear(); batch.clear(); }
 }

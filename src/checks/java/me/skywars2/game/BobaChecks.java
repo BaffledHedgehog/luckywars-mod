@@ -59,7 +59,7 @@ public final class BobaChecks {
         finally{if(folder!=null)try{java.nio.file.Files.deleteIfExists(folder.resolve("regions.csv"));java.nio.file.Files.deleteIfExists(folder.resolve("regions.csv.tmp"));java.nio.file.Files.deleteIfExists(folder);}catch(java.io.IOException e){throw new IllegalStateException("Boba fixture cleanup",e);}}
     }
     /** Caller owns terrain rollback; run in the completed first-turn region. */
-    static void nativeRegionPhysics(GameController game){
+    public static void nativeRegionPhysics(GameController game){
         var level=game.maps().level();var at=new BlockPos(32,240,32);
         require(game.maps().rotationPhysics().turns(at)==1,"first-turn native physics fixture");
         var original=new java.util.LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();

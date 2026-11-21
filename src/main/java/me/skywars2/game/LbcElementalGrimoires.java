@@ -105,12 +105,13 @@ public final class LbcElementalGrimoires {
         DUPLICATING_EXPAND(232,"duplicating_expand","avarice",1500,"a","libspell_avarice_3","unreal",ChatFormatting.RED,"libspell_avarice_3.lore");
 
 
-        final int spellId,metadataMana;
-        final String id,model,name,tier;
+        public final int spellId,metadataMana;
+        public final String id;
+        final String model, name, tier;
         final List<String> lore;
         final String modifier;
         final ChatFormatting modifierColor;
-        final Item item;
+        public final Item item;
         Kind(int spellId,String id,String model,int metadataMana,String tier,String loreStem,int... rows) {
             this.spellId=spellId;this.id=id+"_grimoire";this.model="lbc:spelllib/"+model;
             this.name="libspell_"+model;this.metadataMana=metadataMana;this.tier="lbc:tier_"+tier;
@@ -129,16 +130,16 @@ public final class LbcElementalGrimoires {
 
     private LbcElementalGrimoires() { }
     public static void register() { Kind.values(); }
-    static List<Kind> ordinary() { return List.of(Kind.RUBY,Kind.TERRA,Kind.ELECTRO,Kind.AIR,Kind.ACID,Kind.TELEPORT,Kind.STONE,Kind.FIRE,Kind.BLIND); }
-    static List<Kind> variants() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.modifier!=null&&kind.spellId<=187).toList(); }
+    public static List<Kind> ordinary() { return List.of(Kind.RUBY,Kind.TERRA,Kind.ELECTRO,Kind.AIR,Kind.ACID,Kind.TELEPORT,Kind.STONE,Kind.FIRE,Kind.BLIND); }
+    public static List<Kind> variants() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.modifier!=null&&kind.spellId<=187).toList(); }
 
-    static List<Kind> advanced() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=204&&kind.spellId<=215).toList(); }
+    public static List<Kind> advanced() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=204&&kind.spellId<=215).toList(); }
 
-    static List<Kind> shaping() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=216&&kind.spellId<=224||kind.spellId>=233&&kind.spellId<=236||kind==Kind.STONEKIVI_TRUE_SUN).toList(); }
+    public static List<Kind> shaping() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=216&&kind.spellId<=224||kind.spellId>=233&&kind.spellId<=236||kind==Kind.STONEKIVI_TRUE_SUN).toList(); }
 
-    static List<Kind> corrosive() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId==188||kind.spellId>=190&&kind.spellId<=194||kind.spellId>=199&&kind.spellId<=203).toList(); }
+    public static List<Kind> corrosive() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId==188||kind.spellId>=190&&kind.spellId<=194||kind.spellId>=199&&kind.spellId<=203).toList(); }
 
-    static List<Kind> terrain() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=225&&kind.spellId<=232).toList(); }
+    public static List<Kind> terrain() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=225&&kind.spellId<=232).toList(); }
 
     private static Component text(String key,ChatFormatting color) {
         return Component.translatable(key).withStyle(color).withStyle(style->style.withItalic(false));
@@ -174,7 +175,7 @@ public final class LbcElementalGrimoires {
         });
     }
 
-    static Kind kind(ItemStack stack) {
+    public static Kind kind(ItemStack stack) {
         if(stack.isEmpty())return null;
         for(var kind:Kind.values())if(stack.is(kind.item))return kind;
         var data=LbcFartus.data(stack);

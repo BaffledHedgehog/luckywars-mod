@@ -20,7 +20,7 @@ public final class LbcPopit {
             MobEffects.WATER_BREATHING,MobEffects.WEAKNESS,MobEffects.WITHER,MobEffects.BAD_OMEN,
             MobEffects.BLINDNESS,MobEffects.GLOWING,MobEffects.HUNGER,MobEffects.DARKNESS);
     private final GameController game;
-    LbcPopit(GameController game){this.game=game;}
+    public LbcPopit(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("popit",0)==1;}
 
     public boolean use(ServerPlayer owner,InteractionHand hand){
@@ -41,7 +41,7 @@ public final class LbcPopit {
     }
 
     /** Source outcomes are unconditional clears; missing statuses never cause a second draw or sound. */
-    static void clearOutcome(GameController game,ServerPlayer owner,int outcome){
+    public static void clearOutcome(GameController game,ServerPlayer owner,int outcome){
         if(outcome<1||outcome>27)throw new IllegalArgumentException("Pop-It outcome "+outcome);
         if(outcome<=15){
             var type=EFFECTS.get(outcome-1);var active=owner.getEffect(type);

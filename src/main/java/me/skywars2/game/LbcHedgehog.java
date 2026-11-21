@@ -130,7 +130,7 @@ public final class LbcHedgehog {
         }
         game.items().wands().wandCasted(p);return true;
     }
-    void cast(ServerPlayer p,Kind kind){
+    public void cast(ServerPlayer p,Kind kind){
         boolean academy=kind!=Kind.ORDINARY;var direction=p.getLookAngle().normalize();var origin=p.getEyePosition();double step=academy?.6:1;
         var end=origin.add(direction.scale(academy?240:200));
         var hit=LbcTerra.surfaceHit(p.level(),origin,end,p);
@@ -393,7 +393,7 @@ public final class LbcHedgehog {
         }finally{leaveCheckpointCallback();}
     }
     public ServerPlayer owner(Entity e){if(e==blastSource)return blastAuthor;var child=children.get(e);if(child!=null)return child.author;if(e instanceof LbcHedgehog.Fish f)return player(f.author);if(e instanceof LbcHedgehog.HelperArrow a)return player(a.author);return null;}
-    ServerPlayer controlledHelper(Entity e){
+    public ServerPlayer controlledHelper(Entity e){
         return e instanceof Fish f && f.kind!=Kind.WALL && !f.retired && game.items().currentEpoch(f) ? player(f.author) : null;
     }
     public void loaded(Entity e){
@@ -517,17 +517,17 @@ public final class LbcHedgehog {
     public List<Silverfish> helpers(){return List.copyOf(fish);}
     public List<Arrow> projectiles(){return List.copyOf(arrows);}
 
-    void checkpointBoundary(){if(checkpointCallbacks!=0||blastLevel!=null||blastSource!=null)throw new IllegalStateException("Finish Hedgehog native callbacks before checkpointing");}
+    public void checkpointBoundary(){if(checkpointCallbacks!=0||blastLevel!=null||blastSource!=null)throw new IllegalStateException("Finish Hedgehog native callbacks before checkpointing");}
     private void enterCheckpointCallback(){checkpointCallbacks++;}
     private void leaveCheckpointCallback(){checkpointCallbacks--;}
-    void prepareFrozen(){
+    public void prepareFrozen(){
         checkpointBoundary();checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();blasts.clear();children.clear();beamVisuals.stop();
         blastSource=null;blastCause=null;blastLevel=null;blastAuthor=null;
     }
-    void publishFrozen(){checkpointBoundary();checkpointRestoring=false;}
-    void cancelFrozen(){checkpointBoundary();checkpointRestoring=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void publishFrozen(){checkpointBoundary();checkpointRestoring=false;}
+    public void cancelFrozen(){checkpointBoundary();checkpointRestoring=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record FishImage(Fish original,MatchDamageSources.Ref body,int timer,boolean retired){}
         private record ArrowImage(HelperArrow original,MatchDamageSources.Ref body){}
         private record ChildImage(MatchDamageSources.Ref body,MatchDamageSources.Ref author,LbcIndirectKills.Owner cause,String epoch){}
@@ -546,7 +546,7 @@ public final class LbcHedgehog {
             var childImages=new ArrayList<ChildImage>();children.forEach((body,c)->childImages.add(new ChildImage(links.key(body),links.key(c.author),c.cause,c.epoch)));savedChildren=List.copyOf(childImages);
             savedBlasts=blasts.stream().map(b->new BlastImage(b,links.key(b.source),links.key(b.author),b.next,b.terrain==null?null:b.terrain.copy(),b.walls.copy())).toList();
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var plans=new ArrayList<Runnable>();
             for(var image:savedFish){var f=(Fish)links.get(image.body);if(f!=image.original)throw new IllegalStateException("Restore the same native Hedgehog helper");
                 plans.add(()->{f.timer=image.timer;f.retired=image.retired;f.retainedOwner=f.kind!=Kind.WALL&&player(f.author)==null;fish.add(f);});}
@@ -560,8 +560,8 @@ public final class LbcHedgehog {
         }
     }
 
-    static boolean cloneRecognizes(Entity e){return e instanceof LbcHedgehog.Fish||e instanceof LbcHedgehog.HelperArrow||managed(e);}
-    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+    public static boolean cloneRecognizes(Entity e){return e instanceof LbcHedgehog.Fish||e instanceof LbcHedgehog.HelperArrow||managed(e);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original) {
         if(original instanceof Fish f){if(f.retired)return null;
             var author=f.author;var kind=f.kind;var cause=f.cause;int timer=f.timer;boolean retained=f.retainedOwner;
             return CloneComplexProjectileStates.image(level->new Fish(level,author,kind,cause),clone->{var n=(Fish)clone;

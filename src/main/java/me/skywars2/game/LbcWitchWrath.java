@@ -25,7 +25,7 @@ public final class LbcWitchWrath {
     private final List<Death> deaths=new ArrayList<>();
     private boolean advancing;
     private int lastTick=Integer.MIN_VALUE;
-    LbcWitchWrath(GameController game){this.game=game;}
+    public LbcWitchWrath(GameController game){this.game=game;}
     private List<? extends Entity> select(ServerPlayer owner,ServerLevel level,Vec3 at,String literal){try{
         var selector=selectors.get(literal);
         if(selector==null){selector=new EntitySelectorParser(new StringReader(literal),true).parse();selectors.put(literal,selector);}
@@ -75,7 +75,7 @@ public final class LbcWitchWrath {
             if(entity instanceof ServerPlayer player&&target(player,false))health(owner,player);
     }
     /** Native dx=dy=dz=0 is a positive unit box, plus the source 15-block distance gate. */
-    void convertAt(ServerPlayer owner,ServerLevel level,Vec3 at,boolean players){
+    public void convertAt(ServerPlayer owner,ServerLevel level,Vec3 at,boolean players){
         if(!players){game.items().communism().subjugateAt(owner,level,at,e->target(e,true));return;}
         boolean lock=players&&game.gameMode()>=3&&game.gameMode()<=4;
         if(lock)for(var player:game.server().getPlayerList().getPlayers())player.entityTags().add("cantleave");
@@ -130,12 +130,12 @@ public final class LbcWitchWrath {
     }
     public void clearDebuffs(ServerPlayer player){player.entityTags().remove("affected_by_wrath");}
     public void stop(){deaths.clear();lastTick=Integer.MIN_VALUE;}
-    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Wrath callbacks first");}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Wrath callbacks first");}
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         private final List<Death> image=List.copyOf(deaths);
         private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
-        Runnable prepare(){image.forEach(d->MatchAuthorityCheckpoint.world(game,d.level));return ()->{deaths.clear();deaths.addAll(image);lastTick=clock.last(game);};}
+        public Runnable prepare(){image.forEach(d->MatchAuthorityCheckpoint.world(game,d.level));return ()->{deaths.clear();deaths.addAll(image);lastTick=clock.last(game);};}
     }
 
 }

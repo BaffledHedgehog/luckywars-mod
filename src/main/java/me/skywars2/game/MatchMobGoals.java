@@ -13,9 +13,9 @@ import net.minecraft.world.entity.ai.goal.target.*;
 import net.minecraft.world.level.pathfinder.Path;
 
 /** Original native selector identities and reviewed melee continuation; no goal lifecycle callbacks on replay. */
-final class MatchMobGoals {
+public final class MatchMobGoals {
     private static final boolean ENABLED=Boolean.getBoolean("skywars2.experimental-native-goal-replay");
-    static boolean enabled(){return ENABLED;}
+    public static boolean enabled(){return ENABLED;}
     private final Mob owner;
     private final long worldTime;
     private final List<Selector> selectors=new ArrayList<>();
@@ -28,7 +28,7 @@ final class MatchMobGoals {
     private final Map<SpearUseGoal<?>,MatchSpearGoal> spears=new IdentityHashMap<>();
     private final MatchRetainedGoals retained;
 
-    MatchMobGoals(Mob mob) {
+    public MatchMobGoals(Mob mob) {
         owner=mob;worldTime=mob.level().getGameTime();
         var access = (MobGoalCheckpointAccess.MobAccess)(Object) mob;
         selectors.add(new Selector(access.skywars2$goalGoalSelector()));
@@ -45,8 +45,8 @@ final class MatchMobGoals {
         var task=common.computeIfAbsent(goal,key->MatchGoalFields.capture(owner,key));
         if(task!=null)task.wasRunning|=running;
     }
-    void prepareLoad(){selectors.forEach(Selector::suspend);}
-    void restore() {
+    public void prepareLoad(){selectors.forEach(Selector::suspend);}
+    public void restore() {
         // stop() can erase a restored route/target; start() resets attack timers and can repeat side effects.
         retained.restore();for(var selector:selectors)selector.retireFuture();
         flags.forEach((goal,saved)->{var live=goal.getFlags();live.clear();live.addAll(saved);});
@@ -59,14 +59,14 @@ final class MatchMobGoals {
         spears.values().forEach(MatchSpearGoal::restore);
         selectors.forEach(Selector::restore);
     }
-    void captureReferences(MatchDamageSources sources){
+    public void captureReferences(MatchDamageSources sources){
         ranged.values().forEach(attack->attack.captureReferences(sources));
         targets.values().forEach(target->target.captureReferences(sources));
         breeding.values().forEach(task->task.captureReferences(sources));
         common.values().forEach(task->task.captureReferences(sources));
         spears.values().forEach(task->task.captureReferences(sources));
     }
-    void restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending) {
+    public void restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending) {
         for(var attack:ranged.values()) {
             if(!attack.referencesCaptured)continue;
             Entity resolved=MatchDamageSources.resolve(attack.targetRef,lookup,pending);

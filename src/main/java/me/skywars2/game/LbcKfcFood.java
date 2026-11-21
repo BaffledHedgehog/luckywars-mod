@@ -66,12 +66,12 @@ public final class LbcKfcFood {
             "living_legend","skill_issue","coldowntimestand","coldownlightning","cd_helicopter","metal_divider_cd","nexus_roadgun_cd",
             "nexus_corrupter_cd","MagnumNyauwu","speed","danmaku","danmaku_score","pulsar_cd","adv_game_minigun_shooted"
     };
-    static List<String> sourceScoreAdditions() { return List.of(SOURCE_SCORE_ADDITIONS); }
+    public static List<String> sourceScoreAdditions() { return List.of(SOURCE_SCORE_ADDITIONS); }
     private final GameController game;
     private final Map<UUID,Integer> gigaponos=new HashMap<>();
     private final Map<UUID,ServerPlayer> retainedEaters=new HashMap<>();
-    LbcKfcFood(GameController game) { this.game=game; }
-    static void register() { }
+    public LbcKfcFood(GameController game) { this.game=game; }
+    public static void register() { }
     private static Item registerCookie() {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:govno_eaten"));
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(
@@ -117,7 +117,7 @@ public final class LbcKfcFood {
         game.items().mana().award(player,"lbc:true_advancements/shooter/kfc_gun");
     }
     /** Deterministic outcome seam; randomness remains only in the original random-slot branch. */
-    void applyOutcome(ServerPlayer p,int outcome) {
+    public void applyOutcome(ServerPlayer p,int outcome) {
         if(outcome<1 || outcome>20) throw new IllegalArgumentException("KFC outcome must be 1..20");
         if(!active(p)) return;
         var message=Component.translatable(MESSAGES[outcome-1]);
@@ -278,11 +278,11 @@ public final class LbcKfcFood {
         p.level().sendParticles(type,p.getX(),p.getY()+height,p.getZ(),count,x,y,z,speed);
     }
     private static void sound(ServerPlayer p,String id,float volume,float pitch) { LbcOverload.sound(p,id,volume,pitch,0); }
-    void adoptRawFoodStatuses(ServerPlayer p){
+    public void adoptRawFoodStatuses(ServerPlayer p){
         int remaining=game.items().mana().hudValue(p,"gigaponos");
         if(remaining>0&&!(LbcParasite.active(p)||game.items().magic().rejectEffect(p,MobEffects.HUNGER)))gigaponos.put(p.getUUID(),remaining);
     }
-    int gigaponosRemaining(ServerPlayer p) { return gigaponos.getOrDefault(p.getUUID(),0); }
+    public int gigaponosRemaining(ServerPlayer p) { return gigaponos.getOrDefault(p.getUUID(),0); }
     private void setGigaponos(ServerPlayer p,int ticks) {
         if(ticks>0) gigaponos.put(p.getUUID(),ticks); else gigaponos.remove(p.getUUID());
         game.items().mana().score(p,"gigaponos").set(ticks);
@@ -315,15 +315,15 @@ public final class LbcKfcFood {
         gigaponos.clear();retainedEaters.clear();
     }
 
-    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
-    void prepareResidentFrozen(){gigaponos.clear();retainedEaters.clear();}
-    final class ResidentCheckpoint {
+    public ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    public void prepareResidentFrozen(){gigaponos.clear();retainedEaters.clear();}
+    public final class ResidentCheckpoint {
         private final Map<MatchDamageSources.Ref,Integer> saved=new java.util.LinkedHashMap<>();
         ResidentCheckpoint(MatchSpellCheckpoint.Links links){gigaponos.forEach((id,ticks)->{
             var player=game.server().getPlayerList().getPlayer(id);if(player==null)player=retainedEaters.get(id);
             if(player!=null)saved.put(links.key(player),ticks);
         });}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var next=new HashMap<UUID,Integer>();var offline=new HashMap<UUID,ServerPlayer>();
             saved.forEach((ref,ticks)->{var player=(ServerPlayer)links.get(ref);next.put(player.getUUID(),ticks);
                 if(MatchOfflinePlayers.retained(player))offline.put(player.getUUID(),player);});

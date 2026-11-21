@@ -36,7 +36,7 @@ public final class LbcNativeToolItems {
     }
     private LbcNativeToolItems(){}
     public static void register(){Kind.values();}
-    static java.util.List<Item> items(){return java.util.Arrays.stream(Kind.values()).map(k->k.item).toList();}
+    public static java.util.List<Item> items(){return java.util.Arrays.stream(Kind.values()).map(k->k.item).toList();}
     private static final class NativeFlint extends FlintAndSteelItem implements PolymerItem {
         NativeFlint(Properties properties){super(properties);}
         @Override public Item getPolymerItem(ItemStack stack,net.fabricmc.fabric.api.networking.v1.context.PacketContext context){return Items.FLINT_AND_STEEL;}

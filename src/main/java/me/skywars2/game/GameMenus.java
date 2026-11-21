@@ -86,7 +86,7 @@ public final class GameMenus {
     }
 
     /** Настройка доступа меняет вид уже открытых меню без закрытия контейнера. */
-    void refreshOpen() {
+    public void refreshOpen() {
         for (var player : server.getPlayerList().getPlayers())
             if (SguiUtils.getCurrentGui(player) instanceof Menu menu && controller.canUseMenus(player))
                 open(player, menu.page);

@@ -5,11 +5,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 
 /** Books for wand families without an authored library entry. All payloads are shared. */
-final class LbcExtraGrimoires {
+public final class LbcExtraGrimoires {
     static final int FIRST=243, LAST=279, COUNT=28;
-    static boolean retired(int id){return id>=262&&id<=270;}
+    public static boolean retired(int id){return id>=262&&id<=270;}
     private LbcExtraGrimoires() { }
-    static boolean cast(GameController game,ServerPlayer owner,InteractionHand hand,int id){
+    public static boolean cast(GameController game,ServerPlayer owner,InteractionHand hand,int id){
         try(var castOrigin=WandCastOrigin.scope(owner,true)){
         if(id>=243&&id<=251){game.items().wands().extraTiny(owner,id-FIRST);return true;}
         switch(id){

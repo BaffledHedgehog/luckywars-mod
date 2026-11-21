@@ -7,7 +7,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.*;
 
 /** Immutable native algorithm state, restored into the current RNG object without generating values. */
-final class MatchRandomState {
+public final class MatchRandomState {
     private record Gaussian(boolean present,double value,boolean has) {
         static Gaussian of(MarsagliaPolarGaussian source){
             if(source==null)return new Gaussian(false,0,false);
@@ -21,7 +21,7 @@ final class MatchRandomState {
     private final Class<?> kind;
     private final Consumer<RandomSource> restore;
     private MatchRandomState(RandomSource source,Consumer<RandomSource> restore){kind=source.getClass();this.restore=restore;}
-    static MatchRandomState capture(RandomSource source){return capture(source,new IdentityHashMap<>());}
+    public static MatchRandomState capture(RandomSource source){return capture(source,new IdentityHashMap<>());}
     private static MatchRandomState capture(RandomSource source,IdentityHashMap<RandomSource,Boolean> active){
         if(source==null||active.put(source,true)!=null)throw new IllegalStateException("Native RNG graph must be present and acyclic");
         try {
@@ -58,7 +58,7 @@ final class MatchRandomState {
             throw new IllegalStateException("RNG algorithm requires its own checkpoint adapter: "+source.getClass().getName());
         } finally {active.remove(source);}
     }
-    void restore(RandomSource target){
+    public void restore(RandomSource target){
         if(target==null||target.getClass()!=kind)throw new IllegalStateException("Restore the same native RNG algorithm, not a replacement algorithm");
         restore.accept(target);
     }

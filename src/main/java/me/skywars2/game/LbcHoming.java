@@ -78,12 +78,12 @@ public final class LbcHoming {
         Curse(ServerPlayer owner,long remaining) { this.owner=owner; this.remaining=remaining; }
     }
 
-    LbcHoming(GameController game) {
+    public LbcHoming(GameController game) {
         this.game=game;
         if(game.maps().level()!=null) for(var entity:game.maps().level().getAllEntities())
             if(entity instanceof Projectile || entity.getType().builtInRegistryHolder().is(PROJECTILES)) projectiles.add(entity);
     }
-    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
         ++inProgress;try {
             transformOrigins(rains,level,transform);
             transformOrigins(destinies,level,transform);
@@ -102,9 +102,9 @@ public final class LbcHoming {
     }
 
     public int count() { return fireballs.size()+rains.size()+destinies.size()+fouriers.size()+curses.size(); }
-    record EffectView(ServerPlayer owner,String epoch,Vec3 position,int remaining){}
-    List<EffectView> destinySnapshot(){return destinies.stream().map(e->new EffectView(e.owner,e.epoch,e.position,e.remaining)).toList();}
-    List<LargeFireball> snapshot() { return List.copyOf(fireballs); }
+    public record EffectView(ServerPlayer owner,String epoch,Vec3 position,int remaining){}
+    public List<EffectView> destinySnapshot(){return destinies.stream().map(e->new EffectView(e.owner,e.epoch,e.position,e.remaining)).toList();}
+    public List<LargeFireball> snapshot() { return List.copyOf(fireballs); }
     public int rainCount() { return rains.size(); }
     public int destinyCount() { return destinies.size(); }
     public int curseCount() { return curses.size(); }
@@ -112,19 +112,19 @@ public final class LbcHoming {
     public int curseValue(LivingEntity entity) {
         var curse=curses.get(entity); return curse==null?0:(int)Math.min(Integer.MAX_VALUE,(curse.remaining+19)/20);
     }
-    int curseTicks(LivingEntity entity) { var curse=curses.get(entity); return curse==null?0:(int)Math.min(Integer.MAX_VALUE,curse.remaining); }
+    public int curseTicks(LivingEntity entity) { var curse=curses.get(entity); return curse==null?0:(int)Math.min(Integer.MAX_VALUE,curse.remaining); }
     public int curseSeconds(LivingEntity entity) { return curseValue(entity); }
-    void adoptRawFoodStatuses(ServerPlayer player){
+    public void adoptRawFoodStatuses(ServerPlayer player){
         int seconds=game.items().mana().hudValue(player,"target");
         if(seconds<=0||!valid(player)||game.items().magic().rejectCustomDebuff(player))return;
         var curse=curses.computeIfAbsent(player,p->new Curse(player,0));curse.remaining=(long)seconds*20;curse.rawWild=true;
     }
-    record FourierView(ServerPlayer owner,String epoch,Vec3 position,Vec3 direction,int age) { }
-    List<FourierView> fourierSnapshot() {
+    public record FourierView(ServerPlayer owner,String epoch,Vec3 position,Vec3 direction,int age) { }
+    public List<FourierView> fourierSnapshot() {
         return fouriers.stream().map(e->new FourierView(e.owner,e.epoch,e.position,e.direction,130-e.remaining)).toList();
     }
     /** Accepted successful-shot proc; no wand payment or cast passives. */
-    void forgetFourier(ServerPlayer owner){fouriers.removeIf(effect->effect.owner==owner);}
+    public void forgetFourier(ServerPlayer owner){fouriers.removeIf(effect->effect.owner==owner);}
     public boolean launchFourier(ServerPlayer owner) {
         if(!valid(owner)) return false;
         var effect=new Effect(owner,owner.getEyePosition(),130,game.items().epoch());
@@ -134,7 +134,7 @@ public final class LbcHoming {
             ?game.items().wands().validRoleTarget(target,false)&&!LbcGreed.active(target)
             :target(curse.owner,target);}
     private void syncCurse(LivingEntity target){game.items().mana().score(target,"target").set(curseValue(target));}
-    void addPlayerCounters(ServerPlayer player) {
+    public void addPlayerCounters(ServerPlayer player) {
         if(!game.items().magic().rejectCustomDebuff(player))
             curses.computeIfAbsent(player,ignored->new Curse(player,0)).remaining+=20;
         syncCurse(player);
@@ -144,7 +144,7 @@ public final class LbcHoming {
     }
     public void clearEffects(LivingEntity entity) { clear(entity); }
     /** Release the source Target curse without canceling independent homing casts or projectiles. */
-    void clearCurse(ServerPlayer player) {
+    public void clearCurse(ServerPlayer player) {
         clear(player);
         game.items().mana().score(player,"target").set(0);
     }
@@ -163,7 +163,7 @@ public final class LbcHoming {
     }
 
     /** Вход только из общего ПКМ-dispatch; бонусы каста начисляются один раз после расхода. */
-    boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean donor,boolean upgraded) {
+    public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean donor,boolean upgraded) {
         if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var mana=game.items().mana();
         if(upgraded && owner.isShiftKeyDown()) {
@@ -191,18 +191,18 @@ public final class LbcHoming {
         game.items().wands().wandCasted(owner); return true;
     }
 
-    void grimoire(ServerPlayer owner,int mode) {
+    public void grimoire(ServerPlayer owner,int mode) {
         if(mode==1)LbcOverload.sound(owner,owner.position(),"minecraft:entity.firework_rocket.shoot",1,1,0);
         launch(owner,false,mode,mode!=1,false);
     }
-    void libraryStars(ServerPlayer owner,int mode){launch(owner,true,mode,mode!=1,false);}
-    void scriptStars(ServerPlayer owner, Vec3 origin, Vec3 direction, boolean academy, int mode) {
+    public void libraryStars(ServerPlayer owner,int mode){launch(owner,true,mode,mode!=1,false);}
+    public void scriptStars(ServerPlayer owner, Vec3 origin, Vec3 direction, boolean academy, int mode) {
         launchAt(owner, true, mode, academy, false, origin, direction);
     }
     private void launch(ServerPlayer owner,boolean donor,int mode,boolean upgraded,boolean achievement) {
         launchAt(owner,donor,mode,upgraded,achievement,owner.getEyePosition(),owner.getLookAngle());
     }
-    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+    public void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
         launchAt(owner,false,mode,mode!=1,false,origin,direction);
     }
     private void launchAt(ServerPlayer owner,boolean donor,int mode,boolean upgraded,boolean achievement,Vec3 origin,Vec3 direction){
@@ -256,7 +256,7 @@ public final class LbcHoming {
     }
 
     /** Единое первое попадание: блок и существо в одной ячейке не удваивают эффект. */
-    Vec3 destinyRay(ServerPlayer owner, Vec3 from, Vec3 direction) {
+    public Vec3 destinyRay(ServerPlayer owner, Vec3 from, Vec3 direction) {
         Vec3 to=from.add(direction.scale(30));
         double barrier=game.items().magic().suppressionFraction(owner.level(),from,to);
         if(Double.isFinite(barrier)) to=from.lerp(to,barrier);
@@ -431,7 +431,7 @@ public final class LbcHoming {
     }
     /** Shared skill30 rotation for virtual native adapters. The author is the actual current
      * projectile owner; selection elsewhere never grants control over foreign bodies. */
-    Vec3 skillDirection(ServerPlayer owner,ServerLevel level,Vec3 from,Vec3 direction){
+    public Vec3 skillDirection(ServerPlayer owner,ServerLevel level,Vec3 from,Vec3 direction){
         return skillOwner(owner,level)?skillMotion(owner,level,from,direction,false):direction;
     }
     private Vec3 skillMotion(ServerPlayer owner,ServerLevel level,Vec3 from,Vec3 motion,boolean arrow){
@@ -619,7 +619,7 @@ public final class LbcHoming {
     }
     public void clear(LivingEntity entity) { curses.remove(entity);game.items().mana().score(entity,"target").set(0); }
     /** Manual Danmaku cards use the same global Curse target and ownership rule as native projectiles. */
-    void redirect(LbcDanmaku.Card card) {
+    public void redirect(LbcDanmaku.Card card) {
         LivingEntity nearest=null;Curse chosen=null;double distance=Double.POSITIVE_INFINITY;
         for(var entry:curses.entrySet()) {
             var victim=entry.getKey();var curse=entry.getValue();
@@ -635,7 +635,7 @@ public final class LbcHoming {
         card.display.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
         card.display.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
     }
-    void redirect(LbcWands.ElectroTrace trace) {
+    public void redirect(LbcWands.ElectroTrace trace) {
         LivingEntity nearest=null; Curse chosen=null; double distance=Double.POSITIVE_INFINITY;
         for(var entry:curses.entrySet()) {
             var victim=entry.getKey(); var curse=entry.getValue();
@@ -669,9 +669,9 @@ public final class LbcHoming {
 
         }finally{--inProgress;}
     }
-    void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish Homing native callbacks before checkpointing");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish Homing native callbacks before checkpointing");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record EffectImage(Effect original,MatchDamageSources.Ref owner,Vec3 position,int remaining,int cloneMask,Vec3 direction) { }
         private record CurseImage(Curse original,MatchDamageSources.Ref owner,long remaining,boolean rawWild) { }
         private final List<EffectImage> rainImage,destinyImage,fourierImage;
@@ -696,7 +696,8 @@ public final class LbcHoming {
                 curseValues.add(new CurseImage(curse,links.key(curse.owner),curse.remaining,curse.rawWild));
         }
         private EffectImage effect(Effect e,MatchSpellCheckpoint.Links links){return new EffectImage(e,links.key(e.owner),e.position,e.remaining,e.cloneMask,e.direction);}
-        @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
+        @SuppressWarnings("unchecked")
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();
             var nextBalls=balls.stream().map(ref->(LargeFireball)links.get(ref)).toList();
             var nextShots=shots.stream().map(links::get).toList();
@@ -721,7 +722,7 @@ public final class LbcHoming {
         }
     }
 
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var curse=source instanceof LivingEntity l?curses.get(l):null;
         var age=source instanceof LargeFireball f?ages.get(f):null;var target=source instanceof LargeFireball f?steeringTargets.get(f):null;
         boolean fireball=fireballs.contains(source);if(curse==null&&age==null&&target==null&&!fireball)return null;
@@ -737,7 +738,7 @@ public final class LbcHoming {
     }
 
 
-    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+    public int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         int made=cloneEffects(rains,holder,skill,budget,deadline);
         made+=cloneEffects(destinies,holder,skill,budget-made,deadline);
         return made+cloneEffects(fouriers,holder,skill,budget-made,deadline);
@@ -759,7 +760,7 @@ public final class LbcHoming {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var effects:List.of(rains,destinies,fouriers))for(var effect:effects)
             if(effect.remaining>0&&game.items().currentEpoch(effect.epoch)
                     &&LbcPlanetoidSkill.near(game,holder,effect.level,effect.position))

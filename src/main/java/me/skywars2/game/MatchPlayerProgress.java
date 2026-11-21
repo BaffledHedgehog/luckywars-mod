@@ -17,12 +17,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 
 /** Native progress restoration without replaying awards, rewards, functions or stat hooks. */
-final class MatchPlayerProgress {
+public final class MatchPlayerProgress {
     private final Object2IntOpenHashMap<Stat<?>> stats;
     private final Map<AdvancementHolder,Tag> advancements=new LinkedHashMap<>();
     private final Identifier selected;
 
-    MatchPlayerProgress(ServerPlayer player) {
+    public MatchPlayerProgress(ServerPlayer player) {
         stats=new Object2IntOpenHashMap<>(((PlayerCheckpointAccess.Stats)player.getStats()).skywars2$stats());
         var access=(PlayerCheckpointAccess.Advancements)player.getAdvancements();
         var ops=player.registryAccess().createSerializationContext(NbtOps.INSTANCE);
@@ -30,7 +30,7 @@ final class MatchPlayerProgress {
         selected=access.skywars2$tab()==null?null:access.skywars2$tab().id();
     }
 
-    void restore(ServerPlayer player) {
+    public void restore(ServerPlayer player) {
         var values=((PlayerCheckpointAccess.Stats)player.getStats()).skywars2$stats();
         var notify=new Object2IntOpenHashMap<Stat<?>>(stats);
         for(var stat:values.keySet())if(!stats.containsKey(stat))notify.put(stat,0);

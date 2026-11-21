@@ -13,12 +13,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 /** Raw hole HP loss retains native reactions and sound while the victim gets no physical hit response. */
-final class BlackHoleDamage {
+public final class BlackHoleDamage {
     private BlackHoleDamage() { }
-    static double distanceSquared(Entity target,Vec3 center) {
+    public static double distanceSquared(Entity target,Vec3 center) {
         return target.getBoundingBox().distanceToSqr(center);
     }
-    static boolean apply(GameController game,LivingEntity target,DamageSource original,float amount) {
+    public static boolean apply(GameController game,LivingEntity target,DamageSource original,float amount) {
         if(!(amount>0)||!Float.isFinite(amount)||!target.isAlive()||target.isRemoved()
                 ||!(target.level() instanceof ServerLevel level)||game.vanity().busy()
                 ||game.items().timeStop().frozen(target))return false;
@@ -39,7 +39,7 @@ final class BlackHoleDamage {
                 :accepted(game,target,source,amount,level);
     }
     /** Already accepted owner debit: bypass pet mitigation/admission, retain native accepted handlers. */
-    static boolean transferAccepted(GameController game,LivingEntity target,DamageSource source,float amount){
+    public static boolean transferAccepted(GameController game,LivingEntity target,DamageSource source,float amount){
         if(!(amount>0)||!Float.isFinite(amount)||!target.isAlive()||target.isRemoved()
                 ||!(target.level() instanceof ServerLevel level))return false;
         return accepted(game,target,source,amount,level,true);

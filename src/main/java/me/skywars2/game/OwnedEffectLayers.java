@@ -70,16 +70,17 @@ public final class OwnedEffectLayers {
         if (types.isEmpty()) targets.remove(target);
     }
 
-    Object suspend(LivingEntity target) { return targets.remove(target); }
+    public Object suspend(LivingEntity target) { return targets.remove(target); }
     /** Frozen Heart consumes slowdowns, including their old leases, but keeps useful reversed layers. */
-    void purgePositiveSlowness(LivingEntity target) {
+    public void purgePositiveSlowness(LivingEntity target) {
         var types=targets.get(target);if(types==null)return;
         var levels=types.get(MobEffects.SLOWNESS);if(levels==null)return;
         levels.keySet().removeIf(level->level>=0);
         if(levels.isEmpty())types.remove(MobEffects.SLOWNESS);
         if(types.isEmpty())targets.remove(target);
     }
-    @SuppressWarnings("unchecked") void resume(LivingEntity target,Object saved) {
+    @SuppressWarnings("unchecked")
+    public void resume(LivingEntity target,Object saved) {
         if(saved!=null)targets.put(target,(Map<Holder<MobEffect>,Map<Integer,Layer>>)saved);
     }
     /** Forget only harmful amplifier leases before the native chain is cleansed. */
@@ -108,12 +109,13 @@ public final class OwnedEffectLayers {
     }
 
     /** Non-destructive value image; leases must survive replacement player objects. */
-    Object checkpoint(LivingEntity target) { return copyLayers(targets.get(target)); }
-    @SuppressWarnings("unchecked") void restoreCheckpoint(LivingEntity target,Object image) {
+    public Object checkpoint(LivingEntity target) { return copyLayers(targets.get(target)); }
+    @SuppressWarnings("unchecked")
+    public void restoreCheckpoint(LivingEntity target,Object image) {
         targets.remove(target);
         if(image!=null)targets.put(target,copyLayers((Map<Holder<MobEffect>,Map<Integer,Layer>>)image));
     }
-    @SuppressWarnings("unchecked") static Object copyCheckpoint(Object image) {return copyLayers((Map<Holder<MobEffect>,Map<Integer,Layer>>)image);}
+    @SuppressWarnings("unchecked") public static Object copyCheckpoint(Object image) {return copyLayers((Map<Holder<MobEffect>,Map<Integer,Layer>>)image);}
     private static Map<Holder<MobEffect>,Map<Integer,Layer>> copyLayers(Map<Holder<MobEffect>,Map<Integer,Layer>> source) {
         if(source==null)return null;
         var result=new HashMap<Holder<MobEffect>,Map<Integer,Layer>>();
@@ -230,7 +232,7 @@ public final class OwnedEffectLayers {
         EffectLayers.merge(result, single(grant));
         return result;
     }
-    LbcCloneSkills.ActorImage cloneImage(net.minecraft.world.entity.Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(net.minecraft.world.entity.Entity source){
         if(!(source instanceof LivingEntity living))return null;var image=checkpoint(living);if(image==null)return null;
         return new LbcCloneSkills.ActorImage(){
             public void install(net.minecraft.world.entity.Entity original,net.minecraft.world.entity.Entity clone,Map<net.minecraft.world.entity.Entity,net.minecraft.world.entity.Entity> family){restoreCheckpoint((LivingEntity)clone,image);}

@@ -12,10 +12,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 
 /** Adds a server force to client-predicted motion without replacing a new jump or movement input. */
-final class PlayerForces {
+public final class PlayerForces {
     private PlayerForces() {}
 
-    static void add(ServerPlayer player,Vec3 force) {
+    public static void add(ServerPlayer player,Vec3 force) {
         if(!force.isFinite()||force.lengthSqr()==0)return;
         player.setDeltaMovement(player.getDeltaMovement().add(force));
         player.needsSync=true;

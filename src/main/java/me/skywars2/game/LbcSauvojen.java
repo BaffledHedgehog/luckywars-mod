@@ -50,7 +50,7 @@ public final class LbcSauvojen {
         BLIND(10, "blind_volley", "phantom_volley", "blind_rain", "psycho_volley", "psycho_academy_volley",
                 "psycho_invisible_volley", "psycho_ray", "psycho_charge", "cultist");
 
-        final int cadence;
+        public final int cadence;
         private final List<String> academyPayloads;
 
         Kind(int cadence, String... academyPayloads) {
@@ -58,8 +58,8 @@ public final class LbcSauvojen {
             this.academyPayloads = List.of(academyPayloads);
         }
 
-        int academyCadence(){return switch(this){case RUBY,AIR->10;case TERRA->1;case STONE->40;default->5;};}
-        int modes(){return academyPayloads.size();}
+        public int academyCadence(){return switch(this){case RUBY,AIR->10;case TERRA->1;case STONE->40;default->5;};}
+        public int modes(){return academyPayloads.size();}
         List<String> models(){return switch(this){
             case RUBY->List.of("st/ruby","consuming_wand","dublicating_wand");
             case TERRA->List.of("st/terra","terra_razorpine","terrasword_true","fevgalea_star");
@@ -86,26 +86,26 @@ public final class LbcSauvojen {
 
     public static List<Payload> payloads() { return PAYLOADS; }
 
-    void emitPayload(ServerPlayer owner, InteractionHand hand, ItemStack source, Payload payload, Vec3 origin, Vec3 aim) {
+    public void emitPayload(ServerPlayer owner, InteractionHand hand, ItemStack source, Payload payload, Vec3 origin, Vec3 aim) {
         if (payload.academy()) emitAcademy(owner, hand, source, payload.branch(), payload.academyMode(), origin, aim);
         else emit(owner, hand, source, payload.branch(), origin, aim);
     }
 
     /** Native-check inspection is deliberately detached from input admission and random choice. */
-    static final class Drone {
-        ServerPlayer owner;
-        final InteractionHand hand;
-        final ItemStack usedStack;
-        final Kind kind;
-        final boolean academy;
-        int nextMode;
-        final String epoch;
-        final Marker carrier;
-        final ElementHolder holder;
-        final ItemDisplayElement display;
-        Vec3 position,direction=Vec3.directionFromRotation(0,0);
-        int lifetime;
-        Drone(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,String epoch,Marker carrier) {
+    public static final class Drone {
+        public ServerPlayer owner;
+        public final InteractionHand hand;
+        public final ItemStack usedStack;
+        public final Kind kind;
+        public final boolean academy;
+        public int nextMode;
+        public final String epoch;
+        public final Marker carrier;
+        public final ElementHolder holder;
+        public final ItemDisplayElement display;
+        public Vec3 position,direction=Vec3.directionFromRotation(0,0);
+        public int lifetime;
+        public Drone(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,String epoch,Marker carrier) {
             this.owner=owner;this.hand=hand;usedStack=stack.copy();this.kind=kind;
             academy=upgraded(stack);this.epoch=epoch;this.carrier=carrier;
             position=carrier.position();
@@ -133,13 +133,13 @@ public final class LbcSauvojen {
             ||LbcFartus.data(stack).getIntOr("upgraded",0)==1;}
     public void prepare(){game.server().getStructureTemplateManager().get(SauvojenMeditation.STONE);}
     public int count(){return drones.size();}
-    List<Drone> snapshot(){return List.copyOf(drones.values());}
+    public List<Drone> snapshot(){return List.copyOf(drones.values());}
 
     /** Called after the shared wand admission, mana payment and cast bonuses. */
     public void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack){
         cast(owner,hand,stack,owner.getRandom().nextInt(9));
     }
-    void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,int branch){
+    public void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,int branch){
         if(branch<0||branch>=Kind.values().length)throw new IllegalArgumentException("Sauvojen branch must be 0..8");
         if(!validOwner(owner))return;
         Vec3 origin=owner.getEyePosition().add(owner.getLookAngle().scale(2));
@@ -207,7 +207,7 @@ public final class LbcSauvojen {
         }
     }
     /** A producer API: exact payloads, no player movement, extra charge, or second admission. */
-    void emit(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,Vec3 origin,Vec3 direction){
+    public void emit(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,Vec3 origin,Vec3 direction){
         if(!validOwner(owner)||!owner.level().hasChunkAt(BlockPos.containing(origin)))return;
         switch(kind){
             case RUBY->game.items().ruby().flying(owner,origin,direction);
@@ -240,7 +240,7 @@ public final class LbcSauvojen {
         emitHostile(author.level(),kind,origin,direction,source);
     }
     /** Explicit source level survives causal author's death, disconnect or dimension change. */
-    void emitHostile(ServerLevel level,Kind kind,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
+    public void emitHostile(ServerLevel level,Kind kind,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
         if(!LbcBedwarsRoleGuards.canEmit(source,level))return;
         if(source==null||!game.items().currentEpoch(source.epoch())||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(origin)))return;
@@ -269,7 +269,7 @@ public final class LbcSauvojen {
             }
         }
     }
-    void emitAcademy(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,int mode,Vec3 origin,Vec3 direction){
+    public void emitAcademy(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,int mode,Vec3 origin,Vec3 direction){
         if(mode<0||mode>=kind.modes())throw new IllegalArgumentException("Sauvojen "+kind+" mode "+mode);
         if(!validOwner(owner)||!owner.level().hasChunkAt(BlockPos.containing(origin)))return;
         switch(kind){
@@ -332,7 +332,7 @@ public final class LbcSauvojen {
             else{drone.position=point;drone.carrier.setPos(point);sync(drone);}
         }
     }
-    void sync(Drone drone){
+    public void sync(Drone drone){
         drone.display.setYaw((float)Math.toDegrees(Math.atan2(-drone.direction.x,drone.direction.z)));
         drone.display.setPitch((float)-Math.toDegrees(Math.atan2(drone.direction.y,drone.direction.horizontalDistance())));
         var connected=game.server().getPlayerList().getPlayers();
@@ -371,8 +371,8 @@ public final class LbcSauvojen {
     }
     public void stop(){meditation.stop();stars.stop();for(var drone:snapshot())remove(drone,false);}
 
-    static boolean cloneProtected(Entity e){return e.entityTags().contains(DRONE);}
-    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+    public static boolean cloneProtected(Entity e){return e.entityTags().contains(DRONE);}
+    public int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
         for(var original:snapshot()){
             if(budget-made<count||System.nanoTime()>=deadline)break;
@@ -399,25 +399,25 @@ public final class LbcSauvojen {
         return made;
     }
     private boolean cloneDronesPending;
-    DroneCheckpoint checkpointDrones(MatchSpellCheckpoint.Links links){return new DroneCheckpoint(links);}
-    final class DroneCheckpoint {
+    public DroneCheckpoint checkpointDrones(MatchSpellCheckpoint.Links links){return new DroneCheckpoint(links);}
+    public final class DroneCheckpoint {
         private record Image(MatchDamageSources.Ref owner,MatchDamageSources.Ref carrier,InteractionHand hand,ItemStack stack,
                 Kind kind,String epoch,Vec3 point,Vec3 direction,int lifetime,int nextMode,ItemStack model){}
         private final List<Image> images;
         DroneCheckpoint(MatchSpellCheckpoint.Links links){images=snapshot().stream().map(d->new Image(links.key(d.owner),links.key(d.carrier),d.hand,
                 d.usedStack.copy(),d.kind,d.epoch,d.position,d.direction,d.lifetime,d.nextMode,d.display.getItem().copy())).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Drone>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Drone>();
             for(var image:images){var owner=(ServerPlayer)links.get(image.owner);var carrier=(Marker)links.get(image.carrier);
                 var drone=new Drone(owner,image.hand,image.stack,image.kind,image.epoch,carrier);drone.position=image.point;
                 drone.direction=image.direction;drone.lifetime=image.lifetime;drone.nextMode=image.nextMode;drone.display.setItem(image.model.copy());values.add(drone);}
             return ()->{for(var future:snapshot())future.holder.destroy();drones.clear();for(var drone:values)drones.put(drone.carrier,drone);cloneDronesPending=true;};
         }
     }
-    void publishCloneDrones(){if(!cloneDronesPending)return;cloneDronesPending=false;for(var drone:snapshot()){
+    public void publishCloneDrones(){if(!cloneDronesPending)return;cloneDronesPending=false;for(var drone:snapshot()){
         game.visualTracking().attach(drone.holder,(ServerLevel)drone.carrier.level(),()->drone.position);sync(drone);}}
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var drone:drones.values())if(!drone.carrier.isRemoved()&&game.items().currentEpoch(drone.epoch)
                 &&!game.items().timeStop().frozen(drone.carrier)&&!drone.carrier.entityTags().contains("time_stopped")
                 &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)drone.carrier.level(),drone.position)){

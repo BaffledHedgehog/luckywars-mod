@@ -29,7 +29,7 @@ import org.joml.Vector3f;
 
 /** Kit11's elastic ballistic item display. Its native attachment is the sole flight state. */
 public final class LbcBouncingPoop {
-    static final String TAG="skywars2.bouncing_poop";
+    public static final String TAG="skywars2.bouncing_poop";
     private static final AttachmentType<CompoundTag> DATA=AttachmentRegistry.create(
             Identifier.parse("skywars2:bouncing_poop"),b->b.persistent(CompoundTag.CODEC));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
@@ -39,12 +39,12 @@ public final class LbcBouncingPoop {
     public static void register(){}
     public LbcBouncingPoop(GameController game){this.game=game;}
     public int count(){return actors.size();}
-    List<Display.ItemDisplay> snapshot(){return List.copyOf(actors);}
-    static CompoundTag state(Entity actor){return actor.getAttached(DATA);}
+    public List<Display.ItemDisplay> snapshot(){return List.copyOf(actors);}
+    public static CompoundTag state(Entity actor){return actor.getAttached(DATA);}
     public static boolean matches(ItemStack stack){var custom=stack.get(DataComponents.CUSTOM_DATA);return !stack.isEmpty()
             &&(stack.is(LbcPursuitItems.BOUNCING_POOP)||custom!=null&&custom.copyTag().getIntOr("govno_raskid",0)==1);}
     private static UUID author(CompoundTag d){try{return UUID.fromString(d.getStringOr("author",""));}catch(IllegalArgumentException e){return null;}}
-    static boolean thrownBy(Entity body,ServerPlayer player){
+    public static boolean thrownBy(Entity body,ServerPlayer player){
         if(!(body instanceof Display.ItemDisplay)||!body.entityTags().contains(TAG))return false;
         var data=state(body);
         return data!=null&&player.getUUID().equals(author(data));
@@ -152,8 +152,8 @@ public final class LbcBouncingPoop {
     public void forget(ServerPlayer owner){}
     public void stop(){for(var actor:List.copyOf(actors))retire(actor);actors.clear();}
 
-    static boolean cloneRecognizes(Entity e){return e.entityTags().contains(TAG);}
-    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+    public static boolean cloneRecognizes(Entity e){return e.entityTags().contains(TAG);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original) {
         var state=state(original);if(!(original instanceof Display.ItemDisplay)||state==null||!actors.contains(original))return null;
         var saved=state.copy();
         // DATA is the sole gameplay clock/author state. Native NBT/metadata carries its presentation.
@@ -164,7 +164,7 @@ public final class LbcBouncingPoop {
 
 
     /** Native DATA/NBT is already restored; only the suppressed loaded-body index is missing. */
-    void reindexRestored(Iterable<Entity> restored){
+    public void reindexRestored(Iterable<Entity> restored){
         actors.clear();
         for(var entity:restored){
             if(entity.isRemoved()||!(entity instanceof Display.ItemDisplay actor)||!entity.entityTags().contains(TAG))continue;

@@ -38,7 +38,7 @@ public final class BobaRegionPhysics {
     private List<Region> regions=List.of();
     public static final ThreadLocal<Integer> FLUID_FRAME=ThreadLocal.withInitial(()->0);
     private final Path journal;
-    BobaRegionPhysics(Path journal){this.journal=journal;read();}
+    public BobaRegionPhysics(Path journal){this.journal=journal;read();}
     public List<Region> capture(){return List.copyOf(regions);}
     public void restore(List<Region> image){regions=List.copyOf(image);save();}
     public void clear(){restore(List.of());}
@@ -54,7 +54,7 @@ public final class BobaRegionPhysics {
         var v=rotate(new Vec3(d.getStepX(),d.getStepY(),d.getStepZ()),turns);
         return Direction.getApproximateNearest(v);
     }
-    void rotate(BlockPos origin){
+    public void rotate(BlockPos origin){
         int x0=origin.getX()-160,z0=origin.getZ()-160;
         var cube=new Region(x0,0,z0,x0+320,320,z0+320,1);
         var result=new ArrayList<Region>();var inside=new ArrayList<Region>();

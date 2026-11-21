@@ -25,7 +25,7 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
 /** Small vanilla Ping/Pong probes. Arrival is measured on the network thread, publication on the server thread. */
 public final class PlayerLatency {
-    static final String TAB_OBJECTIVE="skywars2.ping";
+    public static final String TAB_OBJECTIVE="skywars2.ping";
     private static final long INTERVAL=5_000_000_000L,STALE=15_000_000_000L;
     private static final AtomicInteger NONCE=new AtomicInteger(-1);
     private static final ConcurrentHashMap<ServerGamePacketListenerImpl,Sample> SAMPLES=new ConcurrentHashMap<>();
@@ -44,7 +44,7 @@ public final class PlayerLatency {
     public static int nextProbeId() {
         return NONCE.getAndUpdate(value -> value == Integer.MIN_VALUE ? -1 : value - 1);
     }
-    static void request(ServerGamePacketListenerImpl listener){
+    public static void request(ServerGamePacketListenerImpl listener){
         if(!realClient(listener.player)||!listener.hasClientLoaded())return;
         var sample=SAMPLES.computeIfAbsent(listener,key->new Sample());long now=System.nanoTime();
         int id=nextProbeId();
@@ -66,9 +66,9 @@ public final class PlayerLatency {
         return reading==null||System.nanoTime()-reading.received()>STALE?-1:reading.millis();
     }
     static String label(ServerPlayer player){int value=millis(player.connection);return (value<0?"\u2014":Integer.toString(value))+" ms";}
-    static int tabHealth(ServerPlayer player){var game=me.skywars2.SkyWars2.game();return game!=null&&(game.config().healthDisplay&2)!=0?(int)Math.ceil(player.getHealth()+player.getAbsorptionAmount()):-1;}
-    static Objective tabObjective(MinecraftServer server){var board=server.getScoreboard();var objective=board.getObjective(TAB_OBJECTIVE);return objective!=null?objective:board.addObjective(TAB_OBJECTIVE,ObjectiveCriteria.DUMMY,Component.literal("Ping"),ObjectiveCriteria.RenderType.INTEGER,false,format(1));}
-    static NumberFormat format(int value){return value<0?new FixedFormat(Component.literal("\u2014").withStyle(ChatFormatting.GRAY)):new StyledFormat(Style.EMPTY.withColor(value<150?ChatFormatting.GREEN:value<300?ChatFormatting.YELLOW:ChatFormatting.RED));}
+    public static int tabHealth(ServerPlayer player){var game=me.skywars2.SkyWars2.game();return game!=null&&(game.config().healthDisplay&2)!=0?(int)Math.ceil(player.getHealth()+player.getAbsorptionAmount()):-1;}
+    public static Objective tabObjective(MinecraftServer server){var board=server.getScoreboard();var objective=board.getObjective(TAB_OBJECTIVE);return objective!=null?objective:board.addObjective(TAB_OBJECTIVE,ObjectiveCriteria.DUMMY,Component.literal("Ping"),ObjectiveCriteria.RenderType.INTEGER,false,format(1));}
+    public static NumberFormat format(int value){return value<0?new FixedFormat(Component.literal("\u2014").withStyle(ChatFormatting.GRAY)):new StyledFormat(Style.EMPTY.withColor(value<150?ChatFormatting.GREEN:value<300?ChatFormatting.YELLOW:ChatFormatting.RED));}
     public static void tick(MinecraftServer server){
         if(owner!=server){SAMPLES.clear();owner=server;}
         SAMPLES.keySet().removeIf(listener->listener.player.connection!=listener||server.getPlayerList().getPlayer(listener.player.getUUID())!=listener.player);

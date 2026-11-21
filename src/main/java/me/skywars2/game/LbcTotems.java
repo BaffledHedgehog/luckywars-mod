@@ -37,7 +37,7 @@ public final class LbcTotems {
     private final Map<ServerPlayer,Deque<DamageSource>> contexts=new IdentityHashMap<>();
     private int clock;private int callbackDepth;private boolean rewinding;
     private record Debt(LbcIndirectKills.Owner cause,int phase){}
-    LbcTotems(GameController game){this.game=game;}
+    public LbcTotems(GameController game){this.game=game;}
     public void begin(ServerPlayer p,DamageSource source){
         callbackDepth++;try{contexts.computeIfAbsent(p,ignored->new ArrayDeque<>()).addLast(source);
         }finally{callbackDepth--;}
@@ -54,7 +54,7 @@ public final class LbcTotems {
     private boolean running(ServerPlayer p){return participant(p)&&p.isAlive()&&!game.items().timeStop().stopped(p.level())&&!p.entityTags().contains("time_stopped");}
     private static boolean entityResident(ServerLevel level,BlockPos pos){return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
     private static boolean resident(ServerLevel level,BlockPos pos){return !level.isOutsideBuildHeight(pos)&&entityResident(level,pos);}
-    int infinity(ItemStack stack,ServerLevel level){
+    public int infinity(ItemStack stack,ServerLevel level){
         var infinity=level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.INFINITY);
         int own=stack.getEnchantments().getLevel(infinity);
         return LbcTmtTotems.selectedInfinite(stack)?Math.max(own,LbcSpecialArtifactItems.Kind.INFINITE_TOTEM.item.getDefaultInstance().getEnchantments().getLevel(infinity)):own;
@@ -79,7 +79,7 @@ public final class LbcTotems {
         Refund(ServerLevel level,Vec3 at,ItemStack copy,int count,String epoch){this.level=level;this.at=at;this.copy=copy;remaining=count;this.epoch=epoch;}
     }
     /** A high level retains its full debt without materializing billions of entities inside one damage callback. */
-    void refundsTick(){
+    public void refundsTick(){
         if(rewinding)return;
         callbackDepth++;try{
         long deadline=System.nanoTime()+2_000_000;int spawned=0,idle=0;
@@ -95,7 +95,7 @@ public final class LbcTotems {
 
         }finally{callbackDepth--;}
     }
-    long pendingRefunds(){long total=0;for(var r:refunds)total+=r.remaining;return total;}
+    public long pendingRefunds(){long total=0;for(var r:refunds)total+=r.remaining;return total;}
     private boolean wild(LivingEntity target){return game.items().wands().validRoleTarget(target,true)&&!LbcGreed.active(target);}
     private void harm(ServerPlayer p,LivingEntity target){
         if(!target.isAlive()||!wild(target))return;
@@ -106,7 +106,7 @@ public final class LbcTotems {
                 game.items().indirectKills().wildCause(p)),12);
     }
     /** Public to native fixtures; production calls this only on the shared five-second pulse. */
-    void heldPulse(ServerPlayer p){
+    public void heldPulse(ServerPlayer p){
         if(rewinding)return;
         callbackDepth++;try{
         if(!running(p))return;
@@ -134,11 +134,11 @@ public final class LbcTotems {
         return null;
     }
     public boolean canAffect(Entity actor,Entity target){return !managed(actor)||target==null||target instanceof LivingEntity living&&wild(living);}
-    void loaded(Entity e){
+    public void loaded(Entity e){
         callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(e))return;if(!managed(e))return;if(!game.playing()||!game.items().currentEpoch(e)){e.discard();return;}if(e instanceof WitherSkeleton s){skeletons.add(s);game.items().timeStop().prepareFrozen(s);}
         }finally{callbackDepth--;}
     }
-    void unloaded(Entity e){
+    public void unloaded(Entity e){
         callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(e))return;if(e instanceof WitherSkeleton s)skeletons.remove(s);
         }finally{callbackDepth--;}
     }
@@ -197,7 +197,7 @@ public final class LbcTotems {
     }
     }
     /** Source death_timer is five two-tick units; it bypasses another totem, with source void/Greed exemptions. */
-    void debtsTick(){
+    public void debtsTick(){
         if(rewinding)return;
         callbackDepth++;try{for(var entry:List.copyOf(deaths.entrySet())){
         var p=entry.getKey();var debt=entry.getValue();
@@ -213,7 +213,7 @@ public final class LbcTotems {
     }
         }finally{callbackDepth--;}
     }
-    void tick(){
+    public void tick(){
         if(rewinding)return;
         callbackDepth++;try{
         if(!game.server().tickRateManager().runsNormally())return;
@@ -222,26 +222,26 @@ public final class LbcTotems {
 
         }finally{callbackDepth--;}
     }
-    int actors(){return skeletons.size();}int work(){return lava.size();}int pendingDeaths(){return deaths.size();}
-    List<WitherSkeleton> snapshot(){return List.copyOf(skeletons);}
-    void clear(ServerPlayer p){
+    public int actors(){return skeletons.size();}public int work(){return lava.size();}public int pendingDeaths(){return deaths.size();}
+    public List<WitherSkeleton> snapshot(){return List.copyOf(skeletons);}
+    public void clear(ServerPlayer p){
         callbackDepth++;try{deaths.remove(p);game.items().mana().score(p,"death_timer").set(0);
         }finally{callbackDepth--;}
     }
-    void stop(){
+    public void stop(){
         callbackDepth++;try{for(var task:List.copyOf(lava))task.cancel();for(var actor:List.copyOf(skeletons))actor.discard();skeletons.clear();deaths.clear();contexts.clear();refunds.clear();clock=0;for(var p:game.server().getPlayerList().getPlayers())clear(p);
         }finally{callbackDepth--;}
     }
 
     /** The native damage context is a live stack frame, never a resumable debt or saved callback. */
-    void checkpointBoundary(){if(callbackDepth!=0||!contexts.isEmpty())throw new IllegalStateException("Finish native totem damage/reward callbacks before checkpointing");}
-    void prepareFrozen(){checkpointBoundary();rewinding=true;}
-    void publishFrozen(){checkpointBoundary();rewinding=false;}
-    void cancelFrozen(){
+    public void checkpointBoundary(){if(callbackDepth!=0||!contexts.isEmpty())throw new IllegalStateException("Finish native totem damage/reward callbacks before checkpointing");}
+    public void prepareFrozen(){checkpointBoundary();rewinding=true;}
+    public void publishFrozen(){checkpointBoundary();rewinding=false;}
+    public void cancelFrozen(){
         checkpointBoundary();if(rewinding)for(var task:List.copyOf(lava))task.cancel();rewinding=false;
     }
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         private record RefundImage(Refund original,ItemStack payload,int remaining){}
         private final List<MatchDamageSources.Ref> actors;
         private final List<Lava> work=List.copyOf(lava);
@@ -255,7 +255,7 @@ public final class LbcTotems {
             debts=refunds.stream().map(r->new RefundImage(r,r.copy.copy(),r.remaining)).toList();
             work.forEach(graph::capture);
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var bodies=actors.stream().map(ref->(WitherSkeleton)links.get(ref)).toList();
             var restoredDeaths=deathImage.restore(links);var payloads=debts.stream().map(r->r.payload.copy()).toList();
             for(var debt:debts)MatchAuthorityCheckpoint.world(game,debt.original.level);

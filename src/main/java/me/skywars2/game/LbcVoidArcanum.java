@@ -75,18 +75,20 @@ public final class LbcVoidArcanum {
     private final List<Hole> restoreVisuals=new ArrayList<>();
     private final Map<Hole,UUID> restoreVisualOwners=new HashMap<>();
     private static final class Hands {boolean main,off;}
-    record Contribution(UUID owner, LbcIndirectKills.Owner cause, int remainingTicks, int strength) {
+    public record Contribution(UUID owner, LbcIndirectKills.Owner cause, int remainingTicks, int strength) {
         boolean temporary() { return remainingTicks >= 0; }
     }
-    static final class Hole {
-        final ServerLevel world;Marker marker;final String epoch;
-        final List<Contribution> members=new ArrayList<>();
-        Vec3 point;int level=1,cloneMask;boolean wild;
-        Vec3 velocity=Vec3.ZERO;
-        final Quaternionf tilt=new Quaternionf();
-        BlackHoleVisuals.Handle visual;
-        BlackHoleErosion terrain;int frontier=1,terrainLevel;
-        LbcIndirectKills.Owner terrainCause;
+    public static final class Hole {
+        public final ServerLevel world;public Marker marker;final String epoch;
+        public final List<Contribution> members=new ArrayList<>();
+        public Vec3 point;public int level=1;
+        int cloneMask;public boolean wild;
+        public Vec3 velocity=Vec3.ZERO;
+        public final Quaternionf tilt=new Quaternionf();
+        public BlackHoleVisuals.Handle visual;
+        public BlackHoleErosion terrain;public int frontier=1;
+        int terrainLevel;
+        public LbcIndirectKills.Owner terrainCause;
         Hole(ServerLevel world,Marker marker,Vec3 point,String epoch){this.world=world;this.marker=marker;this.point=point;this.epoch=epoch;}
     }
     /** A native body is never serialized; a stale marker from any old version is rejected on load. */
@@ -111,11 +113,11 @@ public final class LbcVoidArcanum {
     private boolean paused(ServerPlayer owner){return game.items().wands().timeStopped()||owner.entityTags().contains("time_stopped")||game.items().frost().isFrozen(owner);}
     private boolean suppressed(ServerPlayer owner){return game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.position());}
     private static boolean resident(ServerLevel world,Vec3 point){var p=BlockPos.containing(point);return world.getChunkSource().getChunkNow(p.getX()>>4,p.getZ()>>4)!=null;}
-    Hole spawn(ServerPlayer owner,Vec3 point){
+    public Hole spawn(ServerPlayer owner,Vec3 point){
         return spawn(owner, point, 1, -1);
     }
 
-    boolean scriptSpawn(ServerPlayer owner, ItemStack weapon, Vec3 point, int level, int duration) {
+    public boolean scriptSpawn(ServerPlayer owner, ItemStack weapon, Vec3 point, int level, int duration) {
         if (paused(owner) || suppressed(owner) || game.items().magic().suppressedAt(owner.level(), owner.getEyePosition()))
             return false;
         try (var use = WeaponEnchantments.using(owner, weapon)) {
@@ -224,7 +226,7 @@ public final class LbcVoidArcanum {
 
         }finally{callbackDepth--;}
     }
-    int upkeep(UUID owner){
+    public int upkeep(UUID owner){
         int amount=0;for(var hole:holes)amount+=costShares(hole).getOrDefault(owner,0);return amount;
     }
     private Map<UUID,Integer> costShares(Hole hole){
@@ -247,7 +249,7 @@ public final class LbcVoidArcanum {
         }
         return shares;
     }
-    Contribution source(Hole hole){
+    public Contribution source(Hole hole){
         callbackDepth++;try{
         if(hole.members.isEmpty())return null;
         var counts=new LinkedHashMap<UUID,Integer>();
@@ -311,7 +313,7 @@ public final class LbcVoidArcanum {
         // Targeting changes its destination; all tier movement caps include the author's40% reduction.
         return target.getEyePosition().add(0,.5*(hole.level-1),0);
     }
-    void physics(Hole hole,ServerPlayer author,LbcIndirectKills.Owner cause){
+    public void physics(Hole hole,ServerPlayer author,LbcIndirectKills.Owner cause){
         if(rewinding)return;
         callbackDepth++;try{
         LbcOverload.sound(hole.world,hole.point,"minecraft:entity.creeper.primed",SOUND_VOLUME[hole.level],2,0,0);
@@ -375,7 +377,7 @@ public final class LbcVoidArcanum {
 
         }finally{callbackDepth--;}
     }
-    void updateVisual(Hole hole,ServerPlayer owner){
+    public void updateVisual(Hole hole,ServerPlayer owner){
         callbackDepth++;try{
         float radius=(float)(RADII[hole.level]/14);
         if(hole.visual==null)hole.visual=game.items().blackHoleVisuals().create(owner,hole.point,radius,hole.level==5);
@@ -384,7 +386,7 @@ public final class LbcVoidArcanum {
 
         }finally{callbackDepth--;}
     }
-    int terrain(Hole hole,ServerPlayer owner,int allowance,long deadline){
+    public int terrain(Hole hole,ServerPlayer owner,int allowance,long deadline){
         if(rewinding)return 0;
         callbackDepth++;try{
         int radius=(int)RADII[hole.level];
@@ -453,25 +455,25 @@ public final class LbcVoidArcanum {
         }finally{callbackDepth--;}
     }
     public int count(){return holes.size();}
-    List<Hole> snapshot(){return List.copyOf(holes);}
+    public List<Hole> snapshot(){return List.copyOf(holes);}
 
     /** Rollback preserves gameplay centers; destructive erosion may restart around those centers. */
-    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish void-hole native callbacks before checkpointing");}
+    public void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish void-hole native callbacks before checkpointing");}
     private void detachCheckpointVisual(Hole hole){
         if(hole.visual!=null){game.items().blackHoleVisuals().detachForCheckpoint(hole.visual);hole.visual=null;}
         if(hole.terrain!=null){hole.terrain.clear();hole.terrain=null;}
     }
-    void prepareFrozen(){checkpointBoundary();rewinding=true;restoreVisuals.clear();restoreVisualOwners.clear();for(var hole:holes)detachCheckpointVisual(hole);}
-    void publishFrozen(){
+    public void prepareFrozen(){checkpointBoundary();rewinding=true;restoreVisuals.clear();restoreVisualOwners.clear();for(var hole:holes)detachCheckpointVisual(hole);}
+    public void publishFrozen(){
         checkpointBoundary();for(var hole:restoreVisuals){
             ServerPlayer author=game.server().getPlayerList().getPlayer(restoreVisualOwners.get(hole));if(author!=null&&author.level()!=hole.world)author=null;for(var member:hole.members){var current=owner(member);if(author==null&&current!=null&&current.level()==hole.world){author=current;break;}}
             if(author!=null)updateVisual(hole,author);
         }
         restoreVisuals.clear();restoreVisualOwners.clear();rewinding=false;
     }
-    void cancelFrozen(){checkpointBoundary();restoreVisuals.clear();restoreVisualOwners.clear();rewinding=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void cancelFrozen(){checkpointBoundary();restoreVisuals.clear();restoreVisualOwners.clear();rewinding=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Image(Hole original,MatchDamageSources.Ref marker,List<Contribution> members,Vec3 point,Vec3 velocity,int level,boolean wild,Quaternionf tilt,LbcIndirectKills.Owner terrainCause,UUID visualOwner,boolean visible,int cloneMask){}
         private record Hand(boolean main,boolean off){}
         private final List<Image> values=new ArrayList<>();private final Map<UUID,Hand> held=new HashMap<>();
@@ -484,7 +486,7 @@ public final class LbcVoidArcanum {
             }
             hands.forEach((id,value)->held.put(id,new Hand(value.main,value.off)));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var bodies=values.stream().map(image->(Marker)links.get(image.marker)).toList();
             for(var image:values)MatchAuthorityCheckpoint.world(game,image.original.world);
             var nextHands=new HashMap<UUID,Hands>();held.forEach((id,value)->{var hand=new Hands();hand.main=value.main;hand.off=value.off;nextHands.put(id,hand);});
@@ -496,8 +498,8 @@ public final class LbcVoidArcanum {
         }
     }
 
-    static boolean cloneProtected(Entity e){return e instanceof Body||e.entityTags().contains(BODY_TAG);}
-    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+    public static boolean cloneProtected(Entity e){return e instanceof Body||e.entityTags().contains(BODY_TAG);}
+    public int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
         for(var original:List.copyOf(holes)){
             if(budget-made<count||System.nanoTime()>=deadline)break;
@@ -527,7 +529,7 @@ public final class LbcVoidArcanum {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var hole:holes)if(!hole.marker.isRemoved()&&game.items().currentEpoch(hole.epoch)
                 &&!game.items().timeStop().frozen(hole.marker)&&!hole.marker.entityTags().contains("time_stopped")
                 &&LbcPlanetoidSkill.near(game,holder,hole.world,hole.point))

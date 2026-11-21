@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Chaos uses the original native loot table, then the ordinary causal dropped-item lifecycle. */
 public final class LbcChaosTraps {
-    static final ResourceKey<LootTable> TABLE=ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:traps"));
+    public static final ResourceKey<LootTable> TABLE=ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:traps"));
     private final GameController game;
 
     public LbcChaosTraps(GameController game){this.game=game;}

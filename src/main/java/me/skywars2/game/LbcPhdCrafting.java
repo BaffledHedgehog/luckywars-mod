@@ -19,7 +19,7 @@ public final class LbcPhdCrafting {
     private static final TagKey<Item> BIO=TagKey.create(net.minecraft.core.registries.Registries.ITEM,Identifier.parse("minecraft:bioitems"));
     private static final ScoreHolder SEED=ScoreHolder.forNameOnly("#game_seed");
     private LbcPhdCrafting(){}
-    static void prepare(GameController game) {
+    public static void prepare(GameController game) {
         seedScore(game);
     }
     public static void matchStarted(GameController game){

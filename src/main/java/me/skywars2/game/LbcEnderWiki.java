@@ -21,8 +21,8 @@ import java.util.Set;
 
 /** Source Ender and Bad Wiki casts. Native effects and the existing RTP service own timers. */
 public final class LbcEnderWiki {
-    record Effect(String id,int ticks,int amplifier,boolean hidden){}
-    static final Effect[] RANDOM=new Effect[84],ACADEMY=new Effect[28];
+    public record Effect(String id,int ticks,int amplifier,boolean hidden){}
+    public static final Effect[] RANDOM=new Effect[84],ACADEMY=new Effect[28];
     static {
         try(var input=LbcEnderWiki.class.getResourceAsStream("/skywars2/bad_wiki_effects.json")){
             if(input==null)throw new IllegalStateException("Missing Bad Wiki presets");
@@ -32,7 +32,7 @@ public final class LbcEnderWiki {
         }catch(Exception e){throw new ExceptionInInitializerError(e);}
     }
     private final GameController game;
-    LbcEnderWiki(GameController game){this.game=game;}
+    public LbcEnderWiki(GameController game){this.game=game;}
     boolean use(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean wiki,boolean academy){
         if(!game.items().mana().visible(p)||game.items().actionsBlocked(p)||p.entityTags().contains("time_stopped")
                 ||game.items().timeStop().stopped(p.level())||game.items().magic().suppressed(p)
@@ -91,7 +91,7 @@ public final class LbcEnderWiki {
         if(!academy&&LbcAcademy.trial(stack)&&game.items().mana().score(p,"falltimer").get()>=100)game.items().academy().ready(p,hand,stack);
     }
     /** Legacy airborne counter is a raw tick score, including the existing KFC +1 bridge. */
-    void tick(){for(var p:game.server().getPlayerList().getPlayers())if(game.items().mana().visible(p)){
+    public void tick(){for(var p:game.server().getPlayerList().getPlayers())if(game.items().mana().visible(p)){
         var counter=game.items().mana().score(p,"falltimer");if(p.onGround())counter.set(0);else counter.add(1);
     }}
 }

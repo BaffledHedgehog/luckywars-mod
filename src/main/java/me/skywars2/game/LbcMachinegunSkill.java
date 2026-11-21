@@ -51,13 +51,13 @@ public final class LbcMachinegunSkill {
     public static double component(double direction,int charge,int jitter){
         return (Math.floor(direction*speed(charge)*10000)+jitter)*.0001;
     }
-    int charge(ServerPlayer p){return game.items().mana().score(p,"bow_charge").get();}
-    int progress(ServerPlayer p){return game.items().mana().score(p,"bow_charge_sub").get();}
-    int shots(ServerPlayer p){return Math.max(0,game.items().mana().score(p,"machinegun_shots").get());}
-    boolean overridesAim(ServerPlayer p,InteractionHand hand){return game.playing()&&game.lbc().hasSkill(p,14)&&p.isUsingItem()
+    public int charge(ServerPlayer p){return game.items().mana().score(p,"bow_charge").get();}
+    public int progress(ServerPlayer p){return game.items().mana().score(p,"bow_charge_sub").get();}
+    public int shots(ServerPlayer p){return Math.max(0,game.items().mana().score(p,"machinegun_shots").get());}
+    public boolean overridesAim(ServerPlayer p,InteractionHand hand){return game.playing()&&game.lbc().hasSkill(p,14)&&p.isUsingItem()
             &&p.getUsedItemHand()==hand&&p.getUseItem().getItem() instanceof BowItem&&shots(p)>0;}
-    double aimDegrees(ServerPlayer p){return LbcGunAccuracy.additiveDegrees(spread(shots(p))*.0001,speed(charge(p)));}
-    int pending(ServerPlayer p){var draw=draws.get(p.getUUID());return draw==null?0:draw.remaining;}
+    public double aimDegrees(ServerPlayer p){return LbcGunAccuracy.additiveDegrees(spread(shots(p))*.0001,speed(charge(p)));}
+    public int pending(ServerPlayer p){var draw=draws.get(p.getUUID());return draw==null?0:draw.remaining;}
     private boolean paused(ServerPlayer p){return game.server().tickRateManager().isFrozen()
             ||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(p.level())
             ||game.items().timeStop().frozen(p)||p.entityTags().contains("time_stopped");}

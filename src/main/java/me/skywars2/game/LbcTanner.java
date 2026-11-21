@@ -105,7 +105,7 @@ public final class LbcTanner {
     private int checkpointCallbacks;
     private boolean checkpointRestoring;
 
-    LbcTanner(GameController game) { this.game = game; }
+    public LbcTanner(GameController game) { this.game = game; }
 
     public static boolean isTanner(ItemStack stack) {
         if (stack.isEmpty()) return false;
@@ -362,7 +362,7 @@ public final class LbcTanner {
     public int count() { return (int) auras.values().stream().filter(Aura::anyActive).count(); }
     public int pendingCount() { return (int) auras.values().stream().filter(aura -> !aura.anyActive() && hasWork(aura)).count(); }
 
-    int queuedBlockCount() {
+    public int queuedBlockCount() {
         int count=0;
         for(var aura:auras.values()) count += aura.terrain.queuedBlockCount();
         return count;
@@ -380,21 +380,21 @@ public final class LbcTanner {
         }finally{checkpointCallbacks--;}
     }
 
-    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Tanner aura callbacks before checkpointing");}
-    void prepareAuraFrozen(){checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();}
+    public void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Tanner aura callbacks before checkpointing");}
+    public void prepareAuraFrozen(){checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();}
     void clearFutureTerrain(){
         for(var aura:auras.values()){aura.terrain.clear();aura.chunkKeys.clear();}
         aurasByChunk.clear();work.clear();scheduled.clear();auraBatch.clear();
     }
-    void publishAuraFrozen(){
+    public void publishAuraFrozen(){
         checkpointBoundary();aurasByChunk.clear();
         for(var aura:auras.values()){aura.chunkKeys.clear();if(aura.anyActive()&&aura.bounds!=null)reindex(aura,aura.bounds);}
         checkpointRestoring=false;
     }
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
         checkpointBoundary();if(queuedBlockCount()!=0)throw new IllegalStateException("Finish Tanner terrain before taking aura essentials");return new Checkpoint(links);
     }
-    final class Checkpoint {
+    public final class Checkpoint {
         private record AuraImage(Aura original,UUID owner,ServerLevel ownerLevel,ServerLevel level,boolean main,boolean off,boolean dual,boolean paused,BlockAreaWork.Bounds bounds) { }
         private final List<AuraImage> saved;
         private final Set<UUID> installed=new HashSet<>();private boolean baseInstalled;
@@ -402,10 +402,10 @@ public final class LbcTanner {
         private Checkpoint(Checkpoint current,Checkpoint previous){
             var all=new ArrayList<>(current.saved);for(var image:previous.saved)if(!previous.installed.contains(image.owner))all.add(image);saved=List.copyOf(all);installed.addAll(current.installed);baseInstalled=true;
         }
-        Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
-        void resetReplay(){installed.clear();baseInstalled=false;}
-        Set<UUID> pendingPlayers(){var pending=new HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);return Set.copyOf(pending);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
+        public void resetReplay(){installed.clear();baseInstalled=false;}
+        public Set<UUID> pendingPlayers(){var pending=new HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);return Set.copyOf(pending);}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var plans=new ArrayList<Runnable>();
             for(var image:saved){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.ownerLevel);if(current==null)continue;
                 MatchAuthorityCheckpoint.world(game,image.level);

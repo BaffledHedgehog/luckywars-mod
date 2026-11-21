@@ -61,13 +61,13 @@ import java.util.Set;
 
 /** Учтённые химические облака BrBad и их кислотный helper; ванильный бросок и жизнь облака остаются в Minecraft. */
 public final class LbcClouds {
-    static final EntityType<AcidProjectile> ACID_PROJECTILE = registerAcidProjectile();
+    public static final EntityType<AcidProjectile> ACID_PROJECTILE = registerAcidProjectile();
     private static final EntityTypeTest<Entity, Entity> ENTITY_LOOKUP = EntityTypeTest.forClass(Entity.class);
     private static final EntityTypeTest<Entity, ServerPlayer> PLAYER_LOOKUP = EntityTypeTest.forClass(ServerPlayer.class);
     private static final AttachmentType<Integer> ACID_AGE = AttachmentRegistry.create(
             Identifier.parse("skywars2:acid_age"), builder -> builder.persistent(Codec.INT).initializer(() -> 1));
 
-    static void register() {
+    public static void register() {
         // Vanilla entries must keep their network IDs; only the per-entity representation changes.
         PolymerEntityUtils.registerPolymerEntityConstructor(EntityTypes.AREA_EFFECT_CLOUD,
                 cloud -> cloud instanceof PolymerEntity polymer ? polymer : null);
@@ -86,7 +86,7 @@ public final class LbcClouds {
     public static final class AcidProjectile extends ThrowableProjectile implements PolymerEntity {
         private Vec3 shieldFrom;
         private Vec3 sweptFrom;
-        AcidProjectile(EntityType<? extends AcidProjectile> type, Level level) { super(type, level); }
+        public AcidProjectile(EntityType<? extends AcidProjectile> type, Level level) { super(type, level); }
         @Override protected float getAirDrag() {
             return entityTags().contains(FLYING_WAND_ACID)?1:super.getAirDrag();
         }
@@ -132,7 +132,7 @@ public final class LbcClouds {
         }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
-        @Override protected boolean canHitEntity(Entity entity) {
+        @Override public boolean canHitEntity(Entity entity) {
             // Greed reflects even acid; ordinary actors retain source passage.
             return LbcGreed.active(entity);
         }
@@ -213,7 +213,7 @@ public final class LbcClouds {
     private final ArrayList<AcidState> acidBatch = new ArrayList<>();
     private final ArrayList<ChangedBlock> blocks = new ArrayList<>();
 
-    LbcClouds(GameController game) {
+    public LbcClouds(GameController game) {
         this.game = game;
         sulfurTemplate = game.maps().level().getStructureTemplateManager().get(Identifier.parse("lbc:air11x11")).orElseThrow();
     }
@@ -221,7 +221,7 @@ public final class LbcClouds {
     private static TagKey<Block> blockTag(String id) { return TagKey.create(Registries.BLOCK, Identifier.parse(id)); }
 
     /** ENTITY_LOAD видит уже настроенное native облако; здесь не заменяем сущность и не обходим мир. */
-    boolean loaded(Entity entity) {
+    public boolean loaded(Entity entity) {
         if (entity instanceof ThrownLingeringPotion potion && LbcItems.isChemicalPotion(potion.getItem())) {
             if (!mayRun(entity, potion.getOwner())) entity.discard();
             else potions.add(potion);
@@ -258,12 +258,12 @@ public final class LbcClouds {
                 && game.items().debugItemUseWindowOrCountdown();
     }
 
-    void unloaded(Entity entity) { clouds.remove(entity); acids.remove(entity); potions.remove(entity); }
+    public void unloaded(Entity entity) { clouds.remove(entity); acids.remove(entity); potions.remove(entity); }
     public int cloudCount() { return clouds.size(); }
     public int acidCount() { return acids.size(); }
     public int potionCount() { return potions.size(); }
 
-    void tick() {
+    public void tick() {
         // Снимок нужен: эффекты/взрывы и ENTITY_UNLOAD могут синхронно изменить учтённые коллекции.
         cloudBatch.addAll(clouds.values());
         for (CloudState state : cloudBatch) {
@@ -359,7 +359,7 @@ public final class LbcClouds {
         game.items().exasperato().protectedBlast(cloud.getOwner(),(ServerLevel)cloud.level(),cloud.position(),4,null);
     }
 
-    AcidProjectile spawnAcid(AreaEffectCloud cloud) {
+    public AcidProjectile spawnAcid(AreaEffectCloud cloud) {
         var level = (ServerLevel) cloud.level();
         var projectile = new AcidProjectile(ACID_PROJECTILE, level);
         if (cloud.getOwner() != null) projectile.setOwner(cloud.getOwner());
@@ -376,7 +376,7 @@ public final class LbcClouds {
     }
 
     /** Малый кислотный жезл использует ту же сущность, физику, эффекты и lifecycle, что серное облако. */
-    void wandAcid(ServerPlayer owner, Vec3 origin) {
+    public void wandAcid(ServerPlayer owner, Vec3 origin) {
         var level=owner.level();
         for(int i=0;i<6;i++) {
             var projectile=new AcidProjectile(ACID_PROJECTILE,level);
@@ -398,7 +398,7 @@ public final class LbcClouds {
     }
 
     /** Обычный жезл сохраняет исходный разброс, но летит на общей нативной физике кислоты (user). */
-    AcidProjectile ordinaryWandAcid(ServerPlayer owner) {
+    public AcidProjectile ordinaryWandAcid(ServerPlayer owner) {
         var level=owner.level();
         float yaw=(Mth.floor(owner.getYRot()*100)+level.getRandom().nextInt(6001)-3000)*.01f;
         float pitch=(Mth.floor(owner.getXRot()*100)+level.getRandom().nextInt(4001)-2000)*.01f;
@@ -406,21 +406,21 @@ public final class LbcClouds {
     }
 
     /** Academy removes the ordinary aim spread while retaining its native acid physics and reactions. */
-    AcidProjectile academyWandAcid(ServerPlayer owner,boolean ignited) {
+    public AcidProjectile academyWandAcid(ServerPlayer owner,boolean ignited) {
         var shot=aimedWandAcid(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),true);
         if(ignited)shot.entityTags().add("on_fire");
         return shot;
     }
 
     /** Reuse acid physics/effects; source acid_get_id spreads each normal charge around the supplied aim. */
-    void magnumAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean big) {
+    public void magnumAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean big) {
         magnumAcid(owner,origin,direction,big,ItemStack.EMPTY);
     }
-    void magnumAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean big,ItemStack weapon) {
+    public void magnumAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean big,ItemStack weapon) {
         volleyAcid(owner,origin,direction,big?1:6,big,false,weapon);
     }
     /** Ordinary acid staff and its Academy variant share the already ported native acid owner. */
-    void volleyAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int count,boolean big,boolean ignited) {
+    public void volleyAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int count,boolean big,boolean ignited) {
         volleyAcid(owner,origin,direction,count,big,ignited,ItemStack.EMPTY);
     }
     private void volleyAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int count,boolean big,boolean ignited,ItemStack weapon) {
@@ -439,18 +439,18 @@ public final class LbcClouds {
     }
 
     /** Gaycaster's green Academy ray shares the awakened staff's ordinary seed. */
-    AcidProjectile greatAcid(ServerPlayer owner,Vec3 origin,Vec3 direction){
+    public AcidProjectile greatAcid(ServerPlayer owner,Vec3 origin,Vec3 direction){
         return awakenedAcid(owner,origin,direction,0,false);
     }
     /** All awakened modes retain native owner, reflection, collision, saved age and reactive acid semantics. */
-    AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited){
+    public AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited){
         return awakenedAcid(owner,origin,direction,variant,ignited,true);
     }
-    AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited,boolean audible){
+    public AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited,boolean audible){
         return awakenedAcid(owner,origin,direction,variant,ignited,audible,ItemStack.EMPTY);
     }
 
-    AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited,boolean audible,ItemStack weapon){
+    public AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited,boolean audible,ItemStack weapon){
         Vec3 aim=direction.normalize();float yaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
         var shot=new AcidProjectile(ACID_PROJECTILE,owner.level());shot.setOwner(owner);shot.setPos(origin);
@@ -465,7 +465,7 @@ public final class LbcClouds {
         if (!owner.level().addFreshEntity(shot)) shot.discard();
         if(audible)sound(owner.level(),origin,SoundEvents.ZOMBIE_VILLAGER_CURE,1,2,Double.POSITIVE_INFINITY,0);return shot;
     }
-    static int awakenedVariant(Entity entity){return entity.entityTags().contains(CAUST_ACID)?1:entity.entityTags().contains(BURST_ACID)?2:0;}
+    public static int awakenedVariant(Entity entity){return entity.entityTags().contains(CAUST_ACID)?1:entity.entityTags().contains(BURST_ACID)?2:0;}
     private void burstGreatAcid(AcidProjectile shot,Vec3 at){
         if(shot.isRemoved())return;
         if(shot.getOwner() instanceof ServerPlayer owner)for(int i=0;i<40;i++){
@@ -508,14 +508,14 @@ public final class LbcClouds {
         return projectile;
     }
 
-    AcidProjectile sauvojenAcid(ServerPlayer owner,Vec3 origin,Vec3 direction){
+    public AcidProjectile sauvojenAcid(ServerPlayer owner,Vec3 origin,Vec3 direction){
         float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))+(owner.getRandom().nextFloat()*2-1)*30;
         float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()))+(owner.getRandom().nextFloat()*2-1)*20;
         var shot=aimedWandAcid(owner,origin,yaw,pitch,true);
         LbcOverload.sound(owner,origin,"minecraft:entity.zombie_villager.cure",1,2,0);
         return shot;
     }
-    AcidProjectile flyingWandAcid(ServerPlayer owner,Vec3 origin,Vec3 direction) {
+    public AcidProjectile flyingWandAcid(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
         var shot=aimedWandAcid(owner,origin,yaw,pitch,false,direction);
@@ -528,7 +528,7 @@ public final class LbcClouds {
         return sourceAcid(level,origin,yaw,pitch,lifetime,shield,author,false);
     }
     /** Normal offensive trinket acid keeps source ID/team immunity and shared acid physics. */
-    AcidProjectile cinemaAcid(ServerPlayer author,Vec3 origin,float yaw,float pitch){
+    public AcidProjectile cinemaAcid(ServerPlayer author,Vec3 origin,float yaw,float pitch){
         var policy=new LbcSpellSource.Source(author.getUUID(),author.getUUID(),game.items().epoch(),
                 game.items().indirectKills().coldCause(author,true),java.util.Set.of());
         try(var scope=game.items().spellSources().scope(policy,author.level())){
@@ -539,7 +539,7 @@ public final class LbcClouds {
     }
 
     /** Normal offensive trinket acid keeps source ID/team immunity and shared acid physics. */
-    AcidProjectile trinketAcid(ServerPlayer author,Vec3 origin,float yaw,float pitch){
+    public AcidProjectile trinketAcid(ServerPlayer author,Vec3 origin,float yaw,float pitch){
         var policy=new LbcSpellSource.Source(author.getUUID(),author.getUUID(),game.items().epoch(),
                 game.items().indirectKills().coldCause(author,true),java.util.Set.of());
         try(var scope=game.items().spellSources().scope(policy,author.level())){
@@ -599,7 +599,7 @@ public final class LbcClouds {
     public List<AcidProjectile> acidSnapshot(){return List.copyOf(acids.keySet());}
 
     /** All acid variants share ignition, regardless of their author or damage target policy. */
-    void igniteAcid(ServerLevel level,Vec3 at,double radius){
+    public void igniteAcid(ServerLevel level,Vec3 at,double radius){
         if(game.items().timeStop().stopped(level))return;
         for(var acid:level.getEntitiesOfClass(AcidProjectile.class,new AABB(at,at).inflate(radius),
                 e->!e.isRemoved()&&!game.items().polymorph().suspended(e)
@@ -834,18 +834,18 @@ public final class LbcClouds {
         return new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),direct,owner);
     }
 
-    void stop() {
+    public void stop() {
         var entities = new ArrayList<Entity>();
         entities.addAll(clouds.keySet()); entities.addAll(acids.keySet()); entities.addAll(potions);
         clouds.clear(); acids.clear(); potions.clear();acidAuthors.clear();
         for (var entity : entities) entity.discard();
     }
 
-    static boolean cloneRecognizes(Entity e) {
+    public static boolean cloneRecognizes(Entity e) {
         return e instanceof AcidProjectile||e instanceof ThrownLingeringPotion p&&LbcItems.isChemicalPotion(p.getItem())
                 ||e instanceof AreaEffectCloud c&&LbcItems.chemicalAmplifier(c.get(DataComponents.POTION_CONTENTS))!=0;
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(source instanceof AreaEffectCloud c){var state=clouds.get(c);if(state==null)return null;
             int kind=state.kind,life=state.lifetime;var owner=c.getOwner();
             return CloneComplexProjectileStates.image(e->{var n=(AreaEffectCloud)e;n.setOwner(owner);

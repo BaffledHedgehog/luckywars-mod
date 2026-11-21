@@ -7,11 +7,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.component.CustomData;
 
 /** Source self/jump properties. No fake hit, function interpreter or extra tick owner. */
-final class LbcTmtSelfAbilities {
+public final class LbcTmtSelfAbilities {
     private LbcTmtSelfAbilities(){}
-    enum Group { CLASSIC, CHARGED, JUMP }
-    record Profile(String id,Group group,CustomData flags) {
-        LbcTmtAbilities.Ability ability(){return new LbcTmtAbilities.Ability(id,flags);}
+    public enum Group { CLASSIC, CHARGED, JUMP }
+    public record Profile(String id,Group group,CustomData flags) {
+        public LbcTmtAbilities.Ability ability(){return new LbcTmtAbilities.Ability(id,flags);}
     }
     private static Profile profile(String id,Group group,String flag,int value,int type){
         var data=new CompoundTag();data.putInt(flag,value);if(type!=0)data.putInt("type",type);
@@ -29,7 +29,7 @@ final class LbcTmtSelfAbilities {
             all.add(profile("jump/"+flag,Group.JUMP,flag,3,type));
         return List.copyOf(all);
     }
-    static List<Profile> catalog(){return PROFILES;}
+    public static List<Profile> catalog(){return PROFILES;}
 
     private static boolean admitted(GameController game,ServerPlayer owner){
         return owner!=null&&owner.isAlive()&&!owner.isRemoved()&&owner.level()==game.maps().level()
@@ -39,7 +39,7 @@ final class LbcTmtSelfAbilities {
     }
 
     /** The source group reads SelectedItem, even if the use event came from the other hand. */
-    static int swords(GameController game,ServerPlayer owner){
+    public static int swords(GameController game,ServerPlayer owner){
         if(!admitted(game,owner))return 0;
         var stack=owner.getMainHandItem();if(LbcTmtAbilities.active(stack))return 0;
         var slots=LbcTmtTriggers.effective(stack);int dispatched=0;
@@ -67,7 +67,7 @@ final class LbcTmtSelfAbilities {
     }
 
     /** Called once per source armor group. Each ordinary owner retains equipment and jammer checks. */
-    static void armor(GameController game,ServerPlayer owner){
+    public static void armor(GameController game,ServerPlayer owner){
         if(!admitted(game,owner))return;
         var items=game.items();
         items.armorSets().techno().jump(owner);
@@ -80,7 +80,7 @@ final class LbcTmtSelfAbilities {
     }
 
     /** Add private TMT types to the existing inventory union; repeated items never replay a jump. */
-    static int jumpMasks(CompoundTag root){
+    public static int jumpMasks(CompoundTag root){
         if(root.getIntOr("tmt_item",0)!=1)return 0;
         int masks=LbcTmtInventory.mysticalTypes(root,3);
         return (masks&14)|((masks>>>16)&14)<<4;

@@ -25,9 +25,10 @@ public final class LbcNexusTools {
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final Vec3[] NEIGHBORS={new Vec3(0,1,0),new Vec3(0,-1,0),new Vec3(0,0,1),new Vec3(0,0,-1),new Vec3(1,0,0),new Vec3(-1,0,0)};
     private static final double LOG_FAILURE=Math.log1p(-.002);
-    static final class Actor {
-        final Entity body;final LbcIndirectKills.Owner cause;final UUID rider;final Vec3 direction;
-        int age,born;
+    public static final class Actor {
+        public final Entity body;public final LbcIndirectKills.Owner cause;final UUID rider;final Vec3 direction;
+        public int age;
+        int born;
         Actor(Entity body,LbcIndirectKills.Owner cause,UUID rider,Vec3 direction,int age,int born){this.body=body;this.cause=cause;this.rider=rider;this.direction=direction;this.age=age;this.born=born;}
         boolean road(){return rider!=null;}
     }
@@ -46,14 +47,14 @@ public final class LbcNexusTools {
     private final Set<UUID> casting=new HashSet<>(),cooling=new HashSet<>();
     private int lastTick=Integer.MIN_VALUE;
     private boolean restoring;
-    LbcNexusTools(GameController game){this.game=game;}
+    public LbcNexusTools(GameController game){this.game=game;}
     public static void register(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:nexus_tools"),TICKET);}
     public static boolean matches(net.minecraft.world.item.ItemStack s){return LbcNexusToolItems.isRoadgun(s)||LbcNexusToolItems.isCorrupter(s);}
-    List<Actor> snapshot(){return List.copyOf(actors.values());}
-    int count(){return actors.size();}
+    public List<Actor> snapshot(){return List.copyOf(actors.values());}
+    public int count(){return actors.size();}
     int loadingChunks(){return chunks.size();}
     private boolean toolWorld(ServerLevel level){return !level.dimension().equals(LbcHedgehogDimensions.IMPRINTED);}
-    static boolean persistentCell(Entity entity){
+    public static boolean persistentCell(Entity entity){
         return entity instanceof Marker&&entity.level().dimension().equals(LbcHedgehogDimensions.NEXUS)
                 &&entity.entityTags().contains("sim_cube")&&entity.entityTags().contains("nexus_rc");
     }
@@ -85,7 +86,7 @@ public final class LbcNexusTools {
         actor.body.entityTags().add("rare");if(!persistentCell(actor.body))game.items().markCurrentItemEpoch(actor.body);
         actors.put(actor.body,actor);save(actor);if(!actor.road())cells.addLast(actor);
     }
-    Actor cube(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){
+    public Actor cube(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){
         var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(Vec3.atCenterOf(BlockPos.containing(point)));
         var actor=new Actor(marker,cause,null,Vec3.ZERO,0,game.server().getTickCount());install(actor);
         if(!level.addFreshEntity(marker)){remove(actor);return null;}return actor;
@@ -94,14 +95,14 @@ public final class LbcNexusTools {
     private static String value(Entity entity,String key,String fallback){String prefix=TAG+"."+key+".";for(var t:entity.entityTags())if(t.startsWith(prefix))return t.substring(prefix.length());return fallback;}
     private void save(Actor a){tag(a.body,"age",Integer.toString(a.age));if(a.cause!=null){tag(a.body,"owner",a.cause.player().toString());tag(a.body,"order",Long.toString(a.cause.order()));}
         if(a.rider!=null){tag(a.body,"rider",a.rider.toString());tag(a.body,"direction",a.direction.x+","+a.direction.y+","+a.direction.z);}}
-    void loaded(Entity body){
+    public void loaded(Entity body){
         if(restoring||actors.containsKey(body)||!body.entityTags().contains(TAG)&&!persistentCell(body))return;
         try{var owner=value(body,"owner","");var cause=owner.isEmpty()?null:new LbcIndirectKills.Owner(UUID.fromString(owner),Long.parseLong(value(body,"order","0")),true,false);
             var rider=value(body,"rider","");Vec3 direction=Vec3.ZERO;if(!rider.isEmpty()){var xyz=value(body,"direction","0,0,1").split(",");direction=new Vec3(Double.parseDouble(xyz[0]),Double.parseDouble(xyz[1]),Double.parseDouble(xyz[2]));}
             var actor=new Actor(body,cause,rider.isEmpty()?null:UUID.fromString(rider),direction,Integer.parseInt(value(body,"age","0")),-1);actors.put(body,actor);if(!actor.road())cells.addLast(actor);
         }catch(RuntimeException invalid){body.discard();}
     }
-    void unloaded(Entity body){actors.remove(body);}
+    public void unloaded(Entity body){actors.remove(body);}
     private void remove(Actor actor){actors.remove(actor.body);actor.body.discard();}
     private NativeChunkLoad.Residency residency(ServerLevel level,AABB bounds){
         if(bounds.maxY<level.getMinY()||bounds.minY>=level.getMaxY())return NativeChunkLoad.Residency.READY;
@@ -129,7 +130,7 @@ public final class LbcNexusTools {
     }
     private void block(ServerLevel level,BlockPos pos,Block value){if(!level.isOutsideBuildHeight(pos))LbcDropBlocks.setBlock(level,pos,value.defaultBlockState(),true);}
     /** Geometric skipping samples the exact independent .002 Bernoulli cells without visiting343 empty trials. */
-    static int nextSparse(net.minecraft.util.RandomSource random){return (int)Math.floor(Math.log1p(-random.nextDouble())/LOG_FAILURE);}
+    public static int nextSparse(net.minecraft.util.RandomSource random){return (int)Math.floor(Math.log1p(-random.nextDouble())/LOG_FAILURE);}
     private void road(Actor a){
         var p=game.server().getPlayerList().getPlayer(a.rider);var level=(ServerLevel)a.body.level();
         if(p==null||p.isRemoved()||!p.isAlive()||p.level()!=level||p.getVehicle()!=a.body||p.isShiftKeyDown()){if(p!=null&&p.getVehicle()==a.body)p.stopRiding();remove(a);return;}
@@ -163,7 +164,7 @@ public final class LbcNexusTools {
         if(level.getRandom().nextFloat()<.0025f)clearCells(level);
         remove(a);
     }
-    void clearCells(ServerLevel level){for(var other:List.copyOf(actors.values()))if(!other.road()&&other.body.level()==level)remove(other);cells.removeIf(a->a.body.level()==level);}
+    public void clearCells(ServerLevel level){for(var other:List.copyOf(actors.values()))if(!other.road()&&other.body.level()==level)remove(other);cells.removeIf(a->a.body.level()==level);}
     public void inventoryChanged(ServerPlayer p){if(game.items().mana().hudValue(p,"nexus_roadgun_cd")>0||game.items().mana().hudValue(p,"nexus_corrupter_cd")>0||game.items().mana().hudValue(p,"pulsar_cd")>0)cooling.add(p.getUUID());}
     public int cooldown(ServerPlayer p){String key=LbcNexusToolItems.isRoadgun(p.getMainHandItem())||LbcNexusToolItems.isRoadgun(p.getOffhandItem())?"nexus_roadgun_cd":LbcNexusToolItems.isCorrupter(p.getMainHandItem())||LbcNexusToolItems.isCorrupter(p.getOffhandItem())?"nexus_corrupter_cd":LbcNexusToolItems.isPulsar(p.getMainHandItem())||LbcNexusToolItems.isPulsar(p.getOffhandItem())?"pulsar_cd":null;return key==null?Integer.MIN_VALUE:game.items().mana().hudValue(p,key);}
     public void tick(){
@@ -181,7 +182,7 @@ public final class LbcNexusTools {
     private void clearRuntime(){casting.clear();for(var key:chunks.keySet())key.level().getChunkSource().removeTicketWithRadius(TICKET,key.pos(),0);chunks.clear();needed.clear();cooling.clear();}
     private void clearDerived(){actors.clear();cells.clear();clearRuntime();}
     public void stop(){for(var a:List.copyOf(actors.values()))remove(a);clearDerived();resetCooldowns();}
-    void roundEnded(){
+    public void roundEnded(){
         for(var a:List.copyOf(actors.values()))if(!persistentCell(a.body))remove(a);
         cells.removeIf(a->actors.get(a.body)!=a);clearRuntime();resetCooldowns();
     }
@@ -191,12 +192,12 @@ public final class LbcNexusTools {
             for(var holder:List.copyOf(board.getTrackedPlayers()))if(board.getPlayerScoreInfo(holder,objective)!=null)board.getOrCreatePlayerScore(holder,objective).set(0);
         }
     }
-    void prepareFrozen(){clearDerived();restoring=true;}
-    void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();for(var p:game.server().getPlayerList().getPlayers())inventoryChanged(p);}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public void prepareFrozen(){clearDerived();restoring=true;}
+    public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();for(var p:game.server().getPlayerList().getPlayers())inventoryChanged(p);}
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         final List<Image> images=actors.values().stream().map(a->new Image(a.body.getUUID(),a.cause,a.rider,a.direction,a.age)).toList();
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){var missing=new HashSet<UUID>();var restored=new ArrayList<Actor>();
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){var missing=new HashSet<UUID>();var restored=new ArrayList<Actor>();
             for(var image:images){var body=lookup.apply(image.id());if(body==null)missing.add(image.id());else restored.add(new Actor(body,image.cause(),image.rider(),image.direction(),image.age(),-1));}
             return new MatchFieldCheckpoint.Plan(Set.copyOf(missing),()->{actors.clear();cells.clear();for(var a:restored){actors.put(a.body,a);if(!a.road())cells.addLast(a);}});
         }

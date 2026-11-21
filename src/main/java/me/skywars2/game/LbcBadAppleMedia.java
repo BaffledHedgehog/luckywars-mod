@@ -10,7 +10,7 @@ import java.util.HexFormat;
 import java.util.Objects;
 
 /** Immutable source BAF2 bytes. Playback and checkpoint cursors belong to the caller. */
-final class LbcBadAppleMedia {
+public final class LbcBadAppleMedia {
     private static final String RESOURCE = "/skywars2/badapple.baf2";
     private static final int HEADER_BYTES = 16;
     private static final int SOURCE_BYTES = 10_678_950;
@@ -56,7 +56,7 @@ final class LbcBadAppleMedia {
     }
 
     /** Call during bootstrap to complete the sole resource read before any playback work. */
-    static LbcBadAppleMedia instance() { return Holder.INSTANCE; }
+    public static LbcBadAppleMedia instance() { return Holder.INSTANCE; }
 
     private static LbcBadAppleMedia load() {
         try (InputStream input = LbcBadAppleMedia.class.getResourceAsStream(RESOURCE)) {
@@ -68,11 +68,11 @@ final class LbcBadAppleMedia {
         }
     }
 
-    int width() { return width; }
-    int height() { return height; }
-    int frameCount() { return frameCount; }
-    int pixelCount() { return pixelCount; }
-    int frameBytes() { return frameBytes; }
+    public int width() { return width; }
+    public int height() { return height; }
+    public int frameCount() { return frameCount; }
+    public int pixelCount() { return pixelCount; }
+    public int frameBytes() { return frameBytes; }
 
     /** Literal frame zero followed by XOR deltas; no decoded frames are cached globally. */
     void decodeFrame(int targetFrame, byte[] destination) {
@@ -83,7 +83,7 @@ final class LbcBadAppleMedia {
     }
 
     /** Caller-owned packed absolute frame, useful for activation or checkpoint reconstruction. */
-    byte[] newFrame(int targetFrame) {
+    public byte[] newFrame(int targetFrame) {
         byte[] result = new byte[frameBytes];
         decodeFrame(targetFrame, result);
         return result;
@@ -93,7 +93,7 @@ final class LbcBadAppleMedia {
      * Move an absolute caller buffer forward or backward in O(abs(target-current) * stride).
      * XOR is reversible. A current index of -1 initializes the caller buffer from frame zero.
      */
-    void moveFrame(int currentFrame, int targetFrame, byte[] destination) {
+    public void moveFrame(int currentFrame, int targetFrame, byte[] destination) {
         checkFrame(targetFrame);
         checkBuffer(destination);
         if (currentFrame == -1) {
@@ -120,7 +120,7 @@ final class LbcBadAppleMedia {
     }
 
     /** Source order: z * width + x, least significant bit first; one means white concrete. */
-    boolean white(byte[] absoluteFrame, int pixel) {
+    public boolean white(byte[] absoluteFrame, int pixel) {
         checkBuffer(absoluteFrame);
         Objects.checkIndex(pixel, pixelCount);
         return (absoluteFrame[pixel >>> 3] & (1 << (pixel & 7))) != 0;

@@ -14,11 +14,11 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
 /** Bundled source constants. The same scoreboard operands drive mechanics and tooltips. */
 public final class LbcSourceConfig {
-    static final String RESOURCE = "/skywars2/source_config_defaults.json";
+    public static final String RESOURCE = "/skywars2/source_config_defaults.json";
     private final MinecraftServer server;
     private final Map<String, Integer> values;
 
-    LbcSourceConfig(MinecraftServer server) {
+    public LbcSourceConfig(MinecraftServer server) {
         this.server = server;
         this.values = loadValues();
         reload();
@@ -45,7 +45,7 @@ public final class LbcSourceConfig {
         return Collections.unmodifiableMap(values);
     }
 
-    boolean owns(String objective, String holder) {
+    public boolean owns(String objective, String holder) {
         return objective.equals("lbc.math") && values.containsKey(holder);
     }
 

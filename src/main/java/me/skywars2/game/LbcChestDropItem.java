@@ -76,7 +76,7 @@ public final class LbcChestDropItem {
         return !stack.isEmpty() && stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).matchedBy(kind.trigger);
     }
 
-    static Kind kind(ItemStack stack) {
+    public static Kind kind(ItemStack stack) {
         for (var kind : Kind.values()) if (matches(stack, kind)) return kind;
         return null;
     }

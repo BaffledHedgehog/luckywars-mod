@@ -36,7 +36,7 @@ public final class LbcSpecialDrops {
     private static boolean externalDrop(net.minecraft.world.item.ItemStack stack){
         return LbcAcademy.recognizedDrop(stack)||LbcHelicopterEncounter.isTrigger(stack)||LbcCrocodildo.trigger(stack);
     }
-    static boolean nativeRecognized(net.minecraft.world.item.ItemStack stack) {
+    public static boolean nativeRecognized(net.minecraft.world.item.ItemStack stack) {
         if(LbcTmtItems.token(stack))return true;
         return LbcAcademy.recognizedDrop(stack)||LbcHelicopterEncounter.isTrigger(stack)||LbcCrocodildo.trigger(stack)||LbcBalance.isDrop(stack) || LbcEternalWealthItems.isDrop(stack) || LbcLuckyBlocks.silkToken(stack) || LbcFamilyDrops.matches(stack) || LbcGrimoireDungeon.matches(stack) || LbcMagicBean.recognized(stack) || LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
     }
@@ -116,7 +116,7 @@ public final class LbcSpecialDrops {
     }
 
     /** Returns whether an active loaded attempt was dispatched, even when native placement fails. */
-    boolean spawn(ItemEntity token) {
+    public boolean spawn(ItemEntity token) {
         try(var scope=game.items().spellSources().lootScope(token)){
             if(LbcTmtDrops.matches(token.getItem())&&!LbcTmtAbilities.active(token.getItem()))return spawnTmt(token);
             return spawnScoped(token,true,true,true);
@@ -361,7 +361,7 @@ public final class LbcSpecialDrops {
     }
 
     /** Shared native replacement for dropped chests and growing Magic Bean rewards. */
-    static void placeLootChest(ServerLevel level, BlockPos pos, net.minecraft.resources.ResourceKey<net.minecraft.world.level.storage.loot.LootTable> table) {
+    public static void placeLootChest(ServerLevel level, BlockPos pos, net.minecraft.resources.ResourceKey<net.minecraft.world.level.storage.loot.LootTable> table) {
         if (!replaceContainer(level, pos)) return;
         var oldState = level.getBlockState(pos);
         var tag = new CompoundTag();
@@ -392,7 +392,7 @@ public final class LbcSpecialDrops {
     }
 
     /** Native body replay suppresses load callbacks; rebuild only the derived admission index. */
-    void reindexRestored(Iterable<Entity> bodies) {
+    public void reindexRestored(Iterable<Entity> bodies) {
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())
             throw new IllegalStateException("Reindex restored drops on the frozen native thread");
         stop();
@@ -406,5 +406,5 @@ public final class LbcSpecialDrops {
         lastTick = Integer.MIN_VALUE;
     }
 
-    int pendingCount() { return pending.size(); }
+    public int pendingCount() { return pending.size(); }
 }

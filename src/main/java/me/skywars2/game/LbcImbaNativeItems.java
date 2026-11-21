@@ -36,8 +36,8 @@ public final class LbcImbaNativeItems {
     public static final Item QUIVER_TRAPPING_ARROW=register("trapping_arrow",new TypedArrow(LbcUtilityItemPrototypes.deferredProperties("skywars2:trapping_arrow","/data/lbc/loot_table/item_defs/minecraft/tipped_arrow__4d9d3a4c2b22.json",Items.TIPPED_ARROW,64)));
     private LbcImbaNativeItems(){}
     public static void register(){LbcImbaNativeVariants.register();}
-    static java.util.List<Item> specialArrows(){return java.util.List.of(STRONG_ARROW,WEAK_ARROW,POISON_ARROW,REACTIVE_ARROW,EXPLOSIVE_ARROW,EVOKER_ARROW,PARALYZING_ARROW,ELECTRIC_ARROW);}
-    static java.util.List<Item> quiverArrows(){return java.util.List.of(QUIVER_STRONG_ARROW,QUIVER_WEAK_ARROW,QUIVER_POISON_ARROW,QUIVER_REACTIVE_ARROW,QUIVER_EXPLOSIVE_ARROW,QUIVER_EVOKER_ARROW,QUIVER_PARALYZING_ARROW,QUIVER_ELECTRIC_ARROW,QUIVER_LIGHTSHOOT_ARROW,QUIVER_KIUASKIVI_ARROW,QUIVER_TRAPPING_ARROW);}
+    public static java.util.List<Item> specialArrows(){return java.util.List.of(STRONG_ARROW,WEAK_ARROW,POISON_ARROW,REACTIVE_ARROW,EXPLOSIVE_ARROW,EVOKER_ARROW,PARALYZING_ARROW,ELECTRIC_ARROW);}
+    public static java.util.List<Item> quiverArrows(){return java.util.List.of(QUIVER_STRONG_ARROW,QUIVER_WEAK_ARROW,QUIVER_POISON_ARROW,QUIVER_REACTIVE_ARROW,QUIVER_EXPLOSIVE_ARROW,QUIVER_EVOKER_ARROW,QUIVER_PARALYZING_ARROW,QUIVER_ELECTRIC_ARROW,QUIVER_LIGHTSHOOT_ARROW,QUIVER_KIUASKIVI_ARROW,QUIVER_TRAPPING_ARROW);}
     private static Item register(String name,Item item){return Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+name),item);}
     private static Item.Properties properties(String name,String resource,Item carrier,int maximum,Set<String> dynamic){
         return LbcUtilityItemPrototypes.properties("skywars2:"+name,resource,carrier,maximum,dynamic,true);

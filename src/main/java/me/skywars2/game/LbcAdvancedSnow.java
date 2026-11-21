@@ -34,15 +34,15 @@ import java.util.Set;
 public final class LbcAdvancedSnow {
     static final String CLOUD="skywars2.wand.snow_cloud";
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
-    record Cloud(AreaEffectCloud entity,InteractionHand hand,ItemStack stack){}
+    public record Cloud(AreaEffectCloud entity,InteractionHand hand,ItemStack stack){}
     private final GameController game;
     private final Map<AreaEffectCloud,Cloud> clouds=new LinkedHashMap<>();
-    LbcAdvancedSnow(GameController game){this.game=game;}
-    List<Cloud> snapshot(){return List.copyOf(clouds.values());}
+    public LbcAdvancedSnow(GameController game){this.game=game;}
+    public List<Cloud> snapshot(){return List.copyOf(clouds.values());}
     private boolean active(ServerPlayer p){return game.items().mana().visible(p)&&!game.items().actionsBlocked(p)
             &&!p.entityTags().contains("time_stopped")&&!game.items().timeStop().stopped(p.level())
             &&!game.items().magic().suppressed(p)&&!game.items().magic().suppressedAt(p.level(),p.getEyePosition());}
-    boolean use(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean snow,boolean academy){
+    public boolean use(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean snow,boolean academy){
         if(!active(p))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Math.max(1,Math.min(3,data.getIntOr("mode",1)));
@@ -58,7 +58,7 @@ public final class LbcAdvancedSnow {
         if(!snow||!academy)game.items().wands().wandCasted(p);
         return true;
     }
-    void grimoire(ServerPlayer p,InteractionHand hand,boolean snow,boolean academy,int mode){
+    public void grimoire(ServerPlayer p,InteractionHand hand,boolean snow,boolean academy,int mode){
         if(snow&&!academy)spawn(p,p.getEyePosition(),hand,ItemStack.EMPTY);
         else aim(p,InteractionHand.MAIN_HAND,ItemStack.EMPTY,snow,academy,mode,0);
     }
@@ -67,7 +67,7 @@ public final class LbcAdvancedSnow {
         Vec3 from=p.getEyePosition().add(direction.scale(hand==InteractionHand.OFF_HAND?.5:0));
         aim(p,from,direction,hand,stack,snow,academy,mode,cost);
     }
-    void scriptCast(ServerPlayer p,InteractionHand hand,Vec3 from,Vec3 direction,boolean snow,boolean academy,int mode){
+    public void scriptCast(ServerPlayer p,InteractionHand hand,Vec3 from,Vec3 direction,boolean snow,boolean academy,int mode){
         if(snow&&!academy)spawn(p,from,hand,ItemStack.EMPTY);
         else aim(p,from,direction,hand,ItemStack.EMPTY,snow,academy,mode,0);
     }
@@ -155,14 +155,14 @@ public final class LbcAdvancedSnow {
     }
 
     private int inProgress,cadenceOffset;
-    void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish snow/ender native callbacks before checkpointing");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish snow/ender native callbacks before checkpointing");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Image(MatchDamageSources.Ref cloud,InteractionHand hand,MatchItemStackLinks.Ref stack){}
         private final List<Image> values;private final int phase=Math.floorMod(game.server().getTickCount()-cadenceOffset,5);
         Checkpoint(MatchSpellCheckpoint.Links links){values=clouds.values().stream().map(c->new Image(links.key(c.entity()),c.hand(),c.stack()==null?null:links.stack(game,c.stack()))).toList();}
-        void rebaseFrozen(){cadenceOffset=game.server().getTickCount()-phase;}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public void rebaseFrozen(){cadenceOffset=game.server().getTickCount()-phase;}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var next=new LinkedHashMap<AreaEffectCloud,Cloud>();for(var value:values){var cloud=(AreaEffectCloud)links.get(value.cloud);next.put(cloud,new Cloud(cloud,value.hand,value.stack==null?null:value.stack.get(links)));}
             return ()->{clouds.clear();clouds.putAll(next);cadenceOffset=game.server().getTickCount()-phase;};
         }
@@ -181,7 +181,7 @@ public final class LbcAdvancedSnow {
 
         }finally{inProgress--;}
     }
-    void pulse(Cloud state){
+    public void pulse(Cloud state){
         inProgress++;try {
         var cloud=state.entity();if(!(cloud.getOwner() instanceof ServerPlayer owner))return;
         int frozen=0;
@@ -193,7 +193,7 @@ public final class LbcAdvancedSnow {
 
         }finally{inProgress--;}
     }
-    void tick(){
+    public void tick(){
         inProgress++;try {for(var state:List.copyOf(clouds.values())){
         var cloud=state.entity();
         if(cloud.isRemoved()||!game.playing()||!game.items().currentEpoch(cloud)||!cloud.level().hasChunkAt(cloud.blockPosition())
@@ -203,10 +203,10 @@ public final class LbcAdvancedSnow {
     }
         }finally{inProgress--;}
     }
-    void loaded(Entity e){if(MatchActorCheckpoint.restoring(e))return;if(e instanceof AreaEffectCloud cloud&&e.entityTags().contains(CLOUD)){
+    public void loaded(Entity e){if(MatchActorCheckpoint.restoring(e))return;if(e instanceof AreaEffectCloud cloud&&e.entityTags().contains(CLOUD)){
         if(game.playing()&&game.items().currentEpoch(e)&&cloud.getOwner() instanceof ServerPlayer)clouds.putIfAbsent(cloud,new Cloud(cloud,null,null));else e.discard();
     }}
-    void unloaded(Entity e){if(MatchActorCheckpoint.restoring(e))return;if(e instanceof AreaEffectCloud cloud&&clouds.remove(cloud)!=null&&!cloud.isRemoved())cloud.discard();}
-    void forget(ServerPlayer p){for(var cloud:List.copyOf(clouds.keySet()))if(cloud.getOwner()==p)unloaded(cloud);}
-    void stop(){for(var cloud:List.copyOf(clouds.keySet()))unloaded(cloud);cadenceOffset=0;}
+    public void unloaded(Entity e){if(MatchActorCheckpoint.restoring(e))return;if(e instanceof AreaEffectCloud cloud&&clouds.remove(cloud)!=null&&!cloud.isRemoved())cloud.discard();}
+    public void forget(ServerPlayer p){for(var cloud:List.copyOf(clouds.keySet()))if(cloud.getOwner()==p)unloaded(cloud);}
+    public void stop(){for(var cloud:List.copyOf(clouds.keySet()))unloaded(cloud);cadenceOffset=0;}
 }

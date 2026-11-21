@@ -32,7 +32,7 @@ import net.minecraft.world.scores.ScoreHolder;
 import java.util.*;
 
 /** Source six-stage trial owns only its local helpers; colour casts use the shared resident ray queue. */
-final class LbcGaycasterAcademy {
+public final class LbcGaycasterAcademy {
     private static final int ELECTRIC_LANES=7;
     private static final double ELECTRIC_LANE_SPACING=4.5;
     private static final TagKey<Block> AIRS=tag("airs"),SOLID=tag("solid");
@@ -40,15 +40,15 @@ final class LbcGaycasterAcademy {
     private static final int[] COLORS={0xff0000,0xff8000,0xffff00,0x00ff00,0x00ffff,0x0000ff,0xff00ff};
     private final GameController game;
     private final Map<ServerPlayer,Trial> trials=new IdentityHashMap<>();
-    LbcGaycasterAcademy(GameController game){this.game=game;}
+    public LbcGaycasterAcademy(GameController game){this.game=game;}
     private static TagKey<Block> tag(String id){return TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:"+id));}
     /** Trial hazards deliberately have no team filter in the source. Keep native damage types and caster credit. */
-    static final class TrialDamage extends DamageSource {
+    public static final class TrialDamage extends DamageSource {
         TrialDamage(ServerPlayer owner,net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){
             super(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner);
         }
     }
-    boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack){
+    public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack){
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Mth.clamp(data.getIntOr("mode",1),1,8);
         if(owner.isShiftKeyDown()){
@@ -63,13 +63,13 @@ final class LbcGaycasterAcademy {
         cast(owner,color);game.items().wands().wandCasted(owner);return true;
     }
     private int cost(){return game.items().mana().score(ScoreHolder.forNameOnly("gaycaster_mana_use"),"lbc.math").get();}
-    void cast(ServerPlayer owner,int color){
+    public void cast(ServerPlayer owner,int color){
         Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle();
         LbcOverload.sound(owner,from,"minecraft:lbcsounds.laser_mg_shot",1,0,0);
         LbcOverload.sound(owner,from,"minecraft:item.trident.return",1,0,0);
         game.items().exasperato().replayableSpell(owner,from,direction,125,new LbcRainbowRay(game,owner,from,direction,color,COLORS[color-1]));
     }
-    void impact(ServerPlayer owner,Vec3 point,Vec3 direction,int color,LivingEntity direct){
+    public void impact(ServerPlayer owner,Vec3 point,Vec3 direction,int color,LivingEntity direct){
         if(game.items().magic().suppressedAt(owner.level(),point))return;
         var nearby=direct==null?owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(1.5),
                 e->e.position().distanceToSqr(point)<=2.25&&LbcGaycaster.target(game,owner,e)):
@@ -109,7 +109,7 @@ final class LbcGaycasterAcademy {
         });
         if(block==Blocks.LAVA)particles(owner,ParticleTypes.LAVA,point,10,0,0,0,.3);
     }
-    boolean meditate(ServerPlayer owner,InteractionHand hand,ItemStack stack){
+    public boolean meditate(ServerPlayer owner,InteractionHand hand,ItemStack stack){
         // Source meditation has an admission check, but neither debit nor cast_wand hook.
         if(game.items().mana().get(owner)<cost())return false;
         forget(owner);var trial=new Trial(owner,hand,stack);trials.put(owner,trial);title(owner,"meditation_gaycaster");
@@ -141,7 +141,7 @@ final class LbcGaycasterAcademy {
     int helperCount(ServerPlayer owner){var t=trials.get(owner);return t==null?0:t.hazards.size();}
     List<Hazard> hazardSnapshot(ServerPlayer owner){var t=trials.get(owner);return t==null?List.of():List.copyOf(t.hazards);}
     List<TrialWarningVisual> warningSnapshot(ServerPlayer owner){var t=trials.get(owner);return t==null?List.of():List.copyOf(t.warnings);}
-    void tick(){
+    public void tick(){
         for(var t:List.copyOf(trials.values())){
             if(!t.owner.isAlive()||t.owner.isRemoved()||!game.items().currentEpoch(t.epoch)||!game.playing()||game.isObserver(t.owner)
                     ||t.owner.level()!=t.level){finish(t,null);continue;}
@@ -301,19 +301,19 @@ final class LbcGaycasterAcademy {
         t.warnings.forEach(TrialWarningVisual::close);t.warnings.clear();t.remaining=0;counter(t);
         if(key!=null)t.owner.sendSystemMessage(Component.translatable(key).withStyle(net.minecraft.ChatFormatting.RED));
     }
-    void forget(ServerPlayer player){var t=trials.get(player);if(t!=null)finish(t,null);}
-    void loaded(Entity entity){
+    public void forget(ServerPlayer player){var t=trials.get(player);if(t!=null)finish(t,null);}
+    public void loaded(Entity entity){
         if(!entity.entityTags().contains("skywars2.gaycaster.trial"))return;
         // A display can return as a different Java object after a chunk reload. Only its live trial may reclaim it.
         for(var t:trials.values())if(game.items().currentEpoch(t.epoch)&&entity.level()==t.level)
             for(var h:t.hazards)if(entity.getUUID().equals(h.visual)){h.display=entity;return;}
         entity.discard();
     }
-    void unloaded(Entity entity){
+    public void unloaded(Entity entity){
         if(!entity.entityTags().contains("skywars2.gaycaster.trial"))return;
         for(var t:trials.values())for(var h:t.hazards)if(h.display==entity)h.display=null;
     }
-    void stop(){for(var t:List.copyOf(trials.values()))finish(t,null);}
+    public void stop(){for(var t:List.copyOf(trials.values()))finish(t,null);}
     /** Source trial particles are local; only its flash explicitly uses forced-distance delivery. */
     private static void trialParticles(ServerPlayer owner,net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double x,double y,double z,double speed){
         if(particle.getType()==ParticleTypes.FLASH)particles(owner,particle,point,count,x,y,z,speed);
@@ -323,9 +323,9 @@ final class LbcGaycasterAcademy {
         LbcGaycaster.particles(owner,particle,point,count,x,y,z,speed);
     }
 
-    boolean transientCaptureReady(){return trials.isEmpty();}
+    public boolean transientCaptureReady(){return trials.isEmpty();}
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var trial:trials.values())if(game.items().currentEpoch(trial.epoch))for(var hazard:trial.hazards)
             if(LbcPlanetoidSkill.near(game,holder,trial.level,hazard.at)
                     &&(hazard.display==null||!game.items().timeStop().frozen(hazard.display)

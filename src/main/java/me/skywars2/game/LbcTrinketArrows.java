@@ -50,7 +50,7 @@ public final class LbcTrinketArrows {
     public void ownerChanged(Entity actor,ServerPlayer owner){
         ownerChanged(actor,owner,null);
     }
-    void ownerChanged(Entity actor,ServerPlayer owner,LbcIndirectKills.Owner transferred){
+    public void ownerChanged(Entity actor,ServerPlayer owner,LbcIndirectKills.Owner transferred){
         if(!(actor instanceof Projectile)||!equivalent(actor)||(mask(actor)==0&&value(actor,AUTHOR)==null))return;
         var cause=transferred==null?game.items().indirectKills().coldCause(owner,true):transferred;
         actor.entityTags().removeIf(tag->tag.startsWith(AUTHOR)||tag.startsWith(ORDER)||tag.startsWith(TEAM));
@@ -196,13 +196,13 @@ public final class LbcTrinketArrows {
     public void unloaded(Entity entity){rockets.remove(entity);arrows.remove(entity);}
     private void retire(Display.ItemDisplay rocket){rockets.remove(rocket);rocket.discard();}
     public void stop(){for(var arrow:List.copyOf(arrows))arrow.discard();arrows.clear();for(var rocket:List.copyOf(rockets))retire(rocket);rockets.clear();}
-    List<Display.ItemDisplay> snapshot(){return List.copyOf(rockets);}
+    public List<Display.ItemDisplay> snapshot(){return List.copyOf(rockets);}
     List<AbstractArrow> arrowSnapshot(){return arrows.stream().filter(a->!a.isRemoved()&&a instanceof AbstractArrow).map(a->(AbstractArrow)a).toList();}
     List<Projectile> genericSnapshot(){return arrows.stream().filter(a->!a.isRemoved()).toList();}
-    int arrowMask(Entity arrow){return mask(arrow);}
-    static boolean cloneRecognizes(Entity entity){return entity.entityTags().contains(ROCKET_ACTOR);}
-    LbcCloneSkills.ActorImage cloneImage(Entity original){if(!(original instanceof Display.ItemDisplay)||!rockets.contains(original)||cause(original)==null)return null;
+    public int arrowMask(Entity arrow){return mask(arrow);}
+    public static boolean cloneRecognizes(Entity entity){return entity.entityTags().contains(ROCKET_ACTOR);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original){if(!(original instanceof Display.ItemDisplay)||!rockets.contains(original)||cause(original)==null)return null;
         return CloneComplexProjectileStates.image(clone->{rockets.add((Display.ItemDisplay)clone);game.items().spellSources().bind(clone,source(clone));},rockets::remove);}
-    void reindexRestored(Iterable<Entity> restored){rockets.clear();arrows.clear();for(var entity:restored)if(!entity.isRemoved()&&(cloneRecognizes(entity)||equivalent(entity)&&mask(entity)!=0))loaded(entity);}
+    public void reindexRestored(Iterable<Entity> restored){rockets.clear();arrows.clear();for(var entity:restored)if(!entity.isRemoved()&&(cloneRecognizes(entity)||equivalent(entity)&&mask(entity)!=0))loaded(entity);}
 }
 

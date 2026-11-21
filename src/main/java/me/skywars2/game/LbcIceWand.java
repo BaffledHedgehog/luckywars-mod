@@ -50,7 +50,7 @@ import net.minecraft.world.scores.ScoreHolder;
 import java.util.*;
 
 /** Permafrost's native snowball, paired crystals and Academy shatter. */
-final class LbcIceWand {
+public final class LbcIceWand {
     static final EntityType<IceShot> TYPE=registerType();
     static final float IMPACT_DAMAGE=5,CRYSTAL_DAMAGE=5,SHATTER_SPLASH_DAMAGE=10;
     static final float PLAYER_SHATTER_RATIO=.24f,MOB_SHATTER_RATIO=.4f;
@@ -59,7 +59,7 @@ final class LbcIceWand {
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
     private static final String SHOT_MODEL="lbc:ice_crystal_proj",CRYSTAL_MODEL="lbc:ice_crystal_small";
-    static void register(){}
+    public static void register(){}
     private static EntityType<IceShot> registerType(){
         var key=ResourceKey.create(Registries.ENTITY_TYPE,Identifier.parse("skywars2:ice_wand_projectile"));
         var type=Registry.register(BuiltInRegistries.ENTITY_TYPE,key,EntityType.Builder.<IceShot>of(IceShot::new,MobCategory.MISC)
@@ -67,16 +67,16 @@ final class LbcIceWand {
         PolymerEntityUtils.registerType(type);return type;
     }
     /** Adds only the native no-knockback tag, retaining FREEZE and its normal hurt cooldown. */
-    static final class ImpactSource extends DamageSource {
-        ImpactSource(Holder<DamageType> type,Entity direct,ServerPlayer owner){super(type,direct,owner);}
+    public static final class ImpactSource extends DamageSource {
+        public ImpactSource(Holder<DamageType> type,Entity direct,ServerPlayer owner){super(type,direct,owner);}
         @Override public boolean is(TagKey<DamageType> tag){return tag.equals(DamageTypeTags.NO_KNOCKBACK)||super.is(tag);}
     }
     /** The Academy selector is explicitly WILD; the shared damage guard recognizes this source. */
-    static final class WildSource extends DamageSource {
+    public static final class WildSource extends DamageSource {
         WildSource(Holder<DamageType> type,Entity direct,ServerPlayer owner){super(type,direct,owner);}
     }
-    static final class IceShot extends Snowball implements PolymerEntity {
-        LbcIceWand service;Display.ItemDisplay display;InteractionHand hand;ItemStack initiatingStack;int activeTicks;
+    public static final class IceShot extends Snowball implements PolymerEntity {
+        LbcIceWand service;public Display.ItemDisplay display;InteractionHand hand;public ItemStack initiatingStack;int activeTicks;
         LbcIndirectKills.Owner borrowedCause;
         IceShot(EntityType<? extends IceShot> type,Level level){super(type,level);}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
@@ -94,17 +94,17 @@ final class LbcIceWand {
         // Do not call Snowball.onHit: it performs another native zero/Blaze damage hit.
         @Override protected void onHit(HitResult result){if(service!=null)service.impact(this,result);else discard();}
     }
-    static final class Crystal {
-        final ServerPlayer owner;final InteractionHand hand;final ItemStack initiatingStack;
-        final Display.ItemDisplay display;final Interaction hitbox;final String epoch;final BlockKey block;
+    public static final class Crystal {
+        public final ServerPlayer owner;final InteractionHand hand;final ItemStack initiatingStack;
+        public final Display.ItemDisplay display;public final Interaction hitbox;final String epoch;final BlockKey block;
         final LbcIndirectKills.Owner borrowedCause;
-        int ticks;boolean removed;
+        public int ticks;public boolean removed;
         Crystal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Display.ItemDisplay display,Interaction hitbox,
                 String epoch,BlockKey block,LbcIndirectKills.Owner borrowedCause){
             this.owner=owner;this.hand=hand;this.initiatingStack=stack;this.display=display;this.hitbox=hitbox;this.epoch=epoch;this.block=block;
             this.borrowedCause=borrowedCause;
         }
-        Vec3 center(){return display.position();}
+        public Vec3 center(){return display.position();}
     }
     private record BlockKey(ServerLevel level,BlockPos pos){}
     private static final class Barrier {
@@ -116,10 +116,10 @@ final class LbcIceWand {
     private final Set<Crystal> crystals=new LinkedHashSet<>();
     private final Map<Entity,Crystal> actors=new IdentityHashMap<>();
     private final Map<BlockKey,Barrier> barriers=new HashMap<>();
-    LbcIceWand(GameController game){this.game=game;}
-    int count(){return shots.size()+crystals.size();}
-    List<Crystal> snapshot(){return List.copyOf(crystals);}
-    List<IceShot> shotSnapshot(){return List.copyOf(shots);}
+    public LbcIceWand(GameController game){this.game=game;}
+    public int count(){return shots.size()+crystals.size();}
+    public List<Crystal> snapshot(){return List.copyOf(crystals);}
+    public List<IceShot> shotSnapshot(){return List.copyOf(shots);}
     boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
@@ -133,11 +133,11 @@ final class LbcIceWand {
         }
         game.items().wands().wandCasted(owner);return true;
     }
-    IceShot spawn(ServerPlayer owner,InteractionHand hand,ItemStack stack){
+    public IceShot spawn(ServerPlayer owner,InteractionHand hand,ItemStack stack){
         return spawn(owner, hand, stack, owner.getEyePosition(), owner.getLookAngle(), null);
     }
 
-    boolean scriptShot(ServerPlayer owner, InteractionHand hand, ItemStack gift, Vec3 origin, Vec3 aim) {
+    public boolean scriptShot(ServerPlayer owner, InteractionHand hand, ItemStack gift, Vec3 origin, Vec3 aim) {
         var cause = game.items().indirectKills().itemCause(owner, false, true, gift);
         var shot = spawn(owner, hand, ItemStack.EMPTY, origin, aim, cause);
         if (shot.isRemoved()) return false;
@@ -145,7 +145,7 @@ final class LbcIceWand {
         return true;
     }
 
-    boolean scriptDetonate(ServerPlayer owner, ItemStack gift, Vec3 center, boolean academy) {
+    public boolean scriptDetonate(ServerPlayer owner, ItemStack gift, Vec3 center, boolean academy) {
         var magic = game.items().magic();
         if (!validOwner(owner, owner.level()) || magic.suppressed(owner)
                 || magic.suppressedAt(owner.level(), owner.getEyePosition())
@@ -211,7 +211,7 @@ final class LbcIceWand {
         var crystalAt=result instanceof net.minecraft.world.phys.BlockHitResult wall?at.add(wall.getDirection().getUnitVec3().scale(.01)):at;
         impact(shot,at,crystalAt,result instanceof net.minecraft.world.phys.BlockHitResult wall?wall:null);
     }
-    void impact(IceShot shot,Vec3 at){impact(shot,at,at);}
+    public void impact(IceShot shot,Vec3 at){impact(shot,at,at);}
     private void impact(IceShot shot,Vec3 at,Vec3 crystalAt){impact(shot,at,crystalAt,null);}
     private void impact(IceShot shot,Vec3 at,Vec3 crystalAt,net.minecraft.world.phys.BlockHitResult wall){
         if(!shots.contains(shot)||!(shot.getOwner() instanceof ServerPlayer owner))return;
@@ -240,7 +240,7 @@ final class LbcIceWand {
                 &&owner.getItemInHand(hand)==stack&&LbcAcademy.trial(stack))game.items().academy().ready(owner,hand,stack);
     }
     /** Source face priority is deterministic, including its second-distance fallback. */
-    Crystal spawnCrystal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 impact){
+    public Crystal spawnCrystal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 impact){
         return spawnCrystal(owner,hand,stack,impact,null,null);
     }
     private Crystal spawnCrystal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 impact,
@@ -272,13 +272,13 @@ final class LbcIceWand {
         if(!level.addFreshEntity(display)||display.isRemoved()||!level.addFreshEntity(hitbox)||hitbox.isRemoved()){remove(crystal);return null;}
         return crystal;
     }
-    Interaction crystalAt(ServerLevel level,BlockPos pos){
+    public Interaction crystalAt(ServerLevel level,BlockPos pos){
         var barrier=barriers.get(new BlockKey(level,pos));if(barrier==null)return null;
         for(var crystal:barrier.owners)if(!crystal.removed&&crystal.hitbox.isAlive())return crystal.hitbox;
         return null;
     }
-    boolean clickable(Entity entity){var crystal=actors.get(entity);return crystal!=null&&entity==crystal.hitbox&&!crystal.removed;}
-    net.minecraft.world.InteractionResult interact(ServerPlayer player,InteractionHand hand,Entity entity,Vec3 click){
+    public boolean clickable(Entity entity){var crystal=actors.get(entity);return crystal!=null&&entity==crystal.hitbox&&!crystal.removed;}
+    public net.minecraft.world.InteractionResult interact(ServerPlayer player,InteractionHand hand,Entity entity,Vec3 click){
         var crystal=actors.get(entity);
         if(crystal==null||entity!=crystal.hitbox||crystal.removed)return net.minecraft.world.InteractionResult.PASS;
         if(player.isUsingItem())return net.minecraft.world.InteractionResult.CONSUME;
@@ -299,7 +299,7 @@ final class LbcIceWand {
         }
         return result==net.minecraft.world.InteractionResult.PASS?net.minecraft.world.InteractionResult.CONSUME:result;
     }
-    boolean attack(ServerPlayer attacker,Entity target){
+    public boolean attack(ServerPlayer attacker,Entity target){
         var crystal=actors.get(target);if(crystal==null||target!=crystal.hitbox)return false;
         if(!game.items().actionsBlocked(attacker)&&!game.items().wands().inputTimeStopped(attacker))explode(crystal);return true;
     }
@@ -318,7 +318,7 @@ final class LbcIceWand {
         LbcOverload.sound(owner,at,"minecraft:block.glass.break",1,0,0);LbcOverload.sound(owner,at,"minecraft:block.deepslate.break",1,1,0);LbcOverload.sound(owner,at,"minecraft:entity.player.hurt_freeze",1,0,0);
         for(var nearby:crystals)if(nearby.display.level()==level&&nearby.hitbox.position().distanceToSqr(crystal.hitbox.position())<=9)nearby.ticks=Math.max(nearby.ticks,398);
     }
-    void shatter(ServerPlayer owner){
+    public void shatter(ServerPlayer owner){
         shatter(owner, owner.position(), null);
     }
     private void shatter(ServerPlayer owner,Vec3 center,LbcIndirectKills.Owner cause){
@@ -337,7 +337,7 @@ final class LbcIceWand {
         }
     }
     private static void particles(ServerLevel level,Vec3 at,int count,double speed){level.sendParticles(ParticleTypes.SNOWFLAKE,true,false,at.x,at.y,at.z,count,0,0,0,speed);}
-    void tick(){
+    public void tick(){
         for(var shot:List.copyOf(shots))if(!valid(shot))remove(shot);
         for(var crystal:List.copyOf(crystals)){
             var level=crystal.block.level;
@@ -362,16 +362,16 @@ final class LbcIceWand {
         }}
         crystal.display.discard();crystal.hitbox.discard();
     }
-    void loaded(Entity entity){
+    public void loaded(Entity entity){
         if(entity instanceof IceShot shot){if(shot.service==this&&game.items().currentEpoch(shot))shots.add(shot);else shot.discard();}
         else if(entity.entityTags().contains("skywars2.ice_crystal")&&!actors.containsKey(entity))entity.discard();
         else if(entity.entityTags().contains("skywars2.ice_display")&&!actors.containsKey(entity)&&shots.stream().noneMatch(s->s.display==entity))entity.discard();
     }
-    void unloaded(Entity entity){if(entity instanceof IceShot shot)remove(shot);else {var crystal=actors.get(entity);if(crystal!=null)remove(crystal);else for(var shot:List.copyOf(shots))if(shot.display==entity)remove(shot);}}
-    void forget(ServerPlayer owner){for(var shot:List.copyOf(shots))if(shot.getOwner()==owner)remove(shot);for(var crystal:List.copyOf(crystals))if(crystal.owner==owner)remove(crystal);}
-    void stop(){for(var shot:List.copyOf(shots))remove(shot);for(var crystal:List.copyOf(crystals))remove(crystal);barriers.clear();}
+    public void unloaded(Entity entity){if(entity instanceof IceShot shot)remove(shot);else {var crystal=actors.get(entity);if(crystal!=null)remove(crystal);else for(var shot:List.copyOf(shots))if(shot.display==entity)remove(shot);}}
+    public void forget(ServerPlayer owner){for(var shot:List.copyOf(shots))if(shot.getOwner()==owner)remove(shot);for(var crystal:List.copyOf(crystals))if(crystal.owner==owner)remove(crystal);}
+    public void stop(){for(var shot:List.copyOf(shots))remove(shot);for(var crystal:List.copyOf(crystals))remove(crystal);barriers.clear();}
 
-    LbcCloneSkills.ActorImage cloneImage(IceShot source) {
+    public LbcCloneSkills.ActorImage cloneImage(IceShot source) {
         var hand=source.hand;var stack=source.initiatingStack==null?ItemStack.EMPTY:source.initiatingStack.copy();
         int age=source.activeTicks;
         var cause=source.borrowedCause;
@@ -391,7 +391,7 @@ final class LbcIceWand {
     }
 
 
-    void directionChanged(Entity actor) {
+    public void directionChanged(Entity actor) {
         if(actor instanceof IceShot shot&&shot.display!=null)
             shot.display.snapTo(shot.getX(),shot.getY(),shot.getZ(),shot.getYRot(),shot.getXRot());
     }

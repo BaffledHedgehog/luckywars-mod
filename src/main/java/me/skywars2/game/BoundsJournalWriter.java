@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 /** Serial, coalescing disk writes. Only immutable coordinates cross the server-thread boundary. */
 public final class BoundsJournalWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger("skywars2/map-journal");
-    record Region(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) { }
-    record Snapshot(String dimension, List<Region> bounds) {
-        Snapshot {
+    public record Region(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) { }
+    public record Snapshot(String dimension, List<Region> bounds) {
+        public Snapshot {
             if (!dimension.matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))
                 throw new IllegalArgumentException("Invalid journal dimension");
             bounds = List.copyOf(bounds);
@@ -47,7 +47,7 @@ public final class BoundsJournalWriter {
     private boolean draining;
     private boolean closed;
 
-    BoundsJournalWriter(Set<Path> paths) { this(paths, BoundsJournalWriter::writeAtomic); }
+    public BoundsJournalWriter(Set<Path> paths) { this(paths, BoundsJournalWriter::writeAtomic); }
     BoundsJournalWriter(Set<Path> paths, Sink sink) {
         this.paths = paths.stream().map(path -> path.toAbsolutePath().normalize()).collect(java.util.stream.Collectors.toUnmodifiableSet());
         if (this.paths.isEmpty() || this.paths.size() > 2) throw new IllegalArgumentException("Only the two arena journals are supported");
@@ -55,7 +55,7 @@ public final class BoundsJournalWriter {
     }
 
     /** Pending revisions share one completion: it acknowledges the latest replacement snapshot. */
-    synchronized CompletableFuture<Boolean> submit(Path path, Snapshot snapshot) {
+    public synchronized CompletableFuture<Boolean> submit(Path path, Snapshot snapshot) {
         path = path.toAbsolutePath().normalize();
         if (!paths.contains(path)) throw new IllegalArgumentException("Unowned arena journal: " + path);
         if (closed) return CompletableFuture.completedFuture(false);
@@ -123,7 +123,7 @@ public final class BoundsJournalWriter {
     }
 
     /** Called only during server shutdown, never while processing a game tick. */
-    boolean shutdown() {
+    public boolean shutdown() {
         synchronized (this) { closed = true; worker.shutdown(); }
         try { return worker.awaitTermination(30, TimeUnit.SECONDS); }
         catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); return false; }

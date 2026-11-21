@@ -42,7 +42,7 @@ public final class AtlasGlitchSignal {
         if(changed&&player.connection!=null)player.sendPostEffects();
     }
     /** Tags and the native effect list participate in the existing player save/rewind image. */
-    static void synchronize(ServerPlayer player,boolean automatic){
+    public static void synchronize(ServerPlayer player,boolean automatic){
         var tags=player.entityTags();
         if(automatic){
             if(tags.add(AUTO)){
@@ -63,11 +63,11 @@ public final class AtlasGlitchSignal {
         return x + 3600 * y;
     }
 
-    static long code(ServerPlayer player){
+    public static long code(ServerPlayer player){
         var camera=player.getCamera();
         return 1_000_000_000L+cameraSeed(camera.getYRot(),camera.getXRot());
     }
-    static ClientboundSetTimePacket packet(ServerPlayer player,boolean enabled){
+    public static ClientboundSetTimePacket packet(ServerPlayer player,boolean enabled){
         var clock=player.registryAccess().lookupOrThrow(Registries.WORLD_CLOCK).getOrThrow(CLOCK);
         return new ClientboundSetTimePacket(player.level().getGameTime(),
                 Map.of(clock,new ClockNetworkState(enabled?code(player):0L,0F,0F)));

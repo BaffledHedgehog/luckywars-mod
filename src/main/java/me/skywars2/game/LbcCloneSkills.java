@@ -85,7 +85,7 @@ public final class LbcCloneSkills {
     public void clearPending(){checkpointBoundary();}
     public void checkpointBoundary(){if(cloning)throw new IllegalStateException("Finish cloning before checkpoint publication");}
     /** The canonical scanner owns its fairness cursor and counters, including virtual bodies. */
-    MatchQueuedWorkCheckpoint.Image checkpoint(){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(){
         checkpointBoundary();int cursor=ownerCursor;String scope=epoch;long seen=scanned,ops=operations,made=bodies,unavailable=unsupported,errors=failed;
         return links->{checkpointBoundary();return ()->{ownerCursor=cursor;epoch=scope;scanned=seen;operations=ops;bodies=made;unsupported=unavailable;failed=errors;};};
     }
@@ -109,7 +109,7 @@ public final class LbcCloneSkills {
         }
     }
     /** Native carriers moved by an ability rather than Entity.tick need the same birth-frame intake. */
-    void beforeOwnedStep(Collection<? extends Entity> actors){
+    public void beforeOwnedStep(Collection<? extends Entity> actors){
         if(actors.isEmpty()||cloning||!ready()||!game.playing()||game.maps().busy()||game.vanity().busy()
                 ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
         var sources=List.copyOf(actors);
@@ -120,7 +120,7 @@ public final class LbcCloneSkills {
             }
     }
     /** Each logical flight owner calls this before taking its movement snapshot, including same-frame births. */
-    void beforeVirtualStep(ToIntFunction<ServerPlayer> duplicate){
+    public void beforeVirtualStep(ToIntFunction<ServerPlayer> duplicate){
         if(cloning||!ready()||!game.playing()||game.maps().busy()||game.vanity().busy()
                 ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
         cloning=true;
@@ -192,7 +192,7 @@ public final class LbcCloneSkills {
         return ray?actor.entityTags().contains("slowraycast"):actor.getType().builtInRegistryHolder().is(PROJECTILES);
     }
     /** Package-only fixture entry, using the installed registry and ordinary eligibility. */
-    boolean copyNow(Entity original,int skill){
+    public boolean copyNow(Entity original,int skill){
         if(skill!=15&&skill!=17||!ready()||!baseEligible(original)||original.entityTags().contains(skill==15?"doubled":"quadried"))return false;
         boolean mob=skill==17&&mob(original);
         return (projectile(original)||mob)&&cloneActor(original,skill,mob,BODY_BUDGET);
@@ -210,13 +210,13 @@ public final class LbcCloneSkills {
         for(var child:source.getPassengers())if(!(child instanceof Player)&&baseEligible(child))snapshot(child,source,nodes,seen);
     }
     /** An auxiliary hidden gameplay body belongs to its form, never to the proximity scanner. */
-    final class Auxiliary {
+    public final class Auxiliary {
         private final List<Node> nodes;private final Map<Entity,Entity> family;private boolean retired;
         Auxiliary(List<Node> nodes,Map<Entity,Entity> family){this.nodes=nodes;this.family=family;}
-        Entity root(){return family.get(nodes.getFirst().source);}
-        void rollback(){if(!retired){retired=true;discard(nodes,family);family.values().forEach(game.items().polymorph()::releaseDetached);}}
+        public Entity root(){return family.get(nodes.getFirst().source);}
+        public void rollback(){if(!retired){retired=true;discard(nodes,family);family.values().forEach(game.items().polymorph()::releaseDetached);}}
     }
-    Auxiliary copyAuxiliary(Entity original,Consumer<Entity> beforePublish){
+    public Auxiliary copyAuxiliary(Entity original,Consumer<Entity> beforePublish){
         if(!cloning)throw new IllegalStateException("Auxiliary clone outside actor transaction");
         var nodes=snapshot(original);var family=construct(nodes,Vec3.ZERO,null,0);
         var handle=new Auxiliary(nodes,family);
@@ -300,11 +300,11 @@ public final class LbcCloneSkills {
             var score=objective==null?null:board.getPlayerScoreInfo(source,objective);
             if(score!=null)board.getOrCreatePlayerScore(target,objective).set(score.value());}
     }
-    static Vec3 spreadPosition(Vec3 p,Entity random){return new Vec3(
+    public static Vec3 spreadPosition(Vec3 p,Entity random){return new Vec3(
             (Math.floor(p.x*100)+random.getRandom().nextInt(401)-200)*.01,
             (Math.floor(p.y*100)+random.getRandom().nextInt(201))*.01,
             (Math.floor(p.z*100)+random.getRandom().nextInt(401)-200)*.01);}
-    static Vec3 spreadMotion(Vec3 v,Entity random,int scale,int spread){return new Vec3(
+    public static Vec3 spreadMotion(Vec3 v,Entity random,int scale,int spread){return new Vec3(
             (Math.floor(v.x*scale)+random.getRandom().nextInt(spread*2+1)-spread)/scale,
             (Math.floor(v.y*scale)+random.getRandom().nextInt(spread*2+1)-spread)/scale,
             (Math.floor(v.z*scale)+random.getRandom().nextInt(spread*2+1)-spread)/scale);}

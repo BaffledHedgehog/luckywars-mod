@@ -93,14 +93,14 @@ public final class SkyWarsFeedbackCommands {
         }
         return players.size();
     }
-    static int durationTicks(String argument){
+    public static int durationTicks(String argument){
         if(!argument.matches("[0-9]+[st]?"))throw new IllegalArgumentException("Time: seconds (10 or 10s), or ticks (200t)");
         boolean ticks=argument.endsWith("t"),suffix=ticks||argument.endsWith("s");
         try{long amount=Long.parseLong(suffix?argument.substring(0,argument.length()-1):argument);long value=Math.multiplyExact(amount,ticks?1:20);
             if(value<=0||value>Integer.MAX_VALUE)throw new ArithmeticException();return (int)value;
         }catch(ArithmeticException|NumberFormatException error){throw new IllegalArgumentException("Time must be positive and fit in 2147483647 ticks");}
     }
-    static void apply(GameController game, ServerPlayer player, String id, int ticks) {
+    public static void apply(GameController game, ServerPlayer player, String id, int ticks) {
         var status = STATUSES.get(id);
         if (status == null) throw new IllegalArgumentException("Unknown custom effect: " + id);
         if (!game.canUseGameplayItems(player) || !game.playing() || game.isObserver(player))

@@ -6,23 +6,23 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 
 /** Shared spell policy/control/summon state. Native bodies, teams and effects have canonical owners. */
-final class MatchSpellCheckpoint {
+public final class MatchSpellCheckpoint {
     private record Body(Class<?> kind,ServerLevel level) { }
-    static final class Links {
+    public static final class Links {
         private final MatchDamageSources sources;
         private final Map<MatchDamageSources.Ref,Body> saved=new LinkedHashMap<>();
         private Map<MatchDamageSources.Ref,Entity> current;
         private MatchItemStackLinks stacks;
         private final Set<MatchDamageSources.Image> accepted=new LinkedHashSet<>();
-        MatchDamageSources.Image damage(net.minecraft.world.damagesource.DamageSource value){var image=sources.capture(value);for(var next=image;next!=null;next=next.wrapped())accepted.add(next);return image;}
-        MatchItemStackLinks.Ref stack(GameController game,net.minecraft.world.item.ItemStack stack){if(stacks==null)stacks=new MatchItemStackLinks(game,this);return stacks.capture(stack);}
-        Links(MatchDamageSources sources){this.sources=sources;}
-        boolean omitted(Entity entity){return sources.omitted(entity);}
-        MatchDamageSources.Ref key(Entity entity){
+        public MatchDamageSources.Image damage(net.minecraft.world.damagesource.DamageSource value){var image=sources.capture(value);for(var next=image;next!=null;next=next.wrapped())accepted.add(next);return image;}
+        public MatchItemStackLinks.Ref stack(GameController game,net.minecraft.world.item.ItemStack stack){if(stacks==null)stacks=new MatchItemStackLinks(game,this);return stacks.capture(stack);}
+        public Links(MatchDamageSources sources){this.sources=sources;}
+        public boolean omitted(Entity entity){return sources.omitted(entity);}
+        public MatchDamageSources.Ref key(Entity entity){
             if(entity==null)return null;var ref=sources.bodyRef(entity);
             saved.putIfAbsent(ref,new Body(entity.getClass(),(ServerLevel)entity.level()));return ref;
         }
-        Set<UUID> resolve(Function<UUID,Entity> lookup){
+        public Set<UUID> resolve(Function<UUID,Entity> lookup){
             var pending=new LinkedHashSet<UUID>();var next=new HashMap<MatchDamageSources.Ref,Entity>();
             saved.forEach((ref,body)->{var entity=MatchDamageSources.resolve(ref,lookup,pending);
                 if(entity!=null){if(entity.getClass()!=body.kind||ref.historical()==null&&(!MatchOfflinePlayers.retained(entity)&&(entity.isRemoved()||entity.level()!=body.level)))
@@ -35,16 +35,18 @@ final class MatchSpellCheckpoint {
             }
             current=pending.isEmpty()?next:null;if(current!=null&&stacks!=null)stacks.resolve();return Set.copyOf(pending);
         }
-        Entity get(MatchDamageSources.Ref ref){return ref==null?null:Objects.requireNonNull(current.get(ref));}
+        public Entity get(MatchDamageSources.Ref ref){return ref==null?null:Objects.requireNonNull(current.get(ref));}
     }
     /** Only immutable values; clone the reviewed identity table so saved traversal order survives growth. */
-    static final class IdentityImage<K extends Entity,V> {
+    public static final class IdentityImage<K extends Entity,V> {
         private final IdentityHashMap<K,V> image;
         private final IdentityHashMap<K,MatchDamageSources.Ref> keys=new IdentityHashMap<>();
-        @SuppressWarnings("unchecked") IdentityImage(IdentityHashMap<K,V> map,Links links){
+        @SuppressWarnings("unchecked")
+        public IdentityImage(IdentityHashMap<K,V> map,Links links){
             image=(IdentityHashMap<K,V>)map.clone();for(var key:map.keySet())keys.put(key,links.key(key));
         }
-        @SuppressWarnings("unchecked") IdentityHashMap<K,V> restore(Links links){
+        @SuppressWarnings("unchecked")
+        public IdentityHashMap<K,V> restore(Links links){
             var result=(IdentityHashMap<K,V>)image.clone();keys.forEach((old,ref)->{var current=(K)links.get(ref);
                 if(current!=old){var value=result.remove(old);result.put(current,value);}});return result;
         }
@@ -65,7 +67,7 @@ final class MatchSpellCheckpoint {
     private final LbcSteampunkRocket.Checkpoint rockets;
     private final Map<UUID,MatchDamageSources.Ref> rocketBodies=new LinkedHashMap<>();
     private boolean prepared,installed,published;
-    MatchSpellCheckpoint(GameController game,MatchDamageSources sources){
+    public MatchSpellCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);links=new Links(sources);
         policies=game.items().spellSources().checkpoint(links);controls=game.items().communism().checkpoint(links);
         summons=game.items().summons().checkpoint(links);danmaku=game.items().danmaku().checkpoint(links);
@@ -83,7 +85,7 @@ final class MatchSpellCheckpoint {
     Set<UUID> actorIds(){return rockets.actorIds();}
     /** Export/residency prerequisite for actors already unloaded at capture. */
     Set<UUID> unresidentActorIds(){var ids=new LinkedHashSet<>(rockets.actorIds());ids.removeAll(rocketBodies.keySet());return Set.copyOf(ids);}
-    void prepareFrozen(){
+    public void prepareFrozen(){
         stable(true);game.items().steampunkRocket().prepareFrozen();game.items().terra().prepareFrozen();game.items().lifetimes().stop();prepared=true;installed=false;published=false;
     }
     private void stable(boolean frozen){
@@ -94,8 +96,8 @@ final class MatchSpellCheckpoint {
         game.items().cloneSkills().checkpointBoundary();game.items().symbioteSkill().checkpointBoundary();
     }
     /** Resolve and prepare EVERY map/queue first. Missing bodies defer the entire private install. */
-    Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){return restoreFrozen(lookup,true);}
-    Set<UUID> restoreFrozen(Function<UUID,Entity> lookup,boolean rewind){
+    public Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){return restoreFrozen(lookup,true);}
+    public Set<UUID> restoreFrozen(Function<UUID,Entity> lookup,boolean rewind){
         stable(true);if(!prepared)prepareFrozen();
         var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
         var rocketPlan=rockets.prepare(id->{var ref=rocketBodies.get(id);return ref==null?lookup.apply(id):links.get(ref);});
@@ -128,7 +130,7 @@ final class MatchSpellCheckpoint {
         return Set.of();
     }
     /** Client presentation waits for the outer canonical body/authority/status publication phase. */
-    void publishFrozen(){
+    public void publishFrozen(){
         stable(true);if(published)return;
         if(!installed)throw new IllegalStateException("Install spell actors before presentation publication");
         game.items().steampunkRocket().publishFrozen();terra.publish(links);

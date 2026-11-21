@@ -31,7 +31,7 @@ public final class LbcAbsoluteCinema {
     private int trumpRule,callbacks;private boolean retaliating,restoring;
 
     public LbcAbsoluteCinema(GameController game){this.game=game;rockets=new LbcOreshnik(game);}
-    static Role roleFor(int roll){
+    public static Role roleFor(int roll){
         if(roll<1||roll>601)throw new IllegalArgumentException("Cinema roll must be in 1..601");
         return roll==601?Role.NAHIDA:Role.values()[(roll-1)/100];
     }
@@ -43,7 +43,7 @@ public final class LbcAbsoluteCinema {
         if(restoring||!game.lbc().hasSkill(player,35)||roles.containsKey(player.getUUID()))return false;
         startRoll(player,player.getRandom().nextInt(601)+1,originalCenters);return true;
     }
-    void startRoll(ServerPlayer player,int roll,List<Vec3> originalCenters){
+    public void startRoll(ServerPlayer player,int roll,List<Vec3> originalCenters){
         if(roles.containsKey(player.getUUID()))throw new IllegalStateException("Cinema start already granted");
         var role=roleFor(roll);roles.put(player.getUUID(),new State(role,game.items().epoch(),false,false,null,false));
         if(!role.tag.isEmpty())player.entityTags().add(role.tag);
@@ -160,14 +160,14 @@ public final class LbcAbsoluteCinema {
     }
     /** Clone only logical state; inventory/native actor adapters already own their actual copies. */
     public void copyPlayer(ServerPlayer original,ServerPlayer copy){var state=current(original);if(state!=null){roles.put(copy.getUUID(),state);bodyReady(copy);}}
-    void boundary(){if(callbacks!=0||retaliating)throw new IllegalStateException("Finish Cinema criterion before snapshot");rockets.boundary();}
-    void prepareFrozen(){boundary();restoring=true;rockets.prepareFrozen();}
-    void publishFrozen(){boundary();restoring=false;rockets.publishFrozen();}
-    void cancelFrozen(){boundary();restoring=false;rockets.publishFrozen();}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){boundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void boundary(){if(callbacks!=0||retaliating)throw new IllegalStateException("Finish Cinema criterion before snapshot");rockets.boundary();}
+    public void prepareFrozen(){boundary();restoring=true;rockets.prepareFrozen();}
+    public void publishFrozen(){boundary();restoring=false;rockets.publishFrozen();}
+    public void cancelFrozen(){boundary();restoring=false;rockets.publishFrozen();}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){boundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         final Map<UUID,State> image=Collections.unmodifiableMap(new LinkedHashMap<>(roles));final int rule=trumpRule;final LbcOreshnik.Checkpoint flight;
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){flight=rockets.checkpoint(graph);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var install=flight.prepare(links);return ()->{roles=new LinkedHashMap<>(image);trumpRule=rule;install.run();};}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var install=flight.prepare(links);return ()->{roles=new LinkedHashMap<>(image);trumpRule=rule;install.run();};}
     }
 }

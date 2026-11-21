@@ -18,7 +18,7 @@ public final class LbcFleshArmor {
     private final Predicate<ServerPlayer> eligible;
 
     LbcFleshArmor(GameController game,Predicate<ServerPlayer> eligible){this.game=game;this.eligible=eligible;}
-    static boolean full(ServerPlayer player){
+    public static boolean full(ServerPlayer player){
         for(var slot:SLOTS){var stack=player.getItemBySlot(slot);if(stack.isEmpty()||LbcFartus.data(stack).getIntOr("flesh",0)!=1)return false;}
         return true;
     }

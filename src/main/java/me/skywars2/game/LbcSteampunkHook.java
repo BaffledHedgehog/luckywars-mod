@@ -132,7 +132,7 @@ public final class LbcSteampunkHook {
     public void clear(ServerPlayer p){var ticket=requests.remove(p.getUUID());if(ticket!=null)ticket.cancel();
         if(p.getAttached(FLIGHT)!=null){p.removeAttached(FLIGHT);game.items().ownedEffects().withdraw(p,LANDING);}}
     public void reset(ServerPlayer p){clear(p);game.items().mana().score(p,"hook_cooldown").set(0);}
-    void transformOrigins(net.minecraft.server.level.ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+    public void transformOrigins(net.minecraft.server.level.ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
         for(var p:game.server().getPlayerList().getPlayers())if(p.level()==level){
             var d=p.getAttached(FLIGHT);if(d==null)continue;
             var next=d.copy();vector(next,"anchor",transform.apply(vector(d,"anchor")));

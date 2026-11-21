@@ -62,12 +62,12 @@ public final class LbcPhoenixSkill {
     }
     public void forget(ServerPlayer p){members.remove(p.getUUID());}
     public void stop(){members.clear();}
-    void prepareFrozen(){restoring=true;}
-    void publishFrozen(){restoring=false;}
-    void cancelFrozen(){restoring=false;}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint();}
-    final class Checkpoint {
+    public void prepareFrozen(){restoring=true;}
+    public void publishFrozen(){restoring=false;}
+    public void cancelFrozen(){restoring=false;}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint();}
+    public final class Checkpoint {
         final Map<UUID,State> image=Collections.unmodifiableMap(new LinkedHashMap<>(members));
-        Runnable prepare(MatchSpellCheckpoint.Links links){return ()->members=new LinkedHashMap<>(image);}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){return ()->members=new LinkedHashMap<>(image);}
     }
 }

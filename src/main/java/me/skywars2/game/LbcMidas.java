@@ -151,12 +151,12 @@ public final class LbcMidas {
         BodyFill copy(){var copy=new BodyFill(minX,minY,minZ,maxX,maxY,maxZ);copy.x=x;copy.y=y;copy.z=z;return copy;}
     }
     public void stop(){for(var wave:List.copyOf(waves))wave.cancel();}
-    void prepareFrozen(){restoring=true;waves=new LinkedHashSet<>();}
-    void publishFrozen(){restoring=false;}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void prepareFrozen(){restoring=true;waves=new LinkedHashSet<>();}
+    public void publishFrozen(){restoring=false;}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
+    public final class Checkpoint {
         private final Set<Wave> saved;
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){saved=new LinkedHashSet<>(waves);saved.forEach(graph::capture);}
-        Runnable prepare(){return ()->waves=new LinkedHashSet<>(saved);}
+        public Runnable prepare(){return ()->waves=new LinkedHashSet<>(saved);}
     }
 }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /** Narrow per-body owner images; published queues and player controller authority stay with their owners. */
-final class CloneOtherActorStates {
+public final class CloneOtherActorStates {
     private CloneOtherActorStates() { }
     static boolean recognizes(Entity actor) {
         var game=SkyWars2.game();
@@ -16,7 +16,7 @@ final class CloneOtherActorStates {
                 || LbcAntDrops.managed(actor) || LbcDroneDrops.managed(actor)
                 || game!=null&&game.items().libraryRandom().cloneManaged(actor);
     }
-    static boolean protectedActor(Entity actor) {
+    public static boolean protectedActor(Entity actor) {
         var game=SkyWars2.game();
         if(game!=null&&game.items().bridgeBuilder().protectedCloneActor(actor))return true;
         return LbcBadApple.managed(actor)&&actor instanceof net.minecraft.world.entity.Display||LbcFpvDrone.cloneProtected(actor)||LbcTransformator.cloneProtected(actor)

@@ -38,7 +38,7 @@ import java.util.Set;
 public final class LbcRuby {
     public static final EntityType<Charge> TYPE=registerType();
     private static final Identifier HOLE=Identifier.parse("lbc:air_sphere_7x7x7");
-    static final Identifier MEDITATION=Identifier.parse("lbc:air_sphere_11x11x11");
+    public static final Identifier MEDITATION=Identifier.parse("lbc:air_sphere_11x11x11");
     private static final int DRILL_SAMPLES_PER_TICK=6;
     private static final double DRILL_STEP=.3;
     private static final double DRILL_HALF=.6;
@@ -64,8 +64,8 @@ public final class LbcRuby {
     public static void register() { }
 
     public static final class Charge extends Projectile implements PolymerEntity {
-        int age;
-        int sourceLifetime;
+        public int age;
+        public int sourceLifetime;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -73,15 +73,15 @@ public final class LbcRuby {
         @Override public boolean isPushedByFluid() { return false; }
     }
 
-    LbcRuby(GameController game) { this.game=game; }
+    public LbcRuby(GameController game) { this.game=game; }
     public void prepare() {
         game.server().getStructureTemplateManager().get(HOLE);
         game.server().getStructureTemplateManager().get(MEDITATION);
     }
     public int count() { return charges.size(); }
-    List<Charge> snapshot() { return List.copyOf(charges); }
+    public List<Charge> snapshot() { return List.copyOf(charges); }
 
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
                     || !(charge.getOwner() instanceof ServerPlayer))) cleanup(charge);
@@ -91,7 +91,7 @@ public final class LbcRuby {
             }
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof Charge charge) { charges.remove(charge); cleanup(charge); }
     }
 
@@ -111,13 +111,13 @@ public final class LbcRuby {
             default->throw new IllegalArgumentException("Ruby producer mode "+mode);
         }
     }
-    boolean scriptDrill(ServerPlayer owner, Vec3 origin, Vec3 aim) {
+    public boolean scriptDrill(ServerPlayer owner, Vec3 origin, Vec3 aim) {
         if (!validOwner(owner)) return false;
         var charge = castAt(owner, origin, aim, false, 0);
         return charge != null && !charge.isRemoved();
     }
 
-    boolean scriptRay(ServerPlayer owner, Vec3 origin, Vec3 aim, boolean compression) {
+    public boolean scriptRay(ServerPlayer owner, Vec3 origin, Vec3 aim, boolean compression) {
         if (!validOwner(owner)) return false;
         if (compression) holeRay(owner, origin, aim);
         else cuttingRay(owner, origin, aim);
@@ -150,7 +150,7 @@ public final class LbcRuby {
         return charge;
     }
 
-    void tick() {
+    public void tick() {
         if(charges.isEmpty()) return;
         batch.addAll(charges);
         try {
@@ -295,7 +295,7 @@ for(double step=0;step<=RAY_RANGE+1e-7&&step<boundary;step+=RAY_SAMPLE) {
         var pending=List.copyOf(charges); charges.clear(); batch.clear(); pending.forEach(this::cleanup);
     }
     Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.items().spellSources().authorPlayer(source),origin,direction);}}
-    Charge flying(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return flying(game.items().spellSources().authorPlayer(source),origin,direction);}}
+    public Charge flying(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return flying(game.items().spellSources().authorPlayer(source),origin,direction);}}
     private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
         if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
         else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);

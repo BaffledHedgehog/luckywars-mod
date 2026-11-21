@@ -13,11 +13,11 @@ import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.context.UseOnContext;
 
 /** The genuine use-on context and native factory own placement geometry, permissions and the sole debit. */
-final class LbcTmtBlockUses {
+public final class LbcTmtBlockUses {
     private LbcTmtBlockUses(){}
     static boolean supports(Item item){return item==LbcCrocodildoItems.NUKE||item==LbcImbaNativeItems.FIREWORK||item==LbcCorruptedGlyphs.DUST||shulkerItem(item)||item instanceof SpawnEggItem||BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("skywars2")
             &&(item instanceof BlockItem||item instanceof LbcMarkerEggItem||item instanceof LbcPumpkinatorItem||item instanceof SpawnEggItem);}
-    static Item canonical(ItemStack stack){
+    public static Item canonical(ItemStack stack){
         // The bare registered transport has no glyph selector; only authored kinds own use-on.
         if(stack.is(LbcCorruptedGlyphs.DUST))return LbcCorruptedGlyphs.kind(stack)!=null?LbcCorruptedGlyphs.DUST:null;
         if(stack.is(net.minecraft.world.item.Items.FIREWORK_ROCKET)&&stack.has(DataComponents.FIREWORKS)
@@ -36,13 +36,13 @@ final class LbcTmtBlockUses {
         return null;
     }
     private static boolean vanillaEgg(Item item){return item instanceof SpawnEggItem&&BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("minecraft");}
-    static boolean authoredEgg(ItemStack stack,Item item){return vanillaEgg(item)&&stack.has(DataComponents.ENTITY_DATA)
+    public static boolean authoredEgg(ItemStack stack,Item item){return vanillaEgg(item)&&stack.has(DataComponents.ENTITY_DATA)
             &&!java.util.Objects.equals(stack.get(DataComponents.ENTITY_DATA),item.getDefaultInstance().get(DataComponents.ENTITY_DATA));}
     static String eggFamily(ItemStack stack){return authoredEgg(stack,stack.getItem())?"vanilla_summon/"+BuiltInRegistries.ENTITY_TYPE.getKey(stack.get(DataComponents.ENTITY_DATA).type()):null;}
     private static boolean shulkerItem(Item item){return item==net.minecraft.world.item.Items.DYED_SHULKER_BOX.pick(net.minecraft.world.item.DyeColor.BLACK)
             ||item==net.minecraft.world.item.Items.DYED_SHULKER_BOX.pick(net.minecraft.world.item.DyeColor.YELLOW);}
     /** Exact authored loot contract; the old table has no flag. Bare vanilla boxes are excluded. */
-    static boolean authoredShulker(ItemStack stack){
+    public static boolean authoredShulker(ItemStack stack){
         if(!shulkerItem(stack.getItem()))return false;
         var loot=stack.get(net.minecraft.core.component.DataComponents.CONTAINER_LOOT);if(loot==null)return false;
         var id=loot.lootTable().identifier().toString();
@@ -54,8 +54,8 @@ final class LbcTmtBlockUses {
                 &&id.equals("lbc:infinity_upgraded_luck")&&ItemData.intValue(stack,"sigma_shulker",0)==1;
     }
     private static Item selected(ItemStack stack){var item=LbcTmtAbilities.nativePredicatesActive()?LbcTmtAbilities.nativePredicateItem(stack):null;return item==null?stack.getItem():item;}
-    static boolean airCandidate(ItemStack stack){var item=selected(stack);return (!vanillaEgg(item)||authoredEgg(stack,item))&&item!=LbcCorruptedGlyphs.DUST&&(supports(item)&&!(item instanceof BlockItem)||LbcTmtNativeThrows.canonical(stack)==item);}
-    static boolean air(GameController game,ServerPlayer player,InteractionHand hand){var stack=player.getItemInHand(hand);var item=selected(stack);return airCandidate(stack)&&item.use(player.level(),player,hand).consumesAction();}
+    public static boolean airCandidate(ItemStack stack){var item=selected(stack);return (!vanillaEgg(item)||authoredEgg(stack,item))&&item!=LbcCorruptedGlyphs.DUST&&(supports(item)&&!(item instanceof BlockItem)||LbcTmtNativeThrows.canonical(stack)==item);}
+    public static boolean air(GameController game,ServerPlayer player,InteractionHand hand){var stack=player.getItemInHand(hand);var item=selected(stack);return airCandidate(stack)&&item.use(player.level(),player,hand).consumesAction();}
     static int use(GameController game,UseOnContext context){
         if(!(context.getPlayer() instanceof ServerPlayer player))return 0;var stack=context.getItemInHand();int accepted=0;
         for(var property:LbcTmtTriggers.effective(stack)){

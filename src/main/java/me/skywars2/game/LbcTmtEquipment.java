@@ -10,7 +10,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
 
 /** Native stack components which compose without replacing the carrier's input, stats or appearance. */
-final class LbcTmtEquipment {
+public final class LbcTmtEquipment {
     private LbcTmtEquipment(){}
     static final String KEY="tmt_equipment_components";
     record Property(String name,DataComponentType<?> type) {
@@ -32,7 +32,7 @@ final class LbcTmtEquipment {
     private static <T>void capture(DataComponentPatch.Builder patch,ItemStack source,DataComponentType<T> type){patch.set(type,source.get(type));}
 
     /** Generation only. Native equipment/mining/fire checks consume the real component afterward. */
-    static void apply(GameController game,ItemStack stack){
+    public static void apply(GameController game,ItemStack stack){
         for(var selected:LbcTmtAbilities.read(stack))for(var property:PROPERTIES)if(selected.id().equals(property.id())){
             var data=(ItemData.IntReader)(Object)selected.data();if(!data.skywars2$contains(KEY))continue;
             var patch=DataComponentPatch.CODEC.parse(game.server().registryAccess().createSerializationContext(NbtOps.INSTANCE),selected.data().copyTag().get(KEY)).getOrThrow();

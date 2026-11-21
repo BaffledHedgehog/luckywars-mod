@@ -65,7 +65,7 @@ public final class LbcTransformator {
     // Causes survive terminal removal while a launched ray/fireball still references its source.
     private final Map<Entity,LivingEntity> authors=new WeakHashMap<>();
     private final Map<UUID,LivingEntity> unloadedAuthors=new HashMap<>();
-    LbcTransformator(GameController game) {this.game=game;}
+    public LbcTransformator(GameController game) {this.game=game;}
     private static void load(Entity entity,String snbt) {
         try {entity.load(TagValueInput.create(ProblemReporter.DISCARDING,entity.registryAccess(),TagParser.parseCompoundFully(snbt)));}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error) {throw new IllegalStateException(error);}
@@ -81,7 +81,7 @@ public final class LbcTransformator {
         var reflected=game.items().electro().reflectedOwner(entity);
         return reflected==null?authors.get(entity):reflected;
     }
-    boolean ready(ItemEntity token) {
+    public boolean ready(ItemEntity token) {
         if(token.isRemoved() || token.getAge()>=5999 || !LbcNpcDropItems.isTransformator(token.getItem())
                 || !(token.level() instanceof ServerLevel level) || level!=game.maps().level()
                 || !game.playing() || game.stage()==GameController.Stage.ENDING) return false;
@@ -101,7 +101,7 @@ public final class LbcTransformator {
                 if(level.getChunkSource().getChunkNow(x,z)==null) return false;
         return true;
     }
-    void spawn(ItemEntity token) {
+    public void spawn(ItemEntity token) {
         if(!ready(token)) return;
         var level=(ServerLevel)token.level(); var floor=token.blockPosition();
         var at=new Vec3(floor.getX()+.5,floor.getY()-.1,floor.getZ()+.5);
@@ -120,14 +120,14 @@ public final class LbcTransformator {
         game.items().timeStop().prepareFrozen(actor);game.items().timeStop().prepareFrozen(text);
     }
     /** The source egg has a visible custom name and no separate text-display label. */
-    void adoptEgg(Zombie actor,LivingEntity author) {
+    public void adoptEgg(Zombie actor,LivingEntity author) {
         ((me.skywars2.mixin.MobLootAccess)actor).skywars2$lootTable(Optional.of(net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("minecraft:empty"))));
         actor.entityTags().addAll(List.of(ACTOR,"transformator","lucky_mob"));
         actor.setInvisible(true);game.items().markCurrentItemEpoch(actor);
         if(author!=null) authors.put(actor,author);
         pairs.add(new Pair(actor,null,game.items().epoch()));game.items().timeStop().prepareFrozen(actor);
     }
-    void tick() {
+    public void tick() {
         attacks.removeIf(Entity::isRemoved);
         for(var attack:List.copyOf(attacks)) if(!game.items().currentEpoch(attack) || !game.playing()
                 || game.stage()==GameController.Stage.ENDING) {attacks.remove(attack);attack.discard();}
@@ -148,7 +148,7 @@ public final class LbcTransformator {
                 &&(pair.text==null||level.getEntity(pair.text.getUUID())==pair.text);
     }
     /** The producer is mechanism-driven; magic-only beacons do not suppress it. */
-    void pulse(Zombie actor) {
+    public void pulse(Zombie actor) {
         if(game.items().polymorph().suspended(actor))return;
         var pair=find(actor);
         if(pair==null || !actor.isAlive() || !visible(pair) || game.items().timeStop().stopped((ServerLevel)actor.level())
@@ -171,7 +171,7 @@ public final class LbcTransformator {
         });
         if(health<=440) explode(pair);
     }
-    void burst(Zombie actor) {
+    public void burst(Zombie actor) {
         if(game.items().polymorph().suspended(actor))return;
         var pair=find(actor);
         if(pair==null || !actor.isAlive() || !visible(pair) || game.items().timeStop().stopped((ServerLevel)actor.level())
@@ -262,18 +262,18 @@ public final class LbcTransformator {
         if(entity.getRemovalReason()!=null && !entity.getRemovalReason().shouldDestroy() && authors.get(entity)!=null)
             unloadedAuthors.put(entity.getUUID(),authors.get(entity));
     }
-    void stop() {
+    public void stop() {
         for(var pair:List.copyOf(pairs)) terminal(pair);
         for(var attack:List.copyOf(attacks)) attack.discard();
         attacks.clear();authors.clear();unloadedAuthors.clear();
     }
-    List<View> snapshot() {return pairs.stream().map(pair->new View(pair.actor,pair.text,pair.ticks)).toList();}
-    List<Entity> attackSnapshot() {return List.copyOf(attacks);}
+    public List<View> snapshot() {return pairs.stream().map(pair->new View(pair.actor,pair.text,pair.ticks)).toList();}
+    public List<Entity> attackSnapshot() {return List.copyOf(attacks);}
     List<Entity> polymorphVisuals(Entity body){return pairs.stream().filter(p->p.actor==body&&p.text!=null).map(p->(Entity)p.text).toList();}
-    int activeCount() {return pairs.size();}
+    public int activeCount() {return pairs.size();}
 
-    static boolean cloneProtected(Entity actor){return actor instanceof Label || actor.entityTags().contains(TEXT);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public static boolean cloneProtected(Entity actor){return actor instanceof Label || actor.entityTags().contains(TEXT);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!managed(source)||cloneProtected(source))return null;
         var pair=source instanceof Zombie zombie?find(zombie):null;
         if(source.entityTags().contains(ACTOR)&&pair==null)return null;

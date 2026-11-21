@@ -25,7 +25,7 @@ import net.minecraft.world.level.storage.*;
 import net.minecraft.world.phys.Vec3;
 
 /** The four additional old-pool leaves have concrete event intake, native bodies and source geometry. */
-final class LbcBalanceExtras {
+public final class LbcBalanceExtras {
     private final GameController game;
     private record Trail(boolean most,DyeColor color,LbcIndirectKills.Owner cause){}
     private static final List<DyeColor> SOURCE_COLORS=Arrays.stream(DyeColor.values())
@@ -33,7 +33,7 @@ final class LbcBalanceExtras {
     private static final AttachmentType<CompoundTag> TRAIL_CAUSE=AttachmentRegistry.create(
             Identifier.parse("skywars2:wool_trail_cause"),builder->builder.persistent(CompoundTag.CODEC));
     private final Map<Snowball,Trail> bridges=new IdentityHashMap<>();
-    static DyeColor woolColor(ItemStack stack){
+    public static DyeColor woolColor(ItemStack stack){
         if(!LbcWoolTrailItems.matches(stack))return null;
         for(var color:SOURCE_COLORS)if(ItemData.intValue(stack,color.name().toLowerCase(Locale.ROOT),0)==1)return color;
         return null;
@@ -43,7 +43,7 @@ final class LbcBalanceExtras {
     private final Set<Entity> luckyMarkers=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<ServerLevel,Integer> phases=new IdentityHashMap<>();
     LbcBalanceExtras(GameController game){this.game=game;}
-    static void register(){}
+    public static void register(){}
     void woolPolicy(LbcBalance.WoolPolicy policy){woolPolicy=Objects.requireNonNull(policy);}
     boolean woolAllowed(ServerPlayer owner,InteractionHand hand){return woolPolicy.allowsLaunch(owner,hand);}
     List<Snowball> trailActors(){return List.copyOf(bridges.keySet());}
@@ -88,7 +88,7 @@ final class LbcBalanceExtras {
                 Vec3.directionFromRotation(0, owner.getYRot() - 90), side, current);
     }
 
-    static Vec3 doubleArrowOrigin(Vec3 origin, Vec3 aim, Vec3 lateral, int side, boolean current) {
+    public static Vec3 doubleArrowOrigin(Vec3 origin, Vec3 aim, Vec3 lateral, int side, boolean current) {
         return origin.add(lateral.scale(side * (current ? .4 : 1))).add(aim.scale(.3));
     }
     List<Projectile> augment(ServerPlayer owner,ItemStack weapon,List<Projectile> family){

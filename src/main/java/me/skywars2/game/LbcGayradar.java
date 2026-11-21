@@ -27,7 +27,7 @@ public final class LbcGayradar {
             LbcUtilityItemPrototypes.properties("skywars2:gayradar","/data/lbc/loot_table/item_defs/lbc/gayradar__02394082461d.json",Items.SNOWBALL,16)));
     private LbcGayradar(){}
     public static void register(){}
-    static boolean matches(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"gayradar",0)==1;}
+    public static boolean matches(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"gayradar",0)==1;}
 
     /** Resolve after a rewind as well; never retain a retired Objective or bind Witch's melee-only counter. */
     private static Objective objective(GameController game){
@@ -38,13 +38,13 @@ public final class LbcGayradar {
         return objective;
     }
     /** Register before damage can be dealt, not when the rare item first appears. */
-    static void prepare(GameController game){objective(game);}
+    public static void prepare(GameController game){objective(game);}
     /** Fresh round/full Balance only. Respawn, reconnect and Supernova retain this round's native metric. */
-    static void resetRound(GameController game){
+    public static void resetRound(GameController game){
         var objective=objective(game);var board=game.server().getScoreboard();
         for(var player:game.server().getPlayerList().getPlayers())board.getOrCreatePlayerScore(player,objective,true).set(0);
     }
-    static int damage(GameController game,ServerPlayer player){
+    public static int damage(GameController game,ServerPlayer player){
         var score=game.server().getScoreboard().getPlayerScoreInfo(player,objective(game));return score==null?0:score.value();
     }
     private static boolean admitted(GameController game,ServerPlayer player){
@@ -59,7 +59,7 @@ public final class LbcGayradar {
         return player.isAlive()&&!player.isRemoved()&&!player.isSpectator()&&!game.isObserver(player)
                 &&game.items().wands().validRoleTarget(player,false);
     }
-    static ServerPlayer choose(GameController game,ServerPlayer owner){
+    public static ServerPlayer choose(GameController game,ServerPlayer owner){
         var best=new ArrayList<ServerPlayer>();int maximum=Integer.MIN_VALUE;
         for(var player:game.server().getPlayerList().getPlayers())if(eligible(game,player)){
             int damage=damage(game,player);

@@ -10,7 +10,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 
 /** Source Nanobots counters; the shared armor owner supplies the twenty-active-tick pulse. */
 public final class LbcNanobotArmor {
-    static final String TIER="nanobots_tier",COOLDOWN="nanobots_coldown";
+    public static final String TIER="nanobots_tier",COOLDOWN="nanobots_coldown";
     private static final EquipmentSlot[] SLOTS={EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET};
     private static final int[] GAINS={2,4,3,1};
     private static final DustParticleOptions[] DUST={dust(.82f,.275f,.275f),dust(.82f,.584f,.275f),
@@ -38,7 +38,7 @@ public final class LbcNanobotArmor {
     static boolean worn(ServerPlayer player){for(var slot:SLOTS)if(piece(player,slot))return true;return false;}
 
     // Author: TECH suppresses accumulation and resistance refresh; existing effects keep their native clock.
-    boolean chargeAllowed(ServerPlayer player){return !game.items().magic().mechanismSuppressed(player);}
+    public boolean chargeAllowed(ServerPlayer player){return !game.items().magic().mechanismSuppressed(player);}
     boolean resistanceAllowed(ServerPlayer player){return !game.items().magic().mechanismSuppressed(player);}
 
     public int tier(ServerPlayer player){return game.items().mana().score(player,TIER).get();}

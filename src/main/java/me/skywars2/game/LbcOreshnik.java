@@ -46,7 +46,7 @@ public final class LbcOreshnik {
         }
         return false;
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         for(var f:flights)if(f.display==source){
             var owner=f.owner;var cause=f.cause;var epoch=f.epoch;boolean child=f.child;int age=f.age;
             var origin=f.at;var target=f.target;int splitAge=f.splitAge;float yaw=f.yaw,pitch=f.pitch;
@@ -87,7 +87,7 @@ public final class LbcOreshnik {
             for(var flight:List.copyOf(flights))flight.tick();
         }finally{callbacks--;}
     }
-    static List<Vec3> offsets(boolean child){
+    public static List<Vec3> offsets(boolean child){
         var result=new ArrayList<Vec3>();result.add(Vec3.ZERO);
         for(int radius:new int[]{1,3})for(var axis:List.of(new Vec3(1,0,0),new Vec3(0,1,0),new Vec3(0,0,1),new Vec3(-1,0,0),new Vec3(0,-1,0),new Vec3(0,0,-1)))result.add(axis.scale(radius));
         if(!child)result.addAll(List.of(new Vec3(4,4,0),new Vec3(4,0,4),new Vec3(0,4,4),new Vec3(-4,-4,0),new Vec3(-4,0,-4),new Vec3(0,-4,-4)));

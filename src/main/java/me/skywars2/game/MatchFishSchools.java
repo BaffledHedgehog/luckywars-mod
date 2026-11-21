@@ -7,19 +7,19 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.fish.AbstractSchoolingFish;
 
 /** Native school links and counters form one group; replay must not call join/leave callbacks. */
-final class MatchFishSchools {
+public final class MatchFishSchools {
     private record Image(AbstractSchoolingFish fish,int size,MatchDamageSources.Ref leader){}
     private final Map<UUID,Image> images=new LinkedHashMap<>();
 
-    MatchFishSchools(Collection<? extends Entity> actors,MatchDamageSources sources){
+    public MatchFishSchools(Collection<? extends Entity> actors,MatchDamageSources sources){
         for(var actor:actors)if(actor instanceof AbstractSchoolingFish fish)
             images.put(fish.getUUID(),new Image(fish,access(fish).skywars2$schoolSize(),sources.dependencyRef(leader(fish))));
     }
     private static CreatureCheckpointAccess.School access(AbstractSchoolingFish fish) {
         return (CreatureCheckpointAccess.School) fish;
     }
-    static AbstractSchoolingFish leader(AbstractSchoolingFish fish){return access(fish).skywars2$leader();}
-    void restore(Function<UUID,Entity> lookup,Set<UUID> pending,Set<UUID> omitted){
+    public static AbstractSchoolingFish leader(AbstractSchoolingFish fish){return access(fish).skywars2$leader();}
+    public void restore(Function<UUID,Entity> lookup,Set<UUID> pending,Set<UUID> omitted){
         // Start every link replay from the saved values, including historical omitted bodies.
         // This makes omission accounting idempotent rather than decrementing live counters twice.
         for(var image:images.values())access(image.fish).skywars2$schoolSize(image.size);

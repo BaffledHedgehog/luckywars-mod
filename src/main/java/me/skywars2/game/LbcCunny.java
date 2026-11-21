@@ -23,14 +23,14 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
 /** Native owner of the22 finite authored outcomes; terrain and match reset retain their canonical owners. */
-final class LbcCunny {
-    enum Suppression { SOURCE, MAGIC }
-    enum Part { ACTIVATION, PAIR, NAHIDA }
-    record Pair(UUID seeker,UUID target,LbcIndirectKills.Owner cause){}
+public final class LbcCunny {
+    public enum Suppression { SOURCE, MAGIC }
+    public enum Part { ACTIVATION, PAIR, NAHIDA }
+    public record Pair(UUID seeker,UUID target,LbcIndirectKills.Owner cause){}
     record Emission(int remaining,boolean visible,UUID owner){}
-    record State(List<Pair> pairs,Map<UUID,Integer> nahida,Map<UUID,Emission> emissions,int phase,
+    public record State(List<Pair> pairs,Map<UUID,Integer> nahida,Map<UUID,Emission> emissions,int phase,
                  MatchRandomState random,long accepted,long kills,long summons){
-        State{pairs=List.copyOf(pairs);nahida=Map.copyOf(nahida);emissions=Map.copyOf(emissions);}}
+        public State{pairs=List.copyOf(pairs);nahida=Map.copyOf(nahida);emissions=Map.copyOf(emissions);}}
     private static final Identifier NAHIDA_SOUND=Identifier.parse("minecraft:lbcsounds.bafled");
     private static final Identifier BUFF=Identifier.parse("minecraft:cunny2buffs"),PLAP=Identifier.parse("minecraft:plapper_debuff");
     private static final String[] OUTCOME_KEYS={"cunny_slab_0","cunny_slab_1","cunny_slab_2","cunny_slab_3","cunny_slab_4","cunny_slab_5","cunny_slab_6","cunny_slab_7","cunny_slab_8","cunny_slab_9","cunny_slab_10","cunny_slab_11","cunny_slab_12","cunny_slab_13","cunny_slab_14","cunny_slab_15","cunny_slab_16","cunny_slab_17","cunny_slab_18","cunny_slab_19","cunny_slab_20","cunny_slab_21"};
@@ -40,8 +40,8 @@ final class LbcCunny {
     private final Map<UUID,Set<UUID>> pendingNahidaSound=new HashMap<>();
     private final Map<UUID,Emission> emissions=new HashMap<>();private final EnumMap<Part,Suppression> policies=new EnumMap<>(Part.class);
     private int phase;private long accepted,kills,summons;private boolean restoring,advancing;
-    LbcCunny(GameController game){this.game=game;for(var part:Part.values())policies.put(part,Suppression.SOURCE);}
-    void policy(Part part,Suppression policy){policies.put(part,Objects.requireNonNull(policy));}
+    public LbcCunny(GameController game){this.game=game;for(var part:Part.values())policies.put(part,Suppression.SOURCE);}
+    public void policy(Part part,Suppression policy){policies.put(part,Objects.requireNonNull(policy));}
     private boolean suppressed(ServerPlayer p,Part part){return policies.get(part)==Suppression.MAGIC&&
             (game.items().magic().suppressed(p)||game.items().magic().suppressedAt(p.level(),p.getEyePosition()));}
     private boolean active(ServerPlayer p){return !restoring&&game.playing()&&game.stage()!=GameController.Stage.ENDING
@@ -50,7 +50,7 @@ final class LbcCunny {
     private boolean paused(ServerPlayer p){return !game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen()
             ||game.items().timeStop().stopped(p.level())||game.items().timeStop().frozen(p)||game.items().wands().inputTimeStopped(p);}
     private boolean hostile(ServerPlayer owner,Entity target){return target!=owner&&game.items().wands().target(owner,target);}
-    boolean use(ServerPlayer p,InteractionHand hand){var used=p.getItemInHand(hand);int outcome=LbcCunnyItems.variant(used);
+    public boolean use(ServerPlayer p,InteractionHand hand){var used=p.getItemInHand(hand);int outcome=LbcCunnyItems.variant(used);
         if(outcome<0||outcome>21||!active(p)||paused(p)||game.items().actionsBlocked(p)
                 ||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands||suppressed(p,Part.ACTIVATION))return false;
         if((outcome==4||outcome==21)&&!game.items().summons().ready())return false;
@@ -94,7 +94,7 @@ final class LbcCunny {
     private void announce(ServerPlayer owner,int outcome){var text=Component.translatable(OUTCOME_KEYS[outcome]).withColor(0xe680f3);
         if(outcome==0||outcome==1||outcome==8||outcome==10||outcome==21)game.server().getPlayerList().broadcastSystemMessage(text,false);else owner.sendSystemMessage(text);}
     private void buff(ServerPlayer p,Holder<Attribute> type,double value,AttributeModifier.Operation operation){var a=p.getAttribute(type);if(a!=null&&!a.hasModifier(BUFF))a.addPermanentModifier(new AttributeModifier(BUFF,value,operation));}
-    Mob summonAt(ServerPlayer p, Vec3 at, int choice) {
+    public Mob summonAt(ServerPlayer p, Vec3 at, int choice) {
         var mob = game.items().summons().cunnyCultist(p, at, choice);
         if (mob == null) return null;
         summons++;
@@ -105,7 +105,7 @@ final class LbcCunny {
     }
     private boolean killCandidate(ServerPlayer owner,Entity e){return !e.isRemoved()&&e.isAlive()&&game.items().wands().validRoleTarget(e,false)
             ;}
-    boolean randomKill(ServerPlayer owner,Entity e){if(!killCandidate(owner,e))return false;
+    public boolean randomKill(ServerPlayer owner,Entity e){if(!killCandidate(owner,e))return false;
         if(game.items().wtf().erase(e)){kills++;return true;}
         if(e instanceof LivingEntity living){var cause=game.items().indirectKills().wildCause(owner);
             living.hurtServer(owner.level(),game.items().indirectKills().captureDamage(owner.level().damageSources().source(net.minecraft.world.damagesource.DamageTypes.GENERIC_KILL,owner),cause),Float.MAX_VALUE);
@@ -113,9 +113,9 @@ final class LbcCunny {
     private void give(ServerPlayer p,String id){for(var stack:game.lbc().rollTable(p.level(),p.position(),p,id))if(!p.getInventory().add(stack))drop(p,p.position(),stack);}
     private void spawn(ServerPlayer p,Vec3 at,String id){for(var stack:game.lbc().rollTable(p.level(),at,p,id))drop(p,at,stack);}
     private void drop(ServerPlayer p,Vec3 at,ItemStack stack){var e=new ItemEntity(p.level(),at.x,at.y,at.z,stack);e.setThrower(p);game.items().markCurrentItemEpoch(e);p.level().addFreshEntity(e);}
-    boolean nahidaAllowed(ServerPlayer p,InteractionHand hand){return active(p)&&!paused(p)&&!game.items().actionsBlocked(p)
+    public boolean nahidaAllowed(ServerPlayer p,InteractionHand hand){return active(p)&&!paused(p)&&!game.items().actionsBlocked(p)
             &&(hand!=InteractionHand.OFF_HAND||game.config().offhandWands)&&LbcCunnyItems.nahida(p.getItemInHand(hand))&&!suppressed(p,Part.NAHIDA);}
-    void nahidaUseTick(ServerPlayer p){if(paused(p))return;if(!nahidaAllowed(p,p.getUsedItemHand())||!p.isUsingItem())return;
+    public void nahidaUseTick(ServerPlayer p){if(paused(p))return;if(!nahidaAllowed(p,p.getUsedItemHand())||!p.isUsingItem())return;
         if(!nahida.containsKey(p.getUUID()))startNahidaSound(p);
         nahida.put(p.getUUID(),phase);p.entityTags().add("plapper");
         for(var type:List.of(Attributes.MAX_HEALTH,Attributes.MAX_ABSORPTION,Attributes.ATTACK_DAMAGE,Attributes.CAMERA_DISTANCE)){
@@ -168,7 +168,7 @@ final class LbcCunny {
     }
     private void stopNahida(ServerPlayer p){pendingNahidaSound.remove(p.getUUID());boolean wasActive=nahida.remove(p.getUUID())!=null||p.entityTags().contains("plapper");if(wasActive)stopNahidaSound();p.entityTags().remove("plapper");for(var type:List.of(Attributes.MAX_HEALTH,Attributes.MAX_ABSORPTION,Attributes.ATTACK_DAMAGE,Attributes.CAMERA_DISTANCE)){
         var a=p.getAttribute(type);if(a!=null)a.removeModifier(PLAP);}}
-    void tick(){if(restoring||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
+    public void tick(){if(restoring||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
         if(!pendingNahidaSound.isEmpty())resumeRestoredNahidaSound();
         if(game.items().timeStop().stopped(game.maps().level()))return;
         advancing=true;try{phase++;
@@ -203,16 +203,16 @@ final class LbcCunny {
     private void removePair(Pair pair){pairs.remove(pair);var seeker=game.server().getPlayerList().getPlayer(pair.seeker);var target=game.server().getPlayerList().getPlayer(pair.target);
         if(seeker!=null&&pairs.stream().noneMatch(x->x.seeker.equals(pair.seeker)))seeker.entityTags().remove("girl_seeker");
         if(target!=null&&pairs.stream().noneMatch(x->x.target.equals(pair.target)))target.entityTags().remove("love_girl");}
-    void forget(ServerPlayer p){if(restoring||MatchPlayerCheckpoint.restoring(p))return;stopNahida(p);for(var pair:List.copyOf(pairs))if(pair.seeker.equals(p.getUUID())||pair.target.equals(p.getUUID()))removePair(pair);
+    public void forget(ServerPlayer p){if(restoring||MatchPlayerCheckpoint.restoring(p))return;stopNahida(p);for(var pair:List.copyOf(pairs))if(pair.seeker.equals(p.getUUID())||pair.target.equals(p.getUUID()))removePair(pair);
         emissions.remove(p.getUUID());p.entityTags().remove("cumming");game.items().mana().score(p,"cumming").set(0);}
-    void stop(){checkpointBoundary();for(var p:game.server().getPlayerList().getPlayers())forget(p);pairs.clear();nahida.clear();pendingNahidaSound.clear();emissions.clear();}
-    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Cunny active tick before checkpoint");}
-    State state(){checkpointBoundary();return new State(pairs,nahida,emissions,phase,MatchRandomState.capture(random),accepted,kills,summons);}
-    void restore(State state){checkpointBoundary();pairs.clear();pairs.addAll(state.pairs);nahida.clear();nahida.putAll(state.nahida);emissions.clear();emissions.putAll(state.emissions);
+    public void stop(){checkpointBoundary();for(var p:game.server().getPlayerList().getPlayers())forget(p);pairs.clear();nahida.clear();pendingNahidaSound.clear();emissions.clear();}
+    public void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Cunny active tick before checkpoint");}
+    public State state(){checkpointBoundary();return new State(pairs,nahida,emissions,phase,MatchRandomState.capture(random),accepted,kills,summons);}
+    public void restore(State state){checkpointBoundary();pairs.clear();pairs.addAll(state.pairs);nahida.clear();nahida.putAll(state.nahida);emissions.clear();emissions.putAll(state.emissions);
         phase=state.phase;state.random.restore(random);accepted=state.accepted;kills=state.kills;summons=state.summons;}
-    void prepareFrozen(){checkpointBoundary();restoring=true;pendingNahidaSound.clear();if(!nahida.isEmpty())stopNahidaSound();}
-    void cancelFrozen(){checkpointBoundary();restoring=false;pendingNahidaSound.clear();}
-    void publishFrozen(){checkpointBoundary();boolean publish=restoring;restoring=false;if(publish)for(var id:nahida.keySet()){
+    public void prepareFrozen(){checkpointBoundary();restoring=true;pendingNahidaSound.clear();if(!nahida.isEmpty())stopNahidaSound();}
+    public void cancelFrozen(){checkpointBoundary();restoring=false;pendingNahidaSound.clear();}
+    public void publishFrozen(){checkpointBoundary();boolean publish=restoring;restoring=false;if(publish)for(var id:nahida.keySet()){
         var p=game.server().getPlayerList().getPlayer(id);if(p!=null&&maintainsNahida(p))publishRestoredNahidaSound(p);}}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){var saved=state();return current->()->restore(saved);}
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){var saved=state();return current->()->restore(saved);}
 }

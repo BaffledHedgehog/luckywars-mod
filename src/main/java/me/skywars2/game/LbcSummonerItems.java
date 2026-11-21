@@ -28,9 +28,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /** Authored ordinary summon items and exact world/local formation coordinates. */
-final class LbcSummonerItems {
+public final class LbcSummonerItems {
     record Root(boolean local,Vec3 offset) { }
-    record Kind(String kind,String id,String flag,String cost,int price,Item item,List<Root> roots) { }
+    public record Kind(String kind,String id,String flag,String cost,int price,Item item,List<Root> roots) { }
     private static final List<Kind> KINDS=new ArrayList<>();
     static final JsonObject SOURCE;
     static {
@@ -64,9 +64,9 @@ final class LbcSummonerItems {
         }catch(Exception error){throw new ExceptionInInitializerError(error);}
     }
     private LbcSummonerItems() { }
-    static void register(){ }
-    static List<Kind> kinds(){return List.copyOf(KINDS);}
-    static Kind kind(ItemStack stack){
+    public static void register(){ }
+    public static List<Kind> kinds(){return List.copyOf(KINDS);}
+    public static Kind kind(ItemStack stack){
         if(stack.isEmpty())return null;var data=LbcFartus.data(stack);
         return KINDS.stream().filter(k->stack.is(k.item())||data.getIntOr(k.flag(),0)==1).findFirst().orElse(null);
     }

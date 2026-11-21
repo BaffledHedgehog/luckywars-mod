@@ -23,15 +23,15 @@ public final class LbcModeScroll {
     }
     private LbcModeScroll(){}
     public static boolean scrolling(){return STEPS.get()!=null;}
-    static int next(int mode,int count){return Math.floorMod(mode-1+steps(1),count)+1;}
-    static int nextZero(int mode,int count){return Math.floorMod(mode+steps(1),count);}
-    static int steps(int ordinary){var value=STEPS.get();return value==null?ordinary:value;}
-    static <T> T withSteps(int steps,Supplier<T> action){
+    public static int next(int mode,int count){return Math.floorMod(mode-1+steps(1),count)+1;}
+    public static int nextZero(int mode,int count){return Math.floorMod(mode+steps(1),count);}
+    public static int steps(int ordinary){var value=STEPS.get();return value==null?ordinary:value;}
+    public static <T> T withSteps(int steps,Supplier<T> action){
         var previous=STEPS.get();STEPS.set(steps);
         try{return action.get();}finally{if(previous==null)STEPS.remove();else STEPS.set(previous);}
     }
     static int delta(int previous,int next){return Math.floorMod(next-previous+4,9)-4;}
-    static boolean supports(GameController game,ItemStack stack){
+    public static boolean supports(GameController game,ItemStack stack){
         if(LbcTmtTriggers.modern(stack))return LbcTmtTriggers.canCycle(game,stack);
         if(LbcShooters.isSlr(stack)||LbcMagnum.isMagnum(stack)||LbcWitchClaims.matches(stack)
                 ||LbcHedgehogItems.isAcademy(stack)||LbcHalloweenWind.academy(stack)||LbcSoulless.isAcademy(stack))return true;

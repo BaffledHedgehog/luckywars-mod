@@ -46,7 +46,7 @@ public final class PlayerStore {
 
     private record SaveSnapshot(long revision, Map<String, Profile> profiles) {}
 
-    PlayerStore(Path file, Executor writer) {
+    public PlayerStore(Path file, Executor writer) {
         this.file = file;
         this.writer = writer;
     }
@@ -94,17 +94,17 @@ public final class PlayerStore {
     }
 
     /** Enumerate already known players without creating profiles for command input. */
-    Map<UUID, Profile> knownProfiles() {
+    public Map<UUID, Profile> knownProfiles() {
         return java.util.Collections.unmodifiableMap(profiles);
     }
 
-    Map<UUID, MatchValueSnapshot> checkpointProfiles() {
+    public Map<UUID, MatchValueSnapshot> checkpointProfiles() {
         var result = new LinkedHashMap<UUID, MatchValueSnapshot>();
         profiles.forEach((id, profile) -> result.put(id, new MatchValueSnapshot(profile)));
         return java.util.Collections.unmodifiableMap(result);
     }
 
-    void restoreProfiles(Map<UUID, MatchValueSnapshot> image) {
+    public void restoreProfiles(Map<UUID, MatchValueSnapshot> image) {
         profiles.clear();
         image.forEach((id, saved) -> profiles.put(id, (Profile) saved.restore()));
     }
@@ -127,7 +127,7 @@ public final class PlayerStore {
     }
 
     /** Called on the server thread. At most one newer snapshot waits behind the active write. */
-    void saveDeferred() {
+    public void saveDeferred() {
         SaveSnapshot snapshot = snapshot(true);
         synchronized (queueLock) {
             pendingSave = snapshot;
@@ -136,7 +136,7 @@ public final class PlayerStore {
     }
 
     /** Checked durable save for transactions such as key debit and case payout. */
-    void saveAtomic() throws IOException {
+    public void saveAtomic() throws IOException {
         write(snapshot(false), true);
     }
 

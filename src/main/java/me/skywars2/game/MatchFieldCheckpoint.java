@@ -5,8 +5,8 @@ import java.util.function.Function;
 import net.minecraft.world.entity.Entity;
 
 /** Essential Soulless/Metasola and moving Antigravity fields; native state has its existing canonical owner. */
-final class MatchFieldCheckpoint {
-    record Plan(Set<UUID> pending,Runnable install) { }
+public final class MatchFieldCheckpoint {
+    public record Plan(Set<UUID> pending,Runnable install) { }
     private final GameController game;
     private final String epoch;
     private final LbcSoulless.Checkpoint souls;
@@ -21,7 +21,7 @@ final class MatchFieldCheckpoint {
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore long-lived fields on the same stable frozen match thread");
         game.items().soulless().checkpointBoundary();game.items().antigravity().checkpointBoundary();
     }
-    static boolean captureReady(GameController game){return game.items().soulless().captureReady()&&game.items().antigravity().captureReady();}
+    public static boolean captureReady(GameController game){return game.items().soulless().captureReady()&&game.items().antigravity().captureReady();}
     Set<UUID> actorIds(){var all=new LinkedHashSet<UUID>();all.addAll(souls.actorIds());if(gravity!=null)all.addAll(gravity.actorIds());return Set.copyOf(all);}
     void prepareFrozen(){stable(true);game.items().soulless().prepareFrozen();if(gravity!=null)game.items().antigravity().prepareFrozen();souls.reset();if(gravity!=null)gravity.reset();prepared=true;pending=Set.of();}
     Set<UUID> finishFrozen(Function<UUID,Entity> lookup){

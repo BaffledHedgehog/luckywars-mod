@@ -11,7 +11,7 @@ public final class LbcMultiplierTablets {
     private LbcMultiplierTablets(){}
     public static int kind(ItemStack stack){return ItemData.intValue(stack,"multiply",0);}
     /** Shared ground/crafting payload. An empty result is a true no-op and spends no tablet. */
-    static ItemStack amplified(ItemStack donor,int kind){
+    public static ItemStack amplified(ItemStack donor,int kind){
         var changed=donor.copy();
         if(kind==2){
             var before=donor.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY);
@@ -24,7 +24,7 @@ public final class LbcMultiplierTablets {
         }else if(kind!=3)return ItemStack.EMPTY;
         return changed;
     }
-    static ItemAttributeModifiers doubled(ItemAttributeModifiers source){
+    public static ItemAttributeModifiers doubled(ItemAttributeModifiers source){
         var entries=new ArrayList<ItemAttributeModifiers.Entry>(source.modifiers().size());
         for(var entry:source.modifiers()){
             var old=entry.modifier();double amount=old.amount()*2;

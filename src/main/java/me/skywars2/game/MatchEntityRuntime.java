@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /** Reviewed native transient values, with fresh navigation and goals for cloned bodies. */
-final class MatchEntityRuntime {
+public final class MatchEntityRuntime {
     private final EntityValues entityValues;
     private final Collision collision;
     private final LivingEntityValues livingValues;
@@ -43,11 +43,11 @@ final class MatchEntityRuntime {
     private final MatchMobGoals goals;
     private final Long angerEndTime;
 
-    MatchEntityRuntime(Entity entity) {
+    public MatchEntityRuntime(Entity entity) {
         this(entity, true);
     }
 
-    MatchEntityRuntime(Entity entity, boolean sameBody) {
+    public MatchEntityRuntime(Entity entity, boolean sameBody) {
         navigation = sameBody && entity instanceof Mob mob ? new MatchMobNavigation(mob) : null;
         goals = sameBody && MatchMobGoals.enabled() && entity instanceof Mob mob ? new MatchMobGoals(mob) : null;
         angerEndTime = entity instanceof NeutralMob neutral ? neutral.getPersistentAngerEndTime() : null;
@@ -98,7 +98,7 @@ final class MatchEntityRuntime {
         if (goals != null) goals.restoreReferences(lookup, pending);
     }
 
-    void restore(Entity entity) {
+    public void restore(Entity entity) {
         if (navigation != null) navigation.requireOwner(entity);
         long delta = entity.level().getGameTime() - worldTime;
         if (collision != null) collision.restore(entity);

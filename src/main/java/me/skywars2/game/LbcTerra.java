@@ -91,11 +91,11 @@ public final class LbcTerra {
         TRUE_CHARGE("lbc:terrasword_true_charge",7.5,17,26,20),
         TRUE_BEAM("lbc:terrasword_true_beam",1.32,1,3,50),
         RAZOR("lbc:terrasword_true_beam",7.5,17,26,10);
-        final Identifier model;
-        final double speed;
-        final float damage;
+        public final Identifier model;
+        public final double speed;
+        public final float damage;
         final int samples;
-        final int lifetime;
+        public final int lifetime;
         Kind(String model,double speed,float damage,int samples,int lifetime) {
             this.model=Identifier.parse(model); this.speed=speed; this.damage=damage;
             this.samples=samples; this.lifetime=lifetime;
@@ -111,7 +111,7 @@ public final class LbcTerra {
     private final ArrayDeque<FinishingModel> finishingModels = new ArrayDeque<>();
     private int modelTicks;
 
-    static void register() { }
+    public static void register() { }
     private static CompoundTag flag(String name) {
         var tag = new CompoundTag(); tag.putInt(name, 1); return tag;
     }
@@ -122,7 +122,7 @@ public final class LbcTerra {
     public static boolean isSword(ItemStack stack) {
         return matches(stack, SWORD, SWORD_FLAG) || matches(stack, TRUE_SWORD, TRUE_SWORD_FLAG);
     }
-    static boolean swordProjectile(Entity entity,ServerPlayer owner){
+    public static boolean swordProjectile(Entity entity,ServerPlayer owner){
         return entity instanceof TerraProjectile projectile&&projectile.getOwner()==owner
                 &&!projectile.entityTags().contains(KEEPER_CAST)
                 &&(projectile.kind==Kind.SWORD||projectile.kind==Kind.TRUE_CHARGE||projectile.kind==Kind.TRUE_BEAM);
@@ -173,7 +173,7 @@ public final class LbcTerra {
         return applied;
     }
     /** One native hand; ordinary useRazor owns its separate offhand continuation. */
-    boolean castRazor(ServerPlayer player,InteractionHand hand) {
+    public boolean castRazor(ServerPlayer player,InteractionHand hand) {
         if(!isRazor(player.getItemInHand(hand)) || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
                 || !game.canUseGameplayItems(player) || !player.isAlive() || player.isRemoved()
                 || player.level()!=game.maps().level() || game.items().frost().isFrozen(player)
@@ -183,9 +183,9 @@ public final class LbcTerra {
     }
     public int charges(ServerPlayer player) { return swordCharges.getOrDefault(player.getUUID(), 0); }
     /** Direct counter additions are distinct from the normal melee charging cap. */
-    void addPlayerCounter(ServerPlayer player) { swordCharges.put(player.getUUID(),charges(player)+1); }
-    void sourceCharges(ServerPlayer player,int value) { if(value==0)swordCharges.remove(player.getUUID());else swordCharges.put(player.getUUID(),value); }
-    void resetCharges() { swordCharges.clear(); }
+    public void addPlayerCounter(ServerPlayer player) { swordCharges.put(player.getUUID(),charges(player)+1); }
+    public void sourceCharges(ServerPlayer player,int value) { if(value==0)swordCharges.remove(player.getUUID());else swordCharges.put(player.getUUID(),value); }
+    public void resetCharges() { swordCharges.clear(); }
     /** (user) Только melee мечом или собственный заряд этого меча; прочий приписанный урон не подходит. */
     public void damaged(ServerPlayer owner, DamageSource source) {
         if (!admitted(owner)) return;
@@ -207,7 +207,7 @@ public final class LbcTerra {
                 && game.canUseGameplayItems(owner) && !game.items().magic().suppressed(owner);
     }
 
-    int hudCharges(ServerPlayer player) {
+    public int hudCharges(ServerPlayer player) {
         return matches(player.getMainHandItem(), SWORD, SWORD_FLAG)
                 || matches(player.getOffhandItem(), SWORD, SWORD_FLAG) ? charges(player) : -1;
     }
@@ -225,7 +225,7 @@ public final class LbcTerra {
         return game.items().wands().use(player, InteractionHand.OFF_HAND) || applied;
     }
     /** Existing ordinary charged-sword body, without an additional offhand cast. */
-    boolean castSword(ServerPlayer player,InteractionHand hand){
+    public boolean castSword(ServerPlayer player,InteractionHand hand){
         if (!game.canUseGameplayItems(player) || !player.isAlive() || player.isRemoved()
                 || player.level() != game.maps().level() || game.items().frost().isFrozen(player)
                 || player.entityTags().contains("time_stopped") || game.items().magic().suppressed(player)
@@ -254,15 +254,15 @@ public final class LbcTerra {
         private ItemDisplayElement display;
         private Kind kind = Kind.REGULAR;
         private int age;
-        int sourceLifetime;
-        boolean emitterStyle;
+        public int sourceLifetime;
+        public boolean emitterStyle;
         private boolean modelPaused;
         TerraProjectile(EntityType<? extends TerraProjectile> type, Level level) { super(type, level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
         @Override public boolean shouldBeSaved() { return false; }
         @Override public boolean isPushedByFluid() { return false; }
-        ItemDisplayElement display() { return display; }
+        public ItemDisplayElement display() { return display; }
 
         private static ItemDisplayElement model(Kind kind) {
             var stack = new ItemStack(Items.STICK);
@@ -323,25 +323,25 @@ public final class LbcTerra {
         }
     }
 
-    LbcTerra(GameController game) {
+    public LbcTerra(GameController game) {
         this.game = game;
     }
     public int count() { return projectiles.size(); }
-    int finishingModels() { return finishingModels.size(); }
+    public int finishingModels() { return finishingModels.size(); }
 
     private ServerPlayer flightAuthor(TerraProjectile projectile) {
         var author = game.items().spellSources().author(projectile);
         return author != null || boundSource(projectile) ? author : game.items().summons().owner(projectile);
     }
 
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if (!(entity instanceof TerraProjectile projectile)) return;
         boolean bound = boundSource(projectile);
         if (projectile.level() != game.maps().level() && !bound) return;
         if (!game.items().currentEpoch(projectile) || !bound && flightAuthor(projectile) == null) projectile.discard();
         else projectiles.add(projectile);
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if (entity instanceof TerraProjectile projectile) {
             projectiles.remove(projectile);
             projectile.destroyModel();
@@ -358,10 +358,10 @@ public final class LbcTerra {
     TerraProjectile flying(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         return castAt(owner,origin,direction,Kind.REGULAR,200);
     }
-    void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind) {
+    public void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind) {
         castAt(owner,origin,direction,kind,0);
     }
-    TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime) {
+    public TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime) {
         return castAt(owner,origin,direction,kind,lifetime,false,nativeSourceOwner(owner),false);
     }
     void castFromKeeper(ServerPlayer owner, Vec3 origin, Vec3 direction, Kind kind, int lifetime) {
@@ -370,7 +370,7 @@ public final class LbcTerra {
     TerraProjectile sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){
         return castAt(owner,origin,direction,Kind.REGULAR,60,true,nativeSourceOwner(owner),false);
     }
-    void cultistCharge(ServerPlayer owner, Mob cultist, Vec3 origin, Vec3 direction) {
+    public void cultistCharge(ServerPlayer owner, Mob cultist, Vec3 origin, Vec3 direction) {
         castAt(owner,origin,direction,Kind.REGULAR,0,false,cultist,false);
     }
     private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime,boolean emitterStyle,Entity shooter,boolean keeper) {
@@ -540,29 +540,29 @@ public final class LbcTerra {
         }finally{for(var group:beamGroups)group.close();}}
     }
 
-    static BlockHitResult wallHit(ServerLevel level, Vec3 from, Vec3 to) {
+    public static BlockHitResult wallHit(ServerLevel level, Vec3 from, Vec3 to) {
         return ResidentBlockRay.clip(level, from, to,
                 (pos, state) -> state.is(AIRS) ? Shapes.empty() : Shapes.block(),
                 Blocks.AIR.defaultBlockState().is(AIRS), Blocks.VOID_AIR.defaultBlockState().is(AIRS));
     }
     /** Та же DDA/граница чанка для лучей, которые ищут только выбранный тип блока. */
-    static BlockHitResult wallHit(ServerLevel level, Vec3 from, Vec3 to,
+    public static BlockHitResult wallHit(ServerLevel level, Vec3 from, Vec3 to,
             java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> blocks) {
         return wallHit(level,from,to,(pos,state)->blocks.test(state));
     }
     /** Position-aware rule shares the same resident DDA, e.g. two-air wall exits. */
-    static BlockHitResult wallHit(ServerLevel level,Vec3 from,Vec3 to,
+    public static BlockHitResult wallHit(ServerLevel level,Vec3 from,Vec3 to,
             java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks) {
         return shapeHit(level,from,to,(pos,state)->blocks.test(pos,state)?Shapes.block():Shapes.empty());
     }
     /** Resident-chunk traversal also supports actual collision shapes for new callers. */
-    static BlockHitResult shapeHit(ServerLevel level,Vec3 from,Vec3 to,
+    public static BlockHitResult shapeHit(ServerLevel level,Vec3 from,Vec3 to,
             java.util.function.BiFunction<BlockPos,net.minecraft.world.level.block.state.BlockState,net.minecraft.world.phys.shapes.VoxelShape> shapes) {
         return BlockGetter.traverseBlocks(from,to,level,(world,pos)->
                 (world.hasChunkAt(pos)?shapes.apply(pos,world.getBlockState(pos)):Shapes.block()).clip(from,to,pos),world->null);
     }
     /** Resident DDA with exact native collision faces, for placing bodies on the looked-at surface. */
-    static BlockHitResult surfaceHit(ServerLevel level,Vec3 from,Vec3 to,Entity viewer) {
+    public static BlockHitResult surfaceHit(ServerLevel level,Vec3 from,Vec3 to,Entity viewer) {
         var context=viewer==null ? net.minecraft.world.phys.shapes.CollisionContext.empty()
                 : net.minecraft.world.phys.shapes.CollisionContext.of(viewer);
         return ResidentBlockRay.clip(level, from, to,
@@ -652,7 +652,7 @@ public final class LbcTerra {
         return new Vec3(Math.cos(yaw), 0, Math.sin(yaw));
     }
 
-    static void growVegetation(ServerLevel level, BlockPos origin,Kind kind) {
+    public static void growVegetation(ServerLevel level, BlockPos origin,Kind kind) {
         // Нативный /place feature тоже требует соседние чанки. Ради заклинания их не загружаем.
         int cx = origin.getX() >> 4, cz = origin.getZ() >> 4;
         for (int x = cx - 1; x <= cx + 1; x++) for (int z = cz - 1; z <= cz + 1; z++)
@@ -696,7 +696,7 @@ public final class LbcTerra {
         for (var model : finishingModels) model.holder().destroy();
         finishingModels.clear();
     }
-    TerraProjectile sourceEmitter(ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.items().spellSources().authorPlayer(source),origin,direction);}}
+    public TerraProjectile sourceEmitter(ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.items().spellSources().authorPlayer(source),origin,direction);}}
     private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
         if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
         else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);
@@ -708,18 +708,18 @@ public final class LbcTerra {
     private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
 
 
-    List<TerraProjectile> transientSnapshot(){return List.copyOf(projectiles);}
-    void checkpointBoundary(){if(!batch.isEmpty())throw new IllegalStateException("Finish Terra sampling before checkpointing");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public List<TerraProjectile> transientSnapshot(){return List.copyOf(projectiles);}
+    public void checkpointBoundary(){if(!batch.isEmpty())throw new IllegalStateException("Finish Terra sampling before checkpointing");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     /** Forget abandoned presentation/private queues. Canonical native bodies have their own restore owner. */
-    void prepareFrozen(){
+    public void prepareFrozen(){
         checkpointBoundary();for(var shot:projectiles)shot.destroyModel();projectiles.clear();
         for(var tail:finishingModels)tail.holder.destroy();finishingModels.clear();
     }
     private record ShotImage(MatchDamageSources.Ref body,Kind kind,int age,int lifetime,
                              boolean emitter,boolean paused,Vec3 visualOffset){}
     private record TailImage(ServerLevel level,Vec3 position,Kind kind,float yaw,float pitch,Vec3 offset,int remaining){}
-    final class Checkpoint {
+    public final class Checkpoint {
         private final List<ShotImage> shots;
         private final List<TailImage> tails;
         private final Map<UUID,Integer> charges=Map.copyOf(swordCharges);
@@ -729,7 +729,7 @@ public final class LbcTerra {
                     p.sourceLifetime,p.emitterStyle,p.modelPaused,p.holder==null?null:p.display.getOffset())).toList();
             tails=finishingModels.stream().map(t->new TailImage(t.level,t.position,t.kind,t.yaw,t.pitch,t.offset,t.removeAt-modelTicks)).toList();
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var restored=new java.util.LinkedHashMap<TerraProjectile,ShotImage>();
             for(var image:shots)restored.put((TerraProjectile)links.get(image.body),image);
             for(var tail:tails)MatchAuthorityCheckpoint.world(game,tail.level);
@@ -742,7 +742,7 @@ public final class LbcTerra {
             };
         }
         /** Publication cannot advance flight, damage, RNG, vegetation, charge rewards or tail deadlines. */
-        void publish(MatchSpellCheckpoint.Links links){
+        public void publish(MatchSpellCheckpoint.Links links){
             for(var image:shots)if(image.visualOffset!=null)((TerraProjectile)links.get(image.body)).attachModel(image.visualOffset);
             for(var tail:tails){
                 var holder=new ElementHolder();var display=TerraProjectile.model(tail.kind);
@@ -754,7 +754,7 @@ public final class LbcTerra {
         }
     }
 
-    LbcCloneSkills.ActorImage cloneImage(TerraProjectile source) {
+    public LbcCloneSkills.ActorImage cloneImage(TerraProjectile source) {
         var kind=source.kind;int age=source.age,lifetime=source.sourceLifetime;
         boolean emitter=source.emitterStyle,paused=source.modelPaused;
         return new LbcCloneSkills.ActorImage() {

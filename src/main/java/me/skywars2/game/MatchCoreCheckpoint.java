@@ -7,7 +7,7 @@ import java.util.UUID;
 import net.minecraft.world.level.GameType;
 
 /** The explicit core phase of a full rewind; does not pretend to restore native player NBT. */
-final class MatchCoreCheckpoint {
+public final class MatchCoreCheckpoint {
     private final GameController game;
     private final GameController.Checkpoint core;
     private final MatchValueSnapshot config;
@@ -22,7 +22,7 @@ final class MatchCoreCheckpoint {
     private final Set<UUID> spectators;
     private final Map<UUID,GameType> online = new LinkedHashMap<>();
 
-    MatchCoreCheckpoint(GameController game) {
+    public MatchCoreCheckpoint(GameController game) {
         this.game=game;core=game.checkpointCore();config=new MatchValueSnapshot(game.config());mapSpawns=game.maps().spawnState();
         profiles=game.players().checkpointProfiles();scoreboard=new MatchScoreboardCheckpoint(game.server());
         teams=game.teamColors().checkpoint();events=game.events().checkpointTimeline();
@@ -36,7 +36,7 @@ final class MatchCoreCheckpoint {
      * actor/ability state and camera attachment afterwards. Disk persistence is a final
      * commit step of that owner, not a side effect of each partial component.
      */
-    void restoreFrozen() { restoreFrozen(online.keySet(),spectators); }
+    public void restoreFrozen() { restoreFrozen(online.keySet(),spectators); }
     /** Replacement points also retain player images whose real body was offline at capture. */
     void restoreFrozen(Map<UUID,MatchPlayerCheckpoint> players) {
         var observers=new java.util.LinkedHashSet<UUID>();

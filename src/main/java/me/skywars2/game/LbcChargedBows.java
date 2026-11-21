@@ -68,7 +68,7 @@ public final class LbcChargedBows {
     private final Map<Chunk,Loading> loading=new HashMap<>();
     static void register(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:charged_bow"),TICKET);}
     public LbcChargedBows(GameController game,Payloads payloads){this.game=game;this.payloads=payloads;this.crafting=new LbcChargedBowCrafting(game);}
-    LbcChargedBowCrafting crafting(){return crafting;}
+    public LbcChargedBowCrafting crafting(){return crafting;}
     public void loaded(Entity body){crafting.loaded(body);}
     public void unloaded(Entity body){crafting.unloaded(body);}
     public void itemChanged(net.minecraft.world.entity.item.ItemEntity item){crafting.itemChanged(item);}
@@ -313,5 +313,5 @@ public final class LbcChargedBows {
     }
     public int pending(){return jobs.size();}
     public void stop(){crafting.stop();for(var beam:List.copyOf(beams))if(beam.ticket!=null)beam.ticket.cancel();beams.clear();for(var job:List.copyOf(jobs))job.cancel();jobs.clear();}
-    void prepareFrozen(){for(var beam:beams){if(beam.residence!=null)release(beam.residence);beam.releaseAtomic();}beams.clear();for(var job:List.copyOf(jobs))release(job);jobs.clear();}
+    public void prepareFrozen(){for(var beam:beams){if(beam.residence!=null)release(beam.residence);beam.releaseAtomic();}beams.clear();for(var job:List.copyOf(jobs))release(job);jobs.clear();}
 }

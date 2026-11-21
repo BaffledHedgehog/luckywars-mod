@@ -106,7 +106,7 @@ public final class LbcApocalypseActors {
     public boolean canAffect(Entity actor,Entity target){return game.items().spellSources().canAffect(actor,target);}
     public void targetChanged(Mob actor,LivingEntity target){if(managed(actor)&&target!=null&&!canAffect(actor,target))actor.setTarget(null);}
     public int count(){return actors.size();}
-    List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
     private LivingEntity nearest(Entity cloud){
         LivingEntity nearest=null;double best=Double.POSITIVE_INFINITY;
         var targets=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());targets.addAll(game.items().lifetimes().loadedTargets());targets.addAll(((ServerLevel)cloud.level()).players());
@@ -186,14 +186,14 @@ public final class LbcApocalypseActors {
         }finally{callbackDepth--;}
     }
 
-    boolean captureReady(){return callbackDepth==0&&terrain.isEmpty()&&!rewinding;}
-    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish apocalypse actor callbacks before checkpointing");}
-    void cancelFutureTerrainForRollback(){checkpointBoundary();for(var work:List.copyOf(terrain))work.cancel();}
-    void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;}
-    void publishFrozen(){checkpointBoundary();rewinding=false;}
-    void cancelFrozen(){checkpointBoundary();rewinding=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete apocalypse actor terrain before capture");return new Checkpoint(links);}
-    final class Checkpoint {
+    public boolean captureReady(){return callbackDepth==0&&terrain.isEmpty()&&!rewinding;}
+    public void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish apocalypse actor callbacks before checkpointing");}
+    public void cancelFutureTerrainForRollback(){checkpointBoundary();for(var work:List.copyOf(terrain))work.cancel();}
+    public void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;}
+    public void publishFrozen(){checkpointBoundary();rewinding=false;}
+    public void cancelFrozen(){checkpointBoundary();rewinding=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete apocalypse actor terrain before capture");return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Age(Actor original,int lifetime){}
         private final MatchSpellCheckpoint.IdentityImage<Entity,Actor> registry;
         private final Map<UUID,Actor> dormant=new HashMap<>(unloaded);
@@ -204,11 +204,11 @@ public final class LbcApocalypseActors {
             for(var actor:actors.values())if(seen.add(actor))ages.add(new Age(actor,actor.lifetime));
             for(var actor:unloaded.values())if(seen.add(actor))ages.add(new Age(actor,actor.lifetime));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=registry.restore(links);
+        public Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=registry.restore(links);
             return ()->{for(var age:ages)age.original.lifetime=age.lifetime;actors=restored;unloaded.clear();unloaded.putAll(dormant);phase=savedPhase;};}
     }
 
-    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity original) {
         var state=actors.get(original);if(state==null)return null;
         var authority=state.authority;var source=state.source;var type=state.type;var kind=state.kind;
         int lifetime=state.lifetime;UUID id=original.getUUID();

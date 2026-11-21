@@ -32,7 +32,7 @@ public final class LbcPersonalStasis {
         p.removeAllEffects();
     }
     /** Source non-player stasis uses native saved flags, preserving causal/service tags. */
-    void startMob(net.minecraft.world.entity.LivingEntity target){
+    public void startMob(net.minecraft.world.entity.LivingEntity target){
         if(!target.isAlive()||target.isRemoved())return;
         if(target instanceof net.minecraft.world.entity.Mob mob)mob.setNoAi(true);
         LbcFrozenMotion.hold(target,LbcFrozenMotion.STASIS);

@@ -33,8 +33,8 @@ public final class LbcReactive {
         this.game=game; this.mana=mana;
         mana.score(WALL_COST,"lbc.math").set(500);
     }
-    void setShishCounter(ServerPlayer player,int value){cooldowns.put(player,Math.max(0,value)*5);mana.score(player,"coldownshish").set(value);}
-    void reduceSourceCooldown(ServerPlayer player,int value) {
+    public void setShishCounter(ServerPlayer player,int value){cooldowns.put(player,Math.max(0,value)*5);mana.score(player,"coldownshish").set(value);}
+    public void reduceSourceCooldown(ServerPlayer player,int value) {
         int ticks=cooldownTicks(player),current=(int)(((long)ticks+4)/5);
         int remaining=(int)Math.clamp((long)ticks-((long)current-value)*5,0,Integer.MAX_VALUE);
         if(remaining==0)cooldowns.remove(player);else cooldowns.put(player,remaining);
@@ -59,7 +59,7 @@ public final class LbcReactive {
         if(!LbcReactiveItems.isWall(stack) || mana.get(player)<500 && mana.overloadArmor(player)!=15) return false;
         return castWall(player,true);
     }
-    boolean castWall(ServerPlayer player,boolean paid){
+    public boolean castWall(ServerPlayer player,boolean paid){
         var origin=player.getEyePosition(); var direction=player.getLookAngle().normalize();
         int mode=player.isShiftKeyDown()?3:!player.onGround()?2:player.isSprinting()?4:1;
         game.items().exasperato().replayableLoaded(player,origin.add(direction.scale(.5)),direction,
@@ -89,13 +89,13 @@ public final class LbcReactive {
         }
     }
     private int completing;private boolean advancing;
-    void checkpointBoundary(){if(completing!=0||advancing)throw new IllegalStateException("Finish reactive callbacks before checkpoint");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(completing!=0||advancing)throw new IllegalStateException("Finish reactive callbacks before checkpoint");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         final Map<MatchDamageSources.Ref,Integer> clocks=new LinkedHashMap<>();
         final Map<LbcExasperato.RayTicket,MatchDamageSources.Ref> requests=new LinkedHashMap<>();
         Checkpoint(MatchSpellCheckpoint.Links links){cooldowns.forEach((p,n)->clocks.put(links.key(p),n));rays.forEach((r,p)->requests.put(r,links.key(p)));}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var values=new LinkedHashMap<ServerPlayer,Integer>();clocks.forEach((ref,n)->values.put((ServerPlayer)links.get(ref),n));
             var pending=new LinkedHashMap<LbcExasperato.RayTicket,ServerPlayer>();requests.forEach((r,ref)->pending.put(r,(ServerPlayer)links.get(ref)));
             return ()->{cooldowns.clear();cooldowns.putAll(values);rays.clear();rays.putAll(pending);};

@@ -62,7 +62,7 @@ public final class GameController {
     }
 
     /** Core values only; native bodies, entities and ability queues have their own restore phase. */
-    static final class Checkpoint {
+    public static final class Checkpoint {
         private final GameController owner;
         private final String epoch;
         private final LbcBedwars.Checkpoint bedwars;
@@ -121,7 +121,7 @@ public final class GameController {
         }
     }
 
-    Checkpoint checkpointCore() {
+    public Checkpoint checkpointCore() {
         if(!server.isSameThread()||!playing()||stopped||maps.busy()
                 ||supernovaMap!=null&&(supernovaMap.phase()==RenewalPhase.FAILED||!supernovaTerrainSettled())
                 ||balanceMap!=null)throw new IllegalStateException("Capture a stable active match on its server thread");
@@ -129,12 +129,12 @@ public final class GameController {
         return new Checkpoint(this);
     }
 
-    void validateCheckpoint(Checkpoint image) {
+    public void validateCheckpoint(Checkpoint image) {
         if(!server.isSameThread()||!server.tickRateManager().isFrozen()||image.owner!=this||!items.currentEpoch(image.epoch)
                 ||stopped||maps.busy())throw new IllegalStateException("Restore the original active match on a frozen server thread");
     }
 
-    void restoreCore(Checkpoint image) {
+    public void restoreCore(Checkpoint image) {
         validateCheckpoint(image);
         carpetBots.reset(); // Intent/path caches are derived from restored native bodies and terrain.
         // Unsupported short restart intent is cancelled by rewind, as other transient actions are.
@@ -176,17 +176,17 @@ public final class GameController {
     private final LbcItems items;
     private final LbcBedwars bedwars;
     private final LbcCases cases;
-    LbcCases cases() { return cases; }
+    public LbcCases cases() { return cases; }
     private final LbcVanityRollback vanity=new LbcVanityRollback(this);
     public LbcVanityRollback vanity(){return vanity;}
-    void reconcileRollbackParticipants(Set<UUID> absent,Set<UUID> captured){
+    public void reconcileRollbackParticipants(Set<UUID> absent,Set<UUID> captured){
         for(var entry:participants.entrySet())if(captured.contains(entry.getKey()))
             entry.getValue().disconnected=absent.contains(entry.getKey());
         for(var player:server.getPlayerList().getPlayers())if(!captured.contains(player.getUUID())){
             player.getInventory().clearContent();player.removeAllEffects();spectators.enter(player);
         }
     }
-    void rejoinRollbackParticipant(ServerPlayer player,boolean observer){
+    public void rejoinRollbackParticipant(ServerPlayer player,boolean observer){
         var member=participants.get(player.getUUID());
         if(member!=null)member.disconnected=false;
         if(observer||member==null||member.lives<=0)spectators.enter(player);
@@ -338,7 +338,7 @@ public final class GameController {
     public int matchTicks() { return gameTicks; }
     public boolean supernovaMapTransition() { return supernovaMap != null || balanceMap != null; }
     boolean cunnyRestartPending() { return cunnyRestart != null; }
-    boolean runeRestarting() { return runeRestart!=null; }
+    public boolean runeRestarting() { return runeRestart!=null; }
     public boolean balanceLegacy() { return balanceLegacy; }
     private void balanceLegacy(boolean active){
         if(active)TrueLegacyRules.warmup();
@@ -645,7 +645,7 @@ public final class GameController {
     }
     public ZoneBarrier zoneBarrier() { return zoneBarrier; }
     public int lives(UUID id) { Participant p = participants.get(id); return p == null ? 0 : p.lives; }
-    boolean changeRemainingLives(ServerPlayer player, int lives) {
+    public boolean changeRemainingLives(ServerPlayer player, int lives) {
         if (!canUseGameplayItems(player)) return false;
         var participant = participants.get(player.getUUID());
         if (participant == null || participant.lives <= 0) return false;
@@ -665,9 +665,9 @@ public final class GameController {
     public LbcItemQueue itemQueue() { return itemQueue; }
     public LbcBedwars bedwars() { return bedwars; }
     public GameLuckyModifiers luckyModifiers() { return luckyModifiers; }
-    MatchEvents events() { return events; }
+    public MatchEvents events() { return events; }
     public AttributeHud attributeHud() { return attributeHud; }
-    LbcTeamColors teamColors() { return teamColors; }
+    public LbcTeamColors teamColors() { return teamColors; }
 
     public Component status() {
         return text("game.status", text("stage." + stage.name().toLowerCase(java.util.Locale.ROOT)),
@@ -891,7 +891,7 @@ public final class GameController {
         return result;
     }
 
-    void gameModeSettingChanged(int previousMode) {
+    public void gameModeSettingChanged(int previousMode) {
         if(previousMode==config.gameMode)return;
         maps.sweepAfterModeChange(config.gameMode);
         readyMap=null;
@@ -978,7 +978,7 @@ public final class GameController {
         return summary.append(text("settings.help"));
     }
 
-    boolean mapCapacity(MapManager.MapInfo map,int playersCount) {
+    public boolean mapCapacity(MapManager.MapInfo map,int playersCount) {
         if(map==null||!map.available()||maps.bedwars(map.id())!=(config.gameMode>=3))return false;
         return map.playerCapacity()>=(config.gameMode>=3?(developerMode()?1:2):playersCount);
     }
@@ -1280,12 +1280,12 @@ public final class GameController {
     }
 
     /** Match membership, including real pending vanilla/BedWars respawns; no second lives registry. */
-    List<UUID> activeMembersForBedwars(){
+    public List<UUID> activeMembersForBedwars(){
         return participants.entrySet().stream().filter(e->e.getValue().lives>0&&!e.getValue().disconnected)
                 .map(Map.Entry::getKey).toList();
     }
     /** Called by the BedWars clock only after the replacement native player body actually exists. */
-    boolean bedwarsRespawnReady(UUID id){
+    public boolean bedwarsRespawnReady(UUID id){
         var member=participants.get(id);var player=server.getPlayerList().getPlayer(id);
         if(!bedwars.mode()||!bedwars.active()||!playing()||member==null||member.disconnected||member.lives<=0
                 ||!member.awaitingRespawn||player==null||!player.isAlive()||!bedwars.hasBed(player))return false;
@@ -1309,7 +1309,7 @@ public final class GameController {
         bar.addPlayer(player);player.inventoryMenu.sendAllDataToRemote();return true;
     }
     /** Bed loss during the pending spectator interval cancels only this registered participant. */
-    void bedwarsCancelRespawn(UUID id){
+    public void bedwarsCancelRespawn(UUID id){
         var member=participants.get(id);if(member==null||member.disconnected)return;
         member.awaitingRespawn=false;var player=server.getPlayerList().getPlayer(id);
         if(developerMode()){
@@ -1541,7 +1541,7 @@ public final class GameController {
     }
 
     /** Nautiz uses the next random map while retaining the current round's eligible roster. */
-    boolean restartFromRune(ServerPlayer author){
+    public boolean restartFromRune(ServerPlayer author){
         if(!playing()||!canUseGameplayItems(author)||maps.busy()||stopped||cunnyRestart!=null||runeRestarting()
                 ||vanity.busy()||vanity.capturePreparing()||developerTools.authoring().busy()||supernovaMapTransition()
                 ||items.supernova().phase()!=LbcSupernova.Phase.IDLE||!modeReady(config.gameMode))return false;
@@ -1579,23 +1579,23 @@ public final class GameController {
             begin(ready);
         });
     }
-    void addRuneLives(ServerPlayer author,int amount){
+    public void addRuneLives(ServerPlayer author,int amount){
         var member=participants.get(author.getUUID());if(member==null)return;
         if(amount>0&&items.phoenix().convertLives(author,amount)==amount)return;
         member.lives=(int)Math.clamp((long)member.lives+amount,0L,Integer.MAX_VALUE);
         if(playing())updateBar();
     }
 
-    void selectedSkillChanged(ServerPlayer player){
+    public void selectedSkillChanged(ServerPlayer player){
         var member=participants.get(player.getUUID());
         if(!playing()||member==null||member.lives<=0||!player.isAlive()||!canUseGameplayItems(player))return;
         member.lives=items.phoenix().start(player,member.lives);
         items.cinema().start(player,maps.centerPositions());
     }
-    void rotateMapSpawns(net.minecraft.core.BlockPos origin){
+    public void rotateMapSpawns(net.minecraft.core.BlockPos origin){
         transformMapSpawns(spawn->MapManager.rotatedSpawn(spawn,origin));
     }
-    void transformMapSpawns(java.util.function.UnaryOperator<MapManager.Spawn> transform){
+    public void transformMapSpawns(java.util.function.UnaryOperator<MapManager.Spawn> transform){
         for(var member:participants.values())if(member.spawn!=null)member.spawn=transform.apply(member.spawn);
     }
     public void stopMatch() {
@@ -1621,7 +1621,7 @@ public final class GameController {
         items.tmt().withConsumedTraits(player,stack,()->consumedProperties(player,stack));
         events.onConsumed(player, stack);
     }
-    void consumedProperties(ServerPlayer player,ItemStack stack){
+    public void consumedProperties(ServerPlayer player,ItemStack stack){
         items.foodLifecycle().consumed(player,stack);
         items.kfcFood().consumed(player,stack);
         items.aimbobRewards().consumed(player,stack);

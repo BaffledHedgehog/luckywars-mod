@@ -24,7 +24,7 @@ public final class LbcBoba {
     private static boolean debitMatches(ItemStack stack){return !stack.isEmpty()
             &&LbcFartus.data(stack).getIntOr("boba_eblan",0)==1;}
     /** Source x/z position scores were integer block coordinates (Pos scale 1). */
-    static BlockPos origin(Vec3 at){
+    public static BlockPos origin(Vec3 at){
         var block=BlockPos.containing(at);
         return block.getX()>=-16000&&block.getX()<=16000&&block.getZ()>=-16000&&block.getZ()<=16000
                 ?new BlockPos(0,160,0):block;

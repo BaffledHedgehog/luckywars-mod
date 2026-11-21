@@ -26,11 +26,11 @@ public final class ZoneBarrier {
     private double startRadius, endRadius;
     private int startedAt, durationTicks, nextPulse, lastVisualTick;
 
-    ZoneBarrier(GameController game) { this.game = game; }
+    public ZoneBarrier(GameController game) { this.game = game; }
 
-    record Checkpoint(Vec3 center,double from,double to,int startedAt,int duration,int nextPulse,int lastVisualTick) { }
-    Checkpoint checkpoint() { return new Checkpoint(center,startRadius,endRadius,startedAt,durationTicks,nextPulse,lastVisualTick); }
-    void restore(Checkpoint image) {
+    public record Checkpoint(Vec3 center,double from,double to,int startedAt,int duration,int nextPulse,int lastVisualTick) { }
+    public Checkpoint checkpoint() { return new Checkpoint(center,startRadius,endRadius,startedAt,durationTicks,nextPulse,lastVisualTick); }
+    public void restore(Checkpoint image) {
         if (image.center == null) {
             stop();startRadius=image.from;endRadius=image.to;startedAt=image.startedAt;
             durationTicks=image.duration;nextPulse=image.nextPulse;lastVisualTick=image.lastVisualTick;return;
@@ -75,7 +75,7 @@ public final class ZoneBarrier {
 
     public double radius() { return active() ? radiusAt(game.matchTicks()) : 0; }
 
-    double radiusAt(int tick) {
+    public double radiusAt(int tick) {
         double progress = Math.clamp((tick - (double) startedAt) / durationTicks, 0, 1);
         return startRadius + (endRadius - startRadius) * progress;
     }
@@ -128,6 +128,6 @@ public final class ZoneBarrier {
     }
 
     // Проверки читают те же metadata, которые Polymer отправляет настоящему клиенту.
-    ItemDisplayElement display() { return display; }
-    int viewerCount() { return holder == null ? 0 : holder.getWatchingPlayers().size(); }
+    public ItemDisplayElement display() { return display; }
+    public int viewerCount() { return holder == null ? 0 : holder.getWatchingPlayers().size(); }
 }

@@ -156,7 +156,7 @@ public final class LbcUseInteractions {
     public static boolean forcedUse(ServerPlayer player){
         return FORCED_ITEM_USE.isBound()&&FORCED_ITEM_USE.get()==player;
     }
-    static InteractionResult forceItem(ServerPlayer player,InteractionHand hand){
+    public static InteractionResult forceItem(ServerPlayer player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
         if(stack.isEmpty()||usesAsShield(stack))return InteractionResult.PASS;
         return ScopedValue.where(FORCED_ITEM_USE,player)

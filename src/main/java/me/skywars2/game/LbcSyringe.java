@@ -66,9 +66,9 @@ public final class LbcSyringe {
     private final Map<LivingEntity,Buff> buffs=new IdentityHashMap<>();
     private int ticks;private boolean guardianDamage;
     private record Buff(UUID owner,ItemStack weapon,int power,int ghast,int creeper,Set<String> previousTags) { }
-    LbcSyringe(GameController game){this.game=game;}
-    int count(){return buffs.size();}
-    boolean buffed(LivingEntity mob){return buffs.containsKey(mob);}
+    public LbcSyringe(GameController game){this.game=game;}
+    public int count(){return buffs.size();}
+    public boolean buffed(LivingEntity mob){return buffs.containsKey(mob);}
     private boolean active(ServerPlayer p){return game.items().mana().visible(p)&&p.isAlive()&&!p.isRemoved()&&p.level()==game.maps().level();}
     private boolean held(ServerPlayer p){return matches(p.getMainHandItem())||matches(p.getOffhandItem());}
     private boolean eligible(ServerPlayer p,LivingEntity mob){return !(mob instanceof ServerPlayer)&&mob.getType().builtInRegistryHolder().is(MOBS)&&mob.isAlive()&&!mob.isRemoved()&&mob.level()==p.level()
@@ -105,7 +105,7 @@ public final class LbcSyringe {
         if(mob instanceof SyringeMobAccess.CreeperRadius a)a.skywars2$syringeRadius(b.creeper);
         tagsOff(mob,b.previousTags);var set=holding.get(b.owner);if(set!=null)set.remove(mob);
     }
-    void refresh(){
+    public void refresh(){
         for(var id:List.copyOf(holding.keySet())){var p=game.server().getPlayerList().getPlayer(id);if(p==null||!active(p)||!held(p))forget(id);}
         for(var p:game.server().getPlayerList().getPlayers())if(active(p)&&held(p)&&!holding.containsKey(p.getUUID())){
             var set=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());holding.put(p.getUUID(),set);p.entityTags().add("holding_syringe");
@@ -152,8 +152,8 @@ public final class LbcSyringe {
         if(b.power>0&&(b.weapon.isEmpty()||mob.getMainHandItem().is(type)))power(mob,mob.getMainHandItem(),b.power);
         if(p!=null&&holding.containsKey(b.owner)){begin(p,mob);holding.get(b.owner).add(mob);}
     }
-    void tick(){if(++ticks%5==0)refresh();}
-    void loaded(Entity entity){if(!(entity instanceof LivingEntity mob)||buffs.containsKey(mob)||!mob.entityTags().contains(ACTIVE))return;
+    public void tick(){if(++ticks%5==0)refresh();}
+    public void loaded(Entity entity){if(!(entity instanceof LivingEntity mob)||buffs.containsKey(mob)||!mob.entityTags().contains(ACTIVE))return;
         var saved=mob.entityTags().stream().filter(t->t.startsWith(SAVED)).findFirst().orElse(null);
         if(saved!=null){var parts=saved.substring(SAVED.length()).split(",");if(parts.length==6){
             attributesOff(mob);power(mob,mob.getMainHandItem(),Integer.parseInt(parts[0]));
@@ -162,15 +162,15 @@ public final class LbcSyringe {
             var previous=new HashSet<String>();for(int i=3;i<6;i++)if(parts[i].equals("1"))previous.add(List.of("syringe_buffed","super_blaze","super_guardian").get(i-3));tagsOff(mob,previous);
         }}
     }
-    void unloaded(Entity entity){if(entity instanceof LivingEntity mob)end(mob);}
+    public void unloaded(Entity entity){if(entity instanceof LivingEntity mob)end(mob);}
     public void beforeDeathLoot(LivingEntity entity){end(entity);}
     private void forget(UUID id){var set=holding.remove(id);if(set!=null)for(var mob:List.copyOf(set))end(mob);
         var p=game.server().getPlayerList().getPlayer(id);if(p!=null)p.entityTags().remove("holding_syringe");}
-    void forget(ServerPlayer p){forget(p.getUUID());p.entityTags().remove("holding_syringe");}
-    void stop(){for(var id:List.copyOf(holding.keySet()))forget(id);for(var m:List.copyOf(buffs.keySet()))end(m);}
+    public void forget(ServerPlayer p){forget(p.getUUID());p.entityTags().remove("holding_syringe");}
+    public void stop(){for(var id:List.copyOf(holding.keySet()))forget(id);for(var m:List.copyOf(buffs.keySet()))end(m);}
 
-    static boolean cloneRecognizes(Entity e){return e instanceof BonusFireball;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public static boolean cloneRecognizes(Entity e){return e instanceof BonusFireball;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!(source instanceof BonusFireball b))return null;
         var origin=b.origin;boolean left=b.leftOrigin;
         // origin is an external launch unit; it remains the original unit after reflection/cloning.

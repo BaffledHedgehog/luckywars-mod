@@ -23,7 +23,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** MapManager's accepted X-axis transform, advanced by the existing terrain dispatcher. */
-final class MapRotation implements LbcStonekivi.Work {
+public final class MapRotation implements LbcStonekivi.Work {
     static final int SIZE=320;
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
@@ -226,8 +226,8 @@ final class MapRotation implements LbcStonekivi.Work {
             }
         }
     }
-    static Vec3 rotateVector(Vec3 v){return new Vec3(v.x,-v.z,v.y);}
-    static float[] rotateLook(float yaw,float pitch){
+    public static Vec3 rotateVector(Vec3 v){return new Vec3(v.x,-v.z,v.y);}
+    public static float[] rotateLook(float yaw,float pitch){
         var look=rotateVector(Vec3.directionFromRotation(pitch,yaw));
         return new float[]{(float)Math.toDegrees(Math.atan2(-look.x,look.z)),(float)Math.toDegrees(Math.asin(-Math.clamp(look.y,-1,1)))};
     }

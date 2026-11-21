@@ -28,7 +28,7 @@ public final class LbcSourceUnlocks {
         return id.getNamespace().equals("swrg") && valid(id.toString());
     }
 
-    static boolean valid(String key) {
+    public static boolean valid(String key) {
         if (key == null) return false;
         for (String prefix : new String[]{"swrg.kit", "swrg.skill", "swrg.sound", "swrg.bars"}) {
             int max = switch (prefix) { case "swrg.kit" -> 20; case "swrg.skill" -> 11;
@@ -38,7 +38,7 @@ public final class LbcSourceUnlocks {
         return key.matches("swrg:rewards/(?:suffix_(?:[1-9]|1[0-9]|2[0-6])|drop_[1-3](?:_requested)?|turnir/(?:trophy[1-3]|killer))");
     }
 
-    static boolean has(ServerPlayer player, PlayerStore.Profile profile, String key) {
+    public static boolean has(ServerPlayer player, PlayerStore.Profile profile, String key) {
         if(profile!=null&&profile.revokedLegacyUnlocks.contains(key))return false;
         if (profile != null && (profile.legacyUnlocks.contains(key) || profile.lbcUnlocks.contains(key))) return true;
         if (player == null) return false;
@@ -48,7 +48,7 @@ public final class LbcSourceUnlocks {
     }
 
     /** Call on join and before accepting an opening, then persist in its same transaction. */
-    static boolean importLegacy(ServerPlayer player, PlayerStore.Profile profile) {
+    public static boolean importLegacy(ServerPlayer player, PlayerStore.Profile profile) {
         boolean changed = false;
         for (String key : universe()) {
             if (key.matches("swrg:rewards/drop_[1-3]_requested")
@@ -58,7 +58,7 @@ public final class LbcSourceUnlocks {
         return changed;
     }
 
-    static void publishDropRequest(ServerPlayer player, int id, boolean made) {
+    public static void publishDropRequest(ServerPlayer player, int id, boolean made) {
         var flag = player.level().getServer().getAdvancements().get(Identifier.parse(LbcDropRequests.fulfilledKey(id)));
         if (flag == null) return;
         for (String criterion : flag.value().criteria().keySet()) {
@@ -68,7 +68,7 @@ public final class LbcSourceUnlocks {
     }
 
     /** Projections are repaired after durable commit/rejoin, never used as the payout journal. */
-    static void publish(ServerPlayer player, PlayerStore.Profile profile) {
+    public static void publish(ServerPlayer player, PlayerStore.Profile profile) {
         for(String key:profile.revokedLegacyUnlocks){
             if(!key.contains(":"))player.entityTags().remove(key);
             else{var flag=player.level().getServer().getAdvancements().get(Identifier.parse(key));if(flag!=null)for(String criterion:flag.value().criteria().keySet())player.getAdvancements().revoke(flag,criterion);}

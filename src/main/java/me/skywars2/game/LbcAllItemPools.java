@@ -87,10 +87,10 @@ public final class LbcAllItemPools {
         return false;
     }
     /** Explicit index seam verifies every logical slot without replacing the runtime random sampler. */
-    void drawSlot(Domain domain,int index,LootContext context,Consumer<ItemStack> output){
+    public void drawSlot(Domain domain,int index,LootContext context,Consumer<ItemStack> output){
         materialize(catalog().slots(domain).get(index),context,output);
     }
-    void drawSlot(Domain domain,Collection<String> types,int index,LootContext context,Consumer<ItemStack> output){materialize(catalog().prepared(new Filter(domain,List.copyOf(types))).get(index),context,output);}
+    public void drawSlot(Domain domain,Collection<String> types,int index,LootContext context,Consumer<ItemStack> output){materialize(catalog().prepared(new Filter(domain,List.copyOf(types))).get(index),context,output);}
     private boolean materialize(Slot slot,LootContext context,Consumer<ItemStack> output){
         if(slot.tmt){output.accept(game.items().tmt().generate(context.getRandom()));return true;}
         if(slot.nativeItem!=null){output.accept(slot.nativeItem.getDefaultInstance().copy());return true;}

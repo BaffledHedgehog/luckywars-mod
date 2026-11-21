@@ -110,7 +110,7 @@ public final class LbcElectro {
                 new SimplePolymerItem(props, Items.SHIELD, true));
     }
 
-    static void register() { }
+    public static void register() { }
 
 
     private static CompoundTag flag(String key) { var data = new CompoundTag(); data.putInt(key, 1); return data; }
@@ -168,14 +168,14 @@ public final class LbcElectro {
             new net.minecraft.core.particles.DustParticleOptions(net.minecraft.util.ARGB.colorFromFloat(1,.208f,.118f,.027f)&0xffffff,1);
     private static final net.minecraft.core.particles.DustParticleOptions SPIN_PARTICLE =
             new net.minecraft.core.particles.DustParticleOptions(0xffff00,1);
-    static final class YellowTrace {
-        ServerPlayer owner;
+    public static final class YellowTrace {
+        public ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
-        final boolean spinning;
-        Vec3 position;
-        float yaw,pitch;
-        int age;
+        public final boolean spinning;
+        public Vec3 position;
+        public float yaw,pitch;
+        public int age;
         YellowTrace(ServerPlayer owner,Vec3 position,String epoch,boolean spinning) {
             this.owner=owner; this.level=owner.level(); this.position=position; this.epoch=epoch; this.spinning=spinning;
             yaw=owner.getYRot(); pitch=owner.getXRot();
@@ -189,12 +189,12 @@ public final class LbcElectro {
     private final Set<LightningBolt> liveBolts = new HashSet<>();
     private final ArrayList<LightningBolt> boltBatch = new ArrayList<>();
     // У TNT, falling blocks и старых marker нет общего native owner; удерживаем автора до удаления сущности.
-    final IdentityHashMap<Entity, ServerPlayer> reflectedOwners = new IdentityHashMap<>();
+    public final IdentityHashMap<Entity, ServerPlayer> reflectedOwners = new IdentityHashMap<>();
     private final Set<UUID> blockerCarriers = new HashSet<>();
     private final Set<Entity> accelerated = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
 
     /** Общий dirty inventory snapshot LbcMagic: аксессуар не требует повторного сканирования каждый тик. */
-    void inventory(ServerPlayer player,boolean blocker) {
+    public void inventory(ServerPlayer player,boolean blocker) {
         if(blocker) blockerCarriers.add(player.getUUID()); else blockerCarriers.remove(player.getUUID());
     }
     public boolean blockerActive(ServerPlayer player) { return blockerCarriers.contains(player.getUUID()); }
@@ -254,7 +254,7 @@ public final class LbcElectro {
             LbcOverload.sound(owner,"minecraft:entity.firework_rocket.twinkle",1,2,0);
         }
     }
-    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
         yellowTraces.removeIf(trace->{
             if(trace.level!=level) return false;
             Vec3 next=transform.apply(trace.position);
@@ -264,7 +264,7 @@ public final class LbcElectro {
     }
 
     public int yellowCount() { return yellowTraces.size(); }
-    java.util.List<YellowTrace> yellowSnapshot() { return java.util.List.copyOf(yellowTraces); }
+    public java.util.List<YellowTrace> yellowSnapshot() { return java.util.List.copyOf(yellowTraces); }
     public int yellowCharges(ServerPlayer player) {
         var state=yellowCharges.get(player.getUUID()); return state==null ? 0 : state.charges;
     }
@@ -389,7 +389,7 @@ for(int i=0;i<=2;i++) {
         return true;
     }
 
-    void adoptRawFoodStatuses(ServerPlayer player){
+    public void adoptRawFoodStatuses(ServerPlayer player){
         if((LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.WITHER)))return;
         int pulses=game.items().mana().hudValue(player,"shock");if(pulses<=0)return;
         var existing=shocks.computeIfAbsent(player,p->new Shock(player,0));existing.pulses=pulses;
@@ -408,7 +408,7 @@ for(int i=0;i<=2;i++) {
                     || !LbcParasite.active(player) && !game.items().magic().rejectEffect(player,MobEffects.WITHER));
     }
 
-    void setScriptShock(ServerPlayer target, ServerPlayer author, int pulses) {
+    public void setScriptShock(ServerPlayer target, ServerPlayer author, int pulses) {
         if (pulses <= 0 || !LbcDimensionItems.ordinary(target) || !admitsShock(target)) {
             clearEffects(target);
             return;
@@ -582,7 +582,7 @@ for(int i=0;i<=2;i++) {
     public ServerPlayer reflectedOwner(Entity entity) { return reflectedOwners.get(entity); }
 
     /** Общая смена автора для отражений и Curse, без разворота скорости или повторного удара. */
-    void assignOwner(Entity entity,ServerPlayer owner) {
+    public void assignOwner(Entity entity,ServerPlayer owner) {
         game.items().spellSources().reflected(entity);
         if(entity instanceof net.minecraft.world.entity.projectile.Projectile projectile) projectile.setOwner(owner);
         else {
@@ -613,7 +613,7 @@ for(int i=0;i<=2;i++) {
         if(owner.level()!=bolt.level() || bolt.isRemoved()) return;
         bolt.setCause(owner); bolt.entityTags().add(SHOCK_BOLT); bolt.entityTags().add(EGG_BOLT); liveBolts.add(bolt);
     }
-    net.minecraft.world.entity.LightningBolt lightning(ServerPlayer owner,Vec3 position) {
+    public net.minecraft.world.entity.LightningBolt lightning(ServerPlayer owner,Vec3 position) {
         return lightning(owner, game.items().spellSources().level(owner), position);
     }
 
@@ -638,11 +638,11 @@ for(int i=0;i<=2;i++) {
     }
 
     /** Source score consumers alter the existing charge object, never its sibling counter. */
-    void sourceCharge(ServerPlayer player,boolean yellow,boolean progress,int value) {
+    public void sourceCharge(ServerPlayer player,boolean yellow,boolean progress,int value) {
         var state=(yellow?yellowCharges:charges).computeIfAbsent(player.getUUID(),ignored->new Charge());
         if(progress)state.hits=value;else state.charges=value;
     }
-    void sourceShock(ServerPlayer player,int value) {
+    public void sourceShock(ServerPlayer player,int value) {
         if(value>0&&LbcParasite.active(player)){clearEffects(player);return;}
         game.items().mana().score(player,"shock").set(value);
         var state=shocks.get(player);
@@ -652,7 +652,7 @@ for(int i=0;i<=2;i++) {
         Charge state = charges.get(player.getUUID()); return state == null ? 0 : state.charges;
     }
     /** Source swordcharged1/5 and swordcharging1/5 are distinct player counters. */
-    void addPlayerCounters(ServerPlayer player,int amount) {
+    public void addPlayerCounters(ServerPlayer player,int amount) {
         if(amount<=0) return;
         var cyber=charges.computeIfAbsent(player.getUUID(),ignored->new Charge());
         var yellow=yellowCharges.computeIfAbsent(player.getUUID(),ignored->new Charge());
@@ -692,15 +692,15 @@ for(int i=0;i<=2;i++) {
     }
 
     /** Rollback drops only short accepted traces/bolts; charge and shock ownership remain separate. */
-    java.util.List<LightningBolt> transientSnapshot(){return java.util.List.copyOf(liveBolts);}
-    void cancelTransient(){yellowTraces.clear();var old=java.util.List.copyOf(liveBolts);liveBolts.clear();for(var bolt:old)if(!bolt.isRemoved())bolt.discard();}
+    public java.util.List<LightningBolt> transientSnapshot(){return java.util.List.copyOf(liveBolts);}
+    public void cancelTransient(){yellowTraces.clear();var old=java.util.List.copyOf(liveBolts);liveBolts.clear();for(var bolt:old)if(!bolt.isRemoved())bolt.discard();}
 
-    void checkpointBoundary(){if(checkpointDepth!=0||!shockBatch.isEmpty()||!yellowBatch.isEmpty()||!boltBatch.isEmpty())throw new IllegalStateException("Finish native Electro callbacks before checkpointing");}
-    void prepareFrozen(){checkpointBoundary();checkpointFrozen=true;cancelTransient();}
-    void publishFrozen(){checkpointBoundary();checkpointFrozen=false;}
-    void cancelFrozen(){checkpointBoundary();checkpointFrozen=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(checkpointDepth!=0||!shockBatch.isEmpty()||!yellowBatch.isEmpty()||!boltBatch.isEmpty())throw new IllegalStateException("Finish native Electro callbacks before checkpointing");}
+    public void prepareFrozen(){checkpointBoundary();checkpointFrozen=true;cancelTransient();}
+    public void publishFrozen(){checkpointBoundary();checkpointFrozen=false;}
+    public void cancelFrozen(){checkpointBoundary();checkpointFrozen=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Counter(Charge original,int hits,int charges){}
         private record Status(Shock original,MatchDamageSources.Ref owner,int pulses,int untilNext){}
         private record Reflected(MatchDamageSources.Ref actor,MatchDamageSources.Ref owner){}
@@ -723,7 +723,7 @@ for(int i=0;i<=2;i++) {
             reflectedOwners.forEach((actor,owner)->{if(!actor.isRemoved()&&!omitted.contains(actor.getUUID()))reflections.add(new Reflected(links.key(actor),links.key(owner)));});
             for(var actor:accelerated)if(!actor.isRemoved()&&!omitted.contains(actor.getUUID()))sped.add(links.key(actor));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var nextTargets=targets.restore(links);var owners=new IdentityHashMap<Shock,ServerPlayer>();var retainedTargets=java.util.Collections.newSetFromMap(new IdentityHashMap<Shock,Boolean>());var retainedOwners=java.util.Collections.newSetFromMap(new IdentityHashMap<Shock,Boolean>());
             for(var saved:statuses){var owner=(ServerPlayer)links.get(saved.owner);owners.put(saved.original,owner);if(MatchOfflinePlayers.retained(owner))retainedOwners.add(saved.original);}
             nextTargets.forEach((target,status)->{if(MatchOfflinePlayers.retained(target))retainedTargets.add(status);});
@@ -738,7 +738,7 @@ for(int i=0;i<=2;i++) {
             };
         }
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var shock=source instanceof LivingEntity l?shocks.get(l):null;var reflected=reflectedOwners.get(source);
         boolean sped=accelerated.contains(source),bolt=liveBolts.contains(source);
         if(shock==null&&reflected==null&&!sped&&!bolt)return null;
@@ -753,7 +753,7 @@ for(int i=0;i<=2;i++) {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var trace:yellowTraces)if(game.items().currentEpoch(trace.epoch)
                 &&LbcPlanetoidSkill.near(game,holder,trace.level,trace.position)){
             var aim=LbcPlanetoidSkill.direction(holder,trace.position,82);

@@ -27,15 +27,15 @@ import java.util.List;
 import java.util.Map;
 
 /** Fevgalea's three detached helpers and their full particle-projectile closure. */
-final class SauvojenStars {
-    static final String TAG="skywars2.sauvojen.fevgalea";
+public final class SauvojenStars {
+    public static final String TAG="skywars2.sauvojen.fevgalea";
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<net.minecraft.world.entity.EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final DustParticleOptions[] DUST={new DustParticleOptions(rgb(.945f,.494f,.071f),1),new DustParticleOptions(rgb(.714f,.945f,.071f),1),new DustParticleOptions(rgb(.071f,.698f,.945f),1)};
     private static final DustParticleOptions DROP_DUST=new DustParticleOptions(rgb(.796f,1,.984f),1);
     private static final double[][] TRAIL={{0,0},{.2,-.07},{.4,-.15},{.6,-.2},{.75,-.25},{-.2,-.07},{-.4,-.15},{-.6,-.2},{-.75,-.25}};
     private static int rgb(float r,float g,float b){return net.minecraft.util.ARGB.colorFromFloat(1,r,g,b)&0xffffff;}
-    enum Kind { CHARGE,RAIN,DROP }
+    public enum Kind { CHARGE,RAIN,DROP }
     private static final class Actor {
         final ServerPlayer owner;
         final InteractionHand hand;
@@ -53,12 +53,12 @@ final class SauvojenStars {
             lifetime=kind==Kind.CHARGE?40:kind==Kind.RAIN?100:25;
         }
     }
-    record View(ServerPlayer owner,String epoch,Kind kind,int flavour,Vec3 position,Vec3 direction,int age,int lifetime,Marker carrier){}
+    public record View(ServerPlayer owner,String epoch,Kind kind,int flavour,Vec3 position,Vec3 direction,int age,int lifetime,Marker carrier){}
     private final GameController game;
     private final Map<Marker,Actor> actors=new LinkedHashMap<>();
     SauvojenStars(GameController game){this.game=game;}
-    int count(){return actors.size();}
-    List<View> snapshot(){return actors.values().stream().map(a->new View(a.owner,a.epoch,a.kind,a.flavour,a.carrier.position(),a.direction,a.age,a.lifetime,a.carrier)).toList();}
+    public int count(){return actors.size();}
+    public List<View> snapshot(){return actors.values().stream().map(a->new View(a.owner,a.epoch,a.kind,a.flavour,a.carrier.position(),a.direction,a.age,a.lifetime,a.carrier)).toList();}
     /** Modes are the Academy terra row numbers, including the three identical random hit_shoot rows. */
     void castAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
         if(!validOwner(owner)||!resident(owner.level(),origin)||game.items().magic().suppressedAt(owner.level(),origin))return;
@@ -122,7 +122,7 @@ final class SauvojenStars {
             }
         }
     }
-    void tick(){
+    public void tick(){
         if(!actors.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         for(var actor:List.copyOf(actors.values())){
             var owner=actor.owner;var marker=actor.carrier;var level=owner.level();
@@ -175,7 +175,7 @@ final class SauvojenStars {
         for(var point:TRAIL){Vec3 p=at.add(actor.left.scale(point[0])).add(actor.direction.scale(point[1]));
             actor.owner.level().sendParticles(DUST[actor.flavour-1],p.x,p.y,p.z,1,0,0,0,0);}
     }
-    static float chargeDamage(LivingEntity target,int flavour){
+    public static float chargeDamage(LivingEntity target,int flavour){
         return switch(flavour){
             case 1 -> Mth.floor(target.getAttributeValue(Attributes.MAX_HEALTH))*.15f;
             case 2 -> target.getAttribute(Attributes.ATTACK_DAMAGE)==null?0:Mth.floor(target.getAttributeValue(Attributes.ATTACK_DAMAGE));
@@ -207,11 +207,11 @@ final class SauvojenStars {
     }
     void loaded(Entity entity){if(entity.entityTags().contains(TAG)&&(!(entity instanceof Marker marker)||!actors.containsKey(marker)))entity.discard();}
     void unloaded(Entity entity){if(entity instanceof Marker marker)actors.remove(marker);}
-    void forget(ServerPlayer owner){for(var actor:List.copyOf(actors.values()))if(actor.owner==owner)remove(actor);}
-    void stop(){for(var actor:List.copyOf(actors.values()))remove(actor);}
+    public void forget(ServerPlayer owner){for(var actor:List.copyOf(actors.values()))if(actor.owner==owner)remove(actor);}
+    public void stop(){for(var actor:List.copyOf(actors.values()))remove(actor);}
     private void remove(Actor actor){if(actors.remove(actor.carrier)!=null&&!actor.carrier.isRemoved())actor.carrier.discard();}
 
-    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+    public int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
         for(var original:List.copyOf(actors.values())){
             if(budget-made<count||System.nanoTime()>=deadline)break;
@@ -240,7 +240,7 @@ final class SauvojenStars {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var actor:actors.values())if(!actor.carrier.isRemoved()&&game.items().currentEpoch(actor.epoch)
                 &&!game.items().timeStop().frozen(actor.carrier)&&!actor.carrier.entityTags().contains("time_stopped")
                 &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)actor.carrier.level(),actor.carrier.position())){

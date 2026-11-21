@@ -29,7 +29,7 @@ import java.util.*;
 
 /** Remaining authored library entries; component data is imported, spell engines are shared. */
 public final class LbcLibrarySpells {
-    record Definition(int spellId,String id,Item item) { }
+    public record Definition(int spellId,String id,Item item) { }
     private static final Map<Integer,Definition> BOOKS=new LinkedHashMap<>();
     private static final Map<Integer,LbcEnderWiki.Effect> WIKI=new HashMap<>();
     static {
@@ -63,8 +63,8 @@ public final class LbcLibrarySpells {
         }catch(Exception e){throw new ExceptionInInitializerError(e);}
     }
     public static void register(){ }
-    static List<Definition> definitions(){return BOOKS.values().stream().filter(d->d.spellId()<LbcExtraGrimoires.FIRST).toList();}
-    static List<Definition> extraDefinitions(){return BOOKS.values().stream().filter(d->d.spellId()>=LbcExtraGrimoires.FIRST).toList();}
+    public static List<Definition> definitions(){return BOOKS.values().stream().filter(d->d.spellId()<LbcExtraGrimoires.FIRST).toList();}
+    public static List<Definition> extraDefinitions(){return BOOKS.values().stream().filter(d->d.spellId()>=LbcExtraGrimoires.FIRST).toList();}
     private static final class ScriptSpells {
         static final Map<Identifier,Integer> BY_ITEM = collect();
         private static Map<Identifier,Integer> collect() {
@@ -74,15 +74,15 @@ public final class LbcLibrarySpells {
             return Collections.unmodifiableMap(ids);
         }
     }
-    static Map<Identifier,Integer> scriptSpells() { return ScriptSpells.BY_ITEM; }
-    static LbcEnderWiki.Effect fixedEffect(int id){return WIKI.get(id);}
-    static Definition kind(ItemStack stack){
+    public static Map<Identifier,Integer> scriptSpells() { return ScriptSpells.BY_ITEM; }
+    public static LbcEnderWiki.Effect fixedEffect(int id){return WIKI.get(id);}
+    public static Definition kind(ItemStack stack){
         if(stack.isEmpty())return null;var data=LbcFartus.data(stack);
         var d=BOOKS.get(data.getIntOr("spellid",0));
         if(d!=null&&(stack.is(d.item)||data.getIntOr("libspell",0)==1))return d;
         for(var entry:BOOKS.values())if(stack.is(entry.item))return entry;return null;
     }
-    static boolean admitted(GameController game,ServerPlayer p,InteractionHand hand){
+    public static boolean admitted(GameController game,ServerPlayer p,InteractionHand hand){
         return p.isAlive()&&!p.isRemoved()&&game.stage()!=GameController.Stage.ENDING&&game.canUseGameplayItems(p)
                 &&p.level()==game.maps().level()&&p.level().hasChunkAt(BlockPos.containing(p.getEyePosition()))
                 &&(hand!=InteractionHand.OFF_HAND||game.config().offhandWands)&&!game.items().actionsBlocked(p)
@@ -136,7 +136,7 @@ public final class LbcLibrarySpells {
         p.getInventory().setChanged();p.inventoryMenu.slotsChanged(p.getInventory());p.containerMenu.broadcastChanges();
         p.awardStat(Stats.ITEM_USED.get(used));
     }
-    static boolean cast(GameController g,ServerPlayer p,InteractionHand hand,int id){
+    public static boolean cast(GameController g,ServerPlayer p,InteractionHand hand,int id){
         try(var castOrigin=WandCastOrigin.scope(p,true)){
         if(id>=LbcExtraGrimoires.FIRST&&id<=LbcExtraGrimoires.LAST)return LbcExtraGrimoires.cast(g,p,hand,id);
         for(var kind:LbcElementalGrimoires.Kind.values())if(kind.spellId==id)return LbcElementalGrimoires.cast(g,p,hand,kind);

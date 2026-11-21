@@ -35,9 +35,9 @@ public final class LbcBabylonEffects {
         Contribution(int ticks,LbcIndirectKills.Owner cause){remaining=ticks;this.cause=cause;}
     }
     public static final class OwnerDamageSource extends DamageSource {
-        final LbcIndirectKills.Owner cause;
+        public final LbcIndirectKills.Owner cause;
         final String epoch;
-        OwnerDamageSource(ServerLevel level,Entity direct,ServerPlayer owner,LbcIndirectKills.Owner cause,String epoch){
+        public OwnerDamageSource(ServerLevel level,Entity direct,ServerPlayer owner,LbcIndirectKills.Owner cause,String epoch){
             super(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.PLAYER_EXPLOSION),direct,owner);this.cause=cause;this.epoch=epoch;
         }
     }
@@ -87,7 +87,7 @@ public final class LbcBabylonEffects {
         carrierImpact(level,amp,at,new LbcIndirectKills.Owner(cause.player(),cause.order(),true,true));
     }
     /** Same legacy in-ground actuator for native tipped arrows and Babylon transports. */
-    void carrierImpact(ServerLevel level,int amp,Vec3 at,LbcIndirectKills.Owner cause){
+    public void carrierImpact(ServerLevel level,int amp,Vec3 at,LbcIndirectKills.Owner cause){
         int kind=index(amp);
         if(kind<0||!game.playing()||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(at))
                 ||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(level))return;
@@ -119,15 +119,15 @@ public final class LbcBabylonEffects {
     private void act(LivingEntity target,int kind,LbcIndirectKills.Owner cause){
         actAt((ServerLevel)target.level(),target.position(),kind,cause);
     }
-    void quiverExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){actAt(level,at,0,cause);}
+    public void quiverExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){actAt(level,at,0,cause);}
     /** Ordinary explosive darts retain native TNT strength and two-tick fuse in the shared child lifecycle. */
-    void primeExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
+    public void primeExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
         var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
         var tnt=new net.minecraft.world.entity.item.PrimedTnt(level,at.x,at.y,at.z,owner);tnt.setFuse(2);
         inheritChild(cause,tnt);level.addFreshEntity(tnt);
     }
     /** Source bigexplode has seven native MOB explosions, sharing accepted WILD damage and terrain ownership. */
-    void bigExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
+    public void bigExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
         var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
         for(var offset:List.of(Vec3.ZERO,new Vec3(0,0,4),new Vec3(0,0,-4),new Vec3(-4,0,0),new Vec3(4,0,0),new Vec3(0,-4,0),new Vec3(0,4,0))){
             var point=at.add(offset);if(!level.hasChunkAt(BlockPos.containing(point)))continue;
@@ -218,7 +218,7 @@ public final class LbcBabylonEffects {
     }
     public void forget(ServerPlayer player){clear(player);}
     public void stop(){for(var target:List.copyOf(pending.keySet()))clear(target);for(var entity:List.copyOf(secondary.keySet()))if(!entity.isRemoved())entity.discard();secondary.clear();retainedTargets.clear();}
-    void adoptRawFoodStatuses(ServerPlayer player){
+    public void adoptRawFoodStatuses(ServerPlayer player){
         if(!valid(player)||skillImmune(player)||game.items().magic().rejectCustomDebuff(player))return;
         int[] desired=new int[AMPS.length];for(int i=0;i<AMPS.length;i++)desired[i]=mana.hudValue(player,COUNTERS[i]);
         for(int i=0;i<AMPS.length;i++){long delta=(long)desired[i]-queued(player,AMPS[i]);if(delta>0)
@@ -227,9 +227,9 @@ public final class LbcBabylonEffects {
     }
     public void addPlayerCounter(ServerPlayer player,String name){for(int i=0;i<AMPS.length;i++)if(COUNTERS[i].equals(name)){mana.score(player,name).set(queued(player,AMPS[i]));return;}}
 
-    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
-    void prepareResidentFrozen(){pending.clear();secondary.clear();retainedTargets.clear();}
-    final class ResidentCheckpoint {
+    public ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    public void prepareResidentFrozen(){pending.clear();secondary.clear();retainedTargets.clear();}
+    public final class ResidentCheckpoint {
         private record ContributionImage(int remaining,LbcIndirectKills.Owner cause){}
         private record TargetImage(MatchDamageSources.Ref body,List<List<ContributionImage>> queues){}
         private final List<TargetImage> targets=new ArrayList<>();
@@ -239,7 +239,7 @@ public final class LbcBabylonEffects {
                     .map(queue->queue.stream().map(c->new ContributionImage(c.remaining,c.cause)).toList()).toList())));
             secondary.forEach((body,cause)->{if(!body.isRemoved()&&!links.omitted(body))children.put(links.key(body),cause);});
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var next=new LinkedHashMap<LivingEntity,List<ArrayDeque<Contribution>>>();var offline=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
             for(var target:targets){var body=(LivingEntity)links.get(target.body);var all=queues();
                 for(int kind=0;kind<AMPS.length;kind++)for(var row:target.queues.get(kind))all.get(kind).add(new Contribution(row.remaining,row.cause));
@@ -249,7 +249,7 @@ public final class LbcBabylonEffects {
         }
     }
 
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var original=source instanceof LivingEntity living?pending.get(living):null;var cause=secondary.get(source);
         boolean child=secondary.containsKey(source);if(original==null&&!child)return null;
         var image=original==null?null:original.stream().map(q->q.stream().map(c->new Contribution(c.remaining,c.cause)).toList()).toList();

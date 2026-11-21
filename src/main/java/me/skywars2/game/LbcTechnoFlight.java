@@ -19,8 +19,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** MK2 boots' owner-local schedule; fuel and native effect clocks remain shared. */
 public final class LbcTechnoFlight {
-    static final Identifier GRAVITY_ONE=Identifier.parse("minecraft:gravity_mk2armor_fix1");
-    static final Identifier GRAVITY_TWO=Identifier.parse("minecraft:gravity_mk2armor_fix2");
+    public static final Identifier GRAVITY_ONE=Identifier.parse("minecraft:gravity_mk2armor_fix1");
+    public static final Identifier GRAVITY_TWO=Identifier.parse("minecraft:gravity_mk2armor_fix2");
     static final Identifier HOVER_AIR_BRAKE=Identifier.parse("skywars2:techno_mk2_hover_air_brake");
     static final String FLIGHT_OWNER="technomk2-flight", LANDING_OWNER="technomk2-landing";
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
@@ -222,9 +222,9 @@ public final class LbcTechnoFlight {
         for(var player:game.server().getPlayerList().getPlayers())end(player,false);
     }
 
-    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
-    void prepareResidentFrozen(){flights.clear();}
-    final class ResidentCheckpoint {
+    public ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    public void prepareResidentFrozen(){flights.clear();}
+    public final class ResidentCheckpoint {
         private record Image(MatchDamageSources.Ref owner,ServerLevel level,int delay,int fuelHalf,
                              int airBrakeTicks,boolean verticalThrust){}
         private final java.util.List<Image> saved;
@@ -232,7 +232,7 @@ public final class LbcTechnoFlight {
             var flight=e.getValue();
             return new Image(links.key(e.getKey()),flight.level,flight.delay,flight.fuelHalf,flight.airBrakeTicks,flight.verticalThrust);
         }).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var next=new IdentityHashMap<ServerPlayer,Flight>();for(var image:saved){MatchAuthorityCheckpoint.world(game,image.level);
                 var flight=new Flight(image.level);flight.delay=image.delay;flight.fuelHalf=image.fuelHalf;
                 flight.airBrakeTicks=image.airBrakeTicks;flight.verticalThrust=image.verticalThrust;

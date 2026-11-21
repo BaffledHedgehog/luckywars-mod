@@ -99,7 +99,7 @@ public final class ProjectileLifetimes {
         }
     }
 
-    ProjectileLifetimes(GameController game) {
+    public ProjectileLifetimes(GameController game) {
         this.game = game;
         var level = game.maps().level();
         // Startup may already have loaded bodies. Later changes are indexed by native lifecycle events.
@@ -145,7 +145,7 @@ public final class ProjectileLifetimes {
         }
     }
     /** Visibility changes do not cancel accepted projectile reviews or their private clocks. */
-    void polymorphVisibility(Entity entity,boolean visible){
+    public void polymorphVisibility(Entity entity,boolean visible){
         if(visible){loaded(entity);return;}
         if(entity instanceof LivingEntity living)removeTarget(living);
         if(entity instanceof Projectile projectile)projectileLocation(projectile,null);
@@ -191,12 +191,12 @@ public final class ProjectileLifetimes {
     }
 
     /** Classify protected spell tags at the sweep, since a native owner may add them after load. */
-    List<Projectile> loadedProjectiles(ServerLevel level) {
+    public List<Projectile> loadedProjectiles(ServerLevel level) {
         var world = projectileWorlds.get(level);
         return world == null ? List.of() : world.snapshot();
     }
 
-    void reindexVisibleProjectiles(Iterable<Entity> bodies) {
+    public void reindexVisibleProjectiles(Iterable<Entity> bodies) {
         projectileLocations.clear();
         projectileWorlds.clear();
         for (var body : bodies) if (body instanceof Projectile projectile && !projectile.isRemoved()
@@ -209,7 +209,7 @@ public final class ProjectileLifetimes {
     }
 
     /** Общий неизменяемый снимок загруженных целей: самонаведение не сканирует мир заново. */
-    List<LivingEntity> loadedTargets() {
+    public List<LivingEntity> loadedTargets() {
         if(snapshotRevision!=targetRevision) {
             targetSnapshot=List.copyOf(targets.values());
             targetRanks=null;
@@ -218,14 +218,14 @@ public final class ProjectileLifetimes {
         return targetSnapshot;
     }
 
-    List<LivingEntity> loadedRadarTargets(ServerLevel level) {
+    public List<LivingEntity> loadedRadarTargets(ServerLevel level) {
         if (level == game.maps().level()) return loadedTargets();
         var world = radarWorlds.get(level);
         return world == null ? List.of() : world.snapshot();
     }
 
     /** Native section iteration has its own order. Preserve publication order for equal-distance targets. */
-    Map<LivingEntity, Integer> loadedTargetRanks() {
+    public Map<LivingEntity, Integer> loadedTargetRanks() {
         var snapshot = loadedTargets();
         if (targetRanks == null) {
             var ranks = new IdentityHashMap<LivingEntity, Integer>(snapshot.size());
@@ -376,7 +376,7 @@ public final class ProjectileLifetimes {
                 target -> ranks.containsKey(target) && target.position().distanceToSqr(at) <= squaredRadius);
     }
 
-    List<LivingEntity> nearbyTargets(ServerLevel level, Vec3 at, double radius, Predicate<LivingEntity> selection) {
+    public List<LivingEntity> nearbyTargets(ServerLevel level, Vec3 at, double radius, Predicate<LivingEntity> selection) {
         var ranks = loadedTargetRanks();
         var nearby = targetSphere(level, at, radius, ranks);
         nearby.removeIf(selection.negate());
@@ -384,7 +384,7 @@ public final class ProjectileLifetimes {
         return nearby;
     }
 
-    LivingEntity nearestTarget(ServerLevel level, Vec3 at, double radius, boolean preferLastOnTie,
+    public LivingEntity nearestTarget(ServerLevel level, Vec3 at, double radius, boolean preferLastOnTie,
                                Predicate<LivingEntity> selection) {
         boolean bounded = Double.isFinite(radius);
         var snapshot = loadedTargets();
@@ -400,7 +400,7 @@ public final class ProjectileLifetimes {
     }
 
     /** Keeper retargets every tick, and exact ties follow native section order. */
-    LivingEntity nearestNativeOrderedTarget(ServerLevel level, Vec3 at, double radius, Predicate<LivingEntity> selection) {
+    public LivingEntity nearestNativeOrderedTarget(ServerLevel level, Vec3 at, double radius, Predicate<LivingEntity> selection) {
         var bounds = new AABB(at, at).inflate(radius);
         var snapshot = loadedTargets();
         double best = radius * radius;
@@ -498,21 +498,21 @@ public final class ProjectileLifetimes {
         return nearest;
     }
 
-    LivingEntity nearestBeamTarget(ServerLevel level, Vec3 at, Predicate<Entity> selection) {
+    public LivingEntity nearestBeamTarget(ServerLevel level, Vec3 at, Predicate<Entity> selection) {
         return nearestTarget(level, at, Double.POSITIVE_INFINITY, false,
                 target -> !target.isRemoved() && target.isAlive() && selection.test(target));
     }
-    boolean target(ServerPlayer owner, Entity entity) {
+    public boolean target(ServerPlayer owner, Entity entity) {
         return entity instanceof LivingEntity && entity.level() == game.items().spellSources().level(owner)
                 && entity.getType().builtInRegistryHolder().is(MOBS)
                 && game.items().wands().projectileTarget(owner, entity);
     }
 
     /** Конечная высота поиска Nuke: учитываем и мобов за высотой строительства, без обхода всего мира. */
-    double livingRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction) {
+    public double livingRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction) {
         return livingRayExtent(owner,from,direction,e->target(owner,e));
     }
-    double livingRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction,java.util.function.Predicate<Entity> selection){
+    public double livingRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction,java.util.function.Predicate<Entity> selection){
         double extent=0;
         for(var candidate:targets.values()) if(candidate.level()==owner.level()&&selection.test(candidate)) {
             var box=candidate.getBoundingBox();
@@ -594,12 +594,12 @@ public final class ProjectileLifetimes {
         return true;
     }
 
-    void checkpointBoundary(){if(reviewing)throw new IllegalStateException("Finish shared lifetime review before checkpointing");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public void checkpointBoundary(){if(reviewing)throw new IllegalStateException("Finish shared lifetime review before checkpointing");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     private record ReviewImage(MatchDamageSources.Ref body,MatchDamageSources.Ref owner,boolean terrain,
                                Vec3 position,Vec3 direction,int next,int targetIndex,int revision,int age,boolean queued){}
     /** One owner for every family's bounded search queue; no re-registration or fresh review budget on replay. */
-    final class Checkpoint {
+    public final class Checkpoint {
         private final List<ReviewImage> reviews;
         private final List<MatchDamageSources.Ref> ordered,liveTargets,snapshot,offArenaRadar;
         private final int revision=targetRevision,snapshotVersion=snapshotRevision,sequence=serial;
@@ -611,7 +611,7 @@ public final class ProjectileLifetimes {
             liveTargets=targets.values().stream().map(links::key).toList();snapshot=targetSnapshot.stream().map(links::key).toList();
             offArenaRadar=radarLocations.keySet().stream().filter(entity->!entity.isRemoved()&&!links.omitted(entity)).map(links::key).toList();
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var restored=new IdentityHashMap<Projectile,Review>();
             for(var image:reviews){var body=(Projectile)links.get(image.body);var r=new Review(body,image.next,image.terrain);
                 r.owner=links.get(image.owner);r.scanPosition=image.position;r.scanDirection=image.direction;r.targetIndex=image.targetIndex;
@@ -630,7 +630,7 @@ public final class ProjectileLifetimes {
         }
     }
 
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof Projectile p))return null;var r=tracked.get(p);if(r==null)return null;
         boolean terrain=r.terrain,queued=r.queued;int next=r.nextReview,index=r.targetIndex,revision=r.targetRevision,age=r.age;
         var owner=r.owner;var position=r.scanPosition;var direction=r.scanDirection;

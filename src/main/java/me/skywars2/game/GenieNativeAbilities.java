@@ -34,7 +34,7 @@ public final class GenieNativeAbilities {
     private final Map<String, Variant> variants;
     private final String index;
 
-    GenieNativeAbilities(GameController game, LbcTmtCatalog catalog) {
+    public GenieNativeAbilities(GameController game, LbcTmtCatalog catalog) {
         this.game = game;
         var lookup = new HashMap<String, Variant>();
         var indexRows = new JsonArray();

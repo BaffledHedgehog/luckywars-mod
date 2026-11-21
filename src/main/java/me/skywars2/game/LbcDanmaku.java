@@ -53,16 +53,16 @@ public final class LbcDanmaku {
     private final LbcMana mana;
     private final List<Card> cards=new ArrayList<>();
     private final List<Bomb> bombs=new ArrayList<>();
-    static final int SPHERE_SLOTS = 20;
-    static final int SPELLCARD_GLOW = 0xE7A100;
-    static final int HAKUREI_BOMB_GLOW = 0xE7A200;
+    public static final int SPHERE_SLOTS = 20;
+    public static final int SPELLCARD_GLOW = 0xE7A100;
+    public static final int HAKUREI_BOMB_GLOW = 0xE7A200;
     static final Identifier SPHERE_MODEL = Identifier.parse("lbc:hakurei_sphere");
     private final Set<Entity> spawning=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<ServerPlayer,List<LivingEntity>> targets=new IdentityHashMap<>();
     private final Map<UUID,EnumMap<InteractionHand,External>> external=new HashMap<>();
     private record External(boolean academy,InteractionHand hand,int ticks) {}
 
-    enum Volley {
+    public enum Volley {
         STANDARD(InteractionHand.MAIN_HAND, false), STANDARD_OFFHAND(InteractionHand.OFF_HAND, false),
         ACADEMY(InteractionHand.MAIN_HAND, true), ACADEMY_OFFHAND(InteractionHand.OFF_HAND, true);
 
@@ -78,7 +78,7 @@ public final class LbcDanmaku {
     private record Aim(Vec3 eye, Vec3 look, float pitch, float yaw) {}
     private record DirectedVolley(ServerLevel level, Volley variant, Aim aim, LbcIndirectKills.Owner cause, int ticks) {}
     private final Map<UUID, EnumMap<InteractionHand, DirectedVolley>> directed = new HashMap<>();
-    LbcDanmaku(GameController game,LbcMana mana){this.game=game;this.mana=mana;var holder=ScoreHolder.forNameOnly("danmaku_staff_mana_use");var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");if(objective==null||board.getPlayerScoreInfo(holder,objective)==null)mana.score(holder,"lbc.math").set(1000);}
+    public LbcDanmaku(GameController game,LbcMana mana){this.game=game;this.mana=mana;var holder=ScoreHolder.forNameOnly("danmaku_staff_mana_use");var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");if(objective==null||board.getPlayerScoreInfo(holder,objective)==null)mana.score(holder,"lbc.math").set(1000);}
     public static void register(){}
     private static Item item(boolean academy){
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse(academy?"skywars2:academy_danmaku_staff":"skywars2:danmaku_staff"));
@@ -146,7 +146,7 @@ public final class LbcDanmaku {
     }
 
     /** Borrow the authored shell without spending the original staff's charge or unlocking upgrades. */
-    boolean scriptBomb(ServerPlayer player, Vec3 center, int charge, boolean fast) {
+    public boolean scriptBomb(ServerPlayer player, Vec3 center, int charge, boolean fast) {
         if (!validOwner(player) || game.items().actionsBlocked(player) || game.items().wands().inputTimeStopped(player)) return false;
         var magic = game.items().magic();
         if (!fast && (magic.suppressed(player) || magic.suppressedAt(player.level(), player.getEyePosition())
@@ -172,9 +172,9 @@ public final class LbcDanmaku {
     public static boolean isItem(ItemStack stack){return !stack.isEmpty()&&(stack.is(ITEM)||stack.is(ACADEMY)||LbcFartus.data(stack).getIntOr("danmaku_staff",0)==1);}
     public static boolean isAcademy(ItemStack stack){return isItem(stack)&&(stack.is(ACADEMY)||LbcFartus.data(stack).getIntOr("upgraded",0)==1);}
     public static boolean managed(Entity e){return e.entityTags().contains(TAG);}
-    static final class Card {
-        ServerPlayer owner;final Display.ItemDisplay display;final boolean homing;Vec3 direction;int age;
-        LbcIndirectKills.Owner cause;
+    public static final class Card {
+        public ServerPlayer owner;public final Display.ItemDisplay display;public final boolean homing;public Vec3 direction;public int age;
+        public LbcIndirectKills.Owner cause;
 
         Card(ServerPlayer owner, Display.ItemDisplay display, Vec3 direction, boolean homing, LbcIndirectKills.Owner cause) {
             this.owner = owner;
@@ -184,13 +184,13 @@ public final class LbcDanmaku {
             this.cause = cause;
         }
     }
-    static final class Bomb {
-        final ServerPlayer owner;
-        final Display.ItemDisplay display;
-        final int charge;
-        final boolean fast;
-        final LbcIndirectKills.Owner cause;
-        int age,empty,pulseTicks;
+    public static final class Bomb {
+        public final ServerPlayer owner;
+        public final Display.ItemDisplay display;
+        public final int charge;
+        public final boolean fast;
+        public final LbcIndirectKills.Owner cause;
+        public int age,empty,pulseTicks;
 
         Bomb(ServerPlayer owner, Display.ItemDisplay display, int charge, boolean fast, LbcIndirectKills.Owner cause) {
             this.owner = owner;
@@ -199,8 +199,8 @@ public final class LbcDanmaku {
             this.fast = fast;
             this.cause = cause;
         }
-        int radius(){return (int)((int)(age*1.2)*.05);}
-        int sphereSlot() {
+        public int radius(){return (int)((int)(age*1.2)*.05);}
+        public int sphereSlot() {
             int slot = display.getGlowColorOverride() - (fast ? HAKUREI_BOMB_GLOW : SPELLCARD_GLOW);
             return slot >= 0 && slot < SPHERE_SLOTS ? slot : -1;
         }
@@ -209,9 +209,9 @@ public final class LbcDanmaku {
             display.setGlowingTag(slot >= 0);
         }
     }
-    List<Card> cards(){return List.copyOf(cards);} List<Bomb> bombs(){return List.copyOf(bombs);}
-    int count(){return cards.size()+bombs.size();}
-    int remaining(ServerPlayer p){return mana.score(p,"danmaku").get();}
+    public List<Card> cards(){return List.copyOf(cards);} public List<Bomb> bombs(){return List.copyOf(bombs);}
+    public int count(){return cards.size()+bombs.size();}
+    public int remaining(ServerPlayer p){return mana.score(p,"danmaku").get();}
     public ServerPlayer owner(Entity e){for(var c:cards)if(c.display==e)return c.owner;for(var b:bombs)if(b.display==e)return b.owner;return null;}
     private boolean validOwner(ServerPlayer p){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&p.isAlive()&&!p.isRemoved()&&game.canUseGameplayItems(p)&&p.level()==game.maps().level();}
     public boolean use(ServerPlayer p,InteractionHand hand){
@@ -223,12 +223,12 @@ public final class LbcDanmaku {
         mana.score(p,"danmaku").set((int)Math.min(Integer.MAX_VALUE,(long)remaining(p)+20));game.items().wands().wandCasted(p);return true;
     }
     /** Consumed casts retain their actual hand and continue independently of held staff input. */
-    void queueExternal(ServerPlayer p,InteractionHand hand,boolean academy){
+    public void queueExternal(ServerPlayer p,InteractionHand hand,boolean academy){
         var hands=external.computeIfAbsent(p.getUUID(),key->new EnumMap<>(InteractionHand.class));
         var prior=hands.get(hand);hands.put(hand,new External(academy,hand,prior==null?20:(int)Math.min(Integer.MAX_VALUE,(long)prior.ticks+20)));
     }
     /** Schedule one authored pattern with a fixed origin, independent of the physical wand slots. */
-    boolean scriptVolley(ServerPlayer player, Vec3 origin, Vec3 direction, Volley variant) {
+    public boolean scriptVolley(ServerPlayer player, Vec3 origin, Vec3 direction, Volley variant) {
         if (!validOwner(player)) return false;
         var patterns = directed.computeIfAbsent(player.getUUID(), ignored -> new EnumMap<>(InteractionHand.class));
         if (patterns.containsKey(variant.patternHand)) return false;
@@ -265,7 +265,7 @@ public final class LbcDanmaku {
         if (patterns.isEmpty()) directed.remove(player.getUUID());
     }
 
-    int externalRemaining(ServerPlayer p){var hands=external.get(p.getUUID());if(hands==null)return 0;return (int)Math.min(Integer.MAX_VALUE,hands.values().stream().mapToLong(External::ticks).sum());}
+    public int externalRemaining(ServerPlayer p){var hands=external.get(p.getUUID());if(hands==null)return 0;return (int)Math.min(Integer.MAX_VALUE,hands.values().stream().mapToLong(External::ticks).sum());}
     public void redirectCursedCards(){for(var c:List.copyOf(cards))game.items().homing().redirect(c);}
     public void tick(){
         targets.clear();
@@ -290,11 +290,11 @@ public final class LbcDanmaku {
     }
     private static int phase(int n,InteractionHand hand){return ((20-n%20)%20)/2;}
     private boolean valid(ServerPlayer p,Display.ItemDisplay d){return validOwner(p)&&!d.isRemoved()&&game.items().currentEpoch(d)&&p.level()==d.level()&&d.level().hasChunkAt(d.blockPosition())&&!game.items().magic().suppressedAt((ServerLevel)d.level(),d.position());}
-    Card card(ServerPlayer player, Vec3 position, Vec3 direction, boolean homing) {
+    public Card card(ServerPlayer player, Vec3 position, Vec3 direction, boolean homing) {
         return publishCard(player, position, direction, homing, null);
     }
 
-    boolean scriptCard(ServerPlayer player, Vec3 position, Vec3 direction, boolean homing) {
+    public boolean scriptCard(ServerPlayer player, Vec3 position, Vec3 direction, boolean homing) {
         return publishCard(player, position, direction, homing, game.items().indirectKills().coldCause(player, true)) != null;
     }
 
@@ -357,7 +357,7 @@ public final class LbcDanmaku {
         bomb.display.setTransformationInterpolationDelay(0);
     }
     private static void orient(Card c){var v=c.direction;c.display.setYRot((float)Math.toDegrees(Math.atan2(-v.x,v.z)));c.display.setXRot((float)-Math.toDegrees(Math.atan2(v.y,Math.sqrt(v.x*v.x+v.z*v.z))));}
-    boolean reflectCard(Entity display, ServerPlayer reflector) {
+    public boolean reflectCard(Entity display, ServerPlayer reflector) {
         for (var card : cards) if (card.display == display) {
             card.owner = reflector;
             card.cause = null;
@@ -622,12 +622,12 @@ public final class LbcDanmaku {
 {new Pattern(0.407037,0.366498,0.0,true,0.0f,0.0f,false),new Pattern(0.520915,-0.169256,0.0,true,0.0f,0.0f,false),new Pattern(0.113878,-0.535754,0.0,true,0.0f,0.0f,false),new Pattern(-0.407037,-0.366498,0.0,true,0.0f,0.0f,false),new Pattern(-0.520915,0.169256,0.0,true,0.0f,0.0f,false),new Pattern(-0.113878,0.535754,0.0,true,0.0f,0.0f,false)},
 {new Pattern(0.443117,0.321943,0.0,true,0.0f,0.0f,false),new Pattern(0.500369,-0.222779,0.0,true,0.0f,0.0f,false),new Pattern(0.057253,-0.544722,0.0,true,0.0f,0.0f,false),new Pattern(-0.443117,-0.321943,0.0,true,0.0f,0.0f,false),new Pattern(-0.500369,0.222779,0.0,true,0.0f,0.0f,false),new Pattern(-0.057253,0.544722,0.0,true,0.0f,0.0f,false)}}};
 
-    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
         for(var card:cards)if(card.display.level()==level&&!card.display.isRemoved())card.display.setPos(transform.apply(card.display.position()));
         for(var bomb:bombs)if(bomb.display.level()==level&&!bomb.display.isRemoved())
             bomb.display.setPos(transform.apply(bomb.display.position()));
     }
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var card:cards)if(!card.display.isRemoved()&&game.items().currentEpoch(card.display)
                 &&!game.items().timeStop().frozen(card.display)&&!card.display.entityTags().contains("time_stopped")
                 &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)card.display.level(),card.display.position())){
@@ -635,7 +635,7 @@ public final class LbcDanmaku {
         }
     }
 
-    LbcCloneSkills.ActorImage cloneImage(Entity original){
+    public LbcCloneSkills.ActorImage cloneImage(Entity original){
         var card=cards.stream().filter(c->c.display==original).findFirst().orElse(null);
         var bomb=bombs.stream().filter(b->b.display==original).findFirst().orElse(null);
         if(card==null&&bomb==null)return null;
@@ -657,8 +657,8 @@ public final class LbcDanmaku {
             public void rollback(Entity clone){unloaded(clone);}
         };
     }
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){if(!spawning.isEmpty())throw new IllegalStateException("Danmaku checkpoint during native publication");return new Checkpoint(links);}
-    final class Checkpoint{
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){if(!spawning.isEmpty())throw new IllegalStateException("Danmaku checkpoint during native publication");return new Checkpoint(links);}
+    public final class Checkpoint{
         private record CardImage(MatchDamageSources.Ref owner,MatchDamageSources.Ref display,Vec3 direction,boolean homing,int age,LbcIndirectKills.Owner cause){}
         private record BombImage(MatchDamageSources.Ref owner,MatchDamageSources.Ref display,int charge,boolean fast,int age,int empty,int pulseTicks,LbcIndirectKills.Owner cause){}
         private final List<CardImage> savedCards;
@@ -671,7 +671,7 @@ public final class LbcDanmaku {
             external.forEach((id,hands)->savedExternal.put(id,Map.copyOf(hands)));
             directed.forEach((id,hands)->savedDirected.put(id,Map.copyOf(hands)));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var restoredCards=new ArrayList<Card>();for(var image:savedCards){var card=new Card((ServerPlayer)links.get(image.owner),(Display.ItemDisplay)links.get(image.display),image.direction,image.homing,image.cause);card.age=image.age;restoredCards.add(card);}
             var restoredBombs=new ArrayList<Bomb>();for(var image:savedBombs){var bomb=new Bomb((ServerPlayer)links.get(image.owner),(Display.ItemDisplay)links.get(image.display),image.charge,image.fast,image.cause);bomb.age=image.age;bomb.empty=image.empty;bomb.pulseTicks=image.pulseTicks;restoredBombs.add(bomb);}
             return ()->{

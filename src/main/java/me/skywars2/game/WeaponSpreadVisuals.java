@@ -19,13 +19,14 @@ import java.util.*;
 
 /** Derived, recipient-only aiming telemetry; weapon state and RNG stay with their original owners. */
 public final class WeaponSpreadVisuals {
-    static final int MARKER=0xD57600, CONE=1, EULER=2;
-    record Aim(float degrees,int mode,InteractionHand hand) { }
+    static final int MARKER=0xD57600;
+    public static final int CONE=1, EULER=2;
+    public record Aim(float degrees,int mode,InteractionHand hand) { }
     private record View(ServerPlayer player,ServerLevel level,ElementHolder holder,ItemDisplayElement display) { }
     private static final Map<ServerGamePacketListenerImpl,View> VIEWERS=new IdentityHashMap<>();
     private WeaponSpreadVisuals() { }
 
-    static Aim sample(GameController game,ServerPlayer player) {
+    public static Aim sample(GameController game,ServerPlayer player) {
         if(game.balanceLegacy()||game.isObserver(player)||player.isRemoved()||!player.isAlive()||player.isSpectator()
                 ||game.items().polymorph().masked(player)||game.items().fpvDrone().controlling(player)
                 ||game.items().rifleZoom().scopeVisible(player))return null;
@@ -88,7 +89,7 @@ public final class WeaponSpreadVisuals {
     public static void stop() {
         for(var view:VIEWERS.values())view.holder.destroy();VIEWERS.clear();
     }
-    static List<ItemDisplayElement> displays(ServerPlayer player) {
+    public static List<ItemDisplayElement> displays(ServerPlayer player) {
         var view=VIEWERS.get(player.connection);return view==null?List.of():List.of(view.display);
     }
 }

@@ -171,7 +171,7 @@ public final class LbcHedgehogSpikes {
         var a=new SpikeArrow(p,kind);a.setPos(at);a.setDeltaMovement(velocity);a.entityTags().add(TAG);game.items().markCurrentItemEpoch(a);arrows.add(a);
         LbcShooters.orient(a);game.items().timeStop().prepareFrozen(a);if(!p.level().addFreshEntity(a)||a.isRemoved()){retire(a);return null;}return a;
     }
-    Arrow emitLegacy(ServerPlayer p,int variant,Vec3 at,Vec3 velocity){
+    public Arrow emitLegacy(ServerPlayer p,int variant,Vec3 at,Vec3 velocity){
         if(variant<1||variant>10||variant==10&&!luckyGrenadeAllowed(p.level(),at)||!resident(p.level(),at)||variant==9&&!game.items().clownKit().smokeAllowed(p.level(),at))return null;
         var kind=switch(variant){case 1->SpikeKind.CONFUSE;case 2->SpikeKind.BLIND;case 3->SpikeKind.BOOM;case 4->SpikeKind.STANDARD;case 5->SpikeKind.WITHER;default->SpikeKind.POISON;};
         var arrow=new SpikeArrow(p,kind,variant);arrow.setPos(at);arrow.setDeltaMovement(velocity);arrow.entityTags().add(TAG);
@@ -219,7 +219,7 @@ public final class LbcHedgehogSpikes {
             default->{}
         }
     }
-    void impulse(ServerPlayer p){
+    public void impulse(ServerPlayer p){
         var origin=p.getEyePosition();var direction=p.getLookAngle().normalize();var level=p.level();var cause=game.items().indirectKills().coldCause(p,true);
         var source=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),p),cause);
         var end=origin.add(direction.scale(250));var wall=LbcTerra.surfaceHit(level,origin,end,p);
@@ -276,8 +276,8 @@ public final class LbcHedgehogSpikes {
     public int trackedCount(){return arrows.size();}
     public int pendingCount(){return pending.size();}
     public List<Arrow> projectiles(){return List.copyOf(arrows);}
-    static boolean cloneRecognizes(Entity actor){return actor instanceof LbcHedgehogSpikes.SpikeArrow;}
-    LbcCloneSkills.ActorImage cloneImage(Entity actor){
+    public static boolean cloneRecognizes(Entity actor){return actor instanceof LbcHedgehogSpikes.SpikeArrow;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity actor){
         if(!(actor instanceof SpikeArrow source)||source.retired||!(source.getOwner() instanceof ServerPlayer owner))return null;
         var kind=source.kind;int legacy=source.legacy;var author=source.originalAuthor;boolean blockDone=source.blockDone,done=source.luckyGrenadeDone;
         return CloneComplexProjectileStates.image(level->new SpikeArrow(owner,kind,legacy,author),clone->{var target=(SpikeArrow)clone;target.blockDone=blockDone;target.luckyGrenadeDone=done;arrows.add(target);},this::unloaded);

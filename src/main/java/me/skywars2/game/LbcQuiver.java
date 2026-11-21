@@ -108,15 +108,15 @@ public final class LbcQuiver {
         }
         return true;
     }
-    void payloadReactive(LbcTmtAmmoPayloads.Entry entry,ServerPlayer owner,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
+    public void payloadReactive(LbcTmtAmmoPayloads.Entry entry,ServerPlayer owner,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
         int now=game.server().getTickCount();if(entry.expired()||entry.lastReactiveTick==now)return;
         if(reactive(owner,level,at,entry.payload.color,cause))entry.lastReactiveTick=now;
     }
     /** All sibling terminals finish before the real carrier owner retires its body. */
-    void payloadGround(Entity actor,LbcTmtAmmoPayloads.State state,ServerPlayer owner,ServerLevel level,Vec3 at,float yaw,float pitch,LbcIndirectKills.Owner cause){
+    public void payloadGround(Entity actor,LbcTmtAmmoPayloads.State state,ServerPlayer owner,ServerLevel level,Vec3 at,float yaw,float pitch,LbcIndirectKills.Owner cause){
         payloadGround(actor,state,owner,level,at,yaw,pitch,amp->true,cause);
     }
-    void payloadGround(Entity actor,LbcTmtAmmoPayloads.State state,ServerPlayer owner,ServerLevel level,Vec3 at,float yaw,float pitch,
+    public void payloadGround(Entity actor,LbcTmtAmmoPayloads.State state,ServerPlayer owner,ServerLevel level,Vec3 at,float yaw,float pitch,
                        java.util.function.IntPredicate inherited,LbcIndirectKills.Owner cause){
         if(state==null||!runtime(actor)||!game.items().currentEpoch(actor)||game.items().timeStop().stopped(level))return;
         for(var entry:state.entries){if(entry.terminal||entry.expired()||!inherited.test(entry.payload.variant))continue;entry.terminal=true;
@@ -138,7 +138,7 @@ public final class LbcQuiver {
             default->groundCarrier(actor,owner,level,at,yaw,pitch,amp,cause);
         }
     }
-    void payloadContact(Entity actor,LbcTmtAmmoPayloads.State state,LivingEntity target,ServerPlayer owner,LbcIndirectKills.Owner cause){
+    public void payloadContact(Entity actor,LbcTmtAmmoPayloads.State state,LivingEntity target,ServerPlayer owner,LbcIndirectKills.Owner cause){
         if(state==null)return;
         for(var entry:state.entries)if(!entry.expired()){
             if(entry.payload.variant==119)game.items().stand().payloadAccepted(target,owner);
@@ -200,10 +200,10 @@ public final class LbcQuiver {
         groundVariant(arrow,state.owner,(ServerLevel)arrow.level(),arrow.position(),arrow.getYRot(),arrow.getXRot(),state.amp,state.cause);arrow.discard();shots.remove(arrow);
     }
     /** Same accepted ammo marker for physical arrows, shulker bullets and detached beam carriers. */
-    static int carrierAmp(ItemStack ammo){for(var e:ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).getAllEffects())if(e.is(MobEffects.RAID_OMEN))return e.getAmplifier();return 0;}
-    static int carrierColor(ItemStack ammo){return ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).customColor().orElse(-1);}
+    public static int carrierAmp(ItemStack ammo){for(var e:ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).getAllEffects())if(e.is(MobEffects.RAID_OMEN))return e.getAmplifier();return 0;}
+    public static int carrierColor(ItemStack ammo){return ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).customColor().orElse(-1);}
     /** Reactive source emits one native zero-fuse TNT per active carrier tick, three blocks behind its aimed point. */
-    boolean reactive(ServerPlayer owner,ServerLevel level,Vec3 point,ItemStack ammo,LbcIndirectKills.Owner accepted){
+    public boolean reactive(ServerPlayer owner,ServerLevel level,Vec3 point,ItemStack ammo,LbcIndirectKills.Owner accepted){
         return reactive(owner,level,point,carrierColor(ammo),accepted);
     }
     boolean reactive(ServerPlayer owner,ServerLevel level,Vec3 point,int color,LbcIndirectKills.Owner accepted){
@@ -216,7 +216,7 @@ public final class LbcQuiver {
         var wild=accepted==null?null:new LbcIndirectKills.Owner(accepted.player(),accepted.order(),true,true);child(body,new Authority(wild,game.items().epoch()));return !body.isRemoved()&&level.getEntity(body.getUUID())==body;
     }
     /** Terminal is called once by the actual carrier's block-hit owner. */
-    void groundCarrier(Entity carrier,ServerPlayer owner,ServerLevel level,Vec3 point,float yaw,float pitch,ItemStack ammo,LbcIndirectKills.Owner accepted){
+    public void groundCarrier(Entity carrier,ServerPlayer owner,ServerLevel level,Vec3 point,float yaw,float pitch,ItemStack ammo,LbcIndirectKills.Owner accepted){
         groundVariant(carrier,owner,level,point,yaw,pitch,carrierAmp(ammo),accepted);
     }
     void groundCarrier(Entity carrier,ServerPlayer owner,ServerLevel level,Vec3 point,float yaw,float pitch,int amp,LbcIndirectKills.Owner accepted){
@@ -268,7 +268,7 @@ public final class LbcQuiver {
         sync(target);return true;
     }
     public void shulkerLightTrail(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){if(cause!=null)trail(level,at,112,new Authority(cause,game.items().epoch()));}
-    void adoptRawFoodStatuses(ServerPlayer player){
+    public void adoptRawFoodStatuses(ServerPlayer player){
         if(!runtime(player)||skillImmune(player)||game.items().magic().rejectCustomDebuff(player))return;
         int[] desired=new int[AMPS.length];for(int i=0;i<AMPS.length;i++)desired[i]=game.items().mana().hudValue(player,SCORES[i]);
         for(int i=0;i<AMPS.length;i++){long delta=(long)desired[i]-queued(player,AMPS[i]);if(delta>0)
@@ -402,8 +402,8 @@ public final class LbcQuiver {
     public void unloaded(Entity entity){if(entity instanceof Arrow arrow)shots.remove(arrow);if(entity instanceof net.minecraft.world.entity.Marker marker&&trails.containsKey(marker))removeTrail(marker);if(!(entity instanceof PrimedTnt&&entity.isRemoved())&&children.remove(entity)!=null&&!entity.isRemoved())entity.discard();if(entity instanceof LivingEntity living)pending.remove(living);}
     public void forget(ServerPlayer owner){clear(owner);for(var entry:List.copyOf(shots.entrySet()))if(entry.getValue().owner==owner){entry.getKey().discard();shots.remove(entry.getKey());}for(var entry:List.copyOf(trails.entrySet()))if(entry.getValue().authority.cause!=null&&entry.getValue().authority.cause.player().equals(owner.getUUID()))removeTrail(entry.getKey());for(var entry:List.copyOf(children.entrySet()))if(entry.getValue().cause!=null&&entry.getValue().cause.player().equals(owner.getUUID())){entry.getKey().discard();children.remove(entry.getKey());}}
     public void stop(){for(var arrow:List.copyOf(shots.keySet()))arrow.discard();shots.clear();for(var marker:List.copyOf(trails.keySet()))removeTrail(marker);for(var entity:List.copyOf(children.keySet()))entity.discard();children.clear();for(var target:List.copyOf(pending.keySet()))clear(target);clock=0;EFFECT_ARROW.remove();}
-    List<Arrow> arrows(){return List.copyOf(shots.keySet());}List<net.minecraft.world.entity.Marker> trails(){return List.copyOf(trails.keySet());}List<Entity> children(){return List.copyOf(children.keySet());}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public List<Arrow> arrows(){return List.copyOf(shots.keySet());}public List<net.minecraft.world.entity.Marker> trails(){return List.copyOf(trails.keySet());}public List<Entity> children(){return List.copyOf(children.keySet());}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var payloads=LbcTmtAmmoPayloads.state(source);var payloadImage=payloads==null?null:payloads.copy();
         var shot=source instanceof Arrow arrow?shots.get(arrow):null;var trail=trails.get(source);var child=children.get(source);
         var queues=source instanceof LivingEntity living?pending.get(living):null;
@@ -424,6 +424,6 @@ public final class LbcQuiver {
         };
     }
 
-    static boolean cloneRecognizes(Entity source){return source.entityTags().contains(SHOT)||source.entityTags().contains(TRAIL)||source.entityTags().contains(CHILD)||LbcTmtAmmoPayloads.state(source)!=null;}
+    public static boolean cloneRecognizes(Entity source){return source.entityTags().contains(SHOT)||source.entityTags().contains(TRAIL)||source.entityTags().contains(CHILD)||LbcTmtAmmoPayloads.state(source)!=null;}
 
 }

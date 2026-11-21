@@ -58,7 +58,7 @@ public final class LbcHalloweenWind {
     private final Set<WindCharge> shots=new LinkedHashSet<>();
     private final Map<ServerPlayer,Integer> seconds=new HashMap<>();
 
-    LbcHalloweenWind(GameController game,LbcMana mana){this.game=game;this.mana=mana;}
+    public LbcHalloweenWind(GameController game,LbcMana mana){this.game=game;this.mana=mana;}
     public static void register(){}
     private static Item registerItem(String id,boolean academy,boolean mace){
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse(id));
@@ -118,7 +118,7 @@ public final class LbcHalloweenWind {
         game.items().wands().wandCasted(p);return true;
     }
     /** Source origin is the eye-positioned spell execution context. */
-    void cast(ServerPlayer p,int mode){
+    public void cast(ServerPlayer p,int mode){
         if(mode<1||mode>4)throw new IllegalArgumentException("Wind mode must be 1..4");
         Vec3 origin=p.getEyePosition();
         LbcOverload.sound(p,origin,"minecraft:entity.breeze.wind_burst",1,mode==4?2:1,0);
@@ -144,7 +144,7 @@ public final class LbcHalloweenWind {
         // Source faces TARGET eyes from caster feet before moving the execution position to TARGET.
         for(var target:nearby(p,p.position(),11))push(p,target,target.getEyePosition().subtract(p.position()).normalize().scale(10),true,cause);
     }
-    void push(ServerPlayer p,LivingEntity target,Vec3 motion,boolean set){push(p,target,motion,set,game.items().indirectKills().wildCause(p));}
+    public void push(ServerPlayer p,LivingEntity target,Vec3 motion,boolean set){push(p,target,motion,set,game.items().indirectKills().wildCause(p));}
     private void push(ServerPlayer p,LivingEntity target,Vec3 motion,boolean set,LbcIndirectKills.Owner cause){
         if(!eligible(target)||target.level()!=p.level())return;
         Vec3 next=set?motion:target.getDeltaMovement().add(motion);
@@ -199,7 +199,7 @@ public final class LbcHalloweenWind {
             if(ticks>=20){second(p);seconds.put(p,0);}else seconds.put(p,ticks);
         }
     }
-    void second(ServerPlayer p){if(owner(p)&&!paused(p)){var score=mana.score(p,"cooldown_wind_charge");if(score.get()>0)score.set(score.get()-1);}}
+    public void second(ServerPlayer p){if(owner(p)&&!paused(p)){var score=mana.score(p,"cooldown_wind_charge");if(score.get()>0)score.set(score.get()-1);}}
     /** Native jumpFromGround tail; the source armor pass consumes the real jump statistic. */
     public void jump(ServerPlayer p){tickPlayer(p);}
     void tickPlayer(ServerPlayer p){
@@ -220,14 +220,14 @@ public final class LbcHalloweenWind {
     }
     public void purify(ServerPlayer p){mana.score(p,"cooldown_wind_charge").set(0);seconds.remove(p);}
     public int count(){return shots.size();}
-    List<WindCharge> snapshot(){return List.copyOf(shots);}
+    public List<WindCharge> snapshot(){return List.copyOf(shots);}
     public boolean loaded(Entity e){if(!managed(e))return false;if(e instanceof NativeCharge charge&&valid(charge))shots.add(charge);else unloaded(e);return true;}
     public void unloaded(Entity e){if(managed(e)){if(e instanceof NativeCharge charge)charge.retired=true;shots.remove(e);if(!e.isRemoved())e.discard();}}
     public void forget(ServerPlayer p){for(var shot:List.copyOf(shots))if(shot.getOwner()==p)unloaded(shot);purify(p);}
     public void stop(){for(var shot:List.copyOf(shots))unloaded(shot);for(var p:game.server().getPlayerList().getPlayers())purify(p);seconds.clear();}
 
-    static boolean cloneRecognizes(Entity e){return managed(e)||e instanceof LbcHalloweenWind.NativeCharge;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public static boolean cloneRecognizes(Entity e){return managed(e)||e instanceof LbcHalloweenWind.NativeCharge;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!(source instanceof NativeCharge c)||c.retired)return null;
         return CloneComplexProjectileStates.image(NativeCharge::new,e->{var n=(NativeCharge)e;n.retired=false;shots.add(n);},
                 e->shots.remove(e));

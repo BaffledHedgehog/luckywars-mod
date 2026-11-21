@@ -16,7 +16,7 @@ public final class LbcRangedShots {
     private LbcRangedShots(){}
 
     /** Receives only bodies from this shot's synchronous weapon branches. */
-    static final class Shot implements Consumer<Entity> {
+    public static final class Shot implements Consumer<Entity> {
         private final GameController game;
         private final ServerPlayer owner;
         private final InteractionHand hand;
@@ -37,11 +37,11 @@ public final class LbcRangedShots {
             bodies.add(body);
         }
 
-        void include(List<? extends Entity> family) {
+        public void include(List<? extends Entity> family) {
             bodies.addAll(family);
         }
 
-        void complete() {
+        public void complete() {
             // Ammo donors and retired arrows never enter the delivered event.
             var live = bodies.stream().filter(body -> !body.isRemoved()
                 && owner.level().getEntity(body.getUUID()) == body).toList();

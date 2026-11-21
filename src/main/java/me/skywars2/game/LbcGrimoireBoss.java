@@ -278,13 +278,13 @@ public final class LbcGrimoireBoss {
     }
     public void stop(){for(var actor:List.copyOf(actors)){if(actor instanceof Warden boss)retire(boss);else remove(actor);}for(var bar:bars.values())bar.removeAllPlayers();bars.clear();warnings.values().forEach(w->w.visual().close());warnings.clear();}
     public int count(){return actors.size();}
-    List<Entity> snapshot(){return List.copyOf(actors);}
-    List<TrialWarningVisual> warningSnapshot(){return warnings.values().stream().map(Warning::visual).toList();}
+    public List<Entity> snapshot(){return List.copyOf(actors);}
+    public List<TrialWarningVisual> warningSnapshot(){return warnings.values().stream().map(Warning::visual).toList();}
 
-    static boolean cloneProtected(Entity e){var d=data(e);if(!managed(e)||d==null)return false;
+    public static boolean cloneProtected(Entity e){var d=data(e);if(!managed(e)||d==null)return false;
         int kind=integer(d,"kind");return kind==1||kind==4;}
     private record CloneChild(CloneEncounterStates.Presentation nativeImage,CompoundTag state){}
-    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity original) {
         var state=data(original);if(state==null||cloneProtected(original))return null;
         var saved=state.copy();UUID originalId=original.getUUID();var originalAt=original.position();
         var children=new ArrayList<CloneChild>();
@@ -323,7 +323,7 @@ public final class LbcGrimoireBoss {
 
 
     /** DATA owns phase/causality; rebuild only derived indexes after native ENTITY_LOAD was suppressed. */
-    void reindexRestored(Iterable<Entity> restored){
+    public void reindexRestored(Iterable<Entity> restored){
         for(var warning:List.copyOf(warnings.values()))warning.visual().close();warnings.clear();
         for(var bar:bars.values())bar.removeAllPlayers();bars.clear();actors.clear();
         for(var actor:restored){
@@ -336,7 +336,7 @@ public final class LbcGrimoireBoss {
     }
 
 
-    void directionChanged(Entity actor,Vec3 aim) {
+    public void directionChanged(Entity actor,Vec3 aim) {
         var warning=warnings.get(actor);if(warning==null)return;
         // Use the same native Rotation and suppression clipping as the next tickChild pass.
         // Keep metadata coherent too: warning() otherwise recreates the still-live holder.

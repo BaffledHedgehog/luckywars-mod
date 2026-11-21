@@ -27,7 +27,7 @@ public final class TpsCompensation {
         }
     }
 
-    static double interval(long nanos) {
+    public static double interval(long nanos) {
         return Math.max(0, Math.min(MAX_INTERVAL, nanos)) / TICK_NANOS;
     }
 

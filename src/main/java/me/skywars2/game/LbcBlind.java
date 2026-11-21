@@ -64,18 +64,18 @@ public final class LbcBlind {
         PolymerEntityUtils.registerType(type);
         return type;
     }
-    static void register() { }
+    public static void register() { }
 
     /** Проектиль нужен как нативный источник урона; клиенту показываем только marker. */
     public static final class Charge extends Projectile implements PolymerEntity {
-        boolean rainDrop;
-        int age;
-        int lifetime=ORDINARY_LIFETIME;
-        boolean phantom;
-        boolean emitterStyle;
+        public boolean rainDrop;
+        public int age;
+        public int lifetime=ORDINARY_LIFETIME;
+        public boolean phantom;
+        public boolean emitterStyle;
         InteractionHand trialHand;
         ServerPlayer trialOwner;
-        boolean trial;
+        public boolean trial;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -103,8 +103,8 @@ public final class LbcBlind {
         }
     }
 
-    LbcBlind(GameController game) { this.game=game; }
-    void transformOrigins(net.minecraft.server.level.ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+    public LbcBlind(GameController game) { this.game=game; }
+    public void transformOrigins(net.minecraft.server.level.ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
         clouds.removeIf(cloud->{
             if(cloud.level!=level) return false;
             Vec3 next=transform.apply(cloud.position);
@@ -114,30 +114,30 @@ public final class LbcBlind {
     }
 
     public int count() { return charges.size(); }
-    List<Charge> snapshot() { return List.copyOf(charges); }
+    public List<Charge> snapshot() { return List.copyOf(charges); }
     public int queued(ServerPlayer owner) {
         var queue=gatlings.get(owner);
         return queue==null ? 0 : (int)Math.min(Integer.MAX_VALUE,queue.remaining);
     }
     /** One source gatling_fovos point is one queued volley, including an idle player. */
-    void addPlayerCounters(ServerPlayer owner) {
+    public void addPlayerCounters(ServerPlayer owner) {
         var queue=gatlings.get(owner);
         if(queue==null) { queue=new GatlingQueue(game.items().epoch()); queue.remaining=0; gatlings.put(owner,queue); }
         queue.remaining++;game.items().mana().score(owner,"gatling_fovos").set(queued(owner));
     }
-    void adoptRawFoodStatuses(ServerPlayer owner){
+    public void adoptRawFoodStatuses(ServerPlayer owner){
         int remaining=game.items().mana().hudValue(owner,"gatling_fovos");if(remaining<=0||!validOwner(owner))return;
         var queue=gatlings.computeIfAbsent(owner,p->new GatlingQueue(game.items().epoch()));queue.remaining=remaining;
     }
-    int cloudCount(ServerPlayer owner) { return (int)clouds.stream().filter(cloud->cloud.owner==owner).count(); }
-    void loaded(Entity entity) {
+    public int cloudCount(ServerPlayer owner) { return (int)clouds.stream().filter(cloud->cloud.owner==owner).count(); }
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
                     || !(charge.getOwner() instanceof ServerPlayer))) charge.discard();
             else charges.add(charge);
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof Charge charge) {
             charges.remove(charge);
             if(!charge.isRemoved()) charge.discard();
@@ -159,7 +159,7 @@ public final class LbcBlind {
         }
     }
 
-    void emitAt(ServerPlayer owner,InteractionHand hand,int mode,Vec3 origin,Vec3 direction){
+    public void emitAt(ServerPlayer owner,InteractionHand hand,int mode,Vec3 origin,Vec3 direction){
         sourceSound(owner,origin,"minecraft:entity.squid.squirt",1,1,0);
         if(mode==2)rainAt(owner,origin,direction);
         else spreadAt(owner,hand,origin,mode==1?4:5,mode==1,30,20,false,direction,owner.getLookAngle());
@@ -240,7 +240,7 @@ public final class LbcBlind {
         game.items().markCurrentItemEpoch(charge);
         if(sourceLevel(owner).addFreshEntity(charge)) charges.add(charge);
     }
-    void sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){
+    public void sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){
         var charge=new Charge(TYPE,sourceLevel(owner));charge.setOwner(nativeSourceOwner(owner));charge.setPos(origin);charge.setNoGravity(true);
         charge.setDeltaMovement(direction.normalize().scale(.99));LbcShooters.orient(charge);charge.lifetime=120;charge.emitterStyle=true;
         charge.entityTags().addAll(List.of("magic","shield_blockable"));game.items().markCurrentItemEpoch(charge);
@@ -248,7 +248,7 @@ public final class LbcBlind {
     }
 
     /** Volos uses one ordinary native charge, with its authored35 active ticks. No wand admission/payment. */
-    void spawnFromTrinket(Projectile arrow,Vec3 origin,Vec3 velocity){
+    public void spawnFromTrinket(Projectile arrow,Vec3 origin,Vec3 velocity){
         var level=(net.minecraft.server.level.ServerLevel)arrow.level();
         if(!level.hasChunkAt(BlockPos.containing(origin)))return;
         var charge=new Charge(TYPE,level);charge.setOwner(arrow.getOwner());charge.setPos(origin);charge.setNoGravity(true);
@@ -259,7 +259,7 @@ public final class LbcBlind {
         LbcOverload.sound(level,origin,"minecraft:entity.squid.squirt",1,1,0,0);
     }
 
-    void tick() {
+    public void tick() {
         tick++;
         tickCharges();
         tickClouds();
@@ -448,14 +448,14 @@ public final class LbcBlind {
     }
 
     /** Disconnect удаляет только очереди владельца; уже выпущенные заряды снимет обычная owner-проверка. */
-    void forget(ServerPlayer owner) {
+    public void forget(ServerPlayer owner) {
         gatlings.remove(owner);game.items().mana().score(owner,"gatling_fovos").set(0);
         clouds.removeIf(cloud->cloud.owner==owner);
         cloudBatch.removeIf(cloud->cloud.owner==owner);
         gatlingBatch.removeIf(player->player==owner);
     }
 
-    void stop() {
+    public void stop() {
         for(Charge charge:List.copyOf(charges)) charge.discard();
         charges.clear(); batch.clear(); gatlings.clear(); gatlingBatch.clear(); clouds.clear(); cloudBatch.clear();
     }
@@ -471,7 +471,7 @@ public final class LbcBlind {
     private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
 
 
-    boolean transientCaptureReady(){return clouds.isEmpty();}
+    public boolean transientCaptureReady(){return clouds.isEmpty();}
     void cancelTransient(){
         var old=List.copyOf(charges);charges.clear();batch.clear();gatlings.clear();gatlingBatch.clear();
         for(var charge:old)if(!charge.isRemoved())charge.discard();

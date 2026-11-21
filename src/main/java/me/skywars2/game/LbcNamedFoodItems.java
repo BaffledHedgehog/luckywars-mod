@@ -12,12 +12,12 @@ import net.minecraft.world.item.*;
 
 /** Food identity/presentation only; native consumption and the shared food consumers retain every existing effect. */
 public final class LbcNamedFoodItems {
-    record Entry(String id,String flag,String definition,Item carrier,Item item){}
+    public record Entry(String id,String flag,String definition,Item carrier,Item item){}
     private static final List<Entry> ENTRIES=load();
     private static final Map<Item,Item> CARRIERS=carriers();
     private LbcNamedFoodItems(){}
     public static void register(){}
-    static List<Entry> entries(){return ENTRIES;}
+    public static List<Entry> entries(){return ENTRIES;}
     public static Item carrier(ItemStack stack){return CARRIERS.getOrDefault(stack.getItem(),LbcTmtItems.vanillaCarrier(stack));}
     private static Map<Item,Item> carriers(){var map=new IdentityHashMap<Item,Item>();for(var entry:ENTRIES)map.put(entry.item(),entry.carrier());return Collections.unmodifiableMap(map);}
     private static List<Entry> load(){

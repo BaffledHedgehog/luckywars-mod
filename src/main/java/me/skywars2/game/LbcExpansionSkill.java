@@ -266,10 +266,10 @@ public final class LbcExpansionSkill {
     public void stop(){if(queued!=null)queued.cancel();releaseTickets();owners.clear();positions.clear();turn=0;restoring=false;lastTick=Integer.MIN_VALUE;}
     public void prepareFrozen(){restoring=true;if(queued!=null)queued.cancel();releaseTickets();owners.clear();positions.clear();}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         final List<State> saved=owners.values().stream().map(State::new).toList();final int savedTurn=turn;
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var restored=new LinkedHashMap<UUID,State>();for(var s:saved)restored.put(s.owner,new State(s));
             return new MatchFieldCheckpoint.Plan(Set.of(),()->{
                 owners.clear();owners.putAll(restored);positions.clear();turn=savedTurn;
@@ -280,12 +280,12 @@ public final class LbcExpansionSkill {
             });
         }
     }
-    int frontier(ServerPlayer p){var s=owners.get(p.getUUID());return s==null?0:s.current.size()+s.next.size();}
-    boolean active(ServerPlayer p){var s=owners.get(p.getUUID());return s!=null&&s.active;}
+    public int frontier(ServerPlayer p){var s=owners.get(p.getUUID());return s==null?0:s.current.size()+s.next.size();}
+    public boolean active(ServerPlayer p){var s=owners.get(p.getUUID());return s!=null&&s.active;}
     int paletteSize(){return palette().size();}
-    List<BlockState> paletteForCheck(){return palette();}
+    public List<BlockState> paletteForCheck(){return palette();}
     /** Read-only diagnostic cursor; tests snapshot the next writes before actual registered ticks. */
-    List<BlockPos> frontierPositionsForCheck(ServerPlayer p){
+    public List<BlockPos> frontierPositionsForCheck(ServerPlayer p){
         var s=owners.get(p.getUUID());if(s==null)return List.of();
         var result=new LinkedHashSet<BlockPos>();s.current.forEach(c->result.add(BlockPos.of(c.position)));
         s.next.forEach(c->result.add(BlockPos.of(c.position)));return List.copyOf(result);

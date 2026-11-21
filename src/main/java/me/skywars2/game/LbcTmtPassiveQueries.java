@@ -8,22 +8,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /** Exact equipment queries and the shared source jump leaf; existing native boundaries own admission. */
-final class LbcTmtPassiveQueries {
+public final class LbcTmtPassiveQueries {
     private LbcTmtPassiveQueries(){}
-    static boolean rocketFeet(ItemStack stack){
+    public static boolean rocketFeet(ItemStack stack){
         for(var property:LbcTmtTriggers.effective(stack))if(LbcTmtComponents.nativeItem(property.data())==LbcItems.ROCKET_BOOTS
                 ||((ItemData.IntReader)(Object)property.data()).skywars2$readInt("explosive_feets",0)==1)return true;
         return false;
     }
     /** Caller supplies the actual FEET slot. Legacy Balance requires both iron boots and its own flag. */
-    static boolean reactiveOldFeet(ItemStack feet){
+    public static boolean reactiveOldFeet(ItemStack feet){
         if(!LbcTmtItems.matches(feet))return feet.is(Items.IRON_BOOTS)&&ItemData.intValue(feet,"reactive_old",0)==1;
         for(var property:LbcTmtTriggers.effective(feet))if(LbcTmtComponents.nativeItem(property.data())==Items.IRON_BOOTS
                 &&((ItemData.IntReader)(Object)property.data()).skywars2$readInt("reactive_old",0)==1)return true;
         return false;
     }
     /** Called by the admitted native jump/armor boundary, before its separately gated artifact effects. */
-    static void reactiveOldJump(ServerPlayer owner){
+    public static void reactiveOldJump(ServerPlayer owner){
         var feet=owner.getItemBySlot(EquipmentSlot.FEET);boolean reactive=false;
         if(!LbcTmtItems.matches(feet))reactive=ItemData.intValue(feet,"reactive_old",0)==1;
         else for(var property:LbcTmtTriggers.effective(feet))if(((ItemData.IntReader)(Object)property.data()).skywars2$readInt("reactive_old",0)==1){reactive=true;break;}

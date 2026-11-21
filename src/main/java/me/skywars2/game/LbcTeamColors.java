@@ -13,7 +13,7 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 
 /** Source scoreboard colors and temporary, mutually hostile solo memberships. */
-final class LbcTeamColors {
+public final class LbcTeamColors {
     private static final List<TeamColor> PALETTE=List.of(TeamColor.AQUA,TeamColor.BLACK,
             TeamColor.BLUE,TeamColor.DARK_AQUA,TeamColor.DARK_BLUE,TeamColor.DARK_GRAY,
             TeamColor.DARK_GREEN,TeamColor.DARK_PURPLE,TeamColor.DARK_RED,TeamColor.GOLD,
@@ -27,12 +27,12 @@ final class LbcTeamColors {
     private final Map<String,Departure> departed=new LinkedHashMap<>();
     private final Set<PlayerTeam> temporaryTeams=new LinkedHashSet<>();
 
-    LbcTeamColors(Scoreboard board){this.board=board;}
-    record Checkpoint(Map<String,Assignment> assignments,Map<String,Departure> departed,Set<PlayerTeam> temporaryTeams,boolean bedwars){}
-    Checkpoint checkpoint(){return new Checkpoint(new LinkedHashMap<>(assignments),new LinkedHashMap<>(departed),new LinkedHashSet<>(temporaryTeams),bedwars);}
-    void restore(Checkpoint image){assignments.clear();assignments.putAll(image.assignments);departed.clear();departed.putAll(image.departed);temporaryTeams.clear();temporaryTeams.addAll(image.temporaryTeams);bedwars=image.bedwars;}
-    static TeamColor color(int number){return PALETTE.get(Math.floorMod(number-1,PALETTE.size()));}
-    void ensurePalette(){
+    public LbcTeamColors(Scoreboard board){this.board=board;}
+    public record Checkpoint(Map<String,Assignment> assignments,Map<String,Departure> departed,Set<PlayerTeam> temporaryTeams,boolean bedwars){}
+    public Checkpoint checkpoint(){return new Checkpoint(new LinkedHashMap<>(assignments),new LinkedHashMap<>(departed),new LinkedHashSet<>(temporaryTeams),bedwars);}
+    public void restore(Checkpoint image){assignments.clear();assignments.putAll(image.assignments);departed.clear();departed.putAll(image.departed);temporaryTeams.clear();temporaryTeams.addAll(image.temporaryTeams);bedwars=image.bedwars;}
+    public static TeamColor color(int number){return PALETTE.get(Math.floorMod(number-1,PALETTE.size()));}
+    public void ensurePalette(){
         for(int number=1;number<=32;number++){
             String name=Integer.toString(number);var team=board.getPlayerTeam(name);
             if(team==null){team=board.addPlayerTeam(name);sourceMetadata(team);}
@@ -45,7 +45,7 @@ final class LbcTeamColors {
         team.setDeathMessageVisibility(Team.Visibility.ALWAYS);
         // Source leaves friendly fire, collision and name tags at vanilla defaults.
     }
-    void begin(List<ServerPlayer> participants){
+    public void begin(List<ServerPlayer> participants){
         try (var names = LbcNameplates.batch(board)) {
             stop();ensurePalette();
             var colors=new java.util.ArrayList<>(PALETTE);
@@ -70,7 +70,7 @@ final class LbcTeamColors {
         }
     }
     /** Real BedWars participants may share the same source numeric team; lobby choices remain restorable. */
-    void beginBedwars(List<ServerPlayer> participants,Map<java.util.UUID,Integer> selected){
+    public void beginBedwars(List<ServerPlayer> participants,Map<java.util.UUID,Integer> selected){
         try (var names = LbcNameplates.batch(board)) {
             for(var player:participants){var number=selected.get(player.getUUID());if(number==null||number<1||number>16)
                 throw new IllegalArgumentException("BedWars requires a complete source team assignment");}
@@ -85,17 +85,17 @@ final class LbcTeamColors {
         var game=me.skywars2.SkyWars2.game();
         if(game!=null)MatchSettings.prefixes(game,assignments.values().stream().map(Assignment::temporary).toList());
     }
-    PlayerTeam assigned(ServerPlayer player){var assignment=assignments.get(player.getScoreboardName());return assignment==null?null:assignment.temporary();}
-    PlayerTeam original(ServerPlayer player){var assignment=assignments.get(player.getScoreboardName());return assignment==null?null:assignment.original();}
-    boolean active(){return !assignments.isEmpty();}
-    void leave(ServerPlayer player){
+    public PlayerTeam assigned(ServerPlayer player){var assignment=assignments.get(player.getScoreboardName());return assignment==null?null:assignment.temporary();}
+    public PlayerTeam original(ServerPlayer player){var assignment=assignments.get(player.getScoreboardName());return assignment==null?null:assignment.original();}
+    public boolean active(){return !assignments.isEmpty();}
+    public void leave(ServerPlayer player){
         String name=player.getScoreboardName();
         if(!assignments.isEmpty()||!departed.isEmpty())
             departed.put(name,new Departure(assignments.get(name),board.getPlayersTeam(name)));
         restore(name);removeEmptyTemporaryTeams();
     }
     /** Reattach the match team after elimination or a deliberate operator return after reconnect. */
-    void rejoin(ServerPlayer player){
+    public void rejoin(ServerPlayer player){
         String name=player.getScoreboardName();var previous=departed.remove(name);
         var assignment=previous==null?assignments.get(name):previous.assignment();
         PlayerTeam wanted=previous==null?board.getPlayersTeam(name):previous.actual();
@@ -151,7 +151,7 @@ final class LbcTeamColors {
             if(board.getPlayerTeam(team.getName())==team)board.removePlayerTeam(team);temporaryTeams.remove(team);
         }
     }
-    void stop() {
+    public void stop() {
         try (var names = LbcNameplates.batch(board)) {
             for (String name : List.copyOf(assignments.keySet())) restore(name);
             removeEmptyTemporaryTeams();

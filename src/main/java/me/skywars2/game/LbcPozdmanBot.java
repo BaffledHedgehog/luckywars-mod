@@ -44,7 +44,7 @@ import org.joml.Vector3f;
 /** Standalone bot and its complete rare native dolphin/physical bitcoin result. */
 public final class LbcPozdmanBot {
     static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
-    static final TagKey<Block> SOLID=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:solid"));
+    public static final TagKey<Block> SOLID=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:solid"));
     static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     public static final EntityType<Coin> TYPE=registerType();
     public static final Item ITEM=registerItem();
@@ -57,7 +57,7 @@ public final class LbcPozdmanBot {
     private final Map<UUID,Actor> dormant=new HashMap<>();
     private final Set<UUID> retiredDormant=new HashSet<>();
     private final Map<ServerLevel,Integer> phases=new IdentityHashMap<>();
-    record Actor(UUID owner, String epoch, int age, float yaw, Display.ItemDisplay display,
+    public record Actor(UUID owner, String epoch, int age, float yaw, Display.ItemDisplay display,
                  LbcIndirectKills.Owner cause) {
         Actor frame(int age, float yaw) { return new Actor(owner, epoch, age, yaw, display, cause); }
         Actor visual(Display.ItemDisplay display) { return new Actor(owner, epoch, age, yaw, display, cause); }
@@ -95,7 +95,7 @@ public final class LbcPozdmanBot {
                 &&!waiting.containsKey(player)&&allowed.test(player);
     }
     public boolean use(ServerPlayer player,InteractionHand hand){return admitted(player,hand)&&use(player,hand,player.getRandom().nextInt(100)+1);}
-    boolean use(ServerPlayer player,InteractionHand hand,int roll){
+    public boolean use(ServerPlayer player,InteractionHand hand,int roll){
         if(!admitted(player,hand))return false;
         if(roll<1||roll>100)throw new IllegalArgumentException("Bot roll outside source 1..100");
         waiting.put(player,true);player.entityTags().add("pozdman_wait");
@@ -106,7 +106,7 @@ public final class LbcPozdmanBot {
         return spawnDolphinAt(player, player.getEyePosition(), null);
     }
 
-    net.minecraft.world.entity.Mob scriptDolphin(ServerPlayer player, Vec3 at, ItemStack weapon) {
+    public net.minecraft.world.entity.Mob scriptDolphin(ServerPlayer player, Vec3 at, ItemStack weapon) {
         var level = player.level();
         var magic = game.items().magic();
         if (restoring || !allowed.test(player) || magic.mechanismSuppressedAt(level, at)
@@ -130,7 +130,7 @@ public final class LbcPozdmanBot {
         return target.level() == level && target.getType().builtInRegistryHolder().is(MOBS)
                 && game.items().wands().validTarget(target) && !LbcTeams.allied(game, teamSource, target);
     }
-    LivingEntity nearest(Entity dolphin){
+    public LivingEntity nearest(Entity dolphin){
         LivingEntity result=null;double distance=40000;
         for(var target:((ServerLevel)dolphin.level()).getEntitiesOfClass(LivingEntity.class,dolphin.getBoundingBox().inflate(200),e->eligible((ServerLevel)dolphin.level(),dolphin,e))){double d=dolphin.distanceToSqr(target);if(d>=1&&d<=distance){result=target;distance=d;}}
         return result;
@@ -146,7 +146,7 @@ public final class LbcPozdmanBot {
         if(game.items().timeStop().stopped(level)||game.items().timeStop().frozen(dolphin)||dolphin.entityTags().contains("time_stopped"))return;
         callbacks++;try{actors.put(dolphin,actor.frame(actor.age+1,dolphin.getYRot()));dolphinTick(dolphin);}finally{callbacks--;}
     }
-    void dolphinTick(Entity dolphin){
+    public void dolphinTick(Entity dolphin){
         var actor=actors.get(dolphin);if(actor==null)return;var owner=controller(dolphin,actor);if(owner==null)return;
         // A datapack function retains its command source position after tp moves @s.
         // Its later block test and child function execute from this entry origin.
@@ -167,7 +167,7 @@ public final class LbcPozdmanBot {
         }
         if(owner.getRandom().nextInt(10)<3)spawnCoin(dolphin,origin);
     }
-    Coin spawnCoin(Entity dolphin){return spawnCoin(dolphin,dolphin.position());}
+    public Coin spawnCoin(Entity dolphin){return spawnCoin(dolphin,dolphin.position());}
     Coin spawnCoin(Entity dolphin,Vec3 origin){
         var parent=actors.get(dolphin);if(parent==null)return null;var owner=controller(dolphin,parent);if(owner==null)return null;
         var level=(ServerLevel)dolphin.level();if(!level.hasChunkAt(BlockPos.containing(origin)))return null;
@@ -191,7 +191,7 @@ public final class LbcPozdmanBot {
                 ? game.items().indirectKills().itemCause(owner, wild, false, source.enchantmentWeapon()) : null;
     }
 
-    void ownerChanged(Entity entity, ServerPlayer reflector) {
+    public void ownerChanged(Entity entity, ServerPlayer reflector) {
         if (!(entity instanceof Coin coin)) return;
         var state = actors.get(coin);
         if (state == null) return;
@@ -218,7 +218,7 @@ public final class LbcPozdmanBot {
                     new Vector3f(2),new Quaternionf()));
         }
     }
-    boolean coinContact(Coin coin) {
+    public boolean coinContact(Coin coin) {
         var state = actors.get(coin);
         if (state == null) return false;
         var level = (ServerLevel)coin.level();
@@ -243,7 +243,7 @@ public final class LbcPozdmanBot {
         if (success) remove(coin);
         return success;
     }
-    void coinTick(Coin coin){
+    public void coinTick(Coin coin){
         var state=actors.get(coin);if(state==null)return;
         if(state.display==null){remove(coin);return;}
         if(state.display.isRemoved()){
@@ -300,7 +300,7 @@ public final class LbcPozdmanBot {
     private void retireDormant(Predicate<Actor> condition){
         for(var entry:List.copyOf(dormant.entrySet()))if(condition.test(entry.getValue())){retiredDormant.add(entry.getKey());if(entry.getValue().display!=null)retiredDormant.add(entry.getValue().display.getUUID());dormant.remove(entry.getKey());}
     }
-    boolean keepsDuringCelebration(Entity entity){
+    public boolean keepsDuringCelebration(Entity entity){
         if(game.stage()!=GameController.Stage.ENDING||entity.isRemoved())return false;
         var actor=actors.get(entity);
         return actor!=null&&game.items().currentEpoch(actor.epoch);
@@ -313,17 +313,17 @@ public final class LbcPozdmanBot {
         retireDormant(a->a.owner.equals(player.getUUID()));
     }
     public void stop(){for(var entity:List.copyOf(actors.keySet()))remove(entity);for(var player:waiting.keySet())player.entityTags().remove("pozdman_wait");waiting.clear();retireDormant(a->true);phases.clear();restoring=false;}
-    int count(){return actors.size();}
-    boolean waiting(ServerPlayer player){return waiting.containsKey(player);}
-    Actor state(Entity entity){return actors.get(entity);}
-    List<Entity> snapshot(){return List.copyOf(actors.keySet());}
-    void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Pozdman native callbacks before checkpointing");}
+    public int count(){return actors.size();}
+    public boolean waiting(ServerPlayer player){return waiting.containsKey(player);}
+    public Actor state(Entity entity){return actors.get(entity);}
+    public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    public void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Pozdman native callbacks before checkpointing");}
     /** Native actor replay owns the existing bodies. Detach derived associations without discarding them. */
-    void prepareFrozen(){checkpointBoundary();restoring=true;actors=new IdentityHashMap<>();waiting=new IdentityHashMap<>();dormant.clear();retiredDormant.clear();phases.clear();}
-    void publishFrozen(){checkpointBoundary();restoring=false;}
+    public void prepareFrozen(){checkpointBoundary();restoring=true;actors=new IdentityHashMap<>();waiting=new IdentityHashMap<>();dormant.clear();retiredDormant.clear();phases.clear();}
+    public void publishFrozen(){checkpointBoundary();restoring=false;}
     void cancelFrozen(){checkpointBoundary();restoring=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         record Image(MatchDamageSources.Ref actor,UUID owner,String epoch,int age,float yaw,MatchDamageSources.Ref display,LbcIndirectKills.Owner cause){}
         private final List<Image> images=new ArrayList<>();
         private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Boolean> savedWait;
@@ -332,13 +332,13 @@ public final class LbcPozdmanBot {
         private final Set<UUID> retired=new HashSet<>(retiredDormant);
         Checkpoint(MatchSpellCheckpoint.Links links){savedWait=new MatchSpellCheckpoint.IdentityImage<>(waiting,links);
             for(var entry:actors.entrySet()){var a=entry.getValue();images.add(new Image(links.key(entry.getKey()),a.owner,a.epoch,a.age,a.yaw,a.display==null?null:links.key(a.display),a.cause));}}
-        Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=new IdentityHashMap<Entity,Actor>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=new IdentityHashMap<Entity,Actor>();
             for(var image:images){var entity=links.get(image.actor);var display=image.display==null?null:(Display.ItemDisplay)links.get(image.display);restored.put(entity,new Actor(image.owner,image.epoch,image.age,image.yaw,display,image.cause));}
             var w=savedWait.restore(links);
             return ()->{actors=restored;waiting=w;phases.clear();phases.putAll(clocks);dormant.clear();dormant.putAll(asleep);retiredDormant.clear();retiredDormant.addAll(retired);};}
     }
-    boolean cloneRecognizes(Entity entity){return actors.containsKey(entity);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public boolean cloneRecognizes(Entity entity){return actors.containsKey(entity);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var state=actors.get(source);if(state==null)return null;
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){

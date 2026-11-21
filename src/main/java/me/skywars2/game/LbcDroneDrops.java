@@ -318,15 +318,15 @@ public final class LbcDroneDrops {
     public List<Entity> snapshot(){return List.copyOf(tracked.values());}
 
     /** Native bodies/AI, relationships and direct/reflected owners have separate canonical owners. */
-    void checkpointBoundary(){
+    public void checkpointBoundary(){
         if(checkpointDepth!=0)throw new IllegalStateException("Finish drone tick/spawn/host callback before checkpointing");
     }
     /** Called by the narrow native BaseSpawner wrapper, including callbacks during entity creation. */
     public void checkpointNativeEnter(BaseSpawner producer){checkpointDepth++;}
     public void checkpointNativeExit(BaseSpawner producer){checkpointDepth--;}
     public boolean checkpointNativeTracked(BaseSpawner producer){return producers.containsKey(producer);}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private final IdentityHashMap<Entity,Entity> actorTable;
         private final IdentityHashMap<Entity,MatchDamageSources.Ref> actors=new IdentityHashMap<>();
         private final List<ProducerImage> producerImages;
@@ -346,8 +346,9 @@ public final class LbcDroneDrops {
             authors.forEach((id,author)->authorImages.put(id,links.key(author)));
             dead=Set.copyOf(deadHosts);phase=Math.floorMod(game.server().getTickCount()-cadenceOffset,20);
         }
-        void rebaseFrozen(){cadenceOffset=game.server().getTickCount()-phase;}
-        @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
+        public void rebaseFrozen(){cadenceOffset=game.server().getTickCount()-phase;}
+        @SuppressWarnings("unchecked")
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();
             var nextTracked=(IdentityHashMap<Entity,Entity>)actorTable.clone();
             var nextSlots=new IdentityHashMap<Entity,Entity>();
@@ -401,7 +402,7 @@ public final class LbcDroneDrops {
 
     public int trackedCount(){return tracked.size();}
 
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!managed(source))return null;
         var cause=LbcIndirectKills.playerSource(retainedOwner(source));
         boolean knownCause=cause==null||authors.containsKey(cause.getUUID());

@@ -483,13 +483,13 @@ public final class LbcAntigravity {
     public int stormCount() { return storms.size(); }
     public int displayCount() { return displays.size(); }
     public List<Display.BlockDisplay> snapshot() { return List.copyOf(displays.keySet()); }
-    void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish Antigravity launch/platform/input callbacks before checkpointing");}
-    boolean captureReady(){return checkpointDepth==0;}
-    void prepareFrozen(){checkpointBoundary();rewinding=true;storms.clear();platforms.clear();displays.clear();riders.clear();}
-    void publishFrozen(){checkpointBoundary();rewinding=false;}
-    void cancelFrozen(){checkpointBoundary();storms.clear();platforms.clear();displays.clear();riders.clear();rewinding=false;}
-    Checkpoint checkpoint(MatchDamageSources sources){checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish Antigravity before capture");return new Checkpoint(sources);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish Antigravity launch/platform/input callbacks before checkpointing");}
+    public boolean captureReady(){return checkpointDepth==0;}
+    public void prepareFrozen(){checkpointBoundary();rewinding=true;storms.clear();platforms.clear();displays.clear();riders.clear();}
+    public void publishFrozen(){checkpointBoundary();rewinding=false;}
+    public void cancelFrozen(){checkpointBoundary();storms.clear();platforms.clear();displays.clear();riders.clear();rewinding=false;}
+    public Checkpoint checkpoint(MatchDamageSources sources){checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish Antigravity before capture");return new Checkpoint(sources);}
+    public final class Checkpoint {
         private record StormImage(Storm storm,ServerPlayer originalAuthor,java.util.UUID author,int age,List<BlockPos> columns) { }
         private record CellImage(Display.BlockDisplay original,MatchDamageSources.Ref body,Lifted lifted,int stale,List<AABB> surfaces) { }
         private record PlatformImage(Platform platform,double speed,double offset,List<MatchDamageSources.Ref> cells,List<PassengerImage> passengers) { }
@@ -526,10 +526,10 @@ public final class LbcAntigravity {
             }
             installed=true;
         }
-        java.util.Set<java.util.UUID> actorIds(){return java.util.Set.copyOf(actors);}
-        void reset(){installed=false;}
-        boolean hasPending(){return !installed;}
-        MatchFieldCheckpoint.Plan prepareAvailable(java.util.function.Function<java.util.UUID,Entity> lookup){
+        public java.util.Set<java.util.UUID> actorIds(){return java.util.Set.copyOf(actors);}
+        public void reset(){installed=false;}
+        public boolean hasPending(){return !installed;}
+        public MatchFieldCheckpoint.Plan prepareAvailable(java.util.function.Function<java.util.UUID,Entity> lookup){
             checkpointBoundary();if(installed)return new MatchFieldCheckpoint.Plan(java.util.Set.of(),()->{});
             var pending=new java.util.LinkedHashSet<>(links.resolve(lookup));
             var owners=new java.util.IdentityHashMap<Storm,ServerPlayer>();

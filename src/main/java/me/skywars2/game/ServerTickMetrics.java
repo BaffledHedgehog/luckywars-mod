@@ -21,7 +21,7 @@ public final class ServerTickMetrics {
         record(System.nanoTime());
     }
     static void record(long now){TIMES[cursor]=now;cursor=(cursor+1)%TIMES.length;count=Math.min(count+1,TIMES.length);}
-    static double tps(long window,long now,double target){
+    public static double tps(long window,long now,double target){
         if(count<2)return target;
         int newest=Math.floorMod(cursor-1,TIMES.length),oldest=newest,intervals=0;
         for(int step=1;step<count;step++){
@@ -37,7 +37,7 @@ public final class ServerTickMetrics {
         int tick=server.getTickCount(),index=Math.floorMod(tick,DURATIONS.length);
         DURATIONS[index]=nanos;DURATION_TICKS[index]=tick;durationCount=Math.min(DURATIONS.length,durationCount+1);
     }
-    static long completedTickNanos(MinecraftServer server,int tick){
+    public static long completedTickNanos(MinecraftServer server,int tick){
         int index=Math.floorMod(tick,DURATIONS.length);
         return durationOwner==server&&DURATION_TICKS[index]==tick?DURATIONS[index]:-1;
     }

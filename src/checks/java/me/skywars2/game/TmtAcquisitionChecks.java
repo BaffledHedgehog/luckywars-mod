@@ -15,7 +15,7 @@ public final class TmtAcquisitionChecks {
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("TMT acquisition: "+why);}
     public static void run(GameController game){require(running==null,"exclusive fixture");var s=new Scene(game);running=s;try{s.begin();}catch(Throwable e){running=null;try{s.close();}catch(Throwable c){e.addSuppressed(c);}throw e;}}
     public static void tick(GameController game){var s=running;if(s==null)return;try{require(s.game==game,"same controller");if(!s.step())return;running=null;s.close();SkyWars2.LOGGER.info("[check] PASS tmt-acquisition (real ready loot/native token; two immediate airborne outputs from actual dropped stack, one unit per native tick; no MАГ/TECH suppression; TimeStop, true owner/epoch, private properties/model/codec and no recursive acquisition family)");}catch(Throwable e){running=null;try{s.close();}catch(Throwable c){e.addSuppressed(c);}SkyWars2.LOGGER.error("[check] FAIL tmt-acquisition",e);}}
-    static void generated(ItemStack stack){
+    public static void generated(ItemStack stack){
         require(LbcTmtItems.output(stack.getItem())&&stack.getCount()==1&&!LbcTmtAbilities.read(stack).isEmpty(),"one actual randomized native output with private properties");
         require(Identifier.parse("lbc:tmt/procedural").equals(stack.get(DataComponents.ITEM_MODEL))&&stack.get(DataComponents.CUSTOM_MODEL_DATA).colors().getFirst()>>>16==250,"procedural item-atlas model and stable visual marker");
         require(LootTestCatalog.publicNativeStack(stack)&&!LootTestCatalog.publicNativeItem(stack.getItem()),"generated output public, bare transport still excluded");

@@ -17,7 +17,7 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 
 /** Shared native value image. Registration, player lifecycle and relationship phases stay with their owners. */
-final class MatchEntityState {
+public final class MatchEntityState {
     final Entity original;
     final ServerLevel level;
     final CompoundTag nbt;
@@ -30,7 +30,7 @@ final class MatchEntityState {
     private final Object owned;
     private final GameController game;
 
-    MatchEntityState(GameController game,Entity entity) {
+    public MatchEntityState(GameController game,Entity entity) {
         this.game=game;original=entity;level=(ServerLevel)entity.level();random=MatchRandomState.capture(entity.getRandom());
         var out=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,entity.registryAccess());entity.saveWithoutId(out);nbt=out.buildResult().copy();
         // Passengers have independent images; NBT must never manufacture duplicate children.
@@ -51,7 +51,7 @@ final class MatchEntityState {
     List<SynchedEntityData.DataValue<?>> metadata() {
         var result=new ArrayList<SynchedEntityData.DataValue<?>>();for(var value:metadata)result.add(copy(value));return result;
     }
-    void load(Entity target) {
+    public void load(Entity target) {
         if(target.getType()!=original.getType()||target.getClass()!=original.getClass())throw new IllegalArgumentException("Different native entity body type");
         runtime.prepareLoad(target);
         if(original instanceof LivingEntity living&&!MatchOfflinePlayers.alias(original))game.items().ownedEffects().forget(living);

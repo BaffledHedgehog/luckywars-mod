@@ -38,7 +38,7 @@ public final class LbcReactiveTrinkets {
     }
     private boolean paused(ServerPlayer p){return game.items().timeStop().stopped(p.level())
             ||game.items().timeStop().frozen(p)||game.items().wands().inputTimeStopped(p);}
-    static int count(ServerPlayer player,Item item,String identity){
+    public static int count(ServerPlayer player,Item item,String identity){
         if(!LbcDimensionItems.ordinary(player))return 0;
         return player.getInventory().clearOrCountMatchingItems(s->matches(s,item,identity),true,0,player.inventoryMenu.getCraftSlots());
     }
@@ -78,13 +78,13 @@ public final class LbcReactiveTrinkets {
                 n[3]>0||n[4]>0?()->game.items().trinkets().outgoing(p,source,n[3],n[4]):null);
     }
     /** Rebound property uses the same payload owner, excluding unrelated inventory trinkets. */
-    void propertyMelee(ServerPlayer owner,LivingEntity target,DamageSource source,net.minecraft.world.item.component.CustomData property){
+    public void propertyMelee(ServerPlayer owner,LivingEntity target,DamageSource source,net.minecraft.world.item.component.CustomData property){
         if(!admission(owner)||paused(owner))return;
         String id=((ItemData.IntReader)(Object)property).skywars2$readString("trinket","");
         int[] n=propertyCounts(id,OFFENSE_IDS);
         offense.outgoing(owner,target,source,false,n[0],n[1],n[2],n[3]>0||n[4]>0?()->game.items().trinkets().outgoing(owner,source,n[3],n[4]):null);
     }
-    void propertyIncoming(ServerPlayer owner,net.minecraft.world.item.component.CustomData property){
+    public void propertyIncoming(ServerPlayer owner,net.minecraft.world.item.component.CustomData property){
         if(!admission(owner)||paused(owner))return;
         var n=propertyCounts(((ItemData.IntReader)(Object)property).skywars2$readString("trinket",""),DEFENSE_IDS);
         defense.received(owner,n[0],n[1]);game.items().trinkets().incoming(owner,n[2],n[3]);
@@ -122,13 +122,13 @@ public final class LbcReactiveTrinkets {
     public void unloaded(Entity e){defense.unloaded(e);}
     public void forget(ServerPlayer p){if(restoring||MatchPlayerCheckpoint.restoring(p))return;dirty.remove(p.getUUID());periodic.remove(p.getUUID());offense.forget(p);defense.forget(p);}
     public void stop(){dirty.clear();periodic.clear();attempts.clear();offense.stop();defense.stop();}
-    void prepareFrozen(){restoring=true;dirty.clear();periodic.clear();}
-    void publishFrozen(){restoring=false;}
-    Checkpoint checkpoint(){if(!attempts.isEmpty())throw new IllegalStateException("Capture trinkets outside native damage callbacks");return new Checkpoint();}
-    final class Checkpoint{
+    public void prepareFrozen(){restoring=true;dirty.clear();periodic.clear();}
+    public void publishFrozen(){restoring=false;}
+    public Checkpoint checkpoint(){if(!attempts.isEmpty())throw new IllegalStateException("Capture trinkets outside native damage callbacks");return new Checkpoint();}
+    public final class Checkpoint{
         private final Map<UUID,Periodic> saved=new LinkedHashMap<>(periodic);
         private final List<UUID> pending=List.copyOf(dirty);
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){return new MatchFieldCheckpoint.Plan(Set.of(),()->{
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){return new MatchFieldCheckpoint.Plan(Set.of(),()->{
             periodic.clear();periodic.putAll(saved);dirty.clear();dirty.addAll(pending);
         });}
     }

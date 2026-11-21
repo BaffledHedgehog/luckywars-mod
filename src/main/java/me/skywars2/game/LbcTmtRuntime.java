@@ -22,7 +22,7 @@ public final class LbcTmtRuntime {
     private LbcTmtUseProfiles useProfiles;
     private LbcTmtCatalog catalog;
     private GenieNativeAbilities genieAbilities;
-    LbcTmtRuntime(GameController game){this.game=game;}
+    public LbcTmtRuntime(GameController game){this.game=game;}
 
     public boolean admitted(ServerPlayer player){
         return player!=null&&player.isAlive()&&!player.isRemoved()
@@ -84,7 +84,7 @@ public final class LbcTmtRuntime {
         return count;
     }
     /** Carrot and instant throwing carriers have their ordinary direct-use spell event. */
-    boolean rightClick(ServerPlayer player,InteractionHand hand){
+    public boolean rightClick(ServerPlayer player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
         if(LbcTmtTriggers.modern(stack))return LbcModeScroll.scrolling()&&LbcTmtTriggers.cycle(game,player,hand);
         if(!LbcTmtItems.matches(stack)||LbcTmtAbilities.active(stack)||!enter(player))return false;
@@ -98,7 +98,7 @@ public final class LbcTmtRuntime {
         return net.minecraft.world.InteractionResult.SUCCESS;
     }
     /** Source damaged continuation only owns the once-per-tick guard. It never fabricates a self activation. */
-    void damaged(ServerPlayer player){
+    public void damaged(ServerPlayer player){
         if(!admitted(player))return;
         for(int slot=0;slot<=40;slot++)if(LbcTmtItems.matches(player.getInventory().getItem(slot))){enter(player);return;}
     }
@@ -115,7 +115,7 @@ public final class LbcTmtRuntime {
             LbcTmtAbilities.invoke(stack,slot.id(),()->{nativeOwners.run();return true;});
         }
     }
-    void withConsumedTraits(ServerPlayer player,ItemStack stack,Runnable nativeOwners){
+    public void withConsumedTraits(ServerPlayer player,ItemStack stack,Runnable nativeOwners){
         if(!LbcTmtItems.matches(stack)||LbcTmtAbilities.active(stack)){nativeOwners.run();return;}
         game.items().foodLifecycle().countTmtFood(player,stack);
         for(var slot:LbcTmtTriggers.effective(stack)){
@@ -124,7 +124,7 @@ public final class LbcTmtRuntime {
         }
         game.items().foodLifecycle().finishTmtTraits(player,stack);
     }
-    ItemStack generate(RandomSource random,List<LbcTmtAbilities.Ability> draws){
+    public ItemStack generate(RandomSource random,List<LbcTmtAbilities.Ability> draws){
         if(generator==null)generator=new LbcTmtProperties(game.maps().level());
         var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtEquipment.apply(game,result);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);return result;
     }
@@ -144,7 +144,7 @@ public final class LbcTmtRuntime {
         return result;
     }
     /** Shared special-drop dispatcher owns admission, TimeStop and the sole token debit. */
-    boolean acquire(net.minecraft.world.entity.item.ItemEntity token){
+    public boolean acquire(net.minecraft.world.entity.item.ItemEntity token){
         if(!LbcTmtItems.token(token.getItem())||token.isRemoved()||!(token.level() instanceof net.minecraft.server.level.ServerLevel level))return false;
         var result=new net.minecraft.world.entity.item.ItemEntity(level,token.getX(),token.getY(),token.getZ(),generate(level.getRandom()),0,0,0);
         var author=game.items().specialDrops().owner(token);if(author!=null)result.setThrower(author);
@@ -152,12 +152,12 @@ public final class LbcTmtRuntime {
         var source=game.items().spellSources().source(token);if(source!=null)game.items().spellSources().bind(result,source);
         if(!level.addFreshEntity(result)){result.discard();return false;}return true;
     }
-    LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(game,useProfiles());return catalog;}
+    public LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(game,useProfiles());return catalog;}
     public GenieNativeAbilities genieAbilities() {
         if (genieAbilities == null) genieAbilities = new GenieNativeAbilities(game, catalog());
         return genieAbilities;
     }
-    static void visual(ItemStack stack){
+    public static void visual(ItemStack stack){
         int seed=ItemData.intValue(stack,"tmt_texture_seed",0);
         var current=stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA,CustomModelData.EMPTY);
         var colors=new java.util.ArrayList<>(current.colors());
@@ -165,11 +165,11 @@ public final class LbcTmtRuntime {
         stack.set(DataComponents.CUSTOM_MODEL_DATA,new CustomModelData(current.floats(),current.flags(),current.strings(),List.copyOf(colors)));
         stack.set(DataComponents.ITEM_MODEL,net.minecraft.resources.Identifier.parse("lbc:tmt/procedural"));
     }
-    LbcTmtUseProfiles useProfiles(){
+    public LbcTmtUseProfiles useProfiles(){
         if(useProfiles==null)useProfiles=new LbcTmtUseProfiles(game,game.items().wands()::tmtNativeUseCandidate);
         return useProfiles;
     }
     public void reload(){generator=null;useProfiles=null;catalog=null;genieAbilities=null;}
-    void forget(ServerPlayer player){triggered.remove(player);LbcTmtTriggers.forget(player);}
-    void stop(){triggered.clear();epoch=null;tick=Integer.MIN_VALUE;LbcTmtTriggers.stop();}
+    public void forget(ServerPlayer player){triggered.remove(player);LbcTmtTriggers.forget(player);}
+    public void stop(){triggered.clear();epoch=null;tick=Integer.MIN_VALUE;LbcTmtTriggers.stop();}
 }

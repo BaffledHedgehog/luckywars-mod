@@ -58,7 +58,7 @@ public final class RegenerationBeltChecks {
         public net.minecraft.server.network.ServerGamePacketListenerImpl listener(){return listener;}
         final GameController game;final ServerPlayer player;final net.minecraft.server.network.ServerGamePacketListenerImpl previous,listener;
         final ScheduledConnection connection=new ScheduledConnection();
-        ScheduledClient(GameController game,ServerPlayer player){this.game=game;this.player=player;previous=player.connection;
+        public ScheduledClient(GameController game,ServerPlayer player){this.game=game;this.player=player;previous=player.connection;
             try{
                 listener=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),connection,player,new net.minecraft.server.network.CommonListenerCookie(player.getGameProfile(),0,player.clientInformation(),false));
                 // A fresh memory connection has no protocol channel pipeline; bind only its own native dispatch field.
@@ -90,7 +90,7 @@ public final class RegenerationBeltChecks {
             }
             require(ready(),"native player loaded and latest actual teleport acknowledged: "+diagnostics());
         }
-        boolean ready(){return listener.hasClientLoaded()&&!player.isChangingDimension()&&timing().validation$awaitingPosition()==null;}
+        public boolean ready(){return listener.hasClientLoaded()&&!player.isChangingDimension()&&timing().validation$awaitingPosition()==null;}
         int updates(){return timing().validation$listenerTicks();}
         @Override public void close(){try{game.server().getConnection().getConnections().remove(connection);}finally{player.connection=previous;}}
     }

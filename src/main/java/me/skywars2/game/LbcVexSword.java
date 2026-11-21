@@ -53,7 +53,7 @@ public final class LbcVexSword {
     private final Set<VexArrow> arrows=new LinkedHashSet<>();
     private final Set<Zone> zones=new LinkedHashSet<>();
 
-    LbcVexSword(GameController game,LbcMana mana) { this.game=game; this.mana=mana; }
+    public LbcVexSword(GameController game,LbcMana mana) { this.game=game; this.mana=mana; }
     public static void register() { }
     private static Item registerItem() {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:vex_sword"));
@@ -116,7 +116,7 @@ public final class LbcVexSword {
         sideShot(owner,victim,owner.getRandom().nextBoolean()?1:-1);
     }
     /** The native damaged target supplies the single initial aim; native arrow flight follows. */
-    Arrow sideShot(ServerPlayer owner,LivingEntity actualVictim,int side) {
+    public Arrow sideShot(ServerPlayer owner,LivingEntity actualVictim,int side) {
         if(!admitted(owner) || !physicalTarget(owner,actualVictim)) return null;
         var forward=owner.getLookAngle();
         var left=new Vec3(Math.cos(Math.toRadians(owner.getYRot())),0,Math.sin(Math.toRadians(owner.getYRot())));
@@ -146,15 +146,15 @@ public final class LbcVexSword {
         game.items().wands().wandCasted(owner);
         return true;
     }
-    static final class Zone {
-        final ServerPlayer owner; final ServerLevel level; final Vec3 origin; final String epoch;
-        int remaining=70;
+    public static final class Zone {
+        final ServerPlayer owner; final ServerLevel level; public final Vec3 origin; final String epoch;
+        public int remaining=70;
         Zone(ServerPlayer owner,Vec3 origin,String epoch) {
             this.owner=owner; this.level=owner.level(); this.origin=origin; this.epoch=epoch;
         }
     }
-    List<Zone> zoneSnapshot() { return List.copyOf(zones); }
-    List<Arrow> arrowSnapshot() { return List.copyOf(arrows); }
+    public List<Zone> zoneSnapshot() { return List.copyOf(zones); }
+    public List<Arrow> arrowSnapshot() { return List.copyOf(arrows); }
     public int zoneCount() { return zones.size(); }
     public int arrowCount() { return arrows.size(); }
     public int activeCount() { return zones.size()+arrows.size(); }
@@ -189,8 +189,8 @@ public final class LbcVexSword {
             if(--zone.remaining<=0) zones.remove(zone);
         }
     }
-    Arrow phantomShot(ServerPlayer owner,LivingEntity target,int direction) {return phantomShot(owner,target,direction,false);}
-    Arrow phantomShot(ServerPlayer owner,LivingEntity target,int direction,boolean wild) {
+    public Arrow phantomShot(ServerPlayer owner,LivingEntity target,int direction) {return phantomShot(owner,target,direction,false);}
+    public Arrow phantomShot(ServerPlayer owner,LivingEntity target,int direction,boolean wild) {
         if(direction<1 || direction>8) throw new IllegalArgumentException("phantom direction must be 1..8");
         if(!flightOwner(owner) || (wild?!game.items().wands().validTarget(target):!enemy(owner,target)) || immune(target)) return null;
         var data=PHANTOM[direction-1];
@@ -271,16 +271,16 @@ public final class LbcVexSword {
         LbcOverload.sound(owner,at,"minecraft:entity.generic.explode",1,2,0);
     }
     private void remove(VexArrow arrow) { arrows.remove(arrow); arrow.retired=true; if(!arrow.isRemoved()) arrow.discard(); }
-    boolean loaded(Entity entity) {
+    public boolean loaded(Entity entity) {
         if(!entity.entityTags().contains(ARROW_TAG)) return false;
         if(!(entity instanceof VexArrow arrow) || arrow.retired || !game.items().currentEpoch(entity)
                 || !(arrow.getOwner() instanceof ServerPlayer owner) || !flightOwner(owner) || owner.level()!=entity.level()) entity.discard();
         else arrows.add(arrow);
         return true;
     }
-    void unloaded(Entity entity) { if(entity instanceof VexArrow arrow) remove(arrow); }
-    static boolean cloneRecognizes(Entity entity){return entity instanceof LbcVexSword.VexArrow;}
-    LbcCloneSkills.ActorImage cloneImage(Entity entity){
+    public void unloaded(Entity entity) { if(entity instanceof VexArrow arrow) remove(arrow); }
+    public static boolean cloneRecognizes(Entity entity){return entity instanceof LbcVexSword.VexArrow;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity entity){
         if(!(entity instanceof VexArrow source)||source.retired)return null;
         boolean groundbreaker=source.groundbreaker,wild=source.wild;
         return CloneComplexProjectileStates.image(level->new VexArrow(level,groundbreaker,wild),clone->arrows.add((VexArrow)clone),this::unloaded);

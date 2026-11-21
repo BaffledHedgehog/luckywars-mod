@@ -22,7 +22,7 @@ import net.minecraft.world.level.Level;
 
 /** Exact source prototypes decoded once, never translated through client display text. */
 public final class LbcCunnyItems {
-    static final JsonObject SOURCE=source();
+    public static final JsonObject SOURCE=source();
     public static final List<Item> SLABS=slabs();
     public static final Item NAHIDA=register("nahida_dakimakura",SOURCE.getAsJsonObject("imba/nahida_dakimakura")
             .getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject(),true);

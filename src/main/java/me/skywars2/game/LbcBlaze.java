@@ -94,8 +94,8 @@ public final class LbcBlaze {
         }
     }
 
-    LbcBlaze(GameController game) { this.game=game; }
-    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+    public LbcBlaze(GameController game) { this.game=game; }
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
         checkpointCallbacks++;try {
             for(int i=turrets.size()-1;i>=0;i--) {
                 var turret=turrets.get(i);
@@ -109,9 +109,9 @@ public final class LbcBlaze {
     }
 
     public int count() { return turrets.size()+heads.size()+terrain.size()+blazes.size()+trialFlights.size(); }
-    int turretCount() { return turrets.size(); }
-    int terrainCount() { return terrain.size(); }
-    int headCharges(ServerPlayer owner) { return game.items().mana().hudValue(owner,"blaze"); }
+    public int turretCount() { return turrets.size(); }
+    public int terrainCount() { return terrain.size(); }
+    public int headCharges(ServerPlayer owner) { return game.items().mana().hudValue(owner,"blaze"); }
     /** Общая точка выдачи ресурса для будущих еды/предметов; прямой scoreboard grant не запускает статус. */
     public void addHeadCharges(ServerPlayer owner,int amount) {
         checkpointCallbacks++;try {
@@ -120,7 +120,7 @@ public final class LbcBlaze {
         }finally{checkpointCallbacks--;}
     }
     /** Attach already-written source counters without adding another charge or replaying cast feedback. */
-    void adoptRawFoodStatuses(ServerPlayer owner){
+    public void adoptRawFoodStatuses(ServerPlayer owner){
         if(headCharges(owner)>0&&!game.items().magic().rejectCustomEffect(owner))heads.put(owner.getUUID(),owner);
     }
 
@@ -196,7 +196,7 @@ public final class LbcBlaze {
         }
     }
 
-    boolean publishHighTrial(ServerPlayer owner, LargeFireball shot, Vec3 position, Vec3 velocity) {
+    public boolean publishHighTrial(ServerPlayer owner, LargeFireball shot, Vec3 position, Vec3 velocity) {
         return publishTrial(owner, new TrialFlight(shot, owner.position(), DOWN, true), position, velocity);
     }
 
@@ -225,7 +225,7 @@ public final class LbcBlaze {
         }
     }
 
-    void tickTrialFlights() {
+    public void tickTrialFlights() {
         if (checkpointRestoring) return;
         for (var it = trialFlights.iterator(); it.hasNext();) {
             var flight = it.next();
@@ -266,7 +266,7 @@ public final class LbcBlaze {
         fireblazeAt(owner,owner.position(),mode,ItemStack.EMPTY);
     }
 
-    boolean scriptFireblaze(ServerPlayer owner,Vec3 center,int mode,ItemStack weapon) {
+    public boolean scriptFireblaze(ServerPlayer owner,Vec3 center,int mode,ItemStack weapon) {
         if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())
                 || game.items().magic().suppressedAt(owner.level(),center)) return false;
         checkpointCallbacks++;
@@ -326,7 +326,7 @@ public final class LbcBlaze {
     }
 
     /** KFC uses the same one-second pulse and owner/fire lifecycle, with three native shots at speed 1.6. */
-    void chickenTurret(ServerPlayer owner,Vec3 position) {
+    public void chickenTurret(ServerPlayer owner,Vec3 position) {
         checkpointCallbacks++;try {
             turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6,CHICKEN_DUST,true));
             owner.level().sendParticles(CHICKEN_BURST,true,false,position.x,position.y-1,position.z,10,.2,.5,.2,0);
@@ -415,10 +415,10 @@ public final class LbcBlaze {
     }
 
     /** Magnum's exact 3x3x3 incendiary fill, using the shared queued fire conversion. */
-    void incendiaryCube(ServerPlayer owner,Vec3 impact) {
+    public void incendiaryCube(ServerPlayer owner,Vec3 impact) {
         incendiaryCube(owner,impact,null);
     }
-    void incendiaryCube(ServerPlayer owner,Vec3 impact,LbcIndirectKills.Owner cause) {
+    public void incendiaryCube(ServerPlayer owner,Vec3 impact,LbcIndirectKills.Owner cause) {
         var center=BlockPos.containing(impact);
         var areas=new ArrayDeque<BlockAreaWork>();
         enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-1,center.getY()-1,center.getZ()-1,
@@ -443,7 +443,7 @@ public final class LbcBlaze {
         game.items().markCurrentItemEpoch(mob); blazes.put(mob,owner.getUUID());
     }
     /** Nether Plug использует уже существующие AI-фильтры и владельца подчинённого ифрита. */
-    void summonFriend(ServerPlayer owner) {
+    public void summonFriend(ServerPlayer owner) {
         checkpointCallbacks++;try {
             var mob=new Blaze(EntityTypes.BLAZE,owner.level());
             var tag=new net.minecraft.nbt.CompoundTag(); tag.putString("DeathLootTable","minecraft:empty");
@@ -454,11 +454,11 @@ public final class LbcBlaze {
             owner.level().addFreshEntity(mob);
         }finally{checkpointCallbacks--;}
     }
-    ServerPlayer owner(Entity entity) {
+    public ServerPlayer owner(Entity entity) {
         var id=entity instanceof Blaze blaze?blazes.get(blaze):null;
         return id==null?null:game.server().getPlayerList().getPlayer(id);
     }
-    boolean friendly(ServerPlayer player,Entity entity) {
+    public boolean friendly(ServerPlayer player,Entity entity) {
         return entity instanceof Blaze mob && !mob.entityTags().contains(TRIAL_PROJECTILE)
                 && player.getUUID().equals(blazes.get(mob));
     }
@@ -470,7 +470,7 @@ public final class LbcBlaze {
         return hostile && target==owner ? valid(owner) : game.items().wands().target(owner,target,hostile);
     }
     /** Нативные ифриты сохраняют свой AI; их снарядам передаётся реальный автор до регистрации трекера. */
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         checkpointCallbacks++;try {
             if(entity instanceof Blaze blaze) for(String tag:entity.entityTags()) if(tag.startsWith(OWNER_TAG)) {
                 if(!game.items().currentEpoch(entity)) { entity.discard(); return; }
@@ -487,7 +487,7 @@ public final class LbcBlaze {
             }
         }finally{checkpointCallbacks--;}
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         checkpointCallbacks++;try {     if(entity instanceof Blaze blaze) blazes.remove(blaze);
         }finally{checkpointCallbacks--;}
     }
@@ -574,14 +574,14 @@ public final class LbcBlaze {
             ticks=0;checkpointRestoring=false;
         }finally{checkpointCallbacks--;}
     }
-    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Blaze aura callbacks before checkpointing");}
-    void prepareAuraFrozen(){checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();}
-    void clearFutureTerrain(){for(var job:terrain)for(var area:job.areas)area.clear();terrain.clear();}
-    void publishAuraFrozen(){checkpointBoundary();checkpointRestoring=false;tickTrialFlights();}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
+    public void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Blaze aura callbacks before checkpointing");}
+    public void prepareAuraFrozen(){checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();}
+    public void clearFutureTerrain(){for(var job:terrain)for(var area:job.areas)area.clear();terrain.clear();}
+    public void publishAuraFrozen(){checkpointBoundary();checkpointRestoring=false;tickTrialFlights();}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
         checkpointBoundary();if(!terrain.isEmpty())throw new IllegalStateException("Finish Blaze terrain before taking aura essentials");return new Checkpoint(links);
     }
-    final class Checkpoint {
+    public final class Checkpoint {
         private record TurretImage(Turret source,UUID owner,ServerLevel ownerLevel) { }
         private record HeadImage(UUID key,UUID owner,ServerLevel level) { }
         private record TrialImage(MatchDamageSources.Ref body, Vec3 destination, Vec3 direction, boolean highAltitude) {}
@@ -604,11 +604,11 @@ public final class LbcBlaze {
             var heads=new ArrayList<>(current.headOwners);for(var image:previous.headOwners)if(!previous.installed.contains(image.owner))heads.add(image);headOwners=List.copyOf(heads);
             nativeOwners.putAll(current.nativeOwners);trials=current.trials;installed.addAll(current.installed);baseInstalled=true;
         }
-        Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
-        void resetReplay(){installed.clear();baseInstalled=false;}
-        java.util.Set<UUID> pendingPlayers(){var pending=new java.util.HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);
+        public Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
+        public void resetReplay(){installed.clear();baseInstalled=false;}
+        public java.util.Set<UUID> pendingPlayers(){var pending=new java.util.HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);
             for(var image:headOwners)if(!installed.contains(image.owner))pending.add(image.owner);return java.util.Set.copyOf(pending);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var nextTurrets=new ArrayList<Turret>();var nextHeads=new HashMap<UUID,ServerPlayer>();var nextBlazes=new HashMap<Blaze,UUID>();
             var admitted=new java.util.HashSet<UUID>();
             for(var image:saved){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.ownerLevel);if(current==null)continue;

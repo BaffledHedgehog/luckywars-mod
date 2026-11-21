@@ -268,20 +268,20 @@ public final class LbcBedwars {
         p.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(subtitle));
     }
     private void lostBed(int number){if(!beds.remove(number))return;for(var p:game.server().getPlayerList().getPlayers())if(team(p)==number){p.entityTags().remove("have_bed");p.sendSystemMessage(Component.translatable("no_bed"));}}
-    void beginCelebration(){
+    public void beginCelebration(){
         running=false;
         for(var player:game.server().getPlayerList().getPlayers())player.entityTags().remove("have_bed");
         shop.stop();
         auxiliaries.clearZombieTargets();
     }
     public void stop(){for(var p:game.server().getPlayerList().getPlayers())p.entityTags().remove("have_bed");shop.stop();auxiliaries.stop();arena.stop();running=activated=false;epoch=null;assignments.clear();beds.clear();respawns.clear();setup.clear();presentTeams=0;placed=List.of();sites.clear();bounds=List.of();restoring=false;renewing=renewalPrepared=false;renewalSpawns=Map.of();}
-    final class Checkpoint {
+    public final class Checkpoint {
         final String savedEpoch=epoch;final boolean savedRunning=running,savedActivated=activated,savedRenewing=renewing,savedRenewalPrepared=renewalPrepared;
         final Map<UUID,MapManager.Spawn> savedRenewalSpawns=Map.copyOf(renewalSpawns);
         final Map<Integer,Site> savedSites=Map.copyOf(sites);final Map<UUID,Integer> savedAssignments=Map.copyOf(assignments);
-        final Set<Integer> savedBeds=Set.copyOf(beds);final Map<UUID,Integer> savedRespawns=Map.copyOf(respawns);
+        final Set<Integer> savedBeds=Set.copyOf(beds);public final Map<UUID,Integer> savedRespawns=Map.copyOf(respawns);
         final List<Write> savedSetup=List.copyOf(setup);final List<LbcBedwarsArena.Bounds> savedBounds=List.copyOf(bounds);final int savedPresent=presentTeams;
     }
-    Checkpoint checkpoint(){return new Checkpoint();}
-    void restore(Checkpoint c){shop.stop();epoch=c.savedEpoch;running=c.savedRunning;activated=c.savedActivated;renewing=c.savedRenewing;renewalPrepared=c.savedRenewalPrepared;renewalSpawns=c.savedRenewalSpawns;sites.clear();sites.putAll(c.savedSites);assignments.clear();assignments.putAll(c.savedAssignments);beds.clear();beds.addAll(c.savedBeds);respawns.clear();respawns.putAll(c.savedRespawns);setup.clear();setup.addAll(c.savedSetup);bounds=c.savedBounds;presentTeams=c.savedPresent;placed=List.of();}
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public void restore(Checkpoint c){shop.stop();epoch=c.savedEpoch;running=c.savedRunning;activated=c.savedActivated;renewing=c.savedRenewing;renewalPrepared=c.savedRenewalPrepared;renewalSpawns=c.savedRenewalSpawns;sites.clear();sites.putAll(c.savedSites);assignments.clear();assignments.putAll(c.savedAssignments);beds.clear();beds.addAll(c.savedBeds);respawns.clear();respawns.putAll(c.savedRespawns);setup.clear();setup.addAll(c.savedSetup);bounds=c.savedBounds;presentTeams=c.savedPresent;placed=List.of();}
 }

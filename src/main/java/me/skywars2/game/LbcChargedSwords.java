@@ -56,7 +56,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 
 /** Shared source player counters, straight Triple copies and independent Blazefire continuation. */
 public final class LbcChargedSwords {
-    static boolean swordProjectile(Entity entity,ServerPlayer owner){
+    public static boolean swordProjectile(Entity entity,ServerPlayer owner){
         return entity instanceof ThrownSword sword&&sword.getOwner()==owner&&!sword.entityTags().contains(BONE);
     }
     public static final Item TRIPLE=registerItem("triple_golden_sword",900,"triple_golden_sword");
@@ -78,9 +78,9 @@ public final class LbcChargedSwords {
     private final IdentityHashMap<ElementHolder,List<ServerPlayer>> presentationWatchers=new IdentityHashMap<>();
     private record FinishingModel(ElementHolder holder,ItemDisplayElement display,ServerPlayer owner,String epoch,ServerLevel level,Vec3 position,int removeAt){}
     private final List<FinishingModel> finishing=new ArrayList<>();
-    record FinishingView(ElementHolder holder,ItemDisplayElement display,ServerPlayer owner,String epoch,Vec3 position,int remainingTicks){}
-    int finishingModels(){return finishing.size();}
-    List<FinishingView> finishingSnapshot(){return finishing.stream().map(m->new FinishingView(m.holder,m.display,m.owner,m.epoch,m.position,m.removeAt-visualClock)).toList();}
+    public record FinishingView(ElementHolder holder,ItemDisplayElement display,ServerPlayer owner,String epoch,Vec3 position,int remainingTicks){}
+    public int finishingModels(){return finishing.size();}
+    public List<FinishingView> finishingSnapshot(){return finishing.stream().map(m->new FinishingView(m.holder,m.display,m.owner,m.epoch,m.position,m.removeAt-visualClock)).toList();}
     public LbcChargedSwords(GameController game){this.game=game;}
     public static void register(){}
     private static Item registerItem(String id,int durability,String description){
@@ -106,14 +106,14 @@ public final class LbcChargedSwords {
     public static boolean matches(ItemStack stack){return isTriple(stack)||isBlaze(stack);}
     public int tripleCharges(ServerPlayer owner){return game.items().mana().score(owner,TRIPLE_CHARGE).get();}
     public int blazeCharges(ServerPlayer owner){return game.items().mana().score(owner,BLAZE_CHARGE).get();}
-    boolean activeBlaze(ServerPlayer owner){return firing.containsKey(owner);}
-    int blazePulses(ServerPlayer owner){return (int)pulses.stream().filter(p->p.owner==owner).count();}
-    int count(){return swords.size();}
-    record View(ThrownSword entity,Vec3 position,int age,Vec3 direction,boolean grounded,ServerPlayer owner){}
-    List<View> snapshot(){return swords.stream().map(s->new View(s,s.position(),s.age,s.getDeltaMovement().normalize(),s.grounded,
+    public boolean activeBlaze(ServerPlayer owner){return firing.containsKey(owner);}
+    public int blazePulses(ServerPlayer owner){return (int)pulses.stream().filter(p->p.owner==owner).count();}
+    public int count(){return swords.size();}
+    public record View(ThrownSword entity,Vec3 position,int age,Vec3 direction,boolean grounded,ServerPlayer owner){}
+    public List<View> snapshot(){return swords.stream().map(s->new View(s,s.position(),s.age,s.getDeltaMovement().normalize(),s.grounded,
             s.getOwner() instanceof ServerPlayer p?p:null)).toList();}
     record PulseView(ServerPlayer owner,String epoch,Vec3 origin,Vec3 direction,int nextSample,Set<UUID> hit){}
-    List<PulseView> pulseSnapshot(){return pulses.stream().map(p->new PulseView(p.owner,p.epoch,p.origin,p.direction,p.nextSample,Set.copyOf(p.hit))).toList();}
+    public List<PulseView> pulseSnapshot(){return pulses.stream().map(p->new PulseView(p.owner,p.epoch,p.origin,p.direction,p.nextSample,Set.copyOf(p.hit))).toList();}
     private boolean valid(ServerPlayer owner){return owner!=null&&owner.isAlive()&&!owner.isRemoved()&&owner.level()==game.maps().level()
             &&game.stage()!=GameController.Stage.ENDING&&game.canUseGameplayItems(owner)&&!game.isObserver(owner);}
     private boolean paused(ServerPlayer owner){return game.items().wands().inputTimeStopped(owner)||game.items().timeStop().stopped(owner.level());}
@@ -133,7 +133,7 @@ public final class LbcChargedSwords {
         }finally{callbackDepth--;}
     }
     /** Source TMT self charge uses the accepted-hit counter owner without fabricating damage. */
-    void sourceSelf(ServerPlayer owner){
+    public void sourceSelf(ServerPlayer owner){
         callbackDepth++;try{
             if(!admitted(owner)||!LbcDimensionItems.ordinary(owner))return;
             chargeHeld(owner);
@@ -161,15 +161,15 @@ public final class LbcChargedSwords {
         }finally{callbackDepth--;}
     }
     public static final class ThrownSword extends Projectile implements PolymerEntity {
-        int age,groundedTicks;boolean grounded;ElementHolder holder;ItemDisplayElement display;BlockPos embeddedBlock;
-        LbcIndirectKills.Owner cause;
+        public int age,groundedTicks;public boolean grounded;public ElementHolder holder;ItemDisplayElement display;public BlockPos embeddedBlock;
+        public LbcIndirectKills.Owner cause;
         @Override public ItemStack getWeaponItem(){return cause==null?super.getWeaponItem():cause.enchantmentWeapon();}
-        ThrownSword(EntityType<? extends ThrownSword> type,Level level){super(type,level);}
+        public ThrownSword(EntityType<? extends ThrownSword> type,Level level){super(type,level);}
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder){}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
         @Override public boolean shouldBeSaved(){return false;}
         @Override public boolean isPushedByFluid(){return false;}
-        ItemDisplayElement display(){return display;}
+        public ItemDisplayElement display(){return display;}
         private void attach(){
             var item=new ItemStack(entityTags().contains(BONE)?Items.GOLDEN_SWORD:Items.CARROT_ON_A_STICK);item.set(DataComponents.ITEM_MODEL,Identifier.parse(entityTags().contains(BONE)?"lbc:tiny_bone":"lbc:triple_golden_sword"));
             display=new SwordDisplay(item);display.setItemDisplayContext(ItemDisplayContext.FIXED);
@@ -403,15 +403,15 @@ public final class LbcChargedSwords {
 
         }finally{callbackDepth--;}
     }
-    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish charged-sword tick/hit/ray callbacks before checkpointing");}
+    public void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish charged-sword tick/hit/ray callbacks before checkpointing");}
     private void frozenBoundary(){checkpointBoundary();if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore charged-sword presentation on its frozen native thread");}
     /** Retire only the abandoned LIVE holders; saved images contain values, never reusable destroyed holders. */
-    void prepareFrozen(){
+    public void prepareFrozen(){
         frozenBoundary();rewinding=true;presentationReady=false;presentationWatchers.clear();
         for(var sword:swords)sword.destroy();for(var model:finishing)model.holder.destroy();
     }
     /** Call after all native bodies and clients have been paired; no clocks or gameplay callbacks run. */
-    Set<UUID> publishFrozen(){
+    public Set<UUID> publishFrozen(){
         frozenBoundary();if(!rewinding||!presentationReady)throw new IllegalStateException("Install charged-sword state before presentation");
         // Retained offline references are source data, never client connections to pair or watch.
         presentationWatchers.replaceAll((holder,players)->players.stream().filter(player->!MatchOfflinePlayers.retained(player)).toList());
@@ -428,8 +428,8 @@ public final class LbcChargedSwords {
         presentationWatchers.forEach((holder,players)->players.forEach(holder::startWatching));
         presentationWatchers.clear();rewinding=false;presentationReady=false;return Set.of();
     }
-    void cancelFrozen(){frozenBoundary();for(var sword:swords)sword.destroy();for(var model:finishing)model.holder.destroy();finishing.clear();presentationWatchers.clear();rewinding=false;presentationReady=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public void cancelFrozen(){frozenBoundary();for(var sword:swords)sword.destroy();for(var model:finishing)model.holder.destroy();finishing.clear();presentationWatchers.clear();rewinding=false;presentationReady=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
     private final class PulseImage implements MatchQueuedWorkCheckpoint.Image {
         private final Pulse pulse;
         private final MatchDamageSources.Ref owner;
@@ -448,7 +448,7 @@ public final class LbcChargedSwords {
             return ()->{pulse.owner=current;pulse.hit.clear();pulse.hit.addAll(hit);pulse.nextSample=next;pulse.cancelled=cancelled;pulse.ticket=ticket;};
         }
     }
-    final class Checkpoint {
+    public final class Checkpoint {
         private record SwordImage(MatchDamageSources.Ref actor,int age,boolean grounded,int groundedTicks,BlockPos embedded,LbcIndirectKills.Owner cause,ModelImage model) { }
         private record FinishImage(MatchDamageSources.Ref owner,String epoch,ServerLevel level,Vec3 position,int removeAt,ModelImage model) { }
         private final List<SwordImage> actors=new ArrayList<>();
@@ -464,7 +464,7 @@ public final class LbcChargedSwords {
             for(var model:finishing)models.add(new FinishImage(links.key(model.owner),model.epoch,model.level,model.position,model.removeAt,new ModelImage(model.display,links)));
             for(var pulse:pulses)rays.add(new PulseImage(pulse,links));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var restoredFiring=firingImage.restore(links);
             var currentActors=new ArrayList<ThrownSword>();for(var image:actors)currentActors.add((ThrownSword)links.get(image.actor));
             var currentOwners=new ArrayList<ServerPlayer>();for(var image:models)currentOwners.add((ServerPlayer)links.get(image.owner));
@@ -535,6 +535,6 @@ public final class LbcChargedSwords {
     }
 
 
-    void directionChanged(Entity actor) { if(actor instanceof ThrownSword sword)sword.sync(sword.position()); }
+    public void directionChanged(Entity actor) { if(actor instanceof ThrownSword sword)sword.sync(sword.position()); }
 
 }

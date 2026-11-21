@@ -15,14 +15,14 @@ import net.minecraft.world.item.component.Consumables;
 /** Typed native potion delivery. The potion contents and its existing effect owners remain authoritative. */
 public final class LbcTmtManaPotions {
     private LbcTmtManaPotions(){}
-    enum Delivery { DRINK, SPLASH, LINGERING }
+    public enum Delivery { DRINK, SPLASH, LINGERING }
 
     private static Item selected(ItemStack stack){
         var nativeItem=LbcTmtAbilities.nativePredicatesActive()?LbcTmtAbilities.nativePredicateItem(stack):null;
         return nativeItem==null?stack.getItem():nativeItem;
     }
     /** Empty registered transports are not a dose or a separate sampled ability. */
-    static Delivery delivery(ItemStack stack){
+    public static Delivery delivery(ItemStack stack){
         if(stack.isEmpty())return null;
         var contents=stack.get(DataComponents.POTION_CONTENTS);if(contents==null||!contents.hasEffects())return null;
         var item=selected(stack);

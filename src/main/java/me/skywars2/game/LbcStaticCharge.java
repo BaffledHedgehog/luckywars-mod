@@ -16,7 +16,7 @@ import net.minecraft.world.phys.*;
 
 /** Tranquillizer126: persistent charge, refreshed by its cloud, discharged on an accepted hit. */
 public final class LbcStaticCharge {
-    static final String COUNTER="effect_shock_potion";
+    public static final String COUNTER="effect_shock_potion";
     // check runs at the origin, then49 quarter-block advances before Distance50.
     private static final double RAY_REACH=49*.25;
     private static final String BEAM="skywars2.static_charge_visual";
@@ -31,7 +31,7 @@ public final class LbcStaticCharge {
     private Map<Display.ItemDisplay,Integer> beams=new LinkedHashMap<>();
     private Set<AreaEffectCloud> clouds=Collections.newSetFromMap(new IdentityHashMap<>());
     private boolean frozen;private int callbacks,discharging;
-    LbcStaticCharge(GameController game){this.game=game;}
+    public LbcStaticCharge(GameController game){this.game=game;}
     public static boolean marker(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==126;}
     private int amount(LivingEntity target){return game.items().mana().hudValue(target,COUNTER);}
     private void write(LivingEntity target,int value){game.items().mana().score(target,COUNTER).set(value);if(value>0)charged.add(target);else charged.remove(target);}
@@ -165,14 +165,14 @@ public final class LbcStaticCharge {
     public void clear(LivingEntity target){pending.remove(target);write(target,0);}
     public void stop(){for(var target:List.copyOf(charged))clear(target);for(var beam:beams.keySet())beam.discard();beams.clear();pending.clear();clouds.clear();frozen=false;}
     public static boolean visual(Entity entity){return entity!=null&&entity.entityTags().contains(BEAM);}
-    void boundary(){if(callbacks!=0)throw new IllegalStateException("Finish static charge callbacks before checkpointing");}
-    void frozen(boolean value){boundary();frozen=value;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
-        final List<MatchDamageSources.Ref> live,waiting,fields;
-        final Map<MatchDamageSources.Ref,Integer> rays=new LinkedHashMap<>();
+    public void boundary(){if(callbacks!=0)throw new IllegalStateException("Finish static charge callbacks before checkpointing");}
+    public void frozen(boolean value){boundary();frozen=value;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
+        public final List<MatchDamageSources.Ref> live,waiting,fields;
+        public final Map<MatchDamageSources.Ref,Integer> rays=new LinkedHashMap<>();
         Checkpoint(MatchSpellCheckpoint.Links links){boundary();live=charged.stream().map(links::key).toList();waiting=pending.stream().map(links::key).toList();fields=clouds.stream().map(links::key).toList();beams.forEach((e,ttl)->rays.put(links.key(e),ttl));}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var c=new LinkedHashSet<LivingEntity>();for(var ref:live)c.add((LivingEntity)links.get(ref));
             var p=new LinkedHashSet<LivingEntity>();for(var ref:waiting)p.add((LivingEntity)links.get(ref));
             var a=Collections.newSetFromMap(new IdentityHashMap<AreaEffectCloud,Boolean>());for(var ref:fields)a.add((AreaEffectCloud)links.get(ref));

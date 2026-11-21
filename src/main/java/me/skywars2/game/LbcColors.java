@@ -59,10 +59,10 @@ public final class LbcColors {
     private final Set<LivingEntity> teleporting = new LinkedHashSet<>();
     private final Set<LivingEntity> waterEffects = new LinkedHashSet<>();
 
-    LbcColors(GameController game) { this.game = game; }
+    public LbcColors(GameController game) { this.game = game; }
 
     /** Два независимых source-триггера: блок снизу и частичный блок вокруг ног. */
-    void pulse(ServerPlayer owner) {
+    public void pulse(ServerPlayer owner) {
         if (owner.level().getBlockState(BlockPos.containing(owner.position().add(0,-.5,0))).is(COLORED)) dispatch(owner, true);
         if (owner.level().getBlockState(owner.blockPosition()).is(INSIDE)) dispatch(owner, false);
     }
@@ -219,7 +219,7 @@ public final class LbcColors {
         particle(p,ParticleTypes.REVERSE_PORTAL,100,.1,.6,.1,1); sound(p,SoundEvents.ENDERMAN_TELEPORT);
     }
     /** Finite resident search, preserving native ground/two-air/ceiling rules. */
-    void spread(LivingEntity target, Vec3 center, int radius) {
+    public void spread(LivingEntity target, Vec3 center, int radius) {
         if(!(target.level() instanceof net.minecraft.server.level.ServerLevel level))return;
         var destination=LbcSurfaceTeleport.destination(level,center,radius,level.dimension()==Level.NETHER?120:level.getMaxY()+1,target.getRandom());
         if(destination==null)return;
@@ -234,7 +234,7 @@ public final class LbcColors {
     public void mana(ServerPlayer p,int value) { score(p,"mana").set(value); }
     public int foodCount(ServerPlayer p) { return score(p,"food_count").get(); }
     public void foodCount(ServerPlayer p,int value) { score(p,"food_count").set(value); }
-    void resetResources(ServerPlayer p) { game.items().mana().resetResources(p); }
+    public void resetResources(ServerPlayer p) { game.items().mana().resetResources(p); }
 
     private static final String[] RTP={"effect_rtp_1","effect_rtp_2","effect_rtp_3"};
     public boolean isTeleportMarker(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()>=40&&effect.getAmplifier()<=42;}
@@ -249,13 +249,13 @@ public final class LbcColors {
     }
     private void curse(LivingEntity target,int ticks,ServerPlayer owner) { acceptTeleport(target,ItemEffectLevels.create(MobEffects.RAID_OMEN,ticks,40,false,false,false),owner); }
     public int teleportTicks(LivingEntity target) { return score(target,RTP[0]).get(); }
-    void addPlayerCounters(ServerPlayer player) {
+    public void addPlayerCounters(ServerPlayer player) {
         for(var key:RTP){int remaining=score(player,key).get();
             if(remaining>0&&!game.items().magic().rejectCustomDebuff(player))score(player,key).set(remaining+1);
         }
     }
-    void clearEffects(LivingEntity target) { for(var key:RTP)score(target,key).set(0);teleporting.remove(target); }
-    void loaded(Entity e) {
+    public void clearEffects(LivingEntity target) { for(var key:RTP)score(target,key).set(0);teleporting.remove(target); }
+    public void loaded(Entity e) {
         if(e instanceof LivingEntity living) {
             if(LbcParasite.active(living)){clearEffects(living);return;}
             effectsChanged(living);
@@ -265,7 +265,7 @@ public final class LbcColors {
             }
         }
     }
-    void unloaded(Entity e) { teleporting.remove(e); waterEffects.remove(e); }
+    public void unloaded(Entity e) { teleporting.remove(e); waterEffects.remove(e); }
     /** События эффектов индексируют только усиленные source-варианты; обычные зелья остаются нативными. */
     public void effectsChanged(LivingEntity target) {
         if(target.level()!=game.maps().level() || !eligible(target)) { waterEffects.remove(target); return; }
@@ -276,7 +276,7 @@ public final class LbcColors {
         var current=target.getEffect(effect);
         return current!=null && current.getAmplifier()>=1 ? current.getAmplifier() : 0;
     }
-    void tickWater() {
+    public void tickWater() {
         for(var target:List.copyOf(waterEffects)) {
             if(!eligible(target) || target.level()!=game.maps().level()) { waterEffects.remove(target); continue; }
             if(SignedEnvironmentalEffects.protectedTarget(target))continue;
@@ -300,7 +300,7 @@ public final class LbcColors {
             }
         }
     }
-    void tickTeleports() {
+    public void tickTeleports() {
         for(var target:List.copyOf(teleporting)) {
             if(!eligible(target) || target.level()!=game.maps().level()) { clearEffects(target); continue; }
             if(target.entityTags().contains("sin_greed_active"))continue;
@@ -317,8 +317,8 @@ public final class LbcColors {
             if(!remaining)teleporting.remove(target);
         }
     }
-    void stop() { waterEffects.clear(); for(var target:List.copyOf(teleporting)) clearEffects(target); }
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public void stop() { waterEffects.clear(); for(var target:List.copyOf(teleporting)) clearEffects(target); }
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof LivingEntity living))return null;
         boolean water=waterEffects.contains(living),teleport=teleporting.contains(living);
         var timers=CloneRemainingStatusStates.scores(game,source,List.of(RTP));

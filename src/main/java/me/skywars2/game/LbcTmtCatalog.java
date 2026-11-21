@@ -29,12 +29,12 @@ import net.minecraft.world.item.component.CustomData;
  * contract; it does not certify that an event adapter has been implemented.
  * Unknown inputs and native component requirements are deliberately reported.
  */
-final class LbcTmtCatalog {
-    enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON, CRAFT, KILL, INTERACT_ENTITY }
-    enum Location { USED_HAND, MAIN_HAND, INVENTORY, EQUIPPED, AMMUNITION, LOOSE_ITEM, CRAFT_GRID }
-    enum Disposition { EXCLUDED_SERVICE, EXCLUDED_INERT_KEY, PENDING_NATIVE_DOMAIN, PENDING_COMPONENT_ADAPTER, MISSING_NATIVE_ITEM, LEGACY_OWNER_GAP }
+public final class LbcTmtCatalog {
+    public enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON, CRAFT, KILL, INTERACT_ENTITY }
+    public enum Location { USED_HAND, MAIN_HAND, INVENTORY, EQUIPPED, AMMUNITION, LOOSE_ITEM, CRAFT_GRID }
+    public enum Disposition { EXCLUDED_SERVICE, EXCLUDED_INERT_KEY, PENDING_NATIVE_DOMAIN, PENDING_COMPONENT_ADAPTER, MISSING_NATIVE_ITEM, LEGACY_OWNER_GAP }
 
-    record Family(String id,String name,List<LbcTmtAbilities.Ability> variants,Set<Event> events,
+    public record Family(String id,String name,List<LbcTmtAbilities.Ability> variants,Set<Event> events,
                   Set<Location> locations,List<String> owners) {
         Family {
             variants=List.copyOf(variants);events=Set.copyOf(events);locations=Set.copyOf(locations);owners=List.copyOf(owners);
@@ -42,8 +42,8 @@ final class LbcTmtCatalog {
             for(var variant:variants)if(!variant.id().equals(id))throw new IllegalArgumentException("Mixed TMT family IDs");
         }
     }
-    record Finding(String item,String source,Disposition disposition,String reason) {}
-    record Domains(int registeredItems,int canonicalPrototypes,int families,int variants,List<Finding> findings) {
+    public record Finding(String item,String source,Disposition disposition,String reason) {}
+    public record Domains(int registeredItems,int canonicalPrototypes,int families,int variants,List<Finding> findings) {
         Domains { findings=List.copyOf(findings); }
         boolean hasPending(){return findings.stream().anyMatch(row->row.disposition()!=Disposition.EXCLUDED_SERVICE&&row.disposition()!=Disposition.EXCLUDED_INERT_KEY);}
     }
@@ -186,10 +186,10 @@ final class LbcTmtCatalog {
         if(families.isEmpty())throw new IllegalStateException("Empty unified TMT catalog");
     }
 
-    List<Family> families(){return families;}
+    public List<Family> families(){return families;}
     Family family(String id){return familyById.get(id);}
     List<Family> triggerCandidates(ItemStack carrier){return triggerCandidates.computeIfAbsent(LbcTmtItems.vanillaCarrier(carrier),ignored->families.stream().filter(f->LbcTmtTriggers.compatible(f,carrier)).toList());}
-    Domains domains(){return domains;}
+    public Domains domains(){return domains;}
     /** Each semantic family has one lottery entry; a second uniform draw chooses its private variant. */
     LbcTmtAbilities.Ability draw(RandomSource random){
         var family=families.get(random.nextInt(families.size()));
@@ -451,7 +451,7 @@ final class LbcTmtCatalog {
     }
     private static String normal(String flag){return flag.endsWith("_old")?flag.substring(0,flag.length()-4):flag;}
     /** Preserve tag types and list order while removing compound insertion order from variant weights. */
-    static String canonical(Tag value){
+    public static String canonical(Tag value){
         if(value instanceof CompoundTag compound)return compound.keySet().stream().sorted()
                 .map(key->key.length()+":"+key+"="+canonical(compound.get(key))).collect(java.util.stream.Collectors.joining(",","{","}"));
         if(value instanceof ListTag list){var values=new ArrayList<String>();for(int i=0;i<list.size();i++)values.add(canonical(list.get(i)));return "["+String.join(",",values)+"]";}

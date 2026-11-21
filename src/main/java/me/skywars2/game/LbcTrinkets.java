@@ -207,11 +207,11 @@ public final class LbcTrinkets {
                 Mth.floor(direction.z * precision) * scale);
     }
 
-    void spawn(Projectile projectile) {
+    public void spawn(Projectile projectile) {
         publishProjectile(projectile);
     }
 
-    boolean publishProjectile(Projectile projectile) {
+    public boolean publishProjectile(Projectile projectile) {
         projectile.entityTags().add(PROJECTILE_TAG);
         return game.maps().level().addFreshEntity(projectile) && !projectile.isRemoved();
     }
@@ -233,7 +233,7 @@ public final class LbcTrinkets {
         if (copies > 0) game.items().mana().add(player, 60 + 15 * (copies - 1));
     }
 
-    boolean loaded(Entity entity) {
+    public boolean loaded(Entity entity) {
         if (!(entity instanceof Projectile projectile)
                 || !entity.entityTags().contains(PROJECTILE_TAG) && !game.items().wands().isFireProjectile(entity)) return false;
         entity.entityTags().add(PROJECTILE_TAG);
@@ -248,10 +248,10 @@ public final class LbcTrinkets {
         return true;
     }
 
-    void unloaded(Entity entity) { projectiles.remove(entity); }
+    public void unloaded(Entity entity) { projectiles.remove(entity); }
     public int projectileCount() { return projectiles.size(); }
 
-    void stop() {
+    public void stop() {
         // ENTITY_UNLOAD меняет коллекцию синхронно; очищаем её до discard и сохраняем единую эпоху LbcItems.
         var pending = List.copyOf(projectiles); projectiles.clear();
         for (var projectile : pending) projectile.discard();
@@ -312,5 +312,5 @@ public final class LbcTrinkets {
         owner.level().sendParticles(ParticleTypes.SNOWFLAKE, owner.getX(), owner.getY()+.5, owner.getZ(), 30, .5, .5, .5, 1);
     }
 
-    List<Projectile> transientSnapshot(){return List.copyOf(projectiles);}
+    public List<Projectile> transientSnapshot(){return List.copyOf(projectiles);}
 }

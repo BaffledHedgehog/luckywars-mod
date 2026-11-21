@@ -104,7 +104,7 @@ public final class LbcSauvojenBoss {
         if(authority==null)return false;var author=authority.author()==null?null:game.server().getPlayerList().getPlayer(authority.author());
         try(var scope=game.items().spellSources().scope(authority)){return Boolean.TRUE.equals(game.items().spellSources().target(author,target));}
     }
-    LivingEntity nearbyThreat(ServerPlayer target,LivingEntity known){
+    public LivingEntity nearbyThreat(ServerPlayer target,LivingEntity known){
         LivingEntity nearest=null;
         double best=Double.POSITIVE_INFINITY;
         // A ghast can threaten a platform from well above the usual melee scan.
@@ -128,7 +128,7 @@ public final class LbcSauvojenBoss {
     public long selections(){return selections;}
     public long emissions(){return emissions;}
     public long rewards(){return rewards;}
-    List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
     public void tick(){
         if(rewinding)return;callbackDepth++;try{
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
@@ -211,7 +211,7 @@ public final class LbcSauvojenBoss {
         d.carrier.discard();
     }
     /** Claim the actual death once, before its explosion can continue through emitted rewards. */
-    void died(LivingEntity boss){
+    public void died(LivingEntity boss){
         if(rewinding||!boss.isDeadOrDying())return;
         var state=actors.remove(boss);if(state==null||!game.items().currentEpoch(state.epoch()))return;
         infinity((ServerLevel)boss.level(),boss.position(),author(state));
@@ -304,7 +304,7 @@ public final class LbcSauvojenBoss {
         }finally{callbackDepth--;}
     }
     /** Reconnect replaces only the real owner's reference, preserving the live cloud and its clocks. */
-    void rebindRetained(ServerPlayer player){
+    public void rebindRetained(ServerPlayer player){
         checkpointBoundary();
         for(var cloud:clouds){var visual=cloud.visual();if(visual.owner!=null&&visual.owner!=player&&visual.owner.getUUID().equals(player.getUUID()))visual.owner=player;}
     }
@@ -322,14 +322,14 @@ public final class LbcSauvojenBoss {
         }finally{callbackDepth--;}
     }
 
-    boolean captureReady(){return callbackDepth==0&&terrain.isEmpty()&&!rewinding;}
-    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish Sauvojen boss callbacks before checkpointing");}
-    void cancelFutureTerrainForRollback(){checkpointBoundary();for(var work:List.copyOf(terrain))work.cancel();}
-    void prepareFrozen(){
+    public boolean captureReady(){return callbackDepth==0&&terrain.isEmpty()&&!rewinding;}
+    public void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish Sauvojen boss callbacks before checkpointing");}
+    public void cancelFutureTerrainForRollback(){checkpointBoundary();for(var work:List.copyOf(terrain))work.cancel();}
+    public void prepareFrozen(){
         checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;
         for(var cloud:clouds)cloud.visual().holder.destroy();clouds.clear();stagedClouds=List.of();
     }
-    void publishFrozen(){
+    public void publishFrozen(){
         checkpointBoundary();
         for(var saved:stagedClouds){
             var drone=new LbcSauvojen.Drone(saved.owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY,saved.kind,saved.epoch,saved.carrier);
@@ -339,9 +339,9 @@ public final class LbcSauvojenBoss {
         }
         stagedClouds=List.of();rewinding=false;
     }
-    void cancelFrozen(){checkpointBoundary();if(!stagedClouds.isEmpty())publishFrozen();else rewinding=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete Sauvojen boss terrain before capture");return new Checkpoint(links);}
-    final class Checkpoint {
+    public void cancelFrozen(){checkpointBoundary();if(!stagedClouds.isEmpty())publishFrozen();else rewinding=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete Sauvojen boss terrain before capture");return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Picture(MatchDamageSources.Ref owner,MatchDamageSources.Ref carrier,LbcSauvojen.Kind kind,String epoch,Vec3 position,Vec3 direction,int lifetime,int nextMode,LbcSpellSource.Source source){}
         private final MatchSpellCheckpoint.IdentityImage<Entity,Actor> registry;
         private final Map<UUID,Actor> dormant=new HashMap<>(unloaded);
@@ -354,14 +354,14 @@ public final class LbcSauvojenBoss {
             for(var cloud:clouds){var d=cloud.visual();var carrier=links.key(d.carrier);if(carrier.historical()!=null)throw new IllegalStateException("Capture live boss cloud carriers");
                 pictures.add(new Picture(links.key(d.owner),carrier,d.kind,d.epoch,d.position,d.direction,d.lifetime,d.nextMode,cloud.source()));}
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var restored=registry.restore(links);var next=new ArrayList<RestoredCloud>();
             for(var p:pictures)next.add(new RestoredCloud((ServerPlayer)links.get(p.owner),(Marker)links.get(p.carrier),p.kind,p.epoch,p.position,p.direction,p.lifetime,p.nextMode,p.source));
             return ()->{actors=restored;unloaded.clear();unloaded.putAll(dormant);stagedClouds=List.copyOf(next);phase=savedPhase;selections=savedSelections;emissions=savedEmissions;rewards=savedRewards;};
         }
     }
 
-    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity original) {
         var state=actors.get(original);if(state==null)return null;
         UUID id=original.getUUID();
         return CloneComplexProjectileStates.image(clone->{
@@ -371,7 +371,7 @@ public final class LbcSauvojenBoss {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var cloud:clouds){var drone=cloud.visual();
             if(!drone.carrier.isRemoved()&&game.items().currentEpoch(drone.epoch)
                     &&!game.items().timeStop().frozen(drone.carrier)&&!drone.carrier.entityTags().contains("time_stopped")

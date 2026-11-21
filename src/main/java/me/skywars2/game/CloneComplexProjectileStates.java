@@ -44,10 +44,10 @@ public final class CloneComplexProjectileStates {
         return null;
     }
     /** Shared mechanics only; every field and owner index is explicitly selected by its owner. */
-    static LbcCloneSkills.ActorImage image(Consumer<Entity> install,Consumer<Entity> rollback) {
+    public static LbcCloneSkills.ActorImage image(Consumer<Entity> install,Consumer<Entity> rollback) {
         return image(null,install,rollback);
     }
-    static LbcCloneSkills.ActorImage image(Function<ServerLevel,Entity> factory,Consumer<Entity> install,Consumer<Entity> rollback) {
+    public static LbcCloneSkills.ActorImage image(Function<ServerLevel,Entity> factory,Consumer<Entity> install,Consumer<Entity> rollback) {
         return new LbcCloneSkills.ActorImage() {
             public Entity create(Entity original,ServerLevel level) {
                 return factory==null?original.getType().create(level,EntitySpawnReason.COMMAND):factory.apply(level);

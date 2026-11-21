@@ -59,8 +59,8 @@ import java.util.UUID;
 /** Очереди стрелкового оружия; физика, попадания и автор урона остаются у ванильных стрел. */
 public final class LbcShooters {
     private static final String PROJECTILE_TAG = "skywars2.razorpine";
-    static final String HELICOPTER_PROJECTILE_TAG="skywars2.attack_helicopter";
-    static final String BOSS_HELICOPTER_PROJECTILE_TAG="skywars2.boss_helicopter";
+    public static final String HELICOPTER_PROJECTILE_TAG="skywars2.attack_helicopter";
+    public static final String BOSS_HELICOPTER_PROJECTILE_TAG="skywars2.boss_helicopter";
     private static final CompoundTag HELICOPTER_FLAG=new CompoundTag();
     private static final CompoundTag BOSS_HELICOPTER_FLAG=new CompoundTag();
     public static final Item HELICOPTER=registerHelicopter();
@@ -105,7 +105,7 @@ public final class LbcShooters {
         }
         @Override public boolean shouldBeSaved() { return false; }
     }
-    static ItemStack arrowLootWeapon(Entity direct){
+    public static ItemStack arrowLootWeapon(Entity direct){
         if(direct instanceof HelicopterArrow arrow)return arrow.getWeaponItem();
         if(!(direct instanceof Arrow arrow) || !handArrow(arrow))return null;
         var weapon=arrow.getWeaponItem();
@@ -124,8 +124,8 @@ public final class LbcShooters {
         // Physical arrows can hit teammates in SkyWars; BedWars keeps its own allegiance rule.
         kills.inheritedIgnited(target,kills.itemCause(owner,!LbcBedwarsHarm.active(),true,weapon));
     }
-    static boolean cloneRecognizes(Entity entity){return entity instanceof HelicopterArrow;}
-    LbcCloneSkills.ActorImage cloneImage(Entity entity){
+    public static boolean cloneRecognizes(Entity entity){return entity instanceof HelicopterArrow;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity entity){
         if(!(entity instanceof HelicopterArrow source)||source.retired)return null;
         return CloneComplexProjectileStates.image(HelicopterArrow::new,clone->arrows.add((Arrow)clone),this::unloaded);
     }
@@ -180,7 +180,7 @@ public final class LbcShooters {
         PhantomBurst(ServerPlayer owner) { this.owner=owner; }
     }
 
-    LbcShooters(GameController game) {
+    public LbcShooters(GameController game) {
         this.game=game;
         var palette=new java.util.IdentityHashMap<Block,BlockState>();
         var preserved=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Block,Boolean>());
@@ -223,7 +223,7 @@ public final class LbcShooters {
         return BuiltInRegistries.BLOCK.getOptional(Identifier.parse(id))
                 .orElseThrow(()->new IllegalStateException("Unknown Woodificator block: "+id));
     }
-    static void register() { }
+    public static void register() { }
     private static Item registerWoodificator() {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:woodificator"));
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(
@@ -241,7 +241,7 @@ public final class LbcShooters {
         var data=stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(WOODIFICATOR) || data!=null && data.matchedBy(WOODIFICATOR_FLAG);
     }
-    BlockState woodificatorReplacement(BlockState state) {
+    public BlockState woodificatorReplacement(BlockState state) {
         // Wooden furniture/shapes stay intact, but actual item storage still transforms and spills.
         if(!state.hasBlockEntity() && woodificatorPreservedWood.contains(state.getBlock())) return state;
         var replacement=woodificatorPalette.get(state.getBlock());
@@ -263,10 +263,10 @@ public final class LbcShooters {
             net.minecraft.world.Containers.dropItemStack(level,pos.getX(),pos.getY(),pos.getZ(),brushable.getItem());
         }
     }
-    int woodificatorWorkCount() { return woodificatorWork.size(); }
-    void cancelQueuedTerrainForRollback(){woodificatorWork.clear();}
-    int woodificatorQueuedBlockCount() { return woodificatorWork.stream().mapToInt(job->job.terrain.queuedBlockCount()).sum(); }
-    boolean useWoodificator(ServerPlayer owner,InteractionHand hand) {
+    public int woodificatorWorkCount() { return woodificatorWork.size(); }
+    public void cancelQueuedTerrainForRollback(){woodificatorWork.clear();}
+    public int woodificatorQueuedBlockCount() { return woodificatorWork.stream().mapToInt(job->job.terrain.queuedBlockCount()).sum(); }
+    public boolean useWoodificator(ServerPlayer owner,InteractionHand hand) {
         if(hand==InteractionHand.OFF_HAND && !game.config().offhandWands || !canFire(owner)
                 || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var job=woodificatorWork.stream().filter(work->work.owner==owner && work.level==owner.level()
@@ -351,19 +351,19 @@ public final class LbcShooters {
         var data=stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(BOSS_HELICOPTER) || data!=null && data.matchedBy(BOSS_HELICOPTER_FLAG);
     }
-    int bossHelicopterCooldownRemaining(ServerPlayer owner) {
+    public int bossHelicopterCooldownRemaining(ServerPlayer owner) {
         var burst=bossHelicopterBursts.get(owner.getUUID()); return burst==null?0:burst.remaining;
     }
     /** Source purify resets the shared timer; already fired native arrows retain their normal lifecycle. */
-    void resetBossHelicopterCooldown(ServerPlayer owner) {
+    public void resetBossHelicopterCooldown(ServerPlayer owner) {
         bossHelicopterBursts.remove(owner.getUUID());
     }
-    int bossHelicopterArrowCount() {
+    public int bossHelicopterArrowCount() {
         return (int)arrows.stream().filter(arrow->!arrow.isRemoved() && arrow.entityTags().contains(BOSS_HELICOPTER_PROJECTILE_TAG)).count();
     }
     /** (user) Both helicopter weapons are technology, sharing the same mechanism-only suppression. */
     private boolean canBeginBossHelicopter(ServerPlayer owner) { return canFireHelicopter(owner); }
-    boolean beginBossHelicopter(ServerPlayer owner,InteractionHand hand) {
+    public boolean beginBossHelicopter(ServerPlayer owner,InteractionHand hand) {
         if(!isBossHelicopter(owner.getItemInHand(hand)) || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
                 || bossHelicopterCooldownRemaining(owner)>0 || !canBeginBossHelicopter(owner)) return false;
         var burst=bossHelicopterBursts.computeIfAbsent(owner.getUUID(),ignored->new HelicopterBurst(owner));
@@ -371,7 +371,7 @@ public final class LbcShooters {
         return true;
     }
     /** Source fires before decrement: 600..400 inclusive is 201 volleys, independently for each held hand. */
-    void tickBossHelicopters() {
+    public void tickBossHelicopters() {
         for(var burst:List.copyOf(bossHelicopterBursts.values())) {
             var owner=burst.owner;
             if(!active(owner)) { forget(owner); continue; }
@@ -384,10 +384,10 @@ public final class LbcShooters {
             if(--burst.remaining<=0) bossHelicopterBursts.remove(owner.getUUID());
         }
     }
-    int helicopterCooldownRemaining(ServerPlayer owner) {
+    public int helicopterCooldownRemaining(ServerPlayer owner) {
         var state=helicopterBursts.get(owner.getUUID()); return state==null?0:state.remaining;
     }
-    int helicopterArrowCount() {
+    public int helicopterArrowCount() {
         return (int)arrows.stream().filter(arrow->!arrow.isRemoved() && arrow.entityTags().contains(HELICOPTER_PROJECTILE_TAG)
                 && !arrow.entityTags().contains(BOSS_HELICOPTER_PROJECTILE_TAG)).count();
     }
@@ -397,7 +397,7 @@ public final class LbcShooters {
                 && !game.items().wands().inputTimeStopped(owner)
                 && !game.items().magic().mechanismSuppressedAt(owner.level(),owner.position());
     }
-    boolean beginHelicopter(ServerPlayer owner,InteractionHand hand) {
+    public boolean beginHelicopter(ServerPlayer owner,InteractionHand hand) {
         if(!isHelicopter(owner.getItemInHand(hand)) || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
                 || !canFireHelicopter(owner) || helicopterCooldownRemaining(owner)>0) return false;
         var burst=helicopterBursts.computeIfAbsent(owner.getUUID(),ignored->new HelicopterBurst(owner));
@@ -405,7 +405,7 @@ public final class LbcShooters {
         return true;
     }
     /** Only active cooldowns tick: 200 firing ticks followed by 600 recharge ticks. */
-    void tickHelicopters() {
+    public void tickHelicopters() {
         for(var burst:List.copyOf(helicopterBursts.values())) {
             var owner=burst.owner;
             if(!active(owner)) { forget(owner); continue; }
@@ -471,12 +471,12 @@ public final class LbcShooters {
         var data=stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(PHANTOM_KNIVES) || data!=null && data.matchedBy(PHANTOM_FLAG);
     }
-    int phantomCooldownRemaining(ServerPlayer owner) {
+    public int phantomCooldownRemaining(ServerPlayer owner) {
         var burst=phantomBursts.get(owner.getUUID());
         return burst==null?-20:burst.cooldown;
     }
-    int phantomBurstCount() { return (int)phantomBursts.values().stream().filter(burst->burst.cooldown>=0).count(); }
-    int phantomArrowCount() { return (int)arrows.stream().filter(arrow->arrow.entityTags().contains(PHANTOM_PROJECTILE_TAG)).count(); }
+    public int phantomBurstCount() { return (int)phantomBursts.values().stream().filter(burst->burst.cooldown>=0).count(); }
+    public int phantomArrowCount() { return (int)arrows.stream().filter(arrow->arrow.entityTags().contains(PHANTOM_PROJECTILE_TAG)).count(); }
     /** Source shared coldown13: free activation, five waves, then recovery down to -20. */
     boolean beginPhantomBurst(ServerPlayer owner,InteractionHand hand) {
         if(hand==InteractionHand.OFF_HAND && !game.config().offhandWands || !canFire(owner)
@@ -507,16 +507,16 @@ public final class LbcShooters {
         var data=stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(KFC_GUN) || data!=null && data.matchedBy(KFC_FLAG);
     }
-    int kfcCooldownRemaining(ServerPlayer owner) { return kfcCooldowns.getOrDefault(owner.getUUID(),0); }
+    public int kfcCooldownRemaining(ServerPlayer owner) { return kfcCooldowns.getOrDefault(owner.getUUID(),0); }
     /** Existing burst clocks are source-owned; reducing them must not restart a paid queue. */
-    int sourceCounter(ServerPlayer owner,String name) {return switch(name){
+    public int sourceCounter(ServerPlayer owner,String name) {return switch(name){
         case "coldown13"->phantomCooldownRemaining(owner);case "coldown17"->kfcCooldownRemaining(owner);
         case "coldown25"->helicopterCooldownRemaining(owner);case "coldownMagnum"->cooldownRemaining(owner);
         case "coldown18","coldown18b"->{var burst=bursts.get(owner.getUUID());
             yield burst!=null&&burst.best==name.equals("coldown18b")?burst.counter:-4;}
         default->throw new IllegalArgumentException(name);
     };}
-    void reduceSourceCounter(ServerPlayer owner,String name,int value) {switch(name){
+    public void reduceSourceCounter(ServerPlayer owner,String name,int value) {switch(name){
         case "coldown13"->{var burst=phantomBursts.get(owner.getUUID());if(burst!=null)burst.cooldown=value;}
         case "coldown17"->{if(value<=0)kfcCooldowns.remove(owner.getUUID());else kfcCooldowns.put(owner.getUUID(),value);}
         case "coldown25"->{var burst=helicopterBursts.get(owner.getUUID());if(burst!=null)burst.remaining=value;}
@@ -525,9 +525,9 @@ public final class LbcShooters {
             if(value < -2)bursts.remove(owner.getUUID());else burst.counter=value;}}
         default->throw new IllegalArgumentException(name);
     }}
-    int chickenCount() { return chickens.size(); }
+    public int chickenCount() { return chickens.size(); }
     /** KFC's player-counter outcome extends actual Java timers as well as its legacy ledger. */
-    void addPlayerCounters(ServerPlayer player) {
+    public void addPlayerCounters(ServerPlayer player) {
         helicopterBursts.computeIfAbsent(player.getUUID(),ignored->new HelicopterBurst(player)).remaining++;
         bossHelicopterBursts.computeIfAbsent(player.getUUID(),ignored->new HelicopterBurst(player)).remaining++;
         var helicopter=helicopterBursts.get(player.getUUID());
@@ -566,7 +566,7 @@ public final class LbcShooters {
         chickens.put(chicken,owner.getUUID()); kfcCooldowns.put(owner.getUUID(),20);
         return true;
     }
-    ServerPlayer owner(Entity entity) {
+    public ServerPlayer owner(Entity entity) {
         var id=entity instanceof KfcChicken chicken && chicken.currentOwnerLife()?chickens.get(chicken):null;
         return id==null?null:game.server().getPlayerList().getPlayer(id);
     }
@@ -635,14 +635,14 @@ public final class LbcShooters {
         var data=stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(SLR) || data!=null && data.matchedBy(SLR_FLAG);
     }
-    static int mode(ItemStack stack) {
+    public static int mode(ItemStack stack) {
         return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,4);
     }
-    int cooldownRemaining(ServerPlayer player) { return slrCooldowns.getOrDefault(player.getUUID(),0); }
-    void setCooldown(ServerPlayer player,int ticks) {
+    public int cooldownRemaining(ServerPlayer player) { return slrCooldowns.getOrDefault(player.getUUID(),0); }
+    public void setCooldown(ServerPlayer player,int ticks) {
         if(ticks<=0) slrCooldowns.remove(player.getUUID()); else slrCooldowns.put(player.getUUID(),ticks);
     }
-    void resetCooldown(ServerPlayer player) { setCooldown(player,0); }
+    public void resetCooldown(ServerPlayer player) { setCooldown(player,0); }
     private boolean useSlr(ServerPlayer player,InteractionHand hand) {
         if(hand!=InteractionHand.MAIN_HAND || !canFire(player,true)) return false;
         var stack=player.getItemInHand(hand);
@@ -841,16 +841,16 @@ public final class LbcShooters {
             }
         }finally{statusCallbacks--;}
     }
-    void checkpointStatusBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish Shooter stun callbacks before checkpointing");}
-    void prepareStatusFrozen(){checkpointStatusBoundary();statusRestoring=true;stuns.clear();restoredStunAges.clear();}
-    void publishStatusFrozen(){
+    public void checkpointStatusBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish Shooter stun callbacks before checkpointing");}
+    public void prepareStatusFrozen(){checkpointStatusBoundary();statusRestoring=true;stuns.clear();restoredStunAges.clear();}
+    public void publishStatusFrozen(){
         checkpointStatusBoundary();restoredStunAges.forEach((target,ages)->{
             var stun=stuns.get(target);if(stun!=null)stun.effects.replaceAll((type,owned)->new StunEffect(owned.installed,owned.previous,target.tickCount-ages.get(type)));
         });restoredStunAges.clear();statusRestoring=false;
     }
-    void cancelStatusFrozen(){checkpointStatusBoundary();restoredStunAges.clear();statusRestoring=false;}
-    StatusCheckpoint checkpointStatuses(MatchSpellCheckpoint.Links links){checkpointStatusBoundary();return new StatusCheckpoint(links);}
-    final class StatusCheckpoint {
+    public void cancelStatusFrozen(){checkpointStatusBoundary();restoredStunAges.clear();statusRestoring=false;}
+    public StatusCheckpoint checkpointStatuses(MatchSpellCheckpoint.Links links){checkpointStatusBoundary();return new StatusCheckpoint(links);}
+    public final class StatusCheckpoint {
         private record EffectImage(net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> type,MobEffectInstance installed,MobEffectInstance previous,int age,boolean owned) { }
         private record StunImage(Stun original,MatchDamageSources.Ref owner,int ticks,List<EffectImage> effects,AttributeModifier movement) { }
         private final Map<MatchDamageSources.Ref,StunImage> images=new java.util.LinkedHashMap<>();
@@ -862,7 +862,7 @@ public final class LbcShooters {
                 images.put(links.key(target),new StunImage(stun,links.key(stun.owner),stun.ticks,List.copyOf(effects),movement==null?null:movement.getModifier(STUN_MOVEMENT)));
             });
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointStatusBoundary();var next=new java.util.IdentityHashMap<LivingEntity,Stun>();var plans=new java.util.ArrayList<Runnable>();
             for(var entry:images.entrySet()){
                 var target=(LivingEntity)links.get(entry.getKey());var image=entry.getValue();var owner=(ServerPlayer)links.get(image.owner);
@@ -969,7 +969,7 @@ public final class LbcShooters {
             burst.counter-=4; if (burst.counter < -2) bursts.remove(owner.getUUID());
         }
     }
-    void tickPhantomBursts() {
+    public void tickPhantomBursts() {
         for(var burst:List.copyOf(phantomBursts.values())) {
             var owner=burst.owner;
             if(!active(owner)) { forget(owner); continue; }
@@ -1041,7 +1041,7 @@ public final class LbcShooters {
     private static void publishShot(ServerLevel level,Arrow arrow) {
         if(level.addFreshEntity(arrow)) arrow.applyOnProjectileSpawned(level,arrow.getPickupItemStackOrigin());
     }
-    static void orient(Projectile projectile) {
+    public static void orient(Projectile projectile) {
         var motion=projectile.getDeltaMovement();
         projectile.setYRot((float)(net.minecraft.util.Mth.atan2(motion.x,motion.z)*180/Math.PI));
         projectile.setXRot((float)(net.minecraft.util.Mth.atan2(motion.y,motion.horizontalDistance())*180/Math.PI));
@@ -1050,7 +1050,7 @@ public final class LbcShooters {
     private static double component(ServerPlayer owner, double direction, int speed) {
         return (Math.floor(direction * speed) + owner.getRandom().nextInt(601) - 300) * .001;
     }
-    boolean loaded(Entity entity) {
+    public boolean loaded(Entity entity) {
         if(entity.entityTags().contains(HELICOPTER_PROJECTILE_TAG)) {
             if(!(entity instanceof HelicopterArrow arrow) || arrow.retired || !game.items().currentEpoch(entity)
                     || !(arrow.getOwner() instanceof ServerPlayer owner) || !active(owner) || owner.level()!=entity.level()) entity.discard();
@@ -1078,7 +1078,7 @@ public final class LbcShooters {
         else arrow.discard();
         return true;
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof HelicopterArrow arrow) arrow.retired=true;
         arrows.remove(entity);
         chickens.remove(entity);
@@ -1118,7 +1118,7 @@ public final class LbcShooters {
         }
         for(var target:List.copyOf(stuns.keySet())) if(target==player || stuns.get(target).owner==player) clearStun(target);
     }
-    void stop() {
+    public void stop() {
         helicopterBursts.clear();
         bossHelicopterBursts.clear();
         for(var job:List.copyOf(woodificatorWork)) job.cancel();
@@ -1131,7 +1131,7 @@ public final class LbcShooters {
         var removed = List.copyOf(arrows); arrows.clear();
         for (var arrow : removed) arrow.discard();
     }
-    LbcCloneSkills.ActorImage cloneStatusImage(Entity source){
+    public LbcCloneSkills.ActorImage cloneStatusImage(Entity source){
         if(!(source instanceof LivingEntity target))return null;var stun=stuns.get(target);if(stun==null)return null;
         var owner=stun.owner;var epoch=stun.epoch;int ticks=stun.ticks;float yaw=stun.yaw,pitch=stun.pitch;
         record Image(net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> type,MobEffectInstance installed,MobEffectInstance previous,int age,boolean active){}

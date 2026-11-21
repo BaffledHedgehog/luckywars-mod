@@ -14,13 +14,13 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** Native block traversal with an empty-section jump for shapes known to ignore air. */
-final class ResidentBlockRay {
+public final class ResidentBlockRay {
     private static final double MIN_JUMP_DISTANCE_SQUARED = 16 * 16;
     private static final double DDA_COORDINATE_LIMIT = 100_000_000;
 
     private ResidentBlockRay() {}
 
-    static BlockHitResult clip(ServerLevel level, Vec3 from, Vec3 to,
+    public static BlockHitResult clip(ServerLevel level, Vec3 from, Vec3 to,
             BiFunction<BlockPos, BlockState, VoxelShape> shape, boolean airTransparent, boolean voidTransparent) {
         if (!(from.distanceToSqr(to) >= MIN_JUMP_DISTANCE_SQUARED) || level.isDebug()
                 || !safeCoordinates(from) || !safeCoordinates(to) || !airTransparent) {

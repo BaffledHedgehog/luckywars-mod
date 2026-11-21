@@ -177,6 +177,6 @@ public final class LbcMalevich {
         for(var item:List.copyOf(items))if(matches(item.getItem())&&game.items().currentEpoch(item))item.discard();
         items.removeIf(Entity::isRemoved);
     }
-    int pendingCount(){return pending.size();}
-    int groundCount(){return (int)items.stream().filter(this::ground).count();}
+    public int pendingCount(){return pending.size();}
+    public int groundCount(){return (int)items.stream().filter(this::ground).count();}
 }

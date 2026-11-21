@@ -12,7 +12,7 @@ import net.minecraft.world.level.lighting.LeveledPriorityQueue;
 
 /** Memory phase only. Cold POI storage and I/O must be restored/settled by their separate owner first.
  * Composed by MatchPoiCheckpoint with its persistent-storage phases. */
-final class MatchPoiMemory {
+public final class MatchPoiMemory {
     private final ServerLevel level;
     private final PoiManager owner;
     private final Object loadLock;
@@ -23,13 +23,13 @@ final class MatchPoiMemory {
     private final Map<PoiSection,Section> sections=new IdentityHashMap<>();
     private final Graph graph;
     Set<Long> loadedChunkKeys(){var result=new HashSet<Long>();for(long key:loaded.saved)result.add(key);return Set.copyOf(result);}
-    static boolean ready(ServerLevel level){
+    public static boolean ready(ServerLevel level){
         var access = storageAccess(level.getPoiManager());
         synchronized (access.skywars2$poiLoadLock()) {
             return access.skywars2$poiPendingLoads().isEmpty();
         }
     }
-    MatchPoiMemory(ServerLevel level){
+    public MatchPoiMemory(ServerLevel level){
         this.level=level;owner=level.getPoiManager();requireThread(false);
         var access = storageAccess(owner);
         var manager = managerAccess(owner);
@@ -55,7 +55,7 @@ final class MatchPoiMemory {
     private static PoiCheckpointAccess.Manager managerAccess(PoiManager manager) {
         return (PoiCheckpointAccess.Manager)(Object) manager;
     }
-    void restoreFrozen(){
+    public void restoreFrozen(){
         requireThread(true);
         if(level.getPoiManager()!=owner)throw new IllegalStateException("Native POI owner changed");
         var access = storageAccess(owner);

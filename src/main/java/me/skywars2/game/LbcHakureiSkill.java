@@ -60,14 +60,14 @@ public final class LbcHakureiSkill {
             if(reward.remaining>0||!reward.outputs.isEmpty())rewards.addLast(reward);
         }
     }
-    int pendingCount(){return rewards.stream().mapToInt(r->r.remaining+r.outputs.size()).sum();}
+    public int pendingCount(){return rewards.stream().mapToInt(r->r.remaining+r.outputs.size()).sum();}
     public void forget(ServerPlayer player){if(!restoring&&!MatchPlayerCheckpoint.restoring(player))rewards.removeIf(r->r.owner.equals(player.getUUID()));}
     public void stop(){rewards.clear();}
     public void prepareFrozen(){if(publishing)throw new IllegalStateException("Hakurei rewind during native publication");restoring=true;rewards.clear();}
     public void publishFrozen(){restoring=false;}
-    Checkpoint checkpoint(){if(publishing)throw new IllegalStateException("Hakurei checkpoint during native publication");return new Checkpoint();}
-    final class Checkpoint{
+    public Checkpoint checkpoint(){if(publishing)throw new IllegalStateException("Hakurei checkpoint during native publication");return new Checkpoint();}
+    public final class Checkpoint{
         private final List<Reward> saved=rewards.stream().map(Reward::new).toList();
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){return new MatchFieldCheckpoint.Plan(Set.of(),()->{rewards.clear();saved.forEach(r->rewards.add(new Reward(r)));});}
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){return new MatchFieldCheckpoint.Plan(Set.of(),()->{rewards.clear();saved.forEach(r->rewards.add(new Reward(r)));});}
     }
 }

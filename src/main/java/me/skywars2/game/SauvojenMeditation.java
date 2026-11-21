@@ -41,30 +41,32 @@ import java.util.*;
 
 /** Combined staff's destructive nine-stage trial. Every helper belongs to one owner/stack admission. */
 public final class SauvojenMeditation {
-    static final String TAG="skywars2.sauvojen.meditation";
-    static final Identifier STONE=Identifier.parse("lbc:stone_cylinder");
+    public static final String TAG="skywars2.sauvojen.meditation";
+    public static final Identifier STONE=Identifier.parse("lbc:stone_cylinder");
     private static final TagKey<Block> AIRS=tag("airs"),TO_LIME=tag("to_lime");
     private static final DustColorTransitionOptions WEB_DUST = new DustColorTransitionOptions(0x00ccff,0x003333,.8f);
     private static final int STRICT=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
-    enum Kind { TERRA,TERRA_RAY,WEB,AIR,ACID_RING,ACID_BALLER,ACID_BALL,SCARE }
-    static final class Hazard {
-        final Kind kind; Vec3 at,direction; int age; float yaw;
-        Entity actor; UUID uuid; TrialWarningVisual warning; Hazard partner;
-        Hazard(Kind kind,Vec3 at,Vec3 direction){this.kind=kind;this.at=at;this.direction=direction;}
+    public enum Kind { TERRA,TERRA_RAY,WEB,AIR,ACID_RING,ACID_BALLER,ACID_BALL,SCARE }
+    public static final class Hazard {
+        public final Kind kind; public Vec3 at;
+        Vec3 direction; int age; float yaw;
+        public Entity actor; UUID uuid; public TrialWarningVisual warning; Hazard partner;
+        public Hazard(Kind kind,Vec3 at,Vec3 direction){this.kind=kind;this.at=at;this.direction=direction;}
         void close(){if(actor!=null)actor.discard();actor=null;if(warning!=null)warning.close();}
     }
     private record WebEdge(Hazard from,Hazard to) { }
     private record WebWarning(Hazard terminal,TrialWarningVisual visual) { }
-    static final class Trial {
-        final ServerPlayer owner; final ItemStack stack; final ServerLevel level; final String epoch;
-        final LbcIndirectKills.Owner cause; final List<Hazard> hazards=new ArrayList<>();
-        final List<TrialWarningVisual> warnings=new ArrayList<>();
+    public static final class Trial {
+        final ServerPlayer owner; public final ItemStack stack; public final ServerLevel level; public final String epoch;
+        public final LbcIndirectKills.Owner cause; public final List<Hazard> hazards=new ArrayList<>();
+        public final List<TrialWarningVisual> warnings=new ArrayList<>();
         final Map<WebEdge,WebWarning> webWarnings=new LinkedHashMap<>();
         boolean webPruned;
-        int remaining=620; int ticks;
-        int webQueries,webEdges,webSamples;
-        TerrainJob terrain;long terrainNanos,maxTerrainNanos;int terrainTurns;
+        public int remaining=620; int ticks;
+        public int webQueries,webEdges,webSamples;
+        TerrainJob terrain;long terrainNanos;
+        public long maxTerrainNanos;int terrainTurns;
         BlockPos stoneOrigin;int stoneRow;long stoneSeed;
         Trial(ServerPlayer p,ItemStack stack,String epoch,LbcIndirectKills.Owner cause){
             owner=p;this.stack=stack;level=p.level();this.epoch=epoch;this.cause=cause;
@@ -87,9 +89,9 @@ public final class SauvojenMeditation {
     private static int[] rubyColumns(){int[] cells=new int[349*2];int i=0;
         for(int x=-10;x<=10;x++)for(int z=-rubyHalfWidth(x);z<=rubyHalfWidth(x);z++){cells[i++]=x;cells[i++]=z;}return cells;}
     /** Trial TNT carries kill credit without a physical owner. */
-    static final class TrialTnt extends PrimedTnt {
+    public static final class TrialTnt extends PrimedTnt {
         final LbcIndirectKills.Owner cause;
-        TrialTnt(Trial t,Vec3 at) {
+        public TrialTnt(Trial t,Vec3 at) {
             super(t.level,at.x,at.y,at.z,null);
             cause=t.cause;
             setFuse(0);
@@ -101,7 +103,7 @@ public final class SauvojenMeditation {
     public static boolean managed(Entity source){return source instanceof TrialTnt;}
     public static LbcIndirectKills.Owner cause(Entity source){return source instanceof TrialTnt t?t.cause:null;}
     private int terraTicker;
-    int terraTicker(){return terraTicker;}
+    public int terraTicker(){return terraTicker;}
     private final GameController game;
     private final Map<ServerPlayer,Trial> trials=new IdentityHashMap<>();
     public SauvojenMeditation(GameController game){this.game=game;}
@@ -121,9 +123,9 @@ public final class SauvojenMeditation {
             &&owner.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner)
             &&game.stage()!=GameController.Stage.ENDING;}
     public int count(){return trials.size();}
-    int remaining(ServerPlayer owner){var t=trials.get(owner);return t==null?0:t.remaining;}
-    List<Hazard> snapshot(ServerPlayer owner){var t=trials.get(owner);return t==null?List.of():List.copyOf(t.hazards);}
-    Trial trial(ServerPlayer owner){return trials.get(owner);}
+    public int remaining(ServerPlayer owner){var t=trials.get(owner);return t==null?0:t.remaining;}
+    public List<Hazard> snapshot(ServerPlayer owner){var t=trials.get(owner);return t==null?List.of():List.copyOf(t.hazards);}
+    public Trial trial(ServerPlayer owner){return trials.get(owner);}
     private void counter(Trial t){game.items().mana().score(t.owner,"sauvojen_wand_upgrade").set(t.remaining);}
     public void tick(){
         if(!game.maps().busy()&&!game.items().timeStop().stopped(game.maps().level()))terraTicker++;
@@ -152,7 +154,7 @@ public final class SauvojenMeditation {
         }
     }
     /** False means a required resident footprint/template is unavailable: retry without losing the phase. */
-    boolean phase(Trial t){
+    public boolean phase(Trial t){
         int n=t.remaining;Vec3 at=t.owner.position();var r=t.owner.getRandom();
         if(n==620&&!ruby(t))return false;
         if(n==320&&!stone(t))return false;
@@ -201,7 +203,7 @@ public final class SauvojenMeditation {
         if(t.remaining>=40&&t.remaining<=140&&r.nextBoolean())blind(t);
         return true;
     }
-    static int rubyHalfWidth(int x){int a=Math.abs(x);return a<=3?10:a<=5?9:a==6?8:a==7?7:a==8?6:a==9?5:3;}
+    public static int rubyHalfWidth(int x){int a=Math.abs(x);return a<=3?10:a<=5?9:a==6?8:a==7?7:a==8?6:a==9?5:3;}
     private boolean ruby(Trial t){
         if(!terrainWork(t,620))return false;BlockPos c=t.owner.blockPosition();
         sound(t,t.owner.position(),"minecraft:block.amethyst_cluster.break",3,.8f);
@@ -286,7 +288,7 @@ public final class SauvojenMeditation {
         actor.entityTags().add(TAG);actor.entityTags().add("magic");game.items().markCurrentItemEpoch(actor);
         h.actor=actor;h.uuid=actor.getUUID();if(!t.level.addFreshEntity(actor)){t.hazards.remove(h);actor.discard();}
     }
-    void blind(Trial t){
+    public void blind(Trial t){
         if(looking(t)&&!game.items().magic().rejectCustomDebuff(t.owner)){
             // The canonical Psycho counter also supplies the source five-tick decay, debuff and HUD.
             game.items().psycho().afflict(t.owner,t.owner,10,0,0,0);
@@ -310,7 +312,7 @@ public final class SauvojenMeditation {
         effect(t,t.owner,MobEffects.DARKNESS,300,0);effect(t,t.owner,MobEffects.LEVITATION,20,0);
     }
     /** Vanilla looking_at: closest interaction on the sight ray (100 blocks), with unobstructed native block clip. */
-    boolean looking(Trial t){
+    public boolean looking(Trial t){
         Vec3 from=t.owner.getEyePosition(),to=from.add(t.owner.getLookAngle().scale(100));
         var hit=net.minecraft.world.entity.projectile.ProjectileUtil.getEntityHitResult(t.level,t.owner,from,to,
                 new AABB(from,to).inflate(1),e->!e.isSpectator(),0);
@@ -386,7 +388,7 @@ public final class SauvojenMeditation {
             case WEB->{}
         }return false;
     }
-    void blast(Trial t,Vec3 at){
+    public void blast(Trial t,Vec3 at){
         if(!t.level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES))return;
         var source=new TrialTnt(t,at);game.items().markCurrentItemEpoch(source);
         game.items().indirectKills().trapChanges(t.level,t.cause,()->t.level.explode(source,at.x,at.y,at.z,4,Level.ExplosionInteraction.TNT));
@@ -416,7 +418,7 @@ public final class SauvojenMeditation {
         else {if(old.is(TO_LIME))return;next=Blocks.CONCRETE_POWDER.pick(net.minecraft.world.item.DyeColor.LIME);}
         Block replacement=next;terrain(t,p,p,()->t.level.setBlockAndUpdate(p,replacement.defaultBlockState()));
     }
-    void webDamage(Trial t){
+    public void webDamage(Trial t){
         t.webWarnings.values().forEach(warning->warning.visual.close());
         if(t.hazards.stream().anyMatch(h->h.kind==Kind.WEB))
             sound(t,t.owner.position(),"minecraft:entity.firework_rocket.twinkle",1,1);
@@ -426,7 +428,7 @@ public final class SauvojenMeditation {
         t.webPruned=false;
     }
     /** Complete source graph; collision sampling is independent of the bounded visual budget. */
-    int webLines(Trial t,boolean damage){
+    public int webLines(Trial t,boolean damage){
         var webs=t.hazards.stream().filter(h->h.kind==Kind.WEB).toList();if(webs.isEmpty())return 0;
         int edgeCount=webs.size()*(webs.size()-1)/2,edges=0;
         t.webQueries=damage?1:0;t.webEdges=0;t.webSamples=0;
@@ -502,7 +504,7 @@ public final class SauvojenMeditation {
             hurt(t,e,acid?4:8,acid?DamageTypes.IN_FIRE:DamageTypes.MAGIC,acid);return true;
         }return false;
     }
-    void hurt(Trial t,LivingEntity e,float amount,ResourceKey<DamageType> type,boolean acid){
+    public void hurt(Trial t,LivingEntity e,float amount,ResourceKey<DamageType> type,boolean acid){
         var damage=new DamageSource(t.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type));
         e.hurtServer(t.level,game.items().indirectKills().captureDamage(damage,t.cause),amount);
         if(acid)effect(t,e,MobEffects.POISON,200,0);
@@ -589,7 +591,7 @@ public final class SauvojenMeditation {
         hazard.close();
     }
     /** These legacy raycasters are simulated without a native entity. */
-    void clearTraces(ServerLevel level,Vec3 center,double radiusSquared){
+    public void clearTraces(ServerLevel level,Vec3 center,double radiusSquared){
         for(var t:trials.values())if(t.level==level)for(var hazard:List.copyOf(t.hazards)){
             if(hazard.at.distanceToSqr(center)>radiusSquared)continue;
             switch(hazard.kind){
@@ -600,7 +602,7 @@ public final class SauvojenMeditation {
     }
     public void stop(){for(var t:List.copyOf(trials.values()))finish(t,null);terraTicker=0;}
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var trial:trials.values())if(game.items().currentEpoch(trial.epoch))for(var hazard:trial.hazards)
             if(LbcPlanetoidSkill.near(game,holder,trial.level,hazard.at)
                     &&(hazard.actor==null||!game.items().timeStop().frozen(hazard.actor)

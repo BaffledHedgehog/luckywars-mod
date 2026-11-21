@@ -96,7 +96,7 @@ public final class LbcSymbioteSkill {
 
     public void clear(ServerPlayer owner){distributing.remove(owner);receiving.remove(owner);}
     public void stop(){distributing.clear();receiving.clear();}
-    void checkpointBoundary(){
+    public void checkpointBoundary(){
         if(!distributing.isEmpty()||!receiving.isEmpty())throw new IllegalStateException("Cannot snapshot during Symbiote redistribution");
     }
 }

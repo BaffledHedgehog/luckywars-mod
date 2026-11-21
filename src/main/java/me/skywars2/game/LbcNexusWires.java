@@ -24,8 +24,8 @@ public final class LbcNexusWires {
     private final GameController game;
     private static final TicketType GATEWAY_TICKET=new TicketType(TicketType.NO_TIMEOUT,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     public static void register(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:nexus_wire"),GATEWAY_TICKET);}
-    static final class Gateway {
-        final ServerLevel level;final LbcIndirectKills.Owner cause;BlockPos position;
+    public static final class Gateway {
+        final ServerLevel level;final LbcIndirectKills.Owner cause;public BlockPos position;
         Gateway(ServerLevel level,BlockPos position,LbcIndirectKills.Owner cause){this.level=level;this.position=position;this.cause=cause;}
     }
     private record Chunk(ServerLevel level,ChunkPos pos){}
@@ -35,19 +35,19 @@ public final class LbcNexusWires {
     private final Set<ExperienceOrb> pending=new LinkedHashSet<>();
     private boolean frozen;
     private int lastTick=Integer.MIN_VALUE,heightPhase;
-    LbcNexusWires(GameController game){this.game=game;}
-    List<Gateway> pendingGateways(){return List.copyOf(gateways);}
-    boolean captureReady(){return gateways.isEmpty();}
-    int loadingChunks(){return loads.size();}
+    public LbcNexusWires(GameController game){this.game=game;}
+    public List<Gateway> pendingGateways(){return List.copyOf(gateways);}
+    public boolean captureReady(){return gateways.isEmpty();}
+    public int loadingChunks(){return loads.size();}
     public void inventoryChanged(ServerPlayer player){dirty.add(player.getUUID());}
-    boolean nexusExperience(ServerLevel level){return level.dimension().equals(LbcHedgehogDimensions.NEXUS);}
-    static boolean persistentDrop(Entity entity){
+    public boolean nexusExperience(ServerLevel level){return level.dimension().equals(LbcHedgehogDimensions.NEXUS);}
+    public static boolean persistentDrop(Entity entity){
         return entity instanceof ItemEntity item&&entity.level().dimension().equals(LbcHedgehogDimensions.NEXUS)
                 &&LbcNexusWireItems.kind(item.getItem())!=0;
     }
     private boolean paused(Entity entity){return frozen||entity.level() instanceof ServerLevel level&&game.items().timeStop().stopped(level)||entity.entityTags().contains("time_stopped");}
     /** Called before XP spawn merging: one actual source orb yields one wire, regardless of its value. */
-    boolean convert(ExperienceOrb orb){
+    public boolean convert(ExperienceOrb orb){
         if(orb.isRemoved()||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||!(orb.level() instanceof ServerLevel level)||!nexusExperience(level)||paused(orb)||MatchActorCheckpoint.restoring(orb))return false;
         var drop=new ItemEntity(level,orb.getX(),orb.getY(),orb.getZ(),new ItemStack(LbcNexusWireItems.RED));
@@ -55,8 +55,8 @@ public final class LbcNexusWires {
         if(!level.addFreshEntity(drop))return false;
         orb.discard();pending.remove(orb);return true;
     }
-    void loaded(Entity entity){if(entity instanceof ExperienceOrb orb&&orb.level() instanceof ServerLevel level&&nexusExperience(level)&&!convert(orb))pending.add(orb);}
-    void unloaded(Entity entity){if(entity instanceof ExperienceOrb orb)pending.remove(orb);}
+    public void loaded(Entity entity){if(entity instanceof ExperienceOrb orb&&orb.level() instanceof ServerLevel level&&nexusExperience(level)&&!convert(orb))pending.add(orb);}
+    public void unloaded(Entity entity){if(entity instanceof ExperienceOrb orb)pending.remove(orb);}
     private boolean admitted(ServerPlayer p){return p!=null&&!p.isRemoved()&&p.isAlive()&&game.canUseGameplayItems(p)&&!game.isObserver(p)
             &&LbcDimensionItems.ordinary(p)&&game.items().wands().validRoleTarget(p,false)&&!game.items().wands().inputTimeStopped(p)&&!paused(p);}
     private static boolean intake(net.minecraft.world.item.ItemStack stack,int bit){return switch(bit){case 1->LbcNexusWireItems.isRed(stack);case 2->LbcNexusWireItems.isBlack(stack);case 4->LbcNexusWireItems.isBlue(stack);default->false;};}
@@ -131,15 +131,15 @@ public final class LbcNexusWires {
         if(++heightPhase%20==0)for(var p:game.server().getPlayerList().getPlayers())
             if(p.isAlive()&&!p.isSpectator()&&!game.isObserver(p)&&LbcDimensionItems.ordinary(p)&&p.getY()>=14500000&&!paused(p))game.items().hedgehogDimensions().heightNexus(p);
     }
-    void roundEnded(){dirty.clear();carriers.clear();gateways.clear();for(var key:loads.keySet())key.level().getChunkSource().removeTicketWithRadius(GATEWAY_TICKET,key.pos(),0);loads.clear();frozen=false;heightPhase=0;}
-    void stop(){pending.clear();roundEnded();}
-    void prepareFrozen(){stop();frozen=true;}
-    void publishFrozen(){frozen=false;lastTick=game.server().getTickCount();for(var p:game.server().getPlayerList().getPlayers())inventoryChanged(p);}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public void roundEnded(){dirty.clear();carriers.clear();gateways.clear();for(var key:loads.keySet())key.level().getChunkSource().removeTicketWithRadius(GATEWAY_TICKET,key.pos(),0);loads.clear();frozen=false;heightPhase=0;}
+    public void stop(){pending.clear();roundEnded();}
+    public void prepareFrozen(){stop();frozen=true;}
+    public void publishFrozen(){frozen=false;lastTick=game.server().getTickCount();for(var p:game.server().getPlayerList().getPlayers())inventoryChanged(p);}
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         final int phase=heightPhase;
-        final Set<UUID> waiting=pending.stream().filter(e->!e.isRemoved()).map(Entity::getUUID).collect(java.util.stream.Collectors.toUnmodifiableSet());
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public final Set<UUID> waiting=pending.stream().filter(e->!e.isRemoved()).map(Entity::getUUID).collect(java.util.stream.Collectors.toUnmodifiableSet());
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var missing=new LinkedHashSet<UUID>();var orbs=new LinkedHashSet<ExperienceOrb>();
             for(var id:waiting)if(lookup.apply(id) instanceof ExperienceOrb orb)orbs.add(orb);else missing.add(id);
             return new MatchFieldCheckpoint.Plan(Set.copyOf(missing),()->{pending.clear();pending.addAll(orbs);heightPhase=phase;});

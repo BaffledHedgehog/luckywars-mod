@@ -25,7 +25,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 /** Native Mannequin survival inputs; no player inventory or synthetic food-use clock. */
-final class LbcChefSurvival {
+public final class LbcChefSurvival {
     private final LbcWtf.Chef chef;
     private final ServerLevel level;
     private ItemStack bucket=new ItemStack(Items.WATER_BUCKET);
@@ -47,7 +47,7 @@ final class LbcChefSurvival {
     LbcChefSurvival(LbcWtf.Chef chef){this.chef=chef;level=(ServerLevel)chef.level();lastPosition=chef.position();}
 
     /** One call per active native tick, after lifecycle/knock guards and before combat. */
-    boolean tick(){
+    public boolean tick(){
         chef.service.enterCheckpointCallback();try {
             movementExhaustion();
             settleConsumption();
@@ -105,8 +105,8 @@ final class LbcChefSurvival {
         }finally{chef.service.leaveCheckpointCallback();}
     }
 
-    boolean canSprint(){return foodLevel>6&&!eating;}
-    void jumpExhaustion(){addExhaustion(chef.isSprinting()?.2f:.05f);}
+    public boolean canSprint(){return foodLevel>6&&!eating;}
+    public void jumpExhaustion(){addExhaustion(chef.isSprinting()?.2f:.05f);}
     void attackExhaustion(){addExhaustion(.1f);}
     private void addExhaustion(float amount){exhaustion=Math.min(40,exhaustion+amount);}
 
@@ -147,12 +147,12 @@ final class LbcChefSurvival {
     /** Removal/epoch cleanup: forget ownership without deleting world terrain. */
     void clear(){cancel();pickupWater=null;nextWaterSearch=0;ownedWater=null;ownedWaterState=null;touchedWater=false;waterAge=0;settledWaterTicks=0;}
 
-    List<ItemStack> supplies(){return List.of(bucket.copy(),food.copy());}
-    int foodLevel(){return foodLevel;}
+    public List<ItemStack> supplies(){return List.of(bucket.copy(),food.copy());}
+    public int foodLevel(){return foodLevel;}
     float saturation(){return saturation;}
     float exhaustion(){return exhaustion;}
-    boolean eating(){return eating;}
-    BlockPos ownedWater(){return ownedWater;}
+    public boolean eating(){return eating;}
+    public BlockPos ownedWater(){return ownedWater;}
 
     /** A supported approach to a nearby lip and a resident, open shaft to a lower bank.
      * No action search is replaced: if this conservative shortcut is unavailable the

@@ -1,9 +1,9 @@
 package me.skywars2.game;
 
 /** Exact local-coordinate TNT shells from the two source functions. */
-final class LbcBalanceTntShells {
-    record Shell(double x,double y,double z,int fuse){}
-    static final Shell[] BASE={
+public final class LbcBalanceTntShells {
+    public record Shell(double x,double y,double z,int fuse){}
+    public static final Shell[] BASE={
         new Shell(0.0,0.3,0.0,30),
         new Shell(0.0,0.3,0.0,30),
         new Shell(0.0,0.3,0.0,30),

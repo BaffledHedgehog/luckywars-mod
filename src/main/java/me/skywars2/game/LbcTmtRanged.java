@@ -22,7 +22,7 @@ public final class LbcTmtRanged {
     static boolean flag(LbcTmtAbilities.Ability ability,String key){return ((ItemData.IntReader)(Object)ability.data()).skywars2$readInt(key,0)==1;}
     static boolean physicalImba(LbcTmtAbilities.Ability ability){return flag(ability,"imba_fast_crossbow")||flag(ability,"imba_shotgun");}
     static boolean beamImba(LbcTmtAbilities.Ability ability){return flag(ability,"imba_sniper_crossbow")||flag(ability,"imba_super_shotgun")||flag(ability,"imba_gatlingator");}
-    static int beamPaths(LbcTmtAbilities.Ability ability){
+    public static int beamPaths(LbcTmtAbilities.Ability ability){
         for(var kind:LbcImbaCrossbows.Kind.values())
             if(kind.flag!=null&&flag(ability,kind.flag))return kind.beamPaths();
         return 0;
@@ -51,7 +51,7 @@ public final class LbcTmtRanged {
      * Own the complete accepted-shot continuation so a scoped native automatic shot
      * cannot mark the tick guard before its sibling traits have been dispatched.
      */
-    static boolean onShot(GameController game, ServerPlayer owner, InteractionHand hand,
+    public static boolean onShot(GameController game, ServerPlayer owner, InteractionHand hand,
             ItemStack weapon, ItemStack fired, List<Projectile> nativeFamily, LbcRangedShots.Shot shot) {
         if(ItemData.intValue(fired,"tmt_item",0)!=1)return false;
         var family=List.copyOf(nativeFamily);
@@ -171,7 +171,7 @@ public final class LbcTmtRanged {
         return LbcTmtAbilities.invoke(weapon,ability.id(),()->LbcTmtAbilities.invoke(fired,ability.id(),body));
     }
 
-    static CompoundTag image(GameController game,Projectile arrow){
+    public static CompoundTag image(GameController game,Projectile arrow){
         var output=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,arrow.registryAccess());
         arrow.saveWithoutId(output);var tag=output.buildResult();
         tag.putString("id",net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(arrow.getType()).toString());
@@ -185,7 +185,7 @@ public final class LbcTmtRanged {
         return tag;
     }
 
-    static List<Projectile> donors(ServerPlayer owner,List<CompoundTag> images){
+    public static List<Projectile> donors(ServerPlayer owner,List<CompoundTag> images){
         var result=new ArrayList<Projectile>(images.size());
         for(var image:images){
             var type=net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getValue(net.minecraft.resources.Identifier.parse(image.getStringOr("id","minecraft:arrow")));

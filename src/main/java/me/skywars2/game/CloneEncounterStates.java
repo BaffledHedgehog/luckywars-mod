@@ -32,23 +32,23 @@ public final class CloneEncounterStates {
         if(LbcApocalypseActors.managed(e))return game.items().apocalypseActors().cloneImage(e);
         return null;
     }
-    static LbcSpellSource.Source rebase(LbcSpellSource.Source source,UUID original,Entity clone) {
+    public static LbcSpellSource.Source rebase(LbcSpellSource.Source source,UUID original,Entity clone) {
         if(source==null)return null;
         return new LbcSpellSource.Source(original.equals(source.emitter())?clone.getUUID():source.emitter(),
                 source.author(),source.epoch(),source.cause(),source.excluded(),source.persistent(),source.unownedMobs(),original.equals(source.emitter())&&(source.author()==null||source.helmetCredit())&&source.unownedMobs()&&clone instanceof net.minecraft.world.entity.LivingEntity living?living:source.nativeEmitter(),source.helmetCredit());
     }
     /** A reviewed presentation child's native serialized value, with a fresh construction identity. */
-    static final class Presentation {
+    public static final class Presentation {
         private final CompoundTag nbt;
         private final net.minecraft.world.entity.EntityType<?> type;
         private final Class<?> bodyClass;
-        final net.minecraft.world.phys.Vec3 position;
-        Presentation(Entity child) {
+        public final net.minecraft.world.phys.Vec3 position;
+        public Presentation(Entity child) {
             var out=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,child.registryAccess());
             child.saveWithoutId(out);nbt=out.buildResult().copy();nbt.remove("UUID");nbt.remove("uuid");nbt.remove("Passengers");
             type=child.getType();bodyClass=child.getClass();position=child.position();
         }
-        Entity create(ServerLevel level) {
+        public Entity create(ServerLevel level) {
             var e=type.create(level,EntitySpawnReason.COMMAND);
             if(e==null||e.getClass()!=bodyClass)throw new IllegalStateException("Unreviewed encounter presentation class");
             UUID uuid=e.getUUID();int nativeId=e.getId();

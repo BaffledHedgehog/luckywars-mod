@@ -38,8 +38,8 @@ public final class LbcStoneGolemSkill {
     }
     public int layers(ServerPlayer player){var s=states.get(player.getUUID());return s==null?0:s.layers;}
     public int charge(ServerPlayer player){var s=states.get(player.getUUID());return s==null?0:s.charge;}
-    int phase(ServerLevel level){return phases.getOrDefault(level,0);}
-    int secondLayerThresholdHP(){return secondLayerThresholdUnits/10;}
+    public int phase(ServerLevel level){return phases.getOrDefault(level,0);}
+    public int secondLayerThresholdHP(){return secondLayerThresholdUnits/10;}
     private boolean owner(ServerPlayer p){return game.playing()&&p.isAlive()&&!p.isRemoved()&&!p.isSpectator()
             &&!game.isObserver(p)&&game.canUseGameplayItems(p)&&LbcDimensionItems.ordinary(p.level())&&game.lbc().hasSkill(p,34);}
     private boolean paused(ServerPlayer p){return !game.server().tickRateManager().runsNormally()
@@ -112,11 +112,11 @@ public final class LbcStoneGolemSkill {
     public void prepareFrozen(){boundary();restoring=true;states.clear();phases.clear();}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
     private void boundary(){if(!attempts.isEmpty())throw new IllegalStateException("Stone checkpoint inside native damage attempt");}
-    Checkpoint checkpoint(){boundary();return new Checkpoint();}
-    final class Checkpoint {
+    public Checkpoint checkpoint(){boundary();return new Checkpoint();}
+    public final class Checkpoint {
         private final Map<UUID,State> saved=Map.copyOf(states);
         private final Map<ServerLevel,Integer> clocks=new IdentityHashMap<>(phases);
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             return new MatchFieldCheckpoint.Plan(Set.of(),()->{states.clear();states.putAll(saved);phases.clear();phases.putAll(clocks);});
         }
     }

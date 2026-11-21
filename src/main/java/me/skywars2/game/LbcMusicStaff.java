@@ -24,7 +24,7 @@ public final class LbcMusicStaff {
     public static final Identifier MUSIC=Identifier.parse("minecraft:lbcsounds.music_staff");
     public static final Identifier ARROW_MODEL=Identifier.parse("lbc:music_staff/arrow");
     static final int STUDY_TICKS=52*20;
-    static final String BASE_MANA="music_staff_mana_use",ACADEMY_MANA="academy_music_staff_mana_use";
+    public static final String BASE_MANA="music_staff_mana_use",ACADEMY_MANA="academy_music_staff_mana_use";
     public static final Item ITEM=item(false),ACADEMY=item(true);
     public static final EntityType<Shot> TYPE=type();
     private final GameController game;
@@ -33,7 +33,7 @@ public final class LbcMusicStaff {
     private final Set<ServerPlayer> audience=Collections.newSetFromMap(new IdentityHashMap<>());
     private boolean playing;
     private static final class Listening {final ItemStack stack;int ticks;Listening(ItemStack stack){this.stack=stack;}}
-    LbcMusicStaff(GameController game){this.game=game;}
+    public LbcMusicStaff(GameController game){this.game=game;}
     public static void register(){}
     private static Item item(boolean academy){
         String id=academy?"academy_music_staff":"music_staff";
@@ -84,8 +84,8 @@ public final class LbcMusicStaff {
         audience.removeIf(listener->!online.contains(listener));
         for(var listener:online)if(!TimeStopView.frozen(listener)&&audience.add(listener))start(listener);
     }
-    int studyTicks(ServerPlayer player){var state=students.get(player);return state==null?0:state.ticks;}
-    boolean playing(){return playing;}
+    public int studyTicks(ServerPlayer player){var state=students.get(player);return state==null?0:state.ticks;}
+    public boolean playing(){return playing;}
     public boolean use(ServerPlayer player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
         if(!matches(stack)||!game.playing()||!canHold(player)||game.isObserver(player)||!game.canUseGameplayItems(player)
@@ -107,7 +107,7 @@ public final class LbcMusicStaff {
         return true;
     }
 
-    boolean scriptShot(ServerPlayer player, ItemStack weapon, Vec3 origin, Vec3 aim, boolean improved) {
+    public boolean scriptShot(ServerPlayer player, ItemStack weapon, Vec3 origin, Vec3 aim, boolean improved) {
         if (!NativeChunkLoad.resident(player.level(), BlockPos.containing(origin))) return false;
         Vec3 lateral = new Vec3(aim.z, 0, -aim.x);
         if (lateral.lengthSqr() < 1e-8) lateral = Vec3.directionFromRotation(0, player.getYRot() - 90);
@@ -147,8 +147,8 @@ public final class LbcMusicStaff {
         level.playSound(null, position.x, position.y, position.z, SoundEvents.ARROW_SHOOT, SoundSource.PLAYERS, 1.0f, 1.0f);
     }
     public static final class Shot extends Arrow implements PolymerEntity,FixedArrowDamage {
-        int damage=8;ProjectileModel model;
-        Shot(EntityType<? extends Arrow> type,Level level){super(type,level);entityTags().add("magic");}
+        int damage=8;public ProjectileModel model;
+        public Shot(EntityType<? extends Arrow> type,Level level){super(type,level);entityTags().add("magic");}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
         @Override public boolean shouldBeSaved(){return false;}
         private void bindWeapon(ItemStack weapon){
@@ -184,7 +184,7 @@ public final class LbcMusicStaff {
     }
     public void loaded(Entity entity){if(entity instanceof Shot shot){arrows.add(shot);if(shot.model==null)shot.model=new ProjectileModel(shot,ARROW_MODEL);}}
     public void unloaded(Entity entity){if(entity instanceof Shot shot){arrows.remove(shot);if(shot.model!=null){shot.model.close();shot.model=null;}}}
-    List<Shot> arrows(){return List.copyOf(arrows);}
+    public List<Shot> arrows(){return List.copyOf(arrows);}
     public void forget(ServerPlayer player){students.remove(player);audience.remove(player);if(game.server().getPlayerList().getPlayers().stream().noneMatch(p->p!=player&&!held(p).isEmpty())&&playing)stopMusic();}
     public void stop(){if(playing)stopMusic();students.clear();for(var shot:List.copyOf(arrows)){unloaded(shot);shot.discard();}}
 }

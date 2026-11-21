@@ -32,9 +32,9 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     public static void register(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:nexus_acquisition"),TICKET);}
     private static final String[] COLORS={"","red","green","black","white"};
-    static final class Cage {
-        final UUID id;final ServerLevel level;final int color;final Vec3 position;
-        UUID rewardId,frameId;Interaction body;ItemDisplay reward,frame;
+    public static final class Cage {
+        public final UUID id;public final ServerLevel level;public final int color;public final Vec3 position;
+        public UUID rewardId,frameId;public Interaction body;public ItemDisplay reward,frame;
         Cage(UUID id,ServerLevel level,int color,Vec3 position){this.id=id;this.level=level;this.color=color;this.position=position;}
     }
     private static final class Wire {
@@ -56,9 +56,9 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
     private CleanupWork cleanup;
     private record Clear(ServerLevel level,BlockPos position,LbcIndirectKills.Owner cause){}
     private boolean restoring;private int lastTick=Integer.MIN_VALUE;
-    LbcNexusAcquisition(GameController game){this.game=game;ecology=new LbcNexusEcology(game,(level,point,owner)->true,this);}
-    LbcNexusEcology ecology(){return ecology;}
-    List<Cage> cages(){return List.copyOf(cages.values());}
+    public LbcNexusAcquisition(GameController game){this.game=game;ecology=new LbcNexusEcology(game,(level,point,owner)->true,this);}
+    public LbcNexusEcology ecology(){return ecology;}
+    public List<Cage> cages(){return List.copyOf(cages.values());}
     int pendingPairings(){return pending.size();}
     int pendingTerrain(){return clears.size();}
     int loadingChunks(){return loading.size();}
@@ -92,7 +92,7 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
         }
         if(cage.reward!=null&&cage.frame!=null)pending.remove(cage.id);else queuePair(cage);
     }
-    void loaded(Entity entity){
+    public void loaded(Entity entity){
         if(entity.isRemoved())return;
         if(restoring)return;
         ecology.loaded(entity);
@@ -119,7 +119,7 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
         if(previous!=null&&previous.kind!=kind)wires.remove(item.getUUID());
         if(kind>=1&&kind<=3)loaded(item);else wires.remove(item.getUUID());
     }
-    void unloaded(Entity entity){
+    public void unloaded(Entity entity){
         ecology.unloaded(entity);wires.remove(entity.getUUID());var cage=cages.get(entity.getUUID());
         if(cage!=null&&cage.body==entity){
             var reason=entity.getRemovalReason();
@@ -226,14 +226,14 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
     }
     public void stop(){ecology.stop();if(cleanup!=null)cleanup.cancel();releaseTickets();restoring=false;}
     public void clear(){for(var cage:List.copyOf(cages.values()))remove(cage);ecology.clear();if(cleanup!=null)cleanup.cancel();releaseTickets();wires.clear();reds.clear();pairings.clear();pending.clear();clears.clear();}
-    void prepareFrozen(){ecology.prepareFrozen();if(cleanup!=null)cleanup.cancel();releaseTickets();cages.clear();components.clear();wires.clear();reds.clear();pairings.clear();pending.clear();retired.clear();clears.clear();restoring=true;}
-    void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();ecology.publishFrozen();}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public void prepareFrozen(){ecology.prepareFrozen();if(cleanup!=null)cleanup.cancel();releaseTickets();cages.clear();components.clear();wires.clear();reds.clear();pairings.clear();pending.clear();retired.clear();clears.clear();restoring=true;}
+    public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();ecology.publishFrozen();}
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         final List<Image> images=cages.values().stream().filter(c->c.body==null||!c.body.isRemoved()).map(c->new Image(c.id,c.level,c.color,c.position,c.rewardId,c.frameId,c.body!=null,c.reward!=null&&!c.reward.isRemoved(),c.frame!=null&&!c.frame.isRemoved())).toList();
         final List<UUID> wireIds=wires.values().stream().filter(w->!w.body().isRemoved()).map(w->w.body().getUUID()).toList(),redOrder=reds.stream().filter(wireIds::contains).toList();final List<Clear> terrain=List.copyOf(clears);final Set<UUID> cancelled=Set.copyOf(retired);
         final LbcNexusEcology.Checkpoint environment=ecology.checkpoint();
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var actors=environment.prepare(lookup);var missing=new LinkedHashSet<>(actors.pending());var restored=new LinkedHashMap<UUID,Cage>();var restoredWires=new LinkedHashMap<UUID,Wire>();
             for(var image:images){var cage=new Cage(image.id(),image.level(),image.color(),image.position());cage.rewardId=image.reward();cage.frameId=image.frame();
                 if(lookup.apply(cage.id) instanceof Interaction body)cage.body=body;else if(image.loaded())missing.add(cage.id);

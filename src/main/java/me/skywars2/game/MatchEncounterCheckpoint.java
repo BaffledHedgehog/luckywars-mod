@@ -6,7 +6,7 @@ import java.util.function.Function;
 import net.minecraft.world.entity.Entity;
 
 /** Essential native Shish/supply and helicopter encounter authority, pairing and scheduled phases. */
-final class MatchEncounterCheckpoint {
+public final class MatchEncounterCheckpoint {
     private final GameController game;
     private final String epoch;
     private final MatchSpellCheckpoint.Links links;
@@ -15,7 +15,7 @@ final class MatchEncounterCheckpoint {
     private final LbcCrocodildo.Checkpoint crocodildo;
     private boolean prepared,installed,published;
 
-    static boolean captureReady(GameController game){return game.items().shishEncounter().captureReady()&&game.items().helicopterEncounter().captureReady()&&game.items().crocodildo().captureReady();}
+    public static boolean captureReady(GameController game){return game.items().shishEncounter().captureReady()&&game.items().helicopterEncounter().captureReady()&&game.items().crocodildo().captureReady();}
     MatchEncounterCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);
         if(!captureReady(game))throw new IllegalStateException("Finish native encounter construction before capture");

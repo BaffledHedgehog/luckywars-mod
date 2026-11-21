@@ -132,7 +132,7 @@ public final class LbcSoulless {
 
         }finally{checkpointDepth--;}
     }
-    boolean generate(ServerPlayer p){
+    public boolean generate(ServerPlayer p){
         checkpointDepth++;try{
         var loot=game.lbc().rollTable(p.level(),p.position(),p,"lbc:metasola");
         if(loot.isEmpty())return false;
@@ -144,7 +144,7 @@ public final class LbcSoulless {
 
         }finally{checkpointDepth--;}
     }
-    void cast(ServerPlayer p){
+    public void cast(ServerPlayer p){
         checkpointDepth++;try{for(var target:targets(p,p.getEyePosition(),25))apply(p,target);
         }finally{checkpointDepth--;}
     }
@@ -154,7 +154,7 @@ public final class LbcSoulless {
         ServerPlayer owner;final LbcIndirectKills.Owner cause;int frame;
         Ghosting(ServerPlayer owner,LbcIndirectKills.Owner cause){this.owner=owner;this.cause=cause;}
     }
-    void apply(ServerPlayer p,LivingEntity target){
+    public void apply(ServerPlayer p,LivingEntity target){
         checkpointDepth++;try{
         if(!eligible(target)||target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return;
         if(target instanceof Vex){convert(p,target);return;}
@@ -175,7 +175,7 @@ public final class LbcSoulless {
         game.items().indirectKills().withCause(vex,game.items().indirectKills().wildCause(p),()->vex.kill(p.level()));
     }
     /** Operator grant enters the same native consumer as the wand; no orphan raw counter. */
-    boolean setGhosting(ServerPlayer player,int seconds){
+    public boolean setGhosting(ServerPlayer player,int seconds){
         if(seconds<=0)return false;
         apply(player,player);
         if(!ghosts.containsKey(player))return false;
@@ -223,7 +223,7 @@ public final class LbcSoulless {
             else spawnAtLocation(level,new ItemStack(Items.WIND_CHARGE));
         }
     }
-    GhostVex spawnVex(ServerPlayer p,Vec3 at){return spawnVex(p,at,false);}
+    public GhostVex spawnVex(ServerPlayer p,Vec3 at){return spawnVex(p,at,false);}
     private GhostVex spawnVex(ServerPlayer p,Vec3 at,boolean trial){
         checkpointDepth++;try{
         if(!p.level().hasChunkAt(BlockPos.containing(at)))return null;
@@ -238,8 +238,8 @@ public final class LbcSoulless {
                 && game.items().currentEpoch(v) && (v.caster.level().hasChunkAt(v.blockPosition()) || registeredHidden(v));
     }
     private void removeVex(GhostVex v){v.retired=true;vexes.remove(v);v.discard();}
-    static final class Field {
-        ServerPlayer owner;Pig pig;Display.ItemDisplay display;final int type;final LbcIndirectKills.Owner cause;int age,frame;
+    public static final class Field {
+        public ServerPlayer owner;public Pig pig;public Display.ItemDisplay display;public final int type;final LbcIndirectKills.Owner cause;public int age,frame;
         Field(ServerPlayer owner,Pig pig,Display.ItemDisplay display,int type,LbcIndirectKills.Owner cause){this.owner=owner;this.pig=pig;this.display=display;this.type=type;this.cause=cause;}
     }
     private final class Body extends Pig {
@@ -261,7 +261,7 @@ public final class LbcSoulless {
         Visual(ServerLevel level){super(EntityTypes.ITEM_DISPLAY,level);}
         @Override public boolean shouldBeSaved(){return false;}
     }
-    Field spawn(ServerPlayer p,Vec3 at,Vec3 itemMotion,int type){
+    public Field spawn(ServerPlayer p,Vec3 at,Vec3 itemMotion,int type){
         checkpointDepth++;try{
         if(type<1||type>6||!ownerValid(p)||!p.level().hasChunkAt(BlockPos.containing(at)))return null;
         var pig=new Body(p.level());var display=new Visual(p.level());
@@ -297,7 +297,7 @@ public final class LbcSoulless {
     private void remove(Field f){fields.remove(f);f.pig.discard();f.display.discard();}
     private boolean friendly(Field f,LivingEntity e){return e==f.owner||f.owner.isAlliedTo(e);}
     private List<LivingEntity> fieldTargets(Field f,double r){return targets(f.owner,f.display.position(),r).stream().filter(e->!e.entityTags().contains("metasola_base")).toList();}
-    void tickField(Field f){
+    public void tickField(Field f){
         checkpointDepth++;try{
         boolean hidden = registeredHidden(f.pig);
         if (!valid(f) || !hidden && !activePosition(f)) { remove(f); return; }
@@ -322,7 +322,7 @@ public final class LbcSoulless {
 
         }finally{checkpointDepth--;}
     }
-    void second(Field f){
+    public void second(Field f){
         checkpointDepth++;try{
         if (f.type > 2 || !fields.contains(f) || !valid(f) || registeredHidden(f.pig)
                 || registeredHidden(f.display) || !activePosition(f) || paused(f.pig) || paused(f.display)) return;
@@ -368,9 +368,9 @@ public final class LbcSoulless {
     }
     public int count(){return fields.size();}
     public int ghostCount(){return ghosts.size();}
-    List<Field> snapshot(){return List.copyOf(fields);}
-    List<? extends Vex> vexSnapshot(){return vexes.stream().filter(v->!v.trial).toList();}
-    List<? extends Vex> trialSnapshot(){return vexes.stream().filter(v->v.trial).toList();}
+    public List<Field> snapshot(){return List.copyOf(fields);}
+    public List<? extends Vex> vexSnapshot(){return vexes.stream().filter(v->!v.trial).toList();}
+    public List<? extends Vex> trialSnapshot(){return vexes.stream().filter(v->v.trial).toList();}
     public boolean loaded(Entity e){
         checkpointDepth++;try{if(rewinding||checkpointHeld.containsKey(e))return managed(e);if(!managed(e))return false;if(find(e)==null&&!vexes.contains(e))e.discard();return true;
         }finally{checkpointDepth--;}
@@ -396,19 +396,19 @@ public final class LbcSoulless {
         checkpointDepth++;try{rewinding=false;releaseHeld(true);incarnationCooldowns.clear();for(var e:List.copyOf(ghosts.keySet()))clear(e);for(var f:List.copyOf(fields))remove(f);for(var v:List.copyOf(vexes))removeVex(v);
         }finally{checkpointDepth--;}
     }
-    void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish Soulless field/ghost/native callbacks before checkpointing");}
-    boolean captureReady(){return checkpointDepth==0;}
+    public void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish Soulless field/ghost/native callbacks before checkpointing");}
+    public boolean captureReady(){return checkpointDepth==0;}
     private void hold(Entity entity,boolean invisible){checkpointHeld.put(entity,invisible);entity.setInvisible(true);}
     private void release(Entity entity){var visible=checkpointHeld.remove(entity);if(visible!=null)entity.setInvisible(visible);}
     private void releaseHeld(boolean discard){for(var entry:List.copyOf(checkpointHeld.entrySet())){if(discard){if(!entry.getKey().isRemoved())entry.getKey().discard();}else entry.getKey().setInvisible(entry.getValue());}checkpointHeld.clear();}
-    void prepareFrozen(){
+    public void prepareFrozen(){
         checkpointBoundary();rewinding=true;releaseHeld(false);
         // Native snapshots own score/modifier/effect values. Never clear()/remove()/convert() here.
         ghosts.clear();fields.clear();vexes.clear();incarnationCooldowns.clear();
     }
-    void publishFrozen(){checkpointBoundary();rewinding=false;}
-    void cancelFrozen(){checkpointBoundary();releaseHeld(false);ghosts.clear();fields.clear();vexes.clear();incarnationCooldowns.clear();rewinding=false;}
-    Checkpoint checkpoint(MatchDamageSources sources){checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish Soulless before capture");return new Checkpoint(sources);}
+    public void publishFrozen(){checkpointBoundary();rewinding=false;}
+    public void cancelFrozen(){checkpointBoundary();releaseHeld(false);ghosts.clear();fields.clear();vexes.clear();incarnationCooldowns.clear();rewinding=false;}
+    public Checkpoint checkpoint(MatchDamageSources sources){checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish Soulless before capture");return new Checkpoint(sources);}
     private abstract class Entry {
         final MatchSpellCheckpoint.Links links;
         final java.util.Set<java.util.UUID> actors=new java.util.LinkedHashSet<>();
@@ -442,7 +442,7 @@ public final class LbcSoulless {
         CooldownImage(LivingEntity target,int remaining,MatchDamageSources sources){super(sources);this.target=key(target);this.remaining=remaining;}
         @Override Runnable prepare(){var current=(LivingEntity)links.get(target);return ()->incarnationCooldowns.put(current,remaining);}
     }
-    final class Checkpoint {
+    public final class Checkpoint {
         private final List<Entry> entries;
         private final java.util.Set<Entry> installed=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
         Checkpoint(MatchDamageSources sources){
@@ -451,25 +451,25 @@ public final class LbcSoulless {
             incarnationCooldowns.forEach((target,remaining)->all.add(new CooldownImage(target,remaining,sources)));entries=List.copyOf(all);installed.addAll(entries);
         }
         private Checkpoint(List<Entry> entries){this.entries=List.copyOf(entries);}
-        Checkpoint withPending(Checkpoint previous){
+        public Checkpoint withPending(Checkpoint previous){
             var all=new ArrayList<>(entries);for(var entry:previous.entries)if(!previous.installed.contains(entry))all.add(entry);
             var result=new Checkpoint(all);result.installed.addAll(installed);return result;
         }
-        Checkpoint pendingOnly(){return new Checkpoint(entries.stream().filter(entry->!installed.contains(entry)).toList());}
-        java.util.Set<java.util.UUID> actorIds(){var all=new java.util.LinkedHashSet<java.util.UUID>();for(var entry:entries)all.addAll(entry.actors);return java.util.Set.copyOf(all);}
-        void reset(){installed.clear();}
-        MatchFieldCheckpoint.Plan prepareAvailable(java.util.function.Function<java.util.UUID,Entity> lookup){
+        public Checkpoint pendingOnly(){return new Checkpoint(entries.stream().filter(entry->!installed.contains(entry)).toList());}
+        public java.util.Set<java.util.UUID> actorIds(){var all=new java.util.LinkedHashSet<java.util.UUID>();for(var entry:entries)all.addAll(entry.actors);return java.util.Set.copyOf(all);}
+        public void reset(){installed.clear();}
+        public MatchFieldCheckpoint.Plan prepareAvailable(java.util.function.Function<java.util.UUID,Entity> lookup){
             checkpointBoundary();var pending=new java.util.LinkedHashSet<java.util.UUID>();var ready=new ArrayList<Entry>();var waiting=new ArrayList<Entry>();var plans=new ArrayList<Runnable>();
             for(var entry:entries)if(!installed.contains(entry)){
                 var missing=entry.links.resolve(lookup);if(missing.isEmpty()){ready.add(entry);plans.add(entry.prepare());}else{pending.addAll(missing);waiting.add(entry);}}
             return new MatchFieldCheckpoint.Plan(java.util.Set.copyOf(pending),()->{for(var entry:waiting)entry.holdPending(lookup);plans.forEach(Runnable::run);installed.addAll(ready);});
         }
-        boolean hasPending(){return installed.size()!=entries.size();}
+        public boolean hasPending(){return installed.size()!=entries.size();}
     }
 
-    static boolean cloneRecognizes(Entity e){return managed(e);}
-    static boolean cloneProtected(Entity e){return e.entityTags().contains(DISPLAY)||e.entityTags().contains(TRIAL);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity e){return managed(e);}
+    public static boolean cloneProtected(Entity e){return e.entityTags().contains(DISPLAY)||e.entityTags().contains(TRIAL);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(cloneProtected(source))return null;
         var field=find(source);
         var visualData=field==null?null:cloneVisualData(field.display);

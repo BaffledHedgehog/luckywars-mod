@@ -69,8 +69,8 @@ public final class LbcSummons {
     private int ticks;
     private boolean advancing;
     private final LbcSummonOrders orders;
-    LbcSummonOrders orders(){return orders;}
-    boolean command(ServerPlayer owner){return orders.command(owner);}
+    public LbcSummonOrders orders(){return orders;}
+    public boolean command(ServerPlayer owner){return orders.command(owner);}
     public static boolean commandItem(ItemStack stack){
         var data=LbcFartus.data(stack);
         return LbcSummonerItems.kind(stack)!=null||stack.is(LbcWands.SUMMONER_VEXES)||stack.is(LbcWands.PSYCHOVEX)
@@ -131,7 +131,7 @@ public final class LbcSummons {
     private static final DustParticleOptions STRANGE_CORE = new DustParticleOptions(0x4c8596, 3);
     private final ArrayDeque<StrangeRay> activeRays=new ArrayDeque<>();
 
-    LbcSummons(GameController game,LbcMana mana) {
+    public LbcSummons(GameController game,LbcMana mana) {
         this.game=game;
         orders=new LbcSummonOrders(game,this);
         for(var kind:LbcSummonerItems.kinds())mana.score(ScoreHolder.forNameOnly(kind.cost()),"lbc.math").set(kind.price());
@@ -174,8 +174,8 @@ public final class LbcSummons {
         return !presets.isEmpty();
     }
     public int count() { return mobs.size(); }
-    List<Mob> snapshot() { return List.copyOf(mobs.keySet()); }
-    List<Mob> ordinarySnapshot(String kind){return mobs.entrySet().stream().filter(e->e.getValue().kind.equals("ordinary_"+kind)).map(Map.Entry::getKey).toList();}
+    public List<Mob> snapshot() { return List.copyOf(mobs.keySet()); }
+    public List<Mob> ordinarySnapshot(String kind){return mobs.entrySet().stream().filter(e->e.getValue().kind.equals("ordinary_"+kind)).map(Map.Entry::getKey).toList();}
     private boolean valid(ServerPlayer owner) { return owner!=null && game.items().mana().visible(owner); }
     private boolean paused(ServerPlayer owner) {
         return game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")
@@ -192,7 +192,7 @@ public final class LbcSummons {
                 && !game.items().magic().suppressedAt(owner.level(),target.position())
                 && !target.entityTags().contains("nomagic_active");
     }
-    ServerPlayer owner(Entity entity) {
+    public ServerPlayer owner(Entity entity) {
         var subdued=game.items().communism().owner(entity);if(subdued!=null)return subdued;
         if(LbcWtf.owner(entity) instanceof ServerPlayer chefOwner)return chefOwner;
         var hedgehogOwner=game.items().hedgehog().controlledHelper(entity);if(hedgehogOwner!=null)return hedgehogOwner;
@@ -213,10 +213,10 @@ public final class LbcSummons {
         mobs.forEach((mob,state)->{if(state.owner.equals(id)&&game.items().currentEpoch(state.epoch))result.add(mob);});
         return result;
     }
-    boolean friendly(ServerPlayer player,Entity entity) {
+    public boolean friendly(ServerPlayer player,Entity entity) {
         var owner=owner(entity); return player!=null && owner!=null && (owner==player || player.isAlliedTo(owner));
     }
-    boolean alliedMinionHit(Entity victim,net.minecraft.world.damagesource.DamageSource source){
+    public boolean alliedMinionHit(Entity victim,net.minecraft.world.damagesource.DamageSource source){
         var defender=owner(victim);
         if(defender==null || LbcDamage.allowsTrapFriendlyFire(source))return false;
         var attacker=source.getDirectEntity();
@@ -224,12 +224,12 @@ public final class LbcSummons {
         var controller=owner(attacker);
         return controller!=null && (controller==defender || controller.isAlliedTo(defender));
     }
-    void ownerChanged(Entity entity,ServerPlayer owner) {
+    public void ownerChanged(Entity entity,ServerPlayer owner) {
         orders.changedOwner(entity);
         if(consequences.containsKey(entity)) consequences.put(entity,owner.getUUID());
         if(entity instanceof Mob mob){var state=mobs.get(mob);if(state!=null)mobs.put(mob,new Summon(owner.getUUID(),state.epoch,state.kind));}
     }
-    boolean canAttack(Mob mob,LivingEntity target) {
+    public boolean canAttack(Mob mob,LivingEntity target) {
         if(game.stage()==GameController.Stage.ENDING)return false;
         var owner=owner(mob);
         return valid(owner) && !paused(mob) && mob.level()==owner.level() && target(owner,target);
@@ -260,7 +260,7 @@ public final class LbcSummons {
         if(!mana.trySpendWand(owner,price,psycho && !down && destination!=null?price*3:price)) return false;
         return castSummon(owner,psycho,down,destination);
     }
-    boolean useOrdinary(ServerPlayer owner,InteractionHand hand,LbcSummonerItems.Kind kind){
+    public boolean useOrdinary(ServerPlayer owner,InteractionHand hand,LbcSummonerItems.Kind kind){
         if(!valid(owner)||paused(owner)||game.items().actionsBlocked(owner)
                 ||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands
                 ||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
@@ -270,7 +270,7 @@ public final class LbcSummons {
         if(!game.items().mana().trySpendWand(owner,price))return false;
         castOrdinary(owner,kind);game.items().trinkets().summoned(owner);return true;
     }
-    boolean castOrdinary(ServerPlayer owner,LbcSummonerItems.Kind kind){
+    public boolean castOrdinary(ServerPlayer owner,LbcSummonerItems.Kind kind){
         if(!ready())return false;
         ordinaryFormation(owner, kind, owner.position(), false);
         effects(owner,false);return true;
@@ -291,7 +291,7 @@ public final class LbcSummons {
         return scriptPosition(level, position) && !game.items().magic().suppressedAt(level, position);
     }
 
-    List<UUID> scriptSummon(ServerPlayer owner, ItemStack weapon, Identifier id, Vec3 center) {
+    public List<UUID> scriptSummon(ServerPlayer owner, ItemStack weapon, Identifier id, Vec3 center) {
         var recipe = ScriptRecipes.RECIPES.get(id);
         if (recipe == null) throw new IllegalArgumentException("unknown native LuckyWars summon");
         var level = owner.level();
@@ -411,7 +411,7 @@ public final class LbcSummons {
         return born;
     }
 
-    void sauvojenCultist(ServerPlayer owner,Vec3 origin,Vec3 direction){
+    public void sauvojenCultist(ServerPlayer owner,Vec3 origin,Vec3 direction){
         var target=owner.level().players().stream().filter(p->p!=owner&&!p.isSpectator()&&!game.isObserver(p)&&p.isAlive())
                 .min(Comparator.comparingDouble(p->p.position().distanceToSqr(origin))).orElse(null);
         if(target==null)return;
@@ -429,7 +429,7 @@ public final class LbcSummons {
         owner.level().sendParticles(ParticleTypes.SOUL_FIRE_FLAME,owner.getX(),owner.getY()+1,owner.getZ(),300,5,5,5,0);
         LbcOverload.sound(owner,psycho?"minecraft:entity.vex.ambient":"minecraft:entity.wither.spawn",1,1,0);
     }
-    Mob spawnPreset(ServerPlayer owner,String kind,Vec3 position) {
+    public Mob spawnPreset(ServerPlayer owner,String kind,Vec3 position) {
         if(!ready() || !owner.level().hasChunkAt(BlockPos.containing(position))) return null;
         Mob mob=switch(kind) {
             case "vex"->new SoulVex(owner.level());
@@ -447,7 +447,7 @@ public final class LbcSummons {
         return mob;
     }
     /** Six exact authored Loli bodies share the released cultist AI and causal owner graph. */
-    Mob cunnyCultist(ServerPlayer owner,Vec3 at,int choice){
+    public Mob cunnyCultist(ServerPlayer owner,Vec3 at,int choice){
         if(choice<1||choice>6||!ready())return null;
         String kind=CULTISTS[choice-1];
         Mob mob=switch(kind){case "strangeness"->new CultWither(owner.level());case "hypocrisy"->new CultZombie(owner.level());default->new CultSkeleton(owner.level());};
@@ -458,7 +458,7 @@ public final class LbcSummons {
         if(!owner.level().addFreshEntity(mob)){remove(mob);return null;}
         game.items().trinkets().summoned(owner);return mob;
     }
-    LivingEntity attackTarget(Mob mob,ServerPlayer owner,Vec3 origin,double radius){
+    public LivingEntity attackTarget(Mob mob,ServerPlayer owner,Vec3 origin,double radius){
         var selected=orders.assigned(mob);
         return selected!=null ? selected.distanceToSqr(origin)<=radius*radius&&target(owner,selected)?selected:null : nearest(owner,origin,radius);
     }
@@ -600,7 +600,7 @@ public final class LbcSummons {
         chaosCast(owner,mob,owner.getRandom().nextInt(10));
     }
     /** Общий исполнитель выбранной способности; случайный выбор остаётся у обычного импульса. */
-    void chaosCast(ServerPlayer owner,Mob mob,int spell) {
+    public void chaosCast(ServerPlayer owner,Mob mob,int spell) {
         var enemy=attackTarget(mob,owner,mob.position(),50); if(enemy==null) return;
         Vec3 origin=mob.getEyePosition(),direction=enemy.getEyePosition().subtract(origin).normalize();
         chaosEffects(owner,mob,spell);
@@ -667,10 +667,10 @@ public final class LbcSummons {
         if(spell==2) owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.IRON_BLOCK.defaultBlockState()),
                 mob.getX(),mob.getY()+1,mob.getZ(),30,.3,.6,.3,0);
     }
-    void track(ServerPlayer owner,Entity entity) {
+    public void track(ServerPlayer owner,Entity entity) {
         consequences.put(entity,owner.getUUID()); entity.entityTags().add(PROJECTILE); game.items().markCurrentItemEpoch(entity);
     }
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof Mob mob&&entity.entityTags().contains("skywars2.summons.actor")&&!mobs.containsKey(mob)){entity.discard();return;}
         if(entity.entityTags().contains(PROJECTILE)) {
             if(!game.items().currentEpoch(entity)) { entity.discard(); return; }
@@ -684,7 +684,7 @@ public final class LbcSummons {
             if(owner!=null)track(owner,projectile);
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         // The native tracking callback also runs when a live registered body becomes hidden.
         // Keep its formation and owner until it returns; genuine unload/removal still retires it.
         if (entity.getRemovalReason() == null && entity.level() instanceof ServerLevel level
@@ -775,9 +775,9 @@ public final class LbcSummons {
         @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
         @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }
     }
-    void checkpointBoundary(){if(advancing||preparation!=null&&!preparation.isDone())throw new IllegalStateException("Finish summon advance/bootstrap before checkpointing");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(advancing||preparation!=null&&!preparation.isDone())throw new IllegalStateException("Finish summon advance/bootstrap before checkpointing");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Ray(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,MatchDamageSources.Ref actor,
                            Vec3 direction,int step,LbcIndirectKills.Owner cause) { }
         private final MatchSpellCheckpoint.IdentityImage<Mob,Summon> actors;
@@ -791,14 +791,14 @@ public final class LbcSummons {
         private StrangeRay ray(Ray image,MatchSpellCheckpoint.Links links,IdentityHashMap<Ray,StrangeRay> aliases){return aliases.computeIfAbsent(image,r->{
             if(game.server().getLevel(r.level.dimension())!=r.level||!(links.get(r.actor) instanceof Mob actor))throw new IllegalStateException("Reconcile native ray world/actor before spell replay");
             var result=new StrangeRay(r.owner,r.epoch,r.level,r.origin,r.due,actor,r.cause);result.direction=r.direction;result.step=r.step;return result;});}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var restoredActors=actors.restore(links);var restoredChildren=children.restore(links);var command=commands.prepare(links);
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var restoredActors=actors.restore(links);var restoredChildren=children.restore(links);var command=commands.prepare(links);
             var aliases=new IdentityHashMap<Ray,StrangeRay>();var queued=new ArrayList<StrangeRay>();var running=new ArrayDeque<StrangeRay>();
             for(var image:waiting)queued.add(ray(image,links,aliases));for(var image:active)running.addLast(ray(image,links,aliases));
             return ()->{mobs=restoredActors;consequences=restoredChildren;rays.clear();rays.addAll(queued);activeRays.clear();activeRays.addAll(running);ticks=cadence;command.run();};}
     }
 
-    static boolean cloneRecognizes(Entity e){return e.entityTags().contains("skywars2.summons.actor")||e.entityTags().contains(PROJECTILE);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity e){return e.entityTags().contains("skywars2.summons.actor")||e.entityTags().contains(PROJECTILE);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var summon=source instanceof Mob mob?mobs.get(mob):null;var cause=consequences.get(source);
         if(summon==null&&cause==null)return null;
         var command=orders.cloneImage(source);

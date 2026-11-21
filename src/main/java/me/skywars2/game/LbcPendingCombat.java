@@ -50,10 +50,10 @@ public final class LbcPendingCombat {
     private final Map<LivingEntity,Curse> curses=new IdentityHashMap<>();
     private int phase;
     private long pistonWrites;
-    long pistonWrites(){return pistonWrites;}
-    static final class Copy {
-        final ServerPlayer owner;final Display.ItemDisplay display;final String epoch;final LbcIndirectKills.Owner cause;
-        Vec3 direction;boolean grounded;int groundedTicks;
+    public long pistonWrites(){return pistonWrites;}
+    public static final class Copy {
+        public final ServerPlayer owner;public final Display.ItemDisplay display;final String epoch;final LbcIndirectKills.Owner cause;
+        public Vec3 direction;boolean grounded;int groundedTicks;
         Copy(ServerPlayer owner,Display.ItemDisplay display,String epoch,LbcIndirectKills.Owner cause,Vec3 direction){this.owner=owner;this.display=display;this.epoch=epoch;this.cause=cause;this.direction=direction;}
     }
     private static final class Curse {
@@ -150,14 +150,14 @@ public final class LbcPendingCombat {
         return true;
     }
     /** One forward pass over the digital path; never loads chunks, caps chain length or delays a shift. */
-    boolean swordProjectile(Entity entity,ServerPlayer owner){return entity!=null&&copies.stream().anyMatch(copy->copy.display==entity&&copy.owner==owner);}
-    boolean shift(ServerPlayer owner,BlockPos first,Vec3 direction){return shift(owner,first,direction,null);}
+    public boolean swordProjectile(Entity entity,ServerPlayer owner){return entity!=null&&copies.stream().anyMatch(copy->copy.display==entity&&copy.owner==owner);}
+    public boolean shift(ServerPlayer owner,BlockPos first,Vec3 direction){return shift(owner,first,direction,null);}
     /** Accepted terrain work keeps its original world and cause after a player lifecycle transition. */
-    boolean shift(ServerLevel level,LbcIndirectKills.Owner cause,BlockPos first,Vec3 direction){
+    public boolean shift(ServerLevel level,LbcIndirectKills.Owner cause,BlockPos first,Vec3 direction){
         return shift(level,first,direction,null,writes->game.items().indirectKills().trapChanges(level,cause,writes));
     }
     // A writer boundary also permits native verification of a rejected write after preceding cells changed.
-    boolean shift(ServerPlayer owner,BlockPos first,Vec3 direction,java.util.function.BiConsumer<BlockPos,MapManager.BlockSnapshot> writer){
+    public boolean shift(ServerPlayer owner,BlockPos first,Vec3 direction,java.util.function.BiConsumer<BlockPos,MapManager.BlockSnapshot> writer){
         return shift(owner.level(),first,direction,writer,writes->game.items().indirectKills().trapChanges(owner,writes));
     }
     private boolean shift(ServerLevel level,BlockPos first,Vec3 direction,
@@ -293,9 +293,9 @@ public final class LbcPendingCombat {
     public void unloaded(Entity entity){for(var copy:List.copyOf(copies))if(copy.display==entity)remove(copy);if(entity instanceof LivingEntity target)clearEffects(target);}
     public void forget(ServerPlayer owner){for(var copy:List.copyOf(copies))if(copy.owner==owner)remove(copy);for(var entry:List.copyOf(curses.entrySet()))if(entry.getKey()==owner||entry.getValue().owner==owner)clearEffects(entry.getKey());}
     public void stop(){for(var copy:List.copyOf(copies))remove(copy);for(var target:List.copyOf(curses.keySet()))clearEffects(target);phase=0;}
-    List<Copy> snapshot(){return List.copyOf(copies);}
-    int curseSeconds(LivingEntity target){var curse=curses.get(target);return curse==null?0:curse.seconds;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public List<Copy> snapshot(){return List.copyOf(copies);}
+    public int curseSeconds(LivingEntity target){var curse=curses.get(target);return curse==null?0:curse.seconds;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var curse=source instanceof LivingEntity l?curses.get(l):null;
         var copy=copies.stream().filter(c->c.display==source).findFirst().orElse(null);
         if(curse==null&&copy==null)return null;
@@ -310,10 +310,10 @@ public final class LbcPendingCombat {
         };
     }
 
-    static boolean cloneRecognizes(Entity source){return source.entityTags().contains(ACTOR);}
+    public static boolean cloneRecognizes(Entity source){return source.entityTags().contains(ACTOR);}
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var copy:copies)if(!copy.display.isRemoved()&&game.items().currentEpoch(copy.epoch)
                 &&!game.items().timeStop().frozen(copy.display)&&!copy.display.entityTags().contains("time_stopped")
                 &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)copy.display.level(),copy.display.position())){

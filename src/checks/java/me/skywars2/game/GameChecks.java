@@ -21717,7 +21717,7 @@ public final class GameChecks {
         private static java.util.UUID electroFamilyCleanupOwner;
 
         /** Complete fixture snapshot because observer entry intentionally resets player-facing state. */
-        static final class WandThirdPlayerState {
+        public static final class WandThirdPlayerState {
                 private static final String[] SCORES = { "effect_boost_mana", "effect_add_manamax",
                                 "effect_add_manaregen", "effect_add_mana", "effect_remove_mana", "reverse_mana",
                                 "overload_jump", "overload_slam", "blaze" };
@@ -21740,7 +21740,7 @@ public final class GameChecks {
                                 instabuild, mayBuild;
                 final int manaValue, manaMaximum, baseRegen, noMagic, selectedSlot;
 
-                WandThirdPlayerState(ServerPlayer player, LbcMana mana) {
+                public WandThirdPlayerState(ServerPlayer player, LbcMana mana) {
                         this.player = player;
                         this.mana = mana;
                         var inventory = player.getInventory();
@@ -21784,7 +21784,7 @@ public final class GameChecks {
                                 scoreValues.put(score, mana.score(player, score).get());
                 }
 
-                void restore(GameController game) {
+                public void restore(GameController game) {
                         if (game.isObserver(player)) game.spectators().remove(player);
                         player.closeContainer();
                         var max = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
@@ -29408,7 +29408,7 @@ public final class GameChecks {
                 } finally { cart.discard(); stale.discard(); }
         }
 
-        static UUID offlineUuid(String name) {
+        public static UUID offlineUuid(String name) {
                 return UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
         }
 
@@ -30624,7 +30624,7 @@ public final class GameChecks {
                 }
         }
 
-        static void inventoryClick(ServerPlayer player, int slot, int button, ContainerInput input) {
+        public static void inventoryClick(ServerPlayer player, int slot, int button, ContainerInput input) {
                 var menu = player.containerMenu;
                 player.connection.handleContainerClick(
                                 new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(

@@ -9,13 +9,13 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.phys.*;
 
 /** Source dropped combinations: event indexes, one real pair, one atomic native debit. */
-final class LbcChargedBowCrafting {
+public final class LbcChargedBowCrafting {
     private final GameController game;
     private final Map<UUID,ItemEntity> inputs=new LinkedHashMap<>();
     private int phase;
     LbcChargedBowCrafting(GameController game){this.game=game;}
     static boolean tiny(ItemStack stack){return stack.is(LbcWands.TINY_ELECTRO)||ItemData.intValue(stack,"stelectro_tiny",0)==1;}
-    static LbcCraftingRecipe.Kind kind(ItemStack a,ItemStack b){
+    public static LbcCraftingRecipe.Kind kind(ItemStack a,ItemStack b){
         if(tiny(a)&&b.getItem() instanceof BowItem&&!LbcChargedBowItems.railgun(b)
                 ||tiny(b)&&a.getItem() instanceof BowItem&&!LbcChargedBowItems.railgun(a))return LbcCraftingRecipe.Kind.RAILGUN;
         if(LbcChargedBowItems.railgun(a)&&ItemData.intValue(b,"reactive_shish",0)==1
@@ -47,15 +47,15 @@ final class LbcChargedBowCrafting {
         }
     }
     private void debit(ItemEntity item){var stack=item.getItem().copy();stack.shrink(1);if(stack.isEmpty()){item.discard();inputs.remove(item.getUUID());}else item.setItem(stack);}
-    static void present(ServerLevel level,Vec3 at,LbcCraftingRecipe.Kind recipe){
+    public static void present(ServerLevel level,Vec3 at,LbcCraftingRecipe.Kind recipe){
         level.sendParticles(net.minecraft.core.particles.ParticleTypes.ENCHANT,at.x,at.y,at.z,100,1,1,1,1);
         LbcOverload.sound(level,at,"minecraft:block.enchantment_table.use",1,1,0,0);
     }
     void stop(){inputs.clear();phase=0;}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         final int clock=phase;final List<UUID> ids=inputs.values().stream().filter(e->!e.isRemoved()).map(Entity::getUUID).toList();
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){var next=new LinkedHashMap<UUID,ItemEntity>();var missing=new LinkedHashSet<UUID>();
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){var next=new LinkedHashMap<UUID,ItemEntity>();var missing=new LinkedHashSet<UUID>();
             for(var id:ids)if(lookup.apply(id) instanceof ItemEntity item)next.put(id,item);else missing.add(id);
             return new MatchFieldCheckpoint.Plan(Set.copyOf(missing),()->{inputs.clear();inputs.putAll(next);phase=clock;});}
     }

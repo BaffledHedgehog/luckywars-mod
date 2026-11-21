@@ -77,10 +77,10 @@ public final class LbcSheep {
     private int callbackDepth;private boolean rewinding;
     private final List<Hole> restoreVisuals=new ArrayList<>();
     private record Converted(Sheep entity,UUID owner,LbcIndirectKills.Owner cause,String epoch) {}
-    static final class Hole {
-        Marker entity;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;
-        final ServerLevel level;Vec3 point,velocity=Vec3.ZERO;final Quaternionf tilt=new Quaternionf();
-        BlackHoleErosion terrain;BlackHoleVisuals.Handle visual;
+    public static final class Hole {
+        public Marker entity;public final UUID owner;public final LbcIndirectKills.Owner cause;final String epoch;
+        final ServerLevel level;public Vec3 point,velocity=Vec3.ZERO;final Quaternionf tilt=new Quaternionf();
+        BlackHoleErosion terrain;public BlackHoleVisuals.Handle visual;
         Hole(Marker entity,ServerPlayer owner,Vec3 point,LbcIndirectKills.Owner cause,String epoch){
             this(entity,owner.getUUID(),owner.level(),point,cause,epoch);
         }
@@ -155,11 +155,11 @@ public final class LbcSheep {
     private void cast(ServerPlayer p,InteractionHand hand,ItemStack stack){
         cast(p,hand,stack,isAcademy(stack));
     }
-    void cast(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
+    public void cast(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
         castRay(p,hand,stack,academy,p.getEyePosition(),p.getLookAngle().normalize());
     }
 
-    boolean scriptRay(ServerPlayer p,InteractionHand hand,boolean academy,Vec3 from,Vec3 direction){
+    public boolean scriptRay(ServerPlayer p,InteractionHand hand,boolean academy,Vec3 from,Vec3 direction){
         if(rewinding||!validOwner(p))return false;
         callbackDepth++;
         try {
@@ -214,7 +214,7 @@ public final class LbcSheep {
         for(var target:targets)transform(p,target,academy);
         if (legacy) consumePotion(p, hand, stack, clipped);
     }
-    static boolean potion(ItemStack stack) {
+    public static boolean potion(ItemStack stack) {
         if (stack.isEmpty() || !stack.has(DataComponents.CUSTOM_DATA)) return false;
         var data = LbcFartus.data(stack);
         return data.getIntOr("transformable", 0) == 1 && data.getIntOr("potion", 0) == 1
@@ -289,7 +289,7 @@ public final class LbcSheep {
     }
 
     /** Author: ten-second reversible gem, including Chef/vehicles/projectiles, excluding items/players. */
-    boolean trinket(ServerPlayer p){
+    public boolean trinket(ServerPlayer p){
         if(rewinding||!validOwner(p)||frozen(p)||suppressed(p.level(),p.position()))return false;
         var at=p.getEyePosition();
         var targets=p.level().getEntities(p,new AABB(at,at).inflate(24),e->
@@ -330,7 +330,7 @@ public final class LbcSheep {
         return replacement;
 
     }
-    Hole spawnHole(ServerPlayer p,Vec3 at){
+    public Hole spawnHole(ServerPlayer p,Vec3 at){
         if(rewinding)return null;
         callbackDepth++;try{
         if(!validOwner(p)||!resident(p.level(),at)||suppressed(p.level(),at))return null;
@@ -466,26 +466,26 @@ public final class LbcSheep {
         callbackDepth++;try{for(var c:List.copyOf(sheep))remove(c);for(var h:List.copyOf(holes))remove(h);spawning.clear();
         }finally{callbackDepth--;}
     }
-    record SheepView(UUID entity,UUID owner,Vec3 point){}
+    public record SheepView(UUID entity,UUID owner,Vec3 point){}
     record HoleView(UUID entity,UUID owner,Vec3 point,Vec3 velocity,double radius,boolean disc,int queuedBlocks){}
-    List<SheepView> sheepViews(){var result=new ArrayList<SheepView>(game.items().polymorph().sheepViews());result.addAll(sheep.stream().map(c->new SheepView(c.entity.getUUID(),c.owner,c.entity.position())).toList());return List.copyOf(result);}
-    List<HoleView> holeViews(){return holes.stream().map(h->new HoleView(h.entity.getUUID(),h.owner,h.point,h.velocity,RADIUS,true,h.terrain==null?0:h.terrain.queuedBlockCount())).toList();}
-    List<Hole> holes(){return List.copyOf(holes);}
+    public List<SheepView> sheepViews(){var result=new ArrayList<SheepView>(game.items().polymorph().sheepViews());result.addAll(sheep.stream().map(c->new SheepView(c.entity.getUUID(),c.owner,c.entity.position())).toList());return List.copyOf(result);}
+    public List<HoleView> holeViews(){return holes.stream().map(h->new HoleView(h.entity.getUUID(),h.owner,h.point,h.velocity,RADIUS,true,h.terrain==null?0:h.terrain.queuedBlockCount())).toList();}
+    public List<Hole> holes(){return List.copyOf(holes);}
 
     /** Permanent academy sheep and authored holes share native identities with the actor checkpoint. */
-    void checkpointBoundary(){if(callbackDepth!=0||!spawning.isEmpty())throw new IllegalStateException("Finish sheep conversion/hole callbacks before checkpointing");}
+    public void checkpointBoundary(){if(callbackDepth!=0||!spawning.isEmpty())throw new IllegalStateException("Finish sheep conversion/hole callbacks before checkpointing");}
     private void detachCheckpointVisual(Hole hole){
         if(hole.visual!=null){game.items().blackHoleVisuals().detachForCheckpoint(hole.visual);hole.visual=null;}
         if(hole.terrain!=null){hole.terrain.clear();hole.terrain=null;}
     }
-    void prepareFrozen(){checkpointBoundary();rewinding=true;restoreVisuals.clear();for(var hole:holes)detachCheckpointVisual(hole);}
-    void publishFrozen(){
+    public void prepareFrozen(){checkpointBoundary();rewinding=true;restoreVisuals.clear();for(var hole:holes)detachCheckpointVisual(hole);}
+    public void publishFrozen(){
         checkpointBoundary();for(var hole:restoreVisuals){var owner=player(hole.owner);if(owner!=null&&owner.level()==hole.level)updateVisual(hole,owner);}
         restoreVisuals.clear();rewinding=false;
     }
-    void cancelFrozen(){checkpointBoundary();restoreVisuals.clear();rewinding=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void cancelFrozen(){checkpointBoundary();restoreVisuals.clear();rewinding=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Image(Hole original,MatchDamageSources.Ref entity,Vec3 point,Vec3 velocity,Quaternionf tilt,boolean visible){}
         private record SheepImage(Converted original,MatchDamageSources.Ref entity){}
         private final List<Image> values=new ArrayList<>();private final List<SheepImage> converted=new ArrayList<>();
@@ -497,7 +497,7 @@ public final class LbcSheep {
             for(var body:sheep){var entity=links.key(body.entity);if(entity.historical()!=null)throw new IllegalStateException("Academy sheep requires its canonical native body");
                 converted.add(new SheepImage(body,entity));var owner=player(body.owner);if(owner!=null)links.key(owner);}
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var bodies=values.stream().map(image->(Marker)links.get(image.entity)).toList();var transformed=new ArrayList<Converted>();
             for(var image:values)MatchAuthorityCheckpoint.world(game,image.original.level);
             for(var image:converted){var entity=(Sheep)links.get(image.entity);var value=image.original;transformed.add(entity==value.entity?value:new Converted(entity,value.owner,value.cause,value.epoch));}
@@ -507,8 +507,8 @@ public final class LbcSheep {
                 sheep.clear();sheep.addAll(transformed);terrainTurn=turn;};
         }
     }
-    static boolean cloneRecognizes(Entity source){return managed(source)||source instanceof Body||source instanceof MagicSheep;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity source){return managed(source)||source instanceof Body||source instanceof MagicSheep;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var converted=sheep.stream().filter(c->c.entity==source).findFirst().orElse(null);
         if(converted!=null){var owner=converted.owner;var cause=converted.cause;var epoch=converted.epoch;
             return new LbcCloneSkills.ActorImage(){

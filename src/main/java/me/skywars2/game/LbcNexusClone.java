@@ -32,8 +32,8 @@ import net.minecraft.world.phys.Vec3;
 /** Registered Paper clonetonexus geometry, using the shared native construction barrier.
  * This service supplies no automatic producer; its caller owns the triggering event.
  */
-final class LbcNexusClone {
-    interface Completion {
+public final class LbcNexusClone {
+    public interface Completion {
         void completed(ServerLevel destination, int tx, int ty, int tz,
                        List<Vec3> centers, List<Vec3> trees, LbcIndirectKills.Owner cause);
     }
@@ -76,11 +76,11 @@ final class LbcNexusClone {
         }
     }
 
-    static void register() {
+    public static void register() {
         Registry.register(BuiltInRegistries.TICKET_TYPE, Identifier.parse("skywars2:nexus_clone"), TICKET);
     }
 
-    LbcNexusClone(GameController game, Completion completion) {
+    public LbcNexusClone(GameController game, Completion completion) {
         this(game, completion, (level, chunk) -> level.getChunkSource().addTicketAndLoadWithRadius(TICKET, chunk, 0),
                 LOAD_WAIT_TICKS);
     }
@@ -98,7 +98,7 @@ final class LbcNexusClone {
     }
 
     /** Server thread only. Deduplication lasts until this source chunk's operation completes. */
-    boolean request(ServerLevel source, Vec3 origin, LbcIndirectKills.Owner cause) {
+    public boolean request(ServerLevel source, Vec3 origin, LbcIndirectKills.Owner cause) {
         var destination = game.server().getLevel(LbcHedgehogDimensions.NEXUS);
         if (source == null || origin == null || destination == null || !game.playing()) return false;
         var position = BlockPos.containing(origin);
@@ -125,8 +125,8 @@ final class LbcNexusClone {
         return target.chunk;
     }
 
-    int pending() { return jobs.size(); }
-    List<String> pendingStatus() {
+    public int pending() { return jobs.size(); }
+    public List<String> pendingStatus() {
         return jobs.values().stream().map(job -> job.source.chunk + " " + loadStatus(job.sourceLoad)
                 + " -> " + job.targetChunk + " " + loadStatus(job.destinationLoad)
                 + " (" + job.copied + "/" + job.count + ")").toList();
@@ -137,10 +137,10 @@ final class LbcNexusClone {
                 job.count, job.copied)).toList();
     }
     boolean sourceInFlight(ServerLevel level, ChunkPos chunk) { return jobs.containsKey(new Source(level, chunk)); }
-    boolean captureReady() { return jobs.isEmpty(); }
+    public boolean captureReady() { return jobs.isEmpty(); }
     /** Work advances only in Stonekivi, so full-world capture sees the entire logical operation. */
     void tick() { }
-    void stop() { for (var job : List.copyOf(jobs.values())) job.cancel(); }
+    public void stop() { for (var job : List.copyOf(jobs.values())) job.cancel(); }
 
     private final class Job implements LbcStonekivi.Work {
         final Source source;

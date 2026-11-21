@@ -26,23 +26,23 @@ public final class LbcGlassArmor {
     private record Attempt(ServerPlayer player,boolean admitted){}
     private final Deque<Attempt> attempts=new ArrayDeque<>();
     /** Keep the ordinary ARROW damage type while distinguishing physical glass shards from other arrows. */
-    static final class ShardDamage extends DamageSource {
-        ShardDamage(ServerPlayer player){super(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),player);}
+    public static final class ShardDamage extends DamageSource {
+        public ShardDamage(ServerPlayer player){super(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),player);}
     }
 
     LbcGlassArmor(GameController game,Predicate<ServerPlayer> admitted){this.game=game;this.admitted=admitted;}
-    static boolean piece(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("glass",0)==1;}
+    public static boolean piece(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("glass",0)==1;}
 
     /** A nonsingular source data-get fails when zero or multiple armor entries match. */
-    static double armor(ItemStack stack){
+    public static double armor(ItemStack stack){
         double value=0;int matches=0;
         for(var entry:stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY).modifiers())
             if(entry.attribute().equals(Attributes.ARMOR)){value=entry.modifier().amount();matches++;}
         return matches==1?value:0;
     }
-    static double decayed(double value){return (int)Math.floor(value*1000)*.00095;}
+    public static double decayed(double value){return (int)Math.floor(value*1000)*.00095;}
     /** Preserve source integer shard calculation, then soften intact glass by its actual mean armor. */
-    static float shardDamage(double... armor){
+    public static float shardDamage(double... armor){
         if(armor.length==0)return 0;
         int scaled=0;double total=0;
         for(double value:armor){scaled+=(int)Math.floor(value*.17);total+=value;}

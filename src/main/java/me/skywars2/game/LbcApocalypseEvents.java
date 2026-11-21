@@ -349,14 +349,14 @@ skywars2:lucky_block_loli[minecraft:custom_name={"color":"#FFB8E0","italic":fals
     public long startCount(){return starts;}public long phaseCount(){return phases;}public long outputCount(){return outputs;}
 
     /** Terrain invocations finish before capture; no retained Runnable or template cursor is imaged. */
-    boolean captureReady(){return callbackDepth==0&&executingAuthority==null&&!preparing&&terrain.isEmpty()&&!rewinding;}
-    void checkpointBoundary(){if(callbackDepth!=0||executingAuthority!=null)throw new IllegalStateException("Finish apocalypse event callbacks/preparation before checkpointing");}
-    void cancelFutureTerrainForRollback(){checkpointBoundary();preparationToken++;preparing=false;for(var work:List.copyOf(terrain))work.cancel();}
-    void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;stagedClock=null;}
-    void publishFrozen(){checkpointBoundary();if(stagedClock!=null)lastTick=stagedClock.last(game);stagedClock=null;rewinding=false;}
-    void cancelFrozen(){checkpointBoundary();stagedClock=null;rewinding=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete apocalypse event terrain before capture");return new Checkpoint(links);}
-    final class Checkpoint {
+    public boolean captureReady(){return callbackDepth==0&&executingAuthority==null&&!preparing&&terrain.isEmpty()&&!rewinding;}
+    public void checkpointBoundary(){if(callbackDepth!=0||executingAuthority!=null)throw new IllegalStateException("Finish apocalypse event callbacks/preparation before checkpointing");}
+    public void cancelFutureTerrainForRollback(){checkpointBoundary();preparationToken++;preparing=false;for(var work:List.copyOf(terrain))work.cancel();}
+    public void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;stagedClock=null;}
+    public void publishFrozen(){checkpointBoundary();if(stagedClock!=null)lastTick=stagedClock.last(game);stagedClock=null;rewinding=false;}
+    public void cancelFrozen(){checkpointBoundary();stagedClock=null;rewinding=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete apocalypse event terrain before capture");return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Timer(Key key,Pending original,int remaining){}
         private final List<Timer> timers=pending.entrySet().stream().map(e->new Timer(e.getKey(),e.getValue(),e.getValue().remaining)).toList();
         private final List<MatchDamageSources.Ref> bodies;
@@ -365,7 +365,7 @@ skywars2:lucky_block_loli[minecraft:custom_name={"color":"#FFB8E0","italic":fals
         private final long savedStarts=starts,savedPhases=phases,savedOutputs=outputs;
         private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
         Checkpoint(MatchSpellCheckpoint.Links links){bodies=actors.stream().map(links::key).toList();for(var body:bodies)if(body.historical()!=null)throw new IllegalStateException("Capture live apocalypse child bodies");}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var restored=new java.util.LinkedHashSet<Entity>();for(var body:bodies)restored.add(links.get(body));
             return ()->{pending.clear();for(var timer:timers){timer.original.remaining=timer.remaining;pending.put(timer.key,timer.original);}
                 actors=restored;gold=preparedGold;preparation=preparedVersion;preparationToken++;preparing=false;

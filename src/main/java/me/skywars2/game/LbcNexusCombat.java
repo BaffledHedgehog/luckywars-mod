@@ -30,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Accepted Nexus tools share the ordinary-world route without opening other Nexus item input. */
 public final class LbcNexusCombat {
-    static final int[] PULSAR_DELAYS = {0,40,60,70,75};
+    public static final int[] PULSAR_DELAYS = {0,40,60,70,75};
     private static final TagKey<Block> AIRS = TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<Block> AIRS_ONLY = TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs_only"));
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
@@ -41,17 +41,17 @@ public final class LbcNexusCombat {
     private final Set<UUID> casting = new HashSet<>();
     private long bursts;
 
-    LbcNexusCombat(GameController game) {
+    public LbcNexusCombat(GameController game) {
         this.game=game;
         // Explicit author rule: neither new tool, including an accepted wave, is suppressible.
         pulsar=new LbcNexusPulsar(game,(level,pos)->true);
         uncrafting=new LbcNexusUncrafting(game);
     }
     public static boolean matches(ItemStack stack){return LbcNexusToolItems.isOrbGun(stack)||LbcNexusToolItems.isPulsar(stack);}
-    LbcNexusPulsar pulsar(){return pulsar;}
-    LbcNexusUncrafting uncrafting(){return uncrafting;}
-    long bursts(){return bursts;}
-    int pending(){return casting.size();}
+    public LbcNexusPulsar pulsar(){return pulsar;}
+    public LbcNexusUncrafting uncrafting(){return uncrafting;}
+    public long bursts(){return bursts;}
+    public int pending(){return casting.size();}
     public void reload(){uncrafting.reload();}
     private boolean admitted(ServerPlayer p){return game.playing()&&game.canUseGameplayItems(p)&&p.isAlive()&&!p.isRemoved()
             &&!p.level().dimension().equals(LbcHedgehogDimensions.IMPRINTED)&&!game.items().actionsBlocked(p)
@@ -118,8 +118,8 @@ for(int sample=0;sample<=30;sample++){
 }
         }
     }
-    void tick(){pulsar.tick();uncrafting.tick();}
-    void stop(){casting.clear();pulsar.stop();uncrafting.stop();}
-    void prepareFrozen(){casting.clear();pulsar.prepareFrozen();uncrafting.prepareFrozen();}
-    void publishFrozen(){pulsar.publishFrozen();uncrafting.publishFrozen();}
+    public void tick(){pulsar.tick();uncrafting.tick();}
+    public void stop(){casting.clear();pulsar.stop();uncrafting.stop();}
+    public void prepareFrozen(){casting.clear();pulsar.prepareFrozen();uncrafting.prepareFrozen();}
+    public void publishFrozen(){pulsar.publishFrozen();uncrafting.publishFrozen();}
 }

@@ -48,7 +48,7 @@ public final class LbcCorrosionDrops {
         return spawnForCheck(token, kind, net.minecraft.util.Util.getMillis());
     }
 
-    boolean spawnForCheck(ItemEntity token, LbcCorrosionDropItem.Kind kind, long seed) {
+    public boolean spawnForCheck(ItemEntity token, LbcCorrosionDropItem.Kind kind, long seed) {
         ++inProgress;game.items().stonekivi().beginNativeWork();try {
             if (!ready(token, kind)) return false;
             var cause = game.items().specialDrops().owner(token);
@@ -69,7 +69,7 @@ public final class LbcCorrosionDrops {
     }
 
     /** Main-thread native fixtures can finish a ready job without introducing another tick budget. */
-    int drainForCheck() {
+    public int drainForCheck() {
         int steps = 0;
         for (var job : new ArrayList<>(jobs))
             while (steps < 100_000 && jobs.contains(job) && job.ready()) { job.step(); steps++; }
@@ -241,14 +241,15 @@ public final class LbcCorrosionDrops {
         }
     }
 
-    void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish corrosion native callbacks before checkpointing");}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish corrosion native callbacks before checkpointing");}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         private final HashSet<Job> saved;
         @SuppressWarnings("unchecked") Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
             saved=(HashSet<Job>)jobs.clone();saved.forEach(graph::capture);
         }
-        @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
+        @SuppressWarnings("unchecked")
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var restored=(HashSet<Job>)saved.clone();return ()->jobs=restored;
         }
     }

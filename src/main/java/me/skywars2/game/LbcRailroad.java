@@ -22,8 +22,8 @@ public final class LbcRailroad {
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private final GameController game;
     private final Set<Marker> actors=Collections.newSetFromMap(new IdentityHashMap<>());
-    LbcRailroad(GameController game){this.game=game;}
-    static boolean managed(Entity actor){return actor instanceof Marker&&actor.entityTags().contains(TAG);}
+    public LbcRailroad(GameController game){this.game=game;}
+    public static boolean managed(Entity actor){return actor instanceof Marker&&actor.entityTags().contains(TAG);}
     public boolean use(ServerPlayer player,InteractionHand hand,Vec3 at){
         if(!LbcSpecialEggs.allowed(game,player)||game.maps().busy()||!LbcImbaPlaceableItems.tagged(player.getItemInHand(hand),"railroad")
                 ||game.items().magic().mechanismSuppressed(player)||!resident(player.level(),BlockPos.containing(at)))return false;
@@ -91,5 +91,5 @@ public final class LbcRailroad {
     public void loaded(Entity actor){if(managed(actor)){var marker=(Marker)actor;if(game.items().currentEpoch(marker))actors.add(marker);else marker.discard();}}
     public void unloaded(Entity actor){if(actor instanceof Marker marker)actors.remove(marker);}
     public void stop(){for(var marker:List.copyOf(actors))marker.discard();actors.clear();}
-    int count(){return actors.size();}
+    public int count(){return actors.size();}
 }

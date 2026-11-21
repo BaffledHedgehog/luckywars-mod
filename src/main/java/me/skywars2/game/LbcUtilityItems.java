@@ -25,5 +25,5 @@ public final class LbcUtilityItems {
     }
     private LbcUtilityItems(){}
     public static void register(){Kind.values();}
-    static java.util.List<Item> items(){return java.util.Arrays.stream(Kind.values()).map(k->k.item).toList();}
+    public static java.util.List<Item> items(){return java.util.Arrays.stream(Kind.values()).map(k->k.item).toList();}
 }

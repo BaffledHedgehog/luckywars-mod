@@ -7,9 +7,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 /** Shared vanilla ray arithmetic for live native explosions and detached countdown preparation. */
-final class BlastRayTrace {
+public final class BlastRayTrace {
     private BlastRayTrace(){}
-    interface Cells {
+    public interface Cells {
         boolean inside(BlockPos pos);
         default int minY(){return Integer.MIN_VALUE;}
         default int maxY(){return Integer.MAX_VALUE;}
@@ -22,7 +22,7 @@ final class BlastRayTrace {
         final BlockPos pos;final BlockState state;final float loss;boolean added;
         Cell(BlockPos pos,BlockState state,float loss){this.pos=pos;this.state=state;this.loss=loss;}
     }
-    static int rayCount(){return NATIVE.length/3;}
+    public static int rayCount(){return NATIVE.length/3;}
     private static double[] rays(boolean nativePrecision){
         double[] steps=new double[(16*16*16-14*14*14)*3];int next=0;
         for(int x=0;x<16;x++)for(int y=0;y<16;y++)for(int z=0;z<16;z++){
@@ -44,10 +44,10 @@ final class BlastRayTrace {
         }
         return rays;
     }
-    static List<BlockPos> traceSpherical(Vec3 origin,float radius,RandomSource random,Cells view){
+    public static List<BlockPos> traceSpherical(Vec3 origin,float radius,RandomSource random,Cells view){
         return trace(origin,radius,random,true,SPHERICAL,view);
     }
-    static List<BlockPos> trace(Vec3 origin,float radius,RandomSource random,boolean nativePrecision,Cells view){
+    public static List<BlockPos> trace(Vec3 origin,float radius,RandomSource random,boolean nativePrecision,Cells view){
         return trace(origin,radius,random,nativePrecision,nativePrecision?NATIVE:FIXED,view);
     }
     private static List<BlockPos> trace(Vec3 origin,float radius,RandomSource random,boolean nativePrecision,double[] rays,Cells view){

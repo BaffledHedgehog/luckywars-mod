@@ -6,7 +6,7 @@ import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
 /** Shared publication for command edits, GUI edits, resets and initial startup. */
-final class MatchSettings {
+public final class MatchSettings {
     private static final java.util.Map<Integer,java.util.List<Component>> PREFIXES=prefixes();
     private MatchSettings() {}
     private static java.util.Map<Integer,java.util.List<Component>> prefixes(){
@@ -23,12 +23,12 @@ final class MatchSettings {
             return java.util.Map.copyOf(groups);
         }catch(java.io.IOException error){throw new IllegalStateException("Cannot read source team prefixes",error);}
     }
-    static void prefixes(GameController game,java.util.Collection<net.minecraft.world.scores.PlayerTeam> teams){
+    public static void prefixes(GameController game,java.util.Collection<net.minecraft.world.scores.PlayerTeam> teams){
         var pool=PREFIXES.getOrDefault(game.balanceLegacy()?3:game.config().prefixes,java.util.List.of());
         var random=game.maps().level().getRandom();
         for(var team:new java.util.LinkedHashSet<>(teams))team.setPlayerPrefix(pool.isEmpty()?Component.empty():pool.get(random.nextInt(pool.size())).copy());
     }
-    static void sync(GameController game){
+    public static void sync(GameController game){
         var config=game.config();var mana=game.items().mana();
         mana.score(ScoreHolder.forNameOnly("#imbadrop_chance"),"swrg.math").set(config.imbaDropChance);
         mana.score(ScoreHolder.forNameOnly("imbadrop_chance"),"lbc.math").set(config.imbaDropChance);

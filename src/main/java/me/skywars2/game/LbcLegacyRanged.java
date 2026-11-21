@@ -23,13 +23,13 @@ public final class LbcLegacyRanged {
             net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(net.minecraft.resources.Identifier.parse("skywars2:legacy_ranged_ammo"),
                     b->b.persistent(net.minecraft.nbt.CompoundTag.CODEC.xmap(Ammo::new,Ammo::save)));
     public static void register(){}
-    static net.fabricmc.fabric.api.attachment.v1.AttachmentType<Ammo> ammoType(){return AMMO;}
+    public static net.fabricmc.fabric.api.attachment.v1.AttachmentType<Ammo> ammoType(){return AMMO;}
     /** Persistent actor-owned accepted ammo; mutable contexts are private to this native body. */
-    static final class Ammo {
+    public static final class Ammo {
         private net.minecraft.nbt.CompoundTag encoded;
         private LbcBeamAmmo payload;
         private LbcIndirectKills.Owner cause;
-        Ammo(net.minecraft.nbt.CompoundTag encoded){this.encoded=encoded.copy();}
+        public Ammo(net.minecraft.nbt.CompoundTag encoded){this.encoded=encoded.copy();}
         Ammo(LbcBeamAmmo payload,LbcIndirectKills.Owner cause){this.payload=payload;this.cause=cause;}
         private boolean resolve(GameController game,Entity actor){
             return resolve(game,actor,null);
@@ -42,17 +42,17 @@ public final class LbcLegacyRanged {
                     encoded.getBooleanOr("friendly",false),true,payload.acceptedWeapon(),true);
             encoded=null;return true;
         }
-        net.minecraft.nbt.CompoundTag save(){
+        public net.minecraft.nbt.CompoundTag save(){
             if(payload==null)return encoded.copy();var tag=new net.minecraft.nbt.CompoundTag();tag.put("payload",payload.save());
             tag.putString("author",cause.player().toString());tag.putLong("order",cause.order());tag.putBoolean("friendly",cause.friendlyFire());return tag;
         }
-        Ammo copy(){return payload==null?new Ammo(encoded):new Ammo(payload.copy(),cause);}
+        public Ammo copy(){return payload==null?new Ammo(encoded):new Ammo(payload.copy(),cause);}
     }
     static void captureAmmo(GameController game,ServerPlayer owner,ItemStack weapon,Projectile donor,Entity output){
         var payload=(LbcBeamAmmo)LbcBeamAmmo.capture(game,owner,weapon,List.of(donor));
         if(payload!=null)output.setAttached(AMMO,new Ammo(payload,game.items().indirectKills().itemCause(owner,false,true,payload.acceptedWeapon())));
     }
-    static void ownerChanged(GameController game,Entity actor,ServerPlayer owner){
+    public static void ownerChanged(GameController game,Entity actor,ServerPlayer owner){
         var ammo=actor.getAttached(AMMO);
         if(ammo==null||!ammo.resolve(game,actor,owner))return;
         if(!ammo.cause.player().equals(owner.getUUID()))
@@ -62,12 +62,12 @@ public final class LbcLegacyRanged {
         if(compound!=null)compound.cause=ammo.cause;
     }
     static void copyAmmo(Entity original,Entity clone){var ammo=original.getAttached(AMMO);if(ammo!=null)clone.setAttached(AMMO,ammo.copy());}
-    static void flight(GameController game,Entity actor){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.nativeFlight(actor,ammo.cause);}
-    static void contact(GameController game,Entity actor,net.minecraft.world.entity.LivingEntity target,net.minecraft.world.phys.Vec3 point){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.nativeContact(actor,target,point,ammo.cause);}
-    static void ground(GameController game,Entity actor,net.minecraft.world.phys.Vec3 point){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.nativeGround(actor,point,ammo.cause);}
-    static Boolean canAffect(GameController game,Entity actor,Entity target){var ammo=actor.getAttached(AMMO);return ammo==null?null:ammo.resolve(game,actor)&&ammo.payload.nativeTarget(target);}
+    public static void flight(GameController game,Entity actor){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.nativeFlight(actor,ammo.cause);}
+    public static void contact(GameController game,Entity actor,net.minecraft.world.entity.LivingEntity target,net.minecraft.world.phys.Vec3 point){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.nativeContact(actor,target,point,ammo.cause);}
+    public static void ground(GameController game,Entity actor,net.minecraft.world.phys.Vec3 point){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.nativeGround(actor,point,ammo.cause);}
+    public static Boolean canAffect(GameController game,Entity actor,Entity target){var ammo=actor.getAttached(AMMO);return ammo==null?null:ammo.resolve(game,actor)&&ammo.payload.nativeTarget(target);}
     public static boolean hasAmmo(Entity actor){return actor.getAttached(AMMO)!=null;}
-    static void markTraits(GameController game,Entity actor,int mask){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.markTraits(mask);}
+    public static void markTraits(GameController game,Entity actor,int mask){var ammo=actor.getAttached(AMMO);if(ammo!=null&&ammo.resolve(game,actor))ammo.payload.markTraits(mask);}
     /** Selected source ammo belongs to each actual next-chamber rocket, independent of its fixed visuals. */
     public static void installRocketAmmo(GameController game,ServerPlayer owner,ItemStack fired,List<? extends Projectile> family){
         boolean ghast=ItemData.intValue(fired,"fastexplode",0)==1||LbcTmtAbilities.read(fired).stream().anyMatch(a->((ItemData.IntReader)(Object)a.data()).skywars2$readInt("fastexplode",0)==1);
@@ -123,7 +123,7 @@ public final class LbcLegacyRanged {
         }
         return false;
     }
-    static ItemStack ghastRocket(){var rocket=new ItemStack(Items.FIREWORK_ROCKET);rocket.set(DataComponents.FIREWORKS,GHAST_FIREWORKS);return rocket;}
+    public static ItemStack ghastRocket(){var rocket=new ItemStack(Items.FIREWORK_ROCKET);rocket.set(DataComponents.FIREWORKS,GHAST_FIREWORKS);return rocket;}
     /** Modifies only the next chamber of the same live weapon in the hand that fired. */
     public static void afterShot(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack weapon,List<Projectile> family,ItemStack fired){
         if(family.isEmpty())return;

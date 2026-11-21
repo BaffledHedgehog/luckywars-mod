@@ -14,7 +14,7 @@ public final class MatchAcademyCheckpoint {
     public static void enter(LbcAcademy academy){ACTIVE.merge(academy,1,Integer::sum);}
     public static void exit(LbcAcademy academy){int left=ACTIVE.getOrDefault(academy,0)-1;if(left==0)ACTIVE.remove(academy);else if(left>0)ACTIVE.put(academy,left);else throw new IllegalStateException("Unbalanced Academy source callback");}
     public static boolean frozen(LbcAcademy academy){return FROZEN.contains(academy);}
-    static boolean captureReady(GameController game){
+    public static boolean captureReady(GameController game){
         var academy=game.items().academy();var access=(AcademyCheckpointAccess)(Object)academy;
         // Source placing is assigned only inside tick's try/finally. No active tick establishes placing == null.
         return !ACTIVE.containsKey(academy)&&!FROZEN.contains(academy)&&academy.pendingCount()==0&&access.skywars2$pendingWhite().isEmpty();

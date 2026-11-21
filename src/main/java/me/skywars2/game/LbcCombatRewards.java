@@ -219,6 +219,6 @@ public final class LbcCombatRewards {
             }
         }finally{publishingCopies=previous;}
     }
-    int pendingCount(){return pending.size();}
+    public int pendingCount(){return pending.size();}
     public void clear(){deaths.clear();pending.clear();}
 }

@@ -129,7 +129,7 @@ public final class LbcImbaHoe {
     public void prepareFrozen(){checkpointBoundary();restoring=true;cancelPending();}
     public void publishFrozen(){checkpointBoundary();for(var ray:List.copyOf(replayCancelled))ray.cancel();replayCancelled.clear();restoring=false;}
     public void cancelFrozen(){stop();}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
         checkpointBoundary();long ids=sequence,accepted=uses,visited=samples,spawned=tnt,removed=destroyed;
         return resolved->{checkpointBoundary();return ()->{cancelPending();sequence=ids;uses=accepted;samples=visited;tnt=spawned;destroyed=removed;};};
     }

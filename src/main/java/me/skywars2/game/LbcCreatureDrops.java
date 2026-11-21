@@ -42,7 +42,7 @@ public final class LbcCreatureDrops {
             {CustomNameVisible:1b,PersistenceRequired:1b,IsBaby:0b,CustomName:{"color":"green","italic":false,"translate":"bob"},equipment:{mainhand:{id:"minecraft:netherite_sword",components:{"minecraft:enchantments":{"minecraft:sharpness":5,"minecraft:smite":5,"minecraft:bane_of_arthropods":5,"minecraft:knockback":2,"minecraft:fire_aspect":2,"minecraft:looting":3,"minecraft:sweeping_edge":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_sword"}},count:1},offhand:{id:"minecraft:enchanted_golden_apple",components:{"minecraft:custom_name":{"italic":false,"translate":"bob_apple"}},count:6},feet:{id:"minecraft:netherite_boots",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:feather_falling":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:depth_strider":3,"minecraft:frost_walker":2,"minecraft:unbreaking":3,"minecraft:soul_speed":3},"minecraft:custom_name":{"italic":false,"translate":"bob_boots"}},count:1},legs:{id:"minecraft:netherite_leggings",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_leggings"}},count:1},chest:{id:"minecraft:netherite_chestplate",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_chestplate"}},count:1},head:{id:"minecraft:netherite_helmet",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:respiration":3,"minecraft:aqua_affinity":1,"minecraft:thorns":1,"minecraft:unbreaking":1},"minecraft:custom_name":{"italic":false,"translate":"bob_helmet"}},count:1}},drop_chances:{mainhand:0.5f,offhand:0.5f,head:0.5f,chest:0.5f,legs:0.5f,feet:0.5f},attributes:[{id:"minecraft:follow_range",base:400}]}
             """);
     private static final CompoundTag BULLET=preset("{Tags:[\"angry\"],Steps:40}");
-    static final String ARMOR_SHELL="skywars2.shulker_armor_shell";
+    public static final String ARMOR_SHELL="skywars2.shulker_armor_shell";
     private static final CompoundTag ARMOR_SHELL_DATA=preset("{Tags:[\"shell\",\"skywars2.shulker_armor_shell\"],Motion:[0d,5d,0d],Steps:40}");
     private static final int[][] BULLET_OFFSETS={{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1},{1,0},{-1,0},{0,0}};
     private final GameController game;
@@ -126,7 +126,7 @@ public final class LbcCreatureDrops {
         if(!level.addFreshEntity(actor)){tracked.remove(actor);actor.discard();}
     }
     /** Same native Shulker transport/lifecycle as the trap, with the helmet's real projectile owner. */
-    ShulkerBullet launchArmorShell(ServerPlayer owner,ServerPlayer target){
+    public ShulkerBullet launchArmorShell(ServerPlayer owner,ServerPlayer target){
         var level=owner.level();var at=owner.position().add(0,3,0);
         if(!Level.isInSpawnableBounds(BlockPos.containing(at))||!level.hasChunkAt(BlockPos.containing(at)))return null;
         var bullet=EntityTypes.SHULKER_BULLET.create(level,EntitySpawnReason.COMMAND);if(bullet==null)return null;
@@ -137,17 +137,17 @@ public final class LbcCreatureDrops {
         admit(level,bullet,at,owner);return bullet.isRemoved()?null:bullet;
     }
     /** Keep native egg finalization and data, then remove the unwanted vanilla sword before insertion. */
-    void adoptEggVex(Vex actor,ServerPlayer author){
+    public void adoptEggVex(Vex actor,ServerPlayer author){
         actor.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,net.minecraft.world.item.ItemStack.EMPTY);
         actor.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND,net.minecraft.world.item.ItemStack.EMPTY);
         actor.entityTags().add(NORMAL_VEX);
         prepare(actor,author);
     }
-    void adoptEggSkeleton(net.minecraft.world.entity.monster.skeleton.Skeleton actor,ServerPlayer author){
+    public void adoptEggSkeleton(net.minecraft.world.entity.monster.skeleton.Skeleton actor,ServerPlayer author){
         prepare(actor,author);
     }
     /** Compass Wardens share native hostile ownership, target protection, Time Stop and epoch cleanup. */
-    void adoptDeathWarden(net.minecraft.world.entity.monster.warden.Warden actor,ServerPlayer author){
+    public void adoptDeathWarden(net.minecraft.world.entity.monster.warden.Warden actor,ServerPlayer author){
         prepare(actor,author);
     }
     private void prepare(Entity actor,ServerPlayer author){
@@ -188,7 +188,7 @@ public final class LbcCreatureDrops {
     public void loaded(Entity actor){if(actor instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon)nativeDragons.add(dragon);if(!managed(actor))return;if(!active(actor)){actor.discard();return;}tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
     public void unloaded(Entity actor){nativeDragons.remove(actor);if(managed(actor))tracked.remove(actor);}
     /** Source mobs_1s applies to native dragons even with NoAI, in every ordinary dimension. */
-    void nativeMobSecond(){
+    public void nativeMobSecond(){
         if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.server().tickRateManager().runsNormally()||game.server().getTickCount()%20!=0)return;
         nativeDragons.removeIf(Entity::isRemoved);
         for(var dragon:nativeDragons)if(LbcDimensionItems.ordinary(dragon.level())&&!game.items().timeStop().stopped((ServerLevel)dragon.level())

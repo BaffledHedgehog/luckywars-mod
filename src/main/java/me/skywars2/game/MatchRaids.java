@@ -16,14 +16,14 @@ import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.entity.raid.Raids;
 
 /** Native world raid owners and their body graph. Part of the unfinished goal-image experiment. */
-final class MatchRaids {
+public final class MatchRaids {
     private final Map<ServerLevel,Raids> levels=new IdentityHashMap<>();
     private final Map<Raids,Manager> managers=new IdentityHashMap<>();
     private final Map<Raid,Image> raids=new IdentityHashMap<>();
     private final Map<Raider,Body> bodies=new IdentityHashMap<>();
     private final MatchDamageSources sources;
     private boolean linksRestored;
-    MatchRaids(GameController game,Collection<Entity> registered,MatchDamageSources sources){
+    public MatchRaids(GameController game,Collection<Entity> registered,MatchDamageSources sources){
         this.sources=sources;
         for(var level:game.server().getAllLevels()){
             Raids owner=level.getRaids();levels.put(level,owner);
@@ -42,8 +42,8 @@ final class MatchRaids {
         image.leaders.values().forEach(member->capture(member.original));
         image.groups.values().forEach(group->group.members.forEach(member->capture(member.original)));
     }
-    void validate(){levels.forEach((level,owner)->{if(level.getRaids()!=owner)throw new IllegalStateException("Native raid service owner changed");});}
-    void prepareFrozen(Collection<Entity> current){
+    public void validate(){levels.forEach((level,owner)->{if(level.getRaids()!=owner)throw new IllegalStateException("Native raid service owner changed");});}
+    public void prepareFrozen(Collection<Entity> current){
         validate();linksRestored=false;var future=Collections.newSetFromMap(new IdentityHashMap<Raid,Boolean>());
         for(var owner:managers.keySet())future.addAll(managerAccess(owner).skywars2$raidMap().values());
         for(var entity:current)if(entity instanceof Raider body&&body.getCurrentRaid()!=null)future.add(body.getCurrentRaid());
@@ -51,7 +51,7 @@ final class MatchRaids {
         managers.values().forEach(Manager::restore);
         raids.values().forEach(Image::restoreValues);
     }
-    void restoreLinks(Function<UUID,Entity> lookup,Set<UUID> pending){
+    public void restoreLinks(Function<UUID,Entity> lookup,Set<UUID> pending){
         validate();
         if(linksRestored){raids.values().forEach(image->image.bar.rebindCurrent(image.event,lookup,pending));return;}
         bodies.values().forEach(Body::restore);

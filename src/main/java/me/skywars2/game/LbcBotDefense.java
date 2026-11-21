@@ -27,7 +27,8 @@ public final class LbcBotDefense {
     final ServerPlayer player;final LbcChefBrain.Driver driver;final LbcBotSurvival survival;
     private record ThornGear(Item item,ItemEnchantments enchantments){}
     private final Map<UUID,List<ThornGear>> thorny=new LinkedHashMap<>();
-    int shieldUntil,nextThreat,nextCounter,countered;Vec3 threat;LivingEntity retaliation;
+    int shieldUntil, nextThreat, nextCounter;
+    public int countered;Vec3 threat;LivingEntity retaliation;
     Projectile incoming;
     private Projectile plannedBlast;
     private Vec3 plannedImpact,blastExit,blastRefuge;
@@ -39,7 +40,7 @@ public final class LbcBotDefense {
     java.util.UUID struck;int struckAt;
     Vec3 retreatPoint,retreatDanger;int retreatUntil,nextCrowd;
     Vec3 escapePoint;int nextEscape;
-    LivingEntity rangedAttacker;Vec3 coverDirection;
+    public LivingEntity rangedAttacker;Vec3 coverDirection;
     private Vec3 rangedBank,recoilDirection;
     private int bankUntil,nextBankSearch;
     int rangedHits;
@@ -47,7 +48,7 @@ public final class LbcBotDefense {
     final LbcBotShelter shelter;
     private final LbcBotShelter projectileShelter;
     List<net.minecraft.world.entity.Mob> crowd=List.of();
-    String diagnostics(){return "defenseShot="+(incoming==null?null:incoming.getUUID())+" blastExit="+blastExit+" blastRefuge="+blastRefuge+" sidestep="+sidestep+" bank="+rangedBank+" cover="+cover+" "+shelter.diagnostics()+" countered="+countered+" meleeHits="+meleeHits+" rangedHits="+rangedHits+" rangedAttacker="+(rangedAttacker==null?null:rangedAttacker.getMainHandItem())+" nextThreat="+nextThreat+" bodyTick="+player.tickCount;}
+    public String diagnostics(){return "defenseShot="+(incoming==null?null:incoming.getUUID())+" blastExit="+blastExit+" blastRefuge="+blastRefuge+" sidestep="+sidestep+" bank="+rangedBank+" cover="+cover+" "+shelter.diagnostics()+" countered="+countered+" meleeHits="+meleeHits+" rangedHits="+rangedHits+" rangedAttacker="+(rangedAttacker==null?null:rangedAttacker.getMainHandItem())+" nextThreat="+nextThreat+" bodyTick="+player.tickCount;}
     void meleeDamage(LivingEntity attacker){if(meleeAttacker!=attacker)meleeHits=0;meleeAttacker=attacker;meleeAt=player.tickCount;meleeHits++;}
     LbcBotDefense(ServerPlayer player,LbcChefBrain.Driver driver,LbcBotSurvival survival){this.player=player;this.driver=driver;this.survival=survival;shelter=new LbcBotShelter(player,driver,survival);projectileShelter=new LbcBotShelter(player,driver,survival);}
     void observedHit(LivingEntity target,float healthBefore){
@@ -65,7 +66,7 @@ public final class LbcBotDefense {
         thorny.remove(target.getUUID());thorny.put(target.getUUID(),thornGear(target));
         if(thorny.size()>64)thorny.remove(thorny.keySet().iterator().next());
     }
-    boolean thorns(LivingEntity target){
+    public boolean thorns(LivingEntity target){
         if(target==null)return false;var gear=thorny.get(target.getUUID());if(gear==null)return false;
         if(gear.equals(thornGear(target)))return true;
         thorny.remove(target.getUUID());return false;
@@ -139,7 +140,7 @@ public final class LbcBotDefense {
         }
         return length;
     }
-    boolean safeFromBurst(Vec3 feet,LbcBotActions.BlastImpact blast){
+    public boolean safeFromBurst(Vec3 feet,LbcBotActions.BlastImpact blast){
         double exposureDistance=Math.max(0,1-feet.distanceTo(blast.point())/blast.radius());
         if(exposureDistance==0)return true;
         // Treat the whole impulse as horizontal. Summing native airborne drag
@@ -481,7 +482,7 @@ public final class LbcBotDefense {
             &&player.position().subtract(Vec3.atBottomCenterOf(shelter.at)).horizontalDistanceSqr()<2;}
     int rangedUntil;
     private void rememberRanged(LivingEntity attacker){if(rangedAttacker!=attacker){rangedHits=0;recoilDirection=null;}rangedAttacker=attacker;rangedUntil=player.tickCount+60;}
-    void rangedDamage(LivingEntity attacker){rememberRanged(attacker);rangedHits++;}
+    public void rangedDamage(LivingEntity attacker){rememberRanged(attacker);rangedHits++;}
     void rangedDamage(LivingEntity attacker,Projectile shot){
         rangedDamage(attacker);
         var direction=shot.getDeltaMovement().multiply(1,0,1).normalize();

@@ -236,9 +236,9 @@ public final class LbcHomes {
         }
         lastTick=Integer.MIN_VALUE;
     }
-    int count() { return (int)homes.values().stream().filter(h->h.attached).count(); }
-    List<Marker> snapshot() { return homes.values().stream().filter(h->h.attached).map(h->h.marker).toList(); }
-    Marker marker(UUID id) { var home=homes.get(id); return home==null || !home.attached ? null : home.marker; }
-    int ticketCount() { return tickets.size(); }
-    int ticketReferences(ServerLevel level, ChunkPos pos) { return tickets.getOrDefault(new ChunkKey(level,pos),0); }
+    public int count() { return (int)homes.values().stream().filter(h->h.attached).count(); }
+    public List<Marker> snapshot() { return homes.values().stream().filter(h->h.attached).map(h->h.marker).toList(); }
+    public Marker marker(UUID id) { var home=homes.get(id); return home==null || !home.attached ? null : home.marker; }
+    public int ticketCount() { return tickets.size(); }
+    public int ticketReferences(ServerLevel level, ChunkPos pos) { return tickets.getOrDefault(new ChunkKey(level,pos),0); }
 }

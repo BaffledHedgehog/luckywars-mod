@@ -156,7 +156,7 @@ public final class LbcEdibleSpells {
         var item=new ItemEntity(target.level(),target.getX(),target.getY(),target.getZ(),stack);item.setDefaultPickUpDelay();item.setThrower(author);insert(author,item);
     }}
     private ItemStack rollSlab(Entity e){var out=game.lbc().rollTable((net.minecraft.server.level.ServerLevel)e.level(),e.position(),e,"lbc:random_eatable_slab_random_count");return out.isEmpty()?ItemStack.EMPTY:out.getFirst();}
-    void slabInventory(ServerPlayer p){
+    public void slabInventory(ServerPlayer p){
         if(game.items().inventoryHazards().protectedInventory(p))return;
         for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET,EquipmentSlot.OFFHAND))p.setItemSlot(slot,rollSlab(p));
         p.containerMenu.setCarried(rollSlab(p));var craft=p.inventoryMenu.getCraftSlots();for(int n=0;n<craft.getContainerSize();n++)craft.setItem(n,rollSlab(p));

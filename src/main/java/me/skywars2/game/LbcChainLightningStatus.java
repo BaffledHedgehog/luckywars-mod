@@ -37,11 +37,11 @@ public final class LbcChainLightningStatus {
     private int callbackDepth;
     private boolean rewinding;
     private final Map<LivingEntity,ArrayDeque<Contribution>> pending=new LinkedHashMap<>();
-    LbcChainLightningStatus(GameController game){this.game=game;}
+    public LbcChainLightningStatus(GameController game){this.game=game;}
     public static boolean isMarker(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==124;}
     private boolean role(LivingEntity target){return target.level()==game.maps().level()&&game.items().wands().validTarget(target);}
     private boolean immune(LivingEntity target){return target instanceof ServerPlayer player&&(game.items().magic().rejectCustomDebuff(player));}
-    boolean accept(LivingEntity target,MobEffectInstance effect,Entity source){
+    public boolean accept(LivingEntity target,MobEffectInstance effect,Entity source){
         callbackDepth++;try{
         if(!isMarker(effect)||!game.playing()||!role(target)||LbcGreed.active(target)||!target.canBeAffected(effect)||immune(target))return false;
         int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
@@ -50,8 +50,8 @@ public final class LbcChainLightningStatus {
 
         }finally{callbackDepth--;}
     }
-    int queued(LivingEntity target){var queue=pending.get(target);return queue==null?0:(int)Math.min(Integer.MAX_VALUE,queue.stream().mapToLong(c->c.remaining).sum());}
-    void observe(LivingEntity target){
+    public int queued(LivingEntity target){var queue=pending.get(target);return queue==null?0:(int)Math.min(Integer.MAX_VALUE,queue.stream().mapToLong(c->c.remaining).sum());}
+    public void observe(LivingEntity target){
         callbackDepth++;try{
         int external=game.items().mana().hudValue(target,COUNTER),stored=queued(target);
         if(external<=0){if(stored>0)clear(target);return;}
@@ -65,7 +65,7 @@ public final class LbcChainLightningStatus {
     private boolean paused(LivingEntity target){return !game.server().tickRateManager().runsNormally()
             ||game.items().timeStop().stopped((ServerLevel)target.level())||game.items().timeStop().frozen(target)
             ||target.entityTags().contains("time_stopped")||game.items().frost().isFrozen(target)||LbcGreed.active(target);}
-    void tick(){
+    public void tick(){
         callbackDepth++;try{
         if(rewinding)return;
         for(var target:List.copyOf(pending.keySet())){
@@ -93,7 +93,7 @@ public final class LbcChainLightningStatus {
         }finally{callbackDepth--;}
     }
     /** Source IMBA projectile chain excludes its caster/team at acquisition; its three child arcs remain WILD. */
-    void arrowPulse(ServerPlayer owner,Entity projectile,Vec3 point,LbcIndirectKills.Owner accepted){
+    public void arrowPulse(ServerPlayer owner,Entity projectile,Vec3 point,LbcIndirectKills.Owner accepted){
         callbackDepth++;try{
         var level=(ServerLevel)projectile.level();
         propagate(level, point, owner, owner, accepted,
@@ -161,7 +161,7 @@ for(double distance=0;distance<=length;distance+=.5){var point=from.add(directio
         }
 }
     }
-    void clear(LivingEntity target){
+    public void clear(LivingEntity target){
         callbackDepth++;try{pending.remove(target);target.removeAttached(DATA);if(game.items().mana().hudValue(target,COUNTER)!=0)game.items().mana().score(target,COUNTER).set(0);
         }finally{callbackDepth--;}
     }
@@ -171,7 +171,7 @@ for(double distance=0;distance<=length;distance+=.5){var point=from.add(directio
             if(cause!=null){row.putString("owner",cause.player().toString());row.putLong("order",cause.order());}list.add(row);}
         tag.put("contributions",list);target.setAttached(DATA,tag);
     }
-    void loaded(LivingEntity target){
+    public void loaded(LivingEntity target){
         callbackDepth++;try{
         if(rewinding)return;
         if(immune(target)){clear(target);return;}
@@ -185,25 +185,25 @@ for(double distance=0;distance<=length;distance+=.5){var point=from.add(directio
 
         }finally{callbackDepth--;}
     }
-    void unloaded(LivingEntity target){
+    public void unloaded(LivingEntity target){
         callbackDepth++;try{
         if(rewinding)return;if(!target.isAlive())clear(target);else pending.remove(target);
         }finally{callbackDepth--;}
     }
-    void forget(ServerPlayer owner){
+    public void forget(ServerPlayer owner){
         callbackDepth++;try{for(var target:List.copyOf(pending.keySet()))if(target==owner||pending.get(target).stream().anyMatch(c->c.cause!=null&&c.cause.player().equals(owner.getUUID())))clear(target);
         }finally{callbackDepth--;}
     }
-    void stop(){
+    public void stop(){
         callbackDepth++;try{rewinding=false;for(var target:List.copyOf(pending.keySet()))clear(target);
         }finally{callbackDepth--;}
     }
-    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish native chain-status admission/hit/load callbacks before checkpointing");}
-    void prepareFrozen(){checkpointBoundary();rewinding=true;}
-    void publishFrozen(){checkpointBoundary();rewinding=false;}
-    void cancelFrozen(){checkpointBoundary();rewinding=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish native chain-status admission/hit/load callbacks before checkpointing");}
+    public void prepareFrozen(){checkpointBoundary();rewinding=true;}
+    public void publishFrozen(){checkpointBoundary();rewinding=false;}
+    public void cancelFrozen(){checkpointBoundary();rewinding=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Amount(int remaining,LbcIndirectKills.Owner cause) { }
         private record Queue(MatchDamageSources.Ref target,List<Amount> amounts) { }
         private final List<Queue> targets=new ArrayList<>();
@@ -211,7 +211,7 @@ for(double distance=0;distance<=length;distance+=.5){var point=from.add(directio
             checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish native chain-status bodies before capture");
             pending.forEach((target,queue)->targets.add(new Queue(links.key(target),queue.stream().map(c->new Amount(c.remaining,c.cause)).toList())));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var restored=new LinkedHashMap<LivingEntity,ArrayDeque<Contribution>>();
             for(var image:targets){var target=(LivingEntity)links.get(image.target);var queue=new ArrayDeque<Contribution>();
                 for(var amount:image.amounts)queue.addLast(new Contribution(amount.remaining,amount.cause));restored.put(target,queue);}

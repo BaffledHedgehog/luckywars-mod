@@ -51,7 +51,7 @@ public final class LbcImbaAxe {
 
     public LbcImbaAxe(GameController game){this.game=Objects.requireNonNull(game);}
     public static boolean recognized(ItemStack tool){return !tool.isEmpty()&&tool.is(LbcImbaAxeItem.TOKEN);}
-    boolean effective(BlockState state){
+    public boolean effective(BlockState state){
         if(state.is(BlockTags.MINEABLE_WITH_AXE)||state.is(LbcConsumedBlock.BLOCK))return true;
         for(var kind:LbcLuckyBlocks.Kind.values())if(state.is(LbcLuckyBlocks.block(kind)))return true;
         return false;
@@ -106,7 +106,7 @@ public final class LbcImbaAxe {
     private record Candidate(int cell,BlockState expected) { }
     private record Request(LevelChunk chunk,int section,int sectionY,long revision,long terrainGeneration,LevelChunkSection palette) { }
     /** Pure computation: no ServerLevel, chunk, block entity, NBT, entity or callback is reachable. */
-    static List<Candidate> scan(LevelChunkSection palette,Set<Block> eligible,AtomicLong token,long generation){
+    public static List<Candidate> scan(LevelChunkSection palette,Set<Block> eligible,AtomicLong token,long generation){
         var found=new ArrayList<Candidate>();
         for(int cell=0;cell<4096;cell++){
             if((cell&255)==0&&token.get()!=generation)return List.of();
@@ -134,7 +134,7 @@ public final class LbcImbaAxe {
     }
     /** Quantum-local packing. No encoding, component loss, count truncation or quadratic search
      * through prior container contents; only the current partial stack of an exact kind is indexed. */
-    static List<ItemStack> compactLoot(List<ItemStack> loot){
+    public static List<ItemStack> compactLoot(List<ItemStack> loot){
         var result=new ArrayList<ItemStack>();var partial=new HashMap<StackKey,ItemStack>();
         for(var stack:loot){
             if(stack.isEmpty())continue;
@@ -275,7 +275,7 @@ public final class LbcImbaAxe {
         View view(){return new View(owner,chunkCursor,chunks.length,sectionCursor,candidateCursor,candidates==null?0:candidates.size(),outputCursor,outputs.size(),removed);}
     }
     /** Null means no mutation/output was accepted. Empty loot is still a successful removal. */
-    List<ItemStack> harvest(ServerPlayer author,ServerLevel level,BlockPos at,BlockState expected,ItemStack tool,LbcIndirectKills.Owner cause){
+    public List<ItemStack> harvest(ServerPlayer author,ServerLevel level,BlockPos at,BlockState expected,ItemStack tool,LbcIndirectKills.Owner cause){
         return harvest(author,level,at,expected,tool,cause,this::effective,false);
     }
     /** Other native mining owners supply eligibility while sharing the exact native removal/loot transaction. */
@@ -318,11 +318,11 @@ public final class LbcImbaAxe {
     public void prepareFrozen(){checkpointBoundary();invalidateWorker();caches.clear();terrainGeneration++;jobs=new LinkedHashSet<>();restoring=true;}
     public void publishFrozen(){checkpointBoundary();restoring=false;}
     public void cancelFrozen(){stop();}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         final List<Harvest> saved=List.copyOf(jobs);
         final Metrics metrics=LbcImbaAxe.this.metrics();
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){saved.forEach(graph::capture);}
-        Runnable prepare(){checkpointBoundary();return ()->{jobs=new LinkedHashSet<>(saved);copiedSections=metrics.copiedSections();workerScans=metrics.workerScans();cacheHits=metrics.cacheHits();writes=metrics.writes();delivered=metrics.delivered();mergedStacks=metrics.mergedStacks();publishedEntities=metrics.publishedEntities();};}
+        public Runnable prepare(){checkpointBoundary();return ()->{jobs=new LinkedHashSet<>(saved);copiedSections=metrics.copiedSections();workerScans=metrics.workerScans();cacheHits=metrics.cacheHits();writes=metrics.writes();delivered=metrics.delivered();mergedStacks=metrics.mergedStacks();publishedEntities=metrics.publishedEntities();};}
     }
 }

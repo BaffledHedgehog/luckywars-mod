@@ -27,11 +27,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.ScoreHolder;
 
 /** Instant corruption casts; native statuses retain their caster through the shared effect cause owner. */
-final class LbcCorruption {
+public final class LbcCorruption {
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final TagKey<EntityType<?>> UNHOLY=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:unholy_monsters"));
 
-    static boolean use(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
+    public static boolean use(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
@@ -58,7 +58,7 @@ final class LbcCorruption {
         return true;
     }
 
-    static void cast(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,int mode){
+    public static void cast(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,int mode){
         var at=owner.position();
         var targets=owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(15),target->{
             double distance=target.position().distanceToSqr(at);

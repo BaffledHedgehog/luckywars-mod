@@ -15,23 +15,24 @@ import net.minecraft.world.item.ItemStack;
 
 /** Live source progress plus match-scoped claim ownership for native login/respawn reconciliation. */
 public final class LbcWitchClaims {
-    enum Mode {
+    public enum Mode {
         GLUTTONY("gluttony","food_count",64),WRATH("wrath","dmg_dealt",5000),
         LUST("lust","lolidefecation",64),GREED("greed","greed_prestige",0),
         VANITY("vanity","dmg_dealt",0),INDOLENCE("indolence","sleep_time",3600),ENVY("envy",null,0);
-        final String key,counter;final int minimum;
+        final String key;
+        public final String counter;public final int minimum;
         Mode(String key,String counter,int minimum){this.key=key;this.counter=counter;this.minimum=minimum;}
-        String tag(){return "sin_"+key;}
+        public String tag(){return "sin_"+key;}
         static Mode of(Integer value){return value!=null&&value>=1&&value<=values().length?values()[value-1]:null;}
         // Their producer/checkpoint dependencies remain explicit, not aliases for a tag grant.
         boolean implemented(){return true;}
     }
-    enum Verdict { ALREADY,UNQUALIFIED,QUALIFIED }
+    public enum Verdict { ALREADY,UNQUALIFIED,QUALIFIED }
     private final GameController game;
     private final LbcSourceCounters counters;
     private final Map<String,EntitySelector> selectors=new HashMap<>();
     private final Map<Mode,UUID> owners=new EnumMap<>(Mode.class);
-    LbcWitchClaims(GameController game){this.game=game;counters=new LbcSourceCounters(game);}
+    public LbcWitchClaims(GameController game){this.game=game;counters=new LbcSourceCounters(game);}
     public static boolean matches(ItemStack item){return !item.isEmpty()&&LbcFartus.data(item).getIntOr("witch_gens",0)==1;}
     private List<ServerPlayer> players(ServerPlayer p,String literal){try{
         var selector=selectors.get(literal);if(selector==null){selector=new EntitySelectorParser(new StringReader(literal),true).parse();selectors.put(literal,selector);}
@@ -39,7 +40,7 @@ public final class LbcWitchClaims {
     }catch(CommandSyntaxException error){throw new IllegalStateException("Witch claim selector "+literal,error);}}
     private ServerPlayer incumbent(ServerPlayer p,Mode mode){var found=players(p,"@a[gamemode=!spectator,tag="+mode.tag()+",limit=1]");return found.isEmpty()?null:found.getFirst();}
     /** Qualification reads live native owners and never creates missing scoreboard operands. */
-    Verdict verdict(ServerPlayer p,Mode mode){
+    public Verdict verdict(ServerPlayer p,Mode mode){
         if(p.entityTags().contains(mode.tag()))return Verdict.ALREADY;
         if(mode==Mode.ENVY){if(p.entityTags().contains("have_mom"))return Verdict.UNQUALIFIED;
             for(var other:players(p,"@a[gamemode=!spectator,tag=!owner]"))if(other!=p&&!other.entityTags().contains("have_mom"))return Verdict.UNQUALIFIED;
@@ -55,7 +56,7 @@ public final class LbcWitchClaims {
         Integer theirs=counters.read(current,mode.counter);
         return score!=null&&theirs!=null&&theirs<score?Verdict.QUALIFIED:Verdict.UNQUALIFIED;
     }
-    boolean use(ServerPlayer p,InteractionHand hand){
+    public boolean use(ServerPlayer p,InteractionHand hand){
         if(!matches(p.getItemInHand(hand))||!game.playing()||game.stage()==GameController.Stage.ENDING||!p.isAlive()||p.isRemoved()
                 ||game.isObserver(p)||!game.canUseGameplayItems(p)||!LbcDimensionItems.ordinary(p)||!game.items().wands().validRoleTarget(p,false)
                 ||game.items().actionsBlocked(p)||game.items().wands().inputTimeStopped(p)||game.items().wands().timeStopped()
@@ -76,7 +77,7 @@ public final class LbcWitchClaims {
         game.items().wands().wandCasted(p,false);return true;
     }
     /** Executed at the coordinator's stable end-tick boundary after pending structure writes drain. */
-    boolean finishVanityClaim(ServerPlayer p){
+    public boolean finishVanityClaim(ServerPlayer p){
         if(!p.isAlive()||p.isRemoved()||game.isObserver(p)||!LbcDimensionItems.ordinary(p)
                 ||p.entityTags().contains("nomagic_active")||game.items().magic().artifactSuppressedAt(p.level(),p.position())
                 ||game.items().wands().inputTimeStopped(p)||game.items().wands().timeStopped()
@@ -128,22 +129,22 @@ public final class LbcWitchClaims {
     /** Native raw tags stay live; a command removing a current online holder also revokes its saved claim. */
     private void prune(UUID joining){owners.entrySet().removeIf(entry->{var p=game.server().getPlayerList().getPlayer(entry.getValue());
         return p!=null&&!p.getUUID().equals(joining)&&!p.entityTags().contains(entry.getKey().tag());});}
-    void tick(){prune(null);}
+    public void tick(){prune(null);}
     /** Adopt an existing native tag only at an actual live leave/death boundary, never from login NBT. */
-    void leavingOrDying(ServerPlayer p){if(!game.playing()||!game.allowDamage(p))return;prune(null);
+    public void leavingOrDying(ServerPlayer p){if(!game.playing()||!game.allowDamage(p))return;prune(null);
         for(var mode:Mode.values())if(p.entityTags().contains(mode.tag()))owners.putIfAbsent(mode,p.getUUID());}
     /** Old offline NBT cannot revive an authority already transferred, ended or from another match. */
-    void reconcile(ServerPlayer p){prune(p.getUUID());
+    public void reconcile(ServerPlayer p){prune(p.getUUID());
         game.items().witchPassives().reconciled(p);
         for(var mode:Mode.values())if(game.playing()&&p.getUUID().equals(owners.get(mode)))p.entityTags().add(mode.tag());else p.entityTags().remove(mode.tag());
         if(!p.entityTags().contains("sin_greed"))p.entityTags().remove("sin_greed_active");
         if(!p.entityTags().contains("sin_indolence")){p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");}
     }
-    UUID owner(Mode mode){return owners.get(mode);}
-    Map<Mode,UUID> ownership(){return Map.copyOf(owners);}
-    void restoreOwnership(Map<Mode,UUID> image){owners.clear();owners.putAll(image);}
+    public UUID owner(Mode mode){return owners.get(mode);}
+    public Map<Mode,UUID> ownership(){return Map.copyOf(owners);}
+    public void restoreOwnership(Map<Mode,UUID> image){owners.clear();owners.putAll(image);}
     /** Match-end remove_tags boundary; normal deaths/respawns deliberately retain authority. */
-    void stop(){for(var p:game.server().getPlayerList().getPlayers()){
+    public void stop(){for(var p:game.server().getPlayerList().getPlayers()){
         for(var mode:Mode.values())p.entityTags().remove(mode.tag());
         p.entityTags().remove("sin_greed_active");p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");
     }selectors.clear();owners.clear();}

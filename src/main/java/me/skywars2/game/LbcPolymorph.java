@@ -122,8 +122,8 @@ public final class LbcPolymorph {
         Visual(ServerLevel level){super(EntityTypes.ITEM_DISPLAY,level);}
         @Override public boolean shouldBeSaved(){return false;}
     }
-    static final class Orb {
-        final Display.ItemDisplay display;final LbcApocalypseEvents.Authority authority;Vec3 motion;int age;
+    public static final class Orb {
+        public final Display.ItemDisplay display;final LbcApocalypseEvents.Authority authority;public Vec3 motion;public int age;
         Orb(Visual display,LbcApocalypseEvents.Authority authority,Vec3 motion){this.display=display;this.authority=authority;this.motion=motion;}
     }
     private static final class Volley {
@@ -135,15 +135,15 @@ public final class LbcPolymorph {
     public boolean concealed(Entity entity){return active(entity);}
     public boolean suspended(Entity entity){return !(entity instanceof ServerPlayer)&&active(entity);}
     public boolean nativeTransition(Entity entity){return nativeTransitions.contains(entity);}
-    boolean detached(Entity entity){return detached.contains(entity);}
-    List<Entity> detachedBodies(){return List.copyOf(detached);}
-    void releaseDetached(Entity entity){detached.remove(entity);}
-    void retainUnpublished(Entity entity){
+    public boolean detached(Entity entity){return detached.contains(entity);}
+    public List<Entity> detachedBodies(){return List.copyOf(detached);}
+    public void releaseDetached(Entity entity){detached.remove(entity);}
+    public void retainUnpublished(Entity entity){
         if(entity instanceof ServerPlayer||entity.isRemoved()||((ServerLevel)entity.level()).getEntity(entity.getUUID())!=null)
             throw new IllegalStateException("Only an absent, live nonplayer body may be retained by polymorph");
         detached.add(entity);game.items().lifetimes().polymorphVisibility(entity,false);
     }
-    void clearDetachedForCheckpoint(){detached.clear();}
+    public void clearDetachedForCheckpoint(){detached.clear();}
     private List<Entity> companions(Entity original){
         var result=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
         result.addAll(game.items().crocodildo().polymorphVisuals(original));
@@ -188,7 +188,7 @@ public final class LbcPolymorph {
     public boolean eligible(Entity entity){return entity instanceof LivingEntity living&&!(entity instanceof Sheep)&&!active(entity)
             &&!LbcParasite.active(living)&&living.isAlive()&&!game.items().magic().suppressedAt((ServerLevel)entity.level(),entity.position())&&game.items().wands().validTarget(entity)&&!game.items().timeStop().frozen(entity)
             &&!game.items().timeStop().stopped((ServerLevel)entity.level());}
-    boolean gemEligible(Entity entity){return !(entity instanceof net.minecraft.world.entity.player.Player
+    public boolean gemEligible(Entity entity){return !(entity instanceof net.minecraft.world.entity.player.Player
             ||entity instanceof net.minecraft.world.entity.item.ItemEntity||entity instanceof Marker||entity instanceof Display||entity instanceof Interaction)
             &&!active(entity)&&!body(entity)&&!LbcSheep.managed(entity)&&!entity.entityTags().contains("magicalsheep")
             &&(!(entity instanceof LivingEntity living)||!LbcParasite.active(living))
@@ -202,12 +202,12 @@ public final class LbcPolymorph {
         if(transform(original,cause)==null)return false;
         forms.get(original).remaining=ticks;return true;
     }
-    Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause){return transform(original,cause,false);}
+    public Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause){return transform(original,cause,false);}
     Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause,boolean rainbow){return transform(original,cause,rainbow,false);}
     /** Gem sources retain nonliving identity too; wand and Magnesia admission stay unchanged. */
-    Sheep transformGem(Entity original,LbcIndirectKills.Owner cause){return transform(original,cause,true,true);}
+    public Sheep transformGem(Entity original,LbcIndirectKills.Owner cause){return transform(original,cause,true,true);}
     /** Wand form shares the reversible entity owner, including native projectiles. */
-    void finishPlayers(){for(var form:List.copyOf(forms.values()))if(form.original instanceof ServerPlayer)finish(form,false);}
+    public void finishPlayers(){for(var form:List.copyOf(forms.values()))if(form.original instanceof ServerPlayer)finish(form,false);}
     Sheep transformWand(Entity original,LbcIndirectKills.Owner cause){
         if(original instanceof net.minecraft.world.entity.player.Player)return null;
         var sheep=transform(original,cause,true,true);
@@ -262,10 +262,10 @@ public final class LbcPolymorph {
         }finally{checkpointDepth--;}
     }
     /** HP drains must resolve a killed sheep before another match phase observes its human body. */
-    void finishDirectDamage(LivingEntity target){
+    public void finishDirectDamage(LivingEntity target){
         var form=bodies.get(target);if(form!=null&&!target.isAlive())finish(form,true);
     }
-    ServerPlayer playerOfBody(LivingEntity target){
+    public ServerPlayer playerOfBody(LivingEntity target){
         var form=bodies.get(target);return form!=null&&form.original instanceof ServerPlayer player?player:null;
     }
     public void clearDebuffs(ServerPlayer player){var form=forms.get(player);if(form!=null)finish(form,false);}
@@ -324,7 +324,7 @@ public final class LbcPolymorph {
         }finally{checkpointDepth--;}
     }
     private List<LivingEntity> targets(){var result=new ArrayList<LivingEntity>();for(var level:game.server().getAllLevels())for(var e:level.getAllEntities())if(eligible(e))result.add((LivingEntity)e);return result;}
-    Orb orb(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at,Vec3 direction){
+    public Orb orb(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at,Vec3 direction){
         checkpointDepth++;try{
         if(!live(authority)||!resident(level,at))return null;var display=new Visual(level);
         load(display,"{billboard:'center',brightness:{sky:15,block:15},shadow_radius:0f,Glowing:1b,glow_color_override:14619903,teleport_duration:1,transformation:{scale:[0.65f,0.65f,0.65f],translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}");
@@ -412,14 +412,14 @@ public final class LbcPolymorph {
         for(var orb:List.copyOf(orbs))retire(orb);volleys.clear();
         }finally{checkpointDepth--;}
     }
-    List<LbcSheep.SheepView> sheepViews(){return forms.values().stream().map(f->new LbcSheep.SheepView(f.sheep.getUUID(),f.cause==null?null:f.cause.player(),f.sheep.position())).toList();}
-    void forgetAuthor(UUID author){for(var f:List.copyOf(forms.values()))if(f.cause!=null&&author.equals(f.cause.player()))finish(f,false);}
-    int count(){return forms.size();}int remaining(Entity entity){var form=forms.get(entity);return form==null?0:form.remaining;}
-    int remaining(LivingEntity entity){return remaining((Entity)entity);}
-    long emittedTotal(){return emitted;}
-    List<Orb> orbs(){return List.copyOf(orbs);}int volleyCount(){return volleys.size();}
+    public List<LbcSheep.SheepView> sheepViews(){return forms.values().stream().map(f->new LbcSheep.SheepView(f.sheep.getUUID(),f.cause==null?null:f.cause.player(),f.sheep.position())).toList();}
+    public void forgetAuthor(UUID author){for(var f:List.copyOf(forms.values()))if(f.cause!=null&&author.equals(f.cause.player()))finish(f,false);}
+    public int count(){return forms.size();}public int remaining(Entity entity){var form=forms.get(entity);return form==null?0:form.remaining;}
+    public int remaining(LivingEntity entity){return remaining((Entity)entity);}
+    public long emittedTotal(){return emitted;}
+    public List<Orb> orbs(){return List.copyOf(orbs);}public int volleyCount(){return volleys.size();}
     /** Form images own the suspended human/mob values; current body physics belongs to native snapshots. */
-    void checkpointBoundary(){if(checkpointDepth!=0||restoring||!publishing.isEmpty())throw new IllegalStateException("Finish polymorph callbacks before checkpointing");}
+    public void checkpointBoundary(){if(checkpointDepth!=0||restoring||!publishing.isEmpty())throw new IllegalStateException("Finish polymorph callbacks before checkpointing");}
     private static net.minecraft.world.entity.ai.attributes.AttributeMap copyAttributes(net.minecraft.world.entity.ai.attributes.AttributeMap source){
         if(source==null)return null;
         var result=new net.minecraft.world.entity.ai.attributes.AttributeMap(net.minecraft.world.entity.ai.attributes.DefaultAttributes.getSupplier(EntityTypes.PLAYER));
@@ -433,11 +433,11 @@ public final class LbcPolymorph {
         heldBodies.clear();
     }
     /** Never finish(): it would refund suspended equipment/effects or execute the old death continuation. */
-    void prepareCheckpointFrozen(){
+    public void prepareCheckpointFrozen(){
         checkpointBoundary();rewinding=true;checkpointPublication.clear();clearHeldBodies(false);forms.clear();bodies.clear();
         var old=List.copyOf(orbs);orbs.clear();volleys.clear();for(var orb:old)if(!orb.display.isRemoved())orb.display.discard();
     }
-    void publishCheckpointFrozen(){
+    public void publishCheckpointFrozen(){
         checkpointBoundary();
         for(var player:List.copyOf(checkpointPublication)){
             if(game.server().getPlayerList().getPlayer(player.getUUID())!=player)throw new IllegalStateException("Polymorph current human changed before publication");
@@ -445,14 +445,14 @@ public final class LbcPolymorph {
         }
         checkpointPublication.clear();rewinding=false;
     }
-    void cancelCheckpointFrozen(){checkpointBoundary();checkpointPublication.clear();clearHeldBodies(false);forms.clear();bodies.clear();rewinding=false;}
-    MatchPolymorphCheckpoint checkpoint(MatchDamageSources sources){return new MatchPolymorphCheckpoint(game,sources);}
-    List<FormCheckpoint> checkpointForms(MatchDamageSources sources){
+    public void cancelCheckpointFrozen(){checkpointBoundary();checkpointPublication.clear();clearHeldBodies(false);forms.clear();bodies.clear();rewinding=false;}
+    public MatchPolymorphCheckpoint checkpoint(MatchDamageSources sources){return new MatchPolymorphCheckpoint(game,sources);}
+    public List<FormCheckpoint> checkpointForms(MatchDamageSources sources){
         checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish polymorph before capture");
         return forms.values().stream().map(form->new FormCheckpoint(form,sources)).toList();
     }
-    Set<UUID> transientCheckpointActors(){var result=new LinkedHashSet<UUID>();for(var orb:orbs)result.add(orb.display.getUUID());return Set.copyOf(result);}
-    final class FormCheckpoint {
+    public Set<UUID> transientCheckpointActors(){var result=new LinkedHashSet<UUID>();for(var orb:orbs)result.add(orb.display.getUUID());return Set.copyOf(result);}
+    public final class FormCheckpoint {
         private final Form form;
         private final MatchSpellCheckpoint.Links links;
         private final MatchDamageSources.Ref original,sheep;
@@ -476,15 +476,15 @@ public final class LbcPolymorph {
             owned=OwnedEffectLayers.copyCheckpoint(form.owned);absorption=form.absorptionState.copy();counters=new LinkedHashMap<>(form.counters);attributes=copyAttributes(form.attributes);
             sheepInvisible=form.sheep.isInvisible();
         }
-        Set<UUID> actors(){var result=new LinkedHashSet<UUID>();result.add(original.id());result.add(sheep.id());companions.forEach(e->result.add(e.id()));return Set.copyOf(result);}
-        Set<UUID> resolve(java.util.function.Function<UUID,Entity> lookup){return links.resolve(lookup);}
+        public Set<UUID> actors(){var result=new LinkedHashSet<UUID>();result.add(original.id());result.add(sheep.id());companions.forEach(e->result.add(e.id()));return Set.copyOf(result);}
+        public Set<UUID> resolve(java.util.function.Function<UUID,Entity> lookup){return links.resolve(lookup);}
         /** Hold only the real retained native sheep while its human is genuinely offline. */
-        void hold(java.util.function.Function<UUID,Entity> lookup){
+        public void hold(java.util.function.Function<UUID,Entity> lookup){
             var body=lookup.apply(sheep.id());if(body==null)return;
             if(!(body instanceof Body current)||body.isRemoved()||body.level()!=form.sheep.level())throw new IllegalStateException("Restore the retained native polymorph sheep before holding an offline form");
             heldBodies.put(current,sheepInvisible);current.checkpointHeld=true;current.setInvisible(true);
         }
-        Runnable prepare(){
+        public Runnable prepare(){
             var human=links.get(original);var body=(Body)links.get(sheep);
             var visuals=companions.stream().map(links::get).toList();
             if(human.level()!=body.level())throw new IllegalStateException("Restore polymorph bodies in their same captured dimension");
@@ -508,13 +508,13 @@ public final class LbcPolymorph {
     private static void copyOnceFlags(Entity source,Entity target){
         for(var flag:List.of("doubled","quadried"))if(source.entityTags().contains(flag))target.entityTags().add(flag);
     }
-    boolean cloneRecognizes(Entity actor){return actor instanceof Body || actor instanceof Visual || actor.entityTags().contains(BODY)||actor.entityTags().contains(ORB);}
-    boolean cloneGameplay(Entity actor){return actor.entityTags().contains(ORB)&&orbs.stream().anyMatch(orb->orb.display==actor);}
-    boolean cloneProtected(Entity actor){
+    public boolean cloneRecognizes(Entity actor){return actor instanceof Body || actor instanceof Visual || actor.entityTags().contains(BODY)||actor.entityTags().contains(ORB);}
+    public boolean cloneGameplay(Entity actor){return actor.entityTags().contains(ORB)&&orbs.stream().anyMatch(orb->orb.display==actor);}
+    public boolean cloneProtected(Entity actor){
         if(forms.containsKey(actor))return true;
         var form=bodies.get(actor);return form!=null&&form.original instanceof ServerPlayer;
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity actor){
+    public LbcCloneSkills.ActorImage cloneImage(Entity actor){
         if(cloneProtected(actor))return null;
         for(var orb:orbs)if(orb.display==actor){
             var authority=orb.authority;int age=orb.age;

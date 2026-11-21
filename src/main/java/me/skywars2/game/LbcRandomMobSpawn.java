@@ -11,9 +11,9 @@ import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.world.entity.Entity;
 
 /** Exact native random_mob_spawn producer; COMMAND finalization follows presence of source NBT. */
-final class LbcRandomMobSpawn {
-    record Entry(String type,String payload,boolean finalizeSpawn){}
-    static final List<Entry> ENTRIES=List.of(
+public final class LbcRandomMobSpawn {
+    public record Entry(String type,String payload,boolean finalizeSpawn){}
+    public static final List<Entry> ENTRIES=List.of(
         new Entry("minecraft:fox","{}",true),
         new Entry("minecraft:ghast","{}",true),
         new Entry("minecraft:axolotl","{}",true),
@@ -106,7 +106,7 @@ final class LbcRandomMobSpawn {
         new Entry("minecraft:zombie_nautilus","{}",true),
         new Entry("minecraft:sulfur_cube","{}",true) );
     private LbcRandomMobSpawn(){}
-    static Entity spawn(GameController game,ServerPlayer player,int selected){
+    public static Entity spawn(GameController game,ServerPlayer player,int selected){
         if(selected<1||selected>ENTRIES.size())throw new IllegalArgumentException("Source mob index "+selected);
         var pos=player.blockPosition();var level=player.level();
         if(!level.getWorldBorder().isWithinBounds(pos)||level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null)return null;
@@ -115,7 +115,7 @@ final class LbcRandomMobSpawn {
                 BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entry.type())).orElseThrow(),player.position(),TagParser.parseCompoundFully(entry.payload()),entry.finalizeSpawn());}
         catch(CommandSyntaxException rejected){return null;}
     }
-    static Entity random(GameController game,ServerPlayer player){
+    public static Entity random(GameController game,ServerPlayer player){
         int index=1+player.getRandom().nextInt(ENTRIES.size());
         var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");
         var modifier=objective==null?null:board.getPlayerScoreInfo(net.minecraft.world.scores.ScoreHolder.forNameOnly("final_luck_modifier"),objective);

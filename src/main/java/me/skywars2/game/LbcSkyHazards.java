@@ -21,7 +21,7 @@ public final class LbcSkyHazards {
             if(player.isRemoved() || !player.isAlive() || !game.canUseGameplayItems(player)) clear(player);
         for(var player:game.server().getPlayerList().getPlayers()) pulse(player);
     }
-    void pulse(ServerPlayer player) {
+    public void pulse(ServerPlayer player) {
         String dimension=player.level().dimension().identifier().toString();
         if(!game.playing() || game.stage()==GameController.Stage.ENDING
                 || !game.items().wands().validTarget(player)

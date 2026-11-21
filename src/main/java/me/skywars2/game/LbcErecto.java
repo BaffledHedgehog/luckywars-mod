@@ -34,8 +34,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 /** Higher electricity shares Electro traces and the terrain work queue. */
-final class LbcErecto {
-    static final int CENTRAL=0,SIDE=1,PHANTOM=2,SNIPER=3,CROSSBOW=4;
+public final class LbcErecto {
+    public static final int CENTRAL=0,SIDE=1,PHANTOM=2,SNIPER=3,CROSSBOW=4;
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<Block> CONDUCTIVE=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:electroprovod"));
     private static final TagKey<net.minecraft.world.entity.EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
@@ -50,7 +50,7 @@ final class LbcErecto {
     private static final int CROSSBOW_BLAST_RADIUS=20;
     private static final int CROSSBOW_BLAST_REACH=2*CROSSBOW_BLAST_RADIUS+2;
     /** Merge a tick of sniper effects without altering any of the sampled paths. */
-    static final class SniperEffects implements AutoCloseable {
+    public static final class SniperEffects implements AutoCloseable {
         private static final Holder<SoundEvent> RIPTIDE=Holder.direct(
                 SoundEvent.createVariableRangeEvent(Identifier.withDefaultNamespace("item.trident.riptide_3")));
         private static final float VOLUME=.1f;
@@ -121,19 +121,20 @@ final class LbcErecto {
         }
     }
 
-    static final class SuperVolley {}
+    public static final class SuperVolley {}
 
-    static final class Path {
-        final int kind,focusSteps;final Vec3 origin;final ServerPlayer caster;final InteractionHand hand;final ItemStack stack;
-        Vec3 focus;int side;LbcIndirectKills.Owner terrainCause;LbcBeamAmmo ammunition;
-        CrossbowBlasts pendingBlasts;
-        SuperVolley superVolley;
-        Path(int kind,Vec3 origin,Vec3 focus,int focusSteps,int side,ServerPlayer caster,InteractionHand hand,ItemStack stack){
+    public static final class Path {
+        public final int kind,focusSteps;public final Vec3 origin;public final ServerPlayer caster;public final InteractionHand hand;public final ItemStack stack;
+        public Vec3 focus;public int side;public LbcIndirectKills.Owner terrainCause;public LbcBeamAmmo ammunition;
+        public CrossbowBlasts pendingBlasts;
+        public SuperVolley superVolley;
+        public Path(int kind,Vec3 origin,Vec3 focus,int focusSteps,int side,ServerPlayer caster,InteractionHand hand,ItemStack stack){
             this.kind=kind;this.origin=origin;this.focus=focus;this.focusSteps=focusSteps;this.side=side;this.caster=caster;this.hand=hand;this.stack=stack;
         }
     }
-    static final class Sphere {
-        final ServerPlayer owner;final ServerLevel level;final Vec3 position;final String epoch;int age,cloneMask;
+    public static final class Sphere {
+        public final ServerPlayer owner;final ServerLevel level;public final Vec3 position;public final String epoch;public int age;
+        int cloneMask;
         Sphere(ServerPlayer owner,Vec3 position,String epoch){this.owner=owner;level=owner.level();this.position=position;this.epoch=epoch;}
     }
     private final GameController game;
@@ -147,8 +148,8 @@ final class LbcErecto {
     private final NativeChunkLoad.ColdRequests crossbowColdRequests=new NativeChunkLoad.ColdRequests(8,32);
     private final Map<UUID,Integer> firingThisTick=new HashMap<>();
     private int firingTick=Integer.MIN_VALUE,pathsFiredThisTick;
-    LbcErecto(GameController game){this.game=game;}
-    boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
+    public LbcErecto(GameController game){this.game=game;}
+    public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();int mode=Mth.clamp(data.getIntOr("mode",1),1,4);
@@ -171,7 +172,7 @@ final class LbcErecto {
         }
         game.items().wands().wandCasted(owner);return true;
     }
-    void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
+    public void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         switch(mode) {
             case 1 -> volley(owner,hand,stack);
             case 2 -> {game.items().mana().score(owner,"ray").add(40);rays.put(owner,game.items().epoch());}
@@ -180,7 +181,7 @@ final class LbcErecto {
             default -> throw new IllegalArgumentException("Erecto mode "+mode);
         }
     }
-    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+    public void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
         float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
         switch(mode){
@@ -243,7 +244,7 @@ final class LbcErecto {
      * Includes jobs whose trace has retired. Per-tick debits cover launches whose
      * TMT continuation has yet to publish its paths, including nested shots.
      */
-    boolean admitCrossbow(ServerPlayer owner,int count,boolean reserve){
+    public boolean admitCrossbow(ServerPlayer owner,int count,boolean reserve){
         int tick=game.server().getTickCount();
         if(firingTick!=tick){
             firingTick=tick;
@@ -306,10 +307,10 @@ final class LbcErecto {
         owner.level().sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xff00ffff),true,false,origin.x,origin.y,origin.z,1,0,0,0,0);
         if(kind==LbcImbaCrossbows.Kind.SNIPER)rotate(owner,owner.getLookAngle(),-15);
     }
-    boolean step(LbcWands.ElectroTrace trace){
+    public boolean step(LbcWands.ElectroTrace trace){
         try(var effects=new SniperEffects()){return step(trace,effects);}
     }
-    boolean step(LbcWands.ElectroTrace trace,SniperEffects effects){
+    public boolean step(LbcWands.ElectroTrace trace,SniperEffects effects){
         Path p=trace.erecto;if(p.kind==SNIPER||p.kind==CROSSBOW)return sniper(trace,effects);
         double spacing=p.kind==SIDE?.25:p.kind==PHANTOM?.2:.5;int samples=p.kind==SIDE?9:p.kind==PHANTOM?10:4;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean clear=true;
@@ -464,18 +465,19 @@ final class LbcErecto {
     }
 
     /** Legacy schedules the whole segment before its first blast can change the sampled terrain. */
-    final class CrossbowBlasts implements LbcStonekivi.Work {
-        final LbcWands.ElectroTrace trace;
-        final Path path;
-        final List<Vec3> centers;
-        final ServerLevel level;
+    public final class CrossbowBlasts implements LbcStonekivi.Work {
+        public final LbcWands.ElectroTrace trace;
+        public final Path path;
+        public final List<Vec3> centers;
+        public final ServerLevel level;
         final String epoch;
         final DamageSource damage;
         final LbcIndirectKills.Owner cause;
-        final Vec3 footprint;
-        final int reach;
+        public final Vec3 footprint;
+        public final int reach;
         NativeChunkLoad.Leases.Area lease;
-        int next,waitingTick=Integer.MIN_VALUE;
+        public int next;
+        int waitingTick=Integer.MIN_VALUE;
         boolean resident;
 
         CrossbowBlasts(LbcWands.ElectroTrace trace,List<Vec3> samples){
@@ -542,16 +544,16 @@ final class LbcErecto {
             };
         }
     }
-    int rayPending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"ray"));}
-    void addPlayerCounter(ServerPlayer owner){game.items().mana().score(owner,"ray").add(1);rays.put(owner,game.items().epoch());}
+    public int rayPending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"ray"));}
+    public void addPlayerCounter(ServerPlayer owner){game.items().mana().score(owner,"ray").add(1);rays.put(owner,game.items().epoch());}
     /** A source food can set ray directly; it must not create a second ray clock or another debit. */
-    void adoptRawFoodStatuses(ServerPlayer owner){
+    public void adoptRawFoodStatuses(ServerPlayer owner){
         if(rayPending(owner)>0&&!game.items().magic().rejectCustomEffect(owner))rays.put(owner,game.items().epoch());
     }
 
-    int sphereCount(){return spheres.size();}
-    List<Sphere> sphereSnapshot(){return List.copyOf(spheres);}
-    void tick(){
+    public int sphereCount(){return spheres.size();}
+    public List<Sphere> sphereSnapshot(){return List.copyOf(spheres);}
+    public void tick(){
         for(var entry:List.copyOf(sniperWindups.entrySet())){
             var owner=entry.getKey();
             if(!owner.isAlive()||owner.isRemoved()||owner.level()!=game.maps().level()||!game.canUseGameplayItems(owner))clearSniperWindup(owner);
@@ -615,11 +617,11 @@ final class LbcErecto {
                     }
                 }, null);
     }
-    void clearRay(ServerPlayer owner){rays.remove(owner);game.items().mana().score(owner,"ray").set(0);clearSniperWindup(owner);}
-    int sniperWindupTicks(ServerPlayer owner){return sniperWindups.getOrDefault(owner,0);}
+    public void clearRay(ServerPlayer owner){rays.remove(owner);game.items().mana().score(owner,"ray").set(0);clearSniperWindup(owner);}
+    public int sniperWindupTicks(ServerPlayer owner){return sniperWindups.getOrDefault(owner,0);}
     private void clearSniperWindup(ServerPlayer owner){sniperWindups.remove(owner);owner.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(SNIPER_WINDUP);}
-    void forget(ServerPlayer owner){clearRay(owner);clearSniperWindup(owner);spheres.removeIf(s->s.owner==owner);}
-    void stop(){for(var owner:List.copyOf(rays.keySet()))clearRay(owner);for(var owner:List.copyOf(sniperWindups.keySet()))clearSniperWindup(owner);spheres.clear();}
+    public void forget(ServerPlayer owner){clearRay(owner);clearSniperWindup(owner);spheres.removeIf(s->s.owner==owner);}
+    public void stop(){for(var owner:List.copyOf(rays.keySet()))clearRay(owner);for(var owner:List.copyOf(sniperWindups.keySet()))clearSniperWindup(owner);spheres.clear();}
 
     int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
@@ -634,12 +636,12 @@ final class LbcErecto {
         }
         return made;
     }
-    SphereCheckpoint checkpointSpheres(MatchSpellCheckpoint.Links links){return new SphereCheckpoint(links);}
-    final class SphereCheckpoint {
+    public SphereCheckpoint checkpointSpheres(MatchSpellCheckpoint.Links links){return new SphereCheckpoint(links);}
+    public final class SphereCheckpoint {
         private record Image(MatchDamageSources.Ref owner,ServerLevel level,Vec3 position,String epoch,int age,int mask){}
         private final List<Image> images;
         SphereCheckpoint(MatchSpellCheckpoint.Links links){images=spheres.stream().map(s->new Image(links.key(s.owner),s.level,s.position,s.epoch,s.age,s.cloneMask)).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Sphere>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Sphere>();
             for(var image:images){var owner=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.level);
                 if(owner.level()!=image.level)throw new IllegalStateException("Restore sphere's original author dimension");
                 var sphere=new Sphere(owner,image.position,image.epoch);sphere.age=image.age;sphere.cloneMask=image.mask;values.add(sphere);}

@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 /** A fixed-format LIST component aligns heart sprites and ping without changing player names. */
-final class TabPresentation {
+public final class TabPresentation {
     static final Identifier HEART_FONT=Identifier.parse("skywars2:tab_hearts");
     static final Style HEART_STYLE=Style.EMPTY.withFont(new FontDescription.Resource(HEART_FONT)).withColor(ChatFormatting.WHITE).withBold(false).withItalic(false).withoutShadow();
     private static final int[] ADVANCES=advances();
@@ -41,7 +41,7 @@ final class TabPresentation {
     private static Component number(String value,int color){var text=new StringBuilder();for(int i=0;i<value.length();i++){int digit=DIGITS.indexOf(value.charAt(i));if(digit<0)throw new IllegalArgumentException(value);text.append((char)(0xE100+digit));space(text,NUMBER_CELL-NUMBER_ADVANCES[digit]);}return Component.literal(text.toString()).setStyle(HEART_STYLE.withColor(color));}
     private static String healthNumber(int score){return Integer.toString(score/2+score%2);}
     private static int heartWidth(int score){if(score<=0)return 0;int slots=Math.max(score,20)/2,step=Math.min(86/slots,9);return step<=3?healthNumber(score).length()*NUMBER_CELL:(Math.max((score+1)/2,slots)-1)*step+9;}
-    static Component score(int health,int ping){
+    public static Component score(int health,int ping){
         var result=hearts(health).copy().append(spacing(90-heartWidth(health)+4));String value=ping<0?"-":Integer.toString(ping);
         int color=ping<0?0xAAAAAA:ping<150?0x55FF55:ping<300?0xFFFF55:0xFF5555;
         return result.append(spacing((5-value.length())*NUMBER_CELL)).append(number(value,color));
@@ -57,7 +57,7 @@ final class TabPresentation {
         }
         return Component.literal(text.toString()).setStyle(HEART_STYLE);
     }
-    static void tick(MinecraftServer server){
+    public static void tick(MinecraftServer server){
         if(owner!=server){stop();owner=server;}
         long now=System.nanoTime();boolean resample=header==null||now-sampled>=1_000_000_000L;
         if(resample){
@@ -76,7 +76,7 @@ final class TabPresentation {
         }
     }
     static void namesChanged(){namesDirty=true;}
-    static void refreshNames(MinecraftServer server,Collection<ServerPlayer> players){
+    public static void refreshNames(MinecraftServer server,Collection<ServerPlayer> players){
         if(owner!=server){stop();owner=server;}
         publishNames(server,players,true);
     }
@@ -91,6 +91,6 @@ final class TabPresentation {
         if(!changed.isEmpty())server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(
                 EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),changed));
     }
-    static void forget(ServerPlayer player){HEADERS.keySet().removeIf(c->c.player==player);NAMES.remove(player.getUUID());namesDirty=true;}
-    static void stop(){HEADERS.clear();NAMES.clear();namesDirty=true;owner=null;sampled=0;header=null;}
+    public static void forget(ServerPlayer player){HEADERS.keySet().removeIf(c->c.player==player);NAMES.remove(player.getUUID());namesDirty=true;}
+    public static void stop(){HEADERS.clear();NAMES.clear();namesDirty=true;owner=null;sampled=0;header=null;}
 }

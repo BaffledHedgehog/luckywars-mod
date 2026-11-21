@@ -63,7 +63,7 @@ public final class LbcAntDrops {
         }
         return true;
     }
-    void adoptEgg(Zombie actor,ServerPlayer author){
+    public void adoptEgg(Zombie actor,ServerPlayer author){
         tag(actor,author);game.items().timeStop().prepareFrozen(actor);
     }
     private void tag(Entity actor,ServerPlayer author){
@@ -186,7 +186,7 @@ public final class LbcAntDrops {
     public List<Entity> snapshot(){return List.copyOf(tracked);}
     public int trackedCount(){return tracked.size();}
 
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!managed(source))return null;
         var cause=LbcIndirectKills.playerSource(owner(source));
         boolean knownCause=cause==null||authors.containsKey(cause.getUUID());

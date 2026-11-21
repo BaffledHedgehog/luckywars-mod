@@ -14,10 +14,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /** A server-thread bulk-write boundary; native lighting work stays on its own executor. */
-final class MapLighting {
+public final class MapLighting {
     private MapLighting() { }
 
-    static final class Update {
+    public static final class Update {
         private static final int RESEND_CHUNKS_PER_TICK=16;
         private static final long RESEND_NANOS=1_500_000;
         private final ServerLevel level;
@@ -30,7 +30,7 @@ final class MapLighting {
         private boolean finishing;
         private int sentPackets;
 
-        Update(ServerLevel level) { this.level=level; }
+        public Update(ServerLevel level) { this.level=level; }
         CompletableFuture<Void> completion() { return completion; }
         boolean finishing() { return finishing; }
         int chunkCount() { return affected.size(); }
@@ -38,7 +38,7 @@ final class MapLighting {
         boolean empty() { return changed.isEmpty(); }
 
         /** Called before a write. The one-chunk margin covers light crossing a chunk edge. */
-        void changed(BlockPos pos) {
+        public void changed(BlockPos pos) {
             if(completion.isDone())return;
             // Sealed batches are immutable: later writes must have their own send dependency.
             if(finishing)throw new IllegalStateException("Lighting batch is already sealed");
@@ -55,7 +55,7 @@ final class MapLighting {
             if(holder!=null&&gated.add(holder))holder.addSendDependency(completion);
         }
 
-        void finishWrites() {
+        public void finishWrites() {
             if(completion.isDone())return;
             finishing=true;
             if(propagation==null)scheduleBarriers();
@@ -77,11 +77,11 @@ final class MapLighting {
         }
 
         /** Returns after propagation/publication and all final packets; never waits on the server thread. */
-        boolean tick() {
+        public boolean tick() {
             return tick(System.nanoTime()+RESEND_NANOS);
         }
 
-        boolean tick(long deadline) {
+        public boolean tick(long deadline) {
             if(completion.isDone())return true;
             if(!finishing)return false;
             if(propagation==null)scheduleBarriers();
@@ -104,7 +104,7 @@ final class MapLighting {
         }
 
         /** Unblock initial chunk sends on failed/cancelled operations; native work itself is not cancelled. */
-        void cancel() {
+        public void cancel() {
             completion.complete(null);resends.clear();gated.clear();propagation=null;
         }
     }

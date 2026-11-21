@@ -9,10 +9,10 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.*;
 
 /** Shared physical action admission for the Chef and actual player bots. */
-final class LbcBotActions {
+public final class LbcBotActions {
     private LbcBotActions(){}
     /** Low arrow arc with native air drag, gravity and a bounded lead of the moving target. */
-    static Vec3 arrowAim(LivingEntity actor,LivingEntity target,double speed){
+    public static Vec3 arrowAim(LivingEntity actor,LivingEntity target,double speed){
         var eye=actor.getEyePosition();var origin=eye.add(0,-.1,0);var centre=target.getBoundingBox().getCenter();
         var motion=target.onGround()?target.getDeltaMovement().multiply(1,0,1):target.getDeltaMovement();
         var inherited=arrowInheritedMotion(actor);
@@ -31,7 +31,7 @@ final class LbcBotActions {
         var motion=actor.getKnownMovement();return actor.onGround()?motion.multiply(1,0,1):motion;
     }
     /** Check the actual curved flight, not just the straight eye-to-eye visibility ray. */
-    static boolean clearArrowShot(LivingEntity actor,LivingEntity target,Vec3 aim,double speed){
+    public static boolean clearArrowShot(LivingEntity actor,LivingEntity target,Vec3 aim,double speed){
         var eye=actor.getEyePosition();var from=eye.add(0,-.1,0);
         var velocity=aim.subtract(eye).normalize().scale(speed).add(arrowInheritedMotion(actor));
         var motion=target.onGround()?target.getDeltaMovement().multiply(1,0,1):target.getDeltaMovement();
@@ -49,7 +49,7 @@ final class LbcBotActions {
         }
         return false;
     }
-    static BlockHitResult ray(LivingEntity actor,double range){
+    public static BlockHitResult ray(LivingEntity actor,double range){
         var eye=actor.getEyePosition();return actor.level().clip(new ClipContext(eye,eye.add(actor.getLookAngle().scale(range)),ClipContext.Block.OUTLINE,ClipContext.Fluid.NONE,actor));
     }
     static BlockHitResult placement(LivingEntity actor,BlockPos wanted,double range){
@@ -77,7 +77,7 @@ final class LbcBotActions {
     static boolean melee(LivingEntity actor,LivingEntity target,double range){
         return melee(actor,(net.minecraft.world.entity.Entity)target,range);
     }
-    static boolean melee(LivingEntity actor,net.minecraft.world.entity.Entity target,double range){
+    public static boolean melee(LivingEntity actor,net.minecraft.world.entity.Entity target,double range){
         var eye=actor.getEyePosition();var end=eye.add(actor.getLookAngle().scale(range));
         var wall=actor.level().clip(new ClipContext(eye,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,actor));
         if(wall.getType()!=HitResult.Type.MISS)end=wall.getLocation();
@@ -85,7 +85,7 @@ final class LbcBotActions {
         return box.contains(eye)||box.clip(eye,end).isPresent();
     }
     /** Only trajectories which can reach this body soon; do not react to every projectile nearby. */
-    static net.minecraft.world.entity.projectile.Projectile incoming(LivingEntity actor){
+    public static net.minecraft.world.entity.projectile.Projectile incoming(LivingEntity actor){
         net.minecraft.world.entity.projectile.Projectile closest=null;double soonest=Double.POSITIVE_INFINITY;
         for(var shot:actor.level().getEntitiesOfClass(net.minecraft.world.entity.projectile.Projectile.class,actor.getBoundingBox().inflate(16),e->e.isAlive()&&e.getOwner()!=actor)){
             double time=impactTime(actor,shot);if(time<soonest){soonest=time;closest=shot;}
@@ -101,7 +101,7 @@ final class LbcBotActions {
         return body.inflate(.35);
     }
     /** Recheck one retained threat without rescanning nearby entities every camera frame. */
-    static double impactTime(LivingEntity actor,net.minecraft.world.entity.projectile.Projectile shot){
+    public static double impactTime(LivingEntity actor,net.minecraft.world.entity.projectile.Projectile shot){
         if(!shot.isAlive()||shot.getOwner()==actor||shot.level()!=actor.level())return Double.POSITIVE_INFINITY;
         if(shot instanceof LargeFireball fireball&&((LargeFireballAccess)fireball).skywars2$explosionPower()>0
                 ||shot instanceof LbcAir.Charge air&&air.emitterStyle){
@@ -123,8 +123,8 @@ final class LbcBotActions {
         return wall.getType()==HitResult.Type.MISS?from.distanceTo(hit)/speed:Double.POSITIVE_INFINITY;
     }
     static final double AIR_BLAST_RADIUS=8;
-    record BlastImpact(Vec3 point,double radius,double ticks,boolean hitsActor,int explosions){}
-    static BlastImpact blastImpact(LivingEntity actor,Projectile shot){
+    public record BlastImpact(Vec3 point,double radius,double ticks,boolean hitsActor,int explosions){}
+    public static BlastImpact blastImpact(LivingEntity actor,Projectile shot){
         if(!shot.isAlive()||shot.getOwner()==actor||shot.level()!=actor.level())return null;
         var motion=shot.getDeltaMovement();
         double speed=motion.length();

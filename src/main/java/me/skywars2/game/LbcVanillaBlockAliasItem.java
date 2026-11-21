@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
 /** An item-only alias places a vanilla block without replacing that block's ordinary item. */
-abstract class LbcVanillaBlockAliasItem extends BlockItem implements PolymerItem {
+public abstract class LbcVanillaBlockAliasItem extends BlockItem implements PolymerItem {
     private final Item vanillaProxy;
     protected LbcVanillaBlockAliasItem(Block block,Properties properties,Item vanillaProxy){
         super(block,properties);this.vanillaProxy=vanillaProxy;

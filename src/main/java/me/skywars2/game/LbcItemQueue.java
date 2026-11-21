@@ -16,7 +16,7 @@ import net.minecraft.world.level.storage.*;
 
 /** The newest thousand physical drops stay live. Older drops wait in a compressed, persistent deque. */
 public final class LbcItemQueue {
-    static final int LIMIT=1000;
+    public static final int LIMIT=1000;
     private static final String ORDER="skywars2.item_order.";
     private static final SavedDataType<Store> TYPE=new SavedDataType<>(Identifier.parse("skywars2:dormant_items"),
             Store::new,CompoundTag.CODEC.xmap(Store::new,Store::save),null);
@@ -143,7 +143,7 @@ public final class LbcItemQueue {
         }
     }
     /** A newly pasted arena must not retain authoring debris or revive it from the dormant queue. */
-    void clearRoundStart(ServerLevel level){
+    public void clearRoundStart(ServerLevel level){
         if(closed)return;
         // A registered drop can be in a section whose chunk has not been made visible yet.
         var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
@@ -163,7 +163,7 @@ public final class LbcItemQueue {
         w.store.sleeping.clear();w.store.setDirty();w.scanBefore=Long.MAX_VALUE;
     }});}
     /** Same-round map replacement must retire dormant loot in the old terrain as well as live entities. */
-    void terrainReplaced(ServerLevel level,java.util.List<net.minecraft.world.level.levelgen.structure.BoundingBox> bounds){
+    public void terrainReplaced(ServerLevel level,java.util.List<net.minecraft.world.level.levelgen.structure.BoundingBox> bounds){
         if(closed||bounds.isEmpty())return;
         var w=world(level);
         if(w.store.sleeping.values().removeIf(item->bounds.stream().anyMatch(box->box.isInside(item.pos)))){
@@ -171,16 +171,16 @@ public final class LbcItemQueue {
         }
     }
     public void close(){closed=true;worlds.clear();}
-    int active(ServerLevel level){return world(level).live.size();}
-    int dormant(ServerLevel level){return world(level).store.sleeping.size();}
+    public int active(ServerLevel level){return world(level).live.size();}
+    public int dormant(ServerLevel level){return world(level).store.sleeping.size();}
     record Image(long next,List<Dormant> sleeping){}
-    record Checkpoint(Map<ServerLevel,Image> worlds){}
-    Checkpoint checkpoint(){
+    public record Checkpoint(Map<ServerLevel,Image> worlds){}
+    public Checkpoint checkpoint(){
         var images=new IdentityHashMap<ServerLevel,Image>();
         worlds.forEach((level,w)->images.put(level,new Image(w.store.next,List.copyOf(w.store.sleeping.values()))));
         return new Checkpoint(Map.copyOf(images));
     }
-    void restore(Checkpoint image){
+    public void restore(Checkpoint image){
         for(var level:game.server().getAllLevels()){
             var w=world(level);w.live.clear();w.order.clear();w.store.sleeping.clear();w.scanBefore=Long.MAX_VALUE;
             var saved=image.worlds.get(level);if(saved!=null){w.store.next=saved.next;for(var e:saved.sleeping)w.store.sleeping.put(e.order,e);}

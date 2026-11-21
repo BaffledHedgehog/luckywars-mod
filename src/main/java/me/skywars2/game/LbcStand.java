@@ -117,13 +117,13 @@ public final class LbcStand {
     }
 
     /** Только управляемые кулаки свободного владельца двигаются внутри остановленного мира (user). */
-    boolean movesDuringTimeStop(Entity entity) {
+    public boolean movesDuringTimeStop(Entity entity) {
         return entity instanceof FistDisplay display && display.owner.isAlive() && !display.owner.isRemoved()
                 && display.owner.level()==display.level() && !game.items().timeStop().frozen(display.owner);
     }
 
-    LbcStand(GameController game) { this.game=game; }
-    static void register() { net.minecraft.world.level.block.DispenserBlock.registerProjectileBehavior(ARROW); }
+    public LbcStand(GameController game) { this.game=game; }
+    public static void register() { net.minecraft.world.level.block.DispenserBlock.registerProjectileBehavior(ARROW); }
     private static Item.Properties properties(ResourceKey<Item> key,String name,String model) {
         return new Item.Properties() {
             @Override public Identifier effectiveModel() { return Identifier.parse(model); }
@@ -194,7 +194,7 @@ public final class LbcStand {
         for(int slot=0;slot<36;slot++) if(isClocks(owner.getInventory().getItem(slot))) return true;
         return false;
     }
-    int overheaven(ServerPlayer player) {
+    public int overheaven(ServerPlayer player) {
         var state=retained.get(player.getUUID());
         // Списанный при старте последний матч всё ещё усиливает игрока до своего конца (user).
         if(state!=null && game.items().currentEpoch(state.epoch) && state.empowered) return 1;
@@ -206,7 +206,7 @@ public final class LbcStand {
         var score=objective==null?null:board.getPlayerScoreInfo(player,objective);
         return score==null?0:score.value();
     }
-    int retainedMatches(ServerPlayer player) {
+    public int retainedMatches(ServerPlayer player) {
         var profile=game.players().get(player.getUUID());
         if(profile.standOverheavenMatches<0) {
             // Отсутствующее поле старого профиля импортируется из scoreboard ровно один раз.
@@ -261,7 +261,7 @@ public final class LbcStand {
         }
         return false;
     }
-    boolean upgrade(ServerPlayer player) {
+    public boolean upgrade(ServerPlayer player) {
         if(!active(player) || !player.entityTags().contains("have_stand") || !hasClocks(player)
                 || player.getY()<200 || overheaven(player)>0 || game.items().actionsBlocked(player)
                 || game.items().magic().suppressedAt(player.level(),player.getEyePosition())) return false;
@@ -281,7 +281,7 @@ public final class LbcStand {
         game.players().get(player.getUUID()).standOverheavenMatches=0;
         mirrorRemaining(player); game.players().save();
     }
-    int lightningCooldownTicks(ServerPlayer player) {
+    public int lightningCooldownTicks(ServerPlayer player) {
         var state=retained.get(player.getUUID()); return state==null?0:state.lightningCooldown;
     }
     private boolean useHomingLightning(ServerPlayer player,InteractionHand hand) {
@@ -322,11 +322,11 @@ public final class LbcStand {
             state.owner.removeEffect(MobEffects.RESISTANCE);
         state.resistanceOwned=false;
     }
-    boolean isStandProjectile(Projectile projectile) {
+    public boolean isStandProjectile(Projectile projectile) {
         return projectile instanceof AbstractArrow arrow && (isArrow(arrow.getPickupItemStackOrigin())||LbcTmtAmmoPayloads.hasVariant(arrow,119));
     }
     /** Return through the existing projectile target hook, including intentional self acquisition. */
-    boolean canHit(Projectile projectile,Entity target) {
+    public boolean canHit(Projectile projectile,Entity target) {
         var owner=LbcIndirectKills.playerSource(projectile);
         return owner!=null && (target==owner && active(owner) || game.items().wands().projectileTarget(owner,target));
     }
@@ -340,7 +340,7 @@ public final class LbcStand {
         if(projectile || melee) acceptedArrowHit(target,owner,projectile);
     }
     /** The shared carrier adapter calls this only after its real native hit was accepted. */
-    void payloadAccepted(LivingEntity target,ServerPlayer owner){if(owner!=null)acceptedArrowHit(target,owner,true);}
+    public void payloadAccepted(LivingEntity target,ServerPlayer owner){if(owner!=null)acceptedArrowHit(target,owner,true);}
     private void acceptedArrowHit(LivingEntity target,ServerPlayer owner,boolean projectile){
             // Принятый смертельный удар уже не может дать Stand погибшему, но
             // возврат стрелы всё равно происходит ровно один раз в этом событии.
@@ -350,7 +350,7 @@ public final class LbcStand {
             } else resolveArrowHit(target,owner,owner.getRandom().nextInt(100)+1,true,projectile);
     }
     /** The roll/drop decision is explicit so the approved policy can be tested independently. */
-    boolean resolveArrowHit(LivingEntity target,ServerPlayer owner,int roll,boolean returnsOneArrow) {
+    public boolean resolveArrowHit(LivingEntity target,ServerPlayer owner,int roll,boolean returnsOneArrow) {
         return resolveArrowHit(target,owner,roll,returnsOneArrow,false);
     }
     private boolean resolveArrowHit(LivingEntity target,ServerPlayer owner,int roll,boolean returnsOneArrow,boolean projectile) {
@@ -388,7 +388,7 @@ public final class LbcStand {
     private boolean paused(ServerPlayer owner) {
         return game.items().wands().inputTimeStopped(owner);
     }
-    boolean use(ServerPlayer owner,InteractionHand hand) {
+    public boolean use(ServerPlayer owner,InteractionHand hand) {
         if(isClocks(owner.getItemInHand(hand))) return game.items().timeStop().useClocks(owner,hand);
         if(isHomingLightning(owner.getItemInHand(hand))) return useHomingLightning(owner,hand);
         if(!isOraora(owner.getItemInHand(hand)) || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
@@ -402,11 +402,11 @@ public final class LbcStand {
         LbcOverload.sound(owner,owner.position(),"minecraft:lbcsounds.oraora",10,1,0);
         return true;
     }
-    int cooldownTicks(ServerPlayer owner) {
+    public int cooldownTicks(ServerPlayer owner) {
         var burst=bursts.get(owner.getUUID()); return burst==null?0:burst.cooldown;
     }
     /** KFC меняет реальные счётчики игрока, а не оставшийся legacy scoreboard. */
-    void addPlayerCounters(ServerPlayer owner) {
+    public void addPlayerCounters(ServerPlayer owner) {
         var state=state(owner); state.lightningCooldown++; state.falling++;
         if(state.grantDelay>0) state.grantDelay++;
         var burst=bursts.get(owner.getUUID());
@@ -419,15 +419,15 @@ public final class LbcStand {
             if(burst.remaining>0) { burst.remaining++; burst.delay++; }
         }
     }
-    int fistCount() { return fists.size(); }
-    List<Display.ItemDisplay> fistSnapshot() { return fists.stream().map(fist->fist.display).toList(); }
-    Vec3 fistDirection(Display.ItemDisplay display) {
+    public int fistCount() { return fists.size(); }
+    public List<Display.ItemDisplay> fistSnapshot() { return fists.stream().map(fist->fist.display).toList(); }
+    public Vec3 fistDirection(Display.ItemDisplay display) {
         return fists.stream().filter(fist->fist.display==display).findFirst().orElseThrow().direction;
     }
-    int burstRemaining(ServerPlayer owner) {
+    public int burstRemaining(ServerPlayer owner) {
         var burst=bursts.get(owner.getUUID()); return burst==null?0:burst.remaining;
     }
-    void tick() {
+    public void tick() {
         ticks++; tickRetained();
         tickTargets.clear();
         for(var burst:List.copyOf(bursts.values())) {
@@ -517,17 +517,17 @@ public final class LbcStand {
             remove(fist);
     }
     private void remove(Fist fist) { fists.remove(fist); fist.display.discard(); }
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof ServerPlayer player && !game.playing()) player.entityTags().remove("have_stand");
         if(entity.entityTags().contains(FIST_TAG) && fists.stream().noneMatch(fist->fist.display==entity)) entity.discard();
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         for(var fist:List.copyOf(fists)) if(fist.display==entity) remove(fist);
     }
-    void transformOrigins(ServerLevel level,UnaryOperator<Vec3> transform) {
+    public void transformOrigins(ServerLevel level,UnaryOperator<Vec3> transform) {
         for(var fist:fists) if(fist.level==level) fist.display.setPos(transform.apply(fist.display.position()));
     }
-    void forget(ServerPlayer owner) {
+    public void forget(ServerPlayer owner) {
         var state=retained.remove(owner.getUUID());
         if(state!=null) { clearResistance(state); if(state.empowered) mirrorRemaining(owner); }
         cancelBurst(owner);
@@ -536,7 +536,7 @@ public final class LbcStand {
         bursts.remove(owner.getUUID());
         for(var fist:List.copyOf(fists)) if(fist.owner==owner) remove(fist);
     }
-    void stop() {
+    public void stop() {
         for(var state:List.copyOf(retained.values())) {
             clearResistance(state);
             if(state.empowered) mirrorRemaining(state.owner);
@@ -548,13 +548,13 @@ public final class LbcStand {
         for(var player:game.server().getPlayerList().getPlayers()) player.entityTags().remove("have_stand");
     }
 
-    Set<UUID> transientCheckpointActors(){var ids=new java.util.LinkedHashSet<UUID>();for(var fist:fists)ids.add(fist.display.getUUID());return Set.copyOf(ids);}
-    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
-    void prepareResidentFrozen(){
+    public Set<UUID> transientCheckpointActors(){var ids=new java.util.LinkedHashSet<UUID>();for(var fist:fists)ids.add(fist.display.getUUID());return Set.copyOf(ids);}
+    public ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    public void prepareResidentFrozen(){
         retained.clear();bursts.clear();tickTargets.clear();
         var old=List.copyOf(fists);fists.clear();for(var fist:old)if(!fist.display.isRemoved())fist.display.discard();
     }
-    final class ResidentCheckpoint {
+    public final class ResidentCheckpoint {
         private record StandImage(MatchDamageSources.Ref owner,String epoch,boolean started,boolean empowered,boolean resistance,
                 int grantDelay,int lightningCooldown,int falling){}
         private record BurstImage(MatchDamageSources.Ref owner,String epoch,int cooldown,int remaining,int delay){}
@@ -565,7 +565,7 @@ public final class LbcStand {
             owners=retained.values().stream().map(s->new StandImage(links.key(s.owner),s.epoch,s.started,s.empowered,s.resistanceOwned,s.grantDelay,s.lightningCooldown,s.falling)).toList();
             series=bursts.values().stream().map(b->new BurstImage(links.key(b.owner),b.epoch,b.cooldown,b.remaining,b.delay)).toList();
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var nextOwners=new HashMap<UUID,RetainedStand>();var nextBursts=new HashMap<UUID,Burst>();
             for(var image:owners){var player=(ServerPlayer)links.get(image.owner);var state=new RetainedStand(player,image.epoch);
                 state.started=image.started;state.empowered=image.empowered;state.resistanceOwned=image.resistance;state.grantDelay=image.grantDelay;
@@ -576,8 +576,8 @@ public final class LbcStand {
         }
     }
 
-    static boolean cloneRecognizes(Entity source){return source instanceof FistDisplay||source.entityTags().contains(FIST_TAG);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity source){return source instanceof FistDisplay||source.entityTags().contains(FIST_TAG);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var fist=fists.stream().filter(f->f.display==source).findFirst().orElse(null);if(fist==null)return null;
         var owner=fist.owner;var fistLevel=fist.level;var epoch=fist.epoch;var direction=fist.direction;int age=fist.age,variant=fist.variant;
         return new LbcCloneSkills.ActorImage(){
@@ -588,7 +588,7 @@ public final class LbcStand {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var fist:fists)if(!fist.display.isRemoved()&&game.items().currentEpoch(fist.epoch)
                 &&!game.items().timeStop().frozen(fist.display)&&!fist.display.entityTags().contains("time_stopped")
                 &&LbcPlanetoidSkill.near(game,holder,fist.level,fist.display.position())){

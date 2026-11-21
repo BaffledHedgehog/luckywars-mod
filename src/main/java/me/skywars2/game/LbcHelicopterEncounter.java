@@ -71,7 +71,7 @@ public final class LbcHelicopterEncounter {
         @Override public boolean shouldBeSaved() {return false;}
     }
     public record View(Display.ItemDisplay display,Ravager hitbox,int phase,int frame,long dispatches) { }
-    LbcHelicopterEncounter(GameController game) { this.game=game; }
+    public LbcHelicopterEncounter(GameController game) { this.game=game; }
     private static CompoundTag tag(String snbt) {
         try { return TagParser.parseCompoundFully(snbt); }
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException e) { throw new IllegalStateException(e); }
@@ -83,7 +83,7 @@ public final class LbcHelicopterEncounter {
     public static boolean isTrigger(ItemStack stack) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).matchedBy(TRIGGER);
     }
-    boolean ready(ItemEntity token){
+    public boolean ready(ItemEntity token){
         if(checkpointFrozen||token.isRemoved() || token.getAge()>=5999 || !isTrigger(token.getItem()) || !(token.level() instanceof ServerLevel level)
                 || level!=game.maps().level() || !game.playing() || game.stage()==GameController.Stage.ENDING || stopped(level)) return false;
         return level.hasChunkAt(BlockPos.containing(origin(token)));
@@ -92,8 +92,8 @@ public final class LbcHelicopterEncounter {
         return token.position().add(Vec3.directionFromRotation(token.getXRot()-90,token.getYRot()).scale(20))
                 .add(Vec3.directionFromRotation(token.getXRot(),token.getYRot()).scale(50));
     }
-    boolean spawn(ItemEntity token){return spawn(token,true);}
-    boolean spawn(ItemEntity token,boolean debit) {
+    public boolean spawn(ItemEntity token){return spawn(token,true);}
+    public boolean spawn(ItemEntity token,boolean debit) {
         if(!ready(token))return false;checkpointDepth++;try{
         var level=(ServerLevel)token.level();
         Vec3 forward=Vec3.directionFromRotation(token.getXRot(),token.getYRot());
@@ -144,7 +144,7 @@ public final class LbcHelicopterEncounter {
         }
         return best;
     }
-    void tick() {
+    public void tick() {
         if(checkpointFrozen)return;checkpointDepth++;try{
         // Native /give pickup visuals become fake items (age5999) after ENTITY_LOAD.
         int serverTick=game.server().getTickCount();
@@ -255,7 +255,7 @@ public final class LbcHelicopterEncounter {
         });
     }
     /** Called before the beacon's generic kill, so suppression has an explicit terminal cause. */
-    boolean mechanismRemoved(Entity entity) {
+    public boolean mechanismRemoved(Entity entity) {
         if(checkpointFrozen)return false;checkpointDepth++;try{
         for(var pair:List.copyOf(pairs)) if(pair.display==entity || pair.hitbox==entity) {
             terminal(pair,true);
@@ -293,7 +293,7 @@ public final class LbcHelicopterEncounter {
 
         }finally{checkpointDepth--;}
     }
-    void entityUnloaded(Entity entity) {
+    public void entityUnloaded(Entity entity) {
         checkpointDepth++;try{if(checkpointFrozen||MatchActorCheckpoint.restoring(entity))return;
         pending.remove(entity);
         attacks.remove(entity);
@@ -301,7 +301,7 @@ public final class LbcHelicopterEncounter {
 
         }finally{checkpointDepth--;}
     }
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         checkpointDepth++;try{if(checkpointFrozen||MatchActorCheckpoint.restoring(entity))return;
         if(entity instanceof ItemEntity token && isTrigger(token.getItem()) && !LbcTmtItems.matches(token.getItem()) && game.playing() && token.level()==game.maps().level()) {
             game.items().markCurrentItemEpoch(token);pending.add(token);
@@ -312,7 +312,7 @@ public final class LbcHelicopterEncounter {
 
         }finally{checkpointDepth--;}
     }
-    void stop() {
+    public void stop() {
         checkpointDepth++;try{checkpointFrozen=false;stagedPublication=null;
         pending.clear();
         for(var pair:List.copyOf(pairs)) terminal(pair,false);
@@ -337,9 +337,9 @@ public final class LbcHelicopterEncounter {
     }
     public LivingEntity owner(Entity entity) { return authors.get(entity); }
     boolean managed(Entity entity) {return pairs.stream().anyMatch(pair->pair.display==entity || pair.hitbox==entity);}
-    int activeCount() {return pairs.size();}
-    List<View> snapshot() {return pairs.stream().map(p->new View(p.display,p.hitbox,p.phase,p.frame,p.dispatches)).toList();}
-    List<Entity> attackSnapshot() {return List.copyOf(attacks);}
+    public int activeCount() {return pairs.size();}
+    public List<View> snapshot() {return pairs.stream().map(p->new View(p.display,p.hitbox,p.phase,p.frame,p.dispatches)).toList();}
+    public List<Entity> attackSnapshot() {return List.copyOf(attacks);}
     List<Entity> polymorphVisuals(Entity body){return pairs.stream().filter(p->p.hitbox==body).map(p->(Entity)p.display).toList();}
     private static void shotSound(ServerLevel level,Vec3 selectorOrigin,Vec3 at,float pitch) {
         // The selector is centered at the command context, independently of the local sound offset.
@@ -354,13 +354,13 @@ public final class LbcHelicopterEncounter {
         }
     }
 
-    boolean captureReady(){return checkpointDepth==0&&!checkpointFrozen;}
-    void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish Helicopter native callbacks before checkpointing");}
-    void prepareFrozen(){checkpointBoundary();checkpointFrozen=true;stagedPublication=null;pairs.clear();attacks.clear();pending.clear();authors.clear();clocks.clear();lastDispatch.clear();}
-    void publishFrozen(){checkpointBoundary();if(stagedPublication!=null)stagedPublication.run();stagedPublication=null;checkpointFrozen=false;}
-    void cancelFrozen(){checkpointBoundary();stagedPublication=null;checkpointFrozen=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Capture Helicopter outside native construction");return new Checkpoint(links);}
-    final class Checkpoint {
+    public boolean captureReady(){return checkpointDepth==0&&!checkpointFrozen;}
+    public void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish Helicopter native callbacks before checkpointing");}
+    public void prepareFrozen(){checkpointBoundary();checkpointFrozen=true;stagedPublication=null;pairs.clear();attacks.clear();pending.clear();authors.clear();clocks.clear();lastDispatch.clear();}
+    public void publishFrozen(){checkpointBoundary();if(stagedPublication!=null)stagedPublication.run();stagedPublication=null;checkpointFrozen=false;}
+    public void cancelFrozen(){checkpointBoundary();stagedPublication=null;checkpointFrozen=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Capture Helicopter outside native construction");return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Value(Pair original,MatchDamageSources.Ref display,MatchDamageSources.Ref hitbox,int phase,int frame,long dispatches,int lastTick,boolean terminal){}
         private record Author(MatchDamageSources.Ref actor,MatchDamageSources.Ref author){}
         private record Attack(MatchDamageSources.Ref actor,MatchDamageSources.Ref source){}
@@ -376,7 +376,7 @@ public final class LbcHelicopterEncounter {
             for(var attack:attacks){var source=attack instanceof BossTnt tnt?tnt.source:attack instanceof BossArrow arrow?arrow.causal:null;shots.add(new Attack(links.key(attack),links.key(source)));}
             for(var token:pending)tokens.add(links.key(token));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();for(var world:worldClocks.keySet())MatchAuthorityCheckpoint.world(game,world);for(var world:dispatchFrames.keySet())MatchAuthorityCheckpoint.world(game,world);
             var nextDisplays=new IdentityHashMap<Pair,Display.ItemDisplay>();var nextHitboxes=new IdentityHashMap<Pair,Ravager>();
             for(var saved:values){var display=(Display.ItemDisplay)links.get(saved.display);var hitbox=(Ravager)links.get(saved.hitbox);if(display.level()!=hitbox.level())throw new IllegalStateException("Restore helicopter pair in its source world");nextDisplays.put(saved.original,display);nextHitboxes.put(saved.original,hitbox);}
@@ -393,10 +393,10 @@ public final class LbcHelicopterEncounter {
         }
     }
 
-    static boolean cloneRecognizes(Entity e){return e.entityTags().contains(DISPLAY)||e.entityTags().contains(HITBOX)
+    public static boolean cloneRecognizes(Entity e){return e.entityTags().contains(DISPLAY)||e.entityTags().contains(HITBOX)
             ||e.entityTags().contains(ATTACK)||e instanceof BossArrow||e instanceof BossTnt;}
-    static boolean cloneProtected(Entity e){return e.entityTags().contains(DISPLAY);}
-    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+    public static boolean cloneProtected(Entity e){return e.entityTags().contains(DISPLAY);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original) {
         var pair=pairs.stream().filter(p->p.hitbox==original&&!p.terminal).findFirst().orElse(null);
         if(pair!=null){
             var visual=new CloneEncounterStates.Presentation(pair.display);var at=original.position();

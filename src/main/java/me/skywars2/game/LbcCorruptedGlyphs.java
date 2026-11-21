@@ -58,7 +58,7 @@ public final class LbcCorruptedGlyphs {
         final String model;final int color;
         Kind(String model,int color){this.model=model;this.color=color;}
     }
-    static Kind kind(net.minecraft.world.item.ItemStack stack){
+    public static Kind kind(net.minecraft.world.item.ItemStack stack){
         if(!stack.is(DUST))return null;
         var name=ItemData.stringValue(stack,"glyphkind","");
         for(var kind:Kind.values())if(kind.name().equalsIgnoreCase(name))return kind;
@@ -85,12 +85,12 @@ public final class LbcCorruptedGlyphs {
         context.getItemInHand().consume(1,owner);
         return InteractionResult.SUCCESS;
     }
-    static final class Glyph {
-        final ServerPlayer owner;final Display.ItemDisplay display;final Kind kind;final String epoch;
-        int ticks;
+    public static final class Glyph {
+        public final ServerPlayer owner;public final Display.ItemDisplay display;public final Kind kind;public final String epoch;
+        public int ticks;
         Glyph(ServerPlayer owner,Display.ItemDisplay display,Kind kind,String epoch){this.owner=owner;this.display=display;this.kind=kind;this.epoch=epoch;}
     }
-    Glyph spawn(ServerPlayer owner,Vec3 at,Kind kind){
+    public Glyph spawn(ServerPlayer owner,Vec3 at,Kind kind){
         var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());
         try{
             // Initialize the entire pose before addFreshEntity sends the first tracking packet.
@@ -108,7 +108,7 @@ public final class LbcCorruptedGlyphs {
     }
     public int count(){return glyphs.size();}
     /** Direct purification removes fields and AI leases without their terminal curses. */
-    int dispelAt(net.minecraft.server.level.ServerLevel level,Vec3 at,double radius){
+    public int dispelAt(net.minecraft.server.level.ServerLevel level,Vec3 at,double radius){
         int removed=0;
         for(var glyph:List.copyOf(glyphs))if(glyph.display.level()==level&&glyph.display.position().distanceToSqr(at)<=radius*radius){remove(glyph);removed++;}
         return removed;
@@ -117,7 +117,7 @@ public final class LbcCorruptedGlyphs {
         if(entity.entityTags().contains("skywars2.corrupted_glyph")&&glyphs.stream().noneMatch(glyph->glyph.display==entity))entity.discard();
     }
     public void unloaded(net.minecraft.world.entity.Entity entity){for(var glyph:List.copyOf(glyphs))if(glyph.display==entity)remove(glyph);if(entity instanceof net.minecraft.world.entity.Mob mob)release(mob);if(entity instanceof LivingEntity living){removeFights(living);belialDuels.remove(living);for(var duels:belialDuels.values())duels.remove(living.getUUID());}}
-    List<Glyph> snapshot(){return List.copyOf(glyphs);}
+    public List<Glyph> snapshot(){return List.copyOf(glyphs);}
     public void forget(ServerPlayer owner){for(var glyph:List.copyOf(glyphs))if(glyph.owner==owner)remove(glyph);for(var duels:belialDuels.values())duels.values().removeIf(cause->cause.player().equals(owner.getUUID()));}
     public void stop(){for(var glyph:List.copyOf(glyphs))remove(glyph);for(var mob:List.copyOf(ai.keySet()))release(mob);fights.clear();belialDuels.clear();}
     private void remove(Glyph glyph){glyphs.remove(glyph);glyph.display.discard();for(var mob:List.copyOf(ai.keySet()))if(ai.get(mob).glyph==glyph)release(mob);fights.values().removeIf(duel->duel.glyph==glyph);}
@@ -148,7 +148,7 @@ public final class LbcCorruptedGlyphs {
                         &&game.items().wands().validTarget(target));
     }
     private boolean affect(Glyph glyph,LivingEntity target){return game.items().wands().projectileTarget(glyph.owner,target);}
-    void pulse(Glyph glyph){
+    public void pulse(Glyph glyph){
         if(!glyphs.contains(glyph))return;
         var at=glyph.display.position();var level=glyph.owner.level();
         var targets=targets(glyph,16);
@@ -177,7 +177,7 @@ public final class LbcCorruptedGlyphs {
                 ||!level.getBlockState(BlockPos.containing(at.add(0,.5,0))).isAir())explode(glyph);
         if(!glyph.display.isRemoved())glyph.display.setYRot(glyph.display.getYRot()+10);
     }
-    void explode(Glyph glyph){
+    public void explode(Glyph glyph){
         if(!glyphs.contains(glyph))return;
         var at=glyph.display.position();
         if(glyph.kind==Kind.BAFOMET){
@@ -197,7 +197,7 @@ public final class LbcCorruptedGlyphs {
         var team=target.getTeam();if(team!=null)game.server().getScoreboard().removePlayerFromTeam(target.getScoreboardName(),team);
     }
     /** Starts a real two-way AI duel; admission never damages either mob. */
-    boolean belialAttack(Glyph glyph,LivingEntity target,LivingEntity attacker){
+    public boolean belialAttack(Glyph glyph,LivingEntity target,LivingEntity attacker){
         if(!glyphs.contains(glyph)||glyph.kind!=Kind.BELIAL||!(target instanceof net.minecraft.world.entity.Mob first)
                 ||!(attacker instanceof net.minecraft.world.entity.Mob second)||first==second
                 ||!eligible(first)||!eligible(second)||!first.canAttack(second)||!second.canAttack(first))return false;
@@ -209,7 +209,7 @@ public final class LbcCorruptedGlyphs {
         return true;
     }
     /** Pair-scoped attribution is installed before the first native AI melee swing. */
-    LbcIndirectKills.Owner belialCause(LivingEntity victim,DamageSource source){
+    public LbcIndirectKills.Owner belialCause(LivingEntity victim,DamageSource source){
         if(!(source.getEntity() instanceof LivingEntity attacker)||!game.items().wands().validTarget(victim,true)
                 ||attacker instanceof ServerPlayer||!game.items().wands().validTarget(attacker))return null;
         var duels=belialDuels.get(victim);return duels==null?null:duels.get(attacker.getUUID());
@@ -235,7 +235,7 @@ public final class LbcCorruptedGlyphs {
     private LbcGlyphAi acquire(net.minecraft.world.entity.Mob mob,Glyph glyph){
         var state=ai.get(mob);if(state==null){state=new LbcGlyphAi(mob,glyph);ai.put(mob,state);}else state.glyph=glyph;return state;
     }
-    int fightCount(){return fights.size();}
+    public int fightCount(){return fights.size();}
     private void removeFights(LivingEntity entity){
         for(var entry:List.copyOf(fights.entrySet()))if(entry.getKey()==entity||entry.getValue().opponent==entity){
             var mob=entry.getKey();fights.remove(mob);
@@ -255,10 +255,10 @@ public final class LbcCorruptedGlyphs {
         return true;
     }
     /** Native outside_border identity, with an explicit authored WILD marker for friendship policy. */
-    static class WildSource extends DamageSource {
-        WildSource(ServerPlayer owner){super(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.OUTSIDE_BORDER),owner);}
+    public static class WildSource extends DamageSource {
+        public WildSource(ServerPlayer owner){super(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.OUTSIDE_BORDER),owner);}
     }
-    boolean ahrimanCube(Glyph glyph,Vec3 center){
+    public boolean ahrimanCube(Glyph glyph,Vec3 center){
         if(center.distanceToSqr(glyph.display.position())<=6.25)return false;
         var level=glyph.owner.level();var pos=BlockPos.containing(center);
         for(int x=(pos.getX()-1)>>4;x<=((pos.getX()+1)>>4);x++)for(int z=(pos.getZ()-1)>>4;z<=((pos.getZ()+1)>>4);z++)
@@ -278,7 +278,7 @@ public final class LbcCorruptedGlyphs {
             target.hurtServer(level,damage,4);
         return true;
     }
-    static final List<Holder<Attribute>> DOWN_ATTRIBUTES=List.of(Attributes.ARMOR,Attributes.ARMOR_TOUGHNESS,
+    public static final List<Holder<Attribute>> DOWN_ATTRIBUTES=List.of(Attributes.ARMOR,Attributes.ARMOR_TOUGHNESS,
             Attributes.KNOCKBACK_RESISTANCE,Attributes.LUCK,Attributes.MAX_HEALTH,Attributes.ATTACK_DAMAGE,Attributes.ATTACK_SPEED,Attributes.MOVEMENT_SPEED);
     private static final int[] DOWN_SCALE={1,1,10,1,1,1,5,100000},DOWN_DEBIT={1,1,10,1,2,1,1,2000};
     private void randomAttributesDown(Glyph glyph,LivingEntity target){

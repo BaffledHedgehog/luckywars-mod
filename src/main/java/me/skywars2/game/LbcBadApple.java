@@ -113,7 +113,7 @@ public final class LbcBadApple {
     }
     public LivingEntity owner(Entity entity){var actor=actors.get(entity.getUUID());return actor==null?null:actor.author;}
     public int count(){return actors.size();}
-    List<Entity> snapshot(){return actors.values().stream().map(a->a.body).toList();}
+    public List<Entity> snapshot(){return actors.values().stream().map(a->a.body).toList();}
     public View view(){var p=current;return p==null?new View(false,0,0,-1,0,-1,false,0,0):
             new View(!p.closed&&!p.retiring,p.logical,p.nextDesired,p.accepted,p.cursor,p.appliedIndex,p.soundStarted,p.writes,p.coalesced);}
     public void tick(){
@@ -202,7 +202,7 @@ public final class LbcBadApple {
         if(painted==null||!p.level.getBlockState(support).equals(painted))return 0;
         return painted.is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLACK))?2:1;
     }
-    void tickVisuals(){
+    public void tickVisuals(){
         var online=new HashSet<UUID>();
         boolean running=current!=null&&!current.closed&&!current.retiring;
         for(var player:game.server().getPlayerList().getPlayers()){
@@ -362,18 +362,18 @@ public final class LbcBadApple {
     private static MapManager.BlockSnapshot copy(MapManager.BlockSnapshot snapshot){return new MapManager.BlockSnapshot(snapshot.state(),snapshot.entity()==null?null:snapshot.entity().copy());}
     private static void set(byte[] bits,int index,boolean value){int mask=1<<(index&7);if(value)bits[index>>>3]|=(byte)mask;else bits[index>>>3]&=(byte)~mask;}
 
-    void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Bad Apple native quantum before capture/replay");}
-    void prepareFrozen(){checkpointBoundary();restoring=true;clearVisuals();stopSound();actors=new LinkedHashMap<>();playbacks=new LinkedHashSet<>();ACTIVE.remove(this);current=null;}
-    void publishFrozen(){
+    public void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Bad Apple native quantum before capture/replay");}
+    public void prepareFrozen(){checkpointBoundary();restoring=true;clearVisuals();stopSound();actors=new LinkedHashMap<>();playbacks=new LinkedHashSet<>();ACTIVE.remove(this);current=null;}
+    public void publishFrozen(){
         checkpointBoundary();boolean publish=restoring;restoring=false;if(!playbacks.isEmpty())ACTIVE.add(this);lastTick=game.server().getTickCount();
         // Vanilla has no seek packet. A restored active track starts at zero once; the saved movie
         // clock/cursor stays exact. Capturing alone never stops or replays presentation.
         if(publish&&current!=null&&!current.closed&&!current.retiring&&current.soundStarted)playSound();
         if(publish)for(var player:game.server().getPlayerList().getPlayers()){var visual=visuals.get(player.getUUID());if(visual!=null)synchronizeVisual(player,visual);}
     }
-    void cancelFrozen(){checkpointBoundary();restoring=false;}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void cancelFrozen(){checkpointBoundary();restoring=false;}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         private record ActorImage(MatchDamageSources.Ref body,MatchDamageSources.Ref author,LbcIndirectKills.Owner cause,String epoch,int age,boolean display){}
         private final List<ActorImage> savedActors=new ArrayList<>();
         private final LinkedHashSet<Playback> savedPlaybacks=new LinkedHashSet<>(playbacks);
@@ -385,14 +385,14 @@ public final class LbcBadApple {
             for(var actor:actors.values())savedActors.add(new ActorImage(graph.links.key(actor.body),graph.links.key(actor.author),actor.cause,actor.epoch,actor.age,actor.display));
             savedPlaybacks.forEach(graph::capture);
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var next=new LinkedHashMap<UUID,Actor>();
             for(var image:savedActors){var body=links.get(image.body);var author=(LivingEntity)links.get(image.author);next.put(body.getUUID(),new Actor(body,author,image.cause,image.epoch,image.age,image.display));}
             return ()->{actors=next;playbacks=new LinkedHashSet<>(savedPlaybacks);current=savedCurrent;visuals.clear();savedVisuals.forEach((id,value)->visuals.put(id,new Visual(value)));lastTick=clock.last(game);};
         }
     }
-    boolean cloneRecognizes(Entity entity){return actors.containsKey(entity.getUUID());}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public boolean cloneRecognizes(Entity entity){return actors.containsKey(entity.getUUID());}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var original=actors.get(source.getUUID());if(original==null)return null;
         int age=original.age;boolean display=original.display;var cause=original.cause;var author=original.author;var epoch=original.epoch;
         return new LbcCloneSkills.ActorImage(){

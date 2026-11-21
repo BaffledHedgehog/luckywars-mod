@@ -55,7 +55,7 @@ public final class LbcBedrock {
     private StructureTemplate roomTemplate;
     private boolean stopped;
 
-    LbcBedrock(GameController game) { this.game = game; }
+    public LbcBedrock(GameController game) { this.game = game; }
 
     /** Resolve and cache the native structure before the first cast. */
     public void prepare() {
@@ -515,5 +515,5 @@ public final class LbcBedrock {
     private record Restoration(MapManager.BlockSnapshot snapshot, Room room) { }
     private record Cube(ServerLevel level, BlockPos center) { }
 
-    boolean transientCaptureReady(){return normalRooms.isEmpty()&&regenRooms.isEmpty()&&cubes.isEmpty()&&layers.isEmpty()&&pendingRestore.isEmpty()&&dirty.isEmpty();}
+    public boolean transientCaptureReady(){return normalRooms.isEmpty()&&regenRooms.isEmpty()&&cubes.isEmpty()&&layers.isEmpty()&&pendingRestore.isEmpty()&&dirty.isEmpty();}
 }

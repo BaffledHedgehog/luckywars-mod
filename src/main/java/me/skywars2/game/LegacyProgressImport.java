@@ -15,7 +15,7 @@ import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.scores.Scoreboard;
 
 /** Import persistent legacy choices and scores without reissuing already spent currency. */
-final class LegacyProgressImport {
+public final class LegacyProgressImport {
     private static final int NO_SELECTION=100_000_000;
     private static final Pattern PLAYER_NAME=Pattern.compile("[A-Za-z0-9_]{1,16}");
     private static final List<String> OBJECTIVES=List.of("swrg.coins","swrg.memcoins","swrg.stat_games","swrg.stat_wins",
@@ -23,10 +23,10 @@ final class LegacyProgressImport {
             "swrg.kit","swrg.skill","swrg.sound","swrg.suffix","swrg.death_effect","swrg.bars","swrg.kill_effect",
             "lbc.kit","lbc.skill","lbc.trinket1","lbc.trinket2","lbc.trinket3","lbc.levelup1","lbc.levelup2","lbc.levelup3",
             "lbc.challenge","challenge_score","lbc.challenge.kit","overheaven");
-    record Result(int imported,int unresolved) {}
+    public record Result(int imported,int unresolved) {}
     private LegacyProgressImport() {}
 
-    static Result importScoreboard(GameController game) throws IOException {
+    public static Result importScoreboard(GameController game) throws IOException {
         var server=game.server();
         var store=game.players();
         var idsByName=new LinkedHashMap<String,UUID>();
@@ -48,7 +48,7 @@ final class LegacyProgressImport {
         });
     }
 
-    static Result importScoreboard(Scoreboard board,PlayerStore store,java.util.function.Function<String,UUID> resolve) throws IOException {
+    public static Result importScoreboard(Scoreboard board,PlayerStore store,java.util.function.Function<String,UUID> resolve) throws IOException {
         var scores=new LinkedHashMap<String,Map<String,Integer>>();
         for(var name:OBJECTIVES){
             var objective=board.getObjective(name);

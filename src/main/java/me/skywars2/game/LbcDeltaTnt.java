@@ -133,8 +133,8 @@ public final class LbcDeltaTnt {
     public List<ActorView> actorViews(int limit){return actors.values().stream().limit(Math.max(0,limit)).map(a->new ActorView(a.body,a.root,a.age,a.rolls,a.payloads,a.random,a.cause)).toList();}
     public void loaded(Entity body){if(restoring||MatchActorCheckpoint.restoring(body)||!managed(body))return;var a=actors.get(body.getUUID());if(a==null||!game.items().currentEpoch(a.epoch)){body.discard();return;}a.body=(Marker)body;game.items().timeStop().prepareFrozen(body);}
     public void unloaded(Entity body){}
-    static boolean cloneRecognizes(Entity body){return managed(body);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity body){return managed(body);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var a=actors.get(source.getUUID());if(a==null)return null;int age=a.age;long random=a.random,rolls=a.rolls,payloads=a.payloads;boolean pending=a.pending!=null;
         return new LbcCloneSkills.ActorImage(){public void install(Entity ignored,Entity clone,Map<Entity,Entity> relatives){var copy=new Actor((Marker)clone,a.epoch,a.cause,a.activation,a.root,random,game.server().getTickCount());copy.age=age;copy.rolls=rolls;copy.payloads=payloads;actors.put(clone.getUUID(),copy);game.items().spellSources().bind(clone,copy.source());
             if(pending){copy.pending=new Activation(copy);work.add(copy.pending);game.items().stonekivi().queuedWork(copy.pending);}
@@ -145,7 +145,7 @@ public final class LbcDeltaTnt {
     public void prepareFrozen(){checkpointBoundary();restoring=true;actors.clear();work.clear();}
     public void publishFrozen(){checkpointBoundary();restoring=false;lastTick=game.server().getTickCount();}
     public void cancelFrozen(){stop();}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
         checkpointBoundary();record Saved(Actor actor,MatchDamageSources.Ref body,Marker dormant,int age,long random,long rolls,long payloads,Activation pending){}
         var saved=actors.values().stream().map(a->new Saved(a,a.body.isRemoved()&&a.body.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK?null:graph.links.key(a.body),a.body,a.age,a.random,a.rolls,a.payloads,a.pending)).toList();var pending=List.copyOf(work);pending.forEach(graph::capture);
         return links->{var bodies=new IdentityHashMap<Actor,Marker>();for(var image:saved){MatchAuthorityCheckpoint.world(game,image.actor.level);bodies.put(image.actor,image.body==null?image.dormant:(Marker)links.get(image.body));}

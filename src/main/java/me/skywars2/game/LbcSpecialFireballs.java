@@ -45,7 +45,7 @@ public final class LbcSpecialFireballs {
         return 0;
     }
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(TAG);}
-    static boolean escapingFlightCanExpire(Entity entity) {
+    public static boolean escapingFlightCanExpire(Entity entity) {
         return managed(entity) && !entity.entityTags().contains(DELTA);
     }
 
@@ -273,8 +273,8 @@ public final class LbcSpecialFireballs {
     public int trackedCount(){return actors.size();}
     public List<Entity> snapshot(){return List.copyOf(actors);}
 
-    static boolean cloneRecognizes(Entity e){return managed(e)||e instanceof Snowball b&&variant(b.getItem())!=0;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public static boolean cloneRecognizes(Entity e){return managed(e)||e instanceof Snowball b&&variant(b.getItem())!=0;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         boolean actor=actors.contains(source),waiting=pending.contains(source);
         if(!actor&&!waiting)return null;
         // CHILD marks damaging released siblings too; it is not a visual/protected role tag.
@@ -307,7 +307,7 @@ public final class LbcSpecialFireballs {
     public void prepareFrozen(){restoring=true;actors.clear();pending.clear();fires.clear();}
     public void publishFrozen(){restoring=false;}
     public void cancelFrozen(){stop();}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
         var bodies=actors.stream().map(graph.links::key).toList();var waiting=pending.stream().map(graph.links::key).toList();var fills=List.copyOf(fires);fills.forEach(graph::capture);
         return links->{var restored=bodies.stream().map(links::get).toList();var queued=waiting.stream().map(ref->(Snowball)links.get(ref)).toList();return ()->{actors.clear();actors.addAll(restored);pending.clear();pending.addAll(queued);fires.clear();fires.addAll(fills);};};
     }

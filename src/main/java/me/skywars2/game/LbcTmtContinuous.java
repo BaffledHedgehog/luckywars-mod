@@ -8,10 +8,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /** Native sustained-use prerequisites. The original owners still handle every real using tick. */
-final class LbcTmtContinuous {
+public final class LbcTmtContinuous {
     private LbcTmtContinuous(){}
     static boolean sustained(ItemStack stack){return LbcHolyShield.matches(stack)||LbcCunnyItems.nahida(stack)||LbcTmtShield.sustained(stack);}
-    static void apply(ItemStack stack){
+    public static void apply(ItemStack stack){
         var game=me.skywars2.SkyWars2.game();if(game!=null)LbcTmtShield.apply(game,stack);
         if(LbcHolyShield.matches(stack))stack.set(DataComponents.BLOCKS_ATTACKS,
                 LbcMeleeItems.Kind.HOLY_SHIELD.item.getDefaultInstance().get(DataComponents.BLOCKS_ATTACKS));

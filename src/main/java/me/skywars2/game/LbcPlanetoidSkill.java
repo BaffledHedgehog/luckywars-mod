@@ -33,7 +33,7 @@ public final class LbcPlanetoidSkill {
         }
     }
 
-    void pulse(ServerPlayer owner){
+    public void pulse(ServerPlayer owner){
         var point=owner.position();
         // A resident spatial query only. Do not index every world entity or serialize entity NBT.
         List<Entity> nearby=owner.level().getEntities((Entity)null,new AABB(point,point).inflate(20),
@@ -79,7 +79,7 @@ public final class LbcPlanetoidSkill {
                 &&!e.entityTags().contains("magic_academy")
                 &&!game.items().polymorph().concealed(e)&&!familyChild(e);
     }
-    static boolean familyChild(Entity e){
+    public static boolean familyChild(Entity e){
         return LbcStand.cloneRecognizes(e)||LbcGodHedgehog.cloneActorRecognizes(e)
                 ||e.entityTags().contains("skywars2.pending_chaos")||LbcDanmaku.managed(e)
                 ||e.entityTags().contains("skywars2.gaycaster.trial")
@@ -109,17 +109,17 @@ public final class LbcPlanetoidSkill {
                 ||e instanceof LbcGovnomet.Charge||e instanceof LbcPrism.Charge||LbcFartus.magic(e);
     }
     static boolean annulus(ServerPlayer holder,Vec3 point){double d=point.distanceToSqr(holder.position());return d>=4&&d<=225;}
-    static boolean near(GameController game,ServerPlayer holder,ServerLevel level,Vec3 point){
+    public static boolean near(GameController game,ServerPlayer holder,ServerLevel level,Vec3 point){
         return holder.level()==level&&annulus(holder,point)&&level.hasChunkAt(BlockPos.containing(point))
                 &&!game.items().timeStop().stopped(level);
     }
-    static Vec3 direction(ServerPlayer holder,Vec3 origin,float yawOffset){
+    public static Vec3 direction(ServerPlayer holder,Vec3 origin,float yawOffset){
         Vec3 delta=holder.getEyePosition().subtract(origin);
         float yaw=(float)Math.toDegrees(Math.atan2(delta.z,delta.x))-90+yawOffset;
         float pitch=(float)-Math.toDegrees(Math.atan2(delta.y,delta.horizontalDistance()));
         return Vec3.directionFromRotation(pitch,yaw);
     }
-    static void orient(Entity actor,Vec3 aim){
+    public static void orient(Entity actor,Vec3 aim){
         actor.setYRot((float)Math.toDegrees(Math.atan2(-aim.x,aim.z)));
         actor.setXRot((float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance())));actor.needsSync=true;
     }

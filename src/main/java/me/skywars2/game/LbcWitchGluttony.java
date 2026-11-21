@@ -40,7 +40,7 @@ public final class LbcWitchGluttony {
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<Block> TANNER=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:tannerkivi"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
-    enum Kind { RABBIT, SNAKE, FRAGMENT, WHALE, CLONE, FOG }
+    public enum Kind { RABBIT, SNAKE, FRAGMENT, WHALE, CLONE, FOG }
     private static final class Actor {final Kind kind;LbcSpellSource.Source source;int ticks;Actor(Kind kind,LbcSpellSource.Source source){this.kind=kind;this.source=source;}}
     private final GameController game;
     private final Map<Entity,Actor> actors=new LinkedHashMap<>();
@@ -50,7 +50,7 @@ public final class LbcWitchGluttony {
     private final Set<Terrain> terrain=new LinkedHashSet<>();
     private int lastTick=Integer.MIN_VALUE,phase;
     private boolean advancing;
-    LbcWitchGluttony(GameController game){this.game=game;}
+    public LbcWitchGluttony(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){var data=LbcFartus.data(stack);return !stack.isEmpty()&&(data.getIntOr("rabbit",0)==1||data.getIntOr("snake",0)==1||data.getIntOr("whale",0)==1);}
     private boolean live(String epoch,ServerLevel level){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch)&&LbcDimensionItems.ordinary(level);}
     private boolean paused(ServerLevel level){return game.items().wands().timeStopped()||game.items().timeStop().stopped(level);}
@@ -120,7 +120,7 @@ public final class LbcWitchGluttony {
             var at=hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK?hit.getLocation().subtract(direction):hit.getLocation();spawn(kind,level,at,kind==Kind.SNAKE?0:yaw,kind==Kind.SNAKE?0:pitch,author,epoch,cause);}
     }
     private static CompoundTag parse(String value){try{return TagParser.parseCompoundFully(value);}catch(CommandSyntaxException error){throw new IllegalStateException(error);}}
-    Entity spawn(Kind kind,ServerLevel level,Vec3 at,float yaw,float pitch,UUID author,String epoch,LbcIndirectKills.Owner cause){
+    public Entity spawn(Kind kind,ServerLevel level,Vec3 at,float yaw,float pitch,UUID author,String epoch,LbcIndirectKills.Owner cause){
         if(!live(epoch,level)||!Level.isInSpawnableBounds(BlockPos.containing(at))||level.getChunkSource().getChunkNow(Mth.floor(at.x)>>4,Mth.floor(at.z)>>4)==null)return null;
         Entity entity;String nbt;
         switch(kind){
@@ -142,7 +142,7 @@ public final class LbcWitchGluttony {
     private void forward(Entity actor,double step){actor.setPos(actor.position().add(actor.getLookAngle().scale(step)));}
     private void face(Entity actor,Entity target){var dir=target.getEyePosition().subtract(actor.position());actor.setYRot((float)Math.toDegrees(Math.atan2(-dir.x,dir.z)));actor.setXRot((float)-Math.toDegrees(Math.atan2(dir.y,dir.horizontalDistance())));}
     private Entity randomTarget(Entity actor,boolean wrath){var targets=select((ServerLevel)actor.level(),actor.position(),"@e[type=#minecraft:mobs,tag=!spectator,tag=!strict_map_object,tag=!sin_gluttony,tag=!white_whale,tag=!white_whale_clone"+(wrath?",tag=!sin_wrath":"")+"]").stream().filter(e->game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e)).toList();return targets.isEmpty()?null:targets.get(((ServerLevel)actor.level()).getRandom().nextInt(targets.size()));}
-    Entity randomSnakeTarget(Entity actor){var targets=select((ServerLevel)actor.level(),actor.position(),"@e[type=#minecraft:mobs,tag=!spectator,tag=!strict_map_object,tag=!sin_gluttony]").stream().filter(e->game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e)).toList();return targets.isEmpty()?null:targets.get(((ServerLevel)actor.level()).getRandom().nextInt(targets.size()));}
+    public Entity randomSnakeTarget(Entity actor){var targets=select((ServerLevel)actor.level(),actor.position(),"@e[type=#minecraft:mobs,tag=!spectator,tag=!strict_map_object,tag=!sin_gluttony]").stream().filter(e->game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e)).toList();return targets.isEmpty()?null:targets.get(((ServerLevel)actor.level()).getRandom().nextInt(targets.size()));}
     public void tick(){if(advancing)throw new IllegalStateException("Reentrant Gluttony advance");advancing=true;try{int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
         if(!game.playing()||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
         boolean second=++phase%20==0;
@@ -180,7 +180,7 @@ public final class LbcWitchGluttony {
         if(state.kind==Kind.FRAGMENT&&state.ticks>=20)actor.discard();
     }
     /** (user) Preserve the first fragment's activation of its still-unactivated parent/head. */
-    Entity fragment(Entity parent){var state=actors.get(parent);if(state==null||(state.kind!=Kind.SNAKE&&state.kind!=Kind.FRAGMENT)||count((ServerLevel)parent.level(),parent.position(),Kind.SNAKE)>78)return null;
+    public Entity fragment(Entity parent){var state=actors.get(parent);if(state==null||(state.kind!=Kind.SNAKE&&state.kind!=Kind.FRAGMENT)||count((ServerLevel)parent.level(),parent.position(),Kind.SNAKE)>78)return null;
         var child=spawn(Kind.FRAGMENT,(ServerLevel)parent.level(),parent.position(),0,0,state.source.author(),state.source.epoch(),state.source.cause());if(child==null)return null;
         var activated=parent.entityTags().contains("actived")?child:parent;var random=((ServerLevel)parent.level()).getRandom();activated.setYRot(random.nextInt(721)-360);activated.setXRot(random.nextInt(181)-90);activated.entityTags().add("actived");return child;
     }
@@ -238,11 +238,11 @@ public final class LbcWitchGluttony {
     }
     public void loaded(Entity entity){if(!entity.entityTags().contains(MANAGED))return;var state=actors.get(entity);if(state==null)state=unloaded.remove(entity.getUUID());if(state==null||!live(state.source.epoch(),(ServerLevel)entity.level())){entity.discard();return;}actors.put(entity,state);if(state.kind==Kind.RABBIT)rabbitTargets(entity);game.items().spellSources().bind(entity,state.source);game.items().timeStop().prepareFrozen(entity);}
     public void unloaded(Entity entity){var state=actors.remove(entity);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);}
-    List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
     public void stop(){pending.clear();for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();unloaded.clear();for(var work:List.copyOf(terrain))work.cancel();phase=0;lastTick=Integer.MIN_VALUE;}
-    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Gluttony callbacks before checkpointing");}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Gluttony callbacks before checkpointing");}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
+    public final class Checkpoint {
         private record Image(Kind kind,LbcSpellSource.Source source,int ticks) { }
         private final Map<MatchDamageSources.Ref,Image> alive=new LinkedHashMap<>();private final Map<UUID,Image> asleep=new HashMap<>();
         private final Set<Kind> waiting=Set.copyOf(pending);private final List<Terrain> jobs=List.copyOf(terrain);private final int cadence=phase;
@@ -250,7 +250,7 @@ public final class LbcWitchGluttony {
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){var aliases=new IdentityHashMap<Actor,Image>();actors.forEach((actor,state)->alive.put(graph.links.key(actor),image(state,aliases)));unloaded.forEach((id,state)->asleep.put(id,image(state,aliases)));jobs.forEach(graph::capture);}
         private Image image(Actor actor,IdentityHashMap<Actor,Image> aliases){return aliases.computeIfAbsent(actor,a->new Image(a.kind,a.source,a.ticks));}
         private Actor actor(Image image,IdentityHashMap<Image,Actor> aliases){return aliases.computeIfAbsent(image,i->{var actor=new Actor(i.kind,i.source);actor.ticks=i.ticks;return actor;});}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Image,Actor>();var active=new LinkedHashMap<Entity,Actor>();var dormant=new HashMap<UUID,Actor>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Image,Actor>();var active=new LinkedHashMap<Entity,Actor>();var dormant=new HashMap<UUID,Actor>();
             alive.forEach((ref,image)->active.put(links.get(ref),actor(image,aliases)));asleep.forEach((id,image)->dormant.put(id,actor(image,aliases)));jobs.forEach(j->MatchAuthorityCheckpoint.world(game,j.level));
             return ()->{actors.clear();actors.putAll(active);active.forEach((entity,state)->{if(state.kind==Kind.RABBIT)rabbitTargets(entity);});unloaded.clear();unloaded.putAll(dormant);pending.clear();pending.addAll(waiting);terrain.clear();terrain.addAll(jobs);phase=cadence;lastTick=clock.last(game);};}
     }

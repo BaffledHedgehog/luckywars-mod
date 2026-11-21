@@ -30,7 +30,7 @@ public final class LbcWitchLust {
     private final Map<String,EntitySelector> selectors=new HashMap<>();
     private LbcSpellSource.Source producing;private int phaseOffset;private boolean advancing;
     private int lastTick=Integer.MIN_VALUE;
-    LbcWitchLust(GameController game){this.game=game;}
+    public LbcWitchLust(GameController game){this.game=game;}
     public static boolean matches(ItemStack item){return !item.isEmpty()&&LbcFartus.data(item).getIntOr("lust_cooldown",0)==1;}
     private boolean live(){return game.playing()&&game.stage()!=GameController.Stage.ENDING;}
     private boolean eligible(ServerPlayer p){return p!=null&&p.isAlive()&&!p.isRemoved()&&!game.isObserver(p)&&game.canUseGameplayItems(p)&&LbcDimensionItems.ordinary(p)&&game.items().wands().validRoleTarget(p,false);}
@@ -124,23 +124,23 @@ public final class LbcWitchLust {
     public void unloaded(Entity e){var s=actors.remove(e);if(s!=null&&e.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(e.getUUID(),s);}
     public void forget(ServerPlayer p){hidden.remove(p);if(riding(p))p.stopRiding();FullInvisibility.effectsChanged(p);}
     public void stop(){for(var e:List.copyOf(actors.keySet()))retire(e);for(var p:List.copyOf(hidden)){hidden.remove(p);FullInvisibility.effectsChanged(p);}actors.clear();unloaded.clear();producing=null;lastTick=Integer.MIN_VALUE;phaseOffset=0;}
-    List<Entity> snapshot(){return List.copyOf(actors.keySet());}
-    void checkpointBoundary(){if(advancing||producing!=null)throw new IllegalStateException("Finish Lust producer/advance callbacks first");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    public void checkpointBoundary(){if(advancing||producing!=null)throw new IllegalStateException("Finish Lust producer/advance callbacks first");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private final MatchSpellCheckpoint.IdentityImage<Entity,LbcSpellSource.Source> image;
         private final Map<UUID,LbcSpellSource.Source> asleep=new HashMap<>(unloaded);
         private final List<MatchDamageSources.Ref> players;
         private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,phaseOffset);
         Checkpoint(MatchSpellCheckpoint.Links links){image=new MatchSpellCheckpoint.IdentityImage<>(actors,links);players=hidden.stream().map(links::key).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=image.restore(links);var current=Collections.newSetFromMap(new IdentityHashMap<ServerPlayer,Boolean>());
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var restored=image.restore(links);var current=Collections.newSetFromMap(new IdentityHashMap<ServerPlayer,Boolean>());
             for(var ref:players){if(!(links.get(ref) instanceof ServerPlayer p))throw new IllegalStateException("Restore hidden Lust players first");current.add(p);}
             return ()->{actors=restored;unloaded.clear();unloaded.putAll(asleep);hidden.clear();hidden.addAll(current);lastTick=clock.last(game);phaseOffset=clock.offset(game);};}
     }
 
-    static boolean cloneRecognizes(Entity e){return e.entityTags().contains(MANAGED);}
-    static boolean cloneProtected(Entity e){return e.entityTags().contains(DRAGON);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity e){return e.entityTags().contains(MANAGED);}
+    public static boolean cloneProtected(Entity e){return e.entityTags().contains(DRAGON);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var state=actors.get(source);if(state==null||cloneProtected(source))return null;
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){

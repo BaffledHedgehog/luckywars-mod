@@ -42,9 +42,9 @@ public final class LbcKaraSlabs {
             this.carrier=carrier;this.owner=owner;this.epoch=epoch;this.cause=cause;this.yaw=yaw;this.central=central;this.age=age;
         }
     }
-    record View(Entity carrier,ServerPlayer owner,Vec3 position,float yaw,int age,boolean central){}
-    LbcKaraSlabs(GameController game){this.game=game;}
-    static void register(){}
+    public record View(Entity carrier,ServerPlayer owner,Vec3 position,float yaw,int age,boolean central){}
+    public LbcKaraSlabs(GameController game){this.game=game;}
+    public static void register(){}
     private static Item register(String name,Item proxy,String translation){
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:"+name));
         var model=BuiltInRegistries.ITEM.getKey(proxy);
@@ -69,7 +69,7 @@ public final class LbcKaraSlabs {
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
         spawn(owner);
     }
-    void spawn(ServerPlayer owner){
+    public void spawn(ServerPlayer owner){
         if(!valid(owner)||paused(owner)||game.items().magic().suppressed(owner))return;
         float yaw=owner.getYRot();Vec3 at=owner.getEyePosition().add(Vec3.directionFromRotation(0,yaw).scale(1.5));
         add(owner,at,yaw,0,true,game.items().epoch(),game.items().indirectKills().coldCause(owner,false));
@@ -129,8 +129,8 @@ public final class LbcKaraSlabs {
             }
         });
     }
-    int count(){return actors.size();}
-    List<View> snapshot(){return actors.values().stream().map(a->new View(a.carrier,a.owner,a.carrier.position(),a.yaw,a.age,a.central)).toList();}
+    public int count(){return actors.size();}
+    public List<View> snapshot(){return actors.values().stream().map(a->new View(a.carrier,a.owner,a.carrier.position(),a.yaw,a.age,a.central)).toList();}
     public void loaded(Entity entity){if(entity.entityTags().contains(TAG)&&!actors.containsKey(entity))entity.discard();}
     public void unloaded(Entity entity){var actor=actors.get(entity);if(actor!=null)remove(actor);}
     public void forget(ServerPlayer owner){for(var actor:List.copyOf(actors.values()))if(actor.owner.getUUID().equals(owner.getUUID()))remove(actor);}

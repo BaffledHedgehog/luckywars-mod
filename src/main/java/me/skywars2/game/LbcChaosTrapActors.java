@@ -86,7 +86,7 @@ public final class LbcChaosTrapActors {
         if(flag.equals("bob"))spawn(level,EntityTypes.ZOMBIE,BOB,token.position(),author);
         return true;
     }
-    boolean spawnForest(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at){
+    public boolean spawnForest(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at){
         if(authority==null||!game.items().currentEpoch(authority.epoch())||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||!resident(level,BlockPos.containing(at),0))return false;
         var marker=EntityTypes.MARKER.create(level,EntitySpawnReason.COMMAND);if(marker==null)return false;
@@ -208,7 +208,7 @@ public final class LbcChaosTrapActors {
     public int trackedCount(){return tracked.size();}
     public void stop(){var old=snapshot();tracked.clear();for(var actor:old)if(!actor.isRemoved())actor.discard();authors.clear();lastTick=Integer.MIN_VALUE;}
 
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!managed(source))return null;
         var cause=LbcIndirectKills.playerSource(owner(source));
         boolean knownCause=cause==null||authors.containsKey(cause.getUUID());

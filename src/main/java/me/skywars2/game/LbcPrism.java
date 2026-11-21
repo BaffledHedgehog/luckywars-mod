@@ -52,19 +52,20 @@ public final class LbcPrism {
             }return List.copyOf(list);
         }catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
     }
-    static void register(){}
+    public static void register(){}
     private static EntityType<Charge> registerType(){
         var key=ResourceKey.create(Registries.ENTITY_TYPE,Identifier.parse("skywars2:prism_charge"));
         var type=Registry.register(BuiltInRegistries.ENTITY_TYPE,key,EntityType.Builder.<Charge>of(Charge::new,MobCategory.MISC).sized(.1f,.1f).clientTrackingRange(4).updateInterval(1).build(key));
         PolymerEntityUtils.registerType(type);return type;
     }
     public static final class Charge extends Projectile implements PolymerEntity {
-        enum Phase { UNSTABLE,STABLE,ACADEMY }
-        Phase phase=Phase.UNSTABLE;
-        int age,steps,bounces;Vec3 origin=Vec3.ZERO;
-        boolean trinket,continueUp;UUID producer;
+        public enum Phase { UNSTABLE,STABLE,ACADEMY }
+        public Phase phase=Phase.UNSTABLE;
+        public int age,steps,bounces;public Vec3 origin=Vec3.ZERO;
+        public boolean trinket;
+        boolean continueUp;public UUID producer;
         Vec3 producerOrigin=Vec3.ZERO;int producerFeetY;
-        InteractionHand hand;ItemStack stack;UUID caster;
+        InteractionHand hand;public ItemStack stack;UUID caster;
         DustColorTransitionOptions particle=UNSTABLE;
         final Set<UUID> hit=new HashSet<>();
         Charge(EntityType<? extends Charge> type,Level level){super(type,level);}
@@ -84,9 +85,9 @@ public final class LbcPrism {
     private int budgetTick=Integer.MIN_VALUE;
     private long spent;
     private boolean pumping;
-    LbcPrism(GameController game){this.game=game;}
-    List<Charge> snapshot(){return List.copyOf(charges);}
-    int pendingRays(){return immediate.size();}
+    public LbcPrism(GameController game){this.game=game;}
+    public List<Charge> snapshot(){return List.copyOf(charges);}
+    public int pendingRays(){return immediate.size();}
     boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
@@ -100,7 +101,7 @@ public final class LbcPrism {
         var origin = owner.getEyePosition().add(aim.scale(hand == InteractionHand.OFF_HAND ? .5 : 0));
         return publish(owner, charge(owner, hand, stack, origin, aim, academy), wandBonus);
     }
-    boolean scriptCast(ServerPlayer owner, InteractionHand hand, ItemStack weapon, Vec3 origin, Vec3 aim, boolean academy) {
+    public boolean scriptCast(ServerPlayer owner, InteractionHand hand, ItemStack weapon, Vec3 origin, Vec3 aim, boolean academy) {
         var charge = charge(owner, hand, ItemStack.EMPTY, origin, aim, academy);
         GenieCombat.castProjectile(game, owner, charge, weapon);
         return publish(owner, charge, false);
@@ -258,7 +259,7 @@ public final class LbcPrism {
             }
         });
     }
-    void crystal(Charge c){
+    public void crystal(Charge c){
         var level=(ServerLevel)c.level();var crystal=new EndCrystal(EntityTypes.END_CRYSTAL,level);
         crystal.setPos(c.position().add(0,-.5,0));crystal.setShowBottom(false);
         // Reuse the existing native actor/child/explosion owner, including after crystal removal.
@@ -310,21 +311,21 @@ public final class LbcPrism {
             if(!progressed)break;
         }}finally{spent+=System.nanoTime()-start;pumping=false;}
     }
-    void tick(){pump();}
-    void loaded(Entity e){if(e instanceof Charge c){if(game.playing()&&game.items().currentEpoch(c))charges.add(c);else c.discard();}}
-    void unloaded(Entity e){if(e instanceof Charge c){charges.remove(c);immediate.remove(c);}}
-    void forget(ServerPlayer p){for(var c:List.copyOf(charges))if(c.getOwner()==p)c.discard();}
-    void stop(){var old=List.copyOf(charges);charges.clear();immediate.clear();old.forEach(Entity::discard);spent=0;}
+    public void tick(){pump();}
+    public void loaded(Entity e){if(e instanceof Charge c){if(game.playing()&&game.items().currentEpoch(c))charges.add(c);else c.discard();}}
+    public void unloaded(Entity e){if(e instanceof Charge c){charges.remove(c);immediate.remove(c);}}
+    public void forget(ServerPlayer p){for(var c:List.copyOf(charges))if(c.getOwner()==p)c.discard();}
+    public void stop(){var old=List.copyOf(charges);charges.clear();immediate.clear();old.forEach(Entity::discard);spent=0;}
 
     /** Root transient policy must retain typed trinket rays for the native body checkpoint. */
-    List<Charge> transientSnapshot(){return charges.stream().filter(c->!c.trinket).toList();}
-    void cancelTransient(){for(var charge:List.copyOf(charges))if(!charge.trinket)charge.discard();}
-    void checkpointBoundary(){if(pumping)throw new IllegalStateException("Finish Prism sampling before checkpointing");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public List<Charge> transientSnapshot(){return charges.stream().filter(c->!c.trinket).toList();}
+    public void cancelTransient(){for(var charge:List.copyOf(charges))if(!charge.trinket)charge.discard();}
+    public void checkpointBoundary(){if(pumping)throw new IllegalStateException("Finish Prism sampling before checkpointing");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     private record TrinketImage(MatchDamageSources.Ref body,MatchDamageSources.Ref owner,
             Vec3 origin,int age,int steps,int bounces,UUID caster,UUID producer,Vec3 producerOrigin,int producerFeetY,boolean continueUp,
             DustColorTransitionOptions particle,Set<UUID> hit){}
-    final class Checkpoint {
+    public final class Checkpoint {
         private final List<TrinketImage> saved;
         private final List<MatchDamageSources.Ref> queue;
         Checkpoint(MatchSpellCheckpoint.Links links){
@@ -333,7 +334,7 @@ public final class LbcPrism {
                     c.continueUp,c.particle,Set.copyOf(c.hit))).toList();
             queue=immediate.stream().filter(c->c.trinket&&!c.isRemoved()).map(links::key).toList();
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var bodies=new LinkedHashMap<Charge,TrinketImage>();var owners=new IdentityHashMap<Charge,Entity>();
             for(var image:saved){var body=(Charge)links.get(image.body);bodies.put(body,image);owners.put(body,links.get(image.owner));}
             var restoredQueue=queue.stream().map(ref->(Charge)links.get(ref)).toList();
@@ -350,7 +351,7 @@ public final class LbcPrism {
             };
         }
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!(source instanceof Charge c)||c.phase==Charge.Phase.ACADEMY&&!c.trinket||c.stack!=null&&LbcAcademy.trial(c.stack))return null;
         var phase=c.phase;int age=c.age,steps=c.steps,bounces=c.bounces;var origin=c.origin;
         var hand=c.hand;var stack=c.stack==null?null:c.stack.copy();var caster=c.caster;var particle=c.particle;

@@ -67,7 +67,7 @@ public final class LbcKapusta {
     public static boolean matches(ItemStack stack){return !stack.isEmpty()&&(ItemData.intValue(stack,"kapusta",0)==1||jack(stack));}
     public static boolean isManaged(Entity body){return body!=null&&body.entityTags().contains(TAG);}
     public static boolean wild(Entity body){return isManaged(body);}
-    static boolean cloneRecognizes(Entity body){return isManaged(body);}
+    public static boolean cloneRecognizes(Entity body){return isManaged(body);}
     public LbcIndirectKills.Owner cause(Entity body){var state=flights.get(body);return state==null?null:state.cause();}
     public Flight state(Entity body){return flights.get(body);}
     public List<BlockDisplay> actors(){return flights.keySet().stream().filter(BlockDisplay.class::isInstance).map(BlockDisplay.class::cast).toList();}
@@ -75,7 +75,7 @@ public final class LbcKapusta {
     public int count(){return ready.size();}
     public int pendingCount(){return pending.size();}
     public List<Spawn> pendingViews(){return List.copyOf(pending);}
-    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
         var transformed=new ArrayDeque<Spawn>();
         for(var value:pending){
             if(value.level()!=level){transformed.addLast(value);continue;}
@@ -227,8 +227,8 @@ public final class LbcKapusta {
     public void reindexRestored(Iterable<Entity> restored){flights.clear();ready.clear();for(var body:restored)rebind(body);}
     public void stop(){for(var body:List.copyOf(flights.keySet()))body.discard();flights.clear();ready.clear();pending.clear();restoring=false;}
     void prepareFrozen(){flights.clear();ready.clear();pending.clear();restoring=true;}
-    void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
-    LbcCloneSkills.ActorImage cloneImage(Entity original){
+    public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}
+    public LbcCloneSkills.ActorImage cloneImage(Entity original){
         var saved=flights.get(original);if(saved==null)return null;
         return CloneComplexProjectileStates.image(clone->{
             // Source clones draw their own future random choices. A fresh UUID forks that stream once;
@@ -237,15 +237,15 @@ public final class LbcKapusta {
             install(clone,new Flight(saved.author(),saved.cause(),saved.epoch(),saved.primary(),saved.age(),fork,saved.jack()));
         },this::unloaded);
     }
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Image(MatchDamageSources.Ref body,Flight state){}
         private final List<Image> images;
         private final List<MatchDamageSources.Ref> order;
         private final List<Spawn> queued;
         Checkpoint(MatchSpellCheckpoint.Links links){images=flights.entrySet().stream().map(e->new Image(links.key(e.getKey()),e.getValue())).toList();
             order=ready.stream().map(links::key).toList();queued=List.copyOf(pending);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=new LinkedHashMap<Entity,Flight>();var queue=new ArrayDeque<BlockDisplay>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var restored=new LinkedHashMap<Entity,Flight>();var queue=new ArrayDeque<BlockDisplay>();
             for(var spawn:queued)MatchAuthorityCheckpoint.world(game,spawn.level());
             for(var image:images)restored.put(links.get(image.body()),image.state());
             for(var ref:order)queue.add((BlockDisplay)links.get(ref));

@@ -139,12 +139,12 @@ public final class MatchEvents {
         this.players = players;
     }
 
-    record Timeline(boolean running, int nextWitherTick, int nextTntTick) { }
-    Timeline checkpointTimeline() { return new Timeline(running, nextWitherTick, nextTntTick); }
-    void restoreTimeline(Timeline image) { running=image.running; nextWitherTick=image.nextWitherTick; nextTntTick=image.nextTntTick; }
+    public record Timeline(boolean running, int nextWitherTick, int nextTntTick) { }
+    public Timeline checkpointTimeline() { return new Timeline(running, nextWitherTick, nextTntTick); }
+    public void restoreTimeline(Timeline image) { running=image.running; nextWitherTick=image.nextWitherTick; nextTntTick=image.nextTntTick; }
 
     /** Short hit reactions belong to the old clock; persistent skill state remains intact. */
-    void cancelPendingHitReactions() {
+    public void cancelPendingHitReactions() {
         pendingVex.clear();
         for(var state:skillStates.values())state.vexTick=-1;
     }
@@ -225,7 +225,7 @@ public final class MatchEvents {
     }
 
     /** Stops match events and skill attacks while leaving existing summons on the arena. */
-    void beginCelebration() {
+    public void beginCelebration() {
         controller.zoneBarrier().stop();
         running = false;
         nextWitherTick = -1;
@@ -246,7 +246,7 @@ public final class MatchEvents {
     public void giveKit(ServerPlayer player) {
         giveKit(player, false);
     }
-    void giveDebugKit(ServerPlayer player) { if (controller.debugPerks(player)) giveKit(player, true); }
+    public void giveDebugKit(ServerPlayer player) { if (controller.debugPerks(player)) giveKit(player, true); }
     private void giveKit(ServerPlayer player, boolean debug) {
         if (!config.vanillaKits && !debug) return;
         PlayerStore.Profile profile = players.get(player.getUUID());
@@ -302,7 +302,7 @@ public final class MatchEvents {
     }
 
     /** Current selection is checked against its source GUI gate on every use; profile IDs remain untouched. */
-    int selectedSkill(ServerPlayer player) {
+    public int selectedSkill(ServerPlayer player) {
         PlayerStore.Profile profile = players.get(player.getUUID());
         if (profile == null || profile.skill <= 0 || controller.balanceLegacy()&&!TrueLegacyRules.skill(profile.skill)) return 0;
         return OriginalGuiDesign.unlocked(player, "swrg", 4000, profile.skill - 1, profile, config)
@@ -406,7 +406,7 @@ public final class MatchEvents {
         victoryMarkerTag = null;
     }
 
-    void spawnVictoryFirework(double x, double y, double z) {
+    public void spawnVictoryFirework(double x, double y, double z) {
         int firstColor = randomFireworkColor();
         int secondColor = randomFireworkColor();
         int fadeColor = randomFireworkColor();
@@ -650,7 +650,7 @@ public final class MatchEvents {
     }
 
     /** Heightmaps are already maintained by native block moves; never loads a column or reads NBT. */
-    BlockPos airdropSurface(int x,int z){
+    public BlockPos airdropSurface(int x,int z){
         var level=maps.level();
         if(!level.getWorldBorder().isWithinBounds(new BlockPos(x,level.getMinY(),z))
                 ||level.getChunkSource().getChunkNow(x>>4,z>>4)==null)return null;
@@ -750,7 +750,7 @@ public final class MatchEvents {
         chicken.getSelfAndPassengers().toList().forEach(Entity::discard);
     }
 
-    void cancelPendingAirdrops() {
+    public void cancelPendingAirdrops() {
         // Pending pairs have not been published into native entity storage.
         for (var chicken : pendingAirdrops.keySet()) discardAirdrop(chicken);
         pendingAirdrops.clear();
@@ -761,7 +761,7 @@ public final class MatchEvents {
                 && controller.items().currentEpoch(chicken);
     }
 
-    void entityLoaded(Entity entity) {
+    public void entityLoaded(Entity entity) {
         if (entity instanceof Chicken chicken && activeAirdrop(chicken)
                 && (running || controller.stage() == GameController.Stage.ENDING)
                 && chicken.level() instanceof ServerLevel level)
@@ -769,7 +769,7 @@ public final class MatchEvents {
     }
 
     /** Keep the native carrier moving until its first landing, including during fireworks. */
-    void tickAirdropFlights() {
+    public void tickAirdropFlights() {
         for (var chicken : List.copyOf(airdropColumns.keySet())) {
             if (pendingAirdrops.containsKey(chicken)) continue;
             if (!activeAirdrop(chicken)) { releaseAirdropTicket(chicken); continue; }
@@ -784,14 +784,14 @@ public final class MatchEvents {
         }
     }
 
-    boolean airdropsCaptureReady() { return pendingAirdrops.isEmpty(); }
+    public boolean airdropsCaptureReady() { return pendingAirdrops.isEmpty(); }
 
-    void prepareAirdropRestore() {
+    public void prepareAirdropRestore() {
         cancelPendingAirdrops();
         for (var chicken : List.copyOf(airdropColumns.keySet())) releaseAirdropTicket(chicken);
     }
 
-    void reindexRestoredAirdrops(Iterable<Entity> restored) {
+    public void reindexRestoredAirdrops(Iterable<Entity> restored) {
         for (var body : restored) {
             if (!(body instanceof Chicken chicken) || !activeAirdrop(chicken)
                     || !(chicken.level() instanceof ServerLevel level)) continue;

@@ -40,10 +40,10 @@ public final class LbcCrocodildo {
             this.body=body;this.visual=visual;this.epoch=epoch;this.bomb=bomb;this.source=source;
         }
     }
-    LbcCrocodildo(GameController game){this.game=game;}
-    static boolean trigger(ItemStack stack){return ItemData.intValue(stack,"crocodildo_boss",0)==1&&ItemData.intValue(stack,"drop",0)==1;}
-    static boolean managed(Entity e){return e!=null&&(e.entityTags().contains(BODY)||e.entityTags().contains(BOMB)||e.entityTags().contains(VISUAL));}
-    static boolean visual(Entity e){return e!=null&&e.entityTags().contains(VISUAL);}
+    public LbcCrocodildo(GameController game){this.game=game;}
+    public static boolean trigger(ItemStack stack){return ItemData.intValue(stack,"crocodildo_boss",0)==1&&ItemData.intValue(stack,"drop",0)==1;}
+    public static boolean managed(Entity e){return e!=null&&(e.entityTags().contains(BODY)||e.entityTags().contains(BOMB)||e.entityTags().contains(VISUAL));}
+    public static boolean visual(Entity e){return e!=null&&e.entityTags().contains(VISUAL);}
     private boolean live(String epoch){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch);}
     private static boolean resident(Entity e){return !e.isRemoved()&&((ServerLevel)e.level()).getChunkSource().getChunkNow(e.blockPosition().getX()>>4,e.blockPosition().getZ()>>4)!=null;}
     private boolean stopped(Entity e){return game.items().timeStop().stopped((ServerLevel)e.level())||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
@@ -58,14 +58,14 @@ public final class LbcCrocodildo {
         var p=token.position();var inward=new Vec3(-p.x,0,-p.z).normalize();if(inward.lengthSqr()==0)inward=new Vec3(0,0,1);
         return p.add(0,80,0).subtract(inward.scale(150));
     }
-    boolean ready(ItemEntity token){
+    public boolean ready(ItemEntity token){
         if(frozen||token.isRemoved()||token.getAge()>=5999||!trigger(token.getItem())||!live(game.items().epoch())||!game.items().currentEpoch(token)
                 ||token.level()!=game.maps().level()||stopped(token)||game.maps().busy())return false;
         return ((ServerLevel)token.level()).hasChunkAt(BlockPos.containing(origin(token)));
     }
-    boolean spawn(ItemEntity token){return spawn(token,true);}
+    public boolean spawn(ItemEntity token){return spawn(token,true);}
     /** A shared TMT drop calls the real publication path and owns its one physical debit. */
-    boolean spawn(ItemEntity token,boolean debit){
+    public boolean spawn(ItemEntity token,boolean debit){
         if(!ready(token))return false;
         depth++;try{
             var level=(ServerLevel)token.level();var p=token.position();var inward=new Vec3(-p.x,0,-p.z).normalize();
@@ -93,7 +93,7 @@ public final class LbcCrocodildo {
         if(!level.addFreshEntity(pig)||!level.addFreshEntity(d)){retire(actor);return;}d.startRiding(pig,true,true);
         LbcOverload.sound(level,p,"minecraft:lbcsounds.drop_bomb",SoundSource.HOSTILE,10,0,200,0);
     }
-    void tick(){
+    public void tick(){
         if(frozen||lastTick==game.server().getTickCount()||!game.server().tickRateManager().runsNormally())return;
         lastTick=game.server().getTickCount();depth++;try{
             for(var token:List.copyOf(pending)){if(token.isRemoved()||!trigger(token.getItem())||!live(game.items().epoch()))pending.remove(token);else spawn(token);}
@@ -123,7 +123,7 @@ public final class LbcCrocodildo {
         var next=at.add(direction);if(!((ServerLevel)a.body.level()).hasChunkAt(BlockPos.containing(next)))return;
         a.body.setPos(next);float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));a.body.setYRot(yaw);a.body.setYHeadRot(yaw);a.visual.setYRot(yaw);
     }
-    void died(LivingEntity body){
+    public void died(LivingEntity body){
         if(frozen||!body.isDeadOrDying())return;var a=actors.stream().filter(x->x.body==body&&!x.bomb&&!x.terminal).findFirst().orElse(null);if(a==null)return;
         a.terminal=true;actors.remove(a);a.visual.discard();closeBar(body.getUUID());
         if(!live(a.epoch))return;var level=(ServerLevel)body.level();
@@ -133,7 +133,7 @@ public final class LbcCrocodildo {
         level.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER,true,false,body.getX(),body.getY(),body.getZ(),1000,50,50,50,0);
         for(float pitch:new float[]{0,1,2})LbcOverload.sound(level,body.position(),"minecraft:entity.generic.explode",SoundSource.HOSTILE,100,pitch,0,0);
     }
-    void damaged(LivingEntity body){
+    public void damaged(LivingEntity body){
         if(!body.entityTags().contains(BODY)||actors.stream().noneMatch(a->a.body==body&&!a.terminal))return;
         var level=(ServerLevel)body.level();LbcOverload.sound(level,body.position(),"minecraft:entity.iron_golem.damage",SoundSource.HOSTILE,20,.5f,0,1);
         level.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER,true,false,body.getX(),body.getY(),body.getZ(),1,0,0,0,0);
@@ -161,7 +161,7 @@ public final class LbcCrocodildo {
     }
     private void closeBar(UUID id){var bar=bars.remove(id);if(bar!=null)bar.removeAllPlayers();if(bars.isEmpty())stopMusic();}
     private void retire(Actor a){actors.remove(a);a.terminal=true;if(!a.bomb)closeBar(a.body.getUUID());a.visual.discard();if(!a.body.isRemoved())a.body.discard();}
-    void loaded(Entity e){
+    public void loaded(Entity e){
         if(frozen||MatchActorCheckpoint.restoring(e))return;
         if(e instanceof ItemEntity item&&trigger(item.getItem())&&!LbcTmtItems.matches(item.getItem())){
             if(live(game.items().epoch())&&item.level()==game.maps().level()){game.items().markCurrentItemEpoch(item);pending.add(item);}return;
@@ -173,32 +173,32 @@ public final class LbcCrocodildo {
             if(a.body==e||a.visual==e)found=true;}
         if(found)prepare(e);else e.discard();
     }
-    void unloaded(Entity e){if(e instanceof ItemEntity item)pending.remove(item);}
-    void stop(){for(var a:List.copyOf(actors))retire(a);pending.clear();for(var b:bars.values())b.removeAllPlayers();bars.clear();stopMusic();}
-    List<LivingEntity> bodies(){return actors.stream().map(a->a.body).toList();}
-    List<Entity> polymorphVisuals(Entity body){return actors.stream().filter(a->a.body==body).map(a->(Entity)a.visual).toList();}
-    int age(Entity body){return actors.stream().filter(a->a.body==body).mapToInt(a->a.age).findFirst().orElse(-1);}
-    boolean captureReady(){return depth==0&&!frozen;}
-    void checkpointBoundary(){if(depth!=0)throw new IllegalStateException("Finish Crocodildo callback before checkpoint");}
-    void prepareFrozen(){checkpointBoundary();frozen=true;for(var b:bars.values())b.removeAllPlayers();bars.clear();actors.clear();pending.clear();}
-    void publishFrozen(){
+    public void unloaded(Entity e){if(e instanceof ItemEntity item)pending.remove(item);}
+    public void stop(){for(var a:List.copyOf(actors))retire(a);pending.clear();for(var b:bars.values())b.removeAllPlayers();bars.clear();stopMusic();}
+    public List<LivingEntity> bodies(){return actors.stream().map(a->a.body).toList();}
+    public List<Entity> polymorphVisuals(Entity body){return actors.stream().filter(a->a.body==body).map(a->(Entity)a.visual).toList();}
+    public int age(Entity body){return actors.stream().filter(a->a.body==body).mapToInt(a->a.age).findFirst().orElse(-1);}
+    public boolean captureReady(){return depth==0&&!frozen;}
+    public void checkpointBoundary(){if(depth!=0)throw new IllegalStateException("Finish Crocodildo callback before checkpoint");}
+    public void prepareFrozen(){checkpointBoundary();frozen=true;for(var b:bars.values())b.removeAllPlayers();bars.clear();actors.clear();pending.clear();}
+    public void publishFrozen(){
         checkpointBoundary();frozen=false;lastTick=Integer.MIN_VALUE;
         stopMusic();
         for(var a:actors)if(!a.bomb&&resident(a.body))bar(a);
         updateMusic();
     }
-    void cancelFrozen(){frozen=false;if(bars.isEmpty())stopMusic();}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void cancelFrozen(){frozen=false;if(bars.isEmpty())stopMusic();}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         record Value(MatchDamageSources.Ref body,MatchDamageSources.Ref visual,MatchDamageSources.Ref source,String epoch,boolean bomb,int age){}
         final List<Value> values=new ArrayList<>();final List<MatchDamageSources.Ref> tokens=new ArrayList<>();
         Checkpoint(MatchSpellCheckpoint.Links links){for(var a:actors)values.add(new Value(links.key(a.body),links.key(a.visual),links.key(a.source),a.epoch,a.bomb,a.age));for(var p:pending)tokens.add(links.key(p));}
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             var next=new ArrayList<Actor>();for(var v:values){var a=new Actor((LivingEntity)links.get(v.body),(Display.ItemDisplay)links.get(v.visual),v.epoch,v.bomb,(LivingEntity)links.get(v.source));a.age=v.age;next.add(a);}
             var drops=tokens.stream().map(r->(ItemEntity)links.get(r)).toList();return ()->{actors.clear();actors.addAll(next);pending.clear();pending.addAll(drops);};
         }
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity original){
+    public LbcCloneSkills.ActorImage cloneImage(Entity original){
         var a=actors.stream().filter(x->x.body==original&&!x.terminal).findFirst().orElse(null);if(a==null)return null;
         var picture=new CloneEncounterStates.Presentation(a.visual);var epoch=a.epoch;boolean bomb=a.bomb;int age=a.age;var source=a.source;
         return CloneComplexProjectileStates.image(clone->{

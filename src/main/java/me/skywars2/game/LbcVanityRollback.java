@@ -37,17 +37,17 @@ public final class LbcVanityRollback {
     private long restoreStarted;
     private VanityCheckpointSchedule schedule;
 
-    LbcVanityRollback(GameController game){this.game=game;}
+    public LbcVanityRollback(GameController game){this.game=game;}
     public boolean capturePreparing(){return phase==Phase.REQUESTED;}
     public boolean busy(){return phase!=Phase.IDLE&&phase!=Phase.REQUESTED;}
     public boolean blocked(ServerPlayer player){return busy()||restoringLogins.contains(player.getUUID())||awaitingRebind.contains(player.getUUID())
             ||phase==Phase.REQUESTED&&granted&&player.getUUID().equals(requested);}
     public boolean hasSnapshot(){return image!=null&&game.items().currentEpoch(image.epoch);}
     public String status(){return phase+(!waitReason.isEmpty()?": "+waitReason:"");}
-    CompletableFuture<Void> poiRetirement(){return CompletableFuture.allOf(retiredPois.toArray(CompletableFuture[]::new));}
-    VanityCheckpointSchedule.State scheduleState(){return schedule==null?null:schedule.state();}
+    public CompletableFuture<Void> poiRetirement(){return CompletableFuture.allOf(retiredPois.toArray(CompletableFuture[]::new));}
+    public VanityCheckpointSchedule.State scheduleState(){return schedule==null?null:schedule.state();}
     VanityCheckpointSchedule.State scheduleAfterCapture(){return schedule==null?null:schedule.afterCapture();}
-    void restoreSchedule(VanityCheckpointSchedule.State state){schedule=state==null?null:new VanityCheckpointSchedule(state);}
+    public void restoreSchedule(VanityCheckpointSchedule.State state){schedule=state==null?null:new VanityCheckpointSchedule(state);}
     private void tickSchedule(){
         if(schedule==null||phase!=Phase.IDLE&&phase!=Phase.REQUESTED)return;
         var id=game.items().witchClaims().owner(LbcWitchClaims.Mode.VANITY);
@@ -58,19 +58,19 @@ public final class LbcVanityRollback {
         schedule.tick(running);
         if(running&&phase==Phase.IDLE&&hasSnapshot()&&schedule.due()&&requestCapture(holder,false))scheduledCapture=true;
     }
-    boolean requestCapture(ServerPlayer holder,boolean grant){
+    public boolean requestCapture(ServerPlayer holder,boolean grant){
         if(phase!=Phase.IDLE||!game.playing()||game.maps().busy())return false;
         requested=holder.getUUID();claim=grant;granted=false;scheduledCapture=false;nextCaptureAttempt=0;captureFrom=image;phase=Phase.REQUESTED;
         game.items().duplicating().beginCheckpointDrain();return true;
     }
-    boolean death(ServerPlayer holder){
+    public boolean death(ServerPlayer holder){
         if(!hasSnapshot()||!holder.entityTags().contains("sin_vanity")||busy())return false;
         requested=null;claim=false;granted=false;captureFrom=null;
         phase=Phase.BODIES;restoreStarted=System.nanoTime();previousFreeze=game.server().tickRateManager().isFrozen();
         // Only request here. Native death/drop iteration finishes before any world is replaced.
         return true;
     }
-    boolean requestRestoreForCheck(){
+    public boolean requestRestoreForCheck(){
         if(!hasSnapshot()||phase!=Phase.IDLE)return false;
         phase=Phase.BODIES;restoreStarted=System.nanoTime();previousFreeze=game.server().tickRateManager().isFrozen();return true;
     }
@@ -240,7 +240,7 @@ public final class LbcVanityRollback {
                 (System.nanoTime()-restoreStarted)/1_000_000.0,pendingPlayers.size());
     }
     /** Real login is restored at an end-tick boundary, before ordinary spectator initialization. */
-    boolean joined(ServerPlayer player){
+    public boolean joined(ServerPlayer player){
         if(!hasSnapshot()||!pendingPlayers.containsKey(player.getUUID()))return false;
         if(phase==Phase.REQUESTED&&!granted){
             requested=null;claim=false;captureFrom=null;waitReason="";phase=Phase.IDLE;game.items().duplicating().endCheckpointDrain();
@@ -248,7 +248,7 @@ public final class LbcVanityRollback {
         if(phase==Phase.IDLE){previousFreeze=game.server().tickRateManager().isFrozen();game.server().tickRateManager().setFrozen(true);phase=Phase.LOGIN;}
         restoringLogins.add(player.getUUID());return true;
     }
-    void leaving(ServerPlayer player){if(hasSnapshot()&&image.players.containsKey(player.getUUID()))logoutBodies.put(player.getUUID(),player);}
+    public void leaving(ServerPlayer player){if(hasSnapshot()&&image.players.containsKey(player.getUUID()))logoutBodies.put(player.getUUID(),player);}
     private void prepareOfflineData(Set<UUID> absent){
         for(var id:absent){
             var data=image.players.get(id);pendingPlayers.putIfAbsent(id,data);
@@ -305,7 +305,7 @@ public final class LbcVanityRollback {
         game.server().tickRateManager().setFrozen(true);
         rebind=candidate;phase=Phase.REBINDING;privateData(()->{rebind.prepareFrozen();return null;});
     }
-    void stop(){
+    public void stop(){
         if(image!=null)image.levelups.cancelFrozen();
         if(busy()&&image!=null&&game.playing()&&!game.maps().busy()&&game.items().currentEpoch(image.epoch)){
             game.server().tickRateManager().setFrozen(true);

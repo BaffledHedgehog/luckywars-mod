@@ -13,8 +13,8 @@ import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.Shapes;
 
 /** Shared vanilla zero-size spawn-egg placement, including source-fluid activation. */
-abstract class LbcMarkerEggItem extends SimplePolymerItem {
-    LbcMarkerEggItem(Properties properties){super(properties,Items.PANDA_SPAWN_EGG,true);}
+public abstract class LbcMarkerEggItem extends SimplePolymerItem {
+    public LbcMarkerEggItem(Properties properties){super(properties,Items.PANDA_SPAWN_EGG,true);}
     @Override public InteractionResult useOn(UseOnContext context){
         if(!(context.getPlayer() instanceof ServerPlayer player))return InteractionResult.FAIL;
         var level=player.level();var clicked=context.getClickedPos();

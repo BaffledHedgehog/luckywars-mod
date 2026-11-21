@@ -22,7 +22,7 @@ public final class LbcIceMaterials {
     public static final Item NEUTRAL_BALL=register("neutral_ball",Items.CARROT_ON_A_STICK,"b",true);
     private final GameController game;
 
-    LbcIceMaterials(GameController game,LbcMana mana){
+    public LbcIceMaterials(GameController game,LbcMana mana){
         this.game=game;
         mana.score(ScoreHolder.forNameOnly("neutral_ball_mana_activate"),"lbc.math").set(5000);
     }
@@ -57,7 +57,7 @@ public final class LbcIceMaterials {
                 &&!game.items().magic().suppressed(player);
     }
     /** Source ten-tick boundary, also callable by the bounded native fixture. */
-    void pulseShard(ServerPlayer player){
+    public void pulseShard(ServerPlayer player){
         if(!active(player))return;
         boolean mainShard=isRunicIceShard(player.getMainHandItem()),offShard=isRunicIceShard(player.getOffhandItem());
         boolean handsOnly=game.lbc().skillsEnabled()&&game.players().get(player.getUUID()).lbcSkill==2;
@@ -73,7 +73,7 @@ public final class LbcIceMaterials {
         if(mainShard||offShard)game.items().frost().runicShard(player);
     }
     /** Called once per ordinary server player tick; no extra inventory cache or serialized NBT scan. */
-    void tickPlayer(ServerPlayer player){
+    public void tickPlayer(ServerPlayer player){
         if(!active(player))return;
         if(game.server().getTickCount()%10==0)pulseShard(player);
         // Frozen holders still receive the shard's Resistance reward above, as in its source.

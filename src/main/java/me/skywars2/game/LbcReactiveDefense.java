@@ -241,12 +241,12 @@ public final class LbcReactiveDefense {
     public void prepareFrozen(){boundary();restoring=true;}
     public void publishFrozen(){restoring=false;lastTick=outputTick=game.server().getTickCount();outputSpent=64;}
     private void boundary(){if(publishing||ticking||draining||!spawning.isEmpty())throw new IllegalStateException("Finish reactive native callbacks before checkpoint");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){boundary();return new Checkpoint(links);}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){boundary();return new Checkpoint(links);}
     private record ActorImage(MatchDamageSources.Ref body,MatchDamageSources.Ref control,UUID owner,String epoch,String team,Kind kind,LbcIndirectKills.Owner cause,int remaining,long due) { }
-    final class Checkpoint {
+    public final class Checkpoint {
         final List<Proc> saved=List.copyOf(pending);final List<ActorImage> bodies;final Map<ServerLevel,Long> time=new IdentityHashMap<>(clocks);
         Checkpoint(MatchSpellCheckpoint.Links links){bodies=work.stream().filter(a->actors.get(a.body)==a).map(a->new ActorImage(links.key(a.body),a.control==null?null:links.key(a.control),a.owner,a.epoch,a.team,a.kind,a.cause,a.remaining,a.due)).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var next=new ArrayList<Actor>();for(var a:bodies){var actor=new Actor(links.get(a.body),a.owner,a.epoch,a.team,a.kind,a.cause,a.remaining,a.due);actor.control=a.control==null?null:links.get(a.control);next.add(actor);}return ()->{pending.clear();pending.addAll(saved);actors.clear();work.clear();for(var a:next){actors.put(a.body,a);work.addLast(a);mirror(a);}clocks.clear();clocks.putAll(time);};}
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var next=new ArrayList<Actor>();for(var a:bodies){var actor=new Actor(links.get(a.body),a.owner,a.epoch,a.team,a.kind,a.cause,a.remaining,a.due);actor.control=a.control==null?null:links.get(a.control);next.add(actor);}return ()->{pending.clear();pending.addAll(saved);actors.clear();work.clear();for(var a:next){actors.put(a.body,a);work.addLast(a);mirror(a);}clocks.clear();clocks.putAll(time);};}
     }
     public boolean cloneRecognizes(Entity body){return actors.containsKey(body);}
     public boolean cloneProtected(Entity body){return false;}

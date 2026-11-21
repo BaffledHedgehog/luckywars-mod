@@ -1,8 +1,8 @@
 package me.skywars2.game;
 
 /** Acquisition-fixed timeline: no world RNG calls or allocations on ordinary ticks. */
-final class VanityCheckpointSchedule {
-    record State(long seed,long elapsed,long ordinal,long nextAt) {}
+public final class VanityCheckpointSchedule {
+    public record State(long seed,long elapsed,long ordinal,long nextAt) {}
     private final long seed;
     private long elapsed,ordinal,nextAt;
 

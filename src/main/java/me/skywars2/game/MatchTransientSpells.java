@@ -6,16 +6,16 @@ import java.util.UUID;
 import net.minecraft.world.entity.Entity;
 
 /** Explicitly omitted short spell actors; long producers and all checkpointed owners stay separate. */
-final class MatchTransientSpells {
+public final class MatchTransientSpells {
     private MatchTransientSpells(){}
 
     /** Unsaved long rooms, trials and producers must finish before a coherent point can be recorded. */
-    static boolean captureReady(GameController game){
+    public static boolean captureReady(GameController game){
         return game.items().bedrock().transientCaptureReady()&&game.items().gaycasterAcademy().transientCaptureReady()
                 &&game.items().blind().transientCaptureReady()&&game.items().teleport().cloudCount()==0
                 &&game.items().erecto().sphereCount()==0;
     }
-    static Set<UUID> captureOmitted(GameController game){
+    public static Set<UUID> captureOmitted(GameController game){
         if(!game.server().isSameThread())throw new IllegalStateException("Inspect transient spell actors on their native match thread");
         var ids=new LinkedHashSet<UUID>();var items=game.items();
         add(ids,items.ruby().snapshot());add(ids,items.air().snapshot());add(ids,items.stone().snapshot());

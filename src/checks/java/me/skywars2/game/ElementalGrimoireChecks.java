@@ -29,24 +29,24 @@ public final class ElementalGrimoireChecks {
     private static void require(boolean value,String why) {
         if(!value)throw new IllegalStateException("Elemental grimoire: "+why);
     }
-    static final class Recording extends Connection {
-        final ServerPlayer player;final List<Packet<?>> packets=new ArrayList<>();
-        Recording(ServerPlayer player){super(PacketFlow.SERVERBOUND);this.player=player;}
+    public static final class Recording extends Connection {
+        final ServerPlayer player;public final List<Packet<?>> packets=new ArrayList<>();
+        public Recording(ServerPlayer player){super(PacketFlow.SERVERBOUND);this.player=player;}
         @Override public boolean isMemoryConnection(){return true;}
         @Override public boolean isConnected(){return true;}
         @Override public PacketListener getPacketListener(){return player.connection;}
         @Override public void send(Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){packets.add(packet);}
         @Override public void flushChannel(){ }
     }
-    static final class Fixture implements AutoCloseable {
-        final GameController game;final LbcMana mana;final ServerPlayer owner;
+    public static final class Fixture implements AutoCloseable {
+        final GameController game;public final LbcMana mana;public final ServerPlayer owner;
         final GameChecks.WandThirdPlayerState saved;final boolean offhand,shift,sprint,ground;
-        final ServerGamePacketListenerImpl connection;final Recording recording;
+        final ServerGamePacketListenerImpl connection;public final Recording recording;
         final Map<LbcElementalGrimoires.Kind,Integer> stats=new EnumMap<>(LbcElementalGrimoires.Kind.class);
-        final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
-        Marker field;boolean retain;
-        Fixture(GameController game) {this(game,false);}
-        Fixture(GameController game,boolean existingStopProbes) {
+        public final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
+        public Marker field;public boolean retain;
+        public Fixture(GameController game) {this(game,false);}
+        public Fixture(GameController game,boolean existingStopProbes) {
             this.game=game;mana=game.items().mana();owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             require(owner!=null&&game.playing()&&game.canUseGameplayItems(owner),"active participant");
             require(owner.containerMenu==owner.inventoryMenu&&(existingStopProbes||count()==0),"closed inventory and exclusive empty payload services");
@@ -59,7 +59,7 @@ public final class ElementalGrimoireChecks {
                     new CommonListenerCookie(owner.getGameProfile(),0,owner.clientInformation(),false));
             owner.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
         }
-        void initialize() {
+        public void initialize() {
             var at=new Vec3(owner.getX(),Math.min(240,owner.level().getMaxY()-40),owner.getZ());
             for(var pos:BlockPos.betweenClosed(BlockPos.containing(at.add(-8,-3,-8)),BlockPos.containing(at.add(8,5,8))))
                 require(owner.level().hasChunkAt(pos)&&owner.level().getBlockState(pos).isAir(),"resident air launch volume");
@@ -70,12 +70,12 @@ public final class ElementalGrimoireChecks {
             owner.getInventory().setSelectedSlot(0);mana.set(owner,0);
             game.items().magic().inventoryChanged(owner);game.items().magic().flushCleansing();
         }
-        int count() {
+        public int count() {
             return game.items().ruby().count()+game.items().terra().count()+game.items().wands().electroCount()
                     +game.items().air().count()+game.items().clouds().acidCount()+game.items().teleport().count()
                     +game.items().stone().count()+game.items().blind().count()+fire().size();
         }
-        List<Projectile> fire() {
+        public List<Projectile> fire() {
             var out=new ArrayList<Projectile>();
             for(var entity:owner.level().getAllEntities())if(!before.contains(entity)&&!entity.isRemoved()
                     &&entity.getType()==EntityTypes.SMALL_FIREBALL&&entity instanceof Projectile projectile)out.add(projectile);
@@ -86,14 +86,14 @@ public final class ElementalGrimoireChecks {
             require(result.size()==1&&result.getFirst().getCount()==1,"singleton narrow loot "+kind);
             return result.getFirst();
         }
-        ItemStack held(LbcElementalGrimoires.Kind kind,InteractionHand hand,int count) {
+        public ItemStack held(LbcElementalGrimoires.Kind kind,InteractionHand hand,int count) {
             owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
             var stack=loot(kind);stack.setCount(count);owner.setItemInHand(hand,stack);return stack;
         }
-        boolean input(InteractionHand hand) {
+        public boolean input(InteractionHand hand) {
             return owner.gameMode.useItem(owner,owner.level(),owner.getItemInHand(hand),hand).consumesAction();
         }
-        void presentation(LbcElementalGrimoires.Kind kind) {
+        public void presentation(LbcElementalGrimoires.Kind kind) {
             var stack=loot(kind);var defaults=kind.item.getDefaultInstance();
             require(stack.is(kind.item)&&LbcElementalGrimoires.kind(stack)==kind&&stack.getMaxStackSize()==99,"native identity "+kind);
             require(stack.get(DataComponents.ITEM_MODEL).equals(defaults.get(DataComponents.ITEM_MODEL))
@@ -146,7 +146,7 @@ public final class ElementalGrimoireChecks {
             require(recording.packets.stream().filter(ClientboundSoundPacket.class::isInstance)
                     .map(ClientboundSoundPacket.class::cast).anyMatch(p->p.getSound().value().location().toString().equals(sound)),"native source sound "+kind);
         }
-        void clear() {
+        public void clear() {
             game.items().ruby().stop();game.items().terra().stop();game.items().wands().stop();game.items().air().stop();
             game.items().clouds().stop();game.items().teleport().stop();game.items().stone().stop();game.items().blind().stop();
             fire().forEach(Entity::discard);recording.packets.clear();
@@ -193,7 +193,7 @@ public final class ElementalGrimoireChecks {
                 require(!input(InteractionHand.MAIN_HAND)&&stack.getCount()==2&&count()==0,"observer preserves "+kind);
             }
         }
-        void removeField(){if(field!=null){game.items().magic().unloaded(field);field.discard();field=null;game.items().magic().flushCleansing();}}
+        public void removeField(){if(field!=null){game.items().magic().unloaded(field);field.discard();field=null;game.items().magic().flushCleansing();}}
         @Override public void close() {
             removeField();game.items().timeStop().end(owner.level());if(!retain)clear();
             game.config().offhandWands=offhand;saved.restore(game);owner.setShiftKeyDown(shift);owner.setSprinting(sprint);owner.setOnGround(ground);

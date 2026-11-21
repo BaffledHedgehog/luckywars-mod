@@ -13,11 +13,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 
 /** Both rainbow producers share a replayable per-cast sample cursor and current author lookup. */
-final class LbcRainbowRay implements LbcExasperato.ReplayableRay {
+public final class LbcRainbowRay implements LbcExasperato.ReplayableRay {
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private final GameController game;private final UUID author;private final String epoch;
     private final Vec3 origin,direction;private final int color,tint;private double next;
-    LbcRainbowRay(GameController game,ServerPlayer owner,Vec3 origin,Vec3 direction,int color,int tint){this.game=game;author=owner.getUUID();epoch=game.items().epoch();this.origin=origin;this.direction=direction;this.color=color;this.tint=tint;}
+    public LbcRainbowRay(GameController game,ServerPlayer owner,Vec3 origin,Vec3 direction,int color,int tint){this.game=game;author=owner.getUUID();epoch=game.items().epoch();this.origin=origin;this.direction=direction;this.color=color;this.tint=tint;}
     private ServerPlayer owner(){return game.server().getPlayerList().getPlayer(author);}
     public boolean block(BlockPos pos,BlockState state){return !state.is(AIRS);}
     public boolean target(Entity entity){var owner=owner();return owner!=null&&LbcGaycaster.target(game,owner,entity);}

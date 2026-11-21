@@ -153,7 +153,7 @@ public final class LbcSpellSource {
         sources.put(entity,source);
     }
     /** New attacks belong to the new controller; already inherited child policies remain immutable. */
-    void controllerChanged(Entity emitter,ServerPlayer controller){
+    public void controllerChanged(Entity emitter,ServerPlayer controller){
         emitter.entityTags().remove("skywars2.unowned_hazard");
         emitter.entityTags().remove(HELMET_CREDIT);
         if(emitter instanceof net.minecraft.world.entity.Mob)emitter.entityTags().remove(WILD_LOOT);
@@ -263,13 +263,13 @@ public final class LbcSpellSource {
         unloaded.values().removeIf(s->!s.persistent()&&!s.unownedMobs()&&author.getUUID().equals(s.author()));
     }
     public void stop(){var actors=List.copyOf(sources.keySet());sources.clear();unloaded.clear();current=null;currentLevel=null;for(var actor:actors)if(actor instanceof Projectile)actor.discard();}
-    void checkpointBoundary(){if(scopes!=0||current!=null||currentLevel!=null)throw new IllegalStateException("Finish spell scopes before checkpointing");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(scopes!=0||current!=null||currentLevel!=null)throw new IllegalStateException("Finish spell scopes before checkpointing");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private final MatchSpellCheckpoint.IdentityImage<Entity,Source> active;
         private final Map<UUID,Source> asleep=new HashMap<>(unloaded);
         Checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();active=new MatchSpellCheckpoint.IdentityImage<>(sources,links);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=active.restore(links);var dormant=new HashMap<>(asleep);
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var restored=active.restore(links);var dormant=new HashMap<>(asleep);
             return ()->{sources=restored;unloaded.clear();unloaded.putAll(dormant);};}
     }
 

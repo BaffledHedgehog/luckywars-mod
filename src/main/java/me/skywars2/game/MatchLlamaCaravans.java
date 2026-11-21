@@ -7,13 +7,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.equine.Llama;
 
 /** Native bidirectional caravan edges. Replay never joins/leaves through gameplay callbacks. */
-final class MatchLlamaCaravans {
+public final class MatchLlamaCaravans {
     private record Image(Llama llama,MatchDamageSources.Ref head,MatchDamageSources.Ref tail){}
     private final List<Image> images=new ArrayList<>();
-    MatchLlamaCaravans(Collection<? extends Entity> actors,MatchDamageSources sources){
+    public MatchLlamaCaravans(Collection<? extends Entity> actors,MatchDamageSources sources){
         for(var actor:actors)if(actor instanceof Llama llama)images.add(new Image(llama,sources.dependencyRef(llama.getCaravanHead()),sources.dependencyRef(access(llama).skywars2$caravanTail())));
     }
-    void restore(Function<UUID,Entity> lookup,Set<UUID> pending){
+    public void restore(Function<UUID,Entity> lookup,Set<UUID> pending){
         for (var image : images) {
             var llama = access(image.llama);
             llama.skywars2$caravanHead(resolve(image.head,lookup,pending));

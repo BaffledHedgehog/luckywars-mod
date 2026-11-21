@@ -71,7 +71,7 @@ public final class LbcMagnum {
             this.weapon=weapon;
         }
     }
-    LbcMagnum(GameController game) { this.game=game; }
+    public LbcMagnum(GameController game) { this.game=game; }
     public static void register() { }
     private static CompoundTag flag(String name) { var tag=new CompoundTag(); tag.putInt(name,1); return tag; }
     private static Component line(String key,ChatFormatting color) {
@@ -111,7 +111,7 @@ public final class LbcMagnum {
         return Math.clamp(ItemData.intValue(stack,"mode",0),0,5);
     }
     /** Catalog source selector; ammo intake itself follows the native inventory debit below. */
-    static int roundMode(ItemStack stack) {
+    public static int roundMode(ItemStack stack) {
         for(int mode=0;mode<MODES.length;mode++)if(ItemData.intValue(stack,MODES[mode]+"_round",0)==1)return mode;
         return -1;
     }
@@ -294,7 +294,7 @@ public final class LbcMagnum {
     }
     public int queued(ServerPlayer owner) { var burst=bursts.get(owner.getUUID()); return burst==null?0:burst.remaining; }
     public int shots(ServerPlayer owner) { return fired.getOrDefault(owner.getUUID(),0); }
-    void addPlayerCounters(ServerPlayer owner) {
+    public void addPlayerCounters(ServerPlayer owner) {
         fired.merge(owner.getUUID(),1,Integer::sum);
         var burst=bursts.get(owner.getUUID());
         if(burst!=null && retained(burst)) { burst.remaining++; return; }

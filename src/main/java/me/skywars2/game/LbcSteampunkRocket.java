@@ -233,17 +233,17 @@ public final class LbcSteampunkRocket {
         if(entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)flight.body=null;
         else {flights.remove(flight.id);retire(flight.id);}}
     public int count(){return flights.size();}
-    int age(Arrow arrow){var flight=flights.get(arrow.getUUID());return flight==null?-1:flight.age;}
-    List<Arrow> snapshot(){return flights.values().stream().map(f->f.body).filter(Objects::nonNull).toList();}
+    public int age(Arrow arrow){var flight=flights.get(arrow.getUUID());return flight==null?-1:flight.age;}
+    public List<Arrow> snapshot(){return flights.values().stream().map(f->f.body).filter(Objects::nonNull).toList();}
     public void stop(){for(var flight:List.copyOf(flights.values()))remove(flight);flights.clear();restoring=false;}
-    void prepareFrozen(){restoring=true;flights.clear();}
-    void publishFrozen(){restoring=false;for(var flight:flights.values())flight.lastTick=game.server().getTickCount();}
-    Checkpoint checkpoint(){return new Checkpoint();}
-    final class Checkpoint {
+    public void prepareFrozen(){restoring=true;flights.clear();}
+    public void publishFrozen(){restoring=false;for(var flight:flights.values())flight.lastTick=game.server().getTickCount();}
+    public Checkpoint checkpoint(){return new Checkpoint();}
+    public final class Checkpoint {
         final List<Image> images=flights.values().stream().map(Flight::image).toList();
         final Set<UUID> retiredImage=Set.copyOf(retired);final String retiredEpochImage=retiredEpoch;
-        Set<UUID> actorIds(){var ids=new HashSet<UUID>();images.forEach(image->ids.add(image.id()));return Set.copyOf(ids);}
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
+        public Set<UUID> actorIds(){var ids=new HashSet<UUID>();images.forEach(image->ids.add(image.id()));return Set.copyOf(ids);}
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){
             var missing=new HashSet<UUID>();var rebound=new ArrayList<Flight>();
             for(var image:images){var entity=lookup.apply(image.id());if(entity==null)missing.add(image.id());
                 else if(entity instanceof Arrow arrow)rebound.add(new Flight(image.id(),image.rider(),image.source(),image.age(),arrow));

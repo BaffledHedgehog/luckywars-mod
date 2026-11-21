@@ -34,10 +34,10 @@ public final class LbcTmtItems {
     public static final Item TOKEN=token();
     private static final List<Item> OUTPUTS=outputs();
     public static void register(){LbcTmtLoot.register();}
-    static boolean token(ItemStack stack){return !matches(stack)&&(stack.is(TOKEN)||ItemData.intValue(stack,"tmt",0)==1);}
+    public static boolean token(ItemStack stack){return !matches(stack)&&(stack.is(TOKEN)||ItemData.intValue(stack,"tmt",0)==1);}
     public static boolean output(Item item){return OUTPUTS.contains(item);}
-    static ItemStack prototype(int index){return new ItemStack(OUTPUTS.get(index));}
-    static Item carrierFor(ItemStack stack) {
+    public static ItemStack prototype(int index){return new ItemStack(OUTPUTS.get(index));}
+    public static Item carrierFor(ItemStack stack) {
         for (var carrier : OUTPUTS)
             if (stack.is(vanillaCarrier(carrier))) return carrier;
         return stack.getItem();
@@ -69,7 +69,7 @@ public final class LbcTmtItems {
         return result;
     }
     private static LbcTmtRuntime runtime(){var game=SkyWars2.game();return game==null?null:game.items().tmt();}
-    static Item vanillaCarrier(ItemStack stack){
+    public static Item vanillaCarrier(ItemStack stack){
         return vanillaCarrier(stack.getItem());
     }
     private static Item vanillaCarrier(Item item){

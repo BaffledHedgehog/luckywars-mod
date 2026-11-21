@@ -68,7 +68,7 @@ public final class LbcFartus {
     public static final Item MATERIAL=registerItem("skywars2:wtf_item",false,true);
     private final GameController game;
     private final Set<Shot> shots=new LinkedHashSet<>();
-    LbcFartus(GameController game){this.game=game;}
+    public LbcFartus(GameController game){this.game=game;}
     public static void register(){}
     private static EntityType<Shot> registerType(){
         var key=ResourceKey.create(Registries.ENTITY_TYPE,Identifier.parse("skywars2:fartus_projectile"));
@@ -95,15 +95,15 @@ public final class LbcFartus {
             }
         });
     }
-    static CompoundTag data(ItemStack stack){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
+    public static CompoundTag data(ItemStack stack){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
     public static boolean isFartus(ItemStack stack){return !stack.isEmpty()&&(stack.is(ITEM)||stack.is(ACADEMY)||data(stack).getIntOr("fartus_nadristailo",0)==1);}
     public static boolean isMaterial(ItemStack stack){return !stack.isEmpty()&&(stack.is(MATERIAL)||data(stack).getIntOr("wtf_item",0)==1);}
     public static boolean academy(ItemStack stack){return isFartus(stack)&&(stack.is(ACADEMY)||data(stack).getIntOr("upgraded",0)==1||!LbcTmtAbilities.active(stack)&&LbcTmtInventory.upgraded(stack,"fartus_nadristailo"));}
     public static boolean magic(Entity entity){return entity instanceof Shot shot&&shot.kind!=Kind.BANANA;}
     public static final class Shot extends Projectile implements PolymerEntity {
-        Kind kind=Kind.BANANA;int age;float launchYaw,launchPitch;Display.ItemDisplay display;LbcFartus service;
-        LbcIndirectKills.Owner borrowedCause;
-        Shot(EntityType<? extends Shot> type,Level level){super(type,level);}
+        public Kind kind=Kind.BANANA;public int age;public float launchYaw,launchPitch;public Display.ItemDisplay display;LbcFartus service;
+        public LbcIndirectKills.Owner borrowedCause;
+        public Shot(EntityType<? extends Shot> type,Level level){super(type,level);}
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder){}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
         @Override public boolean shouldBeSaved(){return false;}
@@ -111,7 +111,7 @@ public final class LbcFartus {
         @Override public boolean isPushable(){return false;}
     }
     public int count(){return shots.size();}
-    List<Shot> snapshot(){return List.copyOf(shots);}
+    public List<Shot> snapshot(){return List.copyOf(shots);}
     public boolean use(ServerPlayer owner,InteractionHand hand){
         var stack=owner.getItemInHand(hand);
         if(!isFartus(stack)||!validOwner(owner)||game.items().mana().noMagic(owner)>0||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
@@ -130,13 +130,13 @@ public final class LbcFartus {
         game.items().wands().wandCasted(owner);return true;
     }
     /** A deterministic choice still follows the exact production five-shot geometry. */
-    void cast(ServerPlayer owner,int branch){
+    public void cast(ServerPlayer owner,int branch){
         if(branch!=1&&branch!=2)throw new IllegalArgumentException("Fartus branch must be1 or2");
         volley(owner, branch==1?Kind.BANANA:Kind.LABEL, owner.getEyePosition(), owner.getLookAngle(),
                 owner.getYRot(), owner.getXRot(), null);
     }
 
-    boolean scriptVolley(ServerPlayer owner, ItemStack gift, Vec3 origin, Vec3 aim, Kind choice) {
+    public boolean scriptVolley(ServerPlayer owner, ItemStack gift, Vec3 origin, Vec3 aim, Kind choice) {
         if (!validOwner(owner)) return false;
         var kind = choice != null ? choice : owner.getRandom().nextInt(2)==0 ? Kind.BANANA : Kind.LABEL;
         float yaw = aim.horizontalDistanceSqr() < 1e-12 ? owner.getYRot() : (float)-Math.toDegrees(Math.atan2(aim.x,aim.z));
@@ -182,7 +182,7 @@ public final class LbcFartus {
         stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));owner.getInventory().setChanged();
         if(score>=4)game.items().academy().ready(owner,hand,stack);
     }
-    Shot spawn(ServerPlayer owner,Kind kind,Vec3 origin,Vec3 motion){
+    public Shot spawn(ServerPlayer owner,Kind kind,Vec3 origin,Vec3 motion){
         return spawn(owner, kind, origin, motion, owner.getYRot(), owner.getXRot(), null);
     }
 
@@ -227,7 +227,7 @@ public final class LbcFartus {
         for(var shot:List.copyOf(shots))flight(shot);
         if(game.server().getTickCount()%20==0)for(var owner:game.server().getPlayerList().getPlayers())updateSword(owner);
     }
-    void flight(Shot shot){
+    public void flight(Shot shot){
         if(!shots.contains(shot))return;
         if(!valid(shot)){remove(shot);return;}
         var level=(ServerLevel)shot.level();
@@ -327,13 +327,13 @@ public final class LbcFartus {
             game.items().shooters().stun(owner,victim,40);
         }
     }
-    static ItemAttributeModifiers attributes(double damage){
+    public static ItemAttributeModifiers attributes(double damage){
         return ItemAttributeModifiers.builder()
                 .add(Attributes.ATTACK_DAMAGE,new AttributeModifier(Identifier.parse("minecraft:base_attack_damage"),damage,AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ATTACK_SPEED,new AttributeModifier(Identifier.parse("minecraft:base_attack_speed"),-3.5,AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ENTITY_INTERACTION_RANGE,new AttributeModifier(Identifier.parse("minecraft:a8uvy89ryvmg89dmybv8gdfrgg"),10,AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND).build();
     }
-    void updateSword(ServerPlayer owner){
+    public void updateSword(ServerPlayer owner){
         if(!validOwner(owner)||!academy(owner.getMainHandItem())||game.items().wands().inputTimeStopped(owner))return;
         long count=0;for(var stack:owner.getInventory().getNonEquipmentItems())if(ItemData.intValue(stack,"govnoq",0)==1)count+=stack.getCount();
         // clear @s includes offhand/equipment in the source, not just hotbar/storage.
@@ -352,9 +352,9 @@ public final class LbcFartus {
     public void purify(ServerPlayer owner){forget(owner);}
     public void stop(){for(var shot:List.copyOf(shots))remove(shot);for(var owner:game.server().getPlayerList().getPlayers())game.items().mana().score(owner,"fartus_sword").set(0);}
 
-    void cancelTransient(){for(var shot:List.copyOf(shots))remove(shot);}
+    public void cancelTransient(){for(var shot:List.copyOf(shots))remove(shot);}
 
-    LbcCloneSkills.ActorImage cloneImage(Shot source) {
+    public LbcCloneSkills.ActorImage cloneImage(Shot source) {
         var kind=source.kind;int age=source.age;float yaw=source.launchYaw,pitch=source.launchPitch;
         var cause=source.borrowedCause;
         return new LbcCloneSkills.ActorImage() {
@@ -379,6 +379,6 @@ public final class LbcFartus {
     }
 
 
-    void directionChanged(Entity actor) { if(actor instanceof Shot shot)orient(shot); }
+    public void directionChanged(Entity actor) { if(actor instanceof Shot shot)orient(shot); }
 
 }

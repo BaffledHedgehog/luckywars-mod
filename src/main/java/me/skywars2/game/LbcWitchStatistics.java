@@ -28,7 +28,7 @@ public final class LbcWitchStatistics {
         return attacker instanceof ServerPlayer player&&source.getEntity()==player&&source.getDirectEntity()==player?new Melee(source,victim):source;
     }
     /** The native weapon/death-message delegate shares the accepted source checkpoint graph. */
-    static net.minecraft.world.damagesource.DamageSource checkpointWrappedSource(net.minecraft.world.damagesource.DamageSource source){return source instanceof Melee melee?melee.original:null;}
+    public static net.minecraft.world.damagesource.DamageSource checkpointWrappedSource(net.minecraft.world.damagesource.DamageSource source){return source instanceof Melee melee?melee.original:null;}
     public static ObjectiveCriteria criterion(String name){return switch(name){
         case "dmg_dealt"->ObjectiveCriteria.DUMMY;
         case "lolidefecation"->Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI));
@@ -42,7 +42,7 @@ public final class LbcWitchStatistics {
         return null;
     }
     /** Per-match progress never inherits the previous match's dummy or native-criterion scores. */
-    static void beginMatch(GameController game){
+    public static void beginMatch(GameController game){
         for(var player:game.server().getPlayerList().getPlayers()){
             for(var key:java.util.List.of("dmg_dealt","lolidefecation","food_count","sleep_time","greed_prestige","lucky_block_count","indolence_cd","lust_cd","gens_type"))
                 game.items().mana().score(player,key).set(0);

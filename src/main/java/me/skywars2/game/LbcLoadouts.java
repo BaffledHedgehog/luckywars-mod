@@ -77,7 +77,7 @@ public final class LbcLoadouts {
     }
 
     /** Периодическая сверка только флагов; инвентари и сущности отправляются лишь при изменившемся доступе. */
-    void tickSecond() {
+    public void tickSecond() {
         refreshArtifactViews();
         refreshKnowledgeViews();
         artifactReaders.keySet().removeIf(id -> game.server().getPlayerList().getPlayer(id) == null);
@@ -243,7 +243,7 @@ public final class LbcLoadouts {
         return entry != null && allowed(player, entry) ? id : 0;
     }
 
-    net.minecraft.world.item.ItemStack preview(ServerPlayer player, Kind kind, int id) {
+    public net.minecraft.world.item.ItemStack preview(ServerPlayer player, Kind kind, int id) {
         var entry = byId(kind, id);
         return entry == null ? new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BARRIER)
                 : OriginalGuiDesign.button(player, "lbc", entry.page, entry.slot, players.get(player.getUUID()), config);
@@ -260,7 +260,7 @@ public final class LbcLoadouts {
         LbcParasite.beforeEffects(player); game.items().containedSkills().beforeEffects(player);
     }
 
-    void restoreSelection(ServerPlayer player, int kit, int skill, int[] levelups, int[] trinkets) {
+    public void restoreSelection(ServerPlayer player, int kit, int skill, int[] levelups, int[] trinkets) {
         var profile = players.get(player.getUUID());
         profile.lbcKit = selectableId(player, Kind.KITS, kit);
         changeSkill(player, profile, selectableId(player, Kind.SKILLS, skill));
@@ -334,7 +334,7 @@ public final class LbcLoadouts {
         finally{inventorySkillsChanging.remove(id);}
     }
 
-    boolean hasUnlock(ServerPlayer player, String gate) {
+    public boolean hasUnlock(ServerPlayer player, String gate) {
         if (players.get(player.getUUID()).lbcUnlocks.contains(gate)) return true;
         // Нативное достижение либо явный административный grant открывает исходный перк.
         var advancement = game.server().getAdvancements().get(Identifier.parse(gate));
@@ -445,7 +445,7 @@ public final class LbcLoadouts {
     }
 
     /** Accepted initial choices, independent of later debug edits and respawn reapplication. */
-    java.util.Map<String, List<Integer>> statisticsChoices(ServerPlayer player) {
+    public java.util.Map<String, List<Integer>> statisticsChoices(ServerPlayer player) {
         var profile = players.get(player.getUUID());
         var choices = new java.util.LinkedHashMap<String, List<Integer>>();
         var kit = byId(Kind.KITS, profile.lbcKit);
@@ -486,7 +486,7 @@ public final class LbcLoadouts {
     }
 
     /** Debug selection updates native bonuses immediately without reissuing an unrelated kit. */
-    void refreshDebugSelection(ServerPlayer player, Kind kind) {
+    public void refreshDebugSelection(ServerPlayer player, Kind kind) {
         if (game.balanceLegacy() || !game.debugPerks(player)) return;
         var profile = players.get(player.getUUID());
         if (kind == Kind.KITS || kind == Kind.TRINKETS) {
@@ -579,7 +579,7 @@ public final class LbcLoadouts {
     }
 
     /** Общая нативная выдача таблицы: используется наборами и проверками отдельных перенесённых предметов. */
-    void grantTable(ServerPlayer player, String tableId) {
+    public void grantTable(ServerPlayer player, String tableId) {
         // Нативная вставка объединяет одинаковые тринкеты и обрабатывает переполнение инвентаря.
         for (var stack : rollTable(player.level(), player.position(), player, tableId)) {
             player.getInventory().placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
@@ -587,7 +587,7 @@ public final class LbcLoadouts {
     }
 
     /** Перенесённые loot conditions, включая /loot, читают прежний score; настройкой владеет config. */
-    void syncRanked() {
+    public void syncRanked() {
         syncSourceFlag("ranked",config.ranked);
         syncSourceFlag("halloween",config.eventHalloween);
         syncSourceFlag("november",config.eventNovember);
@@ -599,7 +599,7 @@ public final class LbcLoadouts {
         int wanted=enabled?1:0;if(score.get()!=wanted)score.set(wanted);
     }
 
-    List<net.minecraft.world.item.ItemStack> rollTable(net.minecraft.server.level.ServerLevel level,
+    public List<net.minecraft.world.item.ItemStack> rollTable(net.minecraft.server.level.ServerLevel level,
             net.minecraft.world.phys.Vec3 origin, net.minecraft.world.entity.Entity source, String tableId) {
         syncRanked();
         var table = game.server().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse(tableId)));
@@ -615,8 +615,8 @@ public final class LbcLoadouts {
     public long effectiveLevelupMask(ServerPlayer player) {
         return config.lbcLevelups && !game.balanceLegacy() ? resolvedLevelups.mask(player) : 0;
     }
-    LbcResolvedLevelups resolvedLevelups() { return resolvedLevelups; }
-    void resetLevelupMatch() { resolvedLevelups.resetMatch(); }
+    public LbcResolvedLevelups resolvedLevelups() { return resolvedLevelups; }
+    public void resetLevelupMatch() { resolvedLevelups.resetMatch(); }
 
     /** Remove only this catalog's modifiers, including old persistent copies after a restart. */
     public void clear(ServerPlayer player) {

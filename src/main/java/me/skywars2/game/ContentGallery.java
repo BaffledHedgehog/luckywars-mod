@@ -361,7 +361,7 @@ public final class ContentGallery {
     }
 
     /** Imported map writes take ownership even when their material equals the old gallery material. */
-    void mapBlockWritten(ServerLevel world,BlockPos pos) {
+    public void mapBlockWritten(ServerLevel world,BlockPos pos) {
         if(restoring.isEmpty())return;
         if(restoring.remove(new CellKey(world.dimension().identifier().toString(),pos))!=null)restorationDirty=true;
     }

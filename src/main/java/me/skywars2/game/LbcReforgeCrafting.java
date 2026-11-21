@@ -103,7 +103,7 @@ public final class LbcReforgeCrafting {
     static void deliver(ServerPlayer player,ItemStack stack) {
         deliver(player,stack,entity->{});
     }
-    static void deliver(ServerPlayer player,ItemStack stack,java.util.function.Consumer<ItemEntity> beforeDrop) {
+    public static void deliver(ServerPlayer player,ItemStack stack,java.util.function.Consumer<ItemEntity> beforeDrop) {
         var inventory=player.getInventory();
         // Like native placeItemBackInInventory: insert only what fits. A general add()
         // silently deletes its remainder for players with infinite materials.

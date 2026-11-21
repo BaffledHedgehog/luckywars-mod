@@ -26,7 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /** Native combat history/reference phase. Does not reapply damage, awards or enter/leave callbacks. */
-final class MatchCombatCheckpoint {
+public final class MatchCombatCheckpoint {
     // Historical explosion/projectile anchors can already be removed or never registered.
     // Keep those original anchors; live actors/players ALWAYS resolve through the body owner.
     private record History(MatchDamageSources.Image source,float damage,net.minecraft.world.damagesource.FallLocation location,float distance) { }
@@ -42,7 +42,7 @@ final class MatchCombatCheckpoint {
     private final LbcIndirectKills indirectKills;
     private final Map<UUID,Entity> registered=new LinkedHashMap<>();
 
-    MatchCombatCheckpoint(GameController game,List<Entity> actors,MatchDamageSources sources) {
+    public MatchCombatCheckpoint(GameController game,List<Entity> actors,MatchDamageSources sources) {
         this.sources=sources;
         this.indirectKills=game.items().indirectKills();
         for(var actor:actors)registered.put(actor.getUUID(),actor);
@@ -96,7 +96,7 @@ final class MatchCombatCheckpoint {
     }
 
     /** Body and player phases must already have restored native clocks and identities. */
-    void restore(Function<UUID,Entity> lookup,Set<UUID> pending) {
+    public void restore(Function<UUID,Entity> lookup,Set<UUID> pending) {
         // Retain exact source classes, original accepted immutable causes and nested wrappers.
         // Replacing them with a plain DamageSource would erase WILD/shard/NO_KNOCKBACK policy.
         sources.restore(lookup,pending);

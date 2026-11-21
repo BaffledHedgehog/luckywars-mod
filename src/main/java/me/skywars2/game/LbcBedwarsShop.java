@@ -44,12 +44,12 @@ public final class LbcBedwarsShop {
         default ItemStack luckyBlock(ServerPlayer player,LbcLuckyBlocks.Kind kind) { return ItemStack.EMPTY; }
         void beacon(ServerPlayer player,Beacon buff,int seconds);
     }
-    enum Category { ARMOR,WEAPONS,TOOLS,FOOD,BLOCKS,SPECIAL,ENCHANTS,BEACONS,LUCKY }
+    public enum Category { ARMOR,WEAPONS,TOOLS,FOOD,BLOCKS,SPECIAL,ENCHANTS,BEACONS,LUCKY }
     private enum Kind { ITEM,TEAM_CHEST,ARMOR,WEAPONS,TOOLS,BOWS,KNOCKBACK,BEACON,LUCKY_BLOCK }
-    record Price(int copper,int iron,int gold,int diamond,int star) {
-        int at(int i){return switch(i){case 0->copper;case 1->iron;case 2->gold;case 3->diamond;default->star;};}
+    public record Price(int copper,int iron,int gold,int diamond,int star) {
+        public int at(int i){return switch(i){case 0->copper;case 1->iron;case 2->gold;case 3->diamond;default->star;};}
     }
-    record Offer(int slot,ItemStack item,Price price,int gives,Kind kind,Beacon buff,int seconds) { }
+    public record Offer(int slot,ItemStack item,Price price,int gives,Kind kind,Beacon buff,int seconds) { }
     private static final Item[] CURRENCY={Items.COPPER_INGOT,Items.IRON_INGOT,Items.GOLD_INGOT,Items.DIAMOND,Items.NETHER_STAR};
     private static final String[] CURRENCY_KEYS={"item.minecraft.copper_ingot","item.minecraft.iron_ingot","item.minecraft.gold_ingot","item.minecraft.diamond","item.minecraft.nether_star"};
     private static final String[] BARE_CURRENCY_KEYS={"copper_ingot","iron_ingot","gold_ingot","diamond","nether_star"};
@@ -74,7 +74,7 @@ public final class LbcBedwarsShop {
     }
     private static void stock(List<Offer> out,int slot,ItemStack stack,String key,Price price,int gives){out.add(new Offer(slot,named(stack,key),price,gives,Kind.ITEM,null,0));}
     private static ItemStack prot(ServerPlayer p,Item item,int level){return enchant(p,item(item),Enchantments.PROTECTION,level);}
-    List<Offer> offers(ServerPlayer player,Category category){
+    public List<Offer> offers(ServerPlayer player,Category category){
         var out=new ArrayList<Offer>();var dye=TEAM_COLORS[policy.team(player)-1];
         switch(category){
             case LUCKY -> {

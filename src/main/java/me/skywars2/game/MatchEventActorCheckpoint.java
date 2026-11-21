@@ -7,7 +7,7 @@ import java.util.function.Function;
 import net.minecraft.world.entity.Entity;
 
 /** Essential event phases and long-lived actors. Source terrain must finish before capture. */
-final class MatchEventActorCheckpoint {
+public final class MatchEventActorCheckpoint {
     private final GameController game;
     private final String epoch;
     private final MatchSpellCheckpoint.Links links;
@@ -17,7 +17,7 @@ final class MatchEventActorCheckpoint {
     private final LbcSauvojenBoss.Checkpoint boss;
     private boolean prepared,installed,published;
 
-    static boolean captureReady(GameController game){
+    public static boolean captureReady(GameController game){
         return game.items().apocalypseEvents().captureReady()&&game.items().apocalypseActors().captureReady()
                 &&game.items().nukeEvent().captureReady()&&game.items().sauvojenBoss().captureReady();
     }

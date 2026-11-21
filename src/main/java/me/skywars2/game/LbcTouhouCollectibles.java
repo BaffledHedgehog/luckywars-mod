@@ -112,10 +112,10 @@ public final class LbcTouhouCollectibles {
     public void stop(){for(var p:game.server().getPlayerList().getPlayers())forget(p);dirty.clear();states.clear();}
     public void prepareFrozen(){restoring=true;dirty.clear();states.clear();}
     public void publishFrozen(){restoring=false;}
-    Checkpoint checkpoint(){if(draining)throw new IllegalStateException("Touhou checkpoint during inventory drain");return new Checkpoint();}
-    final class Checkpoint{
+    public Checkpoint checkpoint(){if(draining)throw new IllegalStateException("Touhou checkpoint during inventory drain");return new Checkpoint();}
+    public final class Checkpoint{
         private final Map<UUID,Counters> saved=Map.copyOf(states);
         private final List<UUID> pending=List.copyOf(dirty);
-        MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){return new MatchFieldCheckpoint.Plan(Set.of(),()->{states.clear();states.putAll(saved);dirty.clear();dirty.addAll(pending);saved.forEach((id,value)->{if(lookup.apply(id) instanceof ServerPlayer player){publish(player,value);modifiers(player,value.power);}});});}
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID,Entity> lookup){return new MatchFieldCheckpoint.Plan(Set.of(),()->{states.clear();states.putAll(saved);dirty.clear();dirty.addAll(pending);saved.forEach((id,value)->{if(lookup.apply(id) instanceof ServerPlayer player){publish(player,value);modifiers(player,value.power);}});});}
     }
 }

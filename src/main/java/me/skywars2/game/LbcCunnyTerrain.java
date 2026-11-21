@@ -316,7 +316,7 @@ public final class LbcCunnyTerrain {
     public void publishFrozen(){}
     public void cancelFrozen(){stop();}
     public void checkpointBoundary(){if(!game.server().isSameThread())throw new IllegalStateException("Cunny terrain checkpoint requires native thread");}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();var saved=List.copyOf(jobs);saved.forEach(graph::capture);boolean retired=retiring;long sequence=actorSequence,cursor=cloneCursor;return links->()->{jobs.clear();jobs.addAll(saved);actors.clear();for(var job:saved)job.ops.forEach(this::track);retiring=retired;actorSequence=sequence;cloneCursor=cursor;};}
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();var saved=List.copyOf(jobs);saved.forEach(graph::capture);boolean retired=retiring;long sequence=actorSequence,cursor=cloneCursor;return links->()->{jobs.clear();jobs.addAll(saved);actors.clear();for(var job:saved)job.ops.forEach(this::track);retiring=retired;actorSequence=sequence;cloneCursor=cursor;};}
     public record View(int jobs,int grass,int jungle,int pending,long visits,long writes){}
     public View view(){int grass=0,jungle=0,pending=0;long visits=0,writes=0;for(var job:jobs){grass+=job.claims.size();jungle+=(int)job.ops.stream().filter(op->op instanceof Jungle||op instanceof Spread).count();pending+=job.ops.size();visits+=job.visits;writes+=job.writes;}return new View(jobs.size(),grass,jungle,pending,visits,writes);}
 
@@ -325,11 +325,11 @@ public final class LbcCunnyTerrain {
         return op instanceof Grass g?new Grass(g.at,g.due,mark):op instanceof Jungle j?new Jungle(j.at,j.phase,j.due,mark):new Spread(((Spread)op).at,((Spread)op).attempts,mark);
     }
     private Vec3 position(Op op){return op instanceof Grass g?Vec3.atCenterOf(g.at):op instanceof Jungle j?j.at:((Spread)op).at;}
-    record CloneResult(int scanned,int operations,int bodies){}
-    record ActorView(long id,UUID author,LbcIndirectKills.Owner cause,boolean jungle,int mask,Vec3 position){}
-    List<ActorView> actorViews(int limit){var result=new ArrayList<ActorView>();for(var mark:actors.values()){if(result.size()>=Math.max(0,limit))break;result.add(new ActorView(mark.id,mark.job.author.getUUID(),mark.job.cause,!(mark.op instanceof Grass),mark.mask,position(mark.op)));}return List.copyOf(result);}
+    public record CloneResult(int scanned,int operations,int bodies){}
+    public record ActorView(long id,UUID author,LbcIndirectKills.Owner cause,boolean jungle,int mask,Vec3 position){}
+    public List<ActorView> actorViews(int limit){var result=new ArrayList<ActorView>();for(var mark:actors.values()){if(result.size()>=Math.max(0,limit))break;result.add(new ActorView(mark.id,mark.job.author.getUUID(),mark.job.cause,!(mark.op instanceof Grass),mark.mask,position(mark.op)));}return List.copyOf(result);}
     /** Canonical clone scanner supplies its remaining shared scan/body/time budgets. */
-    CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
+    public CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
         int count=CloneVirtualAbilityStates.count(skill),seen=0,made=0,operations=0;
         if(retiring||skill!=15&&skill!=17||bodyBudget<count)return new CloneResult(0,0,0);
         // IDs form this family's stable marker index; at most scanBudget entries are visited.

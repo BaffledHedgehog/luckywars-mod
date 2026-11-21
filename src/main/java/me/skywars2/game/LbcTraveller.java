@@ -56,7 +56,7 @@ public final class LbcTraveller {
         }
     }
     /** One source popit_2 result; clears the whole chosen effect, including every hidden layer. */
-    static void cleanse(GameController game,ServerPlayer owner,int outcome){
+    public static void cleanse(GameController game,ServerPlayer owner,int outcome){
         if(outcome<1||outcome>20)throw new IllegalArgumentException("Popit cleanse outcome "+outcome);
         // Source deliberately sends this raw loud MASTER sound only to its owner, once per draw (six for Traveller).
         var at=owner.position();
@@ -74,7 +74,7 @@ public final class LbcTraveller {
         }
     }
     /** The seventh independent source draw; no bonus feedback or synthetic direct heal. */
-    static void buff(ServerPlayer owner,int outcome){
+    public static void buff(ServerPlayer owner,int outcome){
         var effect=switch(outcome){
             case 1->ItemEffectLevels.create(MobEffects.ABSORPTION,1200,4);
             case 2->ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,1200,0);

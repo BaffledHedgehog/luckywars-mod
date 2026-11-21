@@ -82,18 +82,19 @@ public final class LbcGovnomet {
         return stack.is(ITEM) || !stack.isEmpty() && data!=null && data.copyTag().getIntOr("govnomet",0)==1;
     }
     public static final class Charge extends Projectile implements PolymerEntity {
-        int age;
-        boolean mega,retired;
+        public int age;
+        public boolean mega;
+        boolean retired;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
         @Override public boolean shouldBeSaved() { return false; }
         @Override public boolean isPushedByFluid() { return false; }
     }
-    LbcGovnomet(GameController game) { this.game=game; }
+    public LbcGovnomet(GameController game) { this.game=game; }
     public int count() { return charges.size(); }
-    List<Charge> snapshot() { return List.copyOf(charges); }
-    int fallingCount() { return falling.size(); }
+    public List<Charge> snapshot() { return List.copyOf(charges); }
+    public int fallingCount() { return falling.size(); }
 
     /** Exactly one used hand; the common wand dispatcher handles the other hand. No ammo/mana/cooldown. */
     public boolean use(ServerPlayer owner,InteractionHand hand) {
@@ -119,7 +120,7 @@ public final class LbcGovnomet {
         if(!move(charge,owner,owner.getEyePosition(),charge.position(),false)) remove(charge);
         return true;
     }
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(charge.isRemoved()) return;
             if(charge.retired || charge.level()!=game.maps().level() || !game.items().currentEpoch(charge)
@@ -127,7 +128,7 @@ public final class LbcGovnomet {
             else charges.add(charge);
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         // Removal may already be in progress; discard only on a live chunk-tracking exit.
         if(entity instanceof Charge charge) {
             charge.retired=true; charges.remove(charge);
@@ -305,8 +306,8 @@ public final class LbcGovnomet {
         falling.clear(); batch.clear();
     }
 
-    static boolean cloneRecognizes(Entity e){return e instanceof Charge||e instanceof LbcGovnomet.OwnedDirt;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public static boolean cloneRecognizes(Entity e){return e instanceof Charge||e instanceof LbcGovnomet.OwnedDirt;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(source instanceof OwnedDirt)return CloneComplexProjectileStates.image(OwnedDirt::new,
                 e->falling.add((FallingBlockEntity)e),e->falling.remove(e));
         if(!(source instanceof Charge c)||c.retired)return null;

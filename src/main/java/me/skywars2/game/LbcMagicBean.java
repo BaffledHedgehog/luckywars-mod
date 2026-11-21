@@ -74,7 +74,7 @@ public final class LbcMagicBean {
     public int count(){return beans.size();}
     public long steps(){return steps;}
     public long completions(){return completions;}
-    List<Marker> snapshot(){return List.copyOf(beans.keySet());}
+    public List<Marker> snapshot(){return List.copyOf(beans.keySet());}
     private boolean live(Marker marker){return !marker.isRemoved()&&game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&(marker.level()==game.maps().level()||game.items().spellSources().persistent(marker))&&LbcDimensionItems.ordinary(marker.level())&&game.items().currentEpoch(marker);}
     public void tick(){
@@ -192,22 +192,22 @@ public final class LbcMagicBean {
     }
 
     /** Native bodies and accepted UUID causes remain canonical; no load/spawn/grow callback is replayed. */
-    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish native bean load/growth callbacks before checkpointing");}
-    void prepareFrozen(){checkpointBoundary();rewinding=true;stagedSteps.clear();stagedClock=null;}
-    void publishFrozen(){
+    public void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish native bean load/growth callbacks before checkpointing");}
+    public void prepareFrozen(){checkpointBoundary();rewinding=true;stagedSteps.clear();stagedClock=null;}
+    public void publishFrozen(){
         checkpointBoundary();if(!rewinding)return;
         stagedSteps.forEach((bean,frame)->bean.lastStepTick=frame.clock.time(frame.value,game));
         if(stagedClock!=null)lastTick=stagedClock.last(game);
         stagedSteps.clear();stagedClock=null;rewinding=false;
     }
-    void cancelFrozen(){
+    public void cancelFrozen(){
         checkpointBoundary();
         // The shared dispatcher may discard either future or installed work on abort.
         // Clear the matching private pending aliases so a surviving native bean can schedule again.
         if(rewinding)for(var bean:List.copyOf(beans.values()))if(bean.pending!=null)bean.pending.cancel();
         stagedSteps.clear();stagedClock=null;rewinding=false;
     }
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
     private final class BeanImage {
         final Bean original;final MatchDamageSources.Ref marker;final Growth pending;
         final int lastStep;final MatchAuthorityCheckpoint.Clock frame;
@@ -220,7 +220,7 @@ public final class LbcMagicBean {
             return ()->{original.marker=current;original.pending=pending;stagedSteps.put(original,new StepFrame(frame,lastStep));};
         }
     }
-    final class Checkpoint {
+    public final class Checkpoint {
         private final MatchSpellCheckpoint.IdentityImage<Marker,Bean> registry;
         private final List<BeanImage> values=new ArrayList<>();
         private final MatchAuthorityCheckpoint.Clock clockImage=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
@@ -233,7 +233,7 @@ public final class LbcMagicBean {
                 values.add(new BeanImage(bean,graph.links));if(bean.pending!=null)graph.capture(bean.pending);
             }
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var restored=registry.restore(links);var plans=values.stream().map(value->value.prepare(links)).toList();
             return ()->{plans.forEach(Runnable::run);beans=restored;steps=savedSteps;completions=savedCompletions;stagedClock=clockImage;};
         }

@@ -29,16 +29,16 @@ public final class LbcLightningAcquisition {
     private int workTick=Integer.MIN_VALUE,usedUnits;
     private long workNanos;
 
-    LbcLightningAcquisition(GameController game) { this.game=game; }
-    static boolean transformable(ItemStack stack) {
+    public LbcLightningAcquisition(GameController game) { this.game=game; }
+    public static boolean transformable(ItemStack stack) {
         // Source adds both transformable and working labels from this same flag.
         return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("transformable",0)==1;
     }
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof ItemEntity item && transformable(item.getItem())) transformableItems.add(item);
         if(entity instanceof LightningBolt bolt) lightning.add(bolt);
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof ItemEntity item) {
             transformableItems.remove(item); capturedTick.remove(item); pending.remove(item);
         }
@@ -52,7 +52,7 @@ public final class LbcLightningAcquisition {
     private boolean paused(ServerLevel level) {
         return game.items().timeStop().stopped(level);
     }
-    boolean eligibleRecipient(ServerPlayer player,ServerLevel level) {
+    public boolean eligibleRecipient(ServerPlayer player,ServerLevel level) {
         return player!=null && player.level()==level && player.isAlive() && !player.isRemoved()
                 && !player.isSpectator() && !game.isObserver(player) && game.canUseGameplayItems(player)
                 && !game.awaitingRespawn(player.getUUID());
@@ -154,9 +154,9 @@ public final class LbcLightningAcquisition {
         }
         flushQueued();
     }
-    void flushQueued() { if(worker!=null) worker.step(); }
+    public void flushQueued() { if(worker!=null) worker.step(); }
     int indexedItemCount() { return transformableItems.size(); }
-    int pendingCount() { return pending.size(); }
+    public int pendingCount() { return pending.size(); }
     public void stop() {
         generation++; worker=null; pending.clear(); queue.clear(); capturedTick.clear();
         transformableItems.clear(); lightning.clear(); workTick=Integer.MIN_VALUE; usedUnits=0; workNanos=0;

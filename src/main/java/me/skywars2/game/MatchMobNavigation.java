@@ -12,7 +12,7 @@ import net.minecraft.world.level.pathfinder.*;
 import net.minecraft.world.phys.Vec3;
 
 /** Native navigation/control values for the original body; goals and Brain have separate lifecycles. */
-final class MatchMobNavigation {
+public final class MatchMobNavigation {
     private final Mob owner;
     private final long worldTime;
     private final MobValues controls;
@@ -30,7 +30,7 @@ final class MatchMobNavigation {
     private final Map<PathType,Float> savedCosts = new EnumMap<>(PathType.class);
     private final Route route;
 
-    MatchMobNavigation(Mob mob) {
+    public MatchMobNavigation(Mob mob) {
         owner = mob;
         worldTime = mob.level().getGameTime();
         // A rider's public move-control getter may return its vehicle's control.
@@ -57,11 +57,11 @@ final class MatchMobNavigation {
         // PathFinder/NodeEvaluator search caches are reset for every synchronous search.
     }
 
-    void requireOwner(Entity target) {
+    public void requireOwner(Entity target) {
         if (target != owner) throw new IllegalArgumentException("Native navigation belongs to its original mob body");
     }
 
-    void restore() {
+    public void restore() {
         long delta = owner.level().getGameTime() - worldTime;
         if (route != null) route.restore();
         controls.restore();

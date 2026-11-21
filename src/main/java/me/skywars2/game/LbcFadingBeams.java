@@ -11,8 +11,8 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 /** Fading shots and one refreshed display per continuous laser. The ability owns damage and collision. */
-final class LbcFadingBeams {
-    record Image(ServerLevel level,Vec3 from,Vec3 to,LbcHedgehog.Kind kind,UUID source,int age,String epoch){}
+public final class LbcFadingBeams {
+    public record Image(ServerLevel level,Vec3 from,Vec3 to,LbcHedgehog.Kind kind,UUID source,int age,String epoch){}
     private static final class Beam {
         Image initial;final ElementHolder holder;final ItemDisplayElement display;int born,age;
         Beam(Image image,ElementHolder holder,ItemDisplayElement display,int tick){initial=image;this.holder=holder;this.display=display;born=tick;age=image.age;}
@@ -21,9 +21,9 @@ final class LbcFadingBeams {
     private final List<Beam> beams=new ArrayList<>();
     private final Map<UUID,Beam> sustained=new HashMap<>();
     // Laser Minigun's six-frame width envelope is 6*.04. Keep the same model geometry.
-    static final float LASER_WIDTH=.24f;
-    LbcFadingBeams(GameController game){this.game=game;}
-    void show(ServerLevel level,Vec3 from,Vec3 to,LbcHedgehog.Kind kind,UUID source){
+    public static final float LASER_WIDTH=.24f;
+    public LbcFadingBeams(GameController game){this.game=game;}
+    public void show(ServerLevel level,Vec3 from,Vec3 to,LbcHedgehog.Kind kind,UUID source){
         if(from.distanceToSqr(to)<.000001)return;
         var image=new Image(level,from,to,kind,source,0,game.items().epoch());var old=kind==LbcHedgehog.Kind.LASER?sustained.get(source):null;
         if(old==null){spawn(image);return;}
@@ -65,7 +65,7 @@ final class LbcFadingBeams {
             else if(!near&&beam.holder.getWatchingPlayers().contains(p.connection))beam.holder.stopWatching(p.connection);
         }
     }
-    void tick(){
+    public void tick(){
         for(var iterator=beams.iterator();iterator.hasNext();){var beam=iterator.next();var image=beam.initial;
             boolean laser=image.kind==LbcHedgehog.Kind.LASER;
             var source=laser?image.level.getEntity(image.source):null;
@@ -83,8 +83,8 @@ final class LbcFadingBeams {
             beam.display.startInterpolation();beam.holder.tick();
         }
     }
-    List<Image> checkpoint(){return beams.stream().map(b->new Image(b.initial.level,b.initial.from,b.initial.to,b.initial.kind,b.initial.source,b.age,b.initial.epoch)).toList();}
-    void restore(List<Image> images){stop();for(var image:images)spawn(image);}
-    int count(){return beams.size();}
-    void stop(){for(var beam:beams)beam.holder.destroy();beams.clear();sustained.clear();}
+    public List<Image> checkpoint(){return beams.stream().map(b->new Image(b.initial.level,b.initial.from,b.initial.to,b.initial.kind,b.initial.source,b.age,b.initial.epoch)).toList();}
+    public void restore(List<Image> images){stop();for(var image:images)spawn(image);}
+    public int count(){return beams.size();}
+    public void stop(){for(var beam:beams)beam.holder.destroy();beams.clear();sustained.clear();}
 }

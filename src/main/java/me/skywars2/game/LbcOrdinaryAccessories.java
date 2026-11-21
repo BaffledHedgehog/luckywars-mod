@@ -59,7 +59,7 @@ public final class LbcOrdinaryAccessories {
         }
     }
     /** Exact selector box, including default dx/dz zero's one-block extent and strict intersection boundaries. */
-    static boolean platformHeight(ServerPlayer owner){
+    public static boolean platformHeight(ServerPlayer owner){
         var box=owner.getBoundingBox();double x=owner.getX(),z=owner.getZ();
         return box.maxX>x&&box.minX<x+1&&box.maxY>-5000010&&box.minY<-9&&box.maxZ>z&&box.minZ<z+1;
     }

@@ -41,7 +41,7 @@ public final class LbcAk47 {
     // The source counter belongs to the player, including players who do not currently carry a gun.
     private final Map<UUID,ServerPlayer> counterOwners=new HashMap<>();
 
-    LbcAk47(GameController game) { this.game=game; }
+    public LbcAk47(GameController game) { this.game=game; }
     public static void register() { }
     private static CompoundTag flag(String name) { var tag=new CompoundTag(); tag.putInt(name,1); return tag; }
     private static Item registerItem() {
@@ -95,11 +95,11 @@ public final class LbcAk47 {
                 && game.stage()!=GameController.Stage.ENDING;
     }
     /** One gun engine: NPC collision is supplied explicitly; player policy is unchanged. */
-    void nativeRay(net.minecraft.world.entity.LivingEntity owner,Vec3 direction,
+    public void nativeRay(net.minecraft.world.entity.LivingEntity owner,Vec3 direction,
             java.util.function.Predicate<net.minecraft.world.entity.Entity> collision) {
         nativeRay(owner,direction,collision,160);
     }
-    void nativeRay(net.minecraft.world.entity.LivingEntity owner,Vec3 direction,
+    public void nativeRay(net.minecraft.world.entity.LivingEntity owner,Vec3 direction,
             java.util.function.Predicate<net.minecraft.world.entity.Entity> collision,double range) {
         nativeRay(owner,direction,collision,range,ItemStack.EMPTY);
     }
@@ -143,7 +143,7 @@ public final class LbcAk47 {
         }
         // No shieldHit: neither source AK ray has a shield_blockable marker.
     }
-    static void sound(net.minecraft.world.entity.LivingEntity owner,Vec3 at,String id,float volume,float pitch,
+    public static void sound(net.minecraft.world.entity.LivingEntity owner,Vec3 at,String id,float volume,float pitch,
             double radius,float minimum) {
         if(owner instanceof ServerPlayer player) {LbcOverload.sound(player,at,id,volume,pitch,radius,minimum);return;}
         var sound=net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Identifier.parse(id)));
@@ -184,7 +184,7 @@ for(int i=0;i<samples;i++) {
         if(valid(owner) && acceptedDamage>0 && Float.isFinite(acceptedDamage)
                 && !source.is(DamageTypes.ON_FIRE)) setAmmo(owner,ammo(owner)+1);
     }
-    void addPlayerCounters(ServerPlayer owner) { setAmmo(owner,ammo(owner)+1); }
+    public void addPlayerCounters(ServerPlayer owner) { setAmmo(owner,ammo(owner)+1); }
     public void forget(ServerPlayer owner) {
         counterOwners.remove(owner.getUUID());
         var objective=game.server().getScoreboard().getObjective("hitbullet");

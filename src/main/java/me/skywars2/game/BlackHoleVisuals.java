@@ -32,12 +32,12 @@ public final class BlackHoleVisuals {
     private boolean dirty;
 
     public static final class Handle {
-        ServerPlayer owner;
+        public ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
-        float radius;
-        boolean disc;
-        Vec3 point;
+        public float radius;
+        public boolean disc;
+        public Vec3 point;
         final Quaternionf tilt=new Quaternionf();
         private Handle(ServerPlayer owner,Vec3 point,float radius,String epoch) {
             this.owner=owner; level=owner.level(); this.point=point;
@@ -50,7 +50,7 @@ public final class BlackHoleVisuals {
         ItemDisplayElement display;
         int availableAt;
     }
-    BlackHoleVisuals(GameController game) { this.game=game; }
+    public BlackHoleVisuals(GameController game) { this.game=game; }
     public Handle create(ServerPlayer owner,Vec3 point,float radius) {
         return create(owner,point,radius,false);
     }
@@ -98,13 +98,13 @@ public final class BlackHoleVisuals {
         dirty=true;
     }
     /** Rollback replaces only the originating spell's handle; other producers keep their slots. */
-    void detachForCheckpoint(Handle hole){
+    public void detachForCheckpoint(Handle hole){
         holes.remove(hole);
         for(var slots:viewers.values())for(var slot:slots)if(slot.hole==hole){release(slot);}
         dirty=true;
     }
     /** Fresh holders target current connections after native player/world readiness. */
-    void publishFrozen(){refresh();for(var slots:viewers.values())for(var slot:slots)if(slot.hole!=null)slot.holder.tick();}
+    public void publishFrozen(){refresh();for(var slots:viewers.values())for(var slot:slots)if(slot.hole!=null)slot.holder.tick();}
     private boolean valid(Handle hole) {
         // Producers own gameplay lifetime and remove their handles explicitly. A UUID-based
         // producer can survive player replacement or pause before rebinding during Time Stop.
@@ -195,13 +195,13 @@ public final class BlackHoleVisuals {
         holes.clear();
         for(var slots:viewers.values()) for(var slot:slots) release(slot);
     }
-    int count() { return holes.size(); }
-    List<ItemDisplayElement> displays(ServerPlayer viewer) {
+    public int count() { return holes.size(); }
+    public List<ItemDisplayElement> displays(ServerPlayer viewer) {
         var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(viewer.connection);
         if(slots!=null) for(var slot:slots) if(slot.display!=null) result.add(slot.display);
         return List.copyOf(result);
     }
-    List<Vec3> origins(ServerPlayer viewer) {
+    public List<Vec3> origins(ServerPlayer viewer) {
         var result=new ArrayList<Vec3>(); var slots=viewers.get(viewer.connection);
         if(slots!=null) for(var slot:slots) if(slot.hole!=null) result.add(slot.hole.point);
         return List.copyOf(result);

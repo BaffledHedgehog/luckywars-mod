@@ -52,8 +52,8 @@ public final class LbcShulkerBow {
     }
     public static boolean managed(Entity actor){return actor instanceof ShulkerBullet&&actor instanceof Carrier carrier&&carrier.skywars2$shulkerState()!=null;}
     private static State state(Entity actor){return actor instanceof Carrier c?c.skywars2$shulkerState():null;}
-    static LbcTmtAmmoPayloads.State payloadState(Entity actor){var state=state(actor);return state==null?null:state.payloads;}
-    static boolean restorePayloadState(Entity actor,LbcTmtAmmoPayloads.State payloads){var state=state(actor);if(state==null)return false;state.payloads=payloads;return true;}
+    public static LbcTmtAmmoPayloads.State payloadState(Entity actor){var state=state(actor);return state==null?null:state.payloads;}
+    public static boolean restorePayloadState(Entity actor,LbcTmtAmmoPayloads.State payloads){var state=state(actor);if(state==null)return false;state.payloads=payloads;return true;}
     private void install(ShulkerBullet bullet,State state){((Carrier)bullet).skywars2$shulkerState(state);actors.add(bullet);bullet.entityTags().add(state.primary?SHOT:CHILD);game.items().markCurrentItemEpoch(bullet);}
     /** Real ownership transfers update authority without replacing accepted ammo or native flight state. */
     public void ownerChanged(Entity actor,ServerPlayer owner){
@@ -133,7 +133,7 @@ public final class LbcShulkerBow {
             if(effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==113)trapper=true;
         beamSample(owner,weapon,context,at,cause,trapper);
     }
-    void beamSample(ServerPlayer owner,ItemStack weapon,net.minecraft.world.entity.projectile.arrow.Arrow context,Vec3 at,LbcIndirectKills.Owner cause,boolean trapper){
+    public void beamSample(ServerPlayer owner,ItemStack weapon,net.minecraft.world.entity.projectile.arrow.Arrow context,Vec3 at,LbcIndirectKills.Owner cause,boolean trapper){
         if(!trapper||ItemData.intValue(weapon,"shulker_new",0)!=1||game.items().magic().mechanismSuppressedAt(owner.level(),at))return;
         var parent=new ShulkerBullet(EntityTypes.SHULKER_BULLET,owner.level());parent.setOwner(owner);parent.setPos(at);
         child(parent,new State(ItemStack.EMPTY,weapon.copy(),2,false,0,0,113,0,cause,game.items().epoch(),owner.getTeam()==null?"":owner.getTeam().getName(),true));

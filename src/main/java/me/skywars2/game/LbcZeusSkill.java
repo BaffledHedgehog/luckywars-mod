@@ -31,7 +31,7 @@ public final class LbcZeusSkill {
 
     public LbcZeusSkill(GameController game){this.game=game;}
 
-    int phase(ServerPlayer owner){return game.items().mana().score(owner,"zeus_skill_phase").get();}
+    public int phase(ServerPlayer owner){return game.items().mana().score(owner,"zeus_skill_phase").get();}
     /** Native ticks only; the canonical scoreboard phase is included in full match rewind. */
     public void tick(ServerPlayer owner){
         if(!game.lbc().hasSkill(owner,22))return;
@@ -62,7 +62,7 @@ public final class LbcZeusSkill {
     }
 
     /** Deterministic accepted pulse for native qualification; never performs its own admission. */
-    void fire(ServerPlayer owner){
+    public void fire(ServerPlayer owner){
         if(pulsing)return;
         pulsing=true;
         try{

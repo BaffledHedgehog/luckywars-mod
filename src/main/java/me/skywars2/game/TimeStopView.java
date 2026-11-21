@@ -19,7 +19,7 @@ public final class TimeStopView {
     private static final ThreadLocal<Boolean> START_SOUND=new ThreadLocal<>();
     private TimeStopView(){}
     public static boolean frozen(ServerPlayer player){return FROZEN.contains(player.getUUID());}
-    static void publish(ServerPlayer player,boolean stopped){
+    public static void publish(ServerPlayer player,boolean stopped){
         if(player.connection==null)return;
         stopped&=player.isAlive()&&!player.isRemoved();
         if(stopped){

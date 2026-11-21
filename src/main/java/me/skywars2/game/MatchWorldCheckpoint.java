@@ -21,7 +21,7 @@ import net.minecraft.world.level.storage.PrimaryLevelData;
 
 /** GLOBAL native metadata/timeline owner. Compose before terrain, bodies and final world-RNG replay.
  * Does not replace saved-data services, dimensions, listeners or resource registries. Not the full rewind. */
-final class MatchWorldCheckpoint {
+public final class MatchWorldCheckpoint {
     static WorldBorder.BorderExtent extent(WorldBorder border) {
         return ((WorldCheckpointAccess.Border) border).skywars2$extent();
     }
@@ -65,7 +65,7 @@ final class MatchWorldCheckpoint {
     private final GameRules rules;
     private final GameRuleMap ruleMap;
     private final Map<GameRule<?>,Object> nativeRules,values;
-    MatchWorldCheckpoint(GameController game){
+    public MatchWorldCheckpoint(GameController game){
         this.game=game;var server=game.server();if(!server.isSameThread()||!game.playing()||game.maps().busy())throw new IllegalStateException("Capture metadata on the stable native match thread");epoch=game.items().epoch();
         resources=server.getResourceManager();registries=server.reloadableRegistries();worldData=server.getWorldData();
         if(!(server.getWorldData().overworldData() instanceof PrimaryLevelData p))throw new IllegalStateException("Unsupported primary level-data owner");primary=p;
@@ -78,7 +78,7 @@ final class MatchWorldCheckpoint {
     }
     private static LevelData.RespawnData copy(LevelData.RespawnData s){return new LevelData.RespawnData(GlobalPos.of(s.dimension(),s.pos().immutable()),s.yaw(),s.pitch());}
 
-    void restoreFrozen(){
+    public void restoreFrozen(){
         var server=game.server();if(!server.isSameThread()||!server.tickRateManager().isFrozen()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch))throw new IllegalStateException("Restore metadata in the same frozen native match");
         if(server.getWorldData()!=worldData||server.getWorldData().overworldData()!=primary||server.getResourceManager()!=resources||server.reloadableRegistries()!=registries||!((WorldCheckpointAccess.Primary)primary).skywars2$settings().dataConfiguration().equals(settings.dataConfiguration()))throw new IllegalStateException("Reconcile native resources/world data before metadata replay");
         if(server.clockManager()!=clocks||((WorldCheckpointAccess.Clocks)clocks).skywars2$clocks()!=clockMap||server.getWeatherData()!=weather.original||server.getGameRules()!=rules||((WorldCheckpointAccess.Rules)rules).skywars2$rules()!=ruleMap||((WorldCheckpointAccess.RuleValues)(Object)ruleMap).skywars2$values()!=nativeRules)throw new IllegalStateException("Native metadata service identity changed");

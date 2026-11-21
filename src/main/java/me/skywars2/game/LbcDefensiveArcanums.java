@@ -50,7 +50,7 @@ public final class LbcDefensiveArcanums {
         Hands(ServerLevel level){this.level=level;}
     }
 
-    LbcDefensiveArcanums(GameController game,LbcMana mana){
+    public LbcDefensiveArcanums(GameController game,LbcMana mana){
         this.game=game;this.mana=mana;
         config("healing_arcanum_mana_tick",500);
         config("healing_arcanum_mana_tick_sec",10000);
@@ -88,7 +88,7 @@ public final class LbcDefensiveArcanums {
         }
         hands.keySet().removeIf(id->!present.contains(id));
     }
-    void tickPlayer(ServerPlayer player){
+    public void tickPlayer(ServerPlayer player){
         if(!game.server().tickRateManager().runsNormally())return;
         UUID id=player.getUUID();
         if(!mana.visible(player)||!player.isAlive()||game.isObserver(player)){forget(player);return;}
@@ -178,7 +178,7 @@ public final class LbcDefensiveArcanums {
                     }
                 }));
     }
-    int activeHands(ServerPlayer player){
+    public int activeHands(ServerPlayer player){
         var state=hands.get(player.getUUID());
         if(state==null)return 0;
         return (state.main!=null&&isBarrier(player.getMainHandItem())?1:0)

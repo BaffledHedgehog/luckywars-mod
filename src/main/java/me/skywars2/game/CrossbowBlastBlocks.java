@@ -14,7 +14,7 @@ public final class CrossbowBlastBlocks {
 
     private CrossbowBlastBlocks() {}
 
-    static void scoped(ServerLevel level, Vec3 center, DamageSource damage, Runnable action) {
+    public static void scoped(ServerLevel level, Vec3 center, DamageSource damage, Runnable action) {
         var previous = ACTIVE.get();
         ACTIVE.set(new Scope(level, center, damage));
         try {

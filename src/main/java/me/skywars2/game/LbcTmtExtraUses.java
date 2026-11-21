@@ -6,7 +6,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 
 /** Pure native input admission and real-hand adapters outside the common wand dispatcher. */
-final class LbcTmtExtraUses {
+public final class LbcTmtExtraUses {
     private LbcTmtExtraUses(){}
     private enum Input { TOUHOU, NEXUS_COMPASS, NEXUS_COMBAT, NEXUS_TOOLS, POZDMAN, BALANCE, SUPPLY,
                          TERRA_RAZOR, TERRA_SWORD, KAPUSTA, CRUX, FIREBALL, WIN, POTION, SHIELD, LIGHTSABER, APOCALYPSE, RASENGAN }
@@ -37,9 +37,9 @@ final class LbcTmtExtraUses {
         return null;
     }
 
-    static boolean candidate(ItemStack stack){return input(stack)!=null;}
+    public static boolean candidate(ItemStack stack){return input(stack)!=null;}
     /** Reuse the native owner classifier; menu/travel/defence inputs are not aimed attacks. */
-    static boolean combatCandidate(ItemStack stack){var input=input(stack);return input!=null&&switch(input){
+    public static boolean combatCandidate(ItemStack stack){var input=input(stack);return input!=null&&switch(input){
         case NEXUS_COMPASS,BALANCE,SUPPLY,LIGHTSABER,SHIELD->false;
         default->true;
     };}

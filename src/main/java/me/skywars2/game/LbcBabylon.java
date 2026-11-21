@@ -50,7 +50,7 @@ public final class LbcBabylon {
     private final LbcMana mana;
     private final Set<Projectile> projectiles=new LinkedHashSet<>();
 
-    LbcBabylon(GameController game,LbcMana mana){
+    public LbcBabylon(GameController game,LbcMana mana){
         this.game=game;this.mana=mana;
         // Construction precedes LbcItems assignment; only the supplied mana service is safe here.
         mana.score(ScoreHolder.forNameOnly("babylon_gate_mana_tick"),"lbc.math").set(300);
@@ -82,7 +82,7 @@ public final class LbcBabylon {
         if(!game.server().tickRateManager().runsNormally()||(game.server().getTickCount()&1)!=0)return;
         for(var owner:game.server().getPlayerList().getPlayers())tickPlayer(owner);
     }
-    void tickPlayer(ServerPlayer owner){
+    public void tickPlayer(ServerPlayer owner){
         if(!game.server().tickRateManager().runsNormally()||!active(owner)||mana.noMagic(owner)>0
                 ||game.items().timeStop().frozen(owner)||game.items().timeStop().stopped(owner.level())
                 ||owner.entityTags().contains("time_stopped")||game.items().frost().isFrozen(owner)
@@ -97,7 +97,7 @@ public final class LbcBabylon {
         emit(owner,owner.getRandom().nextInt(5)+1,owner.getRandom().nextInt(5)+1);
     }
     /** One-based source indices; deterministic native fixture entry point, without spending mana. */
-    Projectile emit(ServerPlayer owner,int originIndex,int kind){
+    public Projectile emit(ServerPlayer owner,int originIndex,int kind){
         if(originIndex<1||originIndex>5||kind<1||kind>5)throw new IllegalArgumentException("Babylon origin/kind must be 1..5");
         Vec3 pos=owner.getEyePosition().add(local(owner,ORIGINS[originIndex-1]));
         if(!owner.level().hasChunkAt(BlockPos.containing(pos)))return null;
@@ -147,7 +147,7 @@ public final class LbcBabylon {
     public void forget(ServerPlayer owner){for(var shot:List.copyOf(projectiles))if(shot.getOwner()==owner)unloaded(shot);}
     public void stop(){for(var shot:List.copyOf(projectiles))unloaded(shot);}
     public int count(){return projectiles.size();}
-    List<Projectile> snapshot(){return List.copyOf(projectiles);}
+    public List<Projectile> snapshot(){return List.copyOf(projectiles);}
     private final class BabylonArrow extends Arrow {
         boolean retired,blockEffectDone;final int transportAmp;
         BabylonArrow(ServerLevel level,int transportAmp){super(EntityTypes.ARROW,level);this.transportAmp=transportAmp;}
@@ -205,8 +205,8 @@ public final class LbcBabylon {
         @Override public boolean shouldBeSaved(){return false;}
         @Override public void tick(){if(!valid(this)){unloaded(this);return;}super.tick();}
     }
-    static boolean cloneRecognizes(Entity source){return managed(source)||source instanceof BabylonArrow||source instanceof BabylonTrident||source instanceof BabylonRocket;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneRecognizes(Entity source){return managed(source)||source instanceof BabylonArrow||source instanceof BabylonTrident||source instanceof BabylonRocket;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!projectiles.contains(source))return null;
         int amp=source instanceof BabylonArrow a?a.transportAmp:0;boolean block=source instanceof BabylonArrow a&&a.blockEffectDone;
         boolean retired=source instanceof BabylonArrow a?a.retired:source instanceof BabylonTrident t?t.retired:source instanceof BabylonRocket r&&r.retired;

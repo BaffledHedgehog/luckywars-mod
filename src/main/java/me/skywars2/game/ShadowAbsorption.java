@@ -34,7 +34,7 @@ public final class ShadowAbsorption {
     public static State state(LivingEntity entity) { return ((Access)entity).skywars2$shadowAbsorption(); }
     public static boolean server(LivingEntity entity) { return !entity.level().isClientSide()&&VanillaExpansionRules.enabled(); }
     /** Translate the live native effect at a real mode change, without refilling spent yellow HP. */
-    static void modeChanged(LivingEntity entity){
+    public static void modeChanged(LivingEntity entity){
         var s=state(entity);var active=entity.getEffect(MobEffects.ABSORPTION);float amount=entity.getAbsorptionAmount();
         s.entries.clear();s.capacity=s.stored=s.positiveCapacity=0;s.zeroMaximum=false;s.loading=false;
         var health=entity.getAttribute(Attributes.MAX_HEALTH);var yellow=entity.getAttribute(Attributes.MAX_ABSORPTION);

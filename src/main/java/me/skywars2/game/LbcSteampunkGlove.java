@@ -9,8 +9,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** Selected-hand Steampunk glove. The shared sprint_timer belongs to LbcMoiseiBoots. */
 public final class LbcSteampunkGlove {
-    static final Identifier SPEED=Identifier.parse("minecraft:c1cda724-0ea2-460a-98b8-9631eafd2515");
-    static final Identifier DAMAGE=Identifier.parse("minecraft:585f98b8-a8b8-4e4c-838a-f2e124831040");
+    public static final Identifier SPEED=Identifier.parse("minecraft:c1cda724-0ea2-460a-98b8-9631eafd2515");
+    public static final Identifier DAMAGE=Identifier.parse("minecraft:585f98b8-a8b8-4e4c-838a-f2e124831040");
     private final GameController game;
     public LbcSteampunkGlove(GameController game){this.game=game;}
     public static boolean selected(ServerPlayer player){var stack=player.getMainHandItem();return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("steampunk_sword",0)==1;}
@@ -54,7 +54,7 @@ public final class LbcSteampunkGlove {
         if(game.server().getTickCount()%20==0)secondPlayer(p,elapsed);
     }
     /** Shared global one-second scheduler; never recharge during any sprint, including empty-handed. */
-    void secondPlayer(ServerPlayer p){
+    public void secondPlayer(ServerPlayer p){
         if(!eligible(p)||paused(p))return;
         secondPlayer(p,game.items().mana().score(p,"sprint_timer").get());
     }

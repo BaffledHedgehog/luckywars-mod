@@ -18,7 +18,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /** Fixed-position wand ritual. External Exoperso rockets continue using the projectile service. */
-final class LbcExopersoRitual {
+public final class LbcExopersoRitual {
     static final String TAG="skywars2.exoperso_ritual";
     private final GameController game;
     private final LbcExoperso spell;
@@ -27,21 +27,21 @@ final class LbcExopersoRitual {
     private final Set<Entity> spawning=Collections.newSetFromMap(new IdentityHashMap<>());
     private boolean restoring;
 
-    static final class State {
-        final UUID owner;final String epoch;final ServerLevel level;final Vec3 target;
-        final boolean upgraded;final Marker anchor;final Display.TextDisplay timer;
-        final List<Display.ItemDisplay> rings;
+    public static final class State {
+        public final UUID owner;final String epoch;final ServerLevel level;public final Vec3 target;
+        public final boolean upgraded;public final Marker anchor;public final Display.TextDisplay timer;
+        public final List<Display.ItemDisplay> rings;
         final float[] scales,angles,speeds;
-        final LbcIndirectKills.Owner cause;
+        public final LbcIndirectKills.Owner cause;
         NuclearTerrain.WandPreparation terrain;
-        int age;
+        public int age;
         State(UUID owner,String epoch,ServerLevel level,Vec3 target,boolean upgraded,Marker anchor,Display.TextDisplay timer,
                 List<Display.ItemDisplay> rings,float[] scales,float[] angles,float[] speeds,LbcIndirectKills.Owner cause){
             this.owner=owner;this.epoch=epoch;this.level=level;this.target=target;this.upgraded=upgraded;
             this.anchor=anchor;this.timer=timer;this.rings=List.copyOf(rings);this.scales=scales;this.angles=angles;this.speeds=speeds;
             this.cause=cause;
         }
-        int duration(){return upgraded?180:340;}
+        public int duration(){return upgraded?180:340;}
         int collapse(){return 1;}
         float scale(int index){
             int growth=upgraded?1:2,birth=index*growth;
@@ -51,7 +51,7 @@ final class LbcExopersoRitual {
     }
     LbcExopersoRitual(GameController game,LbcExoperso spell){this.game=game;this.spell=spell;}
     int count(){return states.size();}
-    List<State> snapshot(){return List.copyOf(states);}
+    public List<State> snapshot(){return List.copyOf(states);}
 
     boolean cast(ServerPlayer owner,boolean upgraded){
         var level=owner.level();var from=owner.getEyePosition();var end=from.add(owner.getLookAngle().scale(128));

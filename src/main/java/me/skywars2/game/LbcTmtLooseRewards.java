@@ -5,12 +5,12 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 
 /** Read-only private admission and retained dispatch into the existing physical loose-item owner. */
-final class LbcTmtLooseRewards {
+public final class LbcTmtLooseRewards {
     private LbcTmtLooseRewards(){}
     static final String COPIER_FAMILY="native/loose/copier",MULTIPLY_FAMILY="native/loose/multiply";
-    static final int ALL=0,TABLETS=1,COPIERS=2;
+    public static final int ALL=0,TABLETS=1,COPIERS=2;
 
-    static boolean outer(ItemStack stack){return LbcTmtItems.matches(stack)&&!LbcTmtAbilities.active(stack);}
+    public static boolean outer(ItemStack stack){return LbcTmtItems.matches(stack)&&!LbcTmtAbilities.active(stack);}
     /** Scalar native source selector; a physical TMT's aggregate selector never chooses a mode. */
     static int kind(ItemStack source){if(outer(source))return 0;int kind=LbcMultiplierTablets.kind(source);return kind>=2&&kind<=4?kind:0;}
     /** Catalog boundary: native copier1 or one genuine tablet2/3/4, before generic service keys. */
@@ -20,19 +20,19 @@ final class LbcTmtLooseRewards {
     private static int kind(LbcTmtAbilities.Ability property){int kind=data(property).skywars2$readInt("multiply",0);return kind>=2&&kind<=4?kind:0;}
     static boolean property(LbcTmtAbilities.Ability property){return copier(property)||kind(property)!=0;}
     /** Also the copier donor exclusion: real private copier sources survive forged outer flag0. */
-    static boolean copier(ItemStack source){
+    public static boolean copier(ItemStack source){
         if(!outer(source))return ItemData.intValue(source,"copypaster",0)==1;
         for(var property:LbcTmtAbilities.read(source))if(copier(property))return true;
         return false;
     }
     /** Tablet donors exclude presence, including native unknown/zero modes, exactly as ordinary items. */
-    static boolean multiplyPresent(ItemStack donor){
+    public static boolean multiplyPresent(ItemStack donor){
         if(!outer(donor))return ItemData.contains(donor,"multiply");
         for(var property:LbcTmtAbilities.read(donor))if(data(property).skywars2$contains("multiply"))return true;
         return false;
     }
     /** Source/catalog and ENTITY_LOAD admission, with no projection, mutation or NBT copy. */
-    static boolean present(ItemStack source){
+    public static boolean present(ItemStack source){
         if(!outer(source))return copier(source)||kind(source)!=0;
         for(var property:LbcTmtAbilities.read(source))if(property(property))return true;
         return false;
@@ -40,7 +40,7 @@ final class LbcTmtLooseRewards {
     /** Inspection API; real work iterates the immutable component's cached slots without filtering copies. */
     static List<LbcTmtAbilities.Ability> properties(ItemStack host){return LbcTmtAbilities.read(host).stream().filter(LbcTmtLooseRewards::property).toList();}
 
-    static boolean work(LbcLooseRewards owner,ItemEntity host,int mode){
+    public static boolean work(LbcLooseRewards owner,ItemEntity host,int mode){
         var properties=LbcTmtAbilities.read(host.getItem());boolean changed=false;
         // Legacy items_tick invokes multiply in items_tick_act, then the separate copier body.
         // Each successful native property owns its normal one-unit debit; no-op properties retain it.

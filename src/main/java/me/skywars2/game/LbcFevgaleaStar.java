@@ -37,8 +37,8 @@ public final class LbcFevgaleaStar {
     private static final TagKey<DamageType> ARROW_ONLY=TagKey.create(Registries.DAMAGE_TYPE,Identifier.parse("minecraft:arrow_only"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private final GameController game;
-    LbcFevgaleaStar(GameController game){this.game=game;}
-    static void register(){}
+    public LbcFevgaleaStar(GameController game){this.game=game;}
+    public static void register(){}
     private static Item registerItem(){
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:fevgalea_star"));
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(new Item.Properties(){

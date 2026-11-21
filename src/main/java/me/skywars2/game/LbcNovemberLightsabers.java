@@ -161,12 +161,12 @@ public final class LbcNovemberLightsabers {
     public void clear() {
         players.clear(); restoring = false;
     }
-    void prepareFrozen() { restoring = true; }
-    void publishFrozen() { restoring = false; }
-    Checkpoint checkpoint() { return new Checkpoint(); }
-    final class Checkpoint {
+    public void prepareFrozen() { restoring = true; }
+    public void publishFrozen() { restoring = false; }
+    public Checkpoint checkpoint() { return new Checkpoint(); }
+    public final class Checkpoint {
         private final Map<UUID, String> saved = Map.copyOf(players);
-        MatchFieldCheckpoint.Plan prepare(Function<UUID, Entity> lookup) {
+        public MatchFieldCheckpoint.Plan prepare(Function<UUID, Entity> lookup) {
             return new MatchFieldCheckpoint.Plan(Set.of(), () -> {
                 players.clear(); players.putAll(saved);
             });

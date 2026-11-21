@@ -32,7 +32,7 @@ import net.minecraft.world.phys.Vec3;
 /** All ten original Imba leaves. Native tags, attributes, scores and the shared ray queue own state. */
 public final class LbcImbaRunes {
     public enum Kind { FEHU,URUZ,THURISAZ,ANSUZ,RAIDO,KENAZ,GIFU,WUNJO,HAGALAZ,NAUTIZ;
-        String flag(){return "rune_"+name().toLowerCase(java.util.Locale.ROOT);}
+        public String flag(){return "rune_"+name().toLowerCase(java.util.Locale.ROOT);}
     }
     /** Match/map ownership stays with GameController and MapManager. */
     public interface GlobalActions {
@@ -40,7 +40,7 @@ public final class LbcImbaRunes {
         boolean restart(ServerPlayer author);
         void addLives(ServerPlayer author,int amount);
     }
-    static final Identifier POSITIVE=Identifier.parse("minecraft:rune_thurisaz"),NEGATIVE=Identifier.parse("minecraft:rune_thurisaz_negative");
+    public static final Identifier POSITIVE=Identifier.parse("minecraft:rune_thurisaz"),NEGATIVE=Identifier.parse("minecraft:rune_thurisaz_negative");
     private static final List<String> POS=List.of("scale","attack_damage","attack_knockback","explosion_knockback_resistance","fall_damage_multiplier","jump_strength","knockback_resistance","max_health","movement_efficiency","movement_speed","safe_fall_distance","step_height","water_movement_efficiency","block_break_speed","block_interaction_range","entity_interaction_range","mining_efficiency","gravity");
     private static final List<String> NEG=List.of("scale","attack_damage","jump_strength","max_health","movement_speed","step_height","fall_damage_multiplier","block_break_speed","block_interaction_range","entity_interaction_range","gravity");
     private final GameController game;private final GlobalActions globals;private final boolean artifactSuppressesAll;
@@ -104,7 +104,7 @@ public final class LbcImbaRunes {
         }}
     public void stop(){for(var level:game.server().getAllLevels())for(var e:entities(level))if(e instanceof LivingEntity living)reset(living);
         game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("bottom_nexus"),"lbc.math").set(0);}
-    static void reset(LivingEntity target){for(String name:POS){var a=target.getAttribute(BuiltInRegistries.ATTRIBUTE.get(Identifier.withDefaultNamespace(name)).orElseThrow());if(a!=null){a.removeModifier(POSITIVE);a.removeModifier(NEGATIVE);}}
+    public static void reset(LivingEntity target){for(String name:POS){var a=target.getAttribute(BuiltInRegistries.ATTRIBUTE.get(Identifier.withDefaultNamespace(name)).orElseThrow());if(a!=null){a.removeModifier(POSITIVE);a.removeModifier(NEGATIVE);}}
         target.entityTags().remove("gigantic");target.entityTags().remove("submissive");}
     private final class RuneRay implements LbcExasperato.ReplayableRay {
         final UUID owner;final ServerLevel level;final String epoch;final InteractionHand hand;final Kind kind;final Vec3 direction;ItemStack stack;

@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 /** Quiver reward: two independent uniform draws from the source's 21 attribute bonuses. */
-final class LbcRandomStatLevelup {
+public final class LbcRandomStatLevelup {
     private static final String[] ATTRIBUTES={"armor","armor_toughness","attack_damage","attack_knockback",
             "attack_speed","burning_time","explosion_knockback_resistance","fall_damage_multiplier",
             "jump_strength","knockback_resistance","luck","max_health","movement_efficiency",
@@ -22,7 +22,7 @@ final class LbcRandomStatLevelup {
         attribute.addTransientModifier(new AttributeModifier(id(draw),AMOUNTS[choice],choice==11
                 ?AttributeModifier.Operation.ADD_MULTIPLIED_BASE:AttributeModifier.Operation.ADD_VALUE));
     }
-    static void clear(ServerPlayer player){for(var name:ATTRIBUTES){
+    public static void clear(ServerPlayer player){for(var name:ATTRIBUTES){
         var attribute=player.getAttribute(BuiltInRegistries.ATTRIBUTE.get(Identifier.parse("minecraft:"+name)).orElseThrow());
         if(attribute!=null)for(int draw=1;draw<=2;draw++)attribute.removeModifier(id(draw));
     }}

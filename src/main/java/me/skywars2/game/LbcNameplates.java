@@ -36,11 +36,11 @@ public final class LbcNameplates {
     private boolean batchChanged;
     public LbcNameplates(GameController game){this.game=game;}
 
-    record Batch(LbcNameplates owner) implements AutoCloseable {
+    public record Batch(LbcNameplates owner) implements AutoCloseable {
         @Override public void close() { owner.finishBatch(); }
     }
 
-    static Batch batch(Scoreboard board) {
+    public static Batch batch(Scoreboard board) {
         var service = forScoreboard(board);
         if (service == null) return null;
         service.batchDepth++;
@@ -80,7 +80,7 @@ public final class LbcNameplates {
             service.batchChanged = true;
         }
     }
-    static Component frozen(Component component){
+    public static Component frozen(Component component){
         var copy=component.plainCopy();
         if(component.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents translated){
             var args=translated.getArgs().clone();

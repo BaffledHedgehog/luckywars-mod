@@ -32,7 +32,7 @@ public final class BulkPlayerProfiles {
         }
     }
 
-    static Lookup cached(MinecraftServer server, String name) {
+    public static Lookup cached(MinecraftServer server, String name) {
         if (server.services().nameToIdCache() instanceof Cache cache) {
             var known = cache.skywars2$cachedName(name);
             if (known != null) return new Lookup(server.services().profileRepository(), name,
@@ -41,7 +41,7 @@ public final class BulkPlayerProfiles {
         return null;
     }
 
-    static Lookup fetch(GameProfileRepository repository, String name, boolean useOnlineLookup) {
+    public static Lookup fetch(GameProfileRepository repository, String name, boolean useOnlineLookup) {
         var primary = repository.findProfileByName(name.toLowerCase(Locale.ROOT));
         if (primary.isPresent() || !useOnlineLookup) return new Lookup(repository, name, primary, null, null, null);
         class Fallback implements ProfileLookupCallback {

@@ -44,7 +44,7 @@ public final class OriginalGuiDesign {
     private OriginalGuiDesign() {}
 
     /** Shared source text for gameplay messages, with the same selectors, keys and formatting as GUI. */
-    static Component sourceMessage(String path,ServerPlayer player,PlayerStore.Profile profile,GameConfig config) {
+    public static Component sourceMessage(String path,ServerPlayer player,PlayerStore.Profile profile,GameConfig config) {
         return sourceMessage(path,player,profile,config,ItemStack.EMPTY);
     }
     /** Resolve prepared source storage before vanilla loot permanently resolves it to empty text. */
@@ -74,7 +74,7 @@ public final class OriginalGuiDesign {
         return false;
     }
     /** The case owns its immutable winning icon; legacy text must not query a world block. */
-    static Component sourceMessage(String path,ServerPlayer player,PlayerStore.Profile profile,GameConfig config,ItemStack reward) {
+    public static Component sourceMessage(String path,ServerPlayer player,PlayerStore.Profile profile,GameConfig config,ItemStack reward) {
         var values=new RuntimeValues(profile,config,player);
         var source=resolveStorageComponent(path,values);
         if(!reward.isEmpty())source=rewardComponent(source,reward,player);
@@ -100,11 +100,11 @@ public final class OriginalGuiDesign {
         var result=new JsonObject();for(var entry:object.entrySet())result.add(entry.getKey(),rewardComponent(entry.getValue(),reward,player));return result;
     }
 
-    static ItemStack button(ServerPlayer player, String namespace, int page, int slot) {
+    public static ItemStack button(ServerPlayer player, String namespace, int page, int slot) {
         return button(player, namespace, Integer.toString(page), slot, null, null);
     }
 
-    static ItemStack button(ServerPlayer player, String namespace, int page, int slot,
+    public static ItemStack button(ServerPlayer player, String namespace, int page, int slot,
                             PlayerStore.Profile profile, GameConfig config) {
         return button(player, namespace, Integer.toString(page), slot, profile, config);
     }
@@ -167,7 +167,7 @@ public final class OriginalGuiDesign {
     }
 
     /** Builds the exact source map item using stable IDs imported from page and mapselect functions. */
-    static SourceMapButton sourceMapButton(ServerPlayer player, String mapId, boolean selected) {
+    public static SourceMapButton sourceMapButton(ServerPlayer player, String mapId, boolean selected) {
         for (JsonElement pageElement : design().getAsJsonArray("pages")) {
             JsonObject page = pageElement.getAsJsonObject();
             String pageId = page.get("pageId").getAsString();
@@ -194,15 +194,15 @@ public final class OriginalGuiDesign {
     }
 
     /** Shares the source GUI caption with chat/status without creating a button stack. */
-    static Component sourceMapName(String mapId) {
+    public static Component sourceMapName(String mapId) {
         design();
         Component name = sourceMapNames.get(mapId);
         return name == null ? null : name.copy();
     }
 
-    record LoadoutText(String menuTable, List<String> names, List<String> lore) {}
+    public record LoadoutText(String menuTable, List<String> names, List<String> lore) {}
 
-    static LoadoutText loadoutText(int page, int slot) {
+    public static LoadoutText loadoutText(int page, int slot) {
         design();
         var entry = sourceSlots.get("lbc:" + page + ":" + slot);
         if (entry == null) return new LoadoutText(null, List.of(), List.of());
@@ -268,7 +268,7 @@ public final class OriginalGuiDesign {
     }
 
     /** Общая проверка GUI-гейта; ranked обходит только перки, не косметику или сезонные ограничения. */
-    static boolean unlocked(ServerPlayer player, String namespace, int page, int slot,
+    public static boolean unlocked(ServerPlayer player, String namespace, int page, int slot,
                             PlayerStore.Profile profile, GameConfig config) {
         design();
         if (me.skywars2.SkyWars2.game() != null && me.skywars2.SkyWars2.game().debugPerks(player)
@@ -479,7 +479,7 @@ public final class OriginalGuiDesign {
         }
     }
 
-    record SourceMapButton(ItemStack stack, boolean selected, int slot) {}
+    public record SourceMapButton(ItemStack stack, boolean selected, int slot) {}
 
     private static ItemStack button(ServerPlayer player, Identifier id, PlayerStore.Profile profile, GameConfig config) {
         MinecraftServer server = player.level().getServer();

@@ -78,7 +78,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         SWORD("terra_sword_awakening","true_terra_sword"),
         RAZOR("terra_razorpine_awakening","terra_razorpine");
         final String id,loot;
-        final LbcCraftingRecipe recipe;
+        public final LbcCraftingRecipe recipe;
         final RecipeSerializer<LbcCraftingRecipe> serializer;
         Kind(String id,String loot) {
             this.id=id; this.loot=loot; this.recipe=new LbcCraftingRecipe(this);

@@ -47,7 +47,7 @@ import java.util.concurrent.CompletableFuture;
 
 /** Consuming and its two independent donor scrolls share the existing terrain work queue. */
 public final class LbcConsuming {
-    static final String TRIAL_ACTOR="skywars2.consuming.trial_actor";
+    public static final String TRIAL_ACTOR="skywars2.consuming.trial_actor";
     private static final net.minecraft.core.particles.DustParticleOptions NORMAL_DUST=dust(.424f,.251f,.647f,2);
     private static final net.minecraft.core.particles.DustParticleOptions END_DUST=dust(0,0,0,4);
     private static final net.minecraft.core.particles.DustParticleOptions AREA_DUST=dust(.5f,0,.5f,4);
@@ -109,7 +109,7 @@ public final class LbcConsuming {
         boolean contains(Entity entity) { return entity.level()==level && entity.position().distanceToSqr(center)<=48*48; }
     }
 
-    LbcConsuming(GameController game) { this.game=game; }
+    public LbcConsuming(GameController game) { this.game=game; }
     public void prepare() {
         callbackDepth++;try{
         prepared=null;
@@ -375,7 +375,7 @@ public final class LbcConsuming {
 
         }finally{callbackDepth--;}
     }
-    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
         for(var partition:partitions)if(partition.level==level)partition.point=transform.apply(partition.point);
         for(var area:areas)if(area.level==level)area.point=transform.apply(area.point);
     }
@@ -414,7 +414,7 @@ public final class LbcConsuming {
         }finally{callbackDepth--;}
     }
     /** Exact body preset; persistent native spell authorship leaves converted mobs alive after caster death. */
-    boolean summonVoidMan(ServerPlayer owner,Vec3 position){
+    public boolean summonVoidMan(ServerPlayer owner,Vec3 position){
         callbackDepth++;try{
             if(!valid(owner)||!ready()||prepared.spawns.isEmpty()||!owner.level().hasChunkAt(BlockPos.containing(position)))return false;
             var mob=new Skeleton(net.minecraft.world.entity.EntityTypes.SKELETON,owner.level());
@@ -533,7 +533,7 @@ public final class LbcConsuming {
 
         }finally{callbackDepth--;}
     }
-    ServerPlayer owner(Entity entity) {
+    public ServerPlayer owner(Entity entity) {
         if(entity instanceof Projectile projectile) return owner(projectile.getOwner());
         var state=summons.get(entity); return state!=null && valid(state)?state.owner:null;
     }
@@ -559,8 +559,8 @@ public final class LbcConsuming {
 
         }finally{callbackDepth--;}
     }
-    int silenceEraseCount() { return silences.size(); }
-    void loaded(Entity entity) {
+    public int silenceEraseCount() { return silences.size(); }
+    public void loaded(Entity entity) {
         callbackDepth++;try{
         if(rewinding)return;
         if(!entity.entityTags().contains(TRIAL_ACTOR)) return;
@@ -569,7 +569,7 @@ public final class LbcConsuming {
 
         }finally{callbackDepth--;}
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         callbackDepth++;try{
         if(rewinding)return;
         // Remove ownership before native discard: unload may re-enter through entity removal.
@@ -580,12 +580,12 @@ public final class LbcConsuming {
     public int count() { return partitions.size()+areas.size()+summons.size()+work.size()+silences.size(); }
     record SilenceView(ServerPlayer owner,String epoch,Vec3 center,int pending,int settle){}
     List<SilenceView> silenceSnapshot(){return silences.stream().map(e->new SilenceView(e.owner,e.epoch,e.center,e.pending,e.settle)).toList();}
-    record PartitionView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
-    record AreaView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
-    List<PartitionView> partitionSnapshot() { return partitions.stream().map(part->new PartitionView(part.owner,part.epoch,part.point,part.age)).toList(); }
-    List<AreaView> areaSnapshot() { return areas.stream().map(area->new AreaView(area.owner,area.epoch,area.point,area.age)).toList(); }
-    List<Entity> summonSnapshot() { return List.copyOf(summons.keySet()); }
-    int pendingWorkCount() { return work.size(); }
+    public record PartitionView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
+    public record AreaView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
+    public List<PartitionView> partitionSnapshot() { return partitions.stream().map(part->new PartitionView(part.owner,part.epoch,part.point,part.age)).toList(); }
+    public List<AreaView> areaSnapshot() { return areas.stream().map(area->new AreaView(area.owner,area.epoch,area.point,area.age)).toList(); }
+    public List<Entity> summonSnapshot() { return List.copyOf(summons.keySet()); }
+    public int pendingWorkCount() { return work.size(); }
     public void forget(ServerPlayer owner) {
         callbackDepth++;try{
         partitions.removeIf(part->part.owner==owner); areas.removeIf(area->area.owner==owner);
@@ -741,13 +741,13 @@ public final class LbcConsuming {
         TerrainImage(Terrain batch,MatchSpellCheckpoint.Links links){this.batch=batch;owner=links.key(batch.owner);scan=batch.scan.checkpoint();portals=new java.util.LinkedHashMap<>(batch.portals);}
         Runnable prepare(MatchSpellCheckpoint.Links links){var current=(ServerPlayer)links.get(owner);return ()->{batch.owner=current;scan.restore();batch.portals.clear();batch.portals.putAll(portals);};}
     }
-    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish consuming cast/terrain/disposal/teleport callbacks before checkpointing");}
+    public void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish consuming cast/terrain/disposal/teleport callbacks before checkpointing");}
     private void preparationBoundary(){if(preparation!=null&&!preparation.isDone())throw new IllegalStateException("Finish read-only consuming resource preparation before checkpointing");}
-    void prepareFrozen(){checkpointBoundary();rewinding=true;}
-    void publishFrozen(){checkpointBoundary();rewinding=false;}
-    void cancelFrozen(){checkpointBoundary();rewinding=false;}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void prepareFrozen(){checkpointBoundary();rewinding=true;}
+    public void publishFrozen(){checkpointBoundary();rewinding=false;}
+    public void cancelFrozen(){checkpointBoundary();rewinding=false;}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
+    public final class Checkpoint {
         final List<Partition> savedPartitions=List.copyOf(partitions);final List<Area> savedAreas=List.copyOf(areas);final List<SilenceErase> savedSilences=List.copyOf(silences);
         final List<OwnedImage> states=new ArrayList<>();final List<TerrainImage> batches=new ArrayList<>();
         final MatchSpellCheckpoint.IdentityImage<Entity,Owned> savedSummons;
@@ -763,7 +763,8 @@ public final class LbcConsuming {
             terrain.values().forEach(batch->batches.add(new TerrainImage(batch,graph.links)));savedWork=(IdentityHashMap<LbcStonekivi.Work,Owned>)work.clone();
             savedWork.forEach((job,state)->{if(!(job instanceof WrapperWork wrapper)||wrapper.state!=state)throw new IllegalStateException("Unreviewed consuming wrapper ownership");states.add(new OwnedImage(state,graph.links));graph.capture(job);});
         }
-        @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
+        @SuppressWarnings("unchecked")
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();preparationBoundary();if(preparation!=resourceFuture)throw new IllegalStateException("Consuming resource cache lifecycle changed outside its owner");
             var actors=states.stream().map(image->image.prepare(links)).toList();var terrainPlans=batches.stream().map(image->image.prepare(links)).toList();
             var currentSummons=savedSummons.restore(links);var currentTerrain=savedTerrain.restore(links);var currentWork=(IdentityHashMap<LbcStonekivi.Work,Owned>)savedWork.clone();
@@ -773,7 +774,7 @@ public final class LbcConsuming {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var part:partitions)if(valid(part)&&LbcPlanetoidSkill.near(game,holder,part.level,part.point))
             part.direction=LbcPlanetoidSkill.direction(holder,part.point,82);
     }

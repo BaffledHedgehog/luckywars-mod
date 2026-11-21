@@ -4,14 +4,14 @@ import java.util.Set;
 import net.minecraft.server.level.ServerPlayer;
 
 /** Legacy score comparisons over the current native owners. No independent timers or charge ledger. */
-final class LbcSourceCounters {
-    static final Set<String> NATIVE = Set.of("swordcharged1", "swordcharging1", "swordcharged2",
+public final class LbcSourceCounters {
+    public static final Set<String> NATIVE = Set.of("swordcharged1", "swordcharging1", "swordcharged2",
             "swordcharged5", "swordcharging5", "scared", "lookback", "twitching", "shock",
             "coldown1", "coldown16", "coldownshish", "coldown13", "coldown17", "coldown18",
             "coldown18b", "coldown25", "coldownMagnum");
     private final GameController game;
-    LbcSourceCounters(GameController game){this.game=game;}
-    Integer read(ServerPlayer p,String name){var items=game.items();return switch(name){
+    public LbcSourceCounters(GameController game){this.game=game;}
+    public Integer read(ServerPlayer p,String name){var items=game.items();return switch(name){
         case "swordcharged1"->items.electro().charges(p);
         case "swordcharging1"->items.electro().charging(p);
         case "swordcharged2"->items.terra().charges(p);
@@ -28,16 +28,16 @@ final class LbcSourceCounters {
             yield score==null?null:score.value();}
     };}
     /** Envy only improves the existing value. Missing genuine scoreboard operands do not compare. */
-    boolean copyBetter(ServerPlayer target,ServerPlayer donor,String name,boolean maximum){
+    public boolean copyBetter(ServerPlayer target,ServerPlayer donor,String name,boolean maximum){
         Integer before=read(target,name),next=read(donor,name);
         if(before==null||next==null||(maximum?before>=next:before<=next))return false;
         write(target,name,next);return true;
     }
     /** Red Nexus wire grants all seven real sword resources, including the three non-scoreboard owners. */
-    void addSwordCharges(ServerPlayer target,int amount){
+    public void addSwordCharges(ServerPlayer target,int amount){
         for(int i=1;i<=7;i++){String name="swordcharged"+i;Integer before=read(target,name);write(target,name,(before==null?0:before)+amount);}
     }
-    void write(ServerPlayer target,String name,int next){
+    public void write(ServerPlayer target,String name,int next){
         var items=game.items();switch(name){
             case "swordcharged1","swordcharging1","swordcharged5","swordcharging5"->
                 items.electro().sourceCharge(target,name.endsWith("5"),name.startsWith("swordcharging"),next);

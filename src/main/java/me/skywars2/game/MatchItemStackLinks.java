@@ -19,14 +19,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 /** Shared private references bind to canonical native slots, never to an equal replacement item. */
-final class MatchItemStackLinks {
+public final class MatchItemStackLinks {
     private interface Location { ItemStack get(MatchSpellCheckpoint.Links links); }
-    static final class Ref {
+    public static final class Ref {
         private final ItemStack saved;
         private final List<Location> locations;
         private ItemStack current;
         Ref(ItemStack stack,List<Location> locations){if(locations.size()>1)throw new IllegalStateException("Shared stack across distinct canonical slots needs its alias owner");saved=stack.copy();this.locations=List.copyOf(locations);}
-        ItemStack get(MatchSpellCheckpoint.Links links){return Objects.requireNonNull(current,"Resolve canonical item-stack links before private metadata");}
+        public ItemStack get(MatchSpellCheckpoint.Links links){return Objects.requireNonNull(current,"Resolve canonical item-stack links before private metadata");}
         void resolve(MatchSpellCheckpoint.Links links){
             ItemStack value=null;
             for(var location:locations){var next=location.get(links);

@@ -23,7 +23,7 @@ public final class LbcReforgeMachineItem {
     public static final Item MACHINE = create();
 
     private LbcReforgeMachineItem() {}
-    static void register() {
+    public static void register() {
         // Native property finalization replaces ITEM_MODEL with the registry ID; apply the source model afterwards.
         DefaultItemComponentEvents.MODIFY.register(context -> context.modify(MACHINE,
                 builder -> builder.set(DataComponents.ITEM_MODEL, Identifier.parse("lbc:reroll_machine"))));

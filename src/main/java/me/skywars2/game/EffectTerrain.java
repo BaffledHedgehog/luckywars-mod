@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /** Shared terrain time budget: nearby results first, with fair progress for every active source. */
-final class EffectTerrain {
+public final class EffectTerrain {
     // The user accepts brief 18-19 TPS: use current tick headroom rather than delaying for seconds.
     // Leave time for the remaining end-tick hooks; this is a soft deadline, not an interruptible write.
     private static final long TICK_TARGET_NANOS=54_000_000,TAIL_RESERVE_NANOS=2_000_000;
@@ -33,22 +33,22 @@ final class EffectTerrain {
     private static long ticks,visited,writes,tickNanos,tickStarted;
 
     private EffectTerrain() { }
-    static long visited() { return visited; }
-    static long writes() { return writes; }
-    static long tickNanos() { return tickNanos; }
-    static int queued() { return pending.size(); }
-    static void beginTick() { tickStarted=System.nanoTime(); }
-    static long deadlineNanos() { return (tickStarted==0?System.nanoTime():tickStarted)+TICK_TARGET_NANOS-TAIL_RESERVE_NANOS; }
+    public static long visited() { return visited; }
+    public static long writes() { return writes; }
+    public static long tickNanos() { return tickNanos; }
+    public static int queued() { return pending.size(); }
+    public static void beginTick() { tickStarted=System.nanoTime(); }
+    public static long deadlineNanos() { return (tickStarted==0?System.nanoTime():tickStarted)+TICK_TARGET_NANOS-TAIL_RESERVE_NANOS; }
 
-    static void fire(LivingEntity source,int radius) { field(source,radius,false); }
-    static void water(LivingEntity source,int radius) { field(source,radius,true); }
-    static void removeFire(LivingEntity source) {
+    public static void fire(LivingEntity source,int radius) { field(source,radius,false); }
+    public static void water(LivingEntity source,int radius) { field(source,radius,true); }
+    public static void removeFire(LivingEntity source) {
         var old=fires.remove(source);if(old!=null)pending.remove(old);
     }
-    static void cancel(LivingEntity source) {
+    public static void cancel(LivingEntity source) {
         fires.remove(source);waters.remove(source);pending.removeIf(job->job.source()==source);
     }
-    static void clear() {
+    public static void clear() {
         fires.clear();waters.clear();pending.clear();ticks=visited=writes=tickNanos=0;
     }
     private static void field(LivingEntity source,int radius,boolean water) {
@@ -62,10 +62,10 @@ final class EffectTerrain {
             job.center=source.blockPosition();job.cursor=0;job.queued=true;pending.addLast(job);
         }
     }
-    static void weave(ServerLevel level,LivingEntity source,long amount) {
+    public static void weave(ServerLevel level,LivingEntity source,long amount) {
         pending.addLast(new Web(level,source,amount));
     }
-    static void tick() {
+    public static void tick() {
         long started=System.nanoTime();ticks++;
         long deadline=deadlineNanos();
         var budget=new Budget(deadline);
@@ -145,7 +145,7 @@ final class EffectTerrain {
             }
         }
     }
-    static void fireCell(ServerLevel level,BlockPos pos) {
+    public static void fireCell(ServerLevel level,BlockPos pos) {
         if(!level.hasChunkAt(pos)||!level.getBlockState(pos).isAir())return;
         var fire=Blocks.FIRE.defaultBlockState();
         // Avoid a place/remove pair for unsupported fire, retaining native portal ignition first.
@@ -153,7 +153,7 @@ final class EffectTerrain {
                 &&PortalShape.findEmptyPortalShape(level,pos,Direction.Axis.X).isPresent());
         if(place&&level.setBlock(pos,fire,Block.UPDATE_CLIENTS))writes++;
     }
-    static void waterCell(ServerLevel level,BlockPos pos) {
+    public static void waterCell(ServerLevel level,BlockPos pos) {
         if(!level.hasChunkAt(pos))return;var old=level.getBlockState(pos);
         if(old.is(AIRS)&&level.setBlock(pos,Blocks.WATER.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS)) {
             writes++;level.updateNeighboursOnBlockSet(pos,old);

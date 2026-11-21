@@ -14,9 +14,9 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 
 /** Inventory is decoded only on inventory/equipment events, never from the old tick loops. */
-final class LbcBalancePassive {
+public final class LbcBalancePassive {
     private static final TagKey<Block> PORTALS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:portals_restricted"));
-    record Gear(boolean hat,boolean belt,boolean reactive,boolean jump,boolean healing,int mystical){}
+    public record Gear(boolean hat,boolean belt,boolean reactive,boolean jump,boolean healing,int mystical){}
     private final GameController game;
     private final Map<UUID,Gear> gear=new LinkedHashMap<>();
     LbcBalancePassive(GameController game){this.game=game;}
@@ -64,6 +64,6 @@ final class LbcBalancePassive {
     private void drop(ServerPlayer p,Entity e,Item item){var body=new ItemEntity(p.level(),e.getX(),e.getY(),e.getZ(),new ItemStack(item));game.items().markCurrentItemEpoch(body);p.level().addFreshEntity(body);}
     void forget(ServerPlayer p){gear.remove(p.getUUID());}
     void clear(){gear.clear();}
-    Map<UUID,Gear> image(){return Map.copyOf(gear);}
-    void restore(Map<UUID,Gear> image){gear.clear();gear.putAll(image);}
+    public Map<UUID,Gear> image(){return Map.copyOf(gear);}
+    public void restore(Map<UUID,Gear> image){gear.clear();gear.putAll(image);}
 }

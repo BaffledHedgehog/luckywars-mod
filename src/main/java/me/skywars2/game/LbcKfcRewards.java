@@ -57,7 +57,7 @@ import java.util.UUID;
 public final class LbcKfcRewards {
     public static final Item WIN_BUTTON=registerWin();
     public static final Item PENIS_CULTUS=registerCultus();
-    static final ResourceKey<DamageType> CULTUS_ARROW=ResourceKey.create(Registries.DAMAGE_TYPE,Identifier.parse("skywars2:cultus_arrow"));
+    public static final ResourceKey<DamageType> CULTUS_ARROW=ResourceKey.create(Registries.DAMAGE_TYPE,Identifier.parse("skywars2:cultus_arrow"));
     private final GameController game;
     private final Map<Entity,UUID> owned=new IdentityHashMap<>();
     private final Map<CultItem,Bomb> bombs=new IdentityHashMap<>();
@@ -72,8 +72,8 @@ public final class LbcKfcRewards {
             this.owner=owner; this.epoch=epoch; tag="skywars2_fake_win_"+UUID.randomUUID().toString().replace("-","");
         }
     }
-    LbcKfcRewards(GameController game) { this.game=game; }
-    static void register() { }
+    public LbcKfcRewards(GameController game) { this.game=game; }
+    public static void register() { }
 
     private static Item registerWin() {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:win_button"));
@@ -114,9 +114,9 @@ public final class LbcKfcRewards {
                 && !owner.entityTags().contains("time_stopped") && !game.items().magic().suppressed(owner)
                 && !game.items().magic().suppressedAt(owner.level(),owner.getEyePosition());
     }
-    static boolean winButton(ItemStack stack){return !stack.isEmpty()&&(stack.is(WIN_BUTTON)||ItemData.intValue(stack,"win_button",0)==1);}
+    public static boolean winButton(ItemStack stack){return !stack.isEmpty()&&(stack.is(WIN_BUTTON)||ItemData.intValue(stack,"win_button",0)==1);}
     /** Same native action and sole real-hand debit for both Item.use and TMT. */
-    boolean useWin(ServerPlayer owner,InteractionHand hand){
+    public boolean useWin(ServerPlayer owner,InteractionHand hand){
         if(!useWin(owner))return false;
         // Snowball throwing was only the datapack consumption trigger.
         owner.getItemInHand(hand).consume(1,owner);return true;
@@ -150,7 +150,7 @@ public final class LbcKfcRewards {
         game.items().mana().award(owner,"lbc:true_advancements/summoner/penis_cultus");
         game.items().trinkets().summoned(owner); return true;
     }
-    ItemEntity spawnBomb(ServerPlayer owner,Vec3 position,int variant) {
+    public ItemEntity spawnBomb(ServerPlayer owner,Vec3 position,int variant) {
         if(variant<1 || variant>6) throw new IllegalArgumentException("Unknown cultus variant "+variant);
         var bat=new CultBat(owner.level()); bat.setPos(position); bat.setSilent(true); bat.entityTags().add("no_penis");
         bat.addEffect(ItemEffectLevels.create(MobEffects.INVISIBILITY,-1,0,false,false));
@@ -168,7 +168,7 @@ public final class LbcKfcRewards {
         return item;
     }
     /** Source phase2 payload: a free native item, without the player Cultus bat. */
-    ItemEntity spawnLooseBomb(LivingEntity hostileOwner,Vec3 position,int variant) {
+    public ItemEntity spawnLooseBomb(LivingEntity hostileOwner,Vec3 position,int variant) {
         if(variant<1 || variant>6) throw new IllegalArgumentException("Unknown cultus variant "+variant);
         if(!(hostileOwner.level() instanceof ServerLevel level)) return null;
         var stack=bombStack(variant,true);
@@ -353,7 +353,7 @@ public final class LbcKfcRewards {
         bombSound(owner,level,at,variant);
     }
     /** Common visuals only: the inventory dispatcher keeps its own source admission and command ordering. */
-    void announcement(LivingEntity victim,int variant,boolean inventory) {
+    public void announcement(LivingEntity victim,int variant,boolean inventory) {
         String[] keys={"normal","dirty","nigger","holy","horse","multi"};
         ChatFormatting[] colors={ChatFormatting.LIGHT_PURPLE,ChatFormatting.DARK_RED,ChatFormatting.DARK_GRAY,
                 ChatFormatting.WHITE,ChatFormatting.LIGHT_PURPLE,ChatFormatting.GRAY};
@@ -365,14 +365,14 @@ public final class LbcKfcRewards {
             game.announce(text);
         }
     }
-    static void bombEffects(LivingEntity owner,LivingEntity victim,int variant) {
+    public static void bombEffects(LivingEntity owner,LivingEntity victim,int variant) {
         switch(variant) {
             case 2 -> {victim.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,160,5,false,false),owner);victim.addEffect(ItemEffectLevels.create(MobEffects.WEAKNESS,80,5,false,false),owner);victim.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,120,5,false,false),owner);}
             case 4 -> {victim.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,160,1,false,false),owner);victim.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,15,false,false),owner);}
             case 5 -> victim.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,20,127,false,false),owner);
         }
     }
-    static void bombParticles(ServerLevel level,Vec3 at,int variant) {
+    public static void bombParticles(ServerLevel level,Vec3 at,int variant) {
         switch(variant) {
             case 1 -> level.sendParticles(ParticleTypes.CLOUD,at.x,at.y+1,at.z,10,2,2,2,.1);
             case 2 -> level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),at.x,at.y+1,at.z,100,.2,.2,.2,1);
@@ -380,7 +380,7 @@ public final class LbcKfcRewards {
             case 5,6 -> level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,(variant==5?Blocks.REDSTONE_BLOCK:Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.WHITE)).defaultBlockState()),at.x,at.y+1,at.z,100,2,2,2,1);
         }
     }
-    static void bombSound(LivingEntity owner,ServerLevel level,Vec3 at,int variant) {
+    public static void bombSound(LivingEntity owner,ServerLevel level,Vec3 at,int variant) {
         String[] sounds={"suction","dick_1","spank","woo","shityeah","weewee"};
         if(owner instanceof ServerPlayer player) LbcOverload.sound(player,at,"minecraft:lbcsounds."+sounds[variant-1],1,1,0);
         else {
@@ -456,12 +456,12 @@ public final class LbcKfcRewards {
         for(var state:List.copyOf(celebrations)) remove(state);
         for(var job:List.copyOf(multicasts.keySet())) job.cancel();
     }
-    int bombCount() { return bombs.size(); }
-    List<ItemEntity> bombSnapshot() { return List.copyOf(bombs.keySet()); }
-    int celebrationCount() { return celebrations.size(); }
-    int pendingMulticastCount() { return multicasts.size(); }
+    public int bombCount() { return bombs.size(); }
+    public List<ItemEntity> bombSnapshot() { return List.copyOf(bombs.keySet()); }
+    public int celebrationCount() { return celebrations.size(); }
+    public int pendingMulticastCount() { return multicasts.size(); }
     /** Canonical body NBT owns ammo; this image restores only the ranged bomb's native producer links. */
-    MatchQueuedWorkCheckpoint.Image checkpointRanged(MatchSpellCheckpoint.Links links){
+    public MatchQueuedWorkCheckpoint.Image checkpointRanged(MatchSpellCheckpoint.Links links){
         record Saved(MatchDamageSources.Ref actor,Bomb bomb,MatchDamageSources.Ref hostile,UUID owned){}
         var saved=new ArrayList<Saved>();bombs.forEach((actor,bomb)->{
             if(actor.getAttached(LbcLegacyRanged.ammoType())!=null)saved.add(new Saved(links.key(actor),bomb,links.key(bomb.hostileOwner),owned.get(actor)));
@@ -471,11 +471,11 @@ public final class LbcKfcRewards {
             return ()->{bombs.keySet().removeIf(actor->actor.getAttached(LbcLegacyRanged.ammoType())!=null);owned.keySet().removeIf(actor->actor instanceof CultItem&&actor.getAttached(LbcLegacyRanged.ammoType())!=null);bombs.putAll(restored);owned.putAll(authors);};
         };
     }
-    static boolean cloneRecognizes(Entity e){return e instanceof CultBat||e instanceof CultItem||e instanceof LooseBolt;}
+    public static boolean cloneRecognizes(Entity e){return e instanceof CultBat||e instanceof CultItem||e instanceof LooseBolt;}
     /** Free bow/loose mines are moving weapons; attached payloads remain part of their bat actor. */
-    static boolean cloneProjectile(Entity e){return e instanceof CultItem&&!e.isPassenger();}
-    static boolean cloneProtected(Entity e){return false;}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){
+    public static boolean cloneProjectile(Entity e){return e instanceof CultItem&&!e.isPassenger();}
+    public static boolean cloneProtected(Entity e){return false;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(cloneProtected(source))return null;
         var owner=owned.get(source);var hostile=looseConsequences.get(source);var bomb=source instanceof CultItem item?bombs.get(item):null;
         var ammo=source.getAttached(LbcLegacyRanged.ammoType());var ammoCopy=ammo==null?null:ammo.copy();

@@ -98,7 +98,7 @@ public final class LbcContainedSkills {
                 ||player.level()!=game.maps().level()||!LbcDimensionItems.ordinary(player))return false;
         var owner=attacker(player,source);return owner!=null&&!owner.equals(player.getUUID());
     }
-    double damageThisTick(ServerPlayer player){
+    public double damageThisTick(ServerPlayer player){
         var receipt=damage.get(player);
         return receipt!=null&&receipt.tick==game.server().getTickCount()?receipt.amount:0;
     }

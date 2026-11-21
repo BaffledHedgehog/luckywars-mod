@@ -212,7 +212,7 @@ public final class MatchPlayerViews {
         return new Storage(menu.getClass(),menu.getType(),menu instanceof ChestMenu chest?chest.getRowCount():0,
                 binding(player,backing(menu)),((Title)player).skywars2$menuTitle(menu.containerId),menu.getCarried().copy());
     }
-    static void closeFutureStorage(ServerPlayer player) {
+    public static void closeFutureStorage(ServerPlayer player) {
         validateFutureMenu(player);
         if(player.containerMenu!=player.inventoryMenu){MatchWorkstations.discard(player.containerMenu);MatchBoundViews.discard(player.containerMenu);player.containerMenu.setCarried(ItemStack.EMPTY);player.closeContainer();}
     }
@@ -221,7 +221,7 @@ public final class MatchPlayerViews {
         if(MatchWorkstations.supports(player.containerMenu)){MatchWorkstations.validateFuture(player);return;}
         if(player.containerMenu!=player.inventoryMenu)binding(player,backing(player.containerMenu),false);
     }
-    static ContainerData blockData(Container container) {
+    public static ContainerData blockData(Container container) {
         if(container instanceof AbstractFurnaceBlockEntity)return ((PlayerViewCheckpointAccess.FurnaceBlock)container).skywars2$data();
         if(container instanceof BrewingStandBlockEntity)return ((PlayerViewCheckpointAccess.BrewingBlock)container).skywars2$data();
         if(container instanceof CrafterBlockEntity)return ((PlayerViewCheckpointAccess.CrafterBlock)container).skywars2$data();

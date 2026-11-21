@@ -27,26 +27,26 @@ public final class CloneFinalAbilityStates {
         return made;
     }
     /** Root composes this narrow long-actor checkpoint into its existing canonical Links graph. */
-    static final class Checkpoint {
+    public static final class Checkpoint {
         private final LbcHomingArrows.Checkpoint homingArrows;
         private final LbcKapusta.Checkpoint kapusta;
         private final MatchQueuedWorkCheckpoint.Image pumpkinator;
         private final LbcErecto.SphereCheckpoint spheres;
         private final LbcSauvojen.DroneCheckpoint drones;
         private final LbcSpecialTools.HammerCheckpoint hammers;
-        Checkpoint(GameController game,MatchSpellCheckpoint.Links links) {
+        public Checkpoint(GameController game,MatchSpellCheckpoint.Links links) {
             homingArrows=game.items().homingArrows().checkpoint(links);kapusta=game.items().kapusta().checkpoint(links);pumpkinator=game.items().pumpkinator().checkpoint(links);
             spheres=game.items().erecto().checkpointSpheres(links);
             drones=game.items().sauvojen().checkpointDrones(links);
             hammers=game.items().specialTools().checkpointHammers(links);
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links) {
+        public Runnable prepare(MatchSpellCheckpoint.Links links) {
             var sphere=spheres.prepare(links);var drone=drones.prepare(links);var hammer=hammers.prepare(links);
             var arrows=homingArrows.prepare(links);var cabbage=kapusta.prepare(links);var pumpkin=pumpkinator.prepare(links);
             return ()->{arrows.run();sphere.run();drone.run();hammer.run();cabbage.run();pumpkin.run();};
         }
     }
-    static void publishCheckpoint(GameController game) {
+    public static void publishCheckpoint(GameController game) {
         game.items().kapusta().publishFrozen();game.items().pumpkinator().publishFrozen();
         game.items().sauvojen().publishCloneDrones();game.items().specialTools().publishCloneHammers();
     }

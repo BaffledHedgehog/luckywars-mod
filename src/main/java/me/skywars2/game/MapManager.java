@@ -85,7 +85,7 @@ import java.util.function.Consumer;
 
 /** Native, tick-budgeted placement of the imported SkyWars structure manifests. */
 public final class MapManager {
-    static final int OUTER_ARENA_LIMIT = 500;
+    public static final int OUTER_ARENA_LIMIT = 500;
     private static final String MAP_RESOURCE_ROOT = "/skywars2/maps/";
     private static final int TILE_XZ = 8;
     private static final int TILE_Y = 8;
@@ -116,7 +116,7 @@ public final class MapManager {
     private long rotationVisits,rotationWrites;
 
     /** One accepted whole-map transform, using this manager's chunk tickets and shared terrain work. */
-    boolean rotateMap(net.minecraft.server.level.ServerPlayer author,BlockPos origin){
+    public boolean rotateMap(net.minecraft.server.level.ServerPlayer author,BlockPos origin){
         var game=SkyWars2.game();
         if(closed||game==null||game.maps()!=this||!game.playing()||author.level()!=level)return false;
         if(rotation!=null||busy){author.sendSystemMessage(Component.literal("Map rotation is already in progress."));return false;}
@@ -126,21 +126,21 @@ public final class MapManager {
         for(var player:server.getPlayerList().getPlayers())player.sendSystemMessage(Component.translatable("map_rotate_warn"));
         return true;
     }
-    boolean rotationBusy(){return rotation!=null;}
-    long rotationVisits(){return rotation==null?rotationVisits:rotation.visits();}
-    long rotationWrites(){return rotation==null?rotationWrites:rotation.writes();}
+    public boolean rotationBusy(){return rotation!=null;}
+    public long rotationVisits(){return rotation==null?rotationVisits:rotation.visits();}
+    public long rotationWrites(){return rotation==null?rotationWrites:rotation.writes();}
     void rotationFinished(MapRotation work){if(rotation==work){rotationVisits=work.visits();rotationWrites=work.writes();rotation=null;}}
     private List<Placement> pristinePlacements=List.of();
     // Retain only this arena's already-decoded parts after the transient loader cache clears.
     private Map<Identifier,PreparedTemplate> pristineTemplates=Map.of();
     private final List<BlockPos> pristineRotations=new ArrayList<>();
     void rotatePristineReference(BlockPos origin){pristineRotations.add(origin.immutable());}
-    record SpawnState(List<Spawn> spawns,Vec3 look,Map<BlockPos,Map<BlockPos,BlockSnapshot>> islands,List<BobaRegionPhysics.Region> physics,List<BlockPos> pristineRotations,List<Placement> pristinePlacements,Map<Identifier,PreparedTemplate> pristineTemplates){}
-    SpawnState spawnState(){return new SpawnState(List.copyOf(spawns),look,Map.copyOf(respawnIslands),rotationPhysics.capture(),List.copyOf(pristineRotations),List.copyOf(pristinePlacements),pristineTemplates);}
-    void restoreSpawnState(SpawnState image){spawns=image.spawns;look=image.look;respawnIslands.clear();respawnIslands.putAll(image.islands);rotationPhysics.restore(image.physics);pristineRotations.clear();pristineRotations.addAll(image.pristineRotations);pristinePlacements=image.pristinePlacements;pristineTemplates=image.pristineTemplates;}
+    public record SpawnState(List<Spawn> spawns,Vec3 look,Map<BlockPos,Map<BlockPos,BlockSnapshot>> islands,List<BobaRegionPhysics.Region> physics,List<BlockPos> pristineRotations,List<Placement> pristinePlacements,Map<Identifier,PreparedTemplate> pristineTemplates){}
+    public SpawnState spawnState(){return new SpawnState(List.copyOf(spawns),look,Map.copyOf(respawnIslands),rotationPhysics.capture(),List.copyOf(pristineRotations),List.copyOf(pristinePlacements),pristineTemplates);}
+    public void restoreSpawnState(SpawnState image){spawns=image.spawns;look=image.look;respawnIslands.clear();respawnIslands.putAll(image.islands);rotationPhysics.restore(image.physics);pristineRotations.clear();pristineRotations.addAll(image.pristineRotations);pristinePlacements=image.pristinePlacements;pristineTemplates=image.pristineTemplates;}
     static boolean rotationContains(Vec3 point,BlockPos origin){return point.x>=origin.getX()-160&&point.x<origin.getX()+160
             &&point.z>=origin.getZ()-160&&point.z<origin.getZ()+160&&point.y>=0&&point.y<320;}
-    static Spawn rotatedSpawn(Spawn spawn,BlockPos origin){return rotationContains(spawn.position,origin)
+    public static Spawn rotatedSpawn(Spawn spawn,BlockPos origin){return rotationContains(spawn.position,origin)
             ?new Spawn(MapRotation.entityDestination(spawn.position,origin),spawn.yaw,spawn.pitch):spawn;}
     /** Current spawn markers and their pristine restoration reference move together (user). */
     void rotateSpawnState(BlockPos origin){
@@ -176,7 +176,7 @@ public final class MapManager {
     }
 
     /** A committed block move also moves its native map markers and existing respawn references. */
-    void moveMapObjects(ServerLevel world,net.minecraft.world.phys.AABB source,
+    public void moveMapObjects(ServerLevel world,net.minecraft.world.phys.AABB source,
             java.util.function.Function<BlockPos,BlockPos> destinations,java.util.Collection<BlockPos> sparseSources){
         if(world!=level)return;
         java.util.function.UnaryOperator<Vec3> points=point->{
@@ -220,10 +220,10 @@ public final class MapManager {
     private final Set<String> residentMapIds = new HashSet<>();
     private final Map<Identifier, Path> localTemplates = new HashMap<>();
 
-    Path localMapRoot() { return server.getWorldPath(LevelResource.ROOT).resolve("data/luckywars/maps"); }
+    public Path localMapRoot() { return server.getWorldPath(LevelResource.ROOT).resolve("data/luckywars/maps"); }
 
     /** IDs are never recycled over bundled (even unavailable) or published local entries. */
-    String nextLocalId(boolean bedwars) {
+    public String nextLocalId(boolean bedwars) {
         for (int slot = 1; slot < Integer.MAX_VALUE; slot++) {
             String id = bedwars ? slot + "b" : Integer.toString(slot);
             if (!manifests.containsKey(id) && !Files.exists(localMapRoot().resolve(id))) return id;
@@ -240,14 +240,14 @@ public final class MapManager {
         return catalog.stream().filter(info -> localModes.containsKey(info.id())).map(MapInfo::id).toList();
     }
     public boolean isLocal(String id) { return localModes.containsKey(id); }
-    boolean mapResident(String id) { return residentMapIds.contains(id); }
-    Path localMapDirectory(String id) {
+    public boolean mapResident(String id) { return residentMapIds.contains(id); }
+    public Path localMapDirectory(String id) {
         if (!isLocal(id)) return null;
         Path template = localTemplates.get(identifier("luckywars:local/" + id));
         return template == null ? null : template.getParent();
     }
     /** Server-thread catalog removal, after the caller has atomically hidden the directory. */
-    boolean unregisterMap(String id) {
+    public boolean unregisterMap(String id) {
         if (busy || rotation != null || !isLocal(id) || mapResident(id)) return false;
         manifests.remove(id);
         localModes.remove(id);
@@ -257,7 +257,7 @@ public final class MapManager {
     }
 
     /** Called on the server thread only after the complete directory was atomically published. */
-    void registerLocalMap(JsonObject object, Path directory) {
+    public void registerLocalMap(JsonObject object, Path directory) {
         String id = object.get("id").getAsString();
         boolean bedwars = object.get("mode").getAsString().equals("bedwars");
         if (!(bedwars ? id.matches("[1-9][0-9]*b") : id.matches("[1-9][0-9]*")))
@@ -589,10 +589,10 @@ public final class MapManager {
     }
 
     /** Общая асинхронная загрузка для карты и событий; tickets освобождаются при следующей очистке/остановке. */
-    CompletableFuture<?> prepareChunk(ChunkPos pos) {
+    public CompletableFuture<?> prepareChunk(ChunkPos pos) {
         return prepareChunk(level,pos);
     }
-    CompletableFuture<?> prepareChunk(ServerLevel world,ChunkPos pos) {
+    public CompletableFuture<?> prepareChunk(ServerLevel world,ChunkPos pos) {
         return chunkLoads.computeIfAbsent(new ChunkLoad(world,pos),
                 chunk -> chunk.world.getChunkSource().addTicketAndLoadWithRadius(LOADING_TICKET, chunk.position, 0));
     }
@@ -608,7 +608,7 @@ public final class MapManager {
         load(id,broken,true,completion);
     }
 
-    void loadSupernova(String id, boolean broken, Consumer<Result> completion) {
+    public void loadSupernova(String id, boolean broken, Consumer<Result> completion) {
         load(id,broken,false,completion);
     }
 
@@ -627,9 +627,9 @@ public final class MapManager {
                 () -> loadPrepared(id,broken,updateImprinted), completion);
     }
 
-    void sweepAfterModeChange(int mode) { requestedSweepMode=mode; }
+    public void sweepAfterModeChange(int mode) { requestedSweepMode=mode; }
 
-    void clearArena(Consumer<Result> callback) {
+    public void clearArena(Consumer<Result> callback) {
         if(busy||level==null||closed){
             callback.accept(new Result(false,Component.translatable("skywars2.map.error.busy")));
             return;
@@ -871,22 +871,22 @@ public final class MapManager {
         return look;
     }
 
-    List<BoundingBox> arenaTerrainBounds() {
+    public List<BoundingBox> arenaTerrainBounds() {
         return List.copyOf(mapBounds);
     }
 
-    boolean arenaTerrainColumn(int x, int z) {
+    public boolean arenaTerrainColumn(int x, int z) {
         for (var box : mapBounds)
             if (x >= box.minX() && x <= box.maxX() && z >= box.minZ() && z <= box.maxZ()) return true;
         return false;
     }
 
-    boolean arenaTerrainAt(BlockPos position) {
+    public boolean arenaTerrainAt(BlockPos position) {
         return insideAny(position, mapBounds);
     }
 
     /** Cosmetic variants share the exact native cage removal set, including source chain corners. */
-    void cageBlock(ServerLevel target,BlockPos pos,BlockState state){
+    public void cageBlock(ServerLevel target,BlockPos pos,BlockState state){
         if(target!=level||!target.hasChunkAt(pos))throw new IllegalStateException("Cosmetic cage must be in its loaded native map");
         cageBlocks.add(pos.immutable());target.setBlock(pos,state,2);
     }
@@ -939,7 +939,7 @@ public final class MapManager {
         fillChests(upgrade,null,0,moveToCenter);
     }
 
-    static ResourceKey<LootTable> chestLootTable(int mode,String category,boolean upgrade) {
+    public static ResourceKey<LootTable> chestLootTable(int mode,String category,boolean upgrade) {
         // BedWars uses its own physical economy; it must never inherit SkyWars chest events.
         if(mode!=1&&mode!=2)return null;
         return lootKey(switch(upgrade?"center":category){
@@ -1007,7 +1007,7 @@ public final class MapManager {
                 upgrade, generatedChests, encodedCounts, multiCounts);
     }
 
-    static int[] fillArenaChest(ServerLevel level, RandomizableContainerBlockEntity chest,
+    public static int[] fillArenaChest(ServerLevel level, RandomizableContainerBlockEntity chest,
                                 LootTable table, long seed, SynchroRanked.Scope synchro) {
         SimpleContainer contents;
         try (synchro) {
@@ -1028,7 +1028,7 @@ public final class MapManager {
     }
 
     /** Legacy white-world reference, bounded to the only regions respawn can restore. */
-    void captureRespawnIslands() {
+    public void captureRespawnIslands() {
         respawnIslands.clear();
         if(level==null)return;
         var plain = new java.util.IdentityHashMap<BlockState, BlockSnapshot>();
@@ -1072,7 +1072,7 @@ public final class MapManager {
     /** Bounded white-world clone from the already cached native map parts. Air is copied too.
      * No live terrain is sampled and no source dimension/chunk is loaded. Boba's reference
      * follows exactly the same coordinate permutation as its respawn references. */
-    boolean restoreMadokaRegion(ServerLevel world,Vec3 center) {
+    public boolean restoreMadokaRegion(ServerLevel world,Vec3 center) {
         if(world!=level||busy||rotation!=null||pristinePlacements.isEmpty())return false;
         var feet=BlockPos.containing(center);
         var originals=new HashMap<BlockPos,BlockPos>();
@@ -1149,7 +1149,7 @@ public final class MapManager {
     }
 
     /** Test the landing column below the spawn, rather than treating a roof as a floor. */
-    boolean hasRespawnLanding(Spawn spawn) {
+    public boolean hasRespawnLanding(Spawn spawn) {
         if(level==null)return false;
         var feet=BlockPos.containing(spawn.position().add(0,-.0001,0));
         int top=Math.min(feet.getY(),level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
@@ -1167,7 +1167,7 @@ public final class MapManager {
     }
 
     /** Masked legacy clone: original air never deletes a player's newly built blocks. */
-    boolean restoreRespawnIsland(Spawn spawn) {
+    public boolean restoreRespawnIsland(Spawn spawn) {
         if(level==null)return false;
         var center=BlockPos.containing(spawn.position());var cells=respawnIslands.get(center);
         boolean restore=!hasRespawnLanding(spawn)&&cells!=null&&!cells.isEmpty();
@@ -1196,7 +1196,7 @@ public final class MapManager {
     }
 
     /** Общая нормализация старого количества и для блоков, и для вагонеток с сундуком. */
-    static int[] normalizeLootCounts(Container container) {
+    public static int[] normalizeLootCounts(Container container) {
         int encodedCounts = 0;
         int multiCounts = 0;
         for (int slot = 0; slot < container.getContainerSize(); slot++) {
@@ -1225,7 +1225,7 @@ public final class MapManager {
     }
 
     /** Nautiz starts directly, so the lobby audit will not retire actors outside the mirror footprint. */
-    void clearRuneRestartImprintedEntities() {
+    public void clearRuneRestartImprintedEntities() {
         var mirror=server.getLevel(LbcHedgehogDimensions.IMPRINTED);
         if(mirror==null)return;
         // Newly inserted actors have a native section before their chunk becomes visible.
@@ -1498,12 +1498,12 @@ public final class MapManager {
     }
 
     /** Spell preparation shares the existing decoder, slice format and bounded-lifetime worker. */
-    <T> CompletableFuture<T> preparePure(java.util.function.Supplier<T> task){
+    public <T> CompletableFuture<T> preparePure(java.util.function.Supplier<T> task){
         if(closed)return CompletableFuture.failedFuture(new java.util.concurrent.CancellationException("Map worker stopped"));
         try{return CompletableFuture.supplyAsync(()->{if(closed)throw new java.util.concurrent.CancellationException("Map worker stopped");return task.get();},templatePreloader);}
         catch(RejectedExecutionException failure){return CompletableFuture.failedFuture(failure);}
     }
-    java.util.concurrent.CompletableFuture<Map<Identifier,List<TemplateSlice>>> prepareSpellTemplates(List<Identifier> ids) {
+    public java.util.concurrent.CompletableFuture<Map<Identifier,List<TemplateSlice>>> prepareSpellTemplates(List<Identifier> ids) {
         var manager=server.getStructureTemplateManager();
         var blocks=server.registryAccess().lookupOrThrow(Registries.BLOCK);
         return computeFromSnapshot(()-> {
@@ -1516,21 +1516,21 @@ public final class MapManager {
         });
     }
     /** Only immutable or detached snapshots may be submitted; world access remains on the server thread. */
-    <T> java.util.concurrent.CompletableFuture<T> computeFromSnapshot(java.util.function.Supplier<T> computation) {
+    public <T> java.util.concurrent.CompletableFuture<T> computeFromSnapshot(java.util.function.Supplier<T> computation) {
         return java.util.concurrent.CompletableFuture.supplyAsync(computation,templatePreloader);
     }
 
     /** Sparse source pattern for persistent auras: explicit air is meaningful, missing records do not write. */
-    static final class BlockPattern {
-        final Vec3i size;
+    public static final class BlockPattern {
+        public final Vec3i size;
         private final BlockState[] states;
         BlockPattern(Vec3i size,BlockState[] states) { this.size=size; this.states=states; }
-        BlockState state(int x,int y,int z) {
+        public BlockState state(int x,int y,int z) {
             if(x<0 || y<0 || z<0 || x>=size.getX() || y>=size.getY() || z>=size.getZ()) return null;
             return states[(y*size.getZ()+z)*size.getX()+x];
         }
     }
-    java.util.concurrent.CompletableFuture<BlockPattern> prepareBlockPattern(Identifier id) {
+    public java.util.concurrent.CompletableFuture<BlockPattern> prepareBlockPattern(Identifier id) {
         var manager=server.getStructureTemplateManager();
         var blocks=server.registryAccess().lookupOrThrow(Registries.BLOCK);
         return computeFromSnapshot(()-> {
@@ -1997,19 +1997,19 @@ public final class MapManager {
     }
 
     /** Постановка заклинаний в уже загруженных чанках; Stone и Ruby используют одну проверку границ. */
-    void placeLoadedTemplate(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity) {
+    public void placeLoadedTemplate(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity) {
         placeLoadedTemplate(owner,id,origin,integrity,net.minecraft.world.level.block.Rotation.NONE);
     }
 
     /** Exact /place template ... strict semantics, including skipped onPlace/shape callbacks.
      * KnownShape alone does not stop fire from removing itself during a template write. */
-    void placeLoadedTemplateStrict(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity) {
+    public void placeLoadedTemplateStrict(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity) {
         placeLoadedTemplate(owner,id,origin,integrity,net.minecraft.world.level.block.Rotation.NONE,
                 Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
     }
 
     /** Поворот учитывается в bounds до обрезки по загруженным чанкам; Wall использует исходную лестницу. */
-    void placeLoadedTemplate(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity,
+    public void placeLoadedTemplate(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity,
                              net.minecraft.world.level.block.Rotation rotation) {
         placeLoadedTemplate(owner,id,origin,integrity,rotation,Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS);
     }
@@ -2044,12 +2044,12 @@ public final class MapManager {
     }
 
     /** Places a native template slice and preserves any writes under the visible lobby overlay. */
-    void placeMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
+    public void placeMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
                        StructurePlaceSettings settings, long seed) {
         placeMapSlice(world,template,origin,settings,seed,MAP_WRITE_FLAGS);
     }
 
-    List<LbcDropBlocks.ContainerReplacement> gameplayInventories(ServerLevel world, BoundingBox bounds) {
+    public List<LbcDropBlocks.ContainerReplacement> gameplayInventories(ServerLevel world, BoundingBox bounds) {
         var found = new ArrayList<LbcDropBlocks.ContainerReplacement>();
         for (var pos : BlockPos.betweenClosed(bounds.minX(), bounds.minY(), bounds.minZ(),
                 bounds.maxX(), bounds.maxY(), bounds.maxZ())) {
@@ -2060,7 +2060,7 @@ public final class MapManager {
         return found;
     }
 
-    void placeGameplayMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
+    public void placeGameplayMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
                                StructurePlaceSettings settings, long seed) {
         // Arena edits and the resulting neighbor changes belong in the ordinary terrain journal.
         // Keep the temporary lobby overlay on its existing isolated placement path.
@@ -2371,10 +2371,10 @@ public final class MapManager {
         return lobbyFootprint.contains(pos);
     }
 
-    BlockSnapshot snapshot(BlockPos pos) {
+    public BlockSnapshot snapshot(BlockPos pos) {
         return snapshot(level,pos);
     }
-    BlockSnapshot snapshot(ServerLevel source,BlockPos pos) {
+    public BlockSnapshot snapshot(ServerLevel source,BlockPos pos) {
         BlockState state = source.getBlockState(pos);
         BlockEntity blockEntity = source.getBlockEntity(pos);
         return new BlockSnapshot(state, blockEntity == null ? null : blockEntity.saveWithFullMetadata(source.registryAccess()));
@@ -2393,16 +2393,16 @@ public final class MapManager {
         if (visible != null) restoreSnapshot(pos, visible);
     }
 
-    void restoreSnapshot(BlockPos pos, BlockSnapshot snapshot) {
+    public void restoreSnapshot(BlockPos pos, BlockSnapshot snapshot) {
         restoreSnapshot(level,pos,snapshot);
     }
     /** Копия полностью заменяет прежний контейнер, даже если тип блока остался тем же. */
-    void restoreSnapshot(ServerLevel target,BlockPos pos,BlockSnapshot snapshot) {
+    public void restoreSnapshot(ServerLevel target,BlockPos pos,BlockSnapshot snapshot) {
         restoreSnapshot(target,pos,snapshot,MAP_WRITE_FLAGS);
     }
 
     /** Bulk spell writes may defer shape/on-place callbacks while retaining native lighting and client updates. */
-    void restoreSnapshot(ServerLevel target,BlockPos pos,BlockSnapshot snapshot,int flags) {
+    public void restoreSnapshot(ServerLevel target,BlockPos pos,BlockSnapshot snapshot,int flags) {
         if(!LbcBedwarsRoleGuards.publication(target))return;
         var arena=LbcBedwarsArena.at(target);
         if(arena!=null&&!arena.allowsType(target,pos,snapshot.state))return;
@@ -2592,11 +2592,11 @@ public final class MapManager {
 
     private record LobbyCell(BlockPos pos, BlockSnapshot visible) { }
 
-    record BlockSnapshot(BlockState state, CompoundTag entity) {
-        static BlockSnapshot air() { return new BlockSnapshot(Blocks.AIR.defaultBlockState(), null); }
+    public record BlockSnapshot(BlockState state, CompoundTag entity) {
+        public static BlockSnapshot air() { return new BlockSnapshot(Blocks.AIR.defaultBlockState(), null); }
     }
 
-    record TemplateSlice(StructureTemplate template, BoundingBox bounds) { }
+    public record TemplateSlice(StructureTemplate template, BoundingBox bounds) { }
 
     private record PreparedTemplate(Vec3i size, List<TemplateSlice> slices, int materialMinY, int materialMaxY) { }
 

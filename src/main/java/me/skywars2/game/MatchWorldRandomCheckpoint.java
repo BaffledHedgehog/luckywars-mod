@@ -11,7 +11,7 @@ import net.minecraft.world.RandomSequence;
 import net.minecraft.world.RandomSequences;
 
 /** Global native RNG owner, deliberately separate from partial-chunk terrain restores. */
-final class MatchWorldRandomCheckpoint {
+public final class MatchWorldRandomCheckpoint {
     private record World(ServerLevel level,RandomSource random,MatchRandomState state,RandomSource sound,MatchRandomState sounds,int blocks) {
         World(ServerLevel level){this(level,level.getRandom(),MatchRandomState.capture(level.getRandom()),
                 ((RandomCheckpointAccess.World)level).skywars2$sounds(),MatchRandomState.capture(((RandomCheckpointAccess.World)level).skywars2$sounds()),((RandomCheckpointAccess.World)level).skywars2$blockRandom());}
@@ -29,13 +29,13 @@ final class MatchWorldRandomCheckpoint {
     private final Map<Identifier,Sequence> sequences=new LinkedHashMap<>();
     private final int salt;
     private final boolean worldSeed,id;
-    MatchWorldRandomCheckpoint(GameController game){
+    public MatchWorldRandomCheckpoint(GameController game){
         this.game=game;if(!game.server().isSameThread()||!game.playing()||game.maps().busy())throw new IllegalStateException("Capture RNGs on the stable native match thread");epoch=game.items().epoch();
         var all=new java.util.ArrayList<World>();for(var world:game.server().getAllLevels())all.add(new World(world));worlds=List.copyOf(all);
         owner=game.server().getRandomSequences();var a=(RandomCheckpointAccess.Sequences)owner;nativeMap=a.skywars2$sequences();
         nativeMap.forEach((key,value)->sequences.put(key,new Sequence(value)));salt=a.skywars2$salt();worldSeed=a.skywars2$worldSeed();id=a.skywars2$id();
     }
-    void restoreFrozen(){
+    public void restoreFrozen(){
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch))throw new IllegalStateException("Restore RNGs in the same frozen native match");
         if(game.server().getRandomSequences()!=owner||((RandomCheckpointAccess.Sequences)owner).skywars2$sequences()!=nativeMap)throw new IllegalStateException("Native named RNG service identity changed");
         int count=0;for(var world:game.server().getAllLevels())count++;

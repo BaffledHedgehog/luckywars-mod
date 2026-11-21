@@ -111,20 +111,20 @@ public final class LbcFamilyDrops {
      * Only inspect the unobstructed segment supplied by the electrical attack.
      * A loaded lucky block or the first Mother intercepts the arc and drops the source loot.
      */
-    Vec3 reactToArc(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock, ServerPlayer author) {
+    public Vec3 reactToArc(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock, ServerPlayer author) {
         return reactToArc(level, from, end, struckBlock, author, true);
     }
 
-    Vec3 reactToArc(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock, ServerPlayer author, boolean awardTesla) {
+    public Vec3 reactToArc(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock, ServerPlayer author, boolean awardTesla) {
         var hit=firstArcContact(level,from,end,struckBlock);
         if(hit==null)return null;
         reactToArc(level,hit,author,awardTesla);
         return hit.position();
     }
 
-    record ArcContact(Vec3 position, BlockPos block, ArmorStand mother) {}
+    public record ArcContact(Vec3 position, BlockPos block, ArmorStand mother) {}
 
-    ArcContact firstArcContact(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock) {
+    public ArcContact firstArcContact(ServerLevel level, Vec3 from, Vec3 end, BlockPos struckBlock) {
         if (!game.playing() || game.stage() == GameController.Stage.ENDING || !LbcDimensionItems.ordinary(level)) return null;
         BlockPos loli = struckBlock != null && level.hasChunkAt(struckBlock)
                 && LbcLuckyBlocks.kind(level.getBlockState(struckBlock)) == LbcLuckyBlocks.Kind.LOLI ? struckBlock : null;
@@ -148,7 +148,7 @@ public final class LbcFamilyDrops {
         return new ArcContact(contact,mother==null?loli:null,mother);
     }
 
-    void reactToArc(ServerLevel level, ArcContact hit, ServerPlayer author, boolean awardTesla) {
+    public void reactToArc(ServerLevel level, ArcContact hit, ServerPlayer author, boolean awardTesla) {
         var contact=hit.position();
         var target=new ArcTarget(level,hit.block(),hit.mother());
         for (var stack : game.lbc().rollTable(level, contact, author, "lbc:yellow_lightning")) {
@@ -253,7 +253,7 @@ public final class LbcFamilyDrops {
         if(table!=null)child.setItemSlot(EquipmentSlot.MAINHAND,loot(table,child,null));
     }
     /** Source @e is local to the birth dimension. Snapshot first: new bolts cannot recurse. */
-    int birthLightning(ServerLevel level){
+    public int birthLightning(ServerLevel level){
         if(!LbcDimensionItems.ordinary(level))return 0;
         var positions=new ArrayList<Vec3>();
         for(var entity:level.getAllEntities())if(!entity.isRemoved())positions.add(entity.position());
@@ -266,7 +266,7 @@ public final class LbcFamilyDrops {
     /** Rebuild only the derived loaded-body index after canonical frozen entity replay.
      * Vanity deliberately suppresses ENTITY_LOAD during that replay; clocks, equipment,
      * tags and all causal policies have already been restored by their shared owners. */
-    void reindexAfterRestore(){
+    public void reindexAfterRestore(){
         actors.clear();
         var level=game.maps().level();
         if(level!=null)for(var entity:level.getAllEntities())if(managed(entity)&&!entity.isRemoved()&&active(entity))actors.add(entity);
@@ -275,7 +275,7 @@ public final class LbcFamilyDrops {
     public void unloaded(Entity e){actors.remove(e);}
     public void stop(){for(var e:List.copyOf(actors))if(!e.isRemoved())e.discard();actors.clear();arcEffects.clear();}
     public List<Entity> snapshot(){return List.copyOf(actors);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source){if(!actors.contains(source))return null;
+    public LbcCloneSkills.ActorImage cloneImage(Entity source){if(!actors.contains(source))return null;
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){actors.add(clone);}
             public void rollback(Entity clone){actors.remove(clone);}

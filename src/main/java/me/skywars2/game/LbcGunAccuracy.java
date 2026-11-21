@@ -5,19 +5,19 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
 /** Shot-direction error only; gun recoil and muzzle positions remain independent. */
-final class LbcGunAccuracy {
+public final class LbcGunAccuracy {
     static final double HIP_DEGREES=5, MAX_DEGREES=20, FULL_PENALTY_SPEED=.3;
     private LbcGunAccuracy() { }
     /** Native Projectile#getMovementToShoot adds independent bounded triangular XYZ errors. */
-    static double vanillaDegrees(double uncertainty){return additiveDegrees(.0172275*uncertainty,1);}
+    public static double vanillaDegrees(double uncertainty){return additiveDegrees(.0172275*uncertainty,1);}
     /** Conservative angular envelope of an additive XYZ cube, without sampling any RNG. */
-    static double additiveDegrees(double axisError,double speed){
+    public static double additiveDegrees(double axisError,double speed){
         if(axisError<=0)return 0;
         return Math.toDegrees(Math.asin(Math.clamp(Math.sqrt(3)*axisError/Math.max(1e-12,speed),0,1)));
     }
 
     /** Real native item classes also cover authored Polymer subclasses and TMT bases. */
-    static boolean nativeWeapon(net.minecraft.world.item.ItemStack stack){
+    public static boolean nativeWeapon(net.minecraft.world.item.ItemStack stack){
         var item=stack.getItem();return item instanceof net.minecraft.world.item.ProjectileWeaponItem
                 ||item instanceof net.minecraft.world.item.SnowballItem||item instanceof net.minecraft.world.item.EggItem
                 ||item instanceof net.minecraft.world.item.EnderpearlItem||item instanceof net.minecraft.world.item.WindChargeItem
@@ -27,7 +27,7 @@ final class LbcGunAccuracy {
                 ||LbcSteampunkRocket.matches(stack)||ItemData.intValue(stack,"metasola",0)==1
                 ||ItemData.intValue(stack,"special",0)==1&&(LbcHedgehogItems.spike(stack)!=null||LbcHedgehogSpikes.legacyThrow(stack)>0);
     }
-    static double nativeDegrees(ServerPlayer player,net.minecraft.world.item.ItemStack stack){
+    public static double nativeDegrees(ServerPlayer player,net.minecraft.world.item.ItemStack stack){
         if(stack.isEmpty()||!nativeWeapon(stack))return -1;
         // These source abilities copy the player's rotation, not the discarded snowball's motion.
         if(LbcKapusta.matches(stack)||ItemData.intValue(stack,"govno_raskid",0)==1||LbcBridgeBuilder.recognized(stack)
@@ -49,7 +49,7 @@ final class LbcGunAccuracy {
         return spread;
     }
 
-    static double movementDegrees(ServerPlayer player) {
+    public static double movementDegrees(ServerPlayer player) {
         double speed=Math.max(speed(player.getKnownMovement(),player.onGround()),
                 speed(player.getDeltaMovement(),player.onGround()));
         return MAX_DEGREES*Math.min(1,speed/FULL_PENALTY_SPEED);
@@ -61,31 +61,31 @@ final class LbcGunAccuracy {
         return speed>.01?speed:0;
     }
     /** Half-angle of the next rifle shot; reading presentation state must never sample the RNG. */
-    static double rifleDegrees(GameController game,ServerPlayer player) {
+    public static double rifleDegrees(GameController game,ServerPlayer player) {
         double degrees=game.items().rifleZoom().scoped(player)?0:HIP_DEGREES;
         return Math.min(MAX_DEGREES,degrees+movementDegrees(player));
     }
-    static double ak47Degrees(ServerPlayer player) {
+    public static double ak47Degrees(ServerPlayer player) {
         return movementDegrees(player);
     }
     /** Source narrowing occurs once per accepted shot, before either angular offset is sampled. */
-    static int minigunNextShotSpread(int currentSpread) {
+    public static int minigunNextShotSpread(int currentSpread) {
         return currentSpread>=1100?currentSpread-100:currentSpread;
     }
     /** Minigun offsets form a yaw/pitch square, not the rifle's solid-angle cone. */
-    static float minigunDegrees(int spread) {
+    public static float minigunDegrees(int spread) {
         return spread*.001f;
     }
-    static double minigunNextShotDegrees(GameController game,ServerPlayer player) {
+    public static double minigunNextShotDegrees(GameController game,ServerPlayer player) {
         return minigunDegrees(minigunNextShotSpread(game.items().laserMinigun().spread(player)));
     }
-    static Vec3 rifle(GameController game,ServerPlayer player) {
+    public static Vec3 rifle(GameController game,ServerPlayer player) {
         return sample(player.getLookAngle(),rifleDegrees(game,player),player.getRandom());
     }
-    static Vec3 ak47(ServerPlayer player) {
+    public static Vec3 ak47(ServerPlayer player) {
         return sample(player.getLookAngle(),ak47Degrees(player),player.getRandom());
     }
-    static Vec3 sample(Vec3 forward,double degrees,RandomSource random) {
+    public static Vec3 sample(Vec3 forward,double degrees,RandomSource random) {
         if(degrees==0)return forward;
         // Uniform solid-angle cone, with a stable basis even when looking straight up/down.
         var axis=forward.normalize();

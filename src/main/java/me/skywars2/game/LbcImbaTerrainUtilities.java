@@ -152,8 +152,8 @@ public final class LbcImbaTerrainUtilities {
     public record Bounds(BlockPos min,BlockPos max){}
     public Bounds bastionBounds(Vec3 origin){if(!ready())throw new IllegalStateException("Prepare exact Bastion first");int x=Integer.MAX_VALUE,y=x,z=x,maxX=Integer.MIN_VALUE,maxY=maxX,maxZ=maxX;var base=BlockPos.containing(origin.add(-8,-1,-8));for(var cell:bastion){var at=base.offset(cell.offset);x=Math.min(x,at.getX());y=Math.min(y,at.getY());z=Math.min(z,at.getZ());maxX=Math.max(maxX,at.getX());maxY=Math.max(maxY,at.getY());maxZ=Math.max(maxZ,at.getZ());}return new Bounds(new BlockPos(x,y,z),new BlockPos(maxX,maxY,maxZ));}
     /** Canonical shared clone owner supplies all remaining budgets and the proximity holder. */
-    record CloneResult(int scanned,int operations,int bodies){}
-    CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
+    public record CloneResult(int scanned,int operations,int bodies){}
+    public CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
         int count=CloneVirtualAbilityStates.count(skill),seen=0,made=0,operations=0;
         if(skill!=15&&skill!=17||restoring||bodyBudget<count)return new CloneResult(0,0,0);
         int available=Math.min(scanBudget,jobs.size());long last=sequence;
@@ -171,5 +171,5 @@ public final class LbcImbaTerrainUtilities {
     public void publishFrozen(){restoring=false;}
     public void cancelFrozen(){stop();}
     public void checkpointBoundary(){if(!game.server().isSameThread())throw new IllegalStateException("Native terrain utility boundary required");}
-    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();var saved=List.copyOf(jobs.values());saved.forEach(graph::capture);long ids=sequence,cursor=cloneCursor,seen=completedVisits,written=completedWrites,finished=completedJobs;return links->()->{jobs.clear();for(var job:saved)jobs.put(job.id,job);sequence=ids;cloneCursor=cursor;completedVisits=seen;completedWrites=written;completedJobs=finished;};}
+    public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();var saved=List.copyOf(jobs.values());saved.forEach(graph::capture);long ids=sequence,cursor=cloneCursor,seen=completedVisits,written=completedWrites,finished=completedJobs;return links->()->{jobs.clear();for(var job:saved)jobs.put(job.id,job);sequence=ids;cloneCursor=cursor;completedVisits=seen;completedWrites=written;completedJobs=finished;};}
 }

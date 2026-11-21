@@ -11,9 +11,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 /** Global rune effects enter the existing match controller and accepted terrain dispatcher. */
-final class LbcRuneGlobals implements LbcImbaRunes.GlobalActions {
+public final class LbcRuneGlobals implements LbcImbaRunes.GlobalActions {
     private final GameController game;
-    LbcRuneGlobals(GameController game){this.game=game;}
+    public LbcRuneGlobals(GameController game){this.game=game;}
     public boolean restart(ServerPlayer author){return game.restartFromRune(author);}
     public void addLives(ServerPlayer author,int amount){game.addRuneLives(author,amount);}
     public void clearMap(ServerPlayer author){
@@ -39,7 +39,7 @@ final class LbcRuneGlobals implements LbcImbaRunes.GlobalActions {
         game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#mapstat"),"swrg.math").set(1);
     }
     /** Shared Hagalaz entity phase; independent of its queued terrain sweep. */
-    void clearEntities(ServerLevel level,LbcIndirectKills.Owner cause){
+    public void clearEntities(ServerLevel level,LbcIndirectKills.Owner cause){
         // The source repeats native cleanup for passengers/drops and keeps only its lobby whitelist.
         for(int pass=0;pass<6;pass++){
             var entities=new java.util.ArrayList<Entity>();level.getAllEntities().forEach(entities::add);

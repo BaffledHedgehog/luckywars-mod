@@ -12,7 +12,7 @@ public final class LbcDimensionItems {
         var dimension=level.dimension();
         return !dimension.equals(LbcHedgehogDimensions.NEXUS)&&!dimension.equals(LbcHedgehogDimensions.IMPRINTED);
     }
-    static boolean ordinary(String dimension){return !dimension.equals("minecraft:nexus")&&!dimension.equals("minecraft:imprinted");}
+    public static boolean ordinary(String dimension){return !dimension.equals("minecraft:nexus")&&!dimension.equals("minecraft:imprinted");}
     public static boolean ordinary(ServerPlayer player){return player!=null&&ordinary(player.level());}
     public static boolean blocked(Level level){return !ordinary(level);}
     public static boolean normal(Level level){return ordinary(level);}

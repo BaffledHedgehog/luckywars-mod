@@ -36,7 +36,7 @@ public final class GenieNative {
     }
 
     /** Capture the final admitted bodies before debit. Dispatch the returned work after the use completes. */
-    static Runnable capturePublishedThrow(GameController game, ServerPlayer owner, InteractionHand hand,
+    public static Runnable capturePublishedThrow(GameController game, ServerPlayer owner, InteractionHand hand,
                                           ItemStack physical, ItemStack source, List<? extends Entity> bodies) {
         if (!GenieRuntime.matches(source)) return null;
         var published = bodies.stream().filter(body -> !body.isRemoved() && GenieCombat.ownedLaunch(body, owner)

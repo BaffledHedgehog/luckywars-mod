@@ -94,7 +94,7 @@ public final class LbcArmorSets {
         }
     }
 
-    void assassin(ServerPlayer player){if(admitted(player))assassin(player,worn(player));}
+    public void assassin(ServerPlayer player){if(admitted(player))assassin(player,worn(player));}
 
     private void assassin(ServerPlayer player,ItemStack[] stacks){
         if(count(stacks,"assasin")!=4||game.items().magic().beaconSuppressed(player.position()))return;
@@ -114,7 +114,7 @@ public final class LbcArmorSets {
         }
     }
 
-    void pulse20(ServerPlayer player){if(admitted(player))pulse20(player,worn(player));}
+    public void pulse20(ServerPlayer player){if(admitted(player))pulse20(player,worn(player));}
 
     private void pulse20(ServerPlayer player,ItemStack[] stacks){
         nanobots.pulse(player);
@@ -139,7 +139,7 @@ public final class LbcArmorSets {
         player.level().sendParticles(ParticleTypes.SNEEZE,player.getX(),player.getY()+1,player.getZ(),amount,spread,spread,spread,0);
     }
 
-    void erode(ServerPlayer player){if(admitted(player))erode(player,worn(player));}
+    public void erode(ServerPlayer player){if(admitted(player))erode(player,worn(player));}
 
     private void erode(ServerPlayer player,ItemStack[] stacks){
         int amount=count(stacks,"erosion");

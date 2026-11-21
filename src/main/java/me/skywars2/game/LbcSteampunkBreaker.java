@@ -32,7 +32,7 @@ public final class LbcSteampunkBreaker {
         var job=new BreakWork(p,cells(p.getEyePosition(),Vec3.directionFromRotation(p.getXRot(),p.getYRot())));
         pending++;game.items().stonekivi().queuedWork(job);
     }
-    static List<BlockPos> cells(Vec3 eyes,Vec3 direction){
+    public static List<BlockPos> cells(Vec3 eyes,Vec3 direction){
         var unique=new LinkedHashSet<BlockPos>();
         for(int distance=1;distance<=17;distance++){
             var center=BlockPos.containing(eyes.add(direction.scale(distance)));

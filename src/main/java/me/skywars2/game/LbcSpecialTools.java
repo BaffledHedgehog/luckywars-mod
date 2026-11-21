@@ -46,7 +46,7 @@ public final class LbcSpecialTools {
     private final GameController game;
     private final Set<Erase> erasures=new LinkedHashSet<>();
     private final Set<Hammer> hammers=new LinkedHashSet<>();
-    LbcSpecialTools(GameController game){this.game=game;}
+    public LbcSpecialTools(GameController game){this.game=game;}
     public static void register(){LbcNativeToolItems.register();}
     private static Item createScythe(){
         var id=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:death_scythe"));
@@ -68,9 +68,9 @@ public final class LbcSpecialTools {
             }
         });
     }
-    static boolean scythe(ItemStack stack){return !stack.isEmpty()&&(stack.is(SCYTHE)||LbcFartus.data(stack).getIntOr("death_skythe",0)==1);}
+    public static boolean scythe(ItemStack stack){return !stack.isEmpty()&&(stack.is(SCYTHE)||LbcFartus.data(stack).getIntOr("death_skythe",0)==1);}
     public static boolean isLegacyScythe(ItemStack stack){return !stack.is(SCYTHE)&&scythe(stack);}
-    static boolean hammer(ItemStack stack){return !stack.isEmpty()&&(stack.is(BANHAMMER)||LbcFartus.data(stack).getIntOr("banhammer",0)==1);}
+    public static boolean hammer(ItemStack stack){return !stack.isEmpty()&&(stack.is(BANHAMMER)||LbcFartus.data(stack).getIntOr("banhammer",0)==1);}
     public static boolean isLegacyHammer(ItemStack stack){return !stack.is(BANHAMMER)&&hammer(stack);}
     static boolean mortis(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("mortis",0)==1;}
     private boolean active(ServerPlayer p){return game.items().mana().visible(p)&&game.items().wands().validTarget(p)
@@ -78,7 +78,7 @@ public final class LbcSpecialTools {
     private boolean magic(ServerPlayer p){return active(p)&&!game.items().magic().suppressed(p)
             &&!p.entityTags().contains("nomagic_active")&&!game.items().magic().suppressedAt(p.level(),p.getEyePosition());}
     private static boolean resident(ServerLevel level,BlockPos pos){return !level.isOutsideBuildHeight(pos)&&level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
-    int charges(ServerPlayer p){return game.items().mana().hudValue(p,CHARGED);}
+    public int charges(ServerPlayer p){return game.items().mana().hudValue(p,CHARGED);}
     /** The source kill criterion intentionally counts credited kills while the scythe is held. */
     public void died(LivingEntity victim,DamageSource source){
         var p=LbcIndirectKills.playerSource(source.getEntity());
@@ -125,7 +125,7 @@ public final class LbcSpecialTools {
             for(var floor:floors)if(level.getBlockState(floor).is(AIRS))level.setBlock(floor,Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.BLACK).defaultBlockState(),Block.UPDATE_ALL);
         });
     }
-    boolean use(ServerPlayer p,InteractionHand hand){
+    public boolean use(ServerPlayer p,InteractionHand hand){
         if(hammer(p.getItemInHand(hand)))return useHammer(p,hand);
         if(!scythe(p.getItemInHand(hand))||!magic(p)||charges(p)<=0||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
         var level=p.level();var direction=p.getLookAngle();var start=p.getEyePosition().add(direction.scale(hand==InteractionHand.OFF_HAND?.5:0));
@@ -176,9 +176,9 @@ public final class LbcSpecialTools {
         }
         @Override public void cancel(){cancelled=true;erasures.remove(this);}
     }
-    int pending(){return erasures.size();}
-    int hammerCount(){return hammers.size();}
-    List<Hammer> hammerSnapshot(){return List.copyOf(hammers);}
+    public int pending(){return erasures.size();}
+    public int hammerCount(){return hammers.size();}
+    public List<Hammer> hammerSnapshot(){return List.copyOf(hammers);}
     /** First resident hit only; the old recursive command counter represented201 samples at0.4 blocks. */
     private boolean useHammer(ServerPlayer p,InteractionHand hand){
         if(!magic(p)||game.items().mana().hudValue(p,"swordcharged7")<=0||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
@@ -198,12 +198,13 @@ public final class LbcSpecialTools {
         LbcOverload.sound(p,hit,"minecraft:lbcsounds.supply_fall",5,0,0);
         hammers.add(new Hammer(p,hit));game.items().wands().wandCasted(p);return true;
     }
-    final class Hammer {
+    public final class Hammer {
         final ServerPlayer author;final ServerLevel level;final String epoch;
         final eu.pb4.polymer.virtualentity.api.ElementHolder holder=new eu.pb4.polymer.virtualentity.api.ElementHolder();
-        final eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement display;
-        Vec3 point,impact;int age,cloneMask;boolean impacted;
-        Hammer(ServerPlayer p,Vec3 at){this(p,p.level(),game.items().epoch(),new Vec3(at.x,Math.floor(at.y)+200,at.z),new Vec3(at.x,Math.floor(at.y),at.z),true);}
+        public final eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement display;
+        public Vec3 point,impact;public int age;
+        int cloneMask;public boolean impacted;
+        public Hammer(ServerPlayer p,Vec3 at){this(p,p.level(),game.items().epoch(),new Vec3(at.x,Math.floor(at.y)+200,at.z),new Vec3(at.x,Math.floor(at.y),at.z),true);}
         Hammer(ServerPlayer author,ServerLevel level,String epoch,Vec3 point,Vec3 impact,boolean publish){
             this.author=author;this.level=level;this.epoch=epoch;this.point=point;this.impact=impact;
             var stack=new ItemStack(Items.CARROT_ON_A_STICK);stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:banhammer3d"));
@@ -216,10 +217,10 @@ public final class LbcSpecialTools {
             for(var c:List.copyOf(holder.getWatchingPlayers()))if(c.player.connection!=c||!players.contains(c.player)||c.player.level()!=level||c.player.position().distanceToSqr(point)>409600)holder.stopWatching(c);
             for(var p:players)if(p.level()==level&&p.position().distanceToSqr(point)<=409600)holder.startWatching(p);
         }
-        void destroy(){holder.destroy();hammers.remove(this);}
+        public void destroy(){holder.destroy();hammers.remove(this);}
         // The authored NONE-context model is centered at (8,8,8), then scaled4:
         // its head occupies x[-2,2], y[-2,-.25], z[-1,1] relative to the display.
-        AABB head(){return new AABB(point.x-2,point.y-2,point.z-1,point.x+2,point.y-.25,point.z+1);}
+        public AABB head(){return new AABB(point.x-2,point.y-2,point.z-1,point.x+2,point.y-.25,point.z+1);}
         boolean residentColumn(){
             var bounds=head();
             for(int x=net.minecraft.util.Mth.floor(bounds.minX)>>4;x<=net.minecraft.util.Mth.floor(Math.nextDown(bounds.maxX))>>4;x++)
@@ -237,9 +238,9 @@ public final class LbcSpecialTools {
             if(dy>requested+1e-8){impact=point.add(0,-2,0);impact(this);}
         }
     }
-    boolean immuneToHammer(ServerPlayer p){return LbcGreed.active(p)||game.lbc().hasSkill(p,12);}
+    public boolean immuneToHammer(ServerPlayer p){return LbcGreed.active(p)||game.lbc().hasSkill(p,12);}
     /** WILD ban: disconnect players and discard mobs without death loot. Never spam client-hanging particles. */
-    void impact(Hammer hammer){
+    public void impact(Hammer hammer){
         if(hammer.impacted)return;hammer.impacted=true;
         var targets=hammer.level.players().stream().filter(p->p.position().distanceToSqr(hammer.impact)<=30.25&&game.items().wands().validRoleTarget(p,false)).toList();
         if(!targets.isEmpty()&&game.server().getPlayerList().getPlayer(hammer.author.getUUID())==hammer.author)
@@ -265,7 +266,7 @@ public final class LbcSpecialTools {
         }
         player.connection.disconnect(reason);
     }
-    void tick(){
+    public void tick(){
         if(!hammers.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         for(var h:List.copyOf(hammers)){
         if(!game.items().currentEpoch(h.epoch)||!game.playing()||game.stage()==GameController.Stage.ENDING){h.destroy();continue;}
@@ -273,7 +274,7 @@ public final class LbcSpecialTools {
         if(!h.impacted)h.fall();
         h.age++;h.holder.tick();if(h.age>=200||h.head().maxY<h.level.getMinY())h.destroy();
     }}
-    Component hud(ServerPlayer p){
+    public Component hud(ServerPlayer p){
         var hud=Component.empty();
         if(hammer(p.getMainHandItem())||hammer(p.getOffhandItem()))hud.append(Component.literal("    \uE103 \u00a7fx"))
                 .append(Component.literal(Integer.toString(game.items().mana().hudValue(p,"swordcharged7"))).withStyle(ChatFormatting.WHITE))
@@ -283,10 +284,10 @@ public final class LbcSpecialTools {
                 .append(Component.literal(" [")).append(Component.literal(Integer.toString(game.items().mana().hudValue(p,CHARGING))).withStyle(ChatFormatting.DARK_PURPLE))
                 .append(Component.literal("/\u00a752\u00a7f]"));
     }
-    void clear(ServerPlayer p){for(var name:new String[]{CHARGING,CHARGED,"swordcharging7","swordcharged7"})game.items().mana().score(p,name).set(0);}
-    void stop(){for(var task:List.copyOf(erasures))task.cancel();for(var hammer:List.copyOf(hammers))hammer.destroy();for(var p:game.server().getPlayerList().getPlayers())clear(p);}
+    public void clear(ServerPlayer p){for(var name:new String[]{CHARGING,CHARGED,"swordcharging7","swordcharged7"})game.items().mana().score(p,name).set(0);}
+    public void stop(){for(var task:List.copyOf(erasures))task.cancel();for(var hammer:List.copyOf(hammers))hammer.destroy();for(var p:game.server().getPlayerList().getPlayers())clear(p);}
 
-    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+    public int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
         for(var original:List.copyOf(hammers)){
             if(budget-made<count||System.nanoTime()>=deadline)break;
@@ -304,22 +305,22 @@ public final class LbcSpecialTools {
         return made;
     }
     private boolean cloneHammersPending;
-    HammerCheckpoint checkpointHammers(MatchSpellCheckpoint.Links links){return new HammerCheckpoint(links);}
-    final class HammerCheckpoint {
+    public HammerCheckpoint checkpointHammers(MatchSpellCheckpoint.Links links){return new HammerCheckpoint(links);}
+    public final class HammerCheckpoint {
         private record Image(MatchDamageSources.Ref author,ServerLevel level,String epoch,Vec3 point,Vec3 impact,int age,int mask,boolean impacted){}
         private final List<Image> images;
         HammerCheckpoint(MatchSpellCheckpoint.Links links){images=hammers.stream().map(h->new Image(links.key(h.author),h.level,h.epoch,h.point,h.impact,h.age,h.cloneMask,h.impacted)).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Hammer>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Hammer>();
             for(var image:images){var author=(ServerPlayer)links.get(image.author);MatchAuthorityCheckpoint.world(game,image.level);
                 var hammer=new Hammer(author,image.level,image.epoch,image.point,image.impact,false);
                 hammer.age=image.age;hammer.cloneMask=image.mask;hammer.impacted=image.impacted;values.add(hammer);}
             return ()->{for(var future:List.copyOf(hammers))future.destroy();hammers.clear();hammers.addAll(values);cloneHammersPending=true;};
         }
     }
-    void publishCloneHammers(){if(!cloneHammersPending)return;cloneHammersPending=false;for(var hammer:List.copyOf(hammers))hammer.publish();}
+    public void publishCloneHammers(){if(!cloneHammersPending)return;cloneHammersPending=false;for(var hammer:List.copyOf(hammers))hammer.publish();}
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var hammer:hammers)if(!hammer.impacted&&game.items().currentEpoch(hammer.epoch)
                 &&LbcPlanetoidSkill.near(game,holder,hammer.level,hammer.point)){
             var aim=LbcPlanetoidSkill.direction(holder,hammer.point,82);

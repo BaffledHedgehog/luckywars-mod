@@ -26,7 +26,7 @@ public final class LbcWitchIndolence {
     private static final String MANAGED="skywars2.witch.indolence_hand";
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final DustParticleOptions DUST=new DustParticleOptions(0x300931,3);
-    record Pattern(int count,int spread,int lifetime,int cooldown,boolean controlled){}
+    public record Pattern(int count,int spread,int lifetime,int cooldown,boolean controlled){}
     static Pattern pattern(int fingers,boolean sneak){
         if(fingers<1)return new Pattern(16,40,60,40,false);
         if(fingers<3)return new Pattern(8,20,60,30,false);
@@ -48,7 +48,7 @@ public final class LbcWitchIndolence {
     private final Map<String,EntitySelector> selectors=new HashMap<>();
     private boolean advancing;
     private int lastTick=Integer.MIN_VALUE;
-    LbcWitchIndolence(GameController game){this.game=game;}
+    public LbcWitchIndolence(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("indolence",0)==1;}
     private boolean live(String epoch){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch);}
     private boolean eligible(ServerPlayer p){return p.isAlive()&&!p.isRemoved()&&!game.isObserver(p)&&game.canUseGameplayItems(p)
@@ -146,10 +146,10 @@ public final class LbcWitchIndolence {
         if(state==null||!live(state.source.epoch())){e.discard();return;}flights.put(e,state);game.items().spellSources().bind(e,state.source);game.items().timeStop().prepareFrozen(e);}
     public void unloaded(Entity e){var state=flights.remove(e);if(state!=null&&e.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(e.getUUID(),state);}
     public void stop(){for(var e:List.copyOf(flights.keySet()))e.discard();flights.clear();unloaded.clear();lastTick=Integer.MIN_VALUE;}
-    List<Entity> snapshot(){return List.copyOf(flights.keySet());}
-    int age(Entity entity){var state=flights.get(entity);return state==null?-1:state.age;}
-    static boolean cloneRecognizes(Entity entity){return entity instanceof Hand;}
-    LbcCloneSkills.ActorImage cloneImage(Entity entity){
+    public List<Entity> snapshot(){return List.copyOf(flights.keySet());}
+    public int age(Entity entity){var state=flights.get(entity);return state==null?-1:state.age;}
+    public static boolean cloneRecognizes(Entity entity){return entity instanceof Hand;}
+    public LbcCloneSkills.ActorImage cloneImage(Entity entity){
         var state=flights.get(entity);if(!(entity instanceof Hand)||state==null||!live(state.source.epoch()))return null;
         var source=state.source;boolean controlled=state.controlled,jitter=state.jitter;int lifetime=state.lifetime,age=state.age;
         return CloneComplexProjectileStates.image(Hand::new,clone->{
@@ -157,16 +157,16 @@ public final class LbcWitchIndolence {
             copy.age=age;flights.put(clone,copy);game.items().spellSources().bind(clone,copy.source);
         },this::unloaded);
     }
-    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish invisible-hand callbacks first");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
-    final class Checkpoint {
+    public void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish invisible-hand callbacks first");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Image(LbcSpellSource.Source source,boolean controlled,boolean jitter,int lifetime,int age) { }
         private final Map<MatchDamageSources.Ref,Image> active=new LinkedHashMap<>();private final Map<UUID,Image> dormant=new HashMap<>();
         private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
         Checkpoint(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Flight,Image>();flights.forEach((actor,state)->active.put(links.key(actor),image(state,aliases)));unloaded.forEach((id,state)->dormant.put(id,image(state,aliases)));}
         private Image image(Flight f,IdentityHashMap<Flight,Image> aliases){return aliases.computeIfAbsent(f,x->new Image(x.source,x.controlled,x.jitter,x.lifetime,x.age));}
         private Flight flight(Image image,IdentityHashMap<Image,Flight> aliases){return aliases.computeIfAbsent(image,x->{var f=new Flight(x.source,new Pattern(0,0,x.lifetime,0,x.controlled),x.jitter);f.age=x.age;return f;});}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Image,Flight>();var actors=new LinkedHashMap<Entity,Flight>();var asleep=new HashMap<UUID,Flight>();
+        public Runnable prepare(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Image,Flight>();var actors=new LinkedHashMap<Entity,Flight>();var asleep=new HashMap<UUID,Flight>();
             active.forEach((ref,image)->actors.put(links.get(ref),flight(image,aliases)));dormant.forEach((id,image)->asleep.put(id,flight(image,aliases)));
             return ()->{flights.clear();flights.putAll(actors);unloaded.clear();unloaded.putAll(asleep);lastTick=clock.last(game);};}
     }

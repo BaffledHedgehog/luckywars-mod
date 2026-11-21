@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /** Explicit operation-local body images. Native state and causal ownership are installed by the caller. */
-final class CloneSimpleProjectileStates {
+public final class CloneSimpleProjectileStates {
     private CloneSimpleProjectileStates() { }
     static boolean recognizes(Entity actor) {
         return actor instanceof LbcMusicStaff.Shot || actor instanceof LbcAir.Charge
@@ -25,7 +25,7 @@ final class CloneSimpleProjectileStates {
                 || actor instanceof LbcBlind.Charge blind && blind.trial
                 || actor instanceof LbcIceWand.IceShot ice && ice.initiatingStack!=null && LbcAcademy.trial(ice.initiatingStack);
     }
-    static LbcCloneSkills.ActorImage capture(GameController game,Entity actor) {
+    public static LbcCloneSkills.ActorImage capture(GameController game,Entity actor) {
         if(protectedActor(actor)) return null;
         if(actor instanceof LbcMusicStaff.Shot){
             // The native image restores the arrow's firing weapon and Staff 52 damage before installation.

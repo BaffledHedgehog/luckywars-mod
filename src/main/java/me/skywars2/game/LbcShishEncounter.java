@@ -202,7 +202,7 @@ public final class LbcShishEncounter {
     }
     private static void teleport(ServerPlayer player,Vec3 target){var motion=player.getDeltaMovement();try{player.teleportTo(player.level(),target.x,target.y,target.z,TeleportMomentum.positionFlags(Set.of()),player.getYRot(),player.getXRot(),true);}finally{player.setDeltaMovement(motion);}}
     /** Canonical original movement scoreboard, shared with Witch statistics; no second private position ledger. */
-    void seedMovement(ServerPlayer player){
+    public void seedMovement(ServerPlayer player){
         write(player,"x",Mth.floor(player.getX()*100));write(player,"y",Mth.floor(player.getY()*100));write(player,"z",Mth.floor(player.getZ()*100));
         write(player,"speed",0);write(player,"speedy",0);
     }
@@ -318,16 +318,16 @@ public final class LbcShishEncounter {
     }
     public int actorCount(){return actors.size();}public int supplyCount(){return(int)actors.values().stream().filter(s->s.kind==Kind.SUPPLY).count();}public int cyborgCount(){return(int)actors.values().stream().filter(s->s.kind==Kind.CYBORG).count();}public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
 
-    boolean captureReady(){return checkpointDepth==0&&executing==null&&!checkpointFrozen;}
-    void checkpointBoundary(){if(checkpointDepth!=0||executing!=null)throw new IllegalStateException("Finish Shish native callbacks before checkpointing");}
-    void prepareFrozen(){
+    public boolean captureReady(){return checkpointDepth==0&&executing==null&&!checkpointFrozen;}
+    public void checkpointBoundary(){if(checkpointDepth!=0||executing!=null)throw new IllegalStateException("Finish Shish native callbacks before checkpointing");}
+    public void prepareFrozen(){
         checkpointBoundary();checkpointFrozen=true;stagedPublication=null;
         actors.clear();causes.clear();unloaded.clear();katanaOwners.clear();supplyDue=rainDue=-1;
     }
-    void publishFrozen(){checkpointBoundary();if(stagedPublication!=null)stagedPublication.run();stagedPublication=null;checkpointFrozen=false;}
-    void cancelFrozen(){checkpointBoundary();stagedPublication=null;checkpointFrozen=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Capture Shish outside native construction");return new Checkpoint(links);}
-    final class Checkpoint {
+    public void publishFrozen(){checkpointBoundary();if(stagedPublication!=null)stagedPublication.run();stagedPublication=null;checkpointFrozen=false;}
+    public void cancelFrozen(){checkpointBoundary();stagedPublication=null;checkpointFrozen=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Capture Shish outside native construction");return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Value(State original,int fall,boolean opening,int lastHurt){}
         private record Cause(MatchDamageSources.Ref actor,State state){}
         private final MatchSpellCheckpoint.IdentityImage<Entity,State> registry;
@@ -346,7 +346,7 @@ public final class LbcShishEncounter {
             causes.forEach((actor,value)->{provenance.add(new Cause(links.key(actor),value));if(seen.add(value))values.add(new Value(value,value.fall,value.opening,value.lastHurt));});
             for(var owner:katanaOwners)wielders.add(links.key(owner));
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var nextActors=registry.restore(links);var nextCauses=new ArrayList<Map.Entry<Entity,State>>();
             for(var saved:provenance)nextCauses.add(Map.entry(links.get(saved.actor),saved.state));
             var nextWielders=new ArrayList<ServerPlayer>();for(var owner:wielders)nextWielders.add((ServerPlayer)links.get(owner));
@@ -360,11 +360,11 @@ public final class LbcShishEncounter {
         }
     }
 
-    static boolean cloneProtected(Entity e) {
+    public static boolean cloneProtected(Entity e) {
         return managed(e)&&(e instanceof net.minecraft.world.entity.Interaction
                 ||e.entityTags().contains("supply_drop")||e.entityTags().contains(POINT));
     }
-    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+    public LbcCloneSkills.ActorImage cloneImage(Entity original) {
         var state=state(original);if(state==null||state.kind!=Kind.CYBORG&&state.kind!=Kind.YELLOW&&state.kind!=Kind.CHILD)return null;
         var authority=state.authority;var kind=state.kind;int fall=state.fall,lastHurt=state.lastHurt;boolean opening=state.opening;
         var policy=game.items().spellSources().source(original);UUID id=original.getUUID();

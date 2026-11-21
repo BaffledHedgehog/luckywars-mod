@@ -113,12 +113,12 @@ public final class LbcAcademy {
         }
     }
     /** Shared reverse progression: downgrades use the same native pairs as Academy upgrades. */
-    static Item baseWandItem(Item upgraded){for(var wand:Wand.values())if(wand.upgraded==upgraded)return wand.base;return upgraded;}
+    public static Item baseWandItem(Item upgraded){for(var wand:Wand.values())if(wand.upgraded==upgraded)return wand.base;return upgraded;}
     private static final class WandItems {
         static final java.util.Set<Item> VALUES=java.util.Arrays.stream(Wand.values())
                 .flatMap(wand->java.util.stream.Stream.of(wand.base,wand.upgraded)).collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
-    static java.util.Set<Item> wandItems(){return WandItems.VALUES;}
+    public static java.util.Set<Item> wandItems(){return WandItems.VALUES;}
     private static Item registerToken() {
         var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:academy_token"));
         var data = new CompoundTag(); data.putInt("academy_token", 1);
@@ -127,7 +127,7 @@ public final class LbcAcademy {
                         .component(DataComponents.ITEM_MODEL, Identifier.parse("lbc:advancement_icon/academy"))
                         .component(DataComponents.CUSTOM_DATA, CustomData.of(data)), Items.PAPER, true));
     }
-    static void register() { }
+    public static void register() { }
     private static CompoundTag flag(String name) { var tag = new CompoundTag(); tag.putInt(name, 1); return tag; }
     private static CompoundTag data(ItemStack stack) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
@@ -138,19 +138,19 @@ public final class LbcAcademy {
             if (stack.is(wand.base) || stack.is(wand.upgraded) || tag.getIntOr(wand.flag, 0) == 1) return wand;
         return null;
     }
-    static boolean trial(ItemStack stack) {
+    public static boolean trial(ItemStack stack) {
         var tag = data(stack);
         return tag.getIntOr("upgradable", 0) == 1 && tag.getIntOr("upgraded", 0) != 1;
     }
     /** Pure admission for a player deciding whether another teacher visit is useful. */
-    boolean canStudy(ItemStack stack){
+    public boolean canStudy(ItemStack stack){
         if(stack.isEmpty())return false;
         var wand=wand(stack);if(wand==null||stack.is(wand.upgraded))return false;
         var tag=data(stack);
         return tag.getIntOr("upgraded",0)!=1&&tag.getIntOr("pissed_by_madoka_sob_sob_sob_sob_sob",0)!=1
                 &&(tag.getIntOr("upgradable",0)!=1||tag.getIntOr("upgrade_available",0)==1);
     }
-    boolean acceptsStudent(Entity target){
+    public boolean acceptsStudent(Entity target){
         var academy=singleUse.get(target.getUUID());
         return target.isAlive()&&!target.isRemoved()&&target.entityTags().contains("magic_academy")
                 &&!target.entityTags().contains(BUILDING_TAG)&&(academy==null||!academy.spent);
@@ -227,19 +227,19 @@ public final class LbcAcademy {
                     Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE)).stream().map(block -> block.pos().immutable()).toList();
         }
     }
-    static final class BlastTrial {
+    public static final class BlastTrial {
         final UUID owner;
         final Wand wand;
         final InteractionHand hand;
         final Vec3 origin;
-        final Set<UUID> targets = new HashSet<>();
-        boolean completed;
-        BlastTrial(ServerPlayer owner) { this(owner,Wand.EXASPERATO,InteractionHand.MAIN_HAND,null); }
+        public final Set<UUID> targets = new HashSet<>();
+        public boolean completed;
+        public BlastTrial(ServerPlayer owner) { this(owner,Wand.EXASPERATO,InteractionHand.MAIN_HAND,null); }
         BlastTrial(ServerPlayer owner,Wand wand,InteractionHand hand,Vec3 origin) {
             this.owner=owner.getUUID(); this.wand=wand; this.hand=hand; this.origin=origin;
         }
     }
-    LbcAcademy(GameController game) { this.game = game; }
+    public LbcAcademy(GameController game) { this.game = game; }
     /** Разбор старой NBT/DFU выполняем при загрузке ресурсов, до первого токена в бою. */
     public void prepare() { game.server().getStructureTemplateManager().get(TEMPLATE); }
 
@@ -381,7 +381,7 @@ public final class LbcAcademy {
         if(player.getRandom().nextFloat()<.35f) ready(player,hand,stack);
     }
     /** (user) Испытание засчитывает реальное попадание взрыва дальше 80 блоков, а не возраст ракеты. */
-    BlastTrial airTrial(ServerPlayer player,LbcAir.Charge charge) {
+    public BlastTrial airTrial(ServerPlayer player,LbcAir.Charge charge) {
         if(!charge.trial || charge.trialOwner!=player || charge.trialHand==null || charge.origin==null) return null;
         var stack=player.getItemInHand(charge.trialHand);
         return active(player) && wand(stack)==Wand.AIR && trial(stack)
@@ -409,7 +409,7 @@ public final class LbcAcademy {
         return true;
     }
     /** Четыре отдельные кирпичные стороны ищутся вокруг игрока от ног до глаз. */
-    void wallTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+    public void wallTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
         if(!trial(stack)) return;
         var level=player.level();
         var eyes=BlockPos.containing(player.getEyePosition());
@@ -435,7 +435,7 @@ public final class LbcAcademy {
         ready(player,hand,stack);
     }
     /** Испытание завершается после постановки слоёв, если живой противник действительно оказался внутри блока. */
-    void stonekiviTrial(ServerPlayer owner,InteractionHand hand,ItemStack stack,BlockPos impact) {
+    public void stonekiviTrial(ServerPlayer owner,InteractionHand hand,ItemStack stack,BlockPos impact) {
         if(!trial(stack)) return;
         var airs=net.minecraft.tags.TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
         var center=Vec3.atCenterOf(impact);
@@ -455,13 +455,13 @@ public final class LbcAcademy {
         });
         if(player.getRandom().nextFloat()<.05f) ready(player,hand,stack);
     }
-    BlastTrial blastTrial(ServerPlayer owner, boolean enabled) {
+    public BlastTrial blastTrial(ServerPlayer owner, boolean enabled) {
         return enabled && active(owner) && trial(owner.getMainHandItem()) && wand(owner.getMainHandItem()) == Wand.EXASPERATO
                 ? new BlastTrial(owner) : null;
     }
-    void blastSource(Entity source, BlastTrial trial) { if (source != null && trial != null) blastSources.put(source, trial); }
+    public void blastSource(Entity source, BlastTrial trial) { if (source != null && trial != null) blastSources.put(source, trial); }
     /** Мгновенный взрыв не попадает в ENTITY_UNLOAD: его временный источник освобождается явно. */
-    void blastFinished(Entity source) { blastSources.remove(source); }
+    public void blastFinished(Entity source) { blastSources.remove(source); }
     public void inheritBlast(Entity source, Entity spawned) { blastSource(spawned, blastSources.get(source)); }
     /** Роль и расстояние фиксируются до урона; положительный результат проверяется в AFTER_DAMAGE/AFTER_DEATH. */
     public void beforeDamage(LivingEntity victim,DamageSource damage) {
@@ -533,8 +533,8 @@ public final class LbcAcademy {
         var tag = stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(TOKEN) || tag != null && (tag.matchedBy(TOKEN_DATA) || tag.matchedBy(BUILDING_DATA));
     }
-    static boolean recognizedDrop(ItemStack stack){return isDrop(stack);}
-    static boolean singleUseDrop(ItemStack stack){return stack.is(TOKEN)||ItemData.intValue(stack,"academy_token",0)==1;}
+    public static boolean recognizedDrop(ItemStack stack){return isDrop(stack);}
+    public static boolean singleUseDrop(ItemStack stack){return stack.is(TOKEN)||ItemData.intValue(stack,"academy_token",0)==1;}
     private record DropPlan(StructureTemplate template,ServerLevel level,BlockPos origin,boolean token){}
     /** Readiness has no RNG, template scan, queue mutation or debit. */
     private DropPlan planDrop(ItemEntity item){
@@ -546,9 +546,9 @@ public final class LbcAcademy {
         var origin=item.blockPosition().offset(-6,token?-1:0,-6);var level=(ServerLevel)item.level();
         return resident(level,origin,template.getSize())?new DropPlan(template,level,origin,token):null;
     }
-    boolean readyDrop(ItemEntity item){return planDrop(item)!=null;}
+    public boolean readyDrop(ItemEntity item){return planDrop(item)!=null;}
     /** Same native placement owner for ordinary and composed loose items. */
-    boolean spawnDrop(ItemEntity item,boolean debit){
+    public boolean spawnDrop(ItemEntity item,boolean debit){
         var plan=planDrop(item);if(plan==null)return false;
         var part=new Placement(plan.template(),plan.level(),plan.origin(),item.position(),game.items().epoch(),plan.token(),item.getRandom().nextLong());
         if(plan.token())placements.addLast(part);else placements.addFirst(part);
@@ -674,9 +674,9 @@ public final class LbcAcademy {
                 if (level.getChunkSource().getChunkNow(x,z)==null) return false;
         return true;
     }
-    int pendingCount() { return placements.size(); }
-    int ownedCount() { return entities.size(); }
-    int pendingRow() { return placements.isEmpty() ? -1 : placements.peekFirst().row; }
+    public int pendingCount() { return placements.size(); }
+    public int ownedCount() { return entities.size(); }
+    public int pendingRow() { return placements.isEmpty() ? -1 : placements.peekFirst().row; }
     public void stop() {
         TRANSPARENT.clear();
         drops.clear(); placements.clear(); lastInteractions.clear(); blastSources.clear();

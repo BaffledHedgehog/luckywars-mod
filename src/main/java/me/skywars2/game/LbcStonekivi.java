@@ -42,7 +42,7 @@ public final class LbcStonekivi {
     private volatile int preparation;
 
     /** Шаг не должен читать мир в другом потоке; ready=false означает только ожидание чистого вычисления. */
-    interface Work {
+    public interface Work {
         boolean step();
         default boolean ready() { return true; }
         /** Only explicitly phase-owned source celebrations may advance after gameplay ends. */
@@ -54,7 +54,7 @@ public final class LbcStonekivi {
         default void cancel() { }
         default MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){throw new IllegalStateException("Missing shared-work checkpoint adapter: "+getClass().getName());}
     }
-    LbcStonekivi(GameController game) { this.game=game; }
+    public LbcStonekivi(GameController game) { this.game=game; }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("lbc",path); }
     public void prepare() {
         callbacks.incrementAndGet();try {
@@ -73,8 +73,8 @@ public final class LbcStonekivi {
     }
     public boolean ready() { return templates.size()==6; }
     public int count() { return work.size(); }
-    void queuedWork(Work task) { work.add(task); }
-    List<Work> queuedSnapshot() { return List.copyOf(work); }
+    public void queuedWork(Work task) { work.add(task); }
+    public List<Work> queuedSnapshot() { return List.copyOf(work); }
 
     /** Режимы и цены принадлежат прежнему dispatch жезлов; сам луч завершается только на первом hit. */
     void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean upgraded) {
@@ -85,7 +85,7 @@ public final class LbcStonekivi {
     void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         castAt(owner,hand,stack,mode,owner.getEyePosition(),Vec3.directionFromRotation(owner.getXRot(),owner.getYRot()),true);
     }
-    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+    public void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
         castAt(owner,hand,stack,mode,origin,direction,false);
     }
     private void castAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 from,Vec3 direction,boolean trial){
@@ -272,19 +272,19 @@ public final class LbcStonekivi {
         callbacks.incrementAndGet();try {work.forEach(Work::cancel);work.clear();rewinding=false;
         }finally{callbacks.decrementAndGet();}
     }
-    void beginNativeWork(){callbacks.incrementAndGet();}
-    void endNativeWork(){callbacks.decrementAndGet();}
-    void checkpointBoundary(){if(advancing||callbacks.get()!=0)throw new IllegalStateException("Finish shared terrain callbacks before capture/replay");}
+    public void beginNativeWork(){callbacks.incrementAndGet();}
+    public void endNativeWork(){callbacks.decrementAndGet();}
+    public void checkpointBoundary(){if(advancing||callbacks.get()!=0)throw new IllegalStateException("Finish shared terrain callbacks before capture/replay");}
     /** Discard post-save accepted work through its own cancellation hooks, outside native callbacks. */
-    void cancelQueuedForRollback(){checkpointBoundary();for(var task:List.copyOf(work))task.cancel();work.clear();}
-    boolean captureSettled(){checkpointBoundary();return work.stream().allMatch(Work::snapshotIdle);}
-    void prepareCheckpoint(){rewinding=true;work.clear();}
-    void cancelCheckpoint(){rewinding=false;}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
-    final class Checkpoint {
+    public void cancelQueuedForRollback(){checkpointBoundary();for(var task:List.copyOf(work))task.cancel();work.clear();}
+    public boolean captureSettled(){checkpointBoundary();return work.stream().allMatch(Work::snapshotIdle);}
+    public void prepareCheckpoint(){rewinding=true;work.clear();}
+    public void cancelCheckpoint(){rewinding=false;}
+    public Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    public final class Checkpoint {
         private final List<Work> saved=List.copyOf(work);
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){saved.forEach(graph::capture);}
-        Runnable prepare(){return ()->{work.clear();work.addAll(saved);rewinding=false;};}
+        public Runnable prepare(){return ()->{work.clear();work.addAll(saved);rewinding=false;};}
     }
 
 }

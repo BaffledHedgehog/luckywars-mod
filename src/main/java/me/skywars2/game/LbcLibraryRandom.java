@@ -25,7 +25,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 /** The source random-library extras use finite native states and the existing spell factories. */
-final class LbcLibraryRandom {
+public final class LbcLibraryRandom {
     private final GameController game;
     private final List<Emitter> emitters=new ArrayList<>();
     private IdentityHashMap<Entity,Boolean> actorTable=new IdentityHashMap<>();
@@ -37,8 +37,8 @@ final class LbcLibraryRandom {
         ServerPlayer owner;final ServerLevel level;final String epoch;final Vec3 at;final int type,lifetime;int age;
         Emitter(ServerPlayer owner,Vec3 at,int type,int lifetime){this.owner=owner;level=owner.level();epoch=me.skywars2.SkyWars2.game().items().epoch();this.at=at;this.type=type;this.lifetime=lifetime;}
     }
-    LbcLibraryRandom(GameController game){this.game=game;}
-    static void castRandom(GameController g,ServerPlayer p,InteractionHand hand,int roll){
+    public LbcLibraryRandom(GameController game){this.game=game;}
+    public static void castRandom(GameController g,ServerPlayer p,InteractionHand hand,int roll){
         try(var castOrigin=WandCastOrigin.scope(p,true)){
         if(roll<1||roll>53)throw new IllegalArgumentException("Random spell "+roll);
         try{
@@ -61,7 +61,7 @@ final class LbcLibraryRandom {
             &&p.isAlive()&&!p.isRemoved()&&p.level()==level&&game.items().currentEpoch(epoch)&&game.canUseGameplayItems(p);}
     private void ray(ServerPlayer p,int type){ray(p,type,null,null);}
     /** Raw aliases retain accepted data; admission and debit resolve the current body at the terminal. */
-    void ray(ServerPlayer p,int type,String rawFlag,Item used){
+    public void ray(ServerPlayer p,int type,String rawFlag,Item used){
         ++inProgress;try {
             game.items().exasperato().replayableTool(p,p.getEyePosition(),p.getLookAngle(),200,false,
                     new RandomRay(p,type,rawFlag,used),false);
@@ -111,7 +111,7 @@ final class LbcLibraryRandom {
             }finally{--inProgress;}
         }
     }
-    void impact(ServerPlayer p,Vec3 at,int type){
+    public void impact(ServerPlayer p,Vec3 at,int type){
         ++inProgress;try {
             if(type==16){
                 for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){
@@ -185,14 +185,14 @@ final class LbcLibraryRandom {
     }
     private static net.minecraft.world.level.block.state.BlockState BuiltInBlock(String name){return net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(Identifier.withDefaultNamespace(name)).orElseThrow().value().defaultBlockState();}
     static void flyingWand(GameController g,ServerPlayer p){g.items().libraryRandom().fly(p,p.getRandom().nextInt(9));}
-    void fly(ServerPlayer p,int kind){
+    public void fly(ServerPlayer p,int kind){
         game.items().sauvojen().cast(p,InteractionHand.MAIN_HAND,ItemStack.EMPTY,kind);
     }
-    void flyingPayload(ServerPlayer p,Vec3 at,Vec3 direction,int kind){
+    public void flyingPayload(ServerPlayer p,Vec3 at,Vec3 direction,int kind){
         if(kind<0||kind>=LbcSauvojen.Kind.values().length)throw new IllegalArgumentException("Flying wand kind "+kind);
         game.items().sauvojen().emit(p,InteractionHand.MAIN_HAND,ItemStack.EMPTY,LbcSauvojen.Kind.values()[kind],at,direction);
     }
-    void tick(){
+    public void tick(){
         ++inProgress;try {
             actors.removeIf(Entity::isRemoved);
             for(var e:List.copyOf(emitters)){
@@ -217,19 +217,19 @@ final class LbcLibraryRandom {
             }
         }finally{--inProgress;}
     }
-    int count(){return emitters.size()+game.items().sauvojen().count()+actors.size();}
-    void forget(ServerPlayer p){
+    public int count(){return emitters.size()+game.items().sauvojen().count()+actors.size();}
+    public void forget(ServerPlayer p){
         ++inProgress;try {emitters.removeIf(e->e.owner==p);game.items().sauvojen().forget(p);for(var e:List.copyOf(actors))if(game.items().summons().owner(e)==p){e.discard();actors.remove(e);}
         }finally{--inProgress;}
     }
-    void stop(){
+    public void stop(){
         ++inProgress;try {for(var ticket:List.copyOf(pendingRays))ticket.cancel();pendingRays.clear();emitters.clear();game.items().sauvojen().stop();var old=List.copyOf(actors);actors.clear();old.forEach(Entity::discard);
         }finally{--inProgress;}
     }
-    int pendingRayCount(){return pendingRays.size();}
-    void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish LibraryRandom callbacks before checkpointing");}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public int pendingRayCount(){return pendingRays.size();}
+    public void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish LibraryRandom callbacks before checkpointing");}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record EmitterImage(Emitter original,MatchDamageSources.Ref owner,int age) { }
         private final List<EmitterImage> saved;
         private final MatchSpellCheckpoint.IdentityImage<Entity,Boolean> actorImage;
@@ -238,7 +238,7 @@ final class LbcLibraryRandom {
             saved=emitters.stream().map(e->new EmitterImage(e,links.key(e.owner),e.age)).toList();
             actorImage=new MatchSpellCheckpoint.IdentityImage<>(actorTable,links);
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var bodies=actorImage.restore(links);var mutations=new ArrayList<Runnable>();
             for(var image:saved){var owner=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.original.level);
                 mutations.add(()->{image.original.owner=owner;image.original.age=image.age;});}
@@ -248,8 +248,8 @@ final class LbcLibraryRandom {
     }
 
 
-    boolean cloneManaged(Entity actor){return actorTable.containsKey(actor);}
-    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+    public boolean cloneManaged(Entity actor){return actorTable.containsKey(actor);}
+    public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!actorTable.containsKey(source))return null;
         var value=actorTable.get(source);
         return new LbcCloneSkills.ActorImage() {

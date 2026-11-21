@@ -320,29 +320,29 @@ public final class LbcWands {
     private static final DustColorTransitionOptions ELECTRO_PARTICLE=new DustColorTransitionOptions(
             ARGB.colorFromFloat(1,0,.8f,1) & 0xFFFFFF,ARGB.colorFromFloat(1,0,.2f,.2f) & 0xFFFFFF,.8f);
     /** Отложенный извилистый луч: native geometry, без marker-сущности и scoreboard на каждый шаг. */
-    static final class ElectroTrace {
-        ServerPlayer owner;
-        final LivingEntity npcSource;
-        Entity explicitEmitter;
-        final ServerLevel level;
-        final String epoch;
-        final int lifetime;
-        final boolean meditation;
-        boolean mechanism=true,teslaChain,statusWild;
-        LbcIndirectKills.Owner cause;
-        LbcSpellSource.Source sourcePolicy;
-        boolean hostileSauvojen;
-        LbcErecto.Path erecto;
-        ServerPlayer trialOwner;
-        InteractionHand trialHand;
-        ItemStack trialStack;
-        Vec3 position;
-        float yaw,pitch;
-        int age,cloneMask;
-        ElectroTrace(ServerPlayer owner,Vec3 position,String epoch) {
+    public static final class ElectroTrace {
+        public ServerPlayer owner;
+        public final LivingEntity npcSource;
+        public Entity explicitEmitter;
+        public final ServerLevel level;
+        public final String epoch;
+        public final int lifetime;
+        public final boolean meditation;
+        public boolean mechanism=true,teslaChain,statusWild;
+        public LbcIndirectKills.Owner cause;
+        public LbcSpellSource.Source sourcePolicy;
+        public boolean hostileSauvojen;
+        public LbcErecto.Path erecto;
+        public ServerPlayer trialOwner;
+        public InteractionHand trialHand;
+        public ItemStack trialStack;
+        public Vec3 position;
+        public float yaw,pitch;
+        public int age,cloneMask;
+        public ElectroTrace(ServerPlayer owner,Vec3 position,String epoch) {
             this(owner,position,epoch,40);
         }
-        ElectroTrace(ServerPlayer owner,Vec3 position,String epoch,int lifetime) {
+        public ElectroTrace(ServerPlayer owner,Vec3 position,String epoch,int lifetime) {
             this(owner,position,epoch,lifetime,false);
         }
         ElectroTrace(ServerPlayer owner,Vec3 position,String epoch,int lifetime,boolean meditation) {
@@ -372,7 +372,7 @@ public final class LbcWands {
             pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
         }
 
-        ElectroTrace(ElectroTrace old) {
+        public ElectroTrace(ElectroTrace old) {
             owner=old.owner;npcSource=old.npcSource;explicitEmitter=old.explicitEmitter;level=old.level;epoch=old.epoch;
             lifetime=old.lifetime;meditation=old.meditation;mechanism=old.mechanism;teslaChain=old.teslaChain;
             statusWild=old.statusWild;cause=old.cause;sourcePolicy=old.sourcePolicy;hostileSauvojen=old.hostileSauvojen;
@@ -385,8 +385,8 @@ public final class LbcWands {
                 erecto.ammunition=path.ammunition==null?null:path.ammunition.copy();
             }
         }
-        LivingEntity source() { return owner==null?npcSource:owner; }
-        Entity damageEmitter(){return explicitEmitter!=null?explicitEmitter:source();}
+        public LivingEntity source() { return owner==null?npcSource:owner; }
+        public Entity damageEmitter(){return explicitEmitter!=null?explicitEmitter:source();}
     }
     private final GameController game;
     private final LbcMana mana;
@@ -409,7 +409,7 @@ public final class LbcWands {
         return Registry.register(BuiltInRegistries.ITEM,key,nativeTool(properties,Items.CARROT_ON_A_STICK));
     }
     /** Native authored tools share the same admission and ray input as existing wands. */
-    static Item nativeTool(Item.Properties properties,Item proxy){
+    public static Item nativeTool(Item.Properties properties,Item proxy){
         return new NativeTool(properties,proxy);
     }
     /** Shared native wand/gun/tool admission and enchantability, independent of its client carrier. */
@@ -455,7 +455,7 @@ public final class LbcWands {
     public static boolean isDivider(ItemStack stack) {
         return stack.is(DIVIDER) || stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("greed_greed",0)==1;
     }
-    static void register() { }
+    public static void register() { }
     public static boolean isLifestealer(ItemStack stack) {
         return stack.is(LIFESTEALER) || stack.is(ACADEMY_LIFESTEALER)
                 || stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).matchedBy(Spell.REGULAR_LIFESTEALER.flag);
@@ -470,7 +470,7 @@ public final class LbcWands {
             return TagParser.parseCompoundFully("{Life:0,LifeTime:0,ShotAtAngle:1b,FireworksItem:{id:\"minecraft:firework_rocket\",count:1,components:{\"minecraft:fireworks\":{explosions:[{shape:\"burst\",colors:[16770831],fade_colors:[12422150],has_trail:1b,has_twinkle:1b}]}}}}");
         } catch(Exception failure) { throw new IllegalStateException("Invalid Tiny Air rocket preset",failure); }
     }
-    LbcWands(GameController game,LbcMana mana) {
+    public LbcWands(GameController game,LbcMana mana) {
         this.game=game; this.mana=mana;this.nativeUses=nativeUses();
         for(var spell:SPELLS) mana.score(spell.cost,"lbc.math").set(spell.defaultCost);
         mana.score(MAGE_BONUS,"lbc.math").set(150);
@@ -484,15 +484,15 @@ public final class LbcWands {
             applied=cast(player,InteractionHand.OFF_HAND) || applied;
         return applied;
     }
-    record WandAbility(Identifier nativeItem,String family,CustomData flags) {
-        LbcTmtAbilities.Ability inMode(int mode) {
+    public record WandAbility(Identifier nativeItem,String family,CustomData flags) {
+        public LbcTmtAbilities.Ability inMode(int mode) {
             var data=flags.copyTag();data.putInt("mode",mode);
             return new LbcTmtAbilities.Ability("wand/"+family,CustomData.of(data));
         }
     }
 
     /** Actual common-wand properties, for the final meaningful TMT catalog. No item roll or registration. */
-    static java.util.List<WandAbility> tmtAbilities() {
+    public static java.util.List<WandAbility> tmtAbilities() {
         return TmtAbilityDomain.VALUES;
     }
     private static final class TmtAbilityDomain {
@@ -501,7 +501,7 @@ public final class LbcWands {
     private static WandAbility ability(Spell spell) {
         return new WandAbility(BuiltInRegistries.ITEM.getKey(spell.item),spell.family,CustomData.of(spell.flag));
     }
-    static java.util.List<WandAbility> tmtPlan(ItemStack stack) {
+    public static java.util.List<WandAbility> tmtPlan(ItemStack stack) {
         return tmtSpells(stack).stream().map(call->ability(call.spell)).toList();
     }
     private record TmtSpell(String slot,Spell spell) {}
@@ -524,7 +524,7 @@ public final class LbcWands {
     }
 
     /** Exact used-hand continuation for the future TMT event owner; ordinary use keeps its existing policy. */
-    int castTmtSpells(ServerPlayer player,InteractionHand hand) {
+    public int castTmtSpells(ServerPlayer player,InteractionHand hand) {
         if(hand==null||player==null||!LbcDimensionItems.ordinary(player)||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return 0;
         var stack=player.getItemInHand(hand);
         if(ItemData.intValue(stack,"tmt_item",0)!=1||LbcTmtAbilities.active(stack))return 0;
@@ -597,10 +597,10 @@ public final class LbcWands {
                 new NativeUse(stack->stack.is(DESTROYER_SPELL) || ItemData.intValue(stack,"trap2",0)==1, (player,hand,stack)->game.items().consuming().useScroll(player,hand,stack,true)),
                 new NativeUse(stack->stack.is(CREEPER_ARMY_SPELL) || ItemData.intValue(stack,"creeperz",0)==1, (player,hand,stack)->game.items().consuming().useScroll(player,hand,stack,false)));
     }
-    boolean tmtNativeUseCandidate(ItemStack stack){
+    public boolean tmtNativeUseCandidate(ItemStack stack){
         return !stack.isEmpty()&&nativeUses.stream().anyMatch(route->route.matches.test(stack));
     }
-    int tmtNativeUseOrder(ItemStack stack){
+    public int tmtNativeUseOrder(ItemStack stack){
         for(int i=0;i<nativeUses.size();i++)if(nativeUses.get(i).matches.test(stack))return i;
         return nativeUses.size();
     }
@@ -611,7 +611,7 @@ public final class LbcWands {
         return LbcTmtAbilities.invoke(stack,slot,()->cast(player,hand));
     }
 
-    boolean cast(ServerPlayer player,InteractionHand hand) {
+    public boolean cast(ServerPlayer player,InteractionHand hand) {
         try(var scope=WeaponEnchantments.using(player,player.getItemInHand(hand))){return castScoped(player,hand);}
     }
     private boolean castScoped(ServerPlayer player,InteractionHand hand) {
@@ -624,7 +624,7 @@ public final class LbcWands {
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         return spell!=null && castSpell(player,hand,stack,spell);
     }
-    boolean hasSelectableMode(ItemStack stack){
+    public boolean hasSelectableMode(ItemStack stack){
         for(var candidate:SPELLS)if(matches(stack,candidate.item,candidate.flag))return switch(candidate){
             case ACADEMY_CORRUPTION,ACADEMY_ACID_CORRUPTION,ACADEMY_ERECTO,ACADEMY_TESLA,
                     ACADEMY_AWAKENED_ACID,ACADEMY_GAYCASTER,ACADEMY_CAUSTIC,ACADEMY_ADVANCED_ENDER,
@@ -943,13 +943,13 @@ public final class LbcWands {
         return true;
     }
     /** Общие бонусы только исполнившегося заклинания; бесплатный отзыв комнаты их не выдаёт. */
-    void wandCasted(ServerPlayer player) { wandCasted(player,true); }
-    void wandCasted(ServerPlayer player,boolean mageBonus) {
+    public void wandCasted(ServerPlayer player) { wandCasted(player,true); }
+    public void wandCasted(ServerPlayer player,boolean mageBonus) {
         if(mageBonus&&mana.mageFullSet(player)) mana.maximum(player,mana.maximum(player)+mana.score(MAGE_BONUS,"lbc.math").get());
         game.items().armorSets().nyauwu().wandCasted(player);
         game.items().trinkets().castWand(player);
     }
-    void extraTiny(ServerPlayer p,int kind){
+    public void extraTiny(ServerPlayer p,int kind){
         switch(kind){
             case 0->fire(p);case 1->ray(p,Spell.BLIND);case 2->ray(p,Spell.AIR);
             case 3->ray(p,Spell.STONE);case 4->ray(p,Spell.TELEPORT);case 5->rubyRay(p);
@@ -991,11 +991,11 @@ public final class LbcWands {
             game.items().trinkets().spawn(projectile);
         }
     }
-    void launchFire(ServerPlayer player,Projectile projectile,Vec3 position,Vec3 velocity) {
+    public void launchFire(ServerPlayer player,Projectile projectile,Vec3 position,Vec3 velocity) {
         launchFire((LivingEntity)player,projectile,position,velocity);
     }
 
-    void launchFire(LivingEntity shooter,Projectile projectile,Vec3 position,Vec3 velocity) {
+    public void launchFire(LivingEntity shooter,Projectile projectile,Vec3 position,Vec3 velocity) {
         publishFire(shooter, projectile, position, velocity);
     }
 
@@ -1021,18 +1021,18 @@ public final class LbcWands {
     }
     public boolean isFireProjectile(Entity entity) { return entity.entityTags().contains(FIRE_PROJECTILE); }
     /** Общая геометрия жезлов: первое пересечение хитбокса или блока, без загрузки новых чанков. */
-    net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to) {
+    public net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to) {
         return firstHit(owner,from,to,entity->true);
     }
-    net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to,
+    public net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to,
             java.util.function.Predicate<Entity> extraFilter) {
         return firstHit(owner,from,to,extraFilter,false);
     }
-    net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to,
+    public net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to,
             java.util.function.Predicate<Entity> extraFilter,boolean includeAllies) {
         return firstHit(game.items().spellSources().level(owner),owner,from,to,extraFilter,includeAllies);
     }
-    net.minecraft.world.phys.HitResult firstHit(ServerLevel level,ServerPlayer owner,Vec3 from,Vec3 to,
+    public net.minecraft.world.phys.HitResult firstHit(ServerLevel level,ServerPlayer owner,Vec3 from,Vec3 to,
             java.util.function.Predicate<Entity> extraFilter,boolean includeAllies) {
         var wall=LbcTerra.wallHit(level,from,to);
         Vec3 end=wall==null ? to : wall.getLocation();
@@ -1043,7 +1043,7 @@ public final class LbcWands {
         return entity==null ? wall : entity;
     }
     /** Source NPC guns share resident block geometry and native entity hitboxes. */
-    net.minecraft.world.phys.HitResult firstHit(LivingEntity owner,Vec3 from,Vec3 to,
+    public net.minecraft.world.phys.HitResult firstHit(LivingEntity owner,Vec3 from,Vec3 to,
             java.util.function.Predicate<Entity> collision) {
         if(from.equals(to)) {
             var targets=owner.level().getEntities(owner,new AABB(from,to).inflate(1),
@@ -1061,7 +1061,7 @@ public final class LbcWands {
         return entity==null?wall:entity;
     }
     /** Вместо рекурсивных 200 запросов: один native clip и один локальный поиск ближайшей цели. */
-    void concentratedFire(ServerPlayer player) {concentratedFireAt(player,player.getEyePosition(),player.getLookAngle());}
+    public void concentratedFire(ServerPlayer player) {concentratedFireAt(player,player.getEyePosition(),player.getLookAngle());}
     private void concentratedFireAt(ServerPlayer player,Vec3 from,Vec3 direction) {
         Vec3 to=from.add(direction.scale(100));
         var level=player.level();
@@ -1108,7 +1108,7 @@ for(double step=0;step<=distance;step+=.5) {
         LbcOverload.sound(player,origin,"minecraft:block.amethyst_cluster.break",1,2,0);
     }
     /** Общий destructive fill Ruby: одна клетка, один native loot и автор утраченной опоры. */
-    boolean destroyRubyCell(ServerPlayer player,BlockPos pos) {
+    public boolean destroyRubyCell(ServerPlayer player,BlockPos pos) {
         var level=game.items().spellSources().level(player);
         if(level.isOutsideBuildHeight(pos) || !level.hasChunkAt(pos)) return false;
         var old=level.getBlockState(pos);
@@ -1119,7 +1119,7 @@ for(double step=0;step<=distance;step+=.5) {
             level.updateNeighboursOnBlockSet(pos,old);
         return true;
     }
-    boolean destroyRubyCell(LivingEntity source,BlockPos pos) {
+    public boolean destroyRubyCell(LivingEntity source,BlockPos pos) {
         if(source instanceof ServerPlayer player) return destroyRubyCell(player,pos);
         var level=(ServerLevel)source.level();
         if(level.isOutsideBuildHeight(pos) || level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null) return false;
@@ -1206,7 +1206,7 @@ for(double step=0;step<=distance;step+=.5) {
     }
     public int electroCount() { return electroTraces.size(); }
     /** NPC electricity shares collision, conductivity and reflection; its original cause survives launch. */
-    void mechanismElectro(LivingEntity source,Vec3 origin,Vec3 direction) {
+    public void mechanismElectro(LivingEntity source,Vec3 origin,Vec3 direction) {
         if(!LbcBedwarsRoleGuards.canEmitFrom(source))return;
         electroTraces.add(new ElectroTrace(source,origin,direction,game.items().epoch()));
     }
@@ -1217,14 +1217,14 @@ for(double step=0;step<=distance;step+=.5) {
             trace.owner=game.items().spellSources().authorPlayer(source);electroTraces.add(trace);}
         LbcOverload.sound(level,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0,0);
     }
-    void cyborgElectro(LivingEntity emitter,LbcSpellSource.Source source){
+    public void cyborgElectro(LivingEntity emitter,LbcSpellSource.Source source){
         if(!LbcBedwarsRoleGuards.canEmitFrom(emitter)||!LbcBedwarsRoleGuards.canEmit(source,(ServerLevel)emitter.level()))return;
         var direction=emitter.getLookAngle();var level=(ServerLevel)emitter.level();var at=emitter.getEyePosition();
         for(int i=0;i<4;i++){var trace=new ElectroTrace(level,at.subtract(direction.scale(i*.01)),direction,source,30+i*5);
             trace.owner=game.items().spellSources().authorPlayer(source);electroTraces.add(trace);}
         LbcOverload.sound(level,at,"minecraft:entity.firework_rocket.twinkle",1,1,0,0);
     }
-    void hostileSauvojenElectro(ServerPlayer author,Vec3 origin,Vec3 direction,LbcSpellSource.Source source) {
+    public void hostileSauvojenElectro(ServerPlayer author,Vec3 origin,Vec3 direction,LbcSpellSource.Source source) {
         if(!LbcBedwarsRoleGuards.canEmit(source,author.level()))return;
         for(int i=0;i<4;i++){
             var trace=new ElectroTrace(author,origin,game.items().epoch(),20);
@@ -1247,7 +1247,7 @@ for(double step=0;step<=distance;step+=.5) {
         if(ray) electroRayAt(owner,origin,direction,null);
         else directedElectro(owner,origin,direction,3,null);
     }
-    void directedElectro(ServerPlayer owner, Vec3 origin, Vec3 direction, int count, LbcIndirectKills.Owner cause) {
+    public void directedElectro(ServerPlayer owner, Vec3 origin, Vec3 direction, int count, LbcIndirectKills.Owner cause) {
         float yaw = (float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
         float pitch = (float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
         for (int i = 0; i < count; i++) {
@@ -1274,18 +1274,18 @@ for(double step=0;step<=distance;step+=.5) {
         LbcOverload.sound(owner,origin,"minecraft:item.firecharge.use",1,mode==1?.5f:1,0);
     }
     /** Source Raid Omen124 emits three upward, ten-tick WILD arcs per chained contact. */
-    void chainStatusElectro(LivingEntity emitter,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner cause){
+    public void chainStatusElectro(LivingEntity emitter,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner cause){
         if(!LbcBedwarsRoleGuards.canEmitFrom(emitter))return;
         for(int i=0;i<3;i++)electroTraces.add(new ElectroTrace(emitter,owner,at,game.items().epoch(),cause));
     }
     /** Accepted projectile consequences retain the same ten-tick WILD arcs after their caster leaves. */
-    void arrowChainElectro(Entity projectile,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner accepted){
+    public void arrowChainElectro(Entity projectile,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner accepted){
         var wild=accepted==null?null:new LbcIndirectKills.Owner(accepted.player(),accepted.order(),true,true);
         var source=new LbcSpellSource.Source(projectile.getUUID(),accepted==null?null:accepted.player(),game.items().epoch(),wild,java.util.Set.of(),true);
         for(int i=0;i<3;i++){var trace=new ElectroTrace((ServerLevel)projectile.level(),owner,owner,at,source.epoch(),wild);trace.sourcePolicy=source;trace.explicitEmitter=projectile;electroTraces.add(trace);}
     }
     /** Виртуальные разряды участвуют в том же отражении, что нативные снаряды. Возраст сохраняется. */
-    void reflectElectro(ServerPlayer player) {
+    public void reflectElectro(ServerPlayer player) {
         for(var trace:electroTraces) if(trace.level==player.level() && trace.position.distanceToSqr(player.position())<=49) {
             trace.owner=player; trace.yaw+=180; trace.pitch=-trace.pitch;
             trace.sourcePolicy=null;trace.cause=null;trace.explicitEmitter=null;
@@ -1303,7 +1303,7 @@ for(double step=0;step<=distance;step+=.5) {
     }
     /** Три разряда расходятся случайным поворотом при полёте; сроки исходника различаются. */
     /** Techno armor retaliates with the original three fifteen-tick mechanical arcs. */
-    void technoRetaliation(ServerPlayer owner) {
+    public void technoRetaliation(ServerPlayer owner) {
         var direction=owner.getLookAngle();var origin=owner.getEyePosition();
         for(int i=0;i<3;i++){
             var trace=new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),15);
@@ -1319,7 +1319,7 @@ for(double step=0;step<=distance;step+=.5) {
     }
 
     /** Tesla reuses Electro's native geometry, ownership, shield, conduction and lifecycle. */
-    void teslaVolley(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean chain) {
+    public void teslaVolley(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean chain) {
         var direction=owner.getLookAngle();var origin=owner.getEyePosition();
         boolean academy=stack.is(ACADEMY_TESLA)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("upgraded",0)==1;
         if(hand==InteractionHand.OFF_HAND&&!academy)origin=origin.add(direction.scale(.5));
@@ -1331,7 +1331,7 @@ for(double step=0;step<=distance;step+=.5) {
         }
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
-    void teslaConduction(ElectroTrace trace,Vec3 point){electroConduction(trace,point);}
+    public void teslaConduction(ElectroTrace trace,Vec3 point){electroConduction(trace,point);}
     private void teslaChainTurn(ElectroTrace trace){
         var point=trace.position;LivingEntity nearest=null;double nearestDistance=100;
         trace.level.sendParticles(ParticleTypes.END_ROD,point.x,point.y,point.z,5,0,0,0,.05);
@@ -1349,10 +1349,10 @@ for(double step=0;step<=distance;step+=.5) {
         }
     }
     /** Культист использует те же разряды, срок и владельца, меняется только точка запуска. */
-    void cultistElectro(ServerPlayer owner, Vec3 origin, float yaw, float pitch) {
+    public void cultistElectro(ServerPlayer owner, Vec3 origin, float yaw, float pitch) {
         electroVolley(owner,origin,yaw,pitch,20,6);
     }
-    void cultistElectro(ServerPlayer owner, Mob cultist, Vec3 origin, float yaw, float pitch) {
+    public void cultistElectro(ServerPlayer owner, Mob cultist, Vec3 origin, float yaw, float pitch) {
         var cause = game.items().indirectKills().coldCause(owner, true);
         for (int i = 0; i < 6; i++) {
             var trace = new ElectroTrace(owner, origin, game.items().epoch(), 20+i*5);
@@ -1363,15 +1363,15 @@ for(double step=0;step<=distance;step+=.5) {
             electroTraces.add(trace);
         }
     }
-    void racerLightning(ServerPlayer owner,Vec3 origin) {
+    public void racerLightning(ServerPlayer owner,Vec3 origin) {
         electroVolley(owner,origin,0,90,30,4);
     }
     /** Magnum uses the same arcs, with its short lifetimes and mechanism-beacon policy. */
-    void magnumElectro(ServerPlayer owner,Vec3 origin,Vec3 target,LbcIndirectKills.Owner cause) {
+    public void magnumElectro(ServerPlayer owner,Vec3 origin,Vec3 target,LbcIndirectKills.Owner cause) {
         shortElectro(owner,origin,target,cause);
     }
     /** Released electricity is nonmagical; all producers share mechanism-beacon interception. */
-    void shortElectro(ServerPlayer owner,Vec3 origin,Vec3 target,boolean mechanism) {
+    public void shortElectro(ServerPlayer owner,Vec3 origin,Vec3 target,boolean mechanism) {
         shortElectro(owner,origin,target,null);
     }
     private void shortElectro(ServerPlayer owner,Vec3 origin,Vec3 target,LbcIndirectKills.Owner cause) {
@@ -1404,8 +1404,8 @@ for(double step=0;step<=distance;step+=.5) {
         }
     }
     /** Режим Academy: одна геометрическая проверка пути и хитбоксов вместо рекурсии на 1001 шаг. */
-    void electroRay(ServerPlayer owner) {electroRayAt(owner,owner.getEyePosition(),owner.getLookAngle(),null);}
-    void electroRayAt(ServerPlayer owner,Vec3 from,Vec3 direction,LbcIndirectKills.Owner cause) {
+    public void electroRay(ServerPlayer owner) {electroRayAt(owner,owner.getEyePosition(),owner.getLookAngle(),null);}
+    public void electroRayAt(ServerPlayer owner,Vec3 from,Vec3 direction,LbcIndirectKills.Owner cause) {
         var level=owner.level();
         Vec3 end=from.add(direction.scale(100));
         double boundary=game.items().magic().mechanismSuppressionFraction(level,from,end);
@@ -1438,7 +1438,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         }
         LbcOverload.sound(owner,from,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
-    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
         electroTraces.removeIf(trace->{
             if(trace.level!=level) return false;
             Vec3 next=transform.apply(trace.position);
@@ -1449,12 +1449,12 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         });
     }
 
-    void higherElectro(ElectroTrace trace){if(LbcBedwarsRoleGuards.canEmitFrom(trace.npcSource)&&LbcBedwarsRoleGuards.canEmitFrom(trace.explicitEmitter)&&LbcBedwarsRoleGuards.canEmit(trace.sourcePolicy,trace.level))electroTraces.add(trace);}
-    java.util.List<ElectroTrace> electroSnapshot() { return java.util.List.copyOf(electroTraces); }
-    Iterable<ElectroTrace> activeElectroTraces(){return electroTraces;}
-    boolean hasElectroTrace(ElectroTrace trace){return electroTraces.contains(trace);}
+    public void higherElectro(ElectroTrace trace){if(LbcBedwarsRoleGuards.canEmitFrom(trace.npcSource)&&LbcBedwarsRoleGuards.canEmitFrom(trace.explicitEmitter)&&LbcBedwarsRoleGuards.canEmit(trace.sourcePolicy,trace.level))electroTraces.add(trace);}
+    public java.util.List<ElectroTrace> electroSnapshot() { return java.util.List.copyOf(electroTraces); }
+    public Iterable<ElectroTrace> activeElectroTraces(){return electroTraces;}
+    public boolean hasElectroTrace(ElectroTrace trace){return electroTraces.contains(trace);}
     /** Danmaku clears moving electrical traces as well as their entity-backed counterparts. */
-    int clearDanmakuRays(ServerPlayer caster,Vec3 center,double radius) {
+    public int clearDanmakuRays(ServerPlayer caster,Vec3 center,double radius) {
         int before=electroTraces.size();double distance=radius*radius;
         electroTraces.removeIf(trace->{
             if(trace.level!=caster.level() || trace.position.distanceToSqr(center)>distance) return false;
@@ -1467,10 +1467,10 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         return before-electroTraces.size();
     }
     /** Electro хранится записями, поэтому глобальный Curse использует тот же выбор цели без marker-сущностей. */
-    void redirectCursedElectro() {
+    public void redirectCursedElectro() {
         for(var trace:electroTraces) game.items().homing().redirect(trace);
     }
-    boolean timeStopped() {
+    public boolean timeStopped() {
         return arenaTimeStopped() || legacyTimeStopped();
     }
     boolean arenaTimeStopped() {
@@ -1478,13 +1478,13 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         return arena!=null&&game.items().timeStop().stopped(arena);
     }
     /** Stand/часы освобождают ввод владельца, но не таймеры и полёт всего измерения. */
-    boolean inputTimeStopped(ServerPlayer player) {
+    public boolean inputTimeStopped(ServerPlayer player) {
         return personalTimeStopped(player) || legacyTimeStopped();
     }
-    boolean personalTimeStopped(ServerPlayer player) {
+    public boolean personalTimeStopped(ServerPlayer player) {
         return player.entityTags().contains("time_stopped") || game.items().timeStop().frozen(player);
     }
-    boolean legacyTimeStopped() {
+    public boolean legacyTimeStopped() {
         var board=game.server().getScoreboard(); var objective=board.getObjective("lbc.math");
         var stopped=objective==null ? null : board.getPlayerScoreInfo(TIME_STOPPED,objective);
         return stopped!=null && stopped.value()>=1;
@@ -1496,7 +1496,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
                 &&personalTimeStopped(owner);
     }
     /** Вызывается общим item tick; snapshot устойчив к stop/death callbacks во время hurtServer. */
-    void tick() {
+    public void tick() {
         if(electroTraces.isEmpty()) return;
         game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         boolean legacyStopped=legacyTimeStopped();
@@ -1639,7 +1639,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         trace.pitch=net.minecraft.util.Mth.floor(trace.pitch*100)*.01f+(level.getRandom().nextInt(1601)-800)*.01f;
         return clear;
     }
-    EntityHitResult shieldHit(ServerPlayer owner,Vec3 from,Vec3 to) {
+    public EntityHitResult shieldHit(ServerPlayer owner,Vec3 from,Vec3 to) {
         return shieldHit(owner,from,to,false);
     }
     private void electroSound(ElectroTrace trace,Vec3 at,String id,float volume,float pitch) {
@@ -1647,7 +1647,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         else trace.level.playSound(null,at.x,at.y,at.z,net.minecraft.sounds.SoundEvent.createVariableRangeEvent(
                 Identifier.parse(id)),net.minecraft.sounds.SoundSource.MASTER,volume,pitch);
     }
-    EntityHitResult shieldHit(LivingEntity owner,Vec3 from,Vec3 to,boolean meditation) {
+    public EntityHitResult shieldHit(LivingEntity owner,Vec3 from,Vec3 to,boolean meditation) {
         var level=owner instanceof ServerPlayer player?game.items().spellSources().level(player)
                 :owner==null?game.items().spellSources().level(null):(ServerLevel)owner.level();
         return level==null?null:shieldHit(level,owner,from,to,meditation);
@@ -1724,9 +1724,9 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
         if(accepted>=10&&trace.owner==trace.trialOwner&&trace.trialStack!=null)
             game.items().academy().ready(trace.trialOwner,trace.trialHand,trace.trialStack);
     }
-    void stop() { electroTraces.clear(); }
+    public void stop() { electroTraces.clear(); }
     /** Малые жезлы делят мгновенный луч: кандидаты выбираются один раз на каст, без marker-тикеров. */
-    void blindRay(ServerPlayer player) {
+    public void blindRay(ServerPlayer player) {
         ray(player,Spell.BLIND);
     }
     private static AABB rayBounds(Vec3 origin,Vec3 step) {
@@ -1840,7 +1840,7 @@ for(int i=0;i<=100 && i<boundary;i++) {
         return physicalProjectile(projectile) && validTarget(target)&&LbcBedwarsHarm.projectileAllowed(projectile,target);
     }
     /** Accepted lethal hits still trigger their sword; role/team exclusions remain authoritative. */
-    boolean projectileTarget(ServerPlayer player,Entity entity,boolean allowDying) {
+    public boolean projectileTarget(ServerPlayer player,Entity entity,boolean allowDying) {
         var policy=game.items().spellSources().target(player,entity);if(policy!=null)return policy;
         if(LbcBedwarsHarm.active()&&player!=entity&&player.isAlliedTo(entity))return false;
         return entity!=player && !LbcGreed.active(entity) && validTarget(entity,allowDying)
@@ -1850,19 +1850,19 @@ for(int i=0;i<=100 && i<boundary;i++) {
         return target(player,entity,false);
     }
     /** Узкое исключение притягивания Ruby: роли остаются защищены, союзников можно включить отдельно. */
-    boolean target(ServerPlayer player,Entity entity,boolean includeAllies) {
+    public boolean target(ServerPlayer player,Entity entity,boolean includeAllies) {
         var policy=game.items().spellSources().target(player,entity);if(policy!=null)return policy;
         return entity!=player && !LbcGreed.active(entity) && validTarget(entity)
                 && (includeAllies || !player.isAlliedTo(entity) && !game.items().blaze().friendly(player,entity) && !game.items().summons().friendly(player,entity));
     }
-    boolean validTarget(Entity entity) { return validTarget(entity,false); }
-    boolean validTarget(Entity entity,boolean allowDying) {
+    public boolean validTarget(Entity entity) { return validTarget(entity,false); }
+    public boolean validTarget(Entity entity,boolean allowDying) {
         return !game.items().polymorph().concealed(entity) && !LbcGreed.active(entity) && validRoleTarget(entity,allowDying);
     }
-    boolean validRoleTarget(Entity entity,boolean allowDying) {
+    public boolean validRoleTarget(Entity entity,boolean allowDying) {
         return validRoleTarget(entity,allowDying,false);
     }
-    boolean validRoleTarget(Entity entity,boolean allowDying,boolean allowSauvojen) {
+    public boolean validRoleTarget(Entity entity,boolean allowDying,boolean allowSauvojen) {
         if(game.items().polymorph().detached(entity))return false;
         if(LbcBedwarsRoleGuards.shop(entity))return false;
         return (allowDying || entity.isAlive()) && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
@@ -1991,7 +1991,7 @@ for(int i=0;i<=100 && i<boundary;i++) {
                     ? target(owner,victim,true) : projectileTarget(owner,victim)));
     }
 
-    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+    public int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         if(legacyTimeStopped())return 0;
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
         for(var trace:java.util.List.copyOf(electroTraces)){
@@ -2019,7 +2019,7 @@ for(int i=0;i<=100 && i<boundary;i++) {
     }
 
 
-    void planetoid(ServerPlayer holder) {
+    public void planetoid(ServerPlayer holder) {
         for(var trace:electroTraces)if(trace.age<trace.lifetime&&game.items().currentEpoch(trace.epoch)
                 &&LbcPlanetoidSkill.near(game,holder,trace.level,trace.position)){
             var aim=LbcPlanetoidSkill.direction(holder,trace.position,82);

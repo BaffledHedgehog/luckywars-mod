@@ -190,7 +190,7 @@ public final class LbcSpecialEggs {
     }
 
     /** The spawner has no egg item or actor. The marker is consumed only after native publication. */
-    static void adoptFromSpawner(GameController game, Entity entity) {
+    public static void adoptFromSpawner(GameController game, Entity entity) {
         if (!activeArena(game, entity) || entity.entityTags().isEmpty()) return;
         for (var tag = entity.entityTags().iterator(); tag.hasNext();) {
             Kind kind = SPAWNER_KINDS.get(tag.next());
@@ -242,9 +242,9 @@ public final class LbcSpecialEggs {
                 && !game.isObserver(player) && player.level()==game.maps().level()
                 && !game.items().actionsBlocked(player) && !game.items().timeStop().stopped(player.level());
     }
-    static final class Egg extends SpawnEggItem implements PolymerItem {
+    public static final class Egg extends SpawnEggItem implements PolymerItem {
         private final Item proxy;
-        Egg(Item.Properties properties,Item proxy) { super(properties); this.proxy=proxy; }
+        public Egg(Item.Properties properties,Item proxy) { super(properties); this.proxy=proxy; }
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context) { return proxy; }
         @Override public InteractionResult useOn(UseOnContext context) {
             if(!allowed(SkyWars2.game(),context.getPlayer()) || !(context.getLevel() instanceof ServerLevel level))

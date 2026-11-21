@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
 /** Tesla input and its finite bent instant ray; existing Electro owns moving arcs and conduction. */
-final class LbcTesla {
+public final class LbcTesla {
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<Block> CONDUCTIVE=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:electroprovod"));
     private static final TagKey<net.minecraft.world.entity.EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
@@ -37,13 +37,13 @@ final class LbcTesla {
         game.items().wands().wandCasted(owner);return true;
     }
     /** A short source sample group is one cooperative work unit; no marker per sample or new queue. */
-    static final class Instant implements LbcStonekivi.Work {
-        final GameController game;ServerPlayer owner;final net.minecraft.server.level.ServerLevel level;
-        final Vec3 origin;final float yaw,pitch;final String epoch;
-        final LbcWands.ElectroTrace trace;
-        final DamageSource damage;
-        Vec3 point;float currentYaw,currentPitch;int beam,sample;
-        Instant(GameController game,ServerPlayer owner){
+    public static final class Instant implements LbcStonekivi.Work {
+        final GameController game;public ServerPlayer owner;final net.minecraft.server.level.ServerLevel level;
+        final Vec3 origin;final float yaw,pitch;public final String epoch;
+        public final LbcWands.ElectroTrace trace;
+        public final DamageSource damage;
+        public Vec3 point;public float currentYaw,currentPitch;public int beam,sample;
+        public Instant(GameController game,ServerPlayer owner){
             game.items().stonekivi().beginNativeWork();try {
                 this.game=game;this.owner=owner;level=owner.level();origin=owner.getEyePosition();yaw=owner.getYRot();pitch=owner.getXRot();epoch=game.items().epoch();
                 trace=new LbcWands.ElectroTrace(owner,origin,epoch);

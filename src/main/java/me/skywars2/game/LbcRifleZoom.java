@@ -54,16 +54,16 @@ public final class LbcRifleZoom {
     private final Map<UUID,Scope> modelViews=new ConcurrentHashMap<>();
     private record FovView(int percent,double itemMultiplier) { }
     private final Map<UUID,FovView> personalViews=new ConcurrentHashMap<>();
-    static final int DEFAULT_FOV_PERCENT=5;
+    public static final int DEFAULT_FOV_PERCENT=5;
 
-    static double speedFov(double speed,double walking,int percent) {
+    public static double speedFov(double speed,double walking,int percent) {
         if(!Double.isFinite(speed)||!Double.isFinite(walking)||walking==0)return 1;
         return 1+(((Math.max(0,speed)/walking+1)/2)-1)*Math.clamp(percent,0,100)/100.0;
     }
-    static float projectedWalking(float speed,float walking,boolean scoped,int percent) {
+    public static float projectedWalking(float speed,float walking,boolean scoped,int percent) {
         return projectedWalking(speed,walking,scoped,percent,1);
     }
-    static float projectedWalking(float speed,float walking,boolean scoped,int percent,double multiplier) {
+    public static float projectedWalking(float speed,float walking,boolean scoped,int percent,double multiplier) {
         if(!Float.isFinite(speed))return walking;
         if(speed<=0)return 0;
         double original=walking==0?1:(speed/(double)walking+1)/2;
@@ -102,7 +102,7 @@ public final class LbcRifleZoom {
         }
     }
 
-    LbcRifleZoom(GameController game) { this.game=game; registerProjection(); }
+    public LbcRifleZoom(GameController game) { this.game=game; registerProjection(); }
     private static Identifier projectedModel(ItemStack original,net.fabricmc.fabric.api.networking.v1.context.PacketContext context) {
         var kind=Scope.of(original);
         if(kind==null)return null;
@@ -133,7 +133,7 @@ public final class LbcRifleZoom {
     public void punch(ServerPlayer player) { punch(player,game.server().getTickCount()); }
 
     // Explicit tick permits deterministic checks of duplicate/continuous mining packets.
-    void punch(ServerPlayer player,int tick) {
+    public void punch(ServerPlayer player,int tick) {
         checkpointDepth++;try{
         if(!allowed(player)) return;
         InteractionHand hand=rifle(player.getMainHandItem()) ? InteractionHand.MAIN_HAND : null;
@@ -161,12 +161,12 @@ public final class LbcRifleZoom {
         WeaponSpreadVisuals.synchronize(game,player);
         }finally{checkpointDepth--;}
     }
-    boolean scoped(ServerPlayer player) {
+    public boolean scoped(ServerPlayer player) {
         var state=states.get(player.getUUID());
         return state!=null && state.player==player && state.active && current(state);
     }
     /** Presentation can remain active while input is quarantined during a rewind. */
-    boolean scopeVisible(ServerPlayer player) { return modelViews.containsKey(player.getUUID()); }
+    public boolean scopeVisible(ServerPlayer player) { return modelViews.containsKey(player.getUUID()); }
     private static boolean rifle(ItemStack stack) {
         return LbcShooters.isSlr(stack) || LbcMagnum.isMagnum(stack);
     }
@@ -303,7 +303,7 @@ public final class LbcRifleZoom {
         return packet;
     }
     public void tick() { tick(game.server().getTickCount()); }
-    void tick(int now) {
+    public void tick(int now) {
         checkpointDepth++;try{
         if(rewinding)return;checkpointProjection=false;
         var online=new java.util.HashSet<UUID>();
@@ -375,15 +375,15 @@ public final class LbcRifleZoom {
 
         }finally{checkpointDepth--;}
     }
-    TraceView tracer(ServerPlayer owner) { return new TraceView(owner,scoped(owner)); }
-    static final class TraceView {
+    public TraceView tracer(ServerPlayer owner) { return new TraceView(owner,scoped(owner)); }
+    public static final class TraceView {
         private final ServerPlayer owner;
         private final Vec3 eye,down;
         private final boolean scoped;
         TraceView(ServerPlayer owner,boolean scoped) {
             this.owner=owner;this.scoped=scoped;eye=owner.getEyePosition();down=owner.getUpVector(1).normalize().scale(-1);
         }
-        void send(net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double spread,double speed) {
+        public void send(net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double spread,double speed) {
             var level=owner.level();double distance=eye.distanceToSqr(point);
             if(!scoped||distance>=64) {
                 level.sendParticles(particle,true,false,point.x,point.y,point.z,count,spread,spread,spread,speed);return;
@@ -396,14 +396,14 @@ public final class LbcRifleZoom {
             }
         }
     }
-    void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish scope input/tick/login callbacks before checkpointing");}
-    void prepareCheckpointFrozen(){
+    public void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish scope input/tick/login callbacks before checkpointing");}
+    public void prepareCheckpointFrozen(){
         checkpointBoundary();rewinding=true;checkpointProjection=true;checkpointPublication.clear();
         // No leave()/punch(): discard future overlays without an exit animation or any weapon operation.
         for(var player:game.server().getPlayerList().getPlayers())clearEffects(player);
         states.clear();scopedMovement.clear();modelViews.clear();movementViews.clear();abilityViews.clear();
     }
-    void publishCheckpointFrozen(){
+    public void publishCheckpointFrozen(){
         checkpointBoundary();int now=game.server().getTickCount();
         for(var row:checkpointPublication.values()){
             var state=states.get(row.id);
@@ -421,12 +421,12 @@ public final class LbcRifleZoom {
         checkpointPublication.clear();rewinding=false;
         // Keep packet projection authoritative until the first ordinary tick, after the global input barrier ends.
     }
-    void cancelCheckpointFrozen(){
+    public void cancelCheckpointFrozen(){
         checkpointBoundary();checkpointPublication.clear();states.clear();scopedMovement.clear();modelViews.clear();
         for(var player:game.server().getPlayerList().getPlayers())clearEffects(player);rewinding=false;checkpointProjection=false;
     }
-    MatchAimCheckpoint checkpoint(MatchDamageSources sources){return new MatchAimCheckpoint(game,sources);}
-    java.util.List<ScopeCheckpoint> checkpointScopes(MatchDamageSources sources){
+    public MatchAimCheckpoint checkpoint(MatchDamageSources sources){return new MatchAimCheckpoint(game,sources);}
+    public java.util.List<ScopeCheckpoint> checkpointScopes(MatchDamageSources sources){
         checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish scope state before capture");
         var rows=new java.util.ArrayList<ScopeCheckpoint>();
         for(var state:states.values()){
@@ -437,7 +437,7 @@ public final class LbcRifleZoom {
         }
         return java.util.List.copyOf(rows);
     }
-    final class ScopeCheckpoint {
+    public final class ScopeCheckpoint {
         final State state;final UUID id;final MatchSpellCheckpoint.Links links;final MatchDamageSources.Ref player;
         final ItemStack value;final int punchAge,exitTicks;final boolean active;final MovementView movement;
         ScopeCheckpoint(State state,MatchDamageSources sources){
@@ -446,13 +446,13 @@ public final class LbcRifleZoom {
             value=state.gun.copy();int now=game.server().getTickCount();punchAge=now-state.lastPunch;
             exitTicks=state.exitUntil==0?0:Math.max(0,state.exitUntil-now);active=state.active;movement=movementViews.get(id);
         }
-        java.util.Set<UUID> resolve(java.util.function.Function<UUID,net.minecraft.world.entity.Entity> lookup){
+        public java.util.Set<UUID> resolve(java.util.function.Function<UUID,net.minecraft.world.entity.Entity> lookup){
             var real=game.server().getPlayerList().getPlayer(id);
             if(real==null||real.isRemoved()||lookup.apply(id)!=real)return java.util.Set.of(id);
             var absent=links.resolve(lookup);if(!absent.isEmpty())return absent;
             return links.get(player)==real?java.util.Set.of():java.util.Set.of(id);
         }
-        Runnable prepare(){
+        public Runnable prepare(){
             var real=(ServerPlayer)links.get(player);var gun=real.getItemInHand(state.hand);
             // This source retains only the used hand identity: bind that canonical native slot directly.
             // Global stack-root discovery would add unrelated offline-player dependencies to this one view row.

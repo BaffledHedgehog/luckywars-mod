@@ -52,7 +52,7 @@ public final class LbcFpvDrone {
     private static final TicketType BODY_TICKET=new TicketType(TicketType.NO_TIMEOUT,
             TicketType.FLAG_LOADING|TicketType.FLAG_SIMULATION|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     static final double TURN_DEGREES=3;
-    static final Identifier HUD=Identifier.parse("lbc:fpv_drone");
+    public static final Identifier HUD=Identifier.parse("lbc:fpv_drone");
     private final GameController game;
     private IdentityHashMap<Drone,Visual> actors=new IdentityHashMap<>();
     private HashMap<UUID,Session> controllers=new HashMap<>();
@@ -72,8 +72,8 @@ public final class LbcFpvDrone {
     public LbcFpvDrone(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){return ItemData.intValue(stack,"drone_pult",0)==1;}
     public static final class Drone extends Vex implements PolymerEntity {
-        UUID author;long order;String epoch="";boolean retired;
-        Drone(EntityType<? extends Drone> type,Level level){super(type,level);setNoAi(true);setNoGravity(true);setInvisible(true);setSilent(true);setPersistenceRequired();}
+        public UUID author;long order;String epoch="";public boolean retired;
+        public Drone(EntityType<? extends Drone> type,Level level){super(type,level);setNoAi(true);setNoGravity(true);setInvisible(true);setSilent(true);setPersistenceRequired();}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.VEX;}
         @Override public boolean isPushable(){return false;}
         @Override public boolean canCollideWith(Entity other){return false;}
@@ -134,7 +134,7 @@ public final class LbcFpvDrone {
         Session(ServerPlayer player,Drone drone,int born){this.player=player;this.drone=drone;this.born=born;yaw=player.getYRot();pitch=player.getXRot();}
     }
     public boolean controlling(ServerPlayer p){var s=controllers.get(p.getUUID());return s!=null&&s.player==p;}
-    int cameraSeatId(ServerPlayer p){var s=controllers.get(p.getUUID());return s==null||s.player!=p||s.seat==null?-1:s.seat.getId();}
+    public int cameraSeatId(ServerPlayer p){var s=controllers.get(p.getUUID());return s==null||s.player!=p||s.seat==null?-1:s.seat.getId();}
     /** Position self-camera at the physical drone's eyes, independent of vanilla vehicle eye offsets. */
     private static void positionSeat(Session s){
         var dimensions=s.player.getDimensions(Pose.STANDING);
@@ -224,7 +224,7 @@ public final class LbcFpvDrone {
     public static Vec3 viewpoint(ServerPlayer player){var g=SkyWars2.game();if(g==null||g.items().fpvDrone()==null)return player.position();
         var at=audioViewpoint(player);return at==null?player.position():at;}
     /** The private seat deliberately leaves ServerPlayer.getCamera() on its real body. */
-    static Vec3 audioViewpoint(ServerPlayer player){var g=SkyWars2.game();if(g==null||g.items().fpvDrone()==null)return null;
+    public static Vec3 audioViewpoint(ServerPlayer player){var g=SkyWars2.game();if(g==null||g.items().fpvDrone()==null)return null;
         var s=g.items().fpvDrone().controllers.get(player.getUUID());return s!=null&&s.player==player&&s.attached&&s.drone.level()==player.level()?s.drone.getEyePosition():null;}
     /** Prefetch around the drone before switching the visible camera to its published entity. */
     public static Vec3 trackingPosition(ServerPlayer player){var g=SkyWars2.game();if(g==null||g.items().fpvDrone()==null)return player.position();
@@ -348,7 +348,7 @@ public final class LbcFpvDrone {
     public void stop(){for(var s:List.copyOf(controllers.values()))release(s.player);for(var d:List.copyOf(actors.keySet()))retire(d);for(var p:game.server().getPlayerList().getPlayers())clearHud(p);lastTick=Integer.MIN_VALUE;rewinding=false;}
     public int count(){return actors.size();}public long explosions(){return explosions;}public int ticketCount(){return tickets.size();}
     public List<Drone> snapshot(){return List.copyOf(actors.keySet());}
-    Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
+    public Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
     private void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish FPV callbacks before checkpointing");}
     /** Detach the abandoned client seats and explicit lease type; never use release()'s body teleport. */
     private void prepareCheckpoint(){
@@ -356,7 +356,7 @@ public final class LbcFpvDrone {
         for(var key:List.copyOf(tickets.keySet()))key.level.getChunkSource().removeTicketWithRadius(BODY_TICKET,key.pos,3);tickets.clear();
         for(var session:old)detach(session);
     }
-    final class Checkpoint {
+    public final class Checkpoint {
         private record Actor(MatchDamageSources.Ref drone,MatchDamageSources.Ref visual,boolean retired) { }
         private record Control(UUID key,MatchDamageSources.Ref player,MatchDamageSources.Ref drone,int born,float yaw,float pitch,boolean attached,BodyChunk body) { }
         private final String epoch=game.items().epoch();private final MatchSpellCheckpoint.Links links;
@@ -369,8 +369,8 @@ public final class LbcFpvDrone {
         Checkpoint(MatchDamageSources sources){stable(false);links=new MatchSpellCheckpoint.Links(sources);actors.forEach((drone,visual)->bodies.add(new Actor(links.key(drone),links.key(visual),drone.retired)));
             var counts=new HashMap<BodyChunk,Integer>();controllers.forEach((key,s)->{if(!key.equals(s.player.getUUID()))throw new IllegalStateException("FPV controller UUID mismatch");sessions.add(new Control(key,links.key(s.player),links.key(s.drone),s.born,s.yaw,s.pitch,s.attached,s.body));if(s.body!=null)counts.merge(s.body,1,Integer::sum);});if(!counts.equals(leases))throw new IllegalStateException("FPV body lease counts are incoherent");}
         private void stable(boolean frozen){if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore FPV on its stable frozen match thread");checkpointBoundary();game.items().spellSources().checkpointBoundary();}
-        void prepareFrozen(){stable(true);prepareCheckpoint();omittedControllers.clear();prepared=true;installed=false;}
-        Set<UUID> finishFrozen(java.util.function.Function<UUID,Entity> lookup){
+        public void prepareFrozen(){stable(true);prepareCheckpoint();omittedControllers.clear();prepared=true;installed=false;}
+        public Set<UUID> finishFrozen(java.util.function.Function<UUID,Entity> lookup){
             stable(true);if(!prepared)throw new IllegalStateException("Detach future FPV state first");var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
             @SuppressWarnings("unchecked") var restored=(IdentityHashMap<Drone,Visual>)traversal.clone();for(var image:bodies){if(!(links.get(image.drone) instanceof Drone drone)||!(links.get(image.visual) instanceof LbcFpvDrone.Visual visual)||visual.drone!=drone)throw new IllegalStateException("Restore canonical FPV actor/display links first");restored.put(drone,visual);}
             @SuppressWarnings("unchecked") var controls=(HashMap<UUID,Session>)controllerTraversal.clone();
@@ -391,7 +391,7 @@ public final class LbcFpvDrone {
             for(var session:controls.values())session.player.level().getChunkSource().move(session.player);installed=true;return Set.of();
         }
 
-        Set<UUID> publishFrozen(){
+        public Set<UUID> publishFrozen(){
             stable(true);if(!installed)throw new IllegalStateException("Install FPV state before client presentation");var pending=new LinkedHashSet<UUID>();
             for(var image:sessions){if(omittedControllers.contains(image.key))continue;var s=controllers.get(image.key);if(s==null||game.server().getPlayerList().getPlayer(image.key)!=s.player)throw new IllegalStateException("FPV client body changed during publication");
                 if(image.attached&&!s.attached){s.player.level().getChunkSource().move(s.player);if(s.player.isChangingDimension()||!s.player.connection.hasClientLoaded()||!net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(s.drone).contains(s.player)){pending.add(image.key);continue;}
@@ -400,11 +400,11 @@ public final class LbcFpvDrone {
             if(pending.isEmpty()){for(var image:sessions)if(!omittedControllers.contains(image.key))controllers.get(image.key).born=clock.time(image.born,game);lastTick=clock.last(game);rewinding=false;prepared=false;}
             return Set.copyOf(pending);
         }
-        void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel FPV on its frozen native thread");prepareCheckpoint();omittedControllers.clear();rewinding=false;prepared=false;installed=false;}
+        public void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel FPV on its frozen native thread");prepareCheckpoint();omittedControllers.clear();rewinding=false;prepared=false;installed=false;}
     }
 
-    static boolean cloneProtected(Entity actor){return actor instanceof LbcFpvDrone.Visual || actor instanceof Seat || actor instanceof Operator;}
-    LbcCloneSkills.ActorImage cloneImage(Drone source) {
+    public static boolean cloneProtected(Entity actor){return actor instanceof LbcFpvDrone.Visual || actor instanceof Seat || actor instanceof Operator;}
+    public LbcCloneSkills.ActorImage cloneImage(Drone source) {
         if(!live(source))return null;
         var author=source.author;long order=source.order;var epoch=source.epoch;
         return new LbcCloneSkills.ActorImage() {
@@ -416,7 +416,7 @@ public final class LbcFpvDrone {
         };
     }
 
-    void directionChanged(Entity actor) {
+    public void directionChanged(Entity actor) {
         if(actor instanceof Drone drone){
             drone.setYHeadRot(drone.getYRot());drone.setYBodyRot(drone.getYRot());
             var visual=actors.get(drone);

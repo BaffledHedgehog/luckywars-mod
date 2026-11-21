@@ -29,13 +29,13 @@ public final class LbcSummonOrders {
     private List<Mob> troops(ServerPlayer owner){return summons.snapshot().stream().filter(m->fighter(m)&&m.isAlive()&&!m.isRemoved()
             &&m.level()==owner.level()&&summons.owner(m)==owner&&game.items().currentEpoch(m))
             .sorted(Comparator.comparingInt(Entity::getId)).toList();}
-    LivingEntity assigned(Mob mob){var order=assignments.get(mob);
+    public LivingEntity assigned(Mob mob){var order=assignments.get(mob);
         return order!=null&&summons.owner(mob)!=null&&summons.owner(mob).getUUID().equals(order.owner)
                 &&summons.canAttack(mob,order.target)
                 &&(!(mob instanceof net.minecraft.world.entity.monster.Guardian)||mob.hasLineOfSight(order.target))?order.target:null;
     }
     /** Loaded entity hitboxes, nearest intersection and native block outlines; no arbitrary aim range. */
-    LivingEntity lookedAt(ServerPlayer owner){
+    public LivingEntity lookedAt(ServerPlayer owner){
         var start=owner.getEyePosition();var direction=owner.getLookAngle();LivingEntity closest=null;Vec3 impact=null;double distance=Double.POSITIVE_INFINITY;
         for(var target:game.items().lifetimes().loadedTargets()){
             if(!enemy(owner,target))continue;
@@ -53,7 +53,7 @@ public final class LbcSummonOrders {
         return wall==null?closest:null;
     }
     /** No mana admission/debit and no new summon; an aimed enemy explicitly overrides spreading. */
-    boolean command(ServerPlayer owner){
+    public boolean command(ServerPlayer owner){
         var troops=troops(owner);var focus=lookedAt(owner);
         if(focus!=null){for(var mob:troops)assign(owner,mob,focus);}
         else distribute(owner,troops,true);
@@ -100,7 +100,7 @@ public final class LbcSummonOrders {
     void changedOwner(Entity entity){if(entity instanceof Mob mob)assignments.remove(mob);}
     void converted(Mob original,Mob converted){var previous=assignments.remove(original);if(previous!=null)assignments.put(converted,previous);attach(converted);}
     void removed(Mob mob){assignments.remove(mob);}
-    int count(){return assignments.size();}
+    public int count(){return assignments.size();}
     void stop(){assignments.clear();}
     private final class AssignedTargetGoal extends Goal {
         private final Mob mob;

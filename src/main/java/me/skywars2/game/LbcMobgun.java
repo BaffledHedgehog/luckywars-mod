@@ -65,7 +65,7 @@ public final class LbcMobgun {
         ServerPlayer owner; final String epoch; int age;
         Owned(ServerPlayer owner,String epoch) { this.owner=owner; this.epoch=epoch; }
     }
-    LbcMobgun(GameController game) { this.game=game; }
+    public LbcMobgun(GameController game) { this.game=game; }
     public static void register() { }
     private static CompoundTag flag() { var tag=new CompoundTag(); tag.putInt("mobgun",1); return tag; }
     private static Item registerItem() {
@@ -152,7 +152,7 @@ public final class LbcMobgun {
         return true;
     }
     /** Deterministic catalog entry point for server verification; normal input chooses uniformly. */
-    boolean launch(ServerPlayer owner,int outcome,int potionOutcome) {
+    public boolean launch(ServerPlayer owner,int outcome,int potionOutcome) {
         if(!ready() || !valid(owner) || outcome<1 || outcome>prepared.outcomeMax) return false;
         // All unique source item/effect combinations get equal probability. A
         // single corrected native splash/lingering entity is launched per shot.
@@ -196,7 +196,7 @@ public final class LbcMobgun {
         var owner=owner(parent); if(owner!=null) registerChild(owner,child);
     }
     /** Shared native actor ownership also covers crystals produced by Prism. */
-    void registerChild(ServerPlayer fallback,Entity child) {
+    public void registerChild(ServerPlayer fallback,Entity child) {
         child.getSelfAndPassengers().forEach(entity->{
             // A later attacker may already own native chained TNT or a projectile.
             Entity nativeOwner=nativeOwner(entity);
@@ -311,7 +311,7 @@ public final class LbcMobgun {
     public int cooldown(ServerPlayer owner) {
         return (int)Math.max(0,cooldowns.getOrDefault(owner.getUUID(),cooldownClock)-cooldownClock);
     }
-    void sourceCooldown(ServerPlayer owner,int value) {
+    public void sourceCooldown(ServerPlayer owner,int value) {
         if(value<=0)cooldowns.remove(owner.getUUID());else cooldowns.put(owner.getUUID(),cooldownClock+value);
     }
     public void clearCooldown(ServerPlayer owner) { cooldowns.remove(owner.getUUID()); }

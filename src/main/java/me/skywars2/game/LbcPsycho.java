@@ -66,7 +66,7 @@ public final class LbcPsycho {
     private final Map<LivingEntity,Affliction> effects=new IdentityHashMap<>();
     private final Map<ServerPlayer,Integer> rays=new IdentityHashMap<>();
     // Existing RP clip: 4.036333 seconds at pitch 2, renewed independently of the caster's counter.
-    static final Identifier BEAM_SOUND=Identifier.parse("minecraft:lbcsounds.scream");
+    public static final Identifier BEAM_SOUND=Identifier.parse("minecraft:lbcsounds.scream");
     static final int BEAM_SOUND_TICKS=40;
     private final Map<ServerPlayer,BeamAudio> beamAudio=new IdentityHashMap<>();
     private static final class BeamAudio {
@@ -79,8 +79,8 @@ public final class LbcPsycho {
     private int statusCallbacks;
 
     public static final class Charge extends Projectile implements PolymerEntity {
-        int age,lifetime=100;
-        boolean invisible,spray,noStack;
+        public int age,lifetime=100;
+        public boolean invisible,spray,noStack;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -120,25 +120,25 @@ public final class LbcPsycho {
                         .sized(.1f,.1f).clientTrackingRange(8).updateInterval(1).build(key));
         PolymerEntityUtils.registerType(type); return type;
     }
-    static void register() { }
-    LbcPsycho(GameController game) { this.game=game; }
+    public static void register() { }
+    public LbcPsycho(GameController game) { this.game=game; }
     public int count() { return charges.size(); }
     /** Общая атрибуция учитывает только настоящий успешный удар, не попытку атаки Vex. */
-    ServerPlayer owner(Entity entity) {
+    public ServerPlayer owner(Entity entity) {
         return entity instanceof PsychoVex vex && vexes.contains(vex) && game.items().currentEpoch(vex)
                 ? game.server().getPlayerList().getPlayer(vex.caster.getUUID()) : null;
     }
-    List<Charge> snapshot() { return List.copyOf(charges); }
-    int effectCount() { return effects.size(); }
-    int rayCount(ServerPlayer owner) { return rays.getOrDefault(owner,0); }
+    public List<Charge> snapshot() { return List.copyOf(charges); }
+    public int effectCount() { return effects.size(); }
+    public int rayCount(ServerPlayer owner) { return rays.getOrDefault(owner,0); }
     /** Player timer grant shared by food and the scream-ray caster. */
-    void addRayTicks(ServerPlayer owner,int amount) {
+    public void addRayTicks(ServerPlayer owner,int amount) {
         if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
         rays.merge(owner,amount,Integer::sum);
         game.items().mana().score(owner,"screamray").set(rays.get(owner));
     }
     /** Import the existing score authority without granting a second dose or resetting forced use. */
-    void adoptRawFoodStatuses(ServerPlayer player) {
+    public void adoptRawFoodStatuses(ServerPlayer player) {
         if(!valid(player)||game.items().magic().rejectCustomEffect(player))return;
         var mana=game.items().mana();
         int ray=mana.hudValue(player,"screamray");if(ray>0)rays.put(player,ray);
@@ -157,17 +157,17 @@ public final class LbcPsycho {
         mana.score(entity,"lookback").set(effect.lookback);mana.score(entity,"twitching").set(effect.twitching);
         mana.score(entity,"piss").set(effect.piss);
     }
-    void addPlayerCounters(ServerPlayer player) {
+    public void addPlayerCounters(ServerPlayer player) {
         var current=effects.get(player);
         if(current!=null && current.forcedTicks>0 && !game.items().magic().rejectCustomDebuff(player)) current.forcedTicks++;
         afflict(player,player,1,1,1,1);
         addRayTicks(player,1);
     }
-    int forcedUseTicks(ServerPlayer player) {
+    public int forcedUseTicks(ServerPlayer player) {
         var effect=effects.get(player); return effect==null?0:effect.forcedTicks;
     }
     /** Один принудительный клик принадлежит только уже наложенному Twitching. */
-    void twitchClick(ServerPlayer player,boolean attack) {
+    public void twitchClick(ServerPlayer player,boolean attack) {
         var effect=effects.get(player);
         if(game.items().magic().rejectCustomDebuff(player)){clearDebuffs(player);return;}
         if(effect==null || effect.twitching<=0) return;
@@ -200,7 +200,7 @@ public final class LbcPsycho {
             if(selected)game.items().twitchItemAction(player,hand);
         }
     }
-    int effectValue(LivingEntity entity,String name) { return hudValue(entity,name); }
+    public int effectValue(LivingEntity entity,String name) { return hudValue(entity,name); }
     public int hudValue(LivingEntity entity,String name) {
         if(name.equals("screamray")) return entity instanceof ServerPlayer player?rays.getOrDefault(player,0):0;
         var effect=effects.get(entity); if(effect==null) return 0;
@@ -208,7 +208,7 @@ public final class LbcPsycho {
             case "twitching"->effect.twitching; case "piss"->effect.piss; default->0; };
     }
     /** Reduction of a source counter preserves attribution, other afflictions and forced-use phase. */
-    void reduceSourceStatus(ServerPlayer player,String name,int value) {
+    public void reduceSourceStatus(ServerPlayer player,String name,int value) {
         if(value>0&&LbcParasite.active(player)){clearStatus(player,name);return;}
         if(value<=0){clearStatus(player,name);game.items().mana().score(player,name).set(value);return;}
         var effect=effects.get(player);
@@ -217,7 +217,7 @@ public final class LbcPsycho {
         game.items().mana().score(player,name).set(value);
     }
     /** A random cleanse removes one owned status without releasing unrelated effects or manual item use. */
-    void clearStatus(LivingEntity entity,String name) {
+    public void clearStatus(LivingEntity entity,String name) {
         if(!name.equals("lookback")&&!name.equals("piss")&&!name.equals("scared")&&!name.equals("twitching"))return;
         // Keep source scoreboard consumers coherent even when no native affliction remains.
         game.items().mana().score(entity,name).set(0);
@@ -279,7 +279,7 @@ public final class LbcPsycho {
         }
         game.items().wands().wandCasted(owner); return true;
     }
-    void psychoblind(ServerPlayer owner,int mode) {
+    public void psychoblind(ServerPlayer owner,int mode) {
             if(mode==2) addRayTicks(owner,40);
             else if(mode==3) spawn(owner,owner.getEyePosition(),owner.getLookAngle(),false,true,100);
             else spread(owner,mode==1?4:3,mode==4);
@@ -289,7 +289,7 @@ public final class LbcPsycho {
             }
     }
 
-    void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
+    public void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
         if(mode==2){rayAt(owner,origin,direction,39);return;}
         if(mode==3)spawn(owner,origin,direction,false,true,100);
         else{
@@ -306,7 +306,7 @@ public final class LbcPsycho {
         LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.7f,1,0);
     }
     /** Skill36 terminal: one ordinary visible charge; shared flight/status/audio ownership follows. */
-    boolean emitDoppel(ServerPlayer owner,Vec3 origin,Vec3 direction){
+    public boolean emitDoppel(ServerPlayer owner,Vec3 origin,Vec3 direction){
         if(!valid(owner)||paused(owner)||!Double.isFinite(direction.x)||!Double.isFinite(direction.y)
                 ||!Double.isFinite(direction.z)||direction.lengthSqr()<1.0e-12)return false;
         int before=charges.size();
@@ -317,14 +317,14 @@ public final class LbcPsycho {
         return true;
     }
     /** Keep final launch selection on the same target policy as native Psycho collision. */
-    boolean doppelTarget(ServerPlayer owner,Entity entity){
+    public boolean doppelTarget(ServerPlayer owner,Entity entity){
         return projectileTarget(owner,entity)&&game.items().lifetimes().target(owner,entity);
     }
-    void psycho(ServerPlayer owner, InteractionHand hand, ItemStack stack, int mode) {
+    public void psycho(ServerPlayer owner, InteractionHand hand, ItemStack stack, int mode) {
         boolean trial = psychoAt(owner, owner.position(), mode);
         if (mode == 0 && trial && LbcAcademy.trial(stack)) game.items().academy().ready(owner, hand, stack);
     }
-    boolean scriptArea(ServerPlayer owner, Vec3 center, int mode) {
+    public boolean scriptArea(ServerPlayer owner, Vec3 center, int mode) {
         if (!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(), owner.getEyePosition())
                 || game.items().magic().suppressedAt(owner.level(), center)) return false;
         try (var borrowed = WandCastOrigin.scope(owner, true)) {
@@ -364,7 +364,7 @@ public final class LbcPsycho {
         game.items().mana().award(owner,"lbc:true_advancements/staffs/psycho");
     }
 
-    Mob spawnSadGhost(ServerPlayer owner, Vec3 position) {
+    public Mob spawnSadGhost(ServerPlayer owner, Vec3 position) {
         var vex=new PsychoVex(owner); vex.setPos(position);
         vex.finalizeSpawn(owner.level(),owner.level().getCurrentDifficultyAt(vex.blockPosition()),
                 net.minecraft.world.entity.EntitySpawnReason.COMMAND,null);
@@ -405,14 +405,14 @@ public final class LbcPsycho {
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) charges.add(charge);
     }
-    void loaded(Entity entity) {
+    public void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
                     || !(charge.getOwner() instanceof ServerPlayer)) charge.discard();
             else charges.add(charge);
         }
     }
-    void unloaded(Entity entity) {
+    public void unloaded(Entity entity) {
         if(entity instanceof Charge charge) { charges.remove(charge); if(!charge.isRemoved()) charge.discard(); }
         if(entity instanceof LivingEntity living) removeEffect(living);
         if(entity instanceof ServerPlayer player) clearBeamAudio(player);
@@ -490,7 +490,7 @@ public final class LbcPsycho {
         if(target instanceof ServerPlayer player) player.level().sendParticles(player,ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,
                 target.getX(),target.getY()+1,target.getZ(),200,0,0,0,1);
     }
-    void afflict(LivingEntity entity,ServerPlayer owner,int scared,int lookback,int twitching,int piss) {
+    public void afflict(LivingEntity entity,ServerPlayer owner,int scared,int lookback,int twitching,int piss) {
         afflict(entity,owner,scared,lookback,twitching,piss,true);
     }
     private void afflict(LivingEntity entity,ServerPlayer owner,int scared,int lookback,int twitching,int piss,boolean stack) {
@@ -503,10 +503,10 @@ public final class LbcPsycho {
         sync(entity,effect);
     }
     /** Yellow Gaycaster sets the existing source counter rather than extending it. */
-    boolean yellow(LivingEntity entity,ServerPlayer owner){
+    public boolean yellow(LivingEntity entity,ServerPlayer owner){
         return yellow(entity,owner,100);
     }
-    boolean yellow(LivingEntity entity,ServerPlayer owner,int ticks){
+    public boolean yellow(LivingEntity entity,ServerPlayer owner,int ticks){
         if(entity instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return false;
         afflict(entity,owner,0,0,0,0);effects.get(entity).piss=ticks;effects.get(entity).persistentPiss=false;sync(entity,effects.get(entity));return true;
     }
@@ -733,13 +733,13 @@ public final class LbcPsycho {
         rays.clear(); ticks=0;
     }
 
-    void checkpointBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish native Psycho status callbacks before checkpointing");}
+    public void checkpointBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish native Psycho status callbacks before checkpointing");}
     /** Canonical owners restore effects, attributes, inventory and item use; only detach private future counters. */
-    void prepareFrozen(){checkpointBoundary();statusRestoring=true;effects.clear();}
-    void publishFrozen(){checkpointBoundary();statusRestoring=false;}
-    void cancelFrozen(){checkpointBoundary();statusRestoring=false;}
-    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
-    final class Checkpoint {
+    public void prepareFrozen(){checkpointBoundary();statusRestoring=true;effects.clear();}
+    public void publishFrozen(){checkpointBoundary();statusRestoring=false;}
+    public void cancelFrozen(){checkpointBoundary();statusRestoring=false;}
+    public Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    public final class Checkpoint {
         private record Status(MatchDamageSources.Ref target,MatchDamageSources.Ref owner,
                 int scared,int lookback,int twitching,int piss,boolean persistentPiss,String epoch,
                 Double previousFollowRange,MatchItemStackLinks.Ref forcedItem,InteractionHand forcedHand,
@@ -758,7 +758,7 @@ public final class LbcPsycho {
                         effect.forcedTicks,effect.lastUseTicks));
             }
         }
-        Runnable prepare(MatchSpellCheckpoint.Links links){
+        public Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var next=new IdentityHashMap<LivingEntity,Affliction>();
             // Build independent images and validate all canonical aliases before any service installs its map.
             for(var saved:statuses){
@@ -783,8 +783,8 @@ public final class LbcPsycho {
         }
     }
 
-    static boolean cloneVex(Entity actor){return actor instanceof LbcPsycho.PsychoVex;}
-    LbcCloneSkills.ActorImage cloneVexImage(Entity actor) {
+    public static boolean cloneVex(Entity actor){return actor instanceof LbcPsycho.PsychoVex;}
+    public LbcCloneSkills.ActorImage cloneVexImage(Entity actor) {
         if(!(actor instanceof PsychoVex source))return null;
         var caster=source.caster;
         return new LbcCloneSkills.ActorImage() {
@@ -795,7 +795,7 @@ public final class LbcPsycho {
             public void rollback(Entity clone){vexes.remove(clone);}
         };
     }
-    LbcCloneSkills.ActorImage cloneStatusImage(Entity actor) {
+    public LbcCloneSkills.ActorImage cloneStatusImage(Entity actor) {
         if(!(actor instanceof LivingEntity living))return null;
         var source=effects.get(living);if(source==null)return null;
         int scared=source.scared,lookback=source.lookback,twitching=source.twitching,piss=source.piss;
