@@ -513,7 +513,7 @@ def server(args, root: Path, preview_destinations: list[Path] | None = None):
     configuration.mkdir()
     shutil.copyfile(jdt / config_folder / "config.ini", configuration / "config.ini")
     command = [
-        str(java_executable), "-Xms96m", f"-Xmx{args.heap}", "-XX:+UseSerialGC", "-XX:ActiveProcessorCount=2",
+        str(java_executable), "-Xms96m", f"-Xmx{args.heap}", "-XX:+UseSerialGC",
         "-Dfile.encoding=UTF-8", "-Djava.import.generatesMetadataFilesAtProjectRoot=false",
         "-Declipse.application=org.eclipse.jdt.ls.core.id1", "-Declipse.product=org.eclipse.jdt.ls.core.product",
         "-Dosgi.bundles.defaultStartLevel=4", f"-Dosgi.install.area={jdt.as_uri()}/",
