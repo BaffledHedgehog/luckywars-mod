@@ -23,6 +23,7 @@ import net.minecraft.sounds.SoundSource;
 
 /** Optional phone player. Both transports feed the same sound engine and texture. */
 public final class MediaClient implements ClientModInitializer {
+    private static final org.slf4j.Logger LOGGER=org.slf4j.LoggerFactory.getLogger("skywars2-media");
     private static final Identifier TEXTURE=Identifier.parse("skywars2:phone_stream");
     private static final Object LOCK=new Object();
     private static final LinkedHashSet<UUID> retired=new LinkedHashSet<>();
@@ -35,7 +36,7 @@ public final class MediaClient implements ClientModInitializer {
     });
     private static final URI relayOrigin = relayOrigin();
     private static final Optional<Mp4Decoder.Tools> mp4Tools = Mp4Decoder.findTools();
-    private static final ArrayBlockingQueue<Decoded> decoded=new ArrayBlockingQueue<>(8);
+    private static final ArrayBlockingQueue<Decoded> decoded=new ArrayBlockingQueue<>(64);
     private static Session session;
     private static MediaPackets.Frame pending;
     private static MediaPackets.Link pausedLink;
@@ -57,15 +58,17 @@ public final class MediaClient implements ClientModInitializer {
         long deferredSegment;
         boolean linked() { return link != null || segments != null; }
         boolean soundReady,soundStarted;
-        boolean opening;long shown=-1,received,last=-1;
+        boolean opening;long shown=-1,received,last=-1,audioRetryAt;
+        long statsAt=System.nanoTime(),statsDecoded,displayed,statsDisplayed;
         Session(MediaPackets.Frame p){id=p.session();rate=p.rate();channels=p.channels();link=null;segments=null;timeline=new MediaTimeline();}
-        Session(MediaPackets.Link link){this.link=link;id=link.session();rate=48000;channels=2;segments=null;timeline=new MediaTimeline();}
+        Session(MediaPackets.Link link){this.link=link;id=link.session();rate=48000;channels=2;segments=null;timeline=new MediaTimeline(true);}
         Session(MediaPackets.Segment part){
             id=part.session();rate=48000;channels=2;link=null;segments=new MediaSegmentQueue(part);
             timeline=new MediaTimeline(true);
         }
     }
     @Override public void onInitializeClient(){
+        LOGGER.info("Phone local MP4 decoder: {}",mp4Tools.isPresent()?"available; direct CDN preferred":"unavailable; prepared HTTPS fallback");
         MediaPackets.register();
         SpecialModelRenderers.ID_MAPPER.put(Identifier.parse("skywars2:phone_video"),PhoneRenderer.Unbaked.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Frame.TYPE,(p,c)->receive(p));
@@ -198,6 +201,7 @@ public final class MediaClient implements ClientModInitializer {
             pausedLink = null;
             close(!sameSession);
             var selected = new Session(part);
+            LOGGER.info("Phone playback route: prepared HTTPS segments via Velocity");
             session = selected;
             if (paused) pauseLinked(selected, true);
             if (offerSegment(selected, part)) {
@@ -283,10 +287,12 @@ public final class MediaClient implements ClientModInitializer {
             if (!selected.link.cdn().isEmpty()) {
                 if(mp4Tools.isPresent()){
                     try(var transfer=downloads.direct(URI.create(selected.link.cdn()))){
+                        LOGGER.info("Phone playback route: direct TikTok CDN, local MP4 decode");
                         playMovie(selected, transfer);
                         return;
                     }catch(ExecutionException|IOException|IllegalArgumentException unavailable){
                         if(!selected.active)return;
+                        LOGGER.info("Phone direct CDN unavailable ({}); trying Velocity",unavailable.getClass().getSimpleName());
                     }
                 }
             }
@@ -296,6 +302,7 @@ public final class MediaClient implements ClientModInitializer {
                 return;
             }
             if (selected.link.relayMp4()) {
+                LOGGER.info("Phone playback route: MP4 via Velocity, local decode");
                 try (var transfer = downloads.fallback(URI.create(selected.link.relay()))) {
                     playMovie(selected, transfer);
                 }
@@ -303,6 +310,7 @@ public final class MediaClient implements ClientModInitializer {
             }
             try(var transfer=downloads.fallback(URI.create(selected.link.relay()));
                 var clip=MediaClip.open(transfer.file().toCompletableFuture().get())){
+                LOGGER.info("Phone playback route: prepared HTTPS clip via Velocity");
                 while (awaitLinkedPlayback(selected)) {
                     var frame = clip.next();
                     if (frame == null) {
@@ -330,6 +338,10 @@ public final class MediaClient implements ClientModInitializer {
                 if (!awaitLinkedPlayback(selected)) return;
                 var frame = movie.next();
                 if (frame == null) throw new IOException("Empty phone video");
+                if(selected.last<0){
+                    selected.timeline.rate(movie.frameRate());
+                    LOGGER.info("Phone source video frame rate: {}",movie.frameRate());
+                }
                 while (frame != null) {
                     linkedFrame(selected, frame.image(), frame.pcm());
                     if (!awaitLinkedPlayback(selected)) return;
@@ -364,7 +376,7 @@ public final class MediaClient implements ClientModInitializer {
         boolean queued=false;
         try {
             synchronized(LOCK){
-                while (session == selected && (paused || selected.timeline.queued() >= 6)) {
+                while (session == selected && (paused || selected.timeline.producerBlocked(decoded.size()))) {
                     if (paused) LOCK.wait();
                     else LOCK.wait(8L);
                 }
@@ -421,21 +433,39 @@ public final class MediaClient implements ClientModInitializer {
             if (s.sound != null && s.sound.isStopped()) {
                 if (!s.linked()) { close(false); return; }
                 s.sound = null;
-                s.silent = true;
-                s.timeline.start(System.nanoTime());
+                s.soundReady = s.soundStarted = s.opening = false;
+                s.timeline.reprime();
+                long retained=s.timeline.retainedFrom();
+                decoded.removeIf(frame->{if(frame.owner==s&&frame.serial<retained){frame.image.close();return true;}return false;});
+                s.silent = false;
+                LOGGER.info("Phone audio channel stopped; rebuffering for recovery");
             }
             float volume=Minecraft.getInstance().options.getFinalSoundSourceVolume(SoundSource.RECORDS);
             if(s.sound!=null&&s.volume!=volume){s.volume=volume;s.sound.execute(channel->channel.setVolume(volume));}
-            if(s.timeline.primed()&&!s.opening){s.opening=true;openAudio(s);}
             long now = System.nanoTime();
+            if(s.timeline.primed()&&!s.opening&&now>=s.audioRetryAt){s.opening=true;openAudio(s);}
             if (s.silent) s.timeline.discardPlayed(now);
-            long target=s.timeline.presented(now);Decoded selected=null;
+            present();
+            if(now-s.statsAt>=5_000_000_000L){
+                double seconds=(now-s.statsAt)/1e9;
+                LOGGER.info("Phone playback: decodeFPS={} displayFPS={} videoQueue={} audioQueue={}",
+                        Math.round((s.last+1-s.statsDecoded)/seconds),Math.round((s.displayed-s.statsDisplayed)/seconds),decoded.size(),s.timeline.queued());
+                s.statsDecoded=s.last+1;s.statsDisplayed=s.displayed;s.statsAt=now;
+            }
+        }
+    }
+    /** Render cadence, independent of 20Hz client/world ticks. Also called from ticks when the phone is offscreen. */
+    static void present(){
+        synchronized(LOCK){
+            var s=session;if(s==null||paused)return;
+            long target=s.timeline.presented(System.nanoTime());Decoded selected=null;
             while(decoded.peek()!=null&&decoded.peek().serial<=target){
                 var d=decoded.poll();if(selected!=null)selected.image.close();selected=d;
             }
             if(selected!=null){
                 if(selected.owner!=s||selected.serial<=s.shown){selected.image.close();return;}
                 s.shown=selected.serial;
+                s.displayed++;
                 if(texture==null){texture=new DynamicTexture(()->"skywars phone video",selected.image);Minecraft.getInstance().getTextureManager().register(TEXTURE,texture);}
                 else{texture.setPixels(selected.image);texture.upload();}
             }
@@ -455,9 +485,12 @@ public final class MediaClient implements ClientModInitializer {
                 if (handle == null) {
                     s.timeline.start(System.nanoTime());
                     s.silent = true;
+                    s.opening = false;
+                    s.audioRetryAt=System.nanoTime()+1_000_000_000L;
                     return;
                 }
                 s.sound = handle;
+                s.silent = false;
             }
             handle.execute(channel->{
                 if(!s.active){channel.stop();return;}

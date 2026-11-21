@@ -21,6 +21,7 @@ public final class PhoneRenderer implements SpecialModelRenderer<Identifier> {
         output.accept(new Vector3f(X0,Y0,Z));output.accept(new Vector3f(X1,Y1,Z));
     }
     @Override public void submit(Identifier texture,PoseStack pose,SubmitNodeCollector collector,int light,int overlay,boolean foil,int outline){
+        MediaClient.present();texture=MediaClient.texture();
         if(texture==null)return;
         collector.submitCustomGeometry(pose,RenderTypes.text(texture),(p,b)->{
             // Keep the original status bar/time/battery above29.55 visible.

@@ -3,6 +3,12 @@ package me.skywars2.media.client;
 import com.mojang.blaze3d.platform.NativeImage;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -29,9 +35,9 @@ final class Mp4Decoder implements AutoCloseable {
     static final int PCM_BYTES = RATE / MediaPackets.FPS * CHANNELS * Short.BYTES;
     private static final long MAX_FILE_BYTES = 64L * 1024 * 1024;
     private static final int MAX_SECONDS = 300;
-    private static final int MAX_FRAMES = MAX_SECONDS * MediaPackets.FPS;
+    private static final int MAX_FRAMES = MAX_SECONDS * 120;
     private static final int RGBA_BYTES = WIDTH * HEIGHT * 4;
-    private static final String VIDEO_FILTER = "fps=" + MediaPackets.FPS + ":start_time=0,scale=" + WIDTH + ":"
+    private static final String VIDEO_FILTER = "scale=" + WIDTH + ":"
             + HEIGHT + ":force_original_aspect_ratio=decrease:force_divisible_by=2:flags=bilinear,pad=" + WIDTH
             + ":" + HEIGHT + ":(ow-iw)/2:(oh-ih)/2:black,setsar=1";
 
@@ -43,6 +49,10 @@ final class Mp4Decoder implements AutoCloseable {
 
     /** Executable overrides are local JVM options, never network or server configuration. */
     static Optional<Tools> findTools() {
+        if(System.getProperty("skywars2.media.ffmpeg")==null&&System.getProperty("skywars2.media.ffprobe")==null){
+            var bundled=BundledMediaTools.find();
+            if(bundled.isPresent())return bundled;
+        }
         String suffix = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows") ? ".exe" : "";
         Path ffmpeg = find("skywars2.media.ffmpeg", "ffmpeg" + suffix, null);
         if (ffmpeg == null) return Optional.empty();
@@ -58,14 +68,24 @@ final class Mp4Decoder implements AutoCloseable {
             if (neighbor != null) return neighbor;
         }
         String search = System.getenv("PATH");
-        if (search == null) return null;
-        for (String directory : search.split(Pattern.quote(java.io.File.pathSeparator))) {
+        for (String directory : (search == null ? "" : search).split(Pattern.quote(java.io.File.pathSeparator))) {
             if (directory.isBlank()) continue;
             try {
                 Path file = executable(Path.of(directory), name);
                 if (file != null) return file;
             } catch (InvalidPathException invalid) { /* Continue to the next PATH entry. */ }
         }
+        // Launchers can retain the PATH from before a WinGet installation. Still use the
+        // user's installed tools without requiring a launcher restart or downloading binaries.
+        if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows")) {
+            String local = System.getenv("LOCALAPPDATA");
+            if (local != null) {
+                Path file = executable(Path.of(local,"Microsoft","WinGet","Links"), name);
+                if (file != null) return file;
+            }
+        }
+        Path portable = executable(Path.of("skywars2-media-tools"), name);
+        if (portable != null) return portable;
         return null;
     }
 
@@ -83,10 +103,15 @@ final class Mp4Decoder implements AutoCloseable {
     private final List<Process> children = new ArrayList<>(2);
     private volatile boolean cancelled;
     private Process video;
+    private volatile ServerSocket videoListener;
+    private volatile Socket videoSocket;
+    private InputStream videoInput;
     private Process audio;
     private byte[] rgba;
     private int serial;
     private boolean exhausted;
+    private MediaRate frameRate=MediaRate.DEFAULT;
+    MediaRate frameRate(){return frameRate;}
 
     Mp4Decoder(Path file, Tools tools) {
         this.source = file.toAbsolutePath().normalize();
@@ -99,7 +124,7 @@ final class Mp4Decoder implements AutoCloseable {
             checkCancelled();
             if (exhausted) return null;
             if (video == null) start();
-            int bytes = video.getInputStream().readNBytes(rgba, 0, RGBA_BYTES);
+            int bytes = videoInput.readNBytes(rgba, 0, RGBA_BYTES);
             checkCancelled();
             if (bytes == 0) {
                 await(video, 2);
@@ -129,11 +154,32 @@ final class Mp4Decoder implements AutoCloseable {
         long size = Files.size(source);
         if (size < 12 || size > MAX_FILE_BYTES) throw new IOException("media_mp4_size");
         boolean withAudio = hasAudio();
+        frameRate=probeFrameRate();
+        // Windows anonymous process pipes use tiny buffers for multi-megabyte RGBA
+        // frames. A buffered loopback connection avoids thousands of pipe wakeups.
+        var listener=new ServerSocket();videoListener=listener;
+        listener.setReceiveBufferSize(1024*1024);
+        listener.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"),0),1);
+        listener.setSoTimeout(500);
         var videoArgs = ffmpeg();
         videoArgs.addAll(List.of("-max_pixels", "16777216", "-i", source.toString(), "-map", "0:v:0", "-an",
-                "-sn", "-dn", "-vf", VIDEO_FILTER, "-frames:v", Integer.toString(MAX_FRAMES), "-threads:v", "1",
-                "-c:v", "rawvideo", "-pix_fmt", "rgba", "-f", "rawvideo", "pipe:1"));
+                "-sn", "-dn", "-vf", "fps="+frameRate+":start_time=0,"+VIDEO_FILTER, "-frames:v", Integer.toString(frameRate.framesFor(MAX_SECONDS)), "-threads:v", "1",
+                "-c:v", "rawvideo", "-pix_fmt", "rgba", "-f", "rawvideo",
+                "tcp://127.0.0.1:"+listener.getLocalPort()+"?tcp_nodelay=1&send_buffer_size=1048576"));
         video = launch(videoArgs);
+        long deadline=System.nanoTime()+30_000_000_000L;
+        try{
+            for(;;){
+                checkCancelled();
+                try{videoSocket=listener.accept();break;}
+                catch(SocketTimeoutException waiting){
+                    if(!video.isAlive()){await(video,1);throw new IOException("media_mp4_empty_output");}
+                    if(System.nanoTime()>deadline)throw new IOException("media_mp4_decoder_timeout");
+                }
+            }
+            videoSocket.setTcpNoDelay(true);videoSocket.setReceiveBufferSize(1024*1024);
+            videoInput=videoSocket.getInputStream();
+        }finally{listener.close();videoListener=null;}
         if (withAudio) {
             var audioArgs = ffmpeg();
             audioArgs.addAll(List.of("-i", source.toString(), "-map", "0:a:0", "-vn", "-sn", "-dn",
@@ -164,7 +210,9 @@ final class Mp4Decoder implements AutoCloseable {
         Process probe = launch(args);
         try {
             // Exactly one optional stream index can be printed, so the probe cannot fill its pipe.
-            await(probe, 8);
+            // A freshly extracted executable can take longer on first launch while the OS
+            // scans its DLLs. This is a cancellable decoder worker, never the render thread.
+            await(probe, 30);
             byte[] result = probe.getInputStream().readNBytes(32);
             String index = new String(result, StandardCharsets.US_ASCII).strip();
             if (index.isEmpty()) return false;
@@ -176,8 +224,19 @@ final class Mp4Decoder implements AutoCloseable {
         }
     }
 
+    private MediaRate probeFrameRate()throws IOException {
+        var args=input(tools.ffprobe());
+        args.addAll(List.of("-select_streams","v:0","-show_entries","stream=avg_frame_rate","-of","csv=p=0",source.toString()));
+        Process probe=launch(args);
+        try{
+            await(probe,30);
+            String text=new String(probe.getInputStream().readNBytes(64),StandardCharsets.US_ASCII).strip();
+            try{return MediaRate.parse(text);}catch(IllegalArgumentException missing){return MediaRate.DEFAULT;}
+        }finally{synchronized(children){children.remove(probe);}release(probe);}
+    }
+
     private byte[] readAudio() throws IOException {
-        byte[] pcm = new byte[PCM_BYTES];
+        byte[] pcm = new byte[frameRate.pcmBytes(serial)];
         if (audio == null) return pcm;
         int bytes = audio.getInputStream().readNBytes(pcm, 0, pcm.length);
         if (bytes < pcm.length) {
@@ -228,6 +287,8 @@ final class Mp4Decoder implements AutoCloseable {
         synchronized (children) {
             if (cancelled) return;
             cancelled = true;
+            try{if(videoListener!=null)videoListener.close();}catch(IOException ignored){}
+            try{if(videoSocket!=null)videoSocket.close();}catch(IOException ignored){}
             for (var process : children) {
                 if (process.isAlive()) process.toHandle().destroyForcibly();
             }

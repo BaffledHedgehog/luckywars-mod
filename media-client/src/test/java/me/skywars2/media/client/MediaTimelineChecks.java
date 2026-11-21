@@ -19,7 +19,46 @@ public final class MediaTimelineChecks {
         t.close();check(t.queued()==0&&!t.offer(101,pcm)&&!t.running(),"stop clears data and rejects late work");
         checkPause(pcm);
         checkDelayedSegment(pcm);
+        checkChannelRecovery(pcm);
+        for(String rate:new String[]{"20/1","30/1","60/1","30000/1001"})checkContinuousVideo(MediaRate.parse(rate));
         System.out.println("PASS MediaTimeline: priming,20FPS,stereo,underrun,duplicate,queue bound,pause,resume,stop");
+    }
+
+    private static void checkContinuousVideo(MediaRate rate){
+        var timeline=new MediaTimeline(true);timeline.rate(rate);
+        var video=new java.util.ArrayDeque<Long>();long produced=0,shown=-1,audioRead=0;
+        long origin=1_000_000_000L;
+        // The native source primes FOUR audio buffers ahead of presentation. A producer
+        // bounded only by PCM used to evict every due video frame from the eight-frame queue.
+        while(!timeline.producerBlocked(video.size())){
+            timeline.offer(produced,new byte[rate.pcmBytes(produced)]);video.add(produced++);
+        }
+        timeline.start(origin);
+        int prefetch=4*rate.framesFor(.05);
+        for(int n=0;n<prefetch;n++){timeline.read();audioRead++;}
+        for(int frame=0;frame<rate.framesFor(15);frame++){
+            while(!timeline.producerBlocked(video.size())){
+                check(timeline.offer(produced,new byte[rate.pcmBytes(produced)]),"ordered PCM at "+rate);video.add(produced++);
+            }
+            long target=timeline.presented(origin+rate.nanos(frame));
+            while(!video.isEmpty()&&video.peekFirst()<=target)shown=video.removeFirst();
+            check(shown==frame,"every source frame reaches presentation, no future-frame eviction at "+rate+" frame="+frame+" shown="+shown);
+            timeline.read();audioRead++;
+        }
+        check(rate.samples(rate.framesFor(10))>470000,"source PCM remains continuous");
+        timeline.close();
+    }
+
+    private static void checkChannelRecovery(byte[] pcm) {
+        var t=new MediaTimeline(true);
+        for(int n=0;n<8;n++)check(t.offer(n,pcm),"source PCM before device loss");
+        t.start(1_000_000_000L);
+        for(int n=0;n<4;n++)t.read(); // Four buffers belonged to the released channel.
+        t.reprime();
+        check(t.primed()&&!t.running(),"device loss retains unconsumed PCM and resets the clock");
+        t.start(9_000_000_000L);
+        check(t.presented(9_000_000_000L)==4&&t.read()[1]==91,"new channel resumes retained source without permanent silence");
+        t.close();
     }
 
     private static void checkDelayedSegment(byte[] pcm) {

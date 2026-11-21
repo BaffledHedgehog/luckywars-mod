@@ -3,11 +3,52 @@ version = '0.1.0'
 group = 'me.skywars2'
 base { archivesName = 'skywars2-media-client' }
 repositories { mavenCentral() }
+
+def nativeOs = System.getProperty('os.name').toLowerCase().startsWith('windows') ? 'windows' :
+        System.getProperty('os.name').toLowerCase().contains('mac') ? 'macosx' : 'linux'
+def nativeArch = System.getProperty('os.arch') in ['aarch64', 'arm64'] ? 'arm64' : 'x86_64'
+def mediaPlatform = providers.gradleProperty('mediaPlatform').getOrElse("${nativeOs}-${nativeArch}")
+def mediaToolsVersion = '8.1.2-1.5.14'
+configurations { mediaNative { transitive = false } }
 dependencies {
+    mediaNative "org.bytedeco:ffmpeg:${mediaToolsVersion}:${mediaPlatform}"
     minecraft 'com.mojang:minecraft:26.3'
     implementation 'net.fabricmc:fabric-loader:0.19.5'
     implementation 'net.fabricmc.fabric-api:fabric-api:0.161.0+26.3'
 }
+// Package executables/shared libraries as data. No JavaCPP runtime or reflective loader is used.
+def bundledTools = layout.buildDirectory.dir('generated/media-tools')
+tasks.register('bundleMediaTools', Sync) {
+    inputs.property('platform', mediaPlatform)
+    inputs.property('version', mediaToolsVersion)
+    from({ zipTree(configurations.mediaNative.singleFile) }) {
+        include "org/bytedeco/ffmpeg/${mediaPlatform}/*"
+        exclude '**/jni*'
+        eachFile { path = "skywars2/media/native/${mediaPlatform}/${name}" }
+        includeEmptyDirs = false
+    }
+    from({ zipTree(configurations.mediaNative.singleFile) }) {
+        include 'META-INF/LICENSE*', 'META-INF/NOTICE*'
+        eachFile { path = "META-INF/licenses/ffmpeg/${name}" }
+        includeEmptyDirs = false
+    }
+    into bundledTools
+    doLast {
+        def folder = bundledTools.get().dir("skywars2/media/native/${mediaPlatform}").asFile
+        def suffix = mediaPlatform.startsWith('windows-') ? '.exe' : ''
+        ['ffmpeg', 'ffprobe'].each { tool ->
+            if (!new File(folder, tool + suffix).isFile()) throw new GradleException("Missing bundled ${tool}")
+        }
+        def manifest = ["version=${mediaToolsVersion}"]
+        folder.listFiles().findAll { it.isFile() && it.name != 'manifest.properties' }.sort { it.name }.each { file ->
+            def hash = java.security.MessageDigest.getInstance('SHA-256').digest(file.bytes).encodeHex()
+            manifest.add("${file.name}=${hash}")
+        }
+        new File(folder, 'manifest.properties').setText(manifest.join('\n') + '\n', 'UTF-8')
+    }
+}
+sourceSets.main.resources.srcDir(bundledTools)
+tasks.named('processResources') { dependsOn 'bundleMediaTools' }
 sourceSets.main.java.srcDir('../media-protocol/src/main/java')
 sourceSets.main.resources.srcDir('../media-protocol/src/main/resources')
 java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
@@ -33,6 +74,7 @@ tasks.register('checkNativeMp4', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'me.skywars2.media.client.NativeMp4Checks'
     jvmArgs '-Xmx128m'
+    systemProperty 'skywars2.media.toolCache', layout.buildDirectory.dir('verification/media-tools').get().asFile.absolutePath
 }
 tasks.named('check') { dependsOn 'checkNativeMp4' }
 tasks.register('checkNativeAudio', JavaExec) {

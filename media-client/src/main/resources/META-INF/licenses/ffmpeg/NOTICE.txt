@@ -1,0 +1,7 @@
+FFmpeg 8.1.2, unmodified shared-library build from JavaCPP Presets 1.5.14.
+Copyright FFmpeg contributors. Licensed under LGPL version3 or later.
+Upstream source: https://github.com/FFmpeg/FFmpeg/tree/n8.1.2
+Native build scripts: https://github.com/bytedeco/javacpp-presets/tree/1.5.14/ffmpeg
+Artifact: org.bytedeco:ffmpeg:8.1.2-1.5.14 (platform classifier).
+Libraries are extracted unmodified into skywars2-media-tools. They remain separately replaceable.
+Only playback is used; no JavaCPP runtime is linked into this mod.
