@@ -40,8 +40,9 @@ python -B tools/check_map_editing_artifacts.py build/libs/skywars2-0.1.0.jar bui
 | `tools` | Сборка ресурсов, проверки и инструменты разработки |
 | `docs/history` | Прежние подробные отчёты и игровые контракты |
 
-Реорганизация Java-пакетов продолжается. Актуальные границы исходников описаны
-в [ARCHITECTURE.md](ARCHITECTURE.md), проверка сборок — в
+Предметы, сущности, эффекты, меню и академия разделены по пакетам.
+[Путеводитель по исходникам](docs/SOURCE_LAYOUT.md) показывает, где искать каждую
+систему. Границы сборок описаны в [ARCHITECTURE.md](ARCHITECTURE.md), проверки — в
 [SERVER_TESTS.md](SERVER_TESTS.md), безопасный перенос классов — в
 [tools/JAVA_REFACTOR.md](tools/JAVA_REFACTOR.md).
 
