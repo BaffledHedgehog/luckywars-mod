@@ -69,6 +69,8 @@ processResources {
         include "data/${parts[0]}/loot_table/${parts[1]}**"
     }
     // Independent visual clock used by the atlas-glitch shader and Supernova.
+    // Tiny Blind's source potion lottery is an internal crafting table.
+    include 'data/lbc/loot_table/bad_potion.json'
     include 'data/lbc/world_clock/atlas_glitch.json', 'data/lbc/timeline/atlas_glitch.json'
     include 'data/lbc/function/atlas_glitch/load.mcfunction'
     include 'data/minecraft/tags/function/load.json', 'data/minecraft/tags/timeline/universal.json'

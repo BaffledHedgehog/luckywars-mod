@@ -141,6 +141,7 @@ public final class MatchSpellCheckpoint {
         game.items().lifetimes().reindexVisibleProjectiles(nativeBodies);
         game.items().specialDrops().reindexRestored(nativeBodies);
         game.items().looseRewards().reindexRestored(nativeBodies);
+        game.items().tinyWands().reindexRestored(nativeBodies);
         game.items().communism().reindexOwnership(nativeBodies);
         game.items().homingArrows().reindexRestored(nativeBodies);game.items().thrownUtilities().reindexRestored(nativeBodies);game.items().trinketArrows().reindexRestored(nativeBodies);game.items().madokaBow().reindexRestored(nativeBodies);game.items().shulkerBow().reindexRestored(nativeBodies);
         return Set.of();

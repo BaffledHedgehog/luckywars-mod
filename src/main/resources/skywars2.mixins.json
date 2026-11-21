@@ -3,6 +3,7 @@
   "package": "me.skywars2.mixin",
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "loot.TinyWandItemAccess",
     "terrain.BlockPlacementAccess",
     "genie.GenieProjectileMixin$Fireball",
     "genie.GenieInteractionMixin$EntityUse",

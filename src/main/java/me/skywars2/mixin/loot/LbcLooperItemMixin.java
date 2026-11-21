@@ -21,7 +21,7 @@ public abstract class LbcLooperItemMixin {
             var game=me.skywars2.SkyWars2.game();
             if(game!=null){
                 if(me.skywars2.game.entities.LbcDimensionItems.nexus(level))game.items().nexusAcquisition().itemChanged(self);
-                else{game.items().supernova().itemChanged(self);game.items().chargedBows().itemChanged(self);game.items().cursedPumpkin().itemChanged(self);}
+                else{game.items().supernova().itemChanged(self);game.items().chargedBows().itemChanged(self);game.items().cursedPumpkin().itemChanged(self);game.items().tinyWands().itemChanged(self);}
             }
         }
     }

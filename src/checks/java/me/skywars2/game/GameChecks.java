@@ -1499,6 +1499,7 @@ public final class GameChecks {
                                 case "reroll-machine" -> RerollMachineChecks.run(game);
                                 case "reroll-machine-empty" -> RerollMachineChecks.empty(game);
                                 case "reroll-machine-menu" -> RerollMachineChecks.menu(game);
+                                case "tiny-wand-interactions" -> TinyWandInteractionChecks.run(game);
                                 case "tiny-reforge" -> TinyReforgeChecks.run(game);
             case "tiny-reforge-empty" -> TinyReforgeChecks.empty(game);
             case "lightning-acquisition" -> { LightningAcquisitionChecks.run(game); return; }

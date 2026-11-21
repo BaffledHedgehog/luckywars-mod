@@ -170,6 +170,15 @@ public final class IncomingArtifactChecks {
             require(tnts.size()==1&&tnts.getFirst().getClass()==net.minecraft.world.entity.item.PrimedTnt.class&&tnts.getFirst().getFuse()==0&&tnts.getFirst().getOwner()==owner,"real default-power native TNT with source immediate fuse and owner");
             require(service.canAffect(tnts.getFirst(),owner),"TNT preserves native self-source admission; item shield determines damage");require(!owner.hasEffect(MobEffects.RESISTANCE),"item blast protection does not grant general Resistance");effect(MobEffects.SLOW_FALLING,0,100);observerChild(tnts.getFirst());service.forget(owner);
             reset();put(false,4,0);environmental(1);effect(MobEffects.WEAKNESS,9,60);require(enemy.hasEffect(MobEffects.WEAKNESS)&&enemy.getEffect(MobEffects.WEAKNESS).getAmplifier()==9,"source weakness affects independently eligible nearby player");enemy.removeAllEffects();
+            for(String amulet:List.of("sand_amulet","legacy_sand_amulet")){
+                reset();owner.getInventory().setItem(0,loot(amulet));
+                for(var type:List.of(net.minecraft.world.damagesource.DamageTypes.MAGIC,net.minecraft.world.damagesource.DamageTypes.CACTUS)){
+                    int before=client.connection.packets.size();enemy.setInvulnerableTime(0);enemy.damageCooldownTime=0;
+                    enemy.hurtServer(level,new net.minecraft.world.damagesource.DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner),1);
+                    require(client.connection.packets.subList(before,client.connection.packets.size()).stream().noneMatch(packet->packet instanceof net.minecraft.network.protocol.game.ClientboundSoundPacket sound
+                            &&sound.getSound().value().location().equals(Identifier.parse("minecraft:block.sand.place"))),"Sand Spirit ignores nonmelee player damage: "+type);
+                }
+            }
             reset();owner.getInventory().setItem(0,loot("legacy_sand_amulet"));enemy.setInvulnerableTime(0);enemy.damageCooldownTime=0;
             enemy.hurtServer(level,new net.minecraft.world.damagesource.DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK),owner),1);
             var oldSand=new ArrayList<net.minecraft.world.entity.item.FallingBlockEntity>();for(var e:level.getAllEntities())if(LbcIncomingArtifacts.managed(e)&&e instanceof net.minecraft.world.entity.item.FallingBlockEntity falling)oldSand.add(falling);

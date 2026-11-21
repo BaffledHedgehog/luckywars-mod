@@ -39,6 +39,7 @@ import java.util.*;
 import java.util.function.BooleanSupplier;
 
 import me.skywars2.game.GameController;
+import me.skywars2.game.combat.LbcDamage;
 import me.skywars2.game.GameController.Stage;
 import me.skywars2.game.effects.ItemEffectLevels;
 import me.skywars2.game.items.tmt.LbcTmtInventory;
@@ -213,7 +214,7 @@ public final class LbcIncomingArtifacts {
     }
     /** Existing source swords accepted event supplies the actual victim, never a HurtTime rescan. */
     public void damaged(LivingEntity victim,DamageSource source){
-        if(!(source.getEntity() instanceof ServerPlayer p)||source.is(TagKey.create(Registries.DAMAGE_TYPE,Identifier.parse("minecraft:arrow_only")))
+        if(!(source.getEntity() instanceof ServerPlayer p)||!LbcDamage.isMeleeAttack(source,p)
                 ||!admitted(p,true)||!game.items().wands().validRoleTarget(victim,true))return;
         if(inventory(p,"gaara",false)&&magicHit(p)&&p.distanceToSqr(victim)<=100)sand(p,p.getRandom().nextInt(3)+1);
         if(inventory(p,"gaara_old",false))volley(p,true);

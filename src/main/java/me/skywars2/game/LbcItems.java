@@ -659,6 +659,7 @@ public final class LbcItems {
     private final LbcPendingCombat pendingCombat;
     private final LbcPendingSwords pendingSwords;
     private final LbcIncomingArtifacts incomingArtifacts;
+    private final me.skywars2.game.items.wands.LbcTinyWandInteractions tinyWands;
     private final LbcReactiveArtifacts reactiveArtifacts;
     private final LbcJumpArtifacts jumpArtifacts;
     private final LbcTraveller traveller;
@@ -1504,6 +1505,7 @@ public final class LbcItems {
         this.pendingCombat = new LbcPendingCombat(game);
         this.pendingSwords = new LbcPendingSwords(game);
         this.incomingArtifacts = new LbcIncomingArtifacts(game);
+        this.tinyWands = new me.skywars2.game.items.wands.LbcTinyWandInteractions(game);
         this.reactiveArtifacts = new LbcReactiveArtifacts(game);
         this.jumpArtifacts = new LbcJumpArtifacts(game);
         this.traveller = new LbcTraveller(game);
@@ -1952,6 +1954,7 @@ public final class LbcItems {
     public LbcPendingCombat pendingCombat() { return pendingCombat; }
     public LbcPendingSwords pendingSwords() { return pendingSwords; }
     public LbcIncomingArtifacts incomingArtifacts() { return incomingArtifacts; }
+    public me.skywars2.game.items.wands.LbcTinyWandInteractions tinyWands(){return tinyWands;}
     public LbcReactiveArtifacts reactiveArtifacts() { return reactiveArtifacts; }
     public LbcJumpArtifacts jumpArtifacts() { return jumpArtifacts; }
     public LbcTraveller traveller() { return traveller; }
@@ -2135,6 +2138,7 @@ public final class LbcItems {
         pendingCombat.loaded(entity);
         pendingSwords.loaded(entity);
         incomingArtifacts.loaded(entity);
+        tinyWands.loaded(entity);
         moiseiBoots.loaded(entity);
         quiver.loaded(entity);
         reactiveArtifacts.loaded(entity);
@@ -2328,6 +2332,7 @@ public final class LbcItems {
         pendingCombat.unloaded(entity);
         pendingSwords.unloaded(entity);
         incomingArtifacts.unloaded(entity);
+        tinyWands.unloaded(entity);
         moiseiBoots.unloaded(entity);
         quiver.unloaded(entity);
         reactiveArtifacts.unloaded(entity);
@@ -2806,6 +2811,7 @@ public final class LbcItems {
         pendingCombat.tick();
         pendingSwords.tick();
         incomingArtifacts.tick();
+        tinyWands.tick();
         reactiveArtifacts.tick();
         moiseiBoots.tick();
         steampunkGlove.tick();
@@ -3109,6 +3115,7 @@ public final class LbcItems {
         pendingCombat.stop();
         pendingSwords.stop();
         incomingArtifacts.stop();
+        tinyWands.stop();
         moiseiBoots.stop();
         regenerationBelt.stop();
         quiver.stop();

@@ -28,6 +28,7 @@ import net.minecraft.world.phys.Vec3;
 /** Actual native bow draws, with one unfinished burst per owner and no catch-up debt. */
 public final class LbcMachinegunSkill {
     public static final String TAG="skywars2.machinegun";
+    public static final int START_DELAY_TICKS=20;
     public static final int DELIVERY_BUDGET=128;
     private static final long DELIVERY_NANOS=4_000_000;
     public static final int BURSTS_PER_ADDITIONAL_ARROW=20;
@@ -91,7 +92,7 @@ public final class LbcMachinegunSkill {
         var score=game.items().mana().score(p,"bow_charge");
         int q=score.get()==Integer.MAX_VALUE?Integer.MAX_VALUE:Math.max(0,score.get())+1;score.set(q);
         int interval=interval(progress(p));
-        if(draw.remaining==0&&Math.floorMod(q,interval)==interval-1&&ammo(p)!=null){
+        if(q>START_DELAY_TICKS&&draw.remaining==0&&Math.floorMod(q-START_DELAY_TICKS,interval)==interval-1&&ammo(p)!=null){
             draw.remaining=arrowsPerBurst(progress(p));
         }
     }
