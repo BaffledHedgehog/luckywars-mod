@@ -37,7 +37,7 @@ public final class LbcOreshnik {
     private static final int PARENT_BLAST_REACH=25, CHILD_BLAST_REACH=14;
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private static final TagKey<net.minecraft.world.level.block.Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.withDefaultNamespace("airs"));
-    private static final String MODEL="{item_display:'fixed',teleport_duration:1,interpolation_duration:1,brightness:{block:15,sky:15},item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:oreshnik'}},transformation:{translation:[0f,4.5f,0f],scale:[%sf,%sf,%sf],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}";
+    private static final String MODEL="{view_range:1000f,item_display:'fixed',teleport_duration:1,interpolation_duration:1,brightness:{block:15,sky:15},item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:oreshnik'}},transformation:{translation:[0f,4.5f,0f],scale:[%sf,%sf,%sf],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}";
     private final GameController game;
     private Set<Flight> flights=new LinkedHashSet<>();private Set<Blasts> blasts=new LinkedHashSet<>();
     private final NativeChunkLoad.Leases leases=new NativeChunkLoad.Leases(TICKET);
@@ -157,7 +157,8 @@ public final class LbcOreshnik {
             LbcOverload.sound(level,at,"minecraft:lbcsounds.rocket_power",net.minecraft.sounds.SoundSource.MASTER,1,child?1.5f:1,0,child?.08f:.5f);
             at=next;display.setPos(at);
             if(!child&&age==splitAge)for(int n=0;n<11;n++){
-                float childYaw=(level.getRandom().nextInt(360001)-180000)*.001f,childPitch=(level.getRandom().nextInt(30001)+60000)*.001f;
+                float childYaw=yaw+(level.getRandom().nextInt(30001)-15000)*.001f;
+                float childPitch=Math.clamp(pitch+(level.getRandom().nextInt(30001)-15000)*.001f,1,89);
                 addChild(level,owner,cause,epoch,at,childYaw,childPitch);
             }
             if(arrives||child&&!level.getBlockState(BlockPos.containing(at)).is(AIRS)){

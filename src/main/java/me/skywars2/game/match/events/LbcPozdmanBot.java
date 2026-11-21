@@ -129,6 +129,8 @@ public final class LbcPozdmanBot {
         var level=player.level();if(!level.hasChunkAt(BlockPos.containing(at)))return null;
         var dolphin=EntityTypes.DOLPHIN.create(level,EntitySpawnReason.COMMAND);if(dolphin==null)return null;
         dolphin.snapTo(at.x,at.y,at.z,player.getYRot(),player.getXRot());dolphin.setNoGravity(true);
+        // The source pursuit owns its heading; swim/look goals and land flops must not overwrite it.
+        dolphin.setNoAi(true);
         dolphin.getAttribute(Attributes.SCALE).setBaseValue(2);dolphin.getAttribute(Attributes.MAX_HEALTH).setBaseValue(50);dolphin.setHealth(50);
         dolphin.setCustomName(Component.translatable("akyla_devid"));dolphin.entityTags().add("akyla_devid");dolphin.entityTags().add("lucky_mob");
         game.items().markCurrentItemEpoch(dolphin);actors.put(dolphin,new Actor(player.getUUID(),game.items().epoch(),0,player.getYRot(),null,cause));
@@ -151,6 +153,7 @@ public final class LbcPozdmanBot {
         if(restoring||dolphin.getType()!=EntityTypes.DOLPHIN||!(dolphin.level() instanceof ServerLevel level)
                 ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
         var actor=actors.get(dolphin);if(actor==null)return;
+        if(dolphin instanceof Mob mob&&!mob.isNoAi())mob.setNoAi(true);
         if(dolphin.isRemoved()||!game.items().currentEpoch(actor.epoch)){remove(dolphin);return;}
         if(game.stage()==GameController.Stage.ENDING)return;
         if(!game.playing()||!dolphin.isAlive()){remove(dolphin);return;}
@@ -167,7 +170,7 @@ public final class LbcPozdmanBot {
             // Original command builds a point .1 toward the enemy plus one current look vector,
             // then turns toward that point and flattens pitch before advancing exactly one block.
             var toward=target.getEyePosition().subtract(dolphin.position()).normalize();var heading=dolphin.getLookAngle().add(toward.scale(.1)).multiply(1,0,1).normalize();
-            if(heading.lengthSqr()>0){float yaw=(float)Math.toDegrees(Math.atan2(-heading.x,heading.z));dolphin.snapTo(dolphin.getX()+heading.x,dolphin.getY(),dolphin.getZ()+heading.z,yaw,0);}
+            if(heading.lengthSqr()>0){float yaw=(float)Math.toDegrees(Math.atan2(-heading.x,heading.z));dolphin.snapTo(dolphin.getX()+heading.x,dolphin.getY(),dolphin.getZ()+heading.z,yaw,0);dolphin.setYHeadRot(yaw);dolphin.setYBodyRot(yaw);}
         }
         var level=(ServerLevel)dolphin.level();
         if (level.getBlockState(BlockPos.containing(origin)).is(SOLID)) {

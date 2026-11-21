@@ -3041,6 +3041,7 @@ public final class LbcItems {
     private void lightsabersLoaded(Entity entity){if(entity instanceof ServerPlayer p)lightsabers.sourceScoreChanged(p);}
     void beginCelebration(){
         genie.cancelAll();
+        trollBox.stopMusic();
         timeStop.stop();
         polymorph.finishPlayers();
         // Service graphs stay alive during fireworks, but their paused clocks must not

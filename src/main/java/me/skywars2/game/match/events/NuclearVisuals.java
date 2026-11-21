@@ -196,7 +196,7 @@ public final class NuclearVisuals {
         display.setItemDisplayContext(ItemDisplayContext.NONE);
         display.setBillboardMode(Display.BillboardConstraints.FIXED);
         display.setGlowing(true); display.setGlowColorOverride((fading?FADE_COLOR:GLOW_COLOR)+index);
-        display.setDisplaySize(0,0); display.setViewRange(64);
+        display.setDisplaySize(0,0); display.setViewRange(1000);
         display.setTransformation(new Transformation(new Vector3f(),new Quaternionf(),fading?fadeScale(effect,age):scale(effect,age),new Quaternionf()));
         display.setInterpolationDuration(fading?0:UPDATE_TICKS);
         return display;

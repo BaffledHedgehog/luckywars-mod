@@ -24,11 +24,11 @@
                     {
                       "id": "minecraft:raid_omen",
                       "amplifier": 113,
-                      "duration": 300
+                      "duration": 1800
                     }
                   ]
                 },
-                "minecraft:tooltip_display": {
+                "tooltip_display": {
                   "hidden_components": [
                     "minecraft:potion_contents"
                   ]

@@ -37,13 +37,35 @@ public final class PozdmanChecks {
     private static void require(boolean value,String reason){if(!value)throw new IllegalStateException("Pozdman: "+reason);}
     private static Fixture running;
     public static void run(GameController game){
-        require(running==null,"exclusive scheduled fixture");sourceBranches(game);running=new Fixture(game);
+        require(running==null,"exclusive scheduled fixture");sourceBranches(game);playerCoinContact(game);running=new Fixture(game);
         try{running.init();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw new IllegalStateException(error);}
     }
     public static void tick(GameController game){
         if(running==null)return;
         try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS pozdman-bot (native UseItem+offhand UseBlock/exact reply99/100dolphin; MAG allowed/TECH cast denied; dolphin+coins unjammable; actual TimeStop; installed x2/x4 clone; full coordinator nonempty dolphin+coin+wait replay; native fuse2 TNT; exact cleanup)");}
         catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL pozdman-bot",error);}
+    }
+    private static void playerCoinContact(GameController game){
+        try(var f=new WoolBucketChecks.Fixture(game,false)){
+            f.prepareParticipants();f.move(f.owner,f.home.add(0,16,0));f.move(f.other,f.home.add(6,16,0));
+            var service=game.items().pozdmanBot();f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcPozdmanBot.ITEM));
+            require(service.use(f.owner,InteractionHand.MAIN_HAND,100),"native player-contact dolphin");var dolphin=service.snapshot().stream().filter(e->e.getType()==EntityTypes.DOLPHIN).findFirst().orElseThrow();f.own(dolphin);
+            try{
+                var coin=service.spawnCoin(dolphin);require(coin!=null,"native player-contact physical coin");f.own(coin);
+                coin.setPos(f.other.position());coin.setDeltaMovement(Vec3.ZERO);float before=f.other.getHealth();
+                var source=new net.minecraft.world.damagesource.DamageSource(f.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.FALLING_BLOCK),coin,dolphin);
+                var accepted=game.items().indirectKills().captureDamage(source,service.state(coin).cause());
+                require(f.other.hurtServer(f.level,accepted,15),"independent native falling-block control reaches the enemy");
+                float nativeDamage=before-f.other.getHealth();require(nativeDamage>0,"positive native difficulty-scaled control");
+                f.other.setHealth(before);f.other.setInvulnerableTime(0);f.other.damageCooldownTime=0;
+                service.coinTick(coin);
+                require(coin.isRemoved()&&Math.abs(f.other.getHealth()-(before-nativeDamage))<1e-6
+                        &&f.other.getLastDamageSource().getEntity()==dolphin,
+                        "falling coin matches native falling-block damage including difficulty scaling; control="+nativeDamage+", health="+before+"->"+f.other.getHealth());
+                var allied=service.spawnCoin(dolphin);require(allied!=null,"allied coin control");f.own(allied);allied.setPos(f.owner.position());allied.setDeltaMovement(Vec3.ZERO);
+                before=f.owner.getHealth();service.coinTick(allied);require(!allied.isRemoved()&&f.owner.getHealth()==before,"coin preserves its own summoner");service.removed(allied);
+            }finally{service.forget(f.owner);}
+        }
     }
     private static void sourceBranches(GameController game){
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
@@ -313,6 +335,8 @@ public final class PozdmanChecks {
                     require(service.nearest(dolphin)==pursuitWitness,"actual scheduler target with the same obsolete zero team score");dolphinAt=dolphin.position();dolphin.setYRot(0);dolphin.setXRot(0);begin(8);}
                 case 8->{if(elapsed<3)return false;
                     require(!dolphin.isRemoved()&&dolphin.position().distanceToSqr(dolphinAt)>4,"registered native dolphin genuinely moves toward a target over real server ticks");
+                    require(((net.minecraft.world.entity.Mob)dolphin).isNoAi()&&Math.abs(dolphin.getX()-dolphinAt.x)<1e-5&&dolphin.getZ()>dolphinAt.z+2.9,
+                            "native swim/look AI cannot turn the source-owned straight pursuit away from its enemy");
                     pursuitWitness.entityTags().add("strict_map_object");
                     for(var extra:service.snapshot())if(extra!=coin&&extra!=dolphin)service.removed(extra);
                     savedCoinCause=service.state(coin).cause();

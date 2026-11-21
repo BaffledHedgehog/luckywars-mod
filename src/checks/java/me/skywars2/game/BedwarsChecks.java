@@ -54,6 +54,8 @@ public final class BedwarsChecks {
             profile.lbcSkill=profile.lbcKit=profile.lbcTrinket=0;Arrays.fill(profile.trinkets,0);Arrays.fill(profile.levelups,0);
             profile.lbcChallenge=profile.lbcChallengeKit=0;
             require(game.bedwars().selectTeam(p,teams.get(n/2)),"native lobby numeric team selection");p.setNoGravity(true);
+            var menuItem=java.util.stream.IntStream.range(0,36).mapToObj(p.getInventory()::getItem).filter(s->!s.isEmpty()).findFirst().orElseThrow();
+            p.getEnderChestInventory().setItem(0,menuItem.copy());
         }
         require(game.canStart(null),"four native players can share two actual bed spawns");
         ceilingGlass=game.gameMode()==3&&game.config().mapId.equals("99991b")?stageCeilingGlass(game,teams.getFirst()):null;
@@ -99,6 +101,7 @@ public final class BedwarsChecks {
         switch(suite){
             case "bedwars-basic", "bedwars-source"->{
                 var c=player(game,"TestGamma");var d=player(game,"TestDelta");
+                for(var member:List.of(a,b,c,d))require(member.getEnderChestInventory().isEmpty(),"real round start clears lobby GUI from every participant's ender storage");
                 require(game.bedwars().team(a)==game.bedwars().team(c)&&game.bedwars().team(b)==game.bedwars().team(d)&&a.getTeam()!=b.getTeam(),"two actual native shared teams");
                 require(a.position().distanceToSqr(c.position())<1&&b.position().distanceToSqr(d.position())<1,"same-team native shared spawns");
                 require(game.bedwars().arena().topology().beds().size()==2&&game.bedwars().hasBed(a)&&game.bedwars().hasBed(b)&&game.bedwars().winnerTeam()==-1,"two owned physical beds prevent solo winner logic");
@@ -207,6 +210,7 @@ public final class BedwarsChecks {
         Life(GameController game,ServerPlayer a,ServerPlayer b){
             this.game=game;alpha=a.getUUID();beta=b.getUUID();lives=game.lives(beta);
             bed=game.bedwars().arena().topology().beds().stream().filter(x->x.team()==game.bedwars().team(b)).findFirst().orElseThrow();
+            b.getEnderChestInventory().setItem(0,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND,7));
             require(!game.vanity().busy()&&!game.vanity().hasSnapshot(),"fresh real coordinator");
             require(game.vanity().requestCapture(a,false),"real mode3 capture request");begin(0);
         }
@@ -218,6 +222,7 @@ public final class BedwarsChecks {
             require(game.bedwars().pending(previous)&&game.awaitingRespawn(beta)&&game.lives(beta)==lives,"bed preserves sole core lives owner and schedules source100tick interval");
             previous.connection.handleClientCommand(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
             var current=b();current.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
+            require(current.getEnderChestInventory().getItem(0).is(net.minecraft.world.item.Items.DIAMOND)&&current.getEnderChestInventory().getItem(0).getCount()==7,"native BedWars respawn preserves the current round's ender storage");
             require(current!=previous&&current.isAlive()&&current.gameMode.getGameModeForPlayer()==GameType.SPECTATOR&&game.awaitingRespawn(beta),"actual replacement waits in native spectator without generic viewer conversion");respawnLevel=current.experienceLevel;current.setNoGravity(true);
         }
         boolean step(){

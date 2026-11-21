@@ -92,7 +92,13 @@ public final class TrollBoxChecks {
         Map<BlockPos,BlockState> terrain(){var out=new LinkedHashMap<BlockPos,BlockState>();for(var at:f.terrain.keySet())out.put(at,f.level.getBlockState(at));return out;}
         Map<BlockPos,BlockState> walls(){var out=new LinkedHashMap<BlockPos,BlockState>();for(var at:f.terrain.keySet())if(at.getY()>=219&&at.getY()<=240)out.put(at,f.level.getBlockState(at));return out;}
         void cleanupEntities(){var remove=new ArrayList<Entity>();for(var e:f.level.getAllEntities())if(!initial.contains(e.getUUID())&&!(e instanceof ServerPlayer))remove.add(e);for(var e:remove)f.discard(e);}
-        void clear(){service.stop();if(f.stopped)f.thaw();f.owner.removeAllEffects();f.other.removeAllEffects();f.owner.getInventory().clearContent();f.other.getInventory().clearContent();cleanupEntities();f.terrain.forEach((at,state)->game.maps().restoreSnapshot(f.level,at,state,2|16|32));f.move(f.owner,origin);f.move(f.other,origin.add(12,0,0));}
+        void clear(){
+            int ownerPackets=f.client().packets().size(),otherPackets=f.audience().packets().size();service.stop();
+            for(var packets:List.of(f.client().packets().subList(ownerPackets,f.client().packets().size()),f.audience().packets().subList(otherPackets,f.audience().packets().size())))
+                require(packets.stream().anyMatch(p->p instanceof net.minecraft.network.protocol.game.ClientboundStopSoundPacket stop
+                        &&Identifier.parse("minecraft:lbcsounds.backrooms").equals(stop.getName())&&stop.getSource()==null),"cleanup stops the private Backrooms track for each viewer");
+            if(f.stopped)f.thaw();f.owner.removeAllEffects();f.other.removeAllEffects();f.owner.getInventory().clearContent();f.other.getInventory().clearContent();cleanupEntities();f.terrain.forEach((at,state)->game.maps().restoreSnapshot(f.level,at,state,2|16|32));f.move(f.owner,origin);f.move(f.other,origin.add(12,0,0));
+        }
         void nextOutcome(){clear();if(++variant==2){variant=0;number++;}if(number<=6)use(number,variant);next(10);}
         Entity power(){return service.snapshot().stream().filter(e->e.entityTags().contains("movingpower")).findFirst().orElse(null);}
         void hunter(){var body=service.snapshot().stream().filter(WitherSkeleton.class::isInstance).map(WitherSkeleton.class::cast).findFirst().orElseThrow();require(body.isSilent()&&body.getMaxHealth()==20&&body.getAttributeBaseValue(Attributes.ATTACK_DAMAGE)==8&&body.hasEffect(MobEffects.INVISIBILITY)&&body.hasEffect(MobEffects.SPEED),"actual native hunter attributes/equipment/status");require(service.owner(body)==null&&game.items().spellSources().source(body).author()==null&&game.items().spellSources().source(body).cause()==null&&game.items().spellSources().source(body).unownedMobs(),"hunter is WILD and gives no apocalypse-owner kill credit");}

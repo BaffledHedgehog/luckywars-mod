@@ -73,7 +73,7 @@ public final class LbcShulkerArmor {
         for(var target:p.level().players())if(target!=p&&game.items().wands().target(p,target)){
             double distance=target.distanceToSqr(p);if(distance<best){best=distance;nearest=target;}
         }
-        game.items().creatureDrops().launchArmorShell(p,nearest);
+        if(nearest!=null)game.items().creatureDrops().launchArmorShell(p,nearest);
     }
     public void incoming(ServerPlayer p){
         var attempt=attempts.peek();

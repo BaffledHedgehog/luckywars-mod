@@ -15091,6 +15091,14 @@ public final class GameChecks {
                         var origins=java.util.stream.IntStream.range(0,17)
                                         .mapToObj(i->new Vec3(x+i*20,260,z)).toList();
                         alpha.setNoGravity(true); beta.setNoGravity(true);
+                        alpha.teleportTo(level,x,260,z,java.util.Set.of(),0,0,true);alpha.hasChangedDimension();
+                        var farOrigin=new Vec3(x+1000,260,z);
+                        visuals.show(level,farOrigin,24,false);
+                        require(visuals.origins(alpha).contains(farOrigin)&&visuals.displays(alpha).getFirst().getViewRange()==1000,
+                                        "kilometre-distant nuclear carrier is delivered manually with the extended native view range");
+                        visuals.stop();
+                        for(int i=0;i<261;i++)visuals.tick();
+                        while(visuals.clock()%10!=0)visuals.tick();
                         // Batch admission in another dimension avoids sequential nearest-slot eviction.
                         alpha.teleportTo(elsewhere,x,260,z,java.util.Set.of(),0,0,true);
                         beta.teleportTo(elsewhere,x+320,260,z,java.util.Set.of(),0,0,true);
@@ -15384,7 +15392,7 @@ public final class GameChecks {
                                         && display.getItemDisplayContext()==net.minecraft.world.item.ItemDisplayContext.NONE
                                         && display.getBillboardMode()==net.minecraft.world.entity.Display.BillboardConstraints.FIXED
                                         && display.getDisplayWidth()==0 && display.getDisplayHeight()==0
-                                        && display.getViewRange()==64 && display.getInterpolationDuration()==(fading?0:2)
+                                        && display.getViewRange()==1000 && display.getInterpolationDuration()==(fading?0:2)
                                         && display.getTranslation().equals(new org.joml.Vector3f())
                                         && display.getLeftRotation().equals(new org.joml.Quaternionf())
                                         && display.getRightRotation().equals(new org.joml.Quaternionf())

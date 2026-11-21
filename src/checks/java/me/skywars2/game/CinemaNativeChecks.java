@@ -182,7 +182,7 @@ final class CinemaNativeChecks {
             rockets.tick();
             var expected=new ArrayList<Vec3>();
             for(var flight:flights()){
-                var display=(Display.ItemDisplay)get(flight,"display");require(display!=null,"all split models published before smoke witness");
+                var display=(Display.ItemDisplay)get(flight,"display");require(display!=null&&display.getViewRange()==1000,"all split models published with extended view range before smoke witness");
                 var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess());
                 display.saveWithoutId(output);
                 var transform=net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),output.buildResult())
@@ -218,7 +218,12 @@ final class CinemaNativeChecks {
                 if(flights().stream().filter(f->(boolean)get(f,"child")).count()<22){
                     require(game.server().getTickCount()-when<300,"both parents complete the split: "+flights().stream().filter(f->!(boolean)get(f,"child")).map(this::image).toList());return false;
                 }
-                require(rockets.flightCount()==24,"each actual cloned parent creates eleven children");smokePackets();rockets.stop();
+                require(rockets.flightCount()==24,"each actual cloned parent creates eleven children");
+                var parentDirection=(Vec3)get(flights().stream().filter(f->!(boolean)get(f,"child")).findFirst().orElseThrow(),"direction");
+                for(var child:flights())if((boolean)get(child,"child")){
+                    var direction=(Vec3)get(child,"direction");require(direction.y<0&&direction.dot(parentDirection)>.9,"cluster scatter remains close to its inclined parent trajectory");
+                }
+                smokePackets();rockets.stop();
                 level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,true,game.server());
                 var block=BlockPos.containing(remote);var target=Vec3.atCenterOf(block);
                 loadedRegion(target,25);terrain.put(block,game.maps().snapshot(level,block));level.setBlock(block,Blocks.STONE.defaultBlockState(),3);

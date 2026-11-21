@@ -358,7 +358,12 @@ public final class LbcTrollBox {
                 darknessPlayers.clear();darknessPlayers.addAll(marked);gravityPlayers.clear();gravityPlayers.addAll(floating);hunters.clear();hunters.putAll(nextHunters);powers.clear();powers.putAll(nextPowers);powerFrame=savedFrame;playerFrames.clear();};
         }
     }
+    public void stopMusic(){
+        var stopMusic=new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(Identifier.parse("minecraft:lbcsounds.backrooms"),null);
+        for(var player:game.server().getPlayerList().getPlayers())player.connection.send(stopMusic);
+    }
     public void stop(){
+        stopMusic();
         for(var job:List.copyOf(placements))job.cancel();if(powerFrame!=null)powerFrame.cancel();for(var eye:List.copyOf(eyes.values()))if(eye.ticket!=null)eye.ticket.cancel();eyes.clear();
         for(var value:List.copyOf(hunters.values()))value.body.discard();for(var value:List.copyOf(powers.values()))value.body.discard();hunters.clear();powers.clear();clearGravity(true);
         hunter=darkness=powerfall=abyss=null;darknessPlayers.clear();hunterClock=powerClock=darkClock=0;lastTick=Integer.MIN_VALUE;playerFrames.clear();restoring=false;

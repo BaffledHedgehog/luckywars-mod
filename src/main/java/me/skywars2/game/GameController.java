@@ -1108,6 +1108,8 @@ public final class GameController {
                     maps.level().dimension(), net.minecraft.core.BlockPos.containing(member.spawn.position()),
                     member.spawn.yaw(), member.spawn.pitch()), true), false);
             resetPlayer(player, config.health, true);
+            // Ender storage belongs to this round; native respawns retain it within the round.
+            player.getEnderChestInventory().clearContent();
             grantStartExperience(player);
             player.setGameMode(GameType.ADVENTURE);
             GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());

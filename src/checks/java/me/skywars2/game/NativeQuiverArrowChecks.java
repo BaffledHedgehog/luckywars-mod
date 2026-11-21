@@ -76,7 +76,7 @@ public final class NativeQuiverArrowChecks {
         Scene(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);high=f.home.add(0,500,0);dispenser=BlockPos.containing(f.home.add(0,20,0));began=game.server().getTickCount();worldRandom=MatchRandomState.capture(f.level.getRandom());for(var e:f.level.getAllEntities())initial.add(e.getUUID());
             require(game.items().quiver().trails().isEmpty()&&game.items().quiver().children().isEmpty(),"exclusive existing Quiver owners");}
         void begin(){f.prepareParticipants();f.move(f.owner,high);f.move(f.other,high.add(12,0,0));f.owner.getAbilities().invulnerable=true;f.other.getAbilities().invulnerable=true;
-            prototypes();for(int i=0;i<ammo.size();i++)for(var hand:InteractionHand.values())f.discard(bow(i,hand));startCross();}
+            prototypes();canonicalPairs();for(int i=0;i<ammo.size();i++)for(var hand:InteractionHand.values())f.discard(bow(i,hand));startCross();}
         void prototypes(){
             var params=new LootParams.Builder(f.level).withParameter(LootContextParams.ORIGIN,high).withOptionalParameter(LootContextParams.THIS_ENTITY,f.owner).create(LootContextParamSets.CHEST);
             var ops=game.server().reloadableRegistries().lookup().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
@@ -89,6 +89,15 @@ public final class NativeQuiverArrowChecks {
                     var defaults=stack.getItem().getDefaultInstance();require(stack.getComponents().keySet().equals(defaults.getComponents().keySet()),"default/loot keys "+i);for(var c:stack.getComponents())require(Objects.equals(c.value(),defaults.get(c.type())),"default/loot component "+i+" "+c.type());
                 }catch(java.io.IOException e){throw new IllegalStateException(e);}
                 var proxy=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(stack,TooltipFlag.NORMAL,provider.getPacketContext(),f.owner.registryAccess());require(ItemStack.matches(stack,eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(proxy,provider.getPacketContext(),f.owner.registryAccess())),"Polymer roundtrip "+i);ammo.add(stack.copyWithCount(1));
+            }
+        }
+        void canonicalPairs(){
+            for(var pair:List.of(new String[]{"lbc:lightarrow","lbc:item_defs/minecraft/tipped_arrow__62efeb3693af"},
+                    new String[]{"lbc:kiuaskivi_arrow","lbc:item_defs/minecraft/tipped_arrow__9355d6686bac"},
+                    new String[]{"lbc:evoker_arrow","lbc:item_defs/minecraft/tipped_arrow__4d9d3a4c2b22"},
+                    new String[]{"lbc:item_defs/minecraft/tipped_arrow__ba59a43bb29d/variant_5d58e57bac30","lbc:item_defs/minecraft/tipped_arrow__ba59a43bb29d/variant_7f0d0cd5182c"})){
+                var direct=f.loot(pair[0]);var quiver=f.loot(pair[1]);
+                require(ItemStack.isSameItemSameComponents(direct,quiver),"direct lucky drop and quiver arrow stack together: "+pair[0]);
             }
         }
         Set<UUID> ids(){var out=new HashSet<UUID>();for(var e:f.level.getAllEntities())out.add(e.getUUID());return out;}
