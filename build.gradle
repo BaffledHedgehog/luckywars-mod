@@ -9,6 +9,13 @@ group = project.maven_group
 sourceSets.main.java.srcDir('media-protocol/src/main/java')
 sourceSets.main.resources.srcDir('media-protocol/src/main/resources')
 
+sourceSets {
+    checks {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.runtimeClasspath
+    }
+}
+
 base {
     archivesName = project.archives_base_name
 }
@@ -1466,21 +1473,7 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 25
 }
 
-// Only the test edition registers these entrypoints and can link the excluded classes.
-def testServerClassPatterns = [
-        'me/skywars2/game/MapAuthoring*.class',
-        'me/skywars2/game/MapDeletion*.class',
-        'me/skywars2/game/*Checks.class',
-        'me/skywars2/game/*Checks$*.class',
-        'me/skywars2/game/Vanity*Scene.class',
-        'me/skywars2/game/Vanity*Scene$*.class',
-        'me/skywars2/game/NativeCheckBackend.class',
-        'me/skywars2/validation/**'
-]
-def productionModJar = tasks.named('jar', Jar) {
-    exclude(testServerClassPatterns)
-}
-
+def productionModJar = tasks.named('jar', Jar)
 def productionArchive = productionModJar.flatMap { it.archiveFile }
 def testServerMetadata = layout.buildDirectory.file('generated/test-server/fabric.mod.json')
 def generateTestServerMetadata = tasks.register('generateTestServerMetadata') {
@@ -1512,7 +1505,7 @@ tasks.register('productionJar') {
 tasks.register('testServerJar', Jar) {
     group = 'build'
     description = 'Build an explicit test-server jar with map authoring; runtime still requires the testpath guard.'
-    dependsOn(productionModJar, generateTestServerMetadata)
+    dependsOn(productionModJar, generateTestServerMetadata, tasks.named('checksClasses'))
     archiveClassifier = 'test-server'
     duplicatesStrategy = DuplicatesStrategy.FAIL
     inputs.file(productionModJar.flatMap { it.archiveFile })
@@ -1523,10 +1516,7 @@ tasks.register('testServerJar', Jar) {
         exclude 'META-INF/MANIFEST.MF', 'fabric.mod.json'
     }
     from(testServerMetadata)
-    from('src/test-server/resources')
-    from(sourceSets.main.output) {
-        include(testServerClassPatterns)
-    }
+    from(sourceSets.checks.output)
     doFirst {
         manifest.from(zipTree(productionModJar.get().archiveFile.get().asFile).matching {
             include 'META-INF/MANIFEST.MF'

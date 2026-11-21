@@ -146,6 +146,23 @@ public final class MusicStaffChecks {
             var migrated=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,base.level.registryAccess());
             restored.addAdditionalSaveData(migrated);
             require(migrated.buildResult().contains("weapon"),"restored staff snapshot stores its weapon in the native arrow field");
+            var academy = base.leaf("academy_music_staff");
+            academy.enchant(enchantment, 2);
+            var originals = shoot(academy);
+            var source = originals.getFirst();
+            var prior = Collections.newSetFromMap(new IdentityHashMap<LbcMusicStaff.Shot, Boolean>());
+            prior.addAll(service.arrows());
+            require(game.items().cloneSkills().copyNow(source, 15), "x2 duplicates an actual Academy staff shot");
+            var copies = service.arrows().stream().filter(shot -> !prior.contains(shot)).toList();
+            copies.forEach(base::own);
+            require(copies.size() == 1, "x2 publishes exactly one tracked staff shot");
+            var duplicate = copies.getFirst();
+            require(duplicate != source && duplicate.getOwner() == base.owner
+                            && duplicate.fixedArrowDamage() == 16 && ItemStack.matches(duplicate.getWeaponItem(), academy)
+                            && duplicate.getWeaponItem() != source.getWeaponItem(),
+                    "the native clone carries independent Knockback II and Academy damage");
+            copies.forEach(base::discard);
+            originals.forEach(base::discard);
             base.client.packets().clear();base.audience.packets().clear();
         }
         void begin(){

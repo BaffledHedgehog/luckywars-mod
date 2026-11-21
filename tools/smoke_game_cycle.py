@@ -13,6 +13,7 @@ import threading
 import time
 
 PROJECT = Path(__file__).resolve().parents[1]
+GAME_CHECKS_SOURCE = PROJECT / "src/checks/java/me/skywars2/game/GameChecks.java"
 SERVER = PROJECT.parent
 JAVA = SERVER / "runtime/jdk-25/bin/java.exe"
 OUT = PROJECT / "build" / "verification"

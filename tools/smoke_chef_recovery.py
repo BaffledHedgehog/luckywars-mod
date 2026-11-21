@@ -74,7 +74,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
     planned = tuple(focus) if focus else SUITES
     needs_classic = bool(set(planned) & {"classic-melee", "devil-sword", "jump-artifacts", "traveller", "popit", "ordinary-accessories", "inventory-hazards", "passive-consumables", "pending-combat", "pending-swords", "incoming-artifacts", "reactive-artifacts", "fragment-knowledge", "moisei-boots", "regeneration-belt", "quiver", "dimension-items"})
     # Reject typo/unregistered commands before modifying or launching the fixture.
-    dispatcher = (cycle.PROJECT / "src/main/java/me/skywars2/game/GameChecks.java").read_text(encoding="utf-8")
+    dispatcher = cycle.GAME_CHECKS_SOURCE.read_text(encoding="utf-8")
     registered = set(re.findall(r'case\s+"([^"]+)"', dispatcher))
     required = set(planned) | {"bots", "loot-test-catalog", "kfc-menu", "frost-menu", "slr-menu"}
     if set(planned) & {"late-swords", "late-swords-stop-probe"}:

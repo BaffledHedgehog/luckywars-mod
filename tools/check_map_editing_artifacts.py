@@ -15,9 +15,20 @@ import zipfile
 
 
 AUTHORING = re.compile(r"me/skywars2/game/(?:MapAuthoring|MapDeletion)[^/]*\.class\Z")
-REQUIRED = {
+CHECKS = re.compile(
+    r"me/skywars2/(?:[^/]+/)*(?:[^/]*Checks|Vanity[^/]*Scene|NativeCheckBackend)"
+    r"(?:\$[^/]*)?\.class\Z"
+)
+VALIDATION_CONFIG = "skywars2.validation.mixins.json"
+TEST_ENTRYPOINTS = {
+    "skywars2:map-editing": ["me.skywars2.game.MapAuthoringBackend"],
+    "skywars2:test-checks": ["me.skywars2.game.NativeCheckBackend"],
+}
+REQUIRED_CLASSES = {
     "me/skywars2/game/MapAuthoring.class",
     "me/skywars2/game/MapDeletion.class",
+    "me/skywars2/game/GameChecks.class",
+    *(entry.replace(".", "/") + ".class" for entries in TEST_ENTRYPOINTS.values() for entry in entries),
 }
 
 
@@ -35,33 +46,57 @@ def entries(path: Path) -> dict[str, bytes]:
         return {row.filename: archive.read(row) for row in rows}
 
 
+def test_only(name: str) -> bool:
+    return (name == VALIDATION_CONFIG
+            or (name.startswith("me/skywars2/validation/") and name.endswith(".class"))
+            or AUTHORING.fullmatch(name) is not None
+            or CHECKS.fullmatch(name) is not None)
+
+
 def verify(production: Path, test_server: Path) -> dict[str, object]:
     require(production.resolve() != test_server.resolve(), "Two distinct artifacts are required")
     normal = entries(production)
     testing = entries(test_server)
-    forbidden = sorted(name for name in normal if AUTHORING.fullmatch(name))
-    require(not forbidden, f"Production contains map editing classes: {forbidden}")
+    forbidden = sorted(name for name in normal if test_only(name))
+    require(not forbidden, f"Production contains test-only entries: {forbidden}")
     authoring = {name for name in testing if AUTHORING.fullmatch(name)}
-    require(REQUIRED <= authoring, f"Test server is missing authoring implementations: {sorted(REQUIRED - authoring)}")
+    required = REQUIRED_CLASSES | {VALIDATION_CONFIG}
+    require(required <= set(testing), f"Missing test-server entries: {sorted(required - set(testing))}")
     require(set(normal) <= set(testing), f"Test server dropped production entries: {sorted(set(normal) - set(testing))}")
     extras = set(testing) - set(normal)
-    require(extras == authoring, f"Unexpected test-only entries: {sorted(extras - authoring)}")
-    changed = [name for name, value in normal.items() if testing[name] != value]
+    unexpected = sorted(name for name in extras if not test_only(name))
+    require(not unexpected, f"Unexpected test-only entries: {unexpected}")
+    changed = [name for name, value in normal.items() if name != "fabric.mod.json" and testing[name] != value]
     require(not changed, f"Shared production entries changed bytes: {sorted(changed)}")
     require("fabric.mod.json" in normal and "META-INF/MANIFEST.MF" in normal, "Missing Fabric metadata/manifest")
     metadata = json.loads(normal["fabric.mod.json"])
+    entrypoints = metadata.setdefault("entrypoints", {})
+    require(not set(TEST_ENTRYPOINTS) & entrypoints.keys(), "Production exposes test entrypoints")
+    mixins = metadata.setdefault("mixins", [])
+    require(VALIDATION_CONFIG not in mixins, "Production registers the validation mixin config")
     nested = [entry["file"] for entry in metadata.get("jars", [])]
     require(bool(nested), "Production Fabric metadata has no bundled Jar-in-Jar dependencies")
     for name in nested:
         require(name in normal and name in testing, f"Missing declared bundled dependency: {name}")
         require(name.endswith(".jar"), f"Unexpected bundled dependency path: {name}")
+    entrypoints.update(TEST_ENTRYPOINTS)
+    mixins.append(VALIDATION_CONFIG)
+    require(json.loads(testing["fabric.mod.json"]) == metadata,
+            "Test Fabric metadata must add only the check entrypoints and validation mixins")
+    validation = json.loads(testing[VALIDATION_CONFIG])
+    prefix = validation["package"].replace(".", "/") + "/"
+    for environment in ("mixins", "server", "client"):
+        for mixin in validation.get(environment, []):
+            require(prefix + mixin.replace(".", "/") + ".class" in testing,
+                    f"Missing validation mixin class: {mixin}")
     return {
         "production": str(production.resolve()),
         "productionSha256": hashlib.sha256(production.read_bytes()).hexdigest(),
         "testServer": str(test_server.resolve()),
         "testServerSha256": hashlib.sha256(test_server.read_bytes()).hexdigest(),
-        "sharedEntriesByteIdentical": len(normal),
+        "sharedEntriesByteIdentical": len(normal) - 1,
         "testOnlyAuthoringClasses": sorted(authoring),
+        "testOnlyEntries": len(extras),
         "bundledDependenciesRetained": nested,
     }
 

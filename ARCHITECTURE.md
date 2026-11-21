@@ -1,3 +1,16 @@
+## Production and native checks source sets
+
+Production Java lives in `src/main/java`. Native checks and the map authoring
+implementation live in `src/checks/java`. The checks compile against main
+output and keep their Java packages so they can use existing package-private
+test interfaces. Validation mixin metadata lives in `src/checks/resources`.
+
+`productionJar` builds the ordinary mod. `testServerJar` adds checks output to
+that exact archive and adds the test backends and validation mixin config to
+its Fabric metadata. Map editing has the same runtime directory guard.
+Run `tools/check_map_editing_artifacts.py` with the production and test JARs
+to verify their shared files and test-only additions.
+
 ## Native mob navigation during rollback
 
 `MatchEntityRuntime` delegates the original mob body's navigation/control image to
