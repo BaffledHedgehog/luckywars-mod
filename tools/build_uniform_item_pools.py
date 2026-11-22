@@ -519,8 +519,8 @@ def build(table_root=TABLES):
                      for name in sorted(memo) if name in docs}
     result = {'schema': 1, 'complete': not blocked,
               'policy': 'Uniform logical outer slots; equal distinct source-preserving profiles inside a slot; no source roll multiplicity or branch weight promoted to slot multiplicity.',
-              'domains': {'random_item': 'custom', 'random_glack_1': 'union',
-                          'random_glack': 'existing count1..64/max_stack99 wrapper around union'},
+              'domains': {'random_item': 'custom', 'random_glack_1': 'legacy weighted drop branches',
+                          'random_glack': 'existing count1..64 wrapper around legacy weighted drops'},
               'custom': sorted(slots.values(), key=lambda row: row['id']),
               'tmt': {'id': 'factory/tmt', 'factory': 'LbcTmtRuntime.generate', 'variants': 5, 'outerSlots': 1},
               'excludedNative': EXCLUDED_NATIVE, 'tmtNative': sorted(TMT_NATIVE),

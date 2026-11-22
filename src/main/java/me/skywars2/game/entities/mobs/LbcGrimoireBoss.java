@@ -101,6 +101,12 @@ public final class LbcGrimoireBoss {
                 ||!game.playing()||game.stage()==GameController.Stage.ENDING||game.items().timeStop().stopped(level)||!resident(level,at))return null;
         boolean unowned=authority.author()==null&&authority.cause()==null&&authority.unownedMobs();
         if(!unowned&&(authority.author()==null||authority.cause()==null))return null;
+        // Structure markers rotate with jigsaw placement; the source boss faces its barrier.
+        var facing=BlockPos.containing(at.add(0,.5,0));
+        if(barrier(level,facing.east()))yaw=-90;
+        else if(barrier(level,facing.west()))yaw=90;
+        else if(barrier(level,facing.south()))yaw=0;
+        else if(barrier(level,facing.north()))yaw=180;
         var boss=EntityTypes.WARDEN.create(level,EntitySpawnReason.COMMAND);if(boss==null)return null;
         load(boss,"{Silent:true,PersistenceRequired:true,NoAI:true,CanPickUpLoot:false,DeathLootTable:\"lbc:grimoire_boss\"}");
         boss.setPos(at);boss.setYRot(yaw);boss.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);boss.setHealth(1000);
@@ -112,7 +118,7 @@ public final class LbcGrimoireBoss {
         if(unowned)d.putBoolean("unowned",true);
         else {d.putString("author",authority.author().toString());d.putLong("order",authority.cause().order());}
         d.putString("boss",boss.getStringUUID());d.putString("epoch",authority.epoch());
-        d.putInt("kind",0);d.putInt("phase",1);d.putInt("age",0);d.putInt("total",0);
+        d.putInt("kind",0);d.putInt("phase",1);d.putInt("age",0);d.putInt("total",0);d.putFloat("facing",yaw);
         vector(d,"anchor",at);vector(d,"aim",Vec3.directionFromRotation(0,yaw));save(boss,d);
         if(!add(level,boss)){boss.discard();return null;}
         var visual=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);visual.setPos(at.add(0,6,0));visual.setYRot(yaw);
@@ -147,6 +153,8 @@ public final class LbcGrimoireBoss {
         if(boss.isRemoved()||!boss.isAlive()){retire(boss);return;}
         var level=(ServerLevel)boss.level();bar(boss);if(paused(boss))return;
         var d=data(boss).copy();int total=integer(d,"total")+1;d.putInt("total",total);
+        float facing=d.getFloatOr("facing",boss.getYRot());
+        boss.setYRot(facing);boss.setYHeadRot(facing);boss.setYBodyRot(facing);boss.setXRot(0);
         if(total==40){stopMusic(level);sound(level,boss.position().add(0,6,0),MUSIC,.5f,1);}
         if(game.items().magic().suppressedAt(level,boss.position())||game.items().magic().suppressedAt(level,origin(boss))){save(boss,d);closeWarning(boss);return;}
         int age=integer(d,"age")+1,phase=integer(d,"phase");d.putInt("age",age);
@@ -208,7 +216,8 @@ public final class LbcGrimoireBoss {
     private void closeWarning(Entity entity){var v=warnings.remove(entity);if(v!=null)v.visual().close();}
     private void redCore(Warden boss){
         var level=(ServerLevel)boss.level();var e=new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY,level);e.setPos(origin(boss).add(-.5,-.5,-.5));
-        load(e,"{block_state:{Name:\"minecraft:redstone_block\"},view_range:10f,shadow_radius:0f,shadow_strength:0f,interpolation_duration:1,teleport_duration:1,brightness:{sky:15,block:15}}");
+        load(e,"{view_range:10f,shadow_radius:0f,shadow_strength:0f,interpolation_duration:1,teleport_duration:1,brightness:{sky:15,block:15}}");
+        e.setBlockState(Blocks.REDSTONE_BLOCK.defaultBlockState());
         e.entityTags().add("spinning_red_penis");save(e,childState(boss,4));add(level,e);
     }
     private void meteors(Warden boss){
@@ -217,7 +226,8 @@ public final class LbcGrimoireBoss {
         int x=(int)Math.floor(center.x)+boss.getRandom().nextInt(31)-15,z=(int)Math.floor(center.z)+boss.getRandom().nextInt(31)-15;
         for(int dx=-3;dx<=3;dx++)for(int dz=-3;dz<=3;dz++)if(boss.getRandom().nextInt(100)<40){
             var e=new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY,level);e.setPos(x+dx,Math.floor(center.y),z+dz);
-            load(e,"{block_state:{Name:\"minecraft:chiseled_tuff_bricks\"},view_range:100f,shadow_radius:0f,shadow_strength:0f,teleport_duration:1,interpolation_duration:1}");
+            load(e,"{view_range:100f,shadow_radius:0f,shadow_strength:0f,teleport_duration:1,interpolation_duration:1}");
+            e.setBlockState(Blocks.CHISELED_TUFF_BRICKS.defaultBlockState());
             e.entityTags().add("falling_tuff");save(e,childState(boss,3));add(level,e);
         }
     }
@@ -229,7 +239,8 @@ public final class LbcGrimoireBoss {
             var e=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,boss.level());e.setPos(at);e.setYRot(rot);
             load(e,"{shadow_radius:0f,shadow_strength:0f,teleport_duration:1,interpolation_duration:1,item_display:\"fixed\"}");
             var stack=new ItemStack(Items.CARROT_ON_A_STICK);stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:prism"));e.setItemStack(stack);
-            e.setTransformation(new Transformation(new Vector3f(),new Quaternionf().rotateY((float)(Math.PI/2)),new Vector3f(1),new Quaternionf()));
+            // Legacy flat matrices are ROW-major: model +Y becomes shot-local +Z.
+            e.setTransformation(new Transformation(new Vector3f(),new Quaternionf(.5f,.5f,.5f,.5f),new Vector3f(1),new Quaternionf()));
             e.entityTags().addAll(List.of("boss_prism","magic"));var child=childState(boss,2);vector(child,"aim",direction);save(e,child);add((ServerLevel)boss.level(),e);
         }
         d.putInt("rotation",rot);save(boss,d);
@@ -242,7 +253,7 @@ public final class LbcGrimoireBoss {
             if(parent==null){if(resident(level,vector(d,"anchor")))remove(actor);return;}
         }
         int age=integer(d,"age")+1;d.putInt("age",age);save(actor,d);
-        if(kind==1){actor.setPos(parent.position().add(0,6,0));return;}
+        if(kind==1){actor.setPos(parent.position().add(0,6,0));actor.setYRot(d.getFloatOr("facing",parent.getYRot()));actor.setXRot(0);return;}
         if(kind==4){actor.setPos(parent.position().add(-.5,5.5,-.5));return;}
         if(kind==2){
             if(game.items().magic().suppressedAt(level,actor.position())){remove(actor);return;}
@@ -288,6 +299,7 @@ public final class LbcGrimoireBoss {
     private void stopMusic(ServerLevel level){for(var p:level.players())p.connection.send(new ClientboundStopSoundPacket(Identifier.parse(MUSIC),(SoundSource)null));}
     private static void sound(ServerLevel level,Vec3 at,String sound,float volume,float pitch){LbcOverload.sound(level,at,sound,volume,pitch,0,0);}
     private static boolean resident(ServerLevel level,Vec3 at){return level.getChunkSource().getChunkNow(BlockPos.containing(at).getX()>>4,BlockPos.containing(at).getZ()>>4)!=null;}
+    private static boolean barrier(ServerLevel level,BlockPos pos){return level.hasChunkAt(pos)&&level.getBlockState(pos).is(Blocks.BARRIER);}
     private static void load(Entity entity,String nbt){
         // These are configuration presets: native load defaults absent Pos/Rotation/Motion to zero.
         var position=entity.position();var motion=entity.getDeltaMovement();float yaw=entity.getYRot(),pitch=entity.getXRot();

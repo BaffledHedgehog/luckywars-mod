@@ -14,7 +14,9 @@ import me.skywars2.game.world.terrain.LbcConsumedBlock;
 import me.skywars2.game.world.terrain.LbcCunnyItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.storage.loot.*;
@@ -58,6 +60,7 @@ public final class UniformItemPoolChecks {
         require(manifest.getAsJsonArray("blocked").isEmpty(),"no silently unsupported source entry/composite/reference");
         var params=new LootParams.Builder(player.level()).withParameter(LootContextParams.ORIGIN,player.position()).withOptionalParameter(LootContextParams.THIS_ENTITY,player).create(LootContextParamSets.COMMAND);
         var context=new LootContext.Builder(params).withOptionalRandomSource(net.minecraft.util.RandomSource.create(0x554e49464f524dL)).create(Optional.empty());
+        legacyDropRoot(game,params);
         String consumed="native/skywars2:consumed_block";
         require(Collections.frequency(custom,consumed)==1&&Collections.frequency(union,consumed)==1&&!vanilla.contains(consumed),"playable consumed block has exactly one native logical ticket in custom and union");
         require(!service.excludedNativeItems().containsKey(Identifier.parse("skywars2:consumed_block"))
@@ -233,5 +236,28 @@ public final class UniformItemPoolChecks {
         final int bound,index;boolean selected;
         FirstIndexRandom(int bound,int index){super(0x554e49464f524dL);this.bound=bound;this.index=index;}
         @Override public int nextInt(int bound){if(!selected){require(bound==this.bound,"one actual uniform outer-domain bound");selected=true;return index;}return super.nextInt(bound);}
+    }
+    private static void legacyDropRoot(GameController game,LootParams params){
+        JsonObject root;
+        try(var input=UniformItemPoolChecks.class.getResourceAsStream("/data/lbc/loot_table/random_glack_1.json")){
+            root=JsonParser.parseReader(new InputStreamReader(Objects.requireNonNull(input),StandardCharsets.UTF_8)).getAsJsonObject();
+        }catch(java.io.IOException error){throw new IllegalStateException(error);}
+        var expected=new HashMap<String,Integer>();
+        expected.put("lbc:luckyblock_without_rec",130);expected.put("lbc:loliluckyblock",10);expected.put("lbc:nekolucky_items",10);expected.put("lbc:random_item",20);expected.put("lbc:imba/lucky_items_imba",5);
+        for(String name:List.of("infinity_no_shulker","bob","aimbob","hohlopitek","hedgehog_wall","infinity_tuntija","reactive_shish_item","end_of_technomagic","neko_set_nyauwu","neko_set_technomk2","voidman","divider_by_metal_pipe","greed_greed","feather_greed","cyborgboss","infinite_lucky_block"))expected.put("lbc:"+name,1);
+        var entries=root.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
+        var actual=new HashMap<String,Integer>();
+        for(var value:entries){var entry=value.getAsJsonObject();require(entry.get("type").getAsString().equals("minecraft:loot_table"),"dungeon rewards use original drop branches, never the all-vanilla registry union");actual.put(entry.get("value").getAsString(),entry.has("weight")?entry.get("weight").getAsInt():1);}
+        require(actual.equals(expected),"all 21 source dungeon/drop branches retain exact legacy weights, with vanilla only in its authored rare branch");
+        int total=expected.values().stream().mapToInt(Integer::intValue).sum(),offset=0;
+        var key=ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:random_glack_1"));
+        var table=game.server().reloadableRegistries().getLootTable(key);
+        for(var value:entries){
+            var entry=value.getAsJsonObject();var random=new FirstIndexRandom(total,offset);var output=new ArrayList<ItemStack>();
+            table.getRandomItemsRaw(new LootContext.Builder(params).withOptionalRandomSource(random).create(Optional.empty()),output::add);
+            require(random.selected&&!output.isEmpty()&&output.stream().noneMatch(ItemStack::isEmpty),"real native legacy branch emits usable source loot: "+entry.get("value"));
+            offset+=entry.has("weight")?entry.get("weight").getAsInt():1;
+        }
+        SkyWars2.LOGGER.info("[check] Dungeon legacy loot: all21 actual weighted branches emitted native loot; total weight {}",total);
     }
 }

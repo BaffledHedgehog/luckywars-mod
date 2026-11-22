@@ -49,6 +49,8 @@ public final class LbcSpecialDrops {
     private final Map<ItemEntity, Pending> pending = new IdentityHashMap<>();
     private final Map<java.util.UUID, LivingEntity> authors = new java.util.HashMap<>();
     private final Map<ItemEntity, Integer> lastAttempt = new IdentityHashMap<>();
+    private record Waiting(int since,boolean reported){}
+    private final Map<ItemEntity,Waiting> waiting=new IdentityHashMap<>();
     private int lastTick = Integer.MIN_VALUE;
 
     public LbcSpecialDrops(GameController game) { this.game = game; }
@@ -106,8 +108,11 @@ public final class LbcSpecialDrops {
     }
 
     public void unloaded(Entity entity) {
+        if(entity instanceof ItemEntity token&&waiting.containsKey(token)&&!lastAttempt.containsKey(token)
+                &&pending.containsKey(token)&&active(token)&&!stale(token))reportWaiting(token,waiting.get(token),"removed before activation");
         pending.remove(entity);
         lastAttempt.remove(entity);
+        waiting.remove(entity);
     }
     /** The first five real activations own the pickup grace period, even if preparation is delayed. */
     public boolean blocksPickup(ItemEntity token){
@@ -154,9 +159,25 @@ public final class LbcSpecialDrops {
     /** Returns whether an active loaded attempt was dispatched, even when native placement fails. */
     public boolean spawn(ItemEntity token) {
         try(var scope=game.items().spellSources().lootScope(token)){
-            if(LbcTmtDrops.matches(token.getItem())&&!LbcTmtAbilities.active(token.getItem()))return spawnTmt(token);
-            return spawnScoped(token,true,true,true);
+            boolean result=LbcTmtDrops.matches(token.getItem())&&!LbcTmtAbilities.active(token.getItem())
+                    ?spawnTmt(token):spawnScoped(token,true,true,true);
+            if(result)waiting.remove(token);
+            else if(pending.containsKey(token)&&!token.isRemoved()&&active(token)&&!stale(token)){
+                int now=game.server().getTickCount();var delay=waiting.computeIfAbsent(token,key->new Waiting(now,false));
+                if(!delay.reported&&now-delay.since>=100&&!game.items().timeStop().stopped((ServerLevel)token.level())){
+                    reportWaiting(token,delay,"waiting for readiness");waiting.put(token,new Waiting(delay.since,true));
+                }
+            }
+            return result;
         }
+    }
+    /** Bounded identity diagnostics: a destroyed unknown token can still be traced next time. */
+    private void reportWaiting(ItemEntity token,Waiting delay,String reason){
+        var name=token.getItem().getHoverName().getString().replace('\n',' ').replace('\r',' ');
+        if(name.length()>128)name=name.substring(0,128);
+        me.skywars2.SkyWars2.LOGGER.warn("Active drop {}: item={} name={} entity={} pos={} count={} waitedTicks={} mapBusy={} epochCurrent={} chunkLoaded={}",
+                reason,net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(token.getItem().getItem()),name,token.getUUID(),token.blockPosition(),token.getItem().getCount(),
+                game.server().getTickCount()-delay.since,game.maps().busy(),game.items().currentEpoch(token),((ServerLevel)token.level()).hasChunkAt(token.blockPosition()));
     }
     private boolean spawnTmt(ItemEntity token){
         int now=game.server().getTickCount();if(lastAttempt.getOrDefault(token,Integer.MIN_VALUE)==now)return false;
@@ -442,6 +463,7 @@ public final class LbcSpecialDrops {
         pending.clear();
         authors.clear();
         lastAttempt.clear();
+        waiting.clear();
         lastTick = Integer.MIN_VALUE;
     }
 

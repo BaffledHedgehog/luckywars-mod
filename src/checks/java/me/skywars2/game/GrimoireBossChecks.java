@@ -43,6 +43,7 @@ public final class GrimoireBossChecks {
             require(!game.lbc().rollTable(base.owner.level(),boss.position(),base.owner,"lbc:grimoire_boss").isEmpty(),"packaged boss death rewards are executable");
             var visual=service.snapshot().stream().filter(e->e.entityTags().contains("grimoire_boss_visual")).findFirst().orElseThrow();
             require(visual instanceof Display.ItemDisplay item&&item.getItemStack().get(DataComponents.ITEM_MODEL).toString().equals("lbc:grimoire_boss")&&visual.position().distanceToSqr(boss.position().add(0,6,0))<1e-10,"existing model at exact hitbox+6");
+            require(service.snapshot().stream().filter(e->e.entityTags().contains("spinning_red_penis")).allMatch(e->e instanceof Display.BlockDisplay block&&block.getBlockState().is(Blocks.REDSTONE_BLOCK)),"red core has an actual native block state");
             var source=game.items().spellSources().source(boss);require(source!=null&&source.emitter().equals(boss.getUUID())&&source.author().equals(base.owner.getUUID())&&source.persistent(),"real emitter and persistent causal owner");
             require(game.items().spellSources().target(source,base.owner)&&!game.items().spellSources().target(source,boss),"hostile emitter admits author and excludes own body");
         }
@@ -110,6 +111,7 @@ public final class GrimoireBossChecks {
             for(var e:service.snapshot())require(!e.getAttached(attachment()).getStringOr("boss","").equals(boss.getStringUUID()),"only exact boss-linked pieces retired");
         }
         void phasePatterns(){
+            barrierFacing();
             // Exercise the real attack branches: partial render presets must not move children to 0,0,0.
             for(int phase:new int[]{2,3}){
                 var d=boss.getAttached(attachment()).copy();d.putInt("phase",phase);d.putInt("age",phase==2?29:19);boss.setAttached(attachment(),d);
@@ -122,6 +124,17 @@ public final class GrimoireBossChecks {
                 for (var child : created) {
                     require(child.getY() > boss.getY() && child.position().distanceToSqr(boss.position()) < 1600,
                             "meteor/prism native position survives render preset " + phase);
+                    if(phase==2){
+                        require(child instanceof Display.BlockDisplay stone&&stone.getBlockState().is(Blocks.CHISELED_TUFF_BRICKS),"meteor carries actual visible chiseled tuff rather than air");
+                        DisplayTransformChecks.pose((Display)child,0,0,0,1,1,1);
+                        require(child.shouldRenderAtSqrDistance(128*128),"native meteor view range admits a distant dungeon camera");
+                    }else{
+                        var transform=com.mojang.math.Transformation.EXTENDED_CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE,saved(child).get("transformation")).getOrThrow().getMatrix();
+                        float[] expected={0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1};
+                        for(int n=0;n<16;n++)require(Math.abs(transform.getRowColumn(n>>2,n&3)-expected[n])<1e-5,"prism uses exact ROW-major legacy axis permutation; cell="+n);
+                        var tip=transform.transformDirection(new org.joml.Vector3f(0,1,0));
+                        require(tip.distance(new org.joml.Vector3f(0,0,1))<1e-5,"actual prism texture tip points along the local shot direction");
+                    }
                 }
                 if (phase == 3) prismBurst(created.getFirst());
                 for (var child : created) {
@@ -129,6 +142,24 @@ public final class GrimoireBossChecks {
                     child.discard();
                 }
             }
+        }
+
+        void barrierFacing(){
+            var level=base.owner.level();var at=boss.position().add(0,0,8);var cell=BlockPos.containing(at.add(0,.5,0));
+            var positions=List.of(cell.east(),cell.west(),cell.south(),cell.north());var before=new ArrayList<net.minecraft.world.level.block.state.BlockState>();positions.forEach(p->before.add(level.getBlockState(p)));
+            float[] angles={-90,90,0,180};
+            try{
+                for(int i=0;i<positions.size();i++){
+                    positions.forEach(p->level.setBlock(p,Blocks.AIR.defaultBlockState(),818));level.setBlock(positions.get(i),Blocks.BARRIER.defaultBlockState(),818);
+                    var spawned=service.spawn(level,at,37,game.items().spellSources().source(boss));require(spawned!=null,"native boss spawn with adjacent barrier");
+                    var visual=service.snapshot().stream().filter(e->e.entityTags().contains("grimoire_boss_visual")&&e.getAttached(attachment()).getStringOr("boss","").equals(spawned.getStringUUID())).findFirst().orElseThrow();
+                    require(spawned.getYRot()==angles[i]&&visual.getYRot()==angles[i],"barrier selects exact legacy facing, independent of marker yaw");
+                    spawned.setYRot(73);spawned.setYHeadRot(120);visual.setYRot(19);visual.setXRot(42);service.tick();
+                    require(spawned.getYRot()==angles[i]&&visual.getYRot()==angles[i]&&visual.getXRot()==0,"boss facing remains fixed while attacks track independently");
+                    var own=new ArrayList<Entity>();for(var e:service.snapshot())if(e==spawned||e.getAttached(attachment()).getStringOr("boss","").equals(spawned.getStringUUID()))own.add(e);
+                    for(var e:own){service.unloaded(e);e.discard();}
+                }
+            }finally{for(int i=0;i<positions.size();i++)level.setBlock(positions.get(i),before.get(i),818);}
         }
 
         void prismBurst(Entity prism) {
