@@ -42,6 +42,7 @@ final class GenieLaunchChecks {
     private final CompletableFuture<ScriptRepository.Loaded> rifle;
     private final CompletableFuture<ScriptRepository.Loaded> dragon;
     private final CompletableFuture<ScriptRepository.Loaded> reportedDragon;
+    private final CompletableFuture<ScriptRepository.Loaded> reportedSolid;
     private Set<UUID> beforeReplacement;
     private ItemStack replacementBow;
     private ItemStack ordinaryCrossbow;
@@ -93,7 +94,7 @@ final class GenieLaunchChecks {
             ["CALL","entity.launch",4],["PUT"],["RETURN"]]}}}
             """);
         // Exact executable program from the reported dragon-bow grant; no account data.
-        reportedDragon=game.items().genie().runtime().scripts().prepare("""
+        String reportedProgram="""
             {"functions":{"on_shot_replace":{"parameters":["ev"],"code":[
             ["LOAD","ev"],["CONST","projectiles"],["GET"],["CONST","length"],["GET"],["STORE","cnt"],
             ["CONST",0],["STORE","idx"],["LABEL","loop"],["LOAD","idx"],["LOAD","cnt"],["LT"],
@@ -103,7 +104,9 @@ final class GenieLaunchChecks {
             ["STORE","idx"],["JUMP","loop"],["LABEL","after_shots"],
             ["CONST","effect give @s minecraft:levitation 3 2 true"],["CALL","world.command",1],["DROP"]]}},
             "handlers":{"SHOT_REPLACE":"on_shot_replace"},"state":{},"version":1}
-            """);
+            """;
+        reportedDragon=game.items().genie().runtime().scripts().prepare(reportedProgram);
+        reportedSolid=game.items().genie().runtime().scripts().prepare(reportedProgram.replace("minecraft:ender_dragon","minecraft:creeper"));
         for(String type:List.of("player","armor_stand","mannequin","fishing_bobber","item","not_a_native_entity"))reject(type,40,200);
         reject("warden",40,200);
         var repeated=plan("stick",Trigger.USE,"creeper",40,600);
@@ -298,19 +301,31 @@ final class GenieLaunchChecks {
         require(reference.noPhysics&&!base.level.noCollision(reference,reference.getBoundingBox()),
                 "real dragon is a native noclip body; solid terrain overlaps its large box");
         require(reportedDragon.isDone(),"reported program compiled away from the tick thread");
-        for(var hand:InteractionHand.values()){
-            var bow=GenieScriptItem.construct(reportedDragon.join(),"minecraft:bow","Reported dragon bow","Actual generated program.",1);
+        for(boolean dragonType:new boolean[]{true,false})for(var hand:InteractionHand.values()){
+            var type=dragonType?EntityTypes.ENDER_DRAGON:EntityTypes.CREEPER;
+            var program=dragonType?reportedDragon:reportedSolid;
+            require(program.isDone(),"native replacement program prepared away from the server thread");
+            BlockPos solid=null;
+            if(!dragonType){
+                var probe=EntityTypes.CREEPER.create(base.level,net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
+                var start=base.owner.getEyePosition().add(base.owner.getLookAngle().scale((base.owner.getBbWidth()+probe.getBbWidth())*.5+.1));
+                probe.setPos(new Vec3(start.x,Math.max(base.owner.getY(),start.y-probe.getBbHeight()*.5),start.z));
+                solid=BlockPos.containing(probe.getBoundingBox().getCenter());base.set(solid,Blocks.STONE.defaultBlockState());
+                require(!probe.noPhysics&&!base.level.noCollision(probe,probe.getBoundingBox()),"ordinary colliding mob deliberately starts inside terrain");
+            }
+            var bow=GenieScriptItem.construct(program.join(),"minecraft:bow","Reported dragon bow","Actual generated program.",1);
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
             base.owner.setItemInHand(hand,bow);base.owner.getInventory().setItem(1,new ItemStack(Items.ARROW,4));
             var before=new HashSet<UUID>();base.level.getAllEntities().forEach(entity->before.add(entity.getUUID()));var arrows=projectiles();
             require(base.owner.gameMode.useItem(base.owner,base.level,bow,hand).consumesAction(),"reported bow draw accepted "+hand);
             require(bow.getItem().releaseUsing(bow,base.level,base.owner,71980),"reported bow native full release "+hand);base.owner.stopUsingItem();
             for(int i=0;i<32;i++)game.items().genie().runtime().scripts().tick();
-            var created=new ArrayList<Entity>();base.level.getAllEntities().forEach(entity->{if(entity.getType()==EntityTypes.ENDER_DRAGON&&!before.contains(entity.getUUID())&&!entity.isRemoved()){created.add(entity);base.own(entity);}});
-            require(created.size()==1,"reported bow must launch exactly one dragon despite terrain intersecting its native noclip body, got="+created.size()+" hand="+hand);
-            var body=created.getFirst();require(body.noPhysics&&body.getDeltaMovement().z>2,"dragon preserves native noclip and the actual shot velocity");
+            var created=new ArrayList<Entity>();base.level.getAllEntities().forEach(entity->{if(entity.getType()==type&&!before.contains(entity.getUUID())&&!entity.isRemoved()){created.add(entity);base.own(entity);}});
+            require(created.size()==1,"replacement bow launches exactly one native body despite terrain overlap, got="+created.size()+" type="+type+" hand="+hand);
+            var body=created.getFirst();require(body.noPhysics==dragonType&&body.getDeltaMovement().z>2,"native physics and actual shot velocity preserved");
             require(base.owner.getInventory().getItem(1).getCount()==3&&projectiles().equals(arrows),"one native ammo debit, no ordinary arrow alongside dragon");
             base.discard(body);base.owner.removeEffect(net.minecraft.world.effect.MobEffects.LEVITATION);
+            if(solid!=null)base.set(solid,Blocks.AIR.defaultBlockState());
         }
         base.set(obstacle,Blocks.AIR.defaultBlockState());
     }

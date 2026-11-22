@@ -102,6 +102,13 @@ public final class BossProjectileChecks {
             if(phase==10){
                 if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;
                 markMusic();boss=spawn();requireMusic(1,0,"first live boss starts one track per connected listener");
+                bossAt=boss.position();next(40);return false;
+            }
+            if(phase==40){
+                if(elapsed<8)return false;
+                require(Math.abs(boss.getY()-bossAt.y)<.001&&Math.abs(boss.getDeltaMovement().y)<.001,
+                        "unassisted Crocodildo must fly horizontally without falling; dy="+(boss.getY()-bossAt.y)+" velocity="+boss.getDeltaMovement());
+                require(boss.position().subtract(bossAt).horizontalDistance()>3,"unassisted boss follows its native scripted flight route");
                 markMusic();require(game.vanity().requestRestoreForCheck(),"actual rewind while post-point boss track sounds");
                 next(11);return false;
             }
@@ -119,7 +126,7 @@ public final class BossProjectileChecks {
                 var cell=BlockPos.containing(bossAt);var column=new net.minecraft.world.level.ChunkPos(cell.getX()>>4,cell.getZ()>>4);
                 game.maps().prepareChunk(f.level,column);
                 if(forced.remove(column.pack()))f.level.setChunkForced(column.x(),column.z(),false);
-                boss.setPos(f.home.add(0,25,0));boss.setNoGravity(true);
+                boss.setPos(f.home.add(0,25,0));
                 savedAge=game.items().crocodildo().age(boss);f.pause();next(2);return false;
             }
             if(phase==2){
@@ -176,7 +183,7 @@ public final class BossProjectileChecks {
             if(phase==5){if(!game.items().nukeEvent().captureReady()){require(elapsed<300,"shared nuclear waves/terrain/cleanup drain on scheduler");return false;}
                 require(flightTickets(bossAt).isEmpty(),"death and bomb impact release their final native simulation lease");
                 require(rewards().containsAll(rewardIds),"all rewards survive every shared nuclear wave AND explicit final entity cleanup");require(foreign.isRemoved(),"foreign nearby drops were not accidentally protected");
-                boss=spawn();boss.setPos(f.home.add(0,25,0));boss.setNoGravity(true);var marker=new Marker(EntityTypes.MARKER,f.level);marker.setPos(boss.position());marker.entityTags().add("stopper");f.own(marker);require(f.level.addFreshEntity(marker),"native TECH marker");game.items().magic().loaded(marker);rewardIds=rewards();next(6);return false;}
+                boss=spawn();boss.setPos(f.home.add(0,25,0));var marker=new Marker(EntityTypes.MARKER,f.level);marker.setPos(boss.position());marker.entityTags().add("stopper");f.own(marker);require(f.level.addFreshEntity(marker),"native TECH marker");game.items().magic().loaded(marker);rewardIds=rewards();next(6);return false;}
             if(phase==6){if(boss.isAlive()){require(elapsed<5,"TECH ordinary death");return false;}verifyReward(rewardIds);
                 var stack=f.loot("lbc:nuke").copyWithCount(2);require(stack.is(LbcCrocodildoItems.NUKE),"actual usable reward item");f.owner.setItemInHand(InteractionHand.MAIN_HAND,stack);
                 var pad=BlockPos.containing(f.home.add(0,1,3));f.set(pad,Blocks.STONE.defaultBlockState());var hit=new net.minecraft.world.phys.BlockHitResult(Vec3.atBottomCenterOf(pad.above()),net.minecraft.core.Direction.UP,pad,false);

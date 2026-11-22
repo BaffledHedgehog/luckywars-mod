@@ -539,8 +539,14 @@ final class GenieWorldChecks {
                 "actual fractional origin inside top voxel and control on first outside plane");
         base.set(top,Blocks.AIR.defaultBlockState());
         var arrowId=new JsonPrimitive("minecraft:arrow");var terraId=new JsonPrimitive("skywars2:terra_charge");
-        require(complete(host,queued(host,"entity.launch",arrowId,vector(above),vector(east),new JsonPrimitive(19))).isJsonNull(),
-                "native launch rejects the first position outside build height");
+        var aboveId=complete(host,queued(host,"entity.launch",arrowId,vector(above),vector(east),new JsonPrimitive(19)));
+        require(!aboveId.isJsonNull(),"entity launch accepts a native entity position above block-building height");
+        var aboveArrow=level.getEntity(UUID.fromString(aboveId.getAsString()));
+        if(aboveArrow!=null)base.own(aboveArrow);
+        require(aboveArrow instanceof net.minecraft.world.entity.projectile.arrow.Arrow shot&&shot.getOwner()==base.owner
+                        &&shot.position().equals(above)&&shot.getDeltaMovement().distanceTo(east)<1e-5,
+                "above-build-height entity retains exact requested position, velocity and native owner");
+        base.discard(aboveArrow);
         int before=game.items().terra().count();
         require(!complete(host,queued(host,"lbc.cast",terraId,vector(above),vector(east))).getAsBoolean()
                         &&game.items().terra().count()==before,

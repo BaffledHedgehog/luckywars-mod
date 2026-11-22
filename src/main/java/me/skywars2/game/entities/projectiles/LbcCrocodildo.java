@@ -112,6 +112,8 @@ public final class LbcCrocodildo {
             var at=p.add(0,80,0).subtract(inward.scale(150));if(!level.hasChunkAt(BlockPos.containing(at)))return false;
             var body=EntityTypes.TURTLE.create(level,EntitySpawnReason.COMMAND);if(body==null)return false;
             load(body,"{Silent:true,PersistenceRequired:true,DeathLootTable:'minecraft:empty'}");
+            // The bomber owns horizontal flight; falling pigs keep independent native gravity.
+            body.setNoGravity(true);
             body.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);body.setHealth(200);body.getAttribute(Attributes.SCALE).setBaseValue(10);
             hideHitbox(body);body.setCustomName(Component.translatable("crocodilo").withStyle(ChatFormatting.DARK_RED,ChatFormatting.BOLD));
             var d=presentation(level,false);body.setPos(at);d.setPos(at);body.setYRot((float)Math.toDegrees(Math.atan2(-inward.x,inward.z)));body.entityTags().addAll(List.of(BODY,"crocodildo"));
@@ -160,6 +162,8 @@ public final class LbcCrocodildo {
         }finally{depth--;}
     }
     private void move(Actor a){
+        // Legacy /tp resets vertical motion; setPos alone retained an accumulating fall.
+        a.body.setDeltaMovement(a.body.getDeltaMovement().multiply(1,0,1));
         var at=a.body.position();LivingEntity nearest=null;double best=Double.POSITIVE_INFINITY;
         var candidates=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());candidates.addAll(game.items().lifetimes().loadedTargets());candidates.addAll(((ServerLevel)a.body.level()).players());
         for(var e:candidates)if(e.level()==a.body.level()&&e!=a.body&&!managed(e)&&!e.entityTags().contains("nodamage")&&!e.entityTags().contains("nodamage1")&&game.items().wands().validRoleTarget(e,false)){

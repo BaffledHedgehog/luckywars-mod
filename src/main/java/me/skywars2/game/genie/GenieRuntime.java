@@ -308,9 +308,8 @@ public final class GenieRuntime {
         }
         if(Math.abs(origin.x)>=30_000_000||Math.abs(origin.z)>=30_000_000)return null;
         var position=BlockPos.containing(origin);
-        if(level.isOutsideBuildHeight(position)||!level.hasChunkAt(position))return null;
+        if(!level.hasChunkAt(position))return null;
         body.setPos(origin);
-        if(!level.getWorldBorder().isWithinBounds(body.getBoundingBox())||(!body.noPhysics&&!level.noCollision(body,body.getBoundingBox())))return null;
         if(body instanceof Projectile shot){
             shot.setOwner(owner);
             Vec3 direction=speed==0?owner.getLookAngle():velocity.scale(1/speed);
@@ -319,8 +318,9 @@ public final class GenieRuntime {
         }else{body.setDeltaMovement(velocity);body.syncVelocity=true;}
         body.entityTags().add(SHOT_LIFE+lifetime);
         GenieNative.mark(game,body);GenieNative.credit(game,body,owner);
-        // Native noclip bodies (notably dragons) intentionally overlap terrain.
-        if(body instanceof Mob mob){GenieNative.initialize(game,mob);if(!body.noPhysics&&!level.noCollision(body,body.getBoundingBox())){GenieNative.rejected(game,body);return null;}}
+        // Summoned entities may overlap terrain, be outside the border or above build height.
+        // Those are valid native entity positions, not constructor placement rules.
+        if(body instanceof Mob mob)GenieNative.initialize(game,mob);
         if(level.addFreshEntity(body)){
             if(body instanceof Projectile shot)shot.applyOnProjectileSpawned(level,weapon);
             loaded(body);
