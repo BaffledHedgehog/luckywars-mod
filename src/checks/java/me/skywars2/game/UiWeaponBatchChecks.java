@@ -84,6 +84,7 @@ public final class UiWeaponBatchChecks {
         void timer(Item item,Runnable add,Runnable expire){alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(item));alpha.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);game.items().invalidateHud(alpha);game.items().invalidateHud(beta);row(pair(),"    \uE104 ","ready",0x55ff55);add.run();row(pair(),"    \uE105 ","1",0xffffff);expire.run();row(pair(),"    \uE104 ","ready",0x55ff55);}
         ItemStack flagged(Item item,int count,String flag){var stack=new ItemStack(item,count);var data=new CompoundTag();data.putInt(flag,1);stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));return stack;}
         void slrHud(){
+            arrowWeaponsHud();
             alpha.getInventory().clearContent();alpha.inventoryMenu.getCraftSlots().clearContent();alpha.inventoryMenu.setCarried(ItemStack.EMPTY);
             alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcShooters.SLR));
             game.items().invalidateHud(alpha);game.items().invalidateHud(beta);row(pair(),"    \uE108 ","0",0xffffff);
@@ -93,16 +94,43 @@ public final class UiWeaponBatchChecks {
             alpha.inventoryMenu.getCraftSlots().setItem(0,new ItemStack(Items.ARROW,2));alpha.inventoryMenu.setCarried(new ItemStack(Items.ARROW,6));
             var inventory=new ArrayList<ItemStack>();for(int i=0;i<alpha.getInventory().getContainerSize();i++)inventory.add(alpha.getInventory().getItem(i).copy());
             var crafting=alpha.inventoryMenu.getCraftSlots().getItem(0).copy();var cursor=alpha.inventoryMenu.getCarried().copy();
-            row(pair(),"    \uE108 ","19",0xffffff);
+            row(pair(),"    \uE108 ","28",0xffffff);
             for(int i=0;i<inventory.size();i++)require(ItemStack.matches(inventory.get(i),alpha.getInventory().getItem(i)),"SLR HUD preserves native inventory count/components slot="+i);
             require(ItemStack.matches(crafting,alpha.inventoryMenu.getCraftSlots().getItem(0))&&ItemStack.matches(cursor,alpha.inventoryMenu.getCarried()),"SLR HUD preserves crafting/cursor count/components");
-            plain.shrink(1);row(pair(),"    \uE108 ","18",0xffffff);
-            alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.CROSSBOW));row(pair(),"    \uE108 ","27",0xffffff);
-            alpha.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);alpha.setItemInHand(InteractionHand.OFF_HAND,flagged(Items.CARROT_ON_A_STICK,1,"slr"));row(pair(),"    \uE108 ","15",0xffffff);
+            plain.shrink(1);row(pair(),"    \uE108 ","27",0xffffff);
+            alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.CROSSBOW));game.items().invalidateHud(alpha);game.items().invalidateHud(beta);row(pair(),"    \uE108 ","27",0xffffff);
+            alpha.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);alpha.setItemInHand(InteractionHand.OFF_HAND,flagged(Items.CARROT_ON_A_STICK,1,"slr"));row(pair(),"    \uE108 ","24",0xffffff);
             int start=b.recorder.packets.size();game.players().get(beta.getUUID()).lbcChallenge=1;game.lbc().refreshKnowledgeView(beta);game.items().refreshHud(beta);
             require(latest(b.recorder,start).getString().isEmpty(),"ignorance observer cannot see actual SLR arrow count");
-            game.players().get(beta.getUUID()).lbcChallenge=0;game.lbc().refreshKnowledgeView(beta);game.items().invalidateHud(alpha);game.items().invalidateHud(beta);row(pair(),"    \uE108 ","15",0xffffff);
+            game.players().get(beta.getUUID()).lbcChallenge=0;game.lbc().refreshKnowledgeView(beta);game.items().invalidateHud(alpha);game.items().invalidateHud(beta);row(pair(),"    \uE108 ","24",0xffffff);
             alpha.getInventory().clearContent();alpha.inventoryMenu.getCraftSlots().clearContent();alpha.inventoryMenu.setCarried(ItemStack.EMPTY);
+        }
+        void arrowWeaponsHud(){
+            alpha.getInventory().clearContent();alpha.inventoryMenu.getCraftSlots().clearContent();alpha.inventoryMenu.setCarried(ItemStack.EMPTY);
+            alpha.getInventory().setItem(9,new ItemStack(Items.ARROW,7));
+            alpha.getInventory().setItem(10,new ItemStack(Items.SPECTRAL_ARROW,4));
+            alpha.getInventory().setItem(11,new ItemStack(Items.TIPPED_ARROW,5));
+            var special=net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(Identifier.parse("skywars2:lightshoot_arrow"));
+            var custom=new ItemStack(special,3);require(custom.is(net.minecraft.tags.ItemTags.ARROWS),"real custom arrow belongs to native ammunition tag");
+            alpha.getInventory().setItem(12,custom);
+            alpha.inventoryMenu.getCraftSlots().setItem(0,new ItemStack(Items.ARROW,2));alpha.inventoryMenu.setCarried(new ItemStack(Items.TIPPED_ARROW,6));
+            var weapons=net.minecraft.core.registries.BuiltInRegistries.ITEM.stream().filter(item->item instanceof ProjectileWeaponItem).toList();
+            require(weapons.contains(me.skywars2.game.items.weapons.ranged.LbcProjectileWeaponItems.Kind.MINIGUN_CROSSBOW.item),"actual minigun crossbow in native weapon matrix");
+            for(var weapon:weapons)for(var hand:InteractionHand.values()){
+                alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));alpha.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                alpha.setItemInHand(hand,new ItemStack(weapon));game.items().invalidateHud(alpha);game.items().invalidateHud(beta);
+                row(pair(),"    \uE108 ","27",0xffffff);
+            }
+            custom.shrink(1);row(pair(),"    \uE108 ","26",0xffffff);
+            require(alpha.getInventory().getItem(9).getCount()==7&&alpha.getInventory().getItem(10).getCount()==4
+                    &&alpha.getInventory().getItem(11).getCount()==5&&alpha.inventoryMenu.getCraftSlots().getItem(0).getCount()==2
+                    &&alpha.inventoryMenu.getCarried().getCount()==6,"weapon matrix does not consume any ammunition");
+            alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));alpha.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            require(!pair().getString().contains("\uE108"),"arrow HUD hides after switching to non-weapon");
+            alpha.getInventory().clearContent();alpha.inventoryMenu.getCraftSlots().clearContent();alpha.inventoryMenu.setCarried(ItemStack.EMPTY);
+            alpha.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(me.skywars2.game.items.weapons.ranged.LbcProjectileWeaponItems.Kind.MINIGUN_CROSSBOW.item));
+            row(pair(),"    \uE108 ","0",0xffffff);
+            SkyWars2.LOGGER.info("[check] arrow HUD: {} native bow/crossbow types in both hands, mixed custom ammo, empty ammo, live spectator packets",weapons.size());
         }
         void hud(){game.items().laserMinigun().forget(alpha);alpha.getInventory().clearContent();alpha.inventoryMenu.setCarried(ItemStack.EMPTY);game.spectators().enter(beta);beta.setCamera(alpha);int oldChallenge=game.players().get(alpha.getUUID()).lbcChallenge;try{game.players().get(alpha.getUUID()).lbcChallenge=0;game.players().get(beta.getUUID()).lbcChallenge=0;game.lbc().refreshKnowledgeView(alpha);game.lbc().refreshKnowledgeView(beta);timer(LbcMobgun.ITEM,()->game.items().mobgun().addCounters(alpha),()->game.items().mobgun().tick());timer(LbcStand.ORAORA,()->game.items().stand().addPlayerCounters(alpha),()->game.items().stand().tick());timer(LbcStand.HOMING_LIGHTNING,()->game.items().stand().addPlayerCounters(alpha),()->game.items().stand().tick());timer(LbcStand.CLOCKS,()->game.items().timeStop().addPlayerCounters(alpha),()->game.items().timeStop().tick());
                 alpha.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.BOW));alpha.getInventory().setItem(9,new ItemStack(Items.ARROW,7));alpha.inventoryMenu.getCraftSlots().setItem(0,new ItemStack(Items.SPECTRAL_ARROW,4));alpha.inventoryMenu.setCarried(new ItemStack(Items.TIPPED_ARROW,3));game.items().invalidateHud(alpha);game.items().invalidateHud(beta);row(pair(),"    \uE108 ","14",0xffffff);require(alpha.getInventory().getItem(9).getCount()==7&&alpha.inventoryMenu.getCraftSlots().getItem(0).getCount()==4&&alpha.inventoryMenu.getCarried().getCount()==3,"actual counting-only arrow HUD preserves inventory/crafting/cursor");slrHud();alpha.inventoryMenu.getCraftSlots().clearContent();alpha.inventoryMenu.setCarried(ItemStack.EMPTY);alpha.getInventory().clearContent();game.players().get(alpha.getUUID()).standOverheavenMatches=3;game.items().stand().joined(alpha);row(pair(),"  \uE131 ","3",0x55ff55);require(game.items().stand().retainedMatches(alpha)==3,"native retained-match counter supplies exact HUD units");game.items().kfcFood().applyOutcome(alpha,14);row(pair(),"  \uE135 ",Integer.toString(game.items().kfcFood().gigaponosRemaining(alpha)),0xffffff);require(game.items().kfcFood().gigaponosRemaining(alpha)==400,"actual KFC outcome owns400tick HUD counter");var beforeKfc=new HashSet<Entity>();level.getAllEntities().forEach(beforeKfc::add);game.items().kfcFood().tick();for(var entity:level.getAllEntities())if(!beforeKfc.contains(entity))mine.add(entity);row(pair(),"  \uE135 ","399",0xffffff);game.items().kfcFood().clear(alpha);alpha.removeAllEffects();

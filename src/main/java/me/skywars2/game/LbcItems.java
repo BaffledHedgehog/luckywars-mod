@@ -1110,11 +1110,9 @@ public final class LbcItems {
         component.append(danmaku.hud(source));
         hudPositive(component,"  \uE163 ",babylonEffects.queued(source,101),ChatFormatting.RED);
         hudPositive(component,"  \uE164 ",babylonEffects.queued(source,109),ChatFormatting.RED);
-        boolean bow=heldVanillaBow(source);
-        if(bow || LbcShooters.isSlr(source.getMainHandItem()) || LbcShooters.isSlr(source.getOffhandItem())) {
+        if(heldArrowWeapon(source)) {
             // The source uses /clear ... 0: native counting-only includes crafting slots and cursor, without mutation.
-            // SLR consumes normal arrows, including custom/infinite variants, rather than the whole bow arrow tag.
-            int arrows=source.getInventory().clearOrCountMatchingItems(stack->bow ? stack.is(net.minecraft.tags.ItemTags.ARROWS) : stack.is(Items.ARROW),true,0,source.inventoryMenu.getCraftSlots());
+            int arrows=source.getInventory().clearOrCountMatchingItems(stack->stack.is(net.minecraft.tags.ItemTags.ARROWS),true,0,source.inventoryMenu.getCraftSlots());
             component.append(Component.literal("    \uE108 "))
                     .append(Component.literal(Integer.toString(arrows)).withStyle(ChatFormatting.WHITE));
         }
@@ -1232,9 +1230,10 @@ public final class LbcItems {
         if(akAmmo>=0) component.append(Component.literal("  \uE206 ")).append(Component.literal(Integer.toString(akAmmo)).withStyle(ChatFormatting.WHITE));
         return component;
     }
-    private static boolean heldVanillaBow(ServerPlayer source) {
-        return source.getMainHandItem().is(Items.BOW) || source.getMainHandItem().is(Items.CROSSBOW)
-                || source.getOffhandItem().is(Items.BOW) || source.getOffhandItem().is(Items.CROSSBOW);
+    private static boolean heldArrowWeapon(ServerPlayer source) {
+        return source.getMainHandItem().getItem() instanceof net.minecraft.world.item.ProjectileWeaponItem
+                || source.getOffhandItem().getItem() instanceof net.minecraft.world.item.ProjectileWeaponItem
+                || LbcShooters.isSlr(source.getMainHandItem()) || LbcShooters.isSlr(source.getOffhandItem());
     }
     private static int hudSeconds(int ticks) { return ticks<=0 ? 0 : (int)(((long)ticks+19)/20); }
     private static void hudPositive(MutableComponent hud,String prefix,int value,ChatFormatting color) {
