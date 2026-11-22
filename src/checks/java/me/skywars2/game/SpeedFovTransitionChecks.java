@@ -176,19 +176,31 @@ public final class SpeedFovTransitionChecks {
             close(attr.getValue(),0,"real dual minigun lock");wire=send(player,recording,false,"dual minigun zero-speed fallback");
             player.getInventory().clearContent();equipment(player);close(attr.getValue(),.1,"native equipment removal restores baseline");
             wire=send(player,recording,false,"all equipment removed");
+            var profile=game.players().get(player.getUUID());int savedPercent=profile.fovEffects;
+            try {for(int percent:new int[]{0,5,100}) {
+            profile.fovEffects=percent;zoom.personalSettingsChanged(player);
             recording.packets.clear();player.onUpdateAbilities();float walkingBeforeSprint=onlyAbilities(recording).getWalkingSpeed();
             double predictedSprint=wire*1.3;
             player.setSprinting(true);recording.packets.clear();var sprintPacket=movement(player);player.connection.send(sprintPacket);
             var sprintChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())sprintChildren.add(child);
             var sprintAbilities=(ClientboundPlayerAbilitiesPacket)sprintChildren.getLast();
-            require(sprintAbilities.getWalkingSpeed()!=walkingBeforeSprint,"sprint acknowledgment includes personal FOV compensation");
+            close(sprintAbilities.getWalkingSpeed(),walkingBeforeSprint,"sprint acknowledgment preserves the denominator already used by local prediction");
             close((clientSpeed(player,sprintPacket)/sprintAbilities.getWalkingSpeed()+1)/2,
-                    1+((predictedSprint/.1+1)/2-1)*.05,"sprint follows the selected five percent rather than vanilla full strength");
+                    (predictedSprint/.1+1)/2,"sprint acknowledgment matches the first locally predicted frame without a rebound");
             player.setSprinting(false);recording.packets.clear();player.connection.send(movement(player));
             var stopChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())stopChildren.add(child);
             close(((ClientboundPlayerAbilitiesPacket)stopChildren.getLast()).getWalkingSpeed(),walkingBeforeSprint,"stop sprint acknowledgment leaves denominator stable");
+            }} finally {profile.fovEffects=savedPercent;zoom.personalSettingsChanged(player);}
             var boost=new AttributeModifier(Identifier.parse("skywars2:check_fov_transition"),.3,AttributeModifier.Operation.ADD_VALUE);
             attr.addTransientModifier(boost);wire=send(player,recording,false,"real moderate movement modifier");close(wire,.4,"moderate modifier is authoritative");
+            recording.packets.clear();player.onUpdateAbilities();float boostedWalking=onlyAbilities(recording).getWalkingSpeed();
+            player.setSprinting(true);recording.packets.clear();var boostedSprint=movement(player);player.connection.send(boostedSprint);
+            var boostedChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())boostedChildren.add(child);
+            var boostedAbilities=(ClientboundPlayerAbilitiesPacket)boostedChildren.getLast();
+            close(boostedAbilities.getWalkingSpeed(),boostedWalking,"speed-effect compensation remains stable across predicted sprint");
+            close((clientSpeed(player,boostedSprint)/boostedAbilities.getWalkingSpeed()+1)/2,
+                    (wire*1.3/boostedWalking+1)/2,"speed effect plus sprint acknowledgment matches the locally predicted frame");
+            player.setSprinting(false);wire=send(player,recording,false,"speed effect remains scaled after sprint stops");
             attr.removeModifier(boost.id());resend(player,recording,wire,false,"ability resend ignores unsent modifier removal");
             attr.addTransientModifier(boost);wire=send(player,recording,false,"moderate modifier readded");attr.removeModifier(boost.id());
             var extreme=new AttributeModifier(boost.id(),2,AttributeModifier.Operation.ADD_VALUE);attr.addTransientModifier(extreme);

@@ -37,8 +37,8 @@ final class PlayerFeedbackChecks {
                 var abilities=packets.stream().filter(ClientboundPlayerAbilitiesPacket.class::isInstance).map(ClientboundPlayerAbilitiesPacket.class::cast).reduce((a,b)->b).orElseThrow();
                 double speed=f.owner.getAttributeValue(Attributes.MOVEMENT_SPEED),nativeWalk=f.owner.getAbilities().getWalkingSpeed();
                 double actual=(speed/abilities.getWalkingSpeed()+1)/2;
-                double expected=1+((speed/nativeWalk+1)/2-1)*percent/100.;
-                require(Math.abs(actual-expected)<1e-5,"actual sprint packet follows "+percent+"%: "+actual+" vs "+expected);
+                double expected=(speed/nativeWalk+1)/2;
+                require(Math.abs(actual-expected)<1e-5,"vanilla sprint remains native at "+percent+"% without a delayed correction: "+actual+" vs "+expected);
             }
         }finally{f.owner.setSprinting(sprint);profile.fovEffects=saved;game.items().rifleZoom().personalSettingsChanged(f.owner);}
     }
