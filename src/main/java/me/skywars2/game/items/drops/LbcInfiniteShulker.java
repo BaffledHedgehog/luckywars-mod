@@ -101,7 +101,7 @@ public final class LbcInfiniteShulker {
     public static boolean allowed(GameController game, ServerPlayer player) {
         return game != null && player != null && game.server().isSameThread()
                 && !player.isSpectator() && game.canUseGameplayItems(player)
-                && LbcDimensionItems.ordinary(player) && !MatchPlayerCheckpoint.restoring(player);
+                && LbcDimensionItems.crafting(player.level()) && !MatchPlayerCheckpoint.restoring(player);
     }
 
     /** Revalidate a cached deterministic result before vanilla owns debit/delivery. */
@@ -114,7 +114,7 @@ public final class LbcInfiniteShulker {
         boolean valid=allowed(game,player)&&!game.server().tickRateManager().isFrozen()
                 &&!game.items().timeStop().stopped(player.level())&&!game.items().wands().timeStopped()&&game.playing()&&game.stage()!=GameController.Stage.ENDING
                 &&player.isAlive()&&!player.isRemoved()&&!game.isObserver(player)&&!game.awaitingRespawn(player.getUUID())
-                &&player.level()==game.maps().level()&&game.items().wands().validRoleTarget(player,false)
+                &&LbcDimensionItems.crafting(game,player.level())&&game.items().wands().validRoleTarget(player,false)
                 &&!game.items().actionsBlocked(player)&&!game.items().wands().inputTimeStopped(player)
                 &&player.containerMenu==menu&&menu.stillValid(player);
         if(!valid)menu.sendAllDataToRemote();return !valid;

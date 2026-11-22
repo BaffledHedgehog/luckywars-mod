@@ -157,6 +157,21 @@ public final class RawRaycastSpellChecks {
                 var bolts=game.items().bolts();
                 require(owner.getMainHandItem().getCount()==1&&bolts.hasChain(witness)&&bolts.hasChain(areaEdge)
                         &&!bolts.hasChain(areaOutside),"raw lightning seeds all native targets within 16 blocks of impact and spends one scroll");
+                clean();stage++;launched=false;return false;
+            }
+            if(stage==11||stage==12){
+                var far=BlockPos.containing(origin.add(0,owner.getEyeHeight(),140));
+                if(!launched){
+                    preparePlayer();owner.teleportTo(level,origin.x,origin.y,origin.z,Set.of(),0,0,true);client.ack();
+                    level.setBlock(terminal,Blocks.AIR.defaultBlockState(),2|16|32);
+                    for(var cell:BlockPos.betweenClosed(far.offset(-4,-4,-4),far.offset(4,4,4)))save(cell);
+                    level.setBlock(far,Blocks.STONE.defaultBlockState(),2|16|32);
+                    require(game.items().ruby().scriptRay(owner,owner.getEyePosition(),new Vec3(0,0,1),stage==12),"actual unbounded Ruby input");
+                    stepStart=game.server().getTickCount();launched=true;return false;
+                }
+                boolean done=stage==11?level.getBlockState(far).isAir():level.getBlockState(far).is(Blocks.BEDROCK);
+                if(!done){require(elapsed<80,"shared resident Ruby ray reaches140 blocks without old60/100 cap");return false;}
+                if(stage==11){stage++;launched=false;return false;}
                 return true;
             }throw new IllegalStateException("unexpected raw test stage");
         }

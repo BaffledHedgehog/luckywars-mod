@@ -117,13 +117,21 @@ public final class LbcIslandDrops {
         // Native @e selection is after both terrain commands and is based on each entity's position.
         var selected=level.getEntities((Entity)null,new AABB(origin,origin).inflate(radius),
                 actor->eligible(actor,kind) && actor.position().distanceToSqr(origin)<=radius*radius);
-        for(var actor:List.copyOf(selected)) {
+        // Native teleport already moves all passengers recursively. Select each complete
+        // vehicle graph once, before any positions change; never teleport its riders again.
+        var roots=new java.util.LinkedHashSet<Entity>();
+        for(var actor:selected){
+            var root=actor.getRootVehicle();
+            if(root.getSelfAndPassengers().allMatch(member->eligible(member,kind)))roots.add(root);
+        }
+        for(var actor:roots) {
             if(actor.isRemoved())continue;
             var before=actor.position();var destination=before.add(0,dy,0);
+            var family=actor.getSelfAndPassengers().toList();
             if(execute(source(level,actor,before),"tp @s ~ ~"+dy+" ~")>0
-                    && actor.position().distanceToSqr(destination)<1.0e-12
-                    && actor instanceof LivingEntity living && author!=null)
-                game.items().indirectKills().teleported(living,author,true);
+                    && actor.position().distanceToSqr(destination)<1.0e-12 && author!=null)
+                for(var member:family)if(member instanceof LivingEntity living)
+                    game.items().indirectKills().teleported(living,author,true);
         }
         if(kind==LbcIslandDropItem.Kind.LOWER_OLD && copied.get())
             target.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,40,4,false,false,false),cause);

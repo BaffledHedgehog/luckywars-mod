@@ -318,7 +318,8 @@ public final class HedgehogChecks {
             require(input(InteractionHand.OFF_HAND)&&game.items().mana().get(owner)==0&&flag(stack,"upgrade_available")==1,"actual offhand sneak2500 trial immediately readies used stack");
             var walls=service.helpers().stream().filter(e->e.entityTags().contains("baffled_wall")).toList();require(walls.size()==65&&walls.stream().filter(Entity::isPassenger).count()==60,"five native13-high passenger towers");
             require(walls.stream().allMatch(e->e.getHealth()==30&&e.getMaxHealth()==30&&e.getAttributeValue(Attributes.ATTACK_DAMAGE)==10&&e.getAttributeValue(Attributes.ARMOR)==10&&e.getAttributeValue(Attributes.ARMOR_TOUGHNESS)==10),"all65 authored wall attributes");
-            require(walls.stream().filter(e->e.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)).count()==5,"only5 tower bases have source slow-falling");
+            require(walls.stream().allMatch(e->e.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)
+                    &&e.getEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING).isInfiniteDuration()),"all65 wall members keep gentle falling even after detachment");
             wallAcquisition(walls);
             var wall=walls.getFirst();float expected=switch(owner.level().getDifficulty()){case EASY->6;case HARD->15;case PEACEFUL->0;default->10;};require(expected>0,"combat fixture requires nonpeaceful difficulty");
             float hp=other.getHealth();other.damageCooldownTime=0;other.setInvulnerableTime(0);boolean allyHit=wall.doHurtTarget(owner.level(),other);require(allyHit&&Math.abs(other.getHealth()-(hp-expected))<1e-5,"source wall trap WILD against allied player: accepted="+allyHit+", before="+hp+", after="+other.getHealth()+", expected="+expected+", armor="+other.getArmorValue()+", difficulty="+owner.level().getDifficulty());

@@ -94,6 +94,9 @@ public final class TrollBoxChecks {
         void cleanupEntities(){var remove=new ArrayList<Entity>();for(var e:f.level.getAllEntities())if(!initial.contains(e.getUUID())&&!(e instanceof ServerPlayer))remove.add(e);for(var e:remove)f.discard(e);}
         void clear(){
             int ownerPackets=f.client().packets().size(),otherPackets=f.audience().packets().size();service.stop();
+            // A third participant can still be in Imprinted after outcome2; retire
+            // this scene's cages there as well before starting the next variant.
+            for(var actor:List.copyOf(game.items().cageDrops().snapshot()))if(!initial.contains(actor.getUUID())&&game.items().cageDrops().owner(actor)==f.owner)f.discard(actor);
             for(var packets:List.of(f.client().packets().subList(ownerPackets,f.client().packets().size()),f.audience().packets().subList(otherPackets,f.audience().packets().size())))
                 require(packets.stream().anyMatch(p->p instanceof net.minecraft.network.protocol.game.ClientboundStopSoundPacket stop
                         &&Identifier.parse("minecraft:lbcsounds.backrooms").equals(stop.getName())&&stop.getSource()==null),"cleanup stops the private Backrooms track for each viewer");
@@ -103,6 +106,20 @@ public final class TrollBoxChecks {
         Entity power(){return service.snapshot().stream().filter(e->e.entityTags().contains("movingpower")).findFirst().orElse(null);}
         void hunter(){var body=service.snapshot().stream().filter(WitherSkeleton.class::isInstance).map(WitherSkeleton.class::cast).findFirst().orElseThrow();require(body.isSilent()&&body.getMaxHealth()==20&&body.getAttributeBaseValue(Attributes.ATTACK_DAMAGE)==8&&body.hasEffect(MobEffects.INVISIBILITY)&&body.hasEffect(MobEffects.SPEED),"actual native hunter attributes/equipment/status");require(service.owner(body)==null&&game.items().spellSources().source(body).author()==null&&game.items().spellSources().source(body).cause()==null&&game.items().spellSources().source(body).unownedMobs(),"hunter is WILD and gives no apocalypse-owner kill credit");}
         void stones(){for(var at:BlockPos.betweenClosed(new BlockPos(-3,307,-3),new BlockPos(3,313,3)))f.set(at,Blocks.STONE.defaultBlockState());}
+        void stoneLoot(){
+            var key=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE,Identifier.parse("lbc:stoneman"));
+            var mobs=new ArrayList<net.minecraft.world.entity.Mob>();
+            for(var e:f.level.getAllEntities())if(e instanceof net.minecraft.world.entity.Mob mob&&mob.isAlive()&&mob.getLootTable().filter(key::equals).isPresent())mobs.add(mob);
+            require(!mobs.isEmpty(),"actual Backrooms structure contains native stone mob with its DeathLootTable");
+            var mob=mobs.getFirst();mob.teleportTo(origin.x,origin.y+25,origin.z);mob.setInvulnerableTime(0);mob.damageCooldownTime=0;
+            require(mob.hurtServer(f.level,mob.damageSources().genericKill(),Float.MAX_VALUE),"native structure stone mob death");
+            var output=f.level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,mob.getBoundingBox().inflate(3));
+            for(var item:List.of(Items.STONE,Items.COBBLESTONE)){
+                int count=output.stream().filter(e->e.getItem().is(item)).mapToInt(e->e.getItem().getCount()).sum();
+                require(count>=1&&count<=16,"actual stone mob death drops original1..16 "+item+" count="+count);
+            }
+            output.forEach(Entity::discard);
+        }
         boolean step(){
             require(!game.vanity().status().startsWith("FAILED"),"native coordinator failed: "+game.vanity().status());
             require(game.server().getTickCount()-started<2200,"bounded native scene phase="+phase+" result="+number+" variant="+variant+" state="+service.view()+" vanity="+game.vanity().status());int elapsed=game.server().getTickCount()-when;
@@ -115,7 +132,7 @@ public final class TrollBoxChecks {
                     if(elapsed<2)return false;require(ages().values().stream().anyMatch(v->v>0),"actual falling power native age/terrain frame");
                     for(var entry:Map.of(MobEffects.SLOWNESS,100,MobEffects.WEAKNESS,100,MobEffects.WITHER,5,MobEffects.BLINDNESS,1).entrySet())require(witness.hasEffect(entry.getKey())&&witness.getEffect(entry.getKey()).getAmplifier()==entry.getValue(),"native saturated-rate power WILD status "+entry+" actual="+witness.getEffect(entry.getKey()));witness=null;if(powerOnly)return true;nextOutcome();return false;}
                 if(number==4){if(service.view().placements()!=0)return false;require(f.level.getBlockState(BlockPos.containing(origin).below()).is(Blocks.STONE_BRICKS)&&expectedCagePlayers>=2&&game.items().cageDrops().snapshot().size()==2*expectedCagePlayers,"two authored anvils for every actual admitted participant: expected="+(2*expectedCagePlayers)+" actual="+game.items().cageDrops().snapshot().size());for(var e:game.items().cageDrops().snapshot())require(game.items().cageDrops().owner(e)==f.owner,"cage causal author");nextOutcome();return false;}
-                if(number==5){if(service.view().placements()!=0)return false;long changed=walls().values().stream().filter(s->!s.isAir()).count();require(changed>10000,"full functional25-template walls, not a reward-only mask: "+changed);nextOutcome();return false;}
+                if(number==5){if(service.view().placements()!=0)return false;long changed=walls().values().stream().filter(s->!s.isAir()).count();require(changed>10000,"full functional25-template walls, not a reward-only mask: "+changed);stoneLoot();nextOutcome();return false;}
                 if(number==6){require(service.view().abyss(),"real abyss event");f.move(f.other,new Vec3(origin.x,-1,origin.z));next(11);return false;}
             }
             if(phase==11){require(f.other.getY()>=320,"native abyss return from source block-zero column");f.move(f.other,origin.add(12,0,0));

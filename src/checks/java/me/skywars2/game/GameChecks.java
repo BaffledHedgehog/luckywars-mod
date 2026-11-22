@@ -5748,11 +5748,13 @@ public final class GameChecks {
                         var existingAcids = new java.util.HashSet<java.util.UUID>();
                         for (var entity : level.getAllEntities()) if (entity instanceof LbcClouds.AcidProjectile)
                                 existingAcids.add(entity.getUUID());
-                        mana.set(player, 249);
+                        int acidCost=mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("stacid_wand_mana_use"),"lbc.math").get();
+                        require(acidCost>0,"Configured ordinary Acid price is positive");
+                        mana.set(player, acidCost-1);
                         require(!craftedAcid.getItem().use(level, player, net.minecraft.world.InteractionHand.MAIN_HAND).consumesAction()
-                                        && mana.get(player) == 249 && game.items().clouds().acidCount() == acidBefore,
+                                        && mana.get(player) == acidCost-1 && game.items().clouds().acidCount() == acidBefore,
                                         "Crafted ordinary Acid rejects 249 mana without spawning a projectile");
-                        mana.set(player, 250);
+                        mana.set(player, acidCost);
                         boolean cast = craftedAcid.getItem().use(level, player, net.minecraft.world.InteractionHand.MAIN_HAND).consumesAction();
                         for (var entity : level.getAllEntities())
                                 if (entity instanceof LbcClouds.AcidProjectile acid && !existingAcids.contains(entity.getUUID())) spawnedAcids.add(acid);

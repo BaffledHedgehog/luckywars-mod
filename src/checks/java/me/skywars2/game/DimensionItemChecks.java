@@ -80,7 +80,20 @@ public final class DimensionItemChecks {
             var special=new ItemStack(Items.CARROT_ON_A_STICK);var data=new CompoundTag();data.putInt("nexus_roadgun",1);special.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             require(LbcDimensionItems.allowed(player,special)==player.level().dimension().identifier().toString().equals("minecraft:nexus"),"source Nexus-only exception classification, no new engine");
         }
-        boolean step(){client.acknowledge();require(game.server().getTickCount()-start<40,"bounded actual native dimension scheduler");if(!placementReady.isDone())return false;placementReady.join();controls();placements();if(stage++==0){transfer("minecraft:nexus");return false;}return true;}
+        void crafting(){
+            if(!player.level().dimension().equals(me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions.IMPRINTED))return;
+            var input=net.minecraft.world.item.crafting.CraftingInput.of(2,1,java.util.List.of(new ItemStack(LbcWands.TINY_RUBY),new ItemStack(LbcWands.TINY_RUBY)));
+            var kinds=me.skywars2.game.items.tools.LbcCraftingRecipe.Kind.values();
+            for(var kind:kinds)require(kind.recipe.matches(input,original)==kind.recipe.matches(input,player.level()),"every custom recipe shares arena/Imprinted matching: "+kind);
+            require(me.skywars2.game.items.tools.LbcCraftingRecipe.Kind.RUBY.recipe.matches(input,player.level()),"real tiny Ruby combination is admitted");
+            var grid=player.inventoryMenu.getCraftSlots();grid.clearContent();grid.setItem(0,input.getItem(0).copy());grid.setItem(1,input.getItem(1).copy());
+            player.inventoryMenu.slotsChanged(grid);
+            require(!player.inventoryMenu.getSlot(0).getItem().isEmpty(),"actual native2x2 Imprinted result preview");
+            player.inventoryMenu.clicked(0,0,net.minecraft.world.inventory.ContainerInput.PICKUP,player);
+            require(!player.inventoryMenu.getCarried().isEmpty()&&grid.isEmpty(),"actual Imprinted output take consumes both catalysts once");
+            player.inventoryMenu.setCarried(ItemStack.EMPTY);grid.clearContent();player.inventoryMenu.slotsChanged(grid);
+        }
+        boolean step(){client.acknowledge();require(game.server().getTickCount()-start<40,"bounded actual native dimension scheduler");if(!placementReady.isDone())return false;placementReady.join();crafting();controls();placements();if(stage++==0){transfer("minecraft:nexus");return false;}return true;}
         @Override public void close(){if(closed)return;closed=true;try{for(var entry:terrain.entrySet())game.maps().restoreSnapshot(entry.getKey().level(),entry.getKey().pos(),entry.getValue(),2|16|32);for(var entry:itemStats.entrySet())player.getStats().setValue(player,entry.getKey(),entry.getValue());if(player.level()!=original)player.teleportTo(original,at.x,at.y,at.z,java.util.Set.of(),0,0,true);client.acknowledge();saved.restore(game);saved.restoreAttributes();saved.restoreUse();client.acknowledge();}finally{try{client.close();}finally{attribution.close();}}}
     }
     private static Fixture running;

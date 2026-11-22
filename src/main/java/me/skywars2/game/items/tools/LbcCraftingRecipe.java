@@ -116,7 +116,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     @Override
     public boolean matches(CraftingInput input, Level level) {
         var game = SkyWars2.game();
-        return game != null && game.playing() && level == game.maps().level()
+        return game != null && game.playing() && (level == game.maps().level()
+                || level.dimension().equals(me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions.IMPRINTED))
                 && (kind==Kind.ROCKET ? !LbcItems.rocketCraftTarget(input).isEmpty() : craftingKind(input)==kind);
     }
 

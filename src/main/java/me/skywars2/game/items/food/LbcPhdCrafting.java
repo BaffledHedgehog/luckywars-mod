@@ -75,7 +75,7 @@ public final class LbcPhdCrafting {
         var game=me.skywars2.SkyWars2.game();
         boolean allowed=game!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING
                 &&player.isAlive()&&!player.isRemoved()&&game.canUseGameplayItems(player)&&!game.isObserver(player)
-                &&player.level()==game.maps().level()&&LbcDimensionItems.ordinary(player)
+                &&LbcDimensionItems.crafting(game,player.level())
                 &&game.items().wands().validRoleTarget(player,false)&&!game.items().actionsBlocked(player)
                 &&!game.server().tickRateManager().isFrozen()&&game.server().tickRateManager().runsNormally()
                 &&!game.items().timeStop().stopped(player.level())&&!game.items().wands().inputTimeStopped(player)

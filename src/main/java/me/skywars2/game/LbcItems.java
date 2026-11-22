@@ -1345,7 +1345,7 @@ public final class LbcItems {
 
     /** Preview не имеет побочных эффектов; частицы и звуки запускаются только при взятии результата. */
     public void rocketCraftTaken(ServerPlayer player, CraftingInput input) {
-        if (active(player) && !rocketCraftTarget(input).isEmpty()) rocketCraftEffects(player);
+        if (game.canUseGameplayItems(player)&&LbcDimensionItems.crafting(game,player.level()) && !rocketCraftTarget(input).isEmpty()) rocketCraftEffects(player);
     }
 
     public static boolean rocketIngredient(ItemStack stack) {
@@ -1399,11 +1399,10 @@ public final class LbcItems {
         entityBatch.addAll(rocketCraftDrops);
         for (Entity entity : entityBatch) {
             var donor = (ItemEntity) entity;
-            if (donor.isRemoved() || !game.playing() || !inArena(donor) || !rocketIngredient(donor.getItem())) {
+            if (donor.isRemoved() || !game.playing() || !LbcDimensionItems.crafting(game,donor.level()) || !rocketIngredient(donor.getItem())) {
                 rocketCraftDrops.remove(donor); continue;
             }
-            var dimension = donor.level().dimension().identifier().toString();
-            if (dimension.equals("minecraft:nexus") || dimension.equals("minecraft:imprinted")) continue;
+            if(timeStop.stopped((ServerLevel)donor.level())||timeStop.frozen(donor))continue;
             var targets = donor.level().getEntitiesOfClass(ItemEntity.class,
                     new AABB(donor.position(), donor.position()).inflate(1.000001), target -> target != donor
                             && donor.distanceToSqr(target) >= .000001 && donor.distanceToSqr(target) <= 1 && rocketRecipient(target.getItem()));
@@ -2200,7 +2199,7 @@ public final class LbcItems {
         bolts.loaded(entity);
         stand.loaded(entity);
         if (trinkets.loaded(entity)) { markCurrentItemEpoch(entity); return; }
-        if (entity instanceof ItemEntity item && game.playing() && inArena(item) && rocketIngredient(item.getItem())) {
+        if (entity instanceof ItemEntity item && game.playing() && LbcDimensionItems.crafting(game,item.level()) && rocketIngredient(item.getItem())) {
             rocketCraftDrops.add(item);
         }
         if (entity instanceof Marker marker && marker.entityTags().contains("nano_trapik")) {

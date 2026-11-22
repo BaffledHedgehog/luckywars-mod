@@ -22,6 +22,12 @@ public final class LbcDimensionItems {
     public static boolean ordinary(ServerPlayer player){return player!=null&&ordinary(player.level());}
     public static boolean blocked(Level level){return !ordinary(level);}
     public static boolean normal(Level level){return ordinary(level);}
+    /** Crafting is enabled in Imprinted even though ordinary item abilities are suspended. */
+    public static boolean crafting(Level level){return !nexus(level);}
+    public static boolean crafting(me.skywars2.game.GameController game,Level level){
+        return level!=null&&crafting(level)&&(level==game.maps().level()
+                ||level.dimension().equals(LbcHedgehogDimensions.IMPRINTED));
+    }
     /** Source vanilla carriers keep custom_data; registered native items also retain their namespace. */
     public static boolean custom(ItemStack stack){
         if(stack.isEmpty())return false;

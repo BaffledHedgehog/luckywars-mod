@@ -222,7 +222,9 @@ public final class LbcHedgehog {
                     Component.literal(switch(kind){case HEALER->"HealingHedgehog";case TANK->"HeavyHedgehog";case SNIPER->"SniperHedgehog";case LASER->"LaseringHedgehog";default->"BaffledHedgehog";}));
             if(kind==Kind.TANK){attribute(f,Attributes.MAX_HEALTH,100);attribute(f,Attributes.ATTACK_DAMAGE,15);attribute(f,Attributes.KNOCKBACK_RESISTANCE,1000);attribute(f,Attributes.ATTACK_KNOCKBACK,1);f.setHealth(100);}
             if(kind==Kind.WALL){attribute(f,Attributes.MAX_HEALTH,30);attribute(f,Attributes.FOLLOW_RANGE,200);attribute(f,Attributes.KNOCKBACK_RESISTANCE,100);
-                attribute(f,Attributes.ATTACK_DAMAGE,10);attribute(f,Attributes.ARMOR,10);attribute(f,Attributes.ARMOR_TOUGHNESS,10);f.setHealth(30);}
+                attribute(f,Attributes.ATTACK_DAMAGE,10);attribute(f,Attributes.ARMOR,10);attribute(f,Attributes.ARMOR_TOUGHNESS,10);f.setHealth(30);
+                // Every detached wall member must retain the source gentle fall too.
+                f.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,-1,1,false,false),p);}
             fish.add(f);game.items().markCurrentItemEpoch(f);game.items().timeStop().prepareFrozen(f);
             if(!level.addFreshEntity(f)||f.isRemoved()){retire(f);return null;}
             if(kind!=Kind.WALL)LbcOverload.sound(p,at,"minecraft:entity.silverfish.ambient",1,1.3f,0);return f;
@@ -240,8 +242,7 @@ public final class LbcHedgehog {
                 var point=at.add(left.scale(side)).add(forward);Fish previous=null;
                 for(int i=0;i<13;i++){
                     var next=spawn(author,level,point,Kind.WALL);if(next==null)break;count++;
-                    if(previous==null)next.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,-1,1,false,false),author);
-                    else next.startRiding(previous,true,true);previous=next;
+                    if(previous!=null)next.startRiding(previous,true,true);previous=next;
                 }
             }
             for(var p:game.server().getPlayerList().getPlayers())p.sendSystemMessage(Component.translatable("baffled_awakened").withStyle(ChatFormatting.DARK_RED));

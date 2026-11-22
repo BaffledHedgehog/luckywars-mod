@@ -56,7 +56,7 @@ public final class LbcMellstroyCrafting {
         var game=me.skywars2.SkyWars2.game();
         boolean valid=LbcInfiniteShulker.allowed(game,player)&&game.playing()&&game.stage()!=GameController.Stage.ENDING
                 &&player.isAlive()&&!player.isRemoved()&&!game.isObserver(player)&&!game.awaitingRespawn(player.getUUID())
-                &&player.level()==game.maps().level()&&game.items().wands().validRoleTarget(player,false)
+                &&LbcDimensionItems.crafting(game,player.level())&&game.items().wands().validRoleTarget(player,false)
                 &&!game.items().actionsBlocked(player)&&!game.server().tickRateManager().isFrozen()
                 &&game.server().tickRateManager().runsNormally()&&!game.items().timeStop().stopped(player.level())
                 &&!game.items().wands().timeStopped()&&!game.items().wands().inputTimeStopped(player)
@@ -69,31 +69,36 @@ public final class LbcMellstroyCrafting {
         LbcOverload.sound(level,at,"minecraft:lbcsounds.pampampam",2,1,0,0);
         if(player!=null)game.items().mana().award(player,"lbc:true_advancements/legends/mellstroy_mask");
     }
-    public void loaded(Entity entity){if(entity instanceof ItemEntity item&&entity.level()==game.maps().level())items.add(item);}
+    public void loaded(Entity entity){if(entity instanceof ItemEntity item&&LbcDimensionItems.crafting(game,entity.level()))items.add(item);}
     public void unloaded(Entity entity){items.remove(entity);}
     public void stop(){items.clear();phase=0;}
     public record Snapshot(int phase){}
     public Snapshot snapshot(){return new Snapshot(phase);}
     public void restore(Snapshot state){phase=state==null?0:state.phase();}
-    private boolean eligible(ItemEntity item){return !item.isRemoved()&&item.level()==game.maps().level()
-            &&ingredient(item.getItem())&&!game.items().hasStaleItemEpoch(item)&&!item.entityTags().contains("time_stopped");}
+    private boolean eligible(ItemEntity item){return !item.isRemoved()&&LbcDimensionItems.crafting(game,item.level())
+            &&ingredient(item.getItem())&&!game.items().hasStaleItemEpoch(item)&&!item.entityTags().contains("time_stopped")
+            &&!game.items().timeStop().stopped((ServerLevel)item.level());}
     private static void consume(ItemEntity item){if(item.getItem().getCount()==1)item.discard();else item.setItem(item.getItem().copyWithCount(item.getItem().getCount()-1));}
     public void tick(){
-        items.removeIf(item->item.isRemoved()||item.level()!=game.maps().level());
-        var level=game.maps().level();
-        if(level==null||!game.playing()||game.stage()==GameController.Stage.ENDING||!LbcDimensionItems.ordinary(level)
+        items.removeIf(item->item.isRemoved()||!LbcDimensionItems.crafting(game,item.level()));
+        if(!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally()
-                ||game.items().timeStop().stopped(level)||game.items().wands().timeStopped())return;
+                ||game.items().wands().timeStopped())return;
+        if(items.stream().noneMatch(this::eligible))return;
         phase=(phase+1)%20;if(phase!=0)return;
+        var spent=new java.util.HashSet<ItemEntity>();
         for(var first:List.copyOf(items)){
-            if(!eligible(first)||LbcFartus.data(first.getItem()).getIntOr("craftusable",0)!=1)continue;
-            for(var second:level.getEntitiesOfClass(ItemEntity.class,first.getBoundingBox().inflate(1),other->other!=first&&eligible(other)
-                    &&other.position().distanceToSqr(first.position())>=.000001&&other.position().distanceToSqr(first.position())<=1)){
+            if(spent.contains(first)||!eligible(first)||LbcFartus.data(first.getItem()).getIntOr("craftusable",0)!=1)continue;
+            var level=(ServerLevel)first.level();
+            List<ItemEntity> partners=level.getEntitiesOfClass(ItemEntity.class,first.getBoundingBox().inflate(1),other->other!=first&&!spent.contains(other)&&eligible(other)
+                    &&other.position().distanceToSqr(first.position())>=.000001&&other.position().distanceToSqr(first.position())<=1);
+            if(partners.isEmpty()&&first.getItem().getCount()>=2)partners=List.of(first);
+            for(var second:partners){
                 var stack=result(game);if(stack.isEmpty())return;
                 var at=first.position();var output=new ItemEntity(level,at.x,at.y,at.z,stack);output.setDefaultPickUpDelay();
                 if(first.getOwner() instanceof net.minecraft.world.entity.LivingEntity owner)output.setThrower(owner);
                 game.items().markCurrentItemEpoch(output);if(!level.addFreshEntity(output))break;
-                consume(first);consume(second);
+                consume(first);consume(second);spent.add(first);spent.add(second);
                 ServerPlayer nearest=null;double distance=196;
                 for(var player:level.players())if(!player.isSpectator()&&player.position().distanceToSqr(at)<=distance){nearest=player;distance=player.position().distanceToSqr(at);}
                 crafted(game,level,at,nearest);break;

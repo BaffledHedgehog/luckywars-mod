@@ -28,7 +28,7 @@ public final class TeleportMomentumMixin {
         @WrapMethod(method="teleport(Lnet/minecraft/world/entity/PositionMoveRotation;Ljava/util/Set;)V")
         private void skywars2$positionKeepsMomentum(PositionMoveRotation destination,Set<Relative> relatives,Operation<Void> original) {
             // A nonzero payload is an explicit motion transition, e.g. a rotated portal exit.
-            if(!destination.deltaMovement().equals(Vec3.ZERO)){original.call(destination,relatives);return;}
+            if(TeleportMomentum.stopping(player)||!destination.deltaMovement().equals(Vec3.ZERO)){original.call(destination,relatives);return;}
             Vec3 velocity=player.getDeltaMovement();
             try {original.call(destination,TeleportMomentum.positionFlags(relatives));}
             // Native teleportSetPosition reads lastKnownClientMovement, not server delta.

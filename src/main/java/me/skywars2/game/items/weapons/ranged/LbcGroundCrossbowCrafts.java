@@ -16,8 +16,9 @@ public final class LbcGroundCrossbowCrafts {
     private LbcGroundCrossbowCrafts(){}
     private static boolean admitted(ItemEntity item){
         var game=SkyWars2.game();
-        return game!=null&&!item.isRemoved()&&game.playing()&&item.level()==game.maps().level()
-                &&LbcDimensionItems.ordinary(item.level())&&ItemData.intValue(item.getItem(),"fast",0)==1
+        return game!=null&&!item.isRemoved()&&game.playing()
+                &&(item.level()==game.maps().level()||item.level().dimension().equals(me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions.IMPRINTED))
+                &&LbcDimensionItems.crafting(item.level())&&ItemData.intValue(item.getItem(),"fast",0)==1
                 &&!game.items().timeStop().stopped((ServerLevel)item.level())&&!game.items().timeStop().frozen(item);
     }
     public static boolean tick(ItemEntity item){

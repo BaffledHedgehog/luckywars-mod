@@ -131,14 +131,15 @@ public final class LbcNyauwuCrafting {
     }
 
     public void loaded(Entity entity){
-        if(entity instanceof ItemEntity item&&item.level()==game.maps().level())items.add(item);
+        if(entity instanceof ItemEntity item&&LbcDimensionItems.crafting(game,item.level()))items.add(item);
     }
     public void unloaded(Entity entity){items.remove(entity);}
     public void stop(){items.clear();phase=0;}
 
     private boolean eligible(ItemEntity item){
-        return !item.isRemoved()&&item.level()==game.maps().level()&&!item.getItem().isEmpty()
-                &&!game.items().hasStaleItemEpoch(item)&&!item.entityTags().contains("time_stopped");
+        return !item.isRemoved()&&LbcDimensionItems.crafting(game,item.level())&&!item.getItem().isEmpty()
+                &&!game.items().hasStaleItemEpoch(item)&&!item.entityTags().contains("time_stopped")
+                &&!game.items().timeStop().stopped((ServerLevel)item.level());
     }
     private static void consumeOne(ItemEntity item){
         if(item.getItem().getCount()==1)item.discard();
@@ -148,7 +149,7 @@ public final class LbcNyauwuCrafting {
     /** Shulker upgrades share the established tracked ground cadence and atomic publication. */
     private boolean tryInfiniteShulker(ItemEntity first){
         if(!LbcInfiniteShulker.isBase(first.getItem())&&!LbcInfiniteShulker.isUpgraded(first.getItem()))return false;
-        var level=game.maps().level();
+        var level=(ServerLevel)first.level();
         for(var second:level.getEntitiesOfClass(ItemEntity.class,first.getBoundingBox().inflate(1),other->
                 other!=first&&eligible(other)&&other.position().distanceToSqr(first.position())>=.000001
                         &&other.position().distanceToSqr(first.position())<=1)){
@@ -169,7 +170,7 @@ public final class LbcNyauwuCrafting {
     /** Ground-only source recipe. Five-item native publication is transactional before debit. */
     private boolean tryTechnoSet(ItemEntity wand){
         if(!eligible(wand)||LbcFartus.data(wand.getItem()).getIntOr("stelectro_tiny",0)!=1)return false;
-        var level=game.maps().level();
+        var level=(ServerLevel)wand.level();
         var iron=new ItemEntity[4];
         var ironItems=List.of(Items.IRON_HELMET,Items.IRON_CHESTPLATE,Items.IRON_LEGGINGS,Items.IRON_BOOTS);
         // One bounded lookup around the already tracked donor; source matches native iron item IDs.
@@ -206,13 +207,12 @@ public final class LbcNyauwuCrafting {
     }
 
     public void tick(){
-        var level=game.maps().level();
-        if(level==null||!game.playing()||game.stage()==GameController.Stage.ENDING||!LbcDimensionItems.ordinary(level)
-                ||game.items().timeStop().stopped(level)||game.items().wands().timeStopped())return;
+        if(!game.playing()||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
         phase=(phase+1)%20;if(phase!=0)return;
-        items.removeIf(item->item.isRemoved()||item.level()!=level);
+        items.removeIf(item->item.isRemoved()||!LbcDimensionItems.crafting(game,item.level()));
         for(var first:List.copyOf(items)){
             if(!eligible(first)||LbcFartus.data(first.getItem()).getIntOr("craftusable",0)!=1)continue;
+            var level=(ServerLevel)first.level();
             if(tryInfiniteShulker(first)||tryTechnoSet(first))continue;
             for(var fusion:Fusion.values()){
                 if(!eligible(first))break;

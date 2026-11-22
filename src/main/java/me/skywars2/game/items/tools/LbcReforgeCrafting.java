@@ -33,7 +33,8 @@ public final class LbcReforgeCrafting {
     private static boolean eligible(GameController game,ServerPlayer player,AbstractContainerMenu menu) {
         return game!=null && game.playing() && game.canUseGameplayItems(player) && player.isAlive()
                 && !player.isRemoved() && !player.isSpectator() && !game.isObserver(player)
-                && !game.awaitingRespawn(player.getUUID()) && player.level()==game.maps().level()
+                && !game.awaitingRespawn(player.getUUID()) && (player.level()==game.maps().level()
+                    ||player.level().dimension().equals(me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions.IMPRINTED))
                 && !game.items().timeStop().stopped(player.level()) && player.containerMenu==menu
                 && menu.stillValid(player);
     }

@@ -49,9 +49,7 @@ public final class LbcRuby {
     private static final int DRILL_SAMPLES_PER_TICK=6;
     private static final double DRILL_STEP=.3;
     private static final double DRILL_HALF=.6;
-    private static final double HOLE_RANGE=100;
     private static final double HOLE_SAMPLE=.5;
-    private static final double RAY_RANGE=60;
     private static final double RAY_SAMPLE=.2;
     private static final DustParticleOptions DRILL_PARTICLE=new DustParticleOptions(0xD400FF,1);
     private static final DustParticleOptions HOLE_PARTICLE=new DustParticleOptions(0x5C2672,1);
@@ -203,28 +201,12 @@ for(int sample=0;sample<=Math.ceil(distance/DRILL_STEP);sample++) {
         }
     }
 
-    /** Academy mode 2: нативный первый hit, а .5-блоковые samples задают trail/длину. */
+    /** Academy instant modes share the resident, CPU-budgeted ray scheduler. */
     private void holeRay(ServerPlayer owner) {holeRay(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
     private void holeRay(ServerPlayer owner,Vec3 from,Vec3 direction) {
-        var level=sourceLevel(owner);
-        Vec3 limit=from.add(direction.scale(HOLE_RANGE));
-        double boundary=game.items().magic().suppressionFraction(level,from,limit);
-        if(Double.isFinite(boundary))limit=from.lerp(limit,boundary);
-        HitResult hit=game.items().wands().firstHit(owner,from,limit);
         sourceSound(owner,from,"minecraft:block.amethyst_cluster.break",1,.1f,0);
-        Vec3 end=hit==null?limit:hit.getLocation();
-        double distance=from.distanceTo(end);
-        try(var holeVisual=new LbcParticleBatch.Group(level,HOLE_PARTICLE,0,0,true)){
-for(double step=0;step<=distance+1e-7;step+=HOLE_SAMPLE) {
-            Vec3 point=from.add(direction.scale(Math.min(distance,step)));
-            if(!level.hasChunkAt(BlockPos.containing(point))) return;
-            holeVisual.add(point);
-        }
-}
-        if(hit==null || Double.isFinite(boundary)&&from.distanceToSqr(hit.getLocation())>=from.distanceToSqr(limit)-1e-9
-                || (hit instanceof BlockHitResult wall && !level.hasChunkAt(wall.getBlockPos()))) return;
-        // На положительной грани floor(hit) указывает уже на соседний воздух; центр нужен внутри встретившегося блока.
-        createHole(owner,hit instanceof BlockHitResult ? end.add(direction.scale(1e-5)) : end);
+        game.items().exasperato().replayableTool(owner,from,direction,Double.POSITIVE_INFINITY,false,
+                new InstantRay(owner,from,direction,true),false);
     }
 
     private void createHole(ServerPlayer owner,Vec3 point) {
@@ -242,7 +224,8 @@ for(double step=0;step<=distance+1e-7;step+=HOLE_SAMPLE) {
         for(var target:level.getEntitiesOfClass(LivingEntity.class,area,
                 candidate->candidate!=owner && candidate.position().distanceToSqr(point)<=9 && validEnemy(owner,candidate))) {
             if(!validOwner(owner)) break;
-            Vec3 destination=point;
+            // Feet inside the actual bedrock cell, never on its surface or its hit face.
+            Vec3 destination=Vec3.atBottomCenterOf(center);
             if(target instanceof ServerPlayer player)syncCompressionBlocks(player,center);
             TeleportMomentum.teleportStopped(target,destination);
             game.items().indirectKills().displaced(target,owner);
@@ -268,20 +251,42 @@ for(double step=0;step<=distance+1e-7;step+=HOLE_SAMPLE) {
     /** Academy mode 3 удаляет все блоки по лучу, включая bedrock, без урона существам. */
     private void cuttingRay(ServerPlayer owner) {cuttingRay(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
     private void cuttingRay(ServerPlayer owner,Vec3 origin,Vec3 direction) {
-        var level=sourceLevel(owner);
         sourceSound(owner,origin,"minecraft:block.amethyst_cluster.break",1,.1f,0);
-        var visited=new LongOpenHashSet(256);
-        double boundary=game.items().magic().suppressionFraction(level,origin,origin.add(direction.scale(RAY_RANGE)))*RAY_RANGE;
-        try {
-            try(var rubyRay=new LbcParticleBatch.Group(level,RAY_PARTICLE,0,0,true)){
-for(double step=0;step<=RAY_RANGE+1e-7&&step<boundary;step+=RAY_SAMPLE) {
-                Vec3 point=origin.add(direction.scale(step));
-                if(!level.hasChunkAt(BlockPos.containing(point))) break;
-                rubyRay.add(point);
-                digCube(owner,point,.1,visited);
+        game.items().exasperato().replayableTool(owner,origin,direction,Double.POSITIVE_INFINITY,true,
+                new InstantRay(owner,origin,direction,false),false);
+    }
+    private final class InstantRay implements LbcExasperato.ReplayableRay {
+        final ServerPlayer owner;final Vec3 origin,direction;final boolean compression;
+        final net.minecraft.server.level.ServerLevel level;final LbcSpellSource.Source source;
+        InstantRay(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean compression){
+            this.owner=owner;this.origin=origin;this.direction=direction.normalize();this.compression=compression;
+            level=sourceLevel(owner);source=game.items().spellSources().current();
+        }
+        public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return compression&&!state.isAir();}
+        public boolean target(Entity entity){return compression&&entity instanceof LivingEntity living&&validEnemy(owner,living);}
+        public void trail(Vec3 from,Vec3 to){
+            try(var scope=game.items().spellSources().scope(source,level)){
+                if(!compression)try{
+                    // Traverse each occupied voxel once; empty palettes can be skipped whole.
+                    me.skywars2.game.entities.projectiles.ResidentBlockRay.clip(level,from,to,(pos,state)->{
+                        if(!state.isAir())game.items().wands().destroyRubyCell(owner,pos.immutable());
+                        return net.minecraft.world.phys.shapes.Shapes.empty();
+                    },true,true);
+                }finally{game.items().indirectKills().finishSupportRemoval();}
+                double step=compression?HOLE_SAMPLE:RAY_SAMPLE;
+                double start=origin.distanceTo(from),end=origin.distanceTo(to);
+                try(var visual=new LbcParticleBatch.Group(level,compression?HOLE_PARTICLE:RAY_PARTICLE,0,0,true)){
+                    for(double at=Math.ceil((start-1e-7)/step)*step;at<=end+1e-7;at+=step)
+                        visual.add(origin.add(direction.scale(Math.max(0,at))));
+                }
             }
 }
-        } finally { game.items().indirectKills().finishSupportRemoval(); }
+        public void complete(HitResult hit){
+            if(!compression||hit==null)return;
+            try(var scope=game.items().spellSources().scope(source,level)){
+                createHole(owner,hit instanceof BlockHitResult?hit.getLocation().add(direction.scale(1e-5)):hit.getLocation());
+            }
+        }
     }
 
     private boolean validEnemy(ServerPlayer owner,LivingEntity target) {

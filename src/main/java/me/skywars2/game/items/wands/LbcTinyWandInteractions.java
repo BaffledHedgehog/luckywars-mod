@@ -58,19 +58,20 @@ public final class LbcTinyWandInteractions {
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())
             throw new IllegalStateException("Reindex Tiny catalysts on the frozen native thread");
         stop();var level=game.maps().level();
-        if(level==null||!game.playing()||!LbcDimensionItems.ordinary(level))return;
+        if(level==null||!game.playing())return;
         for(var body:bodies)if(body instanceof ItemEntity item&&item.isAlive()&&!item.isRemoved()
-                &&item.level()==level&&level.getEntity(item.getUUID())==item&&!game.items().hasStaleItemEpoch(item))itemChanged(item);
+                &&LbcDimensionItems.crafting(game,item.level())&&((ServerLevel)item.level()).getEntity(item.getUUID())==item&&!game.items().hasStaleItemEpoch(item))itemChanged(item);
     }
     private boolean eligible(ItemEntity item){return item.isAlive()&&!item.isRemoved()&&!item.getItem().isEmpty()
-            &&item.level()==game.maps().level()&&!game.items().hasStaleItemEpoch(item)
-            &&!game.items().timeStop().frozen(item);}
+            &&LbcDimensionItems.crafting(game,item.level())&&!game.items().hasStaleItemEpoch(item)
+            &&!game.items().timeStop().stopped((ServerLevel)item.level())&&!game.items().timeStop().frozen(item);}
     private static boolean thrown(ItemEntity item){return ((TinyWandItemAccess)item).skywars2$thrower()!=null;}
     public void tick(){
         var level=game.maps().level();
         if(level==null||!game.playing()||game.stage()==GameController.Stage.ENDING||game.supernovaMapTransition()
-                ||!LbcDimensionItems.ordinary(level)||game.items().timeStop().stopped(level)||game.items().wands().timeStopped())return;
-        for(var player:level.players())if(player.isAlive()&&!game.isObserver(player)&&game.canUseGameplayItems(player)
+                ||game.items().wands().timeStopped())return;
+        for(var player:game.server().getPlayerList().getPlayers())if(player.isAlive()&&!game.isObserver(player)&&game.canUseGameplayItems(player)
+                &&LbcDimensionItems.crafting(game,player.level())&&!game.items().timeStop().stopped(player.level())
                 &&!game.items().timeStop().frozen(player))crafting(player);
         if(++phase<20)return;phase=0;
         for(var item:List.copyOf(catalysts.values())){
