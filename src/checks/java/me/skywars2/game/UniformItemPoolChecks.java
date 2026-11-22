@@ -89,6 +89,7 @@ public final class UniformItemPoolChecks {
             require(found,"mana transport represented by its real source dose domain");
         }
         require(service.complete(),"all current registered native IDs have an authored or explicitly audited complete-default admission");
+        guiIsolation(game,player,manifest,custom);
         shockQuantityBoundary(game,manifest,params);
         // Raw authored quantities include zero and overstack outcomes. Validate their
         // unchanged components, then the actual native public materialization boundary.
@@ -115,6 +116,17 @@ public final class UniformItemPoolChecks {
         var second=tmt.get(1).copy();tmt.getFirst().setCount(0);require(ItemStack.matches(second,tmt.get(1)),"generated outputs do not alias private state");
         wrappers(game,context,params,factory,custom.size());
         SkyWars2.LOGGER.info("[check] PASS uniform-item-pools (exact authored/native/vanilla membership, one union index, source-profile closure, one fresh five-form TMT factory and native count wrappers); complete={} findings={}",service.complete(),service.findings().size());
+    }
+    private static void guiIsolation(GameController game,net.minecraft.server.level.ServerPlayer player,JsonObject manifest,List<String> custom){
+        require(!custom.contains("custom/60130d839b46a36fe6ee"),"orphaned legacy menu paper cannot reappear through the all-item pool");
+        require(manifest.getAsJsonObject("excludedSourceRoots").has("lbc:item_defs/minecraft/paper__60130d839b46"),"copied UI definition has an explicit service exclusion");
+        for(String carrier:List.of("skywars2:lucky_block","skywars2:kill_button","skywars2:win_button"))
+            require(java.util.stream.StreamSupport.stream(manifest.getAsJsonArray("custom").spliterator(),false)
+                    .anyMatch(value->value.getAsJsonObject().getAsJsonObject("identity").get("carrier").getAsString().equals(carrier)),
+                    "playable item stays eligible even when used as a menu preview or named a button: "+carrier);
+        var gui=game.lbc().rollTable(player.level(),player.position(),player,"lbc:gui/page/9000/9");
+        require(gui.size()==1&&Identifier.parse("lbc:windik").equals(gui.getFirst().get(DataComponents.ITEM_MODEL)),
+                "actual GUI loot table still returns its original menu icon");
     }
     /** validateComponents is private in26.3; public strict validation of an identical
      * count1 copy runs that native validator without conflating raw loot quantity. */

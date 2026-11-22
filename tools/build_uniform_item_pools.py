@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TABLES = ROOT / 'src/main/resources/data/lbc/loot_table'
 OUTPUT = ROOT / 'src/main/resources/skywars2/all_item_pools.json'
 EXCLUDED_NATIVE = {'skywars2:dev_tools': 'Developer UI',
+                   'skywars2:legacy_swapper': 'True Legacy-only replacement of the ordinary swapper, not an ordinary lucky-block outcome',
                    'skywars2:clock_fragment': 'Time-acceleration fragments cancelled by the author; archived source only'}
 TMT_NATIVE = {'skywars2:tmt_token', 'skywars2:tmt_carrot_on_a_stick', 'skywars2:tmt_bow',
               'skywars2:tmt_snowball', 'skywars2:tmt_crossbow', 'skywars2:tmt_golden_apple'}
@@ -110,6 +111,31 @@ def flat_leaf(entry, chain):
 
 def service_table(name):
     return name.startswith('lbc:gui/')
+
+
+def service_profile(chain):
+    """Recognize copied UI text, without treating gameplay previews as UI items."""
+    def ui_text(value):
+        if isinstance(value, list):
+            return any(ui_text(child) for child in value)
+        if not isinstance(value, dict):
+            return False
+        if value.get('storage') == 'swrg:lang' and re.match(r'^page\d+(?:\.|\[)', str(value.get('nbt', ''))):
+            return True
+        if str(value.get('translate', '')).startswith(('menu.', 'skywars2.gui.', 'lbc.gui.')):
+            return True
+        return any(ui_text(child) for child in value.values())
+    for modifier in chain:
+        kind = node_kind(modifier)
+        if kind == 'set_name' and ui_text(modifier.get('name')):
+            return True
+        if kind == 'set_lore' and ui_text(modifier.get('lore')):
+            return True
+        if kind == 'set_components':
+            for key, value in modifier.get('components', {}).items():
+                if key.removeprefix('minecraft:') in {'custom_name', 'item_name', 'lore'} and ui_text(value):
+                    return True
+    return False
 
 
 def table_references(node):
@@ -226,7 +252,8 @@ def build(table_root=TABLES):
     excluded_source_roots = {}
     for name in docs:
         owners = usage_owners(name) if name.startswith('lbc:item_defs/') else set()
-        if service_table(name) or owners and all(service_table(owner) for owner in owners):
+        payload = standalone(docs[name])
+        if service_table(name) or owners and all(service_table(owner) for owner in owners) or payload is not None and service_profile(modifiers(payload)):
             excluded_source_roots[name] = {'reason': 'GUI preview/service-only canonical owner', 'usageOwners': sorted(owners)}
     qualified_source = subprocess.run(['git', 'show', QUALIFIED_ACADEMY], cwd=ROOT,
                                      check=True, capture_output=True).stdout.decode('utf-8')
@@ -264,6 +291,9 @@ def build(table_root=TABLES):
             blocked.append(row)
 
     def expand_table(name):
+        # A random-item alias must not reopen service-only tables excluded as roots.
+        if name in excluded_source_roots:
+            return []
         if name in memo:
             return memo[name]
         if name in active:
@@ -279,8 +309,12 @@ def build(table_root=TABLES):
             for pi, pool in enumerate(doc['pools']):
                 for ei, entry in enumerate(pool.get('entries', [])):
                     for leaf, chain, origin in expand_entry(entry, name, ['pools', pi, 'entries', ei]):
+                        full_chain = chain + modifiers(pool) + modifiers(doc)
+                        if service_profile(full_chain):
+                            findings.append({'table': name, 'path': origin['path'], 'reason': 'GUI text profile excluded from gameplay selection'})
+                            continue
                         rows.append((boundary(boundary(leaf, pool), doc),
-                                     chain + modifiers(pool) + modifiers(doc), origin))
+                                     full_chain, origin))
         active.remove(name)
         memo[name] = rows
         return rows
@@ -556,6 +590,13 @@ def selector_resources(result):
 
 
 def self_test():
+    assert service_table('lbc:gui/page/9000/9')
+    assert service_profile([{'type': 'minecraft:set_name', 'name': {'storage': 'swrg:lang', 'nbt': 'page0.s26.Name'}}])
+    assert service_profile([{'type': 'minecraft:set_components', 'components': {'minecraft:custom_name': {'translate': 'menu.personal_settings'}}}])
+    assert service_profile([{'type': 'minecraft:set_lore', 'lore': [{'extra': [{'translate': 'skywars2.gui.close'}]}]}])
+    assert not service_profile([{'type': 'minecraft:set_name', 'name': {'translate': 'lbckit.18'}}])
+    assert not service_profile([{'type': 'minecraft:set_lore', 'lore': [{'storage': 'swrg:lang', 'nbt': 'item.kit12_1.Lore'}]}])
+    assert not service_profile([{'type': 'minecraft:set_name', 'name': {'translate': 'kill_button'}}])
     a = {'type': 'minecraft:item', 'name': 'minecraft:stick', 'modifier': [
         {'type': 'minecraft:set_custom_data', 'tag': '{wand:1,mode:2}'},
         {'type': 'minecraft:set_count', 'count': 64}]}

@@ -580,7 +580,6 @@
     "lbc:items/op_potion__ba557b67cd",
     "lbc:items/oreshek",
     "lbc:items/otchim_spawn_egg",
-    "lbc:items/paper",
     "lbc:items/penis_cultus",
     "lbc:items/penis_damage",
     "lbc:items/penis_health",
@@ -7006,12 +7005,6 @@
       "slot": "custom/60047e76f9cc4fb2f21c",
       "carrier": "skywars2:mystical_artifact",
       "generated": false
-    },
-    {
-      "table": "lbc:items/paper",
-      "slot": "custom/60130d839b46a36fe6ee",
-      "carrier": "minecraft:paper",
-      "generated": true
     },
     {
       "table": "lbc:items/item.minecraft.diamond_axe",
@@ -15303,7 +15296,6 @@
     "lbc:items/op_potion__ba557b67cd",
     "lbc:items/oreshek",
     "lbc:items/otchim_spawn_egg",
-    "lbc:items/paper",
     "lbc:items/penis_cultus",
     "lbc:items/penis_damage",
     "lbc:items/penis_health",
@@ -16901,5 +16893,5 @@
     "lbc:white_arrow",
     "lbc:wtf_item"
   ],
-  "all_item_manifest_sha256": "d8ef761e4e025337336c183bb17725e32af390e677c226627a4c184df9a6c213"
+  "all_item_manifest_sha256": "77c3347dca99e402c77b0b42098e49188841e2b90120d58b5eb8e3934b35d38f"
 }
