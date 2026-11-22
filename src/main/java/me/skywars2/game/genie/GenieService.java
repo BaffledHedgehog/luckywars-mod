@@ -192,11 +192,20 @@ public final class GenieService implements AutoCloseable {
                 var components=net.minecraft.core.component.DataComponentPatch.CODEC.parse(
                         game.server().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),
                         me.skywars2.game.genie.script.ScriptJson.parse(grant.components())).getOrThrow();
-                reward = GenieScriptItem.construct(code, grant.carrier(), grant.name(), grant.description(), 1,components);
+                if (grant.lootTable().isEmpty()) {
+                    reward = GenieScriptItem.construct(code, grant.carrier(), grant.name(), grant.description(), grant.count(),components);
+                } else {
+                    var stacks=game.lbc().rollTable(wish.owner.level(),wish.owner.position(),wish.owner,grant.lootTable());
+                    if(stacks.size()!=1||stacks.getFirst().isEmpty())throw new IllegalArgumentException("gift source must produce exactly one item stack");
+                    reward=GenieScriptItem.construct(code,stacks.getFirst().copyWithCount(grant.count()),grant.name(),grant.description(),components);
+                }
                 if (!grant.nativeAbilities().isEmpty())
                     reward = game.items().tmt().genieAbilities().attach(reward, Identifier.parse(grant.icon()), grant.nativeAbilities());
             }
-            catch (RuntimeException invalid) { finishReward(wish, ItemStack.EMPTY, null, false); return; }
+            catch (RuntimeException invalid) {
+                me.skywars2.SkyWars2.LOGGER.warn("Genie gift construction failed for program {}: {}", code.id(), invalid.toString());
+                finishReward(wish, ItemStack.EMPTY, null, false); return;
+            }
             if (finishReward(wish, reward, grant.answer(), false)) remember(recentScriptTwists, grant.twist());
         }));
     }

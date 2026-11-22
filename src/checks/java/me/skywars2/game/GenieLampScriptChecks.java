@@ -13,6 +13,7 @@ import java.util.concurrent.*;
 import me.skywars2.game.commands.SkyWarsFeedbackCommands;
 import me.skywars2.game.entities.mobs.summons.LbcSummons;
 import me.skywars2.game.genie.*;
+import me.skywars2.game.genie.GenieNative;
 import me.skywars2.game.genie.script.*;
 import me.skywars2.game.gui.loadouts.LbcLoadouts;
 import me.skywars2.game.items.wands.LbcSauvojen;
@@ -36,7 +37,7 @@ import me.skywars2.game.effects.magic.LbcMana;
 
 /** Native lamp packets and inventory publication. The model observation is injected at the browser boundary. */
 final class GenieLampScriptChecks implements AutoCloseable {
-    private record Call(boolean second, JsonObject contract, String nativeVariant,
+    private record Call(boolean second, boolean stack, boolean repair, JsonObject contract, String nativeVariant,
                         CompletableFuture<GenieScriptModel.Observation> response) {}
     private final GameController game;
     private final WoolBucketChecks.Fixture base;
@@ -60,6 +61,8 @@ final class GenieLampScriptChecks implements AutoCloseable {
             @Override public GenieScriptModel.Observation run(String prompt, String knowledge, String contract, byte[] verifier)
                     throws Exception {
             require(prompt.contains("LuckyWars script lamp witness"), "real player input reaches the scripted wish prompt");
+            require(prompt.contains("item.loot_table")&&prompt.contains("item.count=64")&&prompt.contains("never substitute a renamed vanilla item"),
+                    "model receives canonical gift source and actual stack-count instructions");
             require(!game.server().isSameThread(), "model runs away from the tick thread");
             require(new String(verifier, StandardCharsets.UTF_8).contains(GenieScriptReply.VERIFIER_VERSION), "actual versioned checker is packaged");
             // Game reference data includes every loaded table and locale. It is not a VM program.
@@ -276,7 +279,8 @@ final class GenieLampScriptChecks implements AutoCloseable {
                     "the resource-pack translation is attached by its exact key");
             }
             var response = new CompletableFuture<GenieScriptModel.Observation>();
-            requests.add(new Call(prompt.contains("second player"), ScriptJson.parse(contract), nativeVariant, response));
+            requests.add(new Call(prompt.contains("second player"),prompt.contains("canonical lucky stack"),
+                    prompt.contains("technical item-constructor error"),ScriptJson.parse(contract),nativeVariant,response));
             return response.get(8, TimeUnit.SECONDS);
             }
         });
@@ -295,6 +299,9 @@ final class GenieLampScriptChecks implements AutoCloseable {
     }
 
     void submit() {
+        submit("LuckyWars script lamp witness");
+    }
+    private void submit(String wish) {
         base.owner.getInventory().setSelectedSlot(0);
         base.owner.getInventory().setItem(10, ItemStack.EMPTY);
         base.owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(GenieItems.LAMP));
@@ -305,7 +312,7 @@ final class GenieLampScriptChecks implements AutoCloseable {
         require(content.common().body().getFirst() instanceof PlainMessage warning
                 && warning.contents().getStyle().getColor().equals(net.minecraft.network.chat.TextColor.fromLegacyFormat(ChatFormatting.RED))
                 && warning.contents().getString().lines().count() == 2, "warning is two red lines of plain text");
-        var input = new CompoundTag();input.putString("wish", "LuckyWars script lamp witness");
+        var input = new CompoundTag();input.putString("wish", wish);
         submitWithMana(base.owner, GenieChecks.lampReply(content), input, 1337);
         var lamp = base.owner.getMainHandItem();
         require(service.locked(base.owner, lamp), "a scripted request reserves the specific lamp");
@@ -346,6 +353,15 @@ final class GenieLampScriptChecks implements AutoCloseable {
         var abilities = new com.google.gson.JsonArray();
         abilities.add(ability);
         item.add("native_abilities", abilities);
+        if(request.stack){
+            item.remove("native_abilities");
+            item.addProperty("icon","minecraft:sponge");
+            if(request.repair){
+                item.addProperty("loot_table","lbc:ported/lucky_block");item.addProperty("count",64);
+            }else{
+                var components=new JsonObject();components.addProperty("minecraft:count",64);item.add("components",components);
+            }
+        }
         var reply = new JsonObject();reply.addProperty("decision", "grant");reply.add("item", item);
         reply.addProperty("answer", "A simple count! It might fit on one finger.");reply.addProperty("twist", "one-count ceiling");
         reply.add("program", program);reply.add("receipt", receipt);
@@ -436,11 +452,54 @@ final class GenieLampScriptChecks implements AutoCloseable {
             phase = 6;
             return false;
         }
-        if (service.locked(base.owner, item)) return false;
-        require(GenieScriptItem.matches(item) && returnedLamp.isAlive() && GenieItems.lamp(returnedLamp.getItem()),
-                "second player's cancelled reply cannot consume their ground lamp or affect the surviving player's reward");
-        me.skywars2.SkyWars2.LOGGER.info("[check] Two independent Genie wishes reached the provider; native cursor death returned one idle lamp");
+        if(phase==6){
+            if (service.locked(base.owner, item)) return false;
+            require(GenieScriptItem.matches(item) && returnedLamp.isAlive() && GenieItems.lamp(returnedLamp.getItem()),
+                    "second player's cancelled reply cannot consume their ground lamp or affect the surviving player's reward");
+            me.skywars2.SkyWars2.LOGGER.info("[check] Two independent Genie wishes reached the provider; native cursor death returned one idle lamp");
+            submit("LuckyWars script lamp witness: canonical lucky stack");phase=7;return false;
+        }
+        if(phase==7||phase==8){
+            var request=requests.poll();if(request==null)return false;
+            require(request.stack&&request.repair==(phase==8),"one technical metadata correction reaches the provider");
+            if(phase==8)checkGiftMetadata(request);
+            request.response.complete(grant(request,true));phase++;return false;
+        }
+        if(service.locked(base.owner,item))return false;
+        var canonical=game.lbc().rollTable(base.level,base.owner.position(),base.owner,"lbc:ported/lucky_block").getFirst();
+        require(item.is(canonical.getItem())&&item.getCount()==64&&GenieScriptItem.matches(item),
+                "invalid minecraft:count response is repaired into 64 REAL canonical lucky blocks, not renamed sponges");
+        for(var component:List.of(DataComponents.ITEM_MODEL,DataComponents.BLOCK_STATE))
+            require(java.util.Objects.equals(item.get(component),canonical.get(component)),"canonical block components retained: "+component);
+        var source=canonical.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+        var actual=item.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+        for(var key:source.keySet())require(java.util.Objects.equals(actual.get(key),source.get(key)),"canonical item identity retained: "+key);
+        require(Identifier.parse("lbc:tier_q").equals(item.get(DataComponents.TOOLTIP_STYLE)),"canonical gift gains Q presentation");
+        base.owner.getInventory().setItem(10,ItemStack.EMPTY);
+        int count=64;
+        for(var hand:InteractionHand.values()){
+            base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            base.owner.setItemInHand(hand,item);
+            var support=net.minecraft.core.BlockPos.containing(base.owner.position()).offset(hand==InteractionHand.MAIN_HAND?2:-2,0,2);
+            base.set(support,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());base.set(support.above(),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+            var hit=new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(support).add(0,.5,0),net.minecraft.core.Direction.UP,support,false);
+            require(base.owner.gameMode.useItemOn(base.owner,base.level,item,hand,hit).consumesAction(),"canonical gift places a native lucky block from "+hand);
+            require(base.level.getBlockState(support.above()).getBlock().asItem()==canonical.getItem()&&item.getCount()==--count,
+                    "placed the actual lucky block and debited exactly one from the gift stack "+hand);
+        }
+        me.skywars2.SkyWars2.LOGGER.info("[check] Genie repaired invalid count metadata; granted 64 canonical lucky blocks and placed them from both hands");
         return true;
+    }
+
+    private static void checkGiftMetadata(Call request){
+        var observation=grant(request,true);var valid=ScriptJson.parse(observation.reply());
+        var parsed=(GenieScriptReply.Grant)GenieScriptReply.read(valid.toString(),observation.executions(),request.contract);
+        require(parsed.count()==64&&parsed.lootTable().equals("lbc:ported/lucky_block"),"source/count metadata parsed independently of the executable program");
+        for(String count:List.of("0","-1","1.5","true","\"64\"","null","2147483648")){
+            var invalid=valid.deepCopy();invalid.getAsJsonObject("item").add("count",com.google.gson.JsonParser.parseString(count));
+            try{GenieScriptReply.read(invalid.toString(),observation.executions(),request.contract);throw new IllegalStateException("invalid native quantity accepted: "+count);}
+            catch(GenieScriptReply.ItemFormatFailure expected){}
+        }
     }
 
     @Override public void close() {

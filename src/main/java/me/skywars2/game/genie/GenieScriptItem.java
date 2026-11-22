@@ -46,10 +46,18 @@ public final class GenieScriptItem {
                                       net.minecraft.core.component.DataComponentPatch components){
         Objects.requireNonNull(code);if(count<1)throw new IllegalArgumentException("positive item count required");
         var type=BuiltInRegistries.ITEM.get(Identifier.parse(icon)).orElseThrow(()->new IllegalArgumentException("unknown item icon")).value();
+        return construct(code,new ItemStack(type,count),name,description,components);
+    }
+    /** Keep a canonical loot item's physical type and components instead of imitating it with an icon. */
+    public static ItemStack construct(ScriptRepository.Loaded code,ItemStack prototype,String name,String description,
+                                      net.minecraft.core.component.DataComponentPatch components){
+        Objects.requireNonNull(code);
+        if(prototype.isEmpty())throw new IllegalArgumentException("item prototype cannot be empty");
+        var type=prototype.getItem();
         boolean replacesShot=code.program().handler(REPLACE_SHOT_EVENT)!=null;
         if(replacesShot&&!(type instanceof BowItem||type instanceof CrossbowItem))
             throw new IllegalArgumentException("SHOT_REPLACE requires a bow or crossbow");
-        var stack=new ItemStack(type,count);if(stack.isEmpty())throw new IllegalArgumentException("item icon cannot be empty");
+        var stack=prototype.copy();
         // Decode through native component codecs, then install the constructor's own identity below.
         stack.applyComponents(components);
         GenieItems.describeGift(stack, name, description);

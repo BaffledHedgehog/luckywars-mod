@@ -15,13 +15,22 @@ public sealed interface GenieScriptReply {
 
     record Rejected() implements GenieScriptReply {}
 
+    /** Repairable constructor metadata, distinct from an absent cloud verification witness. */
+    final class ItemFormatFailure extends IllegalArgumentException {
+        public ItemFormatFailure(String message) { super(message); }
+    }
+
     record NativeAbility(String variant, Map<String, String> bindings) {
         public NativeAbility { bindings = Map.copyOf(bindings); }
     }
 
     record Grant(String icon, String carrier, String name, String description, String answer, String twist,
-                 String program, List<NativeAbility> nativeAbilities, String components) implements GenieScriptReply {
+                 String program, List<NativeAbility> nativeAbilities, String components, int count, String lootTable) implements GenieScriptReply {
         public Grant { nativeAbilities = List.copyOf(nativeAbilities); java.util.Objects.requireNonNull(components); }
+        public Grant(String icon, String carrier, String name, String description, String answer, String twist,
+                     String program, List<NativeAbility> nativeAbilities, String components) {
+            this(icon,carrier,name,description,answer,twist,program,nativeAbilities,components,1,"");
+        }
         public Grant(String icon, String carrier, String name, String description, String answer, String twist,
                      String program, List<NativeAbility> nativeAbilities) {
             this(icon,carrier,name,description,answer,twist,program,nativeAbilities,"{}");
@@ -44,8 +53,8 @@ public sealed interface GenieScriptReply {
         requireKeys(result, Set.of("decision", "item", "answer", "twist", "program", "receipt"));
         JsonObject item = object(result.get("item"));
         if (!item.keySet().containsAll(Set.of("icon", "name", "description"))
-                || !Set.of("icon", "name", "description", "carrier", "native_abilities", "components").containsAll(item.keySet()))
-            throw new IllegalArgumentException("unexpected wish item fields");
+                || !Set.of("icon", "name", "description", "carrier", "native_abilities", "components", "count", "loot_table").containsAll(item.keySet()))
+            throw new ItemFormatFailure("unexpected wish item fields; quantity is item.count and an existing item source is item.loot_table");
         JsonObject program = object(result.get("program"));
         JsonObject receipt = object(result.get("receipt"));
         requireKeys(receipt, Set.of("ok", "verifier", "program_sha256", "contract_sha256", "functions", "instructions"));
@@ -69,10 +78,24 @@ public sealed interface GenieScriptReply {
         String icon = text(item.get("icon"), 256);
         var abilities = item.has("native_abilities") ? nativeAbilities(item.get("native_abilities")) : List.<NativeAbility>of();
         if (item.has("carrier") && abilities.isEmpty()) throw new IllegalArgumentException("carrier requires a native ability");
+        var components = item.has("components") ? object(item.get("components")) : new JsonObject();
+        if (components.has("minecraft:count") || components.has("count"))
+            throw new ItemFormatFailure("count is not a data component; put the positive integer in item.count");
+        int count = 1;
+        if (item.has("count")) {
+            var quantity = item.get("count");
+            try {
+                if (!quantity.isJsonPrimitive() || !quantity.getAsJsonPrimitive().isNumber()) throw new ArithmeticException();
+                count = quantity.getAsBigDecimal().intValueExact();
+                if (count < 1) throw new ArithmeticException();
+            } catch (ArithmeticException invalid) { throw new ItemFormatFailure("item.count must be a positive native integer"); }
+        }
+        if (item.has("loot_table") && item.has("carrier"))
+            throw new ItemFormatFailure("item.loot_table already supplies the physical carrier; omit item.carrier");
         return new Grant(icon, item.has("carrier") ? text(item.get("carrier"), 256) : icon,
             text(item.get("name"), 128), text(item.get("description"), 512),
             text(result.get("answer"), 512), text(result.get("twist"), 96), canonical, abilities,
-            item.has("components") ? ScriptJson.canonical(object(item.get("components"))) : "{}");
+            ScriptJson.canonical(components), count, item.has("loot_table") ? text(item.get("loot_table"), 256) : "");
     }
 
     private static List<NativeAbility> nativeAbilities(JsonElement value) {

@@ -310,7 +310,7 @@ public final class GenieRuntime {
         var position=BlockPos.containing(origin);
         if(level.isOutsideBuildHeight(position)||!level.hasChunkAt(position))return null;
         body.setPos(origin);
-        if(!level.getWorldBorder().isWithinBounds(body.getBoundingBox())||!level.noCollision(body,body.getBoundingBox()))return null;
+        if(!level.getWorldBorder().isWithinBounds(body.getBoundingBox())||(!body.noPhysics&&!level.noCollision(body,body.getBoundingBox())))return null;
         if(body instanceof Projectile shot){
             shot.setOwner(owner);
             Vec3 direction=speed==0?owner.getLookAngle():velocity.scale(1/speed);
@@ -319,7 +319,8 @@ public final class GenieRuntime {
         }else{body.setDeltaMovement(velocity);body.syncVelocity=true;}
         body.entityTags().add(SHOT_LIFE+lifetime);
         GenieNative.mark(game,body);GenieNative.credit(game,body,owner);
-        if(body instanceof Mob mob){GenieNative.initialize(game,mob);if(!level.noCollision(body,body.getBoundingBox())){GenieNative.rejected(game,body);return null;}}
+        // Native noclip bodies (notably dragons) intentionally overlap terrain.
+        if(body instanceof Mob mob){GenieNative.initialize(game,mob);if(!body.noPhysics&&!level.noCollision(body,body.getBoundingBox())){GenieNative.rejected(game,body);return null;}}
         if(level.addFreshEntity(body)){
             if(body instanceof Projectile shot)shot.applyOnProjectileSpawned(level,weapon);
             loaded(body);
