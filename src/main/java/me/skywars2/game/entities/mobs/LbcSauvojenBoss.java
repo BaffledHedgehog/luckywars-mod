@@ -79,30 +79,32 @@ public final class LbcSauvojenBoss {
         if(!recognized(token.getItem())||token.isRemoved()||!(token.level() instanceof ServerLevel level)||level!=game.maps().level()
                 ||!game.playing()||game.stage()==GameController.Stage.ENDING||game.items().timeStop().stopped(level))return false;
         if(!game.items().currentEpoch(token))return false;
-        return game.items().specialDrops().owner(token) instanceof ServerPlayer&&resident(level,token.blockPosition(),token.blockPosition().above(20));
+        // Raw trap loot and restored item entities legitimately have no thrower.
+        // This independent WILD boss must never require or adopt a player owner.
+        return resident(level,token.blockPosition(),token.blockPosition().above(20));
     }
     /** Shared special drops perform the one-token debit only after this admission succeeds. */
     public boolean spawn(ItemEntity token){
         if(rewinding)return false;callbackDepth++;try{
-        if(!ready(token))return false;var author=(ServerPlayer)game.items().specialDrops().owner(token);var level=author.level();var at=token.position();
+        if(!ready(token))return false;var level=(ServerLevel)token.level();var at=token.position();
         var ghast=EntityTypes.GHAST.create(level,EntitySpawnReason.COMMAND);if(ghast==null)return false;
         load(ghast,"{DeathLootTable:\"minecraft:empty\",PersistenceRequired:true,ExplosionPower:3}");
         // Legacy 100024 -> 99900 was 124 real HP above a loot-survival sentinel.
         ghast.setPos(at.add(0,20,0));ghast.getAttribute(Attributes.MAX_HEALTH).setBaseValue(BOSS_HEALTH);ghast.setHealth(BOSS_HEALTH);
         ghast.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(256);ghast.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(256);
         ghast.setCustomName(Component.literal("Sauvojen Tuntija").withStyle(ChatFormatting.BLUE,ChatFormatting.BOLD).withStyle(s->s.withItalic(false)));
-        register(ghast,author.getUUID());
+        register(ghast);
         if(!level.addFreshEntity(ghast)){actors.remove(ghast);ghast.discard();return false;}
         LbcOverload.sound(level,at,"minecraft:entity.wither.spawn",1,1,0,.5f);
         level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,at.x,at.y+10,at.z,1000,1,10,1,0);return true;
 
         }finally{callbackDepth--;}
     }
-    private void register(Ghast ghast,UUID author){
+    private void register(Ghast ghast){
         ghast.entityTags().addAll(List.of(BOSS,"sauvojen_tuntija","rcdenyalways","skywars2.unowned_hazard"));
         game.items().markCurrentItemEpoch(ghast);
         var source=new LbcSpellSource.Source(ghast.getUUID(),null,game.items().epoch(),null,EXCLUDED,true,true);
-        actors.put(ghast,new Actor(author,game.items().epoch(),source));
+        actors.put(ghast,new Actor(null,game.items().epoch(),source));
         game.items().spellSources().bind(ghast,source);game.items().timeStop().prepareFrozen(ghast);
     }
     private void adoptEgg(Ghast ghast){
@@ -114,7 +116,7 @@ public final class LbcSauvojenBoss {
         ghast.getAttribute(Attributes.MAX_HEALTH).setBaseValue(BOSS_HEALTH);ghast.setHealth(health);
         // The registered native death already publishes the Infinity reward immediately.
         ((MobLootAccess)ghast).skywars2$lootTable(Optional.of(EMPTY_LOOT));
-        register(ghast,null);
+        register(ghast);
     }
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(BOSS);}
     private ServerPlayer author(Actor state){

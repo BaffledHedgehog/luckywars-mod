@@ -65,6 +65,42 @@ public final class SauvojenBossChecks {
             beta.setNoGravity(true);beta.setDeltaMovement(Vec3.ZERO);beta.teleportTo(owner.level(),owner.getX(),owner.getY(),owner.getZ()+4,Set.of(),0,0,true);
         }
         void activation(){activation(owner);}
+        void ownerlessActivation(){
+            ItemStack selected=ItemStack.EMPTY;
+            for(int attempt=0;attempt<512&&selected.isEmpty();attempt++)for(var stack:game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:traps"))
+                if(LbcSauvojenBoss.recognized(stack)){selected=stack.copyWithCount(1);break;}
+            require(!selected.isEmpty()&&selected.is(Items.REPEATING_COMMAND_BLOCK),"actual raw trap matches the captured repeating-command-block carrier");
+            for(boolean restored:new boolean[]{false,true}){
+                var level=owner.level();var at=owner.position();
+                var token=new ItemEntity(level,at.x,at.y,at.z,selected.copy());
+                token.setOnGround(true);token.setNoGravity(true);token.setPickUpDelay(0);
+                token.entityTags().add(LbcSpellSource.WILD_LOOT);game.items().markCurrentItemEpoch(token);
+                if(restored){
+                    // Same relevant native NBT as the report: one raw trigger, Age1528,
+                    // zero pickup delay and no Thrower/owner. Do not invent a nearby owner.
+                    var tag=saved(token);tag.putString("id","minecraft:item");tag.putShort("Age",(short)1528);
+                    token=(ItemEntity)EntityType.loadEntityRecursive(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),tag),
+                            level,EntitySpawnReason.LOAD,entity->entity);
+                    require(token!=null&&token.getAge()==1528,"native saved-body recreation retains reported age");
+                }
+                require(level.addFreshEntity(token)&&token.getOwner()==null&&game.items().specialDrops().owner(token)==null,
+                        "published WILD trap has no player owner or borrowed attribution");
+                token.playerTouch(owner);
+                require(token.isRemoved()&&game.items().sauvojenBoss().count()==1,
+                        "ownerless captured trap activates during native pickup admission instead of waiting forever; restored="+restored);
+                var spawned=game.items().sauvojenBoss().snapshot().getFirst();
+                near(spawned.position(),at.add(0,20,0),"ownerless boss spawns above the token in its own level");
+                require(spawned.level()==level&&game.items().sauvojenBoss().owner(spawned)==null,
+                        "no fabricated player owner for raw or restored trap");
+                var source=game.items().spellSources().source(spawned);
+                require(source!=null&&source.author()==null&&source.unownedMobs()&&source.persistent()
+                        &&game.items().sauvojenBoss().canAffect(spawned,owner)&&game.items().sauvojenBoss().canAffect(spawned,beta),
+                        "ownerless boss remains WILD against both allied players");
+                require(!game.items().specialDrops().spawn(token)&&game.items().sauvojenBoss().count()==1,
+                        "consumed single token cannot create a second boss");
+                game.items().sauvojenBoss().stop();
+            }
+        }
         void activation(ServerPlayer creator){
             ItemStack selected=ItemStack.EMPTY;
             for(int attempt=0;attempt<512&&selected.isEmpty();attempt++)for(var stack:game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:traps"))
@@ -78,7 +114,7 @@ public final class SauvojenBossChecks {
             require(boss.getType()==EntityTypes.GHAST&&boss.getHealth()==124&&boss.getMaxHealth()==124,"source ghast with real124HP and no loot-survival sentinel");
             require(boss.getAttribute(Attributes.FOLLOW_RANGE).getBaseValue()==256&&boss.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getBaseValue()==256,"source follow/knockback bases");
             var data=saved(boss);require(data.getStringOr("DeathLootTable","").equals("minecraft:empty")&&data.getIntOr("ExplosionPower",0)==3,"native guarded death owns reward without a delayed duplicate token; blast3");
-            require(boss.entityTags().containsAll(Set.of("sauvojen_tuntija","rcdenyalways"))&&game.items().sauvojenBoss().owner(boss)==creator,"source identity and independent causal author");
+            require(boss.entityTags().containsAll(Set.of("sauvojen_tuntija","rcdenyalways"))&&game.items().sauvojenBoss().owner(boss)==null,"WILD boss never adopts the trigger's player as its owner");
             near(boss.position(),owner.position().add(0,20,0),"source Y+20 spawn");
             authority=game.items().spellSources().source(boss);require(authority!=null&&authority.emitter().equals(boss.getUUID())&&authority.author()==null&&authority.persistent()&&authority.unownedMobs(),"persistent actual NPC emitter without borrowed player authority");
         }
@@ -261,8 +297,8 @@ public final class SauvojenBossChecks {
         }
     }
     public static void run(GameController game){
-        try(var fixture=new Fixture(game)){fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();fixture.creatorCleanup();fixture.death();fixture.eggEncounter();}
-        SkyWars2.LOGGER.info("[check] PASS sauvojen-boss (native token, survival Keeper egg and spawner adoption; scheduled hostile wand and reward; nine explicit source payloads and actual engine steps; source7 cactus, Blind80/WitherII, self/allied swept targets, actual Greed reflection, nested source restoration)");
+        try(var fixture=new Fixture(game)){fixture.ownerlessActivation();fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();fixture.creatorCleanup();fixture.death();fixture.eggEncounter();}
+        SkyWars2.LOGGER.info("[check] PASS sauvojen-boss (ownerless raw/restored Age1528 trap; player-thrown token still creates an entirely unowned WILD boss; survival Keeper egg/spawner; hostile wand/reward; nine source payloads, self/allied swept targets, Greed reflection and nested sources)");
         SkyWars2.LOGGER.info("[check] PENDING sauvojen-boss continuation: all ten random branches are not exhaustively sampled here; actual cadence/logout/TimeStop/cloud replay have a separate sauvojen-lifecycle fixture");
     }
 }
