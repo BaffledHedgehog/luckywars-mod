@@ -128,7 +128,9 @@ public final class LbcTmtItems {
     private static final class NativeSnowball extends SnowballItem implements MysteryItem {
         NativeSnowball(Properties properties){super(properties);}
         @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){return LbcTmtBlockUses.input(context);}
-        @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return LbcTmtContinuous.clientCarrier(stack,Items.SNOWBALL);}
+        // A right-click property may reject, retain charges, or spend this item itself.
+        // The snowball client class unconditionally predicts a throw and removes one.
+        @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return LbcTmtContinuous.clientCarrier(stack,Items.STICK);}
         @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){super.onUseTick(level,entity,stack,remaining);using(entity,stack);}
         @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
             var runtime=runtime();if(runtime!=null&&player instanceof net.minecraft.server.level.ServerPlayer owner){

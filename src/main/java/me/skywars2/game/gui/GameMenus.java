@@ -591,9 +591,12 @@ public final class GameMenus {
                                 .append(profile.fovEffects + "%"))
                 .addLoreLine(Component.literal("Shift = +10%"));
         button.setCallback((index, type, action, source) -> {
-            if (type != ClickType.MOUSE_RIGHT && type != ClickType.MOUSE_RIGHT_SHIFT)
+            if (type != ClickType.MOUSE_RIGHT && type != ClickType.MOUSE_RIGHT_SHIFT
+                    && type != ClickType.MOUSE_LEFT && type != ClickType.MOUSE_LEFT_SHIFT)
                 return;
-            profile.fovEffects = Math.floorMod(profile.fovEffects + (type == ClickType.MOUSE_RIGHT_SHIFT ? 10 : 1),
+            int step=type==ClickType.MOUSE_RIGHT_SHIFT||type==ClickType.MOUSE_LEFT_SHIFT?10:1;
+            if(type==ClickType.MOUSE_LEFT||type==ClickType.MOUSE_LEFT_SHIFT)step=-step;
+            profile.fovEffects = Math.floorMod(profile.fovEffects + step,
                     101);
             players.save();
             controller.items().rifleZoom().personalSettingsChanged(player);

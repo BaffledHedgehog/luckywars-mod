@@ -45,6 +45,7 @@ public abstract class DirectionalKnockbackMixin {
             ci.cancel();
             return;
         }
+        if(DirectionalKnockback.projectile(source,target,power)){ci.cancel();return;}
         // Run inside the native implementation, so immune mobs' overrides still win.
         if (source.getEntity() instanceof LivingEntity attacker
                 && source.getDirectEntity() == attacker && (fromEffect || DirectionalKnockback.melee(source))

@@ -107,7 +107,8 @@ public final class LbcFoodLifecycle {
         boolean steak=data.getIntOr("inf",0)==1, stew=data.getIntOr("inf_old",0)==1;
         var frame=finishing.peek();
         if(frame!=null&&frame.player==p&&frame.stack==stack){
-            if(tmt)frame.retainTmt=steak||stew;
+            // Later food properties share this meal and must not cancel an earlier infinite one.
+            if(tmt)frame.retainTmt|=steak||stew;
             else if(steak)frame.replacement=infiniteSteak();
             else if(stew)frame.oldStew=true;
         }

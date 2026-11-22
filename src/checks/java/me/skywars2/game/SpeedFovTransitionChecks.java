@@ -181,9 +181,9 @@ public final class SpeedFovTransitionChecks {
             player.setSprinting(true);recording.packets.clear();var sprintPacket=movement(player);player.connection.send(sprintPacket);
             var sprintChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())sprintChildren.add(child);
             var sprintAbilities=(ClientboundPlayerAbilitiesPacket)sprintChildren.getLast();
-            close(sprintAbilities.getWalkingSpeed(),walkingBeforeSprint,"sprint acknowledgment leaves denominator stable");
+            require(sprintAbilities.getWalkingSpeed()!=walkingBeforeSprint,"sprint acknowledgment includes personal FOV compensation");
             close((clientSpeed(player,sprintPacket)/sprintAbilities.getWalkingSpeed()+1)/2,
-                    (predictedSprint/walkingBeforeSprint+1)/2,"acknowledgment matches the locally predicted sprint FOV");
+                    1+((predictedSprint/.1+1)/2-1)*.05,"sprint follows the selected five percent rather than vanilla full strength");
             player.setSprinting(false);recording.packets.clear();player.connection.send(movement(player));
             var stopChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())stopChildren.add(child);
             close(((ClientboundPlayerAbilitiesPacket)stopChildren.getLast()).getWalkingSpeed(),walkingBeforeSprint,"stop sprint acknowledgment leaves denominator stable");

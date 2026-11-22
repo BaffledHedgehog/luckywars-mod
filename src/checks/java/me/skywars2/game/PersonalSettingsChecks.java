@@ -53,7 +53,10 @@ public final class PersonalSettingsChecks {
                 checkPersonalTabName(f.owner, gui.getGuiElement(22).getItemStack());
                 gui.click(22,ClickType.MOUSE_LEFT,ContainerInput.PICKUP);
                 gui=(SimpleGui)SguiUtils.getCurrentGui(f.owner);require(gui.getGuiElement(13)!=null,"native personal FOV button rendered");
-                gui.click(13,ClickType.MOUSE_LEFT,ContainerInput.PICKUP);require(profile.fovEffects==5,"unrequested left click does not change preference");
+                gui.click(13,ClickType.MOUSE_LEFT,ContainerInput.PICKUP);require(profile.fovEffects==4,"left click subtracts one");
+                gui=(SimpleGui)SguiUtils.getCurrentGui(f.owner);
+                gui.click(13,ClickType.MOUSE_LEFT_SHIFT,ContainerInput.QUICK_MOVE);require(profile.fovEffects==95,"shift left subtracts ten and wraps below zero");
+                profile.fovEffects=5;gui=(SimpleGui)SguiUtils.getCurrentGui(f.owner);
                 gui.click(13,ClickType.MOUSE_RIGHT,ContainerInput.PICKUP);require(profile.fovEffects==6,"right click adds one");
                 gui.click(13,ClickType.MOUSE_RIGHT_SHIFT,ContainerInput.QUICK_MOVE);require(profile.fovEffects==16,"shift right adds ten");
                 profile.fovEffects=99;gui.click(13,ClickType.MOUSE_RIGHT,ContainerInput.PICKUP);require(profile.fovEffects==100,"one hundred is selectable");
@@ -69,6 +72,8 @@ public final class PersonalSettingsChecks {
                     require(Math.abs((speed/scope+1)/2-.25)<1e-5,"weapon scopes keep full strength at every preference");
                 }
                 SkyWars2.LOGGER.info("[check] PASS personal-settings (native yellow non-italic localized cosmetic tab packet, clicks, modulo101, durable UUID preference, default5, speed/sprint/flight/bow curves and full scopes)");
+                stage.set(game,oldStage);ready.setBoolean(game,oldReady);
+                PlayerFeedbackChecks.run(game,f);
             }finally{
                 profile.fovEffects=previous;game.players().save();game.items().rifleZoom().personalSettingsChanged(f.owner);
                 var gui=SguiUtils.getCurrentGui(f.owner);if(gui!=null)gui.close();stage.set(game,oldStage);ready.setBoolean(game,oldReady);

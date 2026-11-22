@@ -41,7 +41,7 @@ public final class TmtCarrierChecks {
     public static void run(GameController game){
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var owner=f.owner;var runtime=game.items().tmt();var mana=game.items().mana();
-            var expected=List.of(Items.CARROT_ON_A_STICK,Items.BOW,Items.SNOWBALL,Items.CROSSBOW,Items.GOLDEN_APPLE);
+            var expected=List.of(Items.CARROT_ON_A_STICK,Items.BOW,Items.STICK,Items.CROSSBOW,Items.GOLDEN_APPLE);
             var ops=f.level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
             var fireCost=mana.score(ScoreHolder.forNameOnly("stfire_wand_mana_use"),"lbc.math");
             var tinyCost=mana.score(ScoreHolder.forNameOnly("tiny_fire_wand_mana_use"),"lbc.math");int oldFire=fireCost.get(),oldTiny=tinyCost.get();

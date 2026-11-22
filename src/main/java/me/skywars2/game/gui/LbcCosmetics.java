@@ -116,6 +116,8 @@ public final class LbcCosmetics {
     }
     /** A queued PlayerInfo packet must not keep live mutable team text. */
     public Component tabName(ServerPlayer player,Component original){
+        if(game.isObserver(player))return Component.literal(player.getScoreboardName())
+                .withStyle(style->style.withColor(net.minecraft.ChatFormatting.GRAY).withItalic(true));
         return LbcNameplates.frozen(original==null?player.getDisplayName():displayName(player,original));
     }
     /** Native TAB entries cache their component, so publish after selection, join and rewind. */

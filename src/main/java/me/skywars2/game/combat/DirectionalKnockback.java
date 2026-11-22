@@ -81,6 +81,22 @@ public final class DirectionalKnockback {
         return true;
     }
 
+    /** The impact direction belongs to the moving body, regardless of its owner's later aim. */
+    public static boolean projectile(DamageSource source,LivingEntity target,double strength){
+        var body=source.getDirectEntity();
+        if(body==null||body==source.getEntity()||source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION)
+                ||!(body instanceof net.minecraft.world.entity.projectile.Projectile
+                    ||source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE)||body.entityTags().contains("mob_projectile")))return false;
+        var motion=body.getDeltaMovement();if(!Double.isFinite(motion.lengthSqr())||motion.lengthSqr()<1e-12)return false;
+        var game=SkyWars2.game();
+        if(LbcGreed.active(target)||game!=null&&game.items().timeStop().frozen(target))return true;
+        double power=strength*(1-target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+        if(!Double.isFinite(power)||power<=0)return true;
+        var result=target.getDeltaMovement().scale(.5).add(motion.normalize().scale(power));
+        if(Double.isFinite(result.lengthSqr())){target.setDeltaMovement(result);target.needsSync=true;}
+        return true;
+    }
+
     public static Vec3 nonliving(LivingEntity attacker, double strength,
                                  boolean fromEffect) {
         double power = power(attacker, strength, fromEffect);

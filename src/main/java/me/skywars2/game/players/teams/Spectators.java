@@ -42,6 +42,13 @@ public final class Spectators {
         Entity target;
         SimpleGui inventory;
         boolean inventoryChanged;
+        SimpleGui containerGui;
+        net.minecraft.world.Container container;
+        net.minecraft.core.BlockPos containerPos;
+        net.minecraft.server.level.ServerLevel containerLevel;
+        net.minecraft.world.level.block.entity.BlockEntity containerEntity;
+        Entity containerBody;
+        java.util.List<net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity> randomContainers=java.util.List.of();
         final Map<Holder<MobEffect>, EffectSnapshot> effects = new LinkedHashMap<>();
     }
     private final GameController game;
@@ -68,6 +75,7 @@ public final class Spectators {
     public void enter(ServerPlayer player) {
         viewers.computeIfAbsent(player.getUUID(), ignored -> new View());
         detach(player);
+        me.skywars2.game.gui.hud.TabPresentation.refreshNames(game.server(),java.util.List.of(player));
     }
 
     public void remove(ServerPlayer player) {
@@ -80,6 +88,7 @@ public final class Spectators {
         player.getInventory().clearContent();
         player.setInvisible(false);
         player.noPhysics = false;
+        me.skywars2.game.gui.hud.TabPresentation.refreshNames(game.server(),java.util.List.of(player));
     }
 
     public void clear() {
@@ -99,6 +108,7 @@ public final class Spectators {
         clearEffects(player, view);
         view.target = null;
         view.inventory = null;
+        clearContainer(view);
         player.closeContainer();
         player.setCamera(player);
         player.setGameMode(GameType.ADVENTURE);
@@ -194,12 +204,77 @@ public final class Spectators {
             gui.setSlot(i, new GuiElementBuilder(target.getInventory().getItem(i).copy()));
     }
 
+    /** Inspect copies without startOpen/stopOpen, opener counts, loot rolls or block events. */
+    public boolean openContainer(ServerPlayer player,net.minecraft.core.BlockPos pos){
+        var view=viewers.get(player.getUUID());var level=player.level();
+        if(view==null||!player.isWithinBlockInteractionRange(pos,1)||!level.hasChunkAt(pos))return false;
+        var state=level.getBlockState(pos);var provider=state.getMenuProvider(level,pos);
+        boolean ender=state.getBlock() instanceof net.minecraft.world.level.block.EnderChestBlock;
+        if(provider==null&&!ender)return false;
+        net.minecraft.world.Container contents;
+        if(state.getBlock() instanceof net.minecraft.world.level.block.EnderChestBlock)contents=player.getEnderChestInventory();
+        else if(state.getBlock() instanceof net.minecraft.world.level.block.ChestBlock chest)
+            contents=net.minecraft.world.level.block.ChestBlock.getContainer(chest,state,level,pos,true);
+        else contents=level.getBlockEntity(pos) instanceof net.minecraft.world.Container container?container:null;
+        if(contents==null||contents.getContainerSize()<1)return false;
+        int rows=Math.clamp((contents.getContainerSize()+8)/9,1,6);
+        var types=java.util.List.of(MenuType.GENERIC_9x1,MenuType.GENERIC_9x2,MenuType.GENERIC_9x3,MenuType.GENERIC_9x4,MenuType.GENERIC_9x5,MenuType.GENERIC_9x6);
+        var gui=new SimpleGui(types.get(rows-1),player,false);gui.setTitle(ender?Component.translatable("container.enderchest"):provider.getDisplayName());gui.setLockPlayerInventory(true);
+        view.containerGui=gui;view.container=contents;view.containerPos=pos.immutable();view.containerLevel=level;
+        view.containerEntity=level.getBlockEntity(pos);view.containerBody=null;
+        var randoms=new java.util.ArrayList<net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity>();
+        if(view.containerEntity instanceof net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity random)randoms.add(random);
+        if(state.getBlock() instanceof net.minecraft.world.level.block.ChestBlock
+                &&state.getValue(net.minecraft.world.level.block.ChestBlock.TYPE)!=net.minecraft.world.level.block.state.properties.ChestType.SINGLE){
+            var other=level.getBlockEntity(pos.relative(net.minecraft.world.level.block.ChestBlock.getConnectedDirection(state)));
+            if(other instanceof net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity random)randoms.add(random);
+        }
+        view.randomContainers=java.util.List.copyOf(randoms);
+        fillContainer(view);gui.open();return true;
+    }
+    public boolean openContainer(ServerPlayer player,Entity body){
+        var view=viewers.get(player.getUUID());
+        if(view==null||body.isRemoved()||body.level()!=player.level()
+                ||!player.isWithinEntityInteractionRange(body.getBoundingBox(),1)
+                ||!(body instanceof net.minecraft.world.Container contents)||!(body instanceof net.minecraft.world.MenuProvider provider))return false;
+        int rows=Math.clamp((contents.getContainerSize()+8)/9,1,6);
+        var types=java.util.List.of(MenuType.GENERIC_9x1,MenuType.GENERIC_9x2,MenuType.GENERIC_9x3,MenuType.GENERIC_9x4,MenuType.GENERIC_9x5,MenuType.GENERIC_9x6);
+        var gui=new SimpleGui(types.get(rows-1),player,false);gui.setTitle(provider.getDisplayName());gui.setLockPlayerInventory(true);
+        view.containerGui=gui;view.container=contents;view.containerBody=body;view.containerLevel=player.level();
+        view.containerEntity=null;view.containerPos=null;view.randomContainers=java.util.List.of();
+        fillContainer(view);gui.open();return true;
+    }
+    private static void clearContainer(View view){
+        view.containerGui=null;view.container=null;view.containerBody=null;view.containerEntity=null;
+        view.containerLevel=null;view.containerPos=null;view.randomContainers=java.util.List.of();
+    }
+    private static void fillContainer(View view){
+        boolean unopened=view.containerBody instanceof net.minecraft.world.entity.vehicle.ContainerEntity vehicle
+                ?vehicle.getContainerLootTable()!=null:view.randomContainers.stream().anyMatch(random->random.getLootTable()!=null);
+        for(int i=0;i<view.container.getContainerSize()&&i<view.containerGui.getSize();i++){
+            // Spectators must not initialize an unopened random-loot container.
+            var stack=unopened?ItemStack.EMPTY:view.container.getItem(i);
+            var previous=view.containerGui.getGuiElement(i);
+            if(previous==null||!ItemStack.matches(previous.getItemStack(),stack))
+                view.containerGui.setSlot(i,new GuiElementBuilder(stack.copy()));
+        }
+    }
+
     public void tick() {
         // Обходим только наблюдателей; копируем изменившиеся стаки, не весь мир и не все профили.
         for (var entry : viewers.entrySet()) {
             ServerPlayer player = game.server().getPlayerList().getPlayer(entry.getKey());
             if (player == null) continue;
             View view = entry.getValue();
+            if(view.containerGui!=null){
+                if(eu.pb4.sgui.api.SguiUtils.getCurrentGui(player)!=view.containerGui){clearContainer(view);}
+                else if(player.level()!=view.containerLevel||(view.containerBody!=null
+                        ?view.containerBody.isRemoved()||!player.isWithinEntityInteractionRange(view.containerBody.getBoundingBox(),1)
+                        :!player.isWithinBlockInteractionRange(view.containerPos,1)||!player.level().hasChunkAt(view.containerPos)
+                            ||player.level().getBlockEntity(view.containerPos)!=view.containerEntity)){
+                    view.containerGui.close();clearContainer(view);
+                }else fillContainer(view);
+            }
             if (view.target != null) {
                 if (!view.target.isAlive() || view.target.isRemoved() || player.getCamera() != view.target
                         || view.target.level() != game.maps().level()

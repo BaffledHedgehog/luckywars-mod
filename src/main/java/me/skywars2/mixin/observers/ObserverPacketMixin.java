@@ -42,6 +42,10 @@ public abstract class ObserverPacketMixin {
             shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$blockFrozenBlockUse(ServerboundUseItemOnPacket packet, CallbackInfo ci) {
         var game = SkyWars2.game();
+        if(game!=null&&game.isObserver(player)){
+            if(!game.items().actionsBlocked(player))game.spectators().openContainer(player,packet.hitResult().getBlockPos());
+            skywars2$syncInventory();ci.cancel();return;
+        }
         if (game != null && game.items().actionsBlocked(player)) {
             var hit = packet.hitResult();
             var pos = hit.getBlockPos();
@@ -122,8 +126,9 @@ public abstract class ObserverPacketMixin {
         if (game == null || !game.isObserver(player)) return;
         var target = player.level().getEntityOrPart(packet.entityId());
         if (target != null && player.isWithinEntityInteractionRange(target.getBoundingBox(), 3.0)
-                && player.level().getWorldBorder().isWithinBounds(target.blockPosition()))
-            game.spectators().watch(player, target);
+                && player.level().getWorldBorder().isWithinBounds(target.blockPosition())) {
+            if(!game.spectators().openContainer(player,target))game.spectators().watch(player, target);
+        }
         ci.cancel();
     }
 }
