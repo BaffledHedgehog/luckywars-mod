@@ -32,7 +32,8 @@ public final class LbcDimensionItems {
                     &&stack.get(net.minecraft.core.component.DataComponents.ITEM_MODEL).getNamespace().equals("lbc");
     }
     public static boolean allowed(ServerPlayer player,ItemStack stack){
-        return player!=null&&(!custom(stack)||ordinary(player)||nexus(player.level())&&(nexusTool(stack)||physicalBlock(stack)));
+        // Placing a physical block is native gameplay in both Nexus and Imprinted.
+        return player!=null&&(!custom(stack)||ordinary(player)||physicalBlock(stack)||nexus(player.level())&&nexusTool(stack));
     }
     private static boolean physicalBlock(ItemStack stack){
         var item=stack.getItem();
