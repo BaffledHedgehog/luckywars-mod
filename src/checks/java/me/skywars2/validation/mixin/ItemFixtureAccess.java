@@ -54,6 +54,7 @@ public final class ItemFixtureAccess {
 
     @Mixin(ServerPlayer.class)
     public interface PlayerSync {
+        @org.spongepowered.asm.mixin.gen.Invoker("tickRegeneration") void validation$regeneration();
         @Accessor("lastRecordedFoodLevel") int validation$recordedFood();
         @Accessor("lastRecordedFoodLevel") void validation$recordedFood(int value);
         @Accessor("lastSentFood") int validation$sentFood();

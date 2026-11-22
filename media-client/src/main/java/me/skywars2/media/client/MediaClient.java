@@ -74,6 +74,7 @@ public final class MediaClient implements ClientModInitializer {
         SpecialModelRenderers.ID_MAPPER.put(Identifier.parse("skywars2:phone_video"),PhoneRenderer.Unbaked.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Frame.TYPE,(p,c)->receive(p));
         ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Link.TYPE,(p,c)->receive(p));
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.FovPreference.TYPE,(p,c)->ClientFovPreferences.accept(p));
         ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Prefetch.TYPE,(p,c)->{synchronized(LOCK){
             if(mp4Tools.isPresent()&&ensureDownloads())preloads.update(p.clips());
         }});
@@ -91,7 +92,7 @@ public final class MediaClient implements ClientModInitializer {
     }
     public static Identifier texture(){synchronized(LOCK){return texture!=null&&session!=null?TEXTURE:null;}}
     private static void retire(UUID id){retired.add(id);while(retired.size()>32)retired.remove(retired.iterator().next());}
-    private static void reset(){synchronized(LOCK){close(false);if(preloads!=null)preloads.close();pausedLink=null;retired.clear();paused=false;announced=false;}}
+    private static void reset(){synchronized(LOCK){close(false);if(preloads!=null)preloads.close();pausedLink=null;retired.clear();paused=false;announced=false;ClientFovPreferences.reset();}}
     private static void close(boolean keepIdentity){
         if(session!=null){session.active=false;session.timeline.close();
             var movie=session.mp4;

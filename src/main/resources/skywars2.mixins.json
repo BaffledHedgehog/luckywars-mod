@@ -3,6 +3,8 @@
   "package": "me.skywars2.mixin",
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "players.HardRegenerationMixin",
+    "players.HardRegenerationMixin$Food",
     "items.TmtConsumptionMixin",
     "items.GroundCrossbowCraftMixin",
     "terrain.GrimoirePlacementMixin",

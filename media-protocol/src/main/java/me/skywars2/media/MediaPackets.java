@@ -23,10 +23,20 @@ public final class MediaPackets {
         PayloadTypeRegistry.clientboundPlay().register(Frame.TYPE,Frame.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Stop.TYPE,Stop.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Link.TYPE,Link.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FovPreference.TYPE,FovPreference.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Prefetch.TYPE,Prefetch.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestSegment.TYPE, RequestSegment.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Segment.TYPE, Segment.CODEC);
         registered=true;
+    }
+    public record FovPreference(int percent,boolean scoped) implements CustomPacketPayload {
+        public static final Type<FovPreference> TYPE=new Type<>(Identifier.parse("skywars2:fov_preference_v1"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,FovPreference> CODEC=new StreamCodec<>(){
+            public FovPreference decode(RegistryFriendlyByteBuf b){return new FovPreference(b.readVarInt(),b.readBoolean());}
+            public void encode(RegistryFriendlyByteBuf b,FovPreference p){b.writeVarInt(p.percent);b.writeBoolean(p.scoped);}
+        };
+        public FovPreference{if(percent<0||percent>100)throw new IllegalArgumentException("fov_percent");}
+        @Override public Type<FovPreference> type(){return TYPE;}
     }
     public record Hello(int protocol,int features) implements CustomPacketPayload {
         public static final Type<Hello> TYPE=new Type<>(Identifier.parse("skywars2:media/hello_v1"));

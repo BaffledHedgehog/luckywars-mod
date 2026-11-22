@@ -26,6 +26,9 @@ session instructions take precedence over older notes.
   and disk priority with bounded heaps. Do not cap threads, processor count or
   affinity unless the user changes that preference. Run one heavy owned JVM at
   a time; leave the user's IDE, game and language servers alone.
+- Increment `media-client/gradle.properties` `mod_version` for every released
+  client patch. The JAR name and expanded Fabric metadata must use that version;
+  never silently replace a released client version with different code.
 - Do not run `gradlew clean`: ignored `build/` also contains verification worlds,
   sealed artifacts, worktrees and deployment evidence. Remove only explicitly
   checked reproducible output directories when necessary.

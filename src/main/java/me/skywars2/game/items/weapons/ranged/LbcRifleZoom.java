@@ -61,7 +61,9 @@ public final class LbcRifleZoom {
     private final Map<UUID,MovementView> movementViews=new ConcurrentHashMap<>();
     private final Map<UUID,ClientboundPlayerAbilitiesPacket> abilityViews=new ConcurrentHashMap<>();
     private final Map<UUID,Scope> modelViews=new ConcurrentHashMap<>();
-    private record FovView(int percent,double itemMultiplier) { }
+    private record FovView(int percent,double itemMultiplier,boolean local) {
+        FovView(int percent,double itemMultiplier){this(percent,itemMultiplier,false);}
+    }
     private final Map<UUID,FovView> personalViews=new ConcurrentHashMap<>();
     public static final int DEFAULT_FOV_PERCENT=5;
 
@@ -85,11 +87,12 @@ public final class LbcRifleZoom {
         return projected==0||!Float.isFinite(projected)?walking:projected;
     }
     private FovView personalView(ServerPlayer player) {
+        boolean local=net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(player,me.skywars2.media.MediaPackets.FovPreference.TYPE);
         double item=1;
-        if(player.isUsingItem()&&player.getUseItem().is(net.minecraft.world.item.Items.BOW)) {
+        if(!local&&player.isUsingItem()&&player.getUseItem().is(net.minecraft.world.item.Items.BOW)) {
             double draw=Math.min(player.getTicksUsingItem()/20.0,1);item=1-draw*draw*.15;
         }
-        return new FovView(Math.clamp(game.players().get(player.getUUID()).fovEffects,0,100),item);
+        return new FovView(Math.clamp(game.players().get(player.getUUID()).fovEffects,0,100),item,local);
     }
     public void personalSettingsChanged(ServerPlayer player) {
         personalViews.put(player.getUUID(),personalView(player));syncAbilities(player);
@@ -233,6 +236,7 @@ public final class LbcRifleZoom {
     }
     private ClientboundPlayerAbilitiesPacket project(UUID id,ClientboundPlayerAbilitiesPacket packet,float speed,boolean scoped) {
         var preference=personalViews.getOrDefault(id,new FovView(5,1));
+        if(preference.local&&!scoped)return packet;
         double multiplier=(packet.isFlying()?1.1:1)*preference.itemMultiplier;
         float walking=projectedWalking(speed,packet.getWalkingSpeed(),scoped,preference.percent,multiplier);
         if(Float.floatToIntBits(walking)==Float.floatToIntBits(packet.getWalkingSpeed()))return packet;
@@ -261,6 +265,14 @@ public final class LbcRifleZoom {
         return movement==null?packet:project(id,packet,movement.forProjection(scoped),scoped);
     }
     /** Bundle movement snapshots with their denominator so a rendered frame never sees only one half. */
+    private ClientboundBundlePacket movementBundle(ServerPlayer player,Packet<? super ClientGamePacketListener> leading,
+            ClientboundPlayerAbilitiesPacket abilities,boolean scoped) {
+        var packets=new java.util.ArrayList<Packet<? super ClientGamePacketListener>>();packets.add(leading);
+        var preference=personalViews.get(player.getUUID());
+        if(preference!=null&&preference.local)packets.add(new net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket(
+                new me.skywars2.media.MediaPackets.FovPreference(preference.percent,scoped)));
+        packets.add(abilities);return new ClientboundBundlePacket(packets);
+    }
     @SuppressWarnings("unchecked")
     public Packet<?> projectPacket(ServerPlayer player,Packet<?> packet) {
         if(packet instanceof net.minecraft.network.protocol.game.ClientboundLoginPacket
@@ -282,10 +294,18 @@ public final class LbcRifleZoom {
             if(source==null&&game.server().isSameThread())source=new ClientboundPlayerAbilitiesPacket(player.getAbilities());
             if(source==null)return packet;
             abilityViews.put(player.getUUID(),source);
-            return new ClientboundBundlePacket(java.util.List.of(
-                    (Packet<? super ClientGamePacketListener>)packet,project(player.getUUID(),source,view.forProjection(scopeView(player)),scopeView(player))));
+            boolean scoped=scopeView(player);
+            return movementBundle(player,(Packet<? super ClientGamePacketListener>)packet,
+                    project(player.getUUID(),source,view.forProjection(scoped),scoped),scoped);
         }
-        if(packet instanceof ClientboundPlayerAbilitiesPacket abilities)return projectAbilities(player,abilities);
+        if(packet instanceof ClientboundPlayerAbilitiesPacket abilities){
+            var projected=projectAbilities(player,abilities);var preference=personalViews.get(player.getUUID());
+            if(preference==null||!preference.local)return projected;
+            // Enable same-frame client math and its native denominator atomically.
+            return new ClientboundBundlePacket(java.util.List.of(
+                    new net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket(
+                            new me.skywars2.media.MediaPackets.FovPreference(preference.percent,scopeView(player))),projected));
+        }
         if(packet instanceof ClientboundBundlePacket bundle) {
             var children=new java.util.ArrayList<Packet<? super ClientGamePacketListener>>();
             boolean changed=false;
@@ -307,7 +327,8 @@ public final class LbcRifleZoom {
             abilityViews.put(player.getUUID(),source);
             // Ordinary vanilla clients retain their local sprint curve; only effects
             // use this server denominator. Capable clients receive native abilities.
-            return new ClientboundBundlePacket(java.util.List.of(attributes,project(player.getUUID(),source,view.forProjection(scopeView(player)),scopeView(player))));
+            boolean scoped=scopeView(player);
+            return movementBundle(player,attributes,project(player.getUUID(),source,view.forProjection(scoped),scoped),scoped);
         }
         return packet;
     }

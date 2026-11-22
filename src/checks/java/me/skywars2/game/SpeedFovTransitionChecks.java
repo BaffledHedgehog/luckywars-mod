@@ -139,6 +139,46 @@ public final class SpeedFovTransitionChecks {
                 context+" projection does not mutate gameplay attributes, abilities, position or velocity");
         return clientSpeed(player,snapshot);
     }
+    private static void localClient(GameController game,ServerPlayer player,Recording recording) {
+        var addon=net.fabricmc.fabric.impl.networking.server.ServerNetworkingImpl.getAddon(player.connection);
+        var type=me.skywars2.media.MediaPackets.FovPreference.TYPE;
+        var profile=game.players().get(player.getUUID());int original=profile.fovEffects;
+        var zoom=game.items().rifleZoom();
+        addon.handle(new net.fabricmc.fabric.impl.networking.RegistrationPayload(
+                net.fabricmc.fabric.impl.networking.RegistrationPayload.REGISTER,List.of(type.id())));
+        try {
+            require(net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(player,type),"actual Fabric channel negotiation enables local FOV");
+            for(int percent:new int[]{0,5,100}) {
+                profile.fovEffects=percent;
+                for(boolean sprint:new boolean[]{false,true}) {
+                    player.setSprinting(sprint);recording.packets.clear();zoom.personalSettingsChanged(player);
+                    var children=new ArrayList<Packet<?>>();
+                    for(var child:((ClientboundBundlePacket)recording.packets.getLast()).subPackets())children.add(child);
+                    require(children.size()==2&&children.get(0) instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket,
+                            "preference precedes native abilities atomically");
+                    var preference=(me.skywars2.media.MediaPackets.FovPreference)((net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket)children.get(0)).payload();
+                    require(preference.percent()==percent&&!preference.scoped(),"exact configured percentage sent to new client");
+                    close(((ClientboundPlayerAbilitiesPacket)children.get(1)).getWalkingSpeed(),player.getAbilities().getWalkingSpeed(),"local client receives native denominator before/after sprint");
+                    recording.packets.clear();player.connection.send(movement(player));
+                    children.clear();for(var child:((ClientboundBundlePacket)recording.packets.getLast()).subPackets())children.add(child);
+                    require(children.size()==3&&children.get(1) instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket,
+                            "movement snapshot, FOV preference and native denominator share one flat bundle");
+                }
+            }
+            player.setSprinting(false);player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcShooters.SLR));
+            recording.packets.clear();zoom.punch(player,game.server().getTickCount()+100);
+            require(zoom.scoped(player),"new client enters real rifle scope");
+            var bundle=(ClientboundBundlePacket)recording.packets.stream().filter(ClientboundBundlePacket.class::isInstance).reduce((a,b)->b).orElseThrow();
+            var children=new ArrayList<Packet<?>>();for(var child:bundle.subPackets())children.add(child);
+            var preference=(me.skywars2.media.MediaPackets.FovPreference)((net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket)children.getFirst()).payload();
+            require(preference.scoped(),"local FOV interpolation switches to full-strength scope in the same bundle");
+            zoom.forget(player);
+        } finally {
+            addon.handle(new net.fabricmc.fabric.impl.networking.RegistrationPayload(
+                    net.fabricmc.fabric.impl.networking.RegistrationPayload.UNREGISTER,List.of(type.id())));
+            profile.fovEffects=original;player.setSprinting(false);zoom.personalSettingsChanged(player);
+        }
+    }
     public static void run(GameController game) {
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         require(player!=null&&game.playing()&&game.allowDamage(player),"requires active TestAlpha");
@@ -282,7 +322,8 @@ public final class SpeedFovTransitionChecks {
             frame(player,recording,offthread,cached,false,"offthread native send uses immutable packet/ability snapshots");
             require(asyncState.matches(attr)&&abilities.pack().equals(asyncAbilities)&&player.position().equals(asyncPosition)
                     &&player.getDeltaMovement().equals(asyncVelocity),"offthread projection leaves server attributes, abilities and motion untouched");
-            SkyWars2.LOGGER.info("[check] PASS speed-fov-transitions (native gohei/minigun equipment and modifier transitions, stale/pending wire snapshots, atomic flat/reset bundles, flags, F swaps, both scopes, offthread send)");
+            localClient(game,player,recording);
+            SkyWars2.LOGGER.info("[check] PASS speed-fov-transitions (native equipment, prediction/ack transitions, old-client sprint, negotiated local FOV, atomic scope/preferences, respawn, both scopes and offthread send)");
         } finally {
             zoom.forget(player);saved.restore(game);equipment(player);attributes.forEach((attribute,state)->state.restore(attribute));
             player.getAbilities().apply(packed);player.setShiftKeyDown(shift);

@@ -1,5 +1,5 @@
 plugins { id 'net.fabricmc.fabric-loom' version '1.17.21' }
-version = '0.1.0'
+version = project.mod_version
 group = 'me.skywars2'
 base { archivesName = 'skywars2-media-client' }
 repositories { mavenCentral() }
@@ -49,6 +49,10 @@ tasks.register('bundleMediaTools', Sync) {
 }
 sourceSets.main.resources.srcDir(bundledTools)
 tasks.named('processResources') { dependsOn 'bundleMediaTools' }
+tasks.named('processResources') {
+    inputs.property('version', project.version)
+    filesMatching('fabric.mod.json') { expand(version: project.version) }
+}
 sourceSets.main.java.srcDir('../media-protocol/src/main/java')
 sourceSets.main.resources.srcDir('../media-protocol/src/main/resources')
 java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
@@ -92,6 +96,13 @@ tasks.register('checkPhoneGeometry', JavaExec) {
     jvmArgs '-Xmx128m'
 }
 tasks.named('check') { dependsOn 'checkPhoneGeometry' }
+tasks.register('checkPersonalFov', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'me.skywars2.media.client.PersonalFovChecks'
+    jvmArgs '-Xmx128m'
+}
+tasks.named('check') { dependsOn 'checkPersonalFov' }
 ['MediaClip', 'MediaDownload'].each { suite ->
     tasks.register("check${suite}", JavaExec) {
         dependsOn testClasses

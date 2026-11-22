@@ -856,6 +856,7 @@ public final class GameChecks {
                                 case "academy-interaction" -> { AcademyInteractionChecks.run(game); return; }
                                 case "polymorph-wand" -> { PolymorphWandChecks.run(game); return; }
                                 case "speed-fov" -> { SpeedFovChecks.run(game); return; }
+                                case "hard-regeneration" -> { HardRegenerationChecks.run(game); return; }
                                 case "speed-fov-transitions" -> { SpeedFovTransitionChecks.run(game); return; }
                                 case "rifle-main-hand" -> { RifleMainHandChecks.run(game); return; }
                                 case "effect-layers" -> { EffectLayerChecks.run(game); return; }

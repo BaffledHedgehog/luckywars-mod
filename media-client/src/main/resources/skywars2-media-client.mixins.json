@@ -5,7 +5,8 @@
   "client": [
     "MediaSoundAccess$Manager",
     "MediaSoundAccess$Engine",
-    "MediaPauseMixin"
+    "MediaPauseMixin",
+    "PersonalFovMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "skywars2_media_client",
-  "version": "0.1.0",
+  "version": "${version}",
   "name": "SkyWars 2 Media Client",
   "description": "Optional full-colour phone video and PCM audio streaming; no video disk cache.",
   "environment": "client",
