@@ -19,7 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Marker;
-import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
@@ -82,7 +82,7 @@ public final class HedgehogChecks {
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final Set<Long> forced=new HashSet<>(),previousForced;
         final net.minecraft.world.scores.PlayerTeam oldOwnerTeam,oldOtherTeam,team;final Vec3 at;final String epoch;final int cost;
         long last=Long.MIN_VALUE;int phase,sneezeWarmTicks;boolean closed;
-        boolean laserOnly;Silverfish continuousLaser;Cow continuousTarget;int laserBegan,laserIdentity=-1;
+        boolean laserOnly;Silverfish continuousLaser;Zombie continuousTarget;int laserBegan,laserIdentity=-1;
         private Silverfish hiddenFish;
         private Arrow hiddenArrow;
         private Vec3 warmFish, warmArrow, hiddenPoint;
@@ -118,9 +118,9 @@ public final class HedgehogChecks {
         boolean input(InteractionHand hand){return owner.gameMode.useItem(owner,owner.level(),owner.getItemInHand(hand),hand).consumesAction();}
         void clear(){service.retireOwned(owner.getUUID(),true);service.retireOwned(other.getUUID(),true);
             // Native lethal fixture cows can emit both item drops and experience immediately.
-            for(var actor:List.copyOf(owned))if(actor instanceof Cow&&!actor.isAlive())for(var drop:owner.level().getEntities((Entity)null,actor.getBoundingBox().inflate(3),e->!before.contains(e)&&(e instanceof net.minecraft.world.entity.item.ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb)))owned.add(drop);
+            for(var actor:List.copyOf(owned))if(actor instanceof Zombie&&!actor.isAlive())for(var drop:owner.level().getEntities((Entity)null,actor.getBoundingBox().inflate(3),e->!before.contains(e)&&(e instanceof net.minecraft.world.entity.item.ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb)))owned.add(drop);
             for(var e:List.copyOf(owned)){if(e instanceof LivingEntity l)game.items().indirectKills().clear(l);e.discard();}owned.clear();}
-        Cow cow(Vec3 point){var c=new Cow(EntityTypes.COW,owner.level());c.setPos(point);c.setNoAi(true);c.setNoGravity(true);c.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);c.setHealth(100);require(owner.level().addFreshEntity(c),"resident native cow");owned.add(c);return c;}
+        Zombie cow(Vec3 point){var c=new Zombie(EntityTypes.ZOMBIE,owner.level());c.setPos(point);c.setNoAi(true);c.setNoGravity(true);c.getAttribute(Attributes.ARMOR).setBaseValue(0);c.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,new ItemStack(net.minecraft.world.item.Items.CARVED_PUMPKIN));c.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);c.setHealth(100);require(owner.level().addFreshEntity(c),"resident native cow");owned.add(c);return c;}
         Silverfish helper(LbcHedgehog.Kind kind, Vec3 point) {
             var body = service.spawnHelper(owner, owner.level(), point, kind);
             require(body != null, "native " + kind + " helper spawn accepted at " + point);

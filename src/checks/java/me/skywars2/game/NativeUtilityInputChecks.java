@@ -53,17 +53,33 @@ public final class NativeUtilityInputChecks {
             f.set(at.below(),Blocks.NETHERRACK.defaultBlockState());f.set(at,Blocks.FIRE.defaultBlockState());
             require(f.level.getBlockState(at).is(Blocks.FIRE),"supported native fire fixture");
             var fire=new net.minecraft.world.entity.item.ItemEntity(f.level,at.getX()+.5,at.getY(),at.getZ()+.5,minigun.getDefaultInstance());
-            require(f.level.addFreshEntity(fire),"native minigun ground fire actor");f.own(fire);fire.tick();
+            require(f.level.addFreshEntity(fire),"native minigun ground fire actor");f.own(fire);f.client().packets().clear();fire.tick();
             require(fire.getItem().is(blaze),"native item tick crafts Blaze before typed fire immunity");fire.discard();
+            craftParticles(net.minecraft.core.particles.ParticleTypes.FLAME,1,at);
+            var bolts=new ArrayList<net.minecraft.world.entity.LightningBolt>();
+            for(var entity:f.level.getAllEntities())if(!before.contains(entity.getUUID())&&entity instanceof net.minecraft.world.entity.LightningBolt bolt){bolts.add(bolt);f.own(bolt);}
+            require(bolts.size()==1&&bolts.getFirst().position().equals(new Vec3(at.getX()+.5,at.getY()-5,at.getZ()+.5)),"one legacy lightning bolt five blocks below fire craft");
+            bolts.forEach(Entity::discard);
             var blast=new net.minecraft.world.entity.item.ItemEntity(f.level,at.getX()+.5,at.getY(),at.getZ()+.5,minigun.getDefaultInstance());
             require(f.level.addFreshEntity(blast),"native minigun explosion actor");f.own(blast);
-            blast.hurtServer(f.level,f.level.damageSources().explosion(null,f.owner),4);
+            f.client().packets().clear();blast.hurtServer(f.level,f.level.damageSources().explosion(null,f.owner),4);
             require(!blast.isRemoved()&&blast.getItem().is(ghast),"actual native explosion crafts Ghast before item protection");blast.discard();
+            craftParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER,16,at);
             var nearby=new net.minecraft.world.entity.item.ItemEntity(f.level,at.getX()+.5,at.getY(),at.getZ()+.5,minigun.getDefaultInstance());
             require(f.level.addFreshEntity(nearby),"native minigun fuse actor");f.own(nearby);
             var tnt=new net.minecraft.world.entity.item.PrimedTnt(f.level,at.getX()+3,at.getY(),at.getZ(),f.owner);tnt.setFuse(2);
-            require(f.level.addFreshEntity(tnt),"native TNT fuse2 witness");f.own(tnt);nearby.tick();
+            require(f.level.addFreshEntity(tnt),"native TNT fuse2 witness");f.own(tnt);f.client().packets().clear();nearby.tick();
             require(nearby.getItem().is(ghast),"legacy seven-block fuse2 ground craft");nearby.discard();tnt.discard();
+            craftParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER,16,at);
+        }
+        void craftParticles(net.minecraft.core.particles.ParticleOptions type,int spread,BlockPos at){
+            var particles=SmokeVolumeChecks.flatten(f.client().packets()).stream()
+                    .filter(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.class::cast).filter(packet->packet.particle()==type).toList();
+            require(particles.size()==1,"whole legacy craft effect uses one native particle packet");var effect=particles.getFirst();
+            require(effect.count()==200&&effect.overrideLimiter()&&effect.xDist()==spread&&effect.yDist()==spread&&effect.zDist()==spread
+                    &&effect.xMaxSpeed()==1&&effect.yMaxSpeed()==1&&effect.zMaxSpeed()==1,"exact legacy force/count/spread/speed");
+            require(effect.x()==at.getX()+.5&&effect.y()==at.getY()+1&&effect.z()==at.getZ()+.5,"effect origin stays one block above item");
         }
         void swordWear(){
             var models=java.util.Set.of("anal_whip","banhammer","blazefire_sword","cyberkatana","death_skythe","fartus","lightsaber_empty","piston_sword","shit_katana","techrunner_katana","terrasword","vex_sword");

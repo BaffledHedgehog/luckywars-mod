@@ -38,10 +38,14 @@ public final class LbcGroundCrossbowCrafts {
         var reward=kind.item.getDefaultInstance().copyWithCount(item.getItem().getCount());
         item.setItem(reward);item.setDeltaMovement(0,.5,0);item.setRemainingFireTicks(0);item.setDefaultPickUpDelay();
         if(!explosion){
+            var lightning=new net.minecraft.world.entity.LightningBolt(net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT,level);
+            lightning.setPos(item.position().add(0,-5,0));level.addFreshEntity(lightning);
             for(var pos:net.minecraft.core.BlockPos.betweenClosed(item.blockPosition().offset(-1,-1,-1),item.blockPosition().offset(1,1,1)))
                 if(level.getBlockState(pos).is(Blocks.FIRE))level.setBlock(pos,Blocks.AIR.defaultBlockState(),net.minecraft.world.level.block.Block.UPDATE_CLIENTS|net.minecraft.world.level.block.Block.UPDATE_KNOWN_SHAPE);
         }
-        level.sendParticles(explosion?ParticleTypes.EXPLOSION_EMITTER:ParticleTypes.FLAME,item.getX(),item.getY()+1,item.getZ(),explosion?1:40,1,1,1,0);
+        double spread=explosion?16:1;
+        level.sendParticles(explosion?ParticleTypes.EXPLOSION_EMITTER:ParticleTypes.FLAME,true,false,
+                item.getX(),item.getY()+1,item.getZ(),200,spread,spread,spread,1);
         return true;
     }
 }

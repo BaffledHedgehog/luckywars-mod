@@ -79,6 +79,8 @@ import me.skywars2.game.presentation.projectiles.LbcParticleBatch;
 
 /** Shared native summons: ordinary formations, Soul Vex and six Psychovex cultists. */
 public final class LbcSummons {
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> PEACEFUL_MOBS=
+            net.minecraft.tags.TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:peaceful_mobs"));
     public static final String PROJECTILE="skywars2.summons.projectile";
     private IdentityHashMap<Entity,UUID> consequences=new IdentityHashMap<>();
     private static final String[] CULTISTS={"strangeness","chaos","luck","omnipresence","obsession","hypocrisy"};
@@ -208,8 +210,18 @@ public final class LbcSummons {
                 || game.items().wands().timeStopped() || mob.entityTags().contains("time_stopped")
                 || game.items().frost().isFrozen(mob);
     }
-    private boolean target(ServerPlayer owner,Entity target) {
-        return game.items().wands().target(owner,target)
+    /** Ordinary animals and decoys are not combat objectives. Keep real combatants with passive skins. */
+    public boolean combatTarget(Entity target) {
+        return target!=null&&!me.skywars2.game.entities.mobs.LbcFakePlayer.matches(target)
+                &&(!target.getType().builtInRegistryHolder().is(PEACEFUL_MOBS)||target instanceof net.minecraft.world.entity.monster.Enemy
+                    ||owner(target)!=null||game.items().polymorph().body(target)
+                    ||game.items().spellSources().wild(target)
+                    ||me.skywars2.game.entities.projectiles.LbcCrocodildo.managed(target));
+    }
+    boolean target(ServerPlayer owner,Entity target) {
+        var represented=target instanceof LivingEntity living?game.items().polymorph().playerOfBody(living):null;
+        return combatTarget(target)&&(represented==null||represented!=owner&&!owner.isAlliedTo(represented))
+                &&game.items().wands().target(owner,target)
                 && !game.items().magic().suppressedAt(owner.level(),target.position())
                 && !target.entityTags().contains("nomagic_active");
     }

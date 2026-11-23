@@ -14,7 +14,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.animal.equine.SkeletonHorse;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -53,9 +53,9 @@ public final class OrdinarySummonerChecks {
         require(f.base.recording.packets.stream().filter(ClientboundSoundPacket.class::isInstance).map(ClientboundSoundPacket.class::cast)
                 .anyMatch(p->p.getSound().value().location().toString().equals("minecraft:entity.wither.spawn")),"native summon sound "+kind.kind());
     }
-    private static Cow cow(AllGrimoireChecks.Fixture f,Vec3 at,float hp){
-        var cow=new Cow(EntityTypes.COW,f.level);cow.setPos(at);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(hp);cow.setHealth(hp);cow.setNoAi(true);cow.setNoGravity(true);
-        require(f.level.addFreshEntity(cow),"native target");return cow;
+    private static Zombie enemy(AllGrimoireChecks.Fixture f,Vec3 at,float hp){
+        var zombie=new Zombie(EntityTypes.ZOMBIE,f.level);zombie.setPos(at);zombie.getAttribute(Attributes.MAX_HEALTH).setBaseValue(hp);zombie.setHealth(hp);zombie.setNoAi(true);zombie.setNoGravity(true);
+        require(f.level.addFreshEntity(zombie),"native target");return zombie;
     }
     private static void inputs(AllGrimoireChecks.Fixture f){
         var p=f.base.owner;var service=f.base.game.items().summons();int index=0;
@@ -120,14 +120,14 @@ public final class OrdinarySummonerChecks {
     private static void combat(AllGrimoireChecks.Fixture f){
         reset(f);var service=f.base.game.items().summons();var p=f.base.owner;
         service.castOrdinary(p,LbcSummonerItems.kinds().getFirst());var skeleton=service.ordinarySnapshot("skeletons").getFirst();
-        var target=cow(f,skeleton.position().add(0,0,1),1);require(skeleton.doHurtTarget(f.level,target)&&target.isDeadOrDying()&&target.getKillCredit()==p,"actual skeleton melee kill credits its owner");
+        var target=enemy(f,skeleton.position().add(0,0,1),1);require(skeleton.doHurtTarget(f.level,target)&&target.isDeadOrDying()&&target.getKillCredit()==p,"actual skeleton melee kill credits its owner");
         for(String role:List.of("spectator","strict_map_object","magic_academy","rcdenyalways")){
-            var guard=cow(f,skeleton.position().add(0,0,1),20);guard.entityTags().add(role);require(!skeleton.canAttack(guard)&&!skeleton.doHurtTarget(f.level,guard)&&guard.getHealth()==20,"native melee rejects protected role "+role);
+            var guard=enemy(f,skeleton.position().add(0,0,1),20);guard.entityTags().add(role);require(!skeleton.canAttack(guard)&&!skeleton.doHurtTarget(f.level,guard)&&guard.getHealth()==20,"native melee rejects protected role "+role);
         }
         require(!skeleton.canAttack(p)&&!skeleton.doHurtTarget(f.level,p),"source owner is protected");
         var converted=skeleton.convertTo(EntityTypes.STRAY,net.minecraft.world.entity.ConversionParams.single(skeleton,true,true),e->{});
         require(converted!=null&&skeleton.isRemoved()&&service.owner(converted)==p&&f.base.game.items().currentEpoch(converted),"native powder-snow conversion retains author/epoch");
-        var convertedTarget=cow(f,converted.position().add(0,0,1),1);require(converted.doHurtTarget(f.level,convertedTarget)&&convertedTarget.getKillCredit()==p,"converted native melee retains kill credit");
+        var convertedTarget=enemy(f,converted.position().add(0,0,1),1);require(converted.doHurtTarget(f.level,convertedTarget)&&convertedTarget.getKillCredit()==p,"converted native melee retains kill credit");
         converted.setHealth(1);converted.setInvulnerableTime(0);
         require(converted.hurtServer(f.level,f.level.damageSources().playerAttack(p),1000),"real lethal summoned-mob hit");
         service.tick();require(converted.isDeadOrDying()&&!converted.isRemoved(),"summon bookkeeping preserves the native death animation");
@@ -135,7 +135,7 @@ public final class OrdinarySummonerChecks {
         require(!converted.isRemoved(),"dead summon remains for nineteen native animation ticks");
         f.level.tickNonPassenger(converted);require(converted.isRemoved(),"vanilla removes summon after its full death animation");
         reset(f);var rider=ghostRiderAfterFlight(f);
-        var victim=cow(f,rider.position().add(0,0,12),100);rider.performRangedAttack(victim,1);
+        var victim=enemy(f,rider.position().add(0,0,12),100);rider.performRangedAttack(victim,1);
         var arrow=new ArrayList<AbstractArrow>();for(var e:f.level.getAllEntities())if(!f.base.before.contains(e)&&e instanceof AbstractArrow a)arrow.add(a);
         require(arrow.size()==1&&arrow.getFirst().getOwner()==rider&&service.owner(arrow.getFirst())==p&&arrow.getFirst().isOnFire()
                 &&arrow.getFirst().pickup==AbstractArrow.Pickup.DISALLOWED,"native enchanted rider remains the physical shooter with separate caster credit, flame and no pickup");
@@ -145,7 +145,7 @@ public final class OrdinarySummonerChecks {
         f.beta.teleportTo(f.level,f.at.x,f.at.y+500,f.at.z,Set.of(),0,0,true);f.beta.setNoGravity(true);
         for(int kind:new int[]{4,5}){
             reset(f);var def=LbcSummonerItems.kinds().get(kind);service.castOrdinary(p,def);var shooter=service.ordinarySnapshot(def.kind()).stream().filter(e->e.getPassengers().isEmpty()).findFirst().orElseThrow();shooter.setNoGravity(true);
-            var enemy=cow(f,shooter.position().add(0,0,12),1000);shooter.setTarget(enemy);
+            var enemy=enemy(f,shooter.position().add(0,0,12),1000);shooter.setTarget(enemy);
             // In a native Blaze tower the top rider controls the lower mobs; tick its real root/passenger tree.
             var root=shooter.getRootVehicle();root.setNoGravity(true);
             for(int tick=0;tick<130;tick++)f.level.tickNonPassenger(root);
@@ -156,7 +156,7 @@ public final class OrdinarySummonerChecks {
         }
         reset(f);service.castOrdinary(p,LbcSummonerItems.kinds().get(6));var guardian=service.ordinarySnapshot("guardians").getFirst();
         f.level.setBlock(BlockPos.containing(f.at.add(0,p.getEyeHeight(),8)),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2);
-        var beamTarget=cow(f,guardian.position().add(0,0,12),1000);guardian.setTarget(beamTarget);
+        var beamTarget=enemy(f,guardian.position().add(0,0,12),1000);guardian.setTarget(beamTarget);
         for(int tick=0;tick<130;tick++)f.level.tickNonPassenger(guardian);
         require(beamTarget.getHealth()<1000,"native no-gravity guardian AI beam actually damages a target");
         reset(f);for(int roll=0;roll<128;roll++)for(var item:f.base.game.lbc().rollTable(f.level,f.at,p,"lbc:transformables_summons"))

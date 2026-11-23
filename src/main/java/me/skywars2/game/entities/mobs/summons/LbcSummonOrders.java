@@ -25,8 +25,7 @@ public final class LbcSummonOrders {
     private int ticks;
     LbcSummonOrders(GameController game,LbcSummons summons){this.game=game;this.summons=summons;}
     private boolean enemy(ServerPlayer owner,LivingEntity target){
-        return target.level()==owner.level()&&game.items().wands().target(owner,target)
-                &&!game.items().magic().suppressedAt(owner.level(),target.position())&&!target.entityTags().contains("nomagic_active");
+        return target.level()==owner.level()&&summons.target(owner,target);
     }
     private boolean fighter(Mob mob){return !(mob instanceof net.minecraft.world.entity.ambient.Bat)
             &&!(mob instanceof net.minecraft.world.entity.animal.equine.SkeletonHorse);}

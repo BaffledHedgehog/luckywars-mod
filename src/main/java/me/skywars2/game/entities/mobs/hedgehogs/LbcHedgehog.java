@@ -128,11 +128,11 @@ public final class LbcHedgehog {
     private boolean allied(Fish f,LivingEntity e){var p=player(f.author);return e==p||e==f||p!=null&&(p.isAlliedTo(e)||game.items().summons().friendly(p,e))
             ||e instanceof Fish other&&other.kind!=Kind.WALL&&(other.author.equals(f.author)
                     ||p!=null&&player(other.author)!=null&&p.isAlliedTo(player(other.author)));}
-    private boolean enemy(Fish f,LivingEntity e){return e!=f&&eligible(e)&&(f.kind==Kind.WALL?!(e instanceof Fish other&&other.kind==Kind.WALL)&&!e.entityTags().contains("baffled_wall"):!allied(f,e))&&!e.entityTags().contains("strict_map_object")
+    private boolean enemy(Fish f,LivingEntity e){return e!=f&&eligible(e)&&(f.kind==Kind.WALL?!(e instanceof Fish other&&other.kind==Kind.WALL)&&!e.entityTags().contains("baffled_wall"):game.items().summons().combatTarget(e)&&!allied(f,e))&&!e.entityTags().contains("strict_map_object")
             &&!e.entityTags().contains("nomagic_active")&&!LbcGreed.active(e);}
     private boolean impact(Fish f,LivingEntity e){var p=player(f.author);return e!=f&&eligible(e)&&!LbcGreed.active(e)
             &&(f.kind==Kind.WALL?!(e instanceof Fish other&&other.kind==Kind.WALL)&&!e.entityTags().contains("baffled_wall")
-                :!game.items().summons().friendly(p,e)&&!(e instanceof Fish&&allied(f,e)))
+                :game.items().summons().combatTarget(e)&&!game.items().summons().friendly(p,e)&&!(e instanceof Fish&&allied(f,e)))
             &&(f.kind==Kind.WALL||p==null||!(e instanceof ServerPlayer)||game.items().wands().projectileTarget(p,e));}
     public boolean use(ServerPlayer p,InteractionHand hand){
         var stack=p.getItemInHand(hand);

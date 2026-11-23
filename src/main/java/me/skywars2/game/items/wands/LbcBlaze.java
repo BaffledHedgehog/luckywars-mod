@@ -484,7 +484,8 @@ public final class LbcBlaze {
         var owner=owner(mob);
         if(target==null || owner==null) return true;
         boolean hostile=mob.entityTags().contains(TRIAL_PROJECTILE);
-        return hostile && target==owner ? valid(owner) : game.items().wands().target(owner,target,hostile);
+        return (hostile||game.items().summons().combatTarget(target))
+                &&(hostile && target==owner ? valid(owner) : game.items().wands().target(owner,target,hostile));
     }
     /** Нативные ифриты сохраняют свой AI; их снарядам передаётся реальный автор до регистрации трекера. */
     public void loaded(Entity entity) {

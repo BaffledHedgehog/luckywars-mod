@@ -11,7 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,7 +26,7 @@ public final class SummonOrderChecks {
     private SummonOrderChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Summon orders: "+why);}
     private static void reset(AllGrimoireChecks.Fixture f){f.base.game.items().syringe().stop();f.restoreWorld=true;f.reset();f.base.owner.getInventory().clearContent();f.beta.setPos(f.at.add(12,500,0));f.beta.setNoGravity(true);}
-    private static Cow cow(AllGrimoireChecks.Fixture f,Vec3 at){var cow=new Cow(EntityTypes.COW,f.level);cow.setNoAi(true);cow.setNoGravity(true);cow.setPos(at);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);require(f.level.addFreshEntity(cow),"native enemy");return cow;}
+    private static Zombie enemy(AllGrimoireChecks.Fixture f,Vec3 at){var zombie=new Zombie(EntityTypes.ZOMBIE,f.level);zombie.setNoAi(true);zombie.setNoGravity(true);zombie.setPos(at);zombie.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);zombie.setHealth(1000);require(f.level.addFreshEntity(zombie),"native enemy");return zombie;}
     private static void aim(AllGrimoireChecks.Fixture f,Vec3 at){var delta=at.subtract(f.base.owner.getEyePosition());f.base.owner.setYRot((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));f.base.owner.setXRot((float)-Math.toDegrees(Math.atan2(delta.y,Math.sqrt(delta.x*delta.x+delta.z*delta.z))));}
     private static boolean fighter(Mob mob){return !(mob instanceof net.minecraft.world.entity.ambient.Bat)&&!(mob instanceof net.minecraft.world.entity.animal.equine.SkeletonHorse);}
     private static List<Item> items(){var result=new ArrayList<Item>();for(var kind:LbcSummonerItems.kinds())result.add(kind.item());result.addAll(List.of(LbcWands.SUMMONER_VEXES,LbcWands.PSYCHOVEX,LbcKfcRewards.PENIS_CULTUS));return result;}
@@ -36,8 +36,8 @@ public final class SummonOrderChecks {
         for(String kind:List.of("vex","strangeness","chaos","luck","omnipresence","obsession","hypocrisy"))require(service.spawnPreset(f.base.owner,kind,f.at.add(1,1,0))!=null,"source helper "+kind);
         var troops=service.snapshot();troops.forEach(m->{m.setNoAi(true);m.setNoGravity(true);});
         var far=troops.stream().filter(SummonOrderChecks::fighter).findFirst().orElseThrow();far.setPos(f.at.add(28,1,0));f.base.owner.setPos(f.at.add(-8,0,0));require(far.distanceToSqr(f.base.owner)>900,"old30-block owner restriction would exclude this soldier");
-        var ally=cow(f,f.at.add(-4,.5,6));service.track(f.base.owner,ally);
-        var selected=cow(f,f.at.add(0,.5,12));var closer=cow(f,f.at.add(4,.5,3));var distant=cow(f,f.at.add(0,.5,18));aim(f,selected.getBoundingBox().getCenter());
+        var ally=enemy(f,f.at.add(-4,.5,6));service.track(f.base.owner,ally);
+        var selected=enemy(f,f.at.add(0,.5,12));var closer=enemy(f,f.at.add(4,.5,3));var distant=enemy(f,f.at.add(0,.5,18));aim(f,selected.getBoundingBox().getCenter());
         // This positive focus case requires a visible lane. Hidden-target behavior
         // is tested separately below with a real wall and native beam ticks.
         for(var mob:troops)if(mob instanceof net.minecraft.world.entity.monster.Guardian){
@@ -61,12 +61,12 @@ public final class SummonOrderChecks {
         var eye=f.base.owner.getEyePosition();var direction=selected.getBoundingBox().getCenter().subtract(eye).normalize();var wall=BlockPos.containing(eye.add(direction.scale(5)));f.level.setBlock(wall,Blocks.STONE.defaultBlockState(),2|16|32);require(orders.lookedAt(f.base.owner)==null,"terrain occludes crosshair selection");f.level.setBlock(wall,Blocks.AIR.defaultBlockState(),2|16|32);
         selected.discard();require(orders.lookedAt(f.base.owner)==distant||orders.lookedAt(f.base.owner)==null,"removed target never remains a focus candidate");
         // The source ability's extra shots obey the same chosen target, not a nearer unrelated actor.
-        selected=cow(f,f.at.add(0,.5,10));aim(f,selected.getBoundingBox().getCenter());order(f,LbcWands.PSYCHOVEX,InteractionHand.MAIN_HAND);
+        selected=enemy(f,f.at.add(0,.5,10));aim(f,selected.getBoundingBox().getCenter());order(f,LbcWands.PSYCHOVEX,InteractionHand.MAIN_HAND);
         var focused=selected;var luck=troops.stream().filter(m->m.entityTags().contains("summoned_cultist")&&service.attackTarget(m,f.base.owner,m.position(),200)==focused).findFirst().orElse(null);
         require(luck!=null&&service.attackTarget(luck,f.base.owner,luck.position(),200)==selected,"special cultist target helper honors focus");reset(f);
     }
     private static void spreading(AllGrimoireChecks.Fixture f){reset(f);var service=f.base.game.items().summons();require(service.castOrdinary(f.base.owner,LbcSummonerItems.kinds().getFirst()),"twenty soldiers");var troops=service.snapshot();troops.forEach(m->{m.setNoAi(true);m.setNoGravity(true);m.setPos(f.at.add(0,1,0));});
-        var left=cow(f,f.at.add(-6,0,0));var right=cow(f,f.at.add(6,0,0));f.base.owner.setYRot(180);f.base.owner.setXRot(0);require(service.orders().lookedAt(f.base.owner)==null,"empty crosshair triggers spreading");order(f,LbcSummonerItems.kinds().getFirst().item(),InteractionHand.MAIN_HAND);
+        var left=enemy(f,f.at.add(-6,0,0));var right=enemy(f,f.at.add(6,0,0));f.base.owner.setYRot(180);f.base.owner.setXRot(0);require(service.orders().lookedAt(f.base.owner)==null,"empty crosshair triggers spreading");order(f,LbcSummonerItems.kinds().getFirst().item(),InteractionHand.MAIN_HAND);
         long a=troops.stream().filter(m->m.getTarget()==left).count(),b=troops.stream().filter(m->m.getTarget()==right).count();require(a==10&&b==10,"equal nearby enemies split20 soldiers evenly: "+a+"/"+b);
         // Proximity is relative to each summon, rather than the player's position.
         for(int n=0;n<troops.size();n++)troops.get(n).setPos(f.at.add(n<10?-20:20,1,0));left.setPos(f.at.add(-22,0,0));right.setPos(f.at.add(22,0,0));order(f,LbcWands.SUMMONER_VEXES,InteractionHand.OFF_HAND);
@@ -78,11 +78,11 @@ public final class SummonOrderChecks {
         var guardian=service.ordinarySnapshot("guardians").getFirst();var at=guardian.position();for(var other:service.snapshot())if(other!=guardian)other.setNoAi(true);
         // Beam qualification requires a visible lane, independent of earlier terrain-changing suites.
         for(var pos:BlockPos.betweenClosed(BlockPos.containing(at.add(-2,-1,-2)),BlockPos.containing(at.add(2,3,15))))f.level.setBlock(pos,Blocks.AIR.defaultBlockState(),2|16|32);
-        var chosen=cow(f,at.add(0,0,12));aim(f,chosen.getBoundingBox().getCenter());order(f,LbcSummonerItems.kinds().get(6).item(),InteractionHand.MAIN_HAND);
+        var chosen=enemy(f,at.add(0,0,12));aim(f,chosen.getBoundingBox().getCenter());order(f,LbcSummonerItems.kinds().get(6).item(),InteractionHand.MAIN_HAND);
         require(guardian.getTarget()==chosen,"Shift assigns nonplayer enemy to Guardian");
         f.beta.setPos(at.add(5,0,0));f.beta.getInventory().clearContent();f.beta.removeAllEffects();f.beta.setHealth(1000);float betaHp=f.beta.getHealth();
         for(int tick=0;tick<200;tick++)f.level.tickNonPassenger(guardian);
-        require(chosen.getHealth()<1000&&f.beta.getHealth()==betaHp&&service.orders().assigned(guardian)==chosen,"real native beam damages Cow, retaining commanded focus despite closer native player candidate; cow="+chosen.getHealth()+" beta="+f.beta.getHealth()+" expected="+betaHp+" guardian="+guardian.position()+" target="+guardian.getTarget()+" assigned="+service.orders().assigned(guardian)+" cowPos="+chosen.position()+" canSee="+guardian.getSensing().hasLineOfSight(chosen));
+        require(chosen.getHealth()<1000&&f.beta.getHealth()==betaHp&&service.orders().assigned(guardian)==chosen,"real native beam damages Zombie, retaining commanded focus despite closer native player candidate; zombie="+chosen.getHealth()+" beta="+f.beta.getHealth()+" expected="+betaHp+" guardian="+guardian.position()+" target="+guardian.getTarget()+" assigned="+service.orders().assigned(guardian)+" zombiePos="+chosen.position()+" canSee="+guardian.getSensing().hasLineOfSight(chosen));
         var midpoint=guardian.getEyePosition().lerp(chosen.getEyePosition(),.5);var cover=new java.util.ArrayList<BlockPos>();
         for(var cell:BlockPos.betweenClosed(BlockPos.containing(midpoint.add(-1.5,-2,-1.5)),BlockPos.containing(midpoint.add(1.5,2,1.5)))){
             cover.add(cell.immutable());f.level.setBlock(cell,Blocks.STONE.defaultBlockState(),2|16|32);
@@ -93,15 +93,52 @@ public final class SummonOrderChecks {
             require(chosen.getHealth()==before&&((net.minecraft.world.entity.monster.Guardian)guardian).getActiveAttackTarget()!=chosen,
                     "native Guardian beam stops behind a wall, without hidden damage or target refresh");
         }finally{for(var cell:cover)f.level.setBlock(cell,Blocks.AIR.defaultBlockState(),2|16|32);}
-        chosen.discard();f.beta.setPos(f.at.add(12,500,0));var automatic=cow(f,at.add(0,0,10));for(int tick=0;tick<20;tick++)service.tick();
+        chosen.discard();f.beta.setPos(f.at.add(12,500,0));var automatic=enemy(f,at.add(0,0,10));for(int tick=0;tick<20;tick++)service.tick();
         for(int tick=0;tick<130;tick++)f.level.tickNonPassenger(guardian);
         require(automatic.getHealth()<1000&&service.orders().assigned(guardian)==automatic,"Guardian automatically acquires and attacks ordinary mob after previous target dies");
         var old=service.orders().assigned(guardian);guardian.entityTags().add("time_stopped");require(service.orders().assigned(guardian)==null,"frozen summons retain no active attack");guardian.entityTags().remove("time_stopped");require(service.orders().assigned(guardian)==old,"order resumes without discarding target");reset(f);
     }
-    public static void run(GameController g){try(var f=new AllGrimoireChecks.Fixture(g)){focus(f);spreading(f);guardians(f);}SkyWars2.LOGGER.info("[check] PASS summon-orders");}
+    private static void peacefulTargets(AllGrimoireChecks.Fixture f){
+        reset(f);var game=f.base.game;var p=f.base.owner;var service=game.items().summons();
+        for(var kind:LbcSummonerItems.kinds())require(service.castOrdinary(p,kind),"native formation for passive-target guards");
+        var cow=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,f.level);
+        cow.setNoAi(true);cow.setNoGravity(true);cow.setPos(f.at.add(0,0,3));require(f.level.addFreshEntity(cow),"ordinary passive cow");
+        var fake=new net.minecraft.world.entity.npc.villager.Villager(EntityTypes.VILLAGER,f.level);
+        fake.entityTags().add("fake_player");fake.setNoAi(true);fake.setNoGravity(true);fake.setPos(f.at.add(0,0,5));require(f.level.addFreshEntity(fake),"native fake-player villager");
+        for(var mob:service.snapshot())for(var passive:List.of(cow,fake)){
+            mob.setTarget(passive);float hp=passive.getHealth();
+            require(mob.getTarget()==null&&!mob.canAttack(passive)&&!mob.doHurtTarget(f.level,passive)&&passive.getHealth()==hp,
+                    "native target/attack/melee all reject peaceful mobs and decoys: "+mob.getType());
+        }
+        aim(f,cow.getBoundingBox().getCenter());service.command(p);
+        require(service.orders().lookedAt(p)!=cow&&service.orders().lookedAt(p)!=fake,"commands ignore passive hitboxes");
+        for(var mob:service.snapshot())require(service.orders().assigned(mob)!=cow&&service.orders().assigned(mob)!=fake,"distribution ignores passives");
+        var peaceful=net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,net.minecraft.resources.Identifier.parse("minecraft:peaceful_mobs"));
+        int inspected=0;
+        for(var type:net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE)if(type.builtInRegistryHolder().is(peaceful)){
+            var actor=type.create(f.level,net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            if(actor instanceof net.minecraft.world.entity.LivingEntity&&!(actor instanceof net.minecraft.world.entity.monster.Enemy)){
+                inspected++;require(!service.combatTarget(actor),"native peaceful tag entry excluded: "+type);
+            }
+        }
+        require(inspected>=30,"full real peaceful-type tag checked");
+        f.beta.setPos(f.at.add(10,0,0));
+        try{
+            var chef=game.items().wtf().spawn(p,f.beta);require(chef!=null,"actual owned Chef");
+            for(var mob:service.snapshot())require(!service.canAttack(mob,chef),"own Chef protected without a scoreboard team");
+            game.items().blaze().summonFriend(p);int friends=0;
+            for(var actor:f.level.getAllEntities())if(actor instanceof net.minecraft.world.entity.monster.Blaze blaze&&game.items().blaze().owner(blaze)==p){
+                friends++;require(!game.items().blaze().canTarget(blaze,cow)&&!game.items().blaze().canTarget(blaze,fake)
+                        &&!game.items().blaze().canTarget(blaze,chef),"secondary friendly Blaze uses the same exclusion");
+            }
+            require(friends==1,"real native friendly Blaze checked");
+        }finally{game.items().wtf().stop();game.items().blaze().stop();}
+        reset(f);
+    }
+    public static void run(GameController g){try(var f=new AllGrimoireChecks.Fixture(g)){peacefulTargets(f);focus(f);spreading(f);guardians(f);}SkyWars2.LOGGER.info("[check] PASS summon-orders");}
     private static AllGrimoireChecks.Fixture retained;private static List<Mob> retainedActors;
     public static void stopProbe(GameController g){require(retained==null,"exclusive stop fixture");var f=new AllGrimoireChecks.Fixture(g,true);try{reset(f);for(var k:LbcSummonerItems.kinds())g.items().summons().castOrdinary(f.base.owner,k);
-        var target=cow(f,f.at.add(0,.5,12));aim(f,target.getBoundingBox().getCenter());order(f,LbcWands.SUMMONER_VEXES,InteractionHand.MAIN_HAND);require(g.items().summons().orders().count()==40,"all40 native combat actors have retained commands");
+        var target=enemy(f,f.at.add(0,.5,12));aim(f,target.getBoundingBox().getCenter());order(f,LbcWands.SUMMONER_VEXES,InteractionHand.MAIN_HAND);require(g.items().summons().orders().count()==40,"all40 native combat actors have retained commands");
         f.base.owner.setShiftKeyDown(false);f.base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcSyringe.ITEM));g.items().syringe().refresh();require(g.items().syringe().count()==3,"three actual syringe buffs retained");retainedActors=g.items().summons().snapshot();retained=f;
     }catch(Throwable error){g.items().summons().stop();g.items().syringe().stop();f.close();throw error;}SkyWars2.LOGGER.info("[check] PASS summon-orders-stop-probe");}
     public static void cleanup(GameController g){require(retained!=null,"actual-stop fixture");try{require(g.items().summons().orders().count()==0&&g.items().summons().count()==0&&g.items().syringe().count()==0&&retainedActors.stream().allMatch(Entity::isRemoved),"actual stop clears all actor goals, commands, targets and buffs");}finally{retained.close();retained=null;retainedActors=null;}SkyWars2.LOGGER.info("[check] PASS summon-orders-cleanup");}
