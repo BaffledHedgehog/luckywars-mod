@@ -130,7 +130,8 @@ def candidates_from_response(data, excluded: set[str]) -> list[dict]:
     return result
 
 
-async def recommendations(cookies: Path, excluded: set[str], diagnostics: dict | None = None) -> dict:
+async def recommendations(cookies: Path, excluded: set[str], diagnostics: dict | None = None,
+                          limit: int = 1, links_only: bool = False):
     """Let TikTok's own page perform/sign its authenticated For You request.
 
     No invented public trending endpoint or unrelated account/profile fallback.
@@ -157,6 +158,8 @@ async def recommendations(cookies: Path, excluded: set[str], diagnostics: dict |
             context = await browser.new_context(viewport={"width": 1280, "height": 800})
             await context.add_cookies(cookies_for_browser(cookies))
             page = await context.new_page()
+            if links_only:
+                await page.route("**/*", lambda route: route.abort() if route.request.resource_type in ("image", "media", "font") else route.fallback())
             candidates: list[dict] = []
 
             async def response(res):
@@ -176,7 +179,9 @@ async def recommendations(cookies: Path, excluded: set[str], diagnostics: dict |
             page.on("response", response)
             await page.goto("https://www.tiktok.com/foryou", wait_until="domcontentloaded", timeout=45000)
             for attempt in range(16):
-                if candidates:
+                if candidates and (limit == 1 or len(candidates) >= min(limit, 5) or attempt >= 3):
+                    if links_only:
+                        return list({clip["id"]: clip for clip in candidates}.values())[:limit]
                     candidate = candidates[0]
                     candidate["user_agent"] = await page.evaluate("navigator.userAgent")
                     candidate["cookies"] = await context.cookies()
@@ -234,7 +239,11 @@ def selected_cdn_source(clip_id: str, response, account_cookies: list[dict], now
     if response.status_code not in (200, 206) or any(
             name.lower() in ("cookie", "authorization", "proxy-authorization") for name in response.request.headers):
         return None
-    url = response.request.url
+    return cdn_source_url(clip_id, response.request.url, account_cookies, now)
+
+
+def cdn_source_url(clip_id: str, url: str, account_cookies: list[dict], now: int) -> dict | None:
+    """Validate resource-scoped CDN metadata without fetching the video body."""
     if (not re.fullmatch(r"[0-9]{8,24}", clip_id) or len(url) > MAX_CDN_URL
             or not re.fullmatch(r"[\x21-\x7e]+", url)):
         return None
@@ -469,21 +478,41 @@ def main():
     parser.add_argument("--cookies", type=Path)
     parser.add_argument("--exclude", type=Path)
     parser.add_argument("--local", type=Path, help="Offline qualification input; never downloads or opens an account")
+    parser.add_argument("--links-only", action="store_true", help="Authenticated feed metadata only; no video/audio download or transcode")
     args = parser.parse_args()
     stage = args.stage.resolve()
     stage.mkdir(parents=True, exist_ok=False)
     diagnostics = {}
     try:
         import importlib.util
-        required = ("numpy", "PIL") if args.spectral_source or args.local else ("numpy", "PIL", "playwright", "requests", "yt_dlp")
+        required = ("playwright",) if args.links_only else ("numpy", "PIL") if args.spectral_source or args.local else ("numpy", "PIL", "playwright", "requests", "yt_dlp")
         if any(importlib.util.find_spec(name) is None for name in required):
             raise MediaError("dependencies_missing")
-        if not args.spectral_source and (not shutil.which("ffmpeg") or not shutil.which("ffprobe")):
+        if not args.links_only and not args.spectral_source and (not shutil.which("ffmpeg") or not shutil.which("ffprobe")):
             raise MediaError("dependencies_missing")
         if args.spectral_source:
             result = spectral_module().migrate(args.spectral_source, stage)
             atomic_json(stage / "manifest.json", result)
             print(json.dumps({"ok": True, "audioOnly": True}), flush=True)
+            return
+        if args.links_only:
+            if not args.cookies:
+                raise MediaError("cookies_missing")
+            excluded = set(json.loads(args.exclude.read_text(encoding="utf-8"))) if args.exclude else set()
+            clips = asyncio.run(recommendations(args.cookies, excluded, diagnostics, limit=20, links_only=True))
+            account = cookies_for_browser(args.cookies)
+            now = int(time.time())
+            links = []
+            for clip in clips:
+                for url in clip.get("media", []):
+                    source = cdn_source_url(clip["id"], url, account, now)
+                    if source:
+                        links.append(source)
+                        break
+            if not links:
+                raise MediaError("feed_unavailable")
+            atomic_json(stage / "links.json", links, private=True)
+            print(json.dumps({"ok": True, "count": len(links)}), flush=True)
             return
         if not args.palette:
             raise MediaError("palette_missing")

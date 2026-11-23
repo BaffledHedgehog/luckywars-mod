@@ -117,6 +117,36 @@ final class TikTokVelocityRelay implements AutoCloseable {
         return link;
     }
 
+    /** Register a short-lived media address only. The Velocity host fetches its body lazily on client fallback. */
+    synchronized CompletableFuture<Delivery> prepareSource(TikTokMedia.CdnSource source) {
+        long now=Instant.now().getEpochSecond(),deadline=Math.min(now+LEASE_SECONDS,source.expiresAt()-15);
+        if(closed||deadline<=now||TikTokMedia.cdnExpiration(source.uri())<source.expiresAt())
+            return CompletableFuture.failedFuture(new IOException("source_expired"));
+        final String identity;
+        try{identity=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(source.uri().toASCIIString().getBytes(StandardCharsets.UTF_8)));}
+        catch(GeneralSecurityException invalid){return CompletableFuture.failedFuture(invalid);}
+        publications.values().removeIf(item->item.deadline-now<45||item.link.isCompletedExceptionally());
+        var format=new ClipFormat("source:"+identity,true,true);var existing=publications.get(format);
+        if(existing!=null)return existing.link;
+        if(publications.size()>=20)publications.pollFirstEntry();
+        var future=new CompletableFuture<Delivery>();
+        try{sender.execute(()->{
+            try{
+                var body=new com.google.gson.JsonObject();body.addProperty("url",source.uri().toASCIIString());body.addProperty("expiresAt",deadline);
+                var request=HttpRequest.newBuilder(origin.resolve(CLIPS+"source/"+identity)).timeout(Duration.ofSeconds(15))
+                        .header("Authorization","Bearer "+key).header("Content-Type","application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(body.toString())).build();
+                if(http.send(request,HttpResponse.BodyHandlers.discarding()).statusCode()!=201)throw new IOException("relay_source_failed");
+                var hmac=Mac.getInstance("HmacSHA256");hmac.init(new SecretKeySpec(key.getBytes(StandardCharsets.US_ASCII),"HmacSHA256"));
+                String lease=identity+"/"+deadline,signature=HexFormat.of().formatHex(hmac.doFinal(lease.getBytes(StandardCharsets.US_ASCII)));
+                future.complete(new Delivery(origin.resolve(CLIPS+lease+"/"+signature),true));
+            }catch(InterruptedException canceled){Thread.currentThread().interrupt();future.cancel(false);}
+            catch(IOException|GeneralSecurityException|RuntimeException failure){future.completeExceptionally(failure);}
+        });}catch(RejectedExecutionException busy){future.completeExceptionally(busy);}
+        publications.put(format,new Publication(deadline,future));return future;
+    }
+    synchronized void forgetSources(){publications.entrySet().removeIf(entry->entry.getKey().clipId().startsWith("source:"));}
+
 
     /** A subscriber owns only its receipt. The last canceled receipt also retires queued encoding. */
     final class SegmentLease implements AutoCloseable {

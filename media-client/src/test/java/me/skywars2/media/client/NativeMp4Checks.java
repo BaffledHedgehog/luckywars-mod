@@ -24,7 +24,11 @@ public final class NativeMp4Checks {
             source(tools, silent, false);
             check(tools, stereo, true);
             check(tools, silent, false);
-            for(int fps:new int[]{30,60})checkMotion(tools,temporary,fps);
+            try(var hands=java.util.concurrent.Executors.newFixedThreadPool(2)){
+                var main=hands.submit(()->{checkMotion(tools,temporary,30);return null;});
+                var off=hands.submit(()->{checkMotion(tools,temporary,60);return null;});
+                main.get(15,TimeUnit.SECONDS);off.get(15,TimeUnit.SECONDS);
+            }
             try (var decoder = new Mp4Decoder(stereo, tools)) {
                 try (var frame = decoder.next()) {
                     require(frame != null, "native decoder produced a frame before cancellation");

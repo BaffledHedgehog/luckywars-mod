@@ -50,7 +50,7 @@ public final class TikTokAccounts {
             if(server!=current)return;tick++;
             completeImport();
             if(playback!=null)playback.tick();
-            if(cache!=null)cache.tick(tick,playback==null?Set.of():playback.pins());
+            if(cache!=null){cache.demand(current.getPlayerList().getPlayers().stream().anyMatch(p->!TikTokClientSupport.independentHands(p)));cache.tick(tick,playback==null?Set.of():playback.pins());}
             if(tick%200==0)dialogs.entrySet().removeIf(e->e.getValue().expires<tick);
         });
     }
@@ -67,6 +67,7 @@ public final class TikTokAccounts {
                     ctx.getSource().sendSuccess(()->Component.translatable("tiktok.status",cache==null?0:cache.sizeReady(),TikTokCache.CAPACITY,
                             Component.translatable(cache!=null&&cache.configured()?"tiktok.configured":"tiktok.not_configured"),
                             Component.translatable(cache==null?"tiktok.unavailable":cache.stateKey()))
+                            .append(Component.translatableWithFallback("tiktok.direct_status"," · ссылки для клиентского мода: %s/20",playback==null?0:playback.directReady()))
                             .append(cache!=null&&!cache.error().isEmpty()?" ("+cache.error()+")":""),false);return 1;
                 })));
     }

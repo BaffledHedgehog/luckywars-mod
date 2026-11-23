@@ -6,8 +6,7 @@
     "cases": [
       {
         "when": [
-          "firstperson_righthand",
-          "firstperson_lefthand"
+          "firstperson_righthand"
         ],
         "model": {
           "type": "minecraft:composite",
@@ -21,6 +20,28 @@
               "base": "lbc:item/zaika",
               "model": {
                 "type": "skywars2:phone_video"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "when": [
+          "firstperson_lefthand"
+        ],
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "lbc:item/zaika"
+            },
+            {
+              "type": "minecraft:special",
+              "base": "lbc:item/zaika",
+              "model": {
+                "type": "skywars2:phone_video",
+                "left": true
               }
             }
           ]

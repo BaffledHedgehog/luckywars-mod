@@ -101,14 +101,19 @@ final class TikTokMedia implements AutoCloseable {
             String raw=url.getAsString();
             if (expires<=now || expires>now+SOURCE_TTL_SECONDS || raw.length()>MAX_SOURCE_URL
                     || !CDN_URL_TEXT.matcher(raw).matches()) return null;
-            URI uri=URI.create(raw);
-            return cdnExpiration(uri)>=expires ? new CdnSource(id,uri,expires) : null;
+            return sourceDescriptor(id,raw,expires,now);
         } catch (IOException | RuntimeException unavailable) {
             // This optional sidecar cannot invalidate an otherwise playable clip.
             return null;
         }
     }
-    private static long cdnExpiration(URI uri) {
+    static CdnSource sourceDescriptor(String id,String raw,long expires,long now){
+        if(!id.matches("[0-9]{8,24}")||expires<=now||expires>now+SOURCE_TTL_SECONDS
+                ||raw.length()>MAX_SOURCE_URL||!CDN_URL_TEXT.matcher(raw).matches())return null;
+        try{var uri=URI.create(raw);return cdnExpiration(uri)>=expires?new CdnSource(id,uri,expires):null;}
+        catch(IllegalArgumentException invalid){return null;}
+    }
+    static long cdnExpiration(URI uri) {
         var host=uri.getHost();
         if (!"https".equalsIgnoreCase(uri.getScheme()) || host==null || !host.equalsIgnoreCase(uri.getRawAuthority())
                 || uri.getRawFragment()!=null || !CDN_PATH.matcher(uri.getRawPath()).matches()) return -1;

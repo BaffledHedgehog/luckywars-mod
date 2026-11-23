@@ -20,7 +20,7 @@ public final class TikTokPhoneItem extends SimplePolymerItem {
     @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
         var game=SkyWars2.game();var playback=TikTokAccounts.playback();
         if(game==null||playback==null||!(player instanceof ServerPlayer owner)||game.items().actionsBlocked(owner))return InteractionResult.FAIL;
-        return playback.use(owner)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+        return playback.use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
     }
     @Override public ItemStack getPolymerItemStack(ItemStack stack,TooltipFlag flag,PacketContext context,HolderLookup.Provider lookup){
         var result=super.getPolymerItemStack(stack,flag,context,lookup);

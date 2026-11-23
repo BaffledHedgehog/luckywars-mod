@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import hmac
+import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import os
 from pathlib import Path
@@ -12,6 +13,8 @@ import ssl
 import tempfile
 import threading
 import time
+import urllib.parse
+import urllib.request
 
 
 MAX_CLIP = 64 * 1024 * 1024
@@ -20,6 +23,28 @@ MAX_LEASE = 600
 PREFIX = "/luckywars-media/v1/"
 UPLOAD = re.compile(PREFIX + r"([0-9a-f]{64})")
 DOWNLOAD = re.compile(PREFIX + r"([0-9a-f]{64})/([0-9]{1,12})/([0-9a-f]{64})")
+SOURCE = re.compile(PREFIX + r"source/([0-9a-f]{64})")
+CDN_HOSTS = ("tiktokcdn.com", "tiktokcdn-us.com", "tiktokcdn-eu.com", "tiktokcdn-in.com", "tiktokv.com", "muscdn.com")
+
+
+def valid_source(url):
+    if not isinstance(url, str) or len(url) > 4096 or not re.fullmatch(r"[\x21-\x7e]+", url):
+        return False
+    try:
+        parsed = urllib.parse.urlsplit(url)
+        host = parsed.hostname or ""
+    except ValueError:
+        return False
+    return (parsed.scheme == "https" and parsed.netloc.lower() == host and not parsed.fragment
+            and any(host == domain or host.endswith("." + domain) for domain in CDN_HOSTS)
+            and re.fullmatch(r"/video/tos/(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+/?", parsed.path) is not None)
+
+
+class CdnRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, message, headers, newurl):
+        if not valid_source(newurl):
+            raise ValueError("cdn_redirect")
+        return super().redirect_request(request, fp, code, message, headers, newurl)
 
 
 def signature(key, digest, expires):
@@ -37,6 +62,8 @@ class Relay(ThreadingHTTPServer):
         self.incoming = threading.Lock()
         self.concurrent = threading.BoundedSemaphore(8)
         self.next_prune = 0
+        self.sources = {}
+        self.sources_lock = threading.Lock()
 
     def process_request(self, request, address):
         if not self.concurrent.acquire(blocking=False):
@@ -63,6 +90,10 @@ class Relay(ThreadingHTTPServer):
 
     def service_actions(self):
         now = time.monotonic()
+        with self.sources_lock:
+            for identity, entry in list(self.sources.items()):
+                if entry[1] <= time.time():
+                    del self.sources[identity]
         if now >= self.next_prune and self.incoming.acquire(blocking=False):
             try:
                 self.make_room(0)
@@ -72,6 +103,49 @@ class Relay(ThreadingHTTPServer):
 
     def clip(self, digest):
         return self.directory / (digest + ".clip")
+
+    def materialize(self, identity):
+        target = self.clip(identity)
+        if target.is_file() and not target.is_symlink():
+            return True
+        with self.sources_lock:
+            source = self.sources.get(identity)
+        if source is None or source[1] <= time.time():
+            return False
+        with source[2]:
+            if target.is_file() and not target.is_symlink():
+                return True
+            temporary = None
+            try:
+                request = urllib.request.Request(source[0], headers={"User-Agent": "Mozilla/5.0", "Accept": "video/*,*/*"})
+                with urllib.request.build_opener(CdnRedirect()).open(request, timeout=12) as response:
+                    if not valid_source(response.url):
+                        return False
+                    size = int(response.headers.get("Content-Length", "0"))
+                    if size > MAX_CLIP:
+                        return False
+                    deadline, received = time.monotonic() + 60, 0
+                    with tempfile.NamedTemporaryFile(dir=self.directory, prefix=".source-", delete=False) as output:
+                        temporary = Path(output.name)
+                        while True:
+                            block = response.read(65536)
+                            if not block:
+                                break
+                            received += len(block)
+                            if received > MAX_CLIP or time.monotonic() > deadline:
+                                return False
+                            output.write(block)
+                    if not received:
+                        return False
+                with self.incoming:
+                    self.make_room(received)
+                    temporary.replace(target)
+                return True
+            except (OSError, ValueError):
+                return False
+            finally:
+                if temporary is not None:
+                    temporary.unlink(missing_ok=True)
 
     def make_room(self, size):
         now = time.time()
@@ -96,6 +170,36 @@ class Relay(ThreadingHTTPServer):
 
 
 class Request(BaseHTTPRequestHandler):
+    def do_POST(self):
+        matched = SOURCE.fullmatch(self.path)
+        if not matched:
+            return self.empty(404)
+        supplied = self.headers.get("Authorization", "").encode("utf-8")
+        if not hmac.compare_digest(supplied, b"Bearer " + self.server.key):
+            return self.empty(403)
+        length = self.headers.get("Content-Length", "")
+        if self.headers.get("Transfer-Encoding") or not re.fullmatch(r"[0-9]{1,5}", length) or not 0 < int(length) <= 8192:
+            return self.empty(413)
+        try:
+            body = json.loads(self.rfile.read(int(length)))
+            if not isinstance(body, dict) or set(body) != {"url", "expiresAt"}:
+                return self.empty(400)
+            url, expires = body["url"], body["expiresAt"]
+            if (not valid_source(url) or type(expires) is not int or not time.time() < expires <= time.time() + MAX_LEASE
+                    or hashlib.sha256(url.encode("utf-8")).hexdigest() != matched[1]):
+                return self.empty(400)
+        except (ValueError, TypeError):
+            return self.empty(400)
+        with self.server.sources_lock:
+            for identity, source in list(self.server.sources.items()):
+                if source[1] <= time.time():
+                    del self.server.sources[identity]
+            if matched[1] not in self.server.sources and len(self.server.sources) >= 128:
+                return self.empty(429)
+            old = self.server.sources.get(matched[1])
+            self.server.sources[matched[1]] = (url, expires, old[2] if old else threading.Lock())
+        return self.empty(201)
+
     def log_message(self, _format, *_args):
         # Signed paths and upload credentials stay out of access logs.
         pass
@@ -157,6 +261,8 @@ class Request(BaseHTTPRequestHandler):
             return self.empty(403)
         target = self.server.clip(matched[1])
         if target.is_symlink():
+            return self.empty(404)
+        if not target.exists() and not self.server.materialize(matched[1]):
             return self.empty(404)
         try:
             stream = target.open("rb")

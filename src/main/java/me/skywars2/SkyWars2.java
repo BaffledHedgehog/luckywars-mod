@@ -187,6 +187,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             me.skywars2.game.effects.SignedEnvironmentalEffects.tick();
             me.skywars2.game.effects.SignedEffectVisuals.tick(server);
             me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals.tick(server);
+            me.skywars2.game.presentation.ShaderRequirementGuard.tick(server);
             if(game!=null)game.vanity().tick();
             if(game!=null)game.itemQueue().endTick();
             AtlasGlitchSignal.tick(server);
@@ -226,6 +227,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) { game.shutdown(); game = null; }
             AtlasGlitchSignal.stop(server);
             me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals.stop();
+            me.skywars2.game.presentation.ShaderRequirementGuard.stop();
             me.skywars2.game.net.PlayerLatency.stop();
         });
         ServerPlayerEvents.JOIN.register(player -> { if (game != null) { game.items().mana().initializeResources(player); game.join(player); } me.skywars2.game.effects.SignedEffectVisuals.joined(player); });
@@ -233,6 +235,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             AtlasGlitchSignal.leaving(player);
             me.skywars2.game.net.PlayerLatency.forget(player);
             me.skywars2.game.presentation.projectiles.WeaponSpreadVisuals.forget(player);
+            me.skywars2.game.presentation.ShaderRequirementGuard.forget(player);
             FullInvisibility.cameraChanging(player, null);
             me.skywars2.game.effects.SignedEffectVisuals.clear(player);
             if (game != null) game.leave(player);

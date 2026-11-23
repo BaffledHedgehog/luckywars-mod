@@ -108,7 +108,8 @@ async def run():
                             {"id": "44444444", "video": {"ok": True}, "author": None},
                             {"id": "11111111", "video": {"ok": True}, "author": {"uniqueId": "already_seen"}},
                             {"id": "33333333", "video": {"ok": True}, "author": {"uniqueId": "bad/path"}},
-                            {"id": "22222222", "video": {"ok": True}, "author": {"uniqueId": "fixture_author"}}
+                            {"id": "22222222", "video": {"ok": True}, "author": {"uniqueId": "fixture_author"}},
+                            {"id": "55555555", "video": {"ok": True}, "author": {"uniqueId": "fixture_author"}}
                         ]}))
                     elif request.url == "https://www.tiktok.com/foryou":
                         await request_route.fulfill(content_type="text/html", body='<script>fetch("/api/recommend/item_list/?count=5")</script>')
@@ -129,6 +130,11 @@ async def run():
             assert result["id"] == "22222222" and result["url"] == "https://www.tiktok.com/@fixture_author/video/22222222"
             assert "Chrome" in result["user_agent"]
             assert authenticated and len(requests) == 2
+            with patch("playwright.async_api.async_playwright", fake_playwright):
+                links = await worker.recommendations(cookies, {"11111111"}, limit=20, links_only=True)
+            assert [clip["id"] for clip in links] == ["22222222", "55555555"]
+            assert all("cookies" not in clip and "user_agent" not in clip for clip in links)
+            assert authenticated and len(requests) == 4
             proof = {"ok": True, "realBrowser": launches, "interceptedPageRequests": len(requests), "remotePageRequests": 0,
                      "authenticatedCookieApplied": authenticated, "excludedVideoSkipped": True, "invalidAuthorSkipped": True,
                      "actualAccountTest": False, "workerSha256": hashlib.sha256(Path(spec.origin).read_bytes()).hexdigest()}

@@ -24,11 +24,8 @@ import net.minecraft.sounds.SoundSource;
 /** Optional phone player. Both transports feed the same sound engine and texture. */
 public final class MediaClient implements ClientModInitializer {
     private static final org.slf4j.Logger LOGGER=org.slf4j.LoggerFactory.getLogger("skywars2-media");
-    private static final Identifier TEXTURE=Identifier.parse("skywars2:phone_stream");
-    private static final Object LOCK=new Object();
-    private static final LinkedHashSet<UUID> retired=new LinkedHashSet<>();
     private static final ExecutorService decoder=Executors.newSingleThreadExecutor(r->{var t=new Thread(r,"skywars-media-decode");t.setDaemon(true);t.setPriority(Thread.MIN_PRIORITY);return t;});
-    private static final ExecutorService linkDecoder = Executors.newSingleThreadExecutor(r -> {
+    private static final ThreadPoolExecutor linkDecoder = new ThreadPoolExecutor(2,2,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(16),r -> {
         var thread = new Thread(r, "skywars-media-https");
         thread.setDaemon(true);
         thread.setPriority(Thread.MIN_PRIORITY);
@@ -36,16 +33,85 @@ public final class MediaClient implements ClientModInitializer {
     });
     private static final URI relayOrigin = relayOrigin();
     private static final Optional<Mp4Decoder.Tools> mp4Tools = Mp4Decoder.findTools();
-    private static final ArrayBlockingQueue<Decoded> decoded=new ArrayBlockingQueue<>(64);
-    private static Session session;
-    private static MediaPackets.Frame pending;
-    private static MediaPackets.Link pausedLink;
+
+    private static final Playback MAIN=new Playback(Identifier.parse("skywars2:phone_stream"));
+    private static final Playback OFF=new Playback(Identifier.parse("skywars2:phone_stream_off"));
     private static MediaDownload downloads;
     private static MediaPreloads preloads;
-    private static boolean decoding,paused,announced;
-    private static DynamicTexture texture;
+    private static boolean announced;
+    private static boolean independentHands;
+    private static Playback lane(UUID id){return OFF.owns(id)?OFF:MAIN;}
+    @Override public void onInitializeClient(){
+        LOGGER.info("Phone local MP4 decoder: {}",mp4Tools.isPresent()?"available; direct CDN preferred":"unavailable; prepared HTTPS fallback");
+        MediaPackets.register();
+        SpecialModelRenderers.ID_MAPPER.put(Identifier.parse("skywars2:phone_video"),PhoneRenderer.Unbaked.CODEC);
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Frame.TYPE,(p,c)->lane(p.session()).receive(p));
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Link.TYPE,(p,c)->lane(p.session()).receive(p));
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.HandLink.TYPE,(p,c)->{independentHands=true;(p.hand()==0?MAIN:OFF).receive(p.link());});
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.FovPreference.TYPE,(p,c)->ClientFovPreferences.accept(p));
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Prefetch.TYPE,(p,c)->{
+            synchronized(MediaClient.class){if(mp4Tools.isPresent()&&ensureDownloads())preloads.update(p.clips());}
+        });
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Segment.TYPE,(p,c)->lane(p.session()).receive(p));
+        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Stop.TYPE,(p,c)->{MAIN.stop(p.session());OFF.stop(p.session());});
+        ClientPlayConnectionEvents.JOIN.register((handler,sender,client)->reset());
+        ClientPlayConnectionEvents.DISCONNECT.register((handler,client)->reset());
+        ClientTickEvents.END_CLIENT_TICK.register(client->{announce();MAIN.tick();OFF.tick();});
+    }
+    private static void announce(){
+        if(!announced&&Minecraft.getInstance().getConnection()!=null&&ClientPlayNetworking.canSend(MediaPackets.Hello.TYPE)){
+            int features=MediaPackets.FEATURES;
+            if (relayOrigin != null && ClientPlayNetworking.canSend(MediaPackets.Fallback.TYPE)) {
+                features |= MediaPackets.HTTPS_PLAYBACK;
+                if (mp4Tools.isPresent()) features |= MediaPackets.DIRECT_MP4 | MediaPackets.INDEPENDENT_HANDS;
+                if (ClientPlayNetworking.canSend(MediaPackets.RequestSegment.TYPE)) features |= MediaPackets.HTTPS_SEGMENTS;
+            }
+            ClientPlayNetworking.send(new MediaPackets.Hello(MediaPackets.VERSION,features));announced=true;
+        }
+    }
+    public static Identifier texture(){return MAIN.texture();}
+    public static Identifier texture(boolean left){
+        if(!independentHands)return MAIN.texture();
+        var player=Minecraft.getInstance().player;
+        boolean primary=player==null||player.getMainArm()==(left?net.minecraft.world.entity.HumanoidArm.LEFT:net.minecraft.world.entity.HumanoidArm.RIGHT);
+        return (primary?MAIN:OFF).texture();
+    }
+    public static void frozen(boolean value){MAIN.frozen(value);OFF.frozen(value);}
+    static void present(){MAIN.present();OFF.present();}
+    private static void reset(){MAIN.reset();OFF.reset();synchronized(MediaClient.class){if(preloads!=null)preloads.close();}announced=false;independentHands=false;ClientFovPreferences.reset();}
+
+    private static URI relayOrigin() {
+        String configured = System.getProperty("skywars2.media.relay");
+        if (configured == null || configured.isBlank()) return MediaRelayEndpoint.VELOCITY;
+        try {
+            URI origin = URI.create(configured);
+            MediaDownload.validateRelayOrigin(origin);
+            return origin;
+        }
+        catch (IllegalArgumentException invalid) { return null; }
+    }
+    private static synchronized boolean ensureDownloads() {
+        if (downloads != null) return true;
+        Path cache = Minecraft.getInstance().gameDirectory.toPath().resolve("skywars2-phone-cache");
+        try {
+            downloads = new MediaDownload(cache, relayOrigin);
+            preloads = new MediaPreloads(downloads);
+            return true;
+        } catch (IllegalArgumentException invalid) { return false; }
+    }
+    private static final class Playback {
+    private final Identifier TEXTURE;
+    Playback(Identifier texture){TEXTURE=texture;}
+    private final Object LOCK=new Object();
+    private final LinkedHashSet<UUID> retired=new LinkedHashSet<>();
+    private final ArrayBlockingQueue<Decoded> decoded=new ArrayBlockingQueue<>(64);
+    private Session session;
+    private MediaPackets.Frame pending;
+    private MediaPackets.Link pausedLink;
+    private boolean decoding,paused;
+    private DynamicTexture texture;
     private record Decoded(Session owner,long serial,NativeImage image){}
-    private static final class Session {
+    private final class Session {
         final UUID id;final int rate,channels;final MediaTimeline timeline;
         final MediaSegmentQueue segments;
         volatile ChannelAccess.ChannelHandle sound;
@@ -68,43 +134,25 @@ public final class MediaClient implements ClientModInitializer {
             timeline=new MediaTimeline(true);
         }
     }
-    @Override public void onInitializeClient(){
-        LOGGER.info("Phone local MP4 decoder: {}",mp4Tools.isPresent()?"available; direct CDN preferred":"unavailable; prepared HTTPS fallback");
-        MediaPackets.register();
-        SpecialModelRenderers.ID_MAPPER.put(Identifier.parse("skywars2:phone_video"),PhoneRenderer.Unbaked.CODEC);
-        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Frame.TYPE,(p,c)->receive(p));
-        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Link.TYPE,(p,c)->receive(p));
-        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.FovPreference.TYPE,(p,c)->ClientFovPreferences.accept(p));
-        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Prefetch.TYPE,(p,c)->{synchronized(LOCK){
-            if(mp4Tools.isPresent()&&ensureDownloads())preloads.update(p.clips());
-        }});
-        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Segment.TYPE,(p,c)->receive(p));
-        ClientPlayNetworking.registerGlobalReceiver(MediaPackets.Stop.TYPE,(p,c)->{synchronized(LOCK){
-            retire(p.session());
-            if(pausedLink!=null&&pausedLink.session().equals(p.session()))pausedLink=null;
-            if(session!=null&&session.id.equals(p.session()))close(false);
-        }});
-        ClientPlayConnectionEvents.JOIN.register((handler,sender,client)->{
-            reset(); // Server channel advertisement may arrive after the JOIN callback.
-        });
-        ClientPlayConnectionEvents.DISCONNECT.register((handler,client)->reset());
-        ClientTickEvents.END_CLIENT_TICK.register(client->tick());
-    }
-    public static Identifier texture(){synchronized(LOCK){return texture!=null&&session!=null?TEXTURE:null;}}
-    private static void retire(UUID id){retired.add(id);while(retired.size()>32)retired.remove(retired.iterator().next());}
-    private static void reset(){synchronized(LOCK){close(false);if(preloads!=null)preloads.close();pausedLink=null;retired.clear();paused=false;announced=false;ClientFovPreferences.reset();}}
-    private static void close(boolean keepIdentity){
+
+    boolean owns(UUID id){synchronized(LOCK){return retired.contains(id)||session!=null&&session.id.equals(id)||pausedLink!=null&&pausedLink.session().equals(id);}}
+    void stop(UUID id){synchronized(LOCK){retire(id);if(pausedLink!=null&&pausedLink.session().equals(id))pausedLink=null;if(session!=null&&session.id.equals(id))close(false);}}
+    public Identifier texture(){synchronized(LOCK){return texture!=null&&session!=null?TEXTURE:null;}}
+    private void retire(UUID id){retired.add(id);while(retired.size()>32)retired.remove(retired.iterator().next());}
+    private void reset(){synchronized(LOCK){close(false);pausedLink=null;retired.clear();paused=false;}}
+    private void close(boolean keepIdentity){
         if(session!=null){session.active=false;session.timeline.close();
             var movie=session.mp4;
             if(movie!=null)movie.cancel();
             if(session.segments!=null)session.segments.close();
             if(session.linkedWork!=null)session.linkedWork.cancel(true);
+            linkDecoder.purge();
             if(session.sound!=null)session.sound.execute(c->c.stop());if(keepIdentity)retire(session.id);session=null;}
         pending=null;Decoded d;while((d=decoded.poll())!=null)d.image.close();
         if(texture!=null){Minecraft.getInstance().getTextureManager().release(TEXTURE);texture=null;}
         LOCK.notifyAll();
     }
-    public static void frozen(boolean value){synchronized(LOCK){
+    public void frozen(boolean value){synchronized(LOCK){
         if(paused==value)return;
         paused=value;
         if (value) {
@@ -133,7 +181,7 @@ public final class MediaClient implements ClientModInitializer {
         }
     }}
 
-    private static void pauseLinked(Session selected, boolean value) {
+    private void pauseLinked(Session selected, boolean value) {
         selected.timeline.setPaused(value, System.nanoTime());
         var handle = selected.sound;
         if (handle == null) return;
@@ -150,18 +198,9 @@ public final class MediaClient implements ClientModInitializer {
         });
     }
 
-    private static URI relayOrigin() {
-        String configured = System.getProperty("skywars2.media.relay");
-        if (configured == null || configured.isBlank()) return MediaRelayEndpoint.VELOCITY;
-        try {
-            URI origin = URI.create(configured);
-            MediaDownload.validateRelayOrigin(origin);
-            return origin;
-        }
-        catch (IllegalArgumentException invalid) { return null; }
-    }
 
-    private static void receive(MediaPackets.Link link) {
+
+    private void receive(MediaPackets.Link link) {
         synchronized(LOCK) {
             if(relayOrigin==null||retired.contains(link.session()))return;
             boolean sameSession = session != null && session.id.equals(link.session());
@@ -180,21 +219,14 @@ public final class MediaClient implements ClientModInitializer {
             close(!sameSession);
             var selected=new Session(link);
             session=selected;
+            linkDecoder.purge();
             selected.linkedWork=linkDecoder.submit(()->decodeLink(selected));
         }
     }
 
-    private static boolean ensureDownloads() {
-        if (downloads != null) return true;
-        Path cache = Minecraft.getInstance().gameDirectory.toPath().resolve("skywars2-phone-cache");
-        try {
-            downloads = new MediaDownload(cache, relayOrigin);
-            preloads = new MediaPreloads(downloads);
-            return true;
-        } catch (IllegalArgumentException invalid) { return false; }
-    }
 
-    private static void receive(MediaPackets.Segment part) {
+
+    private void receive(MediaPackets.Segment part) {
         synchronized (LOCK) {
             if (relayOrigin == null || retired.contains(part.session())) return;
             boolean sameSession = session != null && session.id.equals(part.session());
@@ -211,12 +243,13 @@ public final class MediaClient implements ClientModInitializer {
             session = selected;
             if (paused) pauseLinked(selected, true);
             if (offerSegment(selected, part)) {
+                linkDecoder.purge();
                 selected.linkedWork = linkDecoder.submit(() -> decodeSegments(selected));
             }
         }
     }
 
-    private static boolean offerSegment(Session selected, MediaPackets.Segment part) {
+    private boolean offerSegment(Session selected, MediaPackets.Segment part) {
         try {
             // URL is checked against the existing configured Velocity origin before opening any connection.
             return selected.segments.offer(part, uri -> downloads.segment(URI.create(uri)));
@@ -226,7 +259,7 @@ public final class MediaClient implements ClientModInitializer {
         }
     }
 
-    private static void requestNext(Session selected, long sequence) {
+    private void requestNext(Session selected, long sequence) {
         Minecraft.getInstance().execute(() -> {
             synchronized (LOCK) {
                 if (session != selected || !selected.active) return;
@@ -236,13 +269,13 @@ public final class MediaClient implements ClientModInitializer {
         });
     }
 
-    private static void sendRequest(Session selected, long sequence) {
+    private void sendRequest(Session selected, long sequence) {
         if (ClientPlayNetworking.canSend(MediaPackets.RequestSegment.TYPE) && selected.segments.expect(sequence)) {
             ClientPlayNetworking.send(new MediaPackets.RequestSegment(selected.id, sequence));
         }
     }
 
-    private static void decodeSegments(Session selected) {
+    private void decodeSegments(Session selected) {
         try {
             while (awaitLinkedPlayback(selected)) {
                 var part = selected.segments.take();
@@ -272,7 +305,7 @@ public final class MediaClient implements ClientModInitializer {
         }
     }
 
-    private static void playSegment(Session selected, MediaPackets.Segment description, Path path, boolean single)
+    private void playSegment(Session selected, MediaPackets.Segment description, Path path, boolean single)
             throws IOException, InterruptedException {
         if (!awaitLinkedPlayback(selected)) return;
         try (var clip = MediaClip.openSegment(path, description.width(), description.height(),
@@ -287,7 +320,7 @@ public final class MediaClient implements ClientModInitializer {
         }
     }
 
-    private static void decodeLink(Session selected) {
+    private void decodeLink(Session selected) {
         try {
             if (!awaitLinkedPlayback(selected)) return;
             if (!selected.link.cdn().isEmpty()) {
@@ -334,11 +367,11 @@ public final class MediaClient implements ClientModInitializer {
         }
     }
 
-    private static MediaSegmentQueue.Download movieDownload(String uri,boolean direct){
+    private MediaSegmentQueue.Download movieDownload(String uri,boolean direct){
         var ready=preloads.take(uri);
         return ready!=null?ready:direct?downloads.direct(URI.create(uri)):downloads.fallback(URI.create(uri));
     }
-    private static void playMovie(Session selected, MediaSegmentQueue.Download transfer)
+    private void playMovie(Session selected, MediaSegmentQueue.Download transfer)
             throws IOException, ExecutionException, InterruptedException {
         if (mp4Tools.isEmpty()) throw new IOException("MP4 decoder unavailable");
         Path file = transfer.file().toCompletableFuture().get();
@@ -363,7 +396,7 @@ public final class MediaClient implements ClientModInitializer {
         }
     }
 
-    private static void signalFallback(Session selected, boolean relayFailed) {
+    private void signalFallback(Session selected, boolean relayFailed) {
         Minecraft.getInstance().execute(() -> {
             synchronized (LOCK) {
                 if (session != selected || !selected.active) return;
@@ -375,14 +408,14 @@ public final class MediaClient implements ClientModInitializer {
         });
     }
 
-    private static boolean awaitLinkedPlayback(Session selected) throws InterruptedException {
+    private boolean awaitLinkedPlayback(Session selected) throws InterruptedException {
         synchronized (LOCK) {
             while (session == selected && paused) LOCK.wait();
             return session == selected && selected.active;
         }
     }
 
-    private static void linkedFrame(Session selected,NativeImage image,byte[] pcm) throws InterruptedException {
+    private void linkedFrame(Session selected,NativeImage image,byte[] pcm) throws InterruptedException {
         boolean queued=false;
         try {
             synchronized(LOCK){
@@ -400,7 +433,7 @@ public final class MediaClient implements ClientModInitializer {
             }
         }finally{if(!queued)image.close();}
     }
-    private static void receive(MediaPackets.Frame p){
+    private void receive(MediaPackets.Frame p){
         synchronized(LOCK){
             if(paused||retired.contains(p.session())||!MediaPackets.jpegMatches(p.jpeg(),p.width(),p.height()))return;
             if(session==null||!session.id.equals(p.session())){close(true);session=new Session(p);}
@@ -410,10 +443,10 @@ public final class MediaClient implements ClientModInitializer {
             session.last=Math.max(session.last,p.serial());
             if(!session.timeline.offer(p.serial(),p.pcm()))return;
             session.received=System.nanoTime();pending=p;
-            if(!decoding){decoding=true;decoder.execute(MediaClient::decode);}
+            if(!decoding){decoding=true;decoder.execute(this::decode);}
         }
     }
-    private static void decode(){
+    private void decode(){
         for(;;){
             MediaPackets.Frame p;Session owner;
             synchronized(LOCK){p=pending;pending=null;owner=session;if(p==null){decoding=false;return;}}
@@ -426,16 +459,7 @@ public final class MediaClient implements ClientModInitializer {
             }catch(Exception ignored){/* Invalid JPEG cannot leak native memory or kill the networking thread. */}
         }
     }
-    private static void tick(){
-        if(!announced&&Minecraft.getInstance().getConnection()!=null&&ClientPlayNetworking.canSend(MediaPackets.Hello.TYPE)){
-            int features=MediaPackets.FEATURES;
-            if (relayOrigin != null && ClientPlayNetworking.canSend(MediaPackets.Fallback.TYPE)) {
-                features |= MediaPackets.HTTPS_PLAYBACK;
-                if (mp4Tools.isPresent()) features |= MediaPackets.DIRECT_MP4;
-                if (ClientPlayNetworking.canSend(MediaPackets.RequestSegment.TYPE)) features |= MediaPackets.HTTPS_SEGMENTS;
-            }
-            ClientPlayNetworking.send(new MediaPackets.Hello(MediaPackets.VERSION,features));announced=true;
-        }
+    private void tick(){
         synchronized(LOCK){
             var s=session;if(s==null||paused)return;
             if(!s.active||(!s.linked()&&System.nanoTime()-s.received>2_000_000_000L)){close(false);return;}
@@ -465,7 +489,7 @@ public final class MediaClient implements ClientModInitializer {
         }
     }
     /** Render cadence, independent of 20Hz client/world ticks. Also called from ticks when the phone is offscreen. */
-    static void present(){
+    void present(){
         synchronized(LOCK){
             var s=session;if(s==null||paused)return;
             long target=s.timeline.presented(System.nanoTime());Decoded selected=null;
@@ -481,7 +505,7 @@ public final class MediaClient implements ClientModInitializer {
             }
         }
     }
-    private static void openAudio(Session s){
+    private void openAudio(Session s){
         var mc=Minecraft.getInstance();
         s.volume=mc.options.getFinalSoundSourceVolume(SoundSource.RECORDS);
         var engine=((MediaSoundAccess.Manager)mc.getSoundManager()).skywars2$engine();
@@ -531,5 +555,6 @@ public final class MediaClient implements ClientModInitializer {
             LOGGER.warn("Phone audio allocation failed; will retry ({})",failure.getClass().getSimpleName());
             return null;
         });
+    }
     }
 }

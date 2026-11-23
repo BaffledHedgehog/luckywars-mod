@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "lbc:item/shader_guard",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 16646651
+      }
+    ]
+  }
+}

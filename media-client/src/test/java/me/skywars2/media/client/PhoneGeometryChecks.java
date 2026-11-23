@@ -9,6 +9,11 @@ import org.joml.Vector3fc;
 /** Compare the submitted special geometry to native cuboid coordinates, before shared hand transforms. */
 public final class PhoneGeometryChecks {
     public static void main(String[] args){
+        var right=new com.google.gson.JsonObject();
+        var left=new com.google.gson.JsonObject();left.addProperty("left",true);
+        if(PhoneRenderer.Unbaked.CODEC.codec().parse(com.mojang.serialization.JsonOps.INSTANCE,right).getOrThrow().left()
+                ||!PhoneRenderer.Unbaked.CODEC.codec().parse(com.mojang.serialization.JsonOps.INSTANCE,left).getOrThrow().left())
+            throw new AssertionError("physical left/right renderers must keep distinct hand selectors");
         // Actual original lbc:item/zaika body cuboid. FaceBakery uses select(from,to)/16 directly.
         var from=new Vector3f(0,-1,.5f);var to=new Vector3f(14,31,2);
         var min=new Vector3f(Float.POSITIVE_INFINITY);var max=new Vector3f(Float.NEGATIVE_INFINITY);

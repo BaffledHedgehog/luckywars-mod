@@ -64,8 +64,10 @@ public final class TikTokPlayback implements AutoCloseable {
     private int preloadTick;
     private final TikTokSoundClock audioClock=new TikTokSoundClock(id->inFlight.merge(id,1,Integer::sum),this::release);
     private final TikTokClientClock clientClock=new TikTokClientClock(id->inFlight.merge(id,1,Integer::sum),this::release);
+    private final TikTokDirectPlayback direct;
 
     void requestClientFallback(ServerPlayer player, MediaPackets.Fallback request) {
+        if(direct.fallback(player,request))return;
         var view=views.get(player.getUUID());
         if(view!=null&&view.player==player&&view.enhanced&&current(view))clientClock.requestFallback(player,request);
     }
@@ -74,15 +76,21 @@ public final class TikTokPlayback implements AutoCloseable {
         if (view != null && view.player == player && view.enhanced && current(view)) clientClock.requestSegment(player, request);
     }
 
-    TikTokPlayback(MinecraftServer server,TikTokCache cache){this.server=server;this.cache=cache;}
+    TikTokPlayback(MinecraftServer server,TikTokCache cache){this.server=server;this.cache=cache;direct=new TikTokDirectPlayback(server,cache,p->publish(p,slots(p)));}
+    int directReady(){return direct.ready();}
     boolean enhanced(ServerPlayer player) {
+        if(direct.active(player))return true;
         var view=views.get(player.getUUID());
         return view!=null&&view.player==player&&view.active&&view.enhanced&&view.output.activeFor(player);
     }
     static boolean phone(ItemStack stack){return stack.is(LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item);}
 
     boolean use(ServerPlayer player){
+        return use(player,net.minecraft.world.InteractionHand.MAIN_HAND);
+    }
+    boolean use(ServerPlayer player,net.minecraft.world.InteractionHand hand){
         if(closed||server.getPlayerList().getPlayer(player.getUUID())!=player)return false;
+        if(TikTokClientSupport.independentHands(player))return direct.use(player,hand);
         var held = slots(player);
         var output = TikTokOutput.forPlayer(player);
         if (held.isEmpty() || output == null) return false;
@@ -169,10 +177,11 @@ public final class TikTokPlayback implements AutoCloseable {
 
     void tick(){
         if(closed)return;
+        direct.tick();
         if(++preloadTick%10==0){
           clientClock.retainPreloads(server.getPlayerList().getPlayers().stream().map(ServerPlayer::getUUID).collect(java.util.stream.Collectors.toSet()));
           for(var player:server.getPlayerList().getPlayers()){
-            if(player.isAlive()&&TikTokClientSupport.mp4(player)&&player.getInventory().contains(TikTokPlayback::phone))
+            if(player.isAlive()&&TikTokClientSupport.mp4(player)&&!TikTokClientSupport.independentHands(player)&&player.getInventory().contains(TikTokPlayback::phone))
                 clientClock.preload(player,cache.upcoming(history.getOrDefault(player.connection,"")));
             else clientClock.endPreload(player);
           }
@@ -235,6 +244,7 @@ public final class TikTokPlayback implements AutoCloseable {
     }
     private void release(String id){inFlight.computeIfPresent(id,(key,count)->count==1?null:count-1);}
     void reset(){
+        direct.reset();
         var retired=List.copyOf(views.values());
         retired.forEach(view->view.active=false);
         views.clear();
@@ -243,5 +253,5 @@ public final class TikTokPlayback implements AutoCloseable {
         for(var view:retired)if(current(view))publish(view.player,view.slots);
         cooldowns.clear();history.clear();retire.clear();
     }
-    @Override public void close(){if(closed)return;closed=true;reset();clientClock.close();audioClock.close();reader.shutdownNow();}
+    @Override public void close(){if(closed)return;closed=true;reset();direct.close();clientClock.close();audioClock.close();reader.shutdownNow();}
 }

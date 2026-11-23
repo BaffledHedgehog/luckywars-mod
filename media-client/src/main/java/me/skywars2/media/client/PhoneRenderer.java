@@ -12,16 +12,19 @@ import org.joml.*;
 
 /** One fullbright quad; the composite's original model still provides the phone and hand transform. */
 public final class PhoneRenderer implements SpecialModelRenderer<Identifier> {
+    private final boolean left;
+    public PhoneRenderer(){this(false);}
+    private PhoneRenderer(boolean left){this.left=left;}
     // FaceBakery uses model coordinates /16; both composite layers share the same hand transform.
     private static final float X0=.15f/16,X1=13.85f/16;
     private static final float Y1=29.5f/16,Y0=Y1-13.7f*1280/720/16,Z=2.2f/16;
-    @Override public Identifier extractArgument(ItemStack stack){return MediaClient.texture();}
+    @Override public Identifier extractArgument(ItemStack stack){return MediaClient.texture(left);}
     @Override public void getExtents(Consumer<Vector3fc> output){
         output.accept(new Vector3f(0,-1f/16,2.1f/16));output.accept(new Vector3f(14f/16,29.55f/16,2.1f/16));
         output.accept(new Vector3f(X0,Y0,Z));output.accept(new Vector3f(X1,Y1,Z));
     }
     @Override public void submit(Identifier texture,PoseStack pose,SubmitNodeCollector collector,int light,int overlay,boolean foil,int outline){
-        MediaClient.present();texture=MediaClient.texture();
+        MediaClient.present();texture=MediaClient.texture(left);
         if(texture==null)return;
         collector.submitCustomGeometry(pose,RenderTypes.text(texture),(p,b)->{
             // Keep the original status bar/time/battery above29.55 visible.
@@ -35,9 +38,9 @@ public final class PhoneRenderer implements SpecialModelRenderer<Identifier> {
         b.addVertex(p.pose(),x1,y0,z).setColor(color).setUv(1,1).setLight(15728880);
         b.addVertex(p.pose(),x1,y1,z).setColor(color).setUv(1,0).setLight(15728880);
     }
-    public record Unbaked() implements SpecialModelRenderer.Unbaked<Identifier> {
-        public static final MapCodec<Unbaked> CODEC=MapCodec.unit(new Unbaked());
+    public record Unbaked(boolean left) implements SpecialModelRenderer.Unbaked<Identifier> {
+        public static final MapCodec<Unbaked> CODEC=com.mojang.serialization.Codec.BOOL.optionalFieldOf("left",false).xmap(Unbaked::new,Unbaked::left);
         @Override public MapCodec<Unbaked> type(){return CODEC;}
-        @Override public PhoneRenderer bake(SpecialModelRenderer.BakingContext context){return new PhoneRenderer();}
+        @Override public PhoneRenderer bake(SpecialModelRenderer.BakingContext context){return new PhoneRenderer(left);}
     }
 }

@@ -17,6 +17,10 @@ final class TikTokCache implements AutoCloseable {
     private final Preparation preparation;
     private final Path root, videos, incoming, cookies;
     private final boolean fillQueue;
+    private boolean demand=true;
+    Path root(){return root;}
+    Path cookies(){return cookies;}
+    void demand(boolean value){demand=value;}
     private final ExecutorService worker=Executors.newSingleThreadExecutor(r->{var t=new Thread(r,"skywars-tiktok-prepare");t.setDaemon(true);return t;});
     private final Deque<TikTokMedia> clips=new ArrayDeque<>();
     private final LinkedHashSet<String> recent=new LinkedHashSet<>();
@@ -141,14 +145,14 @@ final class TikTokCache implements AutoCloseable {
             // A worker never publishes partial output; every failed/obsolete staging directory is disposable.
             try(var entries=Files.list(incoming)){for(var path:entries.toList())remove(path);}catch(IOException ignored){}
         }
-        if(fillQueue&&pending==null&&wallNow>=retryAfter){
+        if(fillQueue&&demand&&pending==null&&wallNow>=retryAfter){
             for(var clip:clips)if(!clip.hasSpectral()&&attemptedAudio.add(clip.id)){
                 pendingAudioId=clip.id;
                 var source=clip.directory;var stage=incoming.resolve(UUID.randomUUID().toString());
                 pending=worker.submit(()->preparation.run(stage,List.of(),source));break;
             }
         }
-        if(fillQueue&&pending==null&&clips.size()<CAPACITY&&configured()&&wallNow>=retryAfter){
+        if(fillQueue&&demand&&pending==null&&clips.size()<CAPACITY&&configured()&&wallNow>=retryAfter){
             var excluded=new LinkedHashSet<>(recent);excluded.addAll(ids());
             String token=UUID.randomUUID().toString();Path stage=incoming.resolve(token);
             var snapshot=List.copyOf(excluded);

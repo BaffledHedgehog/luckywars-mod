@@ -13,7 +13,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 /** Connection-scoped capability: an absent/old client keeps the vanilla phone path. */
 public final class TikTokClientSupport {
-    private record Peer(ServerGamePacketListenerImpl listener, boolean httpsPlayback, boolean mp4, boolean segments) {}
+    private record Peer(ServerGamePacketListenerImpl listener, boolean httpsPlayback, boolean mp4, boolean segments,boolean independentHands) {}
     private static final ConcurrentMap<UUID,Peer> peers=new ConcurrentHashMap<>();
     private TikTokClientSupport(){}
     static void register(){
@@ -39,7 +39,9 @@ public final class TikTokClientSupport {
                 peers.put(player.getUUID(), new Peer(player.connection, httpsPlayback,
                         httpsPlayback && (hello.features() & MediaPackets.DIRECT_MP4) != 0,
                         httpsPlayback && (hello.features() & MediaPackets.HTTPS_SEGMENTS) != 0
-                                && ServerPlayNetworking.canSend(player, MediaPackets.Segment.TYPE)));
+                                && ServerPlayNetworking.canSend(player, MediaPackets.Segment.TYPE),
+                        httpsPlayback&&(hello.features()&MediaPackets.DIRECT_MP4)!=0&&(hello.features()&MediaPackets.INDEPENDENT_HANDS)!=0
+                                &&ServerPlayNetworking.canSend(player,MediaPackets.HandLink.TYPE)));
             } else forget(player.getUUID(), player.connection);
         });
     }
@@ -76,4 +78,5 @@ public final class TikTokClientSupport {
         var peer = peers.get(player.getUUID());
         return peer != null && peer.listener == player.connection && peer.mp4;
     }
+    static boolean independentHands(ServerPlayer player){var peer=peers.get(player.getUUID());return peer!=null&&peer.listener==player.connection&&peer.independentHands;}
 }

@@ -12,6 +12,7 @@ import net.minecraft.resources.Identifier;
 public final class MediaPackets {
     public static final int VERSION=1, JPEG=1, PCM=2, FEATURES=JPEG|PCM, FPS=20;
     public static final int HTTPS_PLAYBACK = 4, DIRECT_MP4 = 8, HTTPS_SEGMENTS = 16;
+    public static final int INDEPENDENT_HANDS = 32;
     public static final int MAX_LINK_LENGTH = 4096;
     public static final int MAX_JPEG=131072, MAX_PCM=16384, MAX_WIDTH=720, MAX_HEIGHT=1280;
     private static boolean registered;
@@ -23,11 +24,21 @@ public final class MediaPackets {
         PayloadTypeRegistry.clientboundPlay().register(Frame.TYPE,Frame.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Stop.TYPE,Stop.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Link.TYPE,Link.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HandLink.TYPE,HandLink.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(FovPreference.TYPE,FovPreference.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Prefetch.TYPE,Prefetch.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestSegment.TYPE, RequestSegment.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Segment.TYPE, Segment.CODEC);
         registered=true;
+    }
+    public record Hello(int protocol,int features) implements CustomPacketPayload {
+        public static final Type<Hello> TYPE=new Type<>(Identifier.parse("skywars2:media/hello_v1"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,Hello> CODEC=new StreamCodec<>(){
+            public Hello decode(RegistryFriendlyByteBuf b){return new Hello(b.readVarInt(),b.readVarInt());}
+            public void encode(RegistryFriendlyByteBuf b,Hello p){b.writeVarInt(p.protocol);b.writeVarInt(p.features);}
+        };
+        @Override public Type<Hello> type(){return TYPE;}
+        public boolean supported(){return protocol==VERSION&&(features&FEATURES)==FEATURES;}
     }
     public record FovPreference(int percent,boolean scoped) implements CustomPacketPayload {
         public static final Type<FovPreference> TYPE=new Type<>(Identifier.parse("skywars2:fov_preference_v1"));
@@ -38,14 +49,14 @@ public final class MediaPackets {
         public FovPreference{if(percent<0||percent>100)throw new IllegalArgumentException("fov_percent");}
         @Override public Type<FovPreference> type(){return TYPE;}
     }
-    public record Hello(int protocol,int features) implements CustomPacketPayload {
-        public static final Type<Hello> TYPE=new Type<>(Identifier.parse("skywars2:media/hello_v1"));
-        public static final StreamCodec<RegistryFriendlyByteBuf,Hello> CODEC=new StreamCodec<>(){
-            public Hello decode(RegistryFriendlyByteBuf b){return new Hello(b.readVarInt(),b.readVarInt());}
-            public void encode(RegistryFriendlyByteBuf b,Hello p){b.writeVarInt(p.protocol);b.writeVarInt(p.features);}
+    public record HandLink(int hand,Link link) implements CustomPacketPayload {
+        public static final Type<HandLink> TYPE=new Type<>(Identifier.parse("skywars2:media/hand_link_v1"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,HandLink> CODEC=new StreamCodec<>(){
+            public HandLink decode(RegistryFriendlyByteBuf b){return new HandLink(b.readUnsignedByte(),Link.CODEC.decode(b));}
+            public void encode(RegistryFriendlyByteBuf b,HandLink p){b.writeByte(p.hand);Link.CODEC.encode(b,p.link);}
         };
-        @Override public Type<Hello> type(){return TYPE;}
-        public boolean supported(){return protocol==VERSION&&(features&FEATURES)==FEATURES;}
+        public HandLink{if(hand<0||hand>1)throw new IllegalArgumentException("media_hand");Objects.requireNonNull(link);}
+        @Override public Type<HandLink> type(){return TYPE;}
     }
     public record Frame(UUID session,long serial,int width,int height,int rate,int channels,byte[] jpeg,byte[] pcm) implements CustomPacketPayload {
         public static final Type<Frame> TYPE=new Type<>(Identifier.parse("skywars2:media/frame_v1"));
