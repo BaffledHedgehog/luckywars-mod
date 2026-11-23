@@ -594,10 +594,26 @@ public final class LbcLoadouts {
 
     /** Общая нативная выдача таблицы: используется наборами и проверками отдельных перенесённых предметов. */
     public void grantTable(ServerPlayer player, String tableId) {
-        // Нативная вставка объединяет одинаковые тринкеты и обрабатывает переполнение инвентаря.
+        boolean trinket=CATALOG.get(Kind.TRINKETS).stream().anyMatch(entry->entry.table.equals(tableId));
         for (var stack : rollTable(player.level(), player.position(), player, tableId)) {
+            if(trinket)insertTrinket(player,stack);
             player.getInventory().placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
         }
+    }
+    /** Legacy grants reserve the far main-inventory slots before using the hotbar. */
+    private static void insertTrinket(ServerPlayer player,net.minecraft.world.item.ItemStack stack){
+        var inventory=player.getInventory();
+        int maximum=Math.min(stack.getMaxStackSize(),inventory.getMaxStackSize());
+        for(int slot=35;slot>=0&&!stack.isEmpty();slot--){
+            var existing=inventory.getItem(slot);
+            if(!existing.isEmpty()&&net.minecraft.world.item.ItemStack.isSameItemSameComponents(existing,stack)){
+                int count=Math.min(stack.getCount(),maximum-existing.getCount());
+                if(count>0){var updated=existing.copyWithCount(existing.getCount()+count);inventory.setItem(slot,updated);stack.shrink(count);}
+            }
+        }
+        for(int slot=35;slot>=0&&!stack.isEmpty();slot--)if(inventory.getItem(slot).isEmpty())
+            inventory.setItem(slot,stack.split(Math.min(maximum,stack.getCount())));
+        inventory.setChanged();
     }
 
     /** Перенесённые loot conditions, включая /loot, читают прежний score; настройкой владеет config. */

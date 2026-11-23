@@ -56,9 +56,8 @@ public final class LbcEdibleSpells {
     private static final class WildArrow extends DamageSource {
         WildArrow(ServerPlayer p){super(p.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),p);}
     }
-    private record Body(ServerPlayer player,Sheep sheep,GameType previous,String epoch){}
     private final GameController game;
-    private final List<Body> bodies=new ArrayList<>();
+    private final Map<ServerPlayer,String> pendingPolymorph=new IdentityHashMap<>();
     private final Set<Entity> nativeChildren=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<Entity,LbcIndirectKills.Owner> authors=new IdentityHashMap<>();
     private final Set<Entity> publishing=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -146,11 +145,11 @@ public final class LbcEdibleSpells {
     private void teleport(ServerPlayer p,int radius){if(game.items().magic().rejectCustomDebuff(p))return;var board=game.server().getScoreboard();var objective=board.getObjective("swrg.math");var score=objective==null?null:board.getPlayerScoreInfo(ScoreHolder.forNameOnly("no_borders"),objective);
         boolean bounded=score!=null&&score.value()==0;execute(p,"spreadplayers "+(bounded?"0 0 0 190":p.getX()+" "+p.getZ()+" 0 "+radius)+" true @s");
     }
-    private void polymorph(ServerPlayer p){if(game.items().magic().rejectCustomDebuff(p))return;var sheep=EntityTypes.SHEEP.create(p.level(),EntitySpawnReason.TRIGGERED);if(sheep==null)return;
-        load(sheep,"{DeathLootTable:'minecraft:empty',CustomName:'jeb_',CustomNameVisible:0b,attributes:[{id:'minecraft:knockback_resistance',base:10}]}");sheep.setCustomName(Component.literal("jeb_"));sheep.setCustomNameVisible(false);sheep.entityTags().add("magicalsheep");sheep.setPos(p.position());
-        if(!insert(p,sheep))return;var body=new Body(p,sheep,p.gameMode(),game.items().epoch());bodies.add(body);
-        p.level().sendParticles(ParticleTypes.POOF,p.getX(),p.getY()+.5,p.getZ(),20,.1,.1,.1,.5);LbcOverload.sound(p,p.position(),"minecraft:block.fire.extinguish",1,2,0);
-        p.setGameMode(GameType.SPECTATOR);p.setCamera(sheep);
+    private void polymorph(ServerPlayer p){
+        if(game.items().magic().rejectCustomDebuff(p))return;
+        // consume_item runs before native stack shrink/hand replacement. Capture the
+        // shared form only after that transaction, so restoring it cannot duplicate food.
+        pendingPolymorph.put(p,game.items().epoch());
     }
     /** Invoked only by the native fang's actual attack tick, before vanilla's owner/allies shortcut. */
     public void fangHit(EvokerFangs fang,LivingEntity victim){
@@ -191,16 +190,24 @@ public final class LbcEdibleSpells {
     }
     /** Native game tick only maintains accepted polymorphs and native child ownership. */
     public void tick(){
-        for(var body:List.copyOf(bodies))if(LbcParasite.active(body.player)||!game.items().currentEpoch(body.epoch)||!game.playing()||game.stage()==GameController.Stage.ENDING||body.player.isRemoved())release(body);
+        for(var entry:new IdentityHashMap<>(pendingPolymorph).entrySet()){
+            var p=entry.getKey();
+            if(!game.items().currentEpoch(entry.getValue())||!game.playing()||game.stage()==GameController.Stage.ENDING||!p.isAlive()||p.isRemoved()){
+                pendingPolymorph.remove(p);continue;
+            }
+            if(game.items().timeStop().stopped(p.level()))continue;
+            pendingPolymorph.remove(p);
+            if(active(p)&&game.items().polymorph().applyPermanent(p,game.items().indirectKills().wildCause(p)))
+                LbcOverload.sound(p,p.position(),"minecraft:block.fire.extinguish",1,2,0);
+        }
         for(var e:List.copyOf(nativeChildren))if(e.isRemoved()||!game.items().currentEpoch(e)||!game.playing()||game.stage()==GameController.Stage.ENDING){nativeChildren.remove(e);authors.remove(e);if(!e.isRemoved())e.discard();}
     }
-    public boolean polymorphed(ServerPlayer player){return bodies.stream().anyMatch(body->body.player==player);}
-    public void clearDebuffs(ServerPlayer player){for(var body:List.copyOf(bodies))if(body.player==player)release(body);}
-    private void release(Body body){bodies.remove(body);if(body.player.getCamera()==body.sheep){body.player.setCamera(body.player);body.player.setGameMode(body.previous);}nativeChildren.remove(body.sheep);authors.remove(body.sheep);if(!body.sheep.isRemoved())body.sheep.discard();}
+    public boolean polymorphed(ServerPlayer player){return game.items().polymorph().active(player)&&game.items().polymorph().remaining(player)<0;}
+    public void clearDebuffs(ServerPlayer player){pendingPolymorph.remove(player);if(polymorphed(player))game.items().polymorph().clearDebuffs(player);}
     public void loaded(Entity entity){if(managed(entity)&&!publishing.contains(entity)&&!nativeChildren.contains(entity))entity.discard();}
     public void unloaded(Entity entity){nativeChildren.remove(entity);authors.remove(entity);}
-    public void forget(ServerPlayer p){for(var body:List.copyOf(bodies))if(body.player==p)release(body);for(var e:List.copyOf(nativeChildren))if(authors.get(e)!=null&&p.getUUID().equals(authors.get(e).player())){nativeChildren.remove(e);authors.remove(e);e.discard();}}
-    public void stop(){for(var body:List.copyOf(bodies))release(body);for(var e:List.copyOf(nativeChildren))e.discard();nativeChildren.clear();authors.clear();}
-    public int polymorphCount(){return bodies.size();}
+    public void forget(ServerPlayer p){pendingPolymorph.remove(p);if(polymorphed(p))game.items().polymorph().forget(p);for(var e:List.copyOf(nativeChildren))if(authors.get(e)!=null&&p.getUUID().equals(authors.get(e).player())){nativeChildren.remove(e);authors.remove(e);e.discard();}}
+    public void stop(){pendingPolymorph.clear();for(var e:List.copyOf(nativeChildren))e.discard();nativeChildren.clear();authors.clear();}
+    public int polymorphCount(){return (int)game.server().getPlayerList().getPlayers().stream().filter(this::polymorphed).count();}
     public List<Entity> snapshot(){return List.copyOf(nativeChildren);}
 }

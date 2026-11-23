@@ -221,6 +221,13 @@ public final class LbcPolymorph {
         if(transform(original,cause)==null)return false;
         forms.get(original).remaining=ticks;return true;
     }
+    /** Edible Polymorph uses the same player/body/death owner, without timed expiry. */
+    public boolean applyPermanent(ServerPlayer player,LbcIndirectKills.Owner cause){
+        var existing=forms.get(player);
+        if(existing!=null){existing.remaining=-1;return true;}
+        if(transform(player,cause,true)==null)return false;
+        forms.get(player).remaining=-1;return true;
+    }
     public Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause){return transform(original,cause,false);}
     Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause,boolean rainbow){return transform(original,cause,rainbow,false);}
     /** Gem sources retain nonliving identity too; wand and Magnesia admission stay unchanged. */
@@ -374,7 +381,7 @@ public final class LbcPolymorph {
                 p.setHealth(sheep.getHealth());p.setSprinting(false);p.removeAllEffects();p.setInvisible(true);
                 form.counters.keySet().forEach(k->game.items().mana().score(p,k).set(0));
             }
-            if(--form.remaining<=0)finish(form,false);
+            if(form.remaining>=0&&--form.remaining<=0)finish(form,false);
         }
         if(game.items().wands().timeStopped())return;
         for(var volley:List.copyOf(volleys)){

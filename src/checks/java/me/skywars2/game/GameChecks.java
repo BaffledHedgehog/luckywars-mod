@@ -1628,6 +1628,8 @@ public final class GameChecks {
                                 case "true-legacy-rules" -> { TrueLegacyChecks.run(game); return; }
                                 case "true-legacy-exit" -> { TrueLegacyChecks.exit(game); return; }
                                 case "lucky-loadouts" -> { LuckyLoadoutChecks.run(game); return; }
+                                case "trinket-grants" -> { TrinketGrantChecks.run(game); return; }
+                                case "permanent-edible-polymorph" -> { PermanentEdiblePolymorphChecks.start(game); return; }
                                 case "match-mode-menu" -> { MatchStartChecks.menu(game); return; }
                                 case "match-mode-stop-probe" -> { MatchStartChecks.stopProbe(game); return; }
                                 case "match-mode-cleanup" -> { MatchStartChecks.cleanup(game); return; }
@@ -1988,6 +1990,7 @@ public final class GameChecks {
             ImprintedHudChecks.tick(game);
             DropActivationChecks.tick(game);ArenaBoundsChecks.tick(game);TrollBoxChecks.tick(game);TmtLifecycleChecks.tick(game);TmtFireworkAmmoChecks.tick(game);TmtAcquisitionChecks.tick(game);
             EdibleSpellChecks.tick(game);
+            PermanentEdiblePolymorphChecks.tick(game);
             NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);WitchIndolenceChecks.tick(game);IndolenceFingerChecks.tick(game);WitchClaimChecks.tick(game);WitchLustChecks.tick(game);WitchLifecycleChecks.tick(game);EternalWealthChecks.tick(game);NexusWireChecks.tick(game);NexusToolsChecks.tick(game);NexusPulsarChecks.tick(game);NexusOrbChecks.tick(game);NexusCloneChecks.tick(game);NexusAcquisitionChecks.tick(game);ChargedBowChecks.tick(game);CursedPumpkinChecks.tick(game);PozdmanChecks.tick(game);ExpansionSkillChecks.tick(game);HakureiSkillChecks.tick(game);DanmakuCloneChecks.tick(game);GodClawSkillChecks.tick(game);CombatStanceSkillChecks.tick(game);StoneGolemSkillChecks.tick(game);SupernovaChecks.tick(game);BalanceRuntimeChecks.tick(game);VanityRollbackChecks.tick(game);VanitySnapshotPerfChecks.tick(game);VanityTerrainChecks.tick(game);VanityCoreChecks.tick(game);VanityPlayerChecks.tick(game);VanityActorChecks.tick(game);VanityNavigationChecks.tick(game);VanityGoalChecks.tick(game);VanityRangedGoalChecks.tick(game);VanityViewChecks.tick(game);VanityStorageChecks.tick(game);VanityWorkstationChecks.tick(game);VanityBoundViewChecks.tick(game);VanityRandomChecks.tick(game);VanityWorldChecks.tick(game);VanityTimeStopChecks.tick(game);ChefExecutionChecks.tick(game);PolymorphChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
