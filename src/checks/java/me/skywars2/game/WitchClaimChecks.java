@@ -10,6 +10,10 @@ import me.skywars2.game.skills.witch.LbcWitchGluttony;
 import me.skywars2.game.skills.witch.LbcWitchLust;
 import me.skywars2.game.world.terrain.TeleportMomentum;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -99,6 +103,48 @@ public final class WitchClaimChecks {
             base.owner.entityTags().add("sin_wrath");require(!input()&&base.owner.getMainHandItem().getCount()==3&&!base.owner.hasEffect(MobEffects.WITHER),"already-held mode is a quiet no-op");base.owner.entityTags().remove("sin_wrath");
             mode(5);require(input()&&base.owner.getMainHandItem().getCount()==3&&base.owner.hasEffect(MobEffects.WITHER)&&!game.vanity().hasSnapshot(),"unqualified Vanity follows source failure without consuming a token or saving a point");base.owner.removeAllEffects();
         }
+        static List<Component> chat(ShishEncounterChecks.Client client,int first){
+            var packets=packets(client);var messages=new ArrayList<Component>();
+            for(var packet:packets.subList(first,packets.size()))if(packet instanceof ClientboundSystemChatPacket message)messages.add(message.content());
+            return messages;
+        }
+        static void translation(Component component,String key){
+            require(component.getContents() instanceof TranslatableContents text&&text.getKey().equals(key),
+                    "exact legacy progress translation "+key);
+        }
+        void progressMessages(){
+            // Independent legacy oracle: each tellraw starts with the purple
+            // translation, then its value. Vanity additionally has lives/time.
+            var modes=List.of(LbcWitchClaims.Mode.GLUTTONY,LbcWitchClaims.Mode.WRATH,LbcWitchClaims.Mode.LUST,
+                    LbcWitchClaims.Mode.GREED,LbcWitchClaims.Mode.INDOLENCE,LbcWitchClaims.Mode.VANITY);
+            var labels=List.of("food_count","dmg_dealt","loli_count","greed_count","indolence_count","dmg_dealt");
+            int[] raw={63,4999,63,123,3599,1234},displayed={63,499,63,123,179,123};
+            for(int i=0;i<modes.size();i++){
+                reset();var mode=modes.get(i);mode(mode.ordinal()+1);set(base.owner,mode.counter,raw[i]);
+                int first=packets(client).size(),otherFirst=packets(otherClient).size();
+                int lives=game.lives(base.owner.getUUID()),seconds=game.matchTicks()/20;
+                require(input()&&base.owner.getMainHandItem().getCount()==3,"progress rejection retains token "+mode);
+                var messages=chat(client,first);require(messages.size()==2&&chat(otherClient,otherFirst).isEmpty(),"exact owner-only failure/progress rows "+mode);
+                translation(messages.getFirst(),"no_witch_gens");require(messages.getFirst().getStyle().getColor()==null,"base failure retains default legacy color");
+                var progress=messages.getLast();translation(progress,labels.get(i));
+                require(progress.getStyle().getColor()!=null&&progress.getStyle().getColor().getValue()==0xff55ff,"legacy progress root is light_purple "+mode);
+                var parts=progress.getSiblings();require(parts.size()==(mode==LbcWitchClaims.Mode.VANITY?5:1),"complete legacy progress component count "+mode);
+                require(parts.getFirst().getString().equals(Integer.toString(displayed[i])),"native source counter/unit conversion "+mode);
+                if(mode==LbcWitchClaims.Mode.VANITY){
+                    translation(parts.get(1),"lives_count");require(parts.get(2).getString().equals(Integer.toString(lives)),"Vanity current native lives");
+                    translation(parts.get(3),"game_time");require(parts.get(4).getString().equals(Integer.toString(seconds)),"Vanity elapsed whole seconds, not ticks");
+                }
+                require(parts.stream().allMatch(part->part.getStyle().isEmpty()),"legacy array values/remaining labels inherit root style "+mode);
+                progress.visit((style,text)->{require(style.getColor()!=null&&style.getColor().getValue()==0xff55ff,"every rendered label/number inherits light_purple "+mode);return Optional.empty();},Style.EMPTY);
+            }
+            reset();mode(7);base.owner.entityTags().add("have_mom");int first=packets(client).size();
+            require(input(),"unqualified Envy native input");var messages=chat(client,first);
+            require(messages.size()==1,"legacy Envy has only rejection, no invented progress row");translation(messages.getFirst(),"no_witch_gens");
+            reset();mode(5);game.server().getScoreboard().resetSinglePlayerScore(base.owner,game.server().getScoreboard().getObjective("dmg_dealt"));
+            first=packets(client).size();require(input(),"missing Vanity damage operand still reports all fields");messages=chat(client,first);
+            require(messages.size()==2&&messages.getLast().getSiblings().size()==5&&messages.getLast().getSiblings().getFirst().getString().equals("0"),"missing damage displays zero with lives/time");
+            require(new LbcSourceCounters(game).read(base.owner,"dmg_dealt")==null,"progress text does not create missing native scoreboard operands");reset();
+        }
         void claims(){reset();mode(2);set(base.owner,"dmg_dealt",5001);set(base.other,"dmg_dealt",5000);base.other.entityTags().addAll(Set.of("sin_wrath","sin_envy"));
             base.owner.getInventory().setItem(0,token.copy());base.owner.entityTags().add("sin_gluttony");
             mana=game.items().mana().get(base.owner);require(input()&&base.owner.entityTags().containsAll(Set.of("sin_wrath","sin_gluttony"))&&!base.other.entityTags().contains("sin_wrath")&&base.other.entityTags().contains("sin_envy"),"replace only selected authority, preserve other sins");
@@ -130,7 +176,7 @@ public final class WitchClaimChecks {
         void clearSins(){for(var p:List.of(base.owner,base.other))for(var m:LbcWitchClaims.Mode.values())p.entityTags().remove(m.tag());}
         Entity jammer(String tag){var e=new Marker(EntityTypes.MARKER,base.owner.level());e.setPos(base.at);e.entityTags().addAll(Set.of(tag,"not_block"));own.add(e);base.owner.level().addFreshEntity(e);game.items().magic().loaded(e);return e;}
         boolean step(){client.ack();otherClient.ack();int now=game.server().getTickCount();require(now-start<90,"bounded native claim scenario");
-            if(phase==0){if(now-start<2)return false;conditions();inputs();sharedBonus();claims();reset();magic=jammer("stopper_magic");tech=jammer("stopper");start=now;phase++;return false;}
+            if(phase==0){if(now-start<2)return false;conditions();inputs();progressMessages();sharedBonus();claims();reset();magic=jammer("stopper_magic");tech=jammer("stopper");start=now;phase++;return false;}
             if(phase==1){if(now-start<2)return false;require(game.items().magic().suppressed(base.owner)&&game.items().magic().mechanismSuppressed(base.owner),"actual native jammer coverage");
                 mode(2);set(base.owner,"dmg_dealt",5000);require(input()&&base.owner.entityTags().contains("sin_wrath"),"beacon MAGIC/TECH do not add nonexistent source acquisition gates");clearSins();
                 base.owner.entityTags().add("nomagic_active");base.owner.setShiftKeyDown(true);mode=mode();require(!input()&&mode()==mode,"stronger source antimagic artifact blocks mode switch");base.owner.entityTags().remove("nomagic_active");base.owner.setShiftKeyDown(false);

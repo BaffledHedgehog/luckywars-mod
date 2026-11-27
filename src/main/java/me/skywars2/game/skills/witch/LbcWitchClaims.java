@@ -12,6 +12,7 @@ import me.skywars2.game.items.wands.LbcFartus;
 import me.skywars2.game.skills.levelups.LbcSourceCounters;
 
 import java.util.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.network.chat.Component;
@@ -108,7 +109,17 @@ public final class LbcWitchClaims {
         Integer recorded=mode.counter==null?null:counters.read(p,mode.counter);
         int score=recorded==null?0:recorded;
         String key=switch(mode){case GLUTTONY->"food_count";case WRATH,VANITY->"dmg_dealt";case LUST->"loli_count";case GREED->"greed_count";case INDOLENCE->"indolence_count";default->null;};
-        if(key!=null)p.sendSystemMessage(Component.empty().append(Component.translatable(key).withStyle(s->s.withColor(0xff55ff))).append(Component.literal(Integer.toString(mode==Mode.INDOLENCE?Math.floorDiv(score,20):mode==Mode.WRATH||mode==Mode.VANITY?Math.floorDiv(score,10):score))));
+        if(key!=null){
+            // Legacy tellraw arrays use their first component as the root: every
+            // following label/value inherits its light_purple style.
+            var progress=Component.translatable(key).withStyle(ChatFormatting.LIGHT_PURPLE)
+                    .append(Component.literal(Integer.toString(mode==Mode.INDOLENCE?Math.floorDiv(score,20):mode==Mode.WRATH||mode==Mode.VANITY?Math.floorDiv(score,10):score)));
+            if(mode==Mode.VANITY)progress.append(Component.translatable("lives_count"))
+                    .append(Component.literal(Integer.toString(game.lives(p.getUUID()))))
+                    .append(Component.translatable("game_time"))
+                    .append(Component.literal(Integer.toString(game.matchTicks()/20)));
+            p.sendSystemMessage(progress);
+        }
     }
     private void yes(ServerPlayer p){
         int removed=p.getInventory().clearOrCountMatchingItems(LbcWitchClaims::matches,false,1,p.inventoryMenu.getCraftSlots());
