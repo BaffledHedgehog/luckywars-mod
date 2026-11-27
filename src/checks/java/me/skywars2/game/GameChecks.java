@@ -1095,6 +1095,7 @@ public final class GameChecks {
                                 case "reward-tools" -> { RewardToolChecks.start(game); return; }
                                 case "reward-tools-native" -> { RewardToolChecks.startNative(game); return; }
                                 case "native-utility-inputs" -> NativeUtilityInputChecks.run(game);
+                                case "entity-section-visibility" -> EntitySectionVisibilityChecks.run(game);
                                 case "arena-bounds" -> {ArenaBoundsChecks.run(game);return;}
                                 case "drop-activation" -> {DropActivationChecks.run(game);return;}
                                 case "loose-rewards" -> { LooseRewardChecks.start(game); return; }
