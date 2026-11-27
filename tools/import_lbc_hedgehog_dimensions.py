@@ -12,6 +12,13 @@ def write(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2)+"\n", encoding="utf-8", newline="\n")
 
 def migrate():
+    # Clock markers are globally unique per clock, not per dimension/tag.
+    # Vanilla overworld/day owns them; retain Nexus tracks but never duplicate
+    # the shared clock's command/sleep/siege markers in the cloned timeline.
+    timeline = DEST / "timeline/nexus_day.json"
+    data = json.loads(timeline.read_text(encoding="utf-8-sig"))
+    data.pop("time_markers", None)
+    write(timeline, data)
     for name in ("nexus", "imprinted"):
         dimension=json.loads((LEGACY/f"dimension/{name}.json").read_text(encoding="utf-8-sig"))
         # A zero-height air layer and no layers describe the same void generator.
@@ -28,6 +35,12 @@ def migrate():
             "minecraft:gameplay/respawn_anchor_works":old["respawn_anchor_works"],
             "minecraft:gameplay/piglins_zombify":not old["piglin_safe"],
             "minecraft:gameplay/water_evaporates":old["ultrawarm"]}
+        if name == "nexus":
+            # Keep gameplay day tracks, but Nether's legacy fog was not darkened
+            # by the Overworld day/night color tracks.
+            data["timelines"] = "#minecraft:in_nexus"
+            data["attributes"].update({"minecraft:visual/fog_start_distance": 10.0,
+                                       "minecraft:visual/fog_end_distance": 96.0})
         write(DEST/f"dimension_type/{name}.json",data)
         old=json.loads((LEGACY/f"worldgen/biome/{name}.json").read_text(encoding="utf-8-sig"))
         data={key:copy.deepcopy(old[key]) for key in ("temperature","downfall","has_precipitation","temperature_modifier","carvers","features")}

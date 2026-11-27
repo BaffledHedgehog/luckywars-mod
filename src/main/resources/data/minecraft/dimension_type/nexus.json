@@ -18,11 +18,13 @@
   "skybox": "none",
   "cardinal_light": "nether",
   "default_clock": "minecraft:overworld",
-  "timelines": "#minecraft:in_overworld",
+  "timelines": "#minecraft:in_nexus",
   "attributes": {
     "minecraft:gameplay/can_start_raid": false,
     "minecraft:gameplay/respawn_anchor_works": false,
     "minecraft:gameplay/piglins_zombify": true,
-    "minecraft:gameplay/water_evaporates": false
+    "minecraft:gameplay/water_evaporates": false,
+    "minecraft:visual/fog_start_distance": 10.0,
+    "minecraft:visual/fog_end_distance": 96.0
   }
 }
