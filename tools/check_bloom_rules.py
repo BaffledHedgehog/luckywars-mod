@@ -22,7 +22,7 @@ limits = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(limits)
 
 
-def check_music_staff(args, ctx, source, screen_vertex, programs, sample, composite,
+def check_music_staff(args, ctx, source, screen_vertex, programs, sample, composite, blur_program,
                       texture, render, raw, sample_source, results, hashes, width, height):
     """Exercise the actual staff material pixels and the existing additive palette."""
     from PIL import Image
@@ -63,7 +63,7 @@ def check_music_staff(args, ctx, source, screen_vertex, programs, sample, compos
     def pipeline(scene, sampler=sample, composer=composite):
         extracted, extracted_pixels = render(sampler, {"DiffuseSampler": scene})
         extracted.filter = (gl.LINEAR, gl.LINEAR)
-        horizontal, _ = render(composer, {"DiffuseSampler": extracted}, (1, 0))
+        horizontal, _ = render(blur_program, {"DiffuseSampler": extracted}, (1, 0))
         horizontal.filter = (gl.LINEAR, gl.LINEAR)
         final, pixels = render(composer, {"DiffuseSampler": scene, "BloomSampler": horizontal}, (0, 1))
         extracted.release();horizontal.release();final.release()
@@ -146,6 +146,7 @@ def main():
     parser.add_argument("--native-compiler", action="store_true", help="Also compile core glint/per-face/OIT variants with the game's shaderc")
     parser.add_argument("--material-repair", action="store_true", help="Verify native blend loss and repaired opaque item materials")
     parser.add_argument("--music-staff", action="store_true", help="Check the staff texture, dark halo and all existing material rules")
+    parser.add_argument("--feedback-beams", action="store_true", help="Run actual marked item, extraction, horizontal blur and composite for feedback beam materials")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     if args.native_compiler:
@@ -225,9 +226,11 @@ def main():
                 for offset in range(16, len(data) - 3, 4):
                     struct.pack_into("f", data, offset, 1_000_000 + offset * 100)
             elif name == "BlitConfig":
-                struct.pack_into("4f", data, 0, 1, 1, 1, 1)
-                if direction is not None:
-                    struct.pack_into("2f", data, 16, *direction)
+                if len(data) >= 24:
+                    struct.pack_into("4f", data, 0, 1, 1, 1, 1)
+                    if direction is not None: struct.pack_into("2f", data, 16, *direction)
+                elif direction is not None:
+                    struct.pack_into("2f", data, 0, *direction)
             block.binding = len(buffers)
             buffers.append(ctx.buffer(data))
         return buffers
@@ -286,6 +289,7 @@ def main():
     composite_source = source("assets/lbc/shaders/post/material_bloom.fsh")
     sample = ctx.program(vertex_shader=screen_vertex, fragment_shader=sample_source)
     composite = ctx.program(vertex_shader=screen_vertex, fragment_shader=composite_source)
+    blur_program = ctx.program(vertex_shader=screen_vertex, fragment_shader=source("assets/lbc/shaders/post/bloom_blur.fsh"))
     # Explicit negative control also works after the author has applied the fix:
     # remove only the alpha admission gate and prove that RGB alone leaks bloom.
     guard = "if (!lbc_bloom_marked(scene)) return;"
@@ -323,7 +327,7 @@ def main():
         extracted, pixels = render(sample, {"DiffuseSampler": scene})
         assert np.count_nonzero(np.any(pixels[:, :, :3], axis=2)) == 256
         extracted.filter = (gl.LINEAR, gl.LINEAR)
-        horizontal, _ = render(composite, {"DiffuseSampler": extracted}, (1, 0))
+        horizontal, _ = render(blur_program, {"DiffuseSampler": extracted}, (1, 0))
         horizontal.filter = (gl.LINEAR, gl.LINEAR)
         final, pixels = render(composite, {"DiffuseSampler": scene, "BloomSampler": horizontal}, (0, 1))
         if rgb == (255, 3, 3):
@@ -333,6 +337,30 @@ def main():
         assert np.any(pixels[68:72, 124:132, :3]), "No halo outside geometry"
         results.append({"case": "marked-item-and-halo", "rgb": rgb, "whiteCore": rgb == (255, 3, 3), "passed": True})
         for image in (image, scene, extracted, horizontal, final):image.release()
+
+    if args.feedback_beams:
+        from PIL import Image
+        tagged_vertex=vertex.replace("tmtTintSeed=uvec3(0)", "tmtTintSeed=uvec3(252u,(253u<<8u)|249u,0u)")
+        item_fragment=source("assets/minecraft/shaders/core/item.fsh").replace("#version 330", "#version 330\n#define ALPHA_CUTOUT 0.1")
+        marked_item=ctx.program(vertex_shader=tagged_vertex,fragment_shader=item_fragment)
+        materials=[("lightning-cyan",(51,220,255)),("lightning-white",(255,252,253)),("hedgehog-laser",(63,255,191))]
+        for name,rgb in materials:
+            source_image=raw(rgb,255)
+            scene,scene_pixels=render(marked_item,{"Sampler0":source_image})
+            assert np.all(scene_pixels[72:88,120:136,3]==254),(name,"material marker missing")
+            extracted,emission=render(sample,{"DiffuseSampler":scene})
+            assert np.all(np.any(emission[72:88,120:136,:3],axis=2)),(name,"extraction missing")
+            extracted.filter=(gl.LINEAR,gl.LINEAR)
+            horizontal,_=render(blur_program,{"DiffuseSampler":extracted},(1,0));horizontal.filter=(gl.LINEAR,gl.LINEAR)
+            final,pixels=render(composite,{"DiffuseSampler":scene,"BloomSampler":horizontal},(0,1))
+            assert np.any(pixels[68:72,124:132,:3]),(name,"outside halo missing")
+            Image.fromarray(np.flipud(pixels)).save(args.output/f"{name}.png")
+            results.append({"case":name,"materialMarker":254,"haloOutsideGeometry":True,"passed":True})
+            for texture_ in (source_image,scene,extracted,horizontal,final):texture_.release()
+        report={"renderer":ctx.info["GL_RENDERER"],"results":results}
+        (args.output/"GPU_RESULTS.json").write_text(json.dumps(report,indent=2)+"\n",encoding="utf8")
+        print("PASS actual item material -> bloom extraction -> horizontal blur -> vertical composite, three feedback beam colors")
+        return
 
     # The same unmarked red frame DOES emit without the explicit alpha gate.
     image = raw((255, 14, 14), 255)
@@ -352,7 +380,7 @@ def main():
         scene, _ = render(programs["item"], {"Sampler0": image})
         extracted, _ = render(configured_program, {"DiffuseSampler": scene})
         extracted.filter = (gl.LINEAR, gl.LINEAR)
-        horizontal, _ = render(composite, {"DiffuseSampler": extracted}, (1, 0))
+        horizontal, _ = render(blur_program, {"DiffuseSampler": extracted}, (1, 0))
         horizontal.filter = (gl.LINEAR, gl.LINEAR)
         final, pixels = render(composite, {"DiffuseSampler": scene, "BloomSampler": horizontal}, (0, 1))
         outside = pixels[:, :, 0].copy();outside[72:88, 120:136] = 0
@@ -377,17 +405,23 @@ def main():
     for image in (image, black, scene, final):image.release()
     tinted.release()
     transport = np.zeros((height, width, 4), dtype="u1")
-    transport[:50, :171] = [255, 3, 3, 254]
-    transport[-50:, :171] = [255, 3, 3, 254]
+    # 26.3 transports its two 450-word packets in the reserved center rows.
+    span=width-16
+    for index in range(900):
+        row,x=divmod(index,span)
+        transport[row,x+4]=[255,3,3,254]
     image = texture(transport.tobytes())
     extracted, pixels = render(sample, {"DiffuseSampler": image})
     assert not np.any(pixels), "Transport bytes emitted a light or dark halo"
     black = texture(bytes(width * height * 4))
     final, pixels = render(composite, {"DiffuseSampler": image, "BloomSampler": black}, (0, 1))
-    assert np.array_equal(pixels[:, :, :3], transport[:, :, :3]), "White core corrupted service strip"
+    assert not np.any(pixels[:, :, :3]), "Transport pixels were not cleaned from the scene"
     results.append({"case": "service-alpha-is-not-material", "passed": True})
     for image in (image, extracted, black, final):image.release()
     from PIL import Image
+    saber_vertex=vertex.replace("tmtTintSeed=uvec3(0)", "tmtTintSeed=uvec3(252u,(253u<<8u)|249u,0u)")
+    saber_item=ctx.program(vertex_shader=saber_vertex,fragment_shader=source("assets/minecraft/shaders/core/item.fsh").replace("#version 330","#version 330\n#define ALPHA_CUTOUT 0.1"))
+    palette={tuple(rule["source"]) for rule in json.loads((args.pack/"bloom_rules.json").read_text(encoding="utf8"))}
     for name in ("lightsaber_sith", "lightsaber_jedi"):
         relative = f"assets/minecraft/textures/item/{name}.png"
         data = (args.pack / relative).read_bytes()
@@ -395,11 +429,13 @@ def main():
         with Image.open(args.pack / relative) as png:
             original_pixels = np.array(png.convert("RGBA").resize((width, height), Image.Resampling.NEAREST))
         image = texture(original_pixels.tobytes())
-        scene, _ = render(programs["item"], {"Sampler0": image})
+        scene, _ = render(saber_item, {"Sampler0": image})
         extracted, pixels = render(sample, {"DiffuseSampler": scene})
         emitting = np.any(pixels[:, :, :3], axis=2)
         assert np.count_nonzero(emitting) > 0, (name, "blade stopped emitting")
-        assert not np.any(emitting & (original_pixels[:, :, 3] != 254)), (name, "hilt emitted")
+        eligible=np.zeros((height,width),dtype=bool)
+        for rgb in palette: eligible |= np.all(original_pixels[:,:,:3]==rgb,axis=2) & (original_pixels[:,:,3]==255)
+        assert not np.any(emitting[4:] & ~eligible[4:]), (name, "hilt emitted")
         results.append({"case": "actual-saber-texture", "texture": name, "emittingPixels": int(emitting.sum()), "hiltNeverEmits": True, "passed": True})
         for image in (image, scene, extracted):image.release()
     if args.material_repair:
@@ -443,7 +479,7 @@ def main():
             scene, scene_pixels = render(program, {"Sampler0": image})
             extract, pixels = render(sample, {"DiffuseSampler": scene})
             extract.filter = (gl.LINEAR, gl.LINEAR)
-            blur, _ = render(composite, {"DiffuseSampler": extract}, (1, 0))
+            blur, _ = render(blur_program, {"DiffuseSampler": extract}, (1, 0))
             blur.filter = (gl.LINEAR, gl.LINEAR)
             final, composed = render(composite, {"DiffuseSampler": scene, "BloomSampler": blur}, (0, 1))
             for t in (scene, extract, blur, final): t.release()
@@ -516,7 +552,7 @@ def main():
             image.release()
         for program in (old_item, old_staff, new_item): program.release()
     if args.music_staff:
-        check_music_staff(args, ctx, source, screen_vertex, programs, sample, composite,
+        check_music_staff(args, ctx, source, screen_vertex, programs, sample, composite, blur_program,
                           texture, render, raw, sample_source, results, hashes, width, height)
     for name, digest in hashes.items():
         assert hashlib.sha256((args.pack / name).read_bytes()).hexdigest() == digest

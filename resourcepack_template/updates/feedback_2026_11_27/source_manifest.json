@@ -1,0 +1,15 @@
+{
+  "sourcePack": "C:\\Users\\yarik_temp\\AppData\\Roaming\\FreesmLauncher\\instances\\26.3\\minecraft\\resourcepacks\\all_in_one_1.21.8",
+  "sourceSha256": {
+    "assets/lbc/items/hedgehog_laser_ray.json": "19a521661f38f698bb092f8dc83a5f4519958fd198b1554d0782927a37f6a5aa",
+    "assets/minecraft/textures/item/lightning_bolt_linear.png": "7a105702eb3a02d9bb68d2b7fe7e206877552ca951c8f4479a05608de7370df8",
+    "assets/lbc/shaders/post/effect_state.fsh": "76b56532d99baa7a7d7e0d8407b5aeb7bfb9939c25f0a9e602abaa881774108b",
+    "assets/lbc/shaders/include/nuclear_trace.glsl": "fb7561f54d3dc77f87f853b63110bb8edd75098950dc4e5e47de666385a4d954"
+  },
+  "overlaySha256": {
+    "assets/lbc/items/hedgehog_laser_ray.json": "b24949f83e27d32f3da4b97f97f61f74a0b15337c66dee2bd6e19c29793655dc",
+    "assets/minecraft/textures/item/lightning_bolt_linear.png": "d3cc692b4f99486f205fde1c8069ff8c99c88719b306caa837fa60665a251436",
+    "assets/lbc/shaders/post/effect_state.fsh": "7949f389fb21857415eb78c26d3bbe9be891291dc5987c671eb09ac4d54e800e",
+    "assets/lbc/shaders/include/nuclear_trace.glsl": "2760d97276c607b6feb719a1ad426d90d53a3759ac45ee03f95aa0685fb1aa7b"
+  }
+}
