@@ -42,15 +42,22 @@ public final class BulkPlayerCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         if (!FabricLoader.getInstance().isModLoaded("carpet")) return;
-        var node=SkyWarsCommandTree.add(dispatcher,Commands.literal("player")
-                .then(Commands.literal("spawn").requires(source -> OwnerCommands.allowed(source) && Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source))
+        SkyWarsCommandTree.add(dispatcher,Commands.literal("player")
+                .then(spawnBranch(dispatcher,source -> OwnerCommands.allowed(source) && Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source))));
+        // The convenience branch beside Carpet retains its original operator
+        // permission. Do not share its node with the owner-only SkyWars path.
+        dispatcher.register(Commands.literal("player"));
+        dispatcher.getRoot().getChild("player").addChild(spawnBranch(dispatcher,Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).build());
+    }
+
+    private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> spawnBranch(
+            CommandDispatcher<CommandSourceStack> dispatcher,java.util.function.Predicate<CommandSourceStack> allowed) {
+        return Commands.literal("spawn").requires(allowed)
                         .then(Commands.argument("prefix", StringArgumentType.word())
                                 .then(Commands.argument("count", IntegerArgumentType.integer(1, 1000))
                                         .executes(ctx -> spawn(dispatcher, ctx.getSource(),
                                                 StringArgumentType.getString(ctx, "prefix"),
-                                                IntegerArgumentType.getInteger(ctx, "count")))))));
-        dispatcher.register(Commands.literal("player"));
-        dispatcher.getRoot().getChild("player").addChild(node.getChild("spawn"));
+                                                IntegerArgumentType.getInteger(ctx, "count")))));
     }
 
     private static int spawn(CommandDispatcher<CommandSourceStack> dispatcher, CommandSourceStack source,

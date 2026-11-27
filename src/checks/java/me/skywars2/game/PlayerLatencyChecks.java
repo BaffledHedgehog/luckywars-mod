@@ -40,7 +40,8 @@ final class PlayerLatencyChecks {
             try{
                 for(var text:java.util.List.of("tps","skywars tps","ping","skywars ping","ping TestBeta","skywars ping TestBeta"))require(dispatcher.execute(text,source)==1,"public native command "+text);
                 for(var name:java.util.List.of("tps","ping"))require(root.getChild(name).getCommand()==skywars.getChild(name).getCommand(),"same real command implementation behind both paths "+name);
-                var spawn=root.getChild("player").getChild("spawn");require(spawn==skywars.getChild("player").getChild("spawn")&&!spawn.canUse(source)&&spawn.canUse(source.withPermission(PermissionSet.ALL_PERMISSIONS)),"bulk spawn aliases preserve identical native permission gate");
+                var spawn=root.getChild("player").getChild("spawn");require(spawn!=skywars.getChild("player").getChild("spawn")&&!spawn.canUse(source)&&spawn.canUse(source.withPermission(PermissionSet.ALL_PERMISSIONS))
+                        &&!skywars.getChild("player").getChild("spawn").canUse(source.withPermission(PermissionSet.ALL_PERMISSIONS)),"standalone bulk spawn retains OP permission independently of owner-only SkyWars diagnostics");
                 require(root.getChild("player").getChildren().stream().anyMatch(n->n instanceof com.mojang.brigadier.tree.ArgumentCommandNode),"ordinary Carpet player-name control branch remains present");
                 try{dispatcher.execute("player spawn invalid-name 1",source.withPermission(PermissionSet.ALL_PERMISSIONS));throw new IllegalStateException("invalid prefix accepted");}catch(com.mojang.brigadier.exceptions.CommandSyntaxException expected){require(expected.getRawMessage().getString().contains("Use letters"),"root alias executes real validated bulk-spawn handler without creating a player");}
             }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}

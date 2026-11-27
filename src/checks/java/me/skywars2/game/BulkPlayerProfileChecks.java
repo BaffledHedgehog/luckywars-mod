@@ -33,9 +33,12 @@ final class BulkPlayerProfileChecks implements AutoCloseable {
     private final CountDownLatch release = new CountDownLatch(1);
     private final ConcurrentLinkedQueue<String> requests = new ConcurrentLinkedQueue<>();
     private int observed = -1;
+    private final net.minecraft.server.level.ServerPlayer requester;
+    private boolean opAdded;
 
     BulkPlayerProfileChecks(MinecraftServer server, CommandSourceStack source) throws Exception {
         this.server = server;
+        requester = source.getPlayerOrException();
         original = server.services();
         online = server.usesAuthentication();
         start = server.getTickCount();
@@ -73,9 +76,15 @@ final class BulkPlayerProfileChecks implements AutoCloseable {
         try {
             services.set(server, new Services(original.sessionService(), original.servicesKeySet(), repository, cache, profiles));
             server.setUsesAuthentication(true);
+            if(!server.getPlayerList().isOp(requester.nameAndId())){server.getPlayerList().op(requester.nameAndId());opAdded=true;}
             var dispatcher = server.getCommands().getDispatcher();
-            require(dispatcher.execute("player spawn " + PREFIX + " 3",
-                    source.withPermission(PermissionSet.ALL_PERMISSIONS)) == 3, "bulk command immediately returns three queued names");
+            var nativeSource=requester.createCommandSourceStack();
+            require(net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS).test(nativeSource),"real in-game operator permission, not a fabricated elevated command source");
+            var parsed=dispatcher.parse("player spawn " + PREFIX + " 3",nativeSource);
+            require(!parsed.getReader().canRead()&&parsed.getExceptions().isEmpty(),"actual operator parses complete standalone bulk spawn arguments");
+            // Exercise the real incoming in-game command path, not just dispatcher
+            // predicates or a console source with a substituted player entity.
+            requester.connection.handleChatCommand(new net.minecraft.network.protocol.game.ServerboundChatCommandPacket("player spawn " + PREFIX + " 3"));
         } catch (Exception | AssertionError failure) {
             close();
             throw failure;
@@ -99,6 +108,10 @@ final class BulkPlayerProfileChecks implements AutoCloseable {
                     && player.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),
                     "native Carpet actor retains the resolved or cached UUID");
         }
+        try {
+            require(server.getCommands().getDispatcher().execute("player "+PREFIX+"1 look east",requester.createCommandSourceStack())>0,
+                    "ordinary Carpet individual-player control still executes after bulk registration");
+        } catch(com.mojang.brigadier.exceptions.CommandSyntaxException problem){throw new AssertionError("Original Carpet command path was damaged",problem);}
         require(List.copyOf(requests).equals(List.of((PREFIX + "1").toLowerCase(java.util.Locale.ROOT),
                 (PREFIX + "2").toLowerCase(java.util.Locale.ROOT), "fallback")),
                 "only the two missing cache entries use the repository, with a single authenticated fallback");
@@ -117,6 +130,7 @@ final class BulkPlayerProfileChecks implements AutoCloseable {
         }
         services.set(server, original);
         server.setUsesAuthentication(online);
+        if(opAdded){server.getPlayerList().deop(requester.nameAndId());opAdded=false;}
         Files.deleteIfExists(file);
     }
 }

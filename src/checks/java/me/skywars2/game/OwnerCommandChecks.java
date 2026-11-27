@@ -57,8 +57,15 @@ public final class OwnerCommandChecks {
         if (player != null && player.getChild("spawn") != null) {
             var bulk = player.getChild("spawn");
             require(bulk.canUse(owner) && !bulk.canUse(op) && !bulk.canUse(console), "bulk load-test spawn is owner-only");
-            require(dispatcher.getRoot().getChild("player").getChild("spawn") == bulk,
-                    "standalone bulk player alias shares the same gate");
+            var standalone=dispatcher.getRoot().getChild("player").getChild("spawn");
+            require(standalone!=bulk&&standalone.canUse(owner)&&standalone.canUse(op)&&standalone.canUse(console)
+                            &&!standalone.canUse(other.createCommandSourceStack().withPermission(PermissionSet.NO_PERMISSIONS)),
+                    "standalone Carpet convenience branch retains ordinary OP access independently of SkyWars owner controls");
+            var parse=dispatcher.parse("player spawn CommandProbe 2",op);
+            require(!parse.getReader().canRead()&&parse.getExceptions().isEmpty(),"ordinary in-game operator can parse the complete standalone bulk command");
+            require(dispatcher.getSmartUsage(dispatcher.getRoot().getChild("player"),op).values().stream()
+                            .anyMatch(s->s.startsWith("spawn ")),
+                    "ordinary operator command hints expose the standalone bulk argument path");
         }
         for (var rejected : List.of(op, console, substitutedOp, substitutedConsole)) {
             for (var command : List.of("skywars genie api", "sw genie api", "skywars genie login",
