@@ -86,17 +86,25 @@ public final class SauvojenMeditationChecks {
         }
 
         @Override
+        public void close() { restore(Map.of()); }
+
+        /** A fixture's native respawn replaces only its own participant key, preserving every foreign ledger row. */
+        void restore(Map<? extends LivingEntity,? extends LivingEntity> replacements) { restore(replacements,List.of()); }
+
         @SuppressWarnings("unchecked")
-        public void close() {
+        void restore(Map<? extends LivingEntity,? extends LivingEntity> replacements,List<? extends LivingEntity> discardedFixtureBodies) {
             for (var row : saved) {
                 // Each row is written back to the same map and with the same participant keys.
                 var map = (Map<LivingEntity, Object>) (Map<?, ?>) row.map();
+                for(var discarded:discardedFixtureBodies)map.remove(discarded);
                 for (var target : targets) {
-                    if (row.values().containsKey(target)) map.put(target, rebound(row.values().get(target), target));
-                    else map.remove(target);
+                    var replacement=replacements.get(target);var current=replacement==null?target:replacement;
+                    if(current!=target)map.remove(target);
+                    if (row.values().containsKey(target)) map.put(current, rebound(row.values().get(target), current));
+                    else map.remove(current);
                 }
             }
-            combat.forEach((target, links) -> links.restore(target));
+            combat.forEach((target, links) -> {var replacement=replacements.get(target);links.restore(replacement==null?target:replacement);});
         }
     }
 

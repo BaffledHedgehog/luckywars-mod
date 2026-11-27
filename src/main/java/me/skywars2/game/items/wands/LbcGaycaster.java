@@ -73,7 +73,8 @@ public final class LbcGaycaster {
             case 1->hue>=21&&hue<=72;case 2->hue>=73&&hue<=124;case 3->hue>=125&&hue<=175;
             case 4->hue>=176&&hue<=226;case 5->hue>=227&&hue<=278;case 6->hue>=278&&hue<=329;default->false;};
     }
-    public static void impact(GameController game,ServerPlayer owner,Vec3 point,Vec3 direction,int hue,LivingEntity direct){
+    public static void impact(GameController game,ServerPlayer owner,Vec3 point,Vec3 direction,int hue,LivingEntity direct){impact(game,owner,point,direction,hue,direct,null);}
+    public static void impact(GameController game,ServerPlayer owner,Vec3 point,Vec3 direction,int hue,LivingEntity direct,me.skywars2.game.combat.LbcIndirectKills.Owner cause){
         if(game.items().magic().suppressedAt(owner.level(),point))return;
         var nearby=direct==null?owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(1.5),
                 e->e.position().distanceToSqr(point)<=2.25&&target(game,owner,e)):
@@ -84,8 +85,8 @@ public final class LbcGaycaster {
             switch(color){
                 case 0->{
                     // (user) Every target is processed; any accepted hit permits one heal.
-                    for(var e:nearby)accepted=e.hurtServer(owner.level(),damage(owner,DamageTypes.MAGIC),6)||accepted;
-                    if(accepted){owner.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,1,false,false,false),owner);
+                    for(var e:nearby)accepted=e.hurtServer(owner.level(),game.items().indirectKills().captureDamage(damage(owner,DamageTypes.MAGIC),cause),6)||accepted;
+                    if(accepted){owner.addEffect(me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,1,false,false,false),cause),owner);
                         particles(owner,ParticleTypes.HEART,owner.position(),5,.3,.5,.3,0);}
                     particles(owner,ParticleTypes.DAMAGE_INDICATOR,point,block?10:5,block?.5:.3,.5,block?.5:.3,0);
                 }
@@ -118,7 +119,7 @@ public final class LbcGaycaster {
                 }
                 case 6->{
                     for(var e:nearby)if(game.items().mana().hudValue(e,"void_resistance")<=0)
-                        accepted=e.hurtServer(owner.level(),damage(owner,DamageTypes.FELL_OUT_OF_WORLD),5)||accepted;
+                        accepted=e.hurtServer(owner.level(),game.items().indirectKills().captureDamage(damage(owner,DamageTypes.FELL_OUT_OF_WORLD),cause),5)||accepted;
                     if(block)game.items().indirectKills().trapChanges(owner.level(),owner,()->{
                         for(var p:BlockPos.betweenClosed(BlockPos.containing(point.add(-.5,-.5,-.5)),BlockPos.containing(point.add(.5,.5,.5))))
                             if(owner.level().hasChunkAt(p))owner.level().destroyBlock(p,true,owner);

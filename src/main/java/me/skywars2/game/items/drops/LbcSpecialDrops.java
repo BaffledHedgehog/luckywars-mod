@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,15 +48,23 @@ public final class LbcSpecialDrops {
     private static final String OWNER = "skywars2.special_drop_owner.";
     private record Pending(String epoch, LivingEntity owner,int activated) { }
     private final Map<ItemEntity, Pending> pending = new IdentityHashMap<>();
+    private final ArrayDeque<ItemEntity> activationQueue=new ArrayDeque<>();
+    // Tracking can stop/start on the same live body before this fair queue reaches it.
+    // Keep membership until dequeue, independently of the currently loaded pending entry.
+    private final java.util.Set<ItemEntity> queued=java.util.Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<java.util.UUID, LivingEntity> authors = new java.util.HashMap<>();
     private final Map<ItemEntity, Integer> lastAttempt = new IdentityHashMap<>();
     private record Waiting(int since,boolean reported){}
     private final Map<ItemEntity,Waiting> waiting=new IdentityHashMap<>();
     private int lastTick = Integer.MIN_VALUE;
+    private int admissionTick=Integer.MIN_VALUE,admitted;
+    private long admissionSpent;
 
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
+        if(LbcTmtItems.token(stack))return true;
+        if(LbcTmtItems.matches(stack))return false;
         return LbcTmtDrops.matches(stack)||!externalDrop(stack)&&nativeRecognized(stack);
     }
     /** Ordinary tokens retain their existing acquisition queues; only TMT composes these owners here. */
@@ -79,7 +88,7 @@ public final class LbcSpecialDrops {
                 token.entityTags().removeIf(tag -> tag.startsWith(OWNER));
                 token.entityTags().add(OWNER + cause.getUUID());
             }
-            pending.putIfAbsent(token, new Pending(game.items().epoch(), cause,0));
+            if(pending.putIfAbsent(token, new Pending(game.items().epoch(), cause,0))==null&&queued.add(token))activationQueue.addLast(token);
         }
     }
 
@@ -145,7 +154,11 @@ public final class LbcSpecialDrops {
         int now = game.server().getTickCount();
         if (lastTick == now) return;
         lastTick = now;
-        for (var token : List.copyOf(pending.keySet())) {
+        int remaining=Math.min(128,activationQueue.size());
+        while(remaining-->0) {
+            var token=activationQueue.removeFirst();
+            queued.remove(token);
+            if(!pending.containsKey(token))continue;
             if (token.isRemoved() || token.getAge() >= 5999 || stale(token) || !active(token)
                     || !game.items().currentEpoch(pending.get(token).epoch()) || !recognized(token.getItem())) {
                 unloaded(token);
@@ -153,11 +166,27 @@ public final class LbcSpecialDrops {
             }
             spawn(token);
             if (token.isRemoved() || token.getItem().isEmpty()) unloaded(token);
+            else if(pending.containsKey(token)&&queued.add(token))activationQueue.addLast(token);
         }
+    }
+
+    /** Share a bounded activation budget with separately owned academy/boss queues.
+     * Deferred tokens retain their pickup lock until their actual activations run. */
+    public boolean admit(ItemEntity token) {
+        int now=game.server().getTickCount();
+        if(admissionTick!=now){admissionTick=now;admitted=0;admissionSpent=0;}
+        if(lastAttempt.getOrDefault(token,Integer.MIN_VALUE)==now)return false;
+        // Existing actors must get a chance to recover before queued traps add more.
+        // Neither a small remaining queue nor the next twentieth tick grants overload credit.
+        if(game.server().getAverageTickTimeNanos()>75_000_000L)return false;
+        if(admitted>=16||admitted>0&&admissionSpent>=4_000_000L)return false;
+        admitted++;return true;
     }
 
     /** Returns whether an active loaded attempt was dispatched, even when native placement fails. */
     public boolean spawn(ItemEntity token) {
+        if(!admit(token))return false;
+        long started=System.nanoTime();
         try(var scope=game.items().spellSources().lootScope(token)){
             boolean result=LbcTmtDrops.matches(token.getItem())&&!LbcTmtAbilities.active(token.getItem())
                     ?spawnTmt(token):spawnScoped(token,true,true,true);
@@ -169,7 +198,7 @@ public final class LbcSpecialDrops {
                 }
             }
             return result;
-        }
+        } finally { admissionSpent+=System.nanoTime()-started; }
     }
     /** Bounded identity diagnostics: a destroyed unknown token can still be traced next time. */
     private void reportWaiting(ItemEntity token,Waiting delay,String reason){
@@ -461,10 +490,13 @@ public final class LbcSpecialDrops {
 
     public void stop() {
         pending.clear();
+        activationQueue.clear();
+        queued.clear();
         authors.clear();
         lastAttempt.clear();
         waiting.clear();
         lastTick = Integer.MIN_VALUE;
+        admissionTick=Integer.MIN_VALUE;admitted=0;
     }
 
     public int pendingCount() { return pending.size(); }

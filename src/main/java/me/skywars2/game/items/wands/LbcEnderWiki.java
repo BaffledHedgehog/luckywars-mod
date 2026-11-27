@@ -73,7 +73,10 @@ public final class LbcEnderWiki {
     }
     void apply(ServerPlayer p,Effect e,int amplifier){
         var type=BuiltInRegistries.MOB_EFFECT.get(Identifier.withDefaultNamespace(e.id())).orElseThrow();
-        p.addEffect(ItemEffectLevels.create(type,e.ticks(),amplifier,false,!e.hidden()),p);
+        var effect=ItemEffectLevels.create(type,e.ticks(),amplifier,false,!e.hidden());
+        if(e.id().equals("instant_health")||e.id().equals("regeneration"))
+            me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(effect,me.skywars2.game.combat.WeaponEnchantments.effectCause(p));
+        p.addEffect(effect,p);
     }
     void libraryEffect(ServerPlayer p,Effect effect){
         apply(p,effect,effect.amplifier());

@@ -77,6 +77,7 @@ public final class LbcPrism {
         boolean continueUp;public UUID producer;
         Vec3 producerOrigin=Vec3.ZERO;int producerFeetY;
         InteractionHand hand;public ItemStack stack;UUID caster;
+        me.skywars2.game.combat.LbcIndirectKills.Owner enchantmentCause;
         DustColorTransitionOptions particle=UNSTABLE;
         final Set<UUID> hit=new HashSet<>();
         Charge(EntityType<? extends Charge> type,Level level){super(type,level);}
@@ -123,6 +124,7 @@ public final class LbcPrism {
         charge.hand = hand;
         charge.stack = stack;
         charge.caster = owner.getUUID();
+        charge.enchantmentCause=game.items().indirectKills().coldCause(owner,true);
         WandCastOrigin.stamp(charge, owner);
         charge.origin = origin;
         charge.setPos(origin);
@@ -247,7 +249,7 @@ public final class LbcPrism {
     private void damage(Charge c){
         try(var castOrigin=WandCastOrigin.scope((ServerPlayer)c.getOwner(),c)){
         var owner=(ServerPlayer)c.getOwner();var p=c.position();var level=(ServerLevel)c.level();
-        var source=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(c.phase==Charge.Phase.ACADEMY?DamageTypes.GENERIC:DamageTypes.CACTUS),c,owner);
+        var source=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(c.phase==Charge.Phase.ACADEMY?DamageTypes.GENERIC:DamageTypes.CACTUS),c,owner),c.enchantmentCause);
         int count=0,limit=c.phase==Charge.Phase.ACADEMY?1:2;
         for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(p,p.add(1,1,1)),e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e)
                 &&e.position().distanceToSqr(p)<=225&&!game.items().magic().suppressedAt(level,e.position()))){
@@ -365,12 +367,12 @@ public final class LbcPrism {
     public LbcCloneSkills.ActorImage cloneImage(Entity source) {
         if(!(source instanceof Charge c)||c.phase==Charge.Phase.ACADEMY&&!c.trinket||c.stack!=null&&LbcAcademy.trial(c.stack))return null;
         var phase=c.phase;int age=c.age,steps=c.steps,bounces=c.bounces;var origin=c.origin;
-        var hand=c.hand;var stack=c.stack==null?null:c.stack.copy();var caster=c.caster;var particle=c.particle;
+        var hand=c.hand;var stack=c.stack==null?null:c.stack.copy();var caster=c.caster;var particle=c.particle;var enchantmentCause=c.enchantmentCause;
         var hit=Set.copyOf(c.hit);boolean queued=immediate.contains(c);
         boolean trinket=c.trinket,continueUp=c.continueUp;var producer=c.producer;
         var producerOrigin=c.producerOrigin;int producerFeetY=c.producerFeetY;
         return CloneComplexProjectileStates.image(e->{var n=(Charge)e;n.phase=phase;n.age=age;n.steps=steps;
-            n.bounces=bounces;n.origin=origin;n.hand=hand;n.stack=stack==null?null:stack.copy();n.caster=caster;
+            n.bounces=bounces;n.origin=origin;n.hand=hand;n.stack=stack==null?null:stack.copy();n.caster=caster;n.enchantmentCause=enchantmentCause;
             n.particle=particle;n.hit.addAll(hit);n.trinket=trinket;n.continueUp=continueUp;n.producer=producer;
             n.producerOrigin=producerOrigin;n.producerFeetY=producerFeetY;
             charges.add(n);if(queued)immediate.addLast(n);

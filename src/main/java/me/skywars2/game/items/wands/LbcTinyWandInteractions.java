@@ -267,7 +267,10 @@ public final class LbcTinyWandInteractions {
         else if(roll==19)mana.score(player,"void_resistance").add(20);
         else{
             var buff=FIRE_EFFECTS[roll-20];var effect=BuiltInRegistries.MOB_EFFECT.get(Identifier.parse(buff.effect)).orElseThrow();
-            player.addEffect(ItemEffectLevels.create(effect,buff.ticks,buff.amplifier),player);
+            var instance=ItemEffectLevels.create(effect,buff.ticks,buff.amplifier);
+            if(buff.effect.equals("minecraft:instant_health")||buff.effect.equals("minecraft:regeneration"))
+                me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(instance,me.skywars2.game.combat.WeaponEnchantments.effectCause(player));
+            player.addEffect(instance,player);
         }
     }
 }

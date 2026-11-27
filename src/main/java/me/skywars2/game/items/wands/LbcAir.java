@@ -155,7 +155,8 @@ public final class LbcAir {
             // Прямой взрыв может завершить матч и очистить batch прямо из damage callback.
             for(int index=0;index<batch.size();index++) {
                 Charge charge=batch.get(index);
-                try(var sourceScope=game.items().spellSources().scope(charge)){
+                try(var sourceScope=game.items().spellSources().scope(charge);
+                    var enchantments=me.skywars2.game.combat.WeaponEnchantments.actorScope(charge,game.items().spellSources().author(charge))){
                 if(!charges.contains(charge)) continue;
                 var owner=game.items().spellSources().author(charge);
                 if(!liveSourceCharge(charge,owner)) { remove(charge); continue; }

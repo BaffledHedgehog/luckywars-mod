@@ -26,6 +26,7 @@ public final class NuclearPointChecks {
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final List<BlockPos> resistant=new ArrayList<>();
         final Set<Long> forced=new HashSet<>();
         Vec3 at;BlockPos lobe,protectedBedrock;int start,thaw=-1;long waves;boolean closed;
+        NuclearTerrain.Point measured;long castAt,activationNanos,activeAt,firstTerrainAt;int initialQueue,peakQueue;
         Fixture(GameController game){this.game=game;require(game.items().nukeEvent().jobCount()==0,"exclusive point jobs");
             base=new ElementalGrimoireChecks.Fixture(game,true);base.retain=true;invulnerable=base.owner.getAbilities().invulnerable;}
         void set(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){
@@ -51,7 +52,9 @@ public final class NuclearPointChecks {
             lobe=center.offset(18,-40,0);for(var pos:BlockPos.betweenClosed(lobe.offset(-2,-2,-2),lobe.offset(2,2,2)))set(pos,Blocks.STONE.defaultBlockState());
             protectedBedrock=center.offset(0,-30,0);set(protectedBedrock,Blocks.BEDROCK.defaultBlockState());
             nativeReference();waves=game.items().nukeEvent().blasts();
-            require(game.items().nukeEvent().pointBurst(base.owner,base.owner.level(),at),"actual ordinary point producer accepted");
+            castAt=System.nanoTime();require(game.items().nukeEvent().pointBurst(base.owner,base.owner.level(),at),"actual ordinary point producer accepted");
+            activationNanos=System.nanoTime()-castAt;measured=NuclearTerrainBatchChecks.queuedPoint(game);
+            initialQueue=peakQueue=game.items().stonekivi().count();
             require(game.items().nukeEvent().blasts()==waves+1,"existing synchronous damage wave is retained");
             game.items().timeStop().begin(base.owner.level(),100);start=game.server().getTickCount();
         }
@@ -72,17 +75,24 @@ public final class NuclearPointChecks {
             finally{if(previous==null)System.clearProperty(property);else System.setProperty(property,previous);}
         }
         boolean check(){int now=game.server().getTickCount();var level=base.owner.level();
+            peakQueue=Math.max(peakQueue,game.items().stonekivi().count());
             require(now-start<600,"bounded real point payload completion");
             if(thaw<0){
                 require(resistant.stream().allMatch(p->level.getBlockState(p).is(Blocks.BEDROCK))&&level.getBlockState(lobe).is(Blocks.STONE),"paused payload performs no terrain writes");
-                if(now-start<5)return false;game.items().timeStop().end(level);thaw=now;
+                require(measured.progress().slices()==0,"TimeStop also freezes every measured AIR-mask slice");
+                if(now-start<5)return false;game.items().timeStop().end(level);thaw=now;activeAt=System.nanoTime();
             }
+            if(firstTerrainAt==0&&measured.progress().changedBlocks()>0)firstTerrainAt=System.nanoTime();
             if(game.items().nukeEvent().jobCount()>0)return false;
             require(game.items().nukeEvent().blasts()==waves+24,"all24 damage waves, no extra hit for missing terrain source actual="+(game.items().nukeEvent().blasts()-waves));
             require(level.getBlockState(lobe).isAir(),"native25 creeper lobe really removes solid stone40 blocks below the AIR band");
             require(level.getBlockState(protectedBedrock).is(Blocks.BEDROCK),"native lobes retain bedrock outside the AIR masks");
             require(resistant.stream().filter(p->level.getBlockState(p).isAir()).count()>resistant.size()/2,"source AIR integrity can clear resistant blocks independently of native blast resistance");
-            SkyWars2.LOGGER.info("[check] nuclear-point native job complete activeTicks={} masks12 waves24",now-thaw);return true;
+            var progress=measured.progress();require(progress.done()&&progress.changedBlocks()>0,"measured native point mask really completed writes");
+            require(progress.sectionReads()<=progress.totalSections()+progress.slices(),"actual point resident reads are bounded by sections plus resumed slices");
+            SkyWars2.LOGGER.info("[check] nuclear-point native job complete activeTicks={} masks12 waves24 activationMs={} castResultMs={} activeResultMs={} firstTerrainAfterThawMs={} sharedQueueInitialPeakFinal={}/{}/{} terrain={}",
+                    now-thaw,activationNanos/1e6,(System.nanoTime()-castAt)/1e6,(System.nanoTime()-activeAt)/1e6,(firstTerrainAt-activeAt)/1e6,
+                    initialQueue,peakQueue,game.items().stonekivi().count(),progress);return true;
         }
         @Override public void close(){if(closed)return;closed=true;game.items().timeStop().end(base.owner.level());game.items().nukeEvent().stop();game.items().nuclearVisuals().stop();
             var added=new ArrayList<Entity>();for(var e:base.owner.level().getAllEntities())if(!base.before.contains(e)&&!(e instanceof net.minecraft.server.level.ServerPlayer))added.add(e);added.forEach(Entity::discard);

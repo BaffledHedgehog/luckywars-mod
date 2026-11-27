@@ -194,7 +194,11 @@ public final class LbcHedgehog {
                 var weapon=getWeaponItem();var damage=game.items().indirectKills().captureDamage(weapon.getDamageSource(this),cause);
                 float amount=(float)getAttributeValue(Attributes.ATTACK_DAMAGE);
                 amount=net.minecraft.world.item.enchantment.EnchantmentHelper.modifyDamage(l,weapon,target,damage,amount);
-                amount+=weapon.getItem().getAttackDamageBonus(target,amount,damage);var oldMovement=target.getDeltaMovement();
+                amount+=weapon.getItem().getAttackDamageBonus(target,amount,damage);
+                if(me.skywars2.game.modes.legacy.VanillaExpansionRules.enabled()&&cause!=null&&cause.weaponAction()
+                        &&author!=null&&author.equals(cause.player()))
+                    amount=me.skywars2.game.combat.WeaponEnchantments.spellPower(l,cause.enchantmentWeapon(),amount);
+                var oldMovement=target.getDeltaMovement();
                 boolean hit=target.hurtServer(l,damage,amount);
                 if(hit){causeExtraKnockback(target,getKnockback(target,damage),oldMovement,damage,amount,true);
                     weapon.hurtEnemy(living,this);net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(l,target,damage);setLastHurtMob(target);playAttackSound();}

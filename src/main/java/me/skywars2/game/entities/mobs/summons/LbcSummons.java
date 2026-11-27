@@ -707,6 +707,7 @@ public final class LbcSummons {
     }
     public void track(ServerPlayer owner,Entity entity) {
         consequences.put(entity,owner.getUUID()); entity.entityTags().add(PROJECTILE); game.items().markCurrentItemEpoch(entity);
+        if(entity instanceof Mob mob)me.skywars2.game.combat.WeaponEnchantments.captureSummonedMob(owner,mob);
     }
     public void loaded(Entity entity) {
         if(entity instanceof Mob mob&&entity.entityTags().contains("skywars2.summons.actor")&&!mobs.containsKey(mob)){entity.discard();return;}

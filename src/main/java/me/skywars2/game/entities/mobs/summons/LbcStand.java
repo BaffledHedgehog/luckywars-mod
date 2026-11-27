@@ -203,6 +203,15 @@ public final class LbcStand {
     public static boolean isArrowMarker(MobEffectInstance effect) {
         return effect.is(MobEffects.RAID_OMEN) && effect.getAmplifier()==119;
     }
+
+    private static final ThreadLocal<Boolean> NATIVE_ARROW_EFFECT=ThreadLocal.withInitial(()->false);
+    /** Accepted native Stand hits already resolve their one roll before tipped-arrow effects run. */
+    public static boolean nativeArrowEffect(){return NATIVE_ARROW_EFFECT.get();}
+    public static void nativeArrowEffects(AbstractArrow arrow,Runnable action){
+        boolean previous=NATIVE_ARROW_EFFECT.get();
+        NATIVE_ARROW_EFFECT.set(previous||isArrow(arrow.getPickupItemStackOrigin())||LbcTmtAmmoPayloads.hasVariant(arrow,119));
+        try{action.run();}finally{if(previous)NATIVE_ARROW_EFFECT.set(true);else NATIVE_ARROW_EFFECT.remove();}
+    }
     public static boolean hasClocks(ServerPlayer owner) {
         if(isClocks(owner.getOffhandItem())) return true;
         for(int slot=0;slot<36;slot++) if(isClocks(owner.getInventory().getItem(slot))) return true;

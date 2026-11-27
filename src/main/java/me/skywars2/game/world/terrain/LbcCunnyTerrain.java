@@ -72,9 +72,17 @@ public final class LbcCunnyTerrain {
     private boolean retiring;
     private final NavigableMap<Long,Mark> actors=new TreeMap<>();
     private long actorSequence,cloneCursor;
-    private final class Mark {final long id;final Job job;int mask;boolean alive=true;Op op;Mark(Job job){this(job,++actorSequence,0,true);}Mark(Job job,long id,int mask,boolean alive){this.job=job;this.id=id;this.mask=mask;this.alive=alive;}}
+    private final class Mark {
+        final long id;final Job job;int mask;boolean alive=true;Op op;Vec3 point;
+        Mark(Job job){this(job,++actorSequence,0,true,null);}
+        Mark(Job job,long id,int mask,boolean alive,Vec3 point){this.job=job;this.id=id;this.mask=mask;this.alive=alive;this.point=point;}
+    }
     private Mark marker(Op op){return op instanceof Grass g?g.mark:op instanceof Jungle j?j.mark:op instanceof Spread a?a.mark:null;}
-    private void track(Op op){var mark=marker(op);if(mark!=null&&mark.alive){mark.op=op;actors.put(mark.id,mark);}}
+    private void track(Op op){var mark=marker(op);if(mark!=null&&mark.alive){
+        if(mark.point==null)mark.point=position(op);
+        else if(mark.op!=null&&mark.op!=op)mark.point=mark.point.add(position(op).subtract(position(mark.op)));
+        mark.op=op;actors.put(mark.id,mark);
+    }}
     private void untrack(Op op){var mark=marker(op);if(mark!=null&&mark.op==op)actors.remove(mark.id);}
     /** Source defaults: outer input is MAG, autonomous grass/jungle have no extra stopper gate. */
     public interface Suppression { boolean blocked(ServerPlayer author,ServerLevel level,Vec3 at,boolean jungle); }
@@ -334,13 +342,36 @@ public final class LbcCunnyTerrain {
     public View view(){int grass=0,jungle=0,pending=0;long visits=0,writes=0;for(var job:jobs){grass+=job.claims.size();jungle+=(int)job.ops.stream().filter(op->op instanceof Jungle||op instanceof Spread).count();pending+=job.ops.size();visits+=job.visits;writes+=job.writes;}return new View(jobs.size(),grass,jungle,pending,visits,writes);}
 
     private Op copyOp(Op op,Job job,IdentityHashMap<Mark,Mark> marks){
-        var old=marker(op);if(old==null)return op;var mark=marks.computeIfAbsent(old,m->new Mark(job,m.id,m.mask,m.alive));
+        var old=marker(op);if(old==null)return op;var mark=marks.computeIfAbsent(old,m->new Mark(job,m.id,m.mask,m.alive,m.point));
         return op instanceof Grass g?new Grass(g.at,g.due,mark):op instanceof Jungle j?new Jungle(j.at,j.phase,j.due,mark):new Spread(((Spread)op).at,((Spread)op).attempts,mark);
     }
     private Vec3 position(Op op){return op instanceof Grass g?Vec3.atCenterOf(g.at):op instanceof Jungle j?j.at:((Spread)op).at;}
     public record CloneResult(int scanned,int operations,int bodies){}
     public record ActorView(long id,UUID author,LbcIndirectKills.Owner cause,boolean jungle,int mask,Vec3 position){}
-    public List<ActorView> actorViews(int limit){var result=new ArrayList<ActorView>();for(var mark:actors.values()){if(result.size()>=Math.max(0,limit))break;result.add(new ActorView(mark.id,mark.job.author.getUUID(),mark.job.cause,!(mark.op instanceof Grass),mark.mask,position(mark.op)));}return List.copyOf(result);}
+    public List<ActorView> actorViews(int limit){var result=new ArrayList<ActorView>();for(var mark:actors.values()){if(result.size()>=Math.max(0,limit))break;result.add(new ActorView(mark.id,mark.job.author.getUUID(),mark.job.cause,!(mark.op instanceof Grass),mark.mask,mark.point));}return List.copyOf(result);}
+    /** Move only live source markers. Already accepted finite tree/template/platform writes stay at their own cells. */
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        checkpointBoundary();if(retiring)return;
+        var replacements=new IdentityHashMap<Job,IdentityHashMap<Op,Op>>();
+        for(var mark:List.copyOf(actors.values())){
+            var job=mark.job;if(!mark.alive||job.closed||job.level!=level||!game.items().currentEpoch(job.epoch))continue;
+            var next=transform.apply(mark.point);if(Objects.equals(next,mark.point))continue;
+            var old=mark.op;Op moved=null;
+            if(next==null){mark.alive=false;actors.remove(mark.id);}
+            else{
+                moved=old instanceof Grass g?new Grass(BlockPos.containing(next),g.due,mark)
+                        :old instanceof Jungle j?new Jungle(next,j.phase,j.due,mark):new Spread(next,((Spread)old).attempts,mark);
+                mark.point=next;mark.op=moved;
+            }
+            replacements.computeIfAbsent(job,ignored->new IdentityHashMap<>()).put(old,moved);
+        }
+        // One queue/claim pass per affected job, rather than one scan for each attracted marker.
+        replacements.forEach((job,changes)->{
+            var updated=new ArrayDeque<Op>();for(var old:job.ops){var moved=changes.containsKey(old)?changes.get(old):old;if(moved!=null)updated.add(moved);}
+            job.ops=updated;job.claims.clear();for(var op:updated)if(op instanceof Grass g)job.claims.add(g.at);
+            job.release();job.waitingChunk=false;
+        });
+    }
     /** Canonical clone scanner supplies its remaining shared scan/body/time budgets. */
     public CloneResult cloneNearby(ServerPlayer holder,int skill,int scanBudget,int bodyBudget,long deadline){
         int count=CloneVirtualAbilityStates.count(skill),seen=0,made=0,operations=0;
@@ -349,7 +380,7 @@ public final class LbcCunnyTerrain {
         int available=Math.min(scanBudget,actors.size());
         while(seen<available&&bodyBudget-made>=count&&System.nanoTime()<deadline&&!actors.isEmpty()){
             var entry=actors.higherEntry(cloneCursor);if(entry==null)entry=actors.firstEntry();cloneCursor=entry.getKey();seen++;
-            var mark=entry.getValue();var job=mark.job;var op=mark.op;var at=position(op);
+            var mark=entry.getValue();var job=mark.job;var op=mark.op;var at=mark.point;
             if(!mark.alive||job.closed||!game.items().currentEpoch(job.epoch)||game.items().timeStop().frozen(job.author)
                     ||!CloneVirtualAbilityStates.near(game,holder,job.level,at,mark.mask,skill))continue;
             var destinations=CloneVirtualAbilityStates.positions(holder,job.level,at,skill);if(destinations==null)continue;
@@ -358,7 +389,7 @@ public final class LbcCunnyTerrain {
                 // Causal owner and source order belong to the original terrain author, never holder.
                 var copy=new Job(job.author,job);jobs.add(copy);game.items().stonekivi().queuedWork(copy);
                 copy.logicalTick=job.logicalTick;copy.lastStepTick=job.lastStepTick;
-                var next=new Mark(copy);next.mask=flags;
+                var next=new Mark(copy);next.mask=flags;next.point=destination;
                 if(op instanceof Grass g){var cell=BlockPos.containing(destination);copy.claims.add(cell);copy.add(new Grass(cell,g.due,next));}
                 else copy.add(new Jungle(destination,0,job.logicalTick+1,next));
             }

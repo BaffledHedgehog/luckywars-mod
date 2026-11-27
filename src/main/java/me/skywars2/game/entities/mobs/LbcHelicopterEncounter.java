@@ -111,6 +111,7 @@ public final class LbcHelicopterEncounter {
     }
     public boolean spawn(ItemEntity token){return spawn(token,true);}
     public boolean spawn(ItemEntity token,boolean debit) {
+        if(debit&&!game.items().specialDrops().admit(token))return false;
         if(!ready(token))return false;checkpointDepth++;try{
         var level=(ServerLevel)token.level();
         Vec3 forward=Vec3.directionFromRotation(token.getXRot(),token.getYRot());

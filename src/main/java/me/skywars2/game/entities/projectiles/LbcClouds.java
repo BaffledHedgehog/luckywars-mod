@@ -484,7 +484,7 @@ public final class LbcClouds {
         if(shot.getOwner() instanceof ServerPlayer owner)for(int i=0;i<40;i++){
             var child=aimedWandAcid(owner,at,owner.getRandom().nextInt(361)-180,owner.getRandom().nextInt(181)-90,false);
             child.entityTags().remove("shield_blockable2");child.entityTags().addAll(List.of(ACID_500,GREAT_CHILD));
-            GenieCombat.inheritSpellWeapon(shot,child,owner);
+            GenieCombat.inheritSpellWeapon(shot,child,owner);me.skywars2.game.combat.WeaponEnchantments.inherit(shot,child);
         }
         sound((ServerLevel)shot.level(),at,SoundEvents.SHIELD_BREAK.value(),2,0,Double.POSITIVE_INFINITY,0);shot.discard();
     }
@@ -639,7 +639,7 @@ public final class LbcClouds {
         if (projectile.isRemoved()) return;
         if(projectile.entityTags().contains(GREAT_ACID)&&projectile.getOwner() instanceof ServerPlayer owner&&owner.getRandom().nextFloat()<.4f){
             var child=aimedWandAcid(owner,projectile.position(),0,90,false);child.entityTags().remove("shield_blockable2");child.entityTags().add(GREAT_CHILD);
-            GenieCombat.inheritSpellWeapon(projectile,child,owner);
+            GenieCombat.inheritSpellWeapon(projectile,child,owner);me.skywars2.game.combat.WeaponEnchantments.inherit(projectile,child);
         }
         if (projectile.entityTags().contains("on_fire")&&awakenedVariant(projectile)==0) state.lifetime += 3;
         projectile.setAttached(ACID_AGE, state.lifetime);
@@ -712,7 +712,7 @@ public final class LbcClouds {
             } else if (ordinary || great || !entity.entityTags().contains("muravei")) {
                 var poison=ItemEffectLevels.create(MobEffects.POISON,great ? 1200 : ordinary ? 600 : 300,0);
                 if(wand) {
-                    if (itemCause!=null) game.items().indirectKills().inheritedEffect(entity,poison,itemCause);
+                    if (itemCause!=null) game.items().indirectKills().inheritedEffect(entity,me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(poison,itemCause),itemCause);
                     else if(entity.addEffect(poison,projectile.getOwner()) && projectile.getOwner() instanceof ServerPlayer owner)
                         game.items().indirectKills().poisoned(entity,owner);
                 } else entity.addEffect(poison,projectile);
@@ -769,13 +769,15 @@ public final class LbcClouds {
 
     private LbcIndirectKills.Owner genieAcidCause(AcidProjectile shot) {
         if (!(shot.getOwner() instanceof ServerPlayer owner)) return null;
+        var captured=me.skywars2.game.combat.WeaponEnchantments.actorCause(shot,owner);
+        if(captured!=null)return captured;
         var weapon=GenieCombat.spellWeapon(shot,owner);
         return weapon.isEmpty()?null:game.items().indirectKills().itemCause(owner,false,true,weapon);
     }
 
     private void acidStatus(AcidProjectile shot, LivingEntity target, MobEffectInstance effect, LbcIndirectKills.Owner cause) {
         if (cause==null) target.addEffect(effect,shot.getOwner());
-        else game.items().indirectKills().inheritedEffect(target,effect,cause);
+        else game.items().indirectKills().inheritedEffect(target,me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(effect,cause),cause);
     }
 
     private boolean ordinaryAcidIgnited(AcidProjectile projectile) {

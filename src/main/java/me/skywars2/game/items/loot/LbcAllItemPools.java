@@ -230,7 +230,10 @@ public final class LbcAllItemPools {
                     String category=value.getKey().substring(0,value.getKey().length()-4);var present=new HashSet<String>();members.forEach(slot->present.add(slot.id));
                     for(var source:manifest.getAsJsonArray("custom")){
                         var authored=source.getAsJsonObject();String id=authored.get("id").getAsString();var item=BuiltInRegistries.ITEM.getValue(Identifier.parse(authored.getAsJsonObject("identity").get("carrier").getAsString()));
-                        if(!present.contains(id)&&typesByItem.computeIfAbsent(item,LbcAllItemPools::nativeTypes).contains(category)){members.add(byId.get(id));present.add(id);}
+                        // Spawn eggs are distinct drops, not the legacy summoner-item pool.
+                        // Preserve authored source members and vanilla-domain classification.
+                        if(!present.contains(id)&&!(category.equals("summons")&&item instanceof SpawnEggItem)
+                                &&typesByItem.computeIfAbsent(item,LbcAllItemPools::nativeTypes).contains(category)){members.add(byId.get(id));present.add(id);}
                     }
                 }
                 members.sort(Comparator.comparing(Slot::id));categories.put(value.getKey(),List.copyOf(members));

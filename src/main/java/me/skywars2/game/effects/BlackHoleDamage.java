@@ -35,11 +35,12 @@ public final class BlackHoleDamage {
                     &&!LbcDamage.allowsTrapFriendlyFire(source)&&!LbcDamage.allowsElectricFriendlyFire(source)
                     &&!LbcDamage.allowsKfcFriendlyFire(source))return false;
         }
+        float scaled=me.skywars2.game.combat.WeaponEnchantments.capturedSpellPower(level,source,amount);
         if(!net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.ALLOW_DAMAGE.invoker()
-                .allowDamage(target,source,amount))return false;
+                .allowDamage(target,source,scaled))return false;
         return target instanceof ServerPlayer player
-                ?game.items().withIncomingDamageAttempt(player,()->accepted(game,target,source,amount,level))
-                :accepted(game,target,source,amount,level);
+                ?game.items().withIncomingDamageAttempt(player,()->accepted(game,target,source,scaled,level))
+                :accepted(game,target,source,scaled,level);
     }
     /** Already accepted owner debit: bypass pet mitigation/admission, retain native accepted handlers. */
     public static boolean transferAccepted(GameController game,LivingEntity target,DamageSource source,float amount){

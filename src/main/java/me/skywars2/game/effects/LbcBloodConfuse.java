@@ -74,7 +74,10 @@ public final class LbcBloodConfuse {
                         &&!game.items().magic().suppressedAt(owner.level(),e.position()));
     }
     private void effect(LivingEntity target,ServerPlayer owner,Holder<MobEffect> type,int ticks,int amplifier,boolean visible){
-        target.addEffect(ItemEffectLevels.create(type,ticks,amplifier,false,visible),owner);
+        var instance=ItemEffectLevels.create(type,ticks,amplifier,false,visible);
+        if(type==MobEffects.WITHER)me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(instance,
+                me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
+        target.addEffect(instance,owner);
     }
     private void particles(ServerPlayer owner,Vec3 at,ParticleOptions type,int count,double dx,double dy,double dz,double speed){
         owner.level().sendParticles(type,true,false,at.x,at.y+1,at.z,count,dx,dy,dz,speed);
@@ -83,7 +86,8 @@ public final class LbcBloodConfuse {
         Vec3 at=owner.position();
         LbcOverload.sound(owner,at,"minecraft:entity.ender_dragon.growl",1,2,0);
         particles(owner,at,new BlockParticleOption(ParticleTypes.BLOCK,Blocks.REDSTONE_BLOCK.defaultBlockState()),1500,8,8,8,0);
-        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),owner);
+        var source=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),owner),
+                me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
         for(var target:nearby(owner,at,10)){
             if(target.position().distanceToSqr(at)<.0001)continue;
             if(target.getType().builtInRegistryHolder().is(MOBS))target.hurtServer(owner.level(),source,18);

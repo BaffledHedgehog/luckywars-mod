@@ -771,6 +771,7 @@ public final class GameController {
         givePendingBalanceRewards(player);
         cases.onJoin(player);
         items.cosmetics().refreshSuffixes(List.of(player));
+        me.skywars2.game.presentation.PlayerDeathPresentation.joined(player);
     }
 
     private void resetLateMatchVisitor(ServerPlayer player){

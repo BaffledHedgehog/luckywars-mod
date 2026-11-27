@@ -66,7 +66,7 @@ public final class LbcPlanetoidSkill {
         var point=owner.position();
         // A resident spatial query only. Do not index every world entity or serialize entity NBT.
         List<Entity> nearby=owner.level().getEntities((Entity)null,new AABB(point,point).inflate(20),
-                e->eligible(e)&&e.position().distanceToSqr(point)<=400);
+                e->eligible(e)&&!vehicleOf(owner,e)&&e.position().distanceToSqr(point)<=400);
         for(var body:nearby)if(mob(body)&&body.position().distanceToSqr(point)<=6.25)body.entityTags().add(CAPTURED);
         for(var body:nearby)if(mob(body)&&body.entityTags().contains(CAPTURED)
                 &&body.position().distanceToSqr(point)>=225)body.entityTags().remove(CAPTURED);
@@ -98,6 +98,13 @@ public final class LbcPlanetoidSkill {
     private void nativeChanged(Entity actor){
         game.items().iceWand().directionChanged(actor);game.items().fartus().directionChanged(actor);
         game.items().chargedSwords().directionChanged(actor);game.items().fpvDrone().directionChanged(actor);
+    }
+
+    /** Every ancestor in a nested passenger stack carries the holder and must retain its motion. */
+    private static boolean vehicleOf(ServerPlayer owner,Entity entity){
+        for(var vehicle=owner.getVehicle();vehicle!=null;vehicle=vehicle.getVehicle())
+            if(vehicle==entity)return true;
+        return false;
     }
 
     private boolean eligible(Entity e){

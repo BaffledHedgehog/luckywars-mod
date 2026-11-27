@@ -99,7 +99,25 @@ public final class NukeEventChecks {
                 require(sound.getSound().value().location().toString().equals("minecraft:lbcsounds."+expectedNames.get(i))&&sound.getPitch()==expectedPitch.get(i)
                         &&sound.getVolume()==.5f&&sound.getSource()==net.minecraft.sounds.SoundSource.MASTER,"exact native warning sound sequence "+i);}
         }
-        boolean beaconReady(){var at=BlockPos.containing(first);return level.getBlockState(at.above()).is(Blocks.BEACON)&&PANES.contains(level.getBlockState(at.above(2)).getBlock())&&service.jobCount()==0;}
+        boolean beaconReady(){var at=BlockPos.containing(first);return service.beacons()>initialBeacons&&level.getBlockState(at.above()).is(Blocks.BEACON)&&PANES.contains(level.getBlockState(at.above(2)).getBlock())&&service.jobCount()==0;}
+        void queuedBeaconTransport(){
+            var marker=service.markers().getFirst();var origin=marker.position();var shift=new Vec3(1.25,0,0);
+            var before=new HashSet<>(game.items().stonekivi().queuedSnapshot());
+            try{
+                var state=((Map<?,?>)read(service,"actors")).get(marker);
+                var build=service.getClass().getDeclaredMethod("beacon",Marker.class,state.getClass());build.setAccessible(true);build.invoke(service,marker,state);
+                var job=game.items().stonekivi().queuedSnapshot().stream().filter(work->!before.contains(work)).findFirst().orElseThrow();
+                require(job.ready()&&!job.step(),"actual next beacon rebuild has accepted only its first layer");
+                service.translateBeacon(marker,shift);var now=marker.blockPosition();int steps=0;
+                while(true){require(job.ready(),"shifted native beacon footprint remains resident");if(job.step())break;require(++steps<12,"bounded remaining beacon operations");}
+                var old=BlockPos.containing(origin);require(level.getBlockState(old.offset(-5,-4,0)).isAir(),"pending rebuild cannot republish an old-only base edge after transport");
+                for(int layer=0;layer<5;layer++){int r=layer+1;
+                    for(var pos:BlockPos.betweenClosed(now.offset(-r,-layer,-r),now.offset(r,-layer,r)))require(level.getBlockState(pos).is(MATERIALS[layer]),"every remaining queued layer follows the current native marker");
+                }
+                require(level.getBlockState(now.above()).is(Blocks.BEACON)&&PANES.contains(level.getBlockState(now.above(2)).getBlock()),"queued beacon and pane resolve the moved root");
+                service.translateBeacon(marker,shift.scale(-1));require(marker.position().equals(origin),"native fixture returns to original warning footprint");
+            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+        }
         void beacon(){var at=BlockPos.containing(first);for(int layer=0;layer<5;layer++){int r=layer+1;
                 for(var pos:BlockPos.betweenClosed(at.offset(-r,-layer,-r),at.offset(r,-layer,r)))require(level.getBlockState(pos).is(MATERIALS[layer]),"actual native five-layer source beacon block "+pos);}
             require(level.getBlockEntity(at.above())!=null&&level.getBlockState(at.above()).is(Blocks.BEACON),"actual native vanilla beacon block entity");
@@ -112,7 +130,7 @@ public final class NukeEventChecks {
                 require(service.warnings()==initialWarnings+1&&service.schedules()==initialSchedules+1&&service.pendingTicks()==700,"actual2tick activation starts one700tick global schedule");
                 warning(0,false);phase=1;stageTick=now;return false;}
             if(phase==1){require(service.warnings()==initialWarnings+1,"armed marker does not warn or schedule repeatedly");if(!beaconReady())return false;
-                require(service.beacons()>initialBeacons&&now-stageTick<=30,"actual shared20tick phase built source beacon");beacon();
+                require(service.beacons()>initialBeacons&&now-stageTick<=30,"actual shared20tick phase built source beacon");beacon();queuedBeaconTransport();
                 pausePending=service.pendingTicks();pauseBeacons=service.beacons();frozenViews=service.snapshot();game.items().timeStop().begin(level,40);ownsStop=true;
                 require(game.items().timeStop().stopped(level),"real native Time Stop admitted");phase=2;stageTick=now;return false;}
             if(phase==2){require(game.items().timeStop().stopped(level)&&service.pendingTicks()==pausePending&&service.beacons()==pauseBeacons&&service.snapshot().equals(frozenViews),"actual Time Stop pauses global deadline, native Lifetime and beacon phase");

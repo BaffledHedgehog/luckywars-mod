@@ -201,6 +201,14 @@ public final class LbcSpecialTools {
     public int pending(){return erasures.size();}
     public int hammerCount(){return hammers.size();}
     public List<Hammer> hammerSnapshot(){return List.copyOf(hammers);}
+    /** Only the falling source actor travels; a completed impact cannot be moved or replayed. */
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        for(var hammer:List.copyOf(hammers))if(hammer.level==level&&!hammer.impacted&&hammer.age<200&&game.items().currentEpoch(hammer.epoch)){
+            var point=transform.apply(hammer.point);if(point==null){hammer.destroy();continue;}
+            hammer.impact=hammer.impact.add(point.subtract(hammer.point));hammer.point=point;
+            hammer.viewers();hammer.holder.tick();
+        }
+    }
     /** First resident hit only; the old recursive command counter represented201 samples at0.4 blocks. */
     private boolean useHammer(ServerPlayer p,InteractionHand hand){
         if(!magic(p)||game.items().mana().hudValue(p,"swordcharged7")<=0||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;

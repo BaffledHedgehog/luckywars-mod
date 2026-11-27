@@ -34,7 +34,7 @@ public final class GrimoireBossChecks {
     private static CompoundTag saved(Entity e){var output=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,e.registryAccess());e.saveWithoutId(output);return output.buildResult();}
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ElementalGrimoireChecks.Fixture base;final LbcGrimoireBoss service;
-        final List<Entity> victims=new ArrayList<>();Warden boss;Cow laserTarget;float firstHealth;
+        final List<Entity> victims=new ArrayList<>();Warden boss;Cow laserTarget,laserMiss,laserProtected;float firstHealth;
         final MatchRandomState worldRandom;
         Fixture(GameController game){this.game=game;base=new ElementalGrimoireChecks.Fixture(game,true);base.retain=true;base.initialize();worldRandom=MatchRandomState.capture(base.owner.level().getRandom());service=new LbcGrimoireBoss(game);}
         void spawn(){boss=service.spawn(base.owner.level(),base.owner.position().add(0,0,2),0,base.owner);require(boss!=null,"actual native stationary warden admission");boss.setNoGravity(true);
@@ -57,12 +57,32 @@ public final class GrimoireBossChecks {
             service.tick();require(warning.age()==1,"second active encounter update advances original warning");
             var out=saved(boss);require(out.toString().contains("grimoire_boss")&&boss.getAttached(attachment()).getIntOr("age",0)==2,"native serialized attachment owns phase clock");
         }
+        void warningDirection(){
+            var from=boss.position().add(0,6,0);
+            var oldDirection=cow(from.add(0,-.5,4));oldDirection.setPos(from.add(0,-oldDirection.getEyeHeight(),4));
+            var movedTarget=cow(from.add(3,-.5,0));movedTarget.setPos(from.add(3,-movedTarget.getEyeHeight(),0));
+            var d=boss.getAttached(attachment()).copy();d.putInt("phase",1);d.putInt("age",70);
+            d.putDouble("aimX",0);d.putDouble("aimY",0);d.putDouble("aimZ",1);boss.setAttached(attachment(),d);
+            service.tick();
+            require(oldDirection.getHealth()==990&&movedTarget.getHealth()==1000,
+                    "first damaging laser retains the warned ray after its nearest target moves sideways");
+            var first=boss.getAttached(attachment());require(first.getDoubleOr("aimX",0)==0&&first.getDoubleOr("aimZ",0)==1,
+                    "age71 never replaces warning aim with current target direction");
+            service.tick();var tracked=boss.getAttached(attachment());
+            require(tracked.getDoubleOr("aimX",0)>0&&tracked.getDoubleOr("aimX",0)<.2&&tracked.getDoubleOr("aimZ",0)>.9,
+                    "following tick smoothly turns from warning toward the moved nearest target");
+            oldDirection.discard();movedTarget.discard();
+        }
+        void prepareLaser(){
+            var origin=boss.position().add(0,6,0);laserTarget=cow(origin.add(0,-.5,4));laserMiss=cow(origin.add(.8,-.5,4));laserProtected=cow(origin.add(0,-.5,6));laserProtected.entityTags().add("dungeon_mob");
+            laserTarget.setPos(origin.add(0,-laserTarget.getEyeHeight(),4));laserMiss.setPos(origin.add(.8,-laserTarget.getEyeHeight(),4));
+            base.owner.setPos(origin.add(8,-6,0));boss.entityTags().add("time_stopped");
+        }
         void exactLaser(){
-            var origin=boss.position().add(0,6,0);var hit=cow(origin.add(0,-.5,4));var miss=cow(origin.add(.8,-.5,4));var protectedMob=cow(origin.add(0,-.5,6));protectedMob.entityTags().add("dungeon_mob");
+            boss.entityTags().remove("time_stopped");var origin=boss.position().add(0,6,0);var hit=laserTarget;var miss=laserMiss;var protectedMob=laserProtected;
             var d=boss.getAttached(attachment()).copy();d.putInt("phase",1);d.putInt("age",70);d.putDouble("aimX",0);d.putDouble("aimY",0);d.putDouble("aimZ",1);boss.setAttached(attachment(),d);
             // Remove auto-facing ambiguity: actual nearest eye lies precisely on the existing beam.
-            hit.setPos(origin.add(0,-hit.getEyeHeight(),4));miss.setPos(origin.add(.8,-hit.getEyeHeight(),4));
-            base.owner.setPos(origin.add(8, -6, 0));laserTarget=hit;
+            require(hit.getHealth()==1000&&miss.getHealth()==1000,"real native warmup does not damage geometry witnesses");
             var stop = BlockPos.containing(origin.add(0, 0, 9));
             var level = base.owner.level();
             var previous = level.getBlockState(stop);
@@ -203,16 +223,25 @@ public final class GrimoireBossChecks {
         @Override public void close(){try{service.stop();for(var e:victims){game.items().indirectKills().clear((LivingEntity)e);e.discard();}
             var fresh=new ArrayList<Entity>();base.owner.level().getAllEntities().forEach(e->{if(!base.before.contains(e)&&!(e instanceof net.minecraft.server.level.ServerPlayer))fresh.add(e);});fresh.forEach(Entity::discard);worldRandom.restore(base.owner.level().getRandom());}finally{base.close();}}
     }
-    private static Fixture running;private static int started;
+    private static Fixture running;private static int started;private static boolean warming;
     public static void run(GameController game){
         require(running==null,"exclusive encounter fixture");var fixture=new Fixture(game);
-        try{fixture.spawn();fixture.warningAndFrozen();fixture.exactLaser();fixture.suppression();running=fixture;started=game.server().getTickCount();}
+        try{fixture.spawn();fixture.warningAndFrozen();fixture.warningDirection();fixture.prepareLaser();running=fixture;warming=true;started=game.server().getTickCount();}
         catch(Throwable error){fixture.close();throw error;}
     }
     public static void tick(GameController game){if(running==null)return;var fixture=running;try{
         int elapsed=game.server().getTickCount()-started;require(elapsed<15,"bounded native hurt cooldown");
+        if(warming){
+            if(elapsed<1)return;
+            // Establish the first accepted hit at END of a real frame, after each
+            // witness has ticked. The following10 frames now mean10 native cooldown decrements.
+            fixture.exactLaser();fixture.suppression();warming=false;started=game.server().getTickCount();return;
+        }
         if(elapsed<10){require(fixture.laserTarget.getHealth()==fixture.firstHealth,"repeated beam attempts obey native hurt cooldown");return;}
-        require(fixture.laserTarget.getHealth()==fixture.firstHealth-10,"one further ten-HP hit after ten real native ticks");
+        var state=fixture.boss.getAttached(attachment());
+        require(fixture.laserTarget.getHealth()==fixture.firstHealth-10,"one further ten-HP hit after ten real native ticks; health="+fixture.laserTarget.getHealth()
+                +" cooldown="+fixture.laserTarget.damageCooldownTime+" age="+state.getIntOr("age",0)+" aim="+state.getDoubleOr("aimX",0)+","+state.getDoubleOr("aimY",0)+","+state.getDoubleOr("aimZ",0)
+                +" targetEye="+fixture.laserTarget.getEyePosition()+" origin="+fixture.boss.position().add(0,6,0));
         fixture.phasePatterns();fixture.identityAndReload();fixture.close();running=null;
         SkyWars2.LOGGER.info("[check] PASS grimoire-boss (native spawn/model/loot, shared display warning, exact ray/body and protected roles, native ten-HP/ten-tick cadence, antimagic retains boss/visual, source continuation/reload and independent death cleanup)");
         }catch(Throwable error){try{fixture.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL grimoire-boss",error);}

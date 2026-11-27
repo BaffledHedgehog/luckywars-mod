@@ -567,6 +567,7 @@ public final class LbcAcademy {
     public boolean readyDrop(ItemEntity item){return planDrop(item)!=null;}
     /** Same native placement owner for ordinary and composed loose items. */
     public boolean spawnDrop(ItemEntity item,boolean debit){
+        if(debit&&!game.items().specialDrops().admit(item))return false;
         var plan=planDrop(item);if(plan==null)return false;
         var part=new Placement(plan.template(),plan.level(),plan.origin(),item.position(),game.items().epoch(),plan.token(),item.getRandom().nextLong());
         if(plan.token())placements.addLast(part);else placements.addFirst(part);

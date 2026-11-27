@@ -47,6 +47,7 @@ public final class ErectoChecks {
         final Vec3 at=new Vec3(-240.5,240,-240.5);
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
         final Set<Long> forced=new HashSet<>();
+        final Map<UUID,Boolean> protectedBystanders=new HashMap<>();
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();
         final Map<net.minecraft.stats.Stat<Identifier>,Integer> stats=new LinkedHashMap<>();
         final Map<Identifier,Set<String>> advancements=new LinkedHashMap<>();
@@ -74,6 +75,15 @@ public final class ErectoChecks {
             game.items().mana().set(owner,100000);game.items().mana().noMagic(owner,0);
             owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);owner.setHealth(1000);owner.setAbsorptionAmount(0);owner.getFoodData().setFoodLevel(17);
             game.server().getScoreboard().addPlayerToTeam(owner.getScoreboardName(),team);game.server().getScoreboard().addPlayerToTeam(other.getScoreboardName(),team);
+            // The shared matrix retains Gamma for other suites; this fixture owns only Alpha/Beta.
+            var gamma=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));
+            if(gamma!=null&&gamma!=owner&&gamma!=other&&gamma.level()==owner.level()){
+                protectedBystanders.put(gamma.getUUID(),gamma.entityTags().contains("strict_map_object"));
+                SkyWars2.LOGGER.info("[check] Erecto bystander before isolation: {} at {}, distanceSquared={}, nativeTarget={}",
+                        gamma.getScoreboardName(),gamma.position(),gamma.distanceToSqr(owner),game.items().wands().target(owner,gamma));
+                gamma.entityTags().add("strict_map_object");
+                require(!game.items().wands().target(owner,gamma),"retained Gamma is outside this native target search");
+            }
         }
         boolean warm(){if(warmed)return true;require(++warmTicks<=600,"resident entity ticking fixture");for(long k:forced)if(!owner.level().areEntitiesLoaded(k))return false;warmed=true;return true;}
         ItemStack loot(String leaf){var list=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/"+leaf);require(list.size()==1,"one item "+leaf);return list.getFirst();}
@@ -262,7 +272,30 @@ public final class ErectoChecks {
                 block(wall,Blocks.STONE);owner.setXRot(0);game.items().mana().set(owner,1100);require(use(s,InteractionHand.MAIN_HAND),"repeat native sniper for collision branch");shot=traces().getFirst();shot.position=Vec3.atCenterOf(wall);shot.yaw=0;shot.pitch=0;owner.level().getRandom().setSeed(seed);game.items().wands().tick();boolean alive=traces().contains(shot);continued|=alive;stopped|=!alive;require(owner.level().getBlockState(wall).isAir(),"sniper removes collision blocks even on final impact");clearTraces();
             }
             require(stopped&&continued,"both source20-percent stop and continued wall penetration exercised");
-            owner.setXRot(90);game.items().mana().set(owner,1100);var enemy=cow(at.add(0,5,80));require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==1100&&traces().isEmpty()&&owner.getXRot()<89,"downward sniper use is free aim assistance without a shot");enemy.discard();owner.setXRot(0);owner.setYRot(0);owner.removeAllEffects();game.items().mana().set(owner,100000);
+            owner.setXRot(90);game.items().mana().set(owner,1100);var enemy=cow(at.add(0,5,80));
+            var decoration=new net.minecraft.world.entity.decoration.ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND,owner.level());
+            decoration.setPos(at.add(0,-100,80));decoration.setNoGravity(true);require(owner.level().addFreshEntity(decoration),"farther non-mob presentation actor");
+            try{
+                var mobs=net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
+                require(enemy.getType().builtInRegistryHolder().is(mobs)&&game.items().wands().target(owner,enemy),"authored upward enemy is a real native selector candidate");
+                double enemyDistance=enemy.distanceToSqr(owner);
+                require(decoration.distanceToSqr(owner)>enemyDistance&&!decoration.getType().builtInRegistryHolder().is(mobs),"farther decoration is outside the source mobs tag");
+                for(var candidate:owner.level().getAllEntities())if(candidate!=owner&&candidate!=enemy&&candidate instanceof net.minecraft.world.entity.LivingEntity living
+                        &&candidate.getType().builtInRegistryHolder().is(mobs)&&game.items().wands().target(owner,living))
+                    require(candidate.distanceToSqr(owner)<enemyDistance,"authored enemy is uniquely farthest after fixture isolation; competing="+candidate.getScoreboardName()+" at="+candidate.position());
+                var aim=enemy.getEyePosition().subtract(owner.getEyePosition());
+                float expectedPitch=(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
+                float expectedYaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
+                require(expectedPitch<0,"authored farthest native enemy is above the caster");
+                boolean admitted=use(s,InteractionHand.MAIN_HAND);
+                require(admitted&&game.items().mana().get(owner)==1100&&traces().isEmpty()
+                                &&Math.abs(owner.getXRot()-expectedPitch)<.0001f&&Math.abs(owner.getYRot()-expectedYaw)<.0001f,
+                        "downward sniper assist aims exactly at authored upward enemy and ignores farther decoration: admitted="+admitted
+                                +" mana="+game.items().mana().get(owner)+" traces="+traces().size()+" pitch="+owner.getXRot()+" expectedPitch="+expectedPitch
+                                +" yaw="+owner.getYRot()+" expectedYaw="+expectedYaw);
+            }
+            finally{decoration.discard();enemy.discard();}
+            owner.setXRot(0);owner.setYRot(0);owner.removeAllEffects();game.items().mana().set(owner,100000);
         }
         LbcWands.ElectroTrace familyShot(boolean crossbow, Vec3 from, float yaw) {
             owner.setXRot(0);
@@ -375,12 +408,18 @@ public final class ErectoChecks {
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&owner.getMainHandItem().is(LbcWands.ACADEMY_ERECTO)&&Identifier.parse("lbc:tier_ss").equals(owner.getMainHandItem().get(DataComponents.TOOLTIP_STYLE)),"real SS Academy promotion");return true;
         }
         public void close(){
+            try{
             game.items().timeStop().end(owner.level());game.items().erecto().forget(owner);clearTraces();var fresh=new ArrayList<Entity>();owner.level().getAllEntities().forEach(e->{if(!before.contains(e)&&e.position().distanceToSqr(at)<40000)fresh.add(e);});fresh.forEach(Entity::discard);
             for(var e:blocks.entrySet()){if(owner.level().getBlockEntity(e.getKey()) instanceof net.minecraft.world.Container c)c.clearContent();game.maps().restoreSnapshot(owner.level(),e.getKey(),e.getValue());}
             game.server().getScoreboard().removePlayerTeam(team);saved.restore(game);otherSaved.restore(game);stats.forEach((s,v)->owner.getStats().setValue(owner,s,v));
             var p=game.players().get(owner.getUUID());p.lbcSkill=skill;p.lbcTrinket=trinket;p.lbcChallengeProgress=challengeProgress;p.lbcUnlocks.clear();p.lbcUnlocks.addAll(unlocks);game.config().offhandWands=offhand;
             for(var entry:advancements.entrySet()){var advancement=game.server().getAdvancements().get(entry.getKey());for(String criterion:advancement.value().criteria().keySet())if(!entry.getValue().contains(criterion))owner.getAdvancements().revoke(advancement,criterion);}
             game.items().indirectKills().clear(owner);game.items().indirectKills().clear(other);for(long k:forced)owner.level().setChunkForced(net.minecraft.world.level.ChunkPos.getX(k),net.minecraft.world.level.ChunkPos.getZ(k),false);
+            }finally{for(var entry:protectedBystanders.entrySet()){
+                var player=game.server().getPlayerList().getPlayer(entry.getKey());if(player==null)continue;
+                if(entry.getValue())player.entityTags().add("strict_map_object");else player.entityTags().remove("strict_map_object");
+                require(player.entityTags().contains("strict_map_object")==entry.getValue(),"Gamma protected-object tag restored exactly");
+            }}
         }
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.init();}catch(RuntimeException|Error e){running=null;f.close();throw e;}}

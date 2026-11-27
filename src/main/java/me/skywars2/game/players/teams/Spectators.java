@@ -40,6 +40,8 @@ public final class Spectators {
     private record EffectSnapshot(MobEffectInstance effect, int sentAt) {}
     private static final class View {
         Entity target;
+        boolean vanilla;
+        net.minecraft.world.entity.Interaction returnProxy;
         SimpleGui inventory;
         boolean inventoryChanged;
         SimpleGui containerGui;
@@ -83,6 +85,7 @@ public final class Spectators {
         if (view == null) return;
         player.closeContainer();
         clearEffects(player, view);
+        clearReturnProxy(player, view);
         player.setCamera(player);
         player.removeAllEffects();
         player.getInventory().clearContent();
@@ -106,6 +109,8 @@ public final class Spectators {
         // fail its health check while the listener still rejects every gameplay packet.
         if (player.isDeadOrDying() || ((MatchPlayerCheckpoint.SimulatedAcknowledgement)player.connection).skywars2$waitingForRespawn()) return;
         clearEffects(player, view);
+        clearReturnProxy(player, view);
+        view.vanilla = false;
         view.target = null;
         view.inventory = null;
         clearContainer(view);
@@ -141,19 +146,98 @@ public final class Spectators {
                 .withStyle(s -> s.withColor(ChatFormatting.YELLOW).withItalic(false)));
         player.getInventory().setItem(4, compass);
         player.getInventory().setItem(6, targets);
+        ItemStack toggle = new ItemStack(Items.ENDER_EYE);
+        toggle.set(DataComponents.CUSTOM_NAME, Component.translatable("skywars2.spectator.vanilla")
+                .withStyle(s -> s.withColor(ChatFormatting.AQUA).withItalic(false)));
+        player.getInventory().setItem(8, toggle);
         player.getInventory().setSelectedSlot(4);
         player.connection.send(new ClientboundSetHeldSlotPacket(4));
         player.inventoryMenu.sendAllDataToRemote();
+    }
+
+    /** Observer controls are admitted before dimension/item restrictions. */
+    public boolean useTool(ServerPlayer player, net.minecraft.world.InteractionHand hand) {
+        if (!contains(player)) return false;
+        var held = player.getItemInHand(hand);
+        if (held.is(Items.COMPASS)) game.menus().open(player);
+        else if (held.is(Items.PLAYER_HEAD)) openTargets(player);
+        else if (held.is(Items.ENDER_EYE)) toggleVanilla(player);
+        return true;
+    }
+
+    public boolean vanilla(ServerPlayer player) {
+        var view = viewers.get(player.getUUID());
+        return view != null && view.vanilla;
+    }
+
+    public void toggleVanilla(ServerPlayer player) {
+        var view = viewers.get(player.getUUID());
+        if (view == null) return;
+        if (view.vanilla) { detach(player); return; }
+        detach(player);
+        if (player.isDeadOrDying()) return;
+        view.vanilla = true;
+        player.getInventory().clearContent();
+        player.setGameMode(GameType.SPECTATOR);
+        player.setCamera(player);
+        updateReturnProxy(player, view);
+        player.sendSystemMessage(Component.translatable("skywars2.spectator.observer"));
+    }
+
+    /** Private packet-only hitbox: no physical world entity, AI or save entry. */
+    private void updateReturnProxy(ServerPlayer player, View view) {
+        var proxy = view.returnProxy;
+        boolean spawn = proxy == null || proxy.level() != player.level();
+        if (spawn) {
+            clearReturnProxy(player, view);
+            proxy = new net.minecraft.world.entity.Interaction(net.minecraft.world.entity.EntityTypes.INTERACTION, player.level());
+            proxy.setWidth(1.5f); proxy.setHeight(1.5f); proxy.setResponse(true);
+            view.returnProxy = proxy;
+        }
+        proxy.setPos(player.getEyePosition().add(player.getLookAngle().scale(1.5)).add(0, -.75, 0));
+        if (spawn) {
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundAddEntityPacket(proxy.getId(), proxy.getUUID(),
+                    proxy.getX(), proxy.getY(), proxy.getZ(), 0, 0, proxy.getType(), 0, net.minecraft.world.phys.Vec3.ZERO, 0));
+            var data = proxy.getEntityData().getNonDefaultValues();
+            if (data != null && !data.isEmpty()) player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(proxy.getId(), data));
+        } else player.connection.send(net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket.of(proxy));
+    }
+
+    private void clearReturnProxy(ServerPlayer player, View view) {
+        if (view.returnProxy == null) return;
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket(view.returnProxy.getId()));
+        view.returnProxy = null;
+    }
+
+    public boolean returnFromVanilla(ServerPlayer player, int entityId) {
+        var view = viewers.get(player.getUUID());
+        if (view == null || !view.vanilla || view.returnProxy == null || view.returnProxy.getId() != entityId) return false;
+        detach(player);
+        return true;
+    }
+
+    /** Legacy free-camera actionbar follows the nearest live player in this dimension. */
+    public Component nearestHud(ServerPlayer viewer) {
+        if (!contains(viewer)) return Component.empty();
+        var target = game.alivePlayers().stream().filter(other -> other != viewer && other.level() == viewer.level()
+                        && !contains(other) && other.isAlive() && game.allowDamage(other))
+                .min(java.util.Comparator.comparingDouble(viewer::distanceToSqr)).orElse(null);
+        if (target == null) return Component.empty();
+        return target.getDisplayName().copy().append(" ")
+                .append(Component.literal(Integer.toString((int)Math.ceil(target.getHealth() + target.getAbsorptionAmount())))
+                        .withStyle(ChatFormatting.RED)).append(Component.literal(" ♥").withStyle(ChatFormatting.RED));
     }
 
     /** ПКМ переводит только зарегистрированного наблюдателя в настоящую камеру spectator. */
     public void watch(ServerPlayer player, Entity target) {
         View view = viewers.get(player.getUUID());
         if (view == null || target == player || !target.isAlive() || target.isRemoved()
-                || target.level() != game.maps().level()
+                || target.level() != player.level()
                 || target instanceof ServerPlayer other && (!game.allowDamage(other) || contains(other))) return;
         player.closeContainer();
         clearEffects(player, view);
+        clearReturnProxy(player, view);
+        view.vanilla = false;
         player.getInventory().clearContent();
         view.inventory = null;
         view.target = target;
@@ -277,7 +361,7 @@ public final class Spectators {
             }
             if (view.target != null) {
                 if (!view.target.isAlive() || view.target.isRemoved() || player.getCamera() != view.target
-                        || view.target.level() != game.maps().level()
+                        || view.target.level() != player.level()
                         || view.target instanceof ServerPlayer other && !game.allowDamage(other)) {
                     detach(player);
                 } else {
@@ -285,6 +369,9 @@ public final class Spectators {
                     if (view.inventoryChanged && view.inventory != null && eu.pb4.sgui.api.SguiUtils.getCurrentGui(player) == view.inventory
                             && view.target instanceof ServerPlayer target) fillInventory(view.inventory, target);
                 }
+            } else if (view.vanilla) {
+                if (player.gameMode() != GameType.SPECTATOR || player.getCamera() != player) detach(player);
+                else updateReturnProxy(player, view);
             } else if (player.gameMode() != GameType.ADVENTURE) detach(player);
             player.setInvisible(true);
             player.getAbilities().invulnerable = true;

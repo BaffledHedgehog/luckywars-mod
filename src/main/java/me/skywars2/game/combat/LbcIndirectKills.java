@@ -236,6 +236,11 @@ public final class LbcIndirectKills {
     public void inheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
         var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
         if(!target.addEffect(effect,owner)||cause==null||target==owner)return;
+        acceptedInheritedEffect(target,effect,cause);
+    }
+    /** Record a native projectile grant only after its own addEffect accepted it. */
+    public void acceptedInheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
+        if(cause==null||target.getUUID().equals(cause.player()))return;
         var active=target.getEffect(effect.getEffect());
         if(active!=null&&active.getAmplifier()==effect.getAmplifier()
                 &&(effect.is(MobEffects.POISON)||effect.is(MobEffects.WITHER)||effect.is(MobEffects.BLINDNESS)))
@@ -787,6 +792,12 @@ public final class LbcIndirectKills {
         if(target.level() instanceof ServerLevel level) credit(target,level,cause);
     }
     /** Огонь/лава игрока не вредят союзникам и защищённым NPC; природные блоки остаются ванильными. */
+    /** Read only the retained native hazard/burn owner; caller supplies exact native fire scope. */
+    public net.minecraft.world.item.ItemStack environmentWeapon(LivingEntity target,DamageSource source){
+        var cause=environmentOwner(target,source);
+        return cause!=null&&cause.weaponAction()&&me.skywars2.game.combat.EnchantmentRules.spellSource(cause.enchantmentWeapon())
+                ?cause.enchantmentWeapon():net.minecraft.world.item.ItemStack.EMPTY;
+    }
     public boolean allowEnvironmentDamage(LivingEntity target, DamageSource source) {
         if(target==altitudeTarget && source.is(DamageTypes.DROWN)) return true;
         var cause=environmentOwner(target,source);
@@ -1149,6 +1160,18 @@ public final class LbcIndirectKills {
     }
     public boolean statusDamage(LivingEntity target, Holder<MobEffect> effect, BooleanSupplier damage) {
         return statusDamage(target,effect,null,damage);
+    }
+    /** Spell Power only for the exact native status tick and its accepted immutable wand owner. */
+    public net.minecraft.world.item.ItemStack statusWeapon(LivingEntity target,DamageSource source){
+        if(effectTarget!=target||source.getEntity()!=null||source.getDirectEntity()!=null)return net.minecraft.world.item.ItemStack.EMPTY;
+        if(!(source.is(DamageTypes.WITHER)&&tickingEffect==MobEffects.WITHER
+                ||source.is(DamageTypes.MAGIC)&&(tickingEffect==MobEffects.POISON||tickingEffect==MobEffects.INSTANT_DAMAGE)))
+            return net.minecraft.world.item.ItemStack.EMPTY;
+        var effects=statuses.get(target);var status=effects==null?null:effects.get(tickingEffect);
+        if(status==null||target.getEffect(tickingEffect)!=status.effect||!status.owner.weaponAction())return net.minecraft.world.item.ItemStack.EMPTY;
+        var marked=((me.skywars2.game.combat.WandPowerEffectAccess)(Object)status.effect).skywars2$powerCause();
+        return marked!=null&&marked.weaponAction()&&marked.player().equals(status.owner.player())
+                ?marked.enchantmentWeapon():net.minecraft.world.item.ItemStack.EMPTY;
     }
     public boolean statusDamage(LivingEntity target, Holder<MobEffect> effect, DamageSource source, BooleanSupplier damage) {
         LivingEntity previous=effectTarget; var previousEffect=tickingEffect;

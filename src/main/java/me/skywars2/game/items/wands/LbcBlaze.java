@@ -83,6 +83,7 @@ public final class LbcBlaze {
     private final GameController game;
     private final List<Turret> turrets=new ArrayList<>();
     private final Map<UUID,ServerPlayer> heads=new HashMap<>();
+    private final Map<UUID,LbcIndirectKills.Owner> headCauses=new HashMap<>();
     private final Map<Blaze,UUID> blazes=new HashMap<>();
     private final ArrayDeque<Terrain> terrain=new ArrayDeque<>();
     private final List<TrialFlight> trialFlights = new ArrayList<>();
@@ -90,7 +91,7 @@ public final class LbcBlaze {
     private int ticks;
     private int checkpointCallbacks;
     private boolean checkpointRestoring;
-    private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust,boolean wild) { }
+    private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust,boolean wild,LbcIndirectKills.Owner cause) { }
     record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas,
                            LbcIndirectKills.Owner cause) { }
 
@@ -120,7 +121,7 @@ public final class LbcBlaze {
                 Vec3 next=transform.apply(turret.position);
                 if(next==null) turrets.remove(i);
                 else if(!next.equals(turret.position))
-                    turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining,turret.speed,turret.dust,turret.wild));
+                    turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining,turret.speed,turret.dust,turret.wild,turret.cause));
             }
         }finally{checkpointCallbacks--;}
     }
@@ -134,6 +135,7 @@ public final class LbcBlaze {
         checkpointCallbacks++;try {
             if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
             heads.put(owner.getUUID(),owner); game.items().mana().score(owner,"blaze").add(amount);
+            headCauses.put(owner.getUUID(),game.items().indirectKills().coldCause(owner,true));
         }finally{checkpointCallbacks--;}
     }
     /** Attach already-written source counters without adding another charge or replaying cast feedback. */
@@ -337,7 +339,7 @@ public final class LbcBlaze {
                 game.items().mana().award(owner,"lbc:true_advancements/staffs/blaze");
                 LbcOverload.sound(owner,end,"minecraft:entity.villager.trade",1,1,0);
             }
-            turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5,.7,TURRET_DUST,false));
+            turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5,.7,TURRET_DUST,false,game.items().indirectKills().coldCause(owner,true)));
             LbcOverload.sound(owner,end,"minecraft:entity.blaze.ambient",1,1.3f,0);
         }finally{checkpointCallbacks--;}
     }
@@ -345,7 +347,7 @@ public final class LbcBlaze {
     /** KFC uses the same one-second pulse and owner/fire lifecycle, with three native shots at speed 1.6. */
     public void chickenTurret(ServerPlayer owner,Vec3 position) {
         checkpointCallbacks++;try {
-            turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6,CHICKEN_DUST,true));
+            turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6,CHICKEN_DUST,true,game.items().indirectKills().coldCause(owner,true)));
             owner.level().sendParticles(CHICKEN_BURST,true,false,position.x,position.y-1,position.z,10,.2,.5,.2,0);
         }finally{checkpointCallbacks--;}
     }
@@ -423,7 +425,7 @@ public final class LbcBlaze {
                 }
             }
             if(!areas.isEmpty()) {
-                var cause=weapon.isEmpty()?null:game.items().indirectKills().itemCause(owner,false,false,weapon);
+                var cause=weapon.isEmpty()?me.skywars2.game.combat.WeaponEnchantments.effectCause(owner):game.items().indirectKills().itemCause(owner,false,false,weapon);
                 terrain.add(new Terrain(owner,owner.level(),areas,cause));
             }
             if(ownerEffects && (mode==3 || mode==4)) owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,-1,0));
@@ -458,6 +460,11 @@ public final class LbcBlaze {
     private void own(Blaze mob,ServerPlayer owner) {
         mob.entityTags().removeIf(tag->tag.startsWith(OWNER_TAG)); mob.entityTags().add(OWNER_TAG+owner.getUUID());
         game.items().markCurrentItemEpoch(mob); blazes.put(mob,owner.getUUID());
+        me.skywars2.game.combat.WeaponEnchantments.captureBlaze(mob,game.items().indirectKills().coldCause(owner,true));
+    }
+    /** AI keeps its native controller; only the accepted wand's immutable enchantments follow it. */
+    public LbcIndirectKills.Owner enchantmentCause(Blaze mob){
+        return me.skywars2.game.combat.WeaponEnchantments.actorCause(mob,owner(mob));
     }
     /** Nether Plug использует уже существующие AI-фильтры и владельца подчинённого ифрита. */
     public void summonFriend(ServerPlayer owner) {
@@ -530,12 +537,14 @@ public final class LbcBlaze {
                     var projectile=new SmallFireball(EntityTypes.SMALL_FIREBALL,turret.level);
                     if(turret.wild) projectile.entityTags().add(KFC_SPIRIT_PROJECTILE);
                     Vec3 velocity=target.getEyePosition().subtract(turret.position).normalize().scale(turret.speed);
-                    game.items().wands().launchFire(owner,projectile,turret.position,velocity);
+                    try(var enchantments=enchantmentScope(owner,turret.cause)){
+                        game.items().wands().launchFire(owner,projectile,turret.position,velocity);
+                    }
                     LbcOverload.sound(owner,turret.position,"minecraft:entity.blaze.shoot",1,1,0);
                 }
                 turret.level.sendParticles(turret.dust,true,false,turret.position.x,turret.position.y,turret.position.z,10,.2,.5,.2,0);
                 if(turret.remaining<=1) turrets.remove(i);
-                else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed,turret.dust,turret.wild));
+                else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed,turret.dust,turret.wild,turret.cause));
             }
             if(now%10==0) for(var owner:List.copyOf(heads.values())) {
                 if(game.items().polymorph().masked(owner))continue;
@@ -543,12 +552,14 @@ public final class LbcBlaze {
                 if(paused(owner)) continue;
                 var target=nearest(owner,owner.getEyePosition(),false,false,candidates);
                 Vec3 velocity=target==null?owner.getLookAngle().scale(.7):target.getEyePosition().subtract(owner.getEyePosition()).normalize().scale(.7);
-                game.items().wands().launchFire(owner,new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level()),owner.getEyePosition(),velocity);
+                try(var enchantments=enchantmentScope(owner,headCauses.get(owner.getUUID()))){
+                    game.items().wands().launchFire(owner,new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level()),owner.getEyePosition(),velocity);
+                }
                 owner.level().sendParticles(ParticleTypes.FLAME,owner.getX(),owner.getEyeY(),owner.getZ(),5,.4,.4,.4,0);
                 owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,40,0,false,false));
                 game.items().mana().score(owner,"blaze").add(-1);
                 LbcOverload.sound(owner,"minecraft:entity.blaze.shoot",1,1,0);
-                if(headCharges(owner)<=0) heads.remove(owner.getUUID());
+                if(headCharges(owner)<=0) {heads.remove(owner.getUUID());headCauses.remove(owner.getUUID());}
             }
             long deadline=System.nanoTime()+3_000_000L; int left=65536,stalledJobs=0;
             // Оплаченные области не теряются. Порядок fill сохраняется: завершающая лава идёт после огня,
@@ -574,7 +585,10 @@ public final class LbcBlaze {
             }
         }finally{checkpointCallbacks--;}
     }
-    public void clearEffects(ServerPlayer owner) { heads.remove(owner.getUUID()); game.items().mana().score(owner,"blaze").set(0); }
+    private me.skywars2.game.combat.WeaponEnchantments.Scope enchantmentScope(ServerPlayer owner,LbcIndirectKills.Owner cause){
+        return me.skywars2.game.combat.WeaponEnchantments.causeScope(owner,cause);
+    }
+    public void clearEffects(ServerPlayer owner) { heads.remove(owner.getUUID());headCauses.remove(owner.getUUID()); game.items().mana().score(owner,"blaze").set(0); }
     /** Cancel pending shared turrets before a respawn can make the owner valid at the next pulse. */
     public void forget(ServerPlayer owner) {
         checkpointCallbacks++;try {
@@ -601,7 +615,7 @@ public final class LbcBlaze {
     }
     public final class Checkpoint {
         private record TurretImage(Turret source,UUID owner,ServerLevel ownerLevel) { }
-        private record HeadImage(UUID key,UUID owner,ServerLevel level) { }
+        private record HeadImage(UUID key,UUID owner,ServerLevel level,LbcIndirectKills.Owner cause) { }
         private record TrialImage(MatchDamageSources.Ref body, Vec3 destination, Vec3 direction, boolean highAltitude) {}
         private final List<TurretImage> saved;
         private final List<HeadImage> headOwners;
@@ -611,7 +625,7 @@ public final class LbcBlaze {
         private final int cadence=ticks;
         Checkpoint(MatchSpellCheckpoint.Links links){
             saved=turrets.stream().map(t->new TurretImage(t,t.owner.getUUID(),t.owner.level())).toList();
-            headOwners=heads.entrySet().stream().map(e->new HeadImage(e.getKey(),e.getValue().getUUID(),e.getValue().level())).toList();
+            headOwners=heads.entrySet().stream().map(e->new HeadImage(e.getKey(),e.getValue().getUUID(),e.getValue().level(),headCauses.get(e.getKey()))).toList();
             blazes.forEach((body,owner)->nativeOwners.put(links.key(body),owner));
             trials = trialFlights.stream().filter(flight -> !flight.shot.isRemoved() && !links.omitted(flight.shot))
                     .map(flight -> new TrialImage(links.key(flight.shot), flight.destination, flight.direction, flight.highAltitude)).toList();
@@ -630,7 +644,7 @@ public final class LbcBlaze {
             checkpointBoundary();var nextTurrets=new ArrayList<Turret>();var nextHeads=new HashMap<UUID,ServerPlayer>();var nextBlazes=new HashMap<Blaze,UUID>();
             var admitted=new java.util.HashSet<UUID>();
             for(var image:saved){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.ownerLevel);if(current==null)continue;
-                var t=image.source;MatchAuthorityCheckpoint.world(game,t.level);nextTurrets.add(new Turret(current,t.level,t.position,t.epoch,t.remaining,t.speed,t.dust,t.wild));admitted.add(image.owner);}
+                var t=image.source;MatchAuthorityCheckpoint.world(game,t.level);nextTurrets.add(new Turret(current,t.level,t.position,t.epoch,t.remaining,t.speed,t.dust,t.wild,t.cause));admitted.add(image.owner);}
             for(var image:headOwners){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.level);if(current!=null){nextHeads.put(image.key,current);admitted.add(image.owner);}}
             if(!baseInstalled)nativeOwners.forEach((ref,id)->nextBlazes.put((Blaze)links.get(ref),id));
             var nextTrials = baseInstalled ? List.<TrialFlight>of() : trials.stream()
@@ -642,6 +656,7 @@ public final class LbcBlaze {
                     clearFutureTerrain();
                     turrets.clear();
                     heads.clear();
+                    headCauses.clear();
                     blazes.clear();
                     blazes.putAll(nextBlazes);
                     clearTrialFlights(false);
@@ -651,6 +666,7 @@ public final class LbcBlaze {
                 }
                 turrets.addAll(nextTurrets);
                 heads.putAll(nextHeads);
+                for(var image:headOwners)if(nextHeads.containsKey(image.key)&&image.cause!=null)headCauses.put(image.key,image.cause);
                 installed.addAll(admitted);
             };
         }

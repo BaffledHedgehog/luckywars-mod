@@ -170,6 +170,7 @@ public final class LbcTerra {
         var properties = new Item.Properties().setId(key).overrideDescription(name)
                 .component(DataComponents.ITEM_MODEL, Identifier.parse(model));
         if(durability>0)properties.durability(durability);else properties.stacksTo(1);
+        if(id.equals("skywars2:true_terra_sword"))properties.enchantable(1).component(DataComponents.ENCHANTMENTS,net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
         return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(properties, Items.CARROT_ON_A_STICK, true) {
             @Override public InteractionResult use(Level level, Player player, InteractionHand hand) {
                 var game = me.skywars2.SkyWars2.game();
@@ -268,6 +269,7 @@ public final class LbcTerra {
         private ElementHolder holder;
         private ItemDisplayElement display;
         private Kind kind = Kind.REGULAR;
+        private me.skywars2.game.combat.LbcIndirectKills.Owner enchantmentCause;
         private int age;
         public int sourceLifetime;
         public boolean emitterStyle;
@@ -393,6 +395,8 @@ public final class LbcTerra {
         if (!persistentSource()&&(level != game.maps().level() || !game.canUseGameplayItems(owner))) return null;
         var projectile = new TerraProjectile(TYPE, level);
         projectile.kind = kind; projectile.sourceLifetime=lifetime;projectile.emitterStyle=emitterStyle;
+        var castSource=game.items().spellSources().current();
+        projectile.enchantmentCause=castSource!=null?castSource.cause():shooter instanceof ServerPlayer player?game.items().indirectKills().coldCause(player,true):null;
         projectile.setOwner(shooter);
         projectile.setPos(origin);
         projectile.setDeltaMovement(direction.normalize().scale(kind.speed));
@@ -478,8 +482,8 @@ public final class LbcTerra {
         Vec3 end = shieldFirst ? shield.getLocation() : wall == null ? to : wall.getLocation();
         var hits = projectile.kind == Kind.TRUE_BEAM ? beamHits(projectile, owner, from, end)
                 : LbcProjectileSweep.all(level, owner, from, end, entity -> target(owner, entity));
-        var damage = new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(projectile.kind == Kind.TRUE_BEAM ? LbcDamage.TERRA_BEAM : DamageTypes.CACTUS), projectile, projectile.getOwner());
+        var damage = game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(projectile.kind == Kind.TRUE_BEAM ? LbcDamage.TERRA_BEAM : DamageTypes.CACTUS), projectile, projectile.getOwner()),projectile.enchantmentCause);
         for (var hit : hits) {
             // Дуга сохраняет отдельные попадания шагов и боковых полос; остальные заряды — одно на цель.
             if (hit.getEntity().hurtServer(level, damage, projectile.kind.damage))
@@ -518,7 +522,7 @@ public final class LbcTerra {
             if(!level.hasChunkAt(cell)||game.items().magic().suppressedAt(level,at))return false;
             if(shield!=null&&from.distanceToSqr(shield.getLocation())<=from.distanceToSqr(at))return false;
             level.sendParticles(new DustColorTransitionOptions(0x00ff00,0x006600,1),true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
-            var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),projectile,owner);
+            var damage=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),projectile,owner),projectile.enchantmentCause);
             int hits=0;
             for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),e->e.position().distanceToSqr(at)<=100&&target(owner,e)&&!e.entityTags().contains("summoned_cultist"))){
                 target.hurtServer(level,damage,7);if(++hits==2)break;
@@ -732,7 +736,7 @@ public final class LbcTerra {
         for(var tail:finishingModels)tail.holder.destroy();finishingModels.clear();
     }
     private record ShotImage(MatchDamageSources.Ref body,Kind kind,int age,int lifetime,
-                             boolean emitter,boolean paused,Vec3 visualOffset){}
+                             boolean emitter,boolean paused,Vec3 visualOffset,me.skywars2.game.combat.LbcIndirectKills.Owner enchantmentCause){}
     private record TailImage(ServerLevel level,Vec3 position,Kind kind,float yaw,float pitch,Vec3 offset,int remaining){}
     public final class Checkpoint {
         private final List<ShotImage> shots;
@@ -741,7 +745,7 @@ public final class LbcTerra {
         private final int clock=modelTicks;
         Checkpoint(MatchSpellCheckpoint.Links links){
             shots=projectiles.stream().filter(p->!p.isRemoved()).map(p->new ShotImage(links.key(p),p.kind,p.age,
-                    p.sourceLifetime,p.emitterStyle,p.modelPaused,p.holder==null?null:p.display.getOffset())).toList();
+                    p.sourceLifetime,p.emitterStyle,p.modelPaused,p.holder==null?null:p.display.getOffset(),p.enchantmentCause)).toList();
             tails=finishingModels.stream().map(t->new TailImage(t.level,t.position,t.kind,t.yaw,t.pitch,t.offset,t.removeAt-modelTicks)).toList();
         }
         public Runnable prepare(MatchSpellCheckpoint.Links links){
@@ -752,7 +756,7 @@ public final class LbcTerra {
                 projectiles.clear();swordCharges.clear();swordCharges.putAll(charges);modelTicks=clock;
                 restored.forEach((body,image)->{
                     body.kind=image.kind;body.age=image.age;body.sourceLifetime=image.lifetime;
-                    body.emitterStyle=image.emitter;body.modelPaused=image.paused;projectiles.add(body);
+                    body.emitterStyle=image.emitter;body.modelPaused=image.paused;body.enchantmentCause=image.enchantmentCause;projectiles.add(body);
                 });
             };
         }
@@ -771,11 +775,11 @@ public final class LbcTerra {
 
     public LbcCloneSkills.ActorImage cloneImage(TerraProjectile source) {
         var kind=source.kind;int age=source.age,lifetime=source.sourceLifetime;
-        boolean emitter=source.emitterStyle,paused=source.modelPaused;
+        boolean emitter=source.emitterStyle,paused=source.modelPaused;var enchantmentCause=source.enchantmentCause;
         return new LbcCloneSkills.ActorImage() {
             public void install(Entity original,Entity clone,Map<Entity,Entity> family) {
                 var target=(TerraProjectile)clone;target.kind=kind;target.age=age;target.sourceLifetime=lifetime;
-                target.emitterStyle=emitter;target.modelPaused=paused;if(!emitter)target.attachModel();
+                target.emitterStyle=emitter;target.modelPaused=paused;target.enchantmentCause=enchantmentCause;if(!emitter)target.attachModel();
             }
             public void rollback(Entity clone){unloaded(clone);}
         };

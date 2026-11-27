@@ -104,6 +104,34 @@ public final class LbcNukeEvent {
     private Cause executingCause;private Entity executingEmitter;private ServerLevel executingLevel;
     private long warnings,schedules,detonations,centers,blasts,beacons;
     public LbcNukeEvent(GameController game){this.game=game;}
+    public boolean movableBeacon(Entity entity){return entity instanceof Marker marker&&actors.containsKey(marker)&&!marker.isRemoved();}
+    /** Move the authoritative marker and only its authored beacon blocks, never unrelated terrain. */
+    public void translateBeacon(Entity entity,Vec3 offset){
+        if(!(entity instanceof Marker marker))return;var state=actors.get(marker);if(state==null)return;
+        var level=(ServerLevel)marker.level();var before=marker.blockPosition();var next=marker.position().add(offset);var after=BlockPos.containing(next);
+        if(!resident(level,before.offset(-5,-4,-5),before.offset(5,2,5))||!resident(level,after.offset(-5,-4,-5),after.offset(5,2,5)))return;
+        if(!before.equals(after)){
+            var blocks=new LinkedHashMap<BlockPos,net.minecraft.world.level.block.state.BlockState>();
+            int layers=state.point?1:5;
+            for(int layer=0;layer<layers;layer++){
+                int radius=layer+1;
+                for(int x=-radius;x<=radius;x++)for(int z=-radius;z<=radius;z++){
+                    var at=before.offset(x,-layer,z);var block=level.getBlockState(at);
+                    if(block.is(BASE[layer]))blocks.put(at,block);
+                }
+            }
+            for(var at:List.of(before.above(),before.above(2))){
+                var block=level.getBlockState(at);
+                if(block.is(Blocks.BEACON)||Arrays.stream(PANES).anyMatch(block::is))blocks.put(at,block);
+            }
+            var shift=after.subtract(before);
+            game.items().indirectKills().trapChanges(level,state.cause.accepted,()->{
+                for(var at:blocks.keySet())LbcDropBlocks.setBlock(level,at,Blocks.AIR.defaultBlockState(),true);
+                for(var entry:blocks.entrySet())LbcDropBlocks.setBlock(level,entry.getKey().offset(shift),entry.getValue(),true);
+            });
+        }
+        marker.setPos(next);marker.setDeltaMovement(Vec3.ZERO);
+    }
 
     private static EntitySelector selector(String input){try{return new EntitySelectorParser(new StringReader(input),true).parse();}
         catch(CommandSyntaxException error){throw new ExceptionInInitializerError(error);}}
@@ -245,15 +273,15 @@ public final class LbcNukeEvent {
         }finally{callbackDepth--;}
     }
     private void beacon(Marker marker,State state){
-        var origin=marker.blockPosition();var site=new Site((ServerLevel)marker.level(),marker.position(),marker.getYRot(),state.cause);
+        var level=(ServerLevel)marker.level();
         var job=new Job(state.cause.epoch);beacons++;
-        for(int i=0;i<5;i++){int layer=i,r=i+1;job.add(site.level,origin.offset(-r,-layer,-r),origin.offset(r,-layer,r),state.cause,
-                ()->LbcDropBlocks.fill(site.level,origin.offset(-r,-layer,-r),origin.offset(r,-layer,r),BASE[layer],true));}
-        if(state.lifetime>=1&&state.lifetime<=20)job.add(site.level,origin.above(3),new BlockPos(origin.getX(),319,origin.getZ()),state.cause,
-                ()->LbcDropBlocks.fill(site.level,origin.above(3),new BlockPos(origin.getX(),319,origin.getZ()),Blocks.AIR,true));
-        job.add(site.level,origin.above(),origin.above(),state.cause,()->LbcDropBlocks.setBlock(site.level,origin.above(),Blocks.BEACON.defaultBlockState(),false));
-        job.add(site.level,origin.above(2),origin.above(2),state.cause,()->{
-            int selected=site.level.getRandom().nextInt(16);LbcDropBlocks.setBlock(site.level,origin.above(2),PANES[selected].defaultBlockState(),false);
+        for(int i=0;i<5;i++){int layer=i,r=i+1;job.addBeacon(marker,origin->origin.offset(-r,-layer,-r),origin->origin.offset(r,-layer,r),state.cause,
+                origin->LbcDropBlocks.fill(level,origin.offset(-r,-layer,-r),origin.offset(r,-layer,r),BASE[layer],true));}
+        if(state.lifetime>=1&&state.lifetime<=20)job.addBeacon(marker,origin->origin.above(3),origin->new BlockPos(origin.getX(),319,origin.getZ()),state.cause,
+                origin->LbcDropBlocks.fill(level,origin.above(3),new BlockPos(origin.getX(),319,origin.getZ()),Blocks.AIR,true));
+        job.addBeacon(marker,BlockPos::above,BlockPos::above,state.cause,origin->LbcDropBlocks.setBlock(level,origin.above(),Blocks.BEACON.defaultBlockState(),false));
+        job.addBeacon(marker,origin->origin.above(2),origin->origin.above(2),state.cause,origin->{
+            int selected=level.getRandom().nextInt(16);LbcDropBlocks.setBlock(level,origin.above(2),PANES[selected].defaultBlockState(),false);
         });job.submit();
     }
     /** The placed bomb is visible immediately; it must not wait behind terrain work. */
@@ -463,9 +491,30 @@ public final class LbcNukeEvent {
     private void inherit(Entity child,Cause cause){child.entityTags().add(CHILD);game.items().markCurrentItemEpoch(child);sources.put(child,cause);game.items().timeStop().prepareFrozen(child);}
     private final class Operation {
         final ServerLevel level;final BlockPos from,to;final Cause cause;final Runnable action;
-        Operation(ServerLevel level,BlockPos from,BlockPos to,Cause cause,Runnable action){this.level=level;this.from=from;this.to=to;this.cause=cause;this.action=action;}
-        boolean ready(){return !paused(level);}
-        void run(){if(resident(level,from,to))game.items().indirectKills().trapChanges(level,cause.accepted,action);}
+        final Marker beacon;final java.util.function.Function<BlockPos,BlockPos> beaconFrom,beaconTo;
+        final java.util.function.Consumer<BlockPos> beaconAction;
+        Operation(ServerLevel level,BlockPos from,BlockPos to,Cause cause,Runnable action){
+            this.level=level;this.from=from;this.to=to;this.cause=cause;this.action=action;
+            beacon=null;beaconFrom=beaconTo=null;beaconAction=null;
+        }
+        Operation(Marker beacon,java.util.function.Function<BlockPos,BlockPos> from,java.util.function.Function<BlockPos,BlockPos> to,
+                Cause cause,java.util.function.Consumer<BlockPos> action){
+            level=(ServerLevel)beacon.level();this.from=this.to=beacon.blockPosition();this.cause=cause;this.action=null;
+            this.beacon=beacon;beaconFrom=from;beaconTo=to;beaconAction=action;
+        }
+        boolean ready(){
+            if(paused(level))return false;
+            if(beacon==null||!movableBeacon(beacon))return true;
+            var origin=beacon.blockPosition();return resident(level,beaconFrom.apply(origin),beaconTo.apply(origin));
+        }
+        void run(){
+            if(beacon==null){if(resident(level,from,to))game.items().indirectKills().trapChanges(level,cause.accepted,action);return;}
+            if(!movableBeacon(beacon))return;
+            // Resolve every remaining layer at its actual publication boundary. Already
+            // published authored blocks follow the marker through translateBeacon.
+            var origin=beacon.blockPosition();if(resident(level,beaconFrom.apply(origin),beaconTo.apply(origin)))
+                game.items().indirectKills().trapChanges(level,cause.accepted,()->beaconAction.accept(origin));
+        }
     }
     /** Three strict source fills retain native height/volume admission, then load each blast footprint asynchronously. */
     private final class LegacyClear {
@@ -505,6 +554,8 @@ public final class LbcNukeEvent {
         LivingEntity statusBody;
         Job(String epoch){this.epoch=epoch;}
         void add(ServerLevel level,BlockPos from,BlockPos to,Cause cause,Runnable action){operations.add(new Operation(level,from,to,cause,action));}
+        void addBeacon(Marker marker,java.util.function.Function<BlockPos,BlockPos> from,java.util.function.Function<BlockPos,BlockPos> to,
+                Cause cause,java.util.function.Consumer<BlockPos> action){operations.add(new Operation(marker,from,to,cause,action));}
         void addTerrain(Site site,NuclearTerrain.Point shape){shape.prepare(game);terrain.add(new Terrain(site,shape));}
         void submit(){jobs.add(this);game.items().stonekivi().queuedWork(this);}
         @Override public boolean ready(){if(cancelled||!live(epoch))return true;

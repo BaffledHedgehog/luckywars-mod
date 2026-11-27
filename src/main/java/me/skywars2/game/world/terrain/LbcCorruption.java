@@ -64,6 +64,7 @@ public final class LbcCorruption {
     }
 
     public static void cast(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,int mode){
+        var cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
         var at=owner.position();
         var targets=owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(15),target->{
             double distance=target.position().distanceToSqr(at);
@@ -74,15 +75,17 @@ public final class LbcCorruption {
             // The source's undead replacement is an authored tag, not vanilla's broader undead classification.
             if(mode==1){
                 boolean unholy=target.getType().builtInRegistryHolder().is(UNHOLY);
-                target.addEffect(ItemEffectLevels.create(unholy?MobEffects.WITHER:MobEffects.POISON,200,unholy?1:0,false,false),owner);
-            }else if(mode==2)target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,140,1,false,false),owner);
+                target.addEffect(me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(
+                        ItemEffectLevels.create(unholy?MobEffects.WITHER:MobEffects.POISON,200,unholy?1:0,false,false),cause),owner);
+            }else if(mode==2)target.addEffect(me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(
+                    ItemEffectLevels.create(MobEffects.WITHER,140,1,false,false),cause),owner);
             else if(mode==3)target.addEffect(ItemEffectLevels.create(MobEffects.HUNGER,40,255,false,false),owner);
         }
         // Ordinary dust is rolled on every cast. Academy narrows that same per-target chance to damage mode.
         if(!academy||mode==4)for(var target:targets)
             if(target.getType().builtInRegistryHolder().is(MOBS)&&owner.getRandom().nextInt(10)==0)dust(game,owner,target);
         if(mode==4){
-            var cactus=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),owner);
+            var cactus=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),owner),cause);
             for(var target:targets)if(target.getType().builtInRegistryHolder().is(MOBS))target.hurtServer(owner.level(),cactus,8);
             if(!academy&&owner.getItemInHand(hand)==stack&&LbcAcademy.trial(stack)
                     &&targets.stream().anyMatch(target->target.isAlive()&&target.getType().builtInRegistryHolder().is(MOBS)

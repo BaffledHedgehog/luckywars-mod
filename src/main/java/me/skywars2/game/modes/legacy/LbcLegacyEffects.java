@@ -61,6 +61,14 @@ public final class LbcLegacyEffects {
             ||effect.is(MobEffects.RAID_OMEN)&&switch(effect.getAmplifier()){
                 case -22,-21,97,106,114,116,234,235->true;default->false;
             };}
+    /** Forced/loaded zero-length transport layers must never remain as a client Raid Omen icon. */
+    public static void removeExpiredRaidMarker(net.minecraft.world.entity.LivingEntity target){
+        var active=target.getEffect(MobEffects.RAID_OMEN);
+        if(active==null||active.getDuration()!=0)return;
+        if(me.skywars2.game.effects.EffectLayers.downgrade(active))
+            ((me.skywars2.game.effects.OwnedEffectLayers.UpdateAccess)target).skywars2$ownedUpdated(active,true,null);
+        else target.removeEffect(MobEffects.RAID_OMEN);
+    }
     /** Potions, real arrows and arrow-equivalent carriers all enter the existing status owners. */
     public boolean acceptCarrier(net.minecraft.world.entity.LivingEntity target,MobEffectInstance effect,net.minecraft.world.entity.Entity source){
         if(!carrierMarker(effect)||!game.playing()||game.stage()==GameController.Stage.ENDING
@@ -69,6 +77,11 @@ public final class LbcLegacyEffects {
         int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return false;
         var owner=source==null?null:LbcIndirectKills.playerSource(source);
         int amp=effect.getAmplifier();
+        if(amp==119){
+            // Native accepted Stand arrows already rolled once; their transport must not enqueue another roll.
+            if(me.skywars2.game.entities.mobs.summons.LbcStand.nativeArrowEffect())return true;
+            duration=1;
+        }
         if(amp==234||amp==-22){
             var cause=game.items().indirectKills().carrierEffectCause(target,source);
             game.items().indirectKills().withCause(target,cause,()->target.hurtServer((net.minecraft.server.level.ServerLevel)target.level(),target.damageSources().lava(),4));

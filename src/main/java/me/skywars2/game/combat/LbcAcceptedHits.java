@@ -48,6 +48,7 @@ public final class LbcAcceptedHits {
     }
     /** The same unblocked native criterion also includes resisted, nonlethal hits. */
     public static void stanceHit(LivingEntity victim,DamageSource source){
+        if(me.skywars2.game.entities.LbcDimensionItems.imprinted(victim.level()))return;
         var receipt=pending.get(victim);
         if(receipt!=null&&receipt.source==source){
             if(receipt.stanceDispatched)return;
@@ -98,6 +99,7 @@ public final class LbcAcceptedHits {
     }
     private static void dispatch(LivingEntity victim,DamageSource source,float amount,boolean living,boolean nativeHit){
         var game=SkyWars2.game();if(game==null)return;
+        if(me.skywars2.game.entities.LbcDimensionItems.imprinted(victim.level()))return;
         game.items().academy().damaged(victim,source);
         if(nativeHit&&victim instanceof ServerPlayer hurt)LbcTmtTriggers.hurtInput(hurt,source);
         // Fatal native credit was settled by acceptedDamage/beforeDeath already.

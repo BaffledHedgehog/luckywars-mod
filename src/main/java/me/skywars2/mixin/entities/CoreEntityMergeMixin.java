@@ -6,6 +6,7 @@ import me.skywars2.game.match.checkpoints.MatchActorCheckpoint;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.mojang.serialization.Codec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
@@ -133,6 +135,7 @@ public final class CoreEntityMergeMixin {
 
     @Mixin(ExperienceOrb.class)
     public abstract static class Orbs implements CoreEntityMerging.Orb {
+        @Unique private static final ThreadLocal<Boolean> skywars2$freshAward = new ThreadLocal<>();
         @Shadow private int count;
         @Shadow private int age;
         @Shadow public abstract int getValue();
@@ -154,7 +157,8 @@ public final class CoreEntityMergeMixin {
 
         @Override public boolean skywars2$absorbExperience(ExperienceOrb other) {
             var self = (ExperienceOrb) (Object) this;
-            if (self == other || self.isRemoved() || other.isRemoved()) return false;
+            if (self == other || self.isRemoved() || other.isRemoved()
+                    ||!CoreEntityMerging.sameExperienceCloneStatus(self,other)) return false;
             long mine = skywars2$totalExperience();
             long theirs = ((CoreEntityMerging.Orb) other).skywars2$totalExperience();
             // Preserve oversized legacy groups separately rather than losing any XP.
@@ -164,6 +168,24 @@ public final class CoreEntityMergeMixin {
             age = Math.min(age, ((CoreEntityMerging.Orb) other).skywars2$experienceAge());
             other.discard();
             return true;
+        }
+
+        @Inject(method = "canMerge(Lnet/minecraft/world/entity/ExperienceOrb;)Z", at = @At("HEAD"), cancellable = true)
+        private void skywars2$nativeCloneCompatibility(ExperienceOrb other, CallbackInfoReturnable<Boolean> cir) {
+            if (!CoreEntityMerging.sameExperienceCloneStatus((ExperienceOrb) (Object) this, other)) cir.setReturnValue(false);
+        }
+
+        @WrapMethod(method = "tryMergeToExisting")
+        private static boolean skywars2$freshAwardScope(ServerLevel level, Vec3 pos, int value, Operation<Boolean> original) {
+            var previous = skywars2$freshAward.get();skywars2$freshAward.set(true);
+            try { return original.call(level, pos, value); }
+            finally { if (previous == null) skywars2$freshAward.remove(); else skywars2$freshAward.set(previous); }
+        }
+
+        @Inject(method = "canMerge(Lnet/minecraft/world/entity/ExperienceOrb;II)Z", at = @At("HEAD"), cancellable = true)
+        private static void skywars2$freshAwardCompatibility(ExperienceOrb resident, int id, int value, CallbackInfoReturnable<Boolean> cir) {
+            if (Boolean.TRUE.equals(skywars2$freshAward.get())
+                    && (resident.entityTags().contains("doubled") || resident.entityTags().contains("quadried"))) cir.setReturnValue(false);
         }
 
         @Inject(method = "awardWithDirection", at = @At("HEAD"), cancellable = true)

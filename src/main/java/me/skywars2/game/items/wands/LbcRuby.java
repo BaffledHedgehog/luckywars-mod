@@ -209,7 +209,8 @@ for(int sample=0;sample<=Math.ceil(distance/DRILL_STEP);sample++) {
                 new InstantRay(owner,from,direction,true),false);
     }
 
-    private void createHole(ServerPlayer owner,Vec3 point) {
+    private void createHole(ServerPlayer owner,Vec3 point) { createHole(owner,point,null); }
+    private void createHole(ServerPlayer owner,Vec3 point,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
         var level=sourceLevel(owner);
         BlockPos center=BlockPos.containing(point);
         game.items().indirectKills().trapChanges(owner,()-> {
@@ -218,8 +219,8 @@ for(int sample=0;sample<=Math.ceil(distance/DRILL_STEP);sample++) {
                     Block.UPDATE_CLIENTS|Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS);
         });
         level.sendParticles(ParticleTypes.PORTAL,point.x,point.y,point.z,300,1,1,1,0);
-        DamageSource damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.OUTSIDE_BORDER),owner);
+        DamageSource damage=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.OUTSIDE_BORDER),owner),cause);
         var area=new net.minecraft.world.phys.AABB(center).inflate(3);
         for(var target:level.getEntitiesOfClass(LivingEntity.class,area,
                 candidate->candidate!=owner && candidate.position().distanceToSqr(point)<=9 && validEnemy(owner,candidate))) {
@@ -258,9 +259,11 @@ for(int sample=0;sample<=Math.ceil(distance/DRILL_STEP);sample++) {
     private final class InstantRay implements LbcExasperato.ReplayableRay {
         final ServerPlayer owner;final Vec3 origin,direction;final boolean compression;
         final net.minecraft.server.level.ServerLevel level;final LbcSpellSource.Source source;
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
         InstantRay(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean compression){
             this.owner=owner;this.origin=origin;this.direction=direction.normalize();this.compression=compression;
             level=sourceLevel(owner);source=game.items().spellSources().current();
+            cause=source!=null?source.cause():game.items().indirectKills().coldCause(owner,true);
         }
         public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return compression&&!state.isAir();}
         public boolean target(Entity entity){return compression&&entity instanceof LivingEntity living&&validEnemy(owner,living);}
@@ -284,7 +287,7 @@ for(int sample=0;sample<=Math.ceil(distance/DRILL_STEP);sample++) {
         public void complete(HitResult hit){
             if(!compression||hit==null)return;
             try(var scope=game.items().spellSources().scope(source,level)){
-                createHole(owner,hit instanceof BlockHitResult?hit.getLocation().add(direction.scale(1e-5)):hit.getLocation());
+                createHole(owner,hit instanceof BlockHitResult?hit.getLocation().add(direction.scale(1e-5)):hit.getLocation(),cause);
             }
         }
     }

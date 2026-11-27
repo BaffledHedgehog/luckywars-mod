@@ -114,17 +114,17 @@ public final class LbcLifestealer {
         return owner.entityTags().contains("have_stand") && LbcStand.hasClocks(owner)
                 ? game.items().stand().overheaven(owner)>0?2:1 : 0;
     }
-    private void heal(ServerPlayer owner,int count,int strength) {
+    private void heal(ServerPlayer owner,int count,int strength,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
         if(count<=0) return;
         int tier=Math.min(3,(count-1)/3);
         if(strength==0 && tier<3) {
-            owner.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,20,tier+2),owner);
+            owner.addEffect(me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(ItemEffectLevels.create(MobEffects.REGENERATION,20,tier+2),cause),owner);
             return;
         }
         int amplifier=strength==0?4:strength==1?switch(tier) { case 0->0; case 1->1; case 2->5; default->20; }
                 :switch(tier) { case 0->1; case 1->2; case 2->10; default->40; };
         // /effect give ... instant_health 1 задаёт один тик для мгновенного эффекта.
-        owner.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,amplifier),owner);
+        owner.addEffect(me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,amplifier),cause),owner);
     }
     private boolean target(ServerPlayer owner,Entity candidate) {
         return game.items().lifetimes().target(owner,candidate)
@@ -135,8 +135,9 @@ public final class LbcLifestealer {
     public void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy) {
         Vec3 center=owner.position();
         int strength=strength(owner),accepted=0;
-        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(academy?DamageTypes.GENERIC:DamageTypes.CACTUS),owner);
+        var cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
+        var source=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(academy?DamageTypes.GENERIC:DamageTypes.CACTUS),owner),cause);
         float damage=strength==2?10:strength==1?5:1;
         boolean friendlyMob=false;
         var team=owner.getTeam();
@@ -152,7 +153,7 @@ public final class LbcLifestealer {
             // Лечение и задание считают только принятый сервером удар, включая общую очередь Time Stop.
             if(entity.hurtServer(owner.level(),source,damage)) accepted++;
         }
-        heal(owner,accepted,strength);
+        heal(owner,accepted,strength,cause);
         if(!academy) {
             if(friendlyMob) game.items().mana().award(owner,"lbc:true_advancements/staffs/vampire");
             game.items().academy().lifestealerCast(owner,hand,stack,accepted);
@@ -162,17 +163,18 @@ public final class LbcLifestealer {
     }
     private void impact(Charge charge,ServerPlayer owner,Vec3 point) {
         // Первое столкновение завершает заряд даже рядом с владельцем; общие guards защищают его и союзников.
+        var cause=me.skywars2.game.combat.WeaponEnchantments.actorCause(charge,owner);
         remove(charge);
         if(!valid(owner) || !game.items().currentEpoch(charge)) return;
         int strength=strength(owner),accepted=0;
         float damage=strength==2?10:strength==1?5:1;
-        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.GENERIC),charge,owner);
+        var source=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.GENERIC),charge,owner),cause);
         for(var entity:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(7),
                 candidate->candidate.position().distanceToSqr(point)<=49 && target(owner,candidate))) {
             if(entity.hurtServer(owner.level(),source,damage)) accepted++;
         }
-        heal(owner,accepted,strength);
+        heal(owner,accepted,strength,cause);
     }
     private static boolean validAdvancementTeam(String name) {
         try { int team=Integer.parseInt(name); return team>=1 && team<=32; }

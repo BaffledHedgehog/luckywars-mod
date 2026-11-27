@@ -136,7 +136,7 @@ public final class LbcIceWand {
         boolean shift=owner.isShiftKeyDown();
         int cost=game.items().mana().score(ScoreHolder.forNameOnly(shift?"ice_wand_shift_mana_use":"ice_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,cost))return false;
-        if(shift) detonate(owner, owner.position(), academy, null);
+        if(shift) detonate(owner, owner.position(), academy, me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
         else{
             spawn(owner,hand,stack);
             LbcOverload.sound(owner,owner.position(),"minecraft:lbcsounds.ice_wand",1,.7f,0);
@@ -177,7 +177,7 @@ public final class LbcIceWand {
     private IceShot spawn(ServerPlayer owner, InteractionHand hand, ItemStack stack, Vec3 origin, Vec3 aim,
                           LbcIndirectKills.Owner borrowedCause) {
         var shot=new IceShot(TYPE,owner.level());shot.service=this;shot.hand=hand;shot.initiatingStack=stack;shot.setOwner(owner);
-        shot.borrowedCause=borrowedCause;
+        shot.borrowedCause=borrowedCause!=null?borrowedCause:me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
         shot.setPos(origin);shot.setDeltaMovement(aim.scale(1.5));shot.setItem(model(SHOT_MODEL));
         shot.entityTags().addAll(List.of("magic","ice_projectile","skywars2.ice_shot"));game.items().markCurrentItemEpoch(shot);
         shot.display=display(owner,shot.position(),SHOT_MODEL,0,0,-.04f);
@@ -329,7 +329,7 @@ public final class LbcIceWand {
         for(var nearby:crystals)if(nearby.display.level()==level&&nearby.hitbox.position().distanceToSqr(crystal.hitbox.position())<=9)nearby.ticks=Math.max(nearby.ticks,398);
     }
     public void shatter(ServerPlayer owner){
-        shatter(owner, owner.position(), null);
+        shatter(owner, owner.position(), me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
     }
     private void shatter(ServerPlayer owner,Vec3 center,LbcIndirectKills.Owner cause){
         var level=owner.level();

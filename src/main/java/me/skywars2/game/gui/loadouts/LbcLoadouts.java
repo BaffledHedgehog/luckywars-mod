@@ -600,21 +600,26 @@ public final class LbcLoadouts {
             player.getInventory().placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
         }
     }
-    /** Legacy grants reserve the far main-inventory slots before using the hotbar. */
+    /** Legacy inventory.4 is native slot13; subsequent trinkets fill to its right. */
     private static void insertTrinket(ServerPlayer player,net.minecraft.world.item.ItemStack stack){
         var inventory=player.getInventory();
         int maximum=Math.min(stack.getMaxStackSize(),inventory.getMaxStackSize());
-        for(int slot=35;slot>=0&&!stack.isEmpty();slot--){
+        for(int index=0;index<36&&!stack.isEmpty();index++){
+            int slot=trinketSlot(index);
             var existing=inventory.getItem(slot);
             if(!existing.isEmpty()&&net.minecraft.world.item.ItemStack.isSameItemSameComponents(existing,stack)){
                 int count=Math.min(stack.getCount(),maximum-existing.getCount());
                 if(count>0){var updated=existing.copyWithCount(existing.getCount()+count);inventory.setItem(slot,updated);stack.shrink(count);}
             }
         }
-        for(int slot=35;slot>=0&&!stack.isEmpty();slot--)if(inventory.getItem(slot).isEmpty())
-            inventory.setItem(slot,stack.split(Math.min(maximum,stack.getCount())));
+        for(int index=0;index<36&&!stack.isEmpty();index++){
+            int slot=trinketSlot(index);
+            if(inventory.getItem(slot).isEmpty())inventory.setItem(slot,stack.split(Math.min(maximum,stack.getCount())));
+        }
         inventory.setChanged();
     }
+
+    private static int trinketSlot(int index){return index<23?13+index:index<27?9+index-23:index-27;}
 
     /** Перенесённые loot conditions, включая /loot, читают прежний score; настройкой владеет config. */
     public void syncRanked() {

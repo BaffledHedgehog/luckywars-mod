@@ -844,6 +844,13 @@ def _source_path_has_assignment(values: dict[str, Any], path: str) -> bool:
 def _paired_translation_errors(source_en: Any, source_ru: Any, localized: Any,
                                en_text: dict[str, str], ru_text: dict[str, str], where: str) -> list[str]:
     errors: list[str] = []
+    # Source item.kit18 is a Name wrapper in EN and its component directly in RU.
+    # The prepared .Name path repairs that source asymmetry, retaining both texts.
+    if isinstance(source_en, dict) and isinstance(source_ru, dict):
+        if "Name" in source_en and "Name" not in source_ru and "text" in source_ru:
+            source_ru = {"Name": source_ru}
+        elif "Name" in source_ru and "Name" not in source_en and "text" in source_en:
+            source_en = {"Name": source_en}
     if isinstance(localized, dict):
         key = localized.get("translate")
         if isinstance(key, str):

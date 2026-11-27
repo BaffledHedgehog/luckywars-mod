@@ -94,6 +94,7 @@ public final class DanmakuChecks {
         final List<ScheduledTick<Block>> blockTicks=new ArrayList<>();final List<ScheduledTick<Fluid>> fluidTicks=new ArrayList<>();
         final BlockPos base;final BoundingBox bounds;final Vec3 at;final int configuredCost;final String epoch;
         final net.minecraft.world.scores.PlayerTeam oldOwnerTeam,oldOtherTeam,team;
+        final Map<UUID,Boolean> protectedBystanders=new LinkedHashMap<>();
         Interaction normal,school;ItemStack trial;int phase;long last=Long.MIN_VALUE;boolean closed;
         Fixture(GameController game){
             this.game=game;danmaku=game.items().danmaku();academy=game.items().academy();mana=game.items().mana();epoch=game.items().epoch();
@@ -110,6 +111,13 @@ public final class DanmakuChecks {
         }
         int cost(){return mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("danmaku_staff_mana_use"),"lbc.math").get();}
         void initialize(){
+            // Other suites may have created Gamma. Retain its body/catalog/roster while isolating
+            // these uncapped native nearest-target probes with the existing protected-object predicate.
+            for(var player:game.server().getPlayerList().getPlayers())if(player!=owner&&player!=other&&player.level()==owner.level()){
+                protectedBystanders.put(player.getUUID(),player.entityTags().contains("strict_map_object"));
+                player.entityTags().add("strict_map_object");
+                require(!game.items().wands().target(owner,player)&&!game.items().wands().target(other,player),"bystander remains outside both native target searches");
+            }
             require(base.getY()+19<owner.level().getMaxY(),"school below native ceiling");
             require(before.stream().noneMatch(e->!(e instanceof ServerPlayer)&&e.position().distanceToSqr(at)<96*96),"96block fixture sphere excludes unrelated entities before uncapped-radius probes");
             for(int x=bounds.minX()>>4;x<=bounds.maxX()>>4;x++)for(int z=bounds.minZ()>>4;z<=bounds.maxZ()>>4;z++){
@@ -154,6 +162,14 @@ public final class DanmakuChecks {
             require(lore.size()==9&&schoolLore.size()==10&&schoolLore.subList(0,9).equals(lore),"nine source lore rows preserved before upgrade marker");
             require(ordinary.get(DataComponents.FOOD)==null&&ordinary.get(DataComponents.CONSUMABLE)==null,"actual staff is the non-edible transformable entry");
             require(ordinary.get(DataComponents.ATTRIBUTE_MODIFIERS).equals(upgraded.get(DataComponents.ATTRIBUTE_MODIFIERS)),"Academy preserves source offhand movement attribute");
+            mana.score(owner,"danmaku_score").set(123);
+            held(new ItemStack(Items.STONE),InteractionHand.MAIN_HAND);
+            require(danmaku.hud(owner).getString().indexOf(0xE134)<0,"accumulated Danmaku score is hidden without its usable wand");
+            held(ordinary,InteractionHand.MAIN_HAND);
+            require(danmaku.hud(owner).getString().indexOf(0xE134)>=0,"ordinary held wand shows Danmaku points");
+            held(upgraded,InteractionHand.OFF_HAND);
+            require(danmaku.hud(owner).getString().indexOf(0xE134)>=0,"Academy offhand wand shows Danmaku points");
+            mana.score(owner,"danmaku_score").set(0);
         }
         void displayPacket(net.minecraft.world.entity.Display.ItemDisplay display,String model,float scale,boolean card){
             var raw=io.netty.buffer.Unpooled.buffer();
@@ -643,7 +659,7 @@ public final class DanmakuChecks {
             require(stack.get(DataComponents.LORE).lines().equals(expected.get(DataComponents.LORE).lines())&&stack.get(DataComponents.ITEM_MODEL).equals(expected.get(DataComponents.ITEM_MODEL))&&school.isRemoved(),"source promotion presentation equals real loot and consumes token-school");return true;
         }
         @Override public void close(){
-            if(closed)return;closed=true;traceStore().removeAll(fixtureTraces);fixtureTraces.clear();owner.stopUsingItem();game.items().timeStop().end(owner.level());danmaku.forget(owner);danmaku.forget(other);academy.stop();
+            if(closed)return;closed=true;try{traceStore().removeAll(fixtureTraces);fixtureTraces.clear();owner.stopUsingItem();game.items().timeStop().end(owner.level());danmaku.forget(owner);danmaku.forget(other);academy.stop();
             for(var e:owned){if(e instanceof net.minecraft.world.entity.LivingEntity living)game.items().indirectKills().clear(living);e.discard();}
             for(var p:List.of(owner,other))game.items().indirectKills().clear(p);
             owner.level().getBlockTicks().clearArea(bounds);owner.level().getFluidTicks().clearArea(bounds);
@@ -653,6 +669,10 @@ public final class DanmakuChecks {
             var board=game.server().getScoreboard();for(var p:List.of(owner,other))if(p.getTeam()==team)board.removePlayerFromTeam(p.getScoreboardName(),team);
             if(oldOwnerTeam!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldOwnerTeam);if(oldOtherTeam!=null)board.addPlayerToTeam(other.getScoreboardName(),oldOtherTeam);board.removePlayerTeam(team);
             saved.restore(game);otherSaved.restore(game);game.players().save();game.items().magic().flushCleansing();
+            }finally{for(var entry:protectedBystanders.entrySet()){
+                var player=game.server().getPlayerList().getPlayer(entry.getKey());if(player==null)continue;
+                if(entry.getValue())player.entityTags().add("strict_map_object");else player.entityTags().remove("strict_map_object");
+            }}
         }
     }
     public static void run(GameController game){

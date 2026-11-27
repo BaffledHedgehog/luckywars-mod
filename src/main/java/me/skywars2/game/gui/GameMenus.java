@@ -143,7 +143,7 @@ public final class GameMenus {
         PlayerStore.Profile profile = players.get(player.getUUID(), player.getName().getString());
         Menu gui = new Menu(player, page);
         gui.debug = debug;
-        gui.setTitle(Component.translatable("container.enderchest"));
+        gui.setTitle(pageTitle(page));
         gui.setLockPlayerInventory(true);
         switch (page) {
             case HUB -> renderHub(gui, player, profile);
@@ -170,6 +170,7 @@ public final class GameMenus {
         if (SguiUtils.getCurrentGui(player) instanceof Menu active) {
             active.page = page;
             active.debug = debug;
+            active.setTitle(pageTitle(page));
             for (int slot = 0; slot < 27; slot++) {
                 GuiElement element = gui.getGuiElement(slot);
                 if (element == null)
@@ -697,8 +698,55 @@ public final class GameMenus {
             if (slot == 26 && page == 7300)
                 click = () -> open(player, Page.COSMETIC_SUFFIXES_NEXT);
             original(gui, player, slot, OriginalGuiDesign.cosmeticButton(player, page, slot,
-                    allowed ? selected : -1, p, config), null, List.of(), click);
+                    allowed ? selected : -1, p, config), null, List.of(), click, false, 0,
+                    gate == null ? null : () -> describeUnlock(player, gate));
         }
+    }
+
+    private void describeUnlock(ServerPlayer player, String gate) {
+        if (!gate.contains(":")) {
+            player.sendSystemMessage(Component.translatable("open_case_cosmetics_normal"));
+            return;
+        }
+        if (gate.startsWith("swrg:rewards/turnir/")) {
+            player.sendSystemMessage(Component.translatable("tournament_open"));
+            return;
+        }
+        if (gate.startsWith("swrg:rewards/suffix_")) {
+            player.sendSystemMessage(Component.translatable("open_case_cosmetics_normal"));
+            return;
+        }
+        var advancement = server.getAdvancements().get(net.minecraft.resources.Identifier.parse(gate));
+        if (advancement != null) advancement.value().display().ifPresent(display -> {
+            player.sendSystemMessage(display.title());
+            player.sendSystemMessage(display.description());
+        });
+    }
+
+    private static Component pageTitle(Page page) {
+        return Component.translatable(switch (page) {
+            case HUB -> "skywars2.gui.title.hub";
+            case SETTINGS -> "skywars2.gui.title.settings";
+            case MAPS -> "skywars2.gui.title.maps";
+            case VANILLA_KITS -> "skywars2.gui.title.vanilla_kits";
+            case VANILLA_SKILLS -> "skywars2.gui.title.vanilla_skills";
+            case KEY_SHOP -> "skywars2.gui.title.key_shop";
+            case STATS -> "skywars2.gui.title.stats";
+            case LBC_KITS -> "skywars2.gui.title.lbc_kits";
+            case LBC_SKILLS -> "skywars2.gui.title.lbc_skills";
+            case LBC_TRINKETS -> "skywars2.gui.title.lbc_trinkets";
+            case LBC_LEVELUPS -> "skywars2.gui.title.lbc_levelups";
+            case LBC_CHALLENGE -> "skywars2.gui.title.lbc_challenge";
+            case COSMETICS -> "skywars2.gui.title.cosmetics";
+            case PERSONAL_SETTINGS -> "skywars2.gui.title.personal_settings";
+            case COSMETIC_SOUNDS -> "skywars2.gui.title.cosmetic_sounds";
+            case COSMETIC_CAGES -> "skywars2.gui.title.cosmetic_cages";
+            case COSMETIC_SUFFIXES, COSMETIC_SUFFIXES_NEXT -> "skywars2.gui.title.cosmetic_suffixes";
+            case COSMETIC_WINS -> "skywars2.gui.title.cosmetic_wins";
+            case COSMETIC_KILLS -> "skywars2.gui.title.cosmetic_kills";
+            case CASES -> "skywars2.gui.title.cases";
+            case BEDWARS -> "skywars2.gui.title.bedwars";
+        });
     }
 
     private void renderCases(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
@@ -807,6 +855,11 @@ public final class GameMenus {
 
     private void original(Menu gui, ServerPlayer player, int slot, ItemStack stack, Component name,
             List<Component> lore, Runnable click, boolean selected, int selectedCount) {
+        original(gui, player, slot, stack, name, lore, click, selected, selectedCount, null);
+    }
+
+    private void original(Menu gui, ServerPlayer player, int slot, ItemStack stack, Component name,
+            List<Component> lore, Runnable click, boolean selected, int selectedCount, Runnable rightClick) {
         if (stack.isEmpty())
             return;
         GuiElementBuilder builder = new GuiElementBuilder(stack);
@@ -826,14 +879,16 @@ public final class GameMenus {
         renderedLore.addAll(lore);
         if (!renderedLore.isEmpty())
             builder.setLoreRaw(renderedLore);
-        if (click != null) {
+        if (click != null || rightClick != null) {
             builder.setCallback((index, type, action, source) -> {
                 if (!controller.canUseMenus(player) && gui.page != Page.STATS) {
                     gui.getPlayer().sendSystemMessage(c("lobby_only"));
                     return;
                 }
                 playOriginalClick(player);
-                click.run();
+                if (rightClick != null && (type == ClickType.MOUSE_RIGHT || type == ClickType.MOUSE_RIGHT_SHIFT))
+                    rightClick.run();
+                else if (click != null) click.run();
             });
         }
         gui.setSlot(slot, builder.build());

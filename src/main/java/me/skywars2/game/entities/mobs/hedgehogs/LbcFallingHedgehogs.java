@@ -105,7 +105,7 @@ public final class LbcFallingHedgehogs {
         if(!level.addFreshEntity(actor)){actor.discard();return null;}
         actors.add(actor);
         level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH,0xff000000),true,false,at.x,at.y,at.z,2,0,0,0,0);
-        LbcOverload.sound(level,at,"minecraft:entity.firework_rocket.large_blast",7,.8f,0,0);
+        LbcOverload.sound(level,at,"minecraft:entity.firework_rocket.large_blast",1_000_000,.8f,0,0);
         return actor;
     }
 

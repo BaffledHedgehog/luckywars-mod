@@ -71,7 +71,7 @@ public final class SyringeChecks {
         reset(f);var blaze=spawn(f,new Blaze(EntityTypes.BLAZE,f.level),1,true);equip(f,InteractionHand.MAIN_HAND);
         f.beta.teleportTo(f.level,f.at.x+20,f.at.y,f.at.z,Set.of(),0,0,true);f.beta.setNoGravity(true);
         // An explicit local enemy makes this emission independent of the other participant state.
-        spawn(f,new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,f.level),8,false);
+        spawn(f,new net.minecraft.world.entity.monster.zombie.Zombie(EntityTypes.ZOMBIE,f.level),8,false);
         // Equip refresh legitimately has its own10% automatic shot; isolate the explicit emission.
         var beforeShot=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());f.level.getAllEntities().forEach(beforeShot::add);
         service.blaze(blaze);var shots=new ArrayList<LargeFireball>();for(var e:f.level.getAllEntities())if(!beforeShot.contains(e)&&e instanceof LargeFireball shot&&!shot.isRemoved())shots.add(shot);
@@ -80,9 +80,30 @@ public final class SyringeChecks {
         require(fireData.buildResult().getByteOr("ExplosionPower",(byte)0)==2,"source native fireball explosion power");near(shots.getFirst().accelerationPower,.05,"source fireball acceleration");near(shots.getFirst().getDeltaMovement().length(),.7,"source initial velocity");
         for(int tick=0;tick<3;tick++)f.level.tickNonPassenger(shots.getFirst());require(!shots.getFirst().isRemoved()&&shots.getFirst().getX()>blaze.getX()+1,"native bonus fireball leaves its launch mob without self-impact");
         reset(f);var guardian=spawn(f,new Guardian(EntityTypes.GUARDIAN,f.level),1,true);equip(f,InteractionHand.MAIN_HAND);
-        f.beta.getInventory().clearContent();f.beta.removeAllEffects();f.beta.setAbsorptionAmount(0);f.beta.setHealth(1000);f.beta.setInvulnerableTime(0);f.beta.damageCooldownTime=0;
+        f.beta.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);f.beta.getAbilities().invulnerable=false;
+        f.beta.getInventory().clearContent();f.beta.removeAllEffects();f.beta.setAbsorptionAmount(0);
+        f.beta.getAttribute(Attributes.ARMOR).setBaseValue(0);f.beta.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(0);
+        f.beta.setHealth(1000);f.beta.setInvulnerableTime(0);f.beta.damageCooldownTime=0;
+        require(service.buffed(guardian),"guardian actually receives syringe buff: count="+service.count()+" tag="+guardian.entityTags()+" owner="+f.base.game.items().summons().owner(guardian));
         var source=new DamageSource(f.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MAGIC),guardian,guardian);
-        require(f.beta.hurtServer(f.level,source,1),"real native guardian accepted hit");near(f.beta.getHealth(),989,"accepted guardian hit adds10 arrow damage exactly once");
+        try(var betaClient=new RegenerationBeltChecks.ScheduledClient(f.base.game,f.beta)){
+        betaClient.acknowledge();
+        require(!f.beta.isInvulnerableTo(f.level,source)&&f.base.game.items().allowDamage(f.beta,source)
+                        &&f.base.game.items().wands().target(f.base.owner,f.beta),
+                "guardian victim must be a loaded, acknowledged native enemy; invulnerable="+f.beta.isInvulnerableTo(f.level,source)
+                        +" itemAdmission="+f.base.game.items().allowDamage(f.beta,source)
+                        +" target="+f.base.game.items().wands().target(f.base.owner,f.beta)
+                        +" allied="+f.base.owner.isAlliedTo(f.beta)+" polymorph="+f.base.game.items().polymorph().active(f.beta)
+                        +" absorption="+f.beta.getAbsorptionAmount()+" invulnerableTime="+f.beta.getInvulnerableTime()
+                        +" damageCooldown="+f.beta.damageCooldownTime+" usingItem="+f.beta.isUsingItem()
+                        +" client="+betaClient.diagnostics());
+        require(f.beta.hurtServer(f.level,source,1),"real native guardian accepted player hit; health="+f.beta.getHealth()+" visible="+f.base.mana.visible(f.base.owner)
+                +" admitted="+f.base.game.canUseGameplayItems(f.beta)+" allow="+f.base.game.allowDamage(f.beta)+" gameMode="+f.beta.gameMode.getGameModeForPlayer()
+                +" invulnerable="+f.beta.getAbilities().invulnerable+" tags="+f.beta.entityTags()
+                +" absorption="+f.beta.getAbsorptionAmount()+" invulnerableTime="+f.beta.getInvulnerableTime()
+                +" damageCooldown="+f.beta.damageCooldownTime+" usingItem="+f.beta.isUsingItem()+" client="+betaClient.diagnostics());
+        near(f.beta.getHealth(),989,"accepted guardian hit adds10 arrow damage exactly once");
+        }
         reset(f);
     }
     private static void persistence(AllGrimoireChecks.Fixture f){reset(f);var service=f.base.game.items().syringe();var mob=skeleton(f,1,true);
@@ -112,18 +133,41 @@ public final class SyringeChecks {
         var luck=summons.spawnPreset(f.base.owner,"luck",f.at.add(1,0,0));var omni=summons.spawnPreset(f.base.owner,"omnipresence",f.at.add(2,0,0));
         var obsession=summons.spawnPreset(f.base.owner,"obsession",f.at.add(3,0,0));require(luck!=null&&omni!=null&&obsession!=null,"three native source cultists");
         for(var m:List.of(luck,omni,obsession)){m.setNoAi(true);m.setNoGravity(true);}equip(f,InteractionHand.OFF_HAND);
-        var target=spawn(f,new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,f.level),4,false);
+        var target=spawn(f,new net.minecraft.world.entity.monster.zombie.Zombie(EntityTypes.ZOMBIE,f.level),4,false);
+        require(summons.combatTarget(target)&&f.base.game.items().syringe().buffed(obsession),"hostile target and actual buffed Obsession");
         summons.tick();require(f.base.game.items().psycho().effectValue(target,"twitching")==15,"actual syringe tag triples Obsession's affliction");
         var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());f.level.getAllEntities().forEach(before::add);
         require(luck.hurtServer(f.level,luck.damageSources().playerAttack(f.beta),1),"actual Luck hurt reaction");
         var volley=new ArrayList<net.minecraft.world.entity.projectile.arrow.AbstractArrow>();for(var e:f.level.getAllEntities())if(!before.contains(e)&&e instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow a)volley.add(a);
-        require(volley.size()==8&&volley.stream().allMatch(a->a.getOwner()==f.base.owner&&arrowDamage(a)==2),"buffed Luck emits eight owned source retaliation arrows");
+        require(volley.size()==8&&volley.stream().allMatch(a->a.getOwner()==luck&&summons.owner(a)==f.base.owner&&arrowDamage(a)==2),
+                "buffed Luck emits eight native-shooter arrows with credited caster; count="+volley.size()+" data="+volley.stream().map(a->a.getOwner()+"/"+summons.owner(a)+"/"+arrowDamage(a)).toList());
         before.clear();f.level.getAllEntities().forEach(before::add);require(omni.hurtServer(f.level,omni.damageSources().playerAttack(f.beta),1),"actual Omnipresence hurt reaction");
         volley.clear();for(var e:f.level.getAllEntities())if(!before.contains(e)&&e instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow a)volley.add(a);
-        require(volley.size()==1&&arrowDamage(volley.getFirst())==3&&volley.getFirst().getOwner()==f.base.owner,"buffed Omnipresence emits an owned damage3 arrow");reset(f);
+        require(volley.size()==1&&arrowDamage(volley.getFirst())==3&&volley.getFirst().getOwner()==omni&&summons.owner(volley.getFirst())==f.base.owner,
+                "buffed Omnipresence emits native-shooter damage3 arrow with credited caster; count="+volley.size());reset(f);
     }
-    private static void pool(AllGrimoireChecks.Fixture f){for(int roll=0;roll<256;roll++)for(var item:f.base.game.lbc().rollTable(f.level,f.at,f.base.owner,"lbc:transformables_summons_all"))
-        require(LbcSummonerItems.kind(item)!=null||item.is(LbcWands.SUMMONER_VEXES)||item.is(LbcWands.PSYCHOVEX)||item.is(LbcKfcRewards.PENIS_CULTUS)||item.is(LbcSyringe.ITEM),"expanded weighted pool only exposes complete native outcomes");}
+    private static void pool(AllGrimoireChecks.Fixture f){
+        for(int roll=0;roll<256;roll++)for(var item:f.base.game.lbc().rollTable(f.level,f.at,f.base.owner,"lbc:transformables_summons_all"))
+            require(LbcSummonerItems.kind(item)!=null||item.is(LbcWands.SUMMONER_VEXES)||item.is(LbcWands.PSYCHOVEX)||item.is(LbcKfcRewards.PENIS_CULTUS)||item.is(LbcSyringe.ITEM),"expanded weighted pool only exposes complete native outcomes");
+        // Reforging uses the uniform redirect, not the weighted table above.
+        var service=f.base.game.items().allItemPools();var domain=me.skywars2.game.items.loot.LbcAllItemPools.Domain.CUSTOM;
+        var types=List.of("summons_all");var slots=service.slots(domain,types);
+        var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(f.level)
+                .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,f.at)
+                .withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,f.base.owner)
+                .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.COMMAND);
+        for(int i=0;i<slots.size();i++){
+            var output=new ArrayList<net.minecraft.world.item.ItemStack>();
+            var context=new net.minecraft.world.level.storage.loot.LootContext.Builder(params).create(java.util.Optional.empty());
+            service.drawSlot(domain,types,i,context,output::add);
+            require(!output.isEmpty()&&output.stream().noneMatch(item->item.getItem() instanceof net.minecraft.world.item.SpawnEggItem),
+                    "actual uniform summoner slot excludes spawn eggs: "+slots.get(i));
+        }
+        require(!service.slots(me.skywars2.game.items.loot.LbcAllItemPools.Domain.VANILLA,types).isEmpty(),
+                "unrelated vanilla-domain spawn-egg classification remains available");
+    }
+    /** Independent summons-pool regression, so unrelated combat failures cannot hide egg exclusions. */
+    public static void pool(GameController g){try(var f=new AllGrimoireChecks.Fixture(g)){pool(f);}SkyWars2.LOGGER.info("[check] PASS syringe-summons-pool");}
     public static void run(GameController g){try(var f=new AllGrimoireChecks.Fixture(g)){try{presentation(f);reversible(f);special(f);persistence(f);mannequin(f);cultists(f);pool(f);}finally{g.items().syringe().stop();}}SkyWars2.LOGGER.info("[check] PASS syringe");}
     private static AllGrimoireChecks.Fixture retained;private static List<Mob> actors;private static String epoch;
     public static void stopProbe(GameController g){require(retained==null,"exclusive stop fixture");var f=new AllGrimoireChecks.Fixture(g,true);

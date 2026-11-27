@@ -108,6 +108,7 @@ public final class LbcDanmaku {
         var props=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}.setId(key).stacksTo(1).overrideDescription("danmaku_wand")
                 .component(DataComponents.ITEM_MODEL,model).component(DataComponents.CUSTOM_DATA,CustomData.of(tag))
                 .component(DataComponents.TOOLTIP_STYLE,Identifier.parse(academy?"lbc:tier_s":"lbc:tier_a"));
+        props.enchantable(1).component(DataComponents.ENCHANTMENTS,net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,Items.CARROT_ON_A_STICK,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){var game=me.skywars2.SkyWars2.game();return game!=null&&player instanceof ServerPlayer p&&game.items().wands().use(p,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;}
         });
@@ -473,8 +474,11 @@ public final class LbcDanmaku {
         var source = new DamageSource(type);
         var cause = card.cause != null ? card.cause : game.items().indirectKills().coldCause(owner, true);
         float dealt = game.balanceLegacy() ? .65f : .325f;
+        if(me.skywars2.game.modes.legacy.VanillaExpansionRules.enabled()&&cause!=null&&cause.weaponAction()&&cause.player().equals(owner.getUUID()))
+            dealt=me.skywars2.game.combat.WeaponEnchantments.spellPower(level,cause.enchantmentWeapon(),dealt);
+        final float retainedDamage=dealt;
         game.items().indirectKills().withCause(victim, cause, () -> {
-            if (victim.hurtServer(level, source, dealt)) LbcAcceptedHits.projectileFeedback(game, owner);
+            if (victim.hurtServer(level, source, retainedDamage)) LbcAcceptedHits.projectileFeedback(game, owner);
         });
     }
 
@@ -575,7 +579,7 @@ public final class LbcDanmaku {
         var text=Component.empty();int ticks=mana.hudValue(p,"danmaku"),score=mana.hudValue(p,"danmaku_score");
         if(mana.visible(p)){var hands=external.get(p.getUUID());if(hands!=null)for(var extra:hands.values())ticks=Math.max(ticks,extra.ticks);}
         if(ticks>0)text.append(Component.literal("    \uE133 ").append(Component.literal(Integer.toString(ticks)).withColor(0xFFA1F2)));
-        if(score>0)text.append(Component.literal("  \uE134 ").append(Component.literal(Integer.toString(score)).withColor(0xD494FF)));
+        if(score>0&&(isItem(p.getMainHandItem())||isItem(p.getOffhandItem())))text.append(Component.literal("  \uE134 ").append(Component.literal(Integer.toString(score)).withColor(0xD494FF)));
         return text;
     }
     private record Pattern(double x,double y,double z,boolean local,float yaw,float pitch,boolean homing) {}

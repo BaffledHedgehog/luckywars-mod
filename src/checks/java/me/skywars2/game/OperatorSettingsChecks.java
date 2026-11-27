@@ -24,7 +24,9 @@ public final class OperatorSettingsChecks {
     private static Map<Field,Object> snapshot(Object target){var saved=new LinkedHashMap<Field,Object>();try{for(var f:target.getClass().getFields())if(!java.lang.reflect.Modifier.isStatic(f.getModifiers()))saved.put(f,copy(f.get(target)));}catch(IllegalAccessException e){throw new IllegalStateException(e);}return saved;}
     private static void restore(Object target,Map<Field,Object> values){try{for(var e:values.entrySet())e.getKey().set(target,copy(e.getValue()));}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static int command(GameController game,ServerPlayer player,String command,boolean op){
-        try{return game.server().getCommands().getDispatcher().execute(command,player.createCommandSourceStack().withPermission(op?PermissionSet.ALL_PERMISSIONS:PermissionSet.NO_PERMISSIONS).withSuppressedOutput());}
+        var source = op && command.startsWith("skywars settings event ") ? OwnerCommandChecks.ownerSource(game.server())
+                : player.createCommandSourceStack().withPermission(op?PermissionSet.ALL_PERMISSIONS:PermissionSet.NO_PERMISSIONS);
+        try{return game.server().getCommands().getDispatcher().execute(command,source.withSuppressedOutput());}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){if(!op)return -1;throw new IllegalStateException(command,e);}
     }
     @SuppressWarnings("unchecked")

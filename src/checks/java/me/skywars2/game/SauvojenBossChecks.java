@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.*;
 import me.skywars2.SkyWars2;
+import me.skywars2.validation.mixin.NativeFixtureAccess;
 import me.skywars2.game.combat.LbcIndirectKills;
 import me.skywars2.game.combat.LbcSpellSource;
 import me.skywars2.game.entities.mobs.LbcBossLoot;
@@ -42,7 +43,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 
-/** Bounded native activation and payload checks; no private clock or random-field rewriting. */
+/** Bounded real-frame activation/payload checks; a typed healthy-MSPT scope isolates functional admission. */
 public final class SauvojenBossChecks {
     private SauvojenBossChecks(){}
     private static void require(boolean condition,String detail){if(!condition)throw new IllegalStateException("Sauvojen boss: "+detail);}
@@ -65,12 +66,12 @@ public final class SauvojenBossChecks {
             beta.setNoGravity(true);beta.setDeltaMovement(Vec3.ZERO);beta.teleportTo(owner.level(),owner.getX(),owner.getY(),owner.getZ()+4,Set.of(),0,0,true);
         }
         void activation(){activation(owner);}
-        void ownerlessActivation(){
+        void ownerlessActivation(boolean restored){
             ItemStack selected=ItemStack.EMPTY;
             for(int attempt=0;attempt<512&&selected.isEmpty();attempt++)for(var stack:game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:traps"))
                 if(LbcSauvojenBoss.recognized(stack)){selected=stack.copyWithCount(1);break;}
             require(!selected.isEmpty()&&selected.is(Items.REPEATING_COMMAND_BLOCK),"actual raw trap matches the captured repeating-command-block carrier");
-            for(boolean restored:new boolean[]{false,true}){
+            {
                 var level=owner.level();var at=owner.position();
                 var token=new ItemEntity(level,at.x,at.y,at.z,selected.copy());
                 token.setOnGround(true);token.setNoGravity(true);token.setPickUpDelay(0);
@@ -85,7 +86,8 @@ public final class SauvojenBossChecks {
                 }
                 require(level.addFreshEntity(token)&&token.getOwner()==null&&game.items().specialDrops().owner(token)==null,
                         "published WILD trap has no player owner or borrowed attribution");
-                token.playerTouch(owner);
+                long started=System.nanoTime();token.playerTouch(owner);
+                SkyWars2.LOGGER.info("[check] Sauvojen ownerless restored={} nativeTick={} pickupMs={} nativeAverageMs={}",restored,game.server().getTickCount(),(System.nanoTime()-started)/1e6,game.server().getAverageTickTimeNanos()/1e6);
                 require(token.isRemoved()&&game.items().sauvojenBoss().count()==1,
                         "ownerless captured trap activates during native pickup admission instead of waiting forever; restored="+restored);
                 var spawned=game.items().sauvojenBoss().snapshot().getFirst();
@@ -163,6 +165,31 @@ public final class SauvojenBossChecks {
             }
         }
         Cow cow(Vec3 at){var cow=new Cow(EntityTypes.COW,owner.level());cow.setPos(at);cow.setNoAi(true);cow.setNoGravity(true);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);require(owner.level().addFreshEntity(cow),"actual living target");cows.add(cow);return cow;}
+        void incomingHits(){
+            var level=owner.level();var at=boss.position();float health=boss.getHealth();
+            var held=owner.getMainHandItem().copy();owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+            try{boss.removeEffect(MobEffects.RESISTANCE);boss.setInvulnerableTime(0);boss.damageCooldownTime=0;owner.attack(boss);
+                require(boss.getHealth()<health,"actual ordinary native player melee damages managed Sauvojen");}
+            finally{owner.setItemInHand(InteractionHand.MAIN_HAND,held);boss.setHealth(health);boss.setInvulnerableTime(0);boss.damageCooldownTime=0;}
+            var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(level,owner,new ItemStack(Items.ARROW),null);
+            arrow.setPos(at.add(0,2,-5));arrow.setDeltaMovement(0,0,6);arrow.setNoGravity(true);
+            require(game.items().wands().canHit(arrow,boss)&&level.addFreshEntity(arrow),"native projectile policy admits boss despite source ray-denial tags");
+            try{arrow.tick();require(boss.getHealth()<health,"real ordinary arrow flight damages Sauvojen");}
+            finally{arrow.discard();boss.setHealth(health);boss.setInvulnerableTime(0);boss.damageCooldownTime=0;}
+            var helicopters=game.items().helicopterEncounter();require(helicopters.activeCount()==0,"exclusive helicopter fixture");
+            var token=new ItemEntity(level,owner.getX(),owner.getY(),owner.getZ(),new ItemStack(me.skywars2.game.entities.mobs.LbcHelicopterTriggerItem.TOKEN));
+            token.setNoGravity(true);require(level.addFreshEntity(token)&&helicopters.spawn(token),"actual hostile helicopter trigger");
+            try{
+                // Its native muzzle starts8.5 blocks forward. Keep the boss beyond it.
+                var pair=helicopters.snapshot().getFirst();pair.display().setPos(at.add(0,2,-20));pair.hitbox().setPos(at.add(0,-1,-20));
+                for(int tick=0;tick<5&&helicopters.attackSnapshot().isEmpty();tick++)helicopters.tick();
+                var shot=helicopters.attackSnapshot().stream().filter(net.minecraft.world.entity.projectile.arrow.Arrow.class::isInstance)
+                        .map(net.minecraft.world.entity.projectile.arrow.Arrow.class::cast).findFirst().orElseThrow();
+                require(helicopters.canHit(shot,boss)&&shot.getDeltaMovement().normalize().dot(boss.getEyePosition().subtract(shot.position()).normalize())>.9,
+                        "real helicopter AI shoots toward the nearby Sauvojen and its bullet admits the boss");
+            }finally{helicopters.stop();token.discard();}
+        }
+
         void targeting(){
             require(!game.items().wands().target(owner,owner)&&!game.items().wands().target(owner,beta),"ordinary self/allied exclusions remain");
             try(var scope=game.items().spellSources().scope(authority,owner.level())){
@@ -296,9 +323,32 @@ public final class SauvojenBossChecks {
             }finally{var board=game.server().getScoreboard();board.removePlayerTeam(team);if(oldOwnerTeam!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldOwnerTeam);if(oldBetaTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBetaTeam);otherSaved.restore(game);base.close();}
         }
     }
+    private static Fixture running;private static int phase,started,lastFrame;
     public static void run(GameController game){
-        try(var fixture=new Fixture(game)){fixture.ownerlessActivation();fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();fixture.creatorCleanup();fixture.death();fixture.eggEncounter();}
-        SkyWars2.LOGGER.info("[check] PASS sauvojen-boss (ownerless raw/restored Age1528 trap; player-thrown token still creates an entirely unowned WILD boss; survival Keeper egg/spawner; hostile wand/reward; nine source payloads, self/allied swept targets, Greed reflection and nested sources)");
-        SkyWars2.LOGGER.info("[check] PENDING sauvojen-boss continuation: all ten random branches are not exhaustively sampled here; actual cadence/logout/TimeStop/cloud replay have a separate sauvojen-lifecycle fixture");
+        require(running==null,"exclusive continuation");running=new Fixture(game);phase=0;started=game.server().getTickCount();lastFrame=started;
+    }
+    public static void tick(GameController game){
+        if(running==null)return;int now=game.server().getTickCount();if(now==lastFrame)return;lastFrame=now;
+        var fixture=running;var clock=(NativeFixtureAccess.Server)game.server();long average=clock.skywars2$validationAggregatedTickTime();
+        try{
+            require(now-started<20,"bounded real-frame native admission continuation");
+            // Overload behavior is independently checked by drop-overload. Do not reset
+            // the real frame, production activation count, or cumulative4ms budget here.
+            clock.skywars2$validationAggregatedTickTime(0);
+            switch(phase++){
+                case 0->fixture.ownerlessActivation(false);
+                case 1->fixture.ownerlessActivation(true);
+                case 2->fixture.activation();
+                case 3->fixture.incomingHits();
+                case 4->{
+                    fixture.payloads();fixture.targeting();fixture.reflection();fixture.creatorCleanup();fixture.death();fixture.eggEncounter();
+                    fixture.close();running=null;
+                    SkyWars2.LOGGER.info("[check] PASS sauvojen-boss (ownerless raw/restored Age1528 trap on distinct native frames; player-thrown entirely unowned WILD boss; native melee/arrow/helicopter; Keeper egg/spawner; nine payloads, allied targeting, reflection and sources)");
+                    SkyWars2.LOGGER.info("[check] PENDING sauvojen-boss continuation: random branch sampling and lifecycle cadence use the separate sauvojen-lifecycle fixture");
+                }
+                default->throw new IllegalStateException("Unknown native admission phase");
+            }
+        }catch(Throwable error){try{fixture.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL sauvojen-boss",error);}
+        finally{clock.skywars2$validationAggregatedTickTime(average);}
     }
 }

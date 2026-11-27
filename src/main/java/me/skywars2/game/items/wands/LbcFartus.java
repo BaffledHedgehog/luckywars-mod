@@ -98,6 +98,7 @@ public final class LbcFartus {
                 .setId(key).stacksTo(material?64:1).overrideDescription(material?"wtf_item":"fartus_nadristailo")
                 .component(DataComponents.ITEM_MODEL,model).component(DataComponents.CUSTOM_DATA,CustomData.of(tag));
         if(!material)properties.component(DataComponents.TOOLTIP_STYLE,Identifier.parse(academy?"lbc:tier_x":"lbc:tier_s"));
+        if(!material)properties.enchantable(1).component(DataComponents.ENCHANTMENTS,net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
         if(academy)properties.component(DataComponents.ATTRIBUTE_MODIFIERS,attributes(19));
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(properties,material?Items.REPEATING_COMMAND_BLOCK:Items.CARROT_ON_A_STICK,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
@@ -300,18 +301,21 @@ public final class LbcFartus {
         var level=(ServerLevel)shot.level();
         var cause=shot.borrowedCause;
         if(cause==null || !cause.player().equals(owner.getUUID()))
+            cause=me.skywars2.game.combat.WeaponEnchantments.actorCause(shot,owner);
+        var retainedCause=cause;
+        if(cause==null || !cause.player().equals(owner.getUUID()))
             cause=game.items().indirectKills().coldCause(owner,true);
         var victims=new ArrayList<LivingEntity>();victims.add(target);
         if(shot.kind==Kind.BANANA)for(var other:level.getEntitiesOfClass(LivingEntity.class,new AABB(shot.position(),shot.position()).inflate(.500001),
                 e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e)))if(other!=target)victims.add(other);
-        for(var victim:victims)applyImpact(shot,victim,owner,cause);
+        for(var victim:victims)applyImpact(shot,victim,owner,cause,retainedCause);
         remove(shot);
     }
-    private void applyImpact(Shot shot,LivingEntity target,ServerPlayer owner,LbcIndirectKills.Owner cause){
+    private void applyImpact(Shot shot,LivingEntity target,ServerPlayer owner,LbcIndirectKills.Owner cause,LbcIndirectKills.Owner retainedCause){
         var level=(ServerLevel)shot.level();
         if(shot.kind==Kind.LABEL){
-            game.items().indirectKills().inheritedEffect(target,ItemEffectLevels.create(MobEffects.WITHER,300,1),cause);
-            game.items().indirectKills().inheritedEffect(target,ItemEffectLevels.create(MobEffects.POISON,300,2),cause);
+            game.items().indirectKills().inheritedEffect(target,me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(ItemEffectLevels.create(MobEffects.WITHER,300,1),retainedCause),cause);
+            game.items().indirectKills().inheritedEffect(target,me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(ItemEffectLevels.create(MobEffects.POISON,300,2),retainedCause),cause);
             game.items().indirectKills().inheritedEffect(target,ItemEffectLevels.create(MobEffects.SLOWNESS,300,0),cause);
             if(target instanceof ServerPlayer player)player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
                     net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Identifier.parse(LOW_SOUNDS[owner.getRandom().nextInt(6)]))),

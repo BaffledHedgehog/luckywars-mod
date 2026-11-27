@@ -74,6 +74,22 @@ public final class DimensionItemChecks {
             require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(player,player.level(),net.minecraft.world.InteractionHand.MAIN_HAND)==net.minecraft.world.InteractionResult.FAIL,"actual shared UseItem callback rejects new custom input");
             require(!game.items().wands().use(player,net.minecraft.world.InteractionHand.MAIN_HAND),"actual direct native wand dispatcher refuses excluded dimension");
             require(mana==game.items().mana().get(player)&&ItemStack.matches(wand,copy),"no mana/payment/consumption from rejected custom input");
+            if(LbcDimensionItems.imprinted(player.level())) {
+                var victim=net.minecraft.world.entity.EntityTypes.ZOMBIE.create(player.level(),net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+                require(victim!=null,"native melee target");victim.setPos(player.position().add(0,0,2));victim.setNoAi(true);
+                try {
+                    require(player.level().addFreshEntity(victim),"publish actual Imprinted melee victim");
+                    require(net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.invoker().interact(player,player.level(),InteractionHand.MAIN_HAND,victim,null)==net.minecraft.world.InteractionResult.PASS,
+                            "custom held wand cannot cancel vanilla Imprinted attack");
+                    player.resetAttackStrengthTicker();victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
+                    float hp=victim.getHealth();player.attack(victim);
+                    require(victim.getHealth()<hp,"native Player.attack reaches real Imprinted target");
+                    require(game.items().mana().get(player)==mana,"native melee does not cast/pay disabled wand");
+                    var pos=player.blockPosition().below();var hit=new BlockHitResult(Vec3.atCenterOf(pos),Direction.UP,pos,false);
+                    require(net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.invoker().interact(player,player.level(),InteractionHand.MAIN_HAND,hit)==net.minecraft.world.InteractionResult.PASS,
+                            "held custom item leaves native Imprinted block interaction alone");
+                }finally{victim.discard();}
+            }
             var cow=net.minecraft.world.entity.EntityTypes.COW.create(player.level(),net.minecraft.world.entity.EntitySpawnReason.COMMAND);require(cow!=null,"native vanilla projectile shooter");cow.setPos(player.position().add(0,0,3));
             var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(player.level(),cow,new ItemStack(Items.ARROW),null);arrow.setPos(cow.position());var source=player.damageSources().arrow(arrow,cow);
             player.setInvulnerableTime(0);player.damageCooldownTime=0;float before=player.getHealth();require(game.items().allowDamage(player,source)&&player.hurtServer(player.level(),source,1)&&player.getHealth()<before,"actual native ordinary arrow damage remains accepted in forbidden item dimension");arrow.discard();cow.discard();

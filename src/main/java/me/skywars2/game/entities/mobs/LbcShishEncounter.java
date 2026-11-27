@@ -233,7 +233,7 @@ public final class LbcShishEncounter {
     /** Canonical original movement scoreboard, shared with Witch statistics; no second private position ledger. */
     public void seedMovement(ServerPlayer player){
         write(player,"x",Mth.floor(player.getX()*100));write(player,"y",Mth.floor(player.getY()*100));write(player,"z",Mth.floor(player.getZ()*100));
-        write(player,"speed",0);write(player,"speedy",0);
+        write(player,"speed",0);write(player,"speedy",0);write(player,"sleep_moved",0);
     }
     public void sampleMovement(ServerPlayer player){
         int x=Mth.floor(player.getX()*100),y=Mth.floor(player.getY()*100),z=Mth.floor(player.getZ()*100);
@@ -241,8 +241,12 @@ public final class LbcShishEncounter {
         int speed=movementSpeed(dx,dy,dz);
         write(player,"speedy",dy);
         write(player,"speed",speed);
-        if(read(player,"sleep_time")>0)write(player,"sleep_time",read(player,"sleep_time")-15);
-        if(speed==0)write(player,"sleep_time",read(player,"sleep_time")+16);
+        if(speed!=0)write(player,"sleep_moved",1);
+        if(Math.floorMod(game.server().getTickCount()+cadenceOffset,20)==0){
+            // User: account idle progress once per second; one moving second removes ten idle seconds.
+            long changed=(long)read(player,"sleep_time")+(read(player,"sleep_moved")>0?-200:20);
+            write(player,"sleep_time",(int)Math.clamp(changed,0,Integer.MAX_VALUE));write(player,"sleep_moved",0);
+        }
         if(!player.entityTags().contains("time_stopped_lol")){write(player,"x",x);write(player,"y",y);write(player,"z",z);}
     }
 
@@ -289,7 +293,7 @@ public final class LbcShishEncounter {
     }
     public net.minecraft.network.chat.Component hud(ServerPlayer player){if(!matches(player.getMainHandItem())&&!matches(player.getOffhandItem()))return net.minecraft.network.chat.Component.empty();return net.minecraft.network.chat.Component.literal("    \uE103 \u00a7fx").append(net.minecraft.network.chat.Component.literal(Integer.toString(read(player,"swordcharged6"))).withColor(0xffffff)).append(net.minecraft.network.chat.Component.literal(" [")).append(net.minecraft.network.chat.Component.literal(Integer.toString(read(player,"swordcharging6"))).withColor(0x41bbe0)).append(net.minecraft.network.chat.Component.literal("/3\u00a7f]").withColor(0x41bbe0));}
     private static boolean yellow(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("yellow_lightning",0)==1;}
-    public void inventoryChanged(ServerPlayer player){boolean hotbar=false,inventory=false;for(int slot=0;slot<36;slot++){boolean found=yellow(player.getInventory().getItem(slot));inventory|=found;if(slot<9)hotbar|=found;}boolean held=yellow(player.getMainHandItem())||yellow(player.getOffhandItem());if(hotbar||held)player.entityTags().addAll(List.of("yellow_lightning","yellow_lightning_active"));if(!hotbar&&!held)player.entityTags().remove("yellow_lightning");if(!inventory&&!held)player.entityTags().remove("yellow_lightning_active");}
+    public void inventoryChanged(ServerPlayer player){boolean hotbar=false,inventory=false;for(int slot=0;slot<36;slot++){var stack=player.getInventory().getItem(slot);boolean found=!me.skywars2.game.items.tmt.LbcTmtItems.matches(stack)&&yellow(stack);inventory|=found;if(slot<9)hotbar|=found;}boolean held=yellow(player.getMainHandItem())||yellow(player.getOffhandItem());if(hotbar||held)player.entityTags().addAll(List.of("yellow_lightning","yellow_lightning_active"));if(!hotbar&&!held)player.entityTags().remove("yellow_lightning");if(!inventory&&!held)player.entityTags().remove("yellow_lightning_active");}
     private void yellow(ServerPlayer player,int now){if(player.entityTags().contains("yellow_lightning")&&(yellow(player.getMainHandItem())||yellow(player.getOffhandItem()))){var source=game.server().createCommandSourceStack().withSource(CommandSource.NULL).withLevel(player.level()).withEntity(player).withPosition(player.position()).withRotation(player.getRotationVector()).withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput();for(var command:List.of("particle minecraft:item{item:{id:'minecraft:yellow_stained_glass'}} ~ ~.9 ~ ^100 ^ ^70000 0.00001 0 force","particle minecraft:item{item:{id:'minecraft:yellow_stained_glass'}} ~ ~.85 ~ ^-100 ^ ^60000 0.00001 0 force"))try{game.server().getCommands().getDispatcher().execute(command,source);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException nativeParticleFailure){/* Native source failure does not suppress the independent snowball branch. */}}
         if(Math.floorMod(now+cadenceOffset,5)==0&&player.entityTags().contains("yellow_lightning_active")){var authority=new LbcApocalypseEvents.Authority(player.getUUID(),game.items().indirectKills().wildCause(player),game.items().epoch());var ball=new YellowBall(player.level(),authority);ball.setItem(model(Items.STICK,"lbc:empty"));ball.entityTags().add("piss");ball.setDeltaMovement(player.getLookAngle().scale(.5));write(ball,"lbcID2",read(player,"lbcID2"));write(ball,"team_number",read(player,"team_number"));admit(ball,player.position().add(0,1.75,0),authority,Kind.YELLOW);}
     }

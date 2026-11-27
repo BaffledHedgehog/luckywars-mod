@@ -76,8 +76,13 @@ public final class LbcDuplicating {
         LiveShuffle shuffle;
         Long erosionSeed;
         boolean retainedOwner;
+        final me.skywars2.game.combat.LbcIndirectKills.Owner enchantmentCause;
         MarkerState(ServerPlayer owner,String epoch,Vec3 point,Vec3 direction,int mode,int lifetime) {
+            this(owner,epoch,point,direction,mode,lifetime,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
+        }
+        MarkerState(ServerPlayer owner,String epoch,Vec3 point,Vec3 direction,int mode,int lifetime,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
             super(owner,epoch); this.point=point; this.direction=direction; this.mode=mode; this.lifetime=lifetime;
+            this.enchantmentCause=cause;
         }
     }
     private static final class Seed extends Owned {
@@ -580,7 +585,7 @@ public final class LbcDuplicating {
         if(marker.terrain==null) { marker.terrain=new HoleTerrain(marker); queue(marker.terrain); }
         if(marker.visual==null) marker.visual=game.items().blackHoleVisuals().create(marker.owner,marker.point,HOLE_SHADER_RADIUS);
         else game.items().blackHoleVisuals().move(marker.visual,marker.point);
-        var source=new DamageSource(marker.owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.DUPLICATING_HOLE),marker.owner);
+        var source=game.items().indirectKills().captureDamage(new DamageSource(marker.owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.DUPLICATING_HOLE),marker.owner),marker.enchantmentCause);
         int damaged=0;
         for(var target:marker.level.getEntities((Entity)null,new AABB(marker.point,marker.point).inflate(HOLE_INFLUENCE),entity->
                 !protectedEntity(marker.owner,entity) && game.items().wands().target(marker.owner,entity)
@@ -777,7 +782,7 @@ public final class LbcDuplicating {
             try{
                 for(var point:points){double speed=original.mode==2?2:original.mode==4?.3:1;
                     var direction=skill==15?original.direction:LbcCloneSkills.spreadMotion(original.direction.scale(speed),holder,1000,1500).scale(1/speed);
-                    var copy=new MarkerState(original.owner,original.epoch,point,direction,original.mode,original.lifetime);created.add(copy);
+                    var copy=new MarkerState(original.owner,original.epoch,point,direction,original.mode,original.lifetime,original.enchantmentCause);created.add(copy);
                     copy.age=original.age;copy.cloneMask=original.cloneMask|bit;copy.erosionSeed=original.erosionSeed;markers.add(copy);
                     if(original.terrain!=null){copy.terrain=new HoleTerrain(copy);
                         copy.terrain.erosion=original.terrain.erosion.copyTranslated(point.subtract(original.point));

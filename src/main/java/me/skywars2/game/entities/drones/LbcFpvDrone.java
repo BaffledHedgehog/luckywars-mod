@@ -263,7 +263,12 @@ public final class LbcFpvDrone {
         var cause=game.items().indirectKills().wildCause(p);drone.author=p.getUUID();drone.order=cause.order();drone.epoch=game.items().epoch();
         drone.entityTags().addAll(List.of(TAG,"homing_drone","slowraycast","mecha",drone.epoch));bind(drone);
         if(!p.level().addFreshEntity(drone)){drone.discard();return false;}
-        loaded(drone);var session=new Session(p,drone,game.server().getTickCount());controllers.put(p.getUUID(),session);bodyTicket(session);
+        loaded(drone);
+        // ENTITY_LOAD also publishes the visible body and can reject it before addFreshEntity returns.
+        // Commit the remote-control session and item debit only after the complete family survived admission.
+        var visual=actors.get(drone);
+        if(!live(drone)||visual==null||visual.isRemoved()){retire(drone);p.containerMenu.broadcastFullState();return false;}
+        var session=new Session(p,drone,game.server().getTickCount());controllers.put(p.getUUID(),session);bodyTicket(session);
         p.stopUsingItem();p.setLastClientInput(Input.EMPTY);p.setShiftKeyDown(false);p.setSprinting(false);
         stack.consume(1,p);p.getInventory().setChanged();p.containerMenu.broadcastChanges();
         LbcOverload.sound(p.level(),p.position(),"minecraft:lbcsounds.drone_signal",net.minecraft.sounds.SoundSource.PLAYERS,1,1,50,.3f);return true;

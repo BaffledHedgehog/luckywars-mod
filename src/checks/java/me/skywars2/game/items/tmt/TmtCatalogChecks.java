@@ -73,7 +73,10 @@ public final class TmtCatalogChecks {
             var first=runtime.generate(RandomSource.create(seed));var second=runtime.generate(RandomSource.create(seed));
             require(ItemStack.matches(first,second),"complete generated item is deterministic for a fixed source seed");
             var slots=LbcTmtAbilities.read(first);require(!slots.isEmpty()&&slots.size()<=7,"seven replacement draws use last-family-wins slots");
-            for(var slot:slots)require(ids.contains(slot.id()),"generated property resolves to an audited catalog family");
+            for(var slot:slots){
+                require(ids.contains(slot.id()),"generated property resolves to an audited catalog family");
+                require(LbcTmtCatalog.passiveAllowed(slot.id()),"generated property excludes inventory-only and loose-only families");
+            }
             var data=first.get(DataComponents.CUSTOM_DATA);
             require(((ItemData.IntReader)(Object)data).skywars2$readInt("type",-1)==-1,"private artifact types never leak into the outer item");
             var restored=ItemStack.CODEC.parse(ops,ItemStack.CODEC.encodeStart(ops,first).getOrThrow()).getOrThrow();
@@ -94,7 +97,9 @@ public final class TmtCatalogChecks {
             source.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(root));f.owner.getInventory().setItem(9,source);
             for(var trinket:trinkets){
                 var property=trinket.variants().getFirst();var identity=((ItemData.IntReader)(Object)property.data()).skywars2$readString("trinket","");
-                require(!identity.isEmpty()&&LbcReactiveTrinkets.count(f.owner,net.minecraft.world.item.Items.AIR,identity)==1,"each private trinket identity contributes once through the native inventory counter");
+                int expected=LbcTmtCatalog.passiveAllowed(property.id())?1:0;
+                require(!identity.isEmpty()&&LbcReactiveTrinkets.count(f.owner,net.minecraft.world.item.Items.AIR,identity)==expected,
+                        "event trinkets remain available while disabled inventory-only families do not contribute");
             }
         }
         try{

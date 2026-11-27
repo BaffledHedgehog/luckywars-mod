@@ -58,6 +58,8 @@ public final class LbcHedgehogItems {
                 .overrideDescription(name).component(DataComponents.ITEM_MODEL,model)
                 .component(DataComponents.CUSTOM_DATA,CustomData.of(data))
                 .component(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_"+tier));
+        if(data.getIntOr("baffledhedgehog",0)==1)
+            props.enchantable(1).component(DataComponents.ENCHANTMENTS,net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,donor,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
                 if(!usable)return InteractionResult.PASS;

@@ -25,7 +25,7 @@ import me.skywars2.game.items.gadgets.LbcModeScroll;
 public final class LbcAwakenedAcid {
     private static final String[] MODES={"mode_default","mode_caust","mode_gatling","mode_rifle"};
     private final GameController game;
-    private record Rifle(ItemStack stack,InteractionHand hand,String epoch){}
+    private record Rifle(ItemStack stack,InteractionHand hand,String epoch,me.skywars2.game.combat.LbcIndirectKills.Owner cause){}
     private final Map<ServerPlayer,Rifle> rifles=new IdentityHashMap<>();
     private final Map<ServerPlayer,ArrayDeque<DirectedRifle>> directedRifles=new IdentityHashMap<>();
 
@@ -35,15 +35,17 @@ public final class LbcAwakenedAcid {
         final Vec3 origin, aim;
         final ItemStack weapon;
         final boolean ignited;
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
         int remaining=10;
 
-        DirectedRifle(ServerLevel level, String epoch, Vec3 origin, Vec3 aim, ItemStack weapon, boolean ignited) {
+        DirectedRifle(ServerLevel level, String epoch, Vec3 origin, Vec3 aim, ItemStack weapon, boolean ignited,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
             this.level=level;
             this.epoch=epoch;
             this.origin=origin;
             this.aim=aim;
             this.weapon=weapon.copyWithCount(1);
             this.ignited=ignited;
+            this.cause=cause;
         }
     }
     private int cadence;
@@ -72,7 +74,7 @@ public final class LbcAwakenedAcid {
         else if(mode==3) gatling(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),ignited,ItemStack.EMPTY);
         else{
             // The source counter belongs to the player and accumulates ten releases per paid cast.
-            game.items().mana().score(owner,"acid_rifle").add(10);rifles.put(owner,new Rifle(stack,hand,game.items().epoch()));
+            game.items().mana().score(owner,"acid_rifle").add(10);rifles.put(owner,new Rifle(stack,hand,game.items().epoch(),me.skywars2.game.combat.WeaponEnchantments.effectCause(owner)));
         }
     }
     /** Detached helper release: rifle is one shot, never the paid ten-release queue. */
@@ -109,7 +111,7 @@ public final class LbcAwakenedAcid {
     public boolean scriptCast(ServerPlayer owner, ItemStack weapon, Vec3 origin, Vec3 aim, int mode, boolean ignited) {
         if (mode==4) {
             directedRifles.computeIfAbsent(owner,ignored->new ArrayDeque<>())
-                    .addLast(new DirectedRifle(owner.level(),game.items().epoch(),origin,aim,weapon,ignited));
+                    .addLast(new DirectedRifle(owner.level(),game.items().epoch(),origin,aim,weapon,ignited,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner)));
             return true;
         }
         if (mode==3) {
@@ -123,12 +125,12 @@ public final class LbcAwakenedAcid {
     public int pending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"acid_rifle"));}
     public void addPlayerCounter(ServerPlayer owner){
         game.items().mana().score(owner,"acid_rifle").add(1);
-        rifles.putIfAbsent(owner,new Rifle(ItemStack.EMPTY,InteractionHand.MAIN_HAND,game.items().epoch()));
+        rifles.putIfAbsent(owner,new Rifle(ItemStack.EMPTY,InteractionHand.MAIN_HAND,game.items().epoch(),null));
     }
     /** Raw consumable grants enter the same rifle owner/cadence as ordinary casts. */
     public void adoptRawFoodStatuses(ServerPlayer owner){
         if(pending(owner)>0&&!game.items().magic().rejectCustomEffect(owner))
-            rifles.putIfAbsent(owner,new Rifle(ItemStack.EMPTY,InteractionHand.MAIN_HAND,game.items().epoch()));
+            rifles.putIfAbsent(owner,new Rifle(ItemStack.EMPTY,InteractionHand.MAIN_HAND,game.items().epoch(),null));
     }
 
     public void tick(){
@@ -141,7 +143,9 @@ public final class LbcAwakenedAcid {
             if(!release||game.items().timeStop().stopped(owner.level())||game.items().magic().suppressed(owner)
                     ||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())||game.items().actionsBlocked(owner))continue;
             boolean ignited=rifle.stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("tier",0)==1;
-            rifleShot(owner,owner.getEyePosition(),owner.getLookAngle(),ignited,ItemStack.EMPTY);
+            try(var scope=me.skywars2.game.combat.WeaponEnchantments.causeScope(owner,rifle.cause)){
+                rifleShot(owner,owner.getEyePosition(),owner.getLookAngle(),ignited,ItemStack.EMPTY);
+            }
             game.items().mana().score(owner,"acid_rifle").add(-1);
             if(pending(owner)<=0)rifles.remove(owner);
         }
@@ -165,7 +169,9 @@ public final class LbcAwakenedAcid {
                     || game.items().magic().suppressedAt(rifle.level,owner.getEyePosition())
                     || game.items().magic().suppressedAt(rifle.level,rifle.origin)
                     || !rifle.level.hasChunkAt(BlockPos.containing(rifle.origin))) continue;
-            rifleShot(owner,rifle.origin,rifle.aim,rifle.ignited,rifle.weapon);
+            try(var scope=me.skywars2.game.combat.WeaponEnchantments.causeScope(owner,rifle.cause)){
+                rifleShot(owner,rifle.origin,rifle.aim,rifle.ignited,rifle.weapon);
+            }
             if (--rifle.remaining==0) queue.removeFirst();
             if (queue.isEmpty()) entry.remove();
         }

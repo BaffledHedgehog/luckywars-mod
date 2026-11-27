@@ -81,6 +81,9 @@ public final class SauvojenStars {
         else throw new IllegalArgumentException("Fevgalea helper mode "+mode);
     }
     private void spawn(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,int flavour,Vec3 at,Vec3 direction){
+        spawn(owner,hand,stack,kind,flavour,at,direction,game.items().indirectKills().coldCause(owner,true));
+    }
+    private void spawn(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,int flavour,Vec3 at,Vec3 direction,LbcIndirectKills.Owner cause){
         if(!resident(owner.level(),at)||game.items().magic().suppressedAt(owner.level(),at))return;
         var marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(at);
         marker.entityTags().addAll(List.of(TAG,"magic","player","slowraycast","shield_blockable",game.items().epoch()));
@@ -88,7 +91,7 @@ public final class SauvojenStars {
         if(flavour>0)marker.entityTags().add("star_"+flavour);
         marker.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
         marker.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
-        var actor=new Actor(owner,hand,stack,game.items().epoch(),marker,kind,flavour,direction,game.items().indirectKills().coldCause(owner,true));
+        var actor=new Actor(owner,hand,stack,game.items().epoch(),marker,kind,flavour,direction,cause);
         actors.put(marker,actor);game.items().timeStop().prepareFrozen(marker);
         if(!owner.level().addFreshEntity(marker))remove(actor);
     }
@@ -148,7 +151,7 @@ public final class SauvojenStars {
         if(actor.owner.getRandom().nextBoolean()){
             float yaw=(actor.owner.getRandom().nextInt(360001)-180000)*.001f;
             float pitch=(70000+actor.owner.getRandom().nextInt(20001))*.001f;
-            spawn(actor.owner,actor.hand,actor.stack,Kind.DROP,0,at,Vec3.directionFromRotation(pitch,yaw));
+            spawn(actor.owner,actor.hand,actor.stack,Kind.DROP,0,at,Vec3.directionFromRotation(pitch,yaw),actor.cause);
         }
         Vec3 next=at.add(actor.direction);
         if(!resident(actor.owner.level(),next)||game.items().magic().suppressedAt(actor.owner.level(),next)

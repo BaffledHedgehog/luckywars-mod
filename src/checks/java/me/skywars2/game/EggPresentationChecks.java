@@ -36,7 +36,12 @@ public final class EggPresentationChecks {
     static void name(Entity actor,ItemStack stack) {
         var data=stack.get(DataComponents.ENTITY_DATA);
         require(data!=null && actor.getType()==data.type(),"source actor type");
-        if(!data.contains("CustomName")) return;
+        if(!data.contains("CustomName")) {
+            require(LbcSpecialEggs.kind(stack)==LbcSpecialEggs.Kind.SLAB
+                    ? Component.translatable("agressive_slab").withStyle(s->s.withItalic(false)).equals(actor.getCustomName())
+                    : actor.getCustomName()==null,"unnamed source never inherits a red egg title; slab has its requested actor name");
+            return;
+        }
         var expected=TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,
                 actor.registryAccess(),data.copyTagWithoutId()).read("CustomName",ComponentSerialization.CODEC).orElseThrow();
         require(expected.equals(actor.getCustomName()),"exact authored entity name replaces recursively inherited egg styles: "+LbcSpecialEggs.kind(stack));
@@ -108,10 +113,24 @@ public final class EggPresentationChecks {
                 var actors=fresh.stream().filter(e->e.getType()==data.type()).toList();
                 require(actors.size()==1,"one configured actor from real item "+kind);
                 var actor=actors.getFirst(); name(actor,stack);
-                if(!data.contains("CustomName"))require(Objects.equals(actor.getCustomName(),stack.get(DataComponents.CUSTOM_NAME)),
-                        "unnamed source retains native egg title/rename behavior "+kind);
                 if(kind==LbcSpecialEggs.Kind.ANT) antBody((Zombie)actor,at);
                 fresh.forEach(Entity::discard);
+            }
+            // The actual imba loot path can prepare the egg title into a literal localized component.
+            // It must still restore the payload's name even when kind() cannot use that title.
+            for(var kind:List.of(LbcSpecialEggs.Kind.FAT_SKELETON,LbcSpecialEggs.Kind.LOW_VEX)){
+                var prototype=new ItemStack(kind.item());
+                // byId uses registry findAny and can select a custom egg; this path must exercise vanilla items.
+                var vanilla=kind==LbcSpecialEggs.Kind.FAT_SKELETON?net.minecraft.world.item.Items.SKELETON_SPAWN_EGG:net.minecraft.world.item.Items.VEX_SPAWN_EGG;
+                // Keep one item after native consumption so name() can inspect the original components.
+                var raw=new ItemStack(vanilla,2);raw.set(DataComponents.ENTITY_DATA,prototype.get(DataComponents.ENTITY_DATA));
+                raw.set(DataComponents.CUSTOM_DATA,prototype.get(DataComponents.CUSTOM_DATA));
+                raw.set(DataComponents.CUSTOM_NAME,Component.literal("Prepared red egg").withStyle(ChatFormatting.RED));
+                var prior=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(prior::add);
+                owner.setItemInHand(InteractionHand.MAIN_HAND,raw);
+                require(owner.gameMode.useItemOn(owner,level,raw,InteractionHand.MAIN_HAND,hit).consumesAction() && raw.getCount()==1,"native prepared-title imba egg placement and one-unit debit");
+                var fresh=new ArrayList<Entity>();for(var actor:level.getAllEntities())if(!prior.contains(actor))fresh.add(actor);
+                require(fresh.size()==1,"one actor from prepared-title vanilla egg");name(fresh.getFirst(),raw);fresh.forEach(Entity::discard);
             }
             var token=new ItemEntity(level,at.x,at.y,at.z,new ItemStack(LbcAntDropItem.Kind.ANTS.item()));
             token.setThrower(owner); token.setNoGravity(true);token.setPickUpDelay(1000);

@@ -323,8 +323,9 @@ public final class LbcVoidArcanum {
         }
     }
     private boolean physicalTarget(Hole hole,ServerPlayer author,Entity target){
-        return target!=hole.marker&&!(target instanceof Marker)&&!(target instanceof Display)&&!(target instanceof Interaction)
-                &&game.items().wands().validTarget(target)&&!target.entityTags().contains("time_stopped")
+        boolean beacon=game.items().nukeEvent().movableBeacon(target);
+        return target!=hole.marker&&(!(target instanceof Marker)||beacon)&&!(target instanceof Display)&&!(target instanceof Interaction)
+                &&(beacon||game.items().wands().validTarget(target))&&!target.entityTags().contains("time_stopped")
                 &&!game.items().magic().suppressedAt(hole.world,target.position())
                 &&(hole.wild||!(target instanceof ServerPlayer)||game.items().wands().projectileTarget(author,target));
     }
@@ -332,6 +333,12 @@ public final class LbcVoidArcanum {
         // Arcanum alone hovers above larger victims instead of ploughing along their feet.
         // Targeting changes its destination; all tier movement caps include the author's40% reduction.
         return target.getEyePosition().add(0,.5*(hole.level-1),0);
+    }
+    private Vec3 pullVirtual(Hole hole,Vec3 point,double influence,double hurt){
+        var offset=hole.point.subtract(point);double distance=offset.length();
+        if(distance<=1.0e-6||distance>influence||game.items().magic().suppressedAt(hole.world,point))return point;
+        double strength=distance<=hurt?.18*hole.level:.012*hole.level*Math.max(0,(influence-distance)/(influence-hurt));
+        return point.add(offset.scale(Math.min(strength,distance)/distance));
     }
     public void physics(Hole hole,ServerPlayer author,LbcIndirectKills.Owner cause){
         if(rewinding)return;
@@ -349,11 +356,39 @@ public final class LbcVoidArcanum {
             // The source never pulls players. Ordinary allied mobs, dropped items and projectiles remain physical.
             if(!(target instanceof ServerPlayer)&&distance>1.0e-6){
                 double strength=distance<=hurt?.18*hole.level:.012*hole.level*Math.max(0,(influence-distance)/(influence-hurt));
-                if(strength>0){target.setDeltaMovement(target.getDeltaMovement().add(offset.scale(strength/distance)));target.needsSync=true;
+                if(strength>0){
+                    var motion=offset.scale(Math.min(strength,distance)/distance);
+                    if(game.items().nukeEvent().movableBeacon(target))game.items().nukeEvent().translateBeacon(target,motion);
+                    else if(game.items().grimoireBoss().stationaryRoot(target))game.items().grimoireBoss().translateRoot(target,motion);
+                    else if(target instanceof net.minecraft.world.entity.projectile.Projectile
+                            &&net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(target.getType()).getNamespace().equals("skywars2")){
+                        // Custom marker-based projectiles often own movement rather than native travel.
+                        target.setPos(target.position().add(motion));target.needsSync=true;
+                    }else{target.setDeltaMovement(target.getDeltaMovement().add(motion));target.needsSync=true;}
                     if(target instanceof LivingEntity living)game.items().indirectKills().displaced(living,cause);
                 }
             }
         }
+        for(var trace:game.items().wands().activeElectroTraces())if(trace.level==hole.world){
+            var offset=hole.point.subtract(trace.position);double distance=offset.length();
+            if(distance<=1.0e-6||distance>influence||game.items().magic().suppressedAt(hole.world,trace.position))continue;
+            double strength=distance<=hurt?.18*hole.level:.012*hole.level*Math.max(0,(influence-distance)/(influence-hurt));
+            trace.translate(offset.scale(Math.min(strength,distance)/distance));
+        }
+        java.util.function.UnaryOperator<Vec3> attraction=point->pullVirtual(hole,point,influence,hurt);
+        game.items().homing().transformOrigins(hole.world,attraction);
+        game.items().duplicating().transformOrigins(hole.world,attraction);
+        game.items().sauvojen().transformOrigins(hole.world,attraction);
+        game.items().pumpkinator().transformOrigins(hole.world,attraction);
+        game.items().cunnyTerrain().transformOrigins(hole.world,attraction);
+        game.items().imbaTerrainUtilities().transformOrigins(hole.world,attraction);
+        game.items().specialTools().transformOrigins(hole.world,attraction);
+        game.items().whiteArrows().transformOrigins(hole.world,attraction);
+        game.items().blaze().transformOrigins(hole.world,attraction);
+        game.items().blind().transformOrigins(hole.world,attraction);
+        game.items().danmaku().transformOrigins(hole.world,attraction);
+        game.items().stand().transformOrigins(hole.world,attraction);
+        game.items().erecto().transformOrigins(hole.world,attraction);
         // Match the source's unlimited nearest selector using the arena's loaded living entities.
         LivingEntity nearest=null;double best=Double.POSITIVE_INFINITY;
         for(var target:NativeLivingEntities.in(hole.world)){

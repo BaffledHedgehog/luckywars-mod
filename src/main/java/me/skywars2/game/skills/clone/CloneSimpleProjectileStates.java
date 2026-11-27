@@ -71,12 +71,14 @@ public final class CloneSimpleProjectileStates {
             var lifetime=source.lifetime;
             var phantom=source.phantom;
             var emitterStyle=source.emitterStyle;
+            var enchantmentCause=source.enchantmentCause;
             return image(clone->{var target=(LbcBlind.Charge)clone;
                 target.rainDrop=rainDrop;
                 target.age=age;
                 target.lifetime=lifetime;
                 target.phantom=phantom;
                 target.emitterStyle=emitterStyle;
+                target.enchantmentCause=enchantmentCause;
             },clone->game.items().blind().unloaded(clone));
         }
         if(actor instanceof LbcRuby.Charge source) {

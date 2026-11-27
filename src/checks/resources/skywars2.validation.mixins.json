@@ -22,6 +22,8 @@
     "ChefValidationAccess$Apocalypse",
     "ChefValidationAccess$Supplies",
     "NativeFixtureAccess$Chunks",
+    "NativeFixtureAccess$Sections",
+    "NativeFixtureAccess$Server",
     "NativeFixtureAccess$Polymer",
     "WandFixtureAccess$Exasperato",
     "WandFixtureAccess$Blaze",

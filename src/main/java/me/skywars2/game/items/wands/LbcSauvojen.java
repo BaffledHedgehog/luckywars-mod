@@ -110,6 +110,7 @@ public final class LbcSauvojen {
         public ServerPlayer owner;
         public final InteractionHand hand;
         public final ItemStack usedStack;
+        public final me.skywars2.game.combat.LbcIndirectKills.Owner enchantmentCause;
         public final Kind kind;
         public final boolean academy;
         public int nextMode;
@@ -120,7 +121,11 @@ public final class LbcSauvojen {
         public Vec3 position,direction=Vec3.directionFromRotation(0,0);
         public int lifetime;
         public Drone(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,String epoch,Marker carrier) {
+            this(owner,hand,stack,kind,epoch,carrier,null);
+        }
+        Drone(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,String epoch,Marker carrier,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
             this.owner=owner;this.hand=hand;usedStack=stack.copy();this.kind=kind;
+            enchantmentCause=cause;
             academy=upgraded(stack);this.epoch=epoch;this.carrier=carrier;
             position=carrier.position();
             var model=new ItemStack(Items.CARROT_ON_A_STICK);
@@ -161,7 +166,7 @@ public final class LbcSauvojen {
         var carrier=new Marker(EntityTypes.MARKER,owner.level());carrier.setPos(origin);
         carrier.entityTags().add(DRONE);carrier.entityTags().add("magic");
         game.items().markCurrentItemEpoch(carrier);
-        var drone=new Drone(owner,hand,stack,Kind.values()[branch],game.items().epoch(),carrier);
+        var drone=new Drone(owner,hand,stack,Kind.values()[branch],game.items().epoch(),carrier,game.items().indirectKills().coldCause(owner,true));
         drones.put(carrier,drone);
         if(!owner.level().addFreshEntity(carrier)||carrier.isRemoved()||!drones.containsKey(carrier)){remove(drone,false);return;}
         var advancement=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/sauvojen_tuntija_wand"));
@@ -199,6 +204,8 @@ public final class LbcSauvojen {
                 Vec3 aim=nearest.getEyePosition().subtract(drone.position);
                 if(aim.lengthSqr()>1e-12)drone.direction=aim.normalize();
             }
+            // Every later payload uses this drone's copied cast item, even after a hand change.
+            try(var enchantments=me.skywars2.game.combat.WeaponEnchantments.causeScope(owner,drone.enchantmentCause)){
             if(drone.academy){
                 if(nearest!=null&&(drone.kind==Kind.TERRA||drone.lifetime%drone.kind.academyCadence()==1)){
                     int mode=drone.nextMode;drone.nextMode=(mode+1)%drone.kind.modes();
@@ -210,6 +217,7 @@ public final class LbcSauvojen {
                 drone.display.setItem(model);
             }else if(drone.lifetime%drone.kind.cadence==1)
                 emit(owner,drone.hand,drone.usedStack,drone.kind,drone.position,drone.direction);
+            }
             if(!drones.containsKey(drone.carrier)||!validOwner(owner))continue;
             owner.level().sendParticles(ParticleTypes.WITCH,drone.position.x,drone.position.y,drone.position.z,2,.5,.5,.5,1);
             // Move away from the owner's eyes without changing the aimed firing rotation.
@@ -400,7 +408,7 @@ public final class LbcSauvojen {
             try{
                 for(var point:points){var carrier=new Marker(EntityTypes.MARKER,original.carrier.level());carrier.setPos(point);
                     carrier.entityTags().addAll(original.carrier.entityTags());carrier.entityTags().add(marker);game.items().markCurrentItemEpoch(carrier);
-                    var copy=new Drone(original.owner,original.hand,original.usedStack,original.kind,original.epoch,carrier);created.add(copy);
+                    var copy=new Drone(original.owner,original.hand,original.usedStack,original.kind,original.epoch,carrier,original.enchantmentCause);created.add(copy);
                     copy.position=point;copy.direction=original.direction;copy.lifetime=original.lifetime;copy.nextMode=original.nextMode;
                     copy.display.setItem(original.display.getItem().copy());drones.put(carrier,copy);
                     game.items().spellSources().inherit(original.carrier,carrier);game.items().timeStop().prepareFrozen(carrier);
@@ -416,13 +424,13 @@ public final class LbcSauvojen {
     public DroneCheckpoint checkpointDrones(MatchSpellCheckpoint.Links links){return new DroneCheckpoint(links);}
     public final class DroneCheckpoint {
         private record Image(MatchDamageSources.Ref owner,MatchDamageSources.Ref carrier,InteractionHand hand,ItemStack stack,
-                Kind kind,String epoch,Vec3 point,Vec3 direction,int lifetime,int nextMode,ItemStack model){}
+                Kind kind,String epoch,Vec3 point,Vec3 direction,int lifetime,int nextMode,ItemStack model,me.skywars2.game.combat.LbcIndirectKills.Owner cause){}
         private final List<Image> images;
         DroneCheckpoint(MatchSpellCheckpoint.Links links){images=snapshot().stream().map(d->new Image(links.key(d.owner),links.key(d.carrier),d.hand,
-                d.usedStack.copy(),d.kind,d.epoch,d.position,d.direction,d.lifetime,d.nextMode,d.display.getItem().copy())).toList();}
+                d.usedStack.copy(),d.kind,d.epoch,d.position,d.direction,d.lifetime,d.nextMode,d.display.getItem().copy(),d.enchantmentCause)).toList();}
         public Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Drone>();
             for(var image:images){var owner=(ServerPlayer)links.get(image.owner);var carrier=(Marker)links.get(image.carrier);
-                var drone=new Drone(owner,image.hand,image.stack,image.kind,image.epoch,carrier);drone.position=image.point;
+                var drone=new Drone(owner,image.hand,image.stack,image.kind,image.epoch,carrier,image.cause);drone.position=image.point;
                 drone.direction=image.direction;drone.lifetime=image.lifetime;drone.nextMode=image.nextMode;drone.display.setItem(image.model.copy());values.add(drone);}
             return ()->{for(var future:snapshot())future.holder.destroy();drones.clear();for(var drone:values)drones.put(drone.carrier,drone);cloneDronesPending=true;};
         }

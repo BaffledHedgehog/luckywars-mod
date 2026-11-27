@@ -13,6 +13,8 @@ public final class BlastRayTrace {
         boolean inside(BlockPos pos);
         default int minY(){return Integer.MIN_VALUE;}
         default int maxY(){return Integer.MAX_VALUE;}
+        /** True only when the entire containing section is air and inside this view's domain. */
+        default boolean emptySection(BlockPos pos){return false;}
         BlockState state(BlockPos pos);
         float loss(BlockPos pos,BlockState state);
         boolean destroy(BlockPos pos,BlockState state,float power);
@@ -60,6 +62,7 @@ public final class BlastRayTrace {
             double x=origin.x,y=origin.y,z=origin.z,dx=rays[ray],dy=rays[ray+1],dz=rays[ray+2];
             float power=radius*(nativePrecision?.7F+random.nextFloat()*.6F:1F),loss=0;
             long previous=Long.MIN_VALUE;Cell cell=null;
+            int airX=Integer.MIN_VALUE,airY=0,airZ=0;boolean wholeAir=false;
             while(power>0){
                 int bx=net.minecraft.util.Mth.floor(x),by=net.minecraft.util.Mth.floor(y),bz=net.minecraft.util.Mth.floor(z);long key=BlockPos.asLong(bx,by,bz);
                 if(key!=previous){
@@ -79,6 +82,23 @@ public final class BlastRayTrace {
                         recentKeys[slot]=key;recentCells[slot]=cell;
                     }
                     previous=key;
+                    if(cell==null){
+                        int sx=bx>>4,sy=by>>4,sz=bz>>4;
+                        if(sx!=airX||sy!=airY||sz!=airZ){
+                            airX=sx;airY=sy;airZ=sz;wholeAir=view.emptySection(probe);
+                        }
+                        if(wholeAir){
+                            double lx=(double)sx*16,ly=(double)sy*16,lz=(double)sz*16;
+                            // Preserve EVERY native float subtraction and coordinate addition.
+                            // Multiplying a step count changes rounding and the crater boundary.
+                            do{
+                                if(y<minY&&dy<=0||y>=(double)maxY+1&&dy>=0){power=0;break;}
+                                power-=.22500001F;x+=dx;y+=dy;z+=dz;
+                            }while(power>0&&x>=lx&&x<lx+16&&y>=ly&&y<ly+16&&z>=lz&&z<lz+16);
+                            previous=Long.MIN_VALUE;
+                            continue;
+                        }
+                    }
                 }
                 power-=loss;
                 if(power>0&&cell!=null&&!cell.added&&!cell.state.isAir()&&view.destroy(cell.pos,cell.state,power)){cell.added=true;result.add(cell.pos);}

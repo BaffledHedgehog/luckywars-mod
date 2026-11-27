@@ -32,7 +32,15 @@ public final class WeaponEnchantments {
     private record Use(UUID player,ItemStack item){}
     record Capture(ItemStack item,boolean action){}
     private record Loot(LivingEntity killer, ItemStack boundWeapon, List<ItemStack> weapons) {}
+    // Enchantment provenance is independent of spell targeting/wild authority.
+    // All access occurs on the server thread, like entity publication and checkpoints.
+    private static IdentityHashMap<Entity,LbcIndirectKills.Owner> SPELL_ACTORS=new IdentityHashMap<>();
+    private static final Map<UUID,LbcIndirectKills.Owner> UNLOADED_SPELL_ACTORS=new HashMap<>();
     private static final ThreadLocal<Use> USING=new ThreadLocal<>();
+    private static final ThreadLocal<Use> ACTOR_USING=new ThreadLocal<>();
+    private static final ThreadLocal<LbcIndirectKills.Owner> HEAL_EFFECT=new ThreadLocal<>();
+    private record NativeFire(LivingEntity target,DamageSource source) {}
+    private static final ThreadLocal<NativeFire> FIRE_TICK=new ThreadLocal<>();
     private static final ThreadLocal<Loot> LOOT=new ThreadLocal<>();
     private static final Map<DamageSource,Map<Entity,Receipt>> HITS=new WeakHashMap<>();
     private static final ThreadLocal<Damage> DAMAGE=new ThreadLocal<>();
@@ -45,7 +53,7 @@ public final class WeaponEnchantments {
     }
     /** Remember native preprocessing so the shared damage boundary never adds an enchantment twice. */
     public static void prepared(DamageSource source,Entity target,ItemStack weapon){
-        if(VanillaExpansionRules.enabled())HITS.computeIfAbsent(LbcIndirectKills.originalDamage(source),key->new WeakHashMap<>()).put(target,new Receipt(weapon));
+        if(VanillaExpansionRules.enabled()&&!weapon.isEmpty())HITS.computeIfAbsent(LbcIndirectKills.originalDamage(source),key->new WeakHashMap<>()).put(target,new Receipt(weapon));
     }
     public static boolean post(DamageSource source,Entity target){
         if(!VanillaExpansionRules.enabled())return true;
@@ -65,24 +73,62 @@ public final class WeaponEnchantments {
         private final Damage previous;
         private final ServerLevel level;private final LivingEntity target;private final DamageSource source,key;
         private final ItemStack weapon;private final Scope using;
-        private final boolean added;private final float amount;
+        private final boolean added,statusTick;private final float amount;
         private Damage(ServerLevel level,LivingEntity target,DamageSource source,float amount){
             this.previous=DAMAGE.get();this.level=level;this.target=target;this.source=source;this.key=LbcIndirectKills.originalDamage(source);
             Receipt ready=VanillaExpansionRules.enabled()?receipt(source,target):null;
             boolean nativePrepared=ready!=null&&!ready.consumed;
             var game=SkyWars2.game();
-            weapon=nativePrepared?ready.item:VanillaExpansionRules.enabled()&&game!=null?game.items().indirectKills().damageWeapon(source):ItemStack.EMPTY;
+            var resolved=nativePrepared?ready.item:VanillaExpansionRules.enabled()&&game!=null?game.items().indirectKills().damageWeapon(source):ItemStack.EMPTY;
+            if(!nativePrepared&&VanillaExpansionRules.enabled()&&resolved.isEmpty()&&game!=null){
+                var captured=SPELL_ACTORS.get(source.getDirectEntity());
+                if(captured!=null&&captured.weaponAction()&&source.getEntity()!=null
+                        &&captured.player().equals(source.getEntity().getUUID()))resolved=captured.enchantmentWeapon();
+                else if(captured!=null&&captured.weaponAction()&&source.is(net.minecraft.world.damagesource.DamageTypes.FALLING_BLOCK)
+                        &&source.getDirectEntity() instanceof net.minecraft.world.entity.item.FallingBlockEntity
+                        &&source.getEntity()==source.getDirectEntity())resolved=captured.enchantmentWeapon();
+                else if(captured!=null&&source.getEntity() instanceof net.minecraft.world.entity.Mob mob
+                        &&source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile shot && shot.getOwner()==mob){
+                    var owner=ownedMob(game,mob);
+                    var current=actorCause(mob,owner);
+                    if(owner!=target&&current!=null&&current.player().equals(captured.player()))resolved=captured.enchantmentWeapon();
+                }
+            }
+            if(!nativePrepared&&VanillaExpansionRules.enabled()&&resolved.isEmpty()&&game!=null
+                    &&source.getEntity() instanceof net.minecraft.world.entity.Mob mob && source.getDirectEntity()==mob){
+                var owner=ownedMob(game,mob);
+                var cause=actorCause(mob,owner);if(owner!=target&&cause!=null)resolved=cause.enchantmentWeapon();
+            }
+            if(!nativePrepared&&VanillaExpansionRules.enabled()&&resolved.isEmpty()&&game!=null){
+                var spell=game.items().spellSources().current();
+                if(spell!=null&&spell.cause()!=null&&spell.cause().weaponAction()
+                        &&source.getEntity()!=null&&java.util.Objects.equals(spell.author(),source.getEntity().getUUID()))
+                    resolved=spell.cause().enchantmentWeapon();
+            }
+            boolean statusOnly=false;
+            if(!nativePrepared&&VanillaExpansionRules.enabled()&&resolved.isEmpty()&&game!=null){
+                resolved=game.items().indirectKills().statusWeapon(target,source);statusOnly=!resolved.isEmpty();
+            }
+            var fire=FIRE_TICK.get();
+            if(!nativePrepared&&VanillaExpansionRules.enabled()&&resolved.isEmpty()&&game!=null&&fire!=null&&fire.target()==target&&fire.source()==LbcIndirectKills.originalDamage(source)){
+                resolved=game.items().indirectKills().environmentWeapon(target,source);statusOnly=!resolved.isEmpty();
+            }
+            statusTick=statusOnly;weapon=resolved;
             using=!weapon.isEmpty()&&source.getEntity() instanceof ServerPlayer player?using(player,weapon):null;
             added=!nativePrepared&&!weapon.isEmpty()&&amount>0&&Float.isFinite(amount);
             DAMAGE.set(this);
             try{
-                this.amount=added?EnchantmentHelper.modifyDamage(level,weapon,target,source,amount):amount;
+                // A retained wand action is a spell, not a physical melee hit.
+                // Sword damage enchantments apply at the native melee boundary;
+                // Power scales the captured spell amount after the caster changes hands.
+                this.amount=added&&EnchantmentRules.spellSource(weapon)?spellPower(level,weapon,amount)
+                        :added?EnchantmentHelper.modifyDamage(level,weapon,target,source,amount):amount;
                 ready=receipt(source,target);if(ready!=null)ready.consumed=true;
             }catch(Throwable error){close();throw error;}
         }
         public float amount(){return amount;}
         public void accepted(){
-            if(!added||amount<=0)return;
+            if(statusTick||!added||amount<=0)return;
             EnchantmentHelper.doPostAttackEffectsWithItemSource(level,target,source,weapon);
             float force=EnchantmentHelper.modifyKnockback(level,weapon,target,source,0);
             Entity attacker=source.getDirectEntity();if(attacker==null)attacker=source.getEntity();
@@ -90,12 +136,220 @@ public final class WeaponEnchantments {
         }
         @Override public void close(){if(using!=null)using.close();if(previous==null)DAMAGE.remove();else DAMAGE.set(previous);}
     }
+    public static float spellPower(ServerLevel level,ItemStack wand,float amount){
+        if(amount<=0||!Float.isFinite(amount)||!me.skywars2.game.entities.LbcDimensionItems.ordinary(level)
+                ||!EnchantmentRules.spellSource(wand))return amount;
+        var power=level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.POWER);
+        int enchantment=EnchantmentHelper.getItemEnchantmentLevel(power,wand);
+        if(enchantment<=0)return amount;
+        return (float)Math.min(Float.MAX_VALUE,(double)amount*(1.0+0.25*((double)enchantment+1.0)));
+    }
+    /** Only the exact source and target of a native fire/lava callback are scoped. */
+    public static Scope nativeFire(LivingEntity target,DamageSource source){
+        var previous=FIRE_TICK.get();FIRE_TICK.set(new NativeFire(target,LbcIndirectKills.originalDamage(source)));
+        return ()->{if(previous==null)FIRE_TICK.remove();else FIRE_TICK.set(previous);};
+    }
+    /** Raw-HP paths bypass hurtServer; only a captured wand action is eligible. */
+    public static float capturedSpellPower(ServerLevel level,DamageSource source,float amount){
+        var game=SkyWars2.game();if(game==null||!VanillaExpansionRules.enabled())return amount;
+        return spellPower(level,game.items().indirectKills().damageWeapon(source),amount);
+    }
+    public static LbcIndirectKills.Owner effectCause(ServerPlayer caster){
+        var game=SkyWars2.game();
+        return game==null||caster==null||!itemAction(caster.getUUID())?null:game.items().indirectKills().coldCause(caster,true);
+    }
+    /** Only explicitly identified wand-created effects receive an owner. */
+    public static net.minecraft.world.effect.MobEffectInstance markHealingEffect(net.minecraft.world.effect.MobEffectInstance effect,LbcIndirectKills.Owner cause){
+        if(cause!=null&&cause.weaponAction()&&EnchantmentRules.spellSource(cause.enchantmentWeapon()))
+            ((me.skywars2.game.combat.WandPowerEffectAccess)(Object)effect).skywars2$powerCause(cause);
+        return effect;
+    }
+    public static Scope effectHealing(LbcIndirectKills.Owner cause){
+        var before=HEAL_EFFECT.get();if(cause==null)HEAL_EFFECT.remove();else HEAL_EFFECT.set(cause);
+        return ()->{if(before==null)HEAL_EFFECT.remove();else HEAL_EFFECT.set(before);};
+    }
+    public static float scopedSpellHealing(LivingEntity target,float amount){
+        var game=SkyWars2.game();if(game==null||!VanillaExpansionRules.enabled()||!(target.level() instanceof ServerLevel level))return amount;
+        var effect=HEAL_EFFECT.get();
+        if(effect!=null&&effect.weaponAction())return spellPower(level,effect.enchantmentWeapon(),amount);
+        var source=game.items().spellSources().current();
+        return source==null||source.cause()==null||!source.cause().weaponAction()?amount
+                :spellPower(level,source.cause().enchantmentWeapon(),amount);
+    }
+    private static ServerPlayer ownedMob(me.skywars2.game.GameController game,net.minecraft.world.entity.Mob mob){
+        var blazeOwner=mob instanceof net.minecraft.world.entity.monster.Blaze blaze?game.items().blaze().owner(blaze):null;
+        if(blazeOwner!=null)return blazeOwner;
+        var psychoOwner=game.items().psycho().owner(mob);
+        return psychoOwner!=null?psychoOwner:game.items().summons().owner(mob);
+    }
+    private static Entity controller(Entity actor){
+        if(actor instanceof net.minecraft.world.entity.projectile.Projectile projectile)return projectile.getOwner();
+        if(actor instanceof net.minecraft.world.entity.projectile.EvokerFangs fang)return fang.getOwner();
+        if(actor instanceof net.minecraft.world.entity.item.PrimedTnt tnt)return tnt.getOwner();
+        if(actor instanceof net.minecraft.world.entity.AreaEffectCloud cloud)return cloud.getOwner();
+        if(actor instanceof net.minecraft.world.entity.LightningBolt lightning)return lightning.getCause();
+        return null;
+    }
+    /** Called on native entity publication; never assigns spell targeting policy. */
+    public static void capture(Entity actor){
+        if(actor==null||SPELL_ACTORS.containsKey(actor))return;
+        var restored=UNLOADED_SPELL_ACTORS.remove(actor.getUUID());
+        if(restored!=null){SPELL_ACTORS.put(actor,restored);return;}
+        var controller=controller(actor);var game=SkyWars2.game();if(game==null)return;
+        if(controller instanceof net.minecraft.world.entity.Mob mob){
+            var owner=ownedMob(game,mob);
+            var cause=actorCause(mob,owner);if(cause!=null)SPELL_ACTORS.put(actor,cause);
+            return;
+        }
+        var active=USING.get();if(active==null||controller==null||!active.player().equals(controller.getUUID()))return;
+        var player=game.server().getPlayerList().getPlayer(active.player());
+        if(player!=null&&EnchantmentRules.spellSource(snapshot(player)))
+            SPELL_ACTORS.put(actor,game.items().indirectKills().coldCause(player,true));
+    }
+    /** Only an explicitly tracked summon created during a real wand action inherits its source. */
+    public static void captureSummonedMob(ServerPlayer owner,net.minecraft.world.entity.Mob mob){
+        if(mob==null)return;var game=SkyWars2.game();var cause=effectCause(owner);
+        if(game==null||owner==null||game.items().summons().owner(mob)!=owner||cause==null||!cause.weaponAction()||!EnchantmentRules.spellSource(cause.enchantmentWeapon()))SPELL_ACTORS.remove(mob);
+        else SPELL_ACTORS.put(mob,cause);
+    }
+    /** Psycho ghost ownership is its own native service, never a global wild-source scope. */
+    public static void capturePsychoVex(ServerPlayer owner,net.minecraft.world.entity.Mob mob){
+        if(mob==null)return;var game=SkyWars2.game();var cause=effectCause(owner);
+        if(game==null||owner==null||game.items().psycho().owner(mob)!=owner||cause==null||!cause.weaponAction()||!EnchantmentRules.spellSource(cause.enchantmentWeapon()))SPELL_ACTORS.remove(mob);
+        else SPELL_ACTORS.put(mob,cause);
+    }
+    /** Only an explicitly-created falling block from a captured wand may carry enchantments. */
+    public static void captureFalling(net.minecraft.world.entity.item.FallingBlockEntity block,ServerPlayer owner,LbcIndirectKills.Owner cause){
+        if(block!=null&&owner!=null&&cause!=null&&cause.weaponAction()&&EnchantmentRules.spellSource(cause.enchantmentWeapon())&&cause.player().equals(owner.getUUID()))SPELL_ACTORS.put(block,cause);
+    }
+    /** Owned Blaze retains only the wand action that actually created or retamed it. */
+    public static void captureBlaze(net.minecraft.world.entity.monster.Blaze blaze,LbcIndirectKills.Owner cause){
+        if(blaze==null)return;var game=SkyWars2.game();var owner=game==null?null:game.items().blaze().owner(blaze);
+        if(cause==null||!cause.weaponAction()||!EnchantmentRules.spellSource(cause.enchantmentWeapon())||owner==null||!cause.player().equals(owner.getUUID()))SPELL_ACTORS.remove(blaze);
+        else SPELL_ACTORS.put(blaze,cause);
+    }
+    /** Enchantment-only cause follows an actor only while its physical controller still matches. */
+    public static LbcIndirectKills.Owner actorCause(Entity actor,ServerPlayer controller){
+        var cause=SPELL_ACTORS.get(actor);
+        return cause!=null && controller!=null && cause.weaponAction() && cause.player().equals(controller.getUUID()) ? cause : null;
+    }
+    /** Restore only this captured enchantment source while a delayed actor emits descendants. */
+    public static Scope actorScope(Entity actor,ServerPlayer controller){return causeScope(controller,actorCause(actor,controller));}
+    public static Scope causeScope(ServerPlayer controller,LbcIndirectKills.Owner cause){
+        if(cause!=null&&(controller==null||!cause.weaponAction()||!cause.player().equals(controller.getUUID())))cause=null;
+        var previous=USING.get();var previousActor=ACTOR_USING.get();
+        // Never let unrelated nested casts or private TMT projections replace an actor's frozen source.
+        if(cause==null){USING.remove();if(controller==null)ACTOR_USING.remove();else ACTOR_USING.set(new Use(controller.getUUID(),ItemStack.EMPTY));}
+        else {var saved=new Use(controller.getUUID(),cause.enchantmentWeapon().copyWithCount(1));USING.set(saved);ACTOR_USING.set(saved);}
+        return ()->{if(previous==null)USING.remove();else USING.set(previous);
+                    if(previousActor==null)ACTOR_USING.remove();else ACTOR_USING.set(previousActor);};
+    }
+    /** Clone private enchantment provenance only; physical owner remains native. */
+    public static void inherit(Entity original,Entity clone){
+        var cause=SPELL_ACTORS.get(original);if(cause!=null&&clone!=null)SPELL_ACTORS.put(clone,cause);
+    }
+    /** Keep unloaded chunk bodies, but never retain removed actors. */
+    public static void unloaded(Entity actor){
+        var cause=SPELL_ACTORS.get(actor);if(cause==null)return;
+        var reason=actor.getRemovalReason();
+        if(reason==null)return; // Visibility changes need not remove a resident body.
+        SPELL_ACTORS.remove(actor);
+        if(reason==Entity.RemovalReason.UNLOADED_TO_CHUNK)UNLOADED_SPELL_ACTORS.put(actor.getUUID(),cause);
+    }
+    public static void stopSpellActors(){SPELL_ACTORS.clear();UNLOADED_SPELL_ACTORS.clear();}
+    public static final class ActorCheckpoint {
+        private final me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.IdentityImage<Entity,LbcIndirectKills.Owner> active;
+        private final Map<UUID,LbcIndirectKills.Owner> dormant;
+        private ActorCheckpoint(me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){
+            active=new me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.IdentityImage<>(SPELL_ACTORS,links);
+            dormant=Map.copyOf(UNLOADED_SPELL_ACTORS);
+        }
+        public Runnable prepare(me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){
+            var restored=active.restore(links);var asleep=Map.copyOf(dormant);
+            return ()->{SPELL_ACTORS=restored;UNLOADED_SPELL_ACTORS.clear();UNLOADED_SPELL_ACTORS.putAll(asleep);};
+        }
+    }
+    public static ActorCheckpoint checkpoint(me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){return new ActorCheckpoint(links);}
+    private record EffectOwner(Holder<net.minecraft.world.effect.MobEffect> type,List<LbcIndirectKills.Owner> layers) {}
+    public static final class EffectCheckpoint {
+        private final me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.IdentityImage<LivingEntity,List<EffectOwner>> actors;
+        private EffectCheckpoint(GameController game,me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){
+            var rows=new IdentityHashMap<LivingEntity,List<EffectOwner>>();
+            var bodies=new ArrayList<Entity>(me.skywars2.game.match.checkpoints.MatchActorCheckpoint.currentBodies(game).values());
+            bodies.addAll(game.server().getPlayerList().getPlayers());
+            for(var retained:me.skywars2.game.players.MatchOfflinePlayers.inventoryBodies())
+                if(me.skywars2.game.players.MatchOfflinePlayers.retained(retained))bodies.add(retained);
+            for(var body:bodies)if(body instanceof LivingEntity living&&!links.omitted(living)){
+                var effects=new ArrayList<EffectOwner>();
+                for(var effect:living.getActiveEffects()){
+                    var layers=new ArrayList<LbcIndirectKills.Owner>();boolean marked=false;
+                    for(var node=effect;node!=null;node=((me.skywars2.game.combat.WandPowerEffectAccess)(Object)node).skywars2$hiddenEffect()){
+                        var cause=((me.skywars2.game.combat.WandPowerEffectAccess)(Object)node).skywars2$powerCause();
+                        layers.add(cause);marked|=cause!=null;
+                    }
+                    if(marked)effects.add(new EffectOwner(effect.getEffect(),Collections.unmodifiableList(layers)));
+                }
+                if(!effects.isEmpty())rows.put(living,List.copyOf(effects));
+            }
+            actors=new me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.IdentityImage<>(rows,links);
+        }
+        public Runnable prepare(me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){
+            var restored=actors.restore(links);var installs=new ArrayList<Runnable>();
+            restored.forEach((living,effects)->{for(var effect:effects){
+                var node=living.getEffect(effect.type());
+                for(var cause:effect.layers()){
+                    if(node==null)throw new IllegalStateException("Restore native effect layers before wand healing provenance");
+                    var access=(me.skywars2.game.combat.WandPowerEffectAccess)(Object)node;
+                    installs.add(()->access.skywars2$powerCause(cause));node=access.skywars2$hiddenEffect();
+                }
+                if(node!=null)throw new IllegalStateException("Restored wand effect has unexpected hidden layers");
+            }});
+            return ()->installs.forEach(Runnable::run);
+        }
+    }
+    public static EffectCheckpoint effectCheckpoint(GameController game,me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){return new EffectCheckpoint(game,links);}
+    /** Rebind retained offline effect provenance immediately after native player data load. */
+    public static void transferHealingEffects(LivingEntity oldBody,LivingEntity newBody){
+        if(oldBody==null||newBody==null||oldBody==newBody)return;
+        var installs=new ArrayList<Runnable>();
+        for(var effect:oldBody.getActiveEffects()){
+            var layers=new ArrayList<LbcIndirectKills.Owner>();boolean marked=false;
+            for(var node=effect;node!=null;node=((me.skywars2.game.combat.WandPowerEffectAccess)(Object)node).skywars2$hiddenEffect()){
+                var cause=((me.skywars2.game.combat.WandPowerEffectAccess)(Object)node).skywars2$powerCause();
+                layers.add(cause);marked|=cause!=null;
+            }
+            if(!marked)continue;
+            var node=newBody.getEffect(effect.getEffect());
+            for(var cause:layers){
+                if(node==null)throw new IllegalStateException("Restore native player effect layers before healing provenance");
+                var access=(me.skywars2.game.combat.WandPowerEffectAccess)(Object)node;
+                installs.add(()->access.skywars2$powerCause(cause));node=access.skywars2$hiddenEffect();
+            }
+            if(node!=null)throw new IllegalStateException("Restored player effect has unexpected hidden layers");
+        }
+        installs.forEach(Runnable::run);
+    }
+
+    /** An explicit sword spell snapshots only a private source; the physical sword stays unchanged. */
+    public static Scope usingSpell(ServerPlayer player,ItemStack physical){
+        var source=physical.copy();var data=source.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+        data.putInt("magicwand",1);source.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));
+        return using(player,source);
+    }
     public static Scope using(ServerPlayer player,ItemStack source){
-        var previous=USING.get();USING.set(new Use(player.getUUID(),source.copyWithCount(1)));
+        var previous=USING.get();
+        // A nested borrowed cast may temporarily project another wand; the
+        // actual enchanted book or TMT that initiated it owns the spell.
+        var retained=previous!=null&&previous.player.equals(player.getUUID())
+                &&me.skywars2.game.items.wands.WandCastOrigin.borrowed(player)?previous.item:source;
+        USING.set(new Use(player.getUUID(),retained.copyWithCount(1)));
         return ()->{if(previous==null)USING.remove();else USING.set(previous);};
     }
     static ItemStack snapshot(ServerPlayer player){
         if(player==null)return ItemStack.EMPTY;
+        var actor=ACTOR_USING.get();if(actor!=null&&actor.player.equals(player.getUUID()))return actor.item.copy();
         var tmt=tmtSource(player);if(!tmt.isEmpty())return tmt;
         var source=USING.get();return source!=null&&source.player.equals(player.getUUID())
                 ?source.item.copy():player.getMainHandItem().copyWithCount(1);
@@ -105,6 +359,7 @@ public final class WeaponEnchantments {
         return selected.isEmpty()?LbcTmtAbilities.enchantmentSource(player):selected.copyWithCount(1);
     }
     static boolean itemAction(UUID player){
+        var actor=ACTOR_USING.get();if(actor!=null&&actor.player.equals(player))return !actor.item.isEmpty();
         var source=USING.get();if(source!=null&&source.player.equals(player))return true;
         var game=SkyWars2.game();var body=game==null?null:game.server().getPlayerList().getPlayer(player);
         return body!=null&&!tmtSource(body).isEmpty();

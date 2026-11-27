@@ -114,6 +114,9 @@ public final class CoreEntityMerging {
     public static boolean mergeOnSpawn(ServerLevel level, ExperienceOrb incoming) {
         var game=SkyWars2.game();
         if(game!=null&&game.items().nexusWires().convert(incoming))return true;
+        // A clone transaction must publish every body before it can mark its source complete.
+        // Absorbing one here is irreversible and makes the clone owner retry the same XP forever.
+        if(game!=null&&game.items().cloneSkills().copying())return false;
         if (!enabled(level) || incoming.isRemoved()) return false;
         for (var existing : level.getEntitiesOfClass(ExperienceOrb.class,
                 incoming.getBoundingBox().inflate(settings.experienceMergeRadius), other -> !other.isRemoved())) {
@@ -131,5 +134,11 @@ public final class CoreEntityMerging {
                 orb.getBoundingBox().inflate(settings.experienceMergeRadius), other -> other != orb && !other.isRemoved())) {
             ((Orb) orb).skywars2$absorbExperience(other);
         }
+    }
+
+    /** Fresh XP keeps its independent two/four-copy eligibility beside already processed groups. */
+    public static boolean sameExperienceCloneStatus(ExperienceOrb first,ExperienceOrb second){
+        return first.entityTags().contains("doubled")==second.entityTags().contains("doubled")
+                &&first.entityTags().contains("quadried")==second.entityTags().contains("quadried");
     }
 }

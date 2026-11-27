@@ -52,6 +52,8 @@ public final class LbcMusicStaff {
         String id=academy?"academy_music_staff":"music_staff";
         var key=Identifier.parse("skywars2:"+id);
         var properties=LbcUtilityItemPrototypes.deferredProperties(key.toString(),"/data/lbc/loot_table/ported/"+id+".json",Items.CARROT_ON_A_STICK,1);
+        properties.enchantable(1).component(net.minecraft.core.component.DataComponents.ENCHANTMENTS,
+                net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
         return Registry.register(BuiltInRegistries.ITEM,key,LbcWands.nativeTool(properties,Items.CARROT_ON_A_STICK));
     }
     private static EntityType<Shot> type(){

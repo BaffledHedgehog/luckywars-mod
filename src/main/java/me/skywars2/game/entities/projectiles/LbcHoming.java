@@ -87,12 +87,16 @@ public final class LbcHoming {
         ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
         Vec3 position;
         int remaining,cloneMask;
         Vec3 direction=Vec3.ZERO;
         Effect(ServerPlayer owner,Vec3 position,int remaining,String epoch) {
+            this(owner,position,remaining,epoch,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
+        }
+        Effect(ServerPlayer owner,Vec3 position,int remaining,String epoch,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
             this.owner=owner; this.level=owner.level(); this.position=position;
-            this.remaining=remaining; this.epoch=epoch;
+            this.remaining=remaining; this.epoch=epoch;this.cause=cause;
         }
     }
     private static final class Curse {
@@ -480,7 +484,10 @@ public final class LbcHoming {
     }
     private LivingEntity skillTarget(ServerPlayer owner, Vec3 from) {
         return game.items().lifetimes().nearestTarget(owner.level(), from, 100, true,
-                candidate -> candidate.getType().builtInRegistryHolder().is(FOURIER_MOBS) && target(owner, candidate));
+                candidate -> candidate.getType().builtInRegistryHolder().is(FOURIER_MOBS)
+                        && !game.items().summons().friendly(owner,candidate)
+                        && !game.items().blaze().friendly(owner,candidate)
+                        && target(owner, candidate));
     }
     boolean canSteerArrow(Projectile arrow,ServerLevel level){
         return projectiles.contains(arrow) && !arrow.entityTags().contains("cant_be_homing")
@@ -516,6 +523,7 @@ public final class LbcHoming {
             if(game.items().wands().timeStopped() || game.items().timeStop().stopped(level)
                     || owner.entityTags().contains("time_stopped")) continue;
             // The source emits before its steering step, including its final Lifetime=130 pass.
+            try(var source=me.skywars2.game.combat.WeaponEnchantments.causeScope(owner,effect.cause)){
             if(owner.isSpectator() || owner.position().distanceToSqr(at)>4) {
                 int surface=level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
                         net.minecraft.util.Mth.floor(at.x),net.minecraft.util.Mth.floor(at.z));
@@ -537,6 +545,7 @@ public final class LbcHoming {
                 effect.position=next;
             }
             if(--effect.remaining<=0) fouriers.remove(effect);
+            }
         }
     }
     private boolean fourierTarget(ServerPlayer owner,LivingEntity target) {
@@ -552,12 +561,14 @@ public final class LbcHoming {
                     || !effect.level.hasChunkAt(BlockPos.containing(effect.position))
                     || game.items().magic().suppressedAt(effect.level,effect.position)) { effects.remove(i); continue; }
             if(game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) continue;
+            try(var source=me.skywars2.game.combat.WeaponEnchantments.causeScope(owner,effect.cause)){
             if(rain) for(int shot=0;shot<3;shot++) {
                 Vec3 p=new Vec3(Math.floor(effect.position.x)+owner.getRandom().nextInt(31)-15,effect.position.y,
                         Math.floor(effect.position.z)+owner.getRandom().nextInt(31)-15);
                 fire(owner,p,1,new Vec3(0,-.1,0),false,false,false);
             } else destiny(effect);
             if(--effect.remaining<=0) effects.remove(i);
+            }
         }
     }
     private void destiny(Effect effect) {
@@ -775,7 +786,7 @@ public final class LbcHoming {
                     ||game.items().timeStop().frozen(effect.owner)
                     ||!CloneVirtualAbilityStates.near(game,holder,effect.level,effect.position,effect.cloneMask,skill))continue;
             var points=CloneVirtualAbilityStates.positions(holder,effect.level,effect.position,skill);if(points==null)continue;
-            for(var point:points){var copy=new Effect(effect.owner,point,effect.remaining,effect.epoch);
+            for(var point:points){var copy=new Effect(effect.owner,point,effect.remaining,effect.epoch,effect.cause);
                 copy.cloneMask=effect.cloneMask|bit;copy.direction=effect.direction;effects.add(copy);}
             effect.cloneMask|=bit;made+=count;
         }

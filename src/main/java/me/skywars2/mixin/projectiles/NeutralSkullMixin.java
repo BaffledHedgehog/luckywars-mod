@@ -16,6 +16,20 @@ import org.spongepowered.asm.mixin.injection.At;
 /** Adding real ownership must not turn source ownerless skulls'5 damage into8 or add owner healing. */
 @Mixin(WitherSkull.class)
 public abstract class NeutralSkullMixin {
+    @WrapOperation(method="onHitEntity",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/LivingEntity;addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"))
+    private boolean skywars2$wandWither(LivingEntity target,net.minecraft.world.effect.MobEffectInstance effect,Entity source,Operation<Boolean> original){
+        var skull=(WitherSkull)(Object)this;
+        var game=me.skywars2.SkyWars2.game();
+        me.skywars2.game.combat.LbcIndirectKills.Owner cause=null;
+        if(game!=null&&LbcNeutral.managed(skull)&&skull.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner
+                &&effect.is(net.minecraft.world.effect.MobEffects.WITHER)){
+            cause=me.skywars2.game.combat.WeaponEnchantments.actorCause(skull,owner);
+            if(cause!=null)me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(effect,cause);
+        }
+        boolean accepted=original.call(target,effect,source);
+        if(accepted&&cause!=null)game.items().indirectKills().acceptedInheritedEffect(target,effect,cause);
+        return accepted;
+    }
     @WrapOperation(method="onHitEntity",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/Entity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     private boolean skywars2$sourceDamage(Entity victim,ServerLevel level,DamageSource source,float amount,Operation<Boolean> original){
         var skull=(WitherSkull)(Object)this;

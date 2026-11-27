@@ -27,7 +27,7 @@ import java.util.Map;
 
 /** Shared black-hole renderer; gameplay and lifetime belong to the originating spell. */
 public final class BlackHoleVisuals {
-    private static final int SLOTS=16, COLOR=11618816, TAIL=6;
+    private static final int SLOTS=16, COLOR=11618816, TAIL=8;
     private final GameController game;
     private final List<Handle> holes=new ArrayList<>();
     private final Map<ServerGamePacketListenerImpl,Slot[]> viewers=new IdentityHashMap<>();
@@ -187,7 +187,8 @@ public final class BlackHoleVisuals {
     private void release(Slot slot) {
         if(slot.holder==null) return;
         slot.holder.destroy(); slot.holder=null; slot.display=null; slot.hole=null;
-        // Shader collapse lasts0.2s; keep two extra delivery ticks before any new row assignment.
+        // Shader tolerates a missing carrier for0.1s, then collapses for0.2s.
+        // Keep two extra delivery ticks before assigning the row again.
         slot.availableAt=clock+TAIL;
     }
     public void forget(ServerPlayer owner) {

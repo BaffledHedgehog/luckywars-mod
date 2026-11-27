@@ -30,5 +30,17 @@ public final class SkyWarsMixinPlugin implements IMixinConfigPlugin {
         }
         // Both the progress handler (test + decrement) and START's native delay use it.
         if(reads!=3)throw new IllegalStateException("Unsupported Polymer mining reads: "+reads);
+        var progressBridge=node.methods.stream().filter(m->m.name.endsWith("skywars2$polymerMiningDelta")&&m.desc.equals("(F)F")).toList();
+        if(progressBridge.size()!=1)throw new IllegalStateException("Unsupported Polymer mining progress bridge");
+        int samples=0;
+        for(var method:node.methods)if(method.name.contains("polymer_breakIfTakingTooLong"))
+            for(var instruction:method.instructions.toArray()){
+                if(!(instruction instanceof MethodInsnNode call)||!call.name.equals("getDestroyProgress")
+                        ||!call.desc.equals("(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)F"))continue;
+                var code=new InsnList();code.add(new VarInsnNode(Opcodes.ALOAD,0));code.add(new InsnNode(Opcodes.SWAP));
+                code.add(new MethodInsnNode(Opcodes.INVOKESPECIAL,node.name,progressBridge.getFirst().name,"(F)F",false));
+                method.instructions.insert(instruction,code);samples++;
+            }
+        if(samples!=1)throw new IllegalStateException("Unsupported Polymer mining progress samples: "+samples);
     }
 }

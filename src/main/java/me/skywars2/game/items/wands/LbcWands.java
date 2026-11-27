@@ -390,6 +390,14 @@ public final class LbcWands {
         }
     }
     private static final Spell[] SPELLS=Spell.values();
+    private static final class CommonWandItems {
+        private static final java.util.Set<Item> VALUES=java.util.Arrays.stream(SPELLS).map(spell->spell.item)
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+    /** Exact native dispatcher membership; NativeTool also carries unrelated items. */
+    public static boolean commonWand(ItemStack stack){
+        return !stack.isEmpty() && SPELLS!=null && CommonWandItems.VALUES.contains(stack.getItem());
+    }
     // Literal legacy order: raycast, ordinary spell dispatch, then summoned souls.
     private static final java.util.List<String> TMT_ORDER=java.util.List.of(
             "wall","advancedteleport","fallingstars","truefallingstars","prisma","lightningwand","acidwand",
@@ -481,6 +489,11 @@ public final class LbcWands {
         }
         public LivingEntity source() { return owner==null?npcSource:owner; }
         public Entity damageEmitter(){return explicitEmitter!=null?explicitEmitter:source();}
+        /** Physical displacement carries this cast-local curve, never bending it back toward old world anchors. */
+        public void translate(Vec3 offset){
+            position=position.add(offset);
+            if(erecto!=null){erecto.origin=erecto.origin.add(offset);if(erecto.focus!=null)erecto.focus=erecto.focus.add(offset);}
+        }
     }
     private final GameController game;
     private final LbcMana mana;
@@ -706,7 +719,9 @@ public final class LbcWands {
     }
 
     public boolean cast(ServerPlayer player,InteractionHand hand) {
-        try(var scope=WeaponEnchantments.using(player,player.getItemInHand(hand))){return castScoped(player,hand);}
+        var stack=player.getItemInHand(hand);
+        boolean trueTerra=stack.is(LbcTerra.TRUE_SWORD)||ItemData.intValue(stack,"true_terra",0)==1;
+        try(var scope=trueTerra?WeaponEnchantments.usingSpell(player,stack):WeaponEnchantments.using(player,stack)){return castScoped(player,hand);}
     }
     private boolean castScoped(ServerPlayer player,InteractionHand hand) {
         if(LbcTmtItems.matches(player.getItemInHand(hand))&&!LbcTmtAbilities.active(player.getItemInHand(hand)))return game.items().tmt().rightClick(player,hand);
@@ -1245,7 +1260,8 @@ for(double step=0;step<=distance;step+=.5) {
         // (user) Нативный отрезок против хитбоксов: один spatial query и одна проверка на кандидата.
         // 101 visual samples выше больше не умножают число проверок сущностей.
         var hits=LbcProjectileSweep.all(level,player,origin,end,entity->projectileTarget(player,entity));
-        var damage=new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),player);
+        var damage=game.items().indirectKills().captureDamage(new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),player),
+                me.skywars2.game.combat.WeaponEnchantments.effectCause(player));
         for(var hit:hits) if(projectileTarget(player,hit.getEntity())
                 &&(!Double.isFinite(boundary)||origin.distanceToSqr(hit.getLocation())<step.lengthSqr()*boundary*boundary-1e-9)) {
             // Каждая цель встречается один раз; нативную защиту от повторного урона не сбрасываем.
@@ -1288,6 +1304,7 @@ for(double step=0;step<=distance;step+=.5) {
             Vec3 start=blockContact ? end.add(wallNormal) : end.subtract(direction);
             if(level.hasChunkAt(BlockPos.containing(start))) {
                 var trace=new ElectroTrace(owner,start,game.items().epoch());
+                trace.cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
                 if(blockContact) {
                     trace.yaw=(float)-Math.toDegrees(Math.atan2(wallNormal.x,wallNormal.z));
                     trace.pitch=(float)-Math.toDegrees(Math.atan2(wallNormal.y,wallNormal.horizontalDistance()));
@@ -1332,14 +1349,16 @@ for(double step=0;step<=distance;step+=.5) {
     void libraryFlyingElectro(ServerPlayer owner,Vec3 origin,Vec3 direction){
         for(int lifetime:new int[]{35,20,25,30}){
             var trace=new ElectroTrace(owner,origin,game.items().epoch(),lifetime);
+            trace.cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
             trace.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
             trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));electroTraces.add(trace);
         }
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
     void sauvojenElectro(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean ray){
-        if(ray) electroRayAt(owner,origin,direction,null);
-        else directedElectro(owner,origin,direction,3,null);
+        var cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
+        if(ray) electroRayAt(owner,origin,direction,cause);
+        else directedElectro(owner,origin,direction,3,cause);
     }
     public void directedElectro(ServerPlayer owner, Vec3 origin, Vec3 direction, int count, LbcIndirectKills.Owner cause) {
         float yaw = (float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
@@ -1407,8 +1426,11 @@ for(double step=0;step<=distance;step+=.5) {
     }
     void electroVolley(ServerPlayer owner) {
         Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle();
-        for(int i=0;i<3;i++)
-            electroTraces.add(new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),40+i*5));
+        for(int i=0;i<3;i++){
+            var trace=new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),40+i*5);
+            trace.cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
+            electroTraces.add(trace);
+        }
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
 
@@ -1419,6 +1441,7 @@ for(double step=0;step<=distance;step+=.5) {
         if(hand==InteractionHand.OFF_HAND&&!academy)origin=origin.add(direction.scale(.5));
         for(int i=0;i<(chain?1:4);i++){
             var trace=new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),chain?150:30+i*5);
+            trace.cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
             trace.teslaChain=chain;
             if(!chain&&LbcAcademy.trial(stack)){trace.trialOwner=owner;trace.trialHand=hand;trace.trialStack=stack;}
             electroTraces.add(trace);
@@ -1492,13 +1515,14 @@ for(double step=0;step<=distance;step+=.5) {
     private void electroMeditation(ServerPlayer owner) {
         for(int i=0;i<60;i++) {
             var trace=new ElectroTrace(owner,owner.getEyePosition(),game.items().epoch(),10,true);
+            trace.cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
             trace.yaw=owner.getRandom().nextInt(361)-180;
             trace.pitch=owner.getRandom().nextInt(181)-90;
             electroTraces.add(trace);
         }
     }
     /** Режим Academy: одна геометрическая проверка пути и хитбоксов вместо рекурсии на 1001 шаг. */
-    public void electroRay(ServerPlayer owner) {electroRayAt(owner,owner.getEyePosition(),owner.getLookAngle(),null);}
+    public void electroRay(ServerPlayer owner) {electroRayAt(owner,owner.getEyePosition(),owner.getLookAngle(),me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));}
     public void electroRayAt(ServerPlayer owner,Vec3 from,Vec3 direction,LbcIndirectKills.Owner cause) {
         var level=owner.level();
         Vec3 end=from.add(direction.scale(100));
@@ -1538,6 +1562,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
             Vec3 next=transform.apply(trace.position);
             if(next==null) return true;
             trace.position=next;
+            if(trace.erecto!=null){trace.erecto.origin=transform.apply(trace.erecto.origin);if(trace.erecto.origin==null)return true;}
             if(trace.erecto!=null&&trace.erecto.focus!=null)trace.erecto.focus=transform.apply(trace.erecto.focus);
             return false;
         });
@@ -1918,8 +1943,9 @@ for(int i=0;i<=100 && i<boundary;i++) {
     private void blindEnd(ServerPlayer player,Vec3 point,Entity hit) {
         if(hit!=null) {
             if(hit instanceof LivingEntity living) living.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,80,0));
-            hit.hurtServer(player.level(),new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                    .getOrThrow(DamageTypes.ARROW),player),.25f);
+            var damage=game.items().indirectKills().captureDamage(new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                    .getOrThrow(DamageTypes.ARROW),player),me.skywars2.game.combat.WeaponEnchantments.effectCause(player));
+            hit.hurtServer(player.level(),damage,.25f);
         }
         LbcOverload.sound(player,point,"minecraft:entity.squid.squirt",1,2,0);
     }
@@ -1959,8 +1985,10 @@ for(int i=0;i<=100 && i<boundary;i++) {
     public boolean validRoleTarget(Entity entity,boolean allowDying,boolean allowSauvojen) {
         if(game.items().polymorph().detached(entity))return false;
         if(LbcBedwarsRoleGuards.shop(entity))return false;
+        // Source ray-denial tags keep map helpers protected; the managed combat boss is damageable.
+        boolean sauvojen=game.items().sauvojenBoss().managed(entity);
         return (allowDying || entity.isAlive()) && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
-                && !entity.entityTags().contains("rcdenyalways") && (allowSauvojen||!entity.entityTags().contains("sauvojen_tuntija"))
+                && (sauvojen||!entity.entityTags().contains("rcdenyalways")) && (sauvojen||allowSauvojen||!entity.entityTags().contains("sauvojen_tuntija"))
                 && !entity.entityTags().contains("strict_map_object")
                 && !entity.entityTags().contains("magic_academy")
                 && (!entity.entityTags().contains("transformator") || LbcTransformator.managed(entity))

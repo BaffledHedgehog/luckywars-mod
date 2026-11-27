@@ -150,8 +150,8 @@ public final class LbcErecto {
     public static final class SuperVolley {}
 
     public static final class Path {
-        public final int kind,focusSteps;public final Vec3 origin;public final ServerPlayer caster;public final InteractionHand hand;public final ItemStack stack;
-        public Vec3 focus;public int side;public LbcIndirectKills.Owner terrainCause;public LbcBeamAmmo ammunition;
+        public final int kind,focusSteps;public final ServerPlayer caster;public final InteractionHand hand;public final ItemStack stack;
+        public Vec3 origin,focus;public int side;public LbcIndirectKills.Owner terrainCause;public LbcBeamAmmo ammunition;
         public CrossbowBlasts pendingBlasts;
         public SuperVolley superVolley;
         public Path(int kind,Vec3 origin,Vec3 focus,int focusSteps,int side,ServerPlayer caster,InteractionHand hand,ItemStack stack){
@@ -159,13 +159,15 @@ public final class LbcErecto {
         }
     }
     public static final class Sphere {
-        public final ServerPlayer owner;final ServerLevel level;public final Vec3 position;public final String epoch;public int age;
+        public final ServerPlayer owner;final ServerLevel level;public Vec3 position;public final String epoch;public int age;
+        final LbcIndirectKills.Owner cause;
         int cloneMask;
-        Sphere(ServerPlayer owner,Vec3 position,String epoch){this.owner=owner;level=owner.level();this.position=position;this.epoch=epoch;}
+        Sphere(ServerPlayer owner,Vec3 position,String epoch,LbcIndirectKills.Owner cause){this.owner=owner;level=owner.level();this.position=position;this.epoch=epoch;this.cause=cause;}
     }
     private final GameController game;
     private final Set<Sphere> spheres=new LinkedHashSet<>();
     private final Map<ServerPlayer,String> rays=new IdentityHashMap<>();
+    private final Map<ServerPlayer,LbcIndirectKills.Owner> rayCauses=new IdentityHashMap<>();
     private static final Identifier SNIPER_WINDUP=Identifier.parse("skywars2:erecto_sniper_windup");
     private final Map<ServerPlayer,Integer> sniperWindups=new IdentityHashMap<>();
     private int blastTick=Integer.MIN_VALUE,blastsThisTick;
@@ -189,7 +191,8 @@ public final class LbcErecto {
         else if(owner.getXRot()>=89){
             // Looking straight down is source aim assistance, not a paid sniper discharge.
             mana.set(owner,mana.get(owner)+cost);LivingEntity farthest=null;double distance=-1;
-            for(var entity:owner.level().getAllEntities())if(entity instanceof LivingEntity living&&game.items().wands().target(owner,entity)){
+            for(var entity:owner.level().getAllEntities())if(entity!=owner&&entity instanceof LivingEntity living
+                    &&entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().target(owner,entity)){
                 double d=entity.distanceToSqr(owner);if(d>distance){distance=d;farthest=living;}
             }
             if(farthest!=null)rotate(owner,farthest.getEyePosition().subtract(owner.getEyePosition()),0);
@@ -201,8 +204,8 @@ public final class LbcErecto {
     public void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         switch(mode) {
             case 1 -> volley(owner,hand,stack);
-            case 2 -> {game.items().mana().score(owner,"ray").add(40);rays.put(owner,game.items().epoch());}
-            case 3 -> {var hit=first(owner,150,true);if(hit!=null)spheres.add(new Sphere(owner,hit.getLocation().subtract(owner.getLookAngle()),game.items().epoch()));}
+            case 2 -> {game.items().mana().score(owner,"ray").add(40);rays.put(owner,game.items().epoch());rayCauses.put(owner,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));}
+            case 3 -> {var hit=first(owner,150,true);if(hit!=null)spheres.add(new Sphere(owner,hit.getLocation().subtract(owner.getLookAngle()),game.items().epoch(),me.skywars2.game.combat.WeaponEnchantments.effectCause(owner)));}
             case 4 -> sniper(owner,hand,stack);
             default -> throw new IllegalArgumentException("Erecto mode "+mode);
         }
@@ -213,7 +216,7 @@ public final class LbcErecto {
         switch(mode){
             case 1->volleyAt(owner,hand,ItemStack.EMPTY,origin,direction);
             case 2->rayAt(owner,origin,direction);
-            case 3->{var hit=firstAt(owner,origin,direction,150,true);if(hit!=null)spheres.add(new Sphere(owner,hit.getLocation().subtract(direction),game.items().epoch()));}
+            case 3->{var hit=firstAt(owner,origin,direction,150,true);if(hit!=null)spheres.add(new Sphere(owner,hit.getLocation().subtract(direction),game.items().epoch(),me.skywars2.game.combat.WeaponEnchantments.effectCause(owner)));}
             case 4->{
                 add(owner,origin,yaw,pitch,200,new Path(SNIPER,origin,null,0,0,owner,hand,ItemStack.EMPTY));
                 LbcOverload.sound(owner,origin,"minecraft:item.trident.return",3,1.3f,0);
@@ -264,7 +267,10 @@ public final class LbcErecto {
         for(int side:new int[]{1,-1,2,-2,3,-3,4,-4})add(owner,origin,yaw+side*10,pitch,200,new Path(SIDE,origin,focus,steps,side,owner,hand,stack));
     }
     private void add(ServerPlayer owner,Vec3 at,float yaw,float pitch,int lifetime,Path path){
-        var trace=new LbcWands.ElectroTrace(owner,at,game.items().epoch(),lifetime);trace.yaw=yaw;trace.pitch=pitch;trace.erecto=path;game.items().wands().higherElectro(trace);
+        add(owner,at,yaw,pitch,lifetime,path,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
+    }
+    private void add(ServerPlayer owner,Vec3 at,float yaw,float pitch,int lifetime,Path path,LbcIndirectKills.Owner cause){
+        var trace=new LbcWands.ElectroTrace(owner,at,game.items().epoch(),lifetime);trace.yaw=yaw;trace.pitch=pitch;trace.erecto=path;trace.cause=cause;game.items().wands().higherElectro(trace);
     }
     /**
      * Includes jobs whose trace has retired. Per-tick debits cover launches whose
@@ -387,7 +393,7 @@ public final class LbcErecto {
     }
     private static void aim(LbcWands.ElectroTrace t,Vec3 direction){t.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));t.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));}
     private void hurt(LbcWands.ElectroTrace t,Vec3 from,Vec3 to,double spacing,float amount,int limit){
-        var damage=new DamageSource(t.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),t.owner);
+        var damage=game.items().indirectKills().captureDamage(new DamageSource(t.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),t.owner),t.cause);
         LbcDamage.hurtArc(t.level,damage,from,to,spacing,amount,limit,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(t.owner,e)
                 && (t.erecto.kind!=CENTRAL&&t.erecto.kind!=SNIPER||!e.entityTags().contains("transformator")),false,t.erecto.kind==PHANTOM,t.owner,e->{
             var p=t.erecto;
@@ -398,7 +404,7 @@ public final class LbcErecto {
         var level=trace.level;if(!level.hasChunkAt(BlockPos.containing(point)))return;
         Vec3 particles=point.subtract(Vec3.directionFromRotation(trace.pitch,trace.yaw).scale(.5));level.sendParticles(ParticleTypes.END_ROD,particles.x,particles.y,particles.z,25,.1,.1,.1,.1);
         if(!level.getBlockState(BlockPos.containing(point)).is(CONDUCTIVE))return;
-        var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.owner);
+        var damage=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.owner),trace.cause);
         for(var e:level.getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(15),e->e.position().distanceToSqr(point)<=225&&game.items().wands().projectileTarget(trace.owner,e)&&!e.entityTags().contains("transformator"))){
             e.hurtServer(level,damage,8);level.sendParticles(ParticleTypes.END_ROD,e.getX(),e.getY()+1,e.getZ(),3,.3,.6,.3,.2);
         }
@@ -474,7 +480,7 @@ public final class LbcErecto {
                 game.items().stonekivi().queuedWork(work);
             }
             if(trace.erecto.ammunition!=null)trace.erecto.ammunition.lineSegment(trace.level,from,end,trace.cause);
-            var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),trace.owner);
+            var damage=game.items().indirectKills().captureDamage(new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),trace.owner),trace.cause);
             LbcDamage.hurtPiercingBeam(trace.level,damage,from,end,.3,20,2,
                     e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(trace.owner,e)
                             &&!e.entityTags().contains("transformator"),trace.owner);
@@ -571,7 +577,7 @@ public final class LbcErecto {
         }
     }
     public int rayPending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"ray"));}
-    public void addPlayerCounter(ServerPlayer owner){game.items().mana().score(owner,"ray").add(1);rays.put(owner,game.items().epoch());}
+    public void addPlayerCounter(ServerPlayer owner){game.items().mana().score(owner,"ray").add(1);rays.put(owner,game.items().epoch());rayCauses.put(owner,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));}
     /** A source food can set ray directly; it must not create a second ray clock or another debit. */
     public void adoptRawFoodStatuses(ServerPlayer owner){
         if(rayPending(owner)>0&&!game.items().magic().rejectCustomEffect(owner))rays.put(owner,game.items().epoch());
@@ -579,6 +585,13 @@ public final class LbcErecto {
 
     public int sphereCount(){return spheres.size();}
     public List<Sphere> sphereSnapshot(){return List.copyOf(spheres);}
+    /** The source sphere is a live marker; accepted ray samples and world writes remain fixed. */
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        spheres.removeIf(sphere->{
+            if(sphere.level!=level||sphere.age>=300||!active(sphere.owner,sphere.epoch))return false;
+            var next=transform.apply(sphere.position);if(next==null)return true;sphere.position=next;return false;
+        });
+    }
     public void tick(){
         for(var entry:List.copyOf(sniperWindups.entrySet())){
             var owner=entry.getKey();
@@ -590,20 +603,23 @@ public final class LbcErecto {
         }
         for(var entry:List.copyOf(rays.entrySet())){
             var owner=entry.getKey();if(!active(owner,entry.getValue())||game.items().magic().rejectCustomEffect(owner)){clearRay(owner);continue;}
-            if(rayPending(owner)<=0){rays.remove(owner);continue;}if(game.items().timeStop().stopped(owner.level()))continue;
-            ray(owner);game.items().mana().score(owner,"ray").add(-1);if(rayPending(owner)<=0)rays.remove(owner);
+            if(rayPending(owner)<=0){rays.remove(owner);rayCauses.remove(owner);continue;}if(game.items().timeStop().stopped(owner.level()))continue;
+            rayAt(owner,owner.getEyePosition(),owner.getLookAngle(),rayCauses.get(owner));game.items().mana().score(owner,"ray").add(-1);if(rayPending(owner)<=0){rays.remove(owner);rayCauses.remove(owner);}
         }
         for(var sphere:List.copyOf(spheres)){
             if(!active(sphere.owner,sphere.epoch)||sphere.owner.level()!=sphere.level||!sphere.level.hasChunkAt(BlockPos.containing(sphere.position))){spheres.remove(sphere);continue;}
             if(game.items().timeStop().stopped(sphere.level))continue;
             if(++sphere.age%5==0)for(int i=0;i<16;i++)add(sphere.owner,sphere.position,sphere.owner.getRandom().nextFloat()*360-180,sphere.owner.getRandom().nextFloat()*180-90,8,
-                    new Path(PHANTOM,sphere.position,null,0,0,sphere.owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY));
+                    new Path(PHANTOM,sphere.position,null,0,0,sphere.owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY),sphere.cause);
             if(sphere.age>=300)spheres.remove(sphere);
         }
     }
     private boolean active(ServerPlayer owner,String epoch){return owner.isAlive()&&!owner.isRemoved()&&game.items().currentEpoch(epoch)&&game.canUseGameplayItems(owner);}
     private void ray(ServerPlayer owner){rayAt(owner,owner.getEyePosition(),owner.getLookAngle());}
     private void rayAt(ServerPlayer owner, Vec3 from, Vec3 direction) {
+        rayAt(owner,from,direction,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
+    }
+    private void rayAt(ServerPlayer owner, Vec3 from, Vec3 direction,LbcIndirectKills.Owner cause) {
         var level = owner.level();
         Vec3 end = from.add(direction.scale(50));
         double boundary = game.items().magic().mechanismSuppressionFraction(level, from, end);
@@ -631,8 +647,8 @@ public final class LbcErecto {
             }
         }
         LbcOverload.sound(owner, from.lerp(end, .5), "minecraft:entity.firework_rocket.twinkle", .03f, 2, 0);
-        var damage = new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(LbcDamage.ELECTRO_BOLT), owner);
+        var damage = game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(LbcDamage.ELECTRO_BOLT), owner),cause);
         var affected = Collections.newSetFromMap(new IdentityHashMap<Entity, Boolean>());
         LbcDamage.hurtSegment(level, damage, from, end, Vec3.ZERO, .5, .5f, 1,
                 e -> e.getType().builtInRegistryHolder().is(MOBS) && game.items().wands().projectileTarget(owner, e),
@@ -643,7 +659,7 @@ public final class LbcErecto {
                     }
                 }, null);
     }
-    public void clearRay(ServerPlayer owner){rays.remove(owner);game.items().mana().score(owner,"ray").set(0);clearSniperWindup(owner);}
+    public void clearRay(ServerPlayer owner){rays.remove(owner);rayCauses.remove(owner);game.items().mana().score(owner,"ray").set(0);clearSniperWindup(owner);}
     public int sniperWindupTicks(ServerPlayer owner){return sniperWindups.getOrDefault(owner,0);}
     private void clearSniperWindup(ServerPlayer owner){sniperWindups.remove(owner);owner.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(SNIPER_WINDUP);}
     public void forget(ServerPlayer owner){clearRay(owner);clearSniperWindup(owner);spheres.removeIf(s->s.owner==owner);}
@@ -656,7 +672,7 @@ public final class LbcErecto {
             if(sphere.age>=300||!active(sphere.owner,sphere.epoch)||sphere.owner.level()!=sphere.level
                     ||!CloneVirtualAbilityStates.near(game,holder,sphere.level,sphere.position,sphere.cloneMask,skill))continue;
             var points=CloneVirtualAbilityStates.positions(holder,sphere.level,sphere.position,skill);if(points==null)continue;
-            for(var point:points){var copy=new Sphere(sphere.owner,point,sphere.epoch);copy.age=sphere.age;
+            for(var point:points){var copy=new Sphere(sphere.owner,point,sphere.epoch,sphere.cause);copy.age=sphere.age;
                 copy.cloneMask=sphere.cloneMask|bit;spheres.add(copy);}
             sphere.cloneMask|=bit;made+=count;
         }
@@ -664,14 +680,17 @@ public final class LbcErecto {
     }
     public SphereCheckpoint checkpointSpheres(MatchSpellCheckpoint.Links links){return new SphereCheckpoint(links);}
     public final class SphereCheckpoint {
-        private record Image(MatchDamageSources.Ref owner,ServerLevel level,Vec3 position,String epoch,int age,int mask){}
+        private record Image(MatchDamageSources.Ref owner,ServerLevel level,Vec3 position,String epoch,int age,int mask,LbcIndirectKills.Owner cause){}
+        private record RayImage(MatchDamageSources.Ref owner,String epoch,LbcIndirectKills.Owner cause){}
         private final List<Image> images;
-        SphereCheckpoint(MatchSpellCheckpoint.Links links){images=spheres.stream().map(s->new Image(links.key(s.owner),s.level,s.position,s.epoch,s.age,s.cloneMask)).toList();}
+        private final List<RayImage> rayImages;
+        SphereCheckpoint(MatchSpellCheckpoint.Links links){images=spheres.stream().map(s->new Image(links.key(s.owner),s.level,s.position,s.epoch,s.age,s.cloneMask,s.cause)).toList();rayImages=rays.entrySet().stream().map(e->new RayImage(links.key(e.getKey()),e.getValue(),rayCauses.get(e.getKey()))).toList();}
         public Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Sphere>();
             for(var image:images){var owner=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.level);
                 if(owner.level()!=image.level)throw new IllegalStateException("Restore sphere's original author dimension");
-                var sphere=new Sphere(owner,image.position,image.epoch);sphere.age=image.age;sphere.cloneMask=image.mask;values.add(sphere);}
-            return ()->{spheres.clear();spheres.addAll(values);};
+                var sphere=new Sphere(owner,image.position,image.epoch,image.cause);sphere.age=image.age;sphere.cloneMask=image.mask;values.add(sphere);}
+            var rayOwners=new IdentityHashMap<ServerPlayer,RayImage>();for(var image:rayImages)rayOwners.put((ServerPlayer)links.get(image.owner),image);
+            return ()->{spheres.clear();spheres.addAll(values);rays.clear();rayCauses.clear();rayOwners.forEach((owner,image)->{rays.put(owner,image.epoch);rayCauses.put(owner,image.cause);});};
         }
     }
 

@@ -49,6 +49,7 @@ public final class LbcUniwand {
                 .component(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_q"))
                 .component(DataComponents.CUSTOM_NAME,text("uniwand",0xffaa00))
                 .component(DataComponents.LORE,new ItemLore(lore)).component(DataComponents.CUSTOM_DATA,CustomData.of(data));
+        props.enchantable(1).component(DataComponents.ENCHANTMENTS,net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,Items.CARROT_ON_A_STICK,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
                 var game=me.skywars2.SkyWars2.game();return game!=null&&player instanceof ServerPlayer p&&game.items().wands().use(p,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;

@@ -23,7 +23,8 @@ public abstract class SkillDamageReceiptMixin {
         if(game!=null){
             me.skywars2.game.combat.LbcAcceptedHits.record(mob,source,amount);
             game.items().indirectKills().acceptedDamage(mob,source,amount);
-            if(mob instanceof ServerPlayer player)game.items().containedSkills().recordDamage(player,source,amount);
+            if(mob instanceof ServerPlayer player&&me.skywars2.game.entities.LbcDimensionItems.ordinary(player.level()))
+                game.items().containedSkills().recordDamage(player,source,amount);
         }
     }
     @Mixin(LivingEntity.class)

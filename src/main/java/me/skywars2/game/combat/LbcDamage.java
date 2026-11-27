@@ -271,6 +271,10 @@ public final class LbcDamage {
                 || source.is(CONSUMING) || source.is(YELLOW_BOLT) || source.is(LbcKfcRewards.CULTUS_ARROW);
     }
     public static boolean allowDamage(LivingEntity victim, DamageSource source) {
+        var current=me.skywars2.SkyWars2.game();
+        if(current!=null && victim instanceof ServerPlayer player
+                && current.items().mana().hudValue(player,"void_resistance")>0
+                && (source.is(DamageTypes.FELL_OUT_OF_WORLD)||source.is(DamageTypes.OUTSIDE_BORDER)))return false;
         if(!LbcBedwarsRoleGuards.affectable(victim)||!LbcBedwarsHarm.damageAllowed(victim,source))return false;
         if(LbcGreed.active(victim)) return false;
         var game=me.skywars2.SkyWars2.game();

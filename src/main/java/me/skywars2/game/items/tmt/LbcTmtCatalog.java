@@ -98,6 +98,8 @@ public final class LbcTmtCatalog {
     private static final Map<Item,Trinket> TRINKETS=trinkets();
     private final List<Family> families;
     private final Map<String,Family> familyById;
+    private static volatile Set<String> disabledPassiveFamilies=Set.of();
+    private final List<Family> selectableFamilies;
     private final Map<Item,List<Family>> triggerCandidates=new java.util.IdentityHashMap<>();
     private final Domains domains;
 
@@ -207,17 +209,25 @@ public final class LbcTmtCatalog {
         }
         families=all.values().stream().map(Collected::freeze).toList();
         familyById=families.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(Family::id,f->f));
+        selectableFamilies=families.stream().filter(f->!inventoryOrLooseOnly(f)).toList();
+        disabledPassiveFamilies=families.stream().filter(LbcTmtCatalog::inventoryOrLooseOnly)
+                .map(Family::id).collect(java.util.stream.Collectors.toUnmodifiableSet());
         domains=new Domains(registered,canonical,families.size(),families.stream().mapToInt(family->family.variants().size()).sum(),List.copyOf(findings.values()));
         if(families.isEmpty())throw new IllegalStateException("Empty unified TMT catalog");
     }
 
+    private static boolean inventoryOrLooseOnly(Family family){
+        return !family.events().isEmpty()&&!family.locations().contains(Location.EQUIPPED)
+                &&family.events().stream().allMatch(event->event==Event.INVENTORY||event==Event.DROP);
+    }
+    static boolean passiveAllowed(String id){return !disabledPassiveFamilies.contains(id);}
     public List<Family> families(){return families;}
     Family family(String id){return familyById.get(id);}
-    List<Family> triggerCandidates(ItemStack carrier){return triggerCandidates.computeIfAbsent(LbcTmtItems.vanillaCarrier(carrier),ignored->families.stream().filter(f->LbcTmtTriggers.compatible(f,carrier)).toList());}
+    List<Family> triggerCandidates(ItemStack carrier){return triggerCandidates.computeIfAbsent(LbcTmtItems.vanillaCarrier(carrier),ignored->families.stream().filter(f->!inventoryOrLooseOnly(f)&&LbcTmtTriggers.compatible(f,carrier)).toList());}
     public Domains domains(){return domains;}
     /** Each semantic family has one lottery entry; a second uniform draw chooses its private variant. */
     LbcTmtAbilities.Ability draw(RandomSource random){
-        var family=families.get(random.nextInt(families.size()));
+        var family=selectableFamilies.get(random.nextInt(selectableFamilies.size()));
         return family.variants().get(random.nextInt(family.variants().size()));
     }
     /** Seven independent draws with replacement; the generator's write applies last-family-wins. */

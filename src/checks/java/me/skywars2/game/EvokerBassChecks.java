@@ -140,9 +140,9 @@ public final class EvokerBassChecks {
             require(s.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("upgrade_available",0)==1,"four effects on one nearby target complete the used wand's trial");
             mob.removeAllEffects();s=loot("academy_bass_wand");mode(s,3);use(s,InteractionHand.MAIN_HAND);require(!mob.hasEffect(MobEffects.BLINDNESS),"Academy blind mode is player-only as source");
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);game.items().evokerBass().forget(owner);mode(s,1);game.items().mana().set(owner,10000);
-            require(use(s,InteractionHand.MAIN_HAND),"first beat");for(int i=0;i<10;i++)game.items().evokerBass().tick();require(use(s,InteractionHand.MAIN_HAND),"second beat");for(int i=0;i<10;i++)game.items().evokerBass().tick();
+            require(use(s,InteractionHand.MAIN_HAND),"first beat");game.items().evokerBass().restoreClock(game.items().evokerBass().checkpointClock()+10);require(use(s,InteractionHand.MAIN_HAND),"second beat");game.items().evokerBass().restoreClock(game.items().evokerBass().checkpointClock()+10);
             float hp=mob.getHealth();require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().score(owner,"bass_combo").get()==3&&game.items().mana().get(owner)==8100&&mob.getHealth()==hp-3,"third rhythmic cast deals combo3 and refunds500");
-            for(int i=0;i<20;i++)game.items().evokerBass().tick();require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().score(owner,"bass_combo").get()==1,"failed beat starts new source combo");
+            game.items().evokerBass().restoreClock(game.items().evokerBass().checkpointClock()+20);require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().score(owner,"bass_combo").get()==1,"failed beat starts new source combo");
             // The two hands each cast/pay independently; items are never replaced during use.
             var left=loot("academy_bass_wand");owner.setItemInHand(InteractionHand.OFF_HAND,left);int mana=game.items().mana().get(owner);require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==mana-1600&&owner.getOffhandItem()==left,"dual dispatch and separate costs");
             mob.discard();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);

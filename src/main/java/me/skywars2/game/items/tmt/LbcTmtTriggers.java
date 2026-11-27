@@ -109,12 +109,17 @@ public final class LbcTmtTriggers {
         if(LbcTmtAbilities.active(stack)&&!captured.isEmpty())return all.stream().filter(a->a.id().equals(captured)).toList();
         if(selected!=null&&sameSource(stack,selected.source))return all.stream().filter(a->selected.ids.contains(a.id())).toList();
         if(!LbcTmtItems.matches(stack))return List.of();
-        return ((LbcTmtAbilities.CachedSlots)(Object)stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)).skywars2$tmtNaturalSlots();
+        return allowedNatural(((LbcTmtAbilities.CachedSlots)(Object)stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)).skywars2$tmtNaturalSlots());
+    }
+    private static List<LbcTmtAbilities.Ability> allowedNatural(List<LbcTmtAbilities.Ability> slots){
+        for(var ability:slots)if(!LbcTmtCatalog.passiveAllowed(ability.id()))
+            return slots.stream().filter(a->LbcTmtCatalog.passiveAllowed(a.id())).toList();
+        return slots;
     }
     static List<LbcTmtAbilities.Ability> effective(CompoundTag root){
         var all=LbcTmtAbilities.read(root);var selected=selection.get();
         if(selected!=null&&root.getIntOr("tmt_texture_seed",-1)==ItemData.intValue(selected.source,"tmt_texture_seed",-2))return all.stream().filter(a->selected.ids.contains(a.id())).toList();
-        return all.stream().filter(a->!bound(a)).toList();
+        return all.stream().filter(a->!bound(a)&&LbcTmtCatalog.passiveAllowed(a.id())).toList();
     }
     private static boolean sameSource(ItemStack first,ItemStack second){
         return first==second||LbcTmtItems.matches(first)&&LbcTmtItems.matches(second)

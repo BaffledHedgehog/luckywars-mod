@@ -47,7 +47,9 @@ public final class LbcFevgaleaStar {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:fevgalea_star"));
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(new Item.Properties(){
             @Override public Identifier effectiveModel(){return Identifier.parse("lbc:fevgalea_star");}
-        }.setId(key).durability(4000).overrideDescription("fevgalea_star"),Items.CARROT_ON_A_STICK,true){
+        }.setId(key).durability(4000).component(DataComponents.ENCHANTABLE,new net.minecraft.world.item.enchantment.Enchantable(1))
+                .component(DataComponents.ENCHANTMENTS,net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY)
+                .overrideDescription("fevgalea_star"),Items.CARROT_ON_A_STICK,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
                 var controller=me.skywars2.SkyWars2.game();
                 return controller!=null&&player instanceof ServerPlayer owner&&controller.items().wands().use(owner,hand)
@@ -76,6 +78,8 @@ public final class LbcFevgaleaStar {
     private boolean cast(ServerPlayer owner,InteractionHand hand){
         if(hand!=InteractionHand.MAIN_HAND||!isSword(owner.getMainHandItem())||!admitted(owner))return false;
         var stack=owner.getMainHandItem();int charge=charges(owner);var mana=game.items().mana();
+        // The physical sword stays a sword. Only this explicit ability receives a private wand projection.
+        try(var spell=me.skywars2.game.combat.WeaponEnchantments.usingSpell(owner,stack)){
         var stars=game.items().sauvojen().stars();var eye=owner.getEyePosition();var aim=owner.getLookAngle();
         if(owner.isShiftKeyDown()){
             if(charge>=7){
@@ -94,7 +98,9 @@ public final class LbcFevgaleaStar {
                 if(!mana.trySpendWand(owner,5000))return false;
                 var at=owner.position();owner.level().sendParticles(ParticleTypes.HEART,at.x,at.y+1,at.z,100,4,4,4,0);
                 burst(owner,0xff9d9d);owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,140,4),owner);
-                owner.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,99),owner);
+                owner.addEffect(me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(
+                        ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,99),
+                        me.skywars2.game.combat.WeaponEnchantments.effectCause(owner)),owner);
                 var counter=mana.score(owner,"void_resistance");counter.set((int)Math.min(Integer.MAX_VALUE,(long)counter.get()+7));
             }
         }else if(charge>=1){
@@ -104,6 +110,7 @@ public final class LbcFevgaleaStar {
             stars.castAt(owner,hand,stack,6,eye,aim);
         }
         return true;
+        }
     }
     private void burst(ServerPlayer owner,int color){
         Vec3 at=owner.position();var level=owner.level();
@@ -123,8 +130,11 @@ public final class LbcFevgaleaStar {
                 ||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
-        addPlayerCounter(owner);game.items().sauvojen().stars().castAt(owner,InteractionHand.MAIN_HAND,
-                owner.getMainHandItem(),7,owner.getEyePosition(),owner.getLookAngle());
+        addPlayerCounter(owner);
+        try(var spell=me.skywars2.game.combat.WeaponEnchantments.usingSpell(owner,owner.getMainHandItem())){
+            game.items().sauvojen().stars().castAt(owner,InteractionHand.MAIN_HAND,
+                    owner.getMainHandItem(),7,owner.getEyePosition(),owner.getLookAngle());
+        }
     }
     public void clear(ServerPlayer owner){game.items().mana().score(owner,CHARGE).set(0);}
     public void forget(ServerPlayer owner){clear(owner);}

@@ -54,8 +54,11 @@ public final class LbcCausticOmega {
         // Source growl is deliberately global to this dimension, positioned high above the cast.
         LbcOverload.sound(owner,new net.minecraft.world.phys.Vec3(owner.getX(),100000,owner.getZ()),"minecraft:entity.ender_dragon.growl",100000,2,0);
         var types=owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE);
-        DamageSource cactus=academy?new DamageSource(types.getOrThrow(DamageTypes.CACTUS),owner):new WildSource(owner);
-        var generic=new DamageSource(types.getOrThrow(DamageTypes.GENERIC),owner);
+        var cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
+        var wild=cause==null?null:new me.skywars2.game.combat.LbcIndirectKills.Owner(cause.player(),cause.order(),true,cause.projectile(),cause.enchantmentWeapon(),cause.weaponAction());
+        DamageSource originalCactus=academy?new DamageSource(types.getOrThrow(DamageTypes.CACTUS),owner):new WildSource(owner);
+        DamageSource cactus=game.items().indirectKills().captureDamage(originalCactus,academy?cause:wild);
+        var generic=game.items().indirectKills().captureDamage(new DamageSource(types.getOrThrow(DamageTypes.GENERIC),owner),cause);
         // Snapshot: damage callbacks can remove entities from the native world index.
         var targets=new java.util.ArrayList<LivingEntity>();
         owner.level().getAllEntities().forEach(e->{if(e instanceof LivingEntity living&&e.getType().builtInRegistryHolder().is(MOBS))targets.add(living);});
@@ -65,7 +68,7 @@ public final class LbcCausticOmega {
                         ||target.entityTags().contains("nomagic_active")))continue;
             for(int color:COLORS)owner.level().sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,color),
                     target.getX(),target.getY()+1,target.getZ(),16,.4,.5,.4,0);
-            target.hurtServer(owner.level(),academy&&!(target instanceof ServerPlayer)?generic:cactus,6);
+            target.hurtServer(owner.level(),target==owner?originalCactus:academy&&!(target instanceof ServerPlayer)?generic:cactus,6);
         }
         if(!academy&&before<=Mth.floor(owner.getHealth())&&owner.getItemInHand(hand)==stack&&LbcAcademy.trial(stack))game.items().academy().ready(owner,hand,stack);
     }

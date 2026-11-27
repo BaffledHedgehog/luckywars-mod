@@ -60,7 +60,9 @@ public final class LbcTesla {
             game.items().stonekivi().beginNativeWork();try {
                 this.game=game;this.owner=owner;level=owner.level();origin=owner.getEyePosition();yaw=owner.getYRot();pitch=owner.getXRot();epoch=game.items().epoch();
                 trace=new LbcWands.ElectroTrace(owner,origin,epoch);
-                damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);reset();
+                damage=game.items().indirectKills().captureDamage(
+                        new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner),
+                        me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));reset();
             }finally{game.items().stonekivi().endNativeWork();}
         }
         /** The accepted trace belongs to this job; unknown path/NPC extensions require their own adapter. */

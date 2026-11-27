@@ -138,6 +138,41 @@ public final class TpsCompensationChecks {
                     field(mode,"delayedTickStart").getInt(mode))<.7,
                     "stale STOP cannot move abandoned compensation into delayed progress");
 
+            // Polymer owns native completion; its sampled progress needs the same elapsed credit.
+            boolean drops=level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS);
+            level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS,false,game.server());
+            try{
+                var lucky=me.skywars2.game.items.loot.LbcLuckyBlocks.block(me.skywars2.game.items.loot.LbcLuckyBlocks.Kind.NORMAL).defaultBlockState();
+                // The preceding deliberate stale STOP leaves vanilla's delayed branch armed.
+                // This is an independent fresh-START case, not replacement of its old delayed block.
+                field(mode,"hasDelayedDestroy").setBoolean(mode,false);
+                mode.handleBlockBreakAction(pos,Action.ABORT_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+                player.getAttribute(Attributes.BLOCK_BREAK_SPEED).setBaseValue(2);
+                for(int idle=0;idle<5;idle++)mode.tick();
+                level.setBlock(pos,lucky,818);
+                // Prime Polymer's real native packet/effect setup before the measured clock.
+                mode.handleBlockBreakAction(pos,Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+                mode.handleBlockBreakAction(pos,Action.ABORT_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+                float luckyRate=lucky.getDestroyProgress(player,level,pos);
+                require(luckyRate>0&&luckyRate<.5,"hand setup requires multiple native Polymer samples; rate="+luckyRate);
+                require(!field(mode,"hasDelayedDestroy").getBoolean(mode),"no stale delayed branch before independent Polymer START");
+                level.setBlock(pos,lucky,818);long firstStarted=System.nanoTime();
+                mode.handleBlockBreakAction(pos,Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+                mode.tick();require(!level.getBlockState(pos).isAir(),"native lucky block needs more than its first sampled frame; rate="+luckyRate+" setupMs="+(System.nanoTime()-firstStarted)/1e6
+                        +" delayed="+field(mode,"hasDelayedDestroy").getBoolean(mode));
+                waitMillis(260);mode.tick();
+                require(level.getBlockState(pos).isAir(),"one real bounded stall completes native Polymer mining without client STOP");
+                // Twelve required samples: wall credit plus native catch-up must use max, not sum.
+                player.getAttribute(Attributes.BLOCK_BREAK_SPEED).setBaseValue(.5);
+                for(int idle=0;idle<5;idle++)mode.tick();
+                level.setBlock(pos,lucky,818);mode.handleBlockBreakAction(pos,Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+                mode.tick();waitMillis(260);mode.tick();
+                for(int catchup=0;catchup<6;catchup++)mode.tick();
+                require(!level.getBlockState(pos).isAir(),"Polymer native catch-up ticks cannot count the same stall twice");
+                mode.handleBlockBreakAction(pos,Action.ABORT_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            }finally{level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS,drops,game.server());}
+
+            level.setBlock(pos,Blocks.DIRT.defaultBlockState(),818);
             player.getAttribute(Attributes.BLOCK_BREAK_SPEED).setBaseValue(1000);
             field(mode,"hasDelayedDestroy").setBoolean(mode,false);
             mode.handleBlockBreakAction(pos,Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);

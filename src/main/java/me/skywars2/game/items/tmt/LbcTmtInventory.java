@@ -23,14 +23,14 @@ public final class LbcTmtInventory {
         return (reader.skywars2$readInt("mystical",0)==value?1<<type:0)|(reader.skywars2$readInt("mystical_old",0)==value?1<<(type+16):0);
     }
     public static boolean string(ItemStack stack,String key,String value){
-        if((!LbcTmtTriggers.modern(stack)||LbcTmtAbilities.active(stack))&&ItemData.stringValue(stack,key,"").equals(value))return true;
+        if((!LbcTmtItems.matches(stack)||LbcTmtAbilities.active(stack))&&ItemData.stringValue(stack,key,"").equals(value))return true;
         if(!LbcTmtItems.matches(stack))return false;
         for(var ability:LbcTmtTriggers.effective(stack))if(((ItemData.IntReader)(Object)ability.data()).skywars2$readString(key,"").equals(value))return true;
         return false;
     }
     public static boolean matches(ItemStack stack,CompoundTag pattern){
         var data=stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
-        if((!LbcTmtTriggers.modern(stack)||LbcTmtAbilities.active(stack))&&data!=null&&data.matchedBy(pattern))return true;
+        if((!LbcTmtItems.matches(stack)||LbcTmtAbilities.active(stack))&&data!=null&&data.matchedBy(pattern))return true;
         if(!LbcTmtItems.matches(stack))return false;
         for(var ability:LbcTmtTriggers.effective(stack))if(ability.data().matchedBy(pattern))return true;
         return false;

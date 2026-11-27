@@ -104,7 +104,7 @@ public final class LbcImbaTerrainUtilities {
         return List.copyOf(result);
     }
     private final class Job implements LbcStonekivi.Work {
-        final long id;ServerPlayer author;final ServerLevel level;final String epoch;final Kind kind;final Vec3 origin;final LbcIndirectKills.Owner cause;final List<Fill> fills;
+        final long id;ServerPlayer author;final ServerLevel level;final String epoch;final Kind kind;Vec3 origin;final LbcIndirectKills.Owner cause;final List<Fill> fills;
         final Map<ChunkPos,CompletableFuture<?>> tickets=new LinkedHashMap<>();
         int phase,mask;long cursor,visits,writes;boolean closed,actorLive,waiting;
         Job(long id,ServerPlayer author,Kind kind,Vec3 origin,LbcIndirectKills.Owner cause){this.id=id;this.author=author;level=author.level();epoch=game.items().epoch();this.kind=kind;this.origin=origin;this.cause=cause;fills=kind==Kind.DIRTER?boundedFills(origin,level):List.of();actorLive=templateActor(kind);}
@@ -154,14 +154,22 @@ public final class LbcImbaTerrainUtilities {
         }
         public void cancel(){closed=true;actorLive=false;release();jobs.remove(id,this);}
         public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
-            var player=graph.links.key(author);int layer=phase,flags=mask;long at=cursor,seen=visits,changed=writes;boolean ended=closed,live=actorLive;
-            return links->{MatchAuthorityCheckpoint.world(game,level);var owner=(ServerPlayer)links.get(player);return ()->{release();author=owner;phase=layer;mask=flags;cursor=at;visits=seen;writes=changed;closed=ended;actorLive=live;waiting=false;};};
+            var player=graph.links.key(author);var point=origin;int layer=phase,flags=mask;long at=cursor,seen=visits,changed=writes;boolean ended=closed,live=actorLive;
+            return links->{MatchAuthorityCheckpoint.world(game,level);var owner=(ServerPlayer)links.get(player);return ()->{release();author=owner;origin=point;phase=layer;mask=flags;cursor=at;visits=seen;writes=changed;closed=ended;actorLive=live;waiting=false;};};
         }
     }
     public record JobView(long id,Kind kind,UUID author,Vec3 origin,int phase,long cursor,long visits,long writes,boolean cloneable,int cloneMask){}
     public record State(int jobs,int actors,long visits,long writes,long finished){}
     public State state(){long visits=completedVisits,writes=completedWrites;int actors=0;for(var job:jobs.values()){visits+=job.visits;writes+=job.writes;if(job.actorLive)actors++;}return new State(jobs.size(),actors,visits,writes,completedJobs);}
     public List<JobView> views(){return jobs.values().stream().map(j->new JobView(j.id,j.kind,j.author.getUUID(),j.origin,j.phase,j.cursor,j.visits,j.writes,j.actorLive,j.mask)).toList();}
+    /** The source marker dies at the first publication quantum; accepted remaining writes never travel. */
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        checkpointBoundary();if(restoring)return;
+        for(var job:List.copyOf(jobs.values()))if(job.level==level&&!job.closed&&job.actorLive&&templateActor(job.kind)
+                &&game.items().currentEpoch(job.epoch)){
+            var point=transform.apply(job.origin);if(point==null)job.cancel();else job.origin=point;
+        }
+    }
     public int templateCells(){return bastion.size();}
     public record Bounds(BlockPos min,BlockPos max){}
     public Bounds bastionBounds(Vec3 origin){if(!ready())throw new IllegalStateException("Prepare exact Bastion first");int x=Integer.MAX_VALUE,y=x,z=x,maxX=Integer.MIN_VALUE,maxY=maxX,maxZ=maxX;var base=BlockPos.containing(origin.add(-8,-1,-8));for(var cell:bastion){var at=base.offset(cell.offset);x=Math.min(x,at.getX());y=Math.min(y,at.getY());z=Math.min(z,at.getZ());maxX=Math.max(maxX,at.getX());maxY=Math.max(maxY,at.getY());maxZ=Math.max(maxZ,at.getZ());}return new Bounds(new BlockPos(x,y,z),new BlockPos(maxX,maxY,maxZ));}

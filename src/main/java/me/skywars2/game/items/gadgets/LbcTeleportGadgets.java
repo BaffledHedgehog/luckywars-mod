@@ -156,7 +156,9 @@ public final class LbcTeleportGadgets {
             if(game.server().getTickCount()==charge.createdTick)continue;
             if(--charge.remaining>0)continue;
             charges.remove(player);stopSound(charge);
-            if(swap(player))debit(player,charge.stack);else failure(player);
+            if(swap(player))debit(player,charge.stack);else{
+                player.containerMenu.broadcastFullState();failure(player);
+            }
         }
     }
     private boolean swap(ServerPlayer player){

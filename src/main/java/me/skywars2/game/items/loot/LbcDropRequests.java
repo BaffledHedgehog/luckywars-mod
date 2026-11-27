@@ -35,11 +35,11 @@ public final class LbcDropRequests {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         var listing = SkyWarsCommandTree.add(dispatcher, Commands.literal("droprequests")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .requires(me.skywars2.game.commands.OwnerCommands::allowed)
                 .executes(ctx -> list(ctx.getSource())));
         dispatcher.register(Commands.literal("droprequests").requires(listing::canUse).executes(listing.getCommand()));
         var request = Commands.literal("droprequest")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
+                .requires(me.skywars2.game.commands.OwnerCommands::allowed);
         for (boolean made : new boolean[]{true, false}) {
             request.then(Commands.literal(made ? "made" : "unmade")
                     .then(Commands.argument("name", StringArgumentType.word())

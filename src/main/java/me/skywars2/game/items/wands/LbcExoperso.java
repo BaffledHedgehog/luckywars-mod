@@ -179,6 +179,10 @@ public final class LbcExoperso {
         batch.addAll(charges);
         try {
             for (Charge charge : batch) {
+                var controller=charge.getOwner() instanceof ServerPlayer player?player:null;
+                var source=game.items().spellSources().source(charge);
+                try(var enchantments=me.skywars2.game.combat.WeaponEnchantments.causeScope(controller,
+                        source!=null?source.cause():me.skywars2.game.combat.WeaponEnchantments.actorCause(charge,controller))){
                 if (!charges.contains(charge)) continue;
                 if (charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
                         || !game.items().currentEpoch(charge) || charge.level() != game.maps().level()
@@ -237,6 +241,7 @@ public final class LbcExoperso {
                 }
                 charge.flightAge++;
                 game.items().lifetimes().advance(charge, charge.flightAge);
+                }
             }
         } finally {
             batch.clear();

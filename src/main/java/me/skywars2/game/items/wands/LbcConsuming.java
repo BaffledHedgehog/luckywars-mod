@@ -115,8 +115,10 @@ public final class LbcConsuming {
     }
     private static final class Partition extends Owned {
         Vec3 point,direction; int age;
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
         Partition(ServerPlayer owner,String epoch,Vec3 point,Vec3 direction) {
             super(owner,epoch); this.point=point; this.direction=direction;
+            cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
         }
     }
     private static final class Area extends Owned {
@@ -261,7 +263,10 @@ public final class LbcConsuming {
                 && !game.items().magic().suppressedAt(owner.level(),entity.position());
     }
     private void hits(ServerPlayer owner,Vec3 from,Vec3 to,Vec3 padding,double spacing,float damage,int limit) {
-        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.CONSUMING),owner);
+        hits(owner,from,to,padding,spacing,damage,limit,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
+    }
+    private void hits(ServerPlayer owner,Vec3 from,Vec3 to,Vec3 padding,double spacing,float damage,int limit,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
+        var source=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.CONSUMING),owner),cause);
         var eligible=new IdentityHashMap<Entity,Boolean>();
         LbcDamage.hurtSegment(owner.level(),source,from,to,padding,spacing,damage,limit,
                 entity->entity.isAlive() && eligible.computeIfAbsent(entity,candidate->projectileTarget(owner,candidate)),false);
@@ -301,6 +306,7 @@ public final class LbcConsuming {
         theEnd(owner,owner.getEyePosition(),owner.getLookAngle(),false);
     }
     private void theEnd(ServerPlayer owner,Vec3 origin,Vec3 aim,boolean detached) {
+        var cause=game.items().indirectKills().coldCause(owner,true);
         Vec3 start=detached?origin:origin.add(aim.normalize().scale(8));
         float yaw=detached?(float)Math.toDegrees(Math.atan2(-aim.x,aim.z)):owner.getYRot();
         float pitch=detached?(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance())):owner.getXRot();
@@ -325,16 +331,16 @@ public final class LbcConsuming {
                     if(nether || ender) terrain.get(owner).portals.put(portal,(ender?Blocks.END_PORTAL:Blocks.NETHER_PORTAL).defaultBlockState());
                 }
             }
-            endHits(owner,start,end);
+            endHits(owner,start,end,cause);
         }
     }
     /** The End's source distance selector is a sphere around each sample, with two attempts per sample. */
-    private void endHits(ServerPlayer owner,Vec3 start,Vec3 end) {
+    private void endHits(ServerPlayer owner,Vec3 start,Vec3 end,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
         Vec3 delta=end.subtract(start); double length=delta.length();
         Vec3 direction=length>1e-9?delta.scale(1/length):Vec3.ZERO;
         int samples=(int)Math.floor(length/2+1e-6)+1;
         int[] attempts=new int[samples];
-        var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.CONSUMING),owner);
+        var damage=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.CONSUMING),owner),cause);
         for(var entity:game.items().lifetimes().loadedTargets()) {
             if(entity.level()!=owner.level() || !projectileTarget(owner,entity)) continue;
             Vec3 offset=entity.position().subtract(start);
@@ -389,7 +395,8 @@ public final class LbcConsuming {
             if(ordinary(entity)) doomed.add(entity);
         }
         queue(owner,new SilenceDisposeWork(erasure,doomed));
-        var outside=damage(owner,DamageTypes.OUTSIDE_BORDER);
+        var outside=game.items().indirectKills().captureDamage(damage(owner,DamageTypes.OUTSIDE_BORDER),
+                game.items().indirectKills().coldCause(owner,false));
         for(var player:owner.level().players()) if(player.position().distanceToSqr(center)<=48*48
                 && target(owner,player) && game.items().mana().hudValue(player,"void_resistance")<=0)
             player.hurtServer(owner.level(),outside,20);
@@ -519,7 +526,7 @@ public final class LbcConsuming {
             if(paused(part.owner)) continue;
             if(++part.age<60) continue;
             if(!traversable(part.owner,part.point)) { part.cancelled=true; continue; }
-            erase(part.owner,part.point,1); hits(part.owner,part.point,part.point,Vec3.ZERO,1,2,3);
+            erase(part.owner,part.point,1); hits(part.owner,part.point,part.point,Vec3.ZERO,1,2,3,part.cause);
             // Local spatial query avoids visiting every loaded mob for each active partition.
             for(var target:part.level.getEntitiesOfClass(LivingEntity.class,new AABB(part.point,part.point).inflate(8),
                     candidate->part.point.distanceToSqr(candidate.position())<=64
@@ -719,7 +726,8 @@ public final class LbcConsuming {
     }
     private final class AvariceWork implements LbcStonekivi.Work {
         ServerPlayer owner;final Vec3 impact;final List<Entity> entities;int cursor;
-        AvariceWork(ServerPlayer owner,Vec3 impact,List<Entity> entities){this.owner=owner;this.impact=impact;this.entities=entities;}
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
+        AvariceWork(ServerPlayer owner,Vec3 impact,List<Entity> entities){this.owner=owner;this.impact=impact;this.entities=entities;this.cause=game.items().indirectKills().coldCause(owner,true);}
         @Override public boolean step(){callbackDepth++;try{
             if(!owner.level().hasChunkAt(BlockPos.containing(impact)))return false;
             long deadline=System.nanoTime()+500_000;
@@ -728,7 +736,7 @@ public final class LbcConsuming {
                 entity.teleportTo(impact.x,impact.y,impact.z);if(entity instanceof LivingEntity living)game.items().indirectKills().displaced(living,owner);
             }
             if(cursor<entities.size())return false;
-            var generic=damage(owner,DamageTypes.GENERIC);
+            var generic=game.items().indirectKills().captureDamage(damage(owner,DamageTypes.GENERIC),cause);
             for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(impact,impact).inflate(3),
                     candidate->target(owner,candidate)&&candidate.position().distanceToSqr(impact)<=9))target.hurtServer(owner.level(),generic,20);
             return true;

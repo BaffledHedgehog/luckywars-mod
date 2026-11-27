@@ -34,6 +34,7 @@ public final class NuclearVisuals {
     private final List<Effect> effects=new ArrayList<>();
     private final Map<ServerGamePacketListenerImpl,Slot[]> viewers=new IdentityHashMap<>();
     private int clock;
+    private final me.skywars2.game.time.RealtimeTickClock wallClock;
 
     private static final class Effect {
         final ServerLevel level;
@@ -43,6 +44,7 @@ public final class NuclearVisuals {
         final boolean cancelInAntimagic;
         final int lifetime, fadeTicks;
         int age;
+        int born;
         Effect(ServerLevel level,Vec3 origin,float radius,String epoch,boolean magical,int totalTicks) {
             this.level=level; this.origin=origin; this.displayOrigin=origin.add(0,-3,0);
             this.radius=radius; this.epoch=epoch;
@@ -63,7 +65,11 @@ public final class NuclearVisuals {
         int availableAt;
     }
 
-    public NuclearVisuals(GameController game) { this.game=game; }
+    public NuclearVisuals(GameController game) { this(game,System::nanoTime); }
+    /** Isolated fixtures may supply monotonic time without blocking the native server thread. */
+    public NuclearVisuals(GameController game,java.util.function.LongSupplier nanos) {
+        this.game=game;this.wallClock=new me.skywars2.game.time.RealtimeTickClock(nanos);
+    }
     public int count() { return effects.size(); }
     public int clock() { return clock; }
 
@@ -78,15 +84,16 @@ public final class NuclearVisuals {
         if(level==null || !(radius>0) || !Float.isFinite(radius)
                 || !Double.isFinite(origin.x) || !Double.isFinite(origin.y) || !Double.isFinite(origin.z))
             throw new IllegalArgumentException("Nuclear origin and radius must be finite");
-        effects.add(new Effect(level,origin,radius,game.items().epoch(),cancelInAntimagic,totalTicks));
+        wallClock.advance(false);clock=(int)wallClock.ticks();
+        var effect=new Effect(level,origin,radius,game.items().epoch(),cancelInAntimagic,totalTicks);
+        effect.born=clock;effects.add(effect);
         refreshViewers();
     }
 
     public void tick() {
-        if(!game.server().tickRateManager().runsNormally()) return;
-        clock++;
+        wallClock.advance(false);clock=(int)wallClock.ticks();
         if(effects.isEmpty() && viewers.isEmpty()) return;
-        for(var effect:effects) if(!game.items().timeStop().stopped(effect.level)) effect.age++;
+        for(var effect:effects) effect.age=Math.max(0,clock-effect.born);
         // Stage the natural handoff one active tick before this source family's deadline.
         for(var entry:viewers.entrySet()) for(int index=0;index<SLOT_COUNT;index++) {
             var slot=entry.getValue()[index];
@@ -104,7 +111,6 @@ public final class NuclearVisuals {
         if(clock%UPDATE_TICKS!=0) return;
         for(var slots:viewers.values()) for(var slot:slots) {
             if(slot.effect==null || slot.retiring || slot.display==null) continue;
-            if(game.items().timeStop().stopped(slot.effect.level)) continue;
             slot.display.setScale(scale(slot.effect));
             // Polymer startInterpolation принудительно помечает START_INTERPOLATION dirty,
             // даже когда его значение снова 0: это обязательная часть shader-контракта.
@@ -115,11 +121,13 @@ public final class NuclearVisuals {
 
     private static Vector3f scale(Effect effect) {
         // Y — возраст, а не геометрическая высота процедурного гриба.
-        return new Vector3f(effect.radius,1+effect.age/20f,effect.radius);
+        return scale(effect,effect.age);
     }
 
     private static Vector3f scale(Effect effect,int age) {
-        return new Vector3f(effect.radius,1+age/20f,effect.radius);
+        // The Z/R channel carries the wall-clock lifetime for client-side expiry,
+        // even while no server metadata can arrive during a long tick.
+        return new Vector3f(effect.radius,1+age/20f,effect.radius*(2+(effect.lifetime+effect.fadeTicks)/20f));
     }
 
     private static Vector3f fadeScale(Effect effect,int age) {
@@ -248,7 +256,8 @@ public final class NuclearVisuals {
                     slot.display.setScale(scale(slot.effect,slot.fixedAge));
                     slot.display.setStartInterpolation(0); slot.holder.tick();
                     slot.holder.destroy(); slot.holder=null; slot.display=null;
-                    slot.mainRemovedAt=clock; slot.availableAt=clock+slot.effect.fadeTicks+DELIVERY_TICKS;
+                    slot.mainRemovedAt=clock;
+                    slot.availableAt=(slot.natural?Math.max(clock,slot.effect.born+slot.effect.lifetime+slot.effect.fadeTicks):clock+slot.effect.fadeTicks)+DELIVERY_TICKS;
                 }
                 if(slot.mainRemovedAt>=0 && clock>=slot.availableAt) {
                     slot.fadeHolder.destroy(); slot.fadeHolder=null; slot.fade=null; slot.effect=null;

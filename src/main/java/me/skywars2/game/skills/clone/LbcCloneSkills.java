@@ -85,6 +85,8 @@ public final class LbcCloneSkills {
     public LbcCloneSkills(GameController game){this.game=game;}
     public void installAdapter(ActorAdapter adapter){if(cloning)throw new IllegalStateException("Clone operation in progress");this.adapter=adapter;}
     public boolean ready(){return adapter!=null&&adapter.completeCoverage();}
+    /** Spawn-time mergers must keep transactional clone bodies separate until publication commits. */
+    public boolean copying(){return cloning;}
     public void stop(){checkpointBoundary();ownerCursor=0;epoch=null;}
     public void clearPending(){checkpointBoundary();}
     public void checkpointBoundary(){if(cloning)throw new IllegalStateException("Finish cloning before checkpoint publication");}
@@ -117,11 +119,14 @@ public final class LbcCloneSkills {
         if(actors.isEmpty()||cloning||!ready()||!game.playing()||game.maps().busy()||game.vanity().busy()
                 ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
         var sources=List.copyOf(actors);
-        for(var holder:List.copyOf(game.server().getPlayerList().getPlayers()))if(admitted(holder,15))
-            for(var actor:sources)if(actor.level()==holder.level()&&!actor.entityTags().contains("doubled")
-                    &&actor.position().distanceToSqr(holder.position())<=100&&baseEligible(actor)&&projectile(actor)){
-                scanned++;cloneActor(actor,15,false,Integer.MAX_VALUE);
+        for(var holder:List.copyOf(game.server().getPlayerList().getPlayers())){
+            int skill=admitted(holder,15)?15:admitted(holder,17)?17:0;if(skill==0)continue;
+            String marker=skill==15?"doubled":"quadried";double radius=skill==15?10:16;
+            for(var actor:sources)if(actor.level()==holder.level()&&!actor.entityTags().contains(marker)
+                    &&actor.position().distanceToSqr(holder.position())<=radius*radius&&baseEligible(actor)&&projectile(actor)){
+                scanned++;cloneActor(actor,skill,false,Integer.MAX_VALUE);
             }
+        }
     }
     /** Each logical flight owner calls this before taking its movement snapshot, including same-frame births. */
     public void beforeVirtualStep(ToIntFunction<ServerPlayer> duplicate){
@@ -249,7 +254,8 @@ public final class LbcCloneSkills {
     }
     private void install(List<Node> nodes,Map<Entity,Entity> family){
         var links=Collections.unmodifiableMap(family);
-        for(var node:nodes)node.owner.install(node.source,family.get(node.source),links);
+        for(var node:nodes){node.owner.install(node.source,family.get(node.source),links);
+            me.skywars2.game.combat.WeaponEnchantments.inherit(node.source,family.get(node.source));}
         for(var node:nodes){
             var clone=family.get(node.source);
             if(node.parent!=null&&!clone.startRiding(family.get(node.parent),true,false))throw new IllegalStateException("Clone passenger link rejected");

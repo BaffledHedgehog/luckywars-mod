@@ -74,6 +74,20 @@ public final class LbcGrimoireBoss {
     private record Warning(TrialWarningVisual visual,int phase,int age,Vec3 from,Vec3 to){}
     public LbcGrimoireBoss(GameController game){this.game=game;}
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(TAG);}
+    public boolean stationaryRoot(Entity entity){
+        var state=data(entity);
+        return entity instanceof Warden&&state!=null&&integer(state,"kind")==0&&actors.contains(entity)&&entity.isAlive();
+    }
+    /** The boss's native NoAI body does not integrate ordinary attraction velocity. */
+    public void translateRoot(Entity entity,Vec3 offset){
+        if(!stationaryRoot(entity))return;
+        var state=data(entity).copy();vector(state,"anchor",vector(state,"anchor").add(offset));save(entity,state);
+        entity.setPos(entity.position().add(offset));entity.setDeltaMovement(Vec3.ZERO);entity.needsSync=true;
+        for(var child:actors)if(childOf(child,entity)){
+            int kind=integer(data(child),"kind");
+            if(kind==1||kind==4){child.setPos(child.position().add(offset));child.needsSync=true;}
+        }
+    }
     private static CompoundTag data(Entity entity){return entity.getAttached(DATA);}
     private static void save(Entity entity,CompoundTag state){entity.setAttached(DATA,state);}
     private static int integer(CompoundTag state,String key){return state.getIntOr(key,0);}
@@ -172,10 +186,11 @@ public final class LbcGrimoireBoss {
     private Vec3 origin(Warden boss){return boss.position().add(0,6,0);}
     private void laser(Warden boss,int age){
         var level=(ServerLevel)boss.level();var from=origin(boss);var d=data(boss).copy();var direction=vector(d,"aim");
-        var targets=targets(boss,from,40,1);if(!targets.isEmpty()&&(age==1||age>=71)){
+        var targets=targets(boss,from,40,1);if(!targets.isEmpty()&&(age==1||age>71)){
             var wanted=targets.getFirst().getEyePosition().subtract(from).normalize();
             // Source smooth tracking: point .15 toward target from current unit look, then normalize.
-            direction=age<=71?wanted:direction.add(wanted.scale(.15)).normalize();vector(d,"aim",direction);save(boss,d);
+            // The first damaging tick uses the exact warning direction; tracking starts afterward.
+            direction=age==1?wanted:direction.add(wanted.scale(.15)).normalize();vector(d,"aim",direction);save(boss,d);
         }
         var to=clipAir(level,from,direction,60);
         if(age<=70){warning(boss,1,age,from,to,71-age);if(age==1)sound(level,from,"minecraft:block.beacon.activate",2,0);if(age==45)sound(level,from,"minecraft:lbcsounds.ui_beam",3,1);return;}

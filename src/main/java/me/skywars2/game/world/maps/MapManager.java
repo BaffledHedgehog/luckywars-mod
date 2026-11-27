@@ -2099,6 +2099,26 @@ public final class MapManager {
 
     private void placeMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
                                StructurePlaceSettings settings, long seed, int writeFlags, boolean journalGameplayWrites) {
+        if(world==level && !applyingMapWork) {
+            // Runtime structure placement temporarily suppresses per-block journaling
+            // to preserve the lobby overlay. Its recovery envelope must be recorded
+            // BEFORE entering that scope, including slices outside the original map.
+            var bounds=template.getBoundingBox(settings,origin);
+            var clip=settings.getBoundingBox();
+            int x0=Math.max(-OUTER_ARENA_LIMIT,bounds.minX()),x1=Math.min(OUTER_ARENA_LIMIT,bounds.maxX());
+            int z0=Math.max(-OUTER_ARENA_LIMIT,bounds.minZ()),z1=Math.min(OUTER_ARENA_LIMIT,bounds.maxZ());
+            int y0=Math.max(world.getMinY(),bounds.minY()),y1=Math.min(world.getMaxY(),bounds.maxY());
+            if(clip!=null) {
+                x0=Math.max(x0,clip.minX());x1=Math.min(x1,clip.maxX());
+                z0=Math.max(z0,clip.minZ());z1=Math.min(z1,clip.maxZ());
+                y0=Math.max(y0,clip.minY());y1=Math.min(y1,clip.maxY());
+            }
+            if(x0<=x1 && y0<=y1 && z0<=z1)
+                for(int x=x0>>4;x<=x1>>4;x++)for(int z=z0>>4;z<=z1>>4;z++)for(int y=y0>>7;y<=y1>>7;y++) {
+                    recordBlockChange(new BlockPos(Math.max(x0,x<<4),Math.max(y0,y<<7),Math.max(z0,z<<4)));
+                    recordBlockChange(new BlockPos(Math.min(x1,(x<<4)+15),Math.min(y1,(y<<7)+127),Math.min(z1,(z<<4)+15)));
+                }
+        }
         boolean previousPlacement = placingMapSlice;
         placingMapSlice = !journalGameplayWrites;
         try {

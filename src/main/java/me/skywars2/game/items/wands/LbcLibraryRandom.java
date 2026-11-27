@@ -53,8 +53,8 @@ public final class LbcLibraryRandom {
     private int inProgress;
     private static final int[] BASIC={5,25,10,15,1,20,17,0,112,116,125,120,0,123,0,0,0,0,0,0,0,0,134,0,136,141,0,148,154,171,167,184,165,181,160,176,173,163,157,188,195,229,212,225,216,204,199,220,0,233,0,0,159};
     private static final class Emitter {
-        ServerPlayer owner;final ServerLevel level;final String epoch;final Vec3 at;final int type,lifetime;int age;
-        Emitter(ServerPlayer owner,Vec3 at,int type,int lifetime){this.owner=owner;level=owner.level();epoch=me.skywars2.SkyWars2.game().items().epoch();this.at=at;this.type=type;this.lifetime=lifetime;}
+        ServerPlayer owner;final ServerLevel level;final String epoch;final Vec3 at;final int type,lifetime;final me.skywars2.game.combat.LbcIndirectKills.Owner cause;int age;
+        Emitter(ServerPlayer owner,Vec3 at,int type,int lifetime,me.skywars2.game.combat.LbcIndirectKills.Owner cause){this.owner=owner;level=owner.level();epoch=me.skywars2.SkyWars2.game().items().epoch();this.at=at;this.type=type;this.lifetime=lifetime;this.cause=cause;}
     }
     public LbcLibraryRandom(GameController game){this.game=game;}
     public static void castRandom(GameController g,ServerPlayer p,InteractionHand hand,int roll){
@@ -89,10 +89,11 @@ public final class LbcLibraryRandom {
     private final class RandomRay implements LbcExasperato.ReplayableRay {
         final UUID author;final String epoch,rawFlag;final ServerLevel level;final Vec3 direction;
         final int type;final Item used;final net.minecraft.core.particles.ParticleOptions particle;
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
         LbcExasperato.RayTicket ticket;
         RandomRay(ServerPlayer p,int type,String rawFlag,Item used){
             author=p.getUUID();epoch=game.items().epoch();level=p.level();direction=p.getLookAngle();
-            this.type=type;this.rawFlag=rawFlag;this.used=used;
+            this.type=type;this.rawFlag=rawFlag;this.used=used;cause=game.items().indirectKills().coldCause(p,true);
             particle=switch(type){
                 case 13->ParticleTypes.END_ROD;case 16->ParticleTypes.EXPLOSION;
                 case 17->new net.minecraft.core.particles.DustParticleOptions(0xffffff,2);
@@ -124,14 +125,15 @@ public final class LbcLibraryRandom {
                 if(!pendingRays.remove(ticket))return;
                 var p=game.server().getPlayerList().getPlayer(author);
                 if(hit!=null&&p!=null&&active(p,epoch,level)&&(rawFlag==null||LbcLibrarySpells.hasRaw(p,rawFlag))){
-                    impact(p,hit.getLocation().subtract(direction.scale(hit instanceof net.minecraft.world.phys.BlockHitResult?1:0)),type);
+                    impact(p,hit.getLocation().subtract(direction.scale(hit instanceof net.minecraft.world.phys.BlockHitResult?1:0)),type,cause);
                     if(rawFlag!=null)LbcLibrarySpells.debitRawRaycast(p,rawFlag,used);
                 }
             }finally{--inProgress;}
         }
     }
-    public void impact(ServerPlayer p,Vec3 at,int type){
-        ++inProgress;try {
+    public void impact(ServerPlayer p,Vec3 at,int type){impact(p,at,type,null);}
+    private void impact(ServerPlayer p,Vec3 at,int type,me.skywars2.game.combat.LbcIndirectKills.Owner cause){
+        ++inProgress;try(var source=me.skywars2.game.combat.WeaponEnchantments.causeScope(p,cause)) {
             if(type==16){
                 for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){
                     if(x==0&&y==0&&z==0)continue;
@@ -143,15 +145,18 @@ public final class LbcLibraryRandom {
             }else if(type==18||type==19){
                 for(var target:p.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(15),
                         e->game.items().wands().validTarget(e)&&e.position().distanceToSqr(at)<=225)){
-                    target.addEffect(ItemEffectLevels.create(type==18?MobEffects.WITHER:MobEffects.INSTANT_HEALTH,type==18?1200:200,type==18?0:4,false,false),p);
+                    var effect=ItemEffectLevels.create(type==18?MobEffects.WITHER:MobEffects.INSTANT_HEALTH,type==18?1200:200,type==18?0:4,false,false);
+                    if(type==18 && cause!=null)
+                        game.items().indirectKills().inheritedEffect(target,me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(effect,cause),cause);
+                    else target.addEffect(type==19?me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(effect,cause):effect,p);
                 }
                 p.level().sendParticles(type==18?ParticleTypes.SMOKE:ParticleTypes.HEART,at.x,at.y,at.z,type==18?100:300,10,10,10,0);
                 LbcOverload.sound(p,at,type==18?"minecraft:entity.wither.ambient":"minecraft:entity.player.levelup",1,type==18?1:1.5f,0);
-            }else if(type==20)lava(p,BlockPos.containing(at));
+            }else if(type==20)lava(p,BlockPos.containing(at),cause);
             else if(type==17||type==21||type==22){
                 if(type==17){p.level().sendParticles(ParticleTypes.POOF,at.x,at.y,at.z,100,1,1,1,1);LbcOverload.sound(p,at,"minecraft:particle.soul_escape",1,0,0);}
                 if(type==21)p.level().sendParticles(ParticleTypes.FLAME,at.x,at.y+10,at.z,200,2,10,2,.1);
-                emitters.add(new Emitter(p,type==17?at.add(0,1,0):new Vec3(at.x,310,at.z),type,type==17?1600:type==21?500:60));
+                emitters.add(new Emitter(p,type==17?at.add(0,1,0):new Vec3(at.x,310,at.z),type,type==17?1600:type==21?500:60,cause));
             }else throw new IllegalArgumentException("Random terminal "+type);
         }finally{--inProgress;}
     }
@@ -161,9 +166,9 @@ public final class LbcLibraryRandom {
             if(!p.level().addFreshEntity(entity)){actors.remove(entity);entity.discard();}
         }finally{--inProgress;}
     }
-    private void lava(ServerPlayer p,BlockPos center){
+    private void lava(ServerPlayer p,BlockPos center,me.skywars2.game.combat.LbcIndirectKills.Owner cause){
         ++inProgress;try {
-            game.items().stonekivi().queuedWork(new Lava(p,center));
+            game.items().stonekivi().queuedWork(new Lava(p,center,cause));
             for(var offset:List.of(new Vec3(0,30,15),new Vec3(0,30,-15),new Vec3(15,30,0),new Vec3(-15,30,0))){
                 var ghast=EntityTypes.GHAST.create(p.level(),EntitySpawnReason.TRIGGERED);if(ghast!=null){ghast.setPos(Vec3.atLowerCornerOf(center).add(offset));insert(p,ghast);}
             }
@@ -175,8 +180,9 @@ public final class LbcLibraryRandom {
                 List.of("leaves","nether_wart_block"),List.of("to_shroomlight","shroomlight"),List.of("to_soulsand","soul_sand"),
                 List.of("to_magma","magma_block"),List.of("to_netherrack","netherrack"),List.of("fluids","obsidian"),
                 List.of("airs_to_fire","fire"),List.of("to_lava","lava"));
-        ServerPlayer owner;final BlockAreaWork scan;
-        Lava(ServerPlayer owner,BlockPos center){
+        ServerPlayer owner;final BlockAreaWork scan;final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
+        Lava(ServerPlayer owner,BlockPos center,me.skywars2.game.combat.LbcIndirectKills.Owner cause){
+            this.cause=cause;
             this.owner=owner;this.center=center.immutable();level=owner.level();epoch=game.items().epoch();
             scan=new BlockAreaWork(level,state->true,this::replacement,2|16|32,true);
             scan.include(new BlockAreaWork.Bounds(center.getX()-15,center.getY()-15,center.getZ()-15,center.getX()+15,center.getY()+15,center.getZ()+15));
@@ -192,7 +198,7 @@ public final class LbcLibraryRandom {
         public boolean step(){
             ++inProgress;try{
                 if(!active(owner,epoch,level)){cancel();return true;}
-                scan.step(game,owner,1024,System.nanoTime()+1_000_000);return !scan.hasWork();
+                scan.step(game,owner,cause,1024,System.nanoTime()+1_000_000);return !scan.hasWork();
             }finally{--inProgress;}
         }
         public void cancel(){++inProgress;try{scan.clear();}finally{--inProgress;}}
@@ -218,6 +224,7 @@ public final class LbcLibraryRandom {
                 if(!active(e.owner,e.epoch,e.level)||e.age>=e.lifetime){emitters.remove(e);continue;}
                 if(e.type==17&&game.items().magic().suppressedAt(e.level,e.at)){emitters.remove(e);continue;}
                 if(game.items().timeStop().stopped(e.level))continue;
+                try(var source=me.skywars2.game.combat.WeaponEnchantments.causeScope(e.owner,e.cause)){
                 if(e.type==17&&e.age%5==0)e.level.sendParticles(ParticleTypes.SOUL,e.at.x,e.at.y,e.at.z,50,10,10,10,0);
                 if(e.type==17&&e.age%10==0){
                     var targets=e.level.getEntitiesOfClass(LivingEntity.class,new AABB(e.at,e.at).inflate(16),t->game.items().wands().validTarget(t)&&!t.entityTags().contains("nomagic_active")&&!game.items().magic().suppressedAt(e.level,t.position())&&t.position().distanceToSqr(e.at)<=256);
@@ -230,9 +237,10 @@ public final class LbcLibraryRandom {
                     if(!e.level.hasChunkAt(BlockPos.containing(at)))continue;
                     var block=EntityTypes.FALLING_BLOCK.create(e.level,EntitySpawnReason.TRIGGERED);if(block==null)continue;
                     try{block.load(TagValueInput.create(ProblemReporter.DISCARDING,block.registryAccess(),TagParser.parseCompoundFully("{BlockState:'minecraft:stone_bricks',Time:1,DropItem:0b,HurtEntities:1b,FallHurtMax:10,FallHurtAmount:10f}")));}catch(Exception error){throw new IllegalStateException(error);}
-                    block.setPos(at);block.setDeltaMovement(0,-2,0);insert(e.owner,block);
+                    block.setPos(at);block.setDeltaMovement(0,-2,0);me.skywars2.game.combat.WeaponEnchantments.captureFalling(block,e.owner,e.cause);insert(e.owner,block);
                 }}
                 e.age++;
+                }
             }
         }finally{--inProgress;}
     }

@@ -107,7 +107,8 @@ public final class LbcInfinity {
             &&game.canUseGameplayItems(p)&&!game.isObserver(p)&&game.items().wands().validRoleTarget(p,false)
             &&LbcDimensionItems.ordinary(p)&&!game.items().wands().inputTimeStopped(p);}
     private static boolean inventory(ServerPlayer p,String key){
-        for(int slot=0;slot<36;slot++)if(flag(p.getInventory().getItem(slot),key))return true;
+        for(int slot=0;slot<36;slot++){var stack=p.getInventory().getItem(slot);
+            if(!me.skywars2.game.items.tmt.LbcTmtItems.matches(stack)&&flag(stack,key))return true;}
         for(var slot:EQUIPMENT)if(flag(p.getItemBySlot(slot),key))return true;
         return false;
     }

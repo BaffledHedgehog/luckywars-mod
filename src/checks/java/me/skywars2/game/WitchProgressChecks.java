@@ -56,7 +56,7 @@ public final class WitchProgressChecks {
         final MapManager.BlockSnapshot terrain;final LbcIndirectKills.TerrainProvenance provenance;
         final ObjectiveState damage,mining;final Stat<?> mined=Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI));
         final int oldMined;final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
-        final List<Entity> owned=new ArrayList<>();Cow target,other,queued;Entity beacon;int phase,at,queuedBefore;boolean closed,stopped,ownedStand;
+        final List<Entity> owned=new ArrayList<>();Cow target,other,queued;Entity beacon;int phase,at,queuedBefore,idleBeforeMove;boolean closed,stopped,ownedStand;
         Fixture(GameController game){this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
             require(game.playing()&&game.canUseGameplayItems(owner)&&!game.items().timeStop().stopped(owner.level()),"active native participant without borrowed stop");
             require(owner.entityTags().stream().noneMatch(tag->tag.startsWith("sin_")),"no borrowed Witch authority");
@@ -183,8 +183,10 @@ public final class WitchProgressChecks {
                     owner.entityTags().remove("sin_lust");queued=cow(origin.add(0,0,8),100);queuedBefore=score("dmg_dealt");
                     ownedStand=owner.entityTags().add("have_stand");game.items().timeStop().begin(level,100);stopped=true;attack(queued,2);
                     require(score("dmg_dealt")==queuedBefore&&queued.getHealth()==100,"native stopped melee queues without advancing damage progress");phase=4;at=now;return false;}
-                case 2->{require(score("sleep_time")==101&&score("speed")==0,"existing movement owner advances sleep exactly once while stationary");move(origin.add(.1,0,0));phase=3;at=now;return false;}
-                case 3->{require(score("sleep_time")==86&&score("speed")>0,"existing movement owner applies source moving drain, no second Witch clock");return true;}
+                case 2->{idleBeforeMove=score("sleep_time");require((idleBeforeMove==100||idleBeforeMove==120)&&score("speed")==0,
+                        "movement owner retains idle progress between second boundaries");move(origin.add(.1,0,0));phase=3;at=now;return false;}
+                case 3->{require((score("sleep_time")==idleBeforeMove||score("sleep_time")==Math.max(0,idleBeforeMove-200))&&score("speed")>0,
+                        "movement sampler retains progress or applies one second-boundary penalty; exact cadence has its own native fixture");return true;}
                 case 4->{require(score("dmg_dealt")==queuedBefore&&queued.getHealth()==100,"actual stopped ticks retain native melee impact without damage progress");if(now-at<3)return false;
                     game.items().timeStop().end(level);stopped=false;if(ownedStand){owner.entityTags().remove("have_stand");ownedStand=false;}phase=5;at=now;return false;}
                 case 5->{near(queued.getHealth(),98,"real thaw replays native melee damage");require(score("dmg_dealt")==queuedBefore+20,"genuine melee proof survives captured/deferred damage exactly once");

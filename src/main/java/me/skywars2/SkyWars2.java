@@ -247,7 +247,12 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             player.connection.player = player;
             // При респауне объект игрока заменяется, а UUID остаётся: старый доступ камеры не переносится.
             FullInvisibility.cameraChanging(oldPlayer, null);
-            if (game != null) { game.items().fpvDrone().forget(oldPlayer); game.items().fpvDrone().forget(player); game.respawned(player); }
+            if (game != null) {
+                game.items().fpvDrone().forget(oldPlayer); game.items().fpvDrone().forget(player);
+                // Leaving the End replaces a living player too. It is a dimension
+                // transfer, so do not run the new-life inventory/kit reset.
+                if(!alive) game.respawned(player);
+            }
             me.skywars2.game.effects.SignedEffectVisuals.joined(player);
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damage) -> {
@@ -269,10 +274,13 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     &&damage.is(net.minecraft.tags.DamageTypeTags.IS_FALL))return false;
             if(game!=null&&LbcDamage.isElectricalContact(damage)&&game.items().fpvDrone().tryShortCircuit(entity))return false;
             boolean allowed=game==null ? LbcDamage.allowDamage(entity,damage) : game.items().allowDamage(entity,damage);
-            if(allowed && game!=null && amount>0) game.items().academy().beforeDamage(entity,damage);
+            if(allowed && game!=null && amount>0 && me.skywars2.game.entities.LbcDimensionItems.ordinary(entity.level()))
+                game.items().academy().beforeDamage(entity,damage);
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            if(game!=null && player instanceof ServerPlayer observer && game.spectators().useTool(observer,hand))
+                return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.nexus(level)){
                 if(game!=null&&(game.vanity().blocked(owner)||game.items().actionsBlocked(owner)||game.isObserver(owner)))return InteractionResult.FAIL;
                 var tool=nexusToolUse(owner,hand);
@@ -454,6 +462,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
+            if(me.skywars2.game.entities.LbcDimensionItems.imprinted(level))
+                return game!=null && player instanceof ServerPlayer observer && game.isObserver(observer)?InteractionResult.FAIL:InteractionResult.PASS;
             if(player instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.ordinary(level))
                 me.skywars2.game.items.tmt.LbcTmtTriggers.input(owner,me.skywars2.game.items.tmt.LbcTmtTriggers.Input.LEFT_CLICK);
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.entities.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
@@ -467,6 +477,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if(me.skywars2.game.entities.LbcDimensionItems.imprinted(level))
+                return game!=null && player instanceof ServerPlayer observer && game.isObserver(observer)?InteractionResult.FAIL:InteractionResult.PASS;
             if(player instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.nexus(level))
                 return game!=null&&(game.items().actionsBlocked(owner)||game.isObserver(owner))?InteractionResult.FAIL:InteractionResult.PASS;
             if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
@@ -499,6 +511,11 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if(game!=null && player instanceof ServerPlayer observer && game.isObserver(observer)) {
+                game.spectators().watch(observer,entity);
+                return InteractionResult.SUCCESS;
+            }
+            if(me.skywars2.game.entities.LbcDimensionItems.imprinted(level))return InteractionResult.PASS;
             if(player instanceof ServerPlayer owner&&me.skywars2.game.entities.LbcDimensionItems.nexus(level)){
                 if(game!=null&&(game.vanity().blocked(owner)||game.items().actionsBlocked(owner)||game.isObserver(owner)))return InteractionResult.FAIL;
                 if(game!=null){var cage=game.items().nexusAcquisition().use(owner,hand,entity);if(cage!=InteractionResult.PASS)return cage;}
@@ -534,6 +551,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if(me.skywars2.game.entities.LbcDimensionItems.imprinted(level))
+                return game!=null && player instanceof ServerPlayer observer && game.isObserver(observer)?InteractionResult.FAIL:InteractionResult.PASS;
             if (game != null && game.developerTools().gallery().protectEntity(entity)) return InteractionResult.FAIL;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.entities.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if(game==null)return InteractionResult.PASS;
@@ -593,7 +612,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                         ctx.getSource().sendSuccess(() -> game.settingsSummary(), false);
                         return 1;
                     })
-                    .then(Commands.literal("event")
+                    .then(Commands.literal("event").requires(me.skywars2.game.commands.OwnerCommands::allowed)
                             .then(Commands.argument("event", StringArgumentType.word())
                                     .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(
                                             List.of("halloween", "november", "tournament"), builder))

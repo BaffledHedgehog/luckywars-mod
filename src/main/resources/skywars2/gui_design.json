@@ -38796,6 +38796,13 @@
         "translate": "swrg.item.kit12_2"
       }
     },
+    "item.kit18": {
+      "Name": {
+        "color": "red",
+        "italic": false,
+        "translate": "swrg.item.kit18"
+      }
+    },
     "kit.a1": {
       "color": "aqua",
       "italic": false,

@@ -90,11 +90,14 @@ public final class LbcMana {
     private final LbcSourceConfig sourceConfig;
     private final Set<UUID> initializedResources=new HashSet<>();
     private final Map<UUID,Gear> gear=new HashMap<>();
+    private final Map<UUID,me.skywars2.game.time.RealtimeTickClock> regenerationClocks=new HashMap<>();
+    private final java.util.function.LongSupplier nanos;
     private final Set<UUID> dirty=new HashSet<>();
     private final Set<LivingEntity> pendingPotions=new LinkedHashSet<>();
     private final Set<LivingEntity> statEffects=new LinkedHashSet<>();
 
-    public LbcMana(GameController game) { this.game=game; this.sourceConfig=new LbcSourceConfig(game.server()); this.overload=new LbcOverload(game,this); }
+    public LbcMana(GameController game) { this(game,System::nanoTime); }
+    public LbcMana(GameController game,java.util.function.LongSupplier nanos) { this.game=game;this.nanos=nanos; this.sourceConfig=new LbcSourceConfig(game.server()); this.overload=new LbcOverload(game,this); }
     public LbcSourceConfig sourceConfig(){return sourceConfig;}
     /** Absence, rather than a numeric sentinel, distinguishes a new player's resource entries. */
     public void initializeResources(ServerPlayer player){
@@ -224,6 +227,7 @@ public final class LbcMana {
         set(p,value-cost); return true;
     }
     public void resetResources(ServerPlayer p) {
+        regenerationClocks.remove(p.getUUID());
         LbcManaLevelups.resetLedger(game,p);
         game.items().steampunkHook().reset(p);game.items().steampunkGlove().reset(p);
         maximum(p,5000); set(p,5000); baseRegen(p,10); write(p,"manaregen_visual",10);
@@ -345,6 +349,10 @@ public final class LbcMana {
         return result;
     }
     public void tickPlayer(ServerPlayer p) {
+        var timer=regenerationClocks.get(p.getUUID());
+        long regenerationSteps;
+        if(timer==null){timer=new me.skywars2.game.time.RealtimeTickClock(nanos);regenerationClocks.put(p.getUUID(),timer);regenerationSteps=1;}
+        else regenerationSteps=timer.advance(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(p.level())||!active(p)||noMagic(p)>0);
         if(game.items().polymorph().masked(p))return;
         game.items().bolts().observeStatus(p);
         if(LbcParasite.active(p))clearDebuffs(p);
@@ -371,7 +379,7 @@ public final class LbcMana {
             if((long)visual-before>=15) award(p,"lbc:true_advancements/potions/mana_temp");
         }
         write(p,"manaregen_visual",visual);
-        regenerate(p,effectiveRegeneration(p));
+        if(regenerationSteps>0)regenerate(p,(int)Math.clamp((long)effectiveRegeneration(p)*regenerationSteps,Integer.MIN_VALUE,Integer.MAX_VALUE));
         game.items().armorSets().nyauwu().refreshSpeed(p);
         overload.afterRegen(p);
         overload.armor().tick(p);
@@ -472,8 +480,10 @@ public final class LbcMana {
         int value=hudValue(p,objective); if(value<=0) return;
         hud.append(Component.literal("  "+glyph+" ")).append(Component.literal(Integer.toString(value)).withStyle(color));
     }
-    public void forget(ServerPlayer p) { write(p,"falltimer",0); gear.remove(p.getUUID()); dirty.remove(p.getUUID()); clearEffects(p); overload.reset(p); }
+    public void pauseRegeneration(){for(var timer:regenerationClocks.values())timer.advance(true);}
+    public void forget(ServerPlayer p) { regenerationClocks.remove(p.getUUID());write(p,"falltimer",0); gear.remove(p.getUUID()); dirty.remove(p.getUUID()); clearEffects(p); overload.reset(p); }
     public void stop() {
+        regenerationClocks.clear();
         gear.clear(); dirty.clear(); pendingPotions.clear(); reverseOwners.clear();
         for(var p:List.copyOf(statEffects)) for(String timer:POTION_TIMERS) write(p,timer,0);
         statEffects.clear(); for(var p:game.server().getPlayerList().getPlayers()) { write(p,"falltimer",0); clearEffects(p); overload.reset(p); }

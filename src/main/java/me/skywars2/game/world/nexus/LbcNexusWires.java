@@ -85,7 +85,7 @@ public final class LbcNexusWires {
         boolean protectedInventory=game.items().inventoryHazards().protectedInventory(p);
         for(int slot=0;slot<p.getInventory().getContainerSize();slot++){
             var stack=p.getInventory().getItem(slot);
-            if(!LbcTmtItems.matches(stack)||protectedInventory&&stack!=p.getMainHandItem())continue;
+            if(!LbcTmtItems.matches(stack)||slot<36&&stack!=p.getMainHandItem()||protectedInventory&&stack!=p.getMainHandItem())continue;
             int mask=LbcTmtIntake.wires(stack);if(mask==0)continue;
             stack.shrink(1);
             if((mask&2)!=0)grant(p,2);

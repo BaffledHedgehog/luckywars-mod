@@ -82,6 +82,7 @@ public final class LbcBlind {
         public int lifetime=ORDINARY_LIFETIME;
         public boolean phantom;
         public boolean emitterStyle;
+        public me.skywars2.game.combat.LbcIndirectKills.Owner enchantmentCause;
         InteractionHand trialHand;
         ServerPlayer trialOwner;
         public boolean trial;
@@ -241,6 +242,8 @@ public final class LbcBlind {
         if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(origin))) return;
         Charge charge=new Charge(TYPE,sourceLevel(owner));
         charge.setOwner(nativeSourceOwner(owner)); charge.setPos(origin); charge.setNoGravity(true);
+        var policy=game.items().spellSources().current();
+        charge.enchantmentCause=policy!=null?policy.cause():owner==null?null:game.items().indirectKills().coldCause(owner,true);
         charge.setDeltaMovement(velocity); charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
         charge.phantom=phantom; charge.lifetime=lifetime; charge.trialHand=hand;
         charge.rainDrop=lifetime==RAIN_LIFETIME;
@@ -251,6 +254,8 @@ public final class LbcBlind {
     }
     public void sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){
         var charge=new Charge(TYPE,sourceLevel(owner));charge.setOwner(nativeSourceOwner(owner));charge.setPos(origin);charge.setNoGravity(true);
+        var policy=game.items().spellSources().current();
+        charge.enchantmentCause=policy!=null?policy.cause():owner==null?null:game.items().indirectKills().coldCause(owner,true);
         charge.setDeltaMovement(direction.normalize().scale(.99));LbcShooters.orient(charge);charge.lifetime=120;charge.emitterStyle=true;
         charge.entityTags().addAll(List.of("magic","shield_blockable"));game.items().markCurrentItemEpoch(charge);
         if(sourceLevel(owner).addFreshEntity(charge))charges.add(charge);
@@ -365,8 +370,8 @@ public final class LbcBlind {
     private void blindImpact(Charge charge,ServerPlayer owner,Entity entity,Vec3 point) {
         if(!(entity instanceof LivingEntity living) || !game.items().lifetimes().target(owner,entity)) return;
         boolean previouslyBlind=living.hasEffect(MobEffects.BLINDNESS);
-        var damage=new DamageSource(sourceLevel(owner).registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.GENERIC),charge,owner);
+        var damage=game.items().indirectKills().captureDamage(new DamageSource(sourceLevel(owner).registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.GENERIC),charge,owner),charge.enchantmentCause);
         living.hurtServer(sourceLevel(owner),damage,.5f);
         living.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,200,0),owner);
         living.addEffect(ItemEffectLevels.create(MobEffects.WITHER,80,0),owner);

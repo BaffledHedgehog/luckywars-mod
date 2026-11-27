@@ -146,6 +146,8 @@ public final class SpecialEggChecks {
             var effect=zombie.getEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY);
             require(effect.getAmplifier()==1&&effect.getDuration()==2000000&&!effect.isVisible(),"exact slab invisibility payload");
             var head=zombie.getItemBySlot(EquipmentSlot.HEAD);var name=head.get(DataComponents.ITEM_NAME);
+            require(net.minecraft.network.chat.Component.translatable("agressive_slab").withStyle(s->s.withItalic(false)).equals(zombie.getCustomName()),
+                    "aggressive slab actor has its own translated name instead of vanilla Zombie");
             require(head.is(Items.OAK_SLAB)&&head.getCount()==1&&name!=null&&name.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents tr&&tr.getKey().equals("agressive_slab")&&head.get(DataComponents.CUSTOM_NAME)==null&&zombie.getDropChances().byEquipment(EquipmentSlot.HEAD)==1,"native oak slab item_name and guaranteed helmet drop");
             var modifiers=head.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers();
             require(modifiers.size()==1&&modifiers.getFirst().modifier().amount()==7&&modifiers.getFirst().modifier().id().equals(Identifier.parse("minecraft:base_attack_damage")),"source egg slab +7 distinct from existing +6 drop");

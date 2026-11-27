@@ -84,6 +84,7 @@ public final class LbcPsycho {
     private final Set<Charge> charges=new LinkedHashSet<>();
     private final Map<LivingEntity,Affliction> effects=new IdentityHashMap<>();
     private final Map<ServerPlayer,Integer> rays=new IdentityHashMap<>();
+    private final IdentityHashMap<ServerPlayer,me.skywars2.game.combat.LbcIndirectKills.Owner> rayCauses=new IdentityHashMap<>();
     // Existing RP clip: 4.036333 seconds at pitch 2, renewed independently of the caster's counter.
     public static final Identifier BEAM_SOUND=Identifier.parse("minecraft:lbcsounds.scream");
     static final int BEAM_SOUND_TICKS=40;
@@ -153,6 +154,8 @@ public final class LbcPsycho {
     /** Player timer grant shared by food and the scream-ray caster. */
     public void addRayTicks(ServerPlayer owner,int amount) {
         if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
+        var cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
+        if(cause==null)rayCauses.remove(owner);else rayCauses.put(owner,cause);
         rays.merge(owner,amount,Integer::sum);
         game.items().mana().score(owner,"screamray").set(rays.get(owner));
     }
@@ -160,7 +163,7 @@ public final class LbcPsycho {
     public void adoptRawFoodStatuses(ServerPlayer player) {
         if(!valid(player)||game.items().magic().rejectCustomEffect(player))return;
         var mana=game.items().mana();
-        int ray=mana.hudValue(player,"screamray");if(ray>0)rays.put(player,ray);
+        int ray=mana.hudValue(player,"screamray");if(ray>0){rays.put(player,ray);rayCauses.remove(player);}
         if(game.items().magic().rejectCustomDebuff(player)){clearDebuffs(player);return;}
         int scared=mana.hudValue(player,"scared"),lookback=mana.hudValue(player,"lookback"),
                 twitching=mana.hudValue(player,"twitching"),piss=mana.hudValue(player,"piss");
@@ -309,7 +312,7 @@ public final class LbcPsycho {
     }
 
     public void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
-        if(mode==2){rayAt(owner,origin,direction,39);return;}
+        if(mode==2){rayAt(owner,origin,direction,39,me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));return;}
         if(mode==3)spawn(owner,origin,direction,false,true,100);
         else{
             int count=mode==1?4:3;
@@ -404,6 +407,7 @@ public final class LbcPsycho {
             return null;
         }
         vexes.add(vex);
+        me.skywars2.game.combat.WeaponEnchantments.capturePsychoVex(owner,vex);
         return vex;
     }
     private void spread(ServerPlayer owner,int count,boolean invisible) {
@@ -466,7 +470,9 @@ public final class LbcPsycho {
             if(!charge.invisible) chargeTrail(owner.level(),from,to,charge.spray?4:8);
             if(charge.spray) {
                 float yaw=owner.getRandom().nextFloat()*360,pitch=owner.getRandom().nextFloat()*180-90;
-                spawn(owner,to,Vec3.directionFromRotation(pitch,yaw).scale(2),false,false,20);
+                try(var source=me.skywars2.game.combat.WeaponEnchantments.actorScope(charge,owner)){
+                    spawn(owner,to,Vec3.directionFromRotation(pitch,yaw).scale(2),false,false,20);
+                }
                 LbcOverload.sound(owner,to,"minecraft:item.trident.riptide_1",.3f,0,0);
                 LbcOverload.sound(owner,to,"minecraft:item.trident.riptide_1",.2f,1,0);
             }
@@ -500,7 +506,8 @@ public final class LbcPsycho {
                 .ifPresent(e->charge.setDeltaMovement(e.getEyePosition().subtract(charge.position()).normalize().scale(2)));
     }
     private void impact(Charge charge,ServerPlayer owner,LivingEntity target) {
-        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),charge,owner);
+        var source=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),charge,owner),
+                me.skywars2.game.combat.WeaponEnchantments.actorCause(charge,owner));
         target.hurtServer(owner.level(),source,4);
         target.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,400,0),owner);
         afflict(target,owner,15,5,10,0,!charge.noStack);
@@ -634,12 +641,12 @@ public final class LbcPsycho {
     private void tickRays() {
         for(var owner:List.copyOf(rays.keySet())) {
             if(game.items().polymorph().masked(owner))continue;
-            if(!valid(owner) || game.items().magic().rejectCustomEffect(owner)) { rays.remove(owner);game.items().mana().score(owner,"screamray").set(0); continue; }
+            if(!valid(owner) || game.items().magic().rejectCustomEffect(owner)) { rays.remove(owner);rayCauses.remove(owner);game.items().mana().score(owner,"screamray").set(0); continue; }
             if(paused(owner)) continue;
             int remaining=rays.get(owner)-1;
             Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),to=from.add(direction.scale(99));
-            rayAt(owner,from,direction,remaining);
-            if(remaining<=0) rays.remove(owner); else rays.put(owner,remaining);
+            rayAt(owner,from,direction,remaining,rayCauses.get(owner));
+            if(remaining<=0){rays.remove(owner);rayCauses.remove(owner);} else rays.put(owner,remaining);
             game.items().mana().score(owner,"screamray").set(Math.max(0,remaining));
         }
     }
@@ -656,7 +663,7 @@ public final class LbcPsycho {
         });
         privateSound(player,sound,1,1,position);
     }
-    private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction,int remaining){
+    private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction,int remaining,me.skywars2.game.combat.LbcIndirectKills.Owner cause){
         Vec3 to=from.add(direction.scale(99));
         double suppression=game.items().magic().suppressionFraction(owner.level(),from,to);
         if(Double.isFinite(suppression)) to=from.lerp(to,suppression);
@@ -669,7 +676,7 @@ public final class LbcPsycho {
             if(target.position().distanceToSqr(from.add(direction.scale(projection)))>12.25) continue;
             // (user) Каждая подходящая цель получает действие один раз за тик луча.
             afflict(target,owner,1,1,0,1); game.items().screamer(target,owner);
-            var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),owner);
+            var source=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),owner),cause);
             target.hurtServer(owner.level(),source,.01f);
             if(target instanceof ServerPlayer player) beamSound(owner,player);
         }
@@ -732,7 +739,7 @@ public final class LbcPsycho {
         for(String name:List.of("scared","lookback","twitching","piss"))if(game.items().mana().hudValue(entity,name)!=0)game.items().mana().score(entity,name).set(0);
     }
     public void clearEffects(LivingEntity entity){if(entity instanceof ServerPlayer player)clearEffects(player);else removeEffect(entity);}
-    public void clearEffects(ServerPlayer owner) { removeEffect(owner); rays.remove(owner); clearBeamAudio(owner); game.items().mana().score(owner,"screamray").set(0); }
+    public void clearEffects(ServerPlayer owner) { removeEffect(owner); rays.remove(owner); rayCauses.remove(owner); clearBeamAudio(owner); game.items().mana().score(owner,"screamray").set(0); }
     public void forget(ServerPlayer owner) {
         clearEffects(owner);
         for(var entry:List.copyOf(effects.entrySet())) if(entry.getValue().owner==owner){
@@ -749,7 +756,7 @@ public final class LbcPsycho {
         for(var charge:List.copyOf(charges)) remove(charge);
         for(var vex:List.copyOf(vexes)) vex.discard(); vexes.clear();
         for(var entity:List.copyOf(effects.keySet())) removeEffect(entity);
-        rays.clear(); ticks=0;
+        rays.clear(); rayCauses.clear(); ticks=0;
     }
 
     public void checkpointBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish native Psycho status callbacks before checkpointing");}
@@ -765,9 +772,13 @@ public final class LbcPsycho {
                 int forcedTicks,int lastUseTicks){}
         private final List<Status> statuses=new ArrayList<>();
         private final List<MatchDamageSources.Ref> ghosts;
+        private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,me.skywars2.game.combat.LbcIndirectKills.Owner> rayOwners;
+        private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Integer> rayCounts;
         private final int phase=ticks;
         Checkpoint(MatchSpellCheckpoint.Links links){
             ghosts = vexes.stream().filter(vex -> !vex.isRemoved() && !links.omitted(vex)).map(links::key).toList();
+            rayOwners=new MatchSpellCheckpoint.IdentityImage<>(rayCauses,links);
+            rayCounts=new MatchSpellCheckpoint.IdentityImage<>(new IdentityHashMap<>(rays),links);
             for(var entry:effects.entrySet()){
                 var target=entry.getKey();var effect=entry.getValue();
                 if(links.omitted(target))continue;
@@ -791,12 +802,16 @@ public final class LbcPsycho {
                 if(next.put(target,effect)!=null)throw new IllegalStateException("Duplicate restored Psycho status body");
             }
             var restoredGhosts = ghosts.stream().map(ref -> (PsychoVex) links.get(ref)).toList();
+            var restoredRays=rayOwners.restore(links);
+            var restoredRayCounts=rayCounts.restore(links);
             return () -> {
                 statusRestoring=true;
                 effects.clear();
                 effects.putAll(next);
                 vexes.clear();
                 vexes.addAll(restoredGhosts);
+                rayCauses.clear();rayCauses.putAll(restoredRays);
+                rays.clear();rays.putAll(restoredRayCounts);
                 ticks=phase;
             };
         }

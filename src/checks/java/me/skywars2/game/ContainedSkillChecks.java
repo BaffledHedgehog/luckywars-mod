@@ -140,6 +140,9 @@ public final class ContainedSkillChecks {
             service().clear(owner);service().recordDamage(owner,owner.damageSources().playerAttack(owner),200);near(service().damageThisTick(owner),0,"explicit self source excluded despite older foreign-player credit");require(!service().protectsDeath(owner,owner.damageSources().playerAttack(owner)),"explicit self death cannot use older foreign credit");clearAttackers(owner);
             var arrow=new Arrow(EntityTypes.ARROW,level);arrow.setOwner(other);arrow.setPos(origin.add(0,2,0));require(level.addFreshEntity(arrow),"native indirect projectile");actors.add(arrow);
             var indirect=owner.damageSources().arrow(arrow,other);service().clear(owner);service().recordDamage(owner,indirect,100);require(service().protectsDeath(owner,indirect),"native foreign player projectile counts");
+            var thorns=owner.damageSources().thorns(other);service().clear(owner);service().recordDamage(owner,thorns,100);
+            require(service().protectsDeath(owner,thorns),"foreign-player thorns keeps native ownership and qualifies at the common VIP threshold");
+            service().recordDamage(owner,thorns,4);require(!service().protectsDeath(owner,thorns),"ordinary small thorns retains the common maxHP threshold");
             var captured=game.items().indirectKills().captureDamage(owner.damageSources().generic(),game.items().indirectKills().wildCause(other));service().clear(owner);service().recordDamage(owner,captured,100);require(service().protectsDeath(owner,captured),"true inherited player ownership counts even without direct entity");
             var npc=new net.minecraft.world.entity.monster.zombie.Zombie(EntityTypes.ZOMBIE,level);npc.setPos(origin.add(0,0,2));actors.add(npc);
             game.items().spellSources().unowned(npc);require(level.addFreshEntity(npc),"unowned native attacker admitted");
@@ -170,7 +173,11 @@ public final class ContainedSkillChecks {
             other.getInventory().setItem(9,new ItemStack(LbcMagic.MYSTICAL_ARTIFACT));game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();
             try{require(game.items().magic().suppressed(owner),"native active strong-artifact control");unjammed();}finally{other.getInventory().clearContent();game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();}
         }
-        Silverfish spawn(){select(13);Silverfish result=null;for(int attempt=0;attempt<128&&result==null;attempt++)result=game.items().fallingHedgehogs().spawn(owner);require(result!=null&&LbcFallingHedgehogs.managed(result),"identity-bound native falling carrier");actors.add(result);return result;}
+        Silverfish spawn(){select(13);Silverfish result=null;for(int attempt=0;attempt<128&&result==null;attempt++)result=game.items().fallingHedgehogs().spawn(owner);require(result!=null&&LbcFallingHedgehogs.managed(result),"identity-bound native falling carrier");actors.add(result);
+            require(client.packets().stream().filter(net.minecraft.network.protocol.game.ClientboundSoundPacket.class::isInstance)
+                    .map(net.minecraft.network.protocol.game.ClientboundSoundPacket.class::cast)
+                    .anyMatch(sound->sound.getSound().value().location().toString().equals("minecraft:entity.firework_rocket.large_blast")
+                            &&sound.getVolume()==1_000_000&&sound.getPitch()==.8f),"falling hedgehog spawn sends source map-wide volume1,000,000 sound");return result;}
         void actors(){
             var service=game.items().fallingHedgehogs();require(service.trackedCount()==0,"exclusive empty falling-actor fixture");
             var clock=game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#falling_hedgehogs"),"lbc.math");clock.set(0);
@@ -224,12 +231,13 @@ public final class ContainedSkillChecks {
         }
     }
     private enum DeathMode {
-        DIRECT("contained-vip-respawn"),SUM("contained-vip-sum-respawn"),FALL("contained-vip-fall-respawn");
+        DIRECT("contained-vip-respawn"),SUM("contained-vip-sum-respawn"),FALL("contained-vip-fall-respawn"),THORNS("contained-vip-thorns-respawn");
         final String group;DeathMode(String group){this.group=group;}
     }
     public static void runVipDeath(GameController game){startVipDeath(game,DeathMode.DIRECT);}
     public static void runVipSumDeath(GameController game){startVipDeath(game,DeathMode.SUM);}
     public static void runVipFallDeath(GameController game){startVipDeath(game,DeathMode.FALL);}
+    public static void runVipThornsDeath(GameController game){startVipDeath(game,DeathMode.THORNS);}
     private static void startVipDeath(GameController game,DeathMode mode){
         require(death==null,"exclusive native VIP death fixture");var fixture=new DeathFixture(game,mode);death=fixture;
         try{fixture.start();}catch(RuntimeException|Error failure){death=null;fixture.close();throw failure;}
@@ -256,7 +264,8 @@ public final class ContainedSkillChecks {
                 require(owner.hurtServer(level,playerDamage(),40),"first real native accepted hit");
                 near(service().damageThisTick(owner),40,"first real same-tick receipt");
                 require(BlackHoleDamage.apply(game,owner,playerDamage(),60),"second actual same-tick rawHP hit reaches exact maxHP");
-            }else require(owner.hurtServer(level,playerDamage(),200),"real foreign-player lethal native damage");
+            }else require(owner.hurtServer(level,mode==DeathMode.THORNS?owner.damageSources().thorns(other):playerDamage(),200),
+                    "controlled lethal native player damage, including native thorns source");
             verifyDeath();game.server().tickRateManager().setFrozen(false);
         }
         void verifyDeath(){

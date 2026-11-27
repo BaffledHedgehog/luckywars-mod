@@ -47,7 +47,7 @@ public final class LbcSlabDrops {
     }
     /** Egg equipment intentionally differs from the ordinary dropped slab; do not replace its payload. */
     public void adoptEgg(Zombie actor,ServerPlayer author){prepare(actor,author);}
-    private void prepare(Zombie actor,ServerPlayer author){actor.entityTags().add(ACTOR);actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().removeIf(t->t.startsWith(OWNER));actor.entityTags().add(OWNER+author.getUUID());}game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
+    private void prepare(Zombie actor,ServerPlayer author){actor.setCustomName(net.minecraft.network.chat.Component.translatable("agressive_slab").withStyle(s->s.withItalic(false)));actor.entityTags().add(ACTOR);actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().removeIf(t->t.startsWith(OWNER));actor.entityTags().add(OWNER+author.getUUID());}game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
     public static boolean managed(Entity actor){return actor instanceof Zombie && actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){
         if(managed(actor)&&LbcSpellSource.unownedHazard(actor))return (LivingEntity)actor;
@@ -61,7 +61,7 @@ public final class LbcSlabDrops {
     public boolean canTarget(Entity source,LivingEntity target){return target==null || canAffect(source,target);}
     /** Native conversion owns all equipment/effect/loot decisions; only cleanup and cause are retained. */
     public void inheritConversion(Entity parent,Entity child){if(managed(parent) && active(parent) && child instanceof Zombie zombie)prepare(zombie,LbcIndirectKills.playerSource(owner(parent)));}
-    public void loaded(Entity actor){if(!managed(actor))return;if(!active(actor)){actor.discard();return;}tracked.add((Zombie)actor);game.items().timeStop().prepareFrozen(actor);}
+    public void loaded(Entity actor){if(!managed(actor))return;if(!active(actor)){actor.discard();return;}if(actor.getCustomName()==null)actor.setCustomName(net.minecraft.network.chat.Component.translatable("agressive_slab").withStyle(s1->s1.withItalic(false)));tracked.add((Zombie)actor);game.items().timeStop().prepareFrozen(actor);}
     public void unloaded(Entity actor){if(managed(actor))tracked.remove(actor);}
     public void tick(){for(var actor:List.copyOf(tracked)){if(actor.isRemoved())tracked.remove(actor);else if(!active(actor)){tracked.remove(actor);actor.discard();}}}
     public void stop(){var old=List.copyOf(tracked);tracked.clear();for(var actor:old)if(!actor.isRemoved())actor.discard();authors.clear();}

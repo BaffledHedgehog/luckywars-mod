@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 public final class LbcDimensionItems {
     private LbcDimensionItems(){}
     public static boolean nexus(Level level){return level.dimension().equals(LbcHedgehogDimensions.NEXUS);}
+    public static boolean imprinted(Level level){return level.dimension().equals(LbcHedgehogDimensions.IMPRINTED);}
     public static boolean ordinary(Level level){
         var dimension=level.dimension();
         return !dimension.equals(LbcHedgehogDimensions.NEXUS)&&!dimension.equals(LbcHedgehogDimensions.IMPRINTED);

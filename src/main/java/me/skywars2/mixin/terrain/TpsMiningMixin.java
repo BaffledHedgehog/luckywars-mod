@@ -85,6 +85,7 @@ public abstract class TpsMiningMixin implements TpsCompensation.Tracked {
     private void skywars2$miningProgress(BlockState state, BlockPos pos, int ignored, CallbackInfoReturnable<Float> cir) {
         // Polymer completes server-controlled mining in its RETURN injection. Cancelling at
         // HEAD skips that completion while its client-side fatigue prevents a native STOP.
+        // PolymerMiningCadenceMixin's scoped rate bridge owns wall-clock credit for that path.
         if(eu.pb4.polymer.core.api.block.PolymerBlockUtils.shouldMineServerSide(player,pos,state))return;
         // Native delayedTickStart is an absolute start tick, not an elapsed duration.
         int ticks = gameTicks - (hasDelayedDestroy ? delayedTickStart : destroyProgressStart);

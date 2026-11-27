@@ -66,12 +66,14 @@ final class GenieApiDialog implements AutoCloseable {
     static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
             var gemini = Commands.literal("gemini")
+                    .requires(me.skywars2.game.commands.OwnerCommands::allowed)
                     .then(Commands.literal("import").executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_COOKIES)))
                     .then(Commands.literal("importfile")
                             .executes(context -> open(context.getSource().getPlayerOrException(), Form.GEMINI_FILE))
                             .then(Commands.argument("path", StringArgumentType.greedyString()).executes(context ->
                                     importFile(context.getSource(), StringArgumentType.getString(context, "path")))));
             var chatgpt = Commands.literal("chatgpt")
+                    .requires(me.skywars2.game.commands.OwnerCommands::allowed)
                     .then(Commands.literal("import").executes(context -> open(context.getSource().getPlayerOrException(), Form.CHATGPT_COOKIES)))
                     .then(Commands.literal("probe").executes(context -> connectHosted(context.getSource(), null)))
                     .then(Commands.literal("importfile")
@@ -90,6 +92,7 @@ final class GenieApiDialog implements AutoCloseable {
     }
 
     private static int importFile(CommandSourceStack source, String path) {
+        if (!me.skywars2.game.commands.OwnerCommands.allowed(source)) return 0;
         var game = SkyWars2.game();
         if (game == null) return 0;
         var service = game.items().genie();
@@ -97,6 +100,7 @@ final class GenieApiDialog implements AutoCloseable {
     }
 
     private static int connectHosted(CommandSourceStack source, String path) {
+        if (!me.skywars2.game.commands.OwnerCommands.allowed(source)) return 0;
         var game = SkyWars2.game();
         if (game == null) return 0;
         var service = game.items().genie();
@@ -160,6 +164,7 @@ final class GenieApiDialog implements AutoCloseable {
 
     private boolean openForm(ServerPlayer player, Form form) {
         if (closed || !owner(player)) return false;
+        if (form != Form.API && !me.skywars2.game.commands.OwnerCommands.allowed(player.createCommandSourceStack())) return false;
         if (form == Form.API && !privateConnection(player)) {
             message(player, "private_connection", "Для ввода ключа подключись локально или через сервер с online-mode=true.", true);
             return false;
@@ -226,6 +231,7 @@ final class GenieApiDialog implements AutoCloseable {
         pending.remove(player);
         var server = player.level().getServer();
         if (closed || server.getTickCount() - form.opened >= EXPIRY_TICKS || !owner(player)
+                || form.form != Form.API && !me.skywars2.game.commands.OwnerCommands.allowed(player.createCommandSourceStack())
                 || (form.form == Form.API && !privateConnection(player))) return;
         if (form.form != Form.API) {
             String input = payload.orElse(null) instanceof CompoundTag tag ? tag.getStringOr("cookies", "") : "";

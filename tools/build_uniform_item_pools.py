@@ -584,7 +584,7 @@ def selector_resources(result):
                         if not components: continue
                     count_only.append(function)
                 caller['modifier'] = count_only
-            pool['entries'] = [{**entry('union' if short == '27_random_items' else 'custom', types), **caller}]
+            pool['entries'] = [{**entry('custom', types), **caller}]
         resources[short] = document
     return resources
 

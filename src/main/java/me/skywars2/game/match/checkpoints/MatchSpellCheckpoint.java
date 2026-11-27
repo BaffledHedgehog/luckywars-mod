@@ -71,6 +71,8 @@ public final class MatchSpellCheckpoint {
     private final String epoch;
     private final Links links;
     private final LbcSpellSource.Checkpoint policies;
+    private final me.skywars2.game.combat.WeaponEnchantments.ActorCheckpoint enchantmentActors;
+    private final me.skywars2.game.combat.WeaponEnchantments.EffectCheckpoint enchantmentEffects;
     private final LbcCommunism.Checkpoint controls;
     private final LbcSummons.Checkpoint summons;
     private final LbcDanmaku.Checkpoint danmaku;
@@ -85,7 +87,7 @@ public final class MatchSpellCheckpoint {
     private boolean prepared,installed,published;
     public MatchSpellCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);links=new Links(sources);
-        policies=game.items().spellSources().checkpoint(links);controls=game.items().communism().checkpoint(links);
+        policies=game.items().spellSources().checkpoint(links);enchantmentActors=me.skywars2.game.combat.WeaponEnchantments.checkpoint(links);enchantmentEffects=me.skywars2.game.combat.WeaponEnchantments.effectCheckpoint(game,links);controls=game.items().communism().checkpoint(links);
         summons=game.items().summons().checkpoint(links);danmaku=game.items().danmaku().checkpoint(links);
         bedwars=game.bedwars().auxiliaries().checkpoint(links);
         prism=game.items().prism().checkpoint(links);reactiveDefense=game.items().reactiveTrinkets().defense().checkpoint(links);
@@ -118,14 +120,14 @@ public final class MatchSpellCheckpoint {
         var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
         var rocketPlan=rockets.prepare(id->{var ref=rocketBodies.get(id);return ref==null?lookup.apply(id):links.get(ref);});
         if(!rocketPlan.pending().isEmpty())return rocketPlan.pending();
-        var policy=policies.prepare(links);var control=controls.prepare(links);var summon=summons.prepare(links);
+        var policy=policies.prepare(links);var enchantments=enchantmentActors.prepare(links);var healing=enchantmentEffects.prepare(links);var control=controls.prepare(links);var summon=summons.prepare(links);
         var prismPlan=prism.prepare(links);var defensePlan=reactiveDefense.prepare(links);
         var terraPlan=terra.prepare(links);var lifetimePlan=lifetimes.prepare(links);
         var actors=logicalActors.prepare(links);var danmakuState=danmaku.prepare(links);var bedwarsState=bedwars.prepare(links);
         // Rocket metadata rebinds bodies first; the shared captured policy image is
         // authoritative afterward, including a projectile's native reflection state.
         rocketPlan.install().run();
-        prismPlan.run();defensePlan.run();policy.run();control.run();summon.run();actors.run();danmakuState.run();bedwarsState.run();terraPlan.run();lifetimePlan.run();
+        prismPlan.run();defensePlan.run();policy.run();enchantments.run();healing.run();control.run();summon.run();actors.run();danmakuState.run();bedwarsState.run();terraPlan.run();lifetimePlan.run();
         installed=true;published=false;
         // User permits cancellation of short pending operations at rewind. No stale charge may commit.
         game.items().teleportGadgets().cancelChargesForRewind();

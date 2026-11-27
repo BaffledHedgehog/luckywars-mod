@@ -154,6 +154,16 @@ public final class PlanetoidSkillChecks {
         var originalGod=Set.copyOf(game.items().godHedgehog().snapshot());
         var originalTraces=new ArrayList<LbcWands.ElectroTrace>();
         try{
+            var rootMount=new Cow(EntityTypes.COW,level);rootMount.setPos(origin);rootMount.setNoAi(true);rootMount.setNoGravity(true);owned.add(rootMount);
+            var mount=new Cow(EntityTypes.COW,level);mount.setPos(origin);mount.setNoAi(true);mount.setNoGravity(true);owned.add(mount);
+            require(level.addFreshEntity(rootMount)&&level.addFreshEntity(mount)&&mount.startRiding(rootMount,true,false)
+                    &&owner.startRiding(mount,true,false),"actual nested player vehicle chain");
+            var rootMotion=new Vec3(.02,.03,.04);var mountMotion=new Vec3(.05,.06,.07);
+            rootMount.setDeltaMovement(rootMotion);mount.setDeltaMovement(mountMotion);
+            try{service.pulse(owner);require(!mount.entityTags().contains("affected_by_gravity")&&!rootMount.entityTags().contains("affected_by_gravity")
+                    &&mount.getDeltaMovement().equals(mountMotion)&&rootMount.getDeltaMovement().equals(rootMotion),
+                    "both direct mount and root vehicle retain native motion and receive no planetoid capture");}
+            finally{owner.stopRiding();mount.stopRiding();owner.setPos(origin);mount.discard();rootMount.discard();}
             var cow=new Cow(EntityTypes.COW,level);cow.setPos(origin.add(2.5,0,0));cow.setNoAi(true);cow.setNoGravity(true);owned.add(cow);
             require(level.addFreshEntity(cow),"real native Cow admitted");
             var protectedCow=new Cow(EntityTypes.COW,level);protectedCow.setPos(origin.add(-2,0,0));protectedCow.entityTags().add("strict_map_object");owned.add(protectedCow);level.addFreshEntity(protectedCow);

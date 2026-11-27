@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -273,8 +274,8 @@ public final class LbcKiuas {
                 // Mana branches stay independent, but identical terrain writes are coalesced.
                 int kiuPulses=(mainKiu?1:0)+(offKiu?1:0);
                 int sunPulses=(mainSun?1:0)+(offSun?1:0);
-                if(kiuPulses>0) kiuPulse(aura,kiuPulses,(main&1)!=0 && (off&1)!=0);
-                if(sunPulses>0) sunPulse(aura,sunPulses,(main&2)!=0 && (off&2)!=0);
+                if(kiuPulses>0) kiuPulse(aura,kiuPulses,(main&1)!=0 && (off&1)!=0,pulseCause(player,mainKiu?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND));
+                if(sunPulses>0) sunPulse(aura,mainSun,offSun,(main&2)!=0 && (off&2)!=0);
                 serviceSun(aura,((main&2)!=0 && ticks<=aura.mainSunThroughTick) || ((off&2)!=0 && ticks<=aura.offSunThroughTick));
                 reindex(aura);
                 if(main==0 && off==0 && !aura.hasWork()) remove(aura);
@@ -287,9 +288,10 @@ public final class LbcKiuas {
                 var aura=work.removeFirst(); scheduled.remove(aura);
                 if(auras.get(aura.owner.getUUID())!=aura || aura.paused) continue;
                 for(int i=0;i<3;i++) {
-                    var area=aura.areas[Math.floorMod(aura.cursor++,3)];
+                    int areaIndex=Math.floorMod(aura.cursor++,3);var area=aura.areas[areaIndex];
                     if(!area.hasWork()) continue;
-                    budget-=Math.max(1,area.step(game,aura.owner,Math.min(256,budget),deadline));
+                    var cause=areaIndex==0?aura.smallCause:areaIndex==1?aura.largeCause:aura.sunCause;
+                    budget-=Math.max(1,area.step(game,aura.owner,cause,Math.min(256,budget),deadline));
                     break;
                 }
                 schedule(aura);
@@ -319,7 +321,12 @@ public final class LbcKiuas {
         return pulse;
     }
 
-    private void kiuPulse(Aura aura,int pulses,boolean dual) {
+    private LbcIndirectKills.Owner pulseCause(ServerPlayer player,InteractionHand hand){
+        try(var use=me.skywars2.game.combat.WeaponEnchantments.using(player,player.getItemInHand(hand))){
+            return game.items().indirectKills().coldCause(player,true);
+        }
+    }
+    private void kiuPulse(Aura aura,int pulses,boolean dual,LbcIndirectKills.Owner cause) {
         var player=aura.owner;
         player.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,600,0),player);
         aura.level.sendParticles(ParticleTypes.FLAME,player.getX(),player.getY()+1,player.getZ(),pulses*10,.5,1,.5,0);
@@ -327,31 +334,42 @@ public final class LbcKiuas {
         var lo=BlockPos.containing(player.getX()-1.5,player.getY()-1.5,player.getZ()-1.5);
         var hi=BlockPos.containing(player.getX()+1.5,player.getY()+2.5,player.getZ()+1.5);
         var small=new BlockAreaWork.Bounds(lo.getX(),lo.getY(),lo.getZ(),hi.getX(),hi.getY(),hi.getZ());
-        aura.small.move(small,!aura.kiuasIndexed); aura.smallBounds=small;
+        aura.small.move(small,!aura.kiuasIndexed); aura.smallBounds=small;aura.smallCause=cause;
         for(int i=0;i<pulses && dual;i++) if(player.getRandom().nextFloat()<.05f) {
             var c=player.blockPosition();
             aura.largeBounds=new BlockAreaWork.Bounds(c.getX()-15,c.getY()-15,c.getZ()-15,c.getX()+15,c.getY()+15,c.getZ()+15);
             aura.large.move(aura.largeBounds,true);
+            aura.largeCause=cause;
         }
     }
 
-    private void sunPulse(Aura aura,int pulses,boolean dual) {
+    private void sunPulse(Aura aura,boolean mainPulse,boolean offPulse,boolean dual) {
+        int pulses=(mainPulse?1:0)+(offPulse?1:0);
         var player=aura.owner;
+        aura.sunCause=pulseCause(player,mainPulse?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND);
         player.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,2400,0),player);
         aura.level.sendParticles(ParticleTypes.FLAME,player.getX(),player.getY()+1,player.getZ(),pulses*40,.5,1,.5,2);
         for(int i=0;i<pulses;i++) LbcOverload.sound(player,"minecraft:block.fire.ambient",3,0,0);
-        if(dual) for(int i=0;i<pulses;i++)
-            for(var target:aura.level.getEntitiesOfClass(LivingEntity.class,player.getBoundingBox().inflate(15),e->
-                    game.items().wands().target(player,e) && e.position().distanceToSqr(player.position())<=225
-                            && e.position().distanceToSqr(player.position())>=.01))
-                target.hurtServer(aura.level,aura.level.damageSources().source(net.minecraft.world.damagesource.DamageTypes.ON_FIRE,player),10);
+        if(dual) {
+            // Aura is a held effect: each pulse captures the currently active Sun
+            // wand, rather than borrowing whichever hand is held at later damage.
+            for(var hand:net.minecraft.world.InteractionHand.values()){
+                if(hand==net.minecraft.world.InteractionHand.MAIN_HAND?!mainPulse:!offPulse)continue;
+                var cause=pulseCause(player,hand);aura.sunCause=cause;
+                var damage=game.items().indirectKills().captureDamage(aura.level.damageSources().source(net.minecraft.world.damagesource.DamageTypes.ON_FIRE,player),cause);
+                for(var target:aura.level.getEntitiesOfClass(LivingEntity.class,player.getBoundingBox().inflate(15),e->
+                        game.items().wands().target(player,e) && e.position().distanceToSqr(player.position())<=225
+                                && e.position().distanceToSqr(player.position())>=.01))
+                    target.hurtServer(aura.level,damage,10);
+            }
+        }
         for(var entity:aura.level.getEntities(player,player.getBoundingBox().inflate(25),e->
                 (e instanceof Projectile || e.getType().builtInRegistryHolder().is(PROJECTILES))
                         && !e.entityTags().contains("magic_academy") && !e.entityTags().contains("transformator"))) {
             double distance=entity.position().distanceToSqr(player.position());
             if(distance<64 || distance>625 || !aura.level.hasChunkAt(entity.blockPosition())) continue;
             var pos=entity.blockPosition().immutable();
-            game.items().indirectKills().worldChanges(aura.level,player,()->aura.level.setBlock(pos,Blocks.LAVA.defaultBlockState(),FLAGS));
+            game.items().indirectKills().trapChanges(aura.level,aura.sunCause,()->aura.level.setBlock(pos,Blocks.LAVA.defaultBlockState(),FLAGS));
             aura.level.scheduleTick(pos,net.minecraft.world.level.material.Fluids.LAVA,
                     net.minecraft.world.level.material.Fluids.LAVA.getTickDelay(aura.level));
             entity.discard();
@@ -514,7 +532,7 @@ public final class LbcKiuas {
     public final class Checkpoint {
         private record AuraImage(Aura original,UUID owner,ServerLevel ownerLevel,int mainKind,int offKind,boolean mainActive,boolean offActive,boolean mainSunActive,boolean offSunActive,
                 boolean paused,boolean maintaining,int mainRemaining,int offRemaining,BlockAreaWork.Bounds small,BlockAreaWork.Bounds large,
-                BlockAreaWork.Bounds sun,BlockPos origin) { }
+                BlockAreaWork.Bounds sun,BlockPos origin,LbcIndirectKills.Owner smallCause,LbcIndirectKills.Owner largeCause,LbcIndirectKills.Owner sunCause) { }
         private record CurseImage(UUID player,MatchDamageSources.Ref body,ServerLevel level,LbcIndirectKills.Owner cause) { }
         private final java.util.List<AuraImage> saved;
         private final java.util.List<CurseImage> curses=new java.util.ArrayList<>();
@@ -524,7 +542,7 @@ public final class LbcKiuas {
             saved=auras.values().stream().map(a->new AuraImage(a,a.owner.getUUID(),a.owner.level(),a.mainKind,a.offKind,a.mainActive,a.offActive,a.mainSunActive,a.offSunActive,a.paused,
                     a.sunMaintaining,a.mainSunThroughTick<0?Integer.MIN_VALUE:a.mainSunThroughTick-ticks,
                     a.offSunThroughTick<0?Integer.MIN_VALUE:a.offSunThroughTick-ticks,a.smallBounds,a.largeBounds,a.sunBounds,
-                    a.sunOrigin==null?null:a.sunOrigin.immutable())).toList();
+                    a.sunOrigin==null?null:a.sunOrigin.immutable(),a.smallCause,a.largeCause,a.sunCause)).toList();
             cursed.forEach((target,cause)->curses.add(new CurseImage(target instanceof ServerPlayer player?player.getUUID():null,
                     target instanceof ServerPlayer?null:links.key(target),(ServerLevel)target.level(),cause)));
             saved.forEach(image->installed.add(image.owner));for(var image:curses)if(image.player!=null)cursePlayers.add(image.player);baseInstalled=true;
@@ -553,6 +571,7 @@ public final class LbcKiuas {
                     a.mainSunThroughTick=image.mainRemaining==Integer.MIN_VALUE?-1:ticks+image.mainRemaining;
                     a.offSunThroughTick=image.offRemaining==Integer.MIN_VALUE?-1:ticks+image.offRemaining;
                     a.smallBounds=image.small;a.largeBounds=image.large;a.sunBounds=image.sun;a.sunOrigin=image.origin;a.cursor=0;
+                    a.smallCause=image.smallCause;a.largeCause=image.largeCause;a.sunCause=image.sunCause;
                     a.small.resetBounds(image.small);a.large.resetBounds(image.large);a.sun.resetBounds(image.sun);
                     a.chunks.clear();a.sunChanged.clear();a.kiuasIndexed=false;a.sunIndexed=false;a.indexedSmallBounds=null;a.indexedSunBounds=null;
                     auras.put(current.getUUID(),a);installed.add(image.owner);});}
@@ -570,6 +589,7 @@ public final class LbcKiuas {
         final Set<BlockPos> sunChanged=new HashSet<>();
         final BlockAreaWork small,large,sun;
         final BlockAreaWork[] areas;
+        LbcIndirectKills.Owner smallCause,largeCause,sunCause;
         Aura(ServerPlayer owner) {
             this.owner=owner; this.level=owner.level();
             java.util.function.BiFunction<BlockPos,BlockState,BlockState> fire=(pos,state)-> {

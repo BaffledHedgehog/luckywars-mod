@@ -2,7 +2,6 @@ package me.skywars2.game.match.events;
 
 import me.skywars2.game.combat.LbcIndirectKills;
 import me.skywars2.game.effects.magic.LbcExplosionSuppression;
-import me.skywars2.game.world.terrain.LbcDropBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -48,6 +47,12 @@ public final class NuclearTerrain {
                 &&context.getFrom().distanceToSqr(value.origin)>value.coreSquared?value.clip(context):null;
     }
     public static final int CELLS_PER_STEP=4096;
+    /** Strict AIR has no properties, shape resolution or block-entity payload in BlockInput.place.
+     * Keep its exact native flags and Level hooks without allocating one command input per cell. */
+    private static boolean strictAir(ServerLevel level,BlockPos pos){
+        return level.setBlock(pos,Blocks.AIR.defaultBlockState(),
+                net.minecraft.world.level.block.Block.UPDATE_CLIENTS|net.minecraft.world.level.block.Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+    }
     public static void damageWave(Entity emitter,Runnable nativeExplosion){
         var previous=DAMAGE_WAVE.get();DAMAGE_WAVE.set(emitter);
         try{nativeExplosion.run();}finally{if(previous==null)DAMAGE_WAVE.remove();else DAMAGE_WAVE.set(previous);}
@@ -68,7 +73,10 @@ public final class NuclearTerrain {
         final Vec3 origin;public final float power;final boolean marker;public final java.util.List<Cube> cubes;
         private final long seed;private java.util.concurrent.CompletableFuture<Geometry> preparation;
         private Geometry geometry;private int section,word;private long bits;private boolean wordLoaded;
+        private long sectionReads,visitedCells,changedBlocks;private int slices;
         int visited;boolean done;
+        public record Progress(int slices,long visitedCells,long sectionReads,long changedBlocks,int completedSections,int totalSections,boolean done){}
+        public Progress progress(){return new Progress(slices,visitedCells,sectionReads,changedBlocks,section,geometry==null?0:geometry.sections.size(),done);}
         Point(Vec3 origin,float yaw,boolean marker,long seed){
             this.origin=origin;this.marker=marker;power=marker?16:25;this.seed=seed;
             var definitions=new java.util.ArrayList<Cube>();
@@ -91,18 +99,23 @@ public final class NuclearTerrain {
             var masks=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<java.util.BitSet>();
             for(int i=0;i<cubes.size();i++){
                 var cube=cubes.get(i);long salt=seed^((i+1)*0x9e3779b97f4a7c15L);
-                for(int y=0;y<48;y++)for(int z=0;z<48;z++)for(int x=0;x<48;x++){
-                    int bx=cube.low.getX()+x,by=cube.low.getY()+y,bz=cube.low.getZ()+z;
-                    if(unit(salt^BlockPos.asLong(bx,by,bz))>=cube.integrity)continue;
-                    long key=net.minecraft.core.SectionPos.asLong(bx>>4,by>>4,bz>>4);
+                int lowX=cube.low.getX(),lowY=cube.low.getY(),lowZ=cube.low.getZ();
+                for(int sy=lowY>>4;sy<=(lowY+47)>>4;sy++)for(int sz=lowZ>>4;sz<=(lowZ+47)>>4;sz++)for(int sx=lowX>>4;sx<=(lowX+47)>>4;sx++){
+                    long key=net.minecraft.core.SectionPos.asLong(sx,sy,sz);
                     var mask=masks.get(key);if(mask==null){mask=new java.util.BitSet(4096);masks.put(key,mask);}
-                    mask.set((bx&15)|((bz&15)<<4)|((by&15)<<8));
+                    // Stateless per-position selection is order independent. Resolve its section
+                    // once instead of hashing the same section key for every accepted voxel.
+                    int minX=Math.max(lowX,sx<<4),maxX=Math.min(lowX+47,(sx<<4)+15);
+                    int minY=Math.max(lowY,sy<<4),maxY=Math.min(lowY+47,(sy<<4)+15);
+                    int minZ=Math.max(lowZ,sz<<4),maxZ=Math.min(lowZ+47,(sz<<4)+15);
+                    for(int y=minY;y<=maxY;y++)for(int z=minZ;z<=maxZ;z++)for(int x=minX;x<=maxX;x++)
+                        if(unit(salt^BlockPos.asLong(x,y,z))<cube.integrity)mask.set((x&15)|((z&15)<<4)|((y&15)<<8));
                 }
             }
             var sections=new java.util.ArrayList<Geometry.Section>();
             // Packed section order is stable; no world, block-state, chunk or NBT snapshots.
             long[] keys=masks.keySet().toLongArray();java.util.Arrays.sort(keys);
-            for(long key:keys)sections.add(new Geometry.Section(net.minecraft.core.SectionPos.x(key),net.minecraft.core.SectionPos.y(key),net.minecraft.core.SectionPos.z(key),masks.get(key).toLongArray()));
+            for(long key:keys)if(!masks.get(key).isEmpty())sections.add(new Geometry.Section(net.minecraft.core.SectionPos.x(key),net.minecraft.core.SectionPos.y(key),net.minecraft.core.SectionPos.z(key),masks.get(key).toLongArray()));
             return new Geometry(at,sections);
         }
         boolean ready(){return done||preparation!=null&&preparation.isDone();}
@@ -116,23 +129,35 @@ public final class NuclearTerrain {
             return done;
         }
         private void clear(ServerLevel level,LbcExplosionSuppression.Coverage coverage){
+            slices++;
             var probe=new BlockPos.MutableBlockPos();
-            while(section<geometry.sections.size()&&visited<CELLS_PER_STEP){
+            sections:while(section<geometry.sections.size()&&visited<CELLS_PER_STEP){
                 var part=geometry.sections.get(section);
                 if((part.y<<4)+15<level.getMinY()||(part.y<<4)>=level.getMaxY()){advanceSection();continue;}
                 var chunk=level.getChunkSource().getChunkNow(part.x,part.z);
                 if(chunk==null){advanceSection();continue;}
                 var slice=chunk.getSection(level.getSectionIndex(part.y<<4));
+                sectionReads++;
                 if(slice.hasOnlyAir()){advanceSection();continue;}
-                if(word>=part.mask.length){advanceSection();continue;}
-                if(!wordLoaded){bits=part.mask[word];wordLoaded=true;}
-                if(bits==0){word++;wordLoaded=false;continue;}
-                int cell=(word<<6)+Long.numberOfTrailingZeros(bits);bits&=bits-1;visited++;
-                int x=(part.x<<4)+(cell&15),y=(part.y<<4)+(cell>>8),z=(part.z<<4)+((cell>>4)&15);
-                probe.set(x,y,z);
-                if(!slice.getBlockState(x&15,y&15,z&15).isAir()&&!coverage.blocks(probe))
-                    LbcDropBlocks.setBlock(level,probe,Blocks.AIR.defaultBlockState(),true);
+                // Retain this resident section for its whole mask, never across queue steps.
+                // The former outer loop repeated chunk/section discovery for every set bit.
+                while(word<part.mask.length&&visited<CELLS_PER_STEP){
+                    if(!wordLoaded){bits=part.mask[word];wordLoaded=true;}
+                    while(bits!=0&&visited<CELLS_PER_STEP){
+                        int cell=(word<<6)+Long.numberOfTrailingZeros(bits);bits&=bits-1;visited++;
+                        int x=(part.x<<4)+(cell&15),y=(part.y<<4)+(cell>>8),z=(part.z<<4)+((cell>>4)&15);
+                        probe.set(x,y,z);
+                        if(!slice.getBlockState(x&15,y&15,z&15).isAir()&&!coverage.blocks(probe)&&strictAir(level,probe)){
+                            changedBlocks++;
+                            // Sparse island sections may become empty long before the mask ends.
+                            if(slice.hasOnlyAir()){advanceSection();continue sections;}
+                        }
+                    }
+                    if(bits==0){word++;wordLoaded=false;}
+                }
+                if(word>=part.mask.length)advanceSection();
             }
+            visitedCells+=visited;
             done=section>=geometry.sections.size();
         }
         private void advanceSection(){section++;word=0;bits=0;wordLoaded=false;}
@@ -299,7 +324,7 @@ public final class NuclearTerrain {
                     var state=section.getBlockState(x&15,by&15,z&15);probe.set(x,by,z);
                     if(!admitted(level,probe,state,coverage))continue;
                     walls.remember(level,probe,state);
-                    if(admitted==null)LbcDropBlocks.setBlock(level,probe,Blocks.AIR.defaultBlockState(),true);
+                    if(admitted==null)strictAir(level,probe);
                     else admitted.add(probe.immutable());
                 }
                 if(cell>=4096)advanceSection();

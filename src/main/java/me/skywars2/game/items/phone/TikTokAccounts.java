@@ -58,8 +58,8 @@ public final class TikTokAccounts {
     private static void commands(CommandDispatcher<CommandSourceStack> dispatcher){
         SkyWarsCommandTree.add(dispatcher,Commands.literal("tiktok")
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .then(Commands.literal("import").executes(ctx->{open(ctx.getSource().getPlayerOrException());return 1;}))
-                .then(Commands.literal("importfile").executes(ctx->{open(ctx.getSource().getPlayerOrException(),true);return 1;})
+                .then(Commands.literal("import").requires(me.skywars2.game.commands.OwnerCommands::allowed).executes(ctx->{open(ctx.getSource().getPlayerOrException());return 1;}))
+                .then(Commands.literal("importfile").requires(me.skywars2.game.commands.OwnerCommands::allowed).executes(ctx->{open(ctx.getSource().getPlayerOrException(),true);return 1;})
                     .then(Commands.argument("path",com.mojang.brigadier.arguments.StringArgumentType.greedyString()).executes(ctx->{
                         importFile(ctx.getSource().getPlayerOrException(),com.mojang.brigadier.arguments.StringArgumentType.getString(ctx,"path"));return 1;
                     })))
@@ -88,6 +88,7 @@ public final class TikTokAccounts {
     public static TikTokPlayback playback(){return playback;}
     private static boolean allowed(ServerPlayer player){
         return server!=null&&server.getPlayerList().getPlayer(player.getUUID())==player
+                &&me.skywars2.game.commands.OwnerCommands.allowed(player.createCommandSourceStack())
                 &&Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(player.createCommandSourceStack());
     }
 

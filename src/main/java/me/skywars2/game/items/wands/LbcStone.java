@@ -176,14 +176,16 @@ for(double step=0;step<=distance;step+=.5) {
 }
         sourceSound(owner,from.lerp(end,.5),"minecraft:block.amethyst_cluster.break",1,.1f,0);
         if(hit!=null && (!Double.isFinite(boundary)||from.distanceToSqr(hit.getLocation())<from.distanceToSqr(limit)-1e-9)
-                && (!(hit instanceof BlockHitResult wall) || sourceLevel(owner).hasChunkAt(wall.getBlockPos()))) impact(owner,end,spike);
+                && (!(hit instanceof BlockHitResult wall) || sourceLevel(owner).hasChunkAt(wall.getBlockPos())))
+            impact(owner,end,spike,game.items().indirectKills().coldCause(owner,true));
     }
     /** Проверка по всему отрезку за тик; частота частиц не задаёт геометрию попадания. */
     public void tick() {
         batch.addAll(charges);
         try {
             for(var charge:batch) {
-                try(var sourceScope=game.items().spellSources().scope(charge)){
+                try(var sourceScope=game.items().spellSources().scope(charge);
+                    var enchantments=me.skywars2.game.combat.WeaponEnchantments.actorScope(charge,game.items().spellSources().author(charge))){
                 var owner=game.items().spellSources().author(charge);
                 if(!liveSourceCharge(charge,owner)) {
                     charge.discard(); continue;
@@ -223,7 +225,8 @@ for(double step=0;step<=distance;step+=.5) {
         } finally { batch.clear(); charges.removeIf(Entity::isRemoved); }
     }
     /** Камни сохраняют исходную integrity, шипы ставятся целиком; автор блоков учитывается общим helper. */
-    private void impact(ServerPlayer owner,Vec3 point,boolean spike) {
+    private void impact(ServerPlayer owner,Vec3 point,boolean spike) {impact(owner,point,spike,null);}
+    private void impact(ServerPlayer owner,Vec3 point,boolean spike,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
         var pos=BlockPos.containing(point);
         game.items().indirectKills().trapChanges(owner,()-> {
             if(spike) game.maps().placeLoadedTemplate(owner,SPIKES,pos.offset(-4,-1,-4),1f);
@@ -231,7 +234,7 @@ for(double step=0;step<=distance;step+=.5) {
         });
         for(float pitch:new float[]{0,.5f,1,1.5f,2}) sourceSound(owner,point,"minecraft:block.stone.place",2,pitch,0);
         if(spike) {
-            var damage=new DamageSource(sourceLevel(owner).registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),owner);
+            var damage=game.items().indirectKills().captureDamage(new DamageSource(sourceLevel(owner).registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),owner),cause);
             for(var target:sourceLevel(owner).getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(5),
                     target->target.position().distanceToSqr(point)<=25 && game.items().lifetimes().target(owner,target)))
                 target.hurtServer(sourceLevel(owner),damage,5);

@@ -53,9 +53,28 @@ public final class ProjectileSweepChecks {
                 }
             }
             directArcSamples(fixture, origin);
+            tinyPower(fixture, start);
             tinyTerraContainers(fixture, start);
         }
         SkyWars2.LOGGER.info("[check] PASS projectile-sweep (real Electro, Terra, Volos and Doppel contacts, out-of-range grazes, wall order, direct electric damage and both Tiny Terra container replacements)");
+    }
+
+    private static void tinyPower(WoolBucketChecks.Fixture fixture,BlockPos start) {
+        var owner=fixture.owner;var eye=Vec3.atCenterOf(start);
+        fixture.move(owner,eye.subtract(0,owner.getEyeHeight(),0));owner.setYRot(-90);owner.setXRot(0);
+        var power=owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(net.minecraft.world.item.enchantment.Enchantments.POWER);
+        for(int kind:new int[]{1,6})for(boolean paid:new boolean[]{true,false}){
+            var wand=fixture.leaf(kind==1?"tiny_blind_wand":"tiny_terra_wand");wand.enchant(power,1);
+            owner.setItemInHand(InteractionHand.MAIN_HAND,wand);fixture.game.items().mana().set(owner,10000);
+            var target=new Cow(EntityTypes.COW,fixture.level);target.setPos(eye.add(2,-.5,0));target.setNoAi(true);target.setNoGravity(true);
+            require(fixture.level.addFreshEntity(target),"tiny Power target");fixture.own(target);
+            float before=target.getHealth();
+            if(paid)require(owner.gameMode.useItem(owner,fixture.level,wand,InteractionHand.MAIN_HAND).consumesAction(),"tiny paid cast");
+            else fixture.game.items().wands().extraTiny(owner,kind);
+            float expected=(kind==1?.25f:5f)*(paid?1.5f:1f);
+            require(Math.abs(before-target.getHealth()-expected)<.001f,"tiny Power paid="+paid+" kind="+kind+" damage="+(before-target.getHealth()));
+            fixture.discard(target);
+        }
     }
 
     private static void tinyTerraContainers(WoolBucketChecks.Fixture fixture, BlockPos start) {

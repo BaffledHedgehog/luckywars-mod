@@ -89,6 +89,7 @@ public final class LbcExasperato {
             new net.minecraft.core.particles.DustColorTransitionOptions(0xFFDC40,0,4);
     private static final class Search {
         final boolean borrowedWand;
+        final LbcIndirectKills.Owner enchantmentCause;
         ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
@@ -112,6 +113,7 @@ public final class LbcExasperato {
                 java.util.function.BiConsumer<Vec3,Vec3> trail,boolean blocksOnly,boolean technology,
                 java.util.function.Predicate<Entity> target) {
             this.owner=owner; this.level=owner.level(); this.epoch=epoch;borrowedWand=WandCastOrigin.borrowed(owner);
+            enchantmentCause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
             this.direction=direction; this.position=from; this.remaining=remaining; this.walls=walls; this.trail=trail;
             this.blocksOnly=blocksOnly;
             this.technology=technology; this.target=target;
@@ -217,7 +219,14 @@ public final class LbcExasperato {
         if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
     }
     private static boolean done(Search s){return s.replay==null?s.result.isDone():s.finished;}
-    private static void complete(Search s,net.minecraft.world.phys.HitResult hit){try(var castOrigin=WandCastOrigin.scope(s.owner,s.borrowedWand)){if(done(s))return;if(s.replay==null)s.result.complete(hit);else{s.finished=true;s.replay.complete(hit);}}}
+    private static me.skywars2.game.combat.WeaponEnchantments.Scope enchantmentScope(ServerPlayer owner,LbcIndirectKills.Owner cause){
+        return me.skywars2.game.combat.WeaponEnchantments.causeScope(owner,cause);
+    }
+    private static void complete(Search s,net.minecraft.world.phys.HitResult hit){
+        try(var castOrigin=WandCastOrigin.scope(s.owner,s.borrowedWand);var enchantments=enchantmentScope(s.owner,s.enchantmentCause)){
+            if(done(s))return;if(s.replay==null)s.result.complete(hit);else{s.finished=true;s.replay.complete(hit);}
+        }
+    }
     public void replayableSpell(ServerPlayer owner,Vec3 from,Vec3 direction,double range,ReplayableRay replay){
         var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,replay::trail,false,false,replay::target);search.blockRule=replay::block;search.shieldBlockable=false;search.replay=replay;
         if(range>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
@@ -555,7 +564,7 @@ public final class LbcExasperato {
         int budget=headroom<=started?8:spare?SEARCH_HEADROOM_BUDGET:SEARCH_BUDGET;
         for(int work=0;work<budget && !searches.isEmpty() && System.nanoTime()<deadline;work++) {
             var search=searches.removeFirst(); var owner=search.owner; var level=search.level;
-            try(var castOrigin=WandCastOrigin.scope(owner,search.borrowedWand)){
+            try(var castOrigin=WandCastOrigin.scope(owner,search.borrowedWand);var enchantments=enchantmentScope(owner,search.enchantmentCause)){
             if(done(search)) continue;
             if(game.items().timeStop().stopped(level)){searches.addLast(search);continue;}
             boolean sampled=search.replay!=null&&search.replay.sampleStep()>0;
@@ -638,6 +647,7 @@ public final class LbcExasperato {
     }
 
     public void tick() {
+        game.items().cloneSkills().beforeOwnedStep(charges);
         batch.addAll(charges);
         try {
             for(var charge:batch) {
@@ -649,9 +659,11 @@ public final class LbcExasperato {
                     charge.discard(); continue;
                 }
                 if(game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) continue;
-                if(charge.mode==4) nukeStep(charge,owner);
-                else if(charge.mode==2) electroRayStep(charge,owner);
-                else step(charge,owner);
+                try(var enchantments=me.skywars2.game.combat.WeaponEnchantments.actorScope(charge,owner)){
+                    if(charge.mode==4) nukeStep(charge,owner);
+                    else if(charge.mode==2) electroRayStep(charge,owner);
+                    else step(charge,owner);
+                }
                 if(!charge.isRemoved() && ++charge.age>=charge.lifetime && charge.lifetime>0) charge.discard();
                 if(!charge.isRemoved()) game.items().lifetimes().advance(charge,charge.age);
             }
@@ -700,7 +712,7 @@ public final class LbcExasperato {
             burst.next++;
             if(burst.cosmos) cosmosBlast(burst);
             else NuclearTerrain.withOcclusion(burst.walls,()->nativeBlast(burst.owner,burst.level,burst.origin.add(offset),burst.radius,burst.epoch,
-                        burst.protectedDamage,burst.sourceInit,false,burst.nuclear));
+                        burst.protectedDamage,burst.sourceInit,false,burst.nuclear,false,burst.terrainCause));
             if(burst.next<burst.offsets.length && game.items().currentEpoch(burst.epoch)
                     && game.stage()!=GameController.Stage.ENDING) blasts.addLast(burst);
             // Round-robin даёт прогресс каждой серии, даже при непрерывных новых попаданиях.
@@ -739,6 +751,7 @@ public final class LbcExasperato {
     }
 
     private boolean advanceRapid(BlastBatch burst) {
+        try(var enchantments=enchantmentScope(burst.owner,burst.terrainCause)){
         if(!liveRapid(burst))return false;
         if(game.items().timeStop().stopped(burst.level))return true;
         var residency=prepareRapid(burst);
@@ -757,9 +770,10 @@ public final class LbcExasperato {
             if(!liveRapid(burst))return false;
             if(game.items().timeStop().stopped(burst.level))return true;
             var at=burst.origin.add(burst.offsets[burst.next++]);
-            nativeBlast(burst.owner,burst.level,at,burst.radius,burst.epoch,burst.protectedDamage,burst.sourceInit,false,false,true,null);
+            nativeBlast(burst.owner,burst.level,at,burst.radius,burst.epoch,burst.protectedDamage,burst.sourceInit,false,false,true,burst.terrainCause);
         }
         return burst.next<burst.offsets.length && liveRapid(burst);
+        }
     }
 
     private net.minecraft.world.level.ServerExplosion nuclearTerrainApplication(BlastBatch batch){
@@ -1016,14 +1030,24 @@ public final class LbcExasperato {
             public boolean inside(BlockPos pos){return level.isInWorldBounds(pos);}
             public int minY(){return height.minY();}
             public int maxY(){return height.maxY();}
-            public net.minecraft.world.level.block.state.BlockState state(BlockPos pos){
+            private net.minecraft.world.level.chunk.LevelChunkSection section(BlockPos pos){
                 int cx=pos.getX()>>4,cz=pos.getZ()>>4;
                 if(cx!=lastX||cz!=lastZ){
                     long key=net.minecraft.world.level.ChunkPos.pack(cx,cz);last=chunks.get(key);
                     if(last==null){last=residentOnly?level.getChunkSource().getChunkNow(cx,cz):level.getChunk(cx,cz);if(last!=null)chunks.put(key,last);}
                     lastX=cx;lastZ=cz;
                 }
-                var section=last==null?null:last.getSection(level.getSectionIndex(pos.getY()));
+                return last==null?null:last.getSection(level.getSectionIndex(pos.getY()));
+            }
+            final BlockPos.MutableBlockPos sectionBounds=new BlockPos.MutableBlockPos();
+            public boolean emptySection(BlockPos pos){
+                var section=section(pos);if(section!=null&&!section.hasOnlyAir())return false;
+                int x=pos.getX()&~15,y=pos.getY()&~15,z=pos.getZ()&~15;
+                return level.isInWorldBounds(sectionBounds.set(x,y,z))
+                        &&level.isInWorldBounds(sectionBounds.set(x+15,y+15,z+15));
+            }
+            public net.minecraft.world.level.block.state.BlockState state(BlockPos pos){
+                var section=section(pos);
                 return section==null||section.hasOnlyAir()?Blocks.AIR.defaultBlockState():section.getBlockState(pos.getX()&15,pos.getY()&15,pos.getZ()&15);
             }
             public float loss(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){
@@ -1076,6 +1100,7 @@ public final class LbcExasperato {
     private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
             boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension,boolean nuclear,boolean cachedBlocks,
             LbcIndirectKills.Owner cause) {nativeBlasts++;try{
+        if(!nuclear&&cause==null&&owner instanceof ServerPlayer player)cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(player);
         if(!encounterDimension && level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
                 || !level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
                 || !game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
@@ -1138,6 +1163,7 @@ public final class LbcExasperato {
     private void burst(ServerPlayer owner,Vec3 origin,boolean academyTrial) {
         var burst=new BlastBatch(owner,origin,game.items().epoch());
         if(!liveRapid(burst))return;
+        burst.terrainCause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
         burst.offsets=ORDINARY_OFFSETS;
         burst.radius=4;
         burst.protectedDamage=true;

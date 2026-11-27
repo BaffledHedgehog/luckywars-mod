@@ -134,6 +134,7 @@ public final class LbcSheep {
                 .overrideDescription("sheep_wand").component(DataComponents.ITEM_MODEL,model)
                 .component(DataComponents.CUSTOM_DATA,CustomData.of(data))
                 .component(DataComponents.TOOLTIP_STYLE,Identifier.parse(academy?"lbc:tier_x":"lbc:tier_a"));
+        props.enchantable(1).component(DataComponents.ENCHANTMENTS,net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,Items.CARROT_ON_A_STICK,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
                 var game=me.skywars2.SkyWars2.game();

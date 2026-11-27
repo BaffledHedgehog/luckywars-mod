@@ -105,7 +105,8 @@ public final class LbcWitchClaims {
                 net.minecraft.sounds.SoundEvent.createVariableRangeEvent(net.minecraft.resources.Identifier.parse("minecraft:entity.wither.ambient"))),
                 net.minecraft.sounds.SoundSource.MASTER,p.getX(),p.getY(),p.getZ(),.5f,1,p.getRandom().nextLong()));
         p.sendSystemMessage(Component.translatable("no_witch_gens"));
-        Integer score=mode.counter==null?null:counters.read(p,mode.counter);if(score==null)return;
+        Integer recorded=mode.counter==null?null:counters.read(p,mode.counter);
+        int score=recorded==null?0:recorded;
         String key=switch(mode){case GLUTTONY->"food_count";case WRATH,VANITY->"dmg_dealt";case LUST->"loli_count";case GREED->"greed_count";case INDOLENCE->"indolence_count";default->null;};
         if(key!=null)p.sendSystemMessage(Component.empty().append(Component.translatable(key).withStyle(s->s.withColor(0xff55ff))).append(Component.literal(Integer.toString(mode==Mode.INDOLENCE?Math.floorDiv(score,20):mode==Mode.WRATH||mode==Mode.VANITY?Math.floorDiv(score,10):score))));
     }

@@ -55,6 +55,7 @@ public final class WeaponEnchantmentChecks {
         require(wand.getItem() instanceof LbcWands.NativeTool&&wand.isEnchantable(),"canonical Tesla wand is a genuine table input");
         for(var key:List.of(Enchantments.SHARPNESS,Enchantments.LOOTING,Enchantments.KNOCKBACK,Enchantments.FIRE_ASPECT))
             require(registry.getOrThrow(key).value().isPrimaryItem(wand),"wand supports meaningful "+key);
+        require(registry.getOrThrow(Enchantments.POWER).value().isPrimaryItem(wand),"wand admits Power on the native enchantment table");
         require(!registry.getOrThrow(Enchantments.SWEEPING_EDGE).value().isSupportedItem(wand),"non-sword wand does not gain native sword sweep");
         var table=new EnchantmentMenu(50,player.getInventory(),ContainerLevelAccess.create(player.level(),center));
         table.getSlot(0).set(wand.copy());table.getSlot(1).set(new ItemStack(Items.LAPIS_LAZULI,3));
@@ -64,6 +65,7 @@ public final class WeaponEnchantmentChecks {
         var actors=new ArrayList<Cow>();
         try{
             var weapon=wand.copy();weapon.enchant(registry.getOrThrow(Enchantments.SHARPNESS),4);
+            weapon.enchant(registry.getOrThrow(Enchantments.POWER),1);
             weapon.enchant(registry.getOrThrow(Enchantments.LOOTING),100);weapon.enchant(registry.getOrThrow(Enchantments.FIRE_ASPECT),2);
             weapon.enchant(registry.getOrThrow(Enchantments.KNOCKBACK),2);
             player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIRT));player.setItemInHand(InteractionHand.OFF_HAND,weapon);
@@ -77,8 +79,35 @@ public final class WeaponEnchantmentChecks {
             target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);target.setHealth(1000);require(player.level().addFreshEntity(target),"native custom-weapon target");actors.add(target);
             player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
             require(target.hurtServer(player.level(),source,4),"captured custom-weapon hit accepted after hand swap");
-            require(Math.abs(target.getHealth()-993.5f)<.001,"Sharpness IV adds 2.5 once, using original offhand weapon; hp="+target.getHealth());
+            require(Math.abs(target.getHealth()-994f)<.001,"Power I scales spell 4 to 6 once, Sharpness IV does not modify the spell, using the captured offhand wand; hp="+target.getHealth());
             require(target.getRemainingFireTicks()>0&&target.getDeltaMovement().lengthSqr()>0,"native Fire Aspect and Knockback apply to accepted custom attack");
+            target.setHealth(900);
+            var spellSource=new me.skywars2.game.combat.LbcSpellSource.Source(player.getUUID(),player.getUUID(),game.items().epoch(),captured,java.util.Set.of());
+            try(var scope=game.items().spellSources().scope(spellSource,player.level())){target.heal(4);}
+            require(Math.abs(target.getHealth()-906f)<.001,"scoped wand healing receives Power after hand swap");
+            target.setHealth(900);target.heal(4);
+            require(Math.abs(target.getHealth()-904f)<.001,"ordinary healing outside spell scope is unchanged");
+            var wandEffect=me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(
+                    me.skywars2.game.effects.ItemEffectLevels.create(net.minecraft.world.effect.MobEffects.INSTANT_HEALTH,1,0),captured);
+            var copiedEffect=new net.minecraft.world.effect.MobEffectInstance(wandEffect);
+            target.setHealth(900);copiedEffect.tickServer(player.level(),target,()->{});
+            require(Math.abs(target.getHealth()-906f)<.001,"copied native wand effect retains captured healing Power");
+            var ordinaryEffect=me.skywars2.game.effects.ItemEffectLevels.create(net.minecraft.world.effect.MobEffects.INSTANT_HEALTH,2,1);
+            wandEffect.update(ordinaryEffect);
+            require(((me.skywars2.game.combat.WandPowerEffectAccess)(Object)wandEffect).skywars2$powerCause()==null,
+                    "stronger ordinary potion clears the wand effect provenance");
+            target.setHealth(900);ordinaryEffect.tickServer(player.level(),target,()->{});
+            require(Math.abs(target.getHealth()-908f)<.001,"ordinary instant-health effect is never scaled by wand Power");
+            target.setHealth(900);
+            require(me.skywars2.game.effects.BlackHoleDamage.apply(game,target,source,4),"captured wand raw-HP hit accepted");
+            require(Math.abs(target.getHealth()-894f)<.001,"raw-HP wand action receives Power exactly once");
+            var other=game.server().getPlayerList().getPlayer(me.skywars2.game.GameChecks.offlineUuid("TestBeta"));
+            require(other!=null,"reflection control player");
+            target.setInvulnerableTime(0);target.damageCooldownTime=0;target.setHealth(900);
+            var reflectedRaw=new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MAGIC),other,other);
+            var reflected=game.items().indirectKills().captureDamage(reflectedRaw,captured);
+            require(target.hurtServer(player.level(),reflected,4)&&Math.abs(target.getHealth()-896f)<.001,
+                    "a different controller cannot borrow the original wand's Power");
             target.clearFire();target.setInvulnerableTime(0);target.damageCooldownTime=0;target.setHealth(1000);
             var another=new DamageSource(raw.typeHolder(),player,player);
             float nativeAmount=EnchantmentHelper.modifyDamage(player.level(),weapon,target,another,4);

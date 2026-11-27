@@ -164,8 +164,13 @@ public final class NuclearBlastChecks {
             var center=BlockPos.containing(at);for(var p:BlockPos.betweenClosed(center.offset(-3,-3,-3),center.offset(3,3,3)))
                 LbcDropBlocks.setBlock(level,p,Blocks.STONE.defaultBlockState(),true);
             LbcDropBlocks.setBlock(level,center,Blocks.BEDROCK.defaultBlockState(),true);
-            var shape=new NuclearTerrain.Shape(at,5,5,25);int steps=0;
-            while(!shape.step(game,level,game.items().indirectKills().wildCause(base.owner))){require(shape.visited<=NuclearTerrain.CELLS_PER_STEP,"bounded terrain reads per step");require(++steps<100,"finite resident work");}
+            var shape=new NuclearTerrain.Shape(at,5,5,25);int steps=0;long totalNanos=0,maxStepNanos=0,totalVisited=0;boolean complete=false;
+            while(!complete){
+                long started=System.nanoTime();complete=shape.step(game,level,game.items().indirectKills().wildCause(base.owner));long elapsed=System.nanoTime()-started;
+                totalNanos+=elapsed;maxStepNanos=Math.max(maxStepNanos,elapsed);totalVisited+=shape.visited;
+                require(shape.visited<=NuclearTerrain.CELLS_PER_STEP,"bounded terrain reads per step");require(++steps<100,"finite resident work");
+            }
+            SkyWars2.LOGGER.info("[check] nuclear shared shape slices={} visited={} totalCpuMs={} maxStepCpuMs={}",steps,totalVisited,totalNanos/1e6,maxStepNanos/1e6);
             require(shape.visited<=NuclearTerrain.CELLS_PER_STEP&&level.getBlockState(center).is(Blocks.BEDROCK),"unbreakable native block retained");
             int air=0;for(var p:BlockPos.betweenClosed(center.offset(-3,-3,-3),center.offset(3,3,3)))if(level.getBlockState(p).isAir())air++;
             require(air>250,"shared terrain clears dense weak core in one operation");

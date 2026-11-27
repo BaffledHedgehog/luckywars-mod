@@ -80,6 +80,7 @@ public final class LbcMagmify {
         private final String epoch;
         private final BlockPos origin;
         private final long seed;
+        private final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
         private it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<Cell> observed =
                 new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<>();
         private it.unimi.dsi.fastutil.longs.LongOpenHashSet discovered = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
@@ -104,6 +105,7 @@ public final class LbcMagmify {
 
         private Work(GameController game, ServerPlayer owner, BlockPos origin) {
             this.game=game; this.owner=owner; this.level=owner.level();
+            cause=game.items().indirectKills().coldCause(owner,true);
             epoch=game.items().epoch();this.origin=origin.immutable();
             // A cast owns its stream; admission draws once from the canonical actor RNG.
             seed=owner.getRandom().nextLong();random=RandomSource.create(seed);
@@ -299,8 +301,8 @@ public final class LbcMagmify {
             if (!touchesSurfaceWithinRange(box, surfaceBlocks)) return;
 
             Vec3 center = box.getCenter();
-            DamageSource source = new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                    .getOrThrow(DamageTypes.FALLING_BLOCK), owner);
+            DamageSource source = game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                    .getOrThrow(DamageTypes.FALLING_BLOCK), owner),cause);
             target.hurtServer(level, source, SURFACE_DAMAGE);
             target.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS, SURFACE_SLOWNESS_TICKS,
                     SURFACE_SLOWNESS_AMPLIFIER, false, true, true), owner);

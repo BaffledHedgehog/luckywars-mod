@@ -25,7 +25,7 @@ public final class AdminCommandChecks {
         var server = game.server();
         var dispatcher = server.getCommands().getDispatcher();
         var output = new java.util.ArrayList<String>();
-        var source = server.createCommandSourceStack().withSource(new net.minecraft.commands.CommandSource() {
+        var source = me.skywars2.game.commands.OwnerCommands.withFeedback(OwnerCommandChecks.ownerSource(server), new net.minecraft.commands.CommandSource() {
             public void sendSystemMessage(net.minecraft.network.chat.Component message) { output.add(message.getString()); }
             public boolean acceptsSuccess() { return true; }
             public boolean acceptsFailure() { return true; }
@@ -66,9 +66,9 @@ public final class AdminCommandChecks {
             }
 
             var noPermission = net.minecraft.server.permissions.PermissionSet.NO_PERMISSIONS;
-            require(!dispatcher.getRoot().getChild("droprequests").canUse(source.withPermission(noPermission))
+            require(!dispatcher.getRoot().getChild("droprequests").canUse(server.createCommandSourceStack())
                             && !dispatcher.getRoot().getChild("advancement").canUse(source.withPermission(noPermission)),
-                    "legacy listing and native advancement queries retain op admission");
+                    "manual listing is owner-only; native advancement queries retain op admission");
             require(dispatcher.execute("droprequests", source) == 1, "offline listing scheduled through shown command");
             long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
             server.managedBlock(() -> output.stream().anyMatch(line -> line.startsWith("Unfulfilled manual prizes:"))
@@ -148,6 +148,7 @@ public final class AdminCommandChecks {
         }
     }
     public static void run(GameController game){
+        OwnerCommandChecks.run(game, game.server().getPlayerList().getPlayers().getFirst());
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         var ordinary=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
         require(owner!=null&&ordinary!=null,"two actual native players");

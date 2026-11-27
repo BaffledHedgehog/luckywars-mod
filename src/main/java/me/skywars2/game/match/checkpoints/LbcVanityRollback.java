@@ -275,7 +275,9 @@ public final class LbcVanityRollback {
                 if(player==null){restoringLogins.remove(id);continue;}
                 var data=pendingPlayers.get(id);
                 image.levelups.restorePlayerFrozen(id);
-                player=privateData(data::restoreFrozen);game.rejoinRollbackParticipant(player,data.observer());
+                player=privateData(data::restoreFrozen);
+                me.skywars2.game.combat.WeaponEnchantments.transferHealingEffects(retainedBodies.get(id),player);
+                game.rejoinRollbackParticipant(player,data.observer());
                 image.actors.damageSources().rebindPlayers(Map.of(id,player));
                 image.attribution.restorePlayerFrozen(player);
                 game.items().duplicating().rebindRetained(player);

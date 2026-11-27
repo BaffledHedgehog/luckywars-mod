@@ -85,6 +85,17 @@ public final class WitchClaimChecks {
             long heard=failureSounds(client),other=failureSounds(otherClient);require(input()&&base.owner.getMainHandItem().getCount()==3&&base.owner.getEffect(MobEffects.WITHER).getDuration()==200
                     &&base.owner.getEffect(MobEffects.WITHER).getAmplifier()==ItemEffectLevels.amplifier(MobEffects.WITHER,9),"failed source qualification preserves item and applies item-capped Wither10s");
             require(failureSounds(client)==heard+1&&failureSounds(otherClient)==other,"exactly one owner-only source wither sound");base.owner.removeAllEffects();
+            mode(1);
+            game.server().getScoreboard().resetSinglePlayerScore(base.owner,game.server().getScoreboard().getObjective("food_count"));
+            int messagesBefore=packets(client).size();
+            require(input(),"missing native food score still takes the rejection branch");
+            var messages=packets(client).subList(messagesBefore,packets(client).size()).stream()
+                    .filter(net.minecraft.network.protocol.game.ClientboundSystemChatPacket.class::isInstance)
+                    .map(net.minecraft.network.protocol.game.ClientboundSystemChatPacket.class::cast)
+                    .map(packet->packet.content().getString()).toList();
+            require(messages.size()==2 && messages.get(0).contains("no_witch_gens") && messages.get(1).contains("food_count") && messages.get(1).endsWith("0"),
+                    "complete legacy rejection includes original message and zero counter even before its first score exists");
+            base.owner.removeAllEffects();mode(2);
             base.owner.entityTags().add("sin_wrath");require(!input()&&base.owner.getMainHandItem().getCount()==3&&!base.owner.hasEffect(MobEffects.WITHER),"already-held mode is a quiet no-op");base.owner.entityTags().remove("sin_wrath");
             mode(5);require(input()&&base.owner.getMainHandItem().getCount()==3&&base.owner.hasEffect(MobEffects.WITHER)&&!game.vanity().hasSnapshot(),"unqualified Vanity follows source failure without consuming a token or saving a point");base.owner.removeAllEffects();
         }

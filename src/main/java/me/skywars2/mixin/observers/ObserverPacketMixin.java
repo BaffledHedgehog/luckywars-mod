@@ -122,12 +122,33 @@ public abstract class ObserverPacketMixin {
             shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$watch(ServerboundInteractPacket packet, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (LbcUseInteractions.holdingOffhandShield(player) || game != null && game.items().actionsBlocked(player)) { ci.cancel(); return; }
-        if (game == null || !game.isObserver(player)) return;
+        if (game == null || !game.isObserver(player)) {
+            if (LbcUseInteractions.holdingOffhandShield(player) || game != null && game.items().actionsBlocked(player)) ci.cancel();
+            return;
+        }
+        if (game.spectators().returnFromVanilla(player, packet.entityId())) { ci.cancel(); return; }
         var target = player.level().getEntityOrPart(packet.entityId());
         if (target != null && player.isWithinEntityInteractionRange(target.getBoundingBox(), 3.0)
                 && player.level().getWorldBorder().isWithinBounds(target.blockPosition())) {
             if(!game.spectators().openContainer(player,target))game.spectators().watch(player, target);
+        }
+        ci.cancel();
+    }
+
+    /** Native spectator LMB uses its own packet in 26.3; the private proxy handles both buttons. */
+    @Inject(method = "handleSpectatorAction", at = @At(value = "INVOKE", target =
+            "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
+            shift = At.Shift.AFTER), cancellable = true)
+    private void skywars2$returnObserver(net.minecraft.network.protocol.game.ServerboundSpectatorActionPacket packet, CallbackInfo ci) {
+        var game = SkyWars2.game();
+        if (game == null || !game.isObserver(player)) return;
+        if (packet.spectateEntityId().isPresent()) {
+            int id = packet.spectateEntityId().getAsInt();
+            if (!game.spectators().returnFromVanilla(player, id)) {
+                var target = player.level().getEntityOrPart(id);
+                if (target != null && player.isWithinEntityInteractionRange(target.getBoundingBox(), 3.0))
+                    game.spectators().watch(player, target);
+            }
         }
         ci.cancel();
     }

@@ -138,9 +138,30 @@ final class HomingTurnChecks {
             var cow=new Cow(EntityTypes.COW,f.level);cow.setNoAi(true);cow.setNoGravity(true);cow.setPos(f.owner.position().add(0,4,15));
             require(f.level.addFreshEntity(cow),"native target publication");target=cow;f.owned.add(cow.getUUID());
             personalSkillDust();
+            friendlyHelpers();
             nearbySelectors();
             keeperVolley();
             keeperSelectors(false);
+        }
+
+        void friendlyHelpers(){
+            var service=game.items().homing();var from=target.getEyePosition().add(3,0,-4);var direction=heading(15);
+            var expected=ProjectileSteering.turn(direction,target.getEyePosition().subtract(from),Math.PI/180);
+            var helpers=new ArrayList<Entity>();
+            try{
+                var vex=game.items().summons().spawnPreset(f.owner,"vex",from.add(1,0,0));
+                var hedgehog=game.items().hedgehog().spawnHelper(f.owner,f.level,from.add(-1,0,0),
+                        me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehog.Kind.DEFAULT);
+                require(vex!=null&&hedgehog!=null,"real owned summon and Academy hedgehog");helpers.add(vex);helpers.add(hedgehog);
+                var cloud=new net.minecraft.world.entity.AreaEffectCloud(EntityTypes.AREA_EFFECT_CLOUD,f.level);cloud.setPos(from);cloud.setOwner(f.owner);
+                require(f.level.addFreshEntity(cloud),"real own effect cloud");helpers.add(cloud);
+                require(service.skillDirection(f.owner,f.level,from,direction).equals(expected),"own summons/hedgehog/cloud cannot replace enemy homing target");
+                var source=new me.skywars2.game.combat.LbcSpellSource.Source(UUID.randomUUID(),f.owner.getUUID(),game.items().epoch(),null,Set.of(),false,false);
+                try(var scope=game.items().spellSources().scope(source,f.level)){
+                    require(service.skillDirection(f.owner,f.level,from,direction).equals(expected),
+                            "explicit projectile source policy cannot bypass homing own-minion exclusion");
+                }
+            }finally{for(var helper:helpers){game.items().entityUnloaded(helper);helper.discard();}}
         }
 
         void personalSkillDust() {

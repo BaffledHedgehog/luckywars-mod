@@ -112,6 +112,14 @@ public final class LbcWhiteArrows {
     public record State(int active,long launched,long steps,long kills){}
     public State state(){return new State(shots.size(),launched,steps,kills);}
     public List<View> views(){return shots.values().stream().map(s->new View(s.id,s.author.getUUID(),s.point,s.direction,s.age,s.mask)).toList();}
+    /** Move the retained slow-ray origin while preserving its source, team, direction and one-step clock. */
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        checkpointBoundary();if(restoring)return;callbacks++;
+        try{shots.values().removeIf(shot->{
+            if(shot.level!=level||shot.age>=20||!game.items().currentEpoch(shot.epoch))return false;
+            var point=transform.apply(shot.point);if(point==null)return true;shot.point=point;return false;
+        });}finally{callbacks--;}
+    }
     public void stop(){checkpointBoundary();shots.clear();sequence=turn=cloneCursor=launched=steps=kills=0;lastTick=Integer.MIN_VALUE;restoring=false;}
     public void prepareFrozen(){checkpointBoundary();restoring=true;shots.clear();}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();}

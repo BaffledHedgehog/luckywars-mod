@@ -174,6 +174,7 @@ public final class LbcAcidCorruption {
                 ||!game.items().currentEpoch(c)||!level.hasChunkAt(c.blockPosition())){c.discard();return;}
         if(game.items().timeStop().stopped(level)||game.items().timeStop().frozen(c))return;
         if(c.age++>=(c.ball?400:300)){c.discard();return;}
+        try(var source=me.skywars2.game.combat.WeaponEnchantments.actorScope(c,owner)){
         var at=c.position();level.sendParticles(c.ball?BALL:DROP,at.x,at.y+(c.ball?0:.3),at.z,c.ball?10:1,c.ball?3:0,c.ball?3:0,c.ball?3:0,0);
         if(c.ball){
             if(level.getRandom().nextFloat()<.2f)spawn(owner,new Vec3(Mth.floor(at.x)+level.getRandom().nextInt(9)-4,
@@ -198,6 +199,7 @@ public final class LbcAcidCorruption {
             }
         }
         if(c.age>=(c.ball?400:300))c.discard();
+        }
     }
     private static void erase(ServerLevel level,BlockPos p){
         LbcDropBlocks.setBlockPreservingInventory(level,p,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),
@@ -205,7 +207,12 @@ public final class LbcAcidCorruption {
                 |Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE);
     }
     private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e);}
-    void debuff(ServerPlayer owner,LivingEntity target,int index){target.addEffect(ItemEffectLevels.create(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]),owner);}
+    void debuff(ServerPlayer owner,LivingEntity target,int index){
+        var effect=ItemEffectLevels.create(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]);
+        if(index==3||index==6||index==10)me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(effect,
+                me.skywars2.game.combat.WeaponEnchantments.effectCause(owner));
+        target.addEffect(effect,owner);
+    }
     public void adoptRawFoodStatuses(ServerPlayer player){
         if(deathRemaining(player)>0&&!deaths.containsKey(player)&&!game.items().magic().rejectCustomDebuff(player))
             deaths.put(player,game.items().indirectKills().wildCause(player));

@@ -1249,6 +1249,15 @@ public final class LbcItems {
     public void invalidateHud(ServerPlayer viewer) { hudStates.remove(viewer.getUUID()); }
 
     public void refreshHud(ServerPlayer viewer) {
+        if(game.isObserver(viewer) && viewer.getCamera()==viewer) {
+            var content=game.spectators().nearestHud(viewer);
+            var old=hudStates.get(viewer.getUUID());
+            int now=game.server().getTickCount();
+            if(old!=null && old.source().equals(viewer.getUUID()) && old.content().equals(content) && now-old.sentAt()<20) return;
+            viewer.connection.send(new ClientboundSetActionBarTextPacket(content));
+            hudStates.put(viewer.getUUID(),new HudState(viewer.getUUID(),content,now));
+            return;
+        }
         if(!LbcDimensionItems.ordinary(viewer)||game.lbc().hidesKnowledge(viewer)) { clearHud(viewer); return; }
         ServerPlayer source=viewer;
         if(game.isObserver(viewer)) {
@@ -1850,6 +1859,9 @@ public final class LbcItems {
     public BlackHoleVisuals blackHoleVisuals() { return blackHoleVisuals; }
     /** Common role/team/source guard is also checked before accepting a deferred hit. */
     public boolean allowDamage(LivingEntity victim,DamageSource source) {
+        if(LbcDimensionItems.imprinted(victim.level()))
+            return (!(source.getEntity() instanceof ServerPlayer attacker)||!game.isObserver(attacker))
+                    && (!(victim instanceof ServerPlayer player)||game.allowDamage(player));
         return LbcDamage.allowDamage(victim,source)
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source)
                     || babylonEffects.currentSource(source)
@@ -2085,7 +2097,7 @@ public final class LbcItems {
         trinketArrows.loaded(entity);shulkerBow.loaded(entity);madokaBow.loaded(entity);
         if(machinegunSkill.loaded(entity)&&entity.isRemoved())return;
         grimoireDungeon.capture(entity);uniwand.loaded(entity);
-        spellSources.capture(entity);apocalypseEvents.inheritChild(entity);shishEncounter.inheritChild(entity);
+        spellSources.capture(entity);me.skywars2.game.combat.WeaponEnchantments.capture(entity);apocalypseEvents.inheritChild(entity);shishEncounter.inheritChild(entity);
         projectileLevelups.loaded(entity);
         railroad.loaded(entity);mysticalTree.loaded(entity);funnyTnt.loaded(entity);deltaTnt.loaded(entity);diamondifier.loaded(entity);homing.nativeLoaded(entity);homingArrows.loaded(entity);kapusta.loaded(entity);thrownUtilities.loaded(entity);
         if(entity instanceof Snowball ball&&ball.getOwner() instanceof ServerPlayer player&&!LbcApocalypseEvents.kinds(ball.getItem()).isEmpty()){
@@ -2238,6 +2250,7 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        me.skywars2.game.combat.WeaponEnchantments.unloaded(entity);
         genie.runtime().unloaded(entity);
         legacyEffects.staticCharge().unloaded(entity);
         steampunkRocket.unloaded(entity);trollBox.removed(entity);
@@ -2426,7 +2439,7 @@ public final class LbcItems {
 
     public void markCurrentItemEpoch(Entity entity) {
         entity.entityTags().add(entityEpochTag);
-        spellSources.capture(entity);
+        spellSources.capture(entity);me.skywars2.game.combat.WeaponEnchantments.capture(entity);
     }
 
     private void tickNanoTraps() {
@@ -2732,6 +2745,7 @@ public final class LbcItems {
         // These services own effects in multiple worlds; a stopped arena must not stop Nexus.
         nexusWires.tick();nexusCompass.tick();nexusTools.tick();nexusCombat.tick();nexusAcquisition.tick();supernova.tick();chargedBows.tick();balance.tick();cursedPumpkin.tick();pozdmanBot.tick();if(game.server().getTickCount()%20==0)lightsabers.second();
         if(game.maps().level()!=null && timeStop.stopped(game.maps().level())) {
+            mana.pauseRegeneration();
             armorSets.techno().pausedMaintenance();
             armorSets.chaos().pausedMaintenance();
             exasperato.tickSearchesWhileMapStopped();exasperato.blastTick();
@@ -3170,7 +3184,7 @@ public final class LbcItems {
         edibleSpells.stop();
         nukeEvent.stop();foodLifecycle.stop();oreshek.stop();legacyEffects.stop();
         foodStatuses.stop();
-        witchClaims.stop();witchPassives.stop();witchWrath.stop();witchGluttony.stop();witchIndolence.stop();indolenceFingers.stop();witchLust.stop();fpvDrone.stop();apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();
+        witchClaims.stop();witchPassives.stop();witchWrath.stop();witchGluttony.stop();witchIndolence.stop();indolenceFingers.stop();witchLust.stop();fpvDrone.stop();apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();me.skywars2.game.combat.WeaponEnchantments.stopSpellActors();
         pisaDrops.stop();
         antigravity.stop();
         ultraponos.stop();

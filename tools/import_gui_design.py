@@ -562,10 +562,19 @@ def localize_storage_components(raw_components: dict) -> tuple[dict, dict]:
         return value
 
     for storage_path in sorted(set(raw_components["en"]) & set(raw_components["ru"])):
-        en_nodes = text_nodes(raw_components["en"][storage_path])
-        ru_nodes = text_nodes(raw_components["ru"][storage_path])
+        en_component = raw_components["en"][storage_path]
+        ru_component = raw_components["ru"][storage_path]
+        # Some source assignments omit the Name wrapper in just one language
+        # (Anonymous Mask). Loot still references .Name in both languages.
+        if isinstance(en_component, dict) and isinstance(ru_component, dict):
+            if "Name" in en_component and "Name" not in ru_component and "text" in ru_component:
+                ru_component = {"Name": ru_component}
+            elif "Name" in ru_component and "Name" not in en_component and "text" in en_component:
+                en_component = {"Name": en_component}
+        en_nodes = text_nodes(en_component)
+        ru_nodes = text_nodes(ru_component)
         if en_nodes.keys() != ru_nodes.keys():
-            continue
+            raise ValueError(f"Unpaired localized source component structure: {storage_path}")
         leaf_keys = {}
         for ordinal, node_path in enumerate(en_nodes):
             pair = (en_nodes[node_path], ru_nodes[node_path])
@@ -589,7 +598,7 @@ def localize_storage_components(raw_components: dict) -> tuple[dict, dict]:
                 additions["en_us"][key] = pair[0]
                 additions["ru_ru"][key] = pair[1]
             leaf_keys[node_path] = key
-        localized[storage_path] = replace_text(raw_components["en"][storage_path], leaf_keys)
+        localized[storage_path] = replace_text(en_component, leaf_keys)
     # A few legacy keys exist in only one core language file while the paired
     # translation is already present in the resource pack. Reuse that key and
     # the available source tree/style rather than emitting a raw literal.

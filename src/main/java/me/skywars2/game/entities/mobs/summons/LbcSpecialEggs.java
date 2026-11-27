@@ -282,6 +282,9 @@ public final class LbcSpecialEggs {
         if(game!=null){game.items().balance().adoptEgg(entity,user);LbcImbaFollowup.adopt(game,entity,user,stack);LbcImbaPlaceableItems.adopt(game,entity,user instanceof ServerPlayer player?player:null,stack);}
         if (game != null) game.items().grimoireRooms().captureMonumentAuthor(entity, user);
         var kind=kind(stack);
+        // Loot localization may replace the egg's translatable title with a prepared component.
+        // Name restoration follows the entity payload independently of title recognition.
+        if(kind!=null||ItemData.intValue(stack,"imba",0)==1)restoreAuthoredName(entity,stack);
         if(game==null || kind==null || kind.entityType != entity.getType()) return;
         if (!stack.is(kind.item()) && !activeArena(game, entity)) return;
         adoptKind(game, entity, user, kind);
@@ -317,7 +320,12 @@ public final class LbcSpecialEggs {
     /** ENTITY_DATA recursively merges compounds; an omitted color must not inherit the red egg title. */
     private static void restoreAuthoredName(Entity entity,ItemStack stack) {
         var data=stack.get(DataComponents.ENTITY_DATA);
-        if(data==null || data.type()!=entity.getType() || !data.contains("CustomName")) return;
+        if(data==null || data.type()!=entity.getType()) return;
+        if(!data.contains("CustomName")){
+            entity.setCustomName(null);
+            if(kind(stack)==Kind.SLAB)entity.setCustomName(Component.translatable("agressive_slab").withStyle(s->s.withItalic(false)));
+            return;
+        }
         var input=net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,
                 entity.registryAccess(),data.copyTagWithoutId());
         input.read("CustomName",net.minecraft.network.chat.ComponentSerialization.CODEC).ifPresent(entity::setCustomName);

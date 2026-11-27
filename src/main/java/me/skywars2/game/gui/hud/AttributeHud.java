@@ -68,7 +68,9 @@ public final class AttributeHud {
     /** Вызывать раз за серверный тик: позиция каждого игрока сверяется с предыдущим сэмплом. */
     public void tick() {
         for (ServerPlayer player : game.server().getPlayerList().getPlayers()) {
-            if (game.balanceLegacy() || game.config().eventTournament&&!game.playing() || !LbcDimensionItems.ordinary(player) || !player.isAlive() || game.lbc().hidesKnowledge(player)) {
+            ServerPlayer source = subject(player);
+            boolean watching = source != player;
+            if (game.balanceLegacy() || game.config().eventTournament&&!game.playing() || !watching && !LbcDimensionItems.ordinary(source) || !source.isAlive() || game.lbc().hidesKnowledge(source)) {
                 clear(player);
                 continue;
             }
@@ -83,6 +85,11 @@ public final class AttributeHud {
                 continue;
             }
             state.player = player;
+            if (!source.getUUID().equals(state.subject)) {
+                state.subject = source.getUUID();
+                state.snapshot = null;
+                state.pollTicks = 0;
+            }
 
             boolean slotChanged = state.sidebarSlot != sidebarSlot;
             if (slotChanged) {
@@ -91,7 +98,7 @@ public final class AttributeHud {
                 state.pollTicks = 0;
             }
 
-            if (!state.dimension.equals(dimension) || !state.position.equals(player.position())) {
+            if (!watching && (!state.dimension.equals(dimension) || !state.position.equals(player.position()))) {
                 state.dimension = dimension;
                 state.position = player.position();
                 state.idleTicks = 0;
@@ -103,7 +110,7 @@ public final class AttributeHud {
             }
 
             int previousIdleTicks = state.idleTicks;
-            state.idleTicks = Math.min(IDLE_TICKS_TO_SHOW, state.idleTicks + 1);
+            state.idleTicks = watching ? IDLE_TICKS_TO_SHOW : Math.min(IDLE_TICKS_TO_SHOW, state.idleTicks + 1);
             boolean firstEligibleTick = previousIdleTicks < IDLE_TICKS_TO_SHOW
                     && state.idleTicks >= IDLE_TICKS_TO_SHOW;
             if (state.idleTicks >= IDLE_TICKS_TO_SHOW
@@ -167,7 +174,7 @@ public final class AttributeHud {
     }
 
     private void updateSnapshot(State state) {
-        DisplaySnapshot next = capture(state.player);
+        DisplaySnapshot next = capture(subject(state.player));
         boolean changed = state.snapshot == null || !state.snapshot.sameDisplayedState(next);
         state.snapshot = next;
         if (changed) state.cachedLines = buildLines(next);
@@ -178,6 +185,11 @@ public final class AttributeHud {
         } else if (state.idleTicks >= IDLE_TICKS_TO_SHOW && !state.cachedLines.isEmpty()) {
             show(state);
         }
+    }
+
+    private ServerPlayer subject(ServerPlayer viewer) {
+        return game.isObserver(viewer) && viewer.getCamera() instanceof ServerPlayer target
+                && target != viewer && target.isAlive() && !game.isObserver(target) ? target : viewer;
     }
 
     private DisplaySnapshot capture(ServerPlayer player) {
@@ -423,6 +435,7 @@ public final class AttributeHud {
 
     private static final class State {
         ServerPlayer player;
+        UUID subject;
         ResourceKey<Level> dimension;
         Vec3 position;
         DisplaySlot sidebarSlot;

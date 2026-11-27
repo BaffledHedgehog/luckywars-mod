@@ -105,6 +105,7 @@ public final class LbcCrocodildo {
     public boolean spawn(ItemEntity token){return spawn(token,true);}
     /** A shared TMT drop calls the real publication path and owns its one physical debit. */
     public boolean spawn(ItemEntity token,boolean debit){
+        if(debit&&!game.items().specialDrops().admit(token))return false;
         if(!ready(token))return false;
         depth++;try{
             var level=(ServerLevel)token.level();var p=token.position();var inward=new Vec3(-p.x,0,-p.z).normalize();

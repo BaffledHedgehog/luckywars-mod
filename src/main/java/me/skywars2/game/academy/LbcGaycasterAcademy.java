@@ -79,15 +79,16 @@ public final class LbcGaycasterAcademy {
         LbcOverload.sound(owner,from,"minecraft:item.trident.return",1,0,0);
         game.items().exasperato().replayableSpell(owner,from,direction,125,new LbcRainbowRay(game,owner,from,direction,color,COLORS[color-1]));
     }
-    public void impact(ServerPlayer owner,Vec3 point,Vec3 direction,int color,LivingEntity direct){
+    public void impact(ServerPlayer owner,Vec3 point,Vec3 direction,int color,LivingEntity direct){impact(owner,point,direction,color,direct,null);}
+    public void impact(ServerPlayer owner,Vec3 point,Vec3 direction,int color,LivingEntity direct,me.skywars2.game.combat.LbcIndirectKills.Owner cause){
         if(game.items().magic().suppressedAt(owner.level(),point))return;
         var nearby=direct==null?owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(1.5),
                 e->e.position().distanceToSqr(point)<=2.25&&LbcGaycaster.target(game,owner,e)):
                 LbcGaycaster.target(game,owner,direct)?List.of(direct):List.<LivingEntity>of();
         switch(color){
             case 1->{boolean accepted=false;
-                for(var e:nearby)accepted=e.hurtServer(owner.level(),LbcGaycaster.damage(owner,DamageTypes.MAGIC),6)||accepted;
-                if(accepted){owner.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,1,false,false,false),owner);
+                for(var e:nearby)accepted=e.hurtServer(owner.level(),game.items().indirectKills().captureDamage(LbcGaycaster.damage(owner,DamageTypes.MAGIC),cause),6)||accepted;
+                if(accepted){owner.addEffect(me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,1,false,false,false),cause),owner);
                     particles(owner,ParticleTypes.HEART,owner.position(),5,.3,.5,.3,0);}
                 particles(owner,ParticleTypes.DAMAGE_INDICATOR,point,direct==null?10:5,.3,.5,.3,0);
             }
@@ -103,7 +104,7 @@ public final class LbcGaycasterAcademy {
             case 6->{fillAir(owner,point,Blocks.WATER);particles(owner,ParticleTypes.SPLASH,point,30,.4,.4,.4,0);
                 LbcOverload.sound(owner,point,"minecraft:lbcsounds.yametekudasai",direct==null?1:3,1,0);}
             case 7->{for(var e:nearby)if(game.items().mana().hudValue(e,"void_resistance")<=0)
-                    e.hurtServer(owner.level(),LbcGaycaster.damage(owner,DamageTypes.FELL_OUT_OF_WORLD),5);
+                    e.hurtServer(owner.level(),game.items().indirectKills().captureDamage(LbcGaycaster.damage(owner,DamageTypes.FELL_OUT_OF_WORLD),cause),5);
                 if(direct==null)game.items().indirectKills().trapChanges(owner.level(),game.items().indirectKills().coldCause(owner,true),()->{
                     for(var p:BlockPos.betweenClosed(BlockPos.containing(point.add(-.5,-.5,-.5)),BlockPos.containing(point.add(.5,.5,.5))))
                         if(owner.level().hasChunkAt(p))owner.level().setBlock(p,Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS);

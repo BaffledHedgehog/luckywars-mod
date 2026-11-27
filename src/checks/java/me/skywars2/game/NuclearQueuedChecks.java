@@ -23,6 +23,7 @@ final class NuclearQueuedChecks {
         final GameController game;final ElementalGrimoireChecks.Fixture base;final boolean invulnerable;
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final List<BlockPos> core=new ArrayList<>(),far=new ArrayList<>();
         final Set<Long> forced=new HashSet<>();Vec3 at;BlockPos bedrock;Mob victim;int started,pausedAt=-1;boolean armed,closed;
+        long castAt,activationNanos,activeAt;int initialQueue,peakQueue,lastPending=31;
         Fixture(GameController game){this.game=game;require(game.items().exasperato().pendingBlasts()==0,"exclusive queue");
             base=new ElementalGrimoireChecks.Fixture(game,true);base.retain=true;invulnerable=base.owner.getAbilities().invulnerable;}
         void set(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){
@@ -46,7 +47,8 @@ final class NuclearQueuedChecks {
             int now=game.server().getTickCount();require(now-started<140,"bounded real queued continuation");var level=base.owner.level();
             if(!armed){
                 require(level.getEntities((Entity)null,victim.getBoundingBox().inflate(1)).contains(victim),"victim crossed native spatial boundary");
-                game.items().exasperato().exopersoBurst(base.owner,at,null);
+                castAt=System.nanoTime();game.items().exasperato().exopersoBurst(base.owner,at,null);activationNanos=System.nanoTime()-castAt;
+                initialQueue=peakQueue=game.items().stonekivi().count();
                 require(!victim.isAlive()&&packets()==1&&game.items().exasperato().pendingBlasts()==31,
                         "first native lethal wave is synchronous and unique: victimHP="+victim.getHealth()+" packets="+packets()+" remainingSources="+game.items().exasperato().pendingBlasts());
                 var actors=new ArrayList<Entity>();level.getAllEntities().forEach(actors::add);
@@ -56,10 +58,12 @@ final class NuclearQueuedChecks {
                 require(packets()==1&&game.items().exasperato().pendingBlasts()==31,"typed replay does not repeat accepted first damage");
                 game.items().timeStop().begin(level,100);pausedAt=now;armed=true;return false;
             }
+            peakQueue=Math.max(peakQueue,game.items().stonekivi().count());
+            int pending=game.items().exasperato().pendingBlasts();require(pending<=lastPending,"one accepted series cannot grow its native wave queue without another cast");lastPending=pending;
             if(pausedAt>=0){
                 require(packets()==1&&core.stream().allMatch(p->level.getBlockState(p).is(Blocks.STONE))
                         &&far.stream().allMatch(p->level.getBlockState(p).is(Blocks.STONE)),"TimeStop pauses terrain and all remaining native sources");
-                if(now-pausedAt<5)return false;game.items().timeStop().end(level);pausedAt=-1;return false;
+                if(now-pausedAt<5)return false;game.items().timeStop().end(level);pausedAt=-1;activeAt=System.nanoTime();return false;
             }
             if(game.items().exasperato().pendingBlasts()!=0)return false;
             require(packets()==32,"all32 actual native explosion packets, with no duplicated first source: "+packets());
@@ -67,7 +71,9 @@ final class NuclearQueuedChecks {
             long removed=far.stream().filter(p->level.getBlockState(p).isAir()).count();
             require(removed>0&&removed<far.size(),"native air propagation reaches the disconnected28-block island with a surviving edge: "+removed);
             require(level.getBlockState(bedrock).is(Blocks.BEDROCK),"native resistance retains bedrock");
-            SkyWars2.LOGGER.info("[check] Queued nuclear nativePackets={} realTicks={} farIslandRemoved={}/{}",packets(),now-started,removed,far.size());return true;
+            SkyWars2.LOGGER.info("[check] Queued nuclear nativePackets={} realTicks={} farIslandRemoved={}/{} activationMs={} castResultMs={} activeResultMs={} sharedQueueInitialPeakFinal={}/{}/{} finalPending={}",
+                    packets(),now-started,removed,far.size(),activationNanos/1e6,(System.nanoTime()-castAt)/1e6,(System.nanoTime()-activeAt)/1e6,
+                    initialQueue,peakQueue,game.items().stonekivi().count(),pending);return true;
         }
         public void close(){if(closed)return;closed=true;var level=base.owner.level();game.items().timeStop().end(level);game.items().exasperato().stop();
             var spawned=new ArrayList<Entity>();for(var entity:level.getAllEntities())if(!base.before.contains(entity)&&!(entity instanceof net.minecraft.server.level.ServerPlayer))spawned.add(entity);

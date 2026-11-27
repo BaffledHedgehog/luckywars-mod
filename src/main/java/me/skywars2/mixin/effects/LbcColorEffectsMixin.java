@@ -115,6 +115,7 @@ public abstract class LbcColorEffectsMixin {
     @Inject(method="canBeAffected",at=@At("HEAD"),cancellable=true)
     private void skywars2$artifactEffectGuard(MobEffectInstance effect, CallbackInfoReturnable<Boolean> ci) {
         if(skywars2$nexusEffects()){ci.setReturnValue(false);return;}
+        if(effect.is(MobEffects.RAID_OMEN)&&effect.getDuration()==0){ci.setReturnValue(false);return;}
         if(me.skywars2.game.effects.LbcParasite.active((LivingEntity)(Object)this)
                 && me.skywars2.game.effects.LbcParasite.rejects((LivingEntity)(Object)this,effect)) { ci.setReturnValue(false); return; }
         // Raid Omen 119 служил транспортом Stand-стрелы в датапаке. Настоящее
@@ -128,6 +129,7 @@ public abstract class LbcColorEffectsMixin {
 
     @Inject(method="tickEffects",at=@At("HEAD"))
     private void skywars2$artifactBeforeEffects(CallbackInfo ci) {
+        me.skywars2.game.modes.legacy.LbcLegacyEffects.removeExpiredRaidMarker((LivingEntity)(Object)this);
         if(skywars2$nexusEffects()){
             var target=(LivingEntity)(Object)this;
             if(!target.getActiveEffects().isEmpty())target.removeAllEffects();

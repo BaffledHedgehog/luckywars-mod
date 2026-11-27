@@ -93,9 +93,9 @@ public final class LbcInventoryHazards {
             &&!game.items().timeStop().stopped(player.level())
             &&!player.level().dimension().identifier().equals(Identifier.parse("minecraft:nexus"))
             &&!player.level().dimension().identifier().equals(Identifier.parse("minecraft:imprinted"));}
-    private static boolean container(ServerPlayer player,CompoundTag predicate){for(int i=0;i<36;i++)if(matches(player.getInventory().getItem(i),predicate))return true;return false;}
+    private static boolean container(ServerPlayer player,CompoundTag predicate){for(int i=0;i<36;i++){var stack=player.getInventory().getItem(i);if(!me.skywars2.game.items.tmt.LbcTmtItems.matches(stack)&&matches(stack,predicate))return true;}return false;}
     private static boolean hands(ServerPlayer player,CompoundTag predicate){return matches(player.getMainHandItem(),predicate)||matches(player.getOffhandItem(),predicate);}
-    private static boolean inventory(ServerPlayer player,CompoundTag predicate){for(int i=0;i<=40;i++)if(matches(player.getInventory().getItem(i),predicate))return true;return false;}
+    private static boolean inventory(ServerPlayer player,CompoundTag predicate){for(int i=0;i<=40;i++){var stack=player.getInventory().getItem(i);if(me.skywars2.game.items.tmt.LbcTmtItems.matches(stack)&&i<36&&stack!=player.getMainHandItem())continue;if(matches(stack,predicate))return true;}return false;}
     public boolean protectedInventory(ServerPlayer player){return armored(player);}
     private boolean armored(ServerPlayer player){return game.lbc().skillsEnabled()&&game.players().get(player.getUUID()).lbcSkill==2;}
     /** Only read the source mode score when both objective and entry already exist; never create/reset global mode. */
@@ -131,7 +131,7 @@ public final class LbcInventoryHazards {
             }
             return;
         }
-        int count=player.getInventory().clearOrCountMatchingItems(stack->matches(stack,LIQUID),true,0,player.inventoryMenu.getCraftSlots());
+        int count=player.getInventory().clearOrCountMatchingItems(stack->(!me.skywars2.game.items.tmt.LbcTmtItems.matches(stack)||stack==player.getMainHandItem()||stack==player.getOffhandItem())&&matches(stack,LIQUID),true,0,player.inventoryMenu.getCraftSlots());
         // ExecuteCommand's int store scales in double then saturates; int multiplication would wrap.
         int amount=(int)(count*4d);if(amount<=0||game.items().mana().hudValue(player,"void_resistance")>=1)return;
         player.hurtServer(player.level(),new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.OUTSIDE_BORDER)),(float)amount);

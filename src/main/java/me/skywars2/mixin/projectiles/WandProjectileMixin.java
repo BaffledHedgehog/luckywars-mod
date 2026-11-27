@@ -55,9 +55,19 @@ public abstract class WandProjectileMixin implements me.skywars2.game.items.gadg
                 net.minecraft.world.effect.MobEffectInstance effect,Entity source,
                 com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original) {
             var game=SkyWars2.game();
-            return (game==null || game.items().indirectKills().allowProjectileEffect(target,effect,(Entity)(Object)this))
-                    && original.call(target,effect,me.skywars2.game.items.drops.LbcPotionSpawnerDrops.managed((Entity)(Object)this)
-                            ? (Entity)(Object)this : source);
+            var projectile=(Entity)(Object)this;
+            if(game!=null && !game.items().indirectKills().allowProjectileEffect(target,effect,projectile))return false;
+            me.skywars2.game.combat.LbcIndirectKills.Owner cause=null;
+            if(game!=null && me.skywars2.game.items.wands.LbcNeutral.managed(projectile)
+                    && projectile instanceof net.minecraft.world.entity.projectile.Projectile shot
+                    && shot.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner
+                    && (effect.is(net.minecraft.world.effect.MobEffects.POISON)||effect.is(net.minecraft.world.effect.MobEffects.WITHER))){
+                cause=me.skywars2.game.combat.WeaponEnchantments.actorCause(projectile,owner);
+                if(cause!=null)me.skywars2.game.combat.WeaponEnchantments.markHealingEffect(effect,cause);
+            }
+            boolean accepted=original.call(target,effect,me.skywars2.game.items.drops.LbcPotionSpawnerDrops.managed(projectile)?projectile:source);
+            if(accepted && cause!=null)game.items().indirectKills().acceptedInheritedEffect(target,effect,cause);
+            return accepted;
         }
     }
 
@@ -232,9 +242,18 @@ public abstract class WandProjectileMixin implements me.skywars2.game.items.gadg
             if(applied&&game!=null&&target instanceof net.minecraft.world.entity.LivingEntity living)
                 game.items().specialFireballs().rangedContact(projectile,living,hit.getLocation());
             if(applied && game!=null && (game.items().wands().isFireProjectile(projectile)||me.skywars2.game.items.weapons.ranged.LbcSpecialFireballs.managed(projectile))
-                    && projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner
-                    && target instanceof net.minecraft.world.entity.LivingEntity living)
-                game.items().indirectKills().projectileIgnited(living,owner,me.skywars2.game.items.wands.LbcBlaze.isKfcSpirit(projectile)||me.skywars2.game.items.weapons.ranged.LbcSpecialFireballs.managed(projectile));
+                    && target instanceof net.minecraft.world.entity.LivingEntity living){
+                var controller=projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer player?player:game.items().blaze().owner(projectile.getOwner());
+                var cause=me.skywars2.game.combat.WeaponEnchantments.actorCause(projectile,controller);
+                boolean friendly=me.skywars2.game.items.wands.LbcBlaze.isKfcSpirit(projectile)
+                        ||me.skywars2.game.items.weapons.ranged.LbcSpecialFireballs.managed(projectile)
+                        ||projectile.entityTags().contains(me.skywars2.game.items.wands.LbcBlaze.TRIAL_PROJECTILE);
+                if(cause!=null){
+                    var retained=new me.skywars2.game.combat.LbcIndirectKills.Owner(cause.player(),cause.order(),friendly,true,cause.enchantmentWeapon(),cause.weaponAction());
+                    game.items().indirectKills().inheritedIgnited(living,retained);
+                }else if(projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner)
+                    game.items().indirectKills().projectileIgnited(living,owner,friendly);
+            }
             return applied;
         }
         @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="onHitBlock")
@@ -242,10 +261,20 @@ public abstract class WandProjectileMixin implements me.skywars2.game.items.gadg
                 com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original) {
             var projectile=(Projectile)(Object)this; var game=SkyWars2.game();
             if(game!=null)game.items().specialFireballs().rangedGround(projectile,hit.getLocation());
-            if(game!=null && (game.items().wands().isFireProjectile(projectile)||me.skywars2.game.items.weapons.ranged.LbcSpecialFireballs.managed(projectile))
-                    && projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner)
-                game.items().indirectKills().worldChanges((net.minecraft.server.level.ServerLevel)projectile.level(),projectile,()->original.call(hit));
-            else original.call(hit);
+            if(game!=null && (game.items().wands().isFireProjectile(projectile)||me.skywars2.game.items.weapons.ranged.LbcSpecialFireballs.managed(projectile))){
+                var controller=projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer player?player:game.items().blaze().owner(projectile.getOwner());
+                var cause=me.skywars2.game.combat.WeaponEnchantments.actorCause(projectile,controller);
+                if(cause!=null){
+                    boolean friendly=projectile.entityTags().contains(me.skywars2.game.items.wands.LbcBlaze.TRIAL_PROJECTILE);
+                    var retained=new me.skywars2.game.combat.LbcIndirectKills.Owner(cause.player(),cause.order(),friendly,true,cause.enchantmentWeapon(),cause.weaponAction());
+                    game.items().indirectKills().capturedWorldChanges((net.minecraft.server.level.ServerLevel)projectile.level(),retained,()->original.call(hit));
+                    return;
+                }
+                if(projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer){
+                    game.items().indirectKills().worldChanges((net.minecraft.server.level.ServerLevel)projectile.level(),projectile,()->original.call(hit));return;
+                }
+            }
+            original.call(hit);
         }
     }
 }

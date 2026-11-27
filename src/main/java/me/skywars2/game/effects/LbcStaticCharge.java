@@ -32,7 +32,7 @@ public final class LbcStaticCharge {
     private static final DustColorTransitionOptions DUST=new DustColorTransitionOptions(0xff00ccff,0xff003333,.9f);
     private static final net.minecraft.nbt.CompoundTag BEAM_DATA=beamData();
     private static net.minecraft.nbt.CompoundTag beamData(){
-        try{return net.minecraft.nbt.TagParser.parseCompoundFully("{shadow_radius:0f,shadow_strength:0f,item:{id:'minecraft:repeating_command_block',count:1,components:{'minecraft:item_model':'lbc:lightning_bolt_linear'}},transformation:{scale:[3f,3f,-1f],translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}");}
+        try{return net.minecraft.nbt.TagParser.parseCompoundFully("{brightness:{block:15,sky:15},shadow_radius:0f,shadow_strength:0f,item:{id:'minecraft:repeating_command_block',count:1,components:{'minecraft:item_model':'lbc:lightning_bolt_linear'}},transformation:{scale:[3f,3f,-1f],translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}");}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new ExceptionInInitializerError(error);}
     }
     private final GameController game;

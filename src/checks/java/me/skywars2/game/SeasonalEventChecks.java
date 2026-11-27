@@ -34,7 +34,7 @@ public final class SeasonalEventChecks {
     private static ServerPlayer alpha(GameController game){return Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));}
     private static boolean key(Component component,String key){return component!=null&&(component.getContents() instanceof TranslatableContents t&&t.getKey().equals(key)||component.getSiblings().stream().anyMatch(c->key(c,key)));}
     private static void flag(GameController game,String name,boolean enabled){
-        try{require(game.server().getCommands().getDispatcher().execute("skywars settings event "+name+" "+enabled,game.server().createCommandSourceStack())==1,"real event command "+name);}
+        try{require(game.server().getCommands().getDispatcher().execute("skywars settings event "+name+" "+enabled,OwnerCommandChecks.ownerSource(game.server()))==1,"real named-owner event command "+name);}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
     }
     public static void prepare(GameController game){

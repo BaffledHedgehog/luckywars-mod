@@ -100,6 +100,7 @@ public final class ElectroNativeMixins {
                 {
                     var inherited=game.items().babylonEffects().cause(bolt);
                     if(inherited==null)inherited=game.items().quiver().cause(bolt);
+                    if(inherited==null)inherited=me.skywars2.game.combat.WeaponEnchantments.actorCause(bolt,bolt.getCause());
                     if(inherited!=null) game.items().indirectKills().inheritedIgnited(living,inherited);
                     else game.items().indirectKills().projectileIgnited(living,bolt.getCause(),true);
                 }

@@ -25,23 +25,42 @@ public final class EnchantmentRules {
     }
 
     public static boolean tmt(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"tmt_item",0)==1;}
+    public static boolean wand(ItemStack stack){
+        return !stack.isEmpty()&&(ItemData.intValue(stack,"magicwand",0)==1||ItemData.intValue(stack,"staff",0)==1
+                ||stack.getItem() instanceof LbcWands.NativeTool && LbcWands.commonWand(stack));
+    }
+    /** Retain real enchanted TMT or grimoire sources through borrowed wand casts. */
+    public static boolean spellSource(ItemStack stack){
+        return wand(stack)||tmt(stack)||ItemData.intValue(stack,"libspell",0)==1
+                ||ItemData.intValue(stack,"unresolved_grimoire",0)==1;
+    }
     /** Gameplay identity, not the client's carrot/stick representation, decides weapon eligibility. */
     public static boolean weapon(ItemStack stack){
         if(stack.isEmpty())return false;
         if(LbcSwordTools.sword(stack)||stack.getItem() instanceof LbcWands.NativeTool
-                ||ItemData.intValue(stack,"magicwand",0)==1||ItemData.intValue(stack,"magnum",0)==1)return true;
+                ||wand(stack)||ItemData.intValue(stack,"magnum",0)==1)return true;
+        // Native tools carry positive attack damage too, but retain their vanilla
+        // enchanting-table eligibility unless explicitly authored as a weapon.
+        if(stack.is(net.minecraft.tags.ItemTags.PICKAXES)||stack.is(net.minecraft.tags.ItemTags.AXES)
+                ||stack.is(net.minecraft.tags.ItemTags.SHOVELS)||stack.is(net.minecraft.tags.ItemTags.HOES))return false;
         var attributes=stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
         return attributes!=null&&attributes.modifiers().stream().anyMatch(entry->entry.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
                 &&entry.modifier().amount()>0);
     }
     public static void prepare(ItemStack stack){
-        if(stack.isEmpty()||!stack.has(DataComponents.CUSTOM_DATA)||!tmt(stack)&&!weapon(stack))return;
+        if(stack.isEmpty()||!stack.has(DataComponents.CUSTOM_DATA)&&!wand(stack)||!tmt(stack)&&!weapon(stack))return;
         if(!stack.has(DataComponents.ENCHANTABLE))stack.set(DataComponents.ENCHANTABLE,CUSTOM_ENCHANTABLE);
         if(!stack.has(DataComponents.ENCHANTMENTS))stack.set(DataComponents.ENCHANTMENTS,ItemEnchantments.EMPTY);
     }
     public static boolean supports(ItemStack stack,net.minecraft.core.HolderSet<net.minecraft.world.item.Item> accepted,
                                    net.minecraft.world.item.enchantment.Enchantment enchantment){
         if(tmt(stack))return true;
+        boolean power=enchantment.description().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents name
+                &&name.getKey().equals("enchantment.minecraft.power");
+        var itemId=net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if(power&&(wand(stack)||ItemData.intValue(stack,"fevgalea_star",0)==1||ItemData.intValue(stack,"true_terra",0)==1
+                ||net.minecraft.resources.Identifier.parse("skywars2:fevgalea_star").equals(itemId)
+                ||net.minecraft.resources.Identifier.parse("skywars2:true_terra_sword").equals(itemId)))return true;
         if(!weapon(stack))return false;
         var effects=enchantment.effects();
         if(!LbcSwordTools.sword(stack)&&!stack.isDamageableItem()&&(effects.has(net.minecraft.world.item.enchantment.EnchantmentEffectComponents.ITEM_DAMAGE)

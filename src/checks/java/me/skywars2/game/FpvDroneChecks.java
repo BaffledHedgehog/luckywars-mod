@@ -25,6 +25,10 @@ import net.minecraft.world.phys.Vec3;
 
 /** Native packet listener, actual tracker/tickets and real actor death; no physical client claim. */
 public final class FpvDroneChecks {
+    private static boolean rejectVisual;
+    static {net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity,level)->{
+        if(rejectVisual&&entity.entityTags().contains("skywars2.fpv_visual"))entity.discard();
+    });}
     private static final net.minecraft.resources.Identifier HUD=net.minecraft.resources.Identifier.parse("lbc:fpv_drone"),NEIGHBOR=net.minecraft.resources.Identifier.parse("minecraft:invert");
     private FpvDroneChecks(){}
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("FPV drone: "+why);}
@@ -52,6 +56,11 @@ public final class FpvDroneChecks {
             owner.teleportTo(level,origin.x,origin.y,origin.z,Set.of(),0,0,true);beta.teleportTo(level,origin.x+35,origin.y,origin.z,Set.of(),0,0,true);client=new ShishEncounterChecks.Client(game,owner);observerClient=new ShishEncounterChecks.Client(game,beta);owner.addPostEffect(NEIGHBOR);
             // Native power8 blast footprint must be all air so this test never mutates map terrain.
             var launch=origin.add(0,7,-48);for(var pos:BlockPos.betweenClosed(BlockPos.containing(launch.add(-20,-20,-20)),BlockPos.containing(launch.add(20,20,40))))require(level.getBlockState(pos).isAir(),"resident isolated blast air "+pos);
+            owner.setItemInHand(InteractionHand.MAIN_HAND,controller());var rejected=owner.getMainHandItem();rejectVisual=true;
+            try{require(!owner.gameMode.useItem(owner,level,rejected,InteractionHand.MAIN_HAND).consumesAction()
+                    &&rejected.getCount()==2&&game.items().fpvDrone().count()==0&&game.items().fpvDrone().ticketCount()==0
+                    &&!game.items().fpvDrone().controlling(owner),"failed native visual publication rolls back body/session and keeps controller item");}
+            finally{rejectVisual=false;}
             launch();
         }
         void launch(){owner.setItemInHand(InteractionHand.MAIN_HAND,controller());client.ack();var s=owner.getMainHandItem();

@@ -178,11 +178,13 @@ public final class LbcBolts {
     public static final class Bolt extends Owned {
         public final int lifetime;
         public final int strikeInterval;
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
         Bolt(ServerPlayer owner,Vec3 position,String epoch) {
             this(owner,position,epoch,EVERLASTING_TICKS,40);
         }
         Bolt(ServerPlayer owner,Vec3 position,String epoch,int lifetime,int strikeInterval) {
             super(owner,position,epoch); this.lifetime=lifetime; this.strikeInterval=strikeInterval;
+            cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner);
         }
     }
     public static final class Water extends Owned {
@@ -192,14 +194,16 @@ public final class LbcBolts {
     public static final class Meteor extends Owned {
         public Display.ItemDisplay display;
         public int impactVisualTicks;
-        Meteor(ServerPlayer owner,Vec3 position,String epoch,Display.ItemDisplay display) {
-            super(owner,position,epoch); this.display=display;
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
+        Meteor(ServerPlayer owner,Vec3 position,String epoch,Display.ItemDisplay display,me.skywars2.game.combat.LbcIndirectKills.Owner cause) {
+            super(owner,position,epoch); this.display=display;this.cause=cause;
         }
     }
     public static final class Chain extends Owned {
         public Set<LivingEntity> current=new ActorSet<>();
         public int untilNext=40;
-        Chain(ServerPlayer owner,Vec3 position,String epoch) { super(owner,position,epoch); }
+        final me.skywars2.game.combat.LbcIndirectKills.Owner cause;
+        Chain(ServerPlayer owner,Vec3 position,String epoch) { super(owner,position,epoch);cause=me.skywars2.game.combat.WeaponEnchantments.effectCause(owner); }
     }
     private final LbcChainLightningStatus chainStatus;
     public LbcBolts(GameController game) { this.game=game;chainStatus=new LbcChainLightningStatus(game); }
@@ -684,7 +688,7 @@ public final class LbcBolts {
         var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());
         display.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,owner.registryAccess(),METEOR_PRESET.copy()));
         display.setPos(at); display.entityTags().add("skywars2.boltbolt.meteor"); game.items().markCurrentItemEpoch(display);
-        var meteor=new Meteor(owner,at,game.items().epoch(),display); meteors.add(meteor);
+        var meteor=new Meteor(owner,at,game.items().epoch(),display,game.items().indirectKills().coldCause(owner,true)); meteors.add(meteor);
         if(!owner.level().addFreshEntity(display)) { meteors.remove(meteor); display.discard(); }
         LbcOverload.sound(owner,at,"minecraft:entity.lightning_bolt.thunder",19,0,0);
 
@@ -767,7 +771,9 @@ public final class LbcBolts {
                                     Double.POSITIVE_INFINITY, false, target -> target(bolt.owner, target)));
                     if(nearest!=null) bolt.position=bolt.position.add(nearest.getEyePosition().subtract(bolt.position).normalize().scale(.5));
                 }
-                if(bolt.age%bolt.strikeInterval==0) game.items().electro().lightning(bolt.owner,bolt.position);
+                if(bolt.age%bolt.strikeInterval==0)try(var scope=me.skywars2.game.combat.WeaponEnchantments.causeScope(bolt.owner,bolt.cause)){
+                    game.items().electro().lightning(bolt.owner,bolt.position);
+                }
             }
             if(bolt.age>=bolt.lifetime) bolts.remove(bolt);
             bolt.level.sendParticles(ParticleTypes.CLOUD,true,false,bolt.position.x,bolt.position.y,bolt.position.z,1,0,0,0,0);
@@ -787,7 +793,9 @@ public final class LbcBolts {
             if(--chain.untilNext>0) continue; chain.untilNext=40;
             Set<LivingEntity> next=new ActorSet<>();
             for(var target:List.copyOf(chain.current)) {
-                game.items().electro().lightning(chain.owner,target.position());
+                try(var scope=me.skywars2.game.combat.WeaponEnchantments.causeScope(chain.owner,chain.cause)){
+                    game.items().electro().lightning(chain.owner,target.position());
+                }
                 for(var nearby:chainTargets(chain.owner,target.position(),16))
                     if(nearby!=target && chainTarget(chain.owner,nearby)
                             && nearby.position().distanceToSqr(target.position())>=.000001) next.add(nearby);
@@ -895,7 +903,7 @@ public final class LbcBolts {
         var owner=meteor.owner; Vec3 at=meteor.position; BlockPos center=BlockPos.containing(at);
         meteor.level.sendParticles(ParticleTypes.SNOWFLAKE,at.x,at.y,at.z,1000,3,3,3,1.5);
         for(var target:projectileTargets(owner,at,10)) {
-            target.hurtServer(meteor.level,new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.FREEZE),owner),35);
+            target.hurtServer(meteor.level,game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.FREEZE),owner),meteor.cause),35);
             for(int i=0;i<5;i++) game.items().frost().add(target,owner);
         }
         var jobs=new ArrayDeque<LbcStonekivi.Work>();

@@ -70,7 +70,7 @@ public final class PlayerLatency {
         return reading==null||System.nanoTime()-reading.received()>STALE?-1:reading.millis();
     }
     static String label(ServerPlayer player){int value=millis(player.connection);return (value<0?"\u2014":Integer.toString(value))+" ms";}
-    public static int tabHealth(ServerPlayer player){var game=me.skywars2.SkyWars2.game();return game!=null&&(game.config().healthDisplay&2)!=0?(int)Math.ceil(player.getHealth()+player.getAbsorptionAmount()):-1;}
+    public static int tabHealth(ServerPlayer player){var game=me.skywars2.SkyWars2.game();return game!=null&&!game.isObserver(player)&&!player.isSpectator()&&(game.config().healthDisplay&2)!=0?(int)Math.ceil(player.getHealth()+player.getAbsorptionAmount()):-1;}
     public static Objective tabObjective(MinecraftServer server){var board=server.getScoreboard();var objective=board.getObjective(TAB_OBJECTIVE);return objective!=null?objective:board.addObjective(TAB_OBJECTIVE,ObjectiveCriteria.DUMMY,Component.literal("Ping"),ObjectiveCriteria.RenderType.INTEGER,false,format(1));}
     public static NumberFormat format(int value){return value<0?new FixedFormat(Component.literal("\u2014").withStyle(ChatFormatting.GRAY)):new StyledFormat(Style.EMPTY.withColor(value<150?ChatFormatting.GREEN:value<300?ChatFormatting.YELLOW:ChatFormatting.RED));}
     public static void tick(MinecraftServer server){

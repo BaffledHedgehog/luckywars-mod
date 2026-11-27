@@ -572,9 +572,10 @@ public final class RegressionChecks {
                 require(!dropped.isRemoved() && dropped.getItem().getCount() == 1,
                         "Observer cannot pick up dropped items");
             } finally { dropped.discard(); }
+            observerFeedback(game, alpha, beta);
             game.spectators().detach(beta);
             game.items().refreshHud(beta);
-            require(game.items().hudSource(beta) == null,
+            require(!alpha.getUUID().equals(game.items().hudSource(beta)),
                     "Detached observer no longer receives the target actionbar");
             SkyWars2.LOGGER.info("[check] PASS regressions/observer-match/spawns/inventory/effects/actions/advancements");
         } finally {
@@ -591,6 +592,73 @@ public final class RegressionChecks {
             savedObserverProfile.restore(game.players().get(beta.getUUID()));
             if (!hadSkill2Tag) beta.entityTags().remove("swrg.skill2");
             game.players().save();
+        }
+    }
+
+    private static void observerFeedback(GameController game, ServerPlayer target, ServerPlayer viewer) {
+        var attribute = target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+        double damage = attribute.getBaseValue();
+        boolean healthDisplay = (game.config().healthDisplay & 2) != 0;
+        var home = target.level();
+        Vec3 at = target.position();
+        float yaw = target.getYRot(), pitch = target.getXRot();
+        try (var wire = new RegenerationBeltChecks.ScheduledClient(game, viewer)) {
+            attribute.setBaseValue(9876);
+            game.spectators().watch(viewer, target);
+            game.attributeHud().clear(viewer);
+            game.attributeHud().tick(); game.attributeHud().tick();
+            require(game.attributeHud().shown(viewer) && game.attributeHud().displayedLines(viewer).stream()
+                    .anyMatch(line -> line.getString().contains("9876")), "watched player's attributes populate viewer sidebar");
+            target.setPos(at.add(.125, 0, 0));
+            for (int tick = 0; tick < 5; tick++) game.attributeHud().tick();
+            require(game.attributeHud().shown(viewer), "target motion does not hide the observed attribute sidebar");
+            require(me.skywars2.game.net.PlayerLatency.tabHealth(viewer) == -1,
+                    "observer has no TAB health while attached to a player");
+            if (healthDisplay) require(me.skywars2.game.net.PlayerLatency.tabHealth(target) >= 0, "active participant retains TAB health");
+            game.spectators().detach(viewer);
+            require(game.spectators().nearestHud(viewer).getString().contains(target.getName().getString()),
+                    "free observer actionbar identifies nearest living player");
+            viewer.getInventory().setSelectedSlot(8);
+            require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker()
+                    .interact(viewer, viewer.level(), InteractionHand.MAIN_HAND).consumesAction()
+                    && game.spectators().vanilla(viewer) && viewer.gameMode() == GameType.SPECTATOR,
+                    "hotbar toggle enters actual vanilla spectator mode");
+            game.spectators().tick();
+            require(game.spectators().vanilla(viewer) && viewer.gameMode() == GameType.SPECTATOR,
+                    "tick keeps free vanilla spectator mode");
+            var spawn = wire.packets().stream().filter(net.minecraft.network.protocol.game.ClientboundAddEntityPacket.class::isInstance)
+                    .map(net.minecraft.network.protocol.game.ClientboundAddEntityPacket.class::cast)
+                    .filter(packet -> packet.getType() == net.minecraft.world.entity.EntityTypes.INTERACTION).reduce((a,b)->b).orElseThrow();
+            require(viewer.level().getEntityOrPart(spawn.getId()) == null, "return proxy is private wire state, never a world entity");
+            viewer.connection.handleInteract(new ServerboundInteractPacket(spawn.getId(), InteractionHand.MAIN_HAND, Vec3.ZERO, false));
+            require(!game.spectators().vanilla(viewer) && viewer.gameMode() == GameType.ADVENTURE
+                    && viewer.getInventory().getItem(8).is(Items.ENDER_EYE), "native RMB on proxy restores observer controls");
+            for (var dimension : java.util.List.of(me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions.NEXUS,
+                    me.skywars2.game.entities.mobs.hedgehogs.LbcHedgehogDimensions.IMPRINTED)) {
+                var level = java.util.Objects.requireNonNull(game.server().getLevel(dimension));
+                target.teleportTo(level, .5, 200, .5, Set.of(), yaw, pitch, true);
+                viewer.teleportTo(level, 2.5, 200, .5, Set.of(), yaw, pitch, true);
+                wire.acknowledge();
+                game.spectators().detach(viewer);
+                viewer.getInventory().setSelectedSlot(4);
+                require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker()
+                        .interact(viewer, level, InteractionHand.MAIN_HAND).consumesAction()
+                        && eu.pb4.sgui.api.SguiUtils.getCurrentGui(viewer) != null, "observer compass works in " + dimension);
+                viewer.closeContainer();
+                viewer.getInventory().setSelectedSlot(6);
+                require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker()
+                        .interact(viewer, level, InteractionHand.MAIN_HAND).consumesAction()
+                        && eu.pb4.sgui.api.SguiUtils.getCurrentGui(viewer) != null, "observer target menu works in " + dimension);
+                viewer.closeContainer();
+                viewer.connection.handleInteract(new ServerboundInteractPacket(target.getId(), InteractionHand.MAIN_HAND, Vec3.ZERO, false));
+                require(game.spectators().attached(viewer) && viewer.getCamera() == target, "native observer RMB possession works in " + dimension);
+                game.spectators().detach(viewer);
+            }
+        } finally {
+            attribute.setBaseValue(damage);
+            target.teleportTo(home, at.x, at.y, at.z, Set.of(), yaw, pitch, true);
+            game.spectators().detach(viewer);
+            game.attributeHud().clear(viewer);
         }
     }
 

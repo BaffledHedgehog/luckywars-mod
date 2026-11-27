@@ -65,6 +65,11 @@ public final class CaseCosmeticChecks {
         var reference=net.minecraft.network.chat.ComponentSerialization.CODEC.parse(player.registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),json).getOrThrow();
         var resolved=OriginalGuiDesign.resolveLootText(reference,player);
         require(!resolved.getString().isBlank(),"actual source storage loot name resolves before vanilla can erase it");
+        var mask = game.lbc().rollTable(player.level(), player.position(), player, "swrg:game/kit/18");
+        require(mask.size() == 1 && !mask.getFirst().isEmpty()
+                && mask.getFirst().getHoverName().getStyle().getColor() != null
+                && mask.getFirst().getHoverName().getStyle().getColor().getValue() == 0xff5555,
+                "Anonymous Mask real native kit loot resolves item.kit18.Name and original red style without crashing");
         var siblings=Component.literal("Reward: ").append(reference);
         require(OriginalGuiDesign.resolveLootText(siblings,player).getString().contains(resolved.getString()),"nested source references in sibling components remain visible");
         var translated=Component.translatableWithFallback("skywars2.check.source_argument","[%s]",reference);
@@ -127,6 +132,9 @@ public final class CaseCosmeticChecks {
         final Set<UUID> original=new HashSet<>();final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
         final Vec3 origin;final int started;final boolean frozen;final String epoch;
         final MatchRandomState ownerRandom,otherRandom;final int playerKills,playerKilledBy;
+        final ServerPlayer originalOther;
+        final SauvojenMeditationChecks.Attribution attribution;
+        final List<ServerPlayer> replacementBodies=new ArrayList<>();
         RegenerationBeltChecks.ScheduledClient client,audience;boolean closed,stopped,restoring,offline,endingStarted;int stage,when,caseKind;
         LbcCases.Pending accepted,normalized;String pendingImage;int coinsBefore,memBefore,keyBefore;Object cacheImage;
         int projectedAwards;long expectedRandom;UUID dormant=GameChecks.offlineUuid("CaseCosmeticDormant");String dormantImage;
@@ -141,6 +149,7 @@ public final class CaseCosmeticChecks {
             frozen=game.server().tickRateManager().isFrozen();core=new MatchCoreCheckpoint(game);world=new MatchWorldCheckpoint(game);random=new MatchWorldRandomCheckpoint(game);
             ownerRandom=MatchRandomState.capture(owner.getRandom());otherRandom=MatchRandomState.capture(other.getRandom());playerKills=owner.getStats().getValue(net.minecraft.stats.Stats.ENTITY_KILLED.get(EntityTypes.PLAYER));playerKilledBy=other.getStats().getValue(net.minecraft.stats.Stats.ENTITY_KILLED_BY.get(EntityTypes.PLAYER));
             saved=new RegenerationBeltChecks.Snapshot(game,owner);otherSaved=new RegenerationBeltChecks.Snapshot(game,other);
+            originalOther=other;attribution=new SauvojenMeditationChecks.Attribution(game,List.of(owner,other));
             policy=(LbcCosmetics.Policy)get(cosmetics,"policy");level.getAllEntities().forEach(e->original.add(e.getUUID()));origin=new Vec3(owner.getX(),Math.min(240,level.getMaxY()-40),owner.getZ());started=game.server().getTickCount();
             client=new RegenerationBeltChecks.ScheduledClient(game,owner);audience=new RegenerationBeltChecks.ScheduledClient(game,other);
         }
@@ -264,6 +273,20 @@ public final class CaseCosmeticChecks {
         }
         void cosmeticMenus(){
             long coins=profile().coins,mem=profile().memcoins;int[] keys=profile().keys.clone();
+            menu(GameMenus.Page.COSMETIC_KILLS);
+            require(gui().getTitle().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents title
+                    && title.getKey().equals("skywars2.gui.title.cosmetic_kills"), "cosmetic page has its own translatable container title");
+            int messagesBefore = packets(client).size();
+            gui().click(1, ClickType.MOUSE_RIGHT, ContainerInput.PICKUP);
+            var hint = game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/event/soulhunter_mace"))
+                    .value().display().orElseThrow().description();
+            require(packets(client).subList(messagesBefore, packets(client).size()).stream()
+                    .filter(ClientboundSystemChatPacket.class::isInstance).map(ClientboundSystemChatPacket.class::cast)
+                    .anyMatch(packet -> packet.content().equals(hint)) && profile().killEffect == 0,
+                    "RMB on locked second kill effect sends the real achievement description without selecting it");
+            menu(GameMenus.Page.CASES);
+            require(gui().getTitle().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents title
+                    && title.getKey().equals("skywars2.gui.title.cases"), "active container navigation updates its title");
             var rows=List.of(new Object[]{GameMenus.Page.COSMETIC_SOUNDS,0,"swrg.sound1",LbcCosmetics.Kind.SOUND,1},new Object[]{GameMenus.Page.COSMETIC_CAGES,21,"swrg.bars20",LbcCosmetics.Kind.CAGE,20},new Object[]{GameMenus.Page.COSMETIC_SUFFIXES,0,"swrg:rewards/suffix_1",LbcCosmetics.Kind.SUFFIX,1},new Object[]{GameMenus.Page.COSMETIC_WINS,0,"lbc:true_advancements/event/pumpkin_sword",LbcCosmetics.Kind.WIN,1},new Object[]{GameMenus.Page.COSMETIC_KILLS,0,"lbc:true_advancements/event/soulcorrupt_wand_upgraded",LbcCosmetics.Kind.KILL,1});
             for(var row:rows){var page=(GameMenus.Page)row[0];int slot=(int)row[1];var type=(LbcCosmetics.Kind)row[3];int id=(int)row[4];game.config().ranked=true;var locked=menu(page).getGuiElement(slot).getItemStack().copy();click(slot);require(!cosmetics.unlocked(owner,type,id)&&selection(type)==0,"ranked and actual debug GUI never bypass cosmetic permanent gate "+type);grant(owner,(String)row[2]);game.config().ranked=false;menu(page);require(!ItemStack.matches(locked,gui().getGuiElement(slot).getItemStack()),"actual authored locked source icon changes after ownership "+type);click(slot);require(selection(type)==id,"actual source cosmetic callback selects "+type);var selected=gui().getGuiElement(slot).getItemStack().copy();menu(page);require(ItemStack.matches(selected,gui().getGuiElement(slot).getItemStack()),"selected source overlay stable "+type);if(type!=LbcCosmetics.Kind.CAGE){click(type==LbcCosmetics.Kind.SOUND?26:25);require(selection(type)==0,"source reset callback "+type);}click(18);require(page()==GameMenus.Page.COSMETICS,"actual cosmetic back navigation");}
             grant(owner,"swrg:rewards/suffix_26");grant(owner,"swrg:rewards/turnir/trophy3");menu(GameMenus.Page.COSMETIC_SUFFIXES);click(26);require(page()==GameMenus.Page.COSMETIC_SUFFIXES_NEXT,"source suffix next page");click(1);require(profile().suffix==26,"source second-page suffix26");click(4);require(profile().suffix==29,"actual tournament trophy3 suffix29");click(18);require(page()==GameMenus.Page.COSMETIC_SUFFIXES,"source previous suffix page");
@@ -364,7 +387,7 @@ public final class CaseCosmeticChecks {
             else require(!effectJobs("DROPS").isEmpty()&&packets(client).subList(soundStart,packets(client).size()).stream().filter(ClientboundSystemChatPacket.class::isInstance).map(ClientboundSystemChatPacket.class::cast).anyMatch(p->p.content().getString().contains("bloodshedkilled")),"blood actual player message and causal body producer");
         }
         void respawn(){
-            audience.close();other=game.server().getPlayerList().respawn(retired,false,Entity.RemovalReason.KILLED);require(other!=retired&&other.isAlive(),"genuine native replacement player");other.connection.resetPosition();var ack=(MatchPlayerCheckpoint.SimulatedAcknowledgement)other.connection;ack.skywars2$beginRespawn();ack.skywars2$acknowledgeRestore();audience=new RegenerationBeltChecks.ScheduledClient(game,other);set(otherSaved,"player",other);set(otherSaved.state,"player",other);move(other,origin.add(12,0,0));
+            audience.close();replacementBodies.add(retired);other=game.server().getPlayerList().respawn(retired,false,Entity.RemovalReason.KILLED);replacementBodies.add(other);require(other!=retired&&other.isAlive(),"genuine native replacement player");other.connection.resetPosition();var ack=(MatchPlayerCheckpoint.SimulatedAcknowledgement)other.connection;ack.skywars2$beginRespawn();ack.skywars2$acknowledgeRestore();audience=new RegenerationBeltChecks.ScheduledClient(game,other);set(otherSaved,"player",other);set(otherSaved.state,"player",other);move(other,origin.add(12,0,0));
             if(game.playing())require(other.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)
                     &&other.getEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING).getAmplifier()==0
                     &&other.hasEffect(net.minecraft.world.effect.MobEffects.RESISTANCE)
@@ -582,6 +605,7 @@ public final class CaseCosmeticChecks {
                         core.restoreFrozen();world.restoreFrozen();random.restoreFrozen();
                     },
                     ()->{saved.restoreAttributes();otherSaved.restoreAttributes();saved.restore(game);otherSaved.restore(game);saved.restoreUse();otherSaved.restoreUse();ownerRandom.restore(owner.getRandom());otherRandom.restore(other.getRandom());owner.getStats().setValue(owner,net.minecraft.stats.Stats.ENTITY_KILLED.get(EntityTypes.PLAYER),playerKills);other.getStats().setValue(other,net.minecraft.stats.Stats.ENTITY_KILLED_BY.get(EntityTypes.PLAYER),playerKilledBy);},
+                    ()->attribution.restore(Map.of(originalOther,other),replacementBodies),
                     ()->{set(cosmetics,"policy",policy);cases.restored();game.players().save();if(kind==1||kind>=3)game.config().save();},
                     ()->{game.items().magic().inventoryChanged(owner);game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();},
                     client::close,()->audience.close(),()->game.server().tickRateManager().setFrozen(frozen)))
