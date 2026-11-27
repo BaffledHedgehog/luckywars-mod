@@ -166,7 +166,11 @@ public final class LbcSauvojen {
         var carrier=new Marker(EntityTypes.MARKER,owner.level());carrier.setPos(origin);
         carrier.entityTags().add(DRONE);carrier.entityTags().add("magic");
         game.items().markCurrentItemEpoch(carrier);
-        var drone=new Drone(owner,hand,stack,Kind.values()[branch],game.items().epoch(),carrier,game.items().indirectKills().coldCause(owner,true));
+        me.skywars2.game.combat.LbcIndirectKills.Owner cause;
+        try(var emitter=me.skywars2.game.combat.WeaponEnchantments.keeperEmitter(carrier,owner)){
+            cause=game.items().indirectKills().coldCause(owner,true);
+        }
+        var drone=new Drone(owner,hand,stack,Kind.values()[branch],game.items().epoch(),carrier,cause);
         drones.put(carrier,drone);
         if(!owner.level().addFreshEntity(carrier)||carrier.isRemoved()||!drones.containsKey(carrier)){remove(drone,false);return;}
         var advancement=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/sauvojen_tuntija_wand"));

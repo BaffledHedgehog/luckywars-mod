@@ -5,6 +5,7 @@
   "mixins": [
     "entities.EntitySectionVisibilityMixin",
     "projectiles.StandArrowEffectMixin",
+    "enchantments.KeeperWandThornsMixin",
     "enchantments.WandPowerHealingMixin",
     "enchantments.WandPowerEffectMixin",
     "enchantments.WandPowerRemovalMixin",

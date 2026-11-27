@@ -26,9 +26,17 @@ public final class WeaponEnchantments {
     private static final Map<CauseKey,java.util.concurrent.ConcurrentLinkedDeque<CauseReference>> CAUSES=new ConcurrentHashMap<>();
     private static final class CauseReference extends WeakReference<LbcIndirectKills.Owner> {
         final CauseKey key;
-        CauseReference(LbcIndirectKills.Owner cause){super(cause,COLLECTED);key=new CauseKey(cause.player(),cause.order());}
+        final KeeperEmitter keeper;
+        CauseReference(LbcIndirectKills.Owner cause,KeeperEmitter keeper){super(cause,COLLECTED);key=new CauseKey(cause.player(),cause.order());this.keeper=keeper;}
     }
+    /** Physical emitter lineage is independent of player credit and the spell's weapon snapshot. */
+    public record KeeperEmitter(UUID emitter,UUID author){}
+    private static final ThreadLocal<KeeperEmitter> KEEPER_EMITTER=new ThreadLocal<>();
     public interface Scope extends AutoCloseable {@Override void close();}
+    public static Scope keeperEmitter(Entity emitter,ServerPlayer controller){
+        var previous=KEEPER_EMITTER.get();KEEPER_EMITTER.set(new KeeperEmitter(emitter.getUUID(),controller.getUUID()));
+        return ()->{if(previous==null)KEEPER_EMITTER.remove();else KEEPER_EMITTER.set(previous);};
+    }
     private record Use(UUID player,ItemStack item){}
     record Capture(ItemStack item,boolean action){}
     private record Loot(LivingEntity killer, ItemStack boundWeapon, List<ItemStack> weapons) {}
@@ -238,12 +246,15 @@ public final class WeaponEnchantments {
     public static Scope actorScope(Entity actor,ServerPlayer controller){return causeScope(controller,actorCause(actor,controller));}
     public static Scope causeScope(ServerPlayer controller,LbcIndirectKills.Owner cause){
         if(cause!=null&&(controller==null||!cause.weaponAction()||!cause.player().equals(controller.getUUID())))cause=null;
-        var previous=USING.get();var previousActor=ACTOR_USING.get();
+        var previous=USING.get();var previousActor=ACTOR_USING.get();var previousKeeper=KEEPER_EMITTER.get();
+        var keeper=cause==null?null:keeperEmitter(cause);
+        if(keeper==null)KEEPER_EMITTER.remove();else KEEPER_EMITTER.set(keeper);
         // Never let unrelated nested casts or private TMT projections replace an actor's frozen source.
         if(cause==null){USING.remove();if(controller==null)ACTOR_USING.remove();else ACTOR_USING.set(new Use(controller.getUUID(),ItemStack.EMPTY));}
         else {var saved=new Use(controller.getUUID(),cause.enchantmentWeapon().copyWithCount(1));USING.set(saved);ACTOR_USING.set(saved);}
         return ()->{if(previous==null)USING.remove();else USING.set(previous);
-                    if(previousActor==null)ACTOR_USING.remove();else ACTOR_USING.set(previousActor);};
+                    if(previousActor==null)ACTOR_USING.remove();else ACTOR_USING.set(previousActor);
+                    if(previousKeeper==null)KEEPER_EMITTER.remove();else KEEPER_EMITTER.set(previousKeeper);};
     }
     /** Clone private enchantment provenance only; physical owner remains native. */
     public static void inherit(Entity original,Entity clone){
@@ -261,13 +272,16 @@ public final class WeaponEnchantments {
     public static final class ActorCheckpoint {
         private final me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.IdentityImage<Entity,LbcIndirectKills.Owner> active;
         private final Map<UUID,LbcIndirectKills.Owner> dormant;
+        private final IdentityHashMap<LbcIndirectKills.Owner,KeeperEmitter> keepers=new IdentityHashMap<>();
         private ActorCheckpoint(me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){
             active=new me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.IdentityImage<>(SPELL_ACTORS,links);
             dormant=Map.copyOf(UNLOADED_SPELL_ACTORS);
+            drain();for(var references:CAUSES.values())for(var reference:references){var owner=reference.get();if(owner!=null&&reference.keeper!=null)keepers.put(owner,reference.keeper);}
         }
         public Runnable prepare(me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){
             var restored=active.restore(links);var asleep=Map.copyOf(dormant);
-            return ()->{SPELL_ACTORS=restored;UNLOADED_SPELL_ACTORS.clear();UNLOADED_SPELL_ACTORS.putAll(asleep);};
+            return ()->{SPELL_ACTORS=restored;UNLOADED_SPELL_ACTORS.clear();UNLOADED_SPELL_ACTORS.putAll(asleep);
+                keepers.forEach((owner,keeper)->remember(owner,keeper));};
         }
     }
     public static ActorCheckpoint checkpoint(me.skywars2.game.match.checkpoints.MatchSpellCheckpoint.Links links){return new ActorCheckpoint(links);}
@@ -381,8 +395,28 @@ public final class WeaponEnchantments {
         return new Capture(snapshot(player),itemAction(player));
     }
     static void remember(LbcIndirectKills.Owner owner){
-        drain();var reference=new CauseReference(owner);
-        CAUSES.computeIfAbsent(reference.key,key->new java.util.concurrent.ConcurrentLinkedDeque<>()).addLast(reference);
+        var keeper=keeperEmitter(owner);
+        if(keeper==null){var current=KEEPER_EMITTER.get();if(current!=null&&current.author().equals(owner.player()))keeper=current;}
+        remember(owner,keeper);
+    }
+    private static void remember(LbcIndirectKills.Owner owner,KeeperEmitter keeper){
+        drain();var key=new CauseKey(owner.player(),owner.order());
+        var references=CAUSES.computeIfAbsent(key,ignored->new java.util.concurrent.ConcurrentLinkedDeque<>());
+        for(var reference:references)if(reference.get()==owner&&Objects.equals(reference.keeper,keeper))return;
+        references.addLast(new CauseReference(owner,keeper));
+    }
+    private static KeeperEmitter keeperEmitter(LbcIndirectKills.Owner owner){
+        var references=CAUSES.get(new CauseKey(owner.player(),owner.order()));if(references==null)return null;
+        for(var iterator=references.descendingIterator();iterator.hasNext();){var reference=iterator.next();if(reference.get()!=null&&reference.keeper!=null)return reference.keeper;}
+        return null;
+    }
+    /** Only a retained floating Keeper emitter suppresses retaliation against its credited player. */
+    public static boolean keeperEmitterAttack(DamageSource source){
+        var game=SkyWars2.game();if(game==null||!(source.getEntity() instanceof ServerPlayer attacker))return false;
+        var owner=game.items().indirectKills().babylonCause(source);
+        if(owner==null)owner=actorCause(source.getDirectEntity(),attacker);
+        if(owner==null||!owner.player().equals(attacker.getUUID()))return false;
+        var keeper=keeperEmitter(owner);return keeper!=null&&keeper.author().equals(attacker.getUUID());
     }
     static void clear(){CAUSES.clear();HITS.clear();drain();}
     public static Scope loot(LivingEntity victim,DamageSource source){

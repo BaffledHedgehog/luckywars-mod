@@ -51,6 +51,7 @@ public final class DelegatedWandPowerChecks {
                 stars(f,victim,origin);
                 fevgalea(f,victim,origin);
                 erecto(f,victim,origin);
+                keeperThorns(f,victim,origin);
             }finally{
                 game.items().iceWand().stop();game.items().blaze().stop();game.items().exasperato().stop();game.items().sauvojen().stars().stop();
             }
@@ -210,5 +211,64 @@ public final class DelegatedWandPowerChecks {
         near(1000-victim.getHealth(),3,"changed physical Erecto controller cannot borrow captured Power");
         for(var trace:f.game.items().wands().electroSnapshot())trace.age=trace.lifetime;
         f.game.items().wands().tick();f.game.items().erecto().stop();
+    }
+    private static void thornsArmor(WoolBucketChecks.Fixture f,net.minecraft.server.level.ServerPlayer defender){
+        var plate=new ItemStack(Items.IRON_CHESTPLATE);
+        // Keep genuine native armor-slot Thorns while isolating spell damage from armor mitigation.
+        plate.set(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY);
+        plate.enchant(defender.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.THORNS),20);
+        defender.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,plate);
+    }
+    private static void keeperThorns(WoolBucketChecks.Fixture f,Zombie witness,Vec3 origin){
+        var game=f.game;require(game.items().sauvojen().count()==0,"exclusive actual Keeper emitter");
+        f.move(f.owner,origin.add(-4,0,0));f.move(f.other,origin.add(4,0,0));witness.setPos(origin.add(8,0,0));
+        reset(game,f.owner);reset(game,f.other);thornsArmor(f,f.other);
+        var wand=new ItemStack(LbcWands.ACADEMY_SAUVOJEN);
+        wand.enchant(f.owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.POWER),1);
+        try{
+            var keeper=keeperFireball(f,wand);f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIRT));
+            keeper.setPos(f.other.position().add(-2,.8,0));keeper.setDeltaMovement(1.6,0,0);hitFireball(keeper,f.other);
+            near(f.other.getHealth(),992.5f,"actual upgraded Keeper fireball retains Power I after hand swap");
+            near(f.owner.getHealth(),1000,"genuine guaranteed armor Thorns cannot retaliate against floating Keeper's credited player");
+            require(f.other.getKillCredit()==f.owner,"Keeper emitter retains actual player kill credit");
+
+            reset(game,f.owner);reset(game,f.other);var direct=new SmallFireball(EntityTypes.SMALL_FIREBALL,f.level);
+            try(var use=WeaponEnchantments.using(f.owner,wand)){
+                game.items().wands().launchFire(f.owner,direct,f.other.position().add(-2,.8,0),new Vec3(1.6,0,0));
+            }
+            f.own(direct);hitFireball(direct,f.other);
+            near(f.other.getHealth(),992.5f,"ordinary direct wand fireball retains the same captured Power");
+            require(f.owner.getHealth()<=999&&f.owner.getLastDamageSource()!=null&&f.owner.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.THORNS),
+                    "ordinary direct wand projectile still triggers genuine native Thorns");
+
+            reset(game,f.owner);reset(game,f.other);thornsArmor(f,f.owner);
+            var reflected=keeperFireball(f,wand);reflected.setOwner(f.other);
+            reflected.setPos(f.owner.position().add(-2,.8,0));reflected.setDeltaMovement(1.6,0,0);hitFireball(reflected,f.owner);
+            near(f.owner.getHealth(),995,"reflected Keeper projectile does not borrow original author's Power or receive stray retaliation");
+            require(f.other.getHealth()<=999&&f.other.getLastDamageSource()!=null&&f.other.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.THORNS)
+                            &&f.other.getLastDamageSource().getEntity()==f.owner,
+                    "changed physical controller receives genuine Thorns instead of the former Keeper author");
+        }finally{game.items().sauvojen().forget(f.owner);f.owner.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,ItemStack.EMPTY);f.other.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,ItemStack.EMPTY);}
+    }
+    private static SmallFireball keeperFireball(WoolBucketChecks.Fixture f,ItemStack wand){
+        var before=new java.util.HashSet<java.util.UUID>();for(var body:f.level.getAllEntities())before.add(body.getUUID());
+        f.owner.setYRot(-90);f.owner.setXRot(0);
+        try(var use=WeaponEnchantments.using(f.owner,wand)){
+            f.game.items().sauvojen().cast(f.owner,InteractionHand.MAIN_HAND,wand,LbcSauvojen.Kind.FIRE.ordinal());
+        }
+        f.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIRT));
+        var emitted=new java.util.ArrayList<SmallFireball>();
+        for(int step=0;step<8&&emitted.isEmpty();step++){
+            f.game.items().sauvojen().tick();
+            for(var body:f.level.getAllEntities())if(body instanceof SmallFireball ball&&!before.contains(body.getUUID()))emitted.add(ball);
+        }
+        require(emitted.size()==3,"actual Academy Keeper FIRE mode publishes its three native small fireballs");
+        var selected=emitted.getFirst();for(var ball:emitted){f.own(ball);if(ball!=selected)ball.discard();}
+        f.game.items().sauvojen().forget(f.owner);require(f.game.items().sauvojen().count()==0,"emitter retires before its child impact");
+        return selected;
+    }
+    private static void hitFireball(SmallFireball ball,LivingEntity defender){
+        float before=defender.getHealth();for(int step=0;step<5&&!ball.isRemoved()&&defender.getHealth()==before;step++)ball.tick();
+        require(defender.getHealth()<before,"actual native SmallFireball contact");ball.discard();
     }
 }

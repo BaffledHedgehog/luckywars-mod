@@ -264,9 +264,29 @@ public final class ContainedSkillChecks {
                 require(owner.hurtServer(level,playerDamage(),40),"first real native accepted hit");
                 near(service().damageThisTick(owner),40,"first real same-tick receipt");
                 require(BlackHoleDamage.apply(game,owner,playerDamage(),60),"second actual same-tick rawHP hit reaches exact maxHP");
-            }else require(owner.hurtServer(level,mode==DeathMode.THORNS?owner.damageSources().thorns(other):playerDamage(),200),
-                    "controlled lethal native player damage, including native thorns source");
+            }else if(mode==DeathMode.THORNS)genuineOneHpThorns();
+            else require(owner.hurtServer(level,playerDamage(),200),"controlled lethal native player damage");
             verifyDeath();game.server().tickRateManager().setFrozen(false);
+        }
+        void genuineOneHpThorns(){
+            // Reproduce the reported native maxHP condition; this does not claim to equip a Glass Cannon trait.
+            owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1);owner.getAttribute(Attributes.ARMOR).setBaseValue(0);owner.setHealth(1);
+            require(owner.getMaxHealth()==1&&owner.getHealth()==1,"controlled actual native one-HP VIP holder");
+            var armor=new ItemStack(net.minecraft.world.item.Items.IRON_CHESTPLATE);
+            var thorns=other.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                    .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.THORNS);
+            armor.enchant(thorns,20);other.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,armor);
+            require(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(thorns,armor)==20,
+                    "genuine native chest armor has deterministic Thorns proc probability");
+            var shot=new net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball(EntityTypes.SMALL_FIREBALL,level);
+            shot.setOwner(owner);shot.setPos(other.position().add(0,.8,-2));shot.setDeltaMovement(0,0,1.6);
+            require(level.addFreshEntity(shot),"ordinary genuine native projectile source");float defenderHealth=other.getHealth();
+            try{for(int step=0;step<5&&!shot.isRemoved()&&!owner.isDeadOrDying();step++)shot.tick();}
+            finally{shot.discard();}
+            require(other.getHealth()<defenderHealth,"real native fireball contact triggers defender equipment post-attack effects");
+            require(owner.getLastDamageSource()!=null&&owner.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.THORNS)
+                            &&owner.getLastDamageSource().getEntity()==other,
+                    "actual native armor Thorns is the lethal foreign-player source at maxHP1");
         }
         void verifyDeath(){
             require(owner.isDeadOrDying()&&game.awaitingRespawn(owner.getUUID()),"actual native death is retained");require(game.lives(owner.getUUID())==lives,"VIP preserves one native life");
