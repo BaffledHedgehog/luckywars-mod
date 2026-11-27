@@ -80,7 +80,7 @@ final class GenieApiDialog implements AutoCloseable {
                             .then(Commands.argument("path", StringArgumentType.greedyString()).executes(context ->
                                     connectHosted(context.getSource(), StringArgumentType.getString(context, "path")))));
             SkyWarsCommandTree.add(dispatcher, Commands.literal("genie")
-                    .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
+                    .requires(source -> me.skywars2.game.commands.OwnerCommands.allowed(source) && Commands.hasPermission(Commands.LEVEL_OWNERS).test(source))
                     .then(Commands.literal("api").executes(context -> open(context.getSource().getPlayerOrException(), Form.API)))
                     .then(gemini).then(chatgpt));
         });
@@ -151,7 +151,8 @@ final class GenieApiDialog implements AutoCloseable {
 
     private static boolean owner(ServerPlayer player) {
         return player.level().getServer().getPlayerList().getPlayer(player.getUUID()) == player
-                && Commands.hasPermission(Commands.LEVEL_OWNERS).test(player.createCommandSourceStack());
+                && Commands.hasPermission(Commands.LEVEL_OWNERS).test(player.createCommandSourceStack())
+                && me.skywars2.game.commands.OwnerCommands.allowed(player.createCommandSourceStack());
     }
 
     private static boolean privateConnection(ServerPlayer player) {

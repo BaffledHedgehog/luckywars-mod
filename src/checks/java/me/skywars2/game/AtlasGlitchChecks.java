@@ -17,8 +17,15 @@ public final class AtlasGlitchChecks {
     private AtlasGlitchChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Atlas glitch: "+why);}
     private static int command(GameController game,ServerPlayer player,String command,boolean op){
-        try{return game.server().getCommands().getDispatcher().execute(command,player.createCommandSourceStack()
-                .withPermission(op?PermissionSet.ALL_PERMISSIONS:PermissionSet.NO_PERMISSIONS).withSuppressedOutput());}
+        var source = op ? OwnerCommandChecks.ownerSource(game.server())
+                : player.createCommandSourceStack().withPermission(PermissionSet.NO_PERMISSIONS);
+        // The authorized source is the named owner; the visual recipient remains the real match fixture.
+        if (op) {
+            int parts = command.split(" ").length;
+            if (parts == 2) command += " toggle " + player.getGameProfile().name();
+            else if (parts == 3) command += " " + player.getGameProfile().name();
+        }
+        try{return game.server().getCommands().getDispatcher().execute(command,source.withSuppressedOutput());}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){if(!op)return -1;throw new IllegalStateException(command,e);}
     }
     public static void run(GameController game){
@@ -42,7 +49,11 @@ public final class AtlasGlitchChecks {
             AtlasGlitchSignal.manual(owner,false);AtlasGlitchSignal.manual(other,false);
             var unrelated=Identifier.parse("skywars2:atlas_glitch_neighbor");owner.addPostEffect(unrelated);
             require(command(game,owner,"skywars atlasglitch",false)==-1,"nonoperator cannot toggle shader");
-            require(command(game,owner,"skywars atlasglitch",true)==1&&owner.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"actual operator toggle enables preview outside Supernova");
+            var commandNode=game.server().getCommands().getDispatcher().getRoot().getChild("skywars").getChild("atlasglitch");
+            require(!commandNode.canUse(owner.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS))
+                            && !commandNode.canUse(game.server().createCommandSourceStack()),
+                    "nonowner operator and console cannot toggle the shader preview");
+            require(command(game,owner,"skywars atlasglitch",true)==1&&owner.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"actual owner-targeted toggle enables preview outside Supernova");
             require(!other.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"manual preview is recipient-only");
             require(client.packets().stream().anyMatch(p->p instanceof ClientboundSetTimePacket clock&&clock.clockUpdates().size()==1),"command sends independent visual clock immediately");
             var clockRegistry=owner.registryAccess().lookupOrThrow(Registries.WORLD_CLOCK);

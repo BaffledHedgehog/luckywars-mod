@@ -52,7 +52,7 @@ public final class SkyWarsAdminCommands {
         admin.then(Commands.literal("unlock").then(unlock));
         SkyWarsCommandTree.add(dispatcher,admin);
         SkyWarsCommandTree.add(dispatcher,Commands.literal("migrate")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(SkyWarsAdminCommands::migrate));
+                .requires(source -> OwnerCommands.allowed(source) && Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source)).executes(SkyWarsAdminCommands::migrate));
     }
 
     private static int migrate(CommandContext<CommandSourceStack> ctx){

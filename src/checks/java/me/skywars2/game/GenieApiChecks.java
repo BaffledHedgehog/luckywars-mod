@@ -36,7 +36,9 @@ final class GenieApiChecks {
         final Path settings = FabricLoader.getInstance().getConfigDir().resolve("skywars2/genie/api.json");
         final Path hostedEnabled = settings.resolveSibling("chatgpt-enabled.json");
         final boolean auth;
-        final boolean wasOp;
+        boolean ownerOpAdded, foreignOpAdded;
+        net.minecraft.server.level.ServerPlayer owner;
+        RegenerationBeltChecks.ScheduledClient ownerClient;
         final int began;
         final GenieFixtureAccess.Service access;
         Identifier savedId;
@@ -46,19 +48,31 @@ final class GenieApiChecks {
             require(!Files.exists(settings) && !Files.exists(hostedEnabled), "isolated fixture never overwrites credentials");
             access = (GenieFixtureAccess.Service) (Object) game.items().genie();
             require(access.validation$scriptModel() == null, "isolated fixture requires no configured script provider");
-            participants = new WoolBucketChecks.Fixture(game, false);
-            participants.prepareParticipants();
             auth = game.server().usesAuthentication();
             var players = game.server().getPlayerList();
-            wasOp = players.isOp(participants.owner.nameAndId());
-            if (!wasOp) players.op(participants.owner.nameAndId());
+            require(players.getPlayer(GameChecks.offlineUuid("BaffledHedgehog")) == null
+                    && players.getPlayerByName("BaffledHedgehog") == null,
+                    "fixture creates its own owner; no real owner may already be online");
+            participants = new WoolBucketChecks.Fixture(game, false);
+            try {
+            participants.prepareParticipants();
+            owner = GameChecks.createBot(game, "BaffledHedgehog");
+            require(owner != null && owner.getGameProfile().name().equals("BaffledHedgehog"), "actual named owner online");
+            if (!players.isOp(owner.nameAndId())) { players.op(owner.nameAndId()); ownerOpAdded=true; }
+            if (!players.isOp(participants.owner.nameAndId())) { players.op(participants.owner.nameAndId()); foreignOpAdded=true; }
+            ownerClient = new RegenerationBeltChecks.ScheduledClient(game, owner);
+            ownerClient.acknowledge();
             began = game.server().getTickCount();
+            } catch (Exception | Error error) {
+                try { close(); } catch (Exception cleanup) { error.addSuppressed(cleanup); }
+                throw error;
+            }
         }
 
         Identifier open(String command) throws Exception {
             var dispatcher = game.server().getCommands().getDispatcher();
-            require(dispatcher.execute(command, participants.owner.createCommandSourceStack()) == 1, "owner opens form");
-            var packet = participants.client.packets().stream().filter(ClientboundShowDialogPacket.class::isInstance)
+            require(dispatcher.execute(command, owner.createCommandSourceStack()) == 1, "owner opens form");
+            var packet = ownerClient.packets().stream().filter(ClientboundShowDialogPacket.class::isInstance)
                     .map(ClientboundShowDialogPacket.class::cast).toList().getLast();
             var buffer = Unpooled.buffer();
             try {
@@ -132,15 +146,15 @@ final class GenieApiChecks {
                 try { cookieReply(Identifier.parse("skywars2:genie/api/fixture"), malformed); }
                 catch (RuntimeException expected) { vanillaRejected = true; }
                 require(vanillaRejected, "ordinary API dialogs retain the native 32 KiB accounting");
-                int from = participants.client.packets().size();
-                int otherFrom = participants.audience.packets().size();
-                participants.audience.listener.handleCustomClickAction(rejected);
-                participants.client.listener.handleCustomClickAction(cookieReply(superseded, malformed));
-                require(participants.client.packets().size() == from && participants.audience.packets().size() == otherFrom,
+                int from = ownerClient.packets().size();
+                int otherFrom = participants.client.packets().size();
+                participants.client.listener.handleCustomClickAction(rejected);
+                ownerClient.listener.handleCustomClickAction(cookieReply(superseded, malformed));
+                require(ownerClient.packets().size() == from && participants.client.packets().size() == otherFrom,
                         "foreign and superseded replies never reach the cookie processor");
-                participants.client.listener.handleCustomClickAction(rejected);
-                participants.client.listener.handleCustomClickAction(rejected);
-                var packets = participants.client.packets();
+                ownerClient.listener.handleCustomClickAction(rejected);
+                ownerClient.listener.handleCustomClickAction(rejected);
+                var packets = ownerClient.packets();
                 var sent = packets.subList(from, packets.size()).stream().filter(ClientboundSystemChatPacket.class::isInstance)
                         .map(ClientboundSystemChatPacket.class::cast).toList();
                 require(sent.size() == 1 && sent.getFirst().content().getContents() instanceof TranslatableContents error
@@ -156,24 +170,42 @@ final class GenieApiChecks {
 
         void begin() throws Exception {
             var commands = game.server().getCommands().getDispatcher();
-            var owner = participants.owner.createCommandSourceStack();
+            var owner = this.owner.createCommandSourceStack();
             var node = commands.getRoot().getChild("skywars").getChild("genie");
             require(node != null && !node.canUse(owner.withPermission(PermissionSet.NO_PERMISSIONS)),
                     "command tree denies non-operators");
+            var foreign=participants.owner.createCommandSourceStack();
+            require(net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_OWNERS).test(foreign)
+                            && !node.canUse(foreign),
+                    "actual OP4 non-owner cannot access the Genie command tree");
+            boolean denied=false;
+            try { commands.execute("skywars genie api",foreign); }
+            catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { denied=true; }
+            require(denied,"actual OP4 non-owner command execution is rejected");
             game.server().setUsesAuthentication(false);
             require(commands.execute("skywars genie api", owner) == 0, "fixture uses an offline non-loopback connection");
             require(!open("sw genie gemini import").equals(open("skywars genie gemini importfile")),
                     "cookie paste and server file forms have distinct nonces");
             game.server().setUsesAuthentication(true);
+            var revoked=open("skywars genie api");
+            var revokedReply=reply(revoked,"https://example.invalid/v1","revoked-fixture","synthetic-key");
+            game.server().getPlayerList().deop(this.owner.nameAndId());
+            try {
+                require(!node.canUse(this.owner.createCommandSourceStack()),"revoked owner OP cannot open Genie");
+                ownerClient.listener.handleCustomClickAction(revokedReply);
+                require(!Files.exists(settings),"pending API reply is rejected after owner OP revocation");
+            } finally { game.server().getPlayerList().op(this.owner.nameAndId()); }
+            ownerClient.listener.handleCustomClickAction(revokedReply);
+            require(!Files.exists(settings),"revoked pending reply stays spent after OP restoration");
             var invalid = open("skywars genie api");
-            participants.client.listener.handleCustomClickAction(reply(invalid, "http://example.invalid/v1", "", "synthetic-key"));
+            ownerClient.listener.handleCustomClickAction(reply(invalid, "http://example.invalid/v1", "", "synthetic-key"));
             require(!Files.exists(settings), "plaintext API address rejected");
-            participants.client.listener.handleCustomClickAction(reply(invalid, "", "", "synthetic-key"));
+            ownerClient.listener.handleCustomClickAction(reply(invalid, "", "", "synthetic-key"));
             savedId = open("sw genie api");
             var good = reply(savedId, "https://example.invalid/custom/v1beta", "gemini-fixture", "synthetic-key");
-            participants.audience.listener.handleCustomClickAction(good);
-            require(!Files.exists(settings), "foreign and spent nonces cannot save settings");
             participants.client.listener.handleCustomClickAction(good);
+            require(!Files.exists(settings), "foreign and spent nonces cannot save settings");
+            ownerClient.listener.handleCustomClickAction(good);
         }
 
         boolean step() throws Exception {
@@ -189,7 +221,7 @@ final class GenieApiChecks {
             require(endpoint.equals(URI.create("https://example.invalid/custom/v1beta/models/gemini-fixture:generateContent")),
                     "subsequent wishes use the new endpoint and model");
             open("skywars genie api");
-            participants.client.listener.handleCustomClickAction(reply(savedId, "", "", "replay"));
+            ownerClient.listener.handleCustomClickAction(reply(savedId, "", "", "replay"));
             require(access.validation$scriptModel() == active, "reopening never exposes the key or accepts earlier replies");
             checkChatGptImport(active);
             try (var restarted = new GenieService(game)) {
@@ -215,8 +247,12 @@ final class GenieApiChecks {
                 if (active != null) active.close();
                 Files.deleteIfExists(settings);
             } finally {
-                if (!wasOp) game.server().getPlayerList().deop(participants.owner.nameAndId());
-                participants.close();
+                try {
+                    if (ownerClient != null) ownerClient.close();
+                    if (ownerOpAdded && owner != null) game.server().getPlayerList().deop(owner.nameAndId());
+                    if (foreignOpAdded) game.server().getPlayerList().deop(participants.owner.nameAndId());
+                    if (owner != null) game.server().getPlayerList().remove(owner);
+                } finally { participants.close(); }
             }
         }
     }

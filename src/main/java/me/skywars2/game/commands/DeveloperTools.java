@@ -97,8 +97,8 @@ public final class DeveloperTools {
     private static DeveloperTools service(){return Objects.requireNonNull(SkyWars2.game(),"Game not running").developerTools();}
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher){
         java.util.function.Predicate<CommandSourceStack> op=source -> Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source);
-        SkyWarsCommandTree.add(dispatcher,Commands.literal("gallery").requires(op).executes(ctx->{service().gallery.spawn(ctx.getSource().getPlayerOrException());return 1;}));
-        SkyWarsCommandTree.add(dispatcher,Commands.literal("developer").requires(op).then(Commands.argument("enabled",IntegerArgumentType.integer(0,1)).executes(ctx->{
+        SkyWarsCommandTree.add(dispatcher,Commands.literal("gallery").requires(source -> op.test(source) && OwnerCommands.allowed(source)).executes(ctx->{service().gallery.spawn(ctx.getSource().getPlayerOrException());return 1;}));
+        SkyWarsCommandTree.add(dispatcher,Commands.literal("developer").requires(source -> op.test(source) && OwnerCommands.allowed(source)).then(Commands.argument("enabled",IntegerArgumentType.integer(0,1)).executes(ctx->{
             var p=ctx.getSource().getPlayerOrException();boolean enabled=IntegerArgumentType.getInteger(ctx,"enabled")==1;
             SkyWars2.game().developerMode(p,enabled);if(enabled)service().giveTools(p);return 1;})));
         var save=Commands.literal("mapsave").requires(op).executes(ctx->{service().open(ctx.getSource().getPlayerOrException());return 1;})
