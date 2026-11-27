@@ -34,6 +34,8 @@ public final class PolymorphChecks {
         final LbcApocalypseEvents.Authority authority;
         Cow cow;LbcWtf.Chef chef;Sheep cowBody,chefBody,playerBody,otherBody;LbcPolymorph.Orb probe;
         final Map<UUID,Integer> lives=new LinkedHashMap<>();int allSheepTicks,partSheepTicks;
+        final Set<UUID> launched=new HashSet<>();final Map<UUID,Integer> perPlayer=new HashMap<>();
+        Vec3 previousMotion,previousPosition;int acceleratedTicks;
         ItemStack savedItem;int phase,at,start,scared;long launches;double speed,scale;float health;boolean stopped,closed;
         Fixture(GameController game){this.game=game;base=new ChefChecks.Fixture(game);service=game.items().polymorph();client=new ShishEncounterChecks.Client(game,base.owner);
             for(var objective:game.server().getScoreboard().getObjectives()){var score=game.server().getScoreboard().getPlayerScoreInfo(base.owner,objective);if(score!=null)scores.put(objective,score.value());}
@@ -118,22 +120,54 @@ public final class PolymorphChecks {
                 cow=base.cow(base.at.add(0,.9,8));for(int x=-2;x<=2;x++)for(int y=0;y<=3;y++)base.block(BlockPos.containing(base.at.add(x,y,2)),Blocks.STONE);
                 probe=service.orb(authority,base.owner.level(),base.at.add(0,2,0),new Vec3(0,0,1));require(probe!=null&&!game.items().magic().suppressedAt(base.owner.level(),probe.display.position()),"native sphere display admitted outside retired MAG block");DisplayTransformChecks.pose(probe.display,0,0,0,.65f,.65f,.65f);phase=4;at=now;return false;
             }
-            if(phase==4){if(now-at<8)return false;require(!probe.display.isRemoved()&&probe.display.getZ()>base.at.z+3.2,"sphere crosses actual solid wall without block collision: removed="+probe.display.isRemoved()+" at="+probe.display.position()+" age="+probe.age+" motion="+probe.motion);service.stop();
+            if(phase==4){if(now-at<8)return false;require(!probe.display.isRemoved()&&probe.display.getZ()>base.at.z+3.2,"sphere crosses actual solid wall without block collision: removed="+probe.display.isRemoved()+" at="+probe.display.position()+" age="+probe.age+" motion="+probe.motion);
+                require(probe.motion.length()>.9,"homing accumulates native velocity instead of resetting to .45 each frame");service.stop();
                 for(int n=0;n<48;n++)base.cow(base.at.add(n%8-4,0,3+n/8));
                 launches=service.emittedTotal();
                 try{var method=LbcApocalypseEvents.class.getDeclaredMethod("phase",LbcApocalypseEvents.Authority.class,LbcApocalypseEvents.Kind.class,int.class,net.minecraft.commands.CommandSourceStack.class);method.setAccessible(true);method.invoke(game.items().apocalypseEvents(),authority,LbcApocalypseEvents.Kind.END,49,game.server().createCommandSourceStack().withLevel(base.owner.level()));}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
                 require(service.volleyCount()==1,"real End49 begins one Magnesia volley sequence");game.items().apocalypseEvents().stop();phase=5;at=now;return false;
             }
-            if(phase==5){if(now-at<95)return false;require(service.volleyCount()==0&&service.emittedTotal()-launches==40&&service.orbs().size()<=40,"all10 native volleys finish without duplicate phase scheduling");
+            if(phase==5){
+                for(var orb:service.orbs())if(launched.add(orb.display.getUUID())){
+                    require(orb.age==1,"inspect every actual launch on its first moving frame");
+                    var origin=orb.display.position().subtract(orb.motion);ServerPlayer recipient=null;
+                    for(var p:List.of(base.owner,base.other))if(Math.abs(origin.x-p.getX())<=10&&Math.abs(origin.z-p.getZ())<=10&&Math.abs(origin.y-p.getY()-15)<1e-8){require(recipient==null,"non-overlapping player launch regions");recipient=p;}
+                    require(recipient!=null,"every wave originates around a participant, not one of48 native cows");perPlayer.merge(recipient.getUUID(),1,Integer::sum);
+                }
+                if(now-at<95)return false;require(service.volleyCount()==0&&service.emittedTotal()-launches==80&&launched.size()==80,"all10 waves launch four actual spheres per participant");
+                for(var p:List.of(base.owner,base.other))require(perPlayer.getOrDefault(p.getUUID(),0)==40,"both real players receive all40 spheres independently");
                 service.stop();for(var c:base.cows)if(!c.isRemoved())c.entityTags().add("strict_map_object");base.owner.entityTags().add("strict_map_object");base.other.entityTags().add("strict_map_object");
                 probe=service.orb(authority,base.owner.level(),base.at.add(0,6,0),new Vec3(1,0,0));phase=6;at=now;return false;
             }
-            if(phase==6){if(now-at<100){require(!probe.display.isRemoved(),"sphere keeps exact100tick flight lifetime");return false;}require(probe.display.isRemoved(),"sphere naturally retires after five seconds");return true;}
+            if(phase==6){if(now-at<100){require(!probe.display.isRemoved(),"sphere keeps exact100tick flight lifetime");return false;}require(probe.display.isRemoved(),"sphere naturally retires after five seconds");
+                cow=base.cow(base.at.add(0,6,12));probe=service.orb(authority,base.owner.level(),base.at.add(0,6,0),new Vec3(1,0,0));
+                previousMotion=probe.motion;previousPosition=probe.display.position();phase=7;at=now;return false;
+            }
+            if(phase==7){
+                require(!probe.display.isRemoved(),"acceleration probe remains in native flight before distant target");
+                var expected=previousMotion.add(cow.getEyePosition().subtract(previousPosition).normalize().scale(.08));
+                require(probe.motion.distanceToSqr(expected)<1e-18,"native flight adds target acceleration without discarding lateral inertia: "+probe.motion+" expected="+expected);
+                require(probe.display.position().distanceToSqr(previousPosition.add(expected))<1e-18,"position follows accumulated vector with no extra native movement");
+                if(++acceleratedTicks<8){previousMotion=probe.motion;previousPosition=probe.display.position();return false;}
+                require(probe.motion.z>.5&&probe.motion.x>.3&&probe.motion.length()>.6,"transverse acceleration builds target velocity while retaining lateral motion");
+                game.items().timeStop().begin(base.owner.level(),100);stopped=true;previousMotion=probe.motion;previousPosition=probe.display.position();phase=8;at=now;return false;
+            }
+            if(phase==8){require(probe.motion.equals(previousMotion)&&probe.display.position().equals(previousPosition)&&probe.age==8,"TimeStop freezes accumulated vector, position and lifetime");
+                if(now-at<5)return false;game.items().timeStop().end(base.owner.level());stopped=false;phase=9;return false;
+            }
+            if(phase==9){require(probe.age==9&&probe.motion.length()>previousMotion.length(),"resume continues accumulating existing momentum");
+                service.stop();cow.discard();probe=service.orb(authority,base.owner.level(),base.at.add(0,6,0),new Vec3(1,0,0));
+                probe.display.setDeltaMovement(new Vec3(2,0,0));
+                var marker=new Marker(EntityTypes.MARKER,base.owner.level());marker.entityTags().addAll(List.of("stopper_magic","not_block"));marker.setPos(base.at.add(21,6,0));own.add(marker);base.owner.level().addFreshEntity(marker);game.items().magic().loaded(marker);
+                require(!game.items().magic().suppressedAt(base.owner.level(),probe.display.position())&&game.items().magic().suppressedAt(base.owner.level(),probe.display.position().add(2,0,0)),"fast swept path enters actual MAG beyond former .45 distance");
+                phase=10;return false;
+            }
+            if(phase==10){require(probe.display.isRemoved(),"MAG sweeps the complete fast segment, not the original fixed .45 prefix");return true;}
             return false;
         }
         public void close(){if(closed)return;closed=true;try{if(stopped)game.items().timeStop().end(base.owner.level());service.stop();game.items().apocalypseEvents().stop();game.items().psycho().clearEffects(base.owner);game.items().acidCorruption().clear(base.owner);game.items().ownedEffects().withdraw(base.owner,"polymorph.fixture");for(var e:own){game.items().magic().unloaded(e);e.discard();}base.owner.getAttribute(Attributes.ARMOR).removeModifier(net.minecraft.resources.Identifier.parse("skywars2:polymorph_fixture_armor"));base.owner.entityTags().remove("strict_map_object");base.other.entityTags().remove("strict_map_object");base.close();for(var entry:entityStats.entrySet())entry.getKey().player.getStats().setValue(entry.getKey().player,entry.getKey().stat,entry.getValue());for(var objective:game.server().getScoreboard().getObjectives())if(scores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(base.owner,objective,true).set(scores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(base.owner,objective);}finally{client.close();}}
     }
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.init();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}SkyWars2.LOGGER.info("[check] START polymorph");}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS polymorph (immediate shared HP, all remaining real participants sheep for200ticks without match end, natural cow/Chef/player identity and layered restoration, death boundary, MAG, End49 volleys, wall crossing and100tick orb lifetime)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL polymorph",error);}}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS polymorph (shared HP/identity restoration, real End49 launches40 spheres around EACH of2 players despite48 cows, additive .08 target acceleration and lateral inertia, wall crossing/100tick lifetime, TimeStop momentum pause/resume, fast-segment MAG)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL polymorph",error);}}
 }

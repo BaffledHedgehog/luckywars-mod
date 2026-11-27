@@ -3,6 +3,7 @@ package me.skywars2.game.entities.mobs;
 import java.util.*;
 
 import me.skywars2.game.GameController;
+import me.skywars2.game.entities.LbcDimensionItems;
 import me.skywars2.game.combat.LbcIndirectKills;
 import me.skywars2.game.combat.MatchDamageSources;
 import me.skywars2.game.combat.LbcIndirectKills.Owner;
@@ -37,7 +38,6 @@ import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import me.skywars2.game.entities.projectiles.ProjectileSteering;
 import me.skywars2.game.match.checkpoints.MatchPolymorphCheckpoint;
 import me.skywars2.game.skills.clone.LbcCloneSkills;
 
@@ -45,7 +45,7 @@ import me.skywars2.game.skills.clone.LbcCloneSkills;
 public final class LbcPolymorph {
     private static final String BODY="skywars2.polymorph.sheep", ORB="skywars2.polymorph.orb";
     static final int DURATION=200, ORB_LIFE=100, VOLLEYS=10, PER_VOLLEY=4, INTERVAL=10;
-    static final double SPEED=.45, TURN=Math.toRadians(3);
+    static final double SPEED=.45, ACCELERATION=.08;
     private final GameController game;
     private final Map<Entity,Form> forms=new IdentityHashMap<>();
     private final Map<Sheep,Form> bodies=new IdentityHashMap<>();
@@ -349,7 +349,8 @@ public final class LbcPolymorph {
         checkpointDepth++;try{volleys.add(new Volley(authority));
         }finally{checkpointDepth--;}
     }
-    private List<LivingEntity> targets(){var result=new ArrayList<LivingEntity>();for(var level:game.server().getAllLevels())for(var e:level.getAllEntities())if(eligible(e))result.add((LivingEntity)e);return result;}
+    private List<ServerPlayer> targets(){return game.alivePlayers().stream()
+            .filter(p->p.isAlive()&&!p.isRemoved()&&LbcDimensionItems.ordinary(p.level())).toList();}
     public Orb orb(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at,Vec3 direction){
         checkpointDepth++;try{
         if(!live(authority)||!resident(level,at))return null;var display=new Visual(level);
@@ -362,7 +363,9 @@ public final class LbcPolymorph {
         }finally{checkpointDepth--;}
     }
     static Vec3 steer(Vec3 direction,Vec3 toward){
-        return ProjectileSteering.turn(direction.normalize(),toward,TURN).scale(SPEED);
+        // This is acceleration toward the target, not a constant-speed turn. Preserve
+        // lateral momentum and let an orb slow down before reversing its direction.
+        return direction.add(toward.normalize().scale(ACCELERATION));
     }
     public void tick(){
         checkpointDepth++;try{
@@ -386,10 +389,11 @@ public final class LbcPolymorph {
         if(game.items().wands().timeStopped())return;
         for(var volley:List.copyOf(volleys)){
             if(!live(volley.authority)){volleys.remove(volley);continue;}if(volley.wait-->0)continue;
-            var candidates=targets();if(!candidates.isEmpty())for(int n=0;n<PER_VOLLEY;n++){
-                var random=game.server().overworld().getRandom();var target=candidates.get(random.nextInt(candidates.size()));
-                var direction=new Vec3(random.nextGaussian(),random.nextGaussian(),random.nextGaussian());
-                orb(volley.authority,(ServerLevel)target.level(),target.position().add(random.nextDouble()*20-10,15,random.nextDouble()*20-10),direction);
+            // Each participant gets the complete wave; nearby mob populations must
+            // neither consume a player's slots nor bias the spawn to one participant.
+            for(var target:targets())for(int n=0;n<PER_VOLLEY;n++){
+                var random=target.level().getRandom();var direction=new Vec3(random.nextGaussian(),random.nextGaussian(),random.nextGaussian());
+                orb(volley.authority,target.level(),target.position().add(random.nextDouble()*20-10,15,random.nextDouble()*20-10),direction);
             }
             volley.wait=INTERVAL-1;if(--volley.left==0)volleys.remove(volley);
         }
@@ -409,9 +413,9 @@ public final class LbcPolymorph {
                 var box=candidate.getBoundingBox().inflate(.2);var point=box.contains(from)?Optional.of(from):box.clip(from,to);
                 if(point.isPresent()){double d=point.get().distanceToSqr(from);if(d<closest){closest=d;hit=candidate;}}
             }
-            boolean suppressed=false;
-            for(double d=0;d<=SPEED;d+=.1)if(game.items().magic().suppressedAt(level,from.add(orb.motion.normalize().scale(d)))){suppressed=true;break;}
-            if(suppressed){retire(orb);continue;}
+            // Check the whole accelerated segment analytically, including a field
+            // boundary between samples, without increasing work with flight speed.
+            if(Double.isFinite(game.items().magic().suppressionFraction(level,from,to))){retire(orb);continue;}
             if(hit!=null){transform(hit,orb.authority.cause());retire(orb);continue;}
             display.setPos(to);if(++orb.age>=ORB_LIFE)retire(orb);
         }

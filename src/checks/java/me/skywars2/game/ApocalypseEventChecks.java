@@ -3,6 +3,7 @@ package me.skywars2.game;
 import me.skywars2.SkyWars2;
 import me.skywars2.game.items.wands.LbcFartus;
 import me.skywars2.game.items.wands.LbcStonekivi;
+import me.skywars2.game.items.loot.LbcLuckyBlocks;
 import me.skywars2.game.match.events.LbcApocalypseEvents;
 import me.skywars2.game.world.maps.MapManager;
 
@@ -139,8 +140,12 @@ public final class ApocalypseEventChecks {
             // Direct production branch calls test real payloads, not elapsed77phase scheduling.
             owner.getInventory().clearContent();actualPhase(LbcApocalypseEvents.Kind.BAFFLED,8);
             var luck=owner.getEffect(net.minecraft.world.effect.MobEffects.LUCK);require(luck!=null&&luck.isInfiniteDuration()&&luck.getAmplifier()==4,"actual Baffled lastphase infiniteLuck4");
-            int red=0,brown=0,stem=0;for(int slot=0;slot<owner.getInventory().getContainerSize();slot++){var item=owner.getInventory().getItem(slot);if(item.is(Items.RED_MUSHROOM_BLOCK))red+=item.getCount();if(item.is(Items.BROWN_MUSHROOM_BLOCK))brown+=item.getCount();if(item.is(Items.MUSHROOM_STEM))stem+=item.getCount();}
-            require(red==64&&brown==64&&stem==64,"actual lastphase gives original64normal/Neko/Loli mushroom carriers");
+            // Modern server stacks are the registered lucky blocks; mushrooms are
+            // only their old vanilla carriers, not the authoritative item identity.
+            for(var kind:LbcLuckyBlocks.Kind.values()){
+                int count=0;for(int slot=0;slot<owner.getInventory().getContainerSize();slot++){var item=owner.getInventory().getItem(slot);if(item.is(LbcLuckyBlocks.item(kind)))count+=item.getCount();}
+                require(count==64,"actual lastphase gives64 registered lucky blocks of kind "+kind+", got="+count);
+            }
             require(!events.pendingSnapshot().stream().anyMatch(v->v.kind()==LbcApocalypseEvents.Kind.BAFFLED),"source lastphase does not inventnextschedule");
             owner.getInventory().clearContent();owner.removeAllEffects();
             var defaultContext=game.server().createCommandSourceStack();var border=defaultContext.getLevel().getWorldBorder();double x=border.getCenterX(),z=border.getCenterZ(),size=border.getSize(),target=border.getLerpTarget();long remaining=border.getLerpTime();
