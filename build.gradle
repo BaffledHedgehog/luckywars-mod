@@ -74,6 +74,8 @@ processResources {
     include 'data/lbc/world_clock/atlas_glitch.json', 'data/lbc/timeline/atlas_glitch.json'
     include 'data/lbc/function/atlas_glitch/load.mcfunction'
     include 'data/minecraft/tags/function/load.json', 'data/minecraft/tags/timeline/universal.json'
+    // Vanilla pause-menu entry; the dialog itself is covered by data/skywars2/**.
+    include 'data/minecraft/tags/dialog/pause_screen_additions.json'
     include 'data/lbc/loot_table/kit/key.json', 'data/lbc/loot_table/kit/key_luck.json'
     include 'data/lbc/loot_table/ported/key.json', 'data/lbc/loot_table/ported/key_luck.json'
     include 'data/lbc/predicate/using_luck_key.json'

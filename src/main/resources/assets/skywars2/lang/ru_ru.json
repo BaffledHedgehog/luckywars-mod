@@ -21,5 +21,8 @@
   "skywars2.gui.title.cases": "Кейсы",
   "skywars2.gui.title.bedwars": "Команды BedWars",
   "skywars2.spectator.vanilla": "Полёт сквозь блоки",
-  "skywars2.spectator.observer": "Нажмите ПКМ, чтобы вернуться к инструментам наблюдателя."
+  "skywars2.spectator.observer": "Нажмите ПКМ, чтобы вернуться к инструментам наблюдателя.",
+  "skywars2.menu.community.join": "Присоединиться к нам",
+  "skywars2.menu.community.description": "Новости сервера и общение в Discord.",
+  "skywars2.menu.community.open": "Открыть Discord"
 }

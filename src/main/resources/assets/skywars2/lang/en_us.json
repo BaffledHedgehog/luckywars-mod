@@ -21,5 +21,8 @@
   "skywars2.gui.title.cases": "Cases",
   "skywars2.gui.title.bedwars": "BedWars teams",
   "skywars2.spectator.vanilla": "Fly through blocks",
-  "skywars2.spectator.observer": "Right-click to return to observer tools."
+  "skywars2.spectator.observer": "Right-click to return to observer tools.",
+  "skywars2.menu.community.join": "Join us",
+  "skywars2.menu.community.description": "Server news and community chat on Discord.",
+  "skywars2.menu.community.open": "Open Discord"
 }

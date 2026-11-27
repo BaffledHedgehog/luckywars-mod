@@ -1,0 +1,39 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "translate": "skywars2.menu.community.join",
+    "fallback": "Присоединиться к нам"
+  },
+  "external_title": {
+    "translate": "skywars2.menu.community.join",
+    "fallback": "Присоединиться к нам"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "contents": {
+      "translate": "skywars2.menu.community.description",
+      "fallback": "Новости сервера и общение в Discord."
+    },
+    "width": 300
+  },
+  "columns": 1,
+  "actions": [
+    {
+      "label": {
+        "translate": "skywars2.menu.community.open",
+        "fallback": "Открыть Discord"
+      },
+      "width": 200,
+      "action": {
+        "type": "minecraft:open_url",
+        "url": "https://discord.gg/b-gensokyo"
+      }
+    }
+  ],
+  "exit_action": {
+    "label": {
+      "translate": "gui.back"
+    },
+    "width": 200
+  }
+}
