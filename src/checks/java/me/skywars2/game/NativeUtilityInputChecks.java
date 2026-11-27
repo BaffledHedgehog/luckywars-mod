@@ -54,12 +54,24 @@ public final class NativeUtilityInputChecks {
             require(f.level.getBlockState(at).is(Blocks.FIRE),"supported native fire fixture");
             var fire=new net.minecraft.world.entity.item.ItemEntity(f.level,at.getX()+.5,at.getY(),at.getZ()+.5,minigun.getDefaultInstance());
             require(f.level.addFreshEntity(fire),"native minigun ground fire actor");f.own(fire);f.client().packets().clear();fire.tick();
-            require(fire.getItem().is(blaze),"native item tick crafts Blaze before typed fire immunity");fire.discard();
+            require(fire.getItem().is(blaze),"native item tick crafts Blaze before typed fire immunity");
             craftParticles(net.minecraft.core.particles.ParticleTypes.FLAME,1,at);
             var bolts=new ArrayList<net.minecraft.world.entity.LightningBolt>();
             for(var entity:f.level.getAllEntities())if(!before.contains(entity.getUUID())&&entity instanceof net.minecraft.world.entity.LightningBolt bolt){bolts.add(bolt);f.own(bolt);}
             require(bolts.size()==1&&bolts.getFirst().position().equals(new Vec3(at.getX()+.5,at.getY()-5,at.getZ()+.5)),"one legacy lightning bolt five blocks below fire craft");
-            bolts.forEach(Entity::discard);
+            var crafted=fire.getItem().copy();var bolt=bolts.getFirst();
+            // Run both real lifecycles: the crafted item rises and lands while the bolt flashes.
+            // Checking only its spawn position would miss a later natural-lightning reforge.
+            for(var cell:BlockPos.betweenClosed(at.offset(-1,-6,-1),at.offset(1,-4,1)))f.set(cell.immutable(),f.level.getBlockState(cell));
+            int lifetime=0;
+            while(!bolt.isRemoved()&&lifetime++<120){
+                f.level.tickNonPassenger(bolt);f.level.tickNonPassenger(fire);
+                game.items().lightningAcquisition().tick();
+                require(!fire.isRemoved()&&ItemStack.matches(crafted,fire.getItem())
+                        &&game.items().lightningAcquisition().pendingCount()==0,"craft lightning never reforges or destroys the finished Blaze crossbow");
+            }
+            require(bolt.isRemoved()&&lifetime>=3,"complete native lightning lifetime, not a discarded spawn probe");
+            fire.discard();
             var blast=new net.minecraft.world.entity.item.ItemEntity(f.level,at.getX()+.5,at.getY(),at.getZ()+.5,minigun.getDefaultInstance());
             require(f.level.addFreshEntity(blast),"native minigun explosion actor");f.own(blast);
             f.client().packets().clear();blast.hurtServer(f.level,f.level.damageSources().explosion(null,f.owner),4);
