@@ -521,8 +521,33 @@ public final class CaseCosmeticChecks {
             }
             return elapsed>=23;
         }
+        void soulArrival(){
+            var job=effectJobs("SOUL").getFirst();var oldAt=get(job,"at");var oldDue=get(job,"due");var oldAge=get(job,"age");
+            var scale=owner.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE);double oldScale=scale.getBaseValue();var oldPose=owner.getPose();
+            try{
+                for(double size:new double[]{.1,1,4})for(var pose:List.of(Pose.STANDING,Pose.CROUCHING)){
+                    scale.setBaseValue(size);owner.setPose(pose);
+                    var target=owner.position().lerp(owner.getEyePosition(),.5);
+                    for(var axis:List.of(new Vec3(1,0,0),new Vec3(-1,0,0),new Vec3(0,1,0),new Vec3(0,-1,0),new Vec3(0,0,1),new Vec3(0,0,-1))){
+                        set(job,"at",target.add(axis.scale(.39)));
+                        require((boolean)invoke(job,"soul",new Class<?>[0]),"soul completes within one step of feet/eye midpoint regardless of native scale/pose/direction");
+                    }
+                    set(job,"at",target);
+                    require((boolean)invoke(job,"soul",new Class<?>[0])&&get(job,"at").equals(target),"zero-distance soul completes without normalization/movement");
+                    var from=target.add(.81,0,0);set(job,"at",from);
+                    require(!(boolean)invoke(job,"soul",new Class<?>[0]),"outside arrival radius remains alive even inside a large player hitbox");
+                    require(((Vec3)get(job,"at")).distanceTo(from)>.399999&&((Vec3)get(job,"at")).distanceTo(from)<.400001,"soul keeps its original0.4 movement step");
+                    set(job,"at",target.add(.79,0,0));
+                    require((boolean)invoke(job,"soul",new Class<?>[0]),"soul completes on the movement step entering arrival radius");
+                    // The second real participant is twelve blocks along +X; launch away from them.
+                    set(job,"at",target.add(-7,0,0));int steps=0;boolean arrived=false;
+                    while(steps++<20&&!(arrived=(boolean)invoke(job,"soul",new Class<?>[0]))){}
+                    require(arrived&&((Vec3)get(job,"at")).distanceTo(target)<=.400001,"far soul converges to midpoint without an orbit");
+                }
+            }finally{scale.setBaseValue(oldScale);owner.setPose(oldPose);set(job,"at",oldAt);set(job,"due",oldDue);set(job,"age",oldAge);}
+        }
         boolean cosmeticStep(int elapsed){
-            if(stage==30){if(effectJobs("SOUL").isEmpty()){require(elapsed<8,"native causal souls published on next source tick");return false;}require(effectJobs("SOUL").size()<=4,"four original item/XP age buckets bound native souls");cosmetics.stop();playerDeath(2);next(31);return false;}
+            if(stage==30){if(effectJobs("SOUL").isEmpty()){require(elapsed<8,"native causal souls published on next source tick");return false;}require(effectJobs("SOUL").size()<=4,"four original item/XP age buckets bound native souls");soulArrival();cosmetics.stop();playerDeath(2);next(31);return false;}
             if(stage==31){respawn();next(32);return false;}
             if(stage==32){
                 if(!(boolean)get(hammer,"impact")){require(elapsed<10,"actual scheduled hammer reaches source Lifetime6 impact");return false;}

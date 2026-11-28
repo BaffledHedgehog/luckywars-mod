@@ -247,8 +247,15 @@ public final class LbcCosmetics {
         boolean soul(){
             particles(level,ParticleTypes.SOUL_FIRE_FLAME,at,4,.2,.2,.2,0,false);
             var closest=level.getNearestPlayer(at.x,at.y,at.z,Double.MAX_VALUE,p->!p.isSpectator());
-            if(closest!=null){var to=closest.position().add(0,1,0).subtract(at);at=at.add(to.normalize().scale(.4));
-                for(var player:level.players())if(new AABB(at,at.add(1,1,1)).intersects(player.getBoundingBox()))return true;}
+            if(closest!=null){
+                double step=.4;
+                var target=closest.position().lerp(closest.getEyePosition(),.5);
+                var to=target.subtract(at);
+                // A fixed step can orbit a small hitbox; arrival uses the same point as steering.
+                if(to.lengthSqr()<=step*step)return true;
+                at=at.add(to.normalize().scale(step));
+                if(at.distanceToSqr(target)<=step*step)return true;
+            }
             nextTick();return false;
         }
         boolean blood(){
